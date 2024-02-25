@@ -65,6 +65,10 @@ Wireshark 4.3.0 Release Notes
        properties. Check the wireshark-filter(5) manpage for more
        information.
 
+        • Added new display filter functions to convert unsigned integer
+       types to decimal or hexadecimal. Check the wireshark-filter(5)
+       manpage for more information.
+
         • Display filter macros can be written with a semicolon after
        the macro name before the argument list, e.g.
        `${mymacro;arg1;…​;argN}`, instead of `${mymacro:arg1;…​;argN}`.
@@ -123,7 +127,7 @@ Wireshark 4.3.0 Release Notes
         • Any combination of the above also works.
 
         • Multifield columns are still available. For backwards
-       compatiblity, `X or Y` is interpreted as a multifield column as
+       compatibility, `X or Y` is interpreted as a multifield column as
        before. To represent a logical test for the presence of multiple
        fields instead of concatenating values, use parenthesis, like
        `(tcp.options.timestamp or tcp.options.nop`.

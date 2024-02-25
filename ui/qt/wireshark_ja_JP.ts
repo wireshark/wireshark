@@ -2152,6 +2152,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Go言語のリテラルとしてパケットバイト列をコピーします。</translation>
     </message>
     <message>
+        <source>…as C Array</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as C Array.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as a Hex Stream</source>
         <translation>16進数ストリームとして…</translation>
     </message>
@@ -2991,7 +2999,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save</source>
-        <translation>保存</translation>
+        <translation type="vanished">保存</translation>
     </message>
     <message>
         <source>Default</source>

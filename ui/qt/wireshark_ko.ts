@@ -2151,6 +2151,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Go 리터럴 형식으로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
+        <source>…as C Array</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as C Array.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as a Hex Stream</source>
         <translation>16진수 스트림으로 복사</translation>
     </message>
@@ -2990,7 +2998,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save</source>
-        <translation>저장</translation>
+        <translation type="vanished">저장</translation>
     </message>
     <message>
         <source>Default</source>

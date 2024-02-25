@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 02101f405c0ac65ed80bbe497c204eab475090cb
+git revision: 941f5ce71b19d4659401e84b83b084505dd53e28
 
 
 */
@@ -6296,9 +6296,9 @@ static const FieldPart *I008_V1_2_020_PARTS[] = {
 static const AsterixField I008_V1_2_020 = { FX, 1, 0, 0, &hf_008_V1_2_020, I008_V1_2_020_PARTS, { NULL } };
 static int hf_008_V1_2_034;
 static int hf_008_V1_2_034_STR;
-static const FieldPart I008_V1_2_034_STR = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_034_STR, NULL };
+static const FieldPart I008_V1_2_034_STR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_2_034_STR, NULL };
 static int hf_008_V1_2_034_ENDR;
-static const FieldPart I008_V1_2_034_ENDR = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_034_ENDR, NULL };
+static const FieldPart I008_V1_2_034_ENDR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_2_034_ENDR, NULL };
 static int hf_008_V1_2_034_AZ;
 static const FieldPart I008_V1_2_034_AZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_008_V1_2_034_AZ, NULL };
 static const FieldPart *I008_V1_2_034_PARTS[] = {
@@ -6310,11 +6310,11 @@ static const FieldPart *I008_V1_2_034_PARTS[] = {
 static const AsterixField I008_V1_2_034 = { REPETITIVE, 4, 1, 0, &hf_008_V1_2_034, I008_V1_2_034_PARTS, { NULL } };
 static int hf_008_V1_2_036;
 static int hf_008_V1_2_036_X;
-static const FieldPart I008_V1_2_036_X = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_036_X, NULL };
+static const FieldPart I008_V1_2_036_X = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_036_X, NULL };
 static int hf_008_V1_2_036_Y;
-static const FieldPart I008_V1_2_036_Y = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_036_Y, NULL };
+static const FieldPart I008_V1_2_036_Y = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_036_Y, NULL };
 static int hf_008_V1_2_036_LENGTH;
-static const FieldPart I008_V1_2_036_LENGTH = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_036_LENGTH, NULL };
+static const FieldPart I008_V1_2_036_LENGTH = { 8, 0.015625, FIELD_PART_UFLOAT, &hf_008_V1_2_036_LENGTH, NULL };
 static const FieldPart *I008_V1_2_036_PARTS[] = {
     &I008_V1_2_036_X,
     &I008_V1_2_036_Y,
@@ -6324,13 +6324,13 @@ static const FieldPart *I008_V1_2_036_PARTS[] = {
 static const AsterixField I008_V1_2_036 = { REPETITIVE, 3, 1, 0, &hf_008_V1_2_036, I008_V1_2_036_PARTS, { NULL } };
 static int hf_008_V1_2_038;
 static int hf_008_V1_2_038_X1;
-static const FieldPart I008_V1_2_038_X1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_038_X1, NULL };
+static const FieldPart I008_V1_2_038_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_X1, NULL };
 static int hf_008_V1_2_038_Y1;
-static const FieldPart I008_V1_2_038_Y1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_038_Y1, NULL };
+static const FieldPart I008_V1_2_038_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_Y1, NULL };
 static int hf_008_V1_2_038_X2;
-static const FieldPart I008_V1_2_038_X2 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_038_X2, NULL };
+static const FieldPart I008_V1_2_038_X2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_X2, NULL };
 static int hf_008_V1_2_038_Y2;
-static const FieldPart I008_V1_2_038_Y2 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_038_Y2, NULL };
+static const FieldPart I008_V1_2_038_Y2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_038_Y2, NULL };
 static const FieldPart *I008_V1_2_038_PARTS[] = {
     &I008_V1_2_038_X1,
     &I008_V1_2_038_Y1,
@@ -6371,9 +6371,9 @@ static const FieldPart *I008_V1_2_040_PARTS[] = {
 static const AsterixField I008_V1_2_040 = { FIXED, 2, 0, 0, &hf_008_V1_2_040, I008_V1_2_040_PARTS, { NULL } };
 static int hf_008_V1_2_050;
 static int hf_008_V1_2_050_X1;
-static const FieldPart I008_V1_2_050_X1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_050_X1, NULL };
+static const FieldPart I008_V1_2_050_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_050_X1, NULL };
 static int hf_008_V1_2_050_Y1;
-static const FieldPart I008_V1_2_050_Y1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_2_050_Y1, NULL };
+static const FieldPart I008_V1_2_050_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_2_050_Y1, NULL };
 static const FieldPart *I008_V1_2_050_PARTS[] = {
     &I008_V1_2_050_X1,
     &I008_V1_2_050_Y1,
@@ -6390,7 +6390,7 @@ static const FieldPart *I008_V1_2_090_PARTS[] = {
 static const AsterixField I008_V1_2_090 = { FIXED, 3, 0, 0, &hf_008_V1_2_090, I008_V1_2_090_PARTS, { NULL } };
 static int hf_008_V1_2_100;
 static int hf_008_V1_2_100_F;
-static const FieldPart I008_V1_2_100_F = { 5, 1.0, FIELD_PART_FLOAT, &hf_008_V1_2_100_F, NULL };
+static const FieldPart I008_V1_2_100_F = { 5, 1.0, FIELD_PART_INT, &hf_008_V1_2_100_F, NULL };
 static int hf_008_V1_2_100_R;
 static const FieldPart I008_V1_2_100_R = { 3, 1.0, FIELD_PART_HEX, &hf_008_V1_2_100_R, NULL };
 static int hf_008_V1_2_100_Q;
@@ -6526,9 +6526,9 @@ static const FieldPart *I008_V1_3_020_PARTS[] = {
 static const AsterixField I008_V1_3_020 = { FX, 1, 0, 0, &hf_008_V1_3_020, I008_V1_3_020_PARTS, { NULL } };
 static int hf_008_V1_3_034;
 static int hf_008_V1_3_034_STR;
-static const FieldPart I008_V1_3_034_STR = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_034_STR, NULL };
+static const FieldPart I008_V1_3_034_STR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_3_034_STR, NULL };
 static int hf_008_V1_3_034_ENDR;
-static const FieldPart I008_V1_3_034_ENDR = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_034_ENDR, NULL };
+static const FieldPart I008_V1_3_034_ENDR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_V1_3_034_ENDR, NULL };
 static int hf_008_V1_3_034_AZ;
 static const FieldPart I008_V1_3_034_AZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_008_V1_3_034_AZ, NULL };
 static const FieldPart *I008_V1_3_034_PARTS[] = {
@@ -6540,11 +6540,11 @@ static const FieldPart *I008_V1_3_034_PARTS[] = {
 static const AsterixField I008_V1_3_034 = { REPETITIVE, 4, 1, 0, &hf_008_V1_3_034, I008_V1_3_034_PARTS, { NULL } };
 static int hf_008_V1_3_036;
 static int hf_008_V1_3_036_X;
-static const FieldPart I008_V1_3_036_X = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_036_X, NULL };
+static const FieldPart I008_V1_3_036_X = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_036_X, NULL };
 static int hf_008_V1_3_036_Y;
-static const FieldPart I008_V1_3_036_Y = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_036_Y, NULL };
+static const FieldPart I008_V1_3_036_Y = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_036_Y, NULL };
 static int hf_008_V1_3_036_LENGTH;
-static const FieldPart I008_V1_3_036_LENGTH = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_036_LENGTH, NULL };
+static const FieldPart I008_V1_3_036_LENGTH = { 8, 0.015625, FIELD_PART_UFLOAT, &hf_008_V1_3_036_LENGTH, NULL };
 static const FieldPart *I008_V1_3_036_PARTS[] = {
     &I008_V1_3_036_X,
     &I008_V1_3_036_Y,
@@ -6554,13 +6554,13 @@ static const FieldPart *I008_V1_3_036_PARTS[] = {
 static const AsterixField I008_V1_3_036 = { REPETITIVE, 3, 1, 0, &hf_008_V1_3_036, I008_V1_3_036_PARTS, { NULL } };
 static int hf_008_V1_3_038;
 static int hf_008_V1_3_038_X1;
-static const FieldPart I008_V1_3_038_X1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_038_X1, NULL };
+static const FieldPart I008_V1_3_038_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_X1, NULL };
 static int hf_008_V1_3_038_Y1;
-static const FieldPart I008_V1_3_038_Y1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_038_Y1, NULL };
+static const FieldPart I008_V1_3_038_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_Y1, NULL };
 static int hf_008_V1_3_038_X2;
-static const FieldPart I008_V1_3_038_X2 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_038_X2, NULL };
+static const FieldPart I008_V1_3_038_X2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_X2, NULL };
 static int hf_008_V1_3_038_Y2;
-static const FieldPart I008_V1_3_038_Y2 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_038_Y2, NULL };
+static const FieldPart I008_V1_3_038_Y2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_038_Y2, NULL };
 static const FieldPart *I008_V1_3_038_PARTS[] = {
     &I008_V1_3_038_X1,
     &I008_V1_3_038_Y1,
@@ -6601,9 +6601,9 @@ static const FieldPart *I008_V1_3_040_PARTS[] = {
 static const AsterixField I008_V1_3_040 = { FIXED, 2, 0, 0, &hf_008_V1_3_040, I008_V1_3_040_PARTS, { NULL } };
 static int hf_008_V1_3_050;
 static int hf_008_V1_3_050_X1;
-static const FieldPart I008_V1_3_050_X1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_050_X1, NULL };
+static const FieldPart I008_V1_3_050_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_050_X1, NULL };
 static int hf_008_V1_3_050_Y1;
-static const FieldPart I008_V1_3_050_Y1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_V1_3_050_Y1, NULL };
+static const FieldPart I008_V1_3_050_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_V1_3_050_Y1, NULL };
 static const FieldPart *I008_V1_3_050_PARTS[] = {
     &I008_V1_3_050_X1,
     &I008_V1_3_050_Y1,
@@ -6620,7 +6620,7 @@ static const FieldPart *I008_V1_3_090_PARTS[] = {
 static const AsterixField I008_V1_3_090 = { FIXED, 3, 0, 0, &hf_008_V1_3_090, I008_V1_3_090_PARTS, { NULL } };
 static int hf_008_V1_3_100;
 static int hf_008_V1_3_100_F;
-static const FieldPart I008_V1_3_100_F = { 5, 1.0, FIELD_PART_FLOAT, &hf_008_V1_3_100_F, NULL };
+static const FieldPart I008_V1_3_100_F = { 5, 1.0, FIELD_PART_INT, &hf_008_V1_3_100_F, NULL };
 static int hf_008_V1_3_100_R;
 static const FieldPart I008_V1_3_100_R = { 3, 1.0, FIELD_PART_HEX, &hf_008_V1_3_100_R, NULL };
 static int hf_008_V1_3_100_Q;
@@ -6733,9 +6733,9 @@ static const FieldPart *I008_020_PARTS[] = {
 static const AsterixField I008_020 = { FX, 1, 0, 0, &hf_008_020, I008_020_PARTS, { NULL } };
 static int hf_008_034;
 static int hf_008_034_STR;
-static const FieldPart I008_034_STR = { 8, 1.0, FIELD_PART_HEX, &hf_008_034_STR, NULL };
+static const FieldPart I008_034_STR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_034_STR, NULL };
 static int hf_008_034_ENDR;
-static const FieldPart I008_034_ENDR = { 8, 1.0, FIELD_PART_HEX, &hf_008_034_ENDR, NULL };
+static const FieldPart I008_034_ENDR = { 8, 0.0078125, FIELD_PART_UFLOAT, &hf_008_034_ENDR, NULL };
 static int hf_008_034_AZ;
 static const FieldPart I008_034_AZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_008_034_AZ, NULL };
 static const FieldPart *I008_034_PARTS[] = {
@@ -6747,11 +6747,11 @@ static const FieldPart *I008_034_PARTS[] = {
 static const AsterixField I008_034 = { REPETITIVE, 4, 1, 0, &hf_008_034, I008_034_PARTS, { NULL } };
 static int hf_008_036;
 static int hf_008_036_X;
-static const FieldPart I008_036_X = { 8, 1.0, FIELD_PART_HEX, &hf_008_036_X, NULL };
+static const FieldPart I008_036_X = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_036_X, NULL };
 static int hf_008_036_Y;
-static const FieldPart I008_036_Y = { 8, 1.0, FIELD_PART_HEX, &hf_008_036_Y, NULL };
+static const FieldPart I008_036_Y = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_036_Y, NULL };
 static int hf_008_036_LENGTH;
-static const FieldPart I008_036_LENGTH = { 8, 1.0, FIELD_PART_HEX, &hf_008_036_LENGTH, NULL };
+static const FieldPart I008_036_LENGTH = { 8, 0.015625, FIELD_PART_UFLOAT, &hf_008_036_LENGTH, NULL };
 static const FieldPart *I008_036_PARTS[] = {
     &I008_036_X,
     &I008_036_Y,
@@ -6761,13 +6761,13 @@ static const FieldPart *I008_036_PARTS[] = {
 static const AsterixField I008_036 = { REPETITIVE, 3, 1, 0, &hf_008_036, I008_036_PARTS, { NULL } };
 static int hf_008_038;
 static int hf_008_038_X1;
-static const FieldPart I008_038_X1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_038_X1, NULL };
+static const FieldPart I008_038_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_X1, NULL };
 static int hf_008_038_Y1;
-static const FieldPart I008_038_Y1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_038_Y1, NULL };
+static const FieldPart I008_038_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_Y1, NULL };
 static int hf_008_038_X2;
-static const FieldPart I008_038_X2 = { 8, 1.0, FIELD_PART_HEX, &hf_008_038_X2, NULL };
+static const FieldPart I008_038_X2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_X2, NULL };
 static int hf_008_038_Y2;
-static const FieldPart I008_038_Y2 = { 8, 1.0, FIELD_PART_HEX, &hf_008_038_Y2, NULL };
+static const FieldPart I008_038_Y2 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_038_Y2, NULL };
 static const FieldPart *I008_038_PARTS[] = {
     &I008_038_X1,
     &I008_038_Y1,
@@ -6808,9 +6808,9 @@ static const FieldPart *I008_040_PARTS[] = {
 static const AsterixField I008_040 = { FIXED, 2, 0, 0, &hf_008_040, I008_040_PARTS, { NULL } };
 static int hf_008_050;
 static int hf_008_050_X1;
-static const FieldPart I008_050_X1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_050_X1, NULL };
+static const FieldPart I008_050_X1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_050_X1, NULL };
 static int hf_008_050_Y1;
-static const FieldPart I008_050_Y1 = { 8, 1.0, FIELD_PART_HEX, &hf_008_050_Y1, NULL };
+static const FieldPart I008_050_Y1 = { 8, 0.015625, FIELD_PART_FLOAT, &hf_008_050_Y1, NULL };
 static const FieldPart *I008_050_PARTS[] = {
     &I008_050_X1,
     &I008_050_Y1,
@@ -6827,7 +6827,7 @@ static const FieldPart *I008_090_PARTS[] = {
 static const AsterixField I008_090 = { FIXED, 3, 0, 0, &hf_008_090, I008_090_PARTS, { NULL } };
 static int hf_008_100;
 static int hf_008_100_F;
-static const FieldPart I008_100_F = { 5, 1.0, FIELD_PART_FLOAT, &hf_008_100_F, NULL };
+static const FieldPart I008_100_F = { 5, 1.0, FIELD_PART_INT, &hf_008_100_F, NULL };
 static int hf_008_100_R;
 static const FieldPart I008_100_R = { 3, 1.0, FIELD_PART_HEX, &hf_008_100_R, NULL };
 static int hf_008_100_Q;
@@ -6966,11 +6966,11 @@ static const FieldPart *I009_V2_1_020_PARTS[] = {
 static const AsterixField I009_V2_1_020 = { FX, 1, 0, 0, &hf_009_V2_1_020, I009_V2_1_020_PARTS, { NULL } };
 static int hf_009_V2_1_030;
 static int hf_009_V2_1_030_X;
-static const FieldPart I009_V2_1_030_X = { 16, 1.0, FIELD_PART_FLOAT, &hf_009_V2_1_030_X, NULL };
+static const FieldPart I009_V2_1_030_X = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_V2_1_030_X, NULL };
 static int hf_009_V2_1_030_Y;
-static const FieldPart I009_V2_1_030_Y = { 16, 1.0, FIELD_PART_FLOAT, &hf_009_V2_1_030_Y, NULL };
+static const FieldPart I009_V2_1_030_Y = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_V2_1_030_Y, NULL };
 static int hf_009_V2_1_030_L;
-static const FieldPart I009_V2_1_030_L = { 16, 1.0, FIELD_PART_UINT, &hf_009_V2_1_030_L, NULL };
+static const FieldPart I009_V2_1_030_L = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_009_V2_1_030_L, NULL };
 static const FieldPart *I009_V2_1_030_PARTS[] = {
     &I009_V2_1_030_X,
     &I009_V2_1_030_Y,
@@ -6998,7 +6998,7 @@ static const FieldPart *I009_V2_1_070_PARTS[] = {
 static const AsterixField I009_V2_1_070 = { FIXED, 3, 0, 0, &hf_009_V2_1_070, I009_V2_1_070_PARTS, { NULL } };
 static int hf_009_V2_1_080;
 static int hf_009_V2_1_080_F;
-static const FieldPart I009_V2_1_080_F = { 5, 1.0, FIELD_PART_FLOAT, &hf_009_V2_1_080_F, NULL };
+static const FieldPart I009_V2_1_080_F = { 5, 1.0, FIELD_PART_INT, &hf_009_V2_1_080_F, NULL };
 static int hf_009_V2_1_080_R;
 static const FieldPart I009_V2_1_080_R = { 3, 1.0, FIELD_PART_HEX, &hf_009_V2_1_080_R, NULL };
 static int hf_009_V2_1_080_Q;
@@ -7101,11 +7101,11 @@ static const FieldPart *I009_020_PARTS[] = {
 static const AsterixField I009_020 = { FX, 1, 0, 0, &hf_009_020, I009_020_PARTS, { NULL } };
 static int hf_009_030;
 static int hf_009_030_X;
-static const FieldPart I009_030_X = { 16, 1.0, FIELD_PART_FLOAT, &hf_009_030_X, NULL };
+static const FieldPart I009_030_X = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_030_X, NULL };
 static int hf_009_030_Y;
-static const FieldPart I009_030_Y = { 16, 1.0, FIELD_PART_FLOAT, &hf_009_030_Y, NULL };
+static const FieldPart I009_030_Y = { 16, 0.015625, FIELD_PART_FLOAT, &hf_009_030_Y, NULL };
 static int hf_009_030_L;
-static const FieldPart I009_030_L = { 16, 1.0, FIELD_PART_UINT, &hf_009_030_L, NULL };
+static const FieldPart I009_030_L = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_009_030_L, NULL };
 static const FieldPart *I009_030_PARTS[] = {
     &I009_030_X,
     &I009_030_Y,
@@ -7133,7 +7133,7 @@ static const FieldPart *I009_070_PARTS[] = {
 static const AsterixField I009_070 = { FIXED, 3, 0, 0, &hf_009_070, I009_070_PARTS, { NULL } };
 static int hf_009_080;
 static int hf_009_080_F;
-static const FieldPart I009_080_F = { 5, 1.0, FIELD_PART_FLOAT, &hf_009_080_F, NULL };
+static const FieldPart I009_080_F = { 5, 1.0, FIELD_PART_INT, &hf_009_080_F, NULL };
 static int hf_009_080_R;
 static const FieldPart I009_080_R = { 3, 1.0, FIELD_PART_HEX, &hf_009_080_R, NULL };
 static int hf_009_080_Q;
@@ -56962,30 +56962,30 @@ void proto_register_asterix (void)
         { &hf_008_V1_2_020_TST, { "TST", "asterix.008_V1_2_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_020_TST), 0x04, NULL, HFILL } },
         { &hf_008_V1_2_020_ER, { "ER", "asterix.008_V1_2_020_ER", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_020_ER), 0x02, NULL, HFILL } },
         { &hf_008_V1_2_034, { "034, Sequence of Polar Vectors in SPF Notation", "asterix.008_V1_2_034", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_034_STR, { "STR, Start Range", "asterix.008_V1_2_034_STR", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_034_ENDR, { "ENDR, End Range", "asterix.008_V1_2_034_ENDR", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_034_STR, { "STR, Start Range, [(NM)]", "asterix.008_V1_2_034_STR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_034_ENDR, { "ENDR, End Range, [(NM)]", "asterix.008_V1_2_034_ENDR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_034_AZ, { "AZ, Azimuth, [°]", "asterix.008_V1_2_034_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_036, { "036, Sequence of Cartesian Vectors in SPF Notation", "asterix.008_V1_2_036", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_036_X, { "X, X-Component", "asterix.008_V1_2_036_X", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_036_Y, { "Y, Y-Component", "asterix.008_V1_2_036_Y", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_036_LENGTH, { "LENGTH, Length", "asterix.008_V1_2_036_LENGTH", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_036_X, { "X, X-Component, [(NM)]", "asterix.008_V1_2_036_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_036_Y, { "Y, Y-Component, [(NM)]", "asterix.008_V1_2_036_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_036_LENGTH, { "LENGTH, Length, [(NM)]", "asterix.008_V1_2_036_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_038, { "038, Sequence of Weather Vectors in SPF Notation", "asterix.008_V1_2_038", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_X1, { "X1, X1-Component", "asterix.008_V1_2_038_X1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_Y1, { "Y1, Y1-Component", "asterix.008_V1_2_038_Y1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_X2, { "X2, X2-Component", "asterix.008_V1_2_038_X2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_038_Y2, { "Y2, Y2-Component", "asterix.008_V1_2_038_Y2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_X1, { "X1, X1-Component, [(NM)]", "asterix.008_V1_2_038_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_Y1, { "Y1, Y1-Component, [(NM)]", "asterix.008_V1_2_038_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_X2, { "X2, X2-Component, [(NM)]", "asterix.008_V1_2_038_X2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_038_Y2, { "Y2, Y2-Component, [(NM)]", "asterix.008_V1_2_038_Y2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_040, { "040, Contour Identifier", "asterix.008_V1_2_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_040_ORG, { "ORG", "asterix.008_V1_2_040_ORG", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_040_ORG), 0x80, NULL, HFILL } },
         { &hf_008_V1_2_040_I, { "I, Intensity Level", "asterix.008_V1_2_040_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_008_V1_2_040_FSTLST, { "FSTLST", "asterix.008_V1_2_040_FSTLST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_2_040_FSTLST), 0x03, NULL, HFILL } },
         { &hf_008_V1_2_040_CSN, { "CSN, Contour Serial Number", "asterix.008_V1_2_040_CSN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_050, { "050, Sequence of Contour Points in SPF Notation", "asterix.008_V1_2_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_050_X1, { "X1", "asterix.008_V1_2_050_X1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_050_Y1, { "Y1", "asterix.008_V1_2_050_Y1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_050_X1, { "X1, [(NM)]", "asterix.008_V1_2_050_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_050_Y1, { "Y1, [(NM)]", "asterix.008_V1_2_050_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_090, { "090, Time of Day", "asterix.008_V1_2_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_090_VALUE, { "Time of Day, [s]", "asterix.008_V1_2_090_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_100, { "100, Processing Status", "asterix.008_V1_2_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_100_F, { "F, Scaling Factor", "asterix.008_V1_2_100_F", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_2_100_F, { "F, Scaling Factor", "asterix.008_V1_2_100_F", FT_INT8, BASE_DEC, NULL, 0xf8, NULL, HFILL } },
         { &hf_008_V1_2_100_R, { "R, Current Reduction Stage in Use", "asterix.008_V1_2_100_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_008_V1_2_100_Q, { "Q, Processing Parameters", "asterix.008_V1_2_100_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_008_V1_2_110, { "110, Station Configuration Status", "asterix.008_V1_2_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57005,30 +57005,30 @@ void proto_register_asterix (void)
         { &hf_008_V1_3_020_TST, { "TST", "asterix.008_V1_3_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_020_TST), 0x04, NULL, HFILL } },
         { &hf_008_V1_3_020_ER, { "ER", "asterix.008_V1_3_020_ER", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_020_ER), 0x02, NULL, HFILL } },
         { &hf_008_V1_3_034, { "034, Sequence of Polar Vectors in SPF Notation", "asterix.008_V1_3_034", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_034_STR, { "STR, Start Range", "asterix.008_V1_3_034_STR", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_034_ENDR, { "ENDR, End Range", "asterix.008_V1_3_034_ENDR", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_034_STR, { "STR, Start Range, [(NM)]", "asterix.008_V1_3_034_STR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_034_ENDR, { "ENDR, End Range, [(NM)]", "asterix.008_V1_3_034_ENDR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_034_AZ, { "AZ, Azimuth, [°]", "asterix.008_V1_3_034_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_036, { "036, Sequence of Cartesian Vectors in SPF Notation", "asterix.008_V1_3_036", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_036_X, { "X, X-Component", "asterix.008_V1_3_036_X", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_036_Y, { "Y, Y-Component", "asterix.008_V1_3_036_Y", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_036_LENGTH, { "LENGTH, Length", "asterix.008_V1_3_036_LENGTH", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_036_X, { "X, X-Component, [(NM)]", "asterix.008_V1_3_036_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_036_Y, { "Y, Y-Component, [(NM)]", "asterix.008_V1_3_036_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_036_LENGTH, { "LENGTH, Length, [(NM)]", "asterix.008_V1_3_036_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_038, { "038, Sequence of Weather Vectors in SPF Notation", "asterix.008_V1_3_038", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_X1, { "X1, X1-Component", "asterix.008_V1_3_038_X1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_Y1, { "Y1, Y1-Component", "asterix.008_V1_3_038_Y1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_X2, { "X2, X2-Component", "asterix.008_V1_3_038_X2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_038_Y2, { "Y2, Y2-Component", "asterix.008_V1_3_038_Y2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_X1, { "X1, X1-Component, [(NM)]", "asterix.008_V1_3_038_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_Y1, { "Y1, Y1-Component, [(NM)]", "asterix.008_V1_3_038_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_X2, { "X2, X2-Component, [(NM)]", "asterix.008_V1_3_038_X2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_038_Y2, { "Y2, Y2-Component, [(NM)]", "asterix.008_V1_3_038_Y2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_040, { "040, Contour Identifier", "asterix.008_V1_3_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_040_ORG, { "ORG", "asterix.008_V1_3_040_ORG", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_040_ORG), 0x80, NULL, HFILL } },
         { &hf_008_V1_3_040_I, { "I, Intensity Level", "asterix.008_V1_3_040_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_008_V1_3_040_FSTLST, { "FSTLST", "asterix.008_V1_3_040_FSTLST", FT_UINT8, BASE_DEC, VALS (valstr_008_V1_3_040_FSTLST), 0x03, NULL, HFILL } },
         { &hf_008_V1_3_040_CSN, { "CSN, Contour Serial Number", "asterix.008_V1_3_040_CSN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_050, { "050, Sequence of Contour Points in SPF Notation", "asterix.008_V1_3_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_050_X1, { "X1", "asterix.008_V1_3_050_X1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_050_Y1, { "Y1", "asterix.008_V1_3_050_Y1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_050_X1, { "X1, [(NM)]", "asterix.008_V1_3_050_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_050_Y1, { "Y1, [(NM)]", "asterix.008_V1_3_050_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_090, { "090, Time of Day", "asterix.008_V1_3_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_090_VALUE, { "Time of Day, [s]", "asterix.008_V1_3_090_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_100, { "100, Processing Status", "asterix.008_V1_3_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_100_F, { "F, Scaling Factor", "asterix.008_V1_3_100_F", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_V1_3_100_F, { "F, Scaling Factor", "asterix.008_V1_3_100_F", FT_INT8, BASE_DEC, NULL, 0xf8, NULL, HFILL } },
         { &hf_008_V1_3_100_R, { "R, Current Reduction Stage in Use", "asterix.008_V1_3_100_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_008_V1_3_100_Q, { "Q, Processing Parameters", "asterix.008_V1_3_100_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_008_V1_3_110, { "110, Station Configuration Status", "asterix.008_V1_3_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57048,30 +57048,30 @@ void proto_register_asterix (void)
         { &hf_008_020_TST, { "TST", "asterix.008_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_008_020_TST), 0x04, NULL, HFILL } },
         { &hf_008_020_ER, { "ER", "asterix.008_020_ER", FT_UINT8, BASE_DEC, VALS (valstr_008_020_ER), 0x02, NULL, HFILL } },
         { &hf_008_034, { "034, Sequence of Polar Vectors in SPF Notation", "asterix.008_034", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_034_STR, { "STR, Start Range", "asterix.008_034_STR", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_034_ENDR, { "ENDR, End Range", "asterix.008_034_ENDR", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_034_STR, { "STR, Start Range, [(NM)]", "asterix.008_034_STR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_034_ENDR, { "ENDR, End Range, [(NM)]", "asterix.008_034_ENDR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_034_AZ, { "AZ, Azimuth, [°]", "asterix.008_034_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_036, { "036, Sequence of Cartesian Vectors in SPF Notation", "asterix.008_036", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_036_X, { "X, X-Component", "asterix.008_036_X", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_036_Y, { "Y, Y-Component", "asterix.008_036_Y", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_036_LENGTH, { "LENGTH, Length", "asterix.008_036_LENGTH", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_036_X, { "X, X-Component, [(NM)]", "asterix.008_036_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_036_Y, { "Y, Y-Component, [(NM)]", "asterix.008_036_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_036_LENGTH, { "LENGTH, Length, [(NM)]", "asterix.008_036_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_038, { "038, Sequence of Weather Vectors in SPF Notation", "asterix.008_038", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_X1, { "X1, X1-Component", "asterix.008_038_X1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_Y1, { "Y1, Y1-Component", "asterix.008_038_Y1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_X2, { "X2, X2-Component", "asterix.008_038_X2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_038_Y2, { "Y2, Y2-Component", "asterix.008_038_Y2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_X1, { "X1, X1-Component, [(NM)]", "asterix.008_038_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_Y1, { "Y1, Y1-Component, [(NM)]", "asterix.008_038_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_X2, { "X2, X2-Component, [(NM)]", "asterix.008_038_X2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_038_Y2, { "Y2, Y2-Component, [(NM)]", "asterix.008_038_Y2", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_040, { "040, Contour Identifier", "asterix.008_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_040_ORG, { "ORG", "asterix.008_040_ORG", FT_UINT8, BASE_DEC, VALS (valstr_008_040_ORG), 0x80, NULL, HFILL } },
         { &hf_008_040_I, { "I, Intensity Level", "asterix.008_040_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_008_040_FSTLST, { "FSTLST", "asterix.008_040_FSTLST", FT_UINT8, BASE_DEC, VALS (valstr_008_040_FSTLST), 0x03, NULL, HFILL } },
         { &hf_008_040_CSN, { "CSN, Contour Serial Number", "asterix.008_040_CSN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_050, { "050, Sequence of Contour Points in SPF Notation", "asterix.008_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_050_X1, { "X1", "asterix.008_050_X1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_050_Y1, { "Y1", "asterix.008_050_Y1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_050_X1, { "X1, [(NM)]", "asterix.008_050_X1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_050_Y1, { "Y1, [(NM)]", "asterix.008_050_Y1", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_090, { "090, Time of Day", "asterix.008_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_090_VALUE, { "Time of Day, [s]", "asterix.008_090_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_100, { "100, Processing Status", "asterix.008_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_100_F, { "F, Scaling Factor", "asterix.008_100_F", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_008_100_F, { "F, Scaling Factor", "asterix.008_100_F", FT_INT8, BASE_DEC, NULL, 0xf8, NULL, HFILL } },
         { &hf_008_100_R, { "R, Current Reduction Stage in Use", "asterix.008_100_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_008_100_Q, { "Q, Processing Parameters", "asterix.008_100_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_008_110, { "110, Station Configuration Status", "asterix.008_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57089,15 +57089,15 @@ void proto_register_asterix (void)
         { &hf_009_V2_1_020_I, { "I, Intensity Level", "asterix.009_V2_1_020_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_009_V2_1_020_S, { "S, Shading Orientation with Respect to North", "asterix.009_V2_1_020_S", FT_UINT8, BASE_DEC, VALS (valstr_009_V2_1_020_S), 0x0e, NULL, HFILL } },
         { &hf_009_V2_1_030, { "030, Sequence of Cartesian Vectors", "asterix.009_V2_1_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_030_X, { "X, X-coordinate, [NM]", "asterix.009_V2_1_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_030_Y, { "Y, Y-coordinate, [NM]", "asterix.009_V2_1_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_030_L, { "L, Vector Length", "asterix.009_V2_1_030_L", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_030_X, { "X, X-coordinate, [(NM)]", "asterix.009_V2_1_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_030_Y, { "Y, Y-coordinate, [(NM)]", "asterix.009_V2_1_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_030_L, { "L, Vector Length, [(NM)]", "asterix.009_V2_1_030_L", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_060, { "060, Synchronisation/Control Signal", "asterix.009_V2_1_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_060_SN, { "SN, Step Number", "asterix.009_V2_1_060_SN", FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL } },
         { &hf_009_V2_1_070, { "070, Time of Day", "asterix.009_V2_1_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_070_VALUE, { "Time of Day, [s]", "asterix.009_V2_1_070_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_V2_1_080, { "080, Processing Status", "asterix.009_V2_1_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_V2_1_080_F, { "F, Scaling Factor", "asterix.009_V2_1_080_F", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_V2_1_080_F, { "F, Scaling Factor", "asterix.009_V2_1_080_F", FT_INT8, BASE_DEC, NULL, 0xf8, NULL, HFILL } },
         { &hf_009_V2_1_080_R, { "R, Current Reduction Stage in Use", "asterix.009_V2_1_080_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_009_V2_1_080_Q, { "Q, Processing Parameters", "asterix.009_V2_1_080_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_009_V2_1_090, { "090, Radar Configuration and Status", "asterix.009_V2_1_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57118,15 +57118,15 @@ void proto_register_asterix (void)
         { &hf_009_020_I, { "I, Intensity Level", "asterix.009_020_I", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL } },
         { &hf_009_020_S, { "S, Shading Orientation with Respect to North", "asterix.009_020_S", FT_UINT8, BASE_DEC, VALS (valstr_009_020_S), 0x0e, NULL, HFILL } },
         { &hf_009_030, { "030, Sequence of Cartesian Vectors", "asterix.009_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_030_X, { "X, X-coordinate, [NM]", "asterix.009_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_030_Y, { "Y, Y-coordinate, [NM]", "asterix.009_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_030_L, { "L, Vector Length", "asterix.009_030_L", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_030_X, { "X, X-coordinate, [(NM)]", "asterix.009_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_030_Y, { "Y, Y-coordinate, [(NM)]", "asterix.009_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_030_L, { "L, Vector Length, [(NM)]", "asterix.009_030_L", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_060, { "060, Synchronisation/Control Signal", "asterix.009_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_060_SN, { "SN, Step Number", "asterix.009_060_SN", FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL } },
         { &hf_009_070, { "070, Time of Day", "asterix.009_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_070_VALUE, { "Time of Day, [s]", "asterix.009_070_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_080, { "080, Processing Status", "asterix.009_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_009_080_F, { "F, Scaling Factor", "asterix.009_080_F", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_009_080_F, { "F, Scaling Factor", "asterix.009_080_F", FT_INT8, BASE_DEC, NULL, 0xf8, NULL, HFILL } },
         { &hf_009_080_R, { "R, Current Reduction Stage in Use", "asterix.009_080_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_009_080_Q, { "Q, Processing Parameters", "asterix.009_080_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_009_090, { "090, Radar Configuration and Status", "asterix.009_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57198,8 +57198,8 @@ void proto_register_asterix (void)
         { &hf_010_V1_1_202_VX, { "VX, X Velocity, [m/s]", "asterix.010_V1_1_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_V1_1_202_VY, { "VY, Y Velocity, [m/s]", "asterix.010_V1_1_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_V1_1_210, { "210, Calculated Acceleration", "asterix.010_V1_1_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_010_V1_1_210_AX, { "AX, X Acceleration, [m/s2]", "asterix.010_V1_1_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_010_V1_1_210_AY, { "AY, Y Acceleration, [m/s2]", "asterix.010_V1_1_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_210_AX, { "AX, X Acceleration, [m/s²]", "asterix.010_V1_1_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_210_AY, { "AY, Y Acceleration, [m/s²]", "asterix.010_V1_1_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_V1_1_220, { "220, Target Address", "asterix.010_V1_1_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_V1_1_220_VALUE, { "Target Address", "asterix.010_V1_1_220_VALUE", FT_UINT24, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_010_V1_1_245, { "245, Target Identification", "asterix.010_V1_1_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57294,8 +57294,8 @@ void proto_register_asterix (void)
         { &hf_010_202_VX, { "VX, X Velocity, [m/s]", "asterix.010_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_202_VY, { "VY, Y Velocity, [m/s]", "asterix.010_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_210, { "210, Calculated Acceleration", "asterix.010_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_010_210_AX, { "AX, X Acceleration, [m/s2]", "asterix.010_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_010_210_AY, { "AY, Y Acceleration, [m/s2]", "asterix.010_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_210_AX, { "AX, X Acceleration, [m/s²]", "asterix.010_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_210_AY, { "AY, Y Acceleration, [m/s²]", "asterix.010_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_220, { "220, Target Address", "asterix.010_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_010_220_VALUE, { "Target Address", "asterix.010_220_VALUE", FT_UINT24, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_010_245, { "245, Target Identification", "asterix.010_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57376,8 +57376,8 @@ void proto_register_asterix (void)
         { &hf_011_V1_2_202_VX, { "VX, Vx, [m/s]", "asterix.011_V1_2_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_202_VY, { "VY, Vy, [m/s]", "asterix.011_V1_2_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_210, { "210, Calculated Acceleration", "asterix.011_V1_2_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_2_210_AX, { "AX, Ax, [m/s2]", "asterix.011_V1_2_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_2_210_AY, { "AY, Ay, [m/s2]", "asterix.011_V1_2_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_2_210_AX, { "AX, Ax, [m/s²]", "asterix.011_V1_2_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_2_210_AY, { "AY, Ay, [m/s²]", "asterix.011_V1_2_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_215, { "215, Calculated Rate Of Climb/Descent", "asterix.011_V1_2_215", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_215_VALUE, { "Calculated Rate Of Climb/Descent, [ft/min]", "asterix.011_V1_2_215_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_245, { "245, Target Identification", "asterix.011_V1_2_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57499,8 +57499,8 @@ void proto_register_asterix (void)
         { &hf_011_V1_2_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb / Descent", "asterix.011_V1_2_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb / Descent, [m/s]", "asterix.011_V1_2_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_500_AAC, { "AAC, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.011_V1_2_500_AAC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_2_500_AAC_X, { "X, Estimated Accuracy Of Acceleration of X Component, [m/s2]", "asterix.011_V1_2_500_AAC_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_2_500_AAC_Y, { "Y, Estimated Accuracy Of Acceleration of Y Component, [m/s2]", "asterix.011_V1_2_500_AAC_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_2_500_AAC_X, { "X, Estimated Accuracy Of Acceleration of X Component, [m/s²]", "asterix.011_V1_2_500_AAC_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_2_500_AAC_Y, { "Y, Estimated Accuracy Of Acceleration of Y Component, [m/s²]", "asterix.011_V1_2_500_AAC_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_600, { "600, Alert Messages", "asterix.011_V1_2_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_600_ACK, { "ACK, Alert Acknowleged", "asterix.011_V1_2_600_ACK", FT_UINT8, BASE_DEC, VALS (valstr_011_V1_2_600_ACK), 0x80, NULL, HFILL } },
         { &hf_011_V1_2_600_SVR, { "SVR, Alert Severity", "asterix.011_V1_2_600_SVR", FT_UINT8, BASE_DEC, VALS (valstr_011_V1_2_600_SVR), 0x60, NULL, HFILL } },
@@ -57577,8 +57577,8 @@ void proto_register_asterix (void)
         { &hf_011_V1_3_202_VX, { "VX, Vx, [m/s]", "asterix.011_V1_3_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_202_VY, { "VY, Vy, [m/s]", "asterix.011_V1_3_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_210, { "210, Calculated Acceleration", "asterix.011_V1_3_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_3_210_AX, { "AX, Ax, [m/s2]", "asterix.011_V1_3_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_3_210_AY, { "AY, Ay, [m/s2]", "asterix.011_V1_3_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_3_210_AX, { "AX, Ax, [m/s²]", "asterix.011_V1_3_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_3_210_AY, { "AY, Ay, [m/s²]", "asterix.011_V1_3_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_215, { "215, Calculated Rate Of Climb/Descent", "asterix.011_V1_3_215", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_215_VALUE, { "Calculated Rate Of Climb/Descent, [ft/min]", "asterix.011_V1_3_215_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_245, { "245, Target Identification", "asterix.011_V1_3_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57700,8 +57700,8 @@ void proto_register_asterix (void)
         { &hf_011_V1_3_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb / Descent", "asterix.011_V1_3_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb / Descent, [m/s]", "asterix.011_V1_3_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_500_AAC, { "AAC, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.011_V1_3_500_AAC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_3_500_AAC_X, { "X, Estimated Accuracy Of Acceleration of X Component, [m/s2]", "asterix.011_V1_3_500_AAC_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_V1_3_500_AAC_Y, { "Y, Estimated Accuracy Of Acceleration of Y Component, [m/s2]", "asterix.011_V1_3_500_AAC_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_3_500_AAC_X, { "X, Estimated Accuracy Of Acceleration of X Component, [m/s²]", "asterix.011_V1_3_500_AAC_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_V1_3_500_AAC_Y, { "Y, Estimated Accuracy Of Acceleration of Y Component, [m/s²]", "asterix.011_V1_3_500_AAC_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_600, { "600, Alert Messages", "asterix.011_V1_3_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_3_600_ACK, { "ACK, Alert Acknowleged", "asterix.011_V1_3_600_ACK", FT_UINT8, BASE_DEC, VALS (valstr_011_V1_3_600_ACK), 0x80, NULL, HFILL } },
         { &hf_011_V1_3_600_SVR, { "SVR, Alert Severity", "asterix.011_V1_3_600_SVR", FT_UINT8, BASE_DEC, VALS (valstr_011_V1_3_600_SVR), 0x60, NULL, HFILL } },
@@ -57778,8 +57778,8 @@ void proto_register_asterix (void)
         { &hf_011_202_VX, { "VX, Vx, [m/s]", "asterix.011_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_202_VY, { "VY, Vy, [m/s]", "asterix.011_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_210, { "210, Calculated Acceleration", "asterix.011_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_210_AX, { "AX, Ax, [m/s2]", "asterix.011_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_210_AY, { "AY, Ay, [m/s2]", "asterix.011_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_210_AX, { "AX, Ax, [m/s²]", "asterix.011_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_210_AY, { "AY, Ay, [m/s²]", "asterix.011_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_215, { "215, Calculated Rate Of Climb/Descent", "asterix.011_215", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_215_VALUE, { "Calculated Rate Of Climb/Descent, [ft/min]", "asterix.011_215_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_245, { "245, Target Identification", "asterix.011_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -57901,8 +57901,8 @@ void proto_register_asterix (void)
         { &hf_011_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb / Descent", "asterix.011_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb / Descent, [m/s]", "asterix.011_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_500_AAC, { "AAC, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.011_500_AAC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_500_AAC_X, { "X, Estimated Accuracy Of Acceleration of X Component, [m/s2]", "asterix.011_500_AAC_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_011_500_AAC_Y, { "Y, Estimated Accuracy Of Acceleration of Y Component, [m/s2]", "asterix.011_500_AAC_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_500_AAC_X, { "X, Estimated Accuracy Of Acceleration of X Component, [m/s²]", "asterix.011_500_AAC_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_011_500_AAC_Y, { "Y, Estimated Accuracy Of Acceleration of Y Component, [m/s²]", "asterix.011_500_AAC_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_600, { "600, Alert Messages", "asterix.011_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_600_ACK, { "ACK, Alert Acknowleged", "asterix.011_600_ACK", FT_UINT8, BASE_DEC, VALS (valstr_011_600_ACK), 0x80, NULL, HFILL } },
         { &hf_011_600_SVR, { "SVR, Alert Severity", "asterix.011_600_SVR", FT_UINT8, BASE_DEC, VALS (valstr_011_600_SVR), 0x60, NULL, HFILL } },
@@ -58023,11 +58023,11 @@ void proto_register_asterix (void)
         { &hf_015_V1_0_602_COHVHP_COHVYHPY, { "COHVYHPY", "asterix.015_V1_0_602_COHVHP_COHVYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_603, { "603, Horizontal Acceleration Information", "asterix.015_V1_0_603", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_603_HA, { "HA, Horizontal Acceleration Vector", "asterix.015_V1_0_603_HA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_603_HA_X, { "X, [m/s2]", "asterix.015_V1_0_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_603_HA_Y, { "Y, [m/s2]", "asterix.015_V1_0_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_HA_X, { "X, [m/s²]", "asterix.015_V1_0_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_HA_Y, { "Y, [m/s²]", "asterix.015_V1_0_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_603_SDHA, { "SDHA, Horizontal Acceleration Precision", "asterix.015_V1_0_603_SDHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_603_SDHA_X, { "X, [m/s2]", "asterix.015_V1_0_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_603_SDHA_Y, { "Y, [m/s2]", "asterix.015_V1_0_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_SDHA_X, { "X, [m/s²]", "asterix.015_V1_0_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_SDHA_Y, { "Y, [m/s²]", "asterix.015_V1_0_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_603_SDHA_COHAXY, { "COHAXY", "asterix.015_V1_0_603_SDHA_COHAXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_603_COHAHP, { "COHAHP, Correlation of Horizontal Acceleration and Horizontal Position", "asterix.015_V1_0_603_COHAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_603_COHAHP_COHAXHPX, { "COHAXHPX", "asterix.015_V1_0_603_COHAHP_COHAXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58058,9 +58058,9 @@ void proto_register_asterix (void)
         { &hf_015_V1_0_604_COVVHA_Y, { "Y", "asterix.015_V1_0_604_COVVHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_605, { "605, Vertical Velocity Information", "asterix.015_V1_0_605", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_605_VA, { "VA, Vertical Acceleration", "asterix.015_V1_0_605_VA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_605_VA_VALUE, { "Vertical Acceleration, [m/s2]", "asterix.015_V1_0_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_VA_VALUE, { "Vertical Acceleration, [m/s²]", "asterix.015_V1_0_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_605_RSVA, { "RSVA, Vertical Acceleration Precision", "asterix.015_V1_0_605_RSVA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_605_RSVA_SDVA, { "SDVA, [m/s2]", "asterix.015_V1_0_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_RSVA_SDVA, { "SDVA, [m/s²]", "asterix.015_V1_0_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_605_RSVA_COVAGH, { "COVAGH", "asterix.015_V1_0_605_RSVA_COVAGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_605_RSVA_COVAVV, { "COVAVV", "asterix.015_V1_0_605_RSVA_COVAVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_605_COVAHP, { "COVAHP, Correlation of Vertical Acceleration and Horizontal Position", "asterix.015_V1_0_605_COVAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58087,9 +58087,9 @@ void proto_register_asterix (void)
         { &hf_015_V1_0_625_SDRR_SDRR, { "SDRR, [m/s]", "asterix.015_V1_0_625_SDRR_SDRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_625_SDRR_CORRR, { "CORRR", "asterix.015_V1_0_625_SDRR_CORRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_625_RA, { "RA, Range Acceleration", "asterix.015_V1_0_625_RA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_625_RA_VALUE, { "Range Acceleration, [m/s2]", "asterix.015_V1_0_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RA_VALUE, { "Range Acceleration, [m/s²]", "asterix.015_V1_0_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_625_SDRA, { "SDRA, Range Acceleration Precision", "asterix.015_V1_0_625_SDRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_625_SDRA_SDRA, { "SDRA, [m/s2]", "asterix.015_V1_0_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRA_SDRA, { "SDRA, [m/s²]", "asterix.015_V1_0_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_625_SDRA_CORAR, { "CORAR", "asterix.015_V1_0_625_SDRA_CORAR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_625_SDRA_CORARR, { "CORARR", "asterix.015_V1_0_625_SDRA_CORARR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626, { "626, Doppler Information", "asterix.015_V1_0_626", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58098,9 +58098,9 @@ void proto_register_asterix (void)
         { &hf_015_V1_0_626_SDDV, { "SDDV, Precision of Doppler Velocity", "asterix.015_V1_0_626_SDDV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626_SDDV_VALUE, { "Precision of Doppler Velocity, [m/s]", "asterix.015_V1_0_626_SDDV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626_DA, { "DA, Doppler Acceleration", "asterix.015_V1_0_626_DA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_626_DA_VALUE, { "Doppler Acceleration, [m/s2]", "asterix.015_V1_0_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_DA_VALUE, { "Doppler Acceleration, [m/s²]", "asterix.015_V1_0_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626_SDDA, { "SDDA, Precision of Doppler Acceleration", "asterix.015_V1_0_626_SDDA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_626_SDDA_SDDA, { "SDDA, [m/s2]", "asterix.015_V1_0_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_SDDA_SDDA, { "SDDA, [m/s²]", "asterix.015_V1_0_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626_SDDA_CODADV, { "CODADV", "asterix.015_V1_0_626_SDDA_CODADV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626_CODVR, { "CODVR, Correlation of Doppler Velocity and Range", "asterix.015_V1_0_626_CODVR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_626_CODVR_VALUE, { "Correlation of Doppler Velocity and Range", "asterix.015_V1_0_626_CODVR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58256,11 +58256,11 @@ void proto_register_asterix (void)
         { &hf_015_V1_1_602_COHVHP_COHVYHPY, { "COHVYHPY", "asterix.015_V1_1_602_COHVHP_COHVYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_603, { "603, Horizontal Acceleration Information", "asterix.015_V1_1_603", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_603_HA, { "HA, Horizontal Acceleration Vector", "asterix.015_V1_1_603_HA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_603_HA_X, { "X, [m/s2]", "asterix.015_V1_1_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_603_HA_Y, { "Y, [m/s2]", "asterix.015_V1_1_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_603_HA_X, { "X, [m/s²]", "asterix.015_V1_1_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_603_HA_Y, { "Y, [m/s²]", "asterix.015_V1_1_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_603_SDHA, { "SDHA, Horizontal Acceleration Precision", "asterix.015_V1_1_603_SDHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_603_SDHA_X, { "X, [m/s2]", "asterix.015_V1_1_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_603_SDHA_Y, { "Y, [m/s2]", "asterix.015_V1_1_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_603_SDHA_X, { "X, [m/s²]", "asterix.015_V1_1_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_603_SDHA_Y, { "Y, [m/s²]", "asterix.015_V1_1_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_603_SDHA_COHAXY, { "COHAXY", "asterix.015_V1_1_603_SDHA_COHAXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_603_COHAHP, { "COHAHP, Correlation of Horizontal Acceleration and Horizontal Position", "asterix.015_V1_1_603_COHAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_603_COHAHP_COHAXHPX, { "COHAXHPX", "asterix.015_V1_1_603_COHAHP_COHAXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58291,9 +58291,9 @@ void proto_register_asterix (void)
         { &hf_015_V1_1_604_COVVHA_Y, { "Y", "asterix.015_V1_1_604_COVVHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_605, { "605, Vertical Velocity Information", "asterix.015_V1_1_605", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_605_VA, { "VA, Vertical Acceleration", "asterix.015_V1_1_605_VA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_605_VA_VALUE, { "Vertical Acceleration, [m/s2]", "asterix.015_V1_1_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_605_VA_VALUE, { "Vertical Acceleration, [m/s²]", "asterix.015_V1_1_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_605_RSVA, { "RSVA, Vertical Acceleration Precision", "asterix.015_V1_1_605_RSVA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_605_RSVA_SDVA, { "SDVA, [m/s2]", "asterix.015_V1_1_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_605_RSVA_SDVA, { "SDVA, [m/s²]", "asterix.015_V1_1_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_605_RSVA_COVAGH, { "COVAGH", "asterix.015_V1_1_605_RSVA_COVAGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_605_RSVA_COVAVV, { "COVAVV", "asterix.015_V1_1_605_RSVA_COVAVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_605_COVAHP, { "COVAHP, Correlation of Vertical Acceleration and Horizontal Position", "asterix.015_V1_1_605_COVAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58320,9 +58320,9 @@ void proto_register_asterix (void)
         { &hf_015_V1_1_625_SDRR_SDRR, { "SDRR, [m/s]", "asterix.015_V1_1_625_SDRR_SDRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_625_SDRR_CORRR, { "CORRR", "asterix.015_V1_1_625_SDRR_CORRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_625_RA, { "RA, Range Acceleration", "asterix.015_V1_1_625_RA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_625_RA_VALUE, { "Range Acceleration, [m/s2]", "asterix.015_V1_1_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_625_RA_VALUE, { "Range Acceleration, [m/s²]", "asterix.015_V1_1_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_625_SDRA, { "SDRA, Range Acceleration Precision", "asterix.015_V1_1_625_SDRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_625_SDRA_SDRA, { "SDRA, [m/s2]", "asterix.015_V1_1_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_625_SDRA_SDRA, { "SDRA, [m/s²]", "asterix.015_V1_1_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_625_SDRA_CORAR, { "CORAR", "asterix.015_V1_1_625_SDRA_CORAR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_625_SDRA_CORARR, { "CORARR", "asterix.015_V1_1_625_SDRA_CORARR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626, { "626, Doppler Information", "asterix.015_V1_1_626", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58331,9 +58331,9 @@ void proto_register_asterix (void)
         { &hf_015_V1_1_626_SDDV, { "SDDV, Precision of Doppler Velocity", "asterix.015_V1_1_626_SDDV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626_SDDV_VALUE, { "Precision of Doppler Velocity, [m/s]", "asterix.015_V1_1_626_SDDV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626_DA, { "DA, Doppler Acceleration", "asterix.015_V1_1_626_DA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_626_DA_VALUE, { "Doppler Acceleration, [m/s2]", "asterix.015_V1_1_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_626_DA_VALUE, { "Doppler Acceleration, [m/s²]", "asterix.015_V1_1_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626_SDDA, { "SDDA, Precision of Doppler Acceleration", "asterix.015_V1_1_626_SDDA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_626_SDDA_SDDA, { "SDDA, [m/s2]", "asterix.015_V1_1_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_1_626_SDDA_SDDA, { "SDDA, [m/s²]", "asterix.015_V1_1_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626_SDDA_CODADV, { "CODADV", "asterix.015_V1_1_626_SDDA_CODADV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626_CODVR, { "CODVR, Correlation of Doppler Velocity and Range", "asterix.015_V1_1_626_CODVR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_626_CODVR_VALUE, { "Correlation of Doppler Velocity and Range", "asterix.015_V1_1_626_CODVR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58489,11 +58489,11 @@ void proto_register_asterix (void)
         { &hf_015_602_COHVHP_COHVYHPY, { "COHVYHPY", "asterix.015_602_COHVHP_COHVYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_603, { "603, Horizontal Acceleration Information", "asterix.015_603", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_603_HA, { "HA, Horizontal Acceleration Vector", "asterix.015_603_HA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_603_HA_X, { "X, [m/s2]", "asterix.015_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_603_HA_Y, { "Y, [m/s2]", "asterix.015_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_HA_X, { "X, [m/s²]", "asterix.015_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_HA_Y, { "Y, [m/s²]", "asterix.015_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_603_SDHA, { "SDHA, Horizontal Acceleration Precision", "asterix.015_603_SDHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_603_SDHA_X, { "X, [m/s2]", "asterix.015_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_603_SDHA_Y, { "Y, [m/s2]", "asterix.015_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_SDHA_X, { "X, [m/s²]", "asterix.015_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_SDHA_Y, { "Y, [m/s²]", "asterix.015_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_603_SDHA_COHAXY, { "COHAXY", "asterix.015_603_SDHA_COHAXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_603_COHAHP, { "COHAHP, Correlation of Horizontal Acceleration and Horizontal Position", "asterix.015_603_COHAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_603_COHAHP_COHAXHPX, { "COHAXHPX", "asterix.015_603_COHAHP_COHAXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58524,9 +58524,9 @@ void proto_register_asterix (void)
         { &hf_015_604_COVVHA_Y, { "Y", "asterix.015_604_COVVHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_605, { "605, Vertical Velocity Information", "asterix.015_605", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_605_VA, { "VA, Vertical Acceleration", "asterix.015_605_VA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_605_VA_VALUE, { "Vertical Acceleration, [m/s2]", "asterix.015_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_VA_VALUE, { "Vertical Acceleration, [m/s²]", "asterix.015_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_605_RSVA, { "RSVA, Vertical Acceleration Precision", "asterix.015_605_RSVA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_605_RSVA_SDVA, { "SDVA, [m/s2]", "asterix.015_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_RSVA_SDVA, { "SDVA, [m/s²]", "asterix.015_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_605_RSVA_COVAGH, { "COVAGH", "asterix.015_605_RSVA_COVAGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_605_RSVA_COVAVV, { "COVAVV", "asterix.015_605_RSVA_COVAVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_605_COVAHP, { "COVAHP, Correlation of Vertical Acceleration and Horizontal Position", "asterix.015_605_COVAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58553,9 +58553,9 @@ void proto_register_asterix (void)
         { &hf_015_625_SDRR_SDRR, { "SDRR, [m/s]", "asterix.015_625_SDRR_SDRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_625_SDRR_CORRR, { "CORRR", "asterix.015_625_SDRR_CORRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_625_RA, { "RA, Range Acceleration", "asterix.015_625_RA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_625_RA_VALUE, { "Range Acceleration, [m/s2]", "asterix.015_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RA_VALUE, { "Range Acceleration, [m/s²]", "asterix.015_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_625_SDRA, { "SDRA, Range Acceleration Precision", "asterix.015_625_SDRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_625_SDRA_SDRA, { "SDRA, [m/s2]", "asterix.015_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRA_SDRA, { "SDRA, [m/s²]", "asterix.015_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_625_SDRA_CORAR, { "CORAR", "asterix.015_625_SDRA_CORAR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_625_SDRA_CORARR, { "CORARR", "asterix.015_625_SDRA_CORARR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626, { "626, Doppler Information", "asterix.015_626", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58564,9 +58564,9 @@ void proto_register_asterix (void)
         { &hf_015_626_SDDV, { "SDDV, Precision of Doppler Velocity", "asterix.015_626_SDDV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626_SDDV_VALUE, { "Precision of Doppler Velocity, [m/s]", "asterix.015_626_SDDV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626_DA, { "DA, Doppler Acceleration", "asterix.015_626_DA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_626_DA_VALUE, { "Doppler Acceleration, [m/s2]", "asterix.015_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_DA_VALUE, { "Doppler Acceleration, [m/s²]", "asterix.015_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626_SDDA, { "SDDA, Precision of Doppler Acceleration", "asterix.015_626_SDDA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_626_SDDA_SDDA, { "SDDA, [m/s2]", "asterix.015_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_SDDA_SDDA, { "SDDA, [m/s²]", "asterix.015_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626_SDDA_CODADV, { "CODADV", "asterix.015_626_SDDA_CODADV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626_CODVR, { "CODVR, Correlation of Doppler Velocity and Range", "asterix.015_626_CODVR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_626_CODVR_VALUE, { "Correlation of Doppler Velocity and Range", "asterix.015_626_CODVR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -59160,8 +59160,8 @@ void proto_register_asterix (void)
         { &hf_020_V1_9_202_VX, { "VX, [m/s]", "asterix.020_V1_9_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_202_VY, { "VY, [m/s]", "asterix.020_V1_9_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_210, { "210, Calculated Acceleration", "asterix.020_V1_9_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_V1_9_210_AX, { "AX, [m/s2]", "asterix.020_V1_9_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_V1_9_210_AY, { "AY, [m/s2]", "asterix.020_V1_9_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_V1_9_210_AX, { "AX, [m/s²]", "asterix.020_V1_9_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_V1_9_210_AY, { "AY, [m/s²]", "asterix.020_V1_9_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_220, { "220, Target Address", "asterix.020_V1_9_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_220_VALUE, { "Target Address", "asterix.020_V1_9_220_VALUE", FT_UINT24, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_230, { "230, Communications/ACAS Capability and Flight Status", "asterix.020_V1_9_230", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -59289,8 +59289,8 @@ void proto_register_asterix (void)
         { &hf_020_V1_10_202_VX, { "VX, [m/s]", "asterix.020_V1_10_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_202_VY, { "VY, [m/s]", "asterix.020_V1_10_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_210, { "210, Calculated Acceleration", "asterix.020_V1_10_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_V1_10_210_AX, { "AX, [m/s2]", "asterix.020_V1_10_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_V1_10_210_AY, { "AY, [m/s2]", "asterix.020_V1_10_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_V1_10_210_AX, { "AX, [m/s²]", "asterix.020_V1_10_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_V1_10_210_AY, { "AY, [m/s²]", "asterix.020_V1_10_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_220, { "220, Target Address", "asterix.020_V1_10_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_220_VALUE, { "Target Address", "asterix.020_V1_10_220_VALUE", FT_UINT24, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_230, { "230, Communications/ACAS Capability and Flight Status", "asterix.020_V1_10_230", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -59418,8 +59418,8 @@ void proto_register_asterix (void)
         { &hf_020_202_VX, { "VX, [m/s]", "asterix.020_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_202_VY, { "VY, [m/s]", "asterix.020_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_210, { "210, Calculated Acceleration", "asterix.020_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_210_AX, { "AX, [m/s2]", "asterix.020_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_210_AY, { "AY, [m/s2]", "asterix.020_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_210_AX, { "AX, [m/s²]", "asterix.020_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_210_AY, { "AY, [m/s²]", "asterix.020_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_220, { "220, Target Address", "asterix.020_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_220_VALUE, { "Target Address", "asterix.020_220_VALUE", FT_UINT24, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_020_230, { "230, Communications/ACAS Capability and Flight Status", "asterix.020_230", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -62837,8 +62837,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_17_200_VERT, { "VERT, Transversal Acceleration", "asterix.062_V1_17_200_VERT", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_17_200_VERT), 0x0c, NULL, HFILL } },
         { &hf_062_V1_17_200_ADF, { "ADF, Altitude Discrepancy Flag", "asterix.062_V1_17_200_ADF", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_17_200_ADF), 0x02, NULL, HFILL } },
         { &hf_062_V1_17_210, { "210, Calculated Acceleration (Cartesian)", "asterix.062_V1_17_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_210_AX, { "AX, [m/s2]", "asterix.062_V1_17_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_210_AY, { "AY, [m/s2]", "asterix.062_V1_17_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_210_AX, { "AX, [m/s²]", "asterix.062_V1_17_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_210_AY, { "AY, [m/s²]", "asterix.062_V1_17_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_220, { "220, Calculated Rate of Climb/Descent", "asterix.062_V1_17_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_220_VALUE, { "Calculated Rate of Climb/Descent, [ft/min]", "asterix.062_V1_17_220_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_245, { "245, Target Identification", "asterix.062_V1_17_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -63120,8 +63120,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_17_500_ATV_X, { "X, ATV (X-Component), [m/s]", "asterix.062_V1_17_500_ATV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_500_ATV_Y, { "Y, ATV (Y-Component), [m/s]", "asterix.062_V1_17_500_ATV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_500_AA, { "AA, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.062_V1_17_500_AA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_500_AA_X, { "X, AA (X-Component), [m/s2]", "asterix.062_V1_17_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_500_AA_Y, { "Y, AA (Y-Component), [m/s2]", "asterix.062_V1_17_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_500_AA_X, { "X, AA (X-Component), [m/s²]", "asterix.062_V1_17_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_500_AA_Y, { "Y, AA (Y-Component), [m/s²]", "asterix.062_V1_17_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_17_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_17_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_510, { "510, Composed Track Number", "asterix.062_V1_17_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -63234,8 +63234,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_18_200_VERT, { "VERT, Transversal Acceleration", "asterix.062_V1_18_200_VERT", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_18_200_VERT), 0x0c, NULL, HFILL } },
         { &hf_062_V1_18_200_ADF, { "ADF, Altitude Discrepancy Flag", "asterix.062_V1_18_200_ADF", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_18_200_ADF), 0x02, NULL, HFILL } },
         { &hf_062_V1_18_210, { "210, Calculated Acceleration (Cartesian)", "asterix.062_V1_18_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_210_AX, { "AX, [m/s2]", "asterix.062_V1_18_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_210_AY, { "AY, [m/s2]", "asterix.062_V1_18_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_210_AX, { "AX, [m/s²]", "asterix.062_V1_18_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_210_AY, { "AY, [m/s²]", "asterix.062_V1_18_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_220, { "220, Calculated Rate of Climb/Descent", "asterix.062_V1_18_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_220_VALUE, { "Calculated Rate of Climb/Descent, [ft/min]", "asterix.062_V1_18_220_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_245, { "245, Target Identification", "asterix.062_V1_18_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -63517,8 +63517,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_18_500_ATV_X, { "X, ATV (X-Component), [m/s]", "asterix.062_V1_18_500_ATV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_500_ATV_Y, { "Y, ATV (Y-Component), [m/s]", "asterix.062_V1_18_500_ATV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_500_AA, { "AA, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.062_V1_18_500_AA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_500_AA_X, { "X, AA (X-Component), [m/s2]", "asterix.062_V1_18_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_500_AA_Y, { "Y, AA (Y-Component), [m/s2]", "asterix.062_V1_18_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_500_AA_X, { "X, AA (X-Component), [m/s²]", "asterix.062_V1_18_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_500_AA_Y, { "Y, AA (Y-Component), [m/s²]", "asterix.062_V1_18_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_18_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_18_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_510, { "510, Composed Track Number", "asterix.062_V1_18_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -63631,8 +63631,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_19_200_VERT, { "VERT, Transversal Acceleration", "asterix.062_V1_19_200_VERT", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_19_200_VERT), 0x0c, NULL, HFILL } },
         { &hf_062_V1_19_200_ADF, { "ADF, Altitude Discrepancy Flag", "asterix.062_V1_19_200_ADF", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_19_200_ADF), 0x02, NULL, HFILL } },
         { &hf_062_V1_19_210, { "210, Calculated Acceleration (Cartesian)", "asterix.062_V1_19_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_210_AX, { "AX, [m/s2]", "asterix.062_V1_19_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_210_AY, { "AY, [m/s2]", "asterix.062_V1_19_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_210_AX, { "AX, [m/s²]", "asterix.062_V1_19_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_210_AY, { "AY, [m/s²]", "asterix.062_V1_19_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_220, { "220, Calculated Rate of Climb/Descent", "asterix.062_V1_19_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_220_VALUE, { "Calculated Rate of Climb/Descent, [ft/min]", "asterix.062_V1_19_220_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_245, { "245, Target Identification", "asterix.062_V1_19_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -63914,8 +63914,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_19_500_ATV_X, { "X, ATV (X-Component), [m/s]", "asterix.062_V1_19_500_ATV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_500_ATV_Y, { "Y, ATV (Y-Component), [m/s]", "asterix.062_V1_19_500_ATV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_500_AA, { "AA, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.062_V1_19_500_AA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_500_AA_X, { "X, AA (X-Component), [m/s2]", "asterix.062_V1_19_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_500_AA_Y, { "Y, AA (Y-Component), [m/s2]", "asterix.062_V1_19_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_500_AA_X, { "X, AA (X-Component), [m/s²]", "asterix.062_V1_19_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_500_AA_Y, { "Y, AA (Y-Component), [m/s²]", "asterix.062_V1_19_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_19_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_19_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_510, { "510, Composed Track Number", "asterix.062_V1_19_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -64029,8 +64029,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_20_200_VERT, { "VERT, Transversal Acceleration", "asterix.062_V1_20_200_VERT", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_20_200_VERT), 0x0c, NULL, HFILL } },
         { &hf_062_V1_20_200_ADF, { "ADF, Altitude Discrepancy Flag", "asterix.062_V1_20_200_ADF", FT_UINT8, BASE_DEC, VALS (valstr_062_V1_20_200_ADF), 0x02, NULL, HFILL } },
         { &hf_062_V1_20_210, { "210, Calculated Acceleration (Cartesian)", "asterix.062_V1_20_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_210_AX, { "AX, [m/s2]", "asterix.062_V1_20_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_210_AY, { "AY, [m/s2]", "asterix.062_V1_20_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_20_210_AX, { "AX, [m/s²]", "asterix.062_V1_20_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_20_210_AY, { "AY, [m/s²]", "asterix.062_V1_20_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_220, { "220, Calculated Rate of Climb/Descent", "asterix.062_V1_20_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_220_VALUE, { "Calculated Rate of Climb/Descent, [ft/min]", "asterix.062_V1_20_220_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_245, { "245, Target Identification", "asterix.062_V1_20_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -64312,8 +64312,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_20_500_ATV_X, { "X, ATV (X-Component), [m/s]", "asterix.062_V1_20_500_ATV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_500_ATV_Y, { "Y, ATV (Y-Component), [m/s]", "asterix.062_V1_20_500_ATV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_500_AA, { "AA, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.062_V1_20_500_AA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_500_AA_X, { "X, AA (X-Component), [m/s2]", "asterix.062_V1_20_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_20_500_AA_Y, { "Y, AA (Y-Component), [m/s2]", "asterix.062_V1_20_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_20_500_AA_X, { "X, AA (X-Component), [m/s²]", "asterix.062_V1_20_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_20_500_AA_Y, { "Y, AA (Y-Component), [m/s²]", "asterix.062_V1_20_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_V1_20_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_V1_20_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_20_510, { "510, Composed Track Number", "asterix.062_V1_20_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -64427,8 +64427,8 @@ void proto_register_asterix (void)
         { &hf_062_200_VERT, { "VERT, Transversal Acceleration", "asterix.062_200_VERT", FT_UINT8, BASE_DEC, VALS (valstr_062_200_VERT), 0x0c, NULL, HFILL } },
         { &hf_062_200_ADF, { "ADF, Altitude Discrepancy Flag", "asterix.062_200_ADF", FT_UINT8, BASE_DEC, VALS (valstr_062_200_ADF), 0x02, NULL, HFILL } },
         { &hf_062_210, { "210, Calculated Acceleration (Cartesian)", "asterix.062_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_210_AX, { "AX, [m/s2]", "asterix.062_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_210_AY, { "AY, [m/s2]", "asterix.062_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_210_AX, { "AX, [m/s²]", "asterix.062_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_210_AY, { "AY, [m/s²]", "asterix.062_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_220, { "220, Calculated Rate of Climb/Descent", "asterix.062_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_220_VALUE, { "Calculated Rate of Climb/Descent, [ft/min]", "asterix.062_220_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_245, { "245, Target Identification", "asterix.062_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -64710,8 +64710,8 @@ void proto_register_asterix (void)
         { &hf_062_500_ATV_X, { "X, ATV (X-Component), [m/s]", "asterix.062_500_ATV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_500_ATV_Y, { "Y, ATV (Y-Component), [m/s]", "asterix.062_500_ATV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_500_AA, { "AA, Estimated Accuracy Of Acceleration (Cartesian)", "asterix.062_500_AA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_500_AA_X, { "X, AA (X-Component), [m/s2]", "asterix.062_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_500_AA_Y, { "Y, AA (Y-Component), [m/s2]", "asterix.062_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_500_AA_X, { "X, AA (X-Component), [m/s²]", "asterix.062_500_AA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_500_AA_Y, { "Y, AA (Y-Component), [m/s²]", "asterix.062_500_AA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_500_ARC, { "ARC, Estimated Accuracy Of Rate Of Climb/Descent", "asterix.062_500_ARC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_500_ARC_VALUE, { "Estimated Accuracy Of Rate Of Climb/Descent, [ft/min]", "asterix.062_500_ARC_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_510, { "510, Composed Track Number", "asterix.062_510", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
