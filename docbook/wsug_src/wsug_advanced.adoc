@@ -513,10 +513,6 @@ Next expected acknowledgment number:: The last-seen sequence number for
 segments. Set when there are no analysis flags and for zero window probes.
 
 // tcp_analyze_seq_info->lastack
-Last-seen acknowledgment number:: Always set. Note that this is not the
-same as the next expected acknowledgment number.
-
-// tcp_analyze_seq_info->lastack
 Last-seen acknowledgment number:: Always updated for each packet. Note
 that this is not the same as the next expected acknowledgment number.
 
