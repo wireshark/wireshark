@@ -1029,6 +1029,8 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo,
     returned_offset = offset;
     gssapi_encrypt->gssapi_wrap_tvb = tvb_new_subset_length(tvb, offset,
             inner_token_len);
+    gssapi_encrypt->gssapi_decrypted_tvb = tvb_new_subset_length(tvb, offset,
+            inner_token_len);
 
     offset += inner_token_len;
 

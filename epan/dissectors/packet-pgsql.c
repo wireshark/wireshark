@@ -872,18 +872,26 @@ dissect_pgsql_gssapi_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         /* GSS-API couldn't do anything with it. */
         return tvb_captured_length(tvb);
     }
-    if (encrypt.gssapi_decrypted_tvb) {
-        tvbuff_t *decr_tvb = encrypt.gssapi_decrypted_tvb;
-        add_new_data_source(pinfo, encrypt.gssapi_decrypted_tvb, "Decrypted GSS-API");
-        dissect_pgsql_msg(decr_tvb, pinfo, ptree, data);
-    } else if (encrypt.gssapi_data_encrypted) {
-        /* Encrypted but couldn't be decrypted. */
-        proto_tree_add_item(ptree, hf_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
+    if (encrypt.gssapi_data_encrypted) {
+        if (encrypt.gssapi_decrypted_tvb) {
+            tvbuff_t *decr_tvb = encrypt.gssapi_decrypted_tvb;
+            add_new_data_source(pinfo, encrypt.gssapi_decrypted_tvb, "Decrypted GSS-API");
+            dissect_pgsql_msg(decr_tvb, pinfo, ptree, data);
+        } else {
+            /* Encrypted but couldn't be decrypted. */
+            proto_tree_add_item(ptree, hf_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
+        }
     } else {
         /* No encrypted (sealed) payload. If any bytes are left, that is
          * signed-only payload. */
-        if (tvb_reported_length_remaining(gssapi_tvb, ver_len)) {
-            dissect_pgsql_msg(tvb_new_subset_remaining(gssapi_tvb, ver_len), pinfo, ptree, data);
+        tvbuff_t *plain_tvb;
+        if (encrypt.gssapi_decrypted_tvb) {
+            plain_tvb = encrypt.gssapi_decrypted_tvb;
+        } else {
+            plain_tvb = tvb_new_subset_remaining(gssapi_tvb, ver_len);
+        }
+        if (tvb_reported_length(plain_tvb)) {
+            dissect_pgsql_msg(plain_tvb, pinfo, ptree, data);
         }
     }
     return tvb_captured_length(tvb);

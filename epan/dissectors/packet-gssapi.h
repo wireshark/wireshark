@@ -27,13 +27,20 @@ typedef struct _gssapi_oid_value {
 
 /**< Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
 	Caller sets decrypt_gssapi_tvb if this service is requested.
-	If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following
-	the gssapi blob itself is decrypted othervise the gssapi_encrypted_tvb
-	tvb will be decrypted (DCERPC has the data before the gssapi blob)
-	If, on return, gssapi_data_encrypted is FALSE, the wrapped tvbuff
-	was signed (i.e., an encrypted signature was present, to check
+	If, on a successful return, gssapi_data_encrypted is FALSE, the wrapped
+	tvbuff was signed (i.e., an encrypted signature was present, to check
 	whether the data was modified by a man in the middle) but not sealed
 	(i.e., the data itself wasn't encrypted).
+	If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following
+	the gssapi blob itself is decrypted otherwise the gssapi_encrypted_tvb
+	tvb will be decrypted (DCERPC has the data before the gssapi blob).
+	In the latter case, gssapi_decrypted_tvb contains the decrypted data if
+	decryption is successful and is NULL if not.
+	If gssapi_data_encrypted is FALSE and gssapi_decrypted_tvb is not NULL,
+	then it contains the plaintext data, for cases when the plaintext data
+	was followed by the checksum, e.g. KRB_TOKEN_CFX_WRAP (RFC 4121),
+	as the calling dissector cannot simply dissect all the data after
+	the returned offset.
 */
 typedef struct _gssapi_encrypt_info
 {

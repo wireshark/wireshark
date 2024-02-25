@@ -1247,41 +1247,46 @@ static void
         if(ver_len==0){
           return;
         }
-        if (gssapi_encrypt.gssapi_decrypted_tvb) {
-          tvbuff_t *decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
-          proto_tree *enc_tree = NULL;
+        if (gssapi_encrypt.gssapi_data_encrypted) {
+          if (gssapi_encrypt.gssapi_decrypted_tvb) {
+            tvbuff_t *decr_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
+            proto_tree *enc_tree = NULL;
 
-          /*
-           * The LDAP payload (blob) was encrypted and we were able to decrypt it.
-           * The data was signed via a MIC token, sealed (encrypted), and "wrapped"
-           * within the mechanism's "blob." Call dissect_ldap_payload to dissect
-           * one or more LDAPMessages such as searchRequest messages within this
-           * payload.
-           */
-          col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
+            /*
+             * The LDAP payload (blob) was encrypted and we were able to decrypt it.
+             * The data was signed via a MIC token, sealed (encrypted), and "wrapped"
+             * within the mechanism's "blob." Call dissect_ldap_payload to dissect
+             * one or more LDAPMessages such as searchRequest messages within this
+             * payload.
+             */
+            col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
 
-          if (sasl_tree) {
-            guint decr_len = tvb_reported_length(decr_tvb);
+            if (sasl_tree) {
+              guint decr_len = tvb_reported_length(decr_tvb);
 
-            enc_tree = proto_tree_add_subtree_format(sasl_tree, decr_tvb, 0, -1,
-              ett_ldap_payload, NULL, "GSS-API Encrypted payload (%d byte%s)",
-              decr_len, plurality(decr_len, "", "s"));
+              enc_tree = proto_tree_add_subtree_format(sasl_tree, decr_tvb, 0, -1,
+                ett_ldap_payload, NULL, "GSS-API Encrypted payload (%d byte%s)",
+                decr_len, plurality(decr_len, "", "s"));
+            }
+
+            dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
+          } else {
+            /*
+            * The LDAP message was encrypted but couldn't be decrypted so just display the
+            * encrypted data all of which is found in Packet Bytes.
+            */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
+              sasl_len-ver_len, plurality(sasl_len-ver_len, "", "s"));
+
+            proto_tree_add_item(sasl_tree, hf_ldap_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
           }
-
-          dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
-        }
-        else if (gssapi_encrypt.gssapi_data_encrypted) {
-          /*
-          * The LDAP message was encrypted but couldn't be decrypted so just display the
-          * encrypted data all of which is found in Packet Bytes.
-          */
-          col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
-            sasl_len-ver_len, plurality(sasl_len-ver_len, "", "s"));
-
-          proto_tree_add_item(sasl_tree, hf_ldap_gssapi_encrypted_payload, gssapi_tvb, ver_len, -1, ENC_NA);
-        }
-        else {
-          tvbuff_t *plain_tvb = tvb_new_subset_remaining(gssapi_tvb, ver_len);
+        } else {
+          tvbuff_t *plain_tvb;
+          if (gssapi_encrypt.gssapi_decrypted_tvb) {
+            plain_tvb = gssapi_encrypt.gssapi_decrypted_tvb;
+          } else {
+            plain_tvb = tvb_new_subset_remaining(gssapi_tvb, ver_len);
+          }
           proto_tree *plain_tree = NULL;
 
           /*
