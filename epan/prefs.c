@@ -331,7 +331,6 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_BOOL:
     case PREF_ENUM:
     case PREF_UINT:
-    case PREF_DECODE_AS_UINT:
     case PREF_STATIC_TEXT:
     case PREF_UAT:
     case PREF_COLOR:
@@ -1996,12 +1995,6 @@ gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace)
 {
     switch(pref->type)
     {
-    case PREF_DECODE_AS_UINT:
-        /* This doesn't support multiple values for a dissector in Decode As because the
-            preference only supports a single value. This leads to a "last port for
-            dissector in Decode As wins" */
-        *pref->varp.uint = value;
-        break;
     case PREF_DECODE_AS_RANGE:
         if (replace)
         {
@@ -2023,18 +2016,14 @@ gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace)
     return TRUE;
 }
 
-gboolean prefs_remove_decode_as_value(pref_t *pref, guint value, gboolean set_default)
+gboolean prefs_remove_decode_as_value(pref_t *pref, guint value, gboolean set_default _U_)
 {
     switch(pref->type)
     {
-    case PREF_DECODE_AS_UINT:
-        if (set_default) {
-            *pref->varp.uint = pref->default_val.uint;
-        } else {
-            *pref->varp.uint = 0;
-        }
-        break;
     case PREF_DECODE_AS_RANGE:
+        /* XXX - We could set to the default if the value is the only one
+         * in the range.
+         */
         prefs_range_remove_value(pref, value);
         break;
     default:
@@ -2092,10 +2081,6 @@ pref_stash(pref_t *pref, gpointer unused _U_)
 {
     switch (pref->type) {
 
-    case PREF_DECODE_AS_UINT:
-        pref->stashed_val.uint = *pref->varp.uint;
-        break;
-
     case PREF_UINT:
         pref->stashed_val.uint = *pref->varp.uint;
         break;
@@ -2150,30 +2135,6 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
 
     /* Revert the preference to its saved value. */
     switch (pref->type) {
-
-    case PREF_DECODE_AS_UINT:
-        if (*pref->varp.uint != pref->stashed_val.uint) {
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-
-            if (unstash_data->handle_decode_as) {
-                if (*pref->varp.uint != pref->default_val.uint) {
-                    dissector_reset_uint(pref->name, *pref->varp.uint);
-                }
-            }
-
-            *pref->varp.uint = pref->stashed_val.uint;
-
-            if (unstash_data->handle_decode_as) {
-                sub_dissectors = find_dissector_table(pref->name);
-                if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, unstash_data->module->title);
-                    if (handle != NULL) {
-                        dissector_change_uint(pref->name, *pref->varp.uint, handle);
-                    }
-                }
-            }
-        }
-        break;
 
     case PREF_UINT:
         if (*pref->varp.uint != pref->stashed_val.uint) {
@@ -2304,10 +2265,6 @@ void
 reset_stashed_pref(pref_t *pref) {
     switch (pref->type) {
 
-    case PREF_DECODE_AS_UINT:
-        pref->stashed_val.uint = pref->default_val.uint;
-        break;
-
     case PREF_UINT:
         pref->stashed_val.uint = pref->default_val.uint;
         break;
@@ -2364,7 +2321,6 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
     switch (pref->type) {
 
     case PREF_UINT:
-    case PREF_DECODE_AS_UINT:
         break;
 
     case PREF_BOOL:
@@ -4490,7 +4446,6 @@ reset_pref(pref_t *pref)
     switch (type) {
 
     case PREF_UINT:
-    case PREF_DECODE_AS_UINT:
         *pref->varp.uint = pref->default_val.uint;
         break;
 
@@ -5724,7 +5679,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                 ws_warning("Deprecated ports pref '%s.%s' not found", module->name, port_prefs[i].table_name);
                 continue;
             }
-            if (pref->type != PREF_DECODE_AS_UINT && pref->type != PREF_DECODE_AS_RANGE) {
+            if (pref->type != PREF_DECODE_AS_RANGE) {
                 ws_warning("Deprecated ports pref '%s.%s' has wrong type: %#x (%s)", module->name, port_prefs[i].table_name, pref->type, prefs_pref_type_name(pref));
             }
         }
@@ -5739,9 +5694,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
             pref = prefs_find_preference(module, port_prefs[i].table_name);
             if (pref != NULL) {
                 module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-                if (pref->type == PREF_DECODE_AS_UINT) {
-                    *pref->varp.uint = uval;
-                } else if (pref->type == PREF_DECODE_AS_RANGE) {
+                if (pref->type == PREF_DECODE_AS_RANGE) {
                     // The legacy preference was a port number, but the new
                     // preference is a port range. Add to existing range.
                     if (uval) {
@@ -6334,41 +6287,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data,
                 *pref->varp.uint = uval;
             }
             break;
-        case PREF_DECODE_AS_UINT:
-        {
-            /* This is for backwards compatibility in case any of the preferences
-               that shared the "Decode As" preference name and used to be PREF_UINT
-               are now applied directly to the Decode As funtionality */
-
-            dissector_table_t sub_dissectors;
-            dissector_handle_t handle;
-
-            if (!ws_basestrtou32(value, NULL, &uval, pref->info.base))
-                return PREFS_SET_SYNTAX_ERR;        /* number was bad */
-
-            if (*pref->varp.uint != uval) {
-                containing_module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-                *pref->varp.uint = uval;
-
-                /* Name of preference is the dissector table */
-                sub_dissectors = find_dissector_table(pref->name);
-                if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, module->title);
-                    if (handle != NULL) {
-                        if (uval != 0) {
-                            dissector_change_uint(pref->name, uval, handle);
-                            decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(uval), NULL, NULL);
-                        } else {
-                            dissector_delete_uint(pref->name, *pref->varp.uint, handle);
-                            decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), pref->varp.uint, NULL, NULL);
-                        }
-
-                        /* XXX - Do we save the decode_as_entries file here? */
-                    }
-                }
-            }
-            break;
-        }
         case PREF_BOOL:
             /* XXX - give an error if it's neither "true" nor "false"? */
             if (g_ascii_strcasecmp(value, "true") == 0)
@@ -6580,10 +6498,6 @@ prefs_pref_type_name(pref_t *pref)
         type_name = "Custom";
         break;
 
-    case PREF_DECODE_AS_UINT:
-        type_name = "Decode As value";
-        break;
-
     case PREF_DECODE_AS_RANGE:
         type_name = "Range (for Decode As)";
         break;
@@ -6740,10 +6654,6 @@ prefs_pref_type_description(pref_t *pref)
         type_desc = "A custom value";
         break;
 
-    case PREF_DECODE_AS_UINT:
-        type_desc = "An integer value used in Decode As";
-        break;
-
     case PREF_DECODE_AS_RANGE:
         type_desc = "A string denoting an positive integer range for Decode As";
         break;
@@ -6784,11 +6694,6 @@ prefs_pref_is_default(pref_t *pref)
     }
 
     switch (type) {
-
-    case PREF_DECODE_AS_UINT:
-        if (pref->default_val.uint == *pref->varp.uint)
-            return TRUE;
-        break;
 
     case PREF_UINT:
         if (pref->default_val.uint == *pref->varp.uint)
@@ -6886,7 +6791,6 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
 
     switch (type) {
 
-    case PREF_DECODE_AS_UINT:
     case PREF_UINT:
     {
         guint pref_uint = *(guint *) valp;
@@ -7007,7 +6911,6 @@ write_pref(gpointer data, gpointer user_data)
     case PREF_UAT:
         /* Nothing to do; don't bother printing the description */
         return;
-    case PREF_DECODE_AS_UINT:
     case PREF_DECODE_AS_RANGE:
         /* Data is saved through Decode As mechanism and not part of preferences file */
         return;
@@ -7086,7 +6989,6 @@ count_non_uat_pref(gpointer data, gpointer user_data)
     {
     case PREF_UAT:
     case PREF_OBSOLETE:
-    case PREF_DECODE_AS_UINT:
     case PREF_DECODE_AS_RANGE:
     case PREF_PROTO_TCP_SNDAMB_ENUM:
         //These types are not written in preference file

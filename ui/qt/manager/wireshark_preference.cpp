@@ -102,7 +102,6 @@ public:
     UIntPreference(QObject * parent = Q_NULLPTR) : StringPreference(parent) {}
 };
 REGISTER_PREFERENCE_TYPE(PREF_UINT, UIntPreference)
-REGISTER_PREFERENCE_TYPE(PREF_DECODE_AS_UINT, UIntPreference)
 
 class EnumPreference : public WiresharkPreference
 {

@@ -74,7 +74,6 @@ pref_show(pref_t *pref, gpointer user_data)
 
     switch (prefs_get_type(pref)) {
     case PREF_UINT:
-    case PREF_DECODE_AS_UINT:
     {
         QHBoxLayout *hb = new QHBoxLayout();
         QLabel *label = new QLabel(prefs_get_title(pref));
@@ -338,9 +337,6 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         if (!pref) continue;
 
         switch (prefs_get_type(pref)) {
-        case PREF_DECODE_AS_UINT:
-            connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::uintLineEditTextEdited);
-            break;
         case PREF_UINT:
             connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::uintLineEditTextEdited);
             break;

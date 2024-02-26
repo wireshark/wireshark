@@ -92,7 +92,6 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
 
     switch (prefs_get_type(pref_)) {
     case PREF_UINT:
-    case PREF_DECODE_AS_UINT:
         connect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
                 this, &PreferenceEditorFrame::uintLineEditTextEdited);
         show = true;
@@ -243,7 +242,6 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
     unsigned int apply = 0;
     switch(prefs_get_type(pref_)) {
     case PREF_UINT:
-    case PREF_DECODE_AS_UINT:
         apply = prefs_set_uint_value(pref_, new_uint_, pref_stashed);
         break;
     case PREF_STRING:

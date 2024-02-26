@@ -267,7 +267,6 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     case PREF_RANGE:
-    case PREF_DECODE_AS_UINT:
     case PREF_DECODE_AS_RANGE:
     case PREF_PASSWORD:
     case PREF_DISSECTOR:

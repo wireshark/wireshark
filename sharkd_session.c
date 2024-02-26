@@ -5175,7 +5175,6 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
     switch (prefs_get_type(pref))
     {
         case PREF_UINT:
-        case PREF_DECODE_AS_UINT:
             sharkd_json_value_anyf("u", "%u", prefs_get_uint_value_real(pref, pref_current));
             if (prefs_get_uint_base(pref) != 10)
                 sharkd_json_value_anyf("ub", "%u", prefs_get_uint_base(pref));
@@ -5291,8 +5290,8 @@ sharkd_session_process_dumpconf_mod_cb(module_t *module, gpointer d)
  * Output object with attributes:
  *   (o) prefs   - object with module preferences
  *                  (m) [KEY] - preference name
- *                  (o) u - preference value (for PREF_UINT, PREF_DECODE_AS_UINT)
- *                  (o) ub - preference value suggested base for display (for PREF_UINT, PREF_DECODE_AS_UINT) and if different than 10
+ *                  (o) u - preference value (for PREF_UINT)
+ *                  (o) ub - preference value suggested base for display (for PREF_UINT) and if different than 10
  *                  (o) b - preference value (only for PREF_BOOL) (1 true, 0 false)
  *                  (o) s - preference value (for PREF_STRING, PREF_SAVE_FILENAME, PREF_OPEN_FILENAME, PREF_DIRNAME, PREF_PASSWORD, PREF_DISSECTOR)
  *                  (o) e - preference possible values (only for PREF_ENUM)

@@ -470,7 +470,6 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
         item->setChanged(true);
         switch (item->getPrefType())
         {
-        case PREF_DECODE_AS_UINT:
         case PREF_UINT:
             {
             bool ok;
