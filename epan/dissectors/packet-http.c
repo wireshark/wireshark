@@ -46,9 +46,6 @@
 
 #include <ui/tap-credentials.h>
 
-#define HTTP_PROTO_DATA_REQRES	0
-#define HTTP_PROTO_DATA_INFO	1
-
 void proto_register_http(void);
 void proto_reg_handoff_http(void);
 void proto_register_message_http(void);

@@ -423,7 +423,7 @@ dissect_grpc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
         grpc_ctx.encoding = http2_get_header_value(pinfo, HTTP2_HEADER_GRPC_ENCODING, FALSE);
     }
     else if (proto_is_frame_protocol(pinfo->layers, "http")) {
-        curr_req_res = (http_req_res_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
+        curr_req_res = (http_req_res_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, HTTP_PROTO_DATA_REQRES);
         DISSECTOR_ASSERT_HINT(curr_req_res && content_info, "Unexpected error: HTTP request/reply or HTTP message info not available.");
         grpc_ctx.is_request = (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST);
         grpc_ctx.path = curr_req_res->request_uri;

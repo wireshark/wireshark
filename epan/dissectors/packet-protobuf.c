@@ -45,6 +45,7 @@
 
 #include "protobuf-helper.h"
 #include "packet-protobuf.h"
+#include "epan/dissectors/packet-http.h"
 
 /* converting */
 static inline gdouble
@@ -96,7 +97,8 @@ void proto_reg_handoff_protobuf(void);
 
 #define PREFS_UPDATE_PROTOBUF_SEARCH_PATHS            1
 #define PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES       2
-#define PREFS_UPDATE_ALL   (PREFS_UPDATE_PROTOBUF_SEARCH_PATHS | PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES)
+#define PREFS_UPDATE_PROTOBUF_URI_MESSAGE_TYPES       3
+#define PREFS_UPDATE_ALL   (PREFS_UPDATE_PROTOBUF_SEARCH_PATHS | PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES | PREFS_UPDATE_PROTOBUF_URI_MESSAGE_TYPES)
 
 static void protobuf_reinit(int target);
 
@@ -202,6 +204,8 @@ typedef struct {
 static protobuf_search_path_t* protobuf_search_paths = NULL;
 static guint num_protobuf_search_paths = 0;
 
+int proto_http;
+
 static void *
 protobuf_search_paths_copy_cb(void* n, const void* o, size_t siz _U_)
 {
@@ -228,7 +232,9 @@ protobuf_search_paths_free_cb(void*r)
 UAT_DIRECTORYNAME_CB_DEF(protobuf_search_paths, path, protobuf_search_path_t)
 UAT_BOOL_CB_DEF(protobuf_search_paths, load_all, protobuf_search_path_t)
 
-/* the protobuf message type of the data on certain udp ports */
+
+
+/* The protobuf message type of the data on certain udp ports */
 typedef struct {
     range_t  *udp_port_range; /* dissect data on these udp ports as protobuf */
     gchar    *message_type; /* protobuf message type of data on these udp ports */
@@ -284,6 +290,45 @@ UAT_RANGE_CB_DEF(protobuf_udp_message_types, udp_port_range, protobuf_udp_messag
 UAT_CSTRING_CB_DEF(protobuf_udp_message_types, message_type, protobuf_udp_message_type_t)
 
 static GSList* old_udp_port_ranges = NULL;
+
+
+
+/* The protobuf message type associated with a request URI */
+typedef struct {
+    gchar    *uri;          /* URI appearing in HTTP message */
+    gchar    *message_type; /* associated protobuf message type */
+} protobuf_uri_mapping_t;
+
+static protobuf_uri_mapping_t* protobuf_uri_message_types = NULL;
+static guint num_protobuf_uri_message_types = 0;
+
+static void *
+protobuf_uri_message_type_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+    protobuf_uri_mapping_t* new_rec = (protobuf_uri_mapping_t*)n;
+    const protobuf_uri_mapping_t* old_rec = (const protobuf_uri_mapping_t*)o;
+
+    if (old_rec->uri)
+        new_rec->uri = g_strdup(old_rec->uri);
+    if (old_rec->message_type)
+        new_rec->message_type = g_strdup(old_rec->message_type);
+
+    return new_rec;
+}
+
+static void
+protobuf_uri_message_type_free_cb(void*r)
+{
+    protobuf_uri_mapping_t* rec = (protobuf_uri_mapping_t*)r;
+
+    g_free(rec->uri);
+    g_free(rec->message_type);
+}
+
+UAT_CSTRING_CB_DEF(protobuf_uri_message_type, uri,          protobuf_uri_mapping_t)
+UAT_CSTRING_CB_DEF(protobuf_uri_message_type, message_type, protobuf_uri_mapping_t)
+
+
 
 /* If you use int32 or int64 as the type for a negative number, the resulting varint is always
  * ten bytes long - it is, effectively, treated like a very large unsigned integer. If you use
@@ -1662,7 +1707,26 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             g_free(json_str);
         }
     } else {
-        /* If still have no schema and default is configured, try to use that */
+        /* If this was inside an HTTP request, do we have a message type assigned to this URI? */
+        http_req_res_t  *curr = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                                                                   proto_http, HTTP_PROTO_DATA_REQRES);
+        if (curr) {
+            if (curr->request_uri) {
+                for (guint n=0; n < num_protobuf_uri_message_types; n++) {
+                    if (strcmp(curr->request_uri, protobuf_uri_message_types[n].uri) == 0) {
+                        if (strlen(protobuf_uri_message_types[n].message_type)) {
+                            /* Lookup message type for matching URI */
+                            message_desc = pbw_DescriptorPool_FindMessageTypeByName(pbw_pool,
+                                                                                    protobuf_uri_message_types[n].message_type);
+                        }
+                        /* Found a matched URI, so stop looking */
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* If *still* have no schema and a default is configured, try to use that */
         if (!message_desc && strlen(default_message_type)) {
             message_desc = pbw_DescriptorPool_FindMessageTypeByName(pbw_pool,
                                                                     default_message_type);
@@ -1761,6 +1825,13 @@ update_protobuf_udp_message_types(void)
 {
     protobuf_reinit(PREFS_UPDATE_PROTOBUF_UDP_MESSAGE_TYPES);
 }
+
+static void
+update_protobuf_uri_message_types(void)
+{
+    protobuf_reinit(PREFS_UPDATE_PROTOBUF_URI_MESSAGE_TYPES);
+}
+
 
 static void
 deregister_header_fields(void)
@@ -2212,6 +2283,14 @@ proto_register_protobuf(void)
     };
     uat_t* protobuf_udp_message_types_uat;
 
+    static uat_field_t protobuf_uri_message_types_table_columns[] = {
+        UAT_FLD_CSTRING(protobuf_uri_message_type, uri, "HTTP URI", "URI for HTTP request carrying protobuf contents"),
+        UAT_FLD_CSTRING(protobuf_uri_message_type, message_type, "Message Type", "Protobuf message type of data on these URIs"),
+        UAT_END_FIELDS
+    };
+    uat_t* protobuf_uri_message_types_uat;
+
+
     proto_protobuf = proto_register_protocol("Protocol Buffers", "ProtoBuf", "protobuf");
     proto_protobuf_json_mapping = proto_register_protocol("Protocol Buffers (as JSON Mapping View)", "ProtoBuf_JSON", "protobuf_json");
 
@@ -2303,6 +2382,28 @@ proto_register_protobuf(void)
         "Specify the Protobuf message type of data on certain UDP ports.",
         protobuf_udp_message_types_uat);
 
+
+    protobuf_uri_message_types_uat = uat_new("Protobuf URI Message Types",
+        sizeof(protobuf_uri_mapping_t),
+        "protobuf_uri_message_types",
+        TRUE,
+        &protobuf_uri_message_types,
+        &num_protobuf_uri_message_types,
+        UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
+        NULL, //"ChProtobufURIMessageTypes",
+        protobuf_uri_message_type_copy_cb,
+        NULL,
+        protobuf_uri_message_type_free_cb,
+        update_protobuf_uri_message_types,
+        NULL,
+        protobuf_uri_message_types_table_columns
+    );
+
+    prefs_register_uat_preference(protobuf_module, "uri_message_types", "Protobuf URI message types",
+        "Specify the Protobuf message type of data on certain URIs.",
+        protobuf_uri_message_types_uat);
+
+
     prefs_register_bool_preference(protobuf_module, "display_json_mapping",
         "Display JSON mapping for Protobuf message",
         "Specifies that the JSON text of the "
@@ -2368,6 +2469,8 @@ proto_reg_handoff_protobuf(void)
     dissector_add_string("grpc_message_type", "application/grpc-web-text+proto", protobuf_handle);
 
     dissector_add_string("media_type", "application/x-protobuf", protobuf_handle);
+
+    proto_http = proto_get_id_by_filter_name("http");
 }
 
 /*

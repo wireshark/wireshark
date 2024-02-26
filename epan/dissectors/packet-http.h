@@ -38,6 +38,8 @@ typedef struct _http_info_value_t {
 	const gchar   *location_target;
 } http_info_value_t;
 
+#define HTTP_PROTO_DATA_REQRES	0
+#define HTTP_PROTO_DATA_INFO	1
 
 /** information about a request and response on a HTTP conversation. */
 typedef struct _http_req_res_t {
