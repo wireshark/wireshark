@@ -170,7 +170,8 @@ void InterfaceTreeCacheModel::save()
 
                 if (col == IFTREE_COL_HIDDEN)
                 {
-                    device->hidden = saveValue.toBool();
+                    /* Hidden is de-selection, therefore inverted logic here */
+                    device->hidden = (saveValue == Qt::Unchecked);
                 }
                 else if (device->if_info.type == IF_EXTCAP)
                 {
