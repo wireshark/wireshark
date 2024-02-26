@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 941f5ce71b19d4659401e84b83b084505dd53e28
+git revision: 3ab3bb3445a27e0a96636ad8f8c8e3134870511c
 
 
 */
@@ -4603,8 +4603,8 @@ static const AsterixField I004_V1_12_120_CN = { FX, 1, 0, 0, &hf_004_V1_12_120_C
 static int hf_004_V1_12_120_CC;
 static int hf_004_V1_12_120_CC_TID;
 static const FieldPart I004_V1_12_120_CC_TID = { 4, 1.0, FIELD_PART_HEX, &hf_004_V1_12_120_CC_TID, NULL };
-static int hf_004_V1_12_120_CC_CP;
-static const FieldPart I004_V1_12_120_CC_CP = { 3, 1.0, FIELD_PART_HEX, &hf_004_V1_12_120_CC_CP, NULL };
+static int hf_004_V1_12_120_CC_CPC;
+static const FieldPart I004_V1_12_120_CC_CPC = { 3, 1.0, FIELD_PART_HEX, &hf_004_V1_12_120_CC_CPC, NULL };
 static int hf_004_V1_12_120_CC_CS;
 static const value_string valstr_004_V1_12_120_CC_CS[] = {
     { 0, "LOW" },
@@ -4614,7 +4614,7 @@ static const value_string valstr_004_V1_12_120_CC_CS[] = {
 static const FieldPart I004_V1_12_120_CC_CS = { 1, 1.0, FIELD_PART_UINT, &hf_004_V1_12_120_CC_CS, NULL };
 static const FieldPart *I004_V1_12_120_CC_PARTS[] = {
     &I004_V1_12_120_CC_TID,
-    &I004_V1_12_120_CC_CP,
+    &I004_V1_12_120_CC_CPC,
     &I004_V1_12_120_CC_CS,
     NULL
 };
@@ -5796,8 +5796,8 @@ static const AsterixField I004_120_CN = { FX, 1, 0, 0, &hf_004_120_CN, I004_120_
 static int hf_004_120_CC;
 static int hf_004_120_CC_TID;
 static const FieldPart I004_120_CC_TID = { 4, 1.0, FIELD_PART_HEX, &hf_004_120_CC_TID, NULL };
-static int hf_004_120_CC_CP;
-static const FieldPart I004_120_CC_CP = { 3, 1.0, FIELD_PART_HEX, &hf_004_120_CC_CP, NULL };
+static int hf_004_120_CC_CPC;
+static const FieldPart I004_120_CC_CPC = { 3, 1.0, FIELD_PART_HEX, &hf_004_120_CC_CPC, NULL };
 static int hf_004_120_CC_CS;
 static const value_string valstr_004_120_CC_CS[] = {
     { 0, "LOW" },
@@ -5807,7 +5807,7 @@ static const value_string valstr_004_120_CC_CS[] = {
 static const FieldPart I004_120_CC_CS = { 1, 1.0, FIELD_PART_UINT, &hf_004_120_CC_CS, NULL };
 static const FieldPart *I004_120_CC_PARTS[] = {
     &I004_120_CC_TID,
-    &I004_120_CC_CP,
+    &I004_120_CC_CPC,
     &I004_120_CC_CS,
     NULL
 };
@@ -56683,7 +56683,7 @@ void proto_register_asterix (void)
         { &hf_004_V1_12_120_CN_AIW, { "AIW", "asterix.004_V1_12_120_CN_AIW", FT_UINT8, BASE_DEC, VALS (valstr_004_V1_12_120_CN_AIW), 0x04, NULL, HFILL } },
         { &hf_004_V1_12_120_CC, { "CC, Conflict Classification", "asterix.004_V1_12_120_CC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_120_CC_TID, { "TID, Identification of Conflict Categories Definition Table", "asterix.004_V1_12_120_CC_TID", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
-        { &hf_004_V1_12_120_CC_CP, { "CP, Conflict Properties Class", "asterix.004_V1_12_120_CC_CP", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
+        { &hf_004_V1_12_120_CC_CPC, { "CPC, Conflict Properties Class", "asterix.004_V1_12_120_CC_CPC", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
         { &hf_004_V1_12_120_CC_CS, { "CS, Conflict Severity", "asterix.004_V1_12_120_CC_CS", FT_UINT8, BASE_DEC, VALS (valstr_004_V1_12_120_CC_CS), 0x01, NULL, HFILL } },
         { &hf_004_V1_12_120_CP, { "CP, Conflict Probability", "asterix.004_V1_12_120_CP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_120_CP_VALUE, { "Conflict Probability, [%]", "asterix.004_V1_12_120_CP_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -56880,7 +56880,7 @@ void proto_register_asterix (void)
         { &hf_004_120_CN_AIW, { "AIW", "asterix.004_120_CN_AIW", FT_UINT8, BASE_DEC, VALS (valstr_004_120_CN_AIW), 0x04, NULL, HFILL } },
         { &hf_004_120_CC, { "CC, Conflict Classification", "asterix.004_120_CC", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_120_CC_TID, { "TID, Identification of Conflict Categories Definition Table", "asterix.004_120_CC_TID", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
-        { &hf_004_120_CC_CP, { "CP, Conflict Properties Class", "asterix.004_120_CC_CP", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
+        { &hf_004_120_CC_CPC, { "CPC, Conflict Properties Class", "asterix.004_120_CC_CPC", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
         { &hf_004_120_CC_CS, { "CS, Conflict Severity", "asterix.004_120_CC_CS", FT_UINT8, BASE_DEC, VALS (valstr_004_120_CC_CS), 0x01, NULL, HFILL } },
         { &hf_004_120_CP, { "CP, Conflict Probability", "asterix.004_120_CP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_120_CP_VALUE, { "Conflict Probability, [%]", "asterix.004_120_CP_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
