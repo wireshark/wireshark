@@ -3425,6 +3425,7 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 
     connect(main_ui_->actionStatisticsCollectd, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("collectd"); });
     connect(main_ui_->actionStatisticsDNS, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("dns"); });
+    connect(main_ui_->actionStatisticsDNS_QR, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("dns_qr"); });
     connect(main_ui_->actionStatisticsHART_IP, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("hart_ip"); });
     connect(main_ui_->actionStatisticsHpfeeds, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("hpfeeds"); });
     connect(main_ui_->actionStatisticsHTTP2, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("http2"); });

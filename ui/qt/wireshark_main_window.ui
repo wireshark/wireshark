@@ -471,6 +471,13 @@
      <addaction name="actionStatisticsBACappObjectId"/>
      <addaction name="actionStatisticsBACappService"/>
     </widget>
+    <widget class="QMenu" name="menuDNS">
+     <property name="title">
+      <string>DNS</string>
+     </property>
+     <addaction name="actionStatisticsDNS"/>
+     <addaction name="actionStatisticsDNS_QR"/>
+    </widget>
     <widget class="QMenu" name="menuHTTP">
      <property name="title">
       <string>HTTP</string>
@@ -554,7 +561,7 @@
     <addaction name="actionStatisticsANCP"/>
     <addaction name="menuBACnet"/>
     <addaction name="actionStatisticsCollectd"/>
-    <addaction name="actionStatisticsDNS"/>
+    <addaction name="menuDNS"/>
     <addaction name="actionStatisticsFlowGraph"/>
     <addaction name="actionStatisticsHART_IP"/>
     <addaction name="actionStatisticsHpfeeds"/>
@@ -1813,10 +1820,18 @@
   </action>
   <action name="actionStatisticsDNS">
    <property name="text">
-    <string>DNS</string>
+    <string>General</string>
    </property>
    <property name="toolTip">
     <string>DNS statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsDNS_QR">
+   <property name="text">
+    <string>Query-Response</string>
+   </property>
+   <property name="toolTip">
+    <string>DNS Query-Response Statistics</string>
    </property>
   </action>
   <action name="actionStatisticsHART_IP">
