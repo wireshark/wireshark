@@ -250,8 +250,6 @@ header_fields_free_cb(void*r)
 UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
 
-GSList *req_list = NULL;
-
 /*
  * desegmentation of HTTP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
@@ -523,7 +521,6 @@ static int st_node_reqs_by_srv_addr = -1;
 static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
 
-//static GSList *top_of_list = NULL;
 static gboolean req_has_range = FALSE;
 static gboolean resp_has_range = FALSE;
 
@@ -1100,7 +1097,6 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 
 		conversation_add_proto_data(*conversation, proto_http,
 					    conv_data);
-		//top_of_list = NULL;
 	}
 
 	return conv_data;
@@ -1114,17 +1110,9 @@ static http_req_res_t*
 push_req_res(http_conv_t *conv_data)
 {
 	http_req_res_t *req_res = wmem_new0(wmem_file_scope(), http_req_res_t);
+
 	nstime_set_unset(&(req_res->req_ts));
-	req_res->number = ++conv_data->req_res_num;
-
-	if (! conv_data->req_res_tail) {
-		conv_data->req_res_tail = req_res;
-	} else {
-		/*req_res->prev = conv_data->req_res_tail;
-		conv_data->req_res_tail->next = req_res; */
-		conv_data->req_res_tail = req_res;
-	}
-
+	conv_data->req_res_tail = req_res;
 	req_res->private_data = wmem_new0(wmem_file_scope(), http_req_res_private_data_t);
 
 	return req_res;
@@ -1738,10 +1726,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			req_tree = proto_tree_add_subtree(http_tree, tvb,
 				    offset, next_offset - offset, ett_http_request, &hdr_item, text);
 
-			/* This expert chat has no use case. This text is available as filterable
-			* fields directly below it.
-			expert_add_info_format(pinfo, hdr_item, &ei_http_chat, "%s", text);  */
-
 			if (!PINFO_FD_VISITED(pinfo)) {
 				if (http_type == MEDIA_CONTAINER_HTTP_REQUEST) {
 					curr = push_req(conv_data, pinfo);
@@ -1797,15 +1781,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 	else {
-		/* If the request has a range, this is, or potentially is, asynchronous I/O thus full_uri must
-		* be reinitializes because full_uri is set to that of the last request. */
+		/* If the request has a range, this is, or potentially is, asynchronous I/O thus
+		* full_uri must be reinitialized because it is set to that of the last request. */
 		if (curr && curr->req_has_range)
 			curr->full_uri = NULL;
 	}
 	if (tree) {
 		proto_item *pi;
-		/* http_req_res_t *prev = curr ? curr->prev : NULL;
-		http_req_res_t *next = curr ? curr->next : NULL; */
 
 		switch (http_type) {
 
@@ -1854,8 +1836,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 			}
 
-			/* If responses don't have a range, the I/O is synchronous in which case requests are
-			*  matched with the following responses. If a request or response is missing from the
+			/* If responses don't have a range, the I/O is synchronous in which case a request is
+			*  matched with the following response. If a request or response is missing from the
 			*  capture file, correct matching resumes at the next request. */
 			if(!match_trans
 			&& !curr->resp_has_range
@@ -1882,34 +1864,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					proto_item_set_generated(pi);
 				}
 			}
-
-			/* There is no use case for showing the previous and next request and response frame numbers.
-			*  As such they cause bloat and can be confusing.
-			*
-			if (prev && prev->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (prev && prev->res_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_prev_response_in, tvb, 0, 0, prev->res_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (next && next->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (next && next->res_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
-				proto_item_set_generated(pi);
-			} */
-
-			/* Aside from the fact that both of these numbers are incorrect, there is no
-			*  use case for showing the request number (e.g., 1/5, 2/5).
-			*
-			pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0, curr->number,
-				"HTTP response %u/%u", curr->number, conv_data->req_res_num);
-			proto_item_set_generated(pi);
-			*/
 			break;
 		case MEDIA_CONTAINER_HTTP_REQUEST:
 			int size = wmem_map_size(conv_data->matches_table);
@@ -1937,11 +1891,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 				}
 			}
-			/* Apart from from the fact that the values are incorrect, there is no use
-			*  case for showing the number of a request among all requests.
-			pi = proto_tree_add_uint_format(http_tree, hf_http_request_number, tvb, 0, 0,
-					curr->number, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
-			proto_item_set_generated(pi); */
 
 			if (curr->full_uri) {
 				pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
@@ -1955,19 +1904,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_item_set_url(pi);
 				proto_item_set_generated(pi);
 			}
-
-			/* There is no use case for previous and next request frame numbers and as such
-			*  they bloat the Packet Detail.
-			/*
-			if (prev && prev->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			if (next && next->req_framenum) {
-				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
-				proto_item_set_generated(pi);
-			}
-			*/
 			break;
 
 		case MEDIA_CONTAINER_HTTP_OTHERS:
@@ -3772,8 +3708,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 *  Unlike protocols such as NFS and SMB, the HTTP protocol (RFC 9110) does not
 			 *  provide an identifier with which to match requests and responses. Instead,
 			 *  matching is solely based upon the order in which responses are received.
-			 *  HTTP I/O is asynchronously ordered such that, for example, the first of four
-			 *  GET responses is matched with the first outstanding request, the next
+			 *  HTTP I/O is 'asynchronously ordered' such that, for example, the first of four
+			 *  GET responses are matched with the first outstanding request, the next
 			 *  response with the second oldest outstanding request and so on (FIFO).
 			 *  The previous method instead matched responses with the last of several
 			 *  async requests rather than the first (LIFO), and did not handle requests
@@ -3789,7 +3725,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 *  In addition, all matching was incorrect from that point on.
 			 *
 			 *  The method of matching used herein is able to recover from packet loss,
-			 *  any nummber of missing frames, and duplicate range requests. The
+			 *  any number of missing frames, and duplicate range requests. The
 			 *  method used is explaned within the comments.
 			 */
 			guint8  *first_range_num_str = NULL;
@@ -3823,7 +3759,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				}
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
-			*  requests and any orphans that preceed them. An GSList is used instead of a wmem map
+			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
 			*  because there are rarely more than 10 requests in the list."
 			*/
 			if (first_range_num > 0) {
@@ -3884,7 +3820,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 				/* Get the position of the matching request if any in the reqs_table.
 				* This is used to remove and free the matching request, and the unmatched
-				* requests (orphas) that preceed it. */
+				* requests (orphans) that preceed it. */
 				req_trans = NULL;
 				pos = 0;
 				if (conv_data->req_list && conv_data->req_list->data) {
@@ -3914,7 +3850,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
 
 					/* Remove and free all of the list entries up to and including the
-					*  matching one from req_table. */
+					*  matching one from req_list. */
 					if (conv_data->req_list) {
 						GSList *next, *top_of_list;
 
