@@ -450,6 +450,8 @@ dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_RBRK
 static void
 dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint tvb_RBRKT, gint tvb_previous_offset);
 static void
+dissect_megaco_statisticsdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_line,  gint tvb_RBRKT, gint tvb_previous_offset);
+static void
 dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_next_offset, gint tvb_current_offset);
 static void
 dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset, guint32 context, gboolean is_local);
@@ -1716,6 +1718,7 @@ dissect_megaco_multiplexdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_comman
 #define MEGACO_LOCAL_CONTROL_TOKEN      3
 #define MEGACO_STREAM_TOKEN             4
 #define MEGACO_TERMINATION_STATE_DESC   5
+// MEGACO_STATS_TOKEN is already defined as 6 above
 
 static const megaco_tokens_t megaco_mediaParm_names[] = {
     { "Unknown-token",              NULL }, /* 0 Pad so that the real headers start at index 1 */
@@ -1724,6 +1727,7 @@ static const megaco_tokens_t megaco_mediaParm_names[] = {
     { "LocalControl",               "O" },  /* 3 */
     { "Stream",                     "ST" }, /* 4 */
     { "TerminationState",           "TS" }, /* 5 */
+    { "Statistics",                 "SA" }, /* 6 */
 };
 
 /* Returns index of megaco_tokens_t */
@@ -1813,6 +1817,14 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
         case MEGACO_TERMINATION_STATE_DESC:
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_LBRKT+1);
             dissect_megaco_TerminationStatedescriptor(tvb, megaco_mediadescriptor_tree,
+                tvb_RBRKT, tvb_current_offset);
+            tvb_current_offset = tvb_RBRKT;
+            break;
+        case MEGACO_STATS_TOKEN:
+            // dissect_megaco_statisticsdescriptor wants the previous
+            // offset, don't skip forward.
+            //tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_LBRKT+1);
+            dissect_megaco_statisticsdescriptor(tvb, megaco_mediadescriptor_tree,
                 tvb_RBRKT, tvb_current_offset);
             tvb_current_offset = tvb_RBRKT;
             break;
