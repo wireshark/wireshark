@@ -6412,6 +6412,9 @@
 		<avp name="PC5-Link-AMBR" code="1718" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Integer32"/>
 		</avp>
+		<avp name="Third-Context-Identifier" code="1719" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
