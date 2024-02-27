@@ -258,8 +258,13 @@ static int hf_nan_attr_ndp_ctrl_security_pres;
 static int hf_nan_attr_ndp_ctrl_publish_id_pres;
 static int hf_nan_attr_ndp_ctrl_responder_ndi_pres;
 static int hf_nan_attr_ndp_ctrl_sepcific_info_pres;
+static int hf_nan_attr_ndpe_ctrl_confirm;
+static int hf_nan_attr_ndpe_ctrl_security_pres;
+static int hf_nan_attr_ndpe_ctrl_publish_id_pres;
+static int hf_nan_attr_ndpe_ctrl_responder_ndi_pres;
 static int hf_nan_attr_ndpe_ctrl_gtk_requried;
 static int hf_nan_attr_ndp_control;
+static int hf_nan_attr_ndpe_control;
 static int hf_nan_attr_ndp_responder_ndi;
 static int hf_nan_attr_ndp_specific_info;
 static int hf_nan_attr_ndpe_tlv_type;
@@ -343,9 +348,9 @@ static int hf_nan_attr_ranging_setup_ftm_max_burst_duration;
 static int hf_nan_attr_ranging_setup_ftm_format_bw;
 static int hf_nan_attr_ftm_range_report;
 static int hf_nan_attr_cipher_suite_capabilities;
-static int hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_reply_counters;
+static int hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_replay_counters;
 static int hf_nan_attr_cipher_suite_capabilities_gtksa_igtksa_bigtksa_support;
-static int hf_nan_attr_cipher_suite_capabilities_gtksa_reply_counters;
+static int hf_nan_attr_cipher_suite_capabilities_gtksa_replay_counters;
 static int hf_nan_attr_cipher_suite_capabilities_igtksa_bigtksa_cipher;
 static int hf_nan_attr_cipher_suite_id;
 static int hf_nan_attr_security_context_identifier;
@@ -785,7 +790,7 @@ static const value_string cipher_suite_capabilities_nd_nm_tksa_replay_counters[]
 static const value_string cipher_suite_capabilities_group_and_integrity_sa_support[] = {
     { 0, "GTKSA, IGTKSA, BIGTKSA are not supported" },
     { 1, "GTKSA and IGTKSA are supported, and BIGTKSA is not supported" },
-    { 1, "GTKSA, IGTKSA, and BIGTKSA are supported" },
+    { 2, "GTKSA, IGTKSA, and BIGTKSA are supported" },
     { 3, "Reserved" },
     { 0, NULL }
 };
@@ -1572,11 +1577,11 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
         &hf_nan_status_1,
         NULL
     };
-    static int* const ndp_control_fields[] = {
-        &hf_nan_attr_ndp_ctrl_confirm,
-        &hf_nan_attr_ndp_ctrl_security_pres,
-        &hf_nan_attr_ndp_ctrl_publish_id_pres,
-        &hf_nan_attr_ndp_ctrl_responder_ndi_pres,
+    static int* const ndpe_control_fields[] = {
+        &hf_nan_attr_ndpe_ctrl_confirm,
+        &hf_nan_attr_ndpe_ctrl_security_pres,
+        &hf_nan_attr_ndpe_ctrl_publish_id_pres,
+        &hf_nan_attr_ndpe_ctrl_responder_ndi_pres,
         &hf_nan_attr_ndpe_ctrl_gtk_requried,
         NULL
     };
@@ -1595,8 +1600,8 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, gint offset, guint16 att
     proto_tree_add_item(attr_tree, hf_nan_reason_code, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(attr_tree, hf_nan_attr_ndp_initiator, tvb, offset + 2, 6, ENC_NA);
     proto_tree_add_item(attr_tree, hf_nan_attr_ndp_id, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bitmask(attr_tree, tvb, offset + 9, hf_nan_attr_ndp_control,
-        ett_ndp_control, ndp_control_fields, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(attr_tree, tvb, offset + 9, hf_nan_attr_ndpe_control,
+        ett_ndp_control, ndpe_control_fields, ENC_LITTLE_ENDIAN);
     offset += 9;
     dissected_len += 9;
 
@@ -2384,9 +2389,9 @@ dissect_attr_cipher_suite_info(proto_tree* attr_tree, tvbuff_t* tvb, gint offset
     guint dissected_len = 0;
 
     proto_tree* caps_tree = proto_tree_add_subtree(attr_tree, tvb, sub_offset, 1, ett_nan_cipher_suite_capabilities, NULL, "Capabilities");
-    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_reply_counters, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_replay_counters, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_gtksa_igtksa_bigtksa_support, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_gtksa_reply_counters, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_gtksa_replay_counters, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(caps_tree, hf_nan_attr_cipher_suite_capabilities_igtksa_bigtksa_cipher, tvb, sub_offset, 1, ENC_LITTLE_ENDIAN);
 
     sub_offset++;
@@ -3835,13 +3840,6 @@ proto_register_nan(void)
              FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
              }
         },
-        { &hf_nan_attr_ndpe_ctrl_gtk_requried,
-             {
-             "GTK Required",
-             "wifi_nan.ndp.ctrl.gtk_required",
-             FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
-             }
-        },
         { &hf_nan_attr_ndp_ctrl_sepcific_info_pres,
              {
              "NDP Specific Info Present",
@@ -3849,10 +3847,52 @@ proto_register_nan(void)
              FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
              }
         },
+        { &hf_nan_attr_ndpe_ctrl_confirm,
+             {
+             "Confirm Required",
+             "wifi_nan.ndpe.ctrl.confirm",
+             FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL
+             }
+        },
+        { &hf_nan_attr_ndpe_ctrl_security_pres,
+             {
+             "Security Present",
+             "wifi_nan.ndpe.ctrl.security_pres",
+             FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL
+             }
+        },
+        { &hf_nan_attr_ndpe_ctrl_publish_id_pres,
+             {
+             "Publish ID Present",
+             "wifi_nan.ndpe.ctrl.publish_id_pres",
+             FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL
+             }
+        },
+        { &hf_nan_attr_ndpe_ctrl_responder_ndi_pres,
+             {
+             "Responder NDI Present",
+             "wifi_nan.ndpe.ctrl.responder_ndi_pres",
+             FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
+             }
+        },
+        { &hf_nan_attr_ndpe_ctrl_gtk_requried,
+             {
+             "GTK Required",
+             "wifi_nan.ndpe.ctrl.gtk_required",
+             FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL
+             }
+        },
         { &hf_nan_attr_ndp_control,
              {
              "NDP Control",
              "wifi_nan.ndp.ctrl",
+             FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
+             }
+        },
+        { &hf_nan_attr_ndpe_control,
+             {
+             "NDPE Control",
+             "wifi_nan.ndpe.ctrl",
              FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
              }
         },
@@ -4437,10 +4477,10 @@ proto_register_nan(void)
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
-        { &hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_reply_counters,
+        { &hf_nan_attr_cipher_suite_capabilities_ndtksa_nmtksa_replay_counters,
             {
-            "ND-TKSA and NM-TKSA Reply Counters",
-            "wifi_nan.cipher_suite.capabilities.reply_counters.ndtksa",
+            "ND-TKSA and NM-TKSA Replay Counters",
+            "wifi_nan.cipher_suite.capabilities.replay_counters.ndtksa",
             FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_nd_nm_tksa_replay_counters), 0x01, NULL, HFILL
             }
         },
@@ -4451,10 +4491,10 @@ proto_register_nan(void)
             FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_group_and_integrity_sa_support), 0x06, NULL, HFILL
             }
         },
-        { &hf_nan_attr_cipher_suite_capabilities_gtksa_reply_counters,
+        { &hf_nan_attr_cipher_suite_capabilities_gtksa_replay_counters,
             {
-            "GTKSA Reply Counters",
-            "wifi_nan.cipher_suite.capabilities.reply_counters.gtksa",
+            "GTKSA Replay Counters",
+            "wifi_nan.cipher_suite.capabilities.replay_counters.gtksa",
             FT_UINT8, BASE_HEX, VALS(cipher_suite_capabilities_gtksa_replay_counters), 0x08, NULL, HFILL
             }
         },
