@@ -102,6 +102,7 @@ static guint64 enrp_total_msgs = 0;
 static guint64 enrp_total_bytes = 0;
 
 static expert_field ei_enrp_max_recursion_depth_reached;
+static expert_field ei_enrp_invalid_length;
 
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *);
@@ -206,6 +207,12 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree 
   offset = 0;
   while(tvb_reported_length_remaining(error_causes_tvb, offset) > 0) {
     length          = tvb_get_ntohs(error_causes_tvb, offset + CAUSE_LENGTH_OFFSET);
+    if (length < 4) {
+      proto_tree_add_expert_format(parameter_tree, pinfo, &ei_enrp_invalid_length,
+                            error_causes_tvb, offset + CAUSE_LENGTH_OFFSET, 2,
+                            "Error cause length must be at least 4 bytes");
+      return;
+    }
     total_length    = WS_ROUNDUP_4(length);
     error_cause_tvb = tvb_new_subset_length(error_causes_tvb, offset, total_length);
     dissect_error_cause(error_cause_tvb, pinfo, parameter_tree);
@@ -539,6 +546,11 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   offset = 0;
   while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset)) > 0) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
+    if (length < 4) {
+      proto_tree_add_expert(tree, pinfo, &ei_enrp_invalid_length,
+                            parameters_tvb, offset + PARAMETER_LENGTH_OFFSET, 2);
+      return;
+    }
     total_length = WS_ROUNDUP_4(length);
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
@@ -1140,7 +1152,9 @@ proto_register_enrp(void)
 
   static ei_register_info ei[] = {
     { &ei_enrp_max_recursion_depth_reached, { "enrp.max_recursion_depth_reached",
-      PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached - stop decoding", EXPFILL }}
+      PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached - stop decoding", EXPFILL }},
+    { &ei_enrp_invalid_length, { "enrp.invalid_length",
+      PI_MALFORMED, PI_ERROR, "Parameter length must be at least 4 bytes", EXPFILL }}
   };
 
   static tap_param enrp_stat_params[] = {
