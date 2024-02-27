@@ -158,7 +158,6 @@ static expert_field ei_http_excess_data;
 static expert_field ei_http_bad_header_name;
 static expert_field ei_http_decompression_failed;
 static expert_field ei_http_decompression_disabled;
-static expert_field ei_http_range_num_undetermined;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t http_tcp_handle;
@@ -372,6 +371,7 @@ typedef struct {
 	guint32 resp_frame;
 	nstime_t delta_time;
 	gchar *request_uri;
+	gchar *http_host;
 } match_trans_t;
 
 static gint parse_http_status_code(const guchar *line, const guchar *lineend);
@@ -523,7 +523,7 @@ static int st_node_reqs_by_srv_addr = -1;
 static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
 
-static GSList *top_of_list = NULL;
+//static GSList *top_of_list = NULL;
 static gboolean req_has_range = FALSE;
 static gboolean resp_has_range = FALSE;
 
@@ -1100,7 +1100,7 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 
 		conversation_add_proto_data(*conversation, proto_http,
 					    conv_data);
-		top_of_list = NULL;
+		//top_of_list = NULL;
 	}
 
 	return conv_data;
@@ -1738,7 +1738,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			req_tree = proto_tree_add_subtree(http_tree, tvb,
 				    offset, next_offset - offset, ett_http_request, &hdr_item, text);
 
-			/* This expert chat has absolutely no use case. This text is available as filterable
+			/* This expert chat has no use case. This text is available as filterable
 			* fields directly below it.
 			expert_add_info_format(pinfo, hdr_item, &ei_http_chat, "%s", text);  */
 
@@ -1797,8 +1797,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 	else {
-		/* Reinitialize full_uri that was set in the previous (last) request. */
-		curr->full_uri = NULL;
+		/* If the request has a range, this is, or potentially is, asynchronous I/O thus full_uri must
+		* be reinitializes because full_uri is set to that of the last request. */
+		if (curr && curr->req_has_range)
+			curr->full_uri = NULL;
 	}
 	if (tree) {
 		proto_item *pi;
@@ -1822,7 +1824,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			if (curr->response_code == 206 && curr->resp_has_range) {
 				/* The conv_data->matches_table is only used for GET requests with ranges and
-				*  response_codes of 206 (Partial Content).
+				*  response_codes of 206 (Partial Content). (Note: only GETs use ranges.)
 				*/
 				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
 								GUINT_TO_POINTER(pinfo->num));
@@ -1834,8 +1836,27 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0,
 									&match_trans->delta_time);
 					proto_item_set_generated(pi);
+
+					pi = proto_tree_add_string(http_tree, hf_http_request_uri, tvb, 0, 0,
+									match_trans->request_uri);
+					proto_item_set_generated(pi);
+					{
+					gchar *uri;
+					uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s",
+						    is_tls ? "https" : "http",
+					g_strstrip(wmem_strdup(pinfo->pool, match_trans->http_host)), match_trans->request_uri);
+
+					pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
+									uri);
+					proto_item_set_url(pi);
+					proto_item_set_generated(pi);
+					}
 				}
 			}
+
+			/* If responses don't have a range, the I/O is synchronous in which case requests are
+			*  matched with the following responses. If a request or response is missing from the
+			*  capture file, correct matching resumes at the next request. */
 			if(!match_trans
 			&& !curr->resp_has_range
 			&& curr->req_framenum) {
@@ -1849,10 +1870,21 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
 					proto_item_set_generated(pi);
 				}
+				if (curr->request_uri) {
+					pi = proto_tree_add_string(http_tree, hf_http_request_uri, tvb, 0, 0,
+									curr->request_uri);
+					proto_item_set_generated(pi);
+				}
+				if (curr->full_uri) {
+					pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
+									curr->full_uri);
+					proto_item_set_url(pi);
+					proto_item_set_generated(pi);
+				}
 			}
 
-			/* There is no use case for previous and next request and response frame numbers.
-			*  As such, they bloat the Packet Detail.
+			/* There is no use case for showing the previous and next request and response frame numbers.
+			*  As such they cause bloat and can be confusing.
 			*
 			if (prev && prev->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
@@ -1872,29 +1904,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} */
 
 			/* Aside from the fact that both of these numbers are incorrect, there is no
-			*  use case for showing the response number and causes bloat.
+			*  use case for showing the request number (e.g., 1/5, 2/5).
 			*
 			pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0, curr->number,
 				"HTTP response %u/%u", curr->number, conv_data->req_res_num);
-			proto_item_set_generated(pi); */
-
-			if (match_trans && match_trans->request_uri) {
-				pi = proto_tree_add_string(http_tree, hf_http_request_uri, tvb, 0, 0,
-								match_trans->request_uri);
-				proto_item_set_generated(pi);
-			}
-			else if (curr->request_uri && !curr->req_has_range) {
-				pi = proto_tree_add_string(http_tree, hf_http_request_uri, tvb, 0, 0,
-								curr->request_uri);
-				proto_item_set_generated(pi);
-			}
-
-			if (curr->full_uri) {
-				pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
-								curr->full_uri);
-				proto_item_set_url(pi);
-				proto_item_set_generated(pi);
-			}
+			proto_item_set_generated(pi);
+			*/
 			break;
 		case MEDIA_CONTAINER_HTTP_REQUEST:
 			int size = wmem_map_size(conv_data->matches_table);
@@ -3750,7 +3765,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		}
 		case HDR_RANGE:
 			/* THIS IS A GET REQUEST
-			*  GET is the only method that employs ranges.
+			*  Note: GET is the only method that employs ranges.
 			*/
 			if (!pinfo->fd->visited) {
 			 /*
@@ -3767,7 +3782,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 *  (RTT) stats were incorrect, in some cases massively so.
 			 *
 			 *  While RFC 9110 expressly prohibits matching via byte ranges because, among
-			 *  other things, the server may return fewer bytes than requested; however,
+			 *  other things, the server may return fewer bytes than requested,
 			 *  the first number of the range does not change. Unlike HTTP implementations,
 			 *  Wireshark has the problem of requests/responses missing from the capture
 			 *  file. In such cases resumption of correct matching was virtually impossible.
@@ -3807,20 +3822,18 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					first_range_num = hash;
 				}
 			}
+			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
+			*  requests and any orphans that preceed them. An GSList is used instead of a wmem map
+			*  because there are rarely more than 10 requests in the list."
+			*/
 			if (first_range_num > 0) {
-
 				request_trans_t* req_trans = g_new(request_trans_t, 1);
 				req_trans->first_range_num = first_range_num;
 				req_trans->req_frame = pinfo->num;
 				req_trans->abs_time = pinfo->fd->abs_ts;
 				req_trans->request_uri = curr->request_uri;
 
-				conv_data->req_list = g_slist_append(top_of_list, GUINT_TO_POINTER(req_trans));
-				if (top_of_list	== NULL)
-					top_of_list = conv_data->req_list;
-				else {
-					expert_add_info(pinfo, tree, &ei_http_range_num_undetermined);
-				}
+				conv_data->req_list = g_slist_append(conv_data->req_list, GUINT_TO_POINTER(req_trans));
 			}
 			}
 			curr->req_has_range = TRUE;
@@ -3870,44 +3883,49 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				}
 
 				/* Get the position of the matching request if any in the reqs_table.
-				* This is used to remove and free the matching request, and all those
-				* above it. */
+				* This is used to remove and free the matching request, and the unmatched
+				* requests (orphas) that preceed it. */
 				req_trans = NULL;
 				pos = 0;
-
-				for (iter = conv_data->req_list = top_of_list; iter; iter = iter->next) {
-					if (((request_trans_t*)iter->data)->first_range_num == first_crange_num) {
-						req_trans = iter->data;
-						break;
-					}
-					else {
-						pos++;
+				if (conv_data->req_list && conv_data->req_list->data) {
+					for (iter = conv_data->req_list; iter; iter = iter->next) {
+						if (((request_trans_t*)iter->data)->first_range_num == first_crange_num) {
+							req_trans = iter->data;
+							break;
+						}
+						else {
+							pos++;
+						}
 					}
 				}
 
-				if (first_crange_num != 0) {
-					if (req_trans) {
-						match_trans = wmem_new(wmem_file_scope(), match_trans_t);
-						match_trans->req_frame = req_trans->req_frame;
-						match_trans->resp_frame = pinfo->num;
-						nstime_delta(&ns, &pinfo->fd->abs_ts, &req_trans->abs_time);
-						match_trans->delta_time = ns;
-						match_trans->request_uri = req_trans->request_uri;
+				if (first_crange_num != 0 && req_trans) {
+					match_trans = wmem_new(wmem_file_scope(), match_trans_t);
+					match_trans->req_frame = req_trans->req_frame;
+					match_trans->resp_frame = pinfo->num;
+					nstime_delta(&ns, &pinfo->fd->abs_ts, &req_trans->abs_time);
+					match_trans->delta_time = ns;
+					match_trans->request_uri = req_trans->request_uri;
+					match_trans->http_host = curr->http_host;
 
-						wmem_map_insert(conv_data->matches_table,
-							GUINT_TO_POINTER(match_trans->req_frame), (void *)match_trans);
-						wmem_map_insert(conv_data->matches_table,
-							GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
+					wmem_map_insert(conv_data->matches_table,
+						GUINT_TO_POINTER(match_trans->req_frame), (void *)match_trans);
+					wmem_map_insert(conv_data->matches_table,
+						GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
 
-						/* Remove and free all of the list entries up to and including the
-						 * matching one from req_table. */
-						GSList *next;
+					/* Remove and free all of the list entries up to and including the
+					*  matching one from req_table. */
+					if (conv_data->req_list) {
+						GSList *next, *top_of_list;
+
+						top_of_list = conv_data->req_list;
 						pos++;
 						for (guint i = 0; i < pos; i++) {
 							next = top_of_list->next;
-							g_slist_delete_link(top_of_list, top_of_list);
+							top_of_list = g_slist_delete_link(top_of_list, top_of_list);
 							top_of_list = next;
 						}
+						conv_data->req_list = top_of_list;
 					}
 				}
 			}
@@ -4777,8 +4795,7 @@ proto_register_http(void)
 		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
 		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
 		{ &ei_http_decompression_failed, { "http.decompression_failed", PI_UNDECODED, PI_WARN, "Decompression failed", EXPFILL }},
-		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }},
-		{ &ei_http_range_num_undetermined, { "http.range__num_undetermined", PI_MALFORMED, PI_ERROR, "Range number could not be determined", EXPFILL }},
+		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }}
 
 	};
 
