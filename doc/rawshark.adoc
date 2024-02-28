@@ -235,7 +235,7 @@ rather than that of capture filters) to be applied before printing the output.
 Read filters and display filters are synonymous in *rawshark*.
 --
 
-include::dissection-options.adoc[tags=!tshark;!decode_as]
+include::dissection-options.adoc[tags=**;!tshark;!decode_as]
 
 include::diagnostic-options.adoc[]
 

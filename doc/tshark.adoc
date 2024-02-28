@@ -2266,7 +2266,7 @@ Output JSON containing elapsed times for each pass tshark does to process a capt
 file and the sum elapsed time for all passes. The per-pass output contains the total
 elapsed time and aggregate counters for per-packet operations (dissection and filtering).
 
-include::dissection-options.adoc[tag=!not_tshark]
+include::dissection-options.adoc[tags=**;!not_tshark]
 
 include::diagnostic-options.adoc[]
 
