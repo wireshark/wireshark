@@ -923,7 +923,7 @@ Show IEEE 802.11 network and station statistics.
 *-z* wsp,stat[,<filter>]::
 Show WSP packet counters.
 
-include::dissection-options.adoc[tag=!tshark]
+include::dissection-options.adoc[tags=**;!tshark]
 
 include::diagnostic-options.adoc[]
 

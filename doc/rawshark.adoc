@@ -226,7 +226,7 @@ could use *%D: %S (%N)*.
 -v|--version::
 Print the full version information and exit.
 
-include::dissection-options.adoc[tags=!tshark;!decode_as]
+include::dissection-options.adoc[tags=**;!tshark;!decode_as]
 
 include::diagnostic-options.adoc[]
 
