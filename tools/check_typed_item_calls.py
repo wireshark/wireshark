@@ -755,6 +755,31 @@ class RangeString:
         # - if in all cases min==max, suggest value_string instead?
 
 
+class StringString:
+    def __init__(self, file, name, vals, macros, do_extra_checks=False):
+        self.file = file
+        self.name = name
+        self.raw_vals = vals
+        self.parsed_vals = {}
+
+        # Now parse out each entry in the string_string
+        matches = re.finditer(r'\{\s*(["0-9_A-Za-z\s\-]*?)\s*,\s*(["0-9_A-Za-z\s\-]*)\s*', self.raw_vals)
+        for m in matches:
+            key = m.group(1)
+            value = m.group(2)
+            if key in self.parsed_vals:
+                global errors_found
+                print('Error:', self.file, ': string_string', self.name, 'entry', key, 'has been added twice (values',
+                      self.parsed_vals[key], 'and now', value, ')')
+                errors_found += 1
+
+            else:
+                self.parsed_vals[key] = value
+
+    def extraChecks(self):
+        pass
+        # TODO: ?
+
 
 
 # Look for value_string entries in a dissector file.  Return a dict name -> ValueString
@@ -782,7 +807,7 @@ def findValueStrings(filename, macros, do_extra_checks=False):
 
     return vals_found
 
-# Look for value_string entries in a dissector file.  Return a dict name -> ValueString
+# Look for range_string entries in a dissector file.  Return a dict name -> RangeString
 def findRangeStrings(filename, macros, do_extra_checks=False):
     vals_found = {}
 
@@ -806,6 +831,29 @@ def findRangeStrings(filename, macros, do_extra_checks=False):
 
     return vals_found
 
+# Look for string_string entries in a dissector file.  Return a dict name -> StringString
+def findStringStrings(filename, macros, do_extra_checks=False):
+    vals_found = {}
+
+    #static const string_string ice_candidate_types[] = {
+    #    { "host",       "Host candidate" },
+    #    { "srflx",      "Server reflexive candidate" },
+    #    { 0, NULL }
+    #};
+
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
+
+        # Remove comments so as not to trip up RE.
+        contents = removeComments(contents)
+
+        matches =   re.finditer(r'.*const string_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
+        for m in matches:
+            name = m.group(1)
+            vals = m.group(2)
+            vals_found[name] = StringString(filename, name, vals, macros, do_extra_checks)
+
+    return vals_found
 
 
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.
@@ -1654,6 +1702,11 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         for name in range_strings:
             range_strings[name].extraChecks()
 
+    # Find (and sanity-check) string_strings
+    string_strings = findStringStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    if extra_value_string_checks:
+        for name in range_strings:
+            string_strings[name].extraChecks()
 
 
     # Find important parts of items.
