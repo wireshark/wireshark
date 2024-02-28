@@ -184,7 +184,8 @@ typedef enum
 * Here are the global variables associated with
 * the various user definable characteristics of the dissection
 *
-* MEGACO has two kinds of message formats: text and binary
+* H.248/MEGACO has two kinds of message formats: text and binary (ASN.1).
+* The binary message format is dissected in packet-h248.c
 *
 * global_megaco_raw_text determines whether we are going to display
 * the raw text of the megaco message, much like the HTTP dissector does.
@@ -193,11 +194,6 @@ typedef enum
 * a detailed tree that expresses a somewhat more semantically meaningful
 * decode.
 */
-#if 0
-static guint global_megaco_bin_sctp_port = PORT_MEGACO_BIN;
-static guint global_megaco_bin_tcp_port = PORT_MEGACO_BIN;
-static guint global_megaco_bin_udp_port = PORT_MEGACO_BIN;
-#endif
 static gboolean global_megaco_raw_text = TRUE;
 static gboolean global_megaco_dissect_tree = TRUE;
 
@@ -637,11 +633,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      */
     tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
 
-    /* Quick fix for MEGACO not following the RFC, hopefully not breaking any thing
-     * Turned out to be TPKT in case of TCP, added some code to handle that.
-     *
-     * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
-     */
     if(!tvb_get_raw_bytes_as_stringz(tvb,tvb_offset,sizeof(word),word)) return tvb_captured_length(tvb);
 
     /* Quick fix for MEGACO packet with Authentication Header,
@@ -3855,23 +3846,6 @@ proto_register_megaco(void)
 
     megaco_module = prefs_register_protocol(proto_megaco, NULL);
 
-#if 0
-    prefs_register_uint_preference(megaco_module, "sctp.bin_port",
-                                   "MEGACO Binary SCTP Port",
-                                   "Set the SCTP port for MEGACO binary messages",
-                                   10, &global_megaco_bin_sctp_port);
-
-    prefs_register_uint_preference(megaco_module, "tcp.bin_port",
-                                   "MEGACO Binary TCP Port",
-                                   "Set the TCP port for MEGACO binary messages",
-                                   10, &global_megaco_bin_tcp_port);
-
-    prefs_register_uint_preference(megaco_module, "udp.bin_port",
-                                   "MEGACO Binary UDP Port",
-                                   "Set the UDP port for MEGACO binary messages",
-                                   10, &global_megaco_bin_udp_port);
-#endif
-
     prefs_register_bool_preference(megaco_module, "display_raw_text",
                                    "Display raw text for MEGACO message",
                                    "Specifies that the raw text of the "
@@ -3908,16 +3882,6 @@ void
 proto_reg_handoff_megaco(void)
 {
     dissector_handle_t megaco_text_tcp_handle;
-
-        /*
-    * Variables to allow for proper deletion of dissector registration when
-    * the user changes port from the gui.
-    */
-#if 0
-    static guint bin_sctp_port;
-    static guint bin_tcp_port;
-    static guint bin_udp_port;
-#endif
 
     sdp_handle = find_dissector_add_dependency("sdp", proto_megaco);
     h245_handle = find_dissector_add_dependency("h245dg", proto_megaco);
