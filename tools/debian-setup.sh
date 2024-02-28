@@ -112,6 +112,11 @@ QT6_LIST="
 	qt6-tools-dev-tools
 	"
 
+# qt6-5compat-dev: Debian >= bookworm, Ubuntu >= 23.04
+# libqt6core5compat6-dev: Ubuntu 22.04
+add_package QT6_LIST qt6-5compat-dev ||
+QT6_LIST="$QT6_LIST libqt6core5compat6-dev"
+
 if [ $ADD_QT5 -ne 0 ]
 then
 	BASIC_LIST="$BASIC_LIST $QT5_LIST"
@@ -220,11 +225,6 @@ apt-get update || exit 2
 # cmake >= 3.5: Debian >= jessie-backports, Ubuntu >= 16.04
 add_package BASIC_LIST cmake3 ||
 BASIC_LIST="$BASIC_LIST cmake"
-
-# qt6-5compat-dev: Debian >= bookworm, Ubuntu >= 23.04
-# libqt6core5compat6-dev: Ubuntu 22.04
-add_package QT6_LIST qt6-5compat-dev ||
-QT6_LIST="$QT6_LIST libqt6core5compat6-dev"
 
 # Debian >= wheezy-backports, Ubuntu >= 16.04
 add_package ADDITIONAL_LIST libnghttp2-dev ||
