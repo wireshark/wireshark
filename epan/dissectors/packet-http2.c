@@ -4942,7 +4942,8 @@ proto_reg_handoff_http2(void)
     dissector_add_string("http.upgrade", "h2c", http2_handle);
 
     heur_dissector_add("tls", dissect_http2_heur_ssl, "HTTP2 over TLS", "http2_tls", proto_http2, HEURISTIC_ENABLE);
-    heur_dissector_add("http", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);
+    heur_dissector_add("http", dissect_http2_heur, "HTTP2 on an HTTP port", "http2_http", proto_http2, HEURISTIC_ENABLE);
 
     stats_tree_register("http2", "http2", "HTTP2", 0, http2_stats_tree_packet, http2_stats_tree_init, NULL);
 
