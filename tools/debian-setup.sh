@@ -156,9 +156,12 @@ then
 	# shellcheck disable=SC1090
 	. "${os_release}"
 
-	# Ubuntu 22.04 (jammy) or later
+	# Ubuntu 22.04 (jammy) / Debian 12 (bookworm) or later
 	MAJOR=$(echo "$VERSION_ID" | cut -f1 -d.)
 	if [ "${ID:-linux}" = "ubuntu" ] && [ "${MAJOR:-0}" -ge "22" ]; then
+		echo "Installing Qt6."
+		BASIC_LIST="$BASIC_LIST $QT6_LIST"
+	elif [ "${ID:-linux}" = "debian" ] && [ "${MAJOR:-0}" -ge "12" ]; then
 		echo "Installing Qt6."
 		BASIC_LIST="$BASIC_LIST $QT6_LIST"
 	else
