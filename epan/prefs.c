@@ -1752,7 +1752,11 @@ range_t* prefs_get_range_value_real(pref_t *pref, pref_source_t source)
 
 range_t* prefs_get_range_value(const char *module_name, const char* pref_name)
 {
-    return prefs_get_range_value_real(prefs_find_preference(prefs_find_module(module_name), pref_name), pref_current);
+    pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
+    if (pref == NULL) {
+        return NULL;
+    }
+    return prefs_get_range_value_real(pref, pref_current);
 }
 
 void
@@ -2368,17 +2372,6 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
     }
     return 0;
 }
-
-#if 0
-/* Return the value assigned to the given uint preference. */
-guint
-prefs_get_uint_preference(pref_t *pref)
-{
-    if (pref && pref->type == PREF_UINT)
-        return *pref->varp.uint;
-    return 0;
-}
-#endif
 
 /*
  * Call a callback function, with a specified argument, for each preference
@@ -5068,7 +5061,11 @@ guint prefs_get_uint_value_real(pref_t *pref, pref_source_t source)
 
 guint prefs_get_uint_value(const char *module_name, const char* pref_name)
 {
-    return prefs_get_uint_value_real(prefs_find_preference(prefs_find_module(module_name), pref_name), pref_current);
+    pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
+    if (pref == NULL) {
+        return 0;
+    }
+    return prefs_get_uint_value_real(pref, pref_current);
 }
 
 char* prefs_get_password_value(pref_t *pref, pref_source_t source)
