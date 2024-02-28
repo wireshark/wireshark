@@ -445,6 +445,11 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 	hf_id = *json_data_decoder_rec->hf_id;
 	DISSECTOR_ASSERT(hf_id > 0);
 
+	int proto_id = proto_registrar_is_protocol(hf_id) ? hf_id : proto_registrar_get_parent(hf_id);
+	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_id))) {
+		return NULL;
+	}
+
 	if (use_compact) {
 		int str_len = (int)strlen(key_str);
 		ti = proto_tree_add_item(tree, hf_id, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);

@@ -16,6 +16,7 @@
 #ifndef _PACKET_JSON_H
 #define _PACKET_JSON_H
 
+/* XXX - This should probably be a string or custom dissector table */
 extern GHashTable *json_header_fields_hash;
 
 /* json data decoding function
