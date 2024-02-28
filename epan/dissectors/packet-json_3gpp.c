@@ -271,6 +271,9 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	}
 
 	ti = proto_tree_add_item(tree, hf_json_3gpp_suppfeat, tvb, offset, len, ENC_ASCII);
+	if (len <= 0) {
+		return;
+	}
 	sub_tree = proto_item_add_subtree(ti, ett_json_3gpp_data);
 	suppfeat_tvb = tvb_new_subset_length(tvb, offset, len);
 
