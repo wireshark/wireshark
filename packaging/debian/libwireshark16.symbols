@@ -273,6 +273,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  decode_zcl_time_in_100ms@Base 2.5.2
  decode_zcl_time_in_minutes@Base 2.5.2
  decode_zcl_time_in_seconds@Base 2.5.2
+ decrement_dissection_depth@Base 4.0.14
  delete_itu_tcap_subdissector@Base 1.9.1
  deregister_depend_dissector@Base 2.1.0
  destroy_print_stream@Base 1.12.0~rc1
@@ -969,6 +970,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  ieee80211_supported_rates_vals_ext@Base 1.99.1
  ieee802a_add_oui@Base 1.9.1
  in_cksum@Base 1.9.1
+ increment_dissection_depth@Base 4.0.14
  init_srt_table@Base 1.99.8
  init_srt_table_row@Base 1.99.8
  ip_checksum@Base 1.99.0

@@ -49,7 +49,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/proto_data.h>
 #include <epan/arptypes.h>
 #include <epan/strutil.h>
 #include "packet-tcp.h"
@@ -315,8 +314,6 @@ static dissector_handle_t dhcpv6_handle;
 
 #define DHCPV6_LEASEDURATION_INFINITY   0xffffffff
 #define HOP_COUNT_LIMIT                 32
-
-#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
 
 /********************************************************************************************/
 /********************************** MESSAGE TYPES *******************************************/
@@ -1863,9 +1860,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, ENC_BIG_ENDIAN);
     off += 4;
 
-    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_dhcpv6);
-    DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-    p_set_proto_depth(pinfo, proto_dhcpv6, recursion_depth + 1);
+    increment_dissection_depth(pinfo);
 
     switch (opttype) {
     case OPTION_CLIENTID:
@@ -2908,7 +2903,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     }
 
-    p_set_proto_depth(pinfo, proto_dhcpv6, recursion_depth);
+    decrement_dissection_depth(pinfo);
 
     return 4 + optlen;
 }

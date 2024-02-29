@@ -48,8 +48,6 @@ void proto_reg_handoff_jfif(void);
 #define DebugLog(x) ;
 #endif
 
-#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
-
 /************************** Variable declarations **************************/
 
 #define MARKER_TEM      0xFF01
@@ -899,13 +897,11 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
                             if (extension_ifd_type_desc) {
                                 if (extension_ifd_offset < tvb_reported_length(tvb)) {
-                                    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_jfif);
-                                    DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-                                    p_set_proto_depth(pinfo, proto_jfif, recursion_depth + 1);
+                                    increment_dissection_depth(pinfo);
                                     process_tiff_ifd_chain(tree, tvb, pinfo, encoding,
                                             extension_ifd_offset, extension_hf_ifd_tag,
                                             extension_ifd_type_desc);
-                                    p_set_proto_depth(pinfo, proto_jfif, recursion_depth);
+                                    decrement_dissection_depth(pinfo);
                                 } else {
                                     expert_add_info_format(pinfo, value_item, &ei_start_ifd_offset,
                                         "bogus, should be < %u", tvb_reported_length(tvb));

@@ -1548,23 +1548,19 @@ class EthCtx:
         if self.conform.check_item('PDU', tname):
             out += self.output_proto_root()
 
-        cycle_size = 0
+        cycle_funcs = []
         if self.eth_dep_cycle:
             for cur_cycle in self.eth_dep_cycle:
                 t = self.type[cur_cycle[0]]['ethname']
                 if t == tname:
-                    cycle_size = len(cur_cycle)
+                    cycle_funcs = cur_cycle
                     break
 
-        if cycle_size > 0:
+        if len(cycle_funcs) > 1:
             out += f'''\
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = {cycle_size};
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // {' → '.join(cycle_funcs)}
+  actx->pinfo->dissection_depth += {len(cycle_funcs) - 1};
+  increment_dissection_depth(actx->pinfo);
 '''
 
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
@@ -1578,17 +1574,18 @@ class EthCtx:
         #  out += self.conform.get_fn_text(tname, 'FN_FTR')
         #el
 
-        add_recursion_check = False
+        cycle_funcs = []
         if self.eth_dep_cycle:
             for cur_cycle in self.eth_dep_cycle:
                 t = self.type[cur_cycle[0]]['ethname']
                 if t == tname:
-                    add_recursion_check = True
+                    cycle_funcs = cur_cycle
                     break
 
-        if add_recursion_check:
-            out += '''\
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+        if len(cycle_funcs) > 1:
+            out += f'''\
+  actx->pinfo->dissection_depth -= {len(cycle_funcs) - 1};
+  decrement_dissection_depth(actx->pinfo);
 '''
 
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
@@ -1875,8 +1872,6 @@ class EthCtx:
                 fx.write('\n')
                 i += 1
             fx.write('\n')
-        if add_depth_define:
-            fx.write('#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.\n')
         for t in self.eth_type_ord1:
             if self.eth_type[t]['import']:
                 continue

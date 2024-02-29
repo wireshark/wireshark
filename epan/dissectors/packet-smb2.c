@@ -22,7 +22,6 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
@@ -1132,8 +1131,6 @@ static const value_string smb2_dialect_vals[] = {
 	{ SMB2_DIALECT_311, "SMB 3.1.1" },
 	{ 0, NULL }
 };
-
-#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
 
 static int dissect_windows_sockaddr_storage(tvbuff_t *, packet_info *, proto_tree *, int, int);
 static void dissect_smb2_error_data(tvbuff_t *, packet_info *, proto_tree *, int, int, smb2_info_t *);
@@ -3887,13 +3884,11 @@ dissect_smb2_error_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 			break;
 		}
 	} else {
-		unsigned recursion_depth = p_get_proto_depth(pinfo, proto_smb2);
-		DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-		p_set_proto_depth(pinfo, proto_smb2, recursion_depth + 1);
+		increment_dissection_depth(pinfo);
 		for (i = 0; i < error_context_count; i++) {
 			offset += dissect_smb2_error_context(tvb, pinfo, tree, offset, si);
 		}
-		p_set_proto_depth(pinfo, proto_smb2, recursion_depth);
+		decrement_dissection_depth(pinfo);
 	}
 }
 
@@ -7290,11 +7285,9 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		next_tvb = tvb_new_subset_remaining(tvb, next_offset);
 
 		/* next extra info */
-		unsigned recursion_depth = p_get_proto_depth(pinfo, proto_smb2);
-		DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-		p_set_proto_depth(pinfo, proto_smb2, recursion_depth + 1);
+		increment_dissection_depth(pinfo);
 		dissect_smb2_NETWORK_INTERFACE_INFO(next_tvb, pinfo, parent_tree);
-		p_set_proto_depth(pinfo, proto_smb2, recursion_depth);
+		decrement_dissection_depth(pinfo);
 	}
 }
 
@@ -9128,11 +9121,9 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		chain_tvb = tvb_new_subset_remaining(tvb, chain_offset);
 
 		/* next extra info */
-		unsigned recursion_depth = p_get_proto_depth(pinfo, proto_smb2);
-		DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-		p_set_proto_depth(pinfo, proto_smb2, recursion_depth + 1);
+		increment_dissection_depth(pinfo);
 		dissect_smb2_create_extra_info(chain_tvb, pinfo, parent_tree, si);
-		p_set_proto_depth(pinfo, proto_smb2, recursion_depth);
+		decrement_dissection_depth(pinfo);
 	}
 }
 
@@ -10958,9 +10949,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		break;
 	}
 
-	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_smb2);
-	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-	p_set_proto_depth(pinfo, proto_smb2, recursion_depth + 1);
+	increment_dissection_depth(pinfo);
 
 	/* find which conversation we are part of and get the data for that
 	 * conversation
@@ -11276,7 +11265,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		offset   = dissect_smb2(next_tvb, pinfo, parent_tree, FALSE);
 	}
 
-	p_set_proto_depth(pinfo, proto_smb2, recursion_depth);
+	decrement_dissection_depth(pinfo);
 	return offset;
 }
 
