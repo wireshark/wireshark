@@ -156,6 +156,7 @@ typedef struct _packet_info {
   wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
   struct epan_session *epan;
   const gchar *heur_list_name;    /**< name of heur list if this packet is being heuristically dissected */
+  int dissection_depth;         /**< The current "depth" or layer number in the current frame */
 } packet_info;
 
 /** @} */

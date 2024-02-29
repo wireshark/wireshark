@@ -880,13 +880,6 @@ static int
 call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 			  packet_info *pinfo_arg, proto_tree *tree, void *);
 
-/*
- * XXX packet_info.curr_layer_num is a guint8 and *_MAX_RECURSION_DEPTH is
- * 100 elsewhere in the code. We should arguably use the same value here,
- * but using that makes suite_wslua.case_wslua.test_wslua_dissector_fpm fail.
- */
-#define PINFO_LAYER_MAX_RECURSION_DEPTH 500
-
 static int
 call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo,
 		    proto_tree *tree, gboolean add_proto_name, void *data)
@@ -908,7 +901,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	saved_proto = pinfo->current_proto;
 	saved_can_desegment = pinfo->can_desegment;
 	saved_layers_len = wmem_list_count(pinfo->layers);
-	DISSECTOR_ASSERT(saved_layers_len < PINFO_LAYER_MAX_RECURSION_DEPTH);
+	DISSECTOR_ASSERT(saved_layers_len < prefs.gui_max_tree_depth);
 
 	/*
 	 * can_desegment is set to 2 by anyone which offers the
@@ -2942,7 +2935,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	saved_layers_len = wmem_list_count(pinfo->layers);
 	*heur_dtbl_entry = NULL;
 
-	DISSECTOR_ASSERT(saved_layers_len < PINFO_LAYER_MAX_RECURSION_DEPTH);
+	DISSECTOR_ASSERT(saved_layers_len < prefs.gui_max_tree_depth);
 
 	for (entry = sub_dissectors->dissectors; entry != NULL;
 	    entry = g_slist_next(entry)) {
@@ -3915,6 +3908,18 @@ prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt)
 			epan_dissect_prime_with_hfid_array(edt,
 			    POSTDISSECTORS(i).wanted_hfids);
 	}
+}
+
+void
+increment_dissection_depth(packet_info *pinfo) {
+	pinfo->dissection_depth++;
+	DISSECTOR_ASSERT(pinfo->dissection_depth < (int)prefs.gui_max_tree_depth);
+}
+
+void
+decrement_dissection_depth(packet_info *pinfo) {
+	pinfo->dissection_depth--;
+	DISSECTOR_ASSERT(pinfo->dissection_depth >= 0);
 }
 
 /*

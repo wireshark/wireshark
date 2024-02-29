@@ -23,7 +23,6 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/proto_data.h>
 
 #include <file-rbm.h>
 #include <wiretap/ruby_marshal.h>
@@ -82,8 +81,6 @@ void proto_reg_handoff_rbm(void);
 static dissector_handle_t rbm_file_handle;
 
 #define BETWEEN(v, b1, b2) (((v) >= (b1)) && ((v) <= (b2)))
-
-#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
 
 static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** type, gchar** value);
 
@@ -436,9 +433,7 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 	proto_tree_add_item(tree, hf_rbm_type, tvb, *offset, 1, ENC_NA);
 	*offset += 1;
 
-	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_rbm);
-	DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-	p_set_proto_depth(pinfo, proto_rbm, recursion_depth + 1);
+	increment_dissection_depth(pinfo);
 
 	switch (subtype) {
 		case '0':
@@ -530,7 +525,7 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 	if (value)
 		*value = value_local;
 
-	p_set_proto_depth(pinfo, proto_rbm, recursion_depth);
+	decrement_dissection_depth(pinfo);
 }
 
 static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
