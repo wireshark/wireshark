@@ -2301,10 +2301,11 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
                           indAudstatisticsDescriptor / indAudpackagesDescriptor )
                                                                            */
 static void
-dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo _U_,  gint tvb_stop, gint tvb_offset)
+dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo _U_, gint tvb_stop, gint tvb_offset, proto_tree *top_tree, guint32 context)
 {
-    gint        tokenlen, tvb_end, tvb_next, tvb_LBRKT, token_index;
+    gint        tokenlen, tvb_end, tvb_next, tvb_LBRKT, tvb_token_end, token_index;
     proto_tree  *megaco_auditdescriptor_tree, *megaco_auditdescriptor_ti;
+    bool        descriptor;
 
     tvb_next  = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');           /* find opening LBRKT - is this already checked by caller?*/
     if( tvb_next == -1 )                                                   /* complain and give up if not there */
@@ -2330,26 +2331,65 @@ dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_in
 
             tvb_LBRKT = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');
 
+            tvb_end = megaco_tvb_skip_wsp_return(tvb, tvb_next-1);                                /* trim any trailing whitespace */
+
             if ( tvb_LBRKT > tvb_next || tvb_LBRKT == -1 ){
                 /* auditItem has no parameters (i.e., is a Token) */
-                tvb_end = megaco_tvb_skip_wsp_return(tvb, tvb_next-1);                                /* trim any trailing whitespace */
+                descriptor = false;
+                tvb_token_end = tvb_end;
             } else {
                 /* auditItem includes Parameters (i.e., is a Descriptor) */
-                for (tvb_end=tvb_offset; tvb_end < tvb_next -1 ; tvb_end++){
-                    if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_end ))){
+                descriptor = true;
+                for (tvb_token_end=tvb_offset; tvb_token_end < tvb_end ; tvb_token_end++){
+                    if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_token_end ))){
                         break;
                     }
                 }
             }
 
-            tokenlen =  tvb_end - tvb_offset;                                                     /* get length of token */
+            tokenlen = tvb_token_end - tvb_offset;                                                /* get length of token */
 
             token_index = find_megaco_descriptors_names(tvb, tvb_offset, tokenlen);               /* lookup the token */
             if( token_index == -1 )                                                               /* if not found then 0 => Unknown */
                 token_index = 0;
 
-            proto_tree_add_string(megaco_auditdescriptor_tree, hf_megaco_audititem, tvb,
-                    tvb_offset, tokenlen, megaco_descriptors_names[token_index].name);    /* and display the long form */
+            if (descriptor) {
+
+                switch ( token_index ){
+                case MEGACO_MEDIA_TOKEN:
+                {
+                    int temp_offset = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');
+                    int save_offset = tvb_offset;
+
+                    tvb_offset = megaco_tvb_skip_wsp(tvb, temp_offset +1);
+                    dissect_megaco_mediadescriptor(tvb, megaco_auditdescriptor_tree, pinfo, tvb_end, tvb_offset, save_offset, top_tree, context);
+                    break;
+                }
+                case MEGACO_SIGNALS_TOKEN:
+                    dissect_megaco_signaldescriptor(tvb, pinfo, megaco_auditdescriptor_tree, tvb_end, tvb_offset, top_tree);
+                    break;
+                case MEGACO_STATS_TOKEN:
+                    dissect_megaco_statisticsdescriptor(tvb, megaco_auditdescriptor_tree, tvb_end, tvb_offset);
+                    break;
+                case MEGACO_EVENTS_TOKEN:
+                    dissect_megaco_eventsdescriptor(tvb, pinfo, megaco_auditdescriptor_tree, tvb_end, tvb_offset, top_tree);
+                    break;
+                case MEGACO_DIGITMAP_TOKEN:
+                    dissect_megaco_digitmapdescriptor(tvb, megaco_auditdescriptor_tree, tvb_end, tvb_offset);
+                    break;
+                case MEGACO_PACKAGES_TOKEN:
+                    dissect_megaco_Packagesdescriptor(tvb, megaco_auditdescriptor_tree, tvb_end, tvb_offset);
+                    break;
+                default:
+                    tokenlen = tvb_end - tvb_offset;
+                    proto_tree_add_string(megaco_auditdescriptor_tree, hf_megaco_audititem, tvb,
+                            tvb_offset, tokenlen, megaco_descriptors_names[token_index].name);    /* and display the long form */
+                    break;
+                }
+            } else {
+                proto_tree_add_string(megaco_auditdescriptor_tree, hf_megaco_audititem, tvb,
+                        tvb_offset, tokenlen, megaco_descriptors_names[token_index].name);    /* and display the long form */
+            }
 
             tvb_offset = tvb_next;                                                                /* advance pointer */
         }
@@ -3504,7 +3544,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
             dissect_megaco_eventsdescriptor(tvb, pinfo, descriptor_tree, tvb_RBRKT, tvb_previous_offset, top_tree);
             break;
         case MEGACO_AUDIT_TOKEN:
-            dissect_megaco_auditdescriptor(tvb, descriptor_tree, pinfo, tvb_RBRKT, tvb_previous_offset);
+            dissect_megaco_auditdescriptor(tvb, descriptor_tree, pinfo, tvb_RBRKT, tvb_previous_offset, top_tree, context);
             break;
         case MEGACO_DIGITMAP_TOKEN:
             dissect_megaco_digitmapdescriptor(tvb, descriptor_tree, tvb_RBRKT, tvb_previous_offset);
