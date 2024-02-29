@@ -1,0 +1,4 @@
+usr/bin/logray
+usr/lib/*/logray/extcap
+usr/share/logray/*
+usr/share/applications/org.wireshark.Logray.desktop
