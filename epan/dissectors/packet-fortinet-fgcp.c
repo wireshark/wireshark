@@ -58,6 +58,15 @@ static gint ett_fortinet_fgcp_hb;
 static gint ett_fortinet_fgcp_hb_flag;
 static gint ett_fortinet_fgcp_hb_tlv;
 
+static int proto_fortinet_fgcp_session;
+static int hf_fortinet_fgcp_session_magic;
+static int hf_fortinet_fgcp_session_type;
+
+static dissector_handle_t fortinet_fgcp_session_handle;
+static dissector_handle_t ip_handle;
+
+static gint ett_fortinet_fgcp_session;
+
 static const value_string fortinet_fgcp_hb_mode_vals[] = {
     { 0x1,            "A/A (Active/Active)"},
     { 0x2,            "A/P (Active/Passive)"},
@@ -235,6 +244,33 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+static int
+dissect_fortinet_fgcp_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        void *data _U_)
+{
+    proto_item *ti;
+    proto_tree *fortinet_hb_tree;
+    guint       offset = 0;
+    tvbuff_t    *data_tvb;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FGCP-SESSION");
+
+    ti = proto_tree_add_item(tree, proto_fortinet_fgcp_session, tvb, 0, -1, ENC_NA);
+
+    fortinet_hb_tree = proto_item_add_subtree(ti, ett_fortinet_fgcp_session);
+
+    proto_tree_add_item(fortinet_hb_tree, hf_fortinet_fgcp_session_magic, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(fortinet_hb_tree, hf_fortinet_fgcp_session_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    data_tvb = tvb_new_subset_remaining(tvb, offset);
+    call_dissector(ip_handle, data_tvb, pinfo, tree);
+
+    return offset;
+}
+
 void
 proto_register_fortinet_fgcp(void)
 {
@@ -365,18 +401,34 @@ proto_register_fortinet_fgcp(void)
             FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+
+        /* Session */
+        { &hf_fortinet_fgcp_session_magic,
+            { "Magic Number", "fortinet_fgcp.session.magic",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+            "Magic Number ?", HFILL }
+        },
+        { &hf_fortinet_fgcp_session_type,
+            { "Type", "fortinet_fgcp.session.type",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fortinet_fgcp_hb,
         &ett_fortinet_fgcp_hb_flag,
-        &ett_fortinet_fgcp_hb_tlv
+        &ett_fortinet_fgcp_hb_tlv,
+        &ett_fortinet_fgcp_session,
     };
 
     /* Register the protocol name and description */
     proto_fortinet_fgcp_hb = proto_register_protocol("FortiGate Cluster Protocol - HeartBeat",
             "fortinet_fgcp_hb", "fortinet_fgcp_hb");
+
+    proto_fortinet_fgcp_session = proto_register_protocol("FortiGate Cluster Protocol - Session",
+            "fortinet_fgcp_session", "fortinet_fgcp_session");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_fortinet_fgcp_hb, hf, array_length(hf));
@@ -385,6 +437,9 @@ proto_register_fortinet_fgcp(void)
     fortinet_fgcp_hb_handle = register_dissector("fortinet_fgcp_hb", dissect_fortinet_fgcp_hb,
             proto_fortinet_fgcp_hb);
 
+    fortinet_fgcp_session_handle = register_dissector("fortinet_fgcp_session", dissect_fortinet_fgcp_session,
+            proto_fortinet_fgcp_session);
+
 }
 
 
@@ -392,6 +447,9 @@ void
 proto_reg_handoff_fortinet_fgcp(void)
 {
       dissector_add_uint("ethertype", ETHERTYPE_FORTINET_FGCP_HB, fortinet_fgcp_hb_handle);
+      dissector_add_uint("ethertype", ETHERTYPE_FORTINET_FGCP_SESSION, fortinet_fgcp_session_handle);
+
+      ip_handle  = find_dissector_add_dependency("ip", proto_fortinet_fgcp_session);
 }
 
 /*
