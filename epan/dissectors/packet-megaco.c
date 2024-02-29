@@ -1802,7 +1802,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
             streamId = (guint)strtoul(tvb_format_text(pinfo->pool, tvb, tvb_current_offset,tokenlen),NULL,10);
             ti = proto_tree_add_uint(megaco_mediadescriptor_tree, hf_megaco_streamid, tvb,
                 save_offset, 1, streamId);
-            proto_item_set_len(ti, tvb_offset-save_offset+tokenlen);
+            proto_item_set_len(ti, tvb_offset-save_offset);
             tvb_previous_offset = tvb_LBRKT+1;
             continue;
         case MEGACO_TERMINATION_STATE_DESC:
