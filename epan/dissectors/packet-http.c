@@ -62,8 +62,6 @@ static int proto_ssdp;
 static int hf_http_notification;
 static int hf_http_response;
 static int hf_http_request;
-/* static int hf_http_response_number;
-static int hf_http_request_number; */
 static int hf_http_response_line;
 static int hf_http_request_line;
 static int hf_http_basic;
@@ -4416,14 +4414,6 @@ proto_register_http(void)
 	      { "Request", "http.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if HTTP request", HFILL }},
-	    /* { &hf_http_response_number,
-	      { "Response number", "http.response_number",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-	      { &hf_http_request_number,
-	      { "Request number", "http.request_number",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},	*/
 	    { &hf_http_basic,
 	      { "Credentials", "http.authbasic",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -4493,10 +4483,6 @@ proto_register_http(void)
 	      { "Status Code Description", "http.response.code.desc",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Response Status Code Description", HFILL }},
-	 //   { &hf_http_response_for_uri,
-	 //     { "Request URI", "http.response_for.uri",
-		//FT_STRING, BASE_NONE, NULL, 0x0,
-		//"HTTP Response For-URI", HFILL }},
 	    { &hf_http_response_phrase,
 	      { "Response Phrase", "http.response.phrase",
 	        FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4653,22 +4639,6 @@ proto_register_http(void)
 	      { "Response in frame", "http.response_in",
 		FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
 		"This packet will be responded in the packet with this number", HFILL }},
-	    /* { &hf_http_next_request_in,
-	      { "Next request in frame", "http.next_request_in",
-		FT_FRAMENUM, BASE_NONE, NULL, 0,
-		"The next HTTP request starts in packet number", HFILL }},
-	    { &hf_http_next_response_in,
-	      { "Next response in frame", "http.next_response_in",
-		FT_FRAMENUM, BASE_NONE, NULL, 0,
-		"The next HTTP response starts in packet number", HFILL }},
-	    { &hf_http_prev_request_in,
-	      { "Prev request in frame", "http.prev_request_in",
-		FT_FRAMENUM, BASE_NONE, NULL, 0,
-		"The previous HTTP request starts in packet number", HFILL }},
-	    { &hf_http_prev_response_in,
-	      { "Prev response in frame", "http.prev_response_in",
-		FT_FRAMENUM, BASE_NONE, NULL, 0,
-		"The previous HTTP response starts in packet number", HFILL }}, */
 	    { &hf_http_time,
 	      { "Time since request", "http.time",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
