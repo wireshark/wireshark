@@ -2281,14 +2281,29 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 /*
    auditDescriptor      = AuditToken LBRKT [ auditItem *(COMMA auditItem) ] RBRKT
 
+   V1:
    auditItem            = ( MuxToken / ModemToken / MediaToken /
                            SignalsToken / EventBufferToken /
                            DigitMapToken / StatsToken / EventsToken /
-                           ObservedEventsToken / PackagesToken )                     */
+                           ObservedEventsToken / PackagesToken )
+
+   V3:
+   auditItem            = ( auditReturnItem / SignalsToken / EventBufferToken /
+                           EventsToken / indAudterminationAudit )
+
+   auditReturnItem      = ( MuxToken / ModemToken / MediaToken / DigitMapToken /
+                           StatsToken / ObservedEventsToken / PackagesToken )
+
+   indAudauditReturnParameter
+                        = ( indAudmediaDescriptor / indAudeventsDescriptor /
+                          indAudsignalsDescriptor / indAuddigitMapDescriptor /
+                          indAudeventBufferDescriptor /
+                          indAudstatisticsDescriptor / indAudpackagesDescriptor )
+                                                                           */
 static void
 dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo _U_,  gint tvb_stop, gint tvb_offset)
 {
-    gint        tokenlen, tvb_end, tvb_next, token_index;
+    gint        tokenlen, tvb_end, tvb_next, tvb_LBRKT, token_index;
     proto_tree  *megaco_auditdescriptor_tree, *megaco_auditdescriptor_ti;
 
     tvb_next  = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');           /* find opening LBRKT - is this already checked by caller?*/
@@ -2312,7 +2327,21 @@ dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_in
             tvb_next = tvb_find_guint8(tvb, tvb_offset, tvb_stop, ',');                           /* end of an auditItem */
             if (tvb_next == -1)                                                                   /* last item doesn't have a comma */
                 tvb_next = tvb_stop;
-            tvb_end = megaco_tvb_skip_wsp_return(tvb, tvb_next-1);                                /* trim any trailing whitespace */
+
+            tvb_LBRKT = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');
+
+            if ( tvb_LBRKT > tvb_next || tvb_LBRKT == -1 ){
+                /* auditItem has no parameters (i.e., is a Token) */
+                tvb_end = megaco_tvb_skip_wsp_return(tvb, tvb_next-1);                                /* trim any trailing whitespace */
+            } else {
+                /* auditItem includes Parameters (i.e., is a Descriptor) */
+                for (tvb_end=tvb_offset; tvb_end < tvb_next -1 ; tvb_end++){
+                    if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_end ))){
+                        break;
+                    }
+                }
+            }
+
             tokenlen =  tvb_end - tvb_offset;                                                     /* get length of token */
 
             token_index = find_megaco_descriptors_names(tvb, tvb_offset, tokenlen);               /* lookup the token */
