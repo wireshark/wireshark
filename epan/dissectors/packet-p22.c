@@ -839,7 +839,6 @@ static int dissect_p22_BodyPartTokens(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int dissect_p22_ForwardedContentToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
-#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -1802,13 +1801,9 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 7;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // IPM → Body → BodyPart → BodyPart/basic → MessageBodyPart → MessageData → IPM
+  actx->pinfo->dissection_depth += 6;
+  increment_dissection_depth(actx->pinfo);
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
@@ -1818,7 +1813,8 @@ dissect_p22_IPM(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 6;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -3521,17 +3517,14 @@ static const ber_sequence_t IPMSynopsis_sequence_of[1] = {
 
 static int
 dissect_p22_IPMSynopsis(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // IPMSynopsis → BodyPartSynopsis → MessageBodyPartSynopsis → IPMSynopsis
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       IPMSynopsis_sequence_of, hf_index, ett_p22_IPMSynopsis);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -3989,17 +3982,14 @@ static const ber_sequence_t BodyPartTokens_set_of[1] = {
 
 static int
 dissect_p22_BodyPartTokens(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // BodyPartTokens → BodyPartTokens/_item → BodyPartTokens/_item/body-part-choice → BodyPartTokens
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  BodyPartTokens_set_of, hf_index, ett_p22_BodyPartTokens);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -4047,17 +4037,14 @@ static const ber_sequence_t ForwardedContentToken_set_of[1] = {
 
 static int
 dissect_p22_ForwardedContentToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // ForwardedContentToken → ForwardedContentToken/_item → ForwardedContentToken/_item/body-part-choice → ForwardedContentToken
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ForwardedContentToken_set_of, hf_index, ett_p22_ForwardedContentToken);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
