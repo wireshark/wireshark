@@ -632,7 +632,7 @@ dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree_add_item (twamp_tree, hf_twamp_sender_seq_number, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if (tvb_get_ntohs(tvb, offset) & TWAMP_ERROR_ESTIMATE_ZBIT)
+        if (tvb_get_ntohs(tvb, offset + 8) & TWAMP_ERROR_ESTIMATE_ZBIT)
             proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
         else
             proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS | ENC_BIG_ENDIAN);
