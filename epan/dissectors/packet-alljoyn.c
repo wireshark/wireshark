@@ -11,7 +11,6 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include <proto_data.h>
 #include <epan/expert.h>
 #include <wsutil/ws_roundup.h>
 #include <wsutil/str_util.h>
@@ -29,9 +28,6 @@ static dissector_handle_t alljoyn_handle_ardp;
 #define MAX_ARRAY_LEN 131072
 /* DBus limits packet length to 2^27. AllJoyn limits it further to 2^17 + 4096 to allow for 2^17 payload */
 #define MAX_PACKET_LEN (MAX_ARRAY_LEN + 4096)
-
-/* Arbitrarily chosen. */
-#define MAX_RECURSION_DEPTH 10
 
 /* The following are protocols within a frame.
    The actual value of the handle is set when the various fields are
@@ -780,9 +776,7 @@ advance_to_end_of_signature(packet_info *pinfo, const guint8 **signature, guint8
     gint8 current_type;
     gint8 end_type = ARG_INVALID;
 
-    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_AllJoyn_mess);
-    DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-    p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth + 1);
+    increment_dissection_depth(pinfo);
 
     while (*signature_length > 0 && **signature && !done) {
         current_type = *(++(*signature));
@@ -833,7 +827,7 @@ advance_to_end_of_signature(packet_info *pinfo, const guint8 **signature, guint8
             break;
         }
     }
-    p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth);
+    decrement_dissection_depth(pinfo);
 }
 
 /* This is called to add a padding item. There is not padding done for each call made.
@@ -955,9 +949,7 @@ parse_arg(tvbuff_t      *tvb,
             } else {
                 guint8 sig_length_saved = *signature_length - 1;
 
-                unsigned recursion_depth = p_get_proto_depth(pinfo, proto_AllJoyn_mess);
-                DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-                p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth + 1);
+                increment_dissection_depth(pinfo);
 
                 while((offset - starting_offset) < length) {
                     const guint8 *sig_pointer;
@@ -984,7 +976,7 @@ parse_arg(tvbuff_t      *tvb,
                     *signature = sig_pointer;
                     *signature_length = remaining_sig_length;
                 }
-                p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth);
+                decrement_dissection_depth(pinfo);
             }
 
             if(item) {
@@ -1195,9 +1187,7 @@ parse_arg(tvbuff_t      *tvb,
             offset += length;
             sig_pointer = sig_saved;
 
-            unsigned recursion_depth = p_get_proto_depth(pinfo, proto_AllJoyn_mess);
-            DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-            p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth + 1);
+            increment_dissection_depth(pinfo);
 
             /* The signature of the variant has now been taken care of.  So now take care of the variant data. */
             while(((sig_pointer - sig_saved) < (length - 1)) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
@@ -1208,7 +1198,7 @@ parse_arg(tvbuff_t      *tvb,
 
             }
 
-            p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth);
+            decrement_dissection_depth(pinfo);
             proto_item_append_text(item, "'");
             proto_item_set_end(item, tvb, offset);
         }
@@ -1262,9 +1252,7 @@ parse_arg(tvbuff_t      *tvb,
             (*signature)++; /* Advance past the '(' or '{'. */
             (*signature_length)--;
 
-            unsigned recursion_depth = p_get_proto_depth(pinfo, proto_AllJoyn_mess);
-            DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-            p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth + 1);
+            increment_dissection_depth(pinfo);
 
             /* *signature should never be NULL but just make sure to avoid potential issues. */
             while(*signature && **signature && **signature != type_stop
@@ -1283,7 +1271,7 @@ parse_arg(tvbuff_t      *tvb,
                                    field_starting_offset);
             }
 
-            p_set_proto_depth(pinfo, proto_AllJoyn_mess, recursion_depth);
+            decrement_dissection_depth(pinfo);
 
             proto_item_set_end(item, tvb, offset);
         }

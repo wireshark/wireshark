@@ -3532,9 +3532,13 @@ prefs_register_modules(void)
                                    "The maximum number of items that can be added to the dissection tree (Increase with caution)",
                                    10,
                                    &prefs.gui_max_tree_items);
+    /*
+     * Used independently by proto_tree_add_node, call_dissector*, dissector_try_heuristic,
+     * and increment_dissection_depth.
+     */
     prefs_register_uint_preference(gui_module, "max_tree_depth",
-                                   "Maximum tree depth",
-                                   "The maximum depth of the dissection tree (Increase with caution)",
+                                   "Maximum dissection depth",
+                                   "The maximum depth for dissection tree and protocol layer checks. (Increase with caution)",
                                    10,
                                    &prefs.gui_max_tree_depth);
 

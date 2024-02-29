@@ -23,7 +23,6 @@
 
 #include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/proto_data.h>
 
 #include "packet-osi.h"
 #include "packet-isis.h"
@@ -3429,8 +3428,6 @@ dissect_srv6_sid_struct_subsubclv(tvbuff_t *tvb, packet_info* pinfo,
  *   void
  */
 
-#define MAX_RECURSION_DEPTH 10 // Arbitrarily chosen.
-
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
@@ -3450,9 +3447,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
     proto_tree *subsubtree = NULL;
     proto_item *ti_subsubtree = NULL;
 
-    unsigned recursion_depth = p_get_proto_depth(pinfo, proto_isis_lsp);
-    DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-    p_set_proto_depth(pinfo, proto_isis_lsp, recursion_depth + 1);
+    increment_dissection_depth(pinfo);
 
     while (i < subclvs_len) {
         /* offset for each sub-TLV */
@@ -3715,7 +3710,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
         }
         i += clv_len + 2;
     }
-    p_set_proto_depth(pinfo, proto_isis_lsp, recursion_depth);
+    decrement_dissection_depth(pinfo);
 }
 
 
