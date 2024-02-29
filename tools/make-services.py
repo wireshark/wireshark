@@ -43,7 +43,7 @@ def parse_port(port_str):
         if len(p) == 1:
             return tuple([int(p[0])])
         if len(p) == 2:
-            return tuple([int(p[0]), int(p[1])])
+            return tuple(range(int(p[0]), int(p[1]) + 1))
     except ValueError:
         pass
     return ()
