@@ -356,7 +356,7 @@ typedef struct {
 } http_req_res_private_data_t;
 
  typedef struct _request_trans_t {
-	guint32 first_range_num;
+	unsigned long first_range_num;
 	guint32 req_frame;
 	nstime_t abs_time;
 	gchar *request_uri;
@@ -1760,7 +1760,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = next_offset;
 	}
 	if (stat_info->http_host && stat_info->request_uri) {
-		proto_item *e_ti;
 		gchar      *uri;
 
 		if ((g_ascii_strncasecmp(stat_info->request_uri, "http://", 7) == 0) ||
@@ -1864,6 +1863,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			break;
 		case MEDIA_CONTAINER_HTTP_REQUEST:
+			{
 			int size = wmem_map_size(conv_data->matches_table);
 
 			hidden_item = proto_tree_add_boolean(http_tree,	hf_http_request, tvb, 0, 0, 1);
@@ -1901,6 +1901,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 								stat_info->full_uri);
 				proto_item_set_url(pi);
 				proto_item_set_generated(pi);
+			}
 			}
 			break;
 
@@ -3698,6 +3699,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 		}
 		case HDR_RANGE:
+			{
 			/* THIS IS A GET REQUEST
 			*  Note: GET is the only method that employs ranges.
 			*/
@@ -3727,8 +3729,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 *  method used is explaned within the comments.
 			 */
 			guint8  *first_range_num_str = NULL;
-			guint32 first_range_num = 0;
-			request_trans_t *req_trans = NULL;
+			unsigned long first_range_num = 0;
 
 			/* Get the first range number */
 			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
@@ -3740,21 +3741,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				first_range_num = strtoul(first_range_num_str, NULL ,10);
 			}
 			if (first_range_num == 0) {
-				/* The first number of the range is missing or '0'. Get a hash
-				*  of the entire range field and set first_range_num to it."
+				/* The first number of the range is missing or '0'. So we'll
+				* use the second number in the range instead."
 				*/
-				unsigned long hash = 5381;
-				int c;
 				char *str = wmem_strdup(wmem_file_scope(), value);
-
-				/* Isolate the range itself */
-				str += 6;
-
-				if (*str) {
-					while (c = *str++)
-						hash = ((hash << 5) + hash) + c;
-					first_range_num = hash;
-				}
+				str += 8;
+				first_range_num = strtoul(str, NULL ,10);
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
@@ -3770,8 +3762,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				conv_data->req_list = g_slist_append(conv_data->req_list, GUINT_TO_POINTER(req_trans));
 			}
 			}
+
 			curr->req_has_range = TRUE;
 			break;
+			}
 		case HDR_CONTENT_RANGE:
 			/*
 			*  THIS IS A GET RESPONSE
@@ -3779,7 +3773,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (!pinfo->fd->visited) {
 				guint8  *first_crange_num_str = NULL;
 				guint8  *no_filesize = NULL;
-				guint32 first_crange_num = 0;
+				unsigned long first_crange_num = 0;
 				guint   pos;
 				request_trans_t *req_trans;
 				match_trans_t *match_trans = NULL;
@@ -3801,19 +3795,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
 				}
 				if (first_crange_num == 0) {
-					/* The first number of the range is missing or '0'. Get a hash
-					*  of the entire range field and set it to first_range_num_str.
+					/* The first number of the range is missing or '0'. So we'll
+					* use the second number in the range instead."
 					*/
-					unsigned long hash = 5381;
-					int c;
-					guint8 *str = wmem_strdup(wmem_file_scope(), no_filesize);
-
-					str += 6;
-					if (*str) {
-						while (c = *str++)
-							hash = ((hash << 5) + hash) + c;
-						first_crange_num = hash;
-					}
+					char *str = wmem_strdup(wmem_file_scope(), value);
+					str += 8;
+					first_crange_num = strtoul(str, NULL ,10);
 				}
 
 				/* Get the position of the matching request if any in the reqs_table.
