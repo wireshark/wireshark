@@ -1015,7 +1015,7 @@ get_datafile_dir(void)
     if (running_in_build_directory_flag) {
         datafile_dir = g_strdup(install_prefix);
     } else {
-        datafile_dir = g_build_filename(install_prefix, DATA_DIR, (char *)NULL);
+        datafile_dir = g_build_filename(install_prefix, DATA_DIR, CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
 #elif defined(_WIN32)
     /*
@@ -1072,7 +1072,7 @@ get_datafile_dir(void)
          */
         datafile_dir = g_strdup(progfile_dir);
     } else {
-        datafile_dir = g_build_filename(install_prefix, DATA_DIR, (char *)NULL);
+        datafile_dir = g_build_filename(install_prefix, DATA_DIR, CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
 #endif
     return datafile_dir;

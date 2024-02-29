@@ -15,15 +15,15 @@ export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${LD_LIBRARY_PATH}"
 # We should probably set these relative to the program path in
 # wsutil/filesystem.c
 if [ -z "$LOGRAY_DATA_DIR" ] ; then
-    export LOGRAY_DATA_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DATADIR@/wireshark"
+    export LOGRAY_DATA_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DATADIR@/logray"
 fi
 
 if [ -z "$LOGRAY_EXTCAP_DIR" ] ; then
-    export LOGRAY_EXTCAP_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/wireshark/extcap"
+    export LOGRAY_EXTCAP_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/logray/extcap"
 fi
 
 if [ -z "$LOGRAY_PLUGIN_DIR" ] ; then
-    export LOGRAY_PLUGIN_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/wireshark/plugins"
+    export LOGRAY_PLUGIN_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/logray/plugins"
 fi
 
 # See if we were called by runtime.c, which sets APPIMAGE, ARGV0,

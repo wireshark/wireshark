@@ -305,12 +305,6 @@ if(WIN32 AND NOT USE_MSYSTEM)
 	set(CMAKE_INSTALL_INCLUDEDIR "include")
 	set(CMAKE_INSTALL_DATADIR ".")
 	set(CMAKE_INSTALL_DOCDIR ".")
-else()
-	# By default INSTALL_DATADIR is set to INSTALL_DATAROOTDIR, set the
-	# proper value here.
-	set(CMAKE_INSTALL_DATADIR "share/${PROJECT_NAME}"
-		CACHE PATH "Read-only architecture-independent data"
-	)
 endif()
 include(GNUInstallDirs)
 
@@ -2046,7 +2040,8 @@ set(TSHARK_TAP_SRC
 
 )
 
-# Installed into ${DATAFILE_DIR}
+# Copied into ${DATAFILE_DIR} at build time and ${CMAKE_INSTALL_DATADIR}/wireshark
+# at install time.
 set(INSTALL_DIRS
 	resources/share/wireshark/profiles
 	resources/protocols/diameter
@@ -2056,7 +2051,8 @@ set(INSTALL_DIRS
 	resources/protocols/wimaxasncp
 )
 
-# Installed into ${DATAFILE_DIR}
+# Copied into ${DATAFILE_DIR} at build time and ${CMAKE_INSTALL_DATADIR}/wireshark
+# at install time.
 set(INSTALL_FILES
 	resources/share/wireshark/cfilters
 	resources/share/wireshark/colorfilters
@@ -2394,21 +2390,26 @@ foreach(_install_file ${INSTALL_FILES} ${DOC_FILES})
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
-if (BUILD_logray AND ENABLE_APPLICATION_BUNDLE)
-	foreach(_install_file ${LOG_INSTALL_FILES})
-		get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
-		get_filename_component(_install_basename "${_install_file}" NAME)
-		set(_output_file "${LOG_DATAFILE_DIR}/${_install_basename}")
-		add_custom_command(OUTPUT "${_output_file}"
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${_install_file_src}"
-				"${_output_file}"
-			DEPENDS
-				docs
-				"${_install_file}"
-		)
-		list(APPEND copy_data_files_depends "${_output_file}")
-	endforeach()
+if (BUILD_logray)
+	if (ENABLE_APPLICATION_BUNDLE)
+		foreach(_install_file ${LOG_INSTALL_FILES})
+			get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
+			get_filename_component(_install_basename "${_install_file}" NAME)
+			set(_output_file "${LOG_DATAFILE_DIR}/${_install_basename}")
+			add_custom_command(OUTPUT "${_output_file}"
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${_install_file_src}"
+					"${_output_file}"
+				DEPENDS
+					docs
+					"${_install_file}"
+			)
+			list(APPEND copy_data_files_depends "${_output_file}")
+		endforeach()
+	else()
+		# XXX The default profile (colorfilters, dfilters) is at the
+		# top-level resources directory for both Wireshark and Logray.
+	endif()
 endif()
 
 set(_protocol_data_dir ${CMAKE_SOURCE_DIR}/resources/protocols)
@@ -3954,8 +3955,21 @@ install(
 		GROUP_READ
 		WORLD_READ
 	DESTINATION
-		${CMAKE_INSTALL_DATADIR}
+		${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
 )
+
+if (BUILD_logray)
+	install(
+		FILES
+			${LOG_INSTALL_FILES}
+		PERMISSIONS
+			OWNER_WRITE OWNER_READ
+			GROUP_READ
+			WORLD_READ
+		DESTINATION
+			${CMAKE_INSTALL_DATADIR}/${LOG_PROJECT_NAME}
+	)
+endif()
 
 install(
 	FILES
@@ -4059,7 +4073,7 @@ install(
 	DIRECTORY
 		${INSTALL_DIRS}
 	DESTINATION
-		${CMAKE_INSTALL_DATADIR}
+		${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
 	FILE_PERMISSIONS
 		OWNER_WRITE OWNER_READ
 		GROUP_READ
@@ -4072,6 +4086,26 @@ install(
 	PATTERN ".svn" EXCLUDE
 	PATTERN "Makefile.*" EXCLUDE
 )
+
+if (BUILD_logray)
+	install(
+		DIRECTORY
+			${LOG_INSTALL_DIRS}
+		DESTINATION
+			${CMAKE_INSTALL_DATADIR}/${LOG_PROJECT_NAME}
+		FILE_PERMISSIONS
+			OWNER_WRITE OWNER_READ
+			GROUP_READ
+			WORLD_READ
+		DIRECTORY_PERMISSIONS
+			OWNER_EXECUTE OWNER_WRITE OWNER_READ
+			GROUP_EXECUTE GROUP_READ
+			WORLD_EXECUTE WORLD_READ
+		PATTERN ".git" EXCLUDE
+		PATTERN ".svn" EXCLUDE
+		PATTERN "Makefile.*" EXCLUDE
+	)
+endif()
 
 if(WIN32 AND NOT USE_MSYSTEM)
 	# Note: CMake export mechanism misbehaves with a '.' in the
