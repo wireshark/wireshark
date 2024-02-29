@@ -115,7 +115,7 @@ static const string_string versiontypenames[] = {
     { "20140617", "Support for anchoring session connect time" },
     { "20141004", "Support for extendable performance counters" },
     { "20150330", "Support for allocating a new port (\"Un\"/\"Ln\" commands)" },
-    { 0, NULL }
+    { NULL, NULL }
 };
 
 static const value_string commandtypenames[] = {
@@ -250,7 +250,7 @@ static const string_string errortypenames[] = {
     { "E89", "Out of memory (NOMEM_9)" },
     { "E98", "OVERLOAD" },
     { "E99", "Software error: proxy is in the deorbiting-burn mode, new session rejected (SLOWSHTDN)" },
-    { 0, NULL }
+    { NULL, NULL }
 };
 
 static gint ett_rtpproxy;

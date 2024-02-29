@@ -933,7 +933,7 @@ static const string_string ims_status_code[] = {
 	{ "603", "Decline" },
 	{ "604", "Does Not Exist Anywhere" },
 	{ "606", "Not Acceptable" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 #define AID_RID_ETSI   G_GINT64_CONSTANT(0xA000000009)

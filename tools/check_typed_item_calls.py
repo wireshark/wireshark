@@ -762,19 +762,28 @@ class StringString:
         self.raw_vals = vals
         self.parsed_vals = {}
 
+        terminated = False
+        global errors_found
+
         # Now parse out each entry in the string_string
         matches = re.finditer(r'\{\s*(["0-9_A-Za-z\s\-]*?)\s*,\s*(["0-9_A-Za-z\s\-]*)\s*', self.raw_vals)
         for m in matches:
-            key = m.group(1)
-            value = m.group(2)
+            key = m.group(1).strip()
+            value = m.group(2).strip()
             if key in self.parsed_vals:
-                global errors_found
                 print('Error:', self.file, ': string_string', self.name, 'entry', key, 'has been added twice (values',
                       self.parsed_vals[key], 'and now', value, ')')
                 errors_found += 1
 
             else:
                 self.parsed_vals[key] = value
+                # TODO: Also allow key to be "0" ?
+                if (key in { "NULL" }) and value == "NULL":
+                    terminated = True
+
+        if not terminated:
+            print('Error:', self.file, ': string_string', self.name, "is not terminated with { NULL, NULL }")
+            errors_found += 1
 
     def extraChecks(self):
         pass

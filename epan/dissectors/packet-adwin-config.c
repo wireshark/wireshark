@@ -61,14 +61,14 @@ static const string_string system_type_mapping[] = {
 	{ "03", "Pro I"},
 	{ "04", "Pro II"},
 	{ "05", "Gold II"},
-	{ 0, NULL },
+	{ NULL, NULL },
 };
 
 static const string_string processor_type_mapping[] = {
 	{ "09", "T9"},
 	{ "10", "T10"},
 	{ "11", "T11"},
-	{ 0, NULL },
+	{ NULL, NULL },
 };
 
 /* Initialize the protocol and registered fields */

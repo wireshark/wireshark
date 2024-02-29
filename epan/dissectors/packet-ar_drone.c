@@ -94,7 +94,7 @@ static const string_string CTRL_mode_vs[] = {
     { "4" , " (CFG_GET_CONTROL_MODE)" },
     { "5" , " (ACK_CONTROL_MODE)" },
     { "6" , " (CUSTOM_CFG_GET_CONTROL_MODE)" },
-    { 0, NULL }
+    { NULL, NULL }
 };
 
 /* ********************************************** */

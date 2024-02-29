@@ -1403,7 +1403,7 @@ static const string_string ice_candidate_types[] = {
     { "srflx",      "Server reflexive candidate" },
     { "prflx",      "Peer reflexive candidate" },
     { "relay",      "Relayed candidate" },
-    { 0, NULL }
+    { NULL, NULL }
 };
 
 static void
@@ -1558,7 +1558,7 @@ static const string_string media_format_str_types[] = {
     { "mcvideo",  "Mission Critical Video"},
     /* OMA PoC Control Plane */
     { "tbcp",     "Talk Burst Control Protocol"},
-    { 0, NULL }
+    { NULL, NULL }
 };
 
 static void

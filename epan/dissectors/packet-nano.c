@@ -133,7 +133,7 @@ static const string_string nano_magic_numbers[] = {
     { "RA", "Nano Test Network" },
     { "RB", "Nano Beta Network" },
     { "RC", "Nano Production Network" },
-    { 0, NULL }
+    { NULL, NULL }
 };
 
 #define NANO_BULK_PULL_BLOCKS_MODE_LIST_BLOCKS 0

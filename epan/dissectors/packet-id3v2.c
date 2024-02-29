@@ -164,7 +164,7 @@ static const string_string id3v2_tag_names[] = {
 	{ "WPAY", "Payment" },
 	{ "WPUB", "Publishers official webpage" },
 	{ "WXXX", "User defined URL link frame" },
-	{ 0,      NULL } };
+	{ NULL,      NULL } };
 
 static const value_string id3v2_apic_types[] = {
 	{ 0x00,   "Other" },

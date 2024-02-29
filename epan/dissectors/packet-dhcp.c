@@ -1356,34 +1356,34 @@ static const string_string option242_avaya_phystat_vals[] = {
 	{ "4", "100Mbps half" },
 	{ "5", "100Mbps full" },
 	{ "6", "1000Mbps full" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_l2q_vals[] = {
 	{ "0", "Auto" },
 	{ "1", "Enabled" },
 	{ "2", "Disabled" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_dot1x_vals[] = {
 	{ "0", "With PAE pass-through" },
 	{ "1", "With PAE pass-through and proxy Logoff" },
 	{ "2", "Without PAE pass-through or proxy Logoff" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_icmpdu_vals[] = {
 	{ "0", "No ICMP Destination Unreachable messages" },
 	{ "1", "Send limited Port Unreachable messages" },
 	{ "2", "Send Protocol and Port Unreachable messages" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_icmpred_vals[] = {
 	{ "0", "Ignore ICMP Redirect messages" },
 	{ "1", "Process ICMP Redirect messages" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_loglocal_vals[] = {
@@ -1396,13 +1396,13 @@ static const string_string option242_avaya_loglocal_vals[] = {
 	{ "6", "Notices" },
 	{ "7", "Information" },
 	{ "8", "Debug" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_procstat_vals[] = {
 	{ "0", "All administrative options" },
 	{ "1", "Only view administrative options" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 static const string_string option242_avaya_static_vals[] = {
@@ -1410,7 +1410,7 @@ static const string_string option242_avaya_static_vals[] = {
 	{ "1", "Static programming overrides only file server administered data" },
 	{ "2", "Static programming overrides only call server administered data" },
 	{ "3", "Static programming overrides both file server- and call server-administered data" },
-	{ 0, NULL }
+	{ NULL, NULL }
 };
 
 /* dhcp options administration */
