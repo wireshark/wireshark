@@ -8737,6 +8737,8 @@ static const enum_val_t wlan_ignore_prot_options[] = {
 
 static int wlan_address_type = -1;
 static int wlan_bssid_address_type = -1;
+static int wlan_ra_ta_address_type = -1;
+static int wlan_aid_address_type = -1;
 
 static int beacon_padding = 0; /* beacon padding bug */
 
@@ -8958,6 +8960,20 @@ wlan_bssid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
   return "wlan.bssid";
 }
 
+static const char*
+wlan_ra_ta_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+  if (is_src)
+    return "wlan.ta";
+
+  return "wlan.ra";
+}
+
+static const char*
+wlan_aid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
+{
+  return "wlan.fc.sid.association_id";
+}
 
 static void
 beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
@@ -38003,25 +38019,19 @@ dissect_ieee80211_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-set_src_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, const char *type)
+set_src_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, int type)
 {
-  address      ether_addr;
-
-  set_address_tvb(&ether_addr, AT_ETHER, 6, tvb, offset);
-
-  col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
-        address_with_resolution_to_str(pinfo->pool, &ether_addr), type);
+  set_address_tvb(&pinfo->dl_src, type, 6, tvb, offset);
+  copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+  // Should we call proto_tree_add_mac48_detail here?
 }
 
 static void
-set_dst_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, const char *type)
+set_dst_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, int type)
 {
-  address      ether_addr;
-
-  set_address_tvb(&ether_addr, AT_ETHER, 6, tvb, offset);
-
-  col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
-        address_with_resolution_to_str(pinfo->pool, &ether_addr), type);
+  set_address_tvb(&pinfo->dl_dst, type, 6, tvb, offset);
+  copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+  // Should we call proto_tree_add_mac48_detail here?
 }
 
 static guint32
@@ -38125,6 +38135,32 @@ extract_a3_a4_amsdu(guint16 sid, gboolean *a3_present, gboolean *a4_present,
     *a_msdu = TRUE;
 }
 
+static int
+wlan_aid_to_str(const address* addr, char* buf, int buf_len)
+{
+    int ret;
+
+    ret = snprintf(buf, buf_len, "AID 0x%04"PRIx16, *(guint16 *)addr->data);
+
+    return ret + 1;
+}
+
+static int
+wlan_aid_str_len(const address* addr _U_)
+{
+    return sizeof("AID 0x0000");
+}
+
+#if 0
+/* The length is 2 bytes, but tvb_address_to_str() etc. don't have a way of
+ * dealing with addresses that need to mask out bits in the tvb. */
+static int
+wlan_aid_len(void)
+{
+    return 2;
+}
+#endif
+
 /*
  * If we know the AID, then translated it to an Ethernet addr, otherwise
  * just place the AID in the correct col
@@ -38132,12 +38168,14 @@ extract_a3_a4_amsdu(guint16 sid, gboolean *a3_present, gboolean *a4_present,
 static void
 set_sid_addr_cols(packet_info *pinfo, guint16 sid, gboolean dst)
 {
+  uint16_t* aid = wmem_new0(pinfo->pool, uint16_t);
+  *aid = sid & SID_AID_MASK;
   if (dst) {
-    col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "AID 0x%04x",
-                 sid & SID_AID_MASK);
+    set_address(&pinfo->dl_dst, wlan_aid_address_type, (int)sizeof(aid), aid);
+    copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
   } else {
-    col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "AID 0x%04x",
-                 sid & SID_AID_MASK);
+    set_address(&pinfo->dl_src, wlan_aid_address_type, (int)sizeof(aid), aid);
+    copy_address_shallow(&pinfo->src, &pinfo->dl_src);
   }
 }
 
@@ -38539,7 +38577,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     dissect_pv1_sid(dst_sid, pinfo, tvb, offset);
     offset += 2;
   } else {
-    set_dst_addr_cols(pinfo, tvb, offset, "RA");
+    set_dst_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
     proto_tree_add_mac48_detail(&mac_ra, &mac_addr, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
@@ -38549,14 +38587,14 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree *src_sid = NULL;
 
     extract_a3_a4_amsdu(a2, &a3_present, &a4_present, &a_msdu);
-    set_sid_addr_cols(pinfo, a2, FALSE); /* Set the T SID address from A1 */
+    set_sid_addr_cols(pinfo, a2, FALSE); /* Set the T SID address from A2 */
 
     src_sid = proto_tree_add_subtree(hdr_tree, tvb, offset, 2, ett_pv1_sid,
                                       NULL, "Transmitter SID");
     dissect_pv1_sid(src_sid, pinfo, tvb, offset);
     offset += 2;
   } else {
-    set_src_addr_cols(pinfo, tvb, offset, "TA");
+    set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
     proto_tree_add_mac48_detail(&mac_ta, NULL, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
@@ -38577,15 +38615,13 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
   /* Now, add A3 and A4 if present */
   if (a3_present) {
-    set_dst_addr_cols(pinfo, tvb, offset, "DA");
+    set_dst_addr_cols(pinfo, tvb, offset, wlan_address_type);
     proto_tree_add_mac48_detail(&mac_da, &mac_addr, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
 
   if (a4_present) {
-    set_src_addr_cols(pinfo, tvb, offset, "SA");
-    set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, offset);
-    copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+    set_src_addr_cols(pinfo, tvb, offset, wlan_address_type);
     proto_tree_add_mac48_detail(&mac_sa, &mac_addr, ett_addr, tvb, hdr_tree, offset);
     offset += 6;
   }
@@ -38649,7 +38685,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   char             out_buff[SHORT_STR];
   gint             is_iv_bad;
   guchar           iv_buff[4];
-  const char      *addr1_str   = "RA";
+  int              addr1_type = wlan_ra_ta_address_type;
   guint            offset = 0;
   const gchar     *fts_str;
   gchar            flag_str[]  = "opmPRMFTC";
@@ -39043,10 +39079,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /*
        * All management frame types have the same header.
        */
-      set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, 10);
-      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, 4);
-      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+      set_dst_addr_cols(pinfo, tvb, 4, wlan_address_type);
+      set_src_addr_cols(pinfo, tvb, 10, wlan_address_type);
 
       /* for tap */
       set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, 16);
@@ -39121,12 +39155,12 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
 
       if (ctrl_type_subtype == CTRL_PS_POLL) {
-        addr1_str = "BSSID";
+        addr1_type = wlan_bssid_address_type;
         proto_tree_add_mac48_detail(&mac_bssid, NULL, ett_addr, tvb, hdr_tree, 4);
       }
 
       /* Add address 1 */
-      set_dst_addr_cols(pinfo, tvb, 4, addr1_str);
+      set_dst_addr_cols(pinfo, tvb, 4, addr1_type);
 
       /*
        * Start shoving in other fields if needed.
@@ -39153,7 +39187,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CTRL_PS_POLL:
         case CTRL_CFP_ENDACK:
         {
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
           proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
           offset += 6;
           break;
@@ -39162,9 +39196,9 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CTRL_CFP_END:
         {
           if (isDMG)
-            set_src_addr_cols(pinfo, tvb, offset, "TA");
+            set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
           else
-            set_src_addr_cols(pinfo, tvb, offset, "BSSID");
+            set_src_addr_cols(pinfo, tvb, offset, wlan_bssid_address_type);
           /* if (tree) */
           {
             if (isDMG) {
@@ -39178,7 +39212,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         case CTRL_TRIGGER:
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
           /*
            * The len returned will be adjusted to include any padding required
            */
@@ -39188,14 +39222,14 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           break;
 
         case CTRL_TACK:
-         set_src_addr_cols(pinfo, tvb, offset, "TA");
+         set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
          hdr_len = dissect_ieee80211_s1g_tack(tvb, pinfo, hdr_tree, offset,
                                         flags);
          break;
 
         case CTRL_BEAMFORM_RPT_POLL:
         {
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
           proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
           offset += 6;
           proto_tree_add_item(hdr_tree, hf_ieee80211_beamform_feedback_seg_retrans_bitmap, tvb, offset, 1, ENC_NA);
@@ -39203,7 +39237,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         case CTRL_VHT_NDP_ANNC:
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
 
           dissect_ieee80211_ndp_annc(tvb, pinfo, hdr_tree, offset, has_fcs);
           break;
@@ -39218,7 +39252,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CTRL_POLL:
         case CTRL_RTS:
         {
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
           proto_tree_add_mac48_detail(&mac_ta, &mac_addr, ett_addr, tvb, hdr_tree, offset);
           offset += 6;
           break;
@@ -39229,13 +39263,13 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           break;
 
         case CTRL_BLOCK_ACK_REQ:
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
 
           dissect_ieee80211_block_ack(tvb, pinfo, hdr_tree, offset, isDMG, TRUE, has_fcs);
           break;
 
         case CTRL_BLOCK_ACK:
-          set_src_addr_cols(pinfo, tvb, offset, "TA");
+          set_src_addr_cols(pinfo, tvb, offset, wlan_ra_ta_address_type);
 
           dissect_ieee80211_block_ack(tvb, pinfo, hdr_tree, offset, isDMG, FALSE, has_fcs);
           break;
@@ -39446,7 +39480,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case EXTENSION_FRAME: {
       switch (frame_type_subtype) {
         case EXTENSION_DMG_BEACON: {
-          set_dst_addr_cols(pinfo, tvb, 4, "BSSID");
+          set_dst_addr_cols(pinfo, tvb, 4, wlan_bssid_address_type);
           proto_tree_add_mac48_detail(&mac_bssid, &mac_addr, ett_addr, tvb, hdr_tree, 4);
           break;
         }
@@ -39461,7 +39495,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
           check_s1g_setting(pinfo, tvb, 4);
 
-          set_src_addr_cols(pinfo, tvb, 4, "SA");
+          set_src_addr_cols(pinfo, tvb, 4, wlan_address_type);
           proto_tree_add_mac48_detail(&mac_sa, &mac_addr, ett_addr, tvb, hdr_tree, 4);
           break;
         }
@@ -60252,6 +60286,11 @@ proto_register_ieee80211(void)
   wlan_bssid_address_type = address_type_dissector_register("AT_ETHER_BSSID", "WLAN BSSID Address", ether_to_str, ether_str_len, NULL, wlan_bssid_col_filter_str,
                                                             ether_len, ether_name_resolution_str, ether_name_resolution_len);
   set_address(&bssid_broadcast, wlan_bssid_address_type, 6, bssid_broadcast_data);
+
+  wlan_ra_ta_address_type = address_type_dissector_register("AT_ETHER_RA_TA", "WLAN RA/TA Address", ether_to_str, ether_str_len, NULL, wlan_ra_ta_col_filter_str,
+                                                            ether_len, ether_name_resolution_str, ether_name_resolution_len);
+
+  wlan_aid_address_type = address_type_dissector_register("AT_WLAN_AID", "WLAN Association ID", wlan_aid_to_str, wlan_aid_str_len, NULL, wlan_aid_col_filter_str, NULL, NULL, NULL);
 
   tagged_field_table = register_dissector_table("wlan.tag.number", "IEEE 802.11 Fields", proto_wlan, FT_UINT8, BASE_DEC);
   vendor_specific_action_table = register_dissector_table("wlan.action.vendor_specific", "IEEE802.11 Vendor Specific Action", proto_wlan, FT_UINT24, BASE_HEX);
