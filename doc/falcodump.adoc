@@ -24,6 +24,21 @@ falcodump - Dump log data to a file using a Falco source plugin.
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
 [ *--plugin-source*=<source path or URL> ]
+[ *--log-level*=<log level> ]
+[ *--log-file*=<path to file> ]
+
+=== CLOUDTRAIL PLUGIN
+[manarg]
+[ *--cloudtrail-s3downloadconcurrency*=<number of concurrent downloads> ]
+[ *--cloudtrail-s3interval*=<timeframe> ]
+[ *--cloudtrail-sqsdelete*=<true or false> ]
+[ *--cloudtrail-useasync*=<true or false> ]
+[ *--cloudtrail-uses3sns*=<true or false> ]
+[ *--cloudtrail-aws-region*=<AWS region> ]
+[ *--cloudtrail-aws-profile*=<AWS profile> ]
+[ *--cloudtrail-aws-config*=<path> ]
+[ *--cloudtrail-aws-credentials*=<path to file> ]
+
 
 == DESCRIPTION
 
@@ -69,19 +84,60 @@ Save captured packet to file or send it through pipe.
 --plugin-source=<source path or URL>::
 Capture from the specified location.
 
+--log-level::
+Set the log level
+
+--log-file::
+Set a log file to log messages in addition to the console
+
 == PLUGINS
 
 === cloudtrail (AWS CloudTrail)
 
+--cloudtrail-s3downloadconcurrency::
+Controls the number of background goroutines used to download S3 files (Default: 32)
+
+--cloudtrail-s3interval::
+Download log files over the specified interval (Default: no interval)
+
+--cloudtrail-sqsdelete::
+If true then the plugin will delete SQS messages from the queue immediately after receiving them (Default: true)
+
+--cloudtrail-useasync::
+If true then async extraction optimization is enabled (Default: true)
+
+--cloudtrail-uses3sns::
+If true then the plugin will expect SNS messages to originate from S3 instead of directly from Cloudtrail (Default: false)
+
+--cloudtrail-aws-profile::
+If non-empty overrides the AWS shared configuration profile (e.g. 'default') and environment variables such as AWS_PROFILE (Default: empty)
+
+--cloudtrail-aws-region::
+If non-empty overrides the AWS region specified in the profile (e.g. 'us-east-1') and environment variables such as AWS_REGION (Default: empty)
+
+--cloudtrail-aws-config::
+If non-empty overrides the AWS shared configuration filepath (e.g. ~/.aws/config) and env variables such as AWS_CONFIG_FILE (Default: empty)
+
+--cloudtrail-aws-credentials::
+If non-empty overrides the AWS shared credentials filepath (e.g. ~/.aws/credentials) and env variables such as AWS_SHARED_CREDENTIALS_FILE (Default: empty)
+
 CloudTrail sources can be S3 buckets or SQS queue URLs. S3 bucket URLs have the form
 
-s3://__bucket_name__/AWSLogs/__id__/CloudTrail/__region__/__year__/_month_/__day__
+'s3://__bucket_name__/__prefix__/AWSLogs/__account-id__/CloudTrail/__region__/__year__/__month__/__day__'
 
-The __region__, __year__, _month_, and __day__ components can be omitted in order to fetch more or less data.
-For example, the source s3://mybucket/AWSLogs/012345678/CloudTrail/us-west-2/2023 will fetch all CloudWatch logs for the year 2023.
+For organization CloudTrail the S3 bucket URL can be
+
+'s3://__bucket_name__/__prefix__/AWSLogs/__org-id__/__account-id__/CloudTrail/__region__/__year__/__month__/__day__'
+
+The __region__, __year__, __month__, and __day__ components can be omitted in order to fetch more or less data.
+For example, the source 's3://mybucket/AWSLogs/012345678/CloudTrail/us-west-2/2023' will fetch all CloudWatch logs for the year 2023.
+
+If the URL ends with '__account-id__/' or '__account-id__/CloudTrail/' (for example 's3://mybucket/AWSLOGS/012345678912/') the option '--cloudtrail-s3interval' can be used to define the time frame. A s3interval of '1d' for example would get all events of the last 24 hours from all available regions. A s3interval of '2w-1w' would get all events from all regions from two weeks ago up to one week ago. The s3invterval can also be defined as a RFC 3339-style timestamp like '2024-02-29T18:07:17Z' or '2024-02-29T00:00:00Z-2024-03-01T23:59:59Z'.
 
 The cloudtrail plugin uses the AWS SDK for Go, which can obtain profile, region, and credential settings from a set of standard https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/[environment variables and configuration files].
 Falcodump will show a list of locally configured profiles and the current regions, and will let you supply a custom value as well.
+
+More information is avaliable in the https://github.com/falcosecurity/plugins/blob/master/plugins/cloudtrail/README.md[README] of the CloudTrail plugin.
 
 == EXAMPLES
 
@@ -122,6 +178,10 @@ To see interface configuration options:
 To capture AWS CloudTrail events from an S3 bucket:
 
     falcodump --extcap-interface=cloudtrail --fifo=/tmp/cloudtrail.pcap --plugin-source=s3://aws-cloudtrail-logs.../CloudTrail/us-east-2/... --capture
+
+or:
+
+    falcodump --capture --extcap-interface cloudtrail --fifo ~/cloudtrail.pcap --plugin-source s3://my-cloudtrail-bucket/AWSLogs/o-abc12345/123456789012/ --cloudtrail-s3downloadconcurrency 32 --cloudtrail-s3interval 5d-2d --cloudtrail-aws-region eu-west-1
 
 NOTE: kbd:[CTRL+C] should be used to stop the capture in order to ensure clean termination.
 
