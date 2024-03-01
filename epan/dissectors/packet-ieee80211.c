@@ -38122,10 +38122,10 @@ set_sid_addr_cols(packet_info *pinfo, guint16 sid, gboolean dst)
 {
   if (dst) {
     col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "AID 0x%04x",
-                 sid % SID_AID_MASK);
+                 sid & SID_AID_MASK);
   } else {
     col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "AID 0x%04x",
-                 sid % SID_AID_MASK);
+                 sid & SID_AID_MASK);
   }
 }
 
@@ -38564,7 +38564,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
 
   if (a4_present) {
-    set_dst_addr_cols(pinfo, tvb, offset, "SA");
+    set_src_addr_cols(pinfo, tvb, offset, "SA");
     set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, offset);
     copy_address_shallow(&pinfo->src, &pinfo->dl_src);
     proto_tree_add_mac48_detail(&mac_sa, &mac_addr, ett_addr, tvb, hdr_tree, offset);
