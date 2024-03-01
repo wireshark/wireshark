@@ -255,6 +255,7 @@ static int
 dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 len);
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
   guint16 type;
@@ -329,17 +330,21 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 len)
 {
   int start_offset = offset;
 
+  increment_dissection_depth(pinfo);
   while (offset - start_offset < len) {
     offset += dissect_pac_attr(tvb, pinfo, tree, offset);
   }
+  decrement_dissection_depth(pinfo);
   return offset - start_offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean top)
 {
   int start_offset = offset;
@@ -500,6 +505,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_teap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree *ti;
