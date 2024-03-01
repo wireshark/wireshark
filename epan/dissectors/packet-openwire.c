@@ -657,6 +657,7 @@ static int
 dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int parentType);
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int field, int type, int parentType, gboolean nullable)
 {
     gint        startOffset  = offset;
@@ -717,7 +718,11 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         inner_item = proto_tree_add_item(tree, particularize(field, hf_openwire_none), tvb, startOffset, -1, ENC_NA);
         proto_item_append_text(inner_item, ": %s", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
         object_tree = proto_item_add_subtree(inner_item, ett_openwire_type);
-        return (1 + dissect_openwire_command(tvb, pinfo, object_tree, offset, parentType));
+        increment_dissection_depth(pinfo);
+        int command_offset = 1 + dissect_openwire_command(tvb, pinfo, object_tree, offset, parentType);
+        decrement_dissection_depth(pinfo);
+        return command_offset;
+
     }
     if ((type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED) && tvb_reported_length_remaining(tvb, offset) >= 1)
     {
@@ -1071,6 +1076,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int parentType)
 {
     gint   startOffset = offset;

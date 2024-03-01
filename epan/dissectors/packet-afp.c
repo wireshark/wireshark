@@ -19,6 +19,7 @@
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <epan/expert.h>
@@ -4219,6 +4220,7 @@ static const val64_string cpx_qtype_string_values[] = {
 };
 
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 			     guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
 {
@@ -4240,8 +4242,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/*
 	 * This loops through a possibly nested query data structure.
 	 * The outermost one is always without count and called from
-	 * dissect_spotlight() with count = INT_MAX thus the while (...)
-	 * loop terminates if (offset >= toc_offset).
+	 * dissect_spotlight() with count = prefs.gui_max_tree_depth
+	 * thus the while (...) loop terminates if (offset >= toc_offset).
 	 * If nested structures are found, these will have an encoded element
 	 * count which is used in a recursive call to
 	 * spotlight_dissect_query_loop as count parameter, thus in this case
@@ -4495,7 +4497,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 						"Spotlight RPC data");
 
 	/* Queries */
-	offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + (gint)toc_offset + 8, encoding);
+	offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, prefs.gui_max_tree_depth, offset + (gint)toc_offset + 8, encoding);
 
 	/* ToC */
 	sub_tree_toc = proto_tree_add_subtree_format(tree, tvb, offset,
