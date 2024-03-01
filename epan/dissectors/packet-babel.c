@@ -337,6 +337,7 @@ dissect_babel_subtlvs(tvbuff_t * tvb, guint8 type, guint16 beg,
 /* The following function is used to read the packet body and
  the packet trailer */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    int offset, guint16 bodylen)
 {
@@ -549,7 +550,9 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         subtree = proto_tree_add_subtree_format(tree, tvb, 4+bodylen, packet_len,
                                                 ett_packet_trailer, NULL,
                                                 "Packet Trailer (%u)", packet_len);
+        increment_dissection_depth(pinfo);
         dissect_babel_body(tvb, pinfo, subtree, bodylen, packet_len);
+        decrement_dissection_depth(pinfo);
     }
     return i;
 }

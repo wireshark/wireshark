@@ -188,6 +188,7 @@ static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return bulk_string_string_length + CRLF_LENGTH;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint string_length, gint array_depth) {
     guint8 *array_length_as_string = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                         string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
@@ -254,6 +255,7 @@ static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return dissected_offset - offset;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint string_length, gint array_depth) {
     switch (tvb_get_guint8(tvb, offset)) {
         case '+':
@@ -282,6 +284,7 @@ static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint array_depth, gint64 expected_elements) {
     gint error_or_offset;
     gint crlf_string_line_length;
@@ -300,7 +303,9 @@ static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return -1;
         }
+        increment_dissection_depth(pinfo);
         error_or_offset = dissect_resp_message(tvb, pinfo, tree, offset, crlf_string_line_length, array_depth);
+        decrement_dissection_depth(pinfo);
         if (error_or_offset == -1) {
             return -1;
         }
