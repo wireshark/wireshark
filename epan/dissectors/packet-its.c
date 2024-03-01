@@ -14082,7 +14082,6 @@ static int dissect_AddGrpC_SignalStatusPackage_addGrpC_PDU(tvbuff_t *tvb _U_, pa
 static int dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
-#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -14999,17 +14998,14 @@ static const per_sequence_t gdd_GddStructure_sequence[] = {
 
 static int
 dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 9;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // GddStructure → GddAttributes → GddAttributes/_item → InternationalSign-destinationInformation → InternationalSign-destinationInformation/ioList → DestinationInformationIO → DestinationInformationIO/destPlace → DestinationPlace → GddStructure
+  actx->pinfo->dissection_depth += 8;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_gdd_GddStructure, gdd_GddStructure_sequence);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 8;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 

@@ -2426,7 +2426,6 @@ static int dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int dissect_h245_ModeElementType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
-#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -3865,17 +3864,14 @@ static const per_sequence_t GenericParameter_sequence[] = {
 
 static int
 dissect_h245_GenericParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // GenericParameter → ParameterValue → ParameterValue/genericParameter → GenericParameter
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericParameter, GenericParameter_sequence);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -5668,13 +5664,9 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // VideoCapability → ExtendedVideoCapability → ExtendedVideoCapability/videoCapability → VideoCapability
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5684,7 +5676,8 @@ dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
 
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -5992,13 +5985,9 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 3;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // AudioCapability → VBDCapability → AudioCapability
+  actx->pinfo->dissection_depth += 2;
+  increment_dissection_depth(actx->pinfo);
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -6007,7 +5996,8 @@ dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 2;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -7158,13 +7148,9 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 5;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // DataType → H235Media → H235Media/mediaType → RedundancyEncoding → DataType
+  actx->pinfo->dissection_depth += 4;
+  increment_dissection_depth(actx->pinfo);
 gint choice_index;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -7181,7 +7167,8 @@ if (upcoming_channel){
 }
 
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 4;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -8882,13 +8869,9 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // MultiplexElement → MultiplexElement/type → MultiplexElement/type/subElementList → MultiplexElement
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   /*MultiplexElement*/
   h223_mux_element* me = wmem_new(wmem_file_scope(), h223_mux_element);
   h223_me->next = me;
@@ -8897,7 +8880,8 @@ dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MultiplexElement, MultiplexElement_sequence);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -9519,13 +9503,9 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 3;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // AudioMode → VBDMode → AudioMode
+  actx->pinfo->dissection_depth += 2;
+  increment_dissection_depth(actx->pinfo);
   gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9534,7 +9514,8 @@ dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 2;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -9880,18 +9861,15 @@ static const per_choice_t ModeElementType_choice[] = {
 
 static int
 dissect_h245_ModeElementType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 6;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // ModeElementType → RedundancyEncodingDTMode → RedundancyEncodingDTModeElement → RedundancyEncodingDTModeElement/type → FECMode → ModeElementType
+  actx->pinfo->dissection_depth += 5;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ModeElementType, ModeElementType_choice,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 5;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 

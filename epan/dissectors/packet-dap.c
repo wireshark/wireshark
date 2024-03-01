@@ -701,7 +701,6 @@ static int dissect_dap_ListResultData(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int dissect_dap_SearchResultData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
-#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 const value_string dap_FamilyGrouping_vals[] = {
   {   1, "entryOnly" },
@@ -1266,17 +1265,14 @@ static const ber_sequence_t FamilyEntries_sequence[] = {
 
 static int
 dissect_dap_FamilyEntries(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 5;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // FamilyEntries → FamilyEntries/familyEntries → FamilyEntry → FamilyEntry/family-info → FamilyEntries
+  actx->pinfo->dissection_depth += 4;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FamilyEntries_sequence, hf_index, ett_dap_FamilyEntries);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 4;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -1472,18 +1468,15 @@ static const ber_choice_t Filter_choice[] = {
 
 int
 dissect_dap_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 3;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // Filter → SetOfFilter → Filter
+  actx->pinfo->dissection_depth += 2;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Filter_choice, hf_index, ett_dap_Filter,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 2;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -2936,18 +2929,15 @@ static const ber_choice_t ListResultData_choice[] = {
 
 static int
 dissect_dap_ListResultData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // ListResultData → ListResultData/uncorrelatedListInfo → ListResult → ListResultData
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ListResultData_choice, hf_index, ett_dap_ListResultData,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -3329,18 +3319,15 @@ static const ber_choice_t SearchResultData_choice[] = {
 
 static int
 dissect_dap_SearchResultData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // SearchResultData → SearchResultData/uncorrelatedSearchInfo → SearchResult → SearchResultData
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SearchResultData_choice, hf_index, ett_dap_SearchResultData,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 

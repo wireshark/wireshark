@@ -2070,7 +2070,6 @@ static int dissect_z3950_ElementInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int dissect_z3950_TaggedElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
-#define MAX_RECURSION_DEPTH 100 // Arbitrarily chosen.
 
 
 static int
@@ -3032,18 +3031,15 @@ static const ber_choice_t RPNStructure_choice[] = {
 
 static int
 dissect_z3950_RPNStructure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 3;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // RPNStructure → RPNStructure/rpnRpnOp → RPNStructure
+  actx->pinfo->dissection_depth += 2;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RPNStructure_choice, hf_index, ett_z3950_RPNStructure,
                                  NULL);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 2;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -6545,17 +6541,14 @@ static const ber_sequence_t ElementInfo_sequence[] = {
 
 static int
 dissect_z3950_ElementInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // ElementInfo → ElementDataType → ElementDataType/structured → ElementInfo
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ElementInfo_sequence, hf_index, ett_z3950_ElementInfo);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
@@ -8028,17 +8021,14 @@ static const ber_sequence_t TaggedElement_sequence[] = {
 
 static int
 dissect_z3950_TaggedElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  const int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_tail(actx->pinfo->layers)));
-  const unsigned cycle_size = 4;
-  unsigned recursion_depth = p_get_proto_depth(actx->pinfo, proto_id);
-
-  DISSECTOR_ASSERT(recursion_depth <= MAX_RECURSION_DEPTH);
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth + cycle_size);
-
+  // TaggedElement → ElementData → ElementData/subtree → TaggedElement
+  actx->pinfo->dissection_depth += 3;
+  increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TaggedElement_sequence, hf_index, ett_z3950_TaggedElement);
 
-  p_set_proto_depth(actx->pinfo, proto_id, recursion_depth);
+  actx->pinfo->dissection_depth -= 3;
+  decrement_dissection_depth(actx->pinfo);
   return offset;
 }
 
