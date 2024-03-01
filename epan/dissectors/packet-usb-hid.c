@@ -4330,6 +4330,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
 
 /* Dissector for individual HID report items.  Recursive. */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_conv_info_t *usb_conv_info _U_, const struct usb_hid_global_state *global)
 {
     proto_item *subitem;
@@ -4409,7 +4410,9 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
         if (bType == USBHID_ITEMTYPE_MAIN) {
             if (bTag == USBHID_MAINITEM_TAG_COLLECTION) {
                 /* Begin collection, nest following elements under us */
+                increment_dissection_depth(pinfo);
                 offset = dissect_usb_hid_report_item(pinfo, subtree, tvb, offset, usb_conv_info, &cur_global);
+                decrement_dissection_depth(pinfo);
                 proto_item_set_len(subitem, offset-old_offset);
             } else if (bTag == USBHID_MAINITEM_TAG_ENDCOLLECTION) {
                 /* End collection, break out to parent tree item */
