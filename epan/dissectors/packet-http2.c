@@ -1188,6 +1188,7 @@ http2_cleanup_protocol(void) {
 }
 
 static dissector_handle_t http2_handle;
+static dissector_handle_t data_handle;
 
 static reassembly_table http2_body_reassembly_table;
 static reassembly_table http2_streaming_reassembly_table;
@@ -3221,6 +3222,21 @@ reassemble_http2_data_according_to_subdissector(tvbuff_t* tvb, packet_info* pinf
     streaming_reassembly_info_t* reassembly_info = get_streaming_reassembly_info(pinfo, http2_session);
 
     dissector_handle_t subdissector_handle = dissector_get_string_handle(streaming_content_type_dissector_table, content_type);
+    if (subdissector_handle == NULL) {
+        /* We didn't get the content type, possibly because of byte errors.
+         * Note that the content type is per direction (as it should be)
+         * but reassembly_mode is set the same for *both* directions.
+         *
+         * We could try to set it to the content type used in the other
+         * direction, but among other things, if this is the request,
+         * we might be getting here for the first time on the second pass,
+         * and reassemble_streaming_data_and_call_subdissector() asserts in
+         *
+         * Just set it to data for now to avoid an assert from a NULL handle.
+         */
+        subdissector_handle = data_handle;
+    }
+    /* XXX - Do we still need to set this? */
     pinfo->match_string = content_type;
 
     reassemble_streaming_data_and_call_subdissector(
@@ -4930,6 +4946,8 @@ proto_reg_handoff_http2(void)
 #ifdef HAVE_NGHTTP2
     media_type_dissector_table = find_dissector_table("media_type");
 #endif
+
+    data_handle = find_dissector("data");
 
     dissector_add_uint_range_with_preference("tcp.port", "", http2_handle);
     dissector_add_for_decode_as("tcp.port", http2_handle);
