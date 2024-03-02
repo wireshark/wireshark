@@ -38142,7 +38142,7 @@ dissect_pv1_sid(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
                 guint offset)
 {
   proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_pv1_sid,
-                         ett_pv1_sid_field, sid_headers, ENC_BIG_ENDIAN);
+                         ett_pv1_sid_field, sid_headers, ENC_LITTLE_ENDIAN);
 
 }
 
@@ -38507,6 +38507,13 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
    *
    * Also, add the SID (with MAC address if we know it), or the MAC
    * addr depending on type.
+   *
+   * XXX - For PV1_CONTROL frames (IEEE 802.11-2020 9.8.4), the A3 Present,
+   * A4 Present, and A-MSDU subfields of the SID are reserved. Should
+   * they be dissected differently, and ignored / expert info if set?
+   *
+   * For PV1_MANAGMENT frames (9.8.5), A4 and A-MSDU cannot be present.
+   * Ignore / expert info if set?
    */
   if (a1_is_sid) {
     guint16 a1 = tvb_get_letohs(tvb, offset);
