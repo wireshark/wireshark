@@ -5123,6 +5123,7 @@ enum duration_type_e {
 
 /* SubTemplateList reference https://tools.ietf.org/html/rfc6313#section-4.5.2 */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* pduitem, int offset,
                                  guint16 length, hdrinfo_t* hdrinfo_p)
 {
@@ -5156,6 +5157,7 @@ dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* 
         }
         proto_item_set_generated(ti);
 
+        increment_dissection_depth(pinfo);
         while (offset < end_offset) {
             sub_tree = proto_tree_add_subtree_format(pdutree, tvb, offset, subtmplt_p->length,
                                                      ett_subtemplate_list, NULL, "List Item %d", count++);
@@ -5168,6 +5170,7 @@ dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* 
             }
             offset += consumed;
         }
+        decrement_dissection_depth(pinfo);
         if (offset != end_offset) {
             int data_bytes = offset - start_offset;
             proto_tree_add_expert_format(pdutree, NULL, &ei_cflow_subtemplate_bad_length,
@@ -5184,6 +5187,7 @@ dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* 
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset,
                         v9_v10_tmplt_t *tmplt_p, hdrinfo_t *hdrinfo_p, v9_v10_tmplt_fields_type_t fields_type)
 {
