@@ -715,6 +715,7 @@ handleDataSegmentAsTextKeys(iscsi_session_t *iscsi_session, packet_info *pinfo, 
 
 /* Code to actually dissect the packets */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, guint32 data_segment_len, iscsi_session_t *iscsi_session, conversation_t *conversation) {
 
     guint original_offset = offset;
@@ -1562,7 +1563,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
         tt = proto_tree_add_subtree(ti, tvb, offset, -1, ett_iscsi_RejectHeader, NULL, "Rejected Header");
 
+        increment_dissection_depth(pinfo);
         dissect_iscsi_pdu(tvb, pinfo, tt, offset, next_opcode, 0, iscsi_session, conversation);
+        decrement_dissection_depth(pinfo);
     } else if(opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I0 ||
               opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I1 ||
               opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I2 ||

@@ -2996,6 +2996,7 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gin
     proto_tree_add_item_ret_uint(tree, hf_mbim_tlv_ie_data_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &data_length);
     *offset += 4;
     if (data_length) {
+        increment_dissection_depth(pinfo);
         // New TLV types will be added here
         switch (tlv_type) {
             case TLV_TYPE_TAI:
@@ -3014,6 +3015,7 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gin
                 proto_tree_add_item(tree, hf_mbim_tlv_ie_unnamed_data, tvb, *offset, data_length, ENC_NA);
                 break;
         }
+        decrement_dissection_depth(pinfo);
         *offset += data_length;
     }
     if (padding_length) {
