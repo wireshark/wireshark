@@ -184,6 +184,7 @@ static gint ett_mqttsn_msg = -1;
 static gint ett_mqttsn_flags = -1;
 
 /* Dissect a single MQTT-SN packet. */
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     /* Various variables. */
@@ -477,7 +478,9 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 /* Dissect encapsulated message (if present). */
                 if (tvb_reported_length_remaining(tvb, offset) > 0)
                 {
+                    increment_dissection_depth(pinfo);
                     dissect_mqttsn_packet(tvb, pinfo, mqttsn_msg_tree, offset);
+                    decrement_dissection_depth(pinfo);
                 }
 
             /* Default Case */
