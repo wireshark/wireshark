@@ -1262,6 +1262,7 @@ rdp_get_conversation_data(packet_info *pinfo)
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const rdp_field_info_t *fields, int totlen)
 {
   const rdp_field_info_t *c;
@@ -1269,6 +1270,8 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
   int               base_offset = offset;
   guint32           info_flags = 0;
   guint             encoding;
+
+  increment_dissection_depth(pinfo);
 
   while (((c = fields++)->pfield) != NULL) {
     if ((c->fixedLength == 0) && (c->variableLength)) {
@@ -1339,6 +1342,7 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
               /* XXX: err if > totlen ??          */
   }
 
+  decrement_dissection_depth(pinfo);
   return offset;
 }
 

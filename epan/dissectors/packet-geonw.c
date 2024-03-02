@@ -1742,6 +1742,7 @@ static int dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pin
 static int hf_sgeonw_certification_version = -1;
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     guint32 tmp_val;
@@ -1777,6 +1778,7 @@ dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_t
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
     gint start = *offset;
@@ -1786,6 +1788,8 @@ dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_t
     proto_tree *subtree;
     proto_item *tinner;
     proto_tree *insidetree;
+
+    increment_dissection_depth(pinfo);
 
     tmp_val = tvb_get_guint8(tvb, *offset);
     if (tmp_val == self) {
@@ -1836,6 +1840,7 @@ dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_t
         }
         proto_item_set_end(ti, tvb, *offset);
     }
+    decrement_dissection_depth(pinfo);
     return (*offset) - start;
 }
 
