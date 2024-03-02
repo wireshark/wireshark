@@ -543,7 +543,7 @@ struct abis_nm_channel {
 	guint8	subslot;
 };
 
-/* Siemens BS-11 specific objects in the SienemsHW (0xA5) object class */
+/* Siemens BS-11 specific objects in the SiemensHW (0xA5) object class */
 enum abis_bs11_objtype {
 	BS11_OBJ_ALCO		= 0x01,
 	BS11_OBJ_BBSIG		= 0x02,	/* obj_class: 0,1 */
@@ -2715,7 +2715,7 @@ proto_register_abis_oml(void)
 	nm_att_tlvdev_bs11.def[_attr].type = _type;		\
 	nm_att_tlvdev_bs11.def[_attr].fixed_len = _fixed_len;	\
 
-	/* different stndard IEs */
+	/* different standard IEs */
 	NM_ATT_TLVDEV_BS11(NM_ATT_OUTST_ALARM,		TLV_TYPE_TLV,	0);
 	NM_ATT_TLVDEV_BS11(NM_ATT_HW_DESC,		TLV_TYPE_TL16V,	0);
 	NM_ATT_TLVDEV_BS11(NM_ATT_ARFCN_LIST,		TLV_TYPE_TLV16,	0);

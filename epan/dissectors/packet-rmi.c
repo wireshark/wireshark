@@ -316,7 +316,7 @@ proto_register_rmi(void)
         { &hf_rmi_epid_port,
           { "Port", "rmi.endpoint_id.port",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            "RMI Endpointindentifier Port", HFILL }},
+            "RMI Endpointidentifier Port", HFILL }},
         { &hf_rmi_serialization_data,
           { "Serialization Data", "rmi.serialization_data",
             FT_BYTES, BASE_NONE, NULL, 0x0,

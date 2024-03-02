@@ -159,7 +159,7 @@ typedef struct
  enum fp_rlc_mode rlc_mode;
 } nbap_common_channel_info_t;
 
-/*Stuff for mapping NodeB-Comuncation Context ID to CRNC Communication Context ID*/
+/*Stuff for mapping NodeB-Communication Context ID to CRNC Communication Context ID*/
 typedef struct com_ctxt_{
   /*guint   nodeb_context;*/
   guint crnc_context;

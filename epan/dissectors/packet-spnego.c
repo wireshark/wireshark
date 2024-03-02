@@ -1437,7 +1437,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree_add_item(tree, hf_spnego_krb5_cfx_seq, tvb, offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
 
-  if (gssapi_encrypt == NULL) /* Probably shoudn't happen, but just protect ourselves */
+  if (gssapi_encrypt == NULL) /* Probably shouldn't happen, but just protect ourselves */
     return offset;
 
   /* Checksum of plaintext padded data */

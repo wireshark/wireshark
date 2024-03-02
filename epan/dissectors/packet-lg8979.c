@@ -353,7 +353,7 @@ classify_lg8979_packet(tvbuff_t *tvb)
     guint8 func, len, data_len, flags;
 
     len = tvb_reported_length(tvb);
-    /* If TVB length is equal to 5, this is classifed as a 'short response message' */
+    /* If TVB length is equal to 5, this is classified as a 'short response message' */
     /* and is guaranteed to be RTU->Master only */
     if (len == 5) {
         return LG8979_DIR_RTU_TO_MASTER;

@@ -173,7 +173,7 @@ static gint exported_pdu_tap = -1;
 static ws_mempbrk_pattern pbrk_whitespace;
 static ws_mempbrk_pattern pbrk_braces;
 
-/* Used when command type is needed to diferentiate parsing, extend as needed */
+/* Used when command type is needed to differentiate parsing, extend as needed */
 typedef enum
 {
     MEGACO_CMD_NOT_SET = 0,

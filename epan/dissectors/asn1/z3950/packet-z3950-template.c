@@ -962,7 +962,7 @@ static int
 dissect_z3950_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
 
-    /* Min length of 8 assumes 3 for identifer and 5 for length. */
+    /* Min length of 8 assumes 3 for identifier and 5 for length. */
     tcp_dissect_pdus(tvb, pinfo, tree, z3950_desegment, 8, get_z3950_pdu_len, dissect_z3950, data);
     return tvb_captured_length(tvb);
 }

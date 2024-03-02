@@ -83,7 +83,7 @@ void proto_reg_handoff_doip(void);
 #define DOIP_COMMON_EID_LEN                        6
 
 
-/*  Vehicle identifcation request */
+/* Vehicle identification request */
 #define DOIP_VEHICLE_IDENTIFICATION_EID_OFFSET     DOIP_HEADER_LEN
 #define DOIP_VEHICLE_IDENTIFICATION_VIN_OFFSET     DOIP_HEADER_LEN
 

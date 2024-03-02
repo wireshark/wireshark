@@ -1052,8 +1052,8 @@ static int hf_packet_handover_command_containerid;
 
 /* < End Packet Physical Information > */
 
-/* < Additinal MS Radio Access Capability */
-/* < End Additinal MS Radio Access Capability */
+/* < Additional MS Radio Access Capability */
+/* < End Additional MS Radio Access Capability */
 
 
 /* < Packet Pause > */

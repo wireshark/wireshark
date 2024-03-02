@@ -38,7 +38,7 @@ static dissector_handle_t oicq_handle;
  */
 
 /* By default, but can be completely different */
-#define UDP_PORT_OICQ	8000 /* Not IANA regisrered */
+#define UDP_PORT_OICQ	8000 /* Not IANA registered */
 
 static int proto_oicq;
 

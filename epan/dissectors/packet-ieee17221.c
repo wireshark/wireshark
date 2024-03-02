@@ -1888,7 +1888,7 @@ static int hf_adp_gptp_gm_id;
 static int hf_adp_assoc_id;
 /* static int hf_adp_entity_type; */
 
-/* Entity Capabilties Flags */
+/* Entity Capabilities Flags */
 static int hf_adp_entity_cap_efu_mode;
 static int hf_adp_entity_cap_address_access_supported;
 static int hf_adp_entity_cap_gateway_entity;

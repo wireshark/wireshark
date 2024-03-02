@@ -23,6 +23,7 @@ acknack
 acknowledgement
 acknowledgements
 acp133
+acquirer
 actioned
 activations
 actuator
@@ -60,6 +61,7 @@ alloc
 allocator
 allocators
 alteon
+altsvc
 ampdu
 amperage
 ampere
@@ -295,6 +297,7 @@ clsfr
 clustermap
 cmake
 cmdcontrol
+cmdmfg
 cmstatus
 codabar
 codebook
@@ -849,6 +852,7 @@ initializing
 initiators
 inkey
 inline
+inoage
 inode
 inodes
 inspiron
@@ -1123,6 +1127,7 @@ namespace
 naptr
 narrowband
 nasdaq
+nbifom
 nbrar
 ndpsm
 nederland
@@ -1362,6 +1367,7 @@ preloaded
 prepay
 prepend
 preshared
+prettification
 printf
 prioritised
 prioritising
@@ -2005,6 +2011,7 @@ unidirectionally
 unignore
 unimplemented
 uninformative
+uninhibit
 uninitialized
 uninstall
 uninstallation
@@ -2035,6 +2042,7 @@ unpaired
 unparsable
 unparseable
 unparsed
+unpersistable
 unprintable
 unprocessable
 unpublish

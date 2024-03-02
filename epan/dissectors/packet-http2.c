@@ -263,7 +263,7 @@ typedef struct {
     tcp_flow_t *fwd_flow;
     /* Initial window size of new streams (in both directions) */
     guint32 initial_new_stream_window_size[2];
-    /* Curent window size of the connection (in both directions) */
+    /* Current window size of the connection (in both directions) */
     gint32 current_connection_window_size[2];
 } http2_session_t;
 
@@ -1929,7 +1929,7 @@ try_append_method_path_info(packet_info *pinfo, proto_tree *tree,
                         const gchar *method_header_value, const gchar *path_header_value)
 {
     if (method_header_value != NULL && path_header_value != NULL) {
-        /* append request inforamtion to info column (for example, HEADERS: GET /demo/1.jpg) */
+        /* append request information to info column (for example, HEADERS: GET /demo/1.jpg) */
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", method_header_value, path_header_value);
         /* append request information to Stream node */
         proto_item_append_text(tree, ", %s %s", method_header_value, path_header_value);
@@ -4633,7 +4633,7 @@ proto_register_http2(void)
 
         /* Goaway */
         { &hf_http2_goaway_r,
-            { "Reserved", "http2.goway.r",
+            { "Reserved", "http2.goaway.r",
                FT_UINT32, BASE_HEX, NULL, MASK_HTTP2_RESERVED,
               "Must be zero", HFILL }
         },

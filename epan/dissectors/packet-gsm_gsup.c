@@ -55,7 +55,7 @@
 #define OSMO_GSUP_PORT 4222
 #define IPAC_PROTO_EXT_GSUP 0x05
 
-/*! Maximum nubmer of PDP inside \ref osmo_gsup_message */
+/*! Maximum number of PDP inside \ref osmo_gsup_message */
 #define OSMO_GSUP_MAX_NUM_PDP_INFO		10 /* GSM 09.02 limits this to 50 */
 /*! Maximum number of auth info inside \ref osmo_gsup_message */
 #define OSMO_GSUP_MAX_NUM_AUTH_INFO		5

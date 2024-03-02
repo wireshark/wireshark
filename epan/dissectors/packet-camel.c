@@ -8011,7 +8011,7 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case 64: /*EventReportSMS*/
-    /* Session has been explicity closed without TC_END */
+    /* Session has been explicitly closed without TC_END */
     camelsrt_close_call_matching(pinfo, p_camelsrt_info);
     tcapsrt_close((struct tcaphash_context_t *)p_camelsrt_info->tcap_context, pinfo);
     break;
