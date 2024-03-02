@@ -6643,6 +6643,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    return 2 + (offset - start_offset);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request)
 {
    proto_tree *mult_serv_tree, *offset_tree;
@@ -6773,6 +6774,7 @@ int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cip_simple_request_info_t* req_data)
 {
    proto_item *cmd_data_item;
@@ -7149,6 +7151,7 @@ gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_statu
 }
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *cmd_data_item;
@@ -9230,6 +9233,7 @@ dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  *
  ************************************************/
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t* preq_info, proto_item* msp_item, gboolean is_msp_item )
 {
    proto_item *ti;
@@ -9266,6 +9270,7 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(rrsc_tree, hf_cip_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
+   increment_dissection_depth(pinfo);
    if( service & CIP_SC_RESPONSE_MASK )
    {
       /* Response message */
@@ -9431,6 +9436,8 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
          call_dissector( cip_class_generic_handle, tvb, pinfo, item_tree );
       }
    } /* End of if-else( request ) */
+
+   decrement_dissection_depth(pinfo);
 
    p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, p_save_proto_data);

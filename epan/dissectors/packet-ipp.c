@@ -377,20 +377,20 @@ static const value_string status_vals[] = {
     { 0, NULL }
 };
 
-static int parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree);
+static int parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static proto_tree *add_integer_tree(proto_tree *tree, tvbuff_t *tvb,
                                         int offset, int name_length, const gchar *name, int value_length, guint8 tag);
 static void add_integer_value(const gchar *tag_desc, proto_tree *tree,
                                         tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
-static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb,
+static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                         int offset, int name_length, const gchar *name, int value_length, guint8 tag);
 static proto_tree *add_octetstring_value(const gchar *tag_desc, proto_tree *tree,
-                                        tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
+                                        tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
 static proto_tree *add_charstring_tree(proto_tree *tree, tvbuff_t *tvb,
                                         int offset, guint8 tag, int name_length, const gchar *name, int value_length);
 static void add_charstring_value(const gchar *tag_desc, proto_tree *tree,
                                         tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
-static int ipp_fmt_collection(tvbuff_t *tvb, int offset, char *buffer, int bufsize);
+static int ipp_fmt_collection(tvbuff_t *tvb, packet_info *pinfo, int offset, char *buffer, int bufsize);
 
 static int
 dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -546,7 +546,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree_add_item(ipp_tree, hf_ipp_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = parse_attributes(tvb, offset, ipp_tree);
+    offset = parse_attributes(tvb, pinfo, offset, ipp_tree);
 
     if (tvb_offset_exists(tvb, offset)) {
         call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, ipp_tree);
@@ -630,7 +630,7 @@ static const value_string tag_vals[] = {
 };
 
 static int
-parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
+parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
     guint8       tag;
     const gchar *tag_desc;
@@ -746,12 +746,12 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
                          * an additional value, so
                          * start a tree for it.
                          */
-                        attr_tree = add_octetstring_tree(as_tree, tvb, offset, name_length, name, value_length, tag);
+                        attr_tree = add_octetstring_tree(as_tree, tvb, pinfo, offset, name_length, name, value_length, tag);
                     }
                     if (tag == TAG_ENDCOLLECTION)
                         attr_tree = proto_tree_get_parent_tree(attr_tree);
                     else
-                        attr_tree = add_octetstring_value(tag_desc, attr_tree, tvb, offset, name_length, name, value_length, tag);
+                        attr_tree = add_octetstring_value(tag_desc, attr_tree, tvb, pinfo, offset, name_length, name, value_length, tag);
                     break;
 
                 case TAG_TYPE_CHARSTRING :
@@ -1007,7 +1007,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static proto_tree *
-add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag)
+add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const gchar *name, int value_length, guint8 tag)
 {
     int count = 0;
     const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
@@ -1232,7 +1232,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_lengt
 
                 count ++;
 
-                valoffset = ipp_fmt_collection(tvb, valoffset + 1 + 2 + name_length + 2 + value_length, temp, sizeof(temp));
+                valoffset = ipp_fmt_collection(tvb, pinfo, valoffset + 1 + 2 + name_length + 2 + value_length, temp, sizeof(temp));
 
                 if (value)
                     value = wmem_strconcat(wmem_packet_scope(), value, ",", temp, NULL);
@@ -1268,7 +1268,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_lengt
 }
 
 static proto_tree *
-add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                       int offset, int name_length, const gchar *name _U_, int value_length, guint8 tag)
 {
     proto_tree *subtree = tree;
@@ -1357,7 +1357,7 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
             break;
 
         case TAG_BEGCOLLECTION :
-            endoffset = ipp_fmt_collection(tvb, valoffset + value_length, value, sizeof(value));
+            endoffset = ipp_fmt_collection(tvb, pinfo, valoffset + value_length, value, sizeof(value));
             subtree = proto_tree_add_subtree_format(tree, tvb, valoffset, endoffset - valoffset, ett_ipp_member, NULL, "collection %s", value);
             break;
 
@@ -1450,7 +1450,8 @@ add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static int
-ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
+// NOLINTNEXTLINE(misc-no-recursion)
+ipp_fmt_collection(tvbuff_t *tvb, packet_info *pinfo, int valoffset, char *buffer, int bufsize)
 {
     char *bufptr = buffer, *bufend = buffer + bufsize - 1;
     guint8 tag;
@@ -1499,7 +1500,9 @@ ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
     if (tag == TAG_BEGCOLLECTION) {
             char temp[176];
 
-            valoffset = ipp_fmt_collection(tvb, valoffset, temp, sizeof(temp));
+            increment_dissection_depth(pinfo);
+            valoffset = ipp_fmt_collection(tvb, pinfo, valoffset, temp, sizeof(temp));
+            decrement_dissection_depth(pinfo);
             if (!overflow) {
                 if ((bufend - bufptr) < (int)strlen(temp)) {
                     (void) g_strlcpy(bufptr, "...", bufend - bufptr + 1);
