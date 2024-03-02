@@ -175,6 +175,7 @@ static int hf_z21_data;
 
 static dissector_handle_t z21_handle;
 
+/* Not IANA registered */
 #define Z21_UDP_PORTS "21105,21106"
 static range_t *udp_port_range;
 
@@ -192,7 +193,10 @@ static expert_field ei_z21_invalid_checksum;
  * in the packets. */
 #define Z21_LAN_GET_SERIAL_NUMBER               0x1000
 #define Z21_LAN_LOGOFF                          0x3000
-#define Z21_X_BUS                               0x4000
+/* Responses and requests based on the X-BUS protocol are transmittted
+ * with the Z21-LAN-Header 0x40 and the specific command is indicated
+ * with additional bytes inside the data field. */
+#define Z21_LAN_X_BC                            0x4000
 #define Z21_LAN_RMBUS_DATACHANGED               0x8000
 #define Z21_LAN_RMBUS_GETDATA                   0x8100
 #define Z21_LAN_RMBUS_PROGRAMMODULE             0x8200
@@ -271,6 +275,9 @@ static expert_field ei_z21_invalid_checksum;
 #define Z21_LAN_X_GET_FIRMWARE_VERSION_REQUEST  0x4000F10A
 #define Z21_LAN_X_GET_FIRMWARE_VERSION_REPLY    0x4000F30A
 
+/* This should be put in numerical order, not alphabetical order,
+ * if it is ever converted to a value_string_ext, to allow binary search.
+ */
 static const value_string z21_command_vals[] = {
     { Z21_LAN_CAN_BOOSTER_SET_TRACKPOWER,       "LAN_CAN_BOOSTER_SET_TRACKPOWER" },
     { Z21_LAN_CAN_BOOSTER_SYSTEMSTATE_CHGD,     "LAN_CAN_BOOSTER_SYSTEMSTATE_CHGD" },
@@ -303,6 +310,7 @@ static const value_string z21_command_vals[] = {
     { Z21_LAN_RMBUS_GETDATA,                    "LAN_RMBUS_GETDATA" },
     { Z21_LAN_RMBUS_PROGRAMMODULE,              "LAN_RMBUS_PROGRAMMODULE" },
     { Z21_LAN_SYSTEMSTATE_DATACHANGED,          "LAN_SYSTEMSTATE_DATACHANGED" },
+    { Z21_LAN_X_BC,                             "LAN_X_xxx" }, /* Unspecified X-Bus command */
     { Z21_LAN_X_BC_PROGRAMMING_MODE,            "LAN_X_BC_PROGRAMMING_MODE" },
     { Z21_LAN_X_BC_STOPPED,                     "LAN_X_BC_STOPPED" },
     { Z21_LAN_X_BC_TRACK_POWER_OFF,             "LAN_X_BC_TRACK_POWER_OFF" },
@@ -553,7 +561,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         tvb, offset, 2, ENC_LITTLE_ENDIAN, &datalen);
     offset += 2;
     command = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-    if (command == Z21_X_BUS) {
+    if (command == Z21_LAN_X_BC) {
         proto_tree_add_boolean(z21_tree, hf_z21_x_bus, tvb, offset, 2, true);
         /* Note that we do not increment the offset yet */
 
@@ -1419,8 +1427,20 @@ get_z21_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 }
 
 static gboolean
-check_z21_header(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
+check_z21_header(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
+    int remaining_length = tvb_reported_length_remaining(tvb, offset);
+    if (remaining_length < Z21_MIN_LENGTH) {
+        return FALSE;
+    }
+    int pdu_len = get_z21_pdu_len(pinfo, tvb, offset, data);
+    if (pdu_len < Z21_MIN_LENGTH || pdu_len > remaining_length) {
+        return FALSE;
+    }
+    guint16 command = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+    if (!try_val_to_str(command, z21_command_vals)) {
+        return FALSE;
+    }
     return TRUE;
 }
 
