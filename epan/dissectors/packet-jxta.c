@@ -1461,6 +1461,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint ns_count,
                                         const gchar ** names_table)
 {
@@ -1591,7 +1592,9 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
             jxta_signature_element_tvb = tvb_new_subset_remaining(tvb, offset);
 
+            increment_dissection_depth(pinfo);
             processed = dissect_jxta_message_element_1(jxta_signature_element_tvb, pinfo, NULL, 0, NULL);
+            decrement_dissection_depth(pinfo);
 
             if (processed == 0) {
                 return offset;
@@ -1685,7 +1688,9 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
     if ((flags & JXTAMSG1_ELMFLAG_SIGNATURE) != 0) {
         tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
+        increment_dissection_depth(pinfo);
         tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, ns_count, names_table);
+        decrement_dissection_depth(pinfo);
     }
 
     proto_item_set_end(jxta_elem_tree_item, tvb, tree_offset);
@@ -1709,6 +1714,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint names_count,
                                         const gchar ** names_table)
 {
@@ -1848,7 +1854,9 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
             jxta_signature_element_tvb = tvb_new_subset_remaining(tvb, offset);
 
+            increment_dissection_depth(pinfo);
             processed = dissect_jxta_message_element_2(jxta_signature_element_tvb, pinfo, NULL, 0, NULL);
+            decrement_dissection_depth(pinfo);
 
             if (processed == 0) {
                 return offset;
@@ -2014,6 +2022,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 *           the packet was not recognized and negative if the dissector needs
 *           more bytes in order to process a PDU.
 **/
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     int dissected = 0;
 
@@ -2047,7 +2056,9 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");
 
                 /* XXX bondolo 20060201 Force XML for uncompressed data. */
+                increment_dissection_depth(pinfo);
                 dissected = dissect_media("text/xml;charset=\"UTF-8\"", uncomp_tvb, pinfo, tree);
+                decrement_dissection_depth(pinfo);
 
                 if( dissected > 0 ) {
                     /* report back the uncompressed length. */

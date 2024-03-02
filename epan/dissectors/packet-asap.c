@@ -91,9 +91,9 @@ static guint64 asap_total_msgs = 0;
 static guint64 asap_total_bytes = 0;
 
 static void
-dissect_parameters(tvbuff_t *, proto_tree *);
+dissect_parameters(tvbuff_t *, packet_info *, proto_tree *);
 static void
-dissect_parameter(tvbuff_t *, proto_tree *);
+dissect_parameter(tvbuff_t *, packet_info *, proto_tree *);
 static int
 dissect_asap(tvbuff_t *, packet_info *, proto_tree *, void *);
 
@@ -123,7 +123,8 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 }
 
 static void
-dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   guint16 code, length, padding_length;
   proto_item *cause_item;
@@ -143,7 +144,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   switch(code) {
   case UNRECOGNIZED_PARAMETER_CAUSE_CODE:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_parameter(parameter_tvb, cause_tree);
+    dissect_parameter(parameter_tvb, pinfo, cause_tree);
     break;
   case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
     message_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
@@ -151,19 +152,19 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
     break;
   case INVALID_VALUES:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_parameter(parameter_tvb, cause_tree);
+    dissect_parameter(parameter_tvb, pinfo, cause_tree);
     break;
   case NON_UNIQUE_PE_IDENTIFIER:
     break;
   case POOLING_POLICY_INCONSISTENT_CAUSE_CODE:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_parameter(parameter_tvb, cause_tree);
+    dissect_parameter(parameter_tvb, pinfo, cause_tree);
     break;
   case LACK_OF_RESOURCES_CAUSE_CODE:
     break;
   case INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_parameter(parameter_tvb, cause_tree);
+    dissect_parameter(parameter_tvb, pinfo, cause_tree);
     break;
   case INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE:
     break;
@@ -180,7 +181,8 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
 }
 
 static void
-dissect_error_causes(tvbuff_t *error_causes_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   guint16 length, total_length;
   gint offset;
@@ -191,7 +193,7 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, proto_tree *parameter_tree)
     length          = tvb_get_ntohs(error_causes_tvb, offset + CAUSE_LENGTH_OFFSET);
     total_length    = WS_ROUNDUP_4(length);
     error_cause_tvb = tvb_new_subset_length(error_causes_tvb, offset , total_length);
-    dissect_error_cause(error_cause_tvb, parameter_tree);
+    dissect_error_cause(error_cause_tvb, pinfo, parameter_tree);
     offset += total_length;
   }
 }
@@ -213,7 +215,8 @@ dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 }
 
 static void
-dissect_dccp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_dccp_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
@@ -222,11 +225,12 @@ dissect_dccp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_tree_add_item(parameter_tree, hf_dccp_service_code, parameter_tvb, DCCP_SERVICE_CODE_OFFSET, DCCP_SERVICE_CODE_LENGTH, ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, DCCP_ADDRESS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
-dissect_sctp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_sctp_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
@@ -234,11 +238,12 @@ dissect_sctp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_tree_add_item(parameter_tree, hf_transport_use, parameter_tvb, SCTP_TRANSPORT_USE_OFFSET, SCTP_TRANSPORT_USE_LENGTH, ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, SCTP_ADDRESS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
-dissect_tcp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_tcp_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
@@ -246,11 +251,12 @@ dissect_tcp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_tree_add_item(parameter_tree, hf_transport_use, parameter_tvb, TCP_TRANSPORT_USE_OFFSET, TCP_TRANSPORT_USE_LENGTH, ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, TCP_ADDRESS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
-dissect_udp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_udp_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
@@ -258,11 +264,12 @@ dissect_udp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_tree_add_item(parameter_tree, hf_udp_reserved, parameter_tvb, UDP_RESERVED_OFFSET, UDP_RESERVED_LENGTH, ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, UDP_ADDRESS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
-dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
@@ -270,7 +277,7 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   proto_tree_add_item(parameter_tree, hf_udp_lite_reserved, parameter_tvb, UDP_LITE_RESERVED_OFFSET, UDP_LITE_RESERVED_LENGTH, ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, UDP_LITE_ADDRESS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
@@ -346,7 +353,8 @@ dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 }
 
 static void
-dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_pool_element_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t*   parameters_tvb;
 
@@ -355,27 +363,29 @@ dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   proto_tree_add_item(parameter_tree, hf_reg_life,    parameter_tvb, REGISTRATION_LIFE_OFFSET,     REGISTRATION_LIFE_LENGTH,     ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, USER_TRANSPORT_PARAMETER_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
-dissect_server_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_server_information_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
   proto_tree_add_item(parameter_tree, hf_server_identifier, parameter_tvb, SERVER_ID_OFFSET, SERVER_ID_LENGTH, ENC_BIG_ENDIAN);
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, SERVER_TRANSPORT_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree);
 }
 
 static void
-dissect_operation_error_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_operation_error_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *error_causes_tvb;
 
   error_causes_tvb = tvb_new_subset_remaining(parameter_tvb, ERROR_CAUSES_OFFSET);
-  dissect_error_causes(error_causes_tvb, parameter_tree);
+  dissect_error_causes(error_causes_tvb, pinfo, parameter_tree);
 }
 
 static void
@@ -424,7 +434,8 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 }
 
 static void
-dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *asap_tree)
 {
   guint16 type, length, padding_length;
   proto_item *parameter_item;
@@ -443,6 +454,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
   proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
+  increment_dissection_depth(pinfo);
   switch(type) {
   case IPV4_ADDRESS_PARAMETER_TYPE:
     dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -451,19 +463,19 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
     dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case DCCP_TRANSPORT_PARAMETER_TYPE:
-    dissect_dccp_transport_parameter(parameter_tvb, parameter_tree);
+    dissect_dccp_transport_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case SCTP_TRANSPORT_PARAMETER_TYPE:
-    dissect_sctp_transport_parameter(parameter_tvb, parameter_tree);
+    dissect_sctp_transport_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case TCP_TRANSPORT_PARAMETER_TYPE:
-    dissect_tcp_transport_parameter(parameter_tvb, parameter_tree);
+    dissect_tcp_transport_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case UDP_TRANSPORT_PARAMETER_TYPE:
-    dissect_udp_transport_parameter(parameter_tvb, parameter_tree);
+    dissect_udp_transport_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case UDP_LITE_TRANSPORT_PARAMETER_TYPE:
-    dissect_udp_lite_transport_parameter(parameter_tvb, parameter_tree);
+    dissect_udp_lite_transport_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE:
     dissect_pool_member_selection_policy_parameter(parameter_tvb, parameter_tree);
@@ -472,13 +484,13 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
     dissect_pool_handle_parameter(parameter_tvb, parameter_tree);
     break;
   case POOL_ELEMENT_PARAMETER_TYPE:
-    dissect_pool_element_parameter(parameter_tvb, parameter_tree);
+    dissect_pool_element_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case SERVER_INFORMATION_PARAMETER_TYPE:
-    dissect_server_information_parameter(parameter_tvb, parameter_tree);
+    dissect_server_information_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case OPERATION_ERROR_PARAMETER_TYPE:
-    dissect_operation_error_parameter(parameter_tvb, parameter_tree);
+    dissect_operation_error_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case COOKIE_PARAMETER_TYPE:
     dissect_cookie_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -496,13 +508,15 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   };
+  decrement_dissection_depth(pinfo);
 
   if (padding_length > 0)
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void
-dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree)
 {
   gint offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
@@ -515,7 +529,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset_length(parameters_tvb, offset, total_length);
-    dissect_parameter(parameter_tvb, tree);
+    dissect_parameter(parameter_tvb, pinfo, tree);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -572,6 +586,7 @@ static const true_false_string reject_bit_value = {
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap_tree)
 {
   asap_tap_rec_t *tap_rec;
@@ -609,11 +624,12 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
     } else {
       parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_VALUE_OFFSET);
     }
-    dissect_parameters(parameters_tvb, asap_tree);
+    dissect_parameters(parameters_tvb, pinfo, asap_tree);
     }
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *asap_item;

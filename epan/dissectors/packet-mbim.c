@@ -3319,6 +3319,7 @@ mbim_dissect_nssai(tvbuff_t* tvb, proto_tree* tree, gint offset, gint nssai_buff
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 mbim_dissect_precfg_dflt_cfg_nssai(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint nssai_buffer_length)
 {
     proto_tree* subtree;
@@ -3364,6 +3365,7 @@ mbim_dissect_rej_nssai(tvbuff_t* tvb, proto_tree* tree, gint offset, gint rej_ns
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 mbim_dissect_ladn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint rej_nssai_buffer_length)
 {
     proto_tree* subtree, * ladn_tree;
@@ -3544,6 +3546,7 @@ mbim_dissect_ursp_rules(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gin
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
 {
     guint tlv_data_offset;
@@ -3561,6 +3564,7 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *o
     *offset += 4;
     tlv_data_offset = *offset;
     if (data_length) {
+        increment_dissection_depth(pinfo);
         // New TLV types will be added here
         switch (tlv_type) {
             case TLV_TYPE_SINGLE_NSSAI:
@@ -3611,6 +3615,7 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *o
                 proto_tree_add_item(tree, hf_mbim_tlv_ie_unnamed_data, tvb, *offset, data_length, ENC_NA);
                 break;
         }
+        decrement_dissection_depth(pinfo);
         *offset = tlv_data_offset + data_length;
     }
     if (padding_length) {
