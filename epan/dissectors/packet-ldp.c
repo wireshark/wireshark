@@ -2433,6 +2433,7 @@ static int
 dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_tlv_er(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
@@ -2514,6 +2515,7 @@ dissect_tlv_upstrm_ass_lbl(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 }
 /*Dissect IPv4 Interface ID TLV*/
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree, *sub_tree;
@@ -2558,6 +2560,7 @@ dissect_tlv_ip_multicast_tunnel(tvbuff_t *tvb, guint offset, proto_tree *tree, i
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
@@ -2594,6 +2597,7 @@ dissect_tlv_rsvp_te_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
 /* Dissect a TLV and return the number of bytes consumed ... */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     guint16 type, typebak;
@@ -2615,6 +2619,8 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
     length = tvb_get_ntohs(tvb, offset + 2);
     rem -= 4; /*do not count header*/
     length = MIN(length, rem);  /* Don't go haywire if a problem ... */
+
+    increment_dissection_depth(pinfo);
 
     if (tree) {
         proto_tree *tlv_tree;
@@ -3000,6 +3006,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
         }
     }
 
+    decrement_dissection_depth(pinfo);
     return length + 4;  /* Length of the value field + header */
 }
 

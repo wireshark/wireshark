@@ -2394,6 +2394,7 @@ get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 /*  Dissection routine for AMQP 0-9 field tables  */
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
     proto_tree *field_table_tree, *field_item_tree;
@@ -2419,7 +2420,9 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         offset += namelen;
         length -= namelen;
 
+        increment_dissection_depth(pinfo);
         vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_item_tree);
+        decrement_dissection_depth(pinfo);
         if(vallen == 0)
             goto too_short;
         offset += vallen;
@@ -2435,6 +2438,7 @@ too_short:
 /*  Dissection routine for AMQP 0-9 field arrays  */
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
     proto_tree *field_table_tree, *field_item_tree;
@@ -2453,7 +2457,9 @@ dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         field_item_tree = proto_item_add_subtree(field_item, ett_amqp_0_9_field);
         name = wmem_strdup_printf(pinfo->pool, "[%i]", idx);
 
+        increment_dissection_depth(pinfo);
         vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_item_tree);
+        decrement_dissection_depth(pinfo);
         if(vallen == 0)
             goto too_short;
         offset += vallen;
@@ -2523,6 +2529,7 @@ static const value_string amqp_0_9_field_type_vals[] = {
 };
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length,
                              const char *name _U_, proto_tree *field_tree)
 {
@@ -2818,6 +2825,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb, proto_item *item)
 
 /*  Dissection routine for AMQP 0-10 maps  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_0_10_array(tvbuff_t *tvb,
                         packet_info *pinfo,
                         int offset,          /* Start of array in tvb */
@@ -5811,6 +5819,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_0_10_struct32(tvbuff_t *tvb,
                            packet_info *pinfo,
                            proto_item *ti)
@@ -5826,6 +5835,8 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
 
     proto_tree_add_item_ret_uint(tree, hf_amqp_0_10_struct32_class, tvb, offset, 1, ENC_NA, &class_code);
     proto_tree_add_item_ret_uint(tree, hf_amqp_0_10_struct32_struct, tvb, offset+1, 1, ENC_NA, &struct_code);
+
+    increment_dissection_depth(pinfo);
 
     switch(class_code) {
     case AMQP_0_10_CLASS_MESSAGE:
@@ -5956,6 +5967,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         }
         break;
     }
+    decrement_dissection_depth(pinfo);
 }
 
 /* decodes AMQP 1.0 list
@@ -5971,6 +5983,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
  *   name: what to show for unformatted content
  */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_1_0_list(tvbuff_t *tvb,
                       packet_info *pinfo,
                       int offset,
@@ -6081,6 +6094,7 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
  *  arguments: see dissect_amqp_1_0_list
  */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_1_0_map(tvbuff_t *tvb,
                      packet_info *pinfo,
                      int offset,
@@ -6214,6 +6228,7 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
  *  arguments: see dissect_amqp_1_0_list
  */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_amqp_1_0_array(tvbuff_t *tvb,
                        packet_info *pinfo,
                        int offset,
@@ -10009,6 +10024,7 @@ static const struct amqp1_typeinfo* decode_fixed_type(guint8 code)
  *   length_size: decoded length
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                              packet_info *pinfo,
                              guint8 code,
@@ -10023,6 +10039,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
     const struct amqp1_typeinfo* element_type;
     const char *value = NULL;
 
+    increment_dissection_depth(pinfo);
     element_type = decode_fixed_type(code);
     if (element_type)
     {
@@ -10141,6 +10158,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                 break;
         }
     }
+    decrement_dissection_depth(pinfo);
 }
 
 /* It decodes 1.0 type, including type constructor
@@ -10226,6 +10244,7 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
  * arguments: see get_amqp_1_0_value_formatter
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
                                   packet_info *pinfo,
                                   int offset,
