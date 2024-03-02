@@ -515,7 +515,8 @@ get_lcaf_data(tvbuff_t *tvb, gint offset, guint8 *lcaf_type, guint16 *len)
 }
 
 const gchar *
-get_addr_str(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
+// NOLINTNEXTLINE(misc-no-recursion)
+get_addr_str(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint16 afi, guint16 *addr_len)
 {
     const gchar       *notset_str = "not set";
     const gchar       *addr_str;
@@ -529,11 +530,11 @@ get_addr_str(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset, guint16 afi, gu
             return notset_str;
         case AFNUM_INET:
             *addr_len  = INET_ADDRLEN;
-            addr_str   = tvb_ip_to_str(pool, tvb, offset);
+            addr_str   = tvb_ip_to_str(pinfo->pool, tvb, offset);
             return addr_str;
         case AFNUM_INET6:
             *addr_len  = INET6_ADDRLEN;
-            addr_str   = tvb_ip6_to_str(pool, tvb, offset);
+            addr_str   = tvb_ip6_to_str(pinfo->pool, tvb, offset);
             return addr_str;
         case AFNUM_LCAF:
             get_lcaf_data(tvb, offset, &lcaf_type, addr_len);
@@ -541,24 +542,28 @@ get_addr_str(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset, guint16 afi, gu
             if (lcaf_type == LCAF_IID) {
                 iid = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
-                addr_str = get_addr_str(pool, tvb, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
-                return wmem_strdup_printf(pool, "[%d] %s", iid, addr_str);
+                increment_dissection_depth(pinfo);
+                addr_str = get_addr_str(tvb, pinfo, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
+                decrement_dissection_depth(pinfo);
+                return wmem_strdup_printf(pinfo->pool, "[%d] %s", iid, addr_str);
             }
             if (lcaf_type == LCAF_ASN) {
                 asn = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
-                addr_str = get_addr_str(pool, tvb, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
-                return wmem_strdup_printf(pool, "%s (ASN %d)", addr_str, asn);
+                increment_dissection_depth(pinfo);
+                addr_str = get_addr_str(tvb, pinfo, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
+                decrement_dissection_depth(pinfo);
+                return wmem_strdup_printf(pinfo->pool, "%s (ASN %d)", addr_str, asn);
             }
             return addr_str;
         case AFNUM_802:
         case AFNUM_EUI48:
             *addr_len = EUI48_ADDRLEN;
-            addr_str  = tvb_ether_to_str(pool, tvb, offset);
+            addr_str  = tvb_ether_to_str(pinfo->pool, tvb, offset);
             return addr_str;
         case AFNUM_DISTNAME:
             *addr_len = tvb_strsize(tvb, offset);
-            addr_str  = tvb_get_stringz_enc(pool, tvb, offset, NULL, ENC_ASCII);
+            addr_str  = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ASCII);
             return addr_str;
         default:
             return NULL;
@@ -566,6 +571,7 @@ get_addr_str(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset, guint16 afi, gu
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, const gchar *str, int idx)
 {
@@ -584,7 +590,7 @@ dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Reencap hop */
-    rloc_str = get_addr_str(pinfo->pool, tvb, offset, rloc_afi, &addr_len);
+    rloc_str = get_addr_str(tvb, pinfo, offset, rloc_afi, &addr_len);
 
     switch (rloc_afi) {
         case AFNUM_RESERVED:
@@ -616,6 +622,7 @@ dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, int idx, proto_item *tip)
 {
@@ -646,7 +653,7 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Reencap hop */
-    hop_str = get_addr_str(pinfo->pool, tvb, offset, hop_afi, &addr_len);
+    hop_str = get_addr_str(tvb, pinfo, offset, hop_afi, &addr_len);
 
     switch (hop_afi) {
         case AFNUM_INET:
@@ -688,6 +695,7 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, int idx, proto_item *tip)
 {
@@ -716,7 +724,7 @@ dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* RTR/ETR entry */
-    entry_str = get_addr_str(pinfo->pool, tvb, offset, entry_afi, &addr_len);
+    entry_str = get_addr_str(tvb, pinfo, offset, entry_afi, &addr_len);
 
     switch (entry_afi) {
         case AFNUM_INET:
@@ -756,6 +764,7 @@ dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, guint16 length)
 {
@@ -796,7 +805,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case AFNUM_LCAF:
                 old_offset = offset;
-                lcaf_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+                lcaf_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
                 proto_item_append_text(tir, " %d. %s", i, lcaf_str);
                 proto_item_set_len(tir, 2 + addr_len);
                 offset = dissect_lcaf(tvb, pinfo, lisp_afi_list_tree, offset, tir);
@@ -848,6 +857,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
     const gchar *ip_address;
@@ -865,7 +875,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 2;
 
     /* Address */
-    ip_address = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    ip_address = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
     if (ip_address && afi)
         proto_item_append_text(tip, ", Address: %s", ip_address);
 
@@ -922,6 +932,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
     const gchar *addr;
@@ -939,7 +950,7 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 2;
 
     /* Address */
-    addr = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    addr = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
     if (addr && afi)
         proto_item_append_text(tip, ", Address: %s", addr);
 
@@ -1000,6 +1011,7 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tir)
 {
     guint16 addr_len = 0;
@@ -1108,7 +1120,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     proto_tree_add_item(tree, hf_lisp_lcaf_geo_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    ip_address = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    ip_address = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
     if (ip_address && afi)
         proto_item_append_text(tir, ", Address: %s", ip_address);
 
@@ -1235,6 +1247,7 @@ dissect_lcaf_natt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
     const gchar *addr;
@@ -1257,7 +1270,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     offset += 2;
 
     /* Address */
-    addr = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    addr = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
     if (addr && afi)
         proto_item_append_text(tip, ", Address: %s", addr);
 
@@ -1318,6 +1331,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, proto_item *tir)
 {
@@ -1356,7 +1370,7 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Source/Subnet Address */
-    src_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    src_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
 
     switch (afi) {
         case AFNUM_INET:
@@ -1389,7 +1403,7 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Group Address */
-    grp_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    grp_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
 
     switch (afi) {
         case AFNUM_INET:
@@ -1479,6 +1493,7 @@ dissect_lcaf_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, proto_item *tir)
 {
@@ -1511,7 +1526,7 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Source Prefix */
-    src_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    src_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
 
     switch (afi) {
         case AFNUM_INET:
@@ -1550,7 +1565,7 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Destination Prefix */
-    dst_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    dst_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
 
     switch (afi) {
         case AFNUM_INET:
@@ -1643,6 +1658,7 @@ dissect_lcaf_rle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset)
 {
@@ -1661,7 +1677,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Key */
-    key_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    key_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
 
     switch (afi) {
         case AFNUM_INET:
@@ -1705,7 +1721,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Value */
-    value_str = get_addr_str(pinfo->pool, tvb, offset, afi, &addr_len);
+    value_str = get_addr_str(tvb, pinfo, offset, afi, &addr_len);
 
     switch (afi) {
         case AFNUM_INET:
@@ -1821,6 +1837,7 @@ dissect_lcaf_vendor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
     guint8       lcaf_type;
@@ -1875,6 +1892,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
     payload_tvb = tvb_new_subset_length(tvb, 0, offset + len);
     ti = (tip) ? tip : tir;
 
+    increment_dissection_depth(pinfo);
     switch (lcaf_type) {
         case LCAF_NULL:
             break;
@@ -1918,6 +1936,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
             proto_tree_add_expert(tree, pinfo, &ei_lisp_undecoded, tvb, offset, len);
             return offset + len;
     }
+    decrement_dissection_depth(pinfo);
     return offset;
 }
 
@@ -1985,7 +2004,7 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     loc_afi  = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    locator = get_addr_str(pinfo->pool, tvb, offset, loc_afi, &addr_len);
+    locator = get_addr_str(tvb, pinfo, offset, loc_afi, &addr_len);
 
     if (locator == NULL) {
         expert_add_info_format(pinfo, lisp_mapping_tree, &ei_lisp_unexpected_field,
@@ -2054,7 +2073,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
     act = flags & LISP_MAP_ACT;
     act >>= 13;
 
-    prefix = get_addr_str(pinfo->pool, tvb, offset + 12, prefix_afi, &addr_len);
+    prefix = get_addr_str(tvb, pinfo, offset + 12, prefix_afi, &addr_len);
 
     if (prefix == NULL) {
         expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
@@ -2290,7 +2309,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
-            src_eid = get_addr_str(pinfo->pool, tvb, offset, src_eid_afi, &addr_len);
+            src_eid = get_addr_str(tvb, pinfo, offset, src_eid_afi, &addr_len);
             lcaf_src_eid_tree = proto_tree_add_subtree_format(lisp_tree, tvb, offset, addr_len, ett_lisp_lcaf, NULL, "Source EID: %s", src_eid);
             dissect_lcaf(tvb, pinfo, lcaf_src_eid_tree, offset, NULL);
             offset += addr_len;
@@ -2355,7 +2374,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
         addr_len = 0;
         prefix_mask = tvb_get_guint8(tvb, offset + 1);
         prefix_afi = tvb_get_ntohs(tvb, offset + 2);
-        prefix = get_addr_str(pinfo->pool, tvb, offset + 4, prefix_afi, &addr_len);
+        prefix = get_addr_str(tvb, pinfo, offset + 4, prefix_afi, &addr_len);
 
         if (prefix == NULL) {
             expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
@@ -2879,7 +2898,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
     prefix_afi = tvb_get_ntohs(tvb, offset);  offset += 2;
 
-    prefix = get_addr_str(pinfo->pool, tvb, offset, prefix_afi, &addr_len);
+    prefix = get_addr_str(tvb, pinfo, offset, prefix_afi, &addr_len);
 
     if (prefix == NULL) {
         expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,

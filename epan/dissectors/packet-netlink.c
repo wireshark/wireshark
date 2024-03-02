@@ -14,6 +14,8 @@
 #include <epan/packet.h>
 #include <epan/arptypes.h>
 #include <epan/exceptions.h>
+#include <epan/prefs.h>
+
 #include <wiretap/wtap.h>
 #include <wsutil/ws_roundup.h>
 
@@ -153,6 +155,7 @@ static int * const netlink_header_standard_flags[] = {
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
 	int encoding;
@@ -262,6 +265,10 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 			offset += 2;
 			proto_item_append_text(ti, " %u", rta_type);
 
+			// We should use increment_dissection_depth here, but that requires
+			// adding pinfo all over packet-netlink*.[ch]. Instead, use our offset
+			// to roughly gauge our recursion level.
+			DISSECTOR_ASSERT((unsigned)offset < prefs.gui_max_tree_depth * 10);
 			dissect_netlink_attributes(tvb, hf_type, ett_attrib, data, nl_data, attr_tree, offset, rta_len - 4, cb);
 		}
 
@@ -285,6 +292,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 }
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_netlink_attributes(tvbuff_t *tvb, int hf_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
 	return dissect_netlink_attributes_common(tvb, hf_type, ett, -1, data, nl_data, tree, offset, length, cb);

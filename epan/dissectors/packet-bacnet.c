@@ -477,6 +477,7 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	proto_item *ti;
@@ -748,7 +749,10 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 			tvb_set_reported_length(tvb, bacnet_len);
 			if (is_net_msg_flg) {
 				/* decode network layer message */
-				return dissect_bacnet_npdu(tvb, pinfo, tree, offset);
+				increment_dissection_depth(pinfo);
+				int npdu_len = dissect_bacnet_npdu(tvb, pinfo, tree, offset);
+				decrement_dissection_depth(pinfo);
+				return npdu_len;
 			}
 			/* APDU - call the APDU dissector */
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
