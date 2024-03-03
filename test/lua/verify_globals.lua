@@ -35,13 +35,20 @@ local ignore = {
     "getfenv",
     "io.gfind",
     "setfenv",
+    "loadstring", -- call load with a string argument
+    "math.log10", -- call math.log with second argument
     "math.mod",
+    "module",
     "newproxy",
+    "package.loaders", -- renamed package.searchers
+    "package.seeall", -- used with module
     "string.gfind",
     "table.foreach",
     "table.foreachi",
     "table.getn",
+    "table.maxn",
     "table.setn",
+    "unpack", -- replaced by table.unpack
 
     -- in Lua 5.2+ only
     "bit32",
@@ -55,6 +62,14 @@ local ignore = {
     "table.pack",
     "table.unpack",
 
+    -- removed in Lua 5.3
+    "math.atan2", -- use math.atan with two arguments
+    "math.cosh",
+    "math.sinh",
+    "math.tanh",
+    "math.pow", -- use x^y
+    "math.frexp",
+    "math.ldexp", -- use x * 2.0^exp
 }
 
 
