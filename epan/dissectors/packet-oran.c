@@ -14,8 +14,6 @@
    * The current implementation is based on the
    * ORAN-WG4.CUS.0-v10.00 specification, dated 2022/07/23 (plus some enums from v13)
    *
-   * N.B. by now, descriptions have been taken from a variety of versions, so some section number references
-   * referring to earlier specs are now out of date.
    */
 #include <config.h>
 
@@ -36,6 +34,7 @@
  * - Register for UDP port(s)
  * - for section extensions, check constraints (section type, which other extension types appear with them, order)
  * - when section extensions are present, some section header fields are effectively ignored
+ * - re-order items (decl and hf definitions) to match spec order
  */
 
 /* Prototypes */
@@ -630,6 +629,10 @@ static const true_false_string tfs_lbtBufErr =
     "reserved"
 };
 
+static const true_false_string tfs_partial_full_sf = {
+  "partial SF",
+  "full SF"
+};
 
 /* Config (and worked-out allocations) bundles for ext11 (dynamic BFW) */
 typedef struct {
@@ -2936,12 +2939,12 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* Section 5.4.4.1 */
+        /* Section 7.5.2.1 */
         { &hf_oran_data_direction,
           { "Data Direction", "oran_fh_cus.data_direction",
             FT_UINT8, BASE_DEC,
             VALS(data_direction_vals), 0x80,
-            "The gNB data direction",
+            "gNB data direction",
             HFILL }
         },
 
@@ -2950,30 +2953,16 @@ proto_register_oran(void)
          {"Payload Version", "oran_fh_cus.payloadVersion",
           FT_UINT8, BASE_DEC,
           NULL, 0x70,
-          "Payload protocol version valid for the "
-          "following IEs in the application layer. In this version of the "
-          "specification payloadVersion=001b shall be used",
+          "Payload protocol version the following IEs",
           HFILL}
         },
 
-        /* Section 5.4.4.3 */
+        /* Section 7.5.2.2 */
         {&hf_oran_filter_index,
          {"Filter Index", "oran_fh_cus.filterIndex",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(filter_indices), 0x0f,
-          "An index to the channel filter to be used "
-          "between IQ data and air interface, both in DL and UL. For most "
-          "physical channels filterIndex =0000b is used which indexes the "
-          "standard channel filter, e.g. 100MHz channel filter for 100MHz "
-          "nominal carrier bandwidth. Another use case is PRACH in UL, where "
-          "different filter indices can be used for different PRACH formats, "
-          "assuming that before FFT processing of PRACH data there is a "
-          "separate PRACH filter or PRACH filter in addition to the standard "
-          "channel filter in UL. Please note that for PRACH there is typically "
-          "also a frequency offset (see freqOffset) applied before the "
-          "PRACH filter.  NOTE: Filter index is commanded from lls-CU to RU. "
-          "Likewise, it is not mandatory to command special filters, and "
-          "filter index = 0000b is also allowed for PRACH",
+          "used between IQ data and air interface, both in DL and UL",
           HFILL}
         },
 
@@ -2986,7 +2975,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.5 */
+        /* Section 7.5.2.5 */
         {&hf_oran_subframe_id,
          {"Subframe ID", "oran_fh_cus.subframe_id",
           FT_UINT8, BASE_DEC,
@@ -2995,29 +2984,25 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.6 */
+        /* Section 7.5.2.6 */
         {&hf_oran_slot_id,
          {"Slot ID", "oran_fh_cus.slotId",
           FT_UINT16, BASE_DEC,
           NULL, 0x0fc0,
-          "Slot number within a 1ms sub-frame. All slots "
-          "in one sub-frame are counted by this parameter, slotId running "
-          "from 0 to Nslot-1. In this version of the specification the "
-          "maximum Nslot=16, All other values of the 6 bits are reserved for "
-          "future use",
+          "Slot number within a 1ms sub-frame",
           HFILL}
         },
 
-        /* Section 5.4.4.6 */
+        /* Generated for convenience */
         {&hf_oran_slot_within_frame,
          {"Slot within frame", "oran_fh_cus.slot-within-frame",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-         "Slot within frame, to match DT logs",
+         "Slot within frame, to match DCT logs",
          HFILL}
         },
 
-        /* Section 5.4.4.7 */
+        /* Section 7.5.2.7 */
         {&hf_oran_start_symbol_id,
          {"Start Symbol ID", "oran_fh_cus.startSymbolId",
           FT_UINT8, BASE_DEC,
@@ -3027,7 +3012,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.8 */
+        /* Section 7.5.2.8 */
         {&hf_oran_numberOfSections,
          {"Number of Sections", "oran_fh_cus.numberOfSections",
           FT_UINT8, BASE_DEC,
@@ -3036,17 +3021,16 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.9 */
+        /* Section 7.5.2.9 */
         {&hf_oran_sectionType,
          {"Section Type", "oran_fh_cus.sectionType",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
           RVALS(section_types), 0x00,
-          "Determines the characteristics of U-plane data to "
-          "be transferred or received from a beam with one pattern id",
+          "Determines the characteristics of U-plane data",
           HFILL}
         },
 
-        /* Section 5.4.4.10 */
+        /* Section 7.5.2.10 */
         {&hf_oran_udCompHdr,
          {"udCompHdr", "oran_fh_cus.udCompHdr",
           FT_STRING, BASE_NONE,
@@ -3055,31 +3039,21 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.11 */
+        /* Section 7.5.2.11 */
         {&hf_oran_numberOfUEs,
          {"Number Of UEs", "oran_fh_cus.numberOfUEs",
           FT_UINT8, BASE_DEC,
           NULL, 0x00,
-          "Applies to section type 6 messages and indicates "
-          "the number of UEs (for which channel information is provided) are "
-          "included in the message.  This allows the parser to determine "
-          "when the last UE's data has been parsed",
+          "Applies to section type 6 messages",
           HFILL}
         },
 
-        /* Section 5.4.4.12 */
+        /* Section 7.5.2.12 */
         {&hf_oran_timeOffset,
          {"Time Offset", "oran_fh_cus.timeOffset",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          "The time_offset from the start of the slot "
-          "to the start of the Cyclic Prefix (CP) in number of samples tsample "
-          "(=1/30.72MHz as specified in 3GPP TS38.211 section 4.1). "
-          "Because this is denominated in \"samples\" there is no fixed "
-          "microsecond unit for this parameter; time_offset = \"n\" may be longer "
-          "or shorter in time depending on the sampling interval (which is "
-          "a NR capability only, not applicable to LTE). time_offset = time"
-          "Offset * tsample",
+          "from start of the slot to CP",
           HFILL}
         },
 
@@ -3190,9 +3164,7 @@ proto_register_oran(void)
          {"Extension Flag", "oran_fh_cus.ef",
           FT_BOOLEAN, 8,
           NULL, 0x80,
-          "Used to indicate if this section will contain "
-          "both beamforming index and any extension information (ef=1) or "
-          "just a beamforming index (ewf=0)",
+         "Indicates if more section extensions follow",
           HFILL}
         },
 
@@ -3201,16 +3173,7 @@ proto_register_oran(void)
          {"Beam ID", "oran_fh_cus.beamId",
           FT_UINT16, BASE_DEC,
           NULL, 0x7fff,
-          "Defines the beam pattern to be applied to the U-Plane "
-          "data. beamId = 0 means no beamforming operation will be "
-          "performed.  Note that the beamId encodes the beamforming to be done "
-          "on the RU.  This beamforming may be digital, analog or both "
-          "(\"hybrid beamforming\") and the beamId provides all the information "
-          "necessary for the RU to select the correct beam (or weight table "
-          "from which to create a beam).  The specific mapping of beamId "
-          "to e.g. weight table, directionality, beam adjacency or any other "
-          "beam attributes is specific to the RU design and must be conveyed "
-          "via M-Plane from the RU to lls-CU upon startup",
+          "Defines the beam pattern to be applied to the U-Plane data",
           HFILL}
         },
 
@@ -3269,10 +3232,7 @@ proto_register_oran(void)
          {"bfwI", "oran_fh_cus.bfwI",
          FT_FLOAT, BASE_NONE,
          NULL, 0x0,
-         "In-phase beamforming weight value. The total "
-         "number of weights in the section is RU-specific and is conveyed "
-         "from the RU to the lls-CU as part of the initialization procedure "
-         "via the M-Plane",
+         "In-phase",
          HFILL}
         },
 
@@ -3281,10 +3241,7 @@ proto_register_oran(void)
          {"bfwQ", "oran_fh_cus.bfwQ",
          FT_FLOAT, BASE_NONE,
          NULL, 0x0,
-         "Quadrature beamforming weight value. The "
-         "total number of weights in the section is RU-specific and is "
-         "conveyed from the RU to the lls-CU as part of the initialization "
-         "procedure via the M-Plane",
+         "Quadrature",
          HFILL}
         },
 
@@ -3293,11 +3250,7 @@ proto_register_oran(void)
          {"UE ID", "oran_fh_cus.ueId",
           FT_UINT16, BASE_HEX_DEC,
           NULL, 0x7fff,
-          "Label for the UE for which the section "
-          "contents apply.  This is used to support channel information "
-          "sending from the lls-CU to the RU.  This is just a label and the "
-          "specific value has no meaning regarding types of UEs that may be "
-          "supported within the system",
+          "applies to section contents",
           HFILL}
         },
 
@@ -3306,14 +3259,8 @@ proto_register_oran(void)
          {"Frequency Offset", "oran_fh_cus.freqOffset",
           FT_UINT24, BASE_DEC,
           NULL, 0x0,
-          "The frequency offset with respect to the "
-          "carrier center frequency before additional filtering (e.g. for "
-          "PRACH) and FFT processing (in UL) in steps of subcarrier spacings"
-          " ?f. The frequency offset shall be individual per control section. "
-          "frequency_offset = freqOffset * ?f Note: It may be studied "
-          "whether this IEs should be individual per control section to allow "
-          "scheduling of several simultaneous PRACH opportunities with "
-          "different individual frequency offsets",
+          "with respect to the "
+          "carrier center frequency before additional filtering",
           HFILL}
         },
 
@@ -3322,9 +3269,7 @@ proto_register_oran(void)
          {"Regularization Factor", "oran_fh_cus.regularizationFactor",
           FT_INT16, BASE_DEC,
           NULL, 0x0,
-          "Provides a signed value to support MMSE operation "
-          "within the RU when beamforming weights are supported in the RU, "
-          "so related to section type 6",
+          "related to section type 6",
           HFILL}
         },
 
@@ -3342,9 +3287,7 @@ proto_register_oran(void)
          {"LAA Message Length", "oran_fh_cus.laaMsgLen",
           FT_UINT8, BASE_DEC,
           NULL, 0x0f,
-          "Defines number of 32-bit words in the LAA section, "
-          "where \"0\" means one 32-bit word, \"1\" means 2 32-bit words, etc. "
-          "- including the byte containing the lssMsgLen parameter",
+          "number of 32-bit words in the LAA section",
           HFILL}
         },
 
@@ -3353,10 +3296,7 @@ proto_register_oran(void)
          {"LBT Handle", "oran_fh_cus.lbtHandle",
           FT_UINT16, BASE_HEX,
           NULL, 0x0,
-          "Provides a label that is included in the configuration "
-          "request message (e.g., LBT_PDSCH_REQ, LBT_DRS_REQ) transmitted "
-          "from the lls-CU to the RU and returned in the corresponding "
-          "response message (e.g., LBT_PDSCH_RSP, LBT_DRS_RSP)",
+          "included in the configuration request message",
           HFILL}
          },
 
@@ -3367,7 +3307,7 @@ proto_register_oran(void)
           NULL, 0x1c,
           "Defer factor in sensing slots as described in 3GPP TS 36.213 "
           "Section 15.1.1. This parameter is used for LBT CAT 4 and can take "
-          "one of three values: {1,3, 7} based on the priority class. Four "
+          "one of three values: {1, 3, 7} based on the priority class. Four "
           "priority classes are defined in 3GPP TS 36.213",
           HFILL}
         },
@@ -3446,11 +3386,9 @@ proto_register_oran(void)
         /* Section 7.5.3.25 */
         {&hf_oran_initialPartialSF,
          {"Initial partial SF", "oran_fh_cus.initialPartialSF",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x40,
-          "Indicates whether the initial SF in the LBT process is full or "
-          "partial. 0 - full SF (two slots, 14 symbols). 1 - partial SF (only "
-          "second slot, last 7 symbols)",
+          FT_BOOLEAN, 8,
+          TFS(&tfs_partial_full_sf), 0x40,
+          "Indicates whether the initial SF in the LBT process is full or partial",
           HFILL}
         },
 
@@ -3504,7 +3442,7 @@ proto_register_oran(void)
          {"lbtCWR_Rst", "oran_fh_cus.lbtCWR_Rst",
           FT_BOOLEAN, 8,
           TFS(&tfs_fail_success), 0x80,
-          "Traffic class priority for congestion window management",
+          "notification about packet reception successful or not",
           HFILL}
         },
 
@@ -3545,6 +3483,7 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 7.7.11 */
         {&hf_oran_ext11_reserved,
          {"Reserved", "oran_fh_cus.reserved",
           FT_UINT8, BASE_HEX,
@@ -3558,40 +3497,25 @@ proto_register_oran(void)
          {"bfwCompHdr", "oran_fh_cus.bfwCompHdr",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          NULL,
+          "Compression method and IQ bit width for beamforming weights",
           HFILL}
         },
-
-
-        /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_iqWidth,
          {"IQ Bit Width", "oran_fh_cus.bfwCompHdr_iqWidth",
           FT_UINT8, BASE_HEX,
           VALS(bfw_comp_headers_iq_width), 0xf0,
-          "Defines the compression method and IQ bit width "
-          "for the beamforming weights in the specific section in the C-Plane "
-          "message.  In this way each set of weights may employ a separate "
-          "compression method. Note that for the block compression methods, "
-          "the block size is the entire vector of beamforming weights, not "
-          "some subset of them",
+          "IQ bit width for the beamforming weights",
           HFILL}
         },
-
-        /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_compMeth,
          {"Compression Method", "oran_fh_cus.bfwCompHdr_compMeth",
           FT_UINT8, BASE_HEX,
           VALS(bfw_comp_headers_comp_meth), 0x0f,
-          "Defines the compression method and IQ bit width for "
-          "the beamforming weights in the specific section in the C-Plane "
-          "message.  In this way each set of weights may employ a separate "
-          "compression method. Note that for the block compression methods, "
-          "the block size is the entire vector of beamforming weights, "
-          "not some subset of them",
+          "compression method for the beamforming weights",
           HFILL}
         },
 
-        /* Section 5.4.7.1.2 */
+        /* Table 7.5.3.32-1 */
         {&hf_oran_blockScaler,
          {"blockScaler", "oran_fh_cus.blockScaler",
           FT_UINT8, BASE_HEX,
@@ -3614,14 +3538,15 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.7.6 */
+        /* Section 7.7.6.6 */
         {&hf_oran_repetition,
          {"repetition", "oran_fh_cus.repetition",
           FT_BOOLEAN, BASE_NONE,
           NULL, 0x0,
-          "Repetition of a highest priority data section inside a C-Plane message",
+          "Repetition of a highest priority data section for C-Plane",
           HFILL}
         },
+        /* 7.7.20.9 */
         {&hf_oran_rbgSize,
          {"rbgSize", "oran_fh_cus.rbgSize",
           FT_UINT8, BASE_HEX,
@@ -3629,6 +3554,7 @@ proto_register_oran(void)
           "Number of PRBs of the resource block groups allocated by the bit mask",
           HFILL}
         },
+        /* 7.7.20.10 */
         {&hf_oran_rbgMask,
          {"rbgMask", "oran_fh_cus.rbgMask",
           FT_UINT32, BASE_HEX,
@@ -3636,6 +3562,7 @@ proto_register_oran(void)
           "Each bit indicates whether a corresponding resource block group is present",
           HFILL}
         },
+        /* 7.7.6.5 */
         {&hf_oran_noncontig_priority,
          {"priority", "oran_fh_cus.priority",
           FT_UINT8, BASE_HEX,
@@ -3643,6 +3570,7 @@ proto_register_oran(void)
           NULL,
           HFILL}
         },
+        /* 7.7.6.4 */
         {&hf_oran_symbolMask,
          {"symbolMask", "oran_fh_cus.symbolMask",
           FT_UINT16, BASE_HEX,
@@ -3660,7 +3588,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.7.12 */
+        /* Subtree for next 2 items */
         {&hf_oran_off_start_prb_num_prb_pair,
          {"Pair", "oran_fh_cus.offStartPrb_numPrb",
           FT_STRING, BASE_NONE,
@@ -3669,6 +3597,7 @@ proto_register_oran(void)
           HFILL}
         },
 
+        /* 7.7.12.4 */
         {&hf_oran_off_start_prb,
          {"offStartPrb", "oran_fh_cus.offStartPrb",
           FT_UINT8, BASE_DEC,
@@ -3676,6 +3605,7 @@ proto_register_oran(void)
           "Offset of PRB range start",
           HFILL}
         },
+        /* 7.7.12.5 */
         {&hf_oran_num_prb,
          {"numPrb", "oran_fh_cus.numPrb",
           FT_UINT8, BASE_DEC,
@@ -3757,7 +3687,7 @@ proto_register_oran(void)
         },
 
 #if 0
-        /* Section 6.3.3.14 */
+        /* Section 8.3.3.15 (not always present?) */
         {&hf_oran_udCompParam,
          {"User Data Compression Parameter", "oran_fh_cus.udCompParam",
           FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
@@ -3802,10 +3732,7 @@ proto_register_oran(void)
           { "Exponent", "oran_fh_cus.exponent",
             FT_UINT8, BASE_DEC,
             NULL, 0x0f,
-            "Exponent applicable to the I & Q mantissas. "
-            "NOTE : Exponent is used for all mantissa sample sizes(i.e. 6bit "
-            "- 16bit). Likewise, a native \"uncompressed\" format is not supported "
-            "within this specification",
+            "Exponent applicable to the I & Q mantissas",
             HFILL }
         },
 
@@ -3813,9 +3740,7 @@ proto_register_oran(void)
           { "IQ User Data", "oran_fh_cus.iq_user_data",
             FT_BYTES, BASE_NONE,
             NULL, 0x0,
-            "Used for the In-phase and Quadrature sample "
-            "mantissa. Twelve I/Q Samples are included per resource block. The width "
-            "of the mantissa can be between 6 and 16 bits",
+            "Used for the In-phase and Quadrature sample mantissa",
             HFILL }
         },
 
@@ -3834,6 +3759,7 @@ proto_register_oran(void)
             HFILL }
         },
 
+        /* 7.7.11.7 */
         { &hf_oran_disable_bfws,
           { "disableBFWs", "oran_fh_cus.disableBFWs",
             FT_BOOLEAN, 8,
@@ -3841,6 +3767,7 @@ proto_register_oran(void)
             "Indicate if BFWs under section extension are disabled",
             HFILL }
         },
+        /* 7.7.11.8 */
         { &hf_oran_rad,
           { "RAD", "oran_fh_cus.rad",
             FT_BOOLEAN, 8,
@@ -3848,6 +3775,7 @@ proto_register_oran(void)
             "Reset After PRB Discontinuity",
             HFILL }
         },
+        /* 7.7.11.4 */
         { &hf_oran_num_bund_prbs,
           { "numBundPrb", "oran_fh_cus.numBundPrb",
             FT_UINT8, BASE_DEC,
@@ -3879,6 +3807,7 @@ proto_register_oran(void)
             HFILL}
          },
 
+        /* 7.5.3.13 */
         {&hf_oran_ciSample,
          {"ciSample", "oran_fh_cus.ciSample",
             FT_STRING, BASE_NONE,
@@ -3993,6 +3922,7 @@ proto_register_oran(void)
             "RE bitmask per port",
             HFILL }
         },
+        /* 7.7.19.9 */
         { &hf_oran_portSymbolMask,
           { "portSymbolMask", "oran_fh_cus.portSymbolMask",
             FT_BOOLEAN, 16,
@@ -4017,6 +3947,7 @@ proto_register_oran(void)
             NULL,
             HFILL}
          },
+        /* 7.7.13.2 */
         { &hf_oran_nextSymbolId,
           { "nextSymbolId", "oran_fh_cus.nextSymbolId",
             FT_UINT8, BASE_DEC,
@@ -4024,6 +3955,7 @@ proto_register_oran(void)
             "offset of PRB range start",
             HFILL }
         },
+        /* 7.7.13.3 */
         { &hf_oran_nextStartPrbc,
           { "nextStartPrbc", "oran_fh_cus.nextStartPrbc",
             FT_UINT16, BASE_DEC,
