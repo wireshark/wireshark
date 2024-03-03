@@ -3004,10 +3004,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Starta</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">Spara</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
@@ -3681,6 +3677,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Find:</source>
         <translation>Sök:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Skiftlägeskänsligt</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11207,6 +11207,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sök:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Skiftlägeskänsligt</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Sök &amp;nästa</translation>
     </message>
@@ -12097,7 +12101,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Spara</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TLS Keylog file</source>

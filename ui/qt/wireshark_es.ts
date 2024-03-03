@@ -3640,6 +3640,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Buscar:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Mayúsculas y minúsculas</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Buscar &amp;siguiente</translation>
     </message>
@@ -11101,6 +11105,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Find:</source>
         <translation>Buscar:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Mayúsculas y minúsculas</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

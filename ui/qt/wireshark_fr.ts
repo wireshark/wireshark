@@ -3002,10 +3002,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Démarrer</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">Sauvegarder</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Défaut</translation>
     </message>
@@ -3679,6 +3675,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Find:</source>
         <translation>Trouver :</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Sensible à la casse</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11204,6 +11204,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Trouver :</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Sensible à la casse</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Rechercher le &amp;suivant</translation>
     </message>
@@ -12095,7 +12099,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Sauvegarder</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TLS Keylog file</source>

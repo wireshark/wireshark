@@ -3667,6 +3667,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Знайти:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Враховувати регістр</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Знайти &amp;Наступний</translation>
     </message>
@@ -11102,6 +11106,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation type="unfinished">Знайти:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Враховувати регістр</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

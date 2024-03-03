@@ -3674,6 +3674,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11110,6 +11114,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

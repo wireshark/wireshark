@@ -2161,11 +2161,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…as C Array</source>
-        <translation type="unfinished"></translation>
+        <translation>...come Array C</translation>
     </message>
     <message>
         <source>Copy packet bytes as C Array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia i byte del pacchetto come Array C.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -3006,10 +3006,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Avvia</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">Salva</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Predefinito</translation>
     </message>
@@ -3683,6 +3679,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Find:</source>
         <translation>Trova:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Distingui maiuscole</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11207,6 +11207,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Find:</source>
         <translation>Trova:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Distingui maiuscole</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

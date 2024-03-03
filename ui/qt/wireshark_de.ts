@@ -3006,10 +3006,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Start</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">Speichern</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
@@ -3683,6 +3679,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Find:</source>
         <translation>Suchen:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Groß- / Kleinschreibung beachten</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11207,6 +11207,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Find:</source>
         <translation>Suchen:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Groß- / Kleinschreibung beachten</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

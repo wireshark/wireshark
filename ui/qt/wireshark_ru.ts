@@ -3011,10 +3011,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Старт</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">Сохранить</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
@@ -3698,6 +3694,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>Найти:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Чувствительность к регистру</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11238,6 +11238,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Найти:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Чувствительность к регистру</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Найти &amp;следующий</translation>
     </message>
@@ -12130,7 +12134,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Сохранить</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TLS Keylog file</source>

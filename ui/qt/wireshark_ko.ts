@@ -81,11 +81,11 @@
     </message>
     <message>
         <source>About Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray 정보</translation>
     </message>
     <message>
         <source>Logray</source>
-        <translation type="unfinished"></translation>
+        <translation>Logray</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1178,7 +1178,9 @@
         <source>Created by Logray %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Logray %1에서 생성됨
+
+</translation>
     </message>
 </context>
 <context>
@@ -1428,27 +1430,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>File infix pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>파일 중위 표기 패턴</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;여러 파일 모드에서는 파일 이름과 접두사 사이에 날짜, 시간, 파일 순서 번호가 추가됩니다. 이들의 순서를 선택하십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>YYYYmmDDHHMMSS_NNNNN</source>
-        <translation type="unfinished"></translation>
+        <translation>YYYYmmDDHHMMSS_NNNNN</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;파일 순서 번호 이전에 날짜와 시간을 배치합니다. 파일을 이름 순으로 정렬했을 때 생성 시간 순서를 따르며, 같은 배치에서 생성된 파일이 인접하게 배치됩니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
-        <translation type="unfinished"></translation>
+        <translation>NNNNN_YYYYmmDDHHMMSS</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;날짜와 시간 이전에 파일 순서 번호를 배치합니다. Wireshark에서 역사적으로 사용했던 방식입니다..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1866,11 +1868,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>폭</translation>
     </message>
     <message>
         <source>Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>정렬</translation>
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
@@ -1908,23 +1910,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation type="unfinished">기본값</translation>
+        <translation>기본값</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">왼쪽</translation>
+        <translation>왼쪽</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>가운데</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">오른쪽</translation>
+        <translation>오른쪽</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">알 수 없음</translation>
+        <translation>알 수 없음</translation>
     </message>
 </context>
 <context>
@@ -2124,11 +2126,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation type="unfinished"></translation>
+        <translation>출력 가능한 문자열로 복사</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>패킷 내의 출력 가능한 문자열만 복사합니다.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
@@ -2152,11 +2154,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as C Array</source>
-        <translation type="unfinished"></translation>
+        <translation>C 언어 배열로 복사</translation>
     </message>
     <message>
         <source>Copy packet bytes as C Array.</source>
-        <translation type="unfinished"></translation>
+        <translation>C 언어 배열 형식으로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2997,10 +2999,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>시작</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">저장</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>기본값</translation>
     </message>
@@ -3539,18 +3537,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Event %1. </source>
-        <translation type="unfinished"></translation>
+        <translation>이벤트 %1개. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;읽기&lt;/span&gt; %Ln개, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;쓰기&lt;/span&gt; %Ln개, </numerusform>
         </translation>
     </message>
     <message>
@@ -3587,15 +3585,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation type="unfinished"></translation>
+        <translation>읽기 활동(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation type="unfinished"></translation>
+        <translation>쓰기 활동(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>전체 I/O 활동(%M)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -3639,19 +3637,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show as</source>
-        <translation type="unfinished">다른 형식으로 표시</translation>
+        <translation>다른 형식으로 표시</translation>
     </message>
     <message>
         <source>No delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>델타 시간 없음</translation>
     </message>
     <message>
         <source>Turn delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>턴 델타 시간</translation>
     </message>
     <message>
         <source>All delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>모든 델타 시간</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -3664,6 +3662,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>찾기:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">대소문자 구분</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -6589,7 +6591,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> %1 Displayed: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1개 표시됨: %2(%3%)</translation>
     </message>
     <message>
         <source>Manage Profiles…</source>
@@ -6666,11 +6668,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Selected Event: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>선택된 이벤트: %1 %2 </translation>
     </message>
     <message>
         <source>Events: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>이벤트: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -6703,7 +6705,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Events</source>
-        <translation type="unfinished"></translation>
+        <translation>이벤트 없음</translation>
     </message>
     <message>
         <source>From Zip File...</source>
@@ -11176,6 +11178,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>찾기:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">대소문자 구분</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>다음 찾기(&amp;N)</translation>
     </message>
@@ -12774,7 +12780,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>Logray를 사용하여 시스템을 고정하는 접착제의 냄새를 맡고(스니핑) 있습니다 </translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -12782,7 +12788,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Logray </source>
-        <translation type="unfinished"></translation>
+        <translation>실행 중인 Logray 버전: </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -14099,7 +14105,7 @@ a:hover {
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished">표시 필터</translation>
+        <translation>표시 필터</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -14147,7 +14153,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Mark/Unmark Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>선택 항목 마크/해제(&amp;M)</translation>
     </message>
     <message>
         <source>Mark or unmark each selected packet</source>
@@ -14155,7 +14161,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Ignore/Unignore Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>선택 항목 무시/해제(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>

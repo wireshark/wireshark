@@ -3693,6 +3693,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Znajdź:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Rozróżniaj wielkość znaków</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Znajdź &amp;następny</translation>
     </message>
@@ -11205,6 +11209,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>Znajdź:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Rozróżniaj wielkość znaków</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

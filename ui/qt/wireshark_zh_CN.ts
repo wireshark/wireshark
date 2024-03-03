@@ -3658,6 +3658,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>查找:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">区分大小写</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>查找下一个(&amp;N)</translation>
     </message>
@@ -11153,6 +11157,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>查找:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">区分大小写</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

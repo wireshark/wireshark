@@ -2998,10 +2998,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>開始</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">保存</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>デフォルト</translation>
     </message>
@@ -3665,6 +3661,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>検索:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">大文字小文字を区別</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11179,6 +11179,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>検索:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">大文字小文字を区別</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>

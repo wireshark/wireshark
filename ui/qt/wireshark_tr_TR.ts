@@ -2999,10 +2999,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Başla</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation type="vanished">Kaydet</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>Ön tanımlı</translation>
     </message>
@@ -3666,6 +3662,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Find:</source>
         <translation>Bul:</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Büyük küçük harf duyarlı</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -11178,6 +11178,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bul:</translation>
     </message>
     <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Büyük küçük harf duyarlı</translation>
+    </message>
+    <message>
         <source>Find &amp;Next</source>
         <translation>Sonrakini &amp;Bul</translation>
     </message>
@@ -12066,7 +12070,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Kaydet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TLS Keylog file</source>
