@@ -150,7 +150,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *paramet
     break;
   case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
     message_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_asap(message_tvb, NULL, cause_tree, NULL);
+    dissect_asap(message_tvb, pinfo, cause_tree, NULL);
     break;
   case INVALID_VALUES:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
