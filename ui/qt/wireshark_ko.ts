@@ -2005,11 +2005,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation type="unfinished"></translation>
+        <translation>출력 가능한 문자열로 복사</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>패킷 내의 출력 가능한 문자열만 복사합니다.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
