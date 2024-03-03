@@ -1635,7 +1635,7 @@ static void parsetypedefstruct(int pass)
 		/* count the levels of pointers */
 		for(num_pointers=0;!g_strcmp0(ti->str, "*");ti=ti->next){
 			num_pointers++;
-			/* poitners are aligned at 4 byte boundaries */
+			/* pointers are aligned at 4 byte boundaries */
 			if(alignment<4){
 				alignment=4;
 			}

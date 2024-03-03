@@ -225,7 +225,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   if ((!pinfo->fd->visited)&&(ansi_tcap_private.TransactionID_str)){
 
           /* Only do this once XXX I hope it's the right thing to do */
-          /* The hash string needs to contain src and dest to distiguish different flows */
+          /* The hash string needs to contain src and dest to distinguish different flows */
           switch(ansi_tcap_response_matching_type){
                         case ANSI_TCAP_TID_ONLY:
                                 buf = wmem_strdup(pinfo->pool, ansi_tcap_private.TransactionID_str);
@@ -267,7 +267,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   src = address_to_str(pinfo->pool, &(pinfo->src));
   dst = address_to_str(pinfo->pool, &(pinfo->dst));
 
-  /* The hash string needs to contain src and dest to distiguish different flows */
+  /* The hash string needs to contain src and dest to distinguish different flows */
   buf = (char *)wmem_alloc(pinfo->pool, MAX_TID_STR_LEN);
   buf[0] = '\0';
   /* Reverse order to invoke */

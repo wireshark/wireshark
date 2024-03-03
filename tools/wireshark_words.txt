@@ -448,6 +448,7 @@ delimited
 delimiters
 delimiting
 demodulator
+demultiplex
 demultiplexed
 demultiplexer
 demultiplexers
@@ -679,12 +680,14 @@ flowmod
 flowset
 flowspec
 fmconfig
+foffset
 followup
 foobar
 format0
 fortigate
 fortinet
 fpiur
+fprintf
 fraghdr
 framenum
 framenumber
@@ -824,6 +827,7 @@ implementor
 inactivated
 inband
 incits
+incompatabilities
 inconsistently
 incremented
 incrementing
@@ -922,6 +926,7 @@ jacobson
 jetds
 joiners
 jsonraw
+jupmngr
 k12xx
 kademlia
 kasme
@@ -1221,6 +1226,7 @@ offloadability
 ofpat
 ofpbac
 ofpbfc
+ofpbic
 ofpbmc
 ofpbrc
 ofpet
@@ -1490,6 +1496,7 @@ redir
 redirection
 redirector
 redirects
+redissect
 redissecting
 redissection
 redist
@@ -1845,6 +1852,7 @@ Tektronix
 telco
 télécom
 Telecomunicaciones
+telecomunicazioni
 telefonica
 Telefónica
 Teléfonos
@@ -2113,6 +2121,7 @@ v1310
 v1410
 v1530
 v1610
+validations
 validator
 valstringname
 varint

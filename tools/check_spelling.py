@@ -90,16 +90,18 @@ try:
     parser.feed(content)
     content = parser.content.strip()
 
-    db = dict(l.lower().split('->', maxsplit=1) for l in content.splitlines())
-    del db['cmo']      # All false positives.
-    del db['ect']      # Too many false positives.
-    del db['thru']     # We'll let that one thru. ;-)
-    del db['sargeant'] # All false positives.
+    wiki_db = dict(l.lower().split('->', maxsplit=1) for l in content.splitlines())
+    del wiki_db['cmo']      # All false positives.
+    del wiki_db['ect']      # Too many false positives.
+    del wiki_db['thru']     # We'll let that one thru. ;-)
+    del wiki_db['sargeant'] # All false positives.
 
     # Remove each word from dict
     removed = 0
-    for word in db:
+    for word in wiki_db:
         try:
+            if should_exit:
+                exit(1)
             spell.word_frequency.remove_words([word])
             #print('Removed', word)
             removed += 1
@@ -128,6 +130,7 @@ class File:
         self.values = []
 
         filename, extension = os.path.splitext(file)
+        # TODO: add '.lua'?  Would also need to check string and comment formats...
         self.code_file = extension in {'.c', '.cpp'}
 
 
@@ -291,7 +294,9 @@ class File:
                     continue
 
                 if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
-                    print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
+                    # Highlight words that appeared in Wikipedia list.
+                    print(bcolors.BOLD if word in wiki_db else '',
+                          self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                           ' -> ', '?')
 
                     # TODO: this can be interesting, but takes too long!
@@ -442,7 +447,8 @@ def isAppropriateFile(filename):
     file, extension = os.path.splitext(filename)
     if filename.find('CMake') != -1:
         return False
-    return extension in { '.adoc', '.c', '.cpp', '.pod', '.txt'} or file.endswith('README')
+    # TODO: add , '.lua' ?
+    return extension in { '.adoc', '.c', '.cpp', '.pod', '.txt' } or file.endswith('README')
 
 
 def findFilesInFolder(folder, recursive=True):

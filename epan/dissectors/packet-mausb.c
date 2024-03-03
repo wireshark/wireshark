@@ -426,7 +426,7 @@ static const value_string mausb_status_string[] = {
 };
 
 
-/* Nuber of Isochronous Headers, per 6.5.1.7 */
+/* Number of Isochronous Headers, per 6.5.1.7 */
 #define MAUSB_NUM_ISO_HDR_MASK 0x0fff
 
 /* I-Flags, per 6.5.1.8 */

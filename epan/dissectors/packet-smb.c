@@ -937,7 +937,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	if (si->request) {
 		return TAP_PACKET_DONT_REDRAW;
 	}
-	/* if we havnt seen the request, just ignore it */
+	/* if we haven't seen the request, just ignore it */
 	if (!si->sip) {
 		return TAP_PACKET_DONT_REDRAW;
 	}
@@ -1482,7 +1482,7 @@ gboolean sid_name_snooping = FALSE;
 
 /* ExportObject preferences variable */
 gboolean eosmb_take_name_as_fid = FALSE ;
-/* Utility to get an str reprensenting ipv4 or ipv6 address */
+/* Utility to get an str representing ipv4 or ipv6 address */
 const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 	const gchar	*buf;
 

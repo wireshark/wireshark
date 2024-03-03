@@ -176,7 +176,7 @@ The following features are new (or have been significantly updated) since versio
 
 // Lua 5.3 is supported. Different versions of Lua are not guaranteed to be
 // compatible. If your Lua dissector does not work, check the Lua manual for
-// incompatibilities and suggested workarounds:
+// incompatabilities and suggested workarounds:
 // https://www.lua.org/manual/5.2/manual.html#8
 // https://www.lua.org/manual/5.3/manual.html#8
 // https://www.lua.org/manual/5.4/manual.html#8

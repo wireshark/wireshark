@@ -841,7 +841,7 @@ static void fmt_decl_acc(gchar *label, guint32 a) {
             a % 100, UTF8_DEGREE_SIGN);
 }
 
-/* Format Dillution of Precision */
+/* Format Dilution of Precision */
 static void fmt_dop(gchar *label, guint32 dop) {
     snprintf(label, ITEM_LABEL_LENGTH, "%i.%02i", dop / 100, dop % 100);
 }

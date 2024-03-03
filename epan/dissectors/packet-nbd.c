@@ -44,7 +44,7 @@ typedef struct _nbd_transaction_t {
 	guint8 type;
 } nbd_transaction_t;
 typedef struct _nbd_conv_info_t {
-	wmem_tree_t *unacked_pdus;    /* indexed by handle, whichs wraps quite frequently  */
+	wmem_tree_t *unacked_pdus;    /* indexed by handle, which wraps quite frequently  */
 	wmem_tree_t *acked_pdus;    /* indexed by packet# and handle */
 } nbd_conv_info_t;
 

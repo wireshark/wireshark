@@ -656,7 +656,7 @@ static h248_package_t h248_pkg_cg = {
 	NULL,NULL,			/* value_stings:  event, stats */
 	NULL,  /* dissectors: prop */
 	h248_pkg_cg_signals_cd_events,
-	NULL,		/* disectors: events */
+	NULL,		/* dissectors: events */
 	NULL		/* dissectors: stats */
 };
 

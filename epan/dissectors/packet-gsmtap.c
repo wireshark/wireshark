@@ -509,7 +509,7 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* SRO/SRR (SACCH Repetition) bit */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_sro_srr, tvb, 0, 1, ENC_BIG_ENDIAN);
-	/* Acutal Timing Advance */
+	/* Actual Timing Advance */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
 }
 

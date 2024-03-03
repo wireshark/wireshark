@@ -2036,12 +2036,12 @@ proto_register_btbredr_rf(void)
             NULL, HFILL }
         },
         {  &hf_reference_upper_addres_part,
-            { "Reference Upper Address Part",                   "btbredr_rf.reference_upper_addres_part",
+            { "Reference Upper Address Part",                   "btbredr_rf.reference_upper_address_part",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         {  &hf_invalid_reference_upper_addres_part,
-            { "Invalid Reference Upper Address Part",           "btbredr_rf.invalid.reference_upper_addres_part",
+            { "Invalid Reference Upper Address Part",           "btbredr_rf.invalid.reference_upper_address_part",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
@@ -2281,7 +2281,7 @@ proto_register_btbredr_rf(void)
             NULL, HFILL }
         },
         {  &hf_flags_reference_upper_addres_part_valid,
-            { "Reference Upper Address Part Valid",             "btbredr_rf.flags.reference_upper_addres_part_valid",
+            { "Reference Upper Address Part Valid",             "btbredr_rf.flags.reference_upper_address_part_valid",
             FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }
         },

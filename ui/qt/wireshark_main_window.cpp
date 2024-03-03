@@ -754,7 +754,7 @@ WiresharkMainWindow::~WiresharkMainWindow()
 #ifndef Q_OS_MAC
     // Below dialogs inherit GeometryStateDialog
     // For reasons described in geometry_state_dialog.h no parent is set when
-    // instantiating the dialogs and as a resul objects are not automatically
+    // instantiating the dialogs and as a result objects are not automatically
     // freed by its parent. Free then here explicitly to avoid leak and numerous
     // Valgrind complaints.
     delete file_set_dialog_;
@@ -2153,7 +2153,7 @@ void WiresharkMainWindow::findTextCodecs() {
         // annoying to properly place IBM00858 and IBM00924 in the middle of
         // code page numbers not zero padded to 5 digits.
         // We could manipulate the key further to have more commonly used
-        // charsets earlier. IANA MIB ordering would be unxpected:
+        // charsets earlier. IANA MIB ordering would be unexpected:
         // https://www.iana.org/assignments/character-sets/character-sets.xml
         // For data about use in HTTP (other protocols can be quite different):
         // https://w3techs.com/technologies/overview/character_encoding
