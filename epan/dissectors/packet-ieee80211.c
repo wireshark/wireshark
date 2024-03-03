@@ -14401,6 +14401,18 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   code    = tvb_get_guint8(tvb, offset);
   offset += add_ff_wnm_action_code(tree, tvb, pinfo, offset);
   switch (code) {
+  case WNM_EVENT_REQ:
+  case WNM_EVENT_REPORT:
+  case WNM_DIAGNOSTIC_REQ:
+  case WNM_DIAGNOSTIC_REPORT:
+  case WNM_LOCATION_CFG_REQ:
+  case WNM_LOCATION_CFG_RESP:
+  case WNM_FMS_REQ:
+  case WNM_FMS_RESP:
+  case WNM_DMS_REQ:
+  case WNM_DMS_RESP:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    break;
   case WNM_BSS_TRANS_MGMT_QUERY:
     offset += wnm_bss_trans_mgmt_query(tree, tvb, pinfo, offset);
     break;
