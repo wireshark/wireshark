@@ -800,17 +800,20 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 }
 
 static guint32
-mux_element_sublist_size( h223_mux_element* me )
+// NOLINTNEXTLINE(misc-no-recursion)
+mux_element_sublist_size(packet_info *pinfo, h223_mux_element* me)
 {
     h223_mux_element *current_me = me->next;
     guint32 length = 0;
+    increment_dissection_depth(pinfo);
     while ( current_me ) {
         if ( current_me->sublist )
-            length += current_me->repeat_count * mux_element_sublist_size( current_me->sublist );
+            length += current_me->repeat_count * mux_element_sublist_size(pinfo, current_me->sublist);
         else
             length += current_me->repeat_count;
         current_me = current_me->next;
     }
+    decrement_dissection_depth(pinfo);
 
     /* should never happen, but to avoid infinite loops... */
     DISSECTOR_ASSERT(length != 0);
@@ -832,6 +835,7 @@ mux_element_sublist_size( h223_mux_element* me )
  * endOfMuxSdu  true if the end-of-sdu flag was set
  */
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
                                 guint32 pkt_offset, proto_tree *pdu_tree,
                                 h223_call_info* call_info,
@@ -843,10 +847,11 @@ dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
     guint32 frag_len;
     guint32 sublist_len;
     int i;
+    increment_dissection_depth(pinfo);
     while ( me ) {
         if ( me->sublist ) {
             if ( me->repeat_count == 0 ) {
-                for(sublist_len = mux_element_sublist_size( me->sublist );
+                for(sublist_len = mux_element_sublist_size(pinfo, me->sublist);
                     offset + sublist_len <= len;
                     offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
                                                              call_info, me->sublist, offset, endOfMuxSdu,
@@ -873,6 +878,7 @@ dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
         }
         me = me->next;
     }
+    decrement_dissection_depth(pinfo);
     return offset;
 }
 

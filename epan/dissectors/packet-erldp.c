@@ -354,6 +354,7 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
   return offset;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, const gchar **value_str _U_) {
   guint32 arity, i;
 
@@ -415,11 +416,14 @@ static gint dissect_etf_big_ext(tvbuff_t *tvb, gint offset, guint32 len, proto_t
       return offset + len;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, const gchar **value_str) {
   gint32 int_val;
   guint32 len, i, uint_val;
   guint32 id;
   const guint8 *str_val;
+
+  increment_dissection_depth(pinfo);
 
   switch (tag) {
     case ATOM_CACHE_REF:
@@ -623,6 +627,8 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       break;
   }
 
+  decrement_dissection_depth(pinfo);
+
   return offset;
 }
 
@@ -737,6 +743,7 @@ static gint dissect_etf_versioned_type(const gchar *label, packet_info *pinfo, t
   return dissect_etf_type(label, pinfo, tvb, offset, tree);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
   gint begin = offset;
   guint32 tag;
