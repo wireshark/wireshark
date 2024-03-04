@@ -66,7 +66,7 @@ ADDITIONAL_LIST="\
 	libsmi \
 	brotli \
 	zstd \
-	lua52 \
+	lua53 \
 	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:

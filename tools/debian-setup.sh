@@ -176,7 +176,7 @@ ADDITIONAL_LIST="
 	git
 	libcap-dev
 	libkrb5-dev
-	liblua5.2-dev
+	liblua5.3-dev
 	liblz4-dev
 	libminizip-dev
 	libnl-3-dev

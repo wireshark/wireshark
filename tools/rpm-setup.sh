@@ -171,11 +171,11 @@ echo "Required package glib2|libglib-2_0-0 is unavailable" >&2
 # lua51, lua51-devel: OpenSUSE Leap 42.3 (lua would be fine too, as it installs lua52), OpenSUSE Leap 15.0 (lua installs lua53, so it wouldn't work)
 # compat-lua, compat-lua-devel: Fedora 28, Fedora 29, CentOS 8
 # lua, lua-devel: CentOS 7
-add_package BASIC_LIST lua51-devel || add_package BASIC_LIST compat-lua-devel || add_package BASIC_LIST lua-devel ||
-echo "Required package lua51-devel|compat-lua-devel|lua-devel is unavailable" >&2
+add_package BASIC_LIST lua53-devel || add_package BASIC_LIST lua-devel ||
+echo "Required package lua53-devel|lua-devel is unavailable" >&2
 
-add_package BASIC_LIST lua51 || add_package BASIC_LIST compat-lua || add_package BASIC_LIST lua ||
-echo "Required package lua51|compat-lua|lua is unavailable" >&2
+add_package BASIC_LIST lua53 || add_package BASIC_LIST compat-lua || add_package BASIC_LIST lua ||
+echo "Required package lua53|lua is unavailable" >&2
 
 add_package BASIC_LIST libpcap || add_package BASIC_LIST libpcap1 ||
 echo "Required package libpcap|libpcap1 is unavailable" >&2
