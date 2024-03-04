@@ -135,7 +135,7 @@ WSLUA_METHOD Tvb_reported_len(lua_State* L) {
     /* Obtain the reported length (length on the network) of a <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
 
-    lua_pushnumber(L,tvb_reported_length(tvb->ws_tvb));
+    lua_pushinteger(L,tvb_reported_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The reported length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
@@ -143,7 +143,7 @@ WSLUA_METHOD Tvb_captured_len(lua_State* L) {
     /* Obtain the captured length (amount saved in the capture process) of a <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
 
-    lua_pushnumber(L,tvb_captured_length(tvb->ws_tvb));
+    lua_pushinteger(L,tvb_captured_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The captured length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
@@ -152,7 +152,7 @@ WSLUA_METHOD Tvb_len(lua_State* L) {
        Same as captured_len; kept only for backwards compatibility */
     Tvb tvb = checkTvb(L,1);
 
-    lua_pushnumber(L,tvb_captured_length(tvb->ws_tvb));
+    lua_pushinteger(L,tvb_captured_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The captured length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
@@ -163,7 +163,7 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
     int offset = (int) luaL_optinteger(L, Tvb_reported_length_remaining_OFFSET, 0);
 
-    lua_pushnumber(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
+    lua_pushinteger(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
     WSLUA_RETURN(1); /* The captured length of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
@@ -210,7 +210,7 @@ WSLUA_METHOD Tvb_offset(lua_State* L) {
     /* Returns the raw offset (from the beginning of the source <<lua_class_Tvb,`Tvb`>>) of a sub <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
 
-    lua_pushnumber(L,tvb_raw_offset(tvb->ws_tvb));
+    lua_pushinteger(L,tvb_raw_offset(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The raw offset of the <<lua_class_Tvb,`Tvb`>>. */
 }
 
@@ -441,16 +441,16 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            lua_pushnumber(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
-            lua_pushnumber(L,tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 3:
-            lua_pushnumber(L,tvb_get_ntoh24(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_ntoh24(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 4:
-            lua_pushnumber(L,tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The unsigned integer value. */
         default:
             luaL_error(L,"TvbRange:uint() does not handle %d byte integers",tvbr->len);
@@ -474,16 +474,16 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
     switch (tvbr->len) {
         case 1:
             /* XXX unsigned anyway */
-            lua_pushnumber(L,(lua_Number)(guint)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,(lua_Integer)(guint)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
-            lua_pushnumber(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 3:
-            lua_pushnumber(L,tvb_get_letoh24(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_letoh24(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 4:
-            lua_pushnumber(L,tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The unsigned integer value */
         default:
             luaL_error(L,"TvbRange:le_uint() does not handle %d byte integers",tvbr->len);
@@ -594,16 +594,16 @@ WSLUA_METHOD TvbRange_int(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            lua_pushnumber(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
-            lua_pushnumber(L,tvb_get_ntohis(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_ntohis(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 3:
-            lua_pushnumber(L,tvb_get_ntohi24(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_ntohi24(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 4:
-            lua_pushnumber(L,tvb_get_ntohil(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_ntohil(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The signed integer value. */
             /*
              * XXX:
@@ -633,16 +633,16 @@ WSLUA_METHOD TvbRange_le_int(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            lua_pushnumber(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
-            lua_pushnumber(L,tvb_get_letohis(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_letohis(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 3:
-            lua_pushnumber(L,tvb_get_letohi24(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_letohi24(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 4:
-            lua_pushnumber(L,tvb_get_letohil(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_letohil(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The signed integer value. */
         default:
             luaL_error(L,"TvbRange:le_int() does not handle %d byte integers",tvbr->len);
@@ -1237,13 +1237,13 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
     }
 
     if (len <= 8) {
-        lua_pushnumber(L,(lua_Number)(guint)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
+        lua_pushinteger(L,(lua_Integer)(guint)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
         return 1;
     } else if (len <= 16) {
-        lua_pushnumber(L,tvb_get_bits16(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        lua_pushinteger(L,tvb_get_bits16(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
         return 1;
     } else if (len <= 32) {
-        lua_pushnumber(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        lua_pushinteger(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
         return 1;
     } else if (len <= 64) {
         pushUInt64(L,tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
@@ -1334,7 +1334,7 @@ WSLUA_METHOD TvbRange_len(lua_State* L) {
         luaL_error(L,"expired tvb");
         return 0;
     }
-    lua_pushnumber(L,(lua_Number)tvbr->len);
+    lua_pushinteger(L,(lua_Integer)tvbr->len);
     return 1;
 }
 
@@ -1347,7 +1347,7 @@ WSLUA_METHOD TvbRange_offset(lua_State* L) {
         luaL_error(L,"expired tvb");
         return 0;
     }
-    lua_pushnumber(L,(lua_Number)tvbr->offset);
+    lua_pushinteger(L,(lua_Integer)tvbr->offset);
     return 1;
 }
 

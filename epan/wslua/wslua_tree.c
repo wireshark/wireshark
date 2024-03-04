@@ -123,7 +123,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
                 item = proto_tree_add_item_ret_int(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
                                                 tvbr->offset, tvbr->len, encoding,
                                                 &ret);
-                lua_pushnumber(L, (lua_Number)ret);
+                lua_pushinteger(L, (lua_Integer)ret);
                 lua_pushinteger(L, tvbr->offset + tvbr->len);
             }
             break;
@@ -152,7 +152,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
                 item = proto_tree_add_item_ret_uint(tree_item-> tree, hfid, tvbr->tvb->ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
-                lua_pushnumber(L, (lua_Number)ret);
+                lua_pushinteger(L, (lua_Integer)ret);
                 lua_pushinteger(L, tvbr->offset + tvbr->len);
             }
             break;
@@ -502,7 +502,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             switch(type) {
                 case FT_PROTOCOL:
                     item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,ENC_NA);
-                    lua_pushnumber(L,0);
+                    lua_pushinteger(L,0);
                     lua_insert(L,1);
                     break;
                 case FT_BOOLEAN:

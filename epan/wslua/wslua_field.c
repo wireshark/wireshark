@@ -50,7 +50,7 @@ WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    lua_pushnumber(L,fi->ws_fi->length);
+    lua_pushinteger(L,fi->ws_fi->length);
     return 1;
 }
 
@@ -61,7 +61,7 @@ WSLUA_METAMETHOD FieldInfo__unm(lua_State* L) {
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    lua_pushnumber(L,fi->ws_fi->start);
+    lua_pushinteger(L,fi->ws_fi->start);
     return 1;
 }
 
@@ -91,13 +91,13 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_UINT24:
         case FT_UINT32:
         case FT_FRAMENUM:
-                lua_pushnumber(L,(lua_Number)(fvalue_get_uinteger(fi->ws_fi->value)));
+                lua_pushinteger(L,(lua_Integer)(fvalue_get_uinteger(fi->ws_fi->value)));
                 return 1;
         case FT_INT8:
         case FT_INT16:
         case FT_INT24:
         case FT_INT32:
-                lua_pushnumber(L,(lua_Number)(fvalue_get_sinteger(fi->ws_fi->value)));
+                lua_pushinteger(L,(lua_Integer)(fvalue_get_sinteger(fi->ws_fi->value)));
                 return 1;
         case FT_FLOAT:
         case FT_DOUBLE:
@@ -268,7 +268,7 @@ static int FieldInfo_get_type(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
 
     if (fi->ws_fi->hfinfo) {
-        lua_pushnumber(L, fi->ws_fi->hfinfo->type);
+        lua_pushinteger(L, fi->ws_fi->hfinfo->type);
     }
     else {
         lua_pushnil(L);
@@ -710,7 +710,7 @@ static int Field_get_type(lua_State* L) {
     Field f = checkField(L,1);
     header_field_info* hfinfo = NULL;
 
-    GET_HFINFO_MEMBER(lua_pushnumber, type);
+    GET_HFINFO_MEMBER(lua_pushinteger, type);
 
     return 1;
 }

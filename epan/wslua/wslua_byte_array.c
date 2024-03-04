@@ -214,7 +214,7 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
         luaL_argerror(L,2,"index out of range");
         return 0;
     }
-    lua_pushnumber(L,ba->data[idx]);
+    lua_pushinteger(L,ba->data[idx]);
 
     WSLUA_RETURN(1); /* The value [0-255] of the byte. */
 }
@@ -255,7 +255,7 @@ WSLUA_METHOD ByteArray_le_int(lua_State* L) {
         value |= (guint8)ba->data[offset + i];
     }
 
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
 
     WSLUA_RETURN(1); /* The value of the little endian encoded signed integer beginning at given offset with given length. */
 }
@@ -337,7 +337,7 @@ WSLUA_METHOD ByteArray_le_uint(lua_State* L) {
         value |= (guint8)ba->data[offset + i];
     }
 
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
 
     WSLUA_RETURN(1); /* The value of the little endian encoded unsigned integer beginning at given offset with given length. */
 }
@@ -419,7 +419,7 @@ WSLUA_METHOD ByteArray_int(lua_State* L) {
         value |= (guint8)ba->data[offset + i];
     }
 
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
 
     WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit signed integer beginning at given offset with given length. */
 }
@@ -501,7 +501,7 @@ WSLUA_METHOD ByteArray_uint(lua_State* L) {
         value |= (guint8)ba->data[offset + i];
     }
 
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
 
     WSLUA_RETURN(1); /* The value of the big endian encoded 32 bit unsigned integer beginning at given offset with given length. */
 }
@@ -551,7 +551,7 @@ WSLUA_METHOD ByteArray_len(lua_State* L) {
     /* Obtain the length of a <<lua_class_ByteArray,`ByteArray`>>. */
     ByteArray ba = checkByteArray(L,1);
 
-    lua_pushnumber(L,(lua_Number)ba->len);
+    lua_pushinteger(L,(lua_Integer)ba->len);
 
     WSLUA_RETURN(1); /* The length of the <<lua_class_ByteArray,`ByteArray`>>. */
 }
