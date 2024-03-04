@@ -438,7 +438,9 @@ function State:get_timestamp(line, file_position, seeking)
     self.nstime = NSTime(timet, milli * 1000000)
     self.packets[file_position][TTIME] = self.nstime
 
-    timet = timet + (milli/1000)
+    -- For Lua 5.3 and later, make sure we have an integer via a method
+    -- that also works on Lua 5.1. (os.date doesn't handle fractional seconds.)
+    timet = timet + math.floor(milli/1000)
     dprint2("found time of ", os.date("%c",timet), " with value=",timet)
 
     return self.nstime, line_pos
