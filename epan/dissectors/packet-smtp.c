@@ -1128,7 +1128,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           while (linep < lineend && *linep != ' ')
             linep++;
           cmdlen = (int)(linep - line);
-          if (line_is_smtp_command(line, cmdlen)) {
+          if (line_is_smtp_command(line, cmdlen) &&
+               ( session_state->auth_state != SMTP_AUTH_STATE_PASSWORD_REQ )) {
             if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
               /*
                * DATA command.
