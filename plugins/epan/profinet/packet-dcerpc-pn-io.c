@@ -855,6 +855,12 @@ static int hf_pn_io_peer_to_peer_boundary_value_otherbits;
 
 static int hf_pn_io_mau_type_extension;
 
+static int hf_pn_io_pe_service_request_id;
+static int hf_pn_io_pe_service_request_reference;
+static int hf_pn_io_pe_service_modifier;
+static int hf_pn_io_pe_service_status;
+static int hf_pn_io_pe_service_structure_id;
+static int hf_pn_io_pe_service_errorcode;
 static int hf_pn_io_pe_operational_mode;
 
 static int hf_pn_io_snmp_community_name_length;
@@ -939,6 +945,8 @@ static gint ett_pn_io_peer_to_peer_boundary;
 
 static gint ett_pn_io_mau_type_extension;
 
+static gint ett_pn_io_pe_service_request;
+static gint ett_pn_io_pe_service_response;
 static gint ett_pn_io_pe_operational_mode;
 
 static gint ett_pn_io_tsn_domain_port_config;
@@ -1180,6 +1188,8 @@ static const value_string pn_io_block_type[] = {
     { 0x0701, "AutoConfiguration Communication"},
     { 0x0702, "AutoConfiguration Configuration"},
     { 0x0703, "AutoConfiguration Isochronous"},
+    { 0x0800, "PROFIenergy ServiceRequest" },
+    { 0x0801, "PROFIenergy ServiceResponse" },
     { 0x0810, "PE_EntityFilterData"},
     { 0x0811, "PE_EntityStatusData"},
     { 0x0900, "RS_AdjustObserver" },
@@ -1653,7 +1663,7 @@ static const value_string pn_io_index[] = {
     /*0x8081 - 0x808F reserved */
     { 0x8090, "PDInterfaceFSUDataAdjust" },
     /*0x8091 - 0x809F reserved */
-    { 0x80A0, "Profiles covering energy saving - Record_0" },
+    { 0x80A0, "PROFIenergy ServiceRecord" },
     /*0x80A1 - 0x80AE reserved */
     { 0x80AF, "PE_EntityStatusData for one subslot" },
     { 0x80B0, "CombinedObjectContainer" },
@@ -2703,6 +2713,82 @@ static const range_string pn_io_mau_type_extension[] = {
     { 0x0200, 0x0200, "APL" },
     { 0x0201, 0xFFEF, "Reserved for SubMAUType" },
     { 0xFFF0, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_pe_services[] = {
+    { 0x00, 0x00, "reserved" },
+    { 0x01, 0x01, "Start_Pause" },
+    { 0x02, 0x02, "End_Pause" },
+    { 0x03, 0x03, "Query_Modes"},
+    { 0x04, 0x04, "PEM_Status" },
+    { 0x05, 0x05, "PE_Identify" },
+    { 0x06, 0x06, "Query_Version" },
+    { 0x07, 0x07, "Query_Attributes" },
+    { 0x08, 0x0F, "reserved" },
+    { 0x10, 0x10, "Query_Measurement" },
+    { 0x11 ,0x11, "Reset_Energy_Meter" },
+    { 0x12, 0x12, "Set_Meter" },
+    { 0x13, 0x1F, "reserved" },
+    { 0x20, 0x20, "Info_Sleep_Mode_WOL" },
+    { 0x21, 0x21, "Go_Sleep_Mode_WOL" },
+    { 0x22, 0xCF, "reserved" },
+    { 0xD0, 0xFF, "manufacturer_specific" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_pe_services_modifier[] = {
+    { 0x0000, "unknown" },
+    { 0x0100, "Start_Pause" },
+    { 0x0101, "Start_Pause_with_time_response" },
+    { 0x0200, "End_Pause" },
+    { 0x0301, "List_Energy_Saving_Modes" },
+    { 0x0302, "Get_Mode" },
+    { 0x0400, "PEM_Status" },
+    { 0x0500, "PE_Identify" },
+    { 0x0600, "Query_Version" },
+    { 0x0700, "Query_Attributes" },
+    { 0x1001, "Get_Measurement_List" },
+    { 0x1002, "Get_Measurement_Values" },
+    { 0x1003, "Get_Measurement_List_with_Object_Number" },
+    { 0x1004, "Get_Measurement_Values_with_Object_Number" },
+    { 0x1100, "Reset_Energy_Meter_All" },
+    { 0x1101, "Reset_Energy_Meter_MeasurementID" },
+    { 0x1102, "Reset_Energy_Meter_ObjectNumber" },
+    { 0x1103, "Reset_Energy_Meter_MeasurementID_ObjectNumber" },
+    { 0x1200, "Set_Energy_Meter" },
+    { 0x2000, "Info_Sleep_Mode_WOL" },
+    { 0x2100, "Go_Sleep_Mode_WOL" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_pe_service_status[] = {
+    { 0x00, 0x00, "reserved" },
+    { 0x01, 0x01, "ready" },
+    { 0x02, 0x02, "ready_with_error" },
+    { 0x03, 0x03, "data_incomplete" },
+    { 0x04, 0xCF, "reserved" },
+    { 0xD0, 0xFF, "manufacturer specific" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_pe_service_errorcode[] = {
+    { 0x01, 0x01, "Invalid Service_Request_ID" },
+    { 0x02, 0x02, "Bad Request_Reference" },
+    { 0x03, 0x03, "Invalid Modifier" },
+    { 0x04, 0x04, "Invalid Data_Structure_Identifier_RQ" },
+    { 0x05, 0x05, "Invalid Data_Structure_Identifier_RS" },
+    { 0x06, 0x06, "No PE energy-saving mode supported" },
+    { 0x07, 0x07, "Response too long" },
+    { 0x08, 0x08, "Invalid Block Header" },
+    { 0x09, 0x4F, "reserved" },
+    { 0x50, 0x50, "No suitable energy-saving mode available" },
+    { 0x51, 0x51, "Time is not supported" },
+    { 0x52, 0x52, "Impermissible PE_Mode_ID" },
+    { 0x53, 0x53, "No switch to energy saving mode because of state operate" },
+    { 0x54, 0x54, "Service or function temporarily not available" },
+    { 0x55, 0x55, "Set or reset function for requested measurement not available" },
+    { 0x56, 0xFF, "reserved", },
     { 0, 0, NULL }
 };
 
@@ -9904,6 +9990,78 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the PROFIenergy Service Request block */
+static int
+dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
+{
+    guint8      service_request_id;
+    guint8      request_ref;
+    guint8      modifier;
+    guint8      structure_id;
+    guint16     service_modifier;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_request_id, &service_request_id);
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_request_reference, &request_ref);
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_modifier, &modifier);
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_structure_id, &structure_id);
+    u16BodyLength -= 4;
+
+    /* for proper decoding the PE service request use a combination of service ID and service modifier */
+    service_modifier = (service_request_id << 8) | modifier;
+
+    proto_item_append_text(item, ": %s", val_to_str_const(service_modifier, pn_io_pe_services_modifier, "Unknown"));
+
+    if (u16BodyLength > 0) {
+        /* todo: dissect Service Request data */
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "PE RequestData");
+    }
+
+    return offset;
+}
+
+/* dissect the PE_ServiceResponse block */
+static int
+dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
+{
+    guint8 service_response_id;
+    guint8 request_ref;
+    guint8 status;
+    guint8 structure_id;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_request_id, &service_response_id);
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_request_reference, &request_ref);
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_status, &status);
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_structure_id, &structure_id);
+    u16BodyLength -= 4;
+
+    proto_item_append_text(item, ": %s", rval_to_str_const(service_response_id, pn_io_pe_services, "Unknown"));
+
+    if (structure_id == 0xFF) {
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_errorcode, &status);
+        /* align padding */
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+    } else if (u16BodyLength > 0) {
+        /* todo: dissect Service Response data */
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "PE ResponseData");
+    }
+
+    return offset;
+}
+
 /* dissect the PE_EntityFilterData block */
 static int
 dissect_PE_EntityFilterData_block(tvbuff_t* tvb, int offset,
@@ -12867,6 +13025,12 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0609):
         dissect_ARFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x0800):
+        dissect_PE_ServiceRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+    case(0x0801):
+        dissect_PE_ServiceResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
     case(0x0810):
         dissect_PE_EntityFilterData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
@@ -13422,6 +13586,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8071):   /* PDPortStatistic for one subslot */
     case(0x8080):   /* PDInterfaceDataReal */
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
+    case(0x80A0):   /* PROFIenergy ServiceRecord */
     case(0x80AF):   /* PE_EntityStatusData for one subslot */
     case(0x80CF):   /* RS_AdjustObserver */
 
@@ -13889,6 +14054,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8070):   /* PDNCDataCheck for one subslot */
     case(0x8071):   /* PDInterfaceAdjust */
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
+    case(0x80A0):   /* PROFIenergy ServiceRecord */
     case(0x80B0):   /* CombinedObjectContainer*/
     case(0x80CF):   /* RS_AdjustObserver */
     case(0x8200):   /* CIMSNMPAdjust */
@@ -17680,6 +17846,36 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_mau_type_extension), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_pe_service_request_id,
+      { "PE ServiceID", "pn_io.profienergy.service.id",
+        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_services), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_service_request_reference,
+      { "PE RequestRef", "pn_io.profienergy.service.request_reference",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_service_modifier,
+      { "PE ServiceModifier", "pn_io.profienergy.service.modifier",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_service_status,
+      { "PE ServiceStatus", "pn_io.profienergy.service.status",
+        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_service_status), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_service_structure_id,
+      { "PE StructID", "pn_io.profienergy.service.structure_id",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_service_errorcode,
+      { "PE ServiceError", "pn_io.profienergy.service.errorcode",
+        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_service_errorcode), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pe_operational_mode,
     { "PE_OperationalMode", "pn_io.pe_operationalmode",
        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
@@ -17781,6 +17977,8 @@ proto_register_pn_io (void)
         &ett_pn_io_dcp_boundary,
         &ett_pn_io_peer_to_peer_boundary,
         &ett_pn_io_mau_type_extension,
+        &ett_pn_io_pe_service_request,
+        &ett_pn_io_pe_service_response,
         &ett_pn_io_pe_operational_mode,
         &ett_pn_io_neighbor,
         &ett_pn_io_tsn_domain_vid_config,
