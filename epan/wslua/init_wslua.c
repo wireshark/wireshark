@@ -1001,7 +1001,7 @@ add_table_symbol(const char *table, const char *name, int value)
     lua_getglobal(L, table);
     /* Set symbol in table. */
     lua_pushstring(L, name);
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_settable(L, -3);
     /* Pop table from stack. */
     lua_pop(L, 1);
@@ -1011,7 +1011,7 @@ static void
 add_global_symbol(const char *name, int value)
 {
     /* Set symbol in global environment. */
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_setglobal(L, name);
 }
 
@@ -1020,7 +1020,7 @@ add_pi_severity_symbol(const char *name, int value)
 {
     lua_getglobal(L, WSLUA_EXPERT_TABLE);
     lua_getfield(L, -1, WSLUA_EXPERT_SEVERITY_TABLE);
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_setfield(L, -2, name);
     lua_pop(L, 2);
 }
@@ -1030,7 +1030,7 @@ add_pi_group_symbol(const char *name, int value)
 {
     lua_getglobal(L, WSLUA_EXPERT_TABLE);
     lua_getfield(L, -1, WSLUA_EXPERT_GROUP_TABLE);
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_setfield(L, -2, name);
     lua_pop(L, 2);
 }
@@ -1039,7 +1039,7 @@ static void
 add_menu_group_symbol(const char *name, int value)
 {
     /* Set symbol in global environment. */
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     char *str = g_strdup(name);
     char *s = strstr(str, "_GROUP_");
     if (s == NULL)

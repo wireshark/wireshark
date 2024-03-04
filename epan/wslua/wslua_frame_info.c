@@ -89,7 +89,7 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
             g_free(err_info); /* is this right? */
         }
         else lua_pushnil(L);
-        lua_pushnumber(L, err);
+        lua_pushinteger(L, err);
         return 3;
     }
 
@@ -120,7 +120,7 @@ static int FrameInfo_get_comment (lua_State* L) {
     lua_createtable(L, n_comments, 0);
     for (i = 0; i < n_comments; i++) {
         comment = NULL;
-        lua_pushnumber(L, i+1);
+        lua_pushinteger(L, i+1);
         if (WTAP_OPTTYPE_SUCCESS ==
                 wtap_block_get_nth_string_option_value(block, OPT_COMMENT, i, &comment)) {
             lua_pushstring(L, comment);
@@ -371,7 +371,7 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
     if (!wtap_dump_file_write(fh->wdh, fi->pd, (size_t)(len), &err)) {
         lua_pushboolean(L, FALSE);
         lua_pushfstring(L, "FrameInfoConst write_data() error: %s", g_strerror(err));
-        lua_pushnumber(L, err);
+        lua_pushinteger(L, err);
         return 3;
     }
 
@@ -403,7 +403,7 @@ static int FrameInfoConst_get_comment (lua_State* L) {
     lua_createtable(L, n_comments, 0);
     for (i = 0; i < n_comments; i++) {
         comment = NULL;
-        lua_pushnumber(L, i+1);
+        lua_pushinteger(L, i+1);
         if (WTAP_OPTTYPE_SUCCESS ==
                 wtap_block_get_nth_string_option_value(block, OPT_COMMENT, i, &comment)) {
             lua_pushstring(L, comment);
