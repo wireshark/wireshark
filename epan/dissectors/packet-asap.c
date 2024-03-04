@@ -133,6 +133,8 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *paramet
   proto_tree *cause_tree;
   tvbuff_t *parameter_tvb, *message_tvb;
 
+  pinfo->flags.in_error_pkt = true;
+
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = tvb_reported_length(cause_tvb) - length;
@@ -599,7 +601,7 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_asap_message is called via dissect_error_cause */
-  if (pinfo) {
+  if (!pinfo->flags.in_error_pkt) {
     tap_rec = wmem_new0(pinfo->pool, asap_tap_rec_t);
     tap_rec->type        = type;
     tap_rec->size        = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
@@ -638,8 +640,9 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
   proto_tree *asap_tree;
 
   /* pinfo is NULL only if dissect_asap is called from dissect_error_cause */
-  if (pinfo)
+  if (!pinfo->flags.in_error_pkt) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASAP");
+  }
 
   /* create the asap protocol tree */
   asap_item = proto_tree_add_item(tree, proto_asap, message_tvb, 0, -1, ENC_NA);
