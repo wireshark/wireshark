@@ -2131,6 +2131,7 @@ static int dissect_h264_prefix(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
 
 /* RFC 6190 Section: 4.9 - Payload Content Scalability Information (PACSI) */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
     gint8       pacsi_flags;
@@ -2201,6 +2202,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint off
  * RFC 3984 Section 5.7.1 - Single-Time Aggregation Packet (STAP)
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_h264_stap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gint8 nal_type)
 {
     guint16     nal_unit_size;
@@ -2246,6 +2248,7 @@ dissect_h264_stap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
  * RFC 3984 Section 5.7.2 Multi-Time Aggregation Packet (MTAP)
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gint8 nal_type)
 {
     gint        size_offset;
@@ -2303,6 +2306,7 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
  * Dissect NAL Header extension and NI-MTAP Subtype defined in RFC 6190
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
     gint        size_offset;
@@ -2545,6 +2549,7 @@ dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 /* Code to actually dissect the packets */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int         offset = 0;
@@ -2615,6 +2620,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         rbsp_tvb = dissect_h265_unescap_nal_unit(tvb, pinfo, offset);
 
         stream_tree = proto_tree_add_subtree(h264_tree, tvb, offset, -1, ett_h264_stream, NULL, "H264 NAL Unit Payload");
+        increment_dissection_depth(pinfo);
         switch (type) {
         case 1:             /* 1 Coded slice of a non-IDR picture */
             dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
@@ -2660,6 +2666,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         default:
             break;
         }
+        decrement_dissection_depth(pinfo);
     } /* if (tree) */
     return tvb_captured_length(tvb);
 }
