@@ -1981,6 +1981,7 @@ static const value_string openflow_v6_error_bundle_failed_code_values[] = {
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_error_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
     proto_tree *data_tree;
@@ -4510,6 +4511,7 @@ dissect_openflow_switch_description_v6(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_flow_desc_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
@@ -6352,6 +6354,7 @@ dissect_openflow_table_status_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_requestforward_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
@@ -6491,6 +6494,7 @@ dissect_openflow_bundle_control_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_bundle_add_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
@@ -6529,6 +6533,7 @@ dissect_openflow_bundle_add_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_message_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint8 type;

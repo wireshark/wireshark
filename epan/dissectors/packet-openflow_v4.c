@@ -1494,6 +1494,7 @@ static const value_string openflow_v4_error_table_features_failed_code_values[] 
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
     proto_tree *data_tree;
@@ -4342,6 +4343,7 @@ dissect_openflow_metermod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_message_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openflow_tree, int offset)
 {
 

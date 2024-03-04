@@ -1907,6 +1907,7 @@ decompress(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, int co
  * returns: pointer to the next message/batch
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int end_offset _U_)
 {
     proto_item  *message_ti;
@@ -2000,6 +2001,7 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
  * returns: pointer to the next message/batch
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_kafka_message_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int end_offset _U_)
 {
     proto_item *batch_ti;
@@ -2073,6 +2075,7 @@ dissect_kafka_message_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int end_offset)
 {
     gint8       magic_byte;
@@ -2093,14 +2096,19 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
 
     magic_byte = tvb_get_guint8(tvb, offset + 16);
+    int message_offset = 0;
+    increment_dissection_depth(pinfo);
     if (magic_byte < 2) {
-        return dissect_kafka_message_old(tvb, pinfo, tree, offset, end_offset);
+        message_offset = dissect_kafka_message_old(tvb, pinfo, tree, offset, end_offset);
     } else {
-        return dissect_kafka_message_new(tvb, pinfo, tree, offset, end_offset);
+        message_offset = dissect_kafka_message_new(tvb, pinfo, tree, offset, end_offset);
     }
+    decrement_dissection_depth(pinfo);
+    return message_offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint len, guint8 codec)
 {
     proto_item *ti;
