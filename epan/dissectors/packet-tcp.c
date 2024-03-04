@@ -2451,31 +2451,46 @@ finished_fwd:
             /* We ensure there is no matching packet waiting in the unacked list,
              * and take this opportunity to push the tail further than this single packet
              */
-            gboolean is_seq_in_unacked = FALSE;
-            guint32 maxseqtail = ack;
             ual = tcpd->rev->tcp_analyze_seq_info->segments;
-            while(ual) {
-                /* prevent false positives */
-                if(GT_SEQ(ack,ual->seq) && LE_SEQ(ack,ual->nextseq)) {
-                    is_seq_in_unacked = TRUE;
+
+            guint32 tail_le = 0, tail_re = 0;
+            for(ual=tcpd->rev->tcp_analyze_seq_info->segments; ual; ual=ual->next) {
+
+                if(tail_le == tail_re) { /* init edge values */
+                    tail_le = ual->seq;
+                    tail_re = ual->nextseq;
                 }
-                /* look for a possible tail pushing the maxseqtobeacked further */
-                if(maxseqtail==ual->seq) {
-                    maxseqtail = ual->nextseq;
+
+                /* Only look at what happens above the current ACK value,
+                 * as what happened before is definetely ACKed here and can be
+                 * safely ignored. */
+                if(GE_SEQ(ual->seq,ack)) {
+
+                    /* if the left edge is contiguous, move the tail leftward */
+                    if(EQ_SEQ(ual->nextseq,tail_le)) {
+                        tail_le = ual->seq;
+                    }
+
+                    /* otherwise, we have isolated segments above what is being ACKed here,
+                     * and we reinit the tails with the current values */
+                    else {
+                        tail_le = ual->seq;
+                        tail_re = ual->nextseq; // move the end tail
+                    }
                 }
-                ual=ual->next;
             }
 
-            /* update 'max seq to be acked' in the other direction so we don't get
-             * this indication again.
-             */
-            if(is_seq_in_unacked) {
-                tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=(GT_SEQ(maxseqtail, ack)) ? ack : maxseqtail;
+            /* a tail was found and we can push the maxseqtobeacked further */
+            if(EQ_SEQ(ack,tail_le) && GT_SEQ(tail_re, ack)) {
+                tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=tail_re;
             }
+
+            /* otherwise, just take into account the value being ACKed now */
             else {
-                tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=maxseqtail;
-                tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
+                tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=ack;
             }
+
+            tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
         }
     }
 
