@@ -273,6 +273,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
  * This function called by the respective function again.
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 next_payload, proto_tree *kink_tree){
   switch(next_payload){
   case KINK_DONE:
@@ -308,6 +309,7 @@ control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 next_paylo
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_ap_req_tree;
   proto_item *ti;
@@ -363,6 +365,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_ap_rep_tree;
   proto_item *ti;
@@ -418,6 +421,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_krb_error_tree;
   proto_item *ti;
@@ -470,6 +474,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_tgt_req_tree;
   guint8 next_payload;
@@ -512,6 +517,7 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_tgt_rep_tree;
   guint8 next_payload;
@@ -570,6 +576,7 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_isakmp_tree;
   proto_item *ti;
@@ -634,6 +641,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_encrypt_tree;
   proto_item *ti;
@@ -712,6 +720,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 
 #ifdef HAVE_KERBEROS
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int payload_length){
 
   proto_tree *decrypt_kink_encrypt_tree;
@@ -748,6 +757,7 @@ static const range_string kink_error_rvals[] = {
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_error_tree;
   proto_item *ti;
@@ -782,6 +792,7 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_not_defined_tree;
   guint8 next_payload;
@@ -982,6 +993,7 @@ void proto_reg_handoff_kink(void) {
 
   kink_handle = create_dissector_handle(dissect_kink, proto_kink);
 
+  // If this is ever streamed (transported over TCP) we need to add recursion checks.
   dissector_add_uint_with_preference("udp.port", KINK_PORT, kink_handle);
 
 }

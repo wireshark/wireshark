@@ -656,6 +656,7 @@ dissect_retrieval_result_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_link_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -703,6 +704,7 @@ dissect_sdl_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -746,6 +748,7 @@ dissect_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -865,6 +868,7 @@ static const value_string parameter_tag_values[] = {
 static gint protocol_data_1_global = PROTOCOL_DATA_1_PARAMETER_TAG;
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m2ua_tree)
 {
   guint16 tag, length, padding_length;
@@ -999,6 +1003,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m2ua_tree)
 {
   gint offset, length, total_length, remaining_length;
@@ -1012,7 +1017,9 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb    = tvb_new_subset_length(parameters_tvb, offset, total_length);
+    increment_dissection_depth(pinfo);
     dissect_parameter(parameter_tvb, pinfo, tree, m2ua_tree);
+    decrement_dissection_depth(pinfo);
     /* get rid of the handled parameter */
     offset += total_length;
   }
