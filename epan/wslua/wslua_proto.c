@@ -444,7 +444,33 @@ static int Proto_set_fields(lua_State* L) {
     if( lua_istable(L,NEW_TABLE)) {
         for (lua_pushnil(L); lua_next(L, NEW_TABLE); ) {
             if (isProtoField(L,5)) {
-                luaL_ref(L,FIELDS_TABLE);
+                /* luaL_ref returns a reference. lua_next will return not
+                 * just occupied entries in the table, but also references
+                 * used to store unused/deleted entries in the hash table
+                 * so that they can be reused without reallocation. Those
+                 * will have a lua_Number as their value. The values form
+                 * a linked list of available indicies, starting with the
+                 * head at index 3 (LUA_RIDX_LAST + 1) in Lua 5.4 and index
+                 * 0 in earlier versions. (Since arrays are 1-indexed, this
+                 * is mostly invisible in Lua 5.3 and earlier so long as
+                 * nothing has been deleted.)
+                 *
+                 * Perhaps the assumption is that no one wants to use a
+                 * hash table to store numbers anyway? This also means
+                 * that for any table with 2 or more real entries, the
+                 * length operator # *includes* the freelist and cannot
+                 * be trusted.
+                 *
+                 * If we wanted to only check entries we knew were valid,
+                 * we could save this reference.
+                 *
+                 * This also means that our checks below on registration
+                 * and deregistration that the table entries are ProtoFields
+                 * are less useful, because we do now expect some numbers
+                 * in the table. Hopefully the check on insert here obviates
+                 * needing to check there.
+                 */
+                /* int ref = */ luaL_ref(L,FIELDS_TABLE);
             } else if (! lua_isnil(L,5) ) {
                 return luaL_error(L,"only ProtoFields should be in the table");
             }
@@ -457,6 +483,7 @@ static int Proto_set_fields(lua_State* L) {
         return luaL_error(L,"either a ProtoField or an array of protofields");
     }
 
+    /* XXX - I don't think this is necessary. */
     lua_pushvalue(L, 3);
 
     return 1;
@@ -573,6 +600,11 @@ ProtoField wslua_is_field_available(lua_State* L, const char* field_abbr) {
 
         lua_pushnil(L);
         while (lua_next(L, -2)) {
+            if (lua_type(L, -1) == LUA_TNUMBER) {
+                /* part of free reference linked list, ignore */
+                lua_pop(L, 1); /* table value */
+                continue;
+            }
             ProtoField f = checkProtoField(L, -1);
             if (strcmp(field_abbr, f->abbrev) == 0) {
                 /* found! */
@@ -632,6 +664,10 @@ int wslua_deregister_protocols(lua_State* L) {
         /* for each registered ProtoField do... */
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
         for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+            if (lua_type(L, -1) == LUA_TNUMBER) {
+                /* part of free reference linked list, ignore */
+                continue;
+            }
             ProtoField f = checkProtoField(L, -1);
 
             /* Memory ownership was previously transferred to epan in Proto_commit */
@@ -647,6 +683,10 @@ int wslua_deregister_protocols(lua_State* L) {
         /* for each registered ProtoExpert do... */
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
         for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+            if (lua_type(L, -1) == LUA_TNUMBER) {
+                /* part of free reference linked list, ignore */
+                continue;
+            }
             ProtoExpert pe = checkProtoExpert(L,-1);
 
             /* Memory ownership was previously transferred to epan in Proto_commit */
@@ -708,6 +748,10 @@ int Proto_commit(lua_State* L) {
 
         /* for each ProtoField in the Lua table do... */
         for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
+            if (lua_type(L, -1) == LUA_TNUMBER) {
+                /* part of free reference linked list, ignore */
+                continue;
+            }
             ProtoField f = checkProtoField(L,6);
             hf_register_info hfri = { NULL, { NULL, NULL, FT_NONE, 0, NULL, 0, NULL, HFILL } };
             ettp = &(f->ett);
@@ -744,6 +788,10 @@ int Proto_commit(lua_State* L) {
 
         /* for each ProtoExpert in the Lua table do... */
         for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
+            if (lua_type(L, -1) == LUA_TNUMBER) {
+                /* part of free reference linked list, ignore */
+                continue;
+            }
             ProtoExpert e = checkProtoExpert(L,6);
             ei_register_info eiri = { NULL, { NULL, 0, 0, NULL, EXPFILL } };
 
