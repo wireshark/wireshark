@@ -455,6 +455,7 @@ static expert_field ei_tcp_analysis_zero_window_probe_ack;
 static expert_field ei_tcp_analysis_tfo_syn;
 static expert_field ei_tcp_analysis_tfo_ack;
 static expert_field ei_tcp_analysis_tfo_ignored;
+static expert_field ei_tcp_analysis_partial_ack;
 static expert_field ei_tcp_scps_capable;
 static expert_field ei_tcp_option_sack_dsack;
 static expert_field ei_tcp_option_snack_sequence;
@@ -2825,10 +2826,32 @@ finished_checking_retransmission_type:
             tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
             tcpd->ta->frame_acked=ual->frame;
             nstime_delta(&tcpd->ta->ts, &pinfo->abs_ts, &ual->ts);
+            /* mark it as a full segment ACK */
+            tcpd->ta->partial_ack=0;
         }
-        /* If this acknowledges part of the segment, adjust the segment info for the acked part */
+        /* If this acknowledges part of the segment, adjust the segment info for the acked part.
+         * This typically happens in the context of GSO/GRO or Retransmissions with
+         * segment repackaging (elsewhere called repacketization). For the user, looking at the
+         * previous packets for any Retransmission or at the SYN MSS Option presence would
+         * answer what case is precisely encountered.
+         */
         else if (GT_SEQ(ack, ual->seq) && LE_SEQ(ack, ual->nextseq)) {
             ual->seq = ack;
+            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+            tcpd->ta->frame_acked=ual->frame;
+            nstime_delta(&tcpd->ta->ts, &pinfo->abs_ts, &ual->ts);
+
+            /* mark it as a partial segment ACK
+             *
+             * XXX - This mark is used later to create an Expert Note,
+             * but other ways of tracking these packets are possible:
+             * for example a similar indication to ta->frame_acked
+             * would help differentiating the SEQ/ACK analysis messages.
+             * Also, a TCP Analysis Flag could be added, but doesn't seem
+             * essential yet, as matching packets can be selected with
+             * 'tcp.analysis.partial_ack'.
+             */
+            tcpd->ta->partial_ack=1;
             continue;
         }
         /* If this acknowledges a segment prior to this one, leave this segment alone and move on */
@@ -3558,6 +3581,10 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
         item = proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
             tvb, 0, 0, ta->frame_acked);
             proto_item_set_generated(item);
+
+        if(ta->partial_ack) {
+            expert_add_info(pinfo, item, &ei_tcp_analysis_partial_ack);
+        }
 
         /* only display RTT if we actually have something we are acking */
         if( ta->ts.secs || ta->ts.nsecs ) {
@@ -9781,6 +9808,7 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_tfo_syn, { "tcp.analysis.tfo_syn", PI_SEQUENCE, PI_NOTE, "TCP SYN with TFO Cookie", EXPFILL }},
         { &ei_tcp_analysis_tfo_ack, { "tcp.analysis.tfo_ack", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK accepting TFO data", EXPFILL }},
         { &ei_tcp_analysis_tfo_ignored, { "tcp.analysis.tfo_ignored", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK ignoring TFO data", EXPFILL }},
+        { &ei_tcp_analysis_partial_ack, { "tcp.analysis.partial_ack", PI_SEQUENCE, PI_NOTE, "Partial Acknowledgement of a segment", EXPFILL }},
         { &ei_tcp_connection_fin_active, { "tcp.connection.fin_active", PI_SEQUENCE, PI_NOTE, "This frame initiates the connection closing", EXPFILL }},
         { &ei_tcp_connection_fin_passive, { "tcp.connection.fin_passive", PI_SEQUENCE, PI_NOTE, "This frame undergoes the connection closing", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},

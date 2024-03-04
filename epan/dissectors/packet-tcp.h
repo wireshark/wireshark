@@ -174,6 +174,8 @@ struct tcp_acked {
 
 	guint32 new_data_seq; /* For segments with old data,
 				 where new data starts */
+	gboolean partial_ack; /* true when acknowledging data
+				 and not a full segment */
 };
 
 /* One instance of this structure is created for each pdu that spans across
