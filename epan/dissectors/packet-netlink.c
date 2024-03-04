@@ -265,10 +265,9 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 			offset += 2;
 			proto_item_append_text(ti, " %u", rta_type);
 
-			// We should use increment_dissection_depth here, but that requires
-			// adding pinfo all over packet-netlink*.[ch]. Instead, use our offset
-			// to roughly gauge our recursion level.
-			DISSECTOR_ASSERT((unsigned)offset < prefs.gui_max_tree_depth * 10);
+			// In theory we should use increment_dissection_depth here, but that
+			// requires adding pinfo all over packet-netlink*.[ch] and we're limited
+			// to 262144 bytes (WTAP_MAX_PACKET_SIZE_STANDARD).
 			dissect_netlink_attributes(tvb, hf_type, ett_attrib, data, nl_data, attr_tree, offset, rta_len - 4, cb);
 		}
 
