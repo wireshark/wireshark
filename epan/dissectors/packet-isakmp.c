@@ -3173,6 +3173,7 @@ static const bytes_string vendor_id[] = {
 
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
                 int isakmp_version, guint8 initial_payload, int offset, int length,
                 packet_info *pinfo, guint32 message_id, gboolean is_request, void* decr_data)
@@ -3193,6 +3194,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
 
     ntree = dissect_payload_header(tvb, pinfo, offset, length, isakmp_version, payload, &next_payload, &payload_length, tree);
     if (payload_length >= 4) {  /* XXX = > 4? */
+      increment_dissection_depth(pinfo);
       tvb_ensure_bytes_exist(tvb, offset + 4, payload_length - 4);
         switch(payload){
           case PLOAD_IKE_SA:
@@ -3298,6 +3300,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
             proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
             break;
         }
+      increment_dissection_depth(pinfo);
     }
     else if (payload_length > length) {
       proto_tree_add_expert_format(ntree, pinfo, &ei_isakmp_payload_bad_length, tvb, 0, 0,
@@ -3327,6 +3330,7 @@ isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int             offset      = 0, len;
@@ -3578,6 +3582,7 @@ dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo, gboolean is_request, void* decr_data)
 {
   guint32       doi;
@@ -4612,6 +4617,7 @@ static void dissect_symmetric_key(tvbuff_t *tvb, int offset, int length, proto_t
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo)
 {
   guint8 seq; /* Packet sequence number, starting from 1 */
@@ -4666,6 +4672,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
 /* This is RFC7383 reassembly. */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
                             packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request, void* decr_info)
 {
@@ -5600,6 +5607,7 @@ dissect_sa_kek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
 {
   int offset_end = 0, payload_end=0;
@@ -5666,7 +5674,9 @@ dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
     }
     if(PLOAD_IKE_SAT == next_payload)
     {
+        increment_dissection_depth(pinfo);
         dissect_sa_tek(tvb, pinfo, offset, length, tree);
+        decrement_dissection_depth(pinfo);
     }
   } else {
     proto_tree_add_item(ntree, hf_isakmp_sat_payload, tvb, offset, offset_end - offset, ENC_NA);
@@ -5919,6 +5929,7 @@ dissect_ts_payload(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 /* For RFC 7383 reassembly, only need decrypted payload, so don't set dissect_payload_now .*/
 /* TODO: rename? */
 static tvbuff_t*
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_enc(tvbuff_t *tvb,
             int offset,
             int length,

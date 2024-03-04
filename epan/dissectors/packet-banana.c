@@ -110,6 +110,7 @@ static const value_string pb_vals[] = {
 /* Dissect the packets */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
     proto_item *ti;
     proto_tree *list_tree;
@@ -150,7 +151,9 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             list_tree = proto_item_add_subtree(ti, ett_list);
             for (i = 0; i < val; i++) {
                 old_offset = offset;
+                increment_dissection_depth(pinfo);
                 offset += dissect_banana_element(tvb, pinfo, list_tree, offset);
+                decrement_dissection_depth(pinfo);
                 if (offset <= old_offset) {
                     return offset - start_offset;
                 }
