@@ -437,6 +437,7 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
                   proto_tree *tree, struct beep_request_val *request_val,
                   struct beep_proto_data *beep_frame_data)
@@ -574,9 +575,11 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* If anything else left, dissect it ... */
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0)
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+      increment_dissection_depth(pinfo);
       offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, beep_frame_data);
-
+      decrement_dissection_depth(pinfo);
+    }
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     if (tree) {
