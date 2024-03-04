@@ -187,6 +187,7 @@ static int dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* dissect a bencoded list from tvb, start at offset. it's like "lXXXe", "X" is any bencoded thing */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *label  )
 {
   proto_item *ti;
@@ -428,6 +429,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset )
 {
   proto_item *ti;
@@ -556,6 +558,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* dict = d...e */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *label )
 {
   proto_item *ti;
@@ -790,6 +793,7 @@ proto_reg_handoff_bt_dht(void)
 {
   heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_ENABLE);
 
+  // If this is ever streamed (transported over TCP) we need to add recursion checks.
   dissector_add_for_decode_as_with_preference("udp.port", bt_dht_handle);
 }
 

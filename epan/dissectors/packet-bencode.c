@@ -163,6 +163,7 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
    return -1;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, int level, proto_item *treei, int treeadd)
 {
@@ -207,8 +208,12 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
          }
 
          op2len = -1;
-         if ((length - op1len) > 2)
+         if ((length - op1len) > 2) {
+            increment_dissection_depth(pinfo);
             op2len = dissect_bencoding_rec(tvb, pinfo, offset + used + op1len, length - op1len, NULL, level + 1, NULL, 0);
+            decrement_dissection_depth(pinfo);
+         }
+
          if (op2len < 0) {
             proto_tree_add_expert(dtree, pinfo, &ei_bencode_dict_value, tvb, offset + used + op1len, -1);
             return op2len;
@@ -218,7 +223,9 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
          itree = proto_item_add_subtree(ti, ett_bencode_dict_entry);
 
          dissect_bencoding_str(tvb, pinfo, offset + used, length, itree, ti, 1);
+         increment_dissection_depth(pinfo);
          dissect_bencoding_rec(tvb, pinfo, offset + used + op1len, length - op1len, itree, level + 1, ti, 2);
+         decrement_dissection_depth(pinfo);
 
          used   += op1len + op2len;
          length -= op1len + op2len;
@@ -234,6 +241,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
       used = 1;
       length--;
 
+      increment_dissection_depth(pinfo);
       while (length >= 1) {
          op = tvb_get_guint8(tvb, offset + used);
 
@@ -242,11 +250,16 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
          }
 
          oplen = dissect_bencoding_rec(tvb, pinfo, offset + used, length, itree, level + 1, ti, 0);
-         if (oplen < 1) return oplen;
+
+         if (oplen < 1) {
+            decrement_dissection_depth(pinfo);
+            return oplen;
+         }
 
          used   += oplen;
          length -= oplen;
       }
+      decrement_dissection_depth(pinfo);
 
       proto_tree_add_item(itree, hf_bencode_truncated_data, tvb, offset + used, -1, ENC_NA);
       return -1;
