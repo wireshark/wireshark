@@ -34,6 +34,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/conversation.h>
 #include "packet-gsm_rlcmac.h"
 #include <wiretap/wtap.h>
@@ -81,6 +82,8 @@ static int hf_ptcch_padding;
 static int hf_um_voice_type;
 
 static gint ett_gsmtap;
+
+static expert_field ei_gsmtap_unknown_gsmtap_version;
 
 enum {
 	GSMTAP_SUB_DATA = 0,
@@ -803,9 +806,9 @@ handle_rlcmac(guint32 frame_nr, tvbuff_t *payload_tvb, packet_info *pinfo, proto
 	}
 }
 
-/* dissect a GSMTAP header and hand payload off to respective dissector */
+/* dissect a GSMTAP v2 header and hand payload off to respective dissector */
 static int
-dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int sub_handle, sub_handle_idx = 0, len, offset = 0;
 	proto_item *ti;
@@ -1177,6 +1180,30 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	return tvb_captured_length(tvb);
 }
 
+static int
+dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	guint8 version;
+	proto_tree *gsmtap_tree;
+	proto_item *ti, *tf;
+
+	version = tvb_get_guint8(tvb, 0);
+
+	if (version == 2) {
+		return dissect_gsmtap_v2(tvb, pinfo, tree, data);
+	}
+
+	/* Unknown GSMTAP version */
+	ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, 1, "GSMTAP, unknown version (%u)", version);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown GSMTAP version (%u)", version);
+	gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
+	tf = proto_tree_add_item(gsmtap_tree, hf_gsmtap_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+	expert_add_info(pinfo, tf, &ei_gsmtap_unknown_gsmtap_version);
+	return 1;
+}
+
 void
 proto_register_gsmtap(void)
 {
@@ -1242,10 +1269,17 @@ proto_register_gsmtap(void)
 	static gint *ett[] = {
 		&ett_gsmtap
 	};
+	static ei_register_info ei[] = {
+		{ &ei_gsmtap_unknown_gsmtap_version, { "gsmtap.version.invalid", PI_PROTOCOL, PI_WARN, "Unknown protocol version", EXPFILL }},
+	};
+
+	expert_module_t* expert_gsmtap;
 
 	proto_gsmtap = proto_register_protocol("GSM Radiotap", "GSMTAP", "gsmtap");
 	proto_register_field_array(proto_gsmtap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_gsmtap = expert_register_protocol(proto_gsmtap);
+	expert_register_field_array(expert_gsmtap, ei, array_length(ei));
 
 	gsmtap_dissector_table = register_dissector_table("gsmtap.type",
 						"GSMTAP type", proto_gsmtap, FT_UINT8, BASE_HEX);
