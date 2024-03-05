@@ -41,6 +41,10 @@ int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  * @param the_other_direction  FALSE means from current direction stream, TRUE from the other.
  * @return  NULL if header was not found. Or header value. Note: the value is allocated
  *          by pinfo->pool.
+ * @note The returned field value is decoded from US-ASCII and characters outside
+ * that range, i.e. obs-text, are replaced with UTF-8 REPLACEMENT CHARACTERS.
+ * Dissectors may need to perform additional decoding (e.g., percent decoding or
+ * the more robust decoding per RFC 8187.)
  */
 const gchar* http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction);
 
