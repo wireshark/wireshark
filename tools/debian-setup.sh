@@ -181,6 +181,7 @@ ADDITIONAL_LIST="
 	libminizip-dev
 	libnl-3-dev
 	libnl-cli-3-dev
+	libopencore-amrnb-dev
 	libparse-yapp-perl
 	libsbc-dev
 	libsmi2-dev
