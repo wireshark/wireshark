@@ -557,7 +557,7 @@ static void register_mibs(void) {
 	hfa = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
 	etta = g_array_new(FALSE,TRUE,sizeof(gint*));
 
-	smiInit(NULL);
+	smiInit("wireshark");
 	smi_init_done = TRUE;
 
 	smi_errors = g_string_new("");
@@ -1297,7 +1297,7 @@ oid_get_default_mib_path(void) {
 #else
 	g_string_append(path_str, "/usr/share/snmp/mibs");
 	if (!smi_init_done)
-		smiInit(NULL);
+		smiInit("wireshark");
 	path = smiGetPath();
 	if (strlen(path) > 0 ) {
 		g_string_append(path_str, G_SEARCHPATH_SEPARATOR_S);
