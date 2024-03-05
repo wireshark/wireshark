@@ -1743,7 +1743,6 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
         if(opt_len == 0){
             expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "Invalid option length (Zero)");
-            decrement_dissection_depth(pinfo);
             return opt_offset;
         }
 
