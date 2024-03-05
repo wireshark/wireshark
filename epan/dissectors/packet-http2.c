@@ -38,6 +38,7 @@
 
 #ifdef HAVE_NGHTTP2
 #include <epan/uat.h>
+#include <epan/charsets.h>
 #include <epan/decode_as.h>
 #include <nghttp2/nghttp2.h>
 #include <epan/export_object.h>
@@ -3318,7 +3319,7 @@ get_real_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_
                 value_len = pntoh32(data + 4 + name_len);
                 if (4 + name_len + 4 + value_len == hdr->table.data.datalen) {
                     /* return value */
-                    return wmem_strndup(pinfo->pool, data + 4 + name_len + 4, value_len);
+                    return get_ascii_string(pinfo->pool, data + 4 + name_len + 4, value_len);
                 }
                 else {
                     return NULL; /* unexpected error */
