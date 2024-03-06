@@ -24,6 +24,7 @@
 #include <epan/column.h>
 #include <epan/column-info.h>
 #include <epan/color_filters.h>
+#include <epan/dfilter/dfilter.h>
 #include <epan/prefs.h>
 #include <epan/print.h>
 #include <epan/charsets.h>
@@ -76,6 +77,7 @@ struct _output_fields {
     gchar         occurrence;
     gchar         aggregator;
     GPtrArray    *fields;
+    GPtrArray    *field_dfilters;
     GHashTable   *field_indicies;
     GPtrArray   **field_values;
     wmem_map_t   *protocolfilter;
@@ -2046,6 +2048,10 @@ void output_fields_free(output_fields_t* fields)
             g_hash_table_destroy(fields->field_indicies);
         }
 
+        if (NULL != fields->field_dfilters) {
+            g_ptr_array_unref(fields->field_dfilters);
+        }
+
         if (NULL != fields->field_values) {
             g_free(fields->field_values);
         }
@@ -2115,7 +2121,10 @@ output_field_check(void *data, void *user_data)
     gchar *field = (gchar *)data;
     GSList **invalid_fields = (GSList **)user_data;
 
-    if (!proto_registrar_get_byname(field)) {
+    dfilter_t *dfilter;
+    if (dfilter_compile(field, &dfilter, NULL)) {
+        dfilter_free(dfilter);
+    } else {
         *invalid_fields = g_slist_prepend(*invalid_fields, field);
     }
 
@@ -2298,22 +2307,62 @@ output_field_prime_edt(void *data, void *user_data)
      * its alias, if any.
      */
     header_field_info *hfinfo = proto_registrar_get_byname(field);
-    /* Rewind to the first hf of that name. */
-    while (hfinfo->same_name_prev_id != -1) {
-        hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
-    }
+    if (hfinfo) {
+        /* Rewind to the first hf of that name. */
+        while (hfinfo->same_name_prev_id != -1) {
+            hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
+        }
 
-    /* Prime all hf's with that name. */
-    while (hfinfo) {
-        proto_tree_prime_with_hfid_print(edt->tree, hfinfo->id);
-        hfinfo = hfinfo->same_name_next;
+        /* Prime all hf's with that name. */
+        while (hfinfo) {
+            proto_tree_prime_with_hfid_print(edt->tree, hfinfo->id);
+            hfinfo = hfinfo->same_name_next;
+        }
     }
+}
+
+static void
+output_field_dfilter_prime_edt(void *data, void *user_data)
+{
+    dfilter_t *dfilter = (dfilter_t *)data;
+    epan_dissect_t *edt = (epan_dissect_t*)user_data;
+
+    if (dfilter) {
+        epan_dissect_prime_with_dfilter(edt, dfilter);
+    }
+}
+
+static void
+dfilter_free_cb(gpointer data)
+{
+    dfilter_t *dcode = (dfilter_t*)data;
+
+    dfilter_free(dcode);
 }
 
 void output_fields_prime_edt(epan_dissect_t *edt, output_fields_t* fields)
 {
     if (fields->fields != NULL) {
         g_ptr_array_foreach(fields->fields, output_field_prime_edt, edt);
+
+        if (fields->field_dfilters == NULL) {
+            fields->field_dfilters = g_ptr_array_new_full(fields->fields->len, dfilter_free_cb);
+
+            for (size_t i = 0; i < fields->fields->len; ++i) {
+                gchar *field = (gchar *)g_ptr_array_index(fields->fields, i);
+                dfilter_t *dfilter = NULL;
+
+                /* For now, we only compile a filter for complex expressions.
+                 * If it's just a field name, use the previous method.
+                 */
+                if (!proto_registrar_get_byname(field)) {
+                    dfilter_compile_full(field, &dfilter, NULL, DF_EXPAND_MACROS|DF_OPTIMIZE|DF_RETURN_VALUES, __func__);
+                }
+                g_ptr_array_add(fields->field_dfilters, dfilter);
+            }
+        }
+
+        g_ptr_array_foreach(fields->field_dfilters, output_field_dfilter_prime_edt, edt);
     }
 }
 
@@ -2456,7 +2505,9 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
              * and can be distinguished from NULL as a pointer.
              */
             ++i;
-            g_hash_table_insert(fields->field_indicies, field, GUINT_TO_POINTER(i));
+            if (proto_registrar_get_byname(field)) {
+                g_hash_table_insert(fields->field_indicies, field, GUINT_TO_POINTER(i));
+            }
         }
     }
 
@@ -2468,6 +2519,34 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
     /* XXX: ToDo: use packet-scope'd memory & (if/when implemented) wmem ptr_array */
     if (NULL == fields->field_values)
         fields->field_values = g_new0(GPtrArray*, fields->fields->len);  /* free'd in output_fields_free() */
+
+    i = 0;
+    while(i < fields->fields->len) {
+        dfilter_t *dfilter = (dfilter_t *)g_ptr_array_index(fields->field_dfilters, i);
+
+        /* Match how the field indices are treated. */
+        ++i;
+
+        if (dfilter != NULL) {
+            GPtrArray *fvals = NULL;
+            bool passed = dfilter_apply_full(dfilter, edt->tree, &fvals);
+            char *str;
+            if (fvals != NULL) {
+                int len = g_ptr_array_len(fvals);
+                for (int j = 0; j < len; ++j) {
+                    str = fvalue_to_string_repr(NULL, fvals->pdata[j], FTREPR_DISPLAY, BASE_NONE);
+                    format_field_values(fields, GUINT_TO_POINTER(i), str);
+                }
+                g_ptr_array_unref(fvals);
+            } else if (passed) {
+                /* XXX - Should this be "1" (and "0" for !passed) like with
+                 * FT_NONE fields, or a check mark / nothing like the GUI ? */
+                //str = g_strdup("1");
+                str = g_strdup(UTF8_CHECK_MARK);
+                format_field_values(fields, GUINT_TO_POINTER(i), str);
+            }
+        }
+    }
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
@@ -2722,6 +2801,7 @@ output_fields_t* output_fields_new(void)
     fields->occurrence          = 'a';
     fields->aggregator          = ',';
     fields->fields              = NULL; /*Do lazy initialisation */
+    fields->field_dfilters      = NULL;
     fields->field_indicies      = NULL;
     fields->field_values        = NULL;
     fields->protocolfilter      = NULL;

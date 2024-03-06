@@ -31,6 +31,9 @@ Custom columns can be defined using any valid field expression, such as
 display filter functions, slices, arithmetic calculations, logical tests,
 raw byte addressing, and the layer modifier.
 
+Custom output fields for `tshark -e` can also be defined using any
+valid field expression.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
@@ -139,6 +142,14 @@ The following features are new (or have been significantly updated) since versio
      currently selected frame. "Resolved" column values (such as host name
      resolution or value string lookup) are not supported for any of the new
      expressions yet.
+
+* Custom output fields for `tshark -e <field>` can also be defined using any
+  valid field expression as above.
+
+  ** For custom output fields, `X or Y` is the usual logical test; to output
+     multiple fields use multiple `-e` terms as before.
+
+  ** The various `-E` options, including `-E occurrence`, all work as expected.
 
 * When selecting "Manage Interfaces" from "Capture Options", Wireshark only
   attempts to reconnect to rpcap (remote) hosts that were connected to in the
