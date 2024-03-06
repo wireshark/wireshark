@@ -14,9 +14,12 @@
 
 #include "config.h"
 
+#include <epan/decode_as.h>
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/xdlc.h>
+
+static dissector_table_t x75_subdissector_table;
 
 void proto_register_x75(void);
 void proto_reg_handoff_x75(void);
@@ -158,7 +161,9 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(pinfo->pool, next_tvb, 0, len));
 
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+	if (!dissector_try_payload_new(x75_subdissector_table, next_tvb, pinfo, tree, TRUE, NULL)) {
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
     }
     return tvb_captured_length(tvb);
 }
@@ -222,6 +227,10 @@ proto_register_x75(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     x75_handle = register_dissector("x75", dissect_x75, proto_x75);
+
+    x75_subdissector_table =
+	    register_decode_as_next_proto(proto_x75,
+			  "x75.subdissector", "X.75 payload subdissector", NULL);
 }
 
 void
