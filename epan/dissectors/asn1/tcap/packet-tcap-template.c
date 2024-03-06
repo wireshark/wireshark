@@ -78,8 +78,8 @@ static range_t *ssn_range;
 
 /* These two timeout (in second) are used when some message are lost,
    or when the same TCAP transcation identifier is reused */
-guint gtcap_RepetitionTimeout = 10;
-guint gtcap_LostTimeout = 30;
+static guint gtcap_RepetitionTimeout = 10;
+static guint gtcap_LostTimeout = 30;
 gboolean gtcap_PersistentSRT=FALSE;
 gboolean gtcap_DisplaySRT=FALSE;
 gboolean gtcap_StatSRT=FALSE;

@@ -359,8 +359,8 @@ static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
-tvbuff_t *SMS_BearerData_tvb = NULL;
-gint32    ansi_map_sms_tele_id = -1;
+static tvbuff_t *SMS_BearerData_tvb = NULL;
+static gint32    ansi_map_sms_tele_id = -1;
 static gboolean is683_ota;
 static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
