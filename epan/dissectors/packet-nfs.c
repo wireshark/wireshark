@@ -25,6 +25,8 @@
 #include <epan/decode_as.h>
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
+#include <epan/srt_table.h>
+#include <epan/tap.h>
 #include <wsutil/str_util.h>
 #include "packet-nfs.h"
 #include "packet-rpcrdma.h"
@@ -47,6 +49,7 @@ static int proto_nfs_gluster;
 static int proto_nfs_dcache;
 static int proto_nfs_primary_data;
 static int proto_nfs_cb;
+static int proto_nfsv4;
 static int hf_nfs_access_check;
 static int hf_nfs_access_supported;
 static int hf_nfs_access_rights;
@@ -946,6 +949,8 @@ static expert_field ei_nfs_bitmap_skip_value;
 static expert_field ei_nfs_bitmap_undissected_data;
 static expert_field ei_nfs4_stateid_deprecated;
 static expert_field ei_nfs_file_system_cycle;
+
+static int nfsv4_tap;
 
 static const true_false_string tfs_read_write = { "Read", "Write" };
 
@@ -9935,6 +9940,13 @@ static int * const nfs4_exchid_flags[] = {
 	NULL
 };
 
+typedef struct nfs4_tap_data {
+
+	uint32_t    ops_counter;
+	nfs4_operation_summary *op_summary;
+	unsigned highest_tier;
+} nfs4_tap_data_t;
+
 static int
 dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
 {
@@ -9982,7 +9994,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		ops = MAX_NFSV4_OPS;
 	}
 
-	op_summary = wmem_alloc0_array(wmem_packet_scope(), nfs4_operation_summary, ops);
+	op_summary = wmem_alloc0_array(pinfo->pool, nfs4_operation_summary, ops);
 
 	ftree = proto_item_add_subtree(fitem, ett_nfs4_request_op);
 
@@ -10709,6 +10721,18 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		}
 	}
 
+	/* Copy the information from the call info and store information about
+	 * the operations here in private data.
+	 */
+	rpc_call_info_value *tapdata = wmem_new0(pinfo->pool, rpc_call_info_value);
+	*tapdata = *civ;
+	nfs4_tap_data_t *ops_info = wmem_new0(pinfo->pool, nfs4_tap_data_t);
+	ops_info->op_summary = op_summary;
+	ops_info->ops_counter = ops_counter;
+	ops_info->highest_tier = highest_tier;
+	tapdata->private_data = ops_info;
+	tap_queue_packet(nfsv4_tap, pinfo, tapdata);
+
 	return offset;
 }
 
@@ -10819,7 +10843,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		ops = MAX_NFSV4_OPS;
 	}
 
-	op_summary = wmem_alloc0_array(wmem_packet_scope(), nfs4_operation_summary, ops);
+	op_summary = wmem_alloc0_array(pinfo->pool, nfs4_operation_summary, ops);
 
 	ftree = proto_item_add_subtree(fitem, ett_nfs4_response_op);
 
@@ -11254,6 +11278,18 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			first_operation = 0;
 		}
 	}
+
+	/* Copy the information from the call info and store information about
+	 * the operations here in private data.
+	 */
+	rpc_call_info_value *tapdata = wmem_new0(pinfo->pool, rpc_call_info_value);
+	*tapdata = *civ;
+	nfs4_tap_data_t *ops_info = wmem_new0(pinfo->pool, nfs4_tap_data_t);
+	ops_info->op_summary = op_summary;
+	ops_info->ops_counter = ops_counter;
+	ops_info->highest_tier = highest_tier;
+	tapdata->private_data = ops_info;
+	tap_queue_packet(nfsv4_tap, pinfo, tapdata);
 
 	return offset;
 }
@@ -11705,15 +11741,20 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	proto_item *fitem;
 	proto_tree *ftree;
 	proto_tree *newftree = NULL;
+	nfs4_operation_summary *op_summary;
 
 	ops = tvb_get_ntohl(tvb, offset+0);
 
 	ftree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_request_op, NULL, "Operations (count: %u)", ops);
 	offset += 4;
 
+	op_summary = wmem_alloc0_array(pinfo->pool, nfs4_operation_summary, ops);
+
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
+		op_summary[ops_counter].iserror = FALSE;
+		op_summary[ops_counter].opcode = opcode;
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", ops_counter == 0?' ':';',
 				val_to_str_ext_const(opcode, &names_nfs_cb_operation_ext, "Unknown"));
 
@@ -11789,6 +11830,18 @@ dissect_nfs4_cb_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		}
 	}
 
+	/* Copy the information from the call info and store information about
+	 * the operations here in private data.
+	 */
+	rpc_call_info_value *tapdata = wmem_new0(pinfo->pool, rpc_call_info_value);
+	*tapdata = *civ;
+	nfs4_tap_data_t *ops_info = wmem_new0(pinfo->pool, nfs4_tap_data_t);
+	ops_info->op_summary = op_summary;
+	ops_info->ops_counter = ops_counter;
+	ops_info->highest_tier = 0;
+	tapdata->private_data = ops_info;
+	tap_queue_packet(nfsv4_tap, pinfo, tapdata);
+
 	return offset;
 }
 
@@ -11820,14 +11873,19 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	proto_tree *ftree;
 	proto_tree *newftree = NULL;
 	guint32	    status;
+	nfs4_operation_summary *op_summary;
 
 	ops   = tvb_get_ntohl(tvb, offset+0);
 	ftree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_nfs4_cb_resop, NULL, "Operations (count: %u)", ops);
 	offset += 4;
 
+	op_summary = wmem_alloc0_array(pinfo->pool, nfs4_operation_summary, ops);
+
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
+		op_summary[ops_counter].iserror = FALSE;
+		op_summary[ops_counter].opcode = opcode;
 
 		/* sanity check for bogus packets */
 		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_OFFLOAD) &&
@@ -11851,8 +11909,10 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		offset = dissect_nfs4_status(tvb, offset, newftree, &status);
 
 		/* are there any ops that return data with a failure (?) */
-		if (status != NFS4_OK)
+		if (status != NFS4_OK) {
+			op_summary[ops_counter].iserror = TRUE;
 			continue;
+		}
 
 		/* These parsing routines are only executed if the status is NFS4_OK */
 		switch (opcode)
@@ -11888,6 +11948,18 @@ dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			break;
 		}
 	}
+
+	/* Copy the information from the call info and store information about
+	 * the operations here in private data.
+	 */
+	rpc_call_info_value *tapdata = wmem_new0(pinfo->pool, rpc_call_info_value);
+	*tapdata = *civ;
+	nfs4_tap_data_t *ops_info = wmem_new0(pinfo->pool, nfs4_tap_data_t);
+	ops_info->op_summary = op_summary;
+	ops_info->ops_counter = ops_counter;
+	ops_info->highest_tier = 0;
+	tapdata->private_data = ops_info;
+	tap_queue_packet(nfsv4_tap, pinfo, tapdata);
 
 	return offset;
 }
@@ -11933,6 +12005,96 @@ static const rpc_prog_vers_info nfs_cb_vers_info[] = {
 	{ 1, nfs_cb_proc, &hf_nfs4_cb_procedure },
 	{ 4, nfs_cb_proc, &hf_nfs4_cb_procedure },
 };
+
+#define NFS4_SRT_TABLE_INDEX 0
+#define NFS4_MAIN_OP_SRT_TABLE_INDEX 1
+#define NFS4_CB_SRT_TABLE_INDEX 2
+
+typedef struct nfsv4_tap_data {
+
+	uint32_t    ops_counter;
+	nfs4_operation_summary *op_summary;
+	uint32_t program;
+	uint32_t version;
+	uint32_t operation;
+	uint32_t xid;
+	bool request;
+	nstime_t req_time;
+} nfsv4_tap_data_t;
+
+static void
+nfsstat_init(struct register_srt* srt _U_, GArray* srt_array)
+{
+	srt_stat_table *nfs_srt_table, *nfs_main_op_srt_table;
+
+	nfs_srt_table = init_srt_table("NFSv4 Operations", NULL, srt_array, NFS4_LAST_OP + 1, "Operations", "nfs.opcode", NULL);
+	nfs_main_op_srt_table = init_srt_table("NFSv4 Main Operation", NULL, srt_array, NFS4_LAST_OP + 1, "Operations", "nfs.main_opcode", NULL);
+	for (uint32_t i = 0; i <= NFS4_LAST_OP; i++) {
+		init_srt_table_row(nfs_srt_table, i,
+			val_to_str_ext_const(i, &names_nfs4_operation_ext, "Unknown"));
+		init_srt_table_row(nfs_main_op_srt_table, i,
+			val_to_str_ext_const(i, &names_nfs4_operation_ext, "Unknown"));
+	}
+
+	nfs_srt_table = init_srt_table("NFSv4 Callback Operations", NULL, srt_array, NFS4_OP_CB_OFFLOAD + 1, "Operations", "nfs.cb.operation", NULL);
+
+	for (uint32_t i = 0; i <= NFS4_OP_CB_OFFLOAD; i++) {
+		init_srt_table_row(nfs_srt_table, i,
+			val_to_str_ext_const(i, &names_nfs4_operation_ext, "Unknown"));
+	}
+}
+
+static tap_packet_status
+nfsstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
+{
+	srt_stat_table *nfs_srt_table, *nfs_main_op_srt_table;
+	srt_data_t *data = (srt_data_t *)pss;
+	const rpc_call_info_value *ri = (const rpc_call_info_value *)prv;
+	const nfs4_tap_data_t *ops_info = (const nfs4_tap_data_t *)ri->private_data;
+	uint32_t opcode;
+	unsigned current_tier;
+
+	/* we are only interested in response packets */
+	if (ri->request) {
+		return TAP_PACKET_DONT_REDRAW;
+	}
+
+	if (ri->prog == NFS_PROGRAM) {
+		nfs_srt_table = g_array_index(data->srt_array, srt_stat_table*, NFS4_SRT_TABLE_INDEX);
+		nfs_main_op_srt_table = g_array_index(data->srt_array, srt_stat_table*, NFS4_MAIN_OP_SRT_TABLE_INDEX);
+	} else if (ri->prog == NFS_CB_PROGRAM) {
+		nfs_srt_table = g_array_index(data->srt_array, srt_stat_table*, NFS4_CB_SRT_TABLE_INDEX);
+		nfs_main_op_srt_table = NULL;
+	} else {
+		return TAP_PACKET_DONT_REDRAW;
+	}
+
+	/* Add each of the operations seen to the table. Add operations
+	 * considered the "main opcode" (in the highest tier in the
+	 * compound procedure) to another table.
+	 */
+	for (uint32_t ops = 0; ops < ops_info->ops_counter; ops++) {
+		opcode = ops_info->op_summary[ops].opcode;
+		if (opcode == NFS4_OP_ILLEGAL) {
+			/* Ignore the illegal opcode, it would create
+			 * 10,000 empty SRT rows.
+			 * Note NFS4_OP_CB_ILLEGAL is the same value;
+			 * actually testing for it makes some compilers
+			 * warn about a useless duplicate logical test.
+			 */
+			continue;
+		}
+		add_srt_table_data(nfs_srt_table, opcode, &ri->req_time, pinfo);
+		if (nfs_main_op_srt_table) {
+			current_tier = NFS4_OPERATION_TIER(opcode);
+			if (current_tier == ops_info->highest_tier) {
+				add_srt_table_data(nfs_main_op_srt_table, opcode, &ri->req_time, pinfo);
+			}
+		}
+	}
+
+	return TAP_PACKET_REDRAW;
+}
 
 void
 proto_register_nfs(void)
@@ -14794,6 +14956,10 @@ proto_register_nfs(void)
 	/* "protocols" registered just for ONC-RPC Service Response Time */
 	proto_nfs_cb = proto_register_protocol_in_name_only("Network File System CB", "NFS CB", "nfs.cb", proto_nfs, FT_PROTOCOL);
 
+	/* "protocol" registered just for NFSv4 Service Response Time (the
+	 * protocol short name is used for, e.g. the GUI menu item.) */
+	proto_nfsv4 = proto_register_protocol_in_name_only("Network File System v4", "NFSv4", "nfsv4", proto_nfs, FT_PROTOCOL);
+
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_nfs = expert_register_protocol(proto_nfs);
@@ -14838,6 +15004,10 @@ proto_register_nfs(void)
 
 	nfs_fhandle_table = register_decode_as_next_proto(proto_nfs, "nfs_fhandle.type",
 								"NFS File Handle types", nfs_prompt);
+
+	nfsv4_tap = register_tap("nfsv4");
+
+	register_srt_table(proto_nfsv4, "nfsv4", 1, nfsstat_packet, nfsstat_init, NULL);
 }
 
 
