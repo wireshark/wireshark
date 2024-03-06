@@ -9276,7 +9276,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     if (size < 4) {
       expert_add_info_format(pinfo, (param_len_item == NULL) ? ti : param_len_item,
               &ei_rtps_parameter_value_invalid, "ERROR: not enough bytes to read the next parameter");
-      return 0;
+      return offset + size;
     }
     original_offset = offset;
 
@@ -9377,7 +9377,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     if ((size-4 < param_length) &&
         (parameter != PID_SENTINEL)) {
       expert_add_info_format(pinfo, param_len_item, &ei_rtps_parameter_value_invalid, "Not enough bytes to read the parameter value");
-      return 0;
+      return offset + size;
     }
 
     /* Sets the end of this item (now we know it!) */
