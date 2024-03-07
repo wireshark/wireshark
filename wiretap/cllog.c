@@ -34,6 +34,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
@@ -60,7 +63,7 @@ typedef enum
 typedef struct
 {
     cCLLog_timeStamp_t timestamp;
-    uint8_t lost;
+    uint32_t lost;
     cCLLog_messageType_t msgType;
     uint32_t id;
     uint8_t length;
@@ -267,11 +270,15 @@ static bool parseFieldTS(cCLLog_logFileInfo_t *pInfo, char *pField, cCLLog_messa
     return true;
 }
 
-static bool parseFieldLost(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err _U_, char **err_info _U_)
+static bool parseFieldLost(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err, char **err_info)
 {
-    int lost = pLogEntry->lost;
+    uint32_t lost;
 
-    sscanf(pField, "%i", &lost);
+    if (!ws_strtou32(pField, NULL, &lost)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("cllog: lost packet count value is not valid");
+        return false;
+    }
     pLogEntry->lost = lost;
     return true;
 }
@@ -299,22 +306,33 @@ static bool parseFieldMsgType(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCL
     }
 }
 
-static bool parseFieldID(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err _U_, char **err_info _U_)
+static bool parseFieldID(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err, char **err_info)
 {
-    sscanf(pField, "%x", &pLogEntry->id);
+    uint32_t id;
+
+    if (!ws_hexstrtou32(pField, NULL, &id)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("cllog: ID value is not valid");
+        return false;
+    }
+    pLogEntry->id = id;
     return true;
 }
 
-static bool parseFieldLength(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err _U_, char **err_info _U_)
+static bool parseFieldLength(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err, char **err_info)
 {
-    int length = pLogEntry->length;
+    uint32_t length;
 
-    sscanf(pField, "%i", &length);
+    if (!ws_strtou32(pField, NULL, &length)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("cllog: length value is not valid");
+        return false;
+    }
     pLogEntry->length = length;
     return true;
 }
 
-static bool parseFieldData(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err _U_, char **err_info _U_)
+static bool parseFieldData(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err, char **err_info)
 {
     char *pFieldStart = pField;
 
@@ -324,18 +342,31 @@ static bool parseFieldData(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog
     /* Loop all data bytes */
     for (unsigned int dataByte = 0; dataByte < 8; dataByte++)
     {
-        unsigned int data = pLogEntry->data[dataByte];
+        int hexdigit;
+        uint8_t data;
 
         if (*pFieldStart == '\n' || *pFieldStart == '\r')
         {
             break;
         }
 
-        sscanf(pFieldStart, "%2x", &data);
+        hexdigit = ws_xton(*pFieldStart);
+        if (hexdigit < 0) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("cllog: packet byte value is not valid");
+            return false;
+        }
+        data = (uint8_t)hexdigit << 4U;
+        pFieldStart++;
+        hexdigit = ws_xton(*pFieldStart);
+        if (hexdigit < 0) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("cllog: packet byte value is not valid");
+            return false;
+        }
+        data = data | (uint8_t)hexdigit;
+        pFieldStart++;
         pLogEntry->data[dataByte] = data;
-
-        /* Move on byte (two chars) forward */
-        pFieldStart += 2;
 
         pLogEntry->length++;
     }
