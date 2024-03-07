@@ -127,7 +127,7 @@ struct cLLog_private
  * Private type definitions
  **********************************************************************************************************************/
 /* Function type to parse a single log file line */
-typedef void( *parseFunc_t )( cCLLog_logFileInfo_t *pInfo, char *pLine );
+typedef bool (*parseFunc_t)(cCLLog_logFileInfo_t *pInfo, char *pLine, int *err, char **err_info);
 
 /* Structure of the header parse mapping. A match string is paired with a parse function */
 typedef struct
@@ -143,22 +143,22 @@ static bool parseColumnHeaderFields( cCLLog_logFileInfo_t *pInfo, char *pColLine
 static uint8_t stripTimeStamp( const cCLLog_logFileInfo_t *pInfo, char *pTimeStampString );
 
 /* Parse header lines functions */
-static void parseLogFileHeaderLine_type( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_fwrev( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_hwrev( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_id( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_sessionNo( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_splitNo( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_time( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_valueSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_timeFormat( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_timeSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_timeSeparatorMs( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_dateSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_timeAndDateSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_bitRate( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_silentMode( cCLLog_logFileInfo_t *pInfo, char *pLine );
-static void parseLogFileHeaderLine_cyclicMode( cCLLog_logFileInfo_t *pInfo, char *pLine );
+static bool parseLogFileHeaderLine_type(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_hwrev(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_fwrev(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_id(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_sessionNo(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_splitNo(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_time(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_valueSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_timeFormat(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_timeSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_timeSeparatorMs(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_dateSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_timeAndDateSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_bitRate(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_silentMode(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
+static bool parseLogFileHeaderLine_cyclicMode(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info);
 /***********************************************************************************************************************
  * Private variable definitions
  **********************************************************************************************************************/
@@ -190,7 +190,7 @@ static const headerLineParseMapping_t headerLineParseMapping[] =
  * If the string won't fit, return false.
  */
 static bool
-checked_strcpy(char *dest, size_t destlen, char *src)
+checked_strcpy(char *dest, size_t destlen, const char *src)
 {
     size_t srclen;
 
@@ -214,7 +214,7 @@ static bool parseFieldTS(cCLLog_logFileInfo_t *pInfo, char *pField, cCLLog_messa
     if (!checked_strcpy(timeStampCopy, sizeof timeStampCopy, pField))
     {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("cllog: time stamp too long");
+        *err_info = g_strdup("cllog: time stamp is too long");
         return false;
     }
 
@@ -285,7 +285,7 @@ static bool parseFieldLost(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog
 
 static bool parseFieldMsgType(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog_message_t *pLogEntry, int *err, char **err_info)
 {
-    switch (pField[0])
+     switch (pField[0])
     {
         case '0':
             pLogEntry->msgType = msg_rx_standard_e;
@@ -361,7 +361,7 @@ static bool parseFieldData(cCLLog_logFileInfo_t *pInfo _U_, char *pField, cCLLog
         hexdigit = ws_xton(*pFieldStart);
         if (hexdigit < 0) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("cllog: packet byte value is not valid");
+            *err_info = g_strdup("cllog: packet byte value is not valid");
             return false;
         }
         data = data | (uint8_t)hexdigit;
@@ -465,11 +465,11 @@ static uint8_t stripTimeStamp( const cCLLog_logFileInfo_t *pInfo, char *pTimeSta
     uint8_t strippedLength = 0U;
 
     /* Char by char, strip the delimiters from the time stamp string */
-    uint8_t timeStampStringLen = (uint8_t) strlen( pTimeStampString );
-    for( uint8_t i = 0U ; i < timeStampStringLen ; i++ )
+    size_t timeStampStringLen = strlen( pTimeStampString );
+    for (size_t i = 0U; i < timeStampStringLen; i++ )
     {
         /* Get char */
-        char charTmp = pTimeStampString[ i ];
+        char charTmp = pTimeStampString[i];
 
         /* If delimiter, skip */
         if( charTmp == pInfo->separator ){ continue; }
@@ -485,149 +485,240 @@ static uint8_t stripTimeStamp( const cCLLog_logFileInfo_t *pInfo, char *pTimeSta
 
     return strippedLength;
 }
-/***********************************************************************************************************************
- * parseLogFileHeaderLine_X
- *
- * Parse log file header line functions
- *
- * @param[ in ]         pLine               Header line
- **********************************************************************************************************************/
-static char* getFieldValue( char *pLine )
-{
-    /* Set start pointer to fist byte in value */
-    char *pFieldStart = strstr( pLine, ": ") + 2;
 
-    /* Replace any newline chars with end of line */
-    for( char *pChar = pFieldStart ; ; pChar++ )
+static bool parseString(const char *pFieldValue, char *valuep, size_t valueSize, char *fieldName, int *err, char **err_info)
+{
+    if (!checked_strcpy(valuep, valueSize, pFieldValue))
     {
-        if( ( *pChar == '\n' ) || ( *pChar == '\r' ) || ( *pChar == '\0' ) )
-        {
-            *pChar = '\0';
-            break;
-        }
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("cllog: %s is too long",
+                                     fieldName);
+        return false;
     }
-    return pFieldStart;
+    return true;
 }
 
-static char parseSeparator( char *pFieldValue )
+static bool parseUnsigned(const char *pFieldValue, uint32_t *valuep, char *fieldName, int *err, char **err_info)
+{
+    uint32_t value;
+
+    if (!ws_strtou32(pFieldValue, NULL, &value)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("cllog: %s value is not valid",
+                                     fieldName);
+        return false;
+    }
+    *valuep = value;
+    return true;
+}
+
+static bool parseSeparator(const char *pFieldValue, char *separatorp, char *fieldName, int *err, char **err_info)
 {
     char separator = '\0';
+
     /* Separator field is if set e.g. ";" - that is 3 chars. Else it is "" */
-    if( strlen( pFieldValue ) == 3)
+    if (strlen( pFieldValue) == 3)
     {
-        sscanf( pFieldValue, "\"%c\"", &separator );
+        if (pFieldValue[0] != '"' || !g_ascii_isprint(pFieldValue[1]) ||
+            pFieldValue[2] != '"')
+        {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup_printf("cllog: %s separator is not valid",
+                                         fieldName);
+            return false;
+        }
+        separator = pFieldValue[1];
     }
-    return separator;
+    *separatorp = separator;
+    return true;
 }
 
-static void parseHeaderTime( const char *pTimeStampString, cCLLog_timeStamp_t *pTs )
+static bool parseBoolean(const char *pFieldValue, bool *value, char *fieldName, int *err, char **err_info)
+{
+    if (strcmp(pFieldValue, "true") == 0)
+    {
+        *value = true;
+    }
+    else if (strcmp(pFieldValue, "false") == 0)
+    {
+        *value = false;
+    }
+    else
+    {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("cllog: %s value is not valid",
+                                     fieldName);
+        return false;
+    }
+    return true;
+}
+
+static bool parseLogFileHeaderLine_type(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
+{
+    if (strcmp(pFieldValue, "CANLogger1000") == 0 )
+    {
+        pInfo->loggerType = type_CL1000_e;
+    }
+    else if (strcmp(pFieldValue, "CANLogger2000") == 0)
+    {
+        pInfo->loggerType = type_CL2000_e;
+    }
+    else if (strcmp(pFieldValue, "CANLogger3000") == 0 )
+    {
+        pInfo->loggerType = type_CL3000_e;
+    }
+    else
+    {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: logger type value is not valid");
+        return false;
+    }
+    return true;
+}
+
+static bool parseLogFileHeaderLine_hwrev(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
+{
+    return parseString(pFieldValue, pInfo->hwrev, sizeof pInfo->hwrev, "hardware revision", err, err_info);
+}
+
+static bool parseLogFileHeaderLine_fwrev(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
+{
+    return parseString(pFieldValue, pInfo->fwrev, sizeof pInfo->fwrev, "firmware revision", err, err_info);
+}
+
+static bool parseLogFileHeaderLine_id(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
+{
+    return parseString(pFieldValue, pInfo->id, sizeof pInfo->id, "ID", err, err_info);
+}
+
+static bool parseLogFileHeaderLine_sessionNo(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
+{
+    return parseUnsigned(pFieldValue, &pInfo->sessionNo, "session number", err, err_info);
+}
+
+static bool parseLogFileHeaderLine_splitNo(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
+{
+    return parseUnsigned(pFieldValue, &pInfo->splitNo, "split number", err, err_info);
+}
+
+static bool parseLogFileHeaderLine_time(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
     struct tm tm;
-    memset( &tm, 0, sizeof( tm ) );
 
+    memset(&tm, 0, sizeof tm);
     /* YYYYMMDDThhmmss */
-    sscanf( pTimeStampString,
-            "%4u%2u%2uT%2u%2u%2u",
-            &tm.tm_year,
-            &tm.tm_mon,
-            &tm.tm_mday,
-            &tm.tm_hour,
-            &tm.tm_min,
-            &tm.tm_sec );
+    sscanf(pFieldValue,
+           "%4u%2u%2uT%2u%2u%2u",
+           &tm.tm_year,
+           &tm.tm_mon,
+           &tm.tm_mday,
+           &tm.tm_hour,
+           &tm.tm_min,
+           &tm.tm_sec);
     tm.tm_mon -= 1;
     tm.tm_year -= 1900;
 
     /* To Epoch ( mktime converts to epoch from local (!!!) timezone )*/
-    pTs->epoch = mktime( &tm );
-    pTs->ms = 0;
+    pInfo->logStartTime.epoch = mktime(&tm);
+    pInfo->logStartTime.ms = 0;
+
+    if (!checked_strcpy(pInfo->logStartTimeString, sizeof pInfo->logStartTimeString, pFieldValue))
+    {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: time is too long");
+        return false;
+    }
+    return true;
 }
 
-static void parseLogFileHeaderLine_type( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_valueSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    if( strcmp( getFieldValue( pLine ), "CANLogger1000" ) == 0 ){ pInfo->loggerType = type_CL1000_e; }
-    if( strcmp( getFieldValue( pLine ), "CANLogger2000" ) == 0 ){ pInfo->loggerType = type_CL2000_e; }
-    if( strcmp( getFieldValue( pLine ), "CANLogger3000" ) == 0 ){ pInfo->loggerType = type_CL3000_e; }
+    return parseSeparator(pFieldValue, &pInfo->separator, "value", err, err_info);
 }
 
-static void parseLogFileHeaderLine_hwrev( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_timeFormat(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    sscanf( getFieldValue( pLine ), "%s", pInfo->hwrev );
+    uint32_t format;
+
+    if (!ws_strtou32(pFieldValue, NULL, &format))
+    {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: time format value is not valid");
+        return false;
+    }
+    if (format > 6)
+    {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: time format value is not valid");
+        return false;
+    }
+    pInfo->timeFormat = (uint8_t)format;
+    return true;
 }
 
-static void parseLogFileHeaderLine_fwrev( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_timeSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    sscanf( getFieldValue( pLine ), "%s", pInfo->fwrev );
+    return parseSeparator(pFieldValue, &pInfo->timeSeparator, "time", err, err_info);
 }
 
-static void parseLogFileHeaderLine_id( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_timeSeparatorMs(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    sscanf( getFieldValue( pLine ), "%s", pInfo->id );
+    return parseSeparator(pFieldValue, &pInfo->timeSeparatorMs, "time millisecond", err, err_info);
 }
 
-static void parseLogFileHeaderLine_sessionNo( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_dateSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    sscanf( getFieldValue( pLine ), "%i", &pInfo->sessionNo );
+    return parseSeparator(pFieldValue, &pInfo->dateSeparator, "date", err, err_info);
 }
 
-static void parseLogFileHeaderLine_splitNo( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_timeAndDateSeparator(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    sscanf( getFieldValue( pLine ), "%i", &pInfo->splitNo );
+    return parseSeparator(pFieldValue, &pInfo->dateAndTimeSeparator, "date and time", err, err_info);
 }
 
-static void parseLogFileHeaderLine_time( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_bitRate(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    const char *pFieldStart = getFieldValue( pLine );
-    parseHeaderTime( pFieldStart, &pInfo->logStartTime );
-    memcpy( pInfo->logStartTimeString, pFieldStart, strlen( pFieldStart ) );
+    return parseUnsigned(pFieldValue, &pInfo->bitRate, "bit rate", err, err_info);
 }
 
-static void parseLogFileHeaderLine_valueSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_silentMode(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    pInfo->separator = parseSeparator( getFieldValue( pLine ) );
+    bool silentMode;
+
+    if (!parseBoolean(pFieldValue, &silentMode, "silent mode", err, err_info))
+    {
+        return false;
+    }
+
+    if (silentMode)
+    {
+        pInfo->silentMode = silent_enabled_e;
+    }
+    else
+    {
+        pInfo->silentMode = silent_disabled_e;
+    }
+    return true;
 }
 
-static void parseLogFileHeaderLine_timeFormat( cCLLog_logFileInfo_t *pInfo, char *pLine )
+static bool parseLogFileHeaderLine_cyclicMode(cCLLog_logFileInfo_t *pInfo, char *pFieldValue, int *err, char **err_info)
 {
-    int formatTmp = 0;
-    sscanf( getFieldValue( pLine ), "%i", &formatTmp );
-    pInfo->timeFormat = (uint8_t)formatTmp;
-}
+    bool cyclicMode;
 
-static void parseLogFileHeaderLine_timeSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    pInfo->timeSeparator = parseSeparator( getFieldValue( pLine ) );
-}
+    if (!parseBoolean(pFieldValue, &cyclicMode, "silent mode", err, err_info))
+    {
+        return false;
+    }
 
-static void parseLogFileHeaderLine_timeSeparatorMs( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    pInfo->timeSeparatorMs = parseSeparator( getFieldValue( pLine ) );
-}
-
-static void parseLogFileHeaderLine_dateSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    pInfo->dateSeparator = parseSeparator( getFieldValue( pLine ) );
-}
-
-static void parseLogFileHeaderLine_timeAndDateSeparator( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    pInfo->dateAndTimeSeparator = parseSeparator( getFieldValue( pLine ) );
-}
-
-static void parseLogFileHeaderLine_bitRate( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    sscanf( getFieldValue( pLine ), "%i", &pInfo->bitRate );
-}
-
-static void parseLogFileHeaderLine_silentMode( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    if( strcmp( getFieldValue( pLine ), "true" ) == 0 ){ pInfo->silentMode = silent_enabled_e; }
-    if( strcmp( getFieldValue( pLine ), "false" ) == 0 ){ pInfo->silentMode = silent_disabled_e; }
-}
-
-static void parseLogFileHeaderLine_cyclicMode( cCLLog_logFileInfo_t *pInfo, char *pLine )
-{
-    if( strcmp( getFieldValue( pLine ), "true" ) == 0 ){ pInfo->cyclicMode = cyclic_enabled_e; }
-    if( strcmp( getFieldValue( pLine ), "false" ) == 0 ){ pInfo->cyclicMode = cyclic_disabled_e; }
+    if (cyclicMode)
+    {
+        pInfo->cyclicMode = cyclic_enabled_e;
+    }
+    else
+    {
+        pInfo->cyclicMode = cyclic_disabled_e;
+    }
+    return true;
 }
 
 /*
@@ -769,6 +860,8 @@ cllog_open(wtap *wth, int *err, gchar **err_info _U_)
      */
     while (file_gets(line, sizeof(line), wth->fh) != NULL)
     {
+        char *linep;
+
         if (*err != 0)
         {
             if (*err != WTAP_ERR_SHORT_READ)
@@ -785,20 +878,73 @@ cllog_open(wtap *wth, int *err, gchar **err_info _U_)
             }
         }
 
+        linep = line;
+
         /* Break on end of header */
-        if (line[0] != '#')
+        if (linep[0] != '#')
         {
             break;
         }
 
+        /*
+         * Skip the comment character and white space following it.
+         */
+        linep++;
+        while (*linep == ' ' || *linep == '\t')
+            linep++;
+
+        if (*linep == '\0')
+        {
+            /*
+             * Skip over empty comment lines.
+             * XXX - should we treat that as an indication of an
+             * invalid file?
+             */
+            continue;
+        }
+
+        /*
+         * Look for the handler for this particular header line.
+         */
         for (unsigned int i = 0U; i < HEADER_LINE_PARSE_MAPPING_LENGTH; i++)
         {
-            const headerLineParseMapping_t *pHeaderMapping = &headerLineParseMapping[ i ];
+            const headerLineParseMapping_t *pHeaderMapping = &headerLineParseMapping[i];
+            size_t matchStringLen = strlen(pHeaderMapping->pMatchString);
 
-            if (strstr(line, pHeaderMapping->pMatchString) != NULL &&
+            if (strncmp(linep, pHeaderMapping->pMatchString, matchStringLen) == 0 &&
                  pHeaderMapping->parseFunc != NULL)
             {
-                pHeaderMapping->parseFunc(clLog, line);
+                /*
+                 * This matches this header value.
+                 * Skip past the tag.
+                 */
+                linep += matchStringLen;
+
+                /* Replace any newline chars with end of line */
+                for (char *pChar = linep; ; pChar++)
+                {
+                    if (*pChar == '\n' || *pChar == '\r' || *pChar == '\0')
+                    {
+                        *pChar = '\0';
+                        break;
+                    }
+                }
+
+                /*
+                 * Call the handler.
+                 */
+                if (!pHeaderMapping->parseFunc(clLog, linep, err, err_info))
+                {
+                    /*
+                     * XXX - should this file be rejected as not
+                     * one of ours?  Given the line looks like
+                     * a comment that begins with a valid header
+                     * field tag, it may be likely to be one of
+                     * ours.
+                     */
+                    g_free(clLog);
+                    return WTAP_OPEN_ERROR;
+                }
             }
         }
     }
