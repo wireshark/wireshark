@@ -30,6 +30,8 @@
 #include <sinsp.h>
 #include <plugin_manager.h>
 
+#include <scap_engines.h>
+
 #define WS_LOG_DOMAIN "falcodump"
 
 #include <extcap/extcap-base.h>
@@ -721,7 +723,7 @@ static const std::vector<ws_option> get_longopts(const std::map<std::string, str
 }
 
 // Show the configuration for a given plugin/interface.
-static int show_config(const std::string &interface, const struct plugin_configuration &plugin_config)
+static int show_plugin_config(const std::string &interface, const struct plugin_configuration &plugin_config)
 {
     unsigned arg_num = 0;
 //    char* plugin_filter;
@@ -817,16 +819,40 @@ int main(int argc, char **argv)
         g_free(configuration_init_error);
     }
 
+    // Plain eBPF requires extra configuration, so probe for kmod and modern BPF support only for now.
+#ifdef HAS_ENGINE_KMOD
+    try {
+        inspector.open_kmod();
+        extcap_base_register_interface(extcap_conf, KMOD_ENGINE, "System calls via kernel module", 147, "USER0");
+    } catch (sinsp_exception &e) {
+        ws_warning("Unable to open kmod: %s", e.what());
+    }
+    inspector.close();
+#endif
+#ifdef HAS_ENGINE_MODERN_BPF
+    try {
+        inspector.open_modern_bpf();
+        extcap_base_register_interface(extcap_conf, MODERN_BPF_ENGINE, "System calls via modern eBPF", 147, "USER0");
+    } catch (sinsp_exception &e) {
+        ws_warning("Unable to open kmod: %s", e.what());
+    }
+    inspector.close();
+#endif
+
     load_plugins(inspector);
 
-    if (!get_source_plugins(inspector, plugin_configs)) {
-        goto end;
+    if (get_source_plugins(inspector, plugin_configs)) {
+        for (auto iter = plugin_configs.begin(); iter != plugin_configs.end(); ++iter) {
+            // Where we're going we don't need DLTs, so use USER0 (147).
+            // Additional info available via plugin->description() and plugin->event_source().
+            extcap_base_register_interface(extcap_conf, iter->first.c_str(), "Falco plugin", 147, "USER0");
+        }
+    } else {
+        ws_warning("No source plugins found.");
     }
 
-    for (auto iter = plugin_configs.begin(); iter != plugin_configs.end(); ++iter) {
-        // We don't have a Falco source plugins DLT, so use USER0 (147).
-        // Additional info available via plugin->description() and plugin->event_source().
-        extcap_base_register_interface(extcap_conf, iter->first.c_str(), "Falco plugin", 147, "USER0");
+    if (g_list_length(extcap_conf->interfaces) < 1) {
+        goto end;
     }
 
     help_url = data_file_url("falcodump.html");
@@ -926,60 +952,111 @@ int main(int argc, char **argv)
 
     extcap_cmdline_debug(argv, argc);
 
-    if (plugin_configs.size() < 1) {
-        ws_warning("No source plugins found.");
-        goto end;
-    }
-
     if (extcap_base_handle_interface(extcap_conf)) {
         ret = EXIT_SUCCESS;
         goto end;
     }
 
     if (extcap_conf->show_config) {
-        ret = show_config(extcap_conf->interface, plugin_configs.at(extcap_conf->interface));
+#ifdef HAS_ENGINE_KMOD
+        if (strcmp(extcap_conf->interface, KMOD_ENGINE) == 0)
+        {
+            ret = EXIT_SUCCESS;
+        }
+        else
+#endif
+#ifdef HAS_ENGINE_KMOD
+        if (strcmp(extcap_conf->interface, MODERN_BPF_ENGINE) == 0)
+        {
+            ret = EXIT_SUCCESS;
+        }
+        else
+#endif
+        {
+            ret = show_plugin_config(extcap_conf->interface, plugin_configs.at(extcap_conf->interface));
+        }
         goto end;
     }
 
     if (extcap_conf->capture) {
-        if (plugin_source.empty()) {
-            ws_warning("Missing or invalid parameter: --plugin-source");
-            goto end;
-        }
+        bool builtin_capture = false;
 
-        std::shared_ptr<sinsp_plugin> plugin_interface;
-        const auto plugin_manager = inspector.get_plugin_manager();
-        for (auto &plugin : plugin_manager->plugins()) {
-            if (plugin->name() == extcap_conf->interface) {
-                plugin_interface = plugin;
-            }
-        }
-
-        if (plugin_interface == nullptr) {
-            ws_warning("Unable to find interface %s", extcap_conf->interface);
-            goto end;
-        }
-
-        sinsp_dumper dumper;
 #ifdef DEBUG_SINSP
         inspector.set_debug_mode(true);
         inspector.set_log_stderr();
 #endif
-        try {
-            std::string init_err;
-            plugin_interface->init(plugin_configs[extcap_conf->interface].json_config().c_str(), init_err);
-            if (!init_err.empty()) {
-                ws_warning("%s", init_err.c_str());
+
+#ifdef HAS_ENGINE_KMOD
+        if (strcmp(extcap_conf->interface, KMOD_ENGINE) == 0)
+        {
+            try {
+                inspector.open_kmod();
+                builtin_capture = true;
+            } catch (sinsp_exception &e) {
+                ws_warning("Unable to open " KMOD_ENGINE ": %s", e.what());
+            }
+        }
+        else
+#endif
+#ifdef HAS_ENGINE_KMOD
+        if (strcmp(extcap_conf->interface, MODERN_BPF_ENGINE) == 0)
+        {
+            try {
+                inspector.open_modern_bpf();
+                builtin_capture = true;
+            } catch (sinsp_exception &e) {
+                ws_warning("Unable to open " MODERN_BPF_ENGINE ": %s", e.what());
+            }
+        }
+        else
+#endif
+        {
+            if (plugin_source.empty()) {
+                ws_warning("Missing or invalid parameter: --plugin-source");
                 goto end;
             }
-            inspector.open_plugin(extcap_conf->interface, plugin_source);
-            // scap_dump_open handles "-"
+
+            std::shared_ptr<sinsp_plugin> plugin_interface;
+            const auto plugin_manager = inspector.get_plugin_manager();
+            for (auto &plugin : plugin_manager->plugins()) {
+                if (plugin->name() == extcap_conf->interface) {
+                    plugin_interface = plugin;
+                }
+            }
+
+            if (plugin_interface == nullptr) {
+                ws_warning("Unable to find interface %s", extcap_conf->interface);
+                goto end;
+            }
+
+            try {
+                std::string init_err;
+                plugin_interface->init(plugin_configs[extcap_conf->interface].json_config().c_str(), init_err);
+                if (!init_err.empty()) {
+                    ws_warning("%s", init_err.c_str());
+                    goto end;
+                }
+                inspector.open_plugin(extcap_conf->interface, plugin_source);
+                // scap_dump_open handles "-"
+            } catch (sinsp_exception &e) {
+                ws_warning("%s", e.what());
+                goto end;
+            }
+        }
+
+        sinsp_dumper dumper;
+        try {
             dumper.open(&inspector, extcap_conf->fifo, false);
         } catch (sinsp_exception &e) {
             dumper.close();
             ws_warning("%s", e.what());
             goto end;
         }
+
+        if (builtin_capture) {
+            inspector.start_capture();
+        }
+
         sinsp_evt *evt;
         ws_noisy("Starting capture loop.");
         while (!extcap_end_application) {
@@ -1004,6 +1081,9 @@ int main(int argc, char **argv)
             }
         }
         ws_noisy("Closing dumper and inspector.");
+        if (builtin_capture) {
+            inspector.stop_capture();
+        }
         dumper.close();
         inspector.close();
         ret = EXIT_SUCCESS;
