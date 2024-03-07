@@ -513,6 +513,8 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, packet_info *pinfo, unsig
     }
 }
 
+// We're transported over UDP and our offset always advances.
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_asterix_fields (tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, uint8_t category, const AsterixField *current_uap[])
 {
     unsigned i, j, size, start, len, inner_offset, fspec_len;
@@ -706,6 +708,8 @@ static uint8_t asterix_field_exists (tvbuff_t *tvb, unsigned offset, int bitInde
     return asterix_bit (tvb_get_guint8 (tvb, offset + i), bitNo % 8);
 }
 
+// We're transported over UDP and our offset always advances.
+// NOLINTNEXTLINE(misc-no-recursion)
 static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixField *field)
 {
     unsigned size;
