@@ -1790,10 +1790,8 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     proto_item            *data_item = NULL;
     usbll_transfer_info_t *transfer = NULL;
 
-    if (data_size > 0) {
-        data_item = proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
-        offset += data_size;
-    }
+    data_item = proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
+    offset += data_size;
 
     actual_crc = tvb_get_letohs(tvb, offset);
     computed_crc = crc16_usb_tvb_offset(tvb, 1, offset - 1);
@@ -2573,7 +2571,7 @@ proto_register_usbll(void)
         /* Data header fields */
         { &hf_usbll_data,
             { "Data", "usbll.data",
-              FT_BYTES, BASE_NONE, NULL, 0,
+              FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
               NULL, HFILL }},
         { &hf_usbll_data_crc,
             { "CRC", "usbll.crc16",
