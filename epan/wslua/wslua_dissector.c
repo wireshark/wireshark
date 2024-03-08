@@ -671,6 +671,11 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
             if (len > 0) {
                 handled = TRUE;
             }
+	} else if ( type == FT_NONE ) {
+	    len = dissector_try_payload(dt->table,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
+	    if (len > 0) {
+	        handled = TRUE;
+            }
         } else {
             error = "No such type of dissector table";
         }
