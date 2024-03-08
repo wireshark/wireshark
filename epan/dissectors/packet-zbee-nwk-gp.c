@@ -105,6 +105,9 @@ typedef struct {
 
     /* Application Payload. */
     guint8 payload_len;
+
+    /* Source IEEE address from parent */
+    guint64 ieee_packet_src64;
 } zbee_nwk_green_power_packet;
 
 /* Definitions for GP Commissioning command opt field (bitmask). */
@@ -676,20 +679,32 @@ static void
 zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, gchar *nonce)
 {
     memset(nonce, 0, ZBEE_SEC_CONST_NONCE_LEN);
-    if (packet->direction == ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD) {
-        phtole32(nonce, packet->source_id);
+
+    /* Source address */
+    if (packet->application_id == ZBEE_NWK_GP_APP_ID_DEFAULT)
+    {
+        if (packet->direction == ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD) {
+            phtole32(nonce, packet->source_id);
+        }
+        phtole32(nonce+4, packet->source_id);
     }
-    phtole32(nonce+4, packet->source_id);
+    else if (packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP)
+    {
+        phtole64(nonce, packet->ieee_packet_src64);
+    }
+
+    /* Frame counter */
     phtole32(nonce+8, packet->security_frame_counter);
 
-    if ((packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP) && (packet->direction !=
-        ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD)) {
-        nonce[12] = (gchar)0xa3;
+    /* Security control */
+    if ((packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP) &&
+        (packet->direction != ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD)) {
+        nonce[12] = (gchar)0xc5;    /* Security level = 0b101, Key Identifier = 0x00,
+                                        Extended nonce = 0b0, Reserved = 0b00 */
     } else {
-        nonce[12] = (gchar)0x05;
+        nonce[12] = (gchar)0x05;    /* Security level = 0b101, Key Identifier = 0x00,
+                                        Extended nonce = 0b0, Reserved = 0b11 */
     }
-    /* TODO: implement if application_id == ZB_ZGP_APP_ID_0000. */
-    /* TODO: implement if application_id != ZB_ZGP_APP_ID_0000. */
 }
 
 /**
@@ -1725,6 +1740,7 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static int
 dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    ieee802154_packet *ieee_packet = (ieee802154_packet *)data;
     gboolean gp_decrypted;
     GSList *GSList_i;
     guint offset = 0;
@@ -1753,6 +1769,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     };
 
     memset(&packet, 0, sizeof(packet));
+    packet.ieee_packet_src64 = ieee_packet->src64;
     /* Add ourself to the protocol column, clear the info column and create the protocol tree. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee Green Power");
     col_clear(pinfo->cinfo, COL_INFO);
