@@ -185,6 +185,9 @@ The following features are new (or have been significantly updated) since versio
 
 * The "Follow Stream" dialog can now show delta times between turns and all packets and events.
 
+* The "Find Packet" dialog can search backwards, and find additional occurrences
+  of a string, hex value, or regular expression in a single frame.
+
 // Lua 5.3 is supported. Different versions of Lua are not guaranteed to be
 // compatible. If your Lua dissector does not work, check the Lua manual for
 // incompatabilities and suggested workarounds:
