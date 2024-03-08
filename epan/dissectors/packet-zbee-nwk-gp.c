@@ -382,22 +382,22 @@ static const value_string zbee_nwk_gp_app_id_names[] = {
 
 #define zbee_nwk_gp_cmd_names_VALUE_STRING_LIST(XXX) \
     XXX( /*F */ ZB_GP_CMD_ID_IDENTIFY                                 , 0x00, "Identify" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE0                                   , 0x10, "Scene 0" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE1                                   , 0x11, "Scene 1" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE2                                   , 0x12, "Scene 2" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE3                                   , 0x13, "Scene 3" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE4                                   , 0x14, "Scene 4" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE5                                   , 0x15, "Scene 5" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE6                                   , 0x16, "Scene 6" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE7                                   , 0x17, "Scene 7" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE8                                   , 0x18, "Scene 8" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE9                                   , 0x19, "Scene 9" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE10                                  , 0x1A, "Scene 10" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE11                                  , 0x1B, "Scene 11" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE12                                  , 0x1C, "Scene 12" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE13                                  , 0x1D, "Scene 13" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE14                                  , 0x1E, "Scene 14" ) \
-    XXX( /*F */ ZB_GP_CMD_ID_SCENE15                                  , 0x1F, "Scene 15" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE0                            , 0x10, "Recall Scene 0" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE1                            , 0x11, "Recall Scene 1" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE2                            , 0x12, "Recall Scene 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE3                            , 0x13, "Recall Scene 3" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE4                            , 0x14, "Recall Scene 4" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE5                            , 0x15, "Recall Scene 5" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE6                            , 0x16, "Recall Scene 6" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RECALL_SCENE7                            , 0x17, "Recall Scene 7" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE0                             , 0x18, "Store Scene 0" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE1                             , 0x19, "Store Scene 1" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE2                             , 0x1A, "Store Scene 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE3                             , 0x1B, "Store Scene 3" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE4                             , 0x1C, "Store Scene 4" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE5                             , 0x1D, "Store Scene 5" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE6                             , 0x1E, "Store Scene 6" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_STORE_SCENE7                             , 0x1F, "Store Scene 7" ) \
     XXX( /*F */ ZB_GP_CMD_ID_OFF                                      , 0x20, "Off" ) \
     XXX( /*F */ ZB_GP_CMD_ID_ON                                       , 0x21, "On" ) \
     XXX( /*F */ ZB_GP_CMD_ID_TOGGLE                                   , 0x22, "Toggle" ) \
@@ -1596,22 +1596,22 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     switch(cmd_id) {
         /* Payloadless GPDF commands sent by GPD. */
         case ZB_GP_CMD_ID_IDENTIFY:
-        case ZB_GP_CMD_ID_SCENE0:
-        case ZB_GP_CMD_ID_SCENE1:
-        case ZB_GP_CMD_ID_SCENE2:
-        case ZB_GP_CMD_ID_SCENE3:
-        case ZB_GP_CMD_ID_SCENE4:
-        case ZB_GP_CMD_ID_SCENE5:
-        case ZB_GP_CMD_ID_SCENE6:
-        case ZB_GP_CMD_ID_SCENE7:
-        case ZB_GP_CMD_ID_SCENE8:
-        case ZB_GP_CMD_ID_SCENE9:
-        case ZB_GP_CMD_ID_SCENE10:
-        case ZB_GP_CMD_ID_SCENE11:
-        case ZB_GP_CMD_ID_SCENE12:
-        case ZB_GP_CMD_ID_SCENE13:
-        case ZB_GP_CMD_ID_SCENE14:
-        case ZB_GP_CMD_ID_SCENE15:
+        case ZB_GP_CMD_ID_RECALL_SCENE0:
+        case ZB_GP_CMD_ID_RECALL_SCENE1:
+        case ZB_GP_CMD_ID_RECALL_SCENE2:
+        case ZB_GP_CMD_ID_RECALL_SCENE3:
+        case ZB_GP_CMD_ID_RECALL_SCENE4:
+        case ZB_GP_CMD_ID_RECALL_SCENE5:
+        case ZB_GP_CMD_ID_RECALL_SCENE6:
+        case ZB_GP_CMD_ID_RECALL_SCENE7:
+        case ZB_GP_CMD_ID_STORE_SCENE0:
+        case ZB_GP_CMD_ID_STORE_SCENE1:
+        case ZB_GP_CMD_ID_STORE_SCENE2:
+        case ZB_GP_CMD_ID_STORE_SCENE3:
+        case ZB_GP_CMD_ID_STORE_SCENE4:
+        case ZB_GP_CMD_ID_STORE_SCENE5:
+        case ZB_GP_CMD_ID_STORE_SCENE6:
+        case ZB_GP_CMD_ID_STORE_SCENE7:
         case ZB_GP_CMD_ID_OFF:
         case ZB_GP_CMD_ID_ON:
         case ZB_GP_CMD_ID_TOGGLE:
