@@ -83,6 +83,7 @@ static const value_string rpl_type_vals[] = {
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 len, type, sublen, subtyp;
@@ -383,8 +384,7 @@ proto_register_rpl(void)
 		&ett_rpl_unkn
 	};
 
-	proto_rpl = proto_register_protocol("Remote Program Load",
-	    "RPL", "rpl");
+	proto_rpl = proto_register_protocol("Remote Program Load", "RPL", "rpl");
 	proto_register_field_array(proto_rpl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	rpl_handle = register_dissector("rpl", dissect_rpl, proto_rpl);
