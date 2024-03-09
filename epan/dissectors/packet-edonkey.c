@@ -1650,6 +1650,7 @@ static int dissect_kademlia2_peer(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* Dissects the eDonkey search query */
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
                                         int offset, proto_tree *tree)
 {
@@ -1665,6 +1666,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
     search_length = 1;
     ti = proto_tree_add_uint(tree, hf_edonkey_search_type, tvb, offset, 1, search_type);
 
+    increment_dissection_depth(pinfo);
     switch (search_type)
     {
         case EDONKEY_SEARCH_BOOL:
@@ -1749,6 +1751,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
             offset += search_length;
             break;
     }
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
@@ -2504,6 +2507,7 @@ static int dissect_kademlia_search_result(tvbuff_t *tvb, packet_info *pinfo,
     return dissect_kademlia_taglist( tvb, pinfo, offset, tree );
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_kademlia_search_expression_tree(tvbuff_t *tvb, packet_info *pinfo,
                                           int offset, proto_tree *tree)
 {
@@ -2515,6 +2519,7 @@ static int dissect_kademlia_search_expression_tree(tvbuff_t *tvb, packet_info *p
     ti = proto_tree_add_uint(tree, hf_kademlia_search_expression_type, tvb, offset, 1, op);
     tree = proto_item_add_subtree( ti, ett_kademlia_search_expression );
     ++offset;
+    increment_dissection_depth(pinfo);
     switch( op ) {
         case 0: /* Bool op */
             proto_tree_add_item(tree, hf_kademlia_search_bool_op, tvb, offset, 1, ENC_NA );
@@ -2550,6 +2555,7 @@ static int dissect_kademlia_search_expression_tree(tvbuff_t *tvb, packet_info *p
         default:
             expert_add_info_format(pinfo, ti, &ei_kademlia_search_expression_type, "NOT DECODED op %x", op );
     }
+    decrement_dissection_depth(pinfo);
     proto_item_set_len( ti, offset - item_start_offset );
     return offset;
 }
