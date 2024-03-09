@@ -2386,37 +2386,48 @@ bool config_file_exists_with_entries(const char *fname, char comment_char)
 bool
 files_identical(const char *fname1, const char *fname2)
 {
-    /* Two different implementations, because:
-     *
-     * - _fullpath is not available on UN*X, so we can't get full
-     *   paths and compare them (which wouldn't work with hard links
-     *   in any case);
-     *
-     * - st_ino isn't filled in with a meaningful value on Windows.
+    /* Two different implementations, because st_ino isn't filled in with
+     * a meaningful value on Windows. Use the Windows API and FILE_ID_INFO
+     * instead.
      */
 #ifdef _WIN32
-    char full1[MAX_PATH], full2[MAX_PATH];
+
+    FILE_ID_INFO filestat1, filestat2;
 
     /*
-     * Get the absolute full paths of the file and compare them.
-     * That won't work if you have hard links, but those aren't
-     * much used on Windows, even though NTFS supports them.
-     *
-     * XXX - will _fullpath work with UNC?
+     * Compare VolumeSerialNumber and FileId.
      */
-    if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
+
+    HANDLE h1 = CreateFile(utf_8to16(fname1), 0,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL, OPEN_EXISTING, 0, NULL);
+
+    if (h1 == INVALID_HANDLE_VALUE) {
         return false;
     }
 
-    if( _fullpath( full2, fname2, MAX_PATH ) == NULL ) {
+    if (!GetFileInformationByHandleEx(h1, FileIdInfo, &filestat1, sizeof(FILE_ID_INFO))) {
+        CloseHandle(h1);
+        return false;
+    }
+    CloseHandle(h1);
+
+    HANDLE h2 = CreateFile(utf_8to16(fname2), 0,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        NULL, OPEN_EXISTING, 0, NULL);
+
+    if (h2 == INVALID_HANDLE_VALUE) {
         return false;
     }
 
-    if(strcmp(full1, full2) == 0) {
-        return true;
-    } else {
+    if (!GetFileInformationByHandleEx(h2, FileIdInfo, &filestat2, sizeof(FILE_ID_INFO))) {
+        CloseHandle(h2);
         return false;
     }
+    CloseHandle(h2);
+
+    return ((memcmp(&filestat1.FileId, &filestat2.FileId, sizeof(FILE_ID_128)) == 0) &&
+        filestat1.VolumeSerialNumber == filestat2.VolumeSerialNumber);
 #else
     ws_statb64 filestat1, filestat2;
 
