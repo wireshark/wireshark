@@ -152,6 +152,7 @@ static const value_string bfcp_error_code_valuse[] = {
 #define BFCP_OFFSET_PAYLOAD               12
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bfcp_payload_length)
 {
 	proto_item *ti, *item;
@@ -162,6 +163,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	gint        read_attr = 0;
 	guint8      first_byte, pad_len;
 
+	increment_dissection_depth(pinfo);
 	while ((tvb_reported_length_remaining(tvb, offset) >= 2) &&
 			((bfcp_payload_length - read_attr) >= 2))
 	{
@@ -370,6 +372,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		}
 		read_attr = read_attr + length;
 	}
+	decrement_dissection_depth(pinfo);
 
 	return offset;
 }
@@ -675,8 +678,7 @@ void proto_register_bfcp(void)
 	};
 
 	/* Register protocol name and description */
-	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
-				"BFCP", "bfcp");
+	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol", "BFCP", "bfcp");
 
 	bfcp_handle = register_dissector("bfcp", dissect_bfcp, proto_bfcp);
 
