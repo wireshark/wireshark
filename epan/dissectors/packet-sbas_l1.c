@@ -522,6 +522,12 @@ static int hf_sbas_l1_mt26_givei_15;
 static int hf_sbas_l1_mt26_iodi_k;
 static int hf_sbas_l1_mt26_spare;
 
+// see ICAO Annex 10, Vol I, Table B-52
+static int hf_sbas_l1_mt63;
+static int hf_sbas_l1_mt63_spare_1;
+static int hf_sbas_l1_mt63_spare_2;
+static int hf_sbas_l1_mt63_spare_3;
+
 static dissector_table_t sbas_l1_mt_dissector_table;
 
 static expert_field ei_sbas_l1_preamble;
@@ -542,6 +548,7 @@ static int ett_sbas_l1_mt7;
 static int ett_sbas_l1_mt24;
 static int ett_sbas_l1_mt25;
 static int ett_sbas_l1_mt26;
+static int ett_sbas_l1_mt63;
 
 // compute the CRC24Q checksum for an SBAS L1 nav msg
 // see ICAO Annex 10, Vol I, Appendix B, Section 3.5.3.5
@@ -1248,6 +1255,21 @@ static int dissect_sbas_l1_mt26(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return tvb_captured_length(tvb);
 }
 
+/* Dissect SBAS L1 MT 63 */
+static int dissect_sbas_l1_mt63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT63");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt63, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt63_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt63);
+
+    proto_tree_add_item(sbas_l1_mt63_tree, hf_sbas_l1_mt63_spare_1, tvb,  0,  1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt63_tree, hf_sbas_l1_mt63_spare_2, tvb,  1, 26, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt63_tree, hf_sbas_l1_mt63_spare_3, tvb, 27,  1, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_sbas_l1(void) {
 
     static hf_register_info hf[] = {
@@ -1636,6 +1658,12 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt26_givei_15,                   {"Grid Ionospheric Vertical Error Indicator 15 (GIVEI_15)", "sbas_l1.mt26.givei_15", FT_UINT16, BASE_DEC,    VALS(GIVEI_EVALUATION),        0x0780, NULL, HFILL}},
         {&hf_sbas_l1_mt26_iodi_k,                     {"Issue of Data - IGP (IODI_k)", "sbas_l1.mt26.iodi_k",                              FT_UINT8,  BASE_DEC,    NULL,                          0x60,   NULL, HFILL}},
         {&hf_sbas_l1_mt26_spare,                      {"Spare", "sbas_l1.mt26.spare",                                                      FT_UINT16, BASE_DEC,    NULL,                          0x1fc0, NULL, HFILL}},
+
+        // MT63
+        {&hf_sbas_l1_mt63,         {"MT63",    "sbas_l1.mt63",         FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL}},
+        {&hf_sbas_l1_mt63_spare_1, {"Spare 1", "sbas_l1.mt63.spare_1", FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL}},
+        {&hf_sbas_l1_mt63_spare_2, {"Spare 2", "sbas_l1.mt63.spare_2", FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL}},
+        {&hf_sbas_l1_mt63_spare_3, {"Spare 3", "sbas_l1.mt63.spare_3", FT_UINT8, BASE_HEX,  NULL, 0xc0, NULL, HFILL}},
     };
 
     expert_module_t *expert_sbas_l1;
@@ -1661,6 +1689,7 @@ void proto_register_sbas_l1(void) {
         &ett_sbas_l1_mt24,
         &ett_sbas_l1_mt25,
         &ett_sbas_l1_mt26,
+        &ett_sbas_l1_mt63,
     };
 
     proto_sbas_l1 = proto_register_protocol("SBAS L1 Navigation Message", "SBAS L1", "sbas_l1");
@@ -1693,4 +1722,5 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("sbas_l1.mt", 24, create_dissector_handle(dissect_sbas_l1_mt24, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 25, create_dissector_handle(dissect_sbas_l1_mt25, proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 26, create_dissector_handle(dissect_sbas_l1_mt26, proto_sbas_l1));
+    dissector_add_uint("sbas_l1.mt", 63, create_dissector_handle(dissect_sbas_l1_mt63, proto_sbas_l1));
 }
