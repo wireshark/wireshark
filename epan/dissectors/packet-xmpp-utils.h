@@ -158,7 +158,7 @@ extern void xmpp_simple_cdata_elem(proto_tree *tree, tvbuff_t *tvb, packet_info 
 
 /** Converts xml_frame_t struct to xmpp_element_t. Should be call with parent==NULL.
  */
-extern xmpp_element_t* xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb);
+extern xmpp_element_t* xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb);
 
 /** Frees all GLib structs in xmpp_element_t struct. Should be call only for root element.
  * It works recursively.
