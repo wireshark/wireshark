@@ -941,6 +941,7 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
 			     guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
@@ -1082,7 +1083,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 }
 
 static void
-dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
+dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 			      guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
 	proto_tree *simulcrypt_psig_table_period_pair_tree;
@@ -1090,6 +1091,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 	proto_item *simulcrypt_item;
 	guint32     pvaluedec;    /* parameter decimal value */
 
+	increment_dissection_depth(pinfo);
 	switch (ptype) {
 	case SIMULCRYPT_PSIG_PSIG_TYPE:
 		pvaluedec = tvb_get_guint8(tvb, offset);
@@ -1184,6 +1186,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_string(tree, hf_simulcrypt_parameter_value, tvb, offset, plen, pvalue_char);
 		break;
 	} /* end parameter type switch */
+	decrement_dissection_depth(pinfo);
 }
 
 /* This method dissects fully reassembled messages */
@@ -1264,6 +1267,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /* this method is used to dissect TLV parameters */
 /* can be used both from the main tree (simulcrypt_message_tree) and the subtrees (created from TLV items) */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
 			tvbuff_t *tvb, proto_tree *tree, int offset,
 			int container_data_length, guint16 iftype, gboolean is_subtree)

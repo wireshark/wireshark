@@ -139,11 +139,11 @@ static gboolean          gbl_have_symbol   = FALSE;
  * forward declared dissector methods
  */
 static void read_key_value(unsigned int *offset, tvbuff_t *tvb,
-                          proto_tree *etch_tree);
+                          proto_tree *etch_tree, packet_info *pinfo);
 static void read_struct(unsigned int *offset, tvbuff_t *tvb,
-                        proto_tree *etch_tree, int add_type_field);
+                        proto_tree *etch_tree, packet_info *pinfo, int add_type_field);
 static int read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
-                      int asWhat);
+                      packet_info *pinfo, int asWhat);
 
 /************************************************************************
  * Symbol value-string functions
@@ -440,7 +440,8 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
  * read an array from tvb and add it to tree
  */
 static void
-read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_info *pinfo)
 {
   int length;
 
@@ -458,7 +459,7 @@ read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   length = read_length(offset, tvb, etch_tree);
 
   for (; length > 0; length--) {
-    read_value(offset, tvb, etch_tree, hf_etch_value);
+    read_value(offset, tvb, etch_tree, pinfo, hf_etch_value);
   }
   /*  terminaton */
   read_type(offset, tvb, etch_tree);
@@ -536,8 +537,9 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
  * read a value and add it to tree
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
-           int asWhat)
+           packet_info *pinfo, int asWhat)
 {
   guint8 type_code;
 
@@ -550,12 +552,13 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     return type_code;
   }
 
+  increment_dissection_depth(pinfo);
   switch(type_code) {
   case ETCH_TC_CUSTOM:
-    read_struct(offset, tvb, etch_tree, 1);
+    read_struct(offset, tvb, etch_tree, pinfo, 1);
     break;
   case ETCH_TC_ARRAY:
-    read_array(offset, tvb, etch_tree);
+    read_array(offset, tvb, etch_tree, pinfo);
     break;
   case ETCH_TC_STRING:
     read_string(offset, tvb, etch_tree);
@@ -584,6 +587,7 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
   default:
     read_number(offset, tvb, etch_tree, asWhat, type_code);
   }
+  decrement_dissection_depth(pinfo);
   return 0;
 }
 
@@ -592,7 +596,7 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
  */
 static void
 read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
-            int add_type_field)
+            packet_info *pinfo, int add_type_field)
 {
   proto_item *ti;
   proto_tree *new_tree;
@@ -607,13 +611,13 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     read_type(offset, tvb, new_tree);
   }
   /* struct type as hash */
-  read_value(offset, tvb, new_tree, hf_etch_value);
+  read_value(offset, tvb, new_tree, pinfo, hf_etch_value);
 
   /* struct length */
-  length = read_value(offset, tvb, new_tree, hf_etch_length);
+  length = read_value(offset, tvb, new_tree, pinfo, hf_etch_length);
 
   for (i = 0; i < length; i++) {
-    read_key_value(offset, tvb, new_tree);
+    read_key_value(offset, tvb, new_tree, pinfo);
   }
 
   /* termination */
@@ -624,7 +628,8 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
  * read a key value pair and add it to tree
  */
 static void
-read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_info *pinfo)
 {
   proto_tree *new_tree;
   proto_tree *new_tree_bck;
@@ -641,7 +646,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   ti = proto_tree_add_item(new_tree, hf_etch_keyname, tvb, *offset, 0,
                            ENC_NA);
   new_tree = proto_item_add_subtree(ti, ett_etch_key);
-  read_value(offset, tvb, new_tree, hf_etch_value);
+  read_value(offset, tvb, new_tree, pinfo, hf_etch_value);
 
   /* append the symbol of the key */
   if(gbl_have_symbol == TRUE){
@@ -651,7 +656,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   ti = proto_tree_add_item(new_tree_bck, hf_etch_valuename, tvb, *offset,
                            0, ENC_NA);
   new_tree = proto_item_add_subtree(ti, ett_etch_value);
-  read_value(offset, tvb, new_tree, hf_etch_value);
+  read_value(offset, tvb, new_tree, pinfo, hf_etch_value);
 }
 
 /*************************************************************************/
@@ -731,7 +736,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item(etch_tree, hf_etch_sig, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(etch_tree, hf_etch_length, tvb, 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(etch_tree, hf_etch_version, tvb, 8, 1, ENC_BIG_ENDIAN);
-    read_struct(&offset, tvb, etch_tree, 0);
+    read_struct(&offset, tvb, etch_tree, pinfo, 0);
   }
 
   return tvb_captured_length(tvb);
@@ -920,10 +925,7 @@ void proto_register_etch(void)
     &ett_etch_value,
   };
 
-  proto_etch = proto_register_protocol("Apache Etch Protocol", /* name       */
-                                       "Etch",                 /* short name */
-                                       "etch"                  /* abbrev     */
-                                       );
+  proto_etch = proto_register_protocol("Apache Etch Protocol", "Etch", "etch");
 
   proto_register_field_array(proto_etch, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

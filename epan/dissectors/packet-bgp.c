@@ -5327,6 +5327,7 @@ decode_link_state_attribute_flex_algo_subtlv(proto_tree *tree, tvbuff_t *tvb, gi
  * Decode a multiprotocol prefix
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 protocol_id)
 {
     guint16 type;
@@ -5350,6 +5351,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
     type = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
 
+    increment_dissection_depth(pinfo);
     switch (type) {
 
         /* NODE ATTRIBUTE TLVs */
@@ -6449,6 +6451,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                 "Unknown BGP-LS Attribute TLV Code (%u)!", type);
             break;
     }
+    decrement_dissection_depth(pinfo);
     return length + 4;
 }
 
@@ -9574,6 +9577,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
  *
  */
 void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len, guint tvb_off, packet_info *pinfo)
 {
     guint8        bgpa_flags;                 /* path attributes          */
@@ -9631,6 +9635,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
     o = tvb_off;
 
+    increment_dissection_depth(pinfo);
     while (i < path_attr_len) {
         proto_item *ti_pa, *ti_flags;
         int     off;
@@ -10862,6 +10867,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
         i += alen + aoff;
     }
+    decrement_dissection_depth(pinfo);
     {
         /* FF: postponed BGPTYPE_LINK_STATE_ATTR dissection */
         link_state_data *data = load_link_state_data(pinfo);
@@ -14102,8 +14108,7 @@ proto_register_bgp(void)
         {NULL, NULL, -1}
     };
 
-    proto_bgp = proto_register_protocol("Border Gateway Protocol",
-                                        "BGP", "bgp");
+    proto_bgp = proto_register_protocol("Border Gateway Protocol", "BGP", "bgp");
     proto_register_field_array(proto_bgp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_bgp = expert_register_protocol(proto_bgp);

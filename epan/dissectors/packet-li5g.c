@@ -100,6 +100,7 @@ static const value_string attribute_type_vals[] = {
 };
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree  *li5g_tree, *attr_tree, *parent=NULL;
@@ -171,8 +172,11 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         li5g_tree->parent=parent;
 
     /* have another li5g in the same packet? */
-    if (tvb_captured_length(tvb)>offset+payloadLen)
+    if (tvb_captured_length(tvb)>offset+payloadLen) {
+        increment_dissection_depth(pinfo);
         dissect_li5g(tvb_new_subset_remaining(tvb, offset+payloadLen), pinfo, tree, NULL);
+        decrement_dissection_depth(pinfo);
+    }
 
     /* set these info at the end*/
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "5GLI");
