@@ -231,8 +231,8 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             expert_add_info(pinfo, opus_tree, &ei_opus_err_r1);
             return cap_len;
         }
-        proto_tree_add_item(opus_tree, hf_opus_frame_size, tvb, offset, bytes,
-                            ENC_NA);
+        proto_tree_add_uint(opus_tree, hf_opus_frame_size, tvb, offset, bytes,
+                            framesize);
         offset += bytes;
         /* frame[0] has size header, frame[1] is remaining */
         frames[0].begin = offset;
@@ -243,7 +243,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         break;
     /* Multiple CBR/VBR frames (from 0 to 120 ms) */
     default: /* case 3:*/
-        if ((pkt_total - offset) < 2) {
+        if ((pkt_total - offset) < 1) {
             expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
             return cap_len;
         }
@@ -258,6 +258,9 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             expert_add_info(pinfo, opus_tree, &ei_opus_err_r5);
             return cap_len;
         }
+        /* The smallest value the function above can return is 120, so
+         * the below holds (but make it obvious). */
+        ws_assert(frame_count <= MAX_FRAMES_COUNT);
         /* Padding flag (bit 6) used */
         if (ch & 0x40) {
             int p;
@@ -281,13 +284,13 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              */
             pkt_total -= padding_size;
         }
-        if (offset >= pkt_total) {
-            expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
-            return cap_len;
-        }
         /* VBR flag is bit 7 */
         if (ch & 0x80) { /* VBR case */
-            for (idx = 0; idx < frame_count; idx++) {
+            for (idx = 0; idx < frame_count - 1; idx++) {
+                if (offset >= pkt_total) {
+                    expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
+                    return cap_len;
+                }
                 octet_cnt = 0;
                 octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
                 if (offset + 1 < pkt_total) {
@@ -300,11 +303,11 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     return cap_len;
                 }
 
-                proto_tree_add_item(opus_tree, hf_opus_frame_size, tvb, offset,
-                                    bytes, ENC_NA);
+                proto_tree_add_uint(opus_tree, hf_opus_frame_size, tvb, offset,
+                                    bytes, frames[idx].size);
                 offset += bytes;
             }
-            for (idx = 0; idx < frame_count; idx++) {
+            for (idx = 0; idx < frame_count - 1; idx++) {
                 frames[idx].begin = offset;
                 offset += frames[idx].size;
             }
@@ -312,8 +315,14 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
                 return cap_len;
             }
+            frames[idx].begin = offset;
+            frames[idx].size = pkt_total - offset;
         }
         else { /* CBR case */
+            if (offset > pkt_total) {
+                expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
+                return cap_len;
+            }
             guint frame_size = (pkt_total - offset) / frame_count;
             if (frame_size * frame_count != (guint)(pkt_total - offset)) {
                 expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
@@ -384,8 +393,8 @@ proto_register_opus(void)
          {"Frame Count.v bit", "opus.FC.v", FT_BOOLEAN, 8,
           TFS(&fc_v_bit_vals), 0x80, NULL, HFILL}},
         {&hf_opus_frame_size,
-         {"Frame Size", "opus.frame_size", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
-          HFILL}},
+         {"Frame Size", "opus.frame_size", FT_UINT16, BASE_DEC | BASE_UNIT_STRING,
+          &units_byte_bytes, 0x0, NULL, HFILL}},
         {&hf_opus_frame,
          {"Frame Data", "opus.frame_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
           HFILL}},
