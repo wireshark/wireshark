@@ -141,6 +141,11 @@ static int hf_sbas_l1_preamble;
 static int hf_sbas_l1_mt;
 static int hf_sbas_l1_chksum;
 
+static int hf_sbas_l1_mt0;
+static int hf_sbas_l1_mt0_spare_1;
+static int hf_sbas_l1_mt0_spare_2;
+static int hf_sbas_l1_mt0_spare_3;
+
 // see ICAO Annex 10, Vol I, Table B-38
 static int hf_sbas_l1_mt1;
 static int hf_sbas_l1_mt1_prn_mask_gps;
@@ -526,6 +531,7 @@ static expert_field ei_sbas_l1_mt26_igp_band_id;
 static expert_field ei_sbas_l1_mt26_igp_block_id;
 
 static int ett_sbas_l1;
+static int ett_sbas_l1_mt0;
 static int ett_sbas_l1_mt1;
 static int ett_sbas_l1_mt2;
 static int ett_sbas_l1_mt3;
@@ -664,6 +670,21 @@ static int dissect_sbas_l1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (!dissector_try_uint(sbas_l1_mt_dissector_table, mt, next_tvb, pinfo, tree)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect SBAS L1 MT 0 */
+static int dissect_sbas_l1_mt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT0");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    proto_item *ti = proto_tree_add_item(tree, hf_sbas_l1_mt0, tvb, 0, 32, ENC_NA);
+    proto_tree *sbas_l1_mt0_tree = proto_item_add_subtree(ti, ett_sbas_l1_mt0);
+
+    proto_tree_add_item(sbas_l1_mt0_tree, hf_sbas_l1_mt0_spare_1, tvb,  0,  1, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt0_tree, hf_sbas_l1_mt0_spare_2, tvb,  1, 26, ENC_NA);
+    proto_tree_add_item(sbas_l1_mt0_tree, hf_sbas_l1_mt0_spare_3, tvb, 27,  1, ENC_NA);
 
     return tvb_captured_length(tvb);
 }
@@ -1234,6 +1255,12 @@ void proto_register_sbas_l1(void) {
         {&hf_sbas_l1_mt,       {"Message Type", "sbas_l1.mt"      , FT_UINT8,  BASE_DEC, NULL, 0xfc,       NULL, HFILL}},
         {&hf_sbas_l1_chksum,   {"Checksum",     "sbas_l1.chksum"  , FT_UINT32, BASE_HEX, NULL, 0x3fffffc0, NULL, HFILL}},
 
+        // MT0
+        {&hf_sbas_l1_mt0,         {"MT0",     "sbas_l1.mt0",         FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL}},
+        {&hf_sbas_l1_mt0_spare_1, {"Spare 1", "sbas_l1.mt0.spare_1", FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL}},
+        {&hf_sbas_l1_mt0_spare_2, {"Spare 2", "sbas_l1.mt0.spare_2", FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL}},
+        {&hf_sbas_l1_mt0_spare_3, {"Spare 3", "sbas_l1.mt0.spare_3", FT_UINT8, BASE_HEX,  NULL, 0xc0, NULL, HFILL}},
+
         // MT1
         {&hf_sbas_l1_mt1,                  {"MT1",                        "sbas_l1.mt1",                  FT_NONE,   BASE_NONE, NULL, 0x0,                          NULL, HFILL}},
         {&hf_sbas_l1_mt1_prn_mask_gps,     {"PRN Mask GPS",               "sbas_l1.mt1.prn_mask_gps",     FT_UINT64, BASE_HEX,  NULL, UINT64_C(0x03ffffffffe00000), NULL, HFILL}},
@@ -1623,6 +1650,7 @@ void proto_register_sbas_l1(void) {
 
     static gint *ett[] = {
         &ett_sbas_l1,
+        &ett_sbas_l1_mt0,
         &ett_sbas_l1_mt1,
         &ett_sbas_l1_mt2,
         &ett_sbas_l1_mt3,
@@ -1654,6 +1682,7 @@ void proto_reg_handoff_sbas_l1(void) {
     dissector_add_uint("ubx.rxm.sfrbx.gnssid", GNSS_ID_SBAS,
         create_dissector_handle(dissect_sbas_l1, proto_sbas_l1));
 
+    dissector_add_uint("sbas_l1.mt", 0,  create_dissector_handle(dissect_sbas_l1_mt0,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 1,  create_dissector_handle(dissect_sbas_l1_mt1,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 2,  create_dissector_handle(dissect_sbas_l1_mt2,  proto_sbas_l1));
     dissector_add_uint("sbas_l1.mt", 3,  create_dissector_handle(dissect_sbas_l1_mt3,  proto_sbas_l1));
