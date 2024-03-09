@@ -274,6 +274,8 @@ void FollowStreamDialog::useRegexFind(bool use_regex)
         ui->lFind->setText(tr("Find:"));
 }
 
+// This only calls itself with go_back false, so never recurses more than once.
+// NOLINTNEXTLINE(misc-no-recursion)
 void FollowStreamDialog::findText(bool go_back)
 {
     if (ui->leFind->text().isEmpty()) return;
