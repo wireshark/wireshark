@@ -189,6 +189,7 @@ xmpp_ibb_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_inf
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element, guint level)
 {
     GList *childs = element->elements;
@@ -522,10 +523,11 @@ xmpp_element_t_cleanup(void* userdata)
 Function converts xml_frame_t structure to xmpp_element_t (simpler representation)
 */
 xmpp_element_t*
-xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb)
+// NOLINTNEXTLINE(misc-no-recursion)
+xmpp_xml_frame_to_element_t(packet_info *pinfo, xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb)
 {
     xml_frame_t *child;
-    xmpp_element_t *node = wmem_new0(pool, xmpp_element_t);
+    xmpp_element_t *node = wmem_new0(pinfo->pool, xmpp_element_t);
 
     tvbparse_t* tt;
     tvbparse_elem_t* elem;
@@ -536,7 +538,7 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
     node->was_read = FALSE;
     node->default_ns_abbrev = NULL;
 
-    node->name = wmem_strdup(pool, xml_frame->name_orig_case);
+    node->name = wmem_strdup(pinfo->pool, xml_frame->name_orig_case);
     node->offset = 0;
     node->length = 0;
 
@@ -558,11 +560,11 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
      */
     CLEANUP_PUSH(xmpp_element_t_cleanup, node);
 
-    tt = tvbparse_init(pool, tvb,node->offset,-1,NULL,want_ignore);
+    tt = tvbparse_init(pinfo->pool, tvb,node->offset,-1,NULL,want_ignore);
 
     if((elem = tvbparse_get(tt,want_stream_end_with_ns))!=NULL)
     {
-        node->default_ns_abbrev = tvb_get_string_enc(pool, elem->sub->tvb, elem->sub->offset, elem->sub->len, ENC_ASCII);
+        node->default_ns_abbrev = tvb_get_string_enc(pinfo->pool, elem->sub->tvb, elem->sub->offset, elem->sub->len, ENC_ASCII);
     }
 
     child = xml_frame->first_child;
@@ -577,21 +579,21 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
                 gchar *value = NULL;
                 const gchar *xmlns_needle = NULL;
 
-                xmpp_attr_t *attr = wmem_new(pool, xmpp_attr_t);
+                xmpp_attr_t *attr = wmem_new(pinfo->pool, xmpp_attr_t);
                 attr->length = 0;
                 attr->offset = 0;
                 attr->was_read = FALSE;
 
                 if (child->value != NULL) {
                     l = tvb_reported_length(child->value);
-                    value = (gchar *)wmem_alloc0(pool, l + 1);
+                    value = (gchar *)wmem_alloc0(pinfo->pool, l + 1);
                     tvb_memcpy(child->value, value, 0, l);
                 }
 
                 attr->offset = child->start_offset;
                 attr->length = child->length;
                 attr->value = value;
-                attr->name = wmem_strdup(pool, child->name_orig_case);
+                attr->name = wmem_strdup(pinfo->pool, child->name_orig_case);
 
                 g_hash_table_insert(node->attrs,(gpointer)attr->name,(gpointer)attr);
 
@@ -602,10 +604,10 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
                 {
                     if(attr->name[5] == ':' && strlen(attr->name) > 6)
                     {
-                        g_hash_table_insert(node->namespaces, (gpointer)wmem_strdup(pool, &attr->name[6]), (gpointer)wmem_strdup(pool, attr->value));
+                        g_hash_table_insert(node->namespaces, (gpointer)wmem_strdup(pinfo->pool, &attr->name[6]), (gpointer)wmem_strdup(pinfo->pool, attr->value));
                     } else if(attr->name[5] == '\0')
                     {
-                        g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)wmem_strdup(pool, attr->value));
+                        g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)wmem_strdup(pinfo->pool, attr->value));
                     }
                 }
 
@@ -617,13 +619,13 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
                 gint l;
                 gchar* value = NULL;
 
-                data =  wmem_new(pool, xmpp_data_t);
+                data =  wmem_new(pinfo->pool, xmpp_data_t);
                 data->length = 0;
                 data->offset = 0;
 
                 if (child->value != NULL) {
                     l = tvb_reported_length(child->value);
-                    value = (gchar *)wmem_alloc0(pool, l + 1);
+                    value = (gchar *)wmem_alloc0(pinfo->pool, l + 1);
                     tvb_memcpy(child->value, value, 0, l);
                 }
 
@@ -635,7 +637,9 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
             }
         } else
         {
-            node->elements = g_list_append(node->elements,(gpointer)xmpp_xml_frame_to_element_t(pool, child, node,tvb));
+            increment_dissection_depth(pinfo);
+            node->elements = g_list_append(node->elements,(gpointer)xmpp_xml_frame_to_element_t(pinfo, child, node,tvb));
+            decrement_dissection_depth(pinfo);
         }
 
         child = child->next_sibling;
@@ -647,6 +651,7 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
 }
 
 void
+// NOLINTNEXTLINE(misc-no-recursion)
 xmpp_element_t_tree_free(xmpp_element_t *root)
 {
     GList *childs = root->elements;
@@ -658,6 +663,7 @@ xmpp_element_t_tree_free(xmpp_element_t *root)
     {
         xmpp_element_t *child = (xmpp_element_t *)childs->data;
 
+        // Our depth should be limited by the check in xmpp_xml_frame_to_element_t
         xmpp_element_t_tree_free(child);
         childs = childs->next;
     }
