@@ -171,7 +171,8 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
                                                     Defaults to the name given in `tablename`, but can be any string. */
 #define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* One of `ftypes.UINT8`, `ftypes.UINT16`,
                                                   `ftypes.UINT24`, `ftypes.UINT32`,
-                                                  `ftypes.STRING`, or `ftypes.GUID`.
+                                                  `ftypes.STRING`, `ftypes.NONE`,
+                                                  or `ftypes.GUID`.
                                                   Defaults to `ftypes.UINT32`. */
 #define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* One of `base.NONE`, `base.DEC`, `base.HEX`,
                                                   `base.OCT`, `base.DEC_HEX` or `base.HEX_DEC`.
