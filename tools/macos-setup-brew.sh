@@ -144,7 +144,8 @@ if [ $INSTALL_OPTIONAL -ne 0 ] ; then
 fi
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
-    pip3 install dmgbuild
+    printf "Sorry, you'll have to install dmgbuild yourself for the time being.\\n"
+    # pip3 install dmgbuild
 fi
 
 if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
@@ -152,7 +153,8 @@ if [ $INSTALL_SPARKLE_DEPS -ne 0 ] ; then
 fi
 
 if [ $INSTALL_TEST_DEPS -ne 0 ] ; then
-    pip3 install pytest pytest-xdist
+    printf "Sorry, you'll have to install pytest and pytest-xdist yourself for the time being.\\n"
+    # pip3 install pytest pytest-xdist
 fi
 
 # Uncomment to add PNG compression utilities used by compress-pngs:

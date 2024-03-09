@@ -215,11 +215,14 @@ variables:
     # it sets an alternate HOME, which results in asdf returning
     #   unknown command: python3. Perhaps you have to reshim?
     # Make sure /usr/local/bin is first in order to work around asdf.
-    - export PATH=/usr/local/bin:$PATH
+    - export PATH=/usr/local/bin:$PATH:$HOME/.python-env/bin
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
+    # Homebrew implemented PEP 668, so install Python packages using venv for now.
+    - python3 -m venv $HOME/.python-env
+    - $HOME/.python-env/bin/pip3 install pytest pytest-xdist
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
     - ccache --show-stats
