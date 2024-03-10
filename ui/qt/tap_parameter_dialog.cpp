@@ -512,7 +512,6 @@ void TapParameterDialog::updateWidgets()
 
 void TapParameterDialog::on_applyFilterButton_clicked()
 {
-    beginRetapPackets();
     if (!ui->displayFilterLineEdit->checkFilter()) {
         return;
     }
@@ -530,7 +529,6 @@ void TapParameterDialog::on_applyFilterButton_clicked()
     fillTree();
     ui->applyFilterButton->setEnabled(af_enabled);
     ui->displayFilterLineEdit->setEnabled(df_enabled);
-    endRetapPackets();
 }
 
 void TapParameterDialog::on_actionCopyToClipboard_triggered()
