@@ -2111,6 +2111,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
 
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         gint offset, gint attribute, bluetooth_uuid_t service_uuid,
         gint service_did_vendor_id, gint service_did_vendor_id_source,
@@ -3530,6 +3531,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         wmem_strbuf_append(info_buf, "{ ");
 
+        increment_dissection_depth(pinfo);
         while (bytes_to_go > 0) {
             if (!first) {
                 wmem_strbuf_append(info_buf, ", ");
@@ -3548,6 +3550,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             next_offset += size;
             bytes_to_go -= size;
         }
+        decrement_dissection_depth(pinfo);
 
         wmem_strbuf_append(info_buf, "} ");
         break;

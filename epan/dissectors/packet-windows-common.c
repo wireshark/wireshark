@@ -1980,7 +1980,8 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 
 /* Dissect Condition ACE token, see [MS-DTYP] v20180912 section 2.4.4.17.4 */
 static int
-dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, guint16 size, proto_tree *parent_tree)
 {
 	int start_offset = offset;
 	proto_tree *tree = parent_tree;
@@ -2092,8 +2093,11 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_
 			int remaining = size - (offset - start_offset);
 			if (remaining >= (int)len) {
 				int end_offset = offset + len;
-				while (offset < end_offset)
-					offset = dissect_nt_conditional_ace_token(tvb, offset, remaining, tree);
+				increment_dissection_depth(pinfo);
+				while (offset < end_offset) {
+					offset = dissect_nt_conditional_ace_token(tvb, pinfo, offset, remaining, tree);
+				}
+				decrement_dissection_depth(pinfo);
 			} else {
 				/* malformed: composite len is longer
 				 * than the remaining data in the ace
@@ -2161,7 +2165,7 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_
 
 /* Dissect Conditional ACE (if present), see [MS-DTYP] v20180912 section 2.4.4.17.4 */
 static int
-dissect_nt_conditional_ace(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
+dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, guint16 size, proto_tree *parent_tree)
 {
 	int start_offset = offset;
 
@@ -2183,7 +2187,7 @@ dissect_nt_conditional_ace(tvbuff_t *tvb, int offset, guint16 size, proto_tree *
 				remaining = size - (offset - start_offset);
 				if (remaining <= 0)
 					break;
-				offset = dissect_nt_conditional_ace_token(tvb, offset, remaining, parent_tree);
+				offset = dissect_nt_conditional_ace_token(tvb, pinfo, offset, remaining, parent_tree);
 			}
 		}
 	}
@@ -2746,7 +2750,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    case ACE_TYPE_ACCESS_DENIED_CALLBACK_OBJECT:
 		    case ACE_TYPE_SYSTEM_AUDIT_CALLBACK:
 		    case ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT:
-			dissect_nt_conditional_ace(tvb, offset, data_size, tree);
+			dissect_nt_conditional_ace(tvb, pinfo, offset, data_size, tree);
 			break;
 
 		    case ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE:
