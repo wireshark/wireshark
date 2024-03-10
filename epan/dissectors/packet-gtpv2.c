@@ -8959,6 +8959,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
     proto_tree *gtpv2_tree;
@@ -9140,7 +9141,9 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         new_p_tvb = tvb_new_subset_remaining(tvb, msg_length + 4);
         col_append_str(pinfo->cinfo, COL_INFO, " / ");
         col_set_fence(pinfo->cinfo, COL_INFO);
+        increment_dissection_depth(pinfo);
         dissect_gtpv2(new_p_tvb, pinfo, tree, NULL);
+        decrement_dissection_depth(pinfo);
     }
 
     return tvb_captured_length(tvb);
