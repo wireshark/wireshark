@@ -1402,6 +1402,7 @@ dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   /* FIXME: Does it contain one or more parameters? */
@@ -1700,6 +1701,7 @@ dissect_forward_tsn_supported_parameter(tvbuff_t *parameter_tvb _U_)
 #define ADDRESS_PARAMETER_OFFSET (CORRELATION_ID_OFFSET + CORRELATION_ID_LENGTH)
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 address_length;
@@ -1717,6 +1719,7 @@ dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 address_length;
@@ -1736,6 +1739,7 @@ dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 #define ERROR_CAUSE_IND_CASUES_OFFSET (CORRELATION_ID_OFFSET + CORRELATION_ID_LENGTH)
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   guint16 causes_length;
@@ -1750,6 +1754,7 @@ dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *p
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 address_length;
@@ -1867,6 +1872,7 @@ static const true_false_string sctp_parameter_bit_2_value = {
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
                   proto_tree *chunk_tree, proto_item *additional_item,
                   gboolean dissecting_init_init_ack_chunk,
@@ -1909,6 +1915,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     parameter_tree = NULL;
   }
 
+  increment_dissection_depth(pinfo);
   switch(type) {
   case HEARTBEAT_INFO_PARAMETER_ID:
     dissect_heartbeat_info_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1993,6 +2000,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   }
+  decrement_dissection_depth(pinfo);
 
   if (padding_length > 0) {
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
@@ -2000,6 +2008,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_item *additional_item, gboolean dissecting_init_init_ack_chunk)
 {
   gint offset, length, total_length, remaining_length;
@@ -2101,6 +2110,7 @@ dissect_out_of_resource_cause(tvbuff_t *cause_tvb _U_)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 parameter_length;
@@ -2117,6 +2127,7 @@ static gboolean
 dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree, sctp_half_assoc_t *assoc, gboolean useinfo);
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 chunk_length;
@@ -2138,6 +2149,7 @@ dissect_invalid_mandatory_parameter_cause(tvbuff_t *cause_tvb _U_)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_unrecognized_parameters_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree)
 {
   guint16 cause_info_length;
@@ -2167,6 +2179,7 @@ dissect_cookie_received_while_shutting_down_cause(tvbuff_t *cause_tvb _U_)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_restart_with_new_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 cause_info_length;
@@ -2202,6 +2215,7 @@ dissect_protocol_violation_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 cause_info_length;
@@ -2217,6 +2231,7 @@ dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_resource_outage_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree)
 {
   guint16 cause_info_length;
@@ -2230,6 +2245,7 @@ dissect_resource_outage_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tre
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_delete_source_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 cause_info_length;
@@ -2245,6 +2261,7 @@ dissect_delete_source_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, pro
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_request_refused_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree)
 {
   guint16 cause_info_length;
@@ -2318,6 +2335,7 @@ static const value_string cause_code_values[] = {
 
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_tree)
 {
   guint16 code, length, padding_length;
@@ -2335,6 +2353,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   proto_tree_add_item(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   /* XXX - add expert info if length is bogus? */
 
+  increment_dissection_depth(pinfo);
   switch(code) {
   case INVALID_STREAM_IDENTIFIER:
     dissect_invalid_stream_identifier_cause(cause_tvb, cause_tree, cause_item);
@@ -2394,12 +2413,14 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
     break;
   }
+  decrement_dissection_depth(pinfo);
 
   if (padding_length > 0)
     proto_tree_add_item(cause_tree, hf_cause_padding, cause_tvb, CAUSE_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_causes(tvbuff_t *causes_tvb, packet_info *pinfo, proto_tree *tree)
 {
   gint offset, length, total_length, remaining_length;
@@ -3566,6 +3587,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
                                                       INIT_CHUNK_INITIAL_TSN_LENGTH )
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
@@ -3600,6 +3622,7 @@ dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
@@ -3977,6 +4000,7 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 #define HEARTBEAT_CHUNK_INFO_OFFSET CHUNK_VALUE_OFFSET
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t   *parameter_tvb;
@@ -3994,6 +4018,7 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *
 #define HEARTBEAT_ACK_CHUNK_INFO_OFFSET CHUNK_VALUE_OFFSET
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t   *parameter_tvb;
@@ -4012,6 +4037,7 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_in
 #define SCTP_ABORT_CHUNK_T_BIT               0x01
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_abort_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *flags_item)
 {
   tvbuff_t *causes_tvb;
@@ -4050,6 +4076,7 @@ dissect_shutdown_ack_chunk(tvbuff_t *chunk_tvb _U_)
 #define ERROR_CAUSE_IND_CAUSES_OFFSET CHUNK_VALUE_OFFSET
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree)
 {
   tvbuff_t *causes_tvb;
@@ -4210,6 +4237,7 @@ dissect_i_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tre
 #define RE_CONFIG_PARAMETERS_OFFSET CHUNK_HEADER_LENGTH
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_re_config_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item _U_)
 {
   tvbuff_t *parameters_tvb;
@@ -4243,6 +4271,7 @@ dissect_auth_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_
 #define ASCONF_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_asconf_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
@@ -4266,6 +4295,7 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pin
 #define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
@@ -4323,6 +4353,7 @@ static const true_false_string sctp_pktdropk_t_bit_value = {
 };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
   tvbuff_t *data_field_tvb;
@@ -4406,6 +4437,7 @@ static const true_false_string sctp_chunk_bit_2_value = {
 
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sctp_chunk(tvbuff_t *chunk_tvb,
                    packet_info *pinfo,
                    proto_tree *tree,
@@ -4471,6 +4503,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   */
 
   /* now dissect the chunk value */
+  increment_dissection_depth(pinfo);
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
     result = dissect_data_chunk(chunk_tvb, length, pinfo, tree, chunk_tree, chunk_item, flags_item, ha, FALSE);
@@ -4553,6 +4586,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     dissect_unknown_chunk(chunk_tvb, length, type, chunk_tree, chunk_item);
     break;
   }
+  decrement_dissection_depth(pinfo);
 
   if (padding_length > 0)
     proto_tree_add_item(chunk_tree, hf_chunk_padding, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length, ENC_NA);
@@ -4564,6 +4598,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree, sctp_half_assoc_t *ha, gboolean encapsulated)
 {
   tvbuff_t *chunk_tvb;
@@ -4658,6 +4693,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean encapsulated)
 {
   guint32 checksum = 0, calculated_crc32c = 0, calculated_adler32 = 0;

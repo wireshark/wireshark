@@ -539,6 +539,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_nhrp_mand(tvbuff_t    *tvb,
                        packet_info *pinfo,
                        proto_tree  *tree,
@@ -716,6 +717,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         pinfo->flags.in_error_pkt = TRUE;
         sub_tvb = tvb_new_subset_remaining(tvb, offset);
         if (isErr) {
+            // We recurse here, but we'll run out of packet before we run out of stack.
             _dissect_nhrp(sub_tvb, pinfo, ind_tree, TRUE, FALSE);
         }
         else {
@@ -962,6 +964,7 @@ static int dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_captured_length(tvb);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void _dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean nested, gboolean codeinfo)
 {
@@ -1001,6 +1004,7 @@ static void _dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
     }
     if (mandLen) {
+        // We recurse here, but we'll run out of packet before we run out of stack.
         dissect_nhrp_mand(tvb, pinfo, nhrp_tree, &offset, mandLen,
             oui_info, &hdr, &srcLen, codeinfo);
     }
