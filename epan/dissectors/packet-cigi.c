@@ -1,8 +1,10 @@
 /* packet-cigi.c
  * Routines for Common Image Generator Interface
  * (Versions 2, 3 and 4) dissection
- * CIGI - http://cigi.sourceforge.net/
+ * CIGI 1-3 - http://cigi.sourceforge.net/
  * Copyright (c) 2005 The Boeing Company
+ *
+ * CIGI 4 https://www.sisostandards.org/page/StandardsProducts
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3534,30 +3536,31 @@ static int hf_cigi4_packet_size;
 #define CIGI4_PACKET_ID_ENTITY_CONTROL                               0x25
 #define CIGI4_PACKET_ID_ANIMATION_CONTROL                            0x26
 
-#define CIGI4_PACKET_ID_START_OF_FRAME                             0xFFFF
-#define CIGI4_PACKET_ID_HAT_HOT_RESPONSE                           0x0FFF
-#define CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE                  0x0FFE
-#define CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE                     0x0FFD
-#define CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE            0x0FFC
-#define CIGI4_PACKET_ID_SENSOR_RESPONSE                            0x0FFB
-#define CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE                   0x0FFA
-#define CIGI4_PACKET_ID_POSITION_RESPONSE                          0x0FF9
-#define CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE                0x0FF8
-#define CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE             0x0FF7
-#define CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE       0x0FF6
-#define CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE    0x0FF5
-#define CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION   0x0FF4
-#define CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION    0x0FF3
-#define CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION                0x0FF2
-#define CIGI4_PACKET_ID_EVENT_NOTIFICATION                         0x0FF1
 #define CIGI4_PACKET_ID_IMAGE_GENERATOR_MESSAGE                    0x0FF0
+#define CIGI4_PACKET_ID_EVENT_NOTIFICATION                         0x0FF1
+#define CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION                0x0FF2
+#define CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION    0x0FF3
+#define CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION   0x0FF4
+#define CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE    0x0FF5
+#define CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE       0x0FF6
+#define CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE             0x0FF7
+#define CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE                0x0FF8
+#define CIGI4_PACKET_ID_POSITION_RESPONSE                          0x0FF9
+#define CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE                   0x0FFA
+#define CIGI4_PACKET_ID_SENSOR_RESPONSE                            0x0FFB
+#define CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE            0x0FFC
+#define CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE                     0x0FFD
+#define CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE                  0x0FFE
+#define CIGI4_PACKET_ID_HAT_HOT_RESPONSE                           0x0FFF
+#define CIGI4_PACKET_ID_START_OF_FRAME                             0xFFFF
 
+/* These locally defined values mean that perhaps a range_string
+ * is more appropriate than a value_string.
+ */
 #define CIGI4_PACKET_ID_LOCALLY_DEFINED_MAX                        0xFFFE
 #define CIGI4_PACKET_ID_LOCALLY_DEFINED_MIN                        0x8000
 #define CIGI4_PACKET_ID_REGISTERED_MAX                             0x7FFF
 #define CIGI4_PACKET_ID_REGISTERED_MIN                             0x1000
-
-
 
 static const value_string cigi4_packet_id_vals[] = {
     {CIGI4_PACKET_ID_IG_CONTROL, "IG Control"},
@@ -3600,23 +3603,23 @@ static const value_string cigi4_packet_id_vals[] = {
     {CIGI4_PACKET_ID_ENTITY_CONTROL, "Entity Control"},
     {CIGI4_PACKET_ID_ANIMATION_CONTROL, "Animation Control"},
 
-    {CIGI4_PACKET_ID_START_OF_FRAME, "Start of Frame"},
-    {CIGI4_PACKET_ID_HAT_HOT_RESPONSE, "HAT/HOT Response"},
-    {CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE, "HAT/HOT Extended Response"},
-    {CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE, "Line of Sight Response"},
-    {CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE, "Line of Sight Extended Response"},
-    {CIGI4_PACKET_ID_SENSOR_RESPONSE, "Sensor Response"},
-    {CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE, "Sensor Extended Response"},
-    {CIGI4_PACKET_ID_POSITION_RESPONSE, "Position Response"},
-    {CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE, "Weather Conditions Response"},
-    {CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE, "Aerosol Concentration Response"},
-    {CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE, "Maritime Surface Conditions Response"},
-    {CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE, "Terrestrial Surface Conditions Response"},
-    {CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION, "Collision Detection Segment Notification"},
-    {CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION, "Collision Detection Volume Notification"},
-    {CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION, "Animation Stop Notification"},
-    {CIGI4_PACKET_ID_EVENT_NOTIFICATION, "Event Notification"},
     {CIGI4_PACKET_ID_IMAGE_GENERATOR_MESSAGE, "Image Generator Message"},
+    {CIGI4_PACKET_ID_EVENT_NOTIFICATION, "Event Notification"},
+    {CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION, "Animation Stop Notification"},
+    {CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION, "Collision Detection Volume Notification"},
+    {CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION, "Collision Detection Segment Notification"},
+    {CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE, "Terrestrial Surface Conditions Response"},
+    {CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE, "Maritime Surface Conditions Response"},
+    {CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE, "Aerosol Concentration Response"},
+    {CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE, "Weather Conditions Response"},
+    {CIGI4_PACKET_ID_POSITION_RESPONSE, "Position Response"},
+    {CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE, "Sensor Extended Response"},
+    {CIGI4_PACKET_ID_SENSOR_RESPONSE, "Sensor Response"},
+    {CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE, "Line of Sight Extended Response"},
+    {CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE, "Line of Sight Response"},
+    {CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE, "HAT/HOT Extended Response"},
+    {CIGI4_PACKET_ID_HAT_HOT_RESPONSE, "HAT/HOT Response"},
+    {CIGI4_PACKET_ID_START_OF_FRAME, "Start of Frame"},
     {0, NULL}
 };
 static value_string_ext cigi4_packet_id_vals_ext = VALUE_STRING_EXT_INIT(cigi4_packet_id_vals);
@@ -3778,6 +3781,14 @@ static const value_string cigi4_entity_control_animation_state_vals[] = {
 #define CIGI_VERSION_3   3
 #define CIGI_VERSION_4   4
 
+#define CIGI_VERSION_4_IGC 0
+#define CIGI_VERSION_4_SOF 0xFF
+/* CIIG Standard Version 4, 4.5 Message Structure: "The special Packet IDs
+ * assigned to the IG Control and Start of Frame packets permit a multi-version
+ * CIGI parser to differentiate between the old and new message structure as
+ * both 0h and FFh are unknown CIGI major version numbers."
+ */
+
 static gint global_cigi_version = CIGI_VERSION_FROM_PACKET;
 
 #define CIGI_BYTE_ORDER_FROM_PACKET   -1
@@ -3828,15 +3839,10 @@ packet_is_cigi(tvbuff_t *tvb)
         /* Not enough data available to check */
         return FALSE;
     }
-    packet_size = tvb_get_guint8(tvb, 1);
-
-    if ( packet_size > tvb_reported_length(tvb) ) {
-        return FALSE;
-    }
 
     packet_id = tvb_get_guint8(tvb, 0);
+    packet_size = tvb_get_guint8(tvb, 1);
     cigi_version_local = tvb_get_guint8(tvb, 2);
-    /* Currently there are only 3 versions of CIGI */
     switch ( cigi_version_local ) {
 
         case CIGI_VERSION_1:
@@ -3895,7 +3901,7 @@ packet_is_cigi(tvbuff_t *tvb)
 
         case CIGI_VERSION_3:
             if (!tvb_bytes_exist(tvb, 6, 1)) {
-                /* Not enough data available to check */
+                /* Not enough data available to check byte swap field */
                 return FALSE;
             }
 
@@ -3944,27 +3950,36 @@ packet_is_cigi(tvbuff_t *tvb)
             }
             break;
 
-        default:
-            //test if it's GICI4 version 4
-            if (tvb_get_guint8(tvb, 4) != 4)
-                return FALSE;
-
-            if (!tvb_bytes_exist(tvb, 6, 1)) {
+        case CIGI_VERSION_4_IGC:
+        case CIGI_VERSION_4_SOF:
+            /* CIGI 4 introduces a 4 byte header, with 16-bit packet size
+             * and packet ID (yes, they're in the opposite order of the
+             * previous versions; now packet size comes first). The version
+             * number is now located in the fifth byte. Since the first packet
+             * is required to be the IG Control or SOF, the third byte must be
+             * 0x00 or 0xFF, regardless of endianness.
+             */
+            if (!tvb_bytes_exist(tvb, 4, 1)) {
                 /* Not enough data available to check */
                 return FALSE;
             }
+            //test if it's CIGI version 4
+            if (tvb_get_guint8(tvb, 4) != CIGI_VERSION_4)
+                return FALSE;
 
             /* CIGI 4 requires that the first packet is always the IG Control or SOF */
 
             //PacketSize If the parser detects a zero in the "leftmost" byte, then the message is in Big Endian byte
-            byte_swap = tvb_get_ntohs(tvb, 0);
-            if ((byte_swap & 0xFF00) == 0) {
+            if (packet_id == 0) {
+                /* Big Endian */
                 packet_size = tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN);
-                packet_id = tvb_get_guint16(tvb, 2, ENC_BIG_ENDIAN);     //packet_id is not at the same location
-            }
-            else {
+                packet_id = tvb_get_guint16(tvb, 2, ENC_BIG_ENDIAN);
+            } else if (packet_size == 0) {
+                /* Little Endian */
                 packet_size = tvb_get_guint16(tvb, 0, ENC_LITTLE_ENDIAN);
                 packet_id = tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN);
+            } else {
+                return FALSE;
             }
 
             switch (packet_id) {
@@ -3988,20 +4003,21 @@ packet_is_cigi(tvbuff_t *tvb)
                 if (packet_size != CIGI4_PACKET_SIZE_START_OF_FRAME) {
                     return FALSE;
                 }
-
-                if (!tvb_bytes_exist(tvb, 5, 1)) {
-                    /* Not enough data available to check */
-                    return FALSE;
-                }
-
                 break;
             default:
                 return FALSE;
             }
             break;
+        default:
+            return FALSE;
+    }
 
-            /* CIGI 4 has the byte swap is done using PacketSize "leftmost" byte*/
-            //byte_swap = tvb_get_guint16(tvb, 2, );
+    /* Check that the frame contains at least the first PDU's worth
+     * of data. (We can't check this until we know the CIGI version
+     * because CIGI version 4 stores the packet size differently.)
+     */
+    if ( packet_size > tvb_reported_length(tvb) ) {
+        return FALSE;
     }
 
     /* If we made it here, then this is probably CIGI */
@@ -9633,7 +9649,7 @@ cigi_add_locally_defined(tvbuff_t* tvb, proto_tree* tree, gint offset) {
     return offset;
 }
 
-/* CIGI4 Registred Message */
+/* CIGI4 Registered Message */
 static gint
 cigi_add_registered(tvbuff_t* tvb, proto_tree* tree, gint offset) {
     guint8 packet_size = 0;
