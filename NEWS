@@ -23,6 +23,9 @@ Wireshark 4.3.0 Release Notes
   as display filter functions, slices, arithmetic calculations, logical
   tests, raw byte addressing, and the layer modifier.
 
+  Custom output fields for `tshark -e` can also be defined using any
+  valid field expression.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -66,8 +69,10 @@ Wireshark 4.3.0 Release Notes
        information.
 
         • Added new display filter functions to convert unsigned integer
-       types to decimal or hexadecimal. Check the wireshark-filter(5)
-       manpage for more information.
+       types to decimal or hexadecimal, and convert fields with value
+       strings into the associated string for their value (used to
+       produce results similar to custom columns). Check the
+       wireshark-filter(5) manpage for more information.
 
         • Display filter macros can be written with a semicolon after
        the macro name before the argument list, e.g.
@@ -137,6 +142,15 @@ Wireshark 4.3.0 Release Notes
        host name resolution or value string lookup) are not supported
        for any of the new expressions yet.
 
+     • Custom output fields for `tshark -e <field>` can also be defined
+       using any valid field expression as above.
+
+        • For custom output fields, `X or Y` is the usual logical test;
+       to output multiple fields use multiple `-e` terms as before.
+
+        • The various `-E` options, including `-E occurrence`, all work
+       as expected.
+
      • When selecting "Manage Interfaces" from "Capture Options",
        Wireshark only attempts to reconnect to rpcap (remote) hosts that
        were connected to in the last session, instead of every remote
@@ -175,6 +189,10 @@ Wireshark 4.3.0 Release Notes
 
      • The "Follow Stream" dialog can now show delta times between turns
        and all packets and events.
+
+     • The "Find Packet" dialog can search backwards, and find
+       additional occurrences of a string, hex value, or regular
+       expression in a single frame.
 
   Removed Features and Support
 

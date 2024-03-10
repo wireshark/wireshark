@@ -5887,6 +5887,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 24577, "bilobit",         "bilobit Service" },
     { 24666, "sdtvwcam",        "Service used by SmarDTV to communicate between a CAM and a second screen application" },
     { 24754, "cslg",            "Citrix StorageLink Gateway" },
+    { 25100, "db2c-tls",        "IBM Db2 Client Interface - Encrypted" },
     { 25576, "sauterdongle",    "Sauter Dongle" },
     { 25604, "idtp",            "Identifier Tracing Protocol" },
     { 26257, "cockroach",       "CockroachDB" },
