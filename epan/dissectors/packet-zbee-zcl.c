@@ -1993,6 +1993,7 @@ static void dissect_zcl_attr_data_general(tvbuff_t *tvb, proto_tree *tree, guint
  *@param offset into the tvb to begin dissection.
  *@param client_attr ZCL client
 */
+// NOLINTNEXTLINE(misc-no-recursion)
 void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type, gboolean client_attr)
 {
     guint     attr_uint;
@@ -2008,6 +2009,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
     proto_item *attr_utc_item = NULL;
 
     /* Dissect attribute data type and data */
+    // We can recurse here, but we should run out of packet before we run out of stack.
     switch ( data_type ) {
         case ZBEE_ZCL_NO_DATA:
             break;
@@ -2427,6 +2429,7 @@ guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offset, int
  *@param client_attr ZCL client
 */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num, gboolean client_attr)
 {
     proto_tree *sub_tree;
@@ -2468,6 +2471,7 @@ dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 el
  *@param client_attr ZCL client
 */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num, gboolean client_attr)
 {
     proto_tree *sub_tree;

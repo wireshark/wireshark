@@ -157,6 +157,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 	}
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint8 type, void* data, int* offset, char** value)
 {
 	proto_tree* subtree;
@@ -178,6 +179,7 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 		dissect_msgpack_object(tvb, pinfo, map_subtree, "Key", offset, value);
 		if (value)
 			proto_item_append_text(map_subtree, " %s:", *value);
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_object(tvb, pinfo, map_subtree, "Value", offset, value);
 		if (value)
 			proto_item_append_text(map_subtree, " %s", *value);
@@ -187,6 +189,7 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 		*value = label;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint8 type, void* data, int* offset, char** value)
 {
 	proto_tree* subtree;
@@ -203,6 +206,7 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 	subtree = proto_item_add_subtree(ti, ett_msgpack_array);
 	*offset += 1;
 	for (i = 0; i < len; i++) {
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_object(tvb, pinfo, subtree, data, offset, value);
 	}
 
@@ -312,6 +316,7 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 	proto_item_set_len(ext_tree, *offset - offset_start);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, int* offset, char** value)
 {
 	guint8 type;
@@ -356,12 +361,14 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 
 	// Array
 	if (type >> 4 == 0x9) {
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_array(tvb, pinfo, tree, type, data, offset, value);
 		return;
 	}
 
 	// Map
 	if (type >> 4 == 0x8) {
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_map(tvb, pinfo, tree, type, data, offset, value);
 		return;
 	}
@@ -464,6 +471,7 @@ void proto_register_msgpack(void)
 
 void proto_reg_handoff_msgpack(void)
 {
+	// If this is ever streamed (transported over TCP) we need to add recursion checks
 	dissector_add_for_decode_as("udp.port", msgpack_handle);
 }
 

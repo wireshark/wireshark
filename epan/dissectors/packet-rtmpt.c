@@ -900,7 +900,7 @@ dissect_rtmpt_body_scm(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, guint
 }
 
 static gint
-dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *amf3_encoding, proto_item *parent_ti);
+dissect_amf0_value_type(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, gboolean *amf3_encoding, proto_item *parent_ti);
 
 /*
  * A "property list" is a sequence of name/value pairs, terminated by
@@ -908,7 +908,8 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
  * are encoded as property lists.
  */
 static gint
-dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *countp, gboolean *amf3_encoding)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_amf0_property_list(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, guint *countp, gboolean *amf3_encoding)
 {
         proto_item *prop_ti;
         proto_tree *prop_tree;
@@ -945,7 +946,7 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
                 offset += iStringLength;
 
                 /* value-type: property value */
-                offset = dissect_amf0_value_type(tvb, offset, prop_tree, amf3_encoding, prop_ti);
+                offset = dissect_amf0_value_type(tvb, pinfo, offset, prop_tree, amf3_encoding, prop_ti);
                 proto_item_set_end(prop_ti, tvb, offset);
         }
         proto_tree_add_item(tree, hf_amf_end_of_object_marker, tvb, offset, 3, ENC_NA);
@@ -957,7 +958,8 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
 }
 
 static gint
-dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *amf3_encoding, proto_item *parent_ti)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_amf0_value_type(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, gboolean *amf3_encoding, proto_item *parent_ti)
 {
         guint8      iObjType;
         proto_item *ti;
@@ -1020,6 +1022,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
         proto_tree_add_uint(val_tree, hf_amf_amf0_type, tvb, iValueOffset, 1, iObjType);
         iValueOffset++;
 
+        increment_dissection_depth(pinfo);
         switch (iObjType) {
         case AMF0_NUMBER:
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
@@ -1050,7 +1053,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                         proto_item_append_text(parent_ti, " '%s'", iStringValue);
                 break;
         case AMF0_OBJECT:
-                iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
+                iValueOffset = dissect_amf0_property_list(tvb, pinfo, iValueOffset, val_tree, &count, amf3_encoding);
                 proto_item_append_text(ti, " (%u items)", count);
                 break;
         case AMF0_NULL:
@@ -1077,7 +1080,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iArrayLength = tvb_get_ntohl(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_arraylength, tvb, iValueOffset, 4, iArrayLength);
                 iValueOffset += 4;
-                iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
+                iValueOffset = dissect_amf0_property_list(tvb, pinfo, iValueOffset, val_tree, &count, amf3_encoding);
                 proto_item_append_text(ti, " (%u items)", count);
                 break;
         case AMF0_END_OF_OBJECT:
@@ -1095,7 +1098,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 proto_tree_add_uint(val_tree, hf_amf_arraylength, tvb, iValueOffset, 4, iArrayLength);
                 iValueOffset += 4;
                 for (i = 0; i < iArrayLength; i++)
-                        iValueOffset = dissect_amf0_value_type(tvb, iValueOffset, val_tree, amf3_encoding, NULL);
+                        iValueOffset = dissect_amf0_value_type(tvb, pinfo, iValueOffset, val_tree, amf3_encoding, NULL);
                 proto_item_append_text(ti, " (%u items)", iArrayLength);
                 break;
         case AMF0_DATE:
@@ -1133,7 +1136,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
-                iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
+                iValueOffset = dissect_amf0_property_list(tvb, pinfo, iValueOffset, val_tree, &count, amf3_encoding);
                 break;
         case AMF0_AMF3_MARKER:
                 *amf3_encoding = TRUE;
@@ -1154,6 +1157,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iValueOffset = tvb_reported_length(tvb);
                 break;
         }
+        decrement_dissection_depth(pinfo);
         proto_item_set_end(ti, tvb, iValueOffset);
         return iValueOffset;
 }
@@ -1200,7 +1204,8 @@ amf_get_u29(tvbuff_t *tvb, int offset, guint *lenp)
 }
 
 static gint
-dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item *parent_ti)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, proto_item *parent_ti)
 {
         guint8      iObjType;
         proto_item *ti;
@@ -1260,6 +1265,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
         proto_tree_add_uint(val_tree, hf_amf_amf3_type, tvb, iValueOffset, 1, iObjType);
         iValueOffset++;
 
+        increment_dissection_depth(pinfo);
         switch (iObjType) {
         case AMF3_UNDEFINED:
         case AMF3_NULL:
@@ -1392,14 +1398,14 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 proto_item_append_text(subval_ti, "%s",
                                                        val_to_str_const(iObjType, amf3_type_vals, "Unknown"));
 
-                                iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, subval_tree, subval_ti);
+                                iValueOffset = dissect_amf3_value_type(tvb, pinfo, iValueOffset, subval_tree, subval_ti);
                         }
 
                         /*
                          * Dissect the dense portion.
                          */
                         for (i = 0; i < iArrayLength; i++)
-                                iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, val_tree, NULL);
+                                iValueOffset = dissect_amf3_value_type(tvb, pinfo, iValueOffset, val_tree, NULL);
 
                         proto_item_set_end(ti, tvb, iValueOffset);
                 } else {
@@ -1477,7 +1483,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                 }
                                         }
                                         for (i = 0; i < iTraitCount; i++)
-                                                iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, traits_tree, NULL);
+                                                iValueOffset = dissect_amf3_value_type(tvb, pinfo, iValueOffset, traits_tree, NULL);
                                         if (iTypeIsDynamic) {
                                                 for (;;) {
                                                         /* Fetch the name */
@@ -1512,7 +1518,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                         }
 
                                                         /* Fetch the value */
-                                                        iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, subval_tree, subval_ti);
+                                                        iValueOffset = dissect_amf3_value_type(tvb, pinfo, iValueOffset, subval_tree, subval_ti);
                                                         proto_item_set_end(subval_ti, tvb, iValueOffset);
                                                 }
                                         }
@@ -1590,12 +1596,13 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                 iValueOffset = tvb_reported_length(tvb);
                 break;
         }
+        decrement_dissection_depth(pinfo);
         proto_item_set_end(ti, tvb, iValueOffset);
         return iValueOffset;
 }
 
 static gint
-dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, gboolean amf3)
+dissect_rtmpt_body_command(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *rtmpt_tree, gboolean amf3)
 {
         gboolean    amf3_encoding = FALSE;
 
@@ -1611,9 +1618,9 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
         while (tvb_reported_length_remaining(tvb, offset) > 0)
         {
                 if (amf3_encoding)
-                        offset = dissect_amf3_value_type(tvb, offset, rtmpt_tree, NULL);
+                        offset = dissect_amf3_value_type(tvb, pinfo, offset, rtmpt_tree, NULL);
                 else
-                        offset = dissect_amf0_value_type(tvb, offset, rtmpt_tree, &amf3_encoding, NULL);
+                        offset = dissect_amf0_value_type(tvb, pinfo, offset, rtmpt_tree, &amf3_encoding, NULL);
         }
         return offset;
 }
@@ -1681,7 +1688,7 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 }
 
 static void
-dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
+dissect_rtmpt_body_aggregate(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *rtmpt_tree)
 {
         proto_tree *tag_tree;
 
@@ -1712,7 +1719,7 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                         dissect_rtmpt_body_video(tvb, offset + 11, data_tree);
                         break;
                 case 18:
-                        dissect_rtmpt_body_command(tvb, offset + 11, data_tree, FALSE);
+                        dissect_rtmpt_body_command(tvb, pinfo, offset + 11, data_tree, FALSE);
                         break;
                 default:
                         break;
@@ -1892,11 +1899,11 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         break;
                 case RTMPT_TYPE_COMMAND_AMF0:
                 case RTMPT_TYPE_DATA_AMF0:
-                        dissect_rtmpt_body_command(tvb, offset, rtmpt_tree, FALSE);
+                        dissect_rtmpt_body_command(tvb, pinfo, offset, rtmpt_tree, FALSE);
                         break;
                 case RTMPT_TYPE_COMMAND_AMF3:
                 case RTMPT_TYPE_DATA_AMF3:
-                        dissect_rtmpt_body_command(tvb, offset, rtmpt_tree, TRUE);
+                        dissect_rtmpt_body_command(tvb, pinfo, offset, rtmpt_tree, TRUE);
                         break;
                 case RTMPT_TYPE_AUDIO_DATA:
                         dissect_rtmpt_body_audio(tvb, offset, rtmpt_tree);
@@ -1905,7 +1912,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         dissect_rtmpt_body_video(tvb, offset, rtmpt_tree);
                         break;
                 case RTMPT_TYPE_AGGREGATE:
-                        dissect_rtmpt_body_aggregate(tvb, offset, rtmpt_tree);
+                        dissect_rtmpt_body_aggregate(tvb, pinfo, offset, rtmpt_tree);
                         break;
                 }
         }
@@ -2568,7 +2575,7 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 static int
-dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_amf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         proto_item *ti;
         proto_tree *amf_tree, *headers_tree, *messages_tree;
@@ -2604,9 +2611,9 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data 
                                 proto_tree_add_uint(headers_tree, hf_amf_header_length, tvb, offset, 4, header_length);
                         offset += 4;
                         if (amf3_encoding)
-                                offset = dissect_amf3_value_type(tvb, offset, headers_tree, NULL);
+                                offset = dissect_amf3_value_type(tvb, pinfo, offset, headers_tree, NULL);
                         else
-                                offset = dissect_amf0_value_type(tvb, offset, headers_tree, &amf3_encoding, NULL);
+                                offset = dissect_amf0_value_type(tvb, pinfo, offset, headers_tree, &amf3_encoding, NULL);
                 }
         }
         message_count = tvb_get_ntohs(tvb, offset);
@@ -2627,7 +2634,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data 
                         else
                                 proto_tree_add_uint(messages_tree, hf_amf_message_length, tvb, offset, 4, message_length);
                         offset += 4;
-                        offset = dissect_rtmpt_body_command(tvb, offset, messages_tree, FALSE);
+                        offset = dissect_rtmpt_body_command(tvb, pinfo, offset, messages_tree, FALSE);
                 }
         }
         return tvb_captured_length(tvb);
