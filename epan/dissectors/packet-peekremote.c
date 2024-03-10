@@ -109,7 +109,7 @@ static const value_string peekremote_mcs_index_vals[] = {
 
 static value_string_ext peekremote_mcs_index_vals_ext = VALUE_STRING_EXT_INIT(peekremote_mcs_index_vals);
 /* There is no reason to define a separate set of constants for HE(11ax) as it only adds a MCS 10 and 11. MCS0-9 stay the same. We could even imagine an 11ac implementation with MCS10 and 11 (nonstandard)
-*/
+ * Also defining mcs rates for 11be in the same table. */
 static const value_string peekremote_mcs_index_vals_ac[] = {
   { 0, "Modulation type: BPSK, Codingrate: 1/2" },
   { 1, "Modulation type: QPSK, Codingrate: 1/2" },
@@ -123,7 +123,11 @@ static const value_string peekremote_mcs_index_vals_ac[] = {
   { 9, "Modulation type: 256-QAM, Codingrate: 5/6" },
   { 10, "Modulation type: 1024-QAM, Codingrate: 3/4" },
   { 11, "Modulation type: 1024-QAM, Codingrate: 5/6" },
-  { 0, NULL }
+  { 12, "Modulation type: 4096-QAM, Codingrate: 3/4" },
+  { 13, "Modulation type: 4096-QAM, Codingrate: 5/6" },
+  { 14, "Modulation type: BPSK-DCM-DUP, Codingrate: 1/2" },
+  { 15, "Modulation type: BPSK-DCM, Codingrate: 1/2" },
+  { 0, NULL}
 };
 
 
@@ -169,13 +173,16 @@ static const value_string peekremote_type_vals[] = {
 #define EXT_FLAG_SPATIALSTREAMS                 0x0001C000
 #define EXT_FLAG_HEFLAG                         0x00020000
 #define EXT_FLAG_160MHZ                         0x00040000
-#define EXT_FLAGS_RESERVED                      0xFFFC0000
+#define EXT_FLAG_EHTFLAG                        0x00080000
+#define EXT_FLAG_320MHZ                         0x00100000
+#define EXT_FLAGS_RESERVED                      0xFFE00000
 
 static int hf_peekremote_band;
 static int hf_peekremote_channel;
 static int hf_peekremote_extflags;
 static int hf_peekremote_extflags_11ac;
 static int hf_peekremote_extflags_160mhz;
+static int hf_peekremote_extflags_320mhz;
 static int hf_peekremote_extflags_20mhz_lower;
 static int hf_peekremote_extflags_20mhz_upper;
 static int hf_peekremote_extflags_40mhz;
@@ -186,6 +193,7 @@ static int hf_peekremote_extflags_full_gi;
 static int hf_peekremote_extflags_future_use;
 static int hf_peekremote_extflags_half_gi;
 static int hf_peekremote_extflags_heflag;
+static int hf_peekremote_extflags_ehtflag;
 static int hf_peekremote_extflags_reserved;
 static int hf_peekremote_extflags_shortpreamble;
 static int hf_peekremote_extflags_spatialstreams;
@@ -256,6 +264,8 @@ dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_spatialstreams, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_heflag, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_160mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_ehtflag, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_320mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
   return 4;
@@ -350,7 +360,11 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
       extflags = tvb_get_ntohl(tvb, offset+12);
-      if (extflags & EXT_FLAG_HEFLAG) {
+      if (extflags & EXT_FLAG_EHTFLAG) {
+        proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        phdr.phy = PHDR_802_11_PHY_11BE;
+      }
+      else if (extflags & EXT_FLAG_HEFLAG) {
         proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
         phdr.phy = PHDR_802_11_PHY_11AX;
       } else {
@@ -617,7 +631,7 @@ proto_register_peekremote(void)
         NULL, HFILL }
     },
     { &hf_peekremote_mcs_index_ac,
-      { "11ac/11ax MCS index", "peekremote.mcs_index_ac",
+      { "11ac/11ax/11be MCS index", "peekremote.mcs_index_ac",
         FT_UINT16, BASE_DEC, VALS(peekremote_mcs_index_vals_ac), 0x0,
         NULL, HFILL }
     },
@@ -739,6 +753,16 @@ proto_register_peekremote(void)
     { &hf_peekremote_extflags_160mhz,
       { "160Mhz", "peekremote.extflags.160mhz",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_160MHZ,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_ehtflag,
+      { "802.11be", "peekremote.extflags.11be",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_EHTFLAG,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_320mhz,
+      { "320Mhz", "peekremote.extflags.320mhz",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_320MHZ,
         NULL, HFILL }
     },
     { &hf_peekremote_extflags_reserved,
