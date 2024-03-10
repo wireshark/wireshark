@@ -2236,13 +2236,13 @@ static int dissect_edonkey_udp_message(guint8 msg_type,
             proto_tree_add_item(tree, hf_edonkey_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
-        case OVERNET_MSG_UDP_FIREWALL_CONNECTION:      /* Firewall Connnection  Ack: <Hash> <TCP Port> */
+        case OVERNET_MSG_UDP_FIREWALL_CONNECTION:      /* Firewall Connection  Ack: <Hash> <TCP Port> */
             offset = dissect_edonkey_client_hash(tvb, pinfo, offset, tree);
             proto_tree_add_item(tree, hf_edonkey_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
-        case OVERNET_MSG_UDP_FIREWALL_CONNECTION_ACK:  /* Firewall Connnection  Ack: <Hash> */
-        case OVERNET_MSG_UDP_FIREWALL_CONNECTION_NACK: /* Firewall Connnection NAck: <Hash> */
+        case OVERNET_MSG_UDP_FIREWALL_CONNECTION_ACK:  /* Firewall Connection  Ack: <Hash> */
+        case OVERNET_MSG_UDP_FIREWALL_CONNECTION_NACK: /* Firewall Connection NAck: <Hash> */
             offset = dissect_edonkey_client_hash(tvb, pinfo, offset, tree);
             break;
 

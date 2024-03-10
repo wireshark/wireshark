@@ -2728,7 +2728,7 @@ typedef struct _coherent_set_info {
   gboolean is_set;
 } coherent_set_info;
 
-/* Links a writer_seq_number with a coherent set. Useful when cohrent set ends with paramter empty packet*/
+/* Links a writer_seq_number with a coherent set. Useful when coherent set ends with parameter empty packet*/
 typedef struct _coherent_set_end {
   guint64 writer_seq_number;
   coherent_set_key coherent_set_id;
@@ -2766,7 +2766,7 @@ typedef struct  {
 } builtin_types_dissection_infos;
 
 
-/* Dissection info of types that are sent as user data but doesn't pubish discovery data */
+/* Dissection info of types that are sent as user data but doesn't publish discovery data */
 typedef struct {
   builtin_types_type_mappings type_mappings;
   builtin_types_dissection_infos dissection_infos;
@@ -2808,7 +2808,7 @@ static const true_false_string tfs_little_big_endianness = { "Little-Endian", "B
 /* #19359 - ensure strings we copy aren't truncated halfway through a Unicode codepoint */
 static void rtps_strlcpy(char *dest, const char *src, size_t dest_size)
 {
-  /* Reserving the last character in case ws_utf8_truncate overwites it */
+  /* Reserving the last character in case ws_utf8_truncate overwrites it */
   (void) g_strlcpy(dest, src, dest_size);
   ws_utf8_truncate(dest, strlen(dest));
 }
@@ -3033,8 +3033,8 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *
     }
     if ((flags & MEMBER_OPTIONAL) != 0) {
 		gint offset_before = offset;
-		/* Parameter header is at minimun 4 bytes */
-		ALIGN_ZERO(
+        /* Parameter header is at minimum 4 bytes */
+        ALIGN_ZERO(
             offset,
             get_native_type_cdr_alignment(RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE, encoding_version),
             offset_zero);
@@ -3211,12 +3211,12 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *
                 aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
                     NULL, name);
             } else if (array_kind_length != -1) {
-                /* Total length of the array. Nothing elese to do here. */
+                /* Total length of the array. Nothing else to do here. */
                 offset += bound * array_kind_length;
                 break;
             }
 
-            /* Get the maximun number of elements to be shown */
+            /* Get the maximum number of elements to be shown */
             num_elements = (enable_max_array_data_type_elements)
                 ? MIN(bound, rtps_max_array_data_type_elements)
                 : bound;
@@ -3434,14 +3434,14 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *
                     offset, 0, 0, show);
                 }
 
-                /* Get the maximun number of elements to be shown depending if enable_max_data_type_elements is enabled */
+                /* Get the maximum number of elements to be shown depending if enable_max_data_type_elements is enabled */
                 shown_elements = (enable_max_data_type_elements)
                   ? MIN(info->num_elements, rtps_max_data_type_elements)
                   : info->num_elements;
                 for (i = 0; i < info->num_elements; i++) {
                   if (info->elements[i].type_id > 0) {
                     /* A member is shown if the parent cluster is shown and the position is in the
-                    * range of maximun number of elements shown */
+                    * range of maximum number of elements shown */
                     if (!(show && i < shown_elements) && show_current_element) {
                       show_current_element = FALSE;
                       /* Updated only once */
@@ -9593,7 +9593,7 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
   }
 }
 
-static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb,
+static void dissect_parameterized_serialized_data(proto_tree *tree, tvbuff_t *tvb,
                        gint offset_input, int size, const guint encoding)
 {
   guint32 member_id, member_length;
@@ -9918,7 +9918,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   rtps_dissector_data * data = wmem_new(wmem_packet_scope(), rtps_dissector_data);
   tvbuff_t *data_holder_tvb = tvb;
   tvbuff_t *compressed_tvb = NULL;
-  proto_tree *dissected_data_holdeer_tree = NULL;
+  proto_tree *dissected_data_holder_tree = NULL;
   gboolean is_compressed = FALSE;
   gboolean uncompressed_ok = FALSE;
   proto_tree *compressed_subtree = NULL;
@@ -9930,7 +9930,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
           ett_rtps_serialized_data, &ti, label);
 
   /* We store thisa value for using later */
-  dissected_data_holdeer_tree = rtps_parameter_sequence_tree;
+  dissected_data_holder_tree = rtps_parameter_sequence_tree;
 
   if (frag_number > 1) {
     /* if the data is a fragment and not the first fragment, simply dissect the
@@ -9960,7 +9960,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
     if (is_compressed && uncompressed_ok) {
         data_holder_tvb = compressed_tvb;
         offset = 0;
-        dissected_data_holdeer_tree = compressed_subtree;
+        dissected_data_holder_tree = compressed_subtree;
     }
 
     /* Sets the correct values for encapsulation_encoding */
@@ -9975,7 +9975,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
       try_dissection_from_type_object = TRUE;
     }
 
-    /* In case it is compressed only try to dissect the type oject if it is correctly uncompressed */
+    /* In case it is compressed only try to dissect the type object if it is correctly uncompressed */
     try_dissection_from_type_object = try_dissection_from_type_object
         && ((is_compressed == uncompressed_ok));
 
@@ -9987,7 +9987,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
      *       tvb if it is not decompressed.
      * Only try to dissect the user data if it is not compressed or it is compressed and correctly uncompressed */
     if (is_compressed == uncompressed_ok) {
-        if (rtps_util_try_dissector(dissected_data_holdeer_tree,
+        if (rtps_util_try_dissector(dissected_data_holder_tree,
                 pinfo, data_holder_tvb, offset, guid, data, encapsulation_encoding,
                 get_encapsulation_version(encapsulation_id), try_dissection_from_type_object)) {
             return;
@@ -9999,32 +9999,32 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
                if it is not */
         case ENCAPSULATION_CDR_LE:
         case ENCAPSULATION_CDR_BE:
-            proto_tree_add_item(dissected_data_holdeer_tree, hf_rtps_issue_data, data_holder_tvb,
+            proto_tree_add_item(dissected_data_holder_tree, hf_rtps_issue_data, data_holder_tvb,
                 offset, size, ENC_NA);
             break;
 
         case ENCAPSULATION_PL_CDR_LE:
         case ENCAPSULATION_PL_CDR_BE:
             if (is_discovery_data) {
-                dissect_parameter_sequence(dissected_data_holdeer_tree, pinfo, data_holder_tvb, offset,
+                dissect_parameter_sequence(dissected_data_holder_tree, pinfo, data_holder_tvb, offset,
                     encapsulation_encoding, size, "serializedData", 0x0200, NULL, vendor_id, FALSE, NULL);
             }
             else if (frag_number != NOT_A_FRAGMENT) {
-                /* fragments should be dissected as raw bytes (not parametrized) */
-                proto_tree_add_item(dissected_data_holdeer_tree, hf_rtps_issue_data, data_holder_tvb,
+                /* fragments should be dissected as raw bytes (not parameterized) */
+                proto_tree_add_item(dissected_data_holder_tree, hf_rtps_issue_data, data_holder_tvb,
                     offset, size, ENC_NA);
                 break;
             }
             else {
                 /* Instead of showing a warning like before, we now dissect the data as
                  * (id - length - value) members */
-                dissect_parametrized_serialized_data(dissected_data_holdeer_tree,
+                dissect_parameterized_serialized_data(dissected_data_holder_tree,
                     data_holder_tvb, offset, size, encapsulation_encoding);
             }
             break;
 
         default:
-            proto_tree_add_item(dissected_data_holdeer_tree, hf_rtps_data_serialize_data, tvb,
+            proto_tree_add_item(dissected_data_holder_tree, hf_rtps_data_serialize_data, tvb,
                 offset, size, ENC_NA);
         }
     }
@@ -12547,7 +12547,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   proto_tree *compressed_subtree = NULL;
   tvbuff_t *data_holder_tvb = tvb;
   tvbuff_t *compressed_tvb = NULL;
-  proto_tree *dissected_data_holdeer_tree = tree;
+  proto_tree *dissected_data_holder_tree = tree;
 
 
   data = wmem_new(wmem_packet_scope(), rtps_dissector_data);
@@ -12596,7 +12596,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   rtps_util_add_seq_number(tree, tvb, offset, encoding, "batchSeqNumber");
   offset += 8;
 
-  /* First stample sequence number */
+  /* First sample sequence number */
   rtps_util_add_seq_number(tree, tvb, offset, encoding, "firstSampleSeqNumber");
   offset += 8;
 
@@ -12726,7 +12726,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   if (is_compressed && uncompressed_ok) {
       data_holder_tvb = compressed_tvb;
       offset = 0;
-      dissected_data_holdeer_tree = compressed_subtree;
+      dissected_data_holder_tree = compressed_subtree;
       octets_to_next_header = tvb_reported_length(data_holder_tvb);
       old_offset = 0;
   }
@@ -12751,7 +12751,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
           gint count = 0;
 
           sil_tree = proto_tree_add_subtree(
-              dissected_data_holdeer_tree,
+              dissected_data_holder_tree,
               data_holder_tvb,
               offset,
               -1,
@@ -13835,7 +13835,7 @@ static
 void append_submessage_col_info(packet_info* pinfo, submessage_col_info* current_submessage_col_info) {
   gboolean* is_data_session_intermediate = NULL;
 
-  /* Status info clumn: (r),(p[U])...*/
+  /* Status info column: (r),(p[U])...*/
   if (current_submessage_col_info->status_info != NULL) {
     col_append_str(pinfo->cinfo, COL_INFO, current_submessage_col_info->status_info);
   }

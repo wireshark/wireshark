@@ -324,6 +324,7 @@ combiner
 combiners
 communication
 compat
+compatibles
 compilable
 compilers
 compr
@@ -481,6 +482,7 @@ desegmentation
 desegmented
 desegmenting
 deselect
+deserialize
 designator
 destip
 destport
@@ -1489,6 +1491,7 @@ reconfirm
 reconfrqst
 reconnection
 recurse
+recurses
 recursively
 redelivered
 redelivery
@@ -1673,6 +1676,7 @@ serialised
 serialization
 serialize
 serialized
+serializes
 servlet
 sessionid
 sessionkey

@@ -461,7 +461,7 @@ read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_in
   for (; length > 0; length--) {
     read_value(offset, tvb, etch_tree, pinfo, hf_etch_value);
   }
-  /*  terminaton */
+  /*  termination */
   read_type(offset, tvb, etch_tree);
 }
 

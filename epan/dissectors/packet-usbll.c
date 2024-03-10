@@ -1371,7 +1371,7 @@ tt_restore_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_addre
 
     if (!tt_periodic || !tt_non_periodic)
     {
-        /* No transaciton has been registered yet */
+        /* No transaction has been registered yet */
         return NULL;
     }
 
