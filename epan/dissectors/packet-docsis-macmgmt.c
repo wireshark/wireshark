@@ -3832,6 +3832,7 @@ dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
  * attributes.  It's called recursively, to dissect embedded attributes
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint8 type;
@@ -3883,6 +3884,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_cm_id, tvb, pos, length, ENC_NA);
       attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_cmid);
       attr_tvb = tvb_new_subset_length (tvb, pos, length);
+      // We recurse here, but we're limited by our packet length and the depth check in proto_tree_add_node.
       dissect_attrs (attr_tvb, pinfo, attr_subtree);
       break;
     case BPKM_DISPLAY_STR:
