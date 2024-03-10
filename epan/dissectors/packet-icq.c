@@ -786,6 +786,7 @@ icqv5_srv_user_online(proto_tree *tree,/* Tree to put the data in */
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
         tvbuff_t *tvb,    /* Packet content */
         int offset,       /* Offset from the start of the packet to the content */
@@ -804,6 +805,7 @@ icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
     for (i = 0; i < num; i++) {
         pktSz = tvb_get_letohs(tvb, offset);
         offset += 2;
+        // We recurse here, but we'll run out of packet before we run out of stack.
         dissect_icqv5Server(tvb, offset, pinfo, tree, pktSz);
         offset += pktSz;
     }
@@ -1123,6 +1125,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree *tree, int pktsize)
 {
@@ -1180,6 +1183,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
                    pktsize - ICQ5_SRV_HDRSIZE, pinfo);
         break;
     case SRV_MULTI:
+        // We recurse here, but we'll run out of packet before we run out of stack.
         icqv5_srv_multi(icq_body_tree, tvb, offset + ICQ5_SRV_HDRSIZE, pinfo);
         break;
     case SRV_ACK:
