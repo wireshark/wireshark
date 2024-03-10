@@ -13407,12 +13407,12 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_auth_frame,
-			{ "Authenticated in Frame", "smb2.auth_frame", FT_UINT32, BASE_DEC,
+			{ "Authenticated in Frame", "smb2.auth_frame", FT_FRAMENUM, BASE_NONE,
 			NULL, 0, "Which frame this user was authenticated in", HFILL }
 		},
 
 		{ &hf_smb2_tcon_frame,
-			{ "Connected in Frame", "smb2.tcon_frame", FT_UINT32, BASE_DEC,
+			{ "Connected in Frame", "smb2.tcon_frame", FT_FRAMENUM, BASE_NONE,
 			NULL, 0, "Which frame this share was connected in", HFILL }
 		},
 
