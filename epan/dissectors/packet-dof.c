@@ -816,7 +816,7 @@ static int dissect_2008_16_security_13(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_2009_11_type_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static const gchar* dof_oid_create_standard_string(guint32 bufferSize, const guint8 *pOIDBuffer);
+static const gchar* dof_oid_create_standard_string(guint32 bufferSize, const guint8 *pOIDBuffer, packet_info *pinfo);
 static const gchar* dof_iid_create_standard_string(guint32 bufferSize, const guint8 *pIIDBuffer);
 static guint8 dof_oid_create_internal(const char *oid, guint32 *size, guint8 *buffer);
 static void dof_oid_new_standard_string(const char *data, guint32 *rsize, guint8 **oid);
@@ -1346,7 +1346,7 @@ typedef struct
 
 static oap_1_binding* oap_1_resolve_alias(oap_1_alias_key *key);
 
-static int oap_1_tree_add_alias(dof_api_data *api_data, oap_1_packet_data *oap_packet _U_, dof_packet_data *packet, proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 alias_length, guint8 resolve)
+static int oap_1_tree_add_alias(dof_api_data *api_data, oap_1_packet_data *oap_packet _U_, dof_packet_data *packet, proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 alias_length, guint8 resolve)
 {
     dof_session_data *session = api_data->session;
     proto_item *ti;
@@ -1387,7 +1387,7 @@ static int oap_1_tree_add_alias(dof_api_data *api_data, oap_1_packet_data *oap_p
             proto_item_set_generated(ti);
 
             /* Decode the Object ID */
-            ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_objectid, tvb, 0, 0, binding->oid, "%s", dof_oid_create_standard_string(binding->oid_length, binding->oid));
+            ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_objectid, tvb, 0, 0, binding->oid, "%s", dof_oid_create_standard_string(binding->oid_length, binding->oid, pinfo));
             proto_item_set_generated(ti);
 
             proto_tree_add_uint_format(options_tree, hf_oap_1_alias_frame,
@@ -3071,6 +3071,7 @@ static int dissect_2008_16_security_13(tvbuff_t *tvb, packet_info *pinfo, proto_
  *
  * If 'tree' is NULL then just return the length.
  */
+// NOLINTNEXTLINE(misc-no-recursion)
 static gint dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
@@ -3085,7 +3086,7 @@ static gint dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (tree)
     {
         ti = proto_tree_get_parent(tree);
-        proto_item_set_text(ti, "Object ID: %s", dof_oid_create_standard_string(tvb_reported_length(tvb), tvb_get_ptr(tvb, 0, tvb_reported_length(tvb))));
+        proto_item_set_text(ti, "Object ID: %s", dof_oid_create_standard_string(tvb_reported_length(tvb), tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), pinfo));
     }
 
     offset = read_c4(tvb, offset, &oid_class, &oid_class_len);
@@ -3130,7 +3131,9 @@ static gint dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             ti = proto_tree_add_item(tree, hf_oid_all_attribute_data, tvb, offset, -1, ENC_NA);
             attribute_tree = proto_item_add_subtree(ti, ett_oid_attribute);
             flag = tvb_get_guint8(tvb, offset);
+            increment_dissection_depth(pinfo);
             attribute_length = dissect_2009_11_type_5(packet, pinfo, attribute_tree);
+            decrement_dissection_depth(pinfo);
             proto_item_set_len(ti, (const gint)attribute_length);
             offset += attribute_length;
         }
@@ -3162,6 +3165,7 @@ static gint dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  *
  * If 'tree' is NULL then just return the length.
  */
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_2009_11_type_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
@@ -3200,7 +3204,9 @@ static int dissect_2009_11_type_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         ti = proto_tree_add_item(tree, hf_oid_attribute_oid, tvb, offset, -1, ENC_NA);
         attribute_tree = proto_item_add_subtree(ti, ett_oid_attribute_oid);
+        increment_dissection_depth(pinfo);
         offset += dissect_2009_11_type_4(packet, pinfo, attribute_tree, NULL);
+        decrement_dissection_depth(pinfo);
     }
         break;
 
@@ -4094,7 +4100,8 @@ static DOFObjectID DOFObjectID_Create_Bytes(guint32 bufferSize, const guint8 *pO
     return rval;
 }
 
-static guint32 ObjectID_ToStringLength(const DOFObjectID oid)
+// NOLINTNEXTLINE(misc-no-recursion)
+static guint32 ObjectID_ToStringLength(const DOFObjectID oid, packet_info *pinfo)
 {
     guint32 len = 0;
 
@@ -4107,6 +4114,7 @@ static guint32 ObjectID_ToStringLength(const DOFObjectID oid)
         len += 4;                                           /* Four more hex digits. */
     else if (DOFObjectID_GetIDClass(oid) & 0xFF00)
         len += 2;                                           /* Two more hex digits. */
+    increment_dissection_depth(pinfo);
     /* Handle Attributes, if any. */
     if (DOFObjectID_HasAttributes(oid))
     {
@@ -4130,7 +4138,7 @@ static guint32 ObjectID_ToStringLength(const DOFObjectID oid)
                                                 DOFObjectIDAttribute_GetValue(avpDescriptor));
             if (embedOID)
             {
-                len += ObjectID_ToStringLength(embedOID); /* Recurse to compute string rep length of found OID. */
+                len += ObjectID_ToStringLength(embedOID, pinfo); /* Recurse to compute string rep length of found OID. */
                 DOFObjectID_Destroy(embedOID);
             }
             else
@@ -4141,6 +4149,7 @@ static guint32 ObjectID_ToStringLength(const DOFObjectID oid)
             }
         } /* end for(). */
     }
+    decrement_dissection_depth(pinfo);
 
     return len;
 }
@@ -4177,7 +4186,8 @@ static guint32 InterfaceID_ToString(const guint8 *iid, char *pBuf)
     return len;
 }
 
-static guint32 ObjectID_ToString(const DOFObjectID oid, char *pBuf)
+// NOLINTNEXTLINE(misc-no-recursion)
+static guint32 ObjectID_ToString(const DOFObjectID oid, char *pBuf, packet_info *pinfo)
 {
     DOFObjectIDClass oidClass;
     guint32           len = 0;
@@ -4235,7 +4245,9 @@ static guint32 ObjectID_ToString(const DOFObjectID oid, char *pBuf)
                                                 DOFObjectIDAttribute_GetValue(avpDescriptor));
             if (embedOID)
             {
-                len += ObjectID_ToString(embedOID, &pBuf[len]); /* Recurse to output string rep of found OID. */
+                increment_dissection_depth(pinfo);
+                len += ObjectID_ToString(embedOID, &pBuf[len], pinfo); /* Recurse to output string rep of found OID. */
+                decrement_dissection_depth(pinfo);
                 DOFObjectID_Destroy(embedOID);
             }
             else
@@ -4267,7 +4279,7 @@ static const gchar* dof_iid_create_standard_string(guint32 bufferSize, const gui
     return pRetval;
 }
 
-static const gchar* dof_oid_create_standard_string(guint32 bufferSize, const guint8 *pOIDBuffer)
+static const gchar* dof_oid_create_standard_string(guint32 bufferSize, const guint8 *pOIDBuffer, packet_info *pinfo)
 {
     DOFObjectID oid;
     gchar *pRetval;
@@ -4277,12 +4289,12 @@ static const gchar* dof_oid_create_standard_string(guint32 bufferSize, const gui
     if (!oid)
         return "Illegal OID";
 
-    len = ObjectID_ToStringLength(oid);
+    len = ObjectID_ToStringLength(oid, pinfo);
     /* Use PCRMem_Alloc() and not DOFMem_Alloc() because app caller will be freeing memory with PCRMem_Destroy(). */
     pRetval = (gchar *)wmem_alloc(wmem_packet_scope(), len + 1);
     if (pRetval)
     {
-        ObjectID_ToString(oid, pRetval);
+        ObjectID_ToString(oid, pRetval, pinfo);
         pRetval[len] = 0;
     }
 
@@ -4297,6 +4309,7 @@ struct parseCtx
     guint32 oidLen;
     guint32 currOidPos;
     guint32 currBufferPos;
+    unsigned depth;
 }parseCtx;
 
 /* Operations on OID string */
@@ -4547,22 +4560,29 @@ static guint8 parseAttributeID(struct parseCtx *ctx)
     return 1;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint8 parseAttributeData(struct parseCtx *ctx)
 {
+    guint8 ret;
+    ctx->depth++;
+    DISSECTOR_ASSERT(ctx->depth < prefs.gui_max_tree_depth);
     if (PARSECTX_PEEK_CHAR_OID(ctx) == '[')
     {
-        return parseFormatOID(ctx);
+        ret = parseFormatOID(ctx);
     }
     else if (PARSECTX_PEEK_CHAR_OID(ctx) == '{')
     {
-        return parseHexField(ctx);
+        ret = parseHexField(ctx);
     }
     else
     {
-        return parseStringField(ctx);
+        ret = parseStringField(ctx);
     }
+    ctx->depth--;
+    return ret;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint8 parseAttribute(struct parseCtx *ctx)
 {
     if (parseAttributeID(ctx) == 0)
@@ -4613,6 +4633,7 @@ static guint8 parseAttributes(struct parseCtx *ctx)
     return 1;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint8 parseFormatOID(struct parseCtx *ctx)
 {
     /* oid must start with '[' */
@@ -4668,12 +4689,10 @@ static guint8 parseFormatOID(struct parseCtx *ctx)
 
 static guint8 dof_oid_create_internal(const char *oid, guint32 *size, guint8 *buffer)
 {
-    struct parseCtx ctx;
+    struct parseCtx ctx = {0};
 
     ctx.oid = oid;
     ctx.buffer = buffer;
-    ctx.currOidPos = 0;
-    ctx.currBufferPos = 0;
 
     if (oid)
     {
@@ -6774,7 +6793,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             if (packet_data->sender_sid)
             {
-                const gchar *SID = dof_oid_create_standard_string(packet_data->sender_sid[0], packet_data->sender_sid + 1);
+                const gchar *SID = dof_oid_create_standard_string(packet_data->sender_sid[0], packet_data->sender_sid + 1, pinfo);
                 ti = proto_tree_add_bytes_format_value(tree, hf_2008_1_dpp_sid_str, tvb, 0, 0, packet_data->sender_sid, "%s", SID);
                 proto_item_set_generated(ti);
             }
@@ -6785,7 +6804,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             if (packet_data->receiver_sid)
             {
-                const gchar *SID = dof_oid_create_standard_string(packet_data->receiver_sid[0], packet_data->receiver_sid + 1);
+                const gchar *SID = dof_oid_create_standard_string(packet_data->receiver_sid[0], packet_data->receiver_sid + 1, pinfo);
                 ti = proto_tree_add_bytes_format_value(tree, hf_2008_1_dpp_rid_str, tvb, 0, 0, packet_data->receiver_sid, "%s", SID);
                 proto_item_set_generated(ti);
             }
@@ -8322,7 +8341,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 expert_add_info(pinfo, ti, &ei_oap_no_session);
                 return offset;
             }
-            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_len, TRUE);
+            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_len, TRUE);
         }
         else
             offset = oap_1_tree_add_binding(oap_tree, pinfo, tvb, offset);
@@ -8365,7 +8384,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 expert_add_info(pinfo, ti, &ei_oap_no_session);
                 return offset;
             }
-            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_len, TRUE);
+            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_len, TRUE);
         }
         else
             offset = oap_1_tree_add_binding(oap_tree, pinfo, tvb, offset);
@@ -8401,7 +8420,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 expert_add_info(pinfo, ti, &ei_oap_no_session);
                 return offset;
             }
-            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_len, TRUE);
+            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_len, TRUE);
         }
         else
             offset = oap_1_tree_add_binding(oap_tree, pinfo, tvb, offset);
@@ -8438,7 +8457,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 expert_add_info(pinfo, ti, &ei_oap_no_session);
                 return offset;
             }
-            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_len, TRUE);
+            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_len, TRUE);
         }
         else
             offset = oap_1_tree_add_binding(oap_tree, pinfo, tvb, offset);
@@ -8464,7 +8483,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 expert_add_info(pinfo, ti, &ei_oap_no_session);
                 return offset;
             }
-            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_len, TRUE);
+            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_len, TRUE);
         }
         else
             offset = oap_1_tree_add_binding(oap_tree, pinfo, tvb, offset);
@@ -8497,7 +8516,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             expert_add_info(pinfo, ti, &ei_oap_no_session);
             return offset;
         }
-        offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_length, FALSE);
+        offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_length, FALSE);
 
         iid_offset = offset;
         offset = oap_1_tree_add_interface(oap_tree, tvb, offset);
@@ -8555,7 +8574,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 expert_add_info(pinfo, ti, &ei_oap_no_session);
                 return offset;
             }
-            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, offset, alias_len, TRUE);
+            offset = oap_1_tree_add_alias(api_data, oap_packet, packet_data, oap_tree, tvb, pinfo, offset, alias_len, TRUE);
         }
         else
             offset = oap_1_tree_add_binding(oap_tree, pinfo, tvb, offset);
