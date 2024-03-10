@@ -1127,6 +1127,7 @@ static const value_string q2931_rejection_reason_vals[] = {
 static const true_false_string tfs_abnormal_normal           = { "Abnormal", "Normal" };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		       proto_tree *tree)
 {
@@ -1201,6 +1202,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		info_element = tvb_get_guint8(tvb, offset);
 		info_element_ext = tvb_get_guint8(tvb, offset + 1);
 		info_element_len = tvb_get_ntohs(tvb, offset + 2);
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_q2931_ie(tvb, pinfo, offset, info_element_len, tree,
 		    info_element, info_element_ext);
 		break;
@@ -1716,6 +1718,7 @@ dissect_q2931_endpoint_state_ie(tvbuff_t *tvb, int offset, int len,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			  proto_tree *tree, guint8 info_element)
 {
@@ -1774,6 +1777,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
 		break;
 
 	case Q2931_IE_CAUSE:
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_q2931_cause_ie(tvb, pinfo, offset, len, tree);
 		break;
 
@@ -1820,6 +1824,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree,
 		 guint8 info_element, guint8 info_element_ext)
 {
@@ -1842,6 +1847,7 @@ dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
 
 	if ((info_element_ext & Q2931_IE_COMPAT_CODING_STD)
 	    == Q2931_ITU_STANDARDIZED_CODING) {
+		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_q2931_ie_contents(tvb, pinfo, offset + 4,
 		    len, ie_tree, info_element);
 	} else {

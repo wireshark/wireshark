@@ -237,6 +237,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint8  extension_flag;
@@ -262,7 +263,9 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
         offset += extension_length;
     }
 
+    increment_dissection_depth(pinfo);
     if (extension_flag) offset = dissect_extension(tvb, pinfo, tree, offset);
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
