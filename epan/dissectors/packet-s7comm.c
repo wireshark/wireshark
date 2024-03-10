@@ -4228,6 +4228,7 @@ s7comm_decode_ud_tis_param(tvbuff_t *tvb,
  *
  *******************************************************************************************************/
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 s7comm_decode_ud_tis_jobs(tvbuff_t *tvb,
                           proto_tree *td_tree,
                           guint16 td_size,
@@ -4285,6 +4286,7 @@ s7comm_decode_ud_tis_jobs(tvbuff_t *tvb,
                 }
                 /* New job data tree */
                 if (job_td_size > 0) {
+                    // We recurse here, but we'll run out of packet before we run out of stack.
                     offset = s7comm_decode_ud_tis_data(tvb, td_tree, S7COMM_UD_TYPE_REQ, job_subfunc, job_td_size, offset);
                 }
                 break;
@@ -5098,6 +5100,7 @@ s7comm_decode_ud_tis_breakpoint(tvbuff_t *tvb,
  *
  *******************************************************************************************************/
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 s7comm_decode_ud_tis_data(tvbuff_t *tvb,
                           proto_tree *tree,
                           guint8 type,
@@ -5140,6 +5143,7 @@ s7comm_decode_ud_tis_data(tvbuff_t *tvb,
             case S7COMM_UD_SUBF_PROG_READJOBLIST:
             case S7COMM_UD_SUBF_PROG_READJOB:
             case S7COMM_UD_SUBF_PROG_REPLACEJOB:
+                // We recurse here, but we'll run out of packet before we run out of stack.
                 offset = s7comm_decode_ud_tis_jobs(tvb, td_tree, td_size, type, subfunc, offset);
                 break;
             case S7COMM_UD_SUBF_PROG_MODVAR:
@@ -8236,11 +8240,7 @@ proto_register_s7comm (void)
         &ett_s7comm_fragment,
     };
 
-    proto_s7comm = proto_register_protocol (
-            "S7 Communication",         /* name */
-            "S7COMM",                   /* short name */
-            "s7comm"                    /* abbrev */
-            );
+    proto_s7comm = proto_register_protocol ("S7 Communication", "S7COMM", "s7comm");
 
     proto_register_field_array(proto_s7comm, hf, array_length (hf));
 
