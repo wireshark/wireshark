@@ -170,11 +170,11 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
 
     if (aws_fp != NULL) {
         while (fgetline(buf, sizeof(buf), aws_fp) >= 0) {
-            if (sscanf(buf, "[profile %2047[^]]s]", profile) == 1) {
-                if (strcmp(profile, "default") == 0) {
+            if (sscanf(buf, "[profile %2047[^]]s]", profile_name) == 1) {
+                if (strcmp(profile_name, "default") == 0) {
                     continue;
                 }
-                profiles.insert(profile);
+                profiles.insert(profile_name);
             }
         }
         fclose(aws_fp);
