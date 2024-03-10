@@ -66,6 +66,9 @@
  */
 DIAG_OFF_FLEX()
 
+// The generated scanner is recursive if yywrap is enabled, but we disable it above.
+// NOLINTBEGIN(misc-no-recursion)
+
 static int ascend_yyinput(void *buf, ascend_state_t *parser_state) {
     int c = file_getc(parser_state->fh);
     if (c == EOF) {
@@ -402,6 +405,8 @@ task:|task|at|time:|octets { return KEYWORD; }
 (.|\n) ;
 
 %%
+
+// NOLINTEND(misc-no-recursion)
 
 /*
  * Turn diagnostics back on, so we check the code that we've written.
