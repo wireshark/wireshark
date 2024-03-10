@@ -5996,6 +5996,7 @@ icl-twobase7	25006/tcp/udp
 icl-twobase8	25007/tcp/udp
 icl-twobase9	25008/tcp/udp
 icl-twobase10	25009/tcp/udp
+db2c-tls	25100/tcp	# IBM Db2 Client Interface - Encrypted
 rna		25471/sctp	# RNSAP User Adaptation for Iurh
 sauterdongle	25576/tcp	# Sauter Dongle
 idtp		25604/tcp	# Identifier Tracing Protocol
