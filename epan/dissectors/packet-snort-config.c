@@ -25,7 +25,7 @@
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
 
 /* Skip white space from 'source', return pointer to first non-whitespace char */
-static char *skipWhiteSpace(char *source, int *accumulated_offset)
+static const char *skipWhiteSpace(const char *source, int *accumulated_offset)
 {
     int offset = 0;
 
@@ -45,12 +45,12 @@ static char *skipWhiteSpace(char *source, int *accumulated_offset)
  * - accumulated_Length: out param that gets length added to it
  * - copy: whether or an allocated string should be returned
  * - returns: requested string.  Returns from static buffer when copy is FALSE */
-static char* read_token(char* source, char delimeter, int *length, int *accumulated_length, gboolean copy)
+static char* read_token(const char* source, char delimeter, int *length, int *accumulated_length, gboolean copy)
 {
     static char static_buffer[1024];
     int offset = 0;
 
-    char *source_proper = skipWhiteSpace(source, accumulated_length);
+    const char *source_proper = skipWhiteSpace(source, accumulated_length);
 
     while (source_proper[offset] != '\0' && source_proper[offset] != delimeter) {
         offset++;
@@ -319,7 +319,7 @@ void rule_set_relevant_vars(SnortConfig_t *snort_config, Rule_t *rule)
 typedef enum vartype_e { var, ipvar, portvar, unknownvar } vartype_e;
 
 /* Look for a "var", "ipvar" or "portvar" entry in this line */
-static gboolean parse_variables_line(SnortConfig_t *snort_config, char *line)
+static gboolean parse_variables_line(SnortConfig_t *snort_config, const char *line)
 {
     vartype_e var_type = unknownvar;
 
@@ -411,9 +411,8 @@ static gboolean string_equal(gconstpointer a, gconstpointer b)
 }
 
 /* Process a line that configures a reference line (invariably from 'reference.config') */
-static gboolean parse_references_prefix_file_line(SnortConfig_t *snort_config, char *line)
+static gboolean parse_references_prefix_file_line(SnortConfig_t *snort_config, const char *line)
 {
-    char *source;
     char *prefix_name, *prefix_value;
     int length=0, accumulated_length=0;
     int n;
@@ -423,7 +422,7 @@ static gboolean parse_references_prefix_file_line(SnortConfig_t *snort_config, c
     }
 
     /* Read the prefix and value */
-    source = line+18;
+    const char *source = line+18;
     prefix_name = read_token(source, ' ', &length, &accumulated_length, TRUE);
     /* Store all name chars in lower case. */
     for (n=0; prefix_name[n] != '\0'; n++) {
@@ -503,14 +502,14 @@ static gboolean delete_string_entry(gpointer key,
 }
 
 /* See if this is an include line, if it is open the file and call parse_config_file() */
-static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, const char *config_directory, int recursion_level)
+static gboolean parse_include_file(SnortConfig_t *snort_config, const char *line, const char *config_directory, int recursion_level)
 {
     int length;
     int accumulated_length = 0;
     char *include_filename;
 
     /* Look for "include " */
-    char *include_token = read_token(line, ' ', &length, &accumulated_length, FALSE);
+    const char *include_token = read_token(line, ' ', &length, &accumulated_length, FALSE);
     if (strlen(include_token) == 0) {
         return FALSE;
     }

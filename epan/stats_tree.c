@@ -1351,7 +1351,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
             snprintf (fmt,sizeof(fmt),"%%-%us",maxnamelen);
             g_string_append_printf(s,fmt,stats_tree_get_column_name(st->cfg, 0));
             for (count = 1; count<st->num_columns; count++) {
-                snprintf (fmt,sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                snprintf (fmt,sizeof(fmt)," %%-%ds",stats_tree_get_column_size(count)+1);
                 g_string_append_printf(s,fmt,stats_tree_get_column_name(st->cfg, count));
             }
             memset (separator, '-', sep_length);

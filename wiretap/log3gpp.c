@@ -85,7 +85,7 @@ static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
 static guchar hex_from_char(gchar c);
 /*not used static gchar char_from_hex(guchar hex);*/
 
-static gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs);
+static gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs);
 
 
 static int log3gpp_file_type_subtype = -1;
@@ -747,7 +747,7 @@ guchar hex_from_char(gchar c)
 /* Set secs and usecs as output                                         */
 /* Return FALSE if no valid time can be read                            */
 /************************************************************************/
-gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs)
+gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs)
 {
     int n;
     struct tm tm;

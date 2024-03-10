@@ -175,7 +175,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 {
     gint i, n, records_for_ipfix_check = RECORDS_FOR_IPFIX_CHECK;
     gchar *s;
-    guint16 checked_len = 0;
+    guint16 checked_len;
     ipfix_message_header_t msg_hdr;
     ipfix_set_header_t set_hdr;
 

@@ -316,7 +316,7 @@ struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, uns
     switch (NewIface->PktEncapType) {
     case WTAP_ENCAP_ETHERNET:
         if (NewIface->IsVMNic) {
-            printf("IF: medium=%s\tID=%u\tIfIndex=%u\tVlanID=%i",
+            printf("IF: medium=%s\tID=%lu\tIfIndex=%lu\tVlanID=%i",
                 NewIface->VMNic.SourceNicType,
                 NewIface->PcapNgIfIndex,
                 NewIface->VMNic.SourcePortId,
@@ -338,18 +338,18 @@ struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, uns
         }
         break;
     case WTAP_ENCAP_IEEE_802_11:
-        printf("IF: medium=wifi ID=%u\tIfIndex=%u", NewIface->PcapNgIfIndex, NewIface->LowerIfIndex);
+        printf("IF: medium=wifi ID=%lu\tIfIndex=%lu", NewIface->PcapNgIfIndex, NewIface->LowerIfIndex);
         StringCchPrintfA(IfName, IF_STRING_MAX_SIZE, "wifi:%lu", NewIface->LowerIfIndex);
         break;
     case WTAP_ENCAP_RAW_IP:
-        printf("IF: medium=mbb  ID=%u\tIfIndex=%u", NewIface->PcapNgIfIndex, NewIface->LowerIfIndex);
+        printf("IF: medium=mbb  ID=%lu\tIfIndex=%lu", NewIface->PcapNgIfIndex, NewIface->LowerIfIndex);
         StringCchPrintfA(IfName, IF_STRING_MAX_SIZE, "mbb:%lu", NewIface->LowerIfIndex);
         break;
     }
     StringCchLengthA(IfName, IF_STRING_MAX_SIZE, &IfNameLength);
 
     if (NewIface->LowerIfIndex != NewIface->MiniportIfIndex) {
-        printf("\t(LWF over IfIndex %u)", NewIface->MiniportIfIndex);
+        printf("\t(LWF over IfIndex %lu)", NewIface->MiniportIfIndex);
         StringCchPrintfA(IfDesc, IF_STRING_MAX_SIZE, "LWF over IfIndex %lu", NewIface->MiniportIfIndex);
         StringCchLengthA(IfDesc, IF_STRING_MAX_SIZE, &IfDescLength);
     }
@@ -635,12 +635,12 @@ void etw_dump_write_ndiscap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
         }
 
         if (Err != NO_ERROR) {
-            printf("Failed converting comment to string with error: %u\n", Err);
+            printf("Failed converting comment to string with error: %d\n", Err);
         } else {
             Err = StringCchLengthA(Comment, COMMENT_MAX_SIZE, &CommentLength);
 
             if (Err != NO_ERROR) {
-                printf("Failed getting length of comment string with error: %u\n", Err);
+                printf("Failed getting length of comment string with error: %d\n", Err);
                 CommentLength = 0;
                 memset(Comment, 0, COMMENT_MAX_SIZE);
             }

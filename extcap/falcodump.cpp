@@ -135,7 +135,7 @@ fgetline(char *buf, int size, FILE *fp)
 static const size_t MAX_AWS_LINELEN = 2048;
 void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const char *description) {
     char buf[MAX_AWS_LINELEN];
-    char profile[MAX_AWS_LINELEN];
+    char profile_name[MAX_AWS_LINELEN];
     FILE *aws_fp;
     std::set<std::string>profiles;
 
@@ -150,11 +150,11 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
 
     if (aws_fp != NULL) {
         while (fgetline(buf, sizeof(buf), aws_fp) >= 0) {
-            if (sscanf(buf, "[%2047[^]]s]", profile) == 1) {
-                if (strcmp(profile, "default") == 0) {
+            if (sscanf(buf, "[%2047[^]]s]", profile_name) == 1) {
+                if (strcmp(profile_name, "default") == 0) {
                     continue;
                 }
-                profiles.insert(profile);
+                profiles.insert(profile_name);
             }
         }
         fclose(aws_fp);
@@ -712,8 +712,8 @@ static const std::vector<ws_option> get_longopts(const std::map<std::string, str
         longopts.push_back(base_longopts[idx]);
     }
     for (const auto &it : plugin_configs) {
-        const struct plugin_configuration plugin_configs = it.second;
-        for (const auto &prop : plugin_configs.property_list) {
+        const struct plugin_configuration plugin_config = it.second;
+        for (const auto &prop : plugin_config.property_list) {
             ws_option option = { g_strdup(prop.option.c_str()), ws_required_argument, NULL, prop.option_index };
             longopts.push_back(option);
         }
@@ -759,7 +759,7 @@ static int show_plugin_config(const std::string &interface, const struct plugin_
             print_cloudtrail_aws_region_config(arg_num, properties.display.c_str(), properties.description.c_str());
         } else {
             printf(
-                "arg {number=%d}"
+                "arg {number=%u}"
                 "{call=--%s}"
                 "{display=%s}"
                 "{type=%s}"
@@ -771,7 +771,7 @@ static int show_plugin_config(const std::string &interface, const struct plugin_
             if (properties.enum_values.size() > 0) {
                 for (const auto &enum_val : properties.enum_values) {
                     printf(
-                      "value {arg=%d}"
+                      "value {arg=%u}"
                       "{value=%s}"
                       "{display=%s}"
                       "%s"
@@ -877,8 +877,8 @@ int main(int argc, char **argv)
     extcap_help_add_option(extcap_conf, "--plugin-source", "plugin source URL");
 
     for (const auto &it : plugin_configs) {
-        const struct plugin_configuration plugin_configs = it.second;
-        for (const auto &prop : plugin_configs.property_list) {
+        const struct plugin_configuration plugin_config = it.second;
+        for (const auto &prop : plugin_config.property_list) {
             if (prop.option_index < OPT_SCHEMA_PROPERTIES_START) {
                 continue;
             }

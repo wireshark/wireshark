@@ -115,7 +115,7 @@ static gboolean parse_line(char *linebuff, gint line_length,
                            gchar *protocol_name, gchar *variant_name,
                            gchar *outhdr_name);
 static gboolean process_parsed_line(wtap *wth,
-                                    dct2000_file_externals_t *file_externals,
+                                    const dct2000_file_externals_t *file_externals,
                                     wtap_rec *rec,
                                     Buffer *buf, gint64 file_offset,
                                     char *linebuff, long dollar_offset,
@@ -143,7 +143,7 @@ static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
 static gint packet_offset_equal(gconstpointer v, gconstpointer v2);
 static guint packet_offset_hash_func(gconstpointer v);
 
-static gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs);
+static gboolean get_file_time_stamp(const gchar *linebuff, time_t *secs, guint32 *usecs);
 static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer user_data);
 
 static int dct2000_file_type_subtype = -1;
@@ -1270,7 +1270,7 @@ parse_line(gchar *linebuff, gint line_length,
 /* Process results of parse_line() */
 /***********************************/
 static gboolean
-process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
+process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
                     wtap_rec *rec,
                     Buffer *buf, gint64 file_offset,
                     char *linebuff, long dollar_offset,
@@ -1520,8 +1520,8 @@ static guint8 s_tableValues[256][256];
 /* Prepare table values so ready so don't need to check inside hex_byte_from_chars() */
 static void  prepare_hex_byte_from_chars_table(void)
 {
-    guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                  'a', 'b', 'c', 'd', 'e', 'f' };
+    const guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                                        'a', 'b', 'c', 'd', 'e', 'f' };
 
     gint i, j;
     for (i=0; i < 16; i++) {
@@ -1584,7 +1584,7 @@ packet_offset_hash_func(gconstpointer v)
 /* Return FALSE if no valid time can be read                            */
 /************************************************************************/
 static gboolean
-get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
+get_file_time_stamp(const gchar *linebuff, time_t *secs, guint32 *usecs)
 {
     struct tm tm;
     #define MAX_MONTH_LETTERS 9

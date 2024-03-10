@@ -244,7 +244,7 @@ static bool parseFieldTS(cCLLog_logFileInfo_t *pInfo, char *pField, cCLLog_messa
     memset(&tm, 0, sizeof tm);
 
     /* YYYYMMDDThhmmss */
-    sscanf(timeStampStringFull, "%4u%2u%2u%2u%2u%2u%3u",
+    sscanf(timeStampStringFull, "%4u%2u%2u%2u%2u%2u%3d",
             &tm.tm_year,
             &tm.tm_mon,
             &tm.tm_mday,
