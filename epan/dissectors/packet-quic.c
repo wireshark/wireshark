@@ -690,8 +690,8 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_CONNECTION_CLOSE_APP     0x1d
 #define FT_HANDSHAKE_DONE           0x1e
 #define FT_DATAGRAM                 0x30
-#define FT_MP_NEW_CONNECTION_ID     0x40
-#define FT_MP_RETIRE_CONNECTION_ID  0x41
+#define FT_MP_NEW_CONNECTION_ID_OLD 0x40
+#define FT_MP_RETIRE_CONNECTION_ID_OLD 0x41
 #define FT_MP_ACK                   0x42
 #define FT_MP_ACK_ECN               0x43
 #define FT_ADD_ADDRESS              0x44
@@ -2595,7 +2595,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_NEW_CONNECTION_ID:
-        case FT_MP_NEW_CONNECTION_ID:{
+        case FT_MP_NEW_CONNECTION_ID_OLD:{
             gint32 len_sequence;
             gint32 len_retire_prior_to;
             uint64_t seq_num;
@@ -2607,7 +2607,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_NEW_CONNECTION_ID:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
                  break;
-                case FT_MP_NEW_CONNECTION_ID:
+                case FT_MP_NEW_CONNECTION_ID_OLD:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_NCI");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
@@ -2647,7 +2647,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_RETIRE_CONNECTION_ID:
-        case FT_MP_RETIRE_CONNECTION_ID:{
+        case FT_MP_RETIRE_CONNECTION_ID_OLD:{
             gint32 len_sequence;
             gint32 lenvar;
 
@@ -2655,7 +2655,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_RETIRE_CONNECTION_ID:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", RC");
                 break;
-                case FT_MP_RETIRE_CONNECTION_ID:
+                case FT_MP_RETIRE_CONNECTION_ID_OLD:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_RC");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
