@@ -2435,7 +2435,8 @@ const val64_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
     { SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT04, "enable_multipath (draft-04)" },
     { SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT05, "enable_multipath (draft-05)" },
-    { SSL_HND_QUIC_TP_ENABLE_MULTIPATH, "enable_multipath" },
+    { SSL_HND_QUIC_TP_ENABLE_MULTIPATH, "enable_multipath (draft-06)" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_PATHS, "initial_max_paths" },
     { 0, NULL }
 };
 
@@ -8529,6 +8530,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_ENABLE_MULTIPATH:
                 /* No Payload */
                 quic_add_multipath(pinfo);
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_PATHS:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_paths,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                if (value == 1) {
+                    quic_add_multipath(pinfo);
+                }
+                offset += parameter_length;
             break;
             default:
                 offset += parameter_length;
