@@ -2602,7 +2602,7 @@ de_nas_5gs_mm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
     /* The purpose of the NAS message container IE is to encapsulate a plain 5GS NAS message. */
-    /* a NAS message without NAS security heade */
+    /* a NAS message without NAS security header */
 
     dissect_nas_5gs(tvb_new_subset_length(tvb, offset, len), pinfo, tree, NULL);
 
@@ -6900,7 +6900,7 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* Direction: UE to network */
     pinfo->link_dir = P2P_DIR_UL;
 
-    /* Initalize the private struct */
+    /* Initialize the private struct */
     nas5gs_get_private_data(pinfo);
 
     /*    ngKSI    NAS key set identifier 9.11.3.32    M    V    1/2 H1*/
@@ -7220,7 +7220,7 @@ nas_5gs_mm_ul_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     curr_offset = offset;
     curr_len = len;
 
-    /* Initalize the private struct */
+    /* Initialize the private struct */
     nas5gs_get_private_data(pinfo);
 
     /*Payload container type    Payload container type     9.11.3.31    M    V    1/2 */
@@ -7266,7 +7266,7 @@ nas_5gs_mm_dl_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     curr_offset = offset;
     curr_len = len;
 
-    /* Initalize the private struct */
+    /* Initialize the private struct */
     nas5gs_get_private_data(pinfo);
 
     /*Payload container type    Payload container type     9.11.3.40    M    V    1/2 H0*/
@@ -8040,7 +8040,7 @@ nas_5gs_sm_pdu_ses_est_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /*28    5GSM capability    5GSM capability     9.11.4.10    O    TLV    3-15 */
     ELEM_OPT_TLV(0x28, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAP, NULL);
 
-    /*55    Maximum number of supported packet filter    Maximum number of suuported packet filter   9.11.4.9    O    TV    3*/
+    /*55    Maximum number of supported packet filter    Maximum number of supported packet filter   9.11.4.9    O    TV    3*/
     ELEM_OPT_TV(0x55, NAS_5GS_PDU_TYPE_SM,  DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, NULL);
 
     /* B-    Always-on PDU session requested    Always-on PDU session requested 9.11.4.4    O    TV    1 */
@@ -8287,7 +8287,7 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* 59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2 */
     ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
 
-    /*55    Maximum number of suuported packet filter    Maximum number of suuported packet filter   9.11.4.6    O    TV    3*/
+    /*55    Maximum number of supported packet filter    Maximum number of supported packet filter   9.11.4.6    O    TV    3*/
     ELEM_OPT_TV(0x55, NAS_5GS_PDU_TYPE_SM,  DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, NULL);
 
     /* B-    Always-on PDU session requested    Always-on PDU session requested 9.11.4.4    O    TV    1 */
@@ -8404,7 +8404,7 @@ nas_5gs_sm_pdu_ses_mod_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     /* 1E    Serving PLMN rate control    Serving PLMN rate control 9.11.4.20    O    TLV    4 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_ESM, DE_ESM_SERV_PLMN_RATE_CTRL, NULL);
-    /* 1F    Ethernet header compression configuration    Ethernet heaer compression configuration 9.11.4.28    O    TLV    3 */
+    /* 1F    Ethernet header compression configuration    Ethernet header compression configuration 9.11.4.28    O    TLV    3 */
     ELEM_OPT_TLV(0x1F, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ETH_HDR_COMP_CONF, NULL);
     /* 71    Received MBS container    Received MBS container 9.11.4.31    O    TLV-E    8-65538 */
     ELEM_OPT_TLV_E(0x71, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_REC_MBS_CONT, NULL);

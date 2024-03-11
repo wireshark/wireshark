@@ -292,6 +292,7 @@ clearallportcounters
 clientkey
 clientout
 clksrc
+cllog
 clopts
 clsfr
 clustermap
@@ -383,6 +384,7 @@ csapi
 ctime
 ctrlstat
 ctxinfo
+ctxinst
 ctype
 cumulated
 cumulatively
@@ -572,6 +574,7 @@ elink
 ellipsoid
 emlsr
 emulates
+emule
 encap
 encaps
 encapsulating
@@ -829,7 +832,7 @@ implementor
 inactivated
 inband
 incits
-incompatabilities
+incompatibilities
 inconsistently
 incremented
 incrementing
@@ -1447,6 +1450,7 @@ randomize
 randomizer
 randpkt
 raster
+rctxinfo
 rdpudp
 rdtci
 reachability
@@ -1884,6 +1888,8 @@ timestamp
 timestamps
 timezone
 tipcv
+tlvlen
+tlvtype
 tobago
 toggled
 toggles
@@ -1961,6 +1967,7 @@ unadvise
 unaligned
 unallocated
 unallowed
+unary
 unassign
 unassoc
 unassociated

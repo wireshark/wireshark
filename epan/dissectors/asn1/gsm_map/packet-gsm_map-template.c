@@ -198,9 +198,9 @@ static dissector_handle_t       ranap_handle;
 static dissector_handle_t       dtap_handle;
 static dissector_handle_t       map_handle;
 static dissector_handle_t       bssap_handle;
-static dissector_table_t        map_prop_arg_opcode_table; /* prorietary operation codes */
-static dissector_table_t        map_prop_res_opcode_table; /* prorietary operation codes */
-static dissector_table_t        map_prop_err_opcode_table; /* prorietary operation codes */
+static dissector_table_t        map_prop_arg_opcode_table; /* proprietary operation codes */
+static dissector_table_t        map_prop_res_opcode_table; /* proprietary operation codes */
+static dissector_table_t        map_prop_err_opcode_table; /* proprietary operation codes */
 /* Preference settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;

@@ -2153,7 +2153,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
       proto_tree_add_uint(subtree, hf_tcap_length, tvb, tag_offset,
         len_length, len);
 
-      if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
+      if (len-(2*ind_field)) /*should always be positive unless we get an empty constructor pointless? */
       {
         next_tvb = tvb_new_subset_length(tvb, offset, len-(2*ind_field));
         dissect_tcap_param(actx, subtree,next_tvb,0);
