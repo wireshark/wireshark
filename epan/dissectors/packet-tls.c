@@ -59,6 +59,7 @@
 #include <epan/exported_pdu.h>
 #include <epan/proto_data.h>
 #include <epan/decode_as.h>
+#include <epan/prefs-int.h>
 #include <epan/secrets.h>
 #include <wiretap/secrets-types.h>
 
@@ -4889,10 +4890,16 @@ proto_reg_handoff_ssl(void)
         ssl_options.keylog_filename);
 
         /* ssl_parse_uat() sets (and thus overwrites) the debug file, so to
-         * be safe, set that one to NULL before calling that so we don't
+         * be safe, set it the empty string before calling that so we don't
          * overwrite their key log file.
          */
-        ssl_debug_file_name = NULL;
+        module_t *tls_module = prefs_find_module("tls");
+        if (tls_module) {
+            pref_t *pref_tls_debug = prefs_find_preference(tls_module, "debug_file");
+            if (pref_tls_debug) {
+                prefs_set_string_value(pref_tls_debug, "", pref_current);
+            }
+        }
     }
 
 #ifdef HAVE_LIBGNUTLS
