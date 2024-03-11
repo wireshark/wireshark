@@ -212,6 +212,7 @@ static int hf_quic_mp_pa_dcid_sequence_number;
 static int hf_quic_mp_ps_dcid_sequence_number;
 static int hf_quic_mp_ps_path_status_sequence_number;
 static int hf_quic_mp_ps_path_status;
+static int hf_quic_mp_maximum_paths;
 
 static expert_field ei_quic_connection_unknown;
 static expert_field ei_quic_ft_unknown;
@@ -709,6 +710,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_PATH_STATUS              0x15228c06 /* multipath-draft-05 */
 #define FT_PATH_STANDBY             0x15228c07 /* multipath-draft-06 */
 #define FT_PATH_AVAILABLE           0x15228c08 /* multipath-draft-06 */
+#define FT_MAX_PATHS                0x15228c0b /* multipath-draft-07 */
 #define FT_TIME_STAMP               0x02F5
 
 static const range_string quic_frame_type_vals[] = {
@@ -754,6 +756,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
     { 0x15228c07, 0x15228c07, "PATH_STANDBY" }, /* >= multipath-draft-06 */
     { 0x15228c08, 0x15228c08, "PATH_AVAILABLE" }, /* >= multipath-draft-06 */
+    { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-06 */
     { 0,    0,        NULL },
 };
 
@@ -2914,6 +2917,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
                 offset += (guint32)length;
             }
+        }
+        break;
+        case FT_MAX_PATHS:{
+            gint32 length;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MP");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_paths, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
         }
         break;
         default:
@@ -5250,6 +5261,11 @@ proto_register_quic(void)
        { &hf_quic_mp_ps_path_status,
           { "Path Status", "quic.mp_ps_path_status",
             FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(quic_mp_path_status), 0x0,
+            NULL, HFILL }
+        },
+       { &hf_quic_mp_maximum_paths,
+          { "Maximum Paths", "quic.mp_maximum_paths",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
