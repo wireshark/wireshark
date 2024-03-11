@@ -209,9 +209,9 @@ static int hf_quic_mp_active_sending_uniflows_info_section;
 /* multipath*/
 static int hf_quic_mp_nci_path_identifier;
 static int hf_quic_mp_rc_path_identifier;
-static int hf_quic_mp_ack_dcid_sequence_number;
-static int hf_quic_mp_pa_dcid_sequence_number;
-static int hf_quic_mp_ps_dcid_sequence_number;
+static int hf_quic_mp_ack_path_identifier;
+static int hf_quic_mp_pa_path_identifier;
+static int hf_quic_mp_ps_path_identifier;
 static int hf_quic_mp_ps_path_status_sequence_number;
 static int hf_quic_mp_ps_path_status;
 static int hf_quic_mp_maximum_paths;
@@ -2336,13 +2336,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_ACK_MP:
                 case FT_ACK_MP_DRAFT04:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_MP");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
                 case FT_ACK_MP_ECN:
                 case FT_ACK_MP_ECN_DRAFT04:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_MP_ECN");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
             }
@@ -2710,7 +2710,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             if (frame_type == FT_PATH_ABANDON_DRAFT04 || frame_type == FT_PATH_ABANDON) {
                 gint32 lenvar;
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", PA");
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
@@ -2925,7 +2925,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             gint32 length;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", PS");
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_dcid_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_status_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
@@ -5266,20 +5266,20 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-       { &hf_quic_mp_ack_dcid_sequence_number,
-          { "DCID Sequence Number", "quic.mp_ack_dcid_sequence_number",
+       { &hf_quic_mp_ack_path_identifier,
+          { "Path Identifier", "quic.mp_ack_path_identifier",
             FT_UINT64, BASE_DEC, NULL, 0x0,
-            "Destination Connection ID Sequence Number", HFILL }
+            NULL, HFILL }
         },
-       { &hf_quic_mp_pa_dcid_sequence_number,
-          { "DCID Sequence Number", "quic.mp_pa_dcid_sequence_number",
+       { &hf_quic_mp_pa_path_identifier,
+          { "Path Identifier", "quic.mp_pa_path_identifier",
             FT_UINT64, BASE_DEC, NULL, 0x0,
-            "Destination Connection ID Sequence Number", HFILL }
+            NULL, HFILL }
         },
-       { &hf_quic_mp_ps_dcid_sequence_number,
-          { "DCID Sequence Number", "quic.mp_ps_dcid_sequence_number",
+       { &hf_quic_mp_ps_path_identifier,
+          { "Path Identifier", "quic.mp_ps_path_identifier",
             FT_UINT64, BASE_DEC, NULL, 0x0,
-            "Destination Connection ID Sequence Number", HFILL }
+            NULL, HFILL }
         },
        { &hf_quic_mp_ps_path_status_sequence_number,
           { "Path Status Sequence Number", "quic.mp_ps_path_status_sequence_number",
