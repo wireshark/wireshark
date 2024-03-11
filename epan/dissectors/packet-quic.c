@@ -207,6 +207,8 @@ static int hf_quic_mp_receiving_uniflow_info_section;
 static int hf_quic_mp_active_sending_uniflows_info_section;
 
 /* multipath*/
+static int hf_quic_mp_nci_path_identifier;
+static int hf_quic_mp_rc_path_identifier;
 static int hf_quic_mp_ack_dcid_sequence_number;
 static int hf_quic_mp_pa_dcid_sequence_number;
 static int hf_quic_mp_ps_dcid_sequence_number;
@@ -710,6 +712,8 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_PATH_STATUS              0x15228c06 /* multipath-draft-05 */
 #define FT_PATH_STANDBY             0x15228c07 /* multipath-draft-06 */
 #define FT_PATH_AVAILABLE           0x15228c08 /* multipath-draft-06 */
+#define FT_MP_NEW_CONNECTION_ID     0x15228c09 /* multipath-draft-07 */
+#define FT_MP_RETIRE_CONNECTION_ID  0x15228c0a /* multipath-draft-07 */
 #define FT_MAX_PATHS                0x15228c0b /* multipath-draft-07 */
 #define FT_TIME_STAMP               0x02F5
 
@@ -756,7 +760,9 @@ static const range_string quic_frame_type_vals[] = {
     { 0x15228c06, 0x15228c06, "PATH_STATUS" }, /* = multipath-draft-05 */
     { 0x15228c07, 0x15228c07, "PATH_STANDBY" }, /* >= multipath-draft-06 */
     { 0x15228c08, 0x15228c08, "PATH_AVAILABLE" }, /* >= multipath-draft-06 */
-    { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-06 */
+    { 0x15228c09, 0x15228c09, "MP_NEW_CONNECTION_ID" }, /* >= multipath-draft-07 */
+    { 0x15228c0a, 0x15228c0a, "MP_RETIRE_CONNECTION_ID" }, /* >= multipath-draft-07 */
+    { 0x15228c0b, 0x15228c0b, "MAX_PATHS" }, /* >= multipath-draft-07 */
     { 0,    0,        NULL },
 };
 
@@ -2595,7 +2601,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_NEW_CONNECTION_ID:
-        case FT_MP_NEW_CONNECTION_ID_OLD:{
+        case FT_MP_NEW_CONNECTION_ID_OLD:
+        case FT_MP_NEW_CONNECTION_ID:{
             gint32 len_sequence;
             gint32 len_retire_prior_to;
             uint64_t seq_num;
@@ -2610,6 +2617,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_MP_NEW_CONNECTION_ID_OLD:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_NCI");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+                 break;
+                case FT_MP_NEW_CONNECTION_ID:
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_NCI");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_nci_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                  break;
             }
@@ -2647,7 +2659,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_RETIRE_CONNECTION_ID:
-        case FT_MP_RETIRE_CONNECTION_ID_OLD:{
+        case FT_MP_RETIRE_CONNECTION_ID_OLD:
+        case FT_MP_RETIRE_CONNECTION_ID:{
             gint32 len_sequence;
             gint32 lenvar;
 
@@ -2658,6 +2671,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 case FT_MP_RETIRE_CONNECTION_ID_OLD:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_RC");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+                break;
+                case FT_MP_RETIRE_CONNECTION_ID:
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_RC");
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_rc_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
             }
@@ -5238,6 +5256,16 @@ proto_register_quic(void)
         },
 
         /* multipath */
+       { &hf_quic_mp_nci_path_identifier,
+          { "Path identifier", "quic.mp_nci_path_identifier",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+       { &hf_quic_mp_rc_path_identifier,
+          { "Path identifier", "quic.mp_rc_path_identifier",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
        { &hf_quic_mp_ack_dcid_sequence_number,
           { "DCID Sequence Number", "quic.mp_ack_dcid_sequence_number",
             FT_UINT64, BASE_DEC, NULL, 0x0,
