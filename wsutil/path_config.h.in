@@ -6,5 +6,6 @@
 #define DOC_DIR         "@PATH_DOC_DIR@"
 #define PLUGIN_DIR      "@PATH_PLUGIN_DIR@"
 #define EXTCAP_DIR      "@PATH_EXTCAP_DIR@"
+#define LOG_EXTCAP_DIR  "@PATH_LOG_EXTCAP_DIR@"
 
 #endif

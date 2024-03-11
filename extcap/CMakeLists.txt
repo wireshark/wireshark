@@ -42,15 +42,15 @@ macro(set_extcap_executable_properties _executable)
 
 	if(CMAKE_CONFIGURATION_TYPES)
 		set_target_properties(${_executable} PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
-			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
-			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap
-			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/run/MinSizeRel/extcap
-			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap/wireshark
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap/wireshark
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap/wireshark
+			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/run/MinSizeRel/extcap/wireshark
+			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap/wireshark
 		)
 	else()
 		set_target_properties(${_executable} PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap/wireshark
 		)
 		if(ENABLE_APPLICATION_BUNDLE)
 			if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
@@ -95,15 +95,15 @@ macro(set_extlog_executable_properties _executable)
 
 	if(CMAKE_CONFIGURATION_TYPES)
 		set_target_properties(${_executable} PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
-			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
-			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap
-			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/run/MinSizeRel/extcap
-			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap/logray
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap/logray
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap/logray
+			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/run/MinSizeRel/extcap/logray
+			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap/logray
 		)
 	else()
 		set_target_properties(${_executable} PROPERTIES
-			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap/logray
 		)
 		if(ENABLE_APPLICATION_BUNDLE)
 			if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
@@ -386,7 +386,7 @@ if(BUILD_falcodump AND SINSP_FOUND)
 	set_extlog_executable_properties(falcodump)
 	target_link_libraries(falcodump ${falcodump_LIBS})
 	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
-	install(TARGETS falcodump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	install(TARGETS falcodump RUNTIME DESTINATION ${LOG_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps falcodump)
 
 endif()

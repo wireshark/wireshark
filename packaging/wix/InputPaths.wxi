@@ -10,7 +10,7 @@
   <?define Staging.Dir ="$(var.BuildOutputDir)" ?>
   <?define Plugins.Dir ="$(var.Staging.Dir)\plugins" ?>
   <?define Profiles.Dir ="$(var.Staging.Dir)\profiles" ?>
-  <?define Extcap.Dir ="$(var.Staging.Dir)\extcap" ?>
+  <?define Extcap.Dir ="$(var.Staging.Dir)\extcap\wireshark" ?>
   <?define WiresharkQt.Dir ="$(var.Staging.Dir)" ?>
   <?define Dtds.Dir ="$(var.Staging.Dir)\dtds" ?>
   <?define Tpncp.Dir ="$(var.Staging.Dir)\tpncp" ?>

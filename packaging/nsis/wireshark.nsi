@@ -168,8 +168,8 @@ Page custom DisplayUSBPcapPage
 
   SetOutPath $INSTDIR
   File "${STAGING_DIR}\${EXTCAP_NAME}.html"
-  SetOutPath $INSTDIR\extcap
-  File "${STAGING_DIR}\extcap\${EXTCAP_NAME}.exe"
+  SetOutPath $INSTDIR\extcap\wireshark
+  File "${STAGING_DIR}\extcap\wireshark\${EXTCAP_NAME}.exe"
 
 !macroend
 
@@ -878,7 +878,7 @@ File "${STAGING_DIR}\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 
 ; Create the extcap directory
-CreateDirectory $INSTDIR\extcap
+CreateDirectory $INSTDIR\lib\wireshark\extcap
 
 ;
 ; install the protobuf .proto definitions in the protobuf subdirectory
@@ -977,6 +977,7 @@ ${If} $0 == "0"
   ${EndIf}
   ${StrRep} $0 '$USBPCAP_UNINSTALL' 'Uninstall.exe' 'USBPcapCMD.exe'
   ${StrRep} $1 '$0' '"' ''
+  SetOutPath $INSTDIR\lib\wireshark
   CopyFiles  /SILENT $1 $INSTDIR\extcap
   SetRebootFlag true
 ${EndIf}
@@ -1400,6 +1401,9 @@ RMDir "$INSTDIR\accessible"
 RMDir "$INSTDIR\audio"
 RMDir "$INSTDIR\bearer"
 RMDir "$INSTDIR\extcap"
+RMDir "$INSTDIR\lib\wireshark\extcap"
+RMDir "$INSTDIR\lib\wireshark"
+RMDir "$INSTDIR\lib"
 RMDir "$INSTDIR\iconengines"
 RMDir "$INSTDIR\imageformats"
 RMDir "$INSTDIR\mediaservice"

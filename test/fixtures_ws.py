@@ -152,7 +152,7 @@ def cmd_extcap(program):
         if sys.platform == 'darwin':
             return program(os.path.join('Wireshark.app/Contents/MacOS/extcap', name))
         else:
-            return program(os.path.join('extcap', name))
+            return program(os.path.join('extcap/wireshark', name))
     return extcap_name
 
 

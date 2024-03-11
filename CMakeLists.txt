@@ -1605,11 +1605,16 @@ include( UseCheckAPI )
 # If you change the nesting level be sure to check also the INSTALL_RPATH
 # target property.
 if(WIN32 AND NOT USE_MSYSTEM)
-	set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "extcap/${PROJECT_NAME}" CACHE INTERNAL "The Wireshark extcap dir")
+	if (BUILD_logray)
+		set(LOG_EXTCAP_INSTALL_LIBDIR "extcap/${LOG_PROJECT_NAME}" CACHE INTERNAL "The Logray extcap dir")
+	endif()
 else()
-	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The Wireshark extcap dir")
+	if (BUILD_logray)
+		set(LOG_EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${LOG_PROJECT_NAME}/extcap" CACHE INTERNAL "The Logray extcap dir")
+	endif()
 endif()
-set(EXTCAP_INSTALL_FULL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}")
 
 # Directory where plugins and Lua dissectors can be found.
 if(WIN32 AND NOT USE_MSYSTEM)

@@ -1280,7 +1280,7 @@ get_plugins_pers_dir(void)
  * If the WIRESHARK_EXTCAP_DIR environment variable is set and we are not
  * running with special privileges, use that. Otherwise:
  *
- * On Windows, we use the "extcap" subdirectory of the datafile directory.
+ * On Windows, we use the "extcap" subdirectory of the program directory.
  *
  * On UN*X:
  *
@@ -1315,26 +1315,14 @@ init_extcap_dir(void)
 #elif defined(_WIN32)
     else {
         /*
-         * On Windows, the data file directory is the installation
-         * directory; the extcap hooks are stored under it.
-         *
-         * Assume we're running the installed version of Wireshark;
-         * on Windows, the data file directory is the directory
-         * in which the Wireshark binary resides.
+         * On Windows, extcap utilities are stored in "extcap/<program name>"
+         * in the program file directory in both the build and installation
+         * directories.
          */
-        extcap_dir = g_build_filename(get_datafile_dir(), "extcap", (char *)NULL);
+        extcap_dir = g_build_filename(get_progfile_dir(),EXTCAP_DIR_NAME,
+            CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
-#else
-    else if (running_in_build_directory_flag) {
-        /*
-         * We're (probably) being run from the build directory and
-         * weren't started with special privileges, so we'll use
-         * the "extcap hooks" subdirectory of the directory where the program
-         * we're running is (that's the build directory).
-         */
-        extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (char *)NULL);
-    }
-#ifdef ENABLE_APPLICATION_BUNDLE
+#elif defined (ENABLE_APPLICATION_BUNDLE)
     else if (appbundle_dir != NULL) {
         /*
          * If we're running from an app bundle and weren't started
@@ -1347,9 +1335,20 @@ init_extcap_dir(void)
          */
         extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (char *)NULL);
     }
-#endif
+#else
+    else if (running_in_build_directory_flag) {
+        /*
+         * We're (probably) being run from the build directory and
+         * weren't started with special privileges, so we'll use
+         * the "extcap hooks" subdirectory of the directory where the program
+         * we're running is (that's the build directory).
+         */
+        extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
+            CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
+    }
     else {
-        extcap_dir = g_build_filename(install_prefix, EXTCAP_DIR, (char *)NULL);
+        extcap_dir = g_build_filename(install_prefix,
+            is_packet_configuration_namespace() ? EXTCAP_DIR : LOG_EXTCAP_DIR, (char *)NULL);
     }
 #endif
 }

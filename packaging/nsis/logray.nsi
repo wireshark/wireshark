@@ -138,8 +138,8 @@ Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
 
   SetOutPath $INSTDIR
   File "${STAGING_DIR}\${EXTCAP_NAME}.html"
-  SetOutPath $INSTDIR\extcap
-  File "${STAGING_DIR}\extcap\${EXTCAP_NAME}.exe"
+  SetOutPath $INSTDIR\extcap\logray
+  File "${STAGING_DIR}\extcap\logray\${EXTCAP_NAME}.exe"
 
 !macroend
 
@@ -777,7 +777,7 @@ File "${STAGING_DIR}\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 
 ; Create the extcap directory
-CreateDirectory $INSTDIR\extcap
+CreateDirectory $INSTDIR\lib\logray\extcap
 
 ;
 ; install the protobuf .proto definitions in the protobuf subdirectory
@@ -1106,6 +1106,7 @@ Delete "$INSTDIR\audio\*.*"
 Delete "$INSTDIR\bearer\*.*"
 Delete "$INSTDIR\diameter\*.*"
 Delete "$INSTDIR\extcap\falcodump.*"
+Delete "$INSTDIR\lib\logray\extcap\falcodump.*"
 Delete "$INSTDIR\gpl-2.0-standalone.html"
 Delete "$INSTDIR\Acknowledgements.md"
 Delete "$INSTDIR\generic\*.*"
@@ -1155,6 +1156,9 @@ RMDir "$INSTDIR\accessible"
 RMDir "$INSTDIR\audio"
 RMDir "$INSTDIR\bearer"
 RMDir "$INSTDIR\extcap"
+RMDir "$INSTDIR\lib\logray\extcap"
+RMDir "$INSTDIR\lib\logray"
+RMDir "$INSTDIR\lib"
 RMDir "$INSTDIR\iconengines"
 RMDir "$INSTDIR\imageformats"
 RMDir "$INSTDIR\mediaservice"
