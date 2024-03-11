@@ -635,7 +635,7 @@ void SequenceDialog::resetView()
 void SequenceDialog::on_actionGoToPacket_triggered()
 {
     if (!file_closed_ && packet_num_ > 0) {
-        cf_goto_frame(cap_file_.capFile(), packet_num_);
+        cf_goto_frame(cap_file_.capFile(), packet_num_, FALSE);
         seq_diagram_->setSelectedPacket(packet_num_);
     }
 }
@@ -686,7 +686,7 @@ void SequenceDialog::goToAdjacentPacket(bool next)
             }
             sp->yAxis->moveRange(range_offset);
         }
-        cf_goto_frame(cap_file_.capFile(), adjacent_packet);
+        cf_goto_frame(cap_file_.capFile(), adjacent_packet, FALSE);
         seq_diagram_->setSelectedPacket(adjacent_packet);
     }
 }

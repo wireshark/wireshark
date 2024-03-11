@@ -4747,7 +4747,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
 }
 
 gboolean
-cf_goto_frame(capture_file *cf, guint fnumber)
+cf_goto_frame(capture_file *cf, guint fnumber, gboolean exact)
 {
     frame_data *fdata;
 
@@ -4767,8 +4767,68 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     if (!fdata->passed_dfilter) {
         /* that packet currently isn't displayed */
         /* XXX - add it to the set of displayed packets? */
-        statusbar_push_temporary_msg("Packet number %u isn't displayed.", fnumber);
-        return FALSE;   /* we failed to go to that packet */
+        if (cf->first_displayed == 0 || exact) {
+            /* We only want that exact frame, or no frames are displayed. */
+            statusbar_push_temporary_msg("Packet number %u isn't displayed.", fnumber);
+            return FALSE;   /* we failed to go to that packet */
+        }
+        if (fdata->prev_dis_num == 0) {
+            /* There is no previous displayed frame, so this frame is
+             * before the first displayed frame. Go to the first line,
+             * which is the closest frame.
+             */
+            fdata = NULL; /* This will select the first row. */
+            statusbar_push_temporary_msg("Packet number %u isn't displayed, going to the first displayed packet, %u.", fnumber, cf->first_displayed);
+        } else {
+            uint32_t delta = fnumber - fdata->prev_dis_num;
+            /* The next displayed frame might be closer, we can do an
+             * O(log n) binary search for the earliest displayed frame
+             * in the open interval (fnumber, fnumber + delta).
+             *
+             * This is possibly overkill, we could just go to the previous
+             * displayed frame.
+             */
+            frame_data *fdata2;
+            uint32_t lower_bound = fnumber + 1;
+            uint32_t upper_bound = fnumber + delta - 1;
+            bool found = false;
+            while (lower_bound <= upper_bound) {
+                uint32_t middle = (lower_bound + upper_bound) / 2;
+                fdata2 = frame_data_sequence_find(cf->provider.frames, middle);
+                if (fdata2 == NULL) {
+                    /* We don't have a frame of that number, so search before it. */
+                    upper_bound = middle - 1;
+                    continue;
+                }
+                /* We have a frame of that number. What's the displayed
+                 * frame before it? */
+                if (fdata2->prev_dis_num > fnumber) {
+                    /* The previous frame that passed the filter is also after
+                     * our target, so our answer is no later than that.
+                     */
+                    upper_bound = fdata2->prev_dis_num;
+                } else {
+                    /* The previous displayed frame is before fnumber.
+                     * (We already know fnumber itself is not displayed.)
+                     * Is this frame itself displayed?
+                     */
+                    if (fdata2->passed_dfilter) {
+                        /* Yes. So this is our answer. */
+                        found = true;
+                        break;
+                    }
+                    /* No. So our answer, if any, is after this frame. */
+                    lower_bound = middle + 1;
+                }
+            }
+            if (found) {
+                fdata = fdata2;
+                statusbar_push_temporary_msg("Packet number %u isn't displayed, going to the next displayed packet, %u.", fnumber, fdata->num);
+            } else {
+                statusbar_push_temporary_msg("Packet number %u isn't displayed, going to the previous displayed packet, %u.", fnumber, fdata->prev_dis_num);
+                fdata = frame_data_sequence_find(cf->provider.frames, fdata->prev_dis_num);
+            }
+        }
     }
 
     if (!packet_list_select_row_from_data(fdata)) {
@@ -4797,8 +4857,12 @@ cf_goto_framenum(capture_file *cf)
         ws_assert(hfinfo);
         if (hfinfo->type == FT_FRAMENUM) {
             framenum = fvalue_get_uinteger(cf->finfo_selected->value);
-            if (framenum != 0)
-                return cf_goto_frame(cf, framenum);
+            if (framenum != 0) {
+                /* We probably only want to go to the exact match,
+                 * even though "Go to Previous Packet in History" exists.
+                 */
+                return cf_goto_frame(cf, framenum, TRUE);
+            }
         }
     }
 

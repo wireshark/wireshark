@@ -1658,7 +1658,7 @@ void PacketList::goLastPacket(void) {
 
 void PacketList::goToPacket(int packet, int hf_id)
 {
-    if (!cf_goto_frame(cap_file_, packet))
+    if (!cf_goto_frame(cap_file_, packet, FALSE))
         return;
 
     // cf_goto_frame only returns true if packet_list_select_row_from_data

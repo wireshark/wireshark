@@ -467,7 +467,7 @@ void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseE
         }
     }
     if (cap_file_ && frame_num > 0) {
-        cf_goto_frame(cap_file_, frame_num);
+        cf_goto_frame(cap_file_, frame_num, FALSE);
     }
     ui->hintLabel->setText(QString(tr("<small><i>%1: %2 Time: %3 secs </i></small>"))
                            .arg(plottable->name())

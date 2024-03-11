@@ -604,9 +604,11 @@ gboolean cf_find_packet_time_reference(capture_file *cf, search_direction dir);
  *
  * @param cf the capture file
  * @param row the row to go to
+ * @param exact if TRUE, fail if the row exists and is filtered (not displayed)
+ * if FALSE, go to the nearest displayed packet instead
  * @return TRUE if this row exists, FALSE otherwise
  */
-gboolean cf_goto_frame(capture_file *cf, guint row);
+gboolean cf_goto_frame(capture_file *cf, guint row, gboolean exact);
 
 /**
  * Go to frame specified by currently selected protocol tree field.

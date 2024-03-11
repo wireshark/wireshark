@@ -164,7 +164,7 @@ void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMo
             }
         }
         if (cap_file_ && frame_num > 0) {
-            cf_goto_frame(cap_file_, frame_num);
+            cf_goto_frame(cap_file_, frame_num, FALSE);
         }
 
         ui->hintLabel->setText(QString(tr("<small><i>Graph %1: Received bytes=%2 Time=%3 secs </i></small>"))

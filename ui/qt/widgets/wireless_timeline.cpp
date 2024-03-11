@@ -161,11 +161,7 @@ void WirelessTimeline::mouseReleaseEvent(QMouseEvent *event)
     if (num == 0)
         return;
 
-    frame_data *fdata = frame_data_sequence_find(cfile.provider.frames, num);
-    if (!fdata->passed_dfilter && fdata->prev_dis_num > 0)
-        num = fdata->prev_dis_num;
-
-    cf_goto_frame(&cfile, num);
+    cf_goto_frame(&cfile, num, FALSE);
 }
 
 
