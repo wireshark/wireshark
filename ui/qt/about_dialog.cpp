@@ -240,35 +240,36 @@ FolderListModel::FolderListModel(QObject * parent):
         AStringListListModel(parent)
 {
     /* "file open" */
-    appendRow(QStringList() << tr("\"File\" dialogs") << get_open_dialog_initial_dir() << tr("capture files"));
+    appendRow(QStringList() << tr("\"File\" dialog location") << get_open_dialog_initial_dir() << tr("Capture files"));
 
     /* temp */
-    appendRow(QStringList() << tr("Temp") << (global_capture_opts.temp_dir && global_capture_opts.temp_dir[0] ? global_capture_opts.temp_dir : g_get_tmp_dir()) << tr("untitled capture files"));
+    appendRow(QStringList() << tr("Temp") << (global_capture_opts.temp_dir && global_capture_opts.temp_dir[0] ? global_capture_opts.temp_dir : g_get_tmp_dir())
+                            << tr("Untitled capture files"));
 
     /* pers conf */
     appendRow(QStringList() << tr("Personal configuration")
             << gchar_free_to_qstring(get_persconffile_path("", FALSE))
-            << tr("dfilters, preferences, ethers, …"));
+            << tr("Preferences, profiles, manuf, …"));
 
     /* global conf */
     QString dirPath = get_datafile_dir();
     if (! dirPath.isEmpty()) {
         appendRow (QStringList() << tr("Global configuration") << dirPath
-                << tr("dfilters, preferences, manuf, …"));
+                << tr("Preferences, profiles, manuf, …"));
     }
 
     /* system */
     appendRow(QStringList() << tr("System") << get_systemfile_dir() << tr("ethers, ipxnets"));
 
     /* program */
-    appendRow(QStringList() << tr("Program") << get_progfile_dir() << tr("program files"));
+    appendRow(QStringList() << tr("Program") << get_progfile_dir() << tr("Program files"));
 
     if (plugins_supported()) {
         /* pers plugins */
-        appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir() << tr("binary plugins"));
+        appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir() << tr("Binary plugins"));
 
         /* global plugins */
-        appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir() << tr("binary plugins"));
+        appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir() << tr("Binary plugins"));
     }
 
 #ifdef HAVE_LUA
@@ -280,8 +281,8 @@ FolderListModel::FolderListModel(QObject * parent):
 #endif
 
     /* Extcap */
-    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_extcap_pers_dir()) << tr("external capture (extcap) plugins"));
-    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()) << tr("external capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_extcap_pers_dir()) << tr("External capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()) << tr("External capture (extcap) plugins"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */
