@@ -905,7 +905,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                 for (int i = 0; i < 4; i++) {
                     WORD_OR_RETURN(&r, NULL);
                 }
-                gint value_size;
+                guint value_size;
                 WORD_OR_RETURN(&r, &value_size);
 
                 // Pointer to void, contains an extra word for whether the pointer is NULL
@@ -923,7 +923,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
     } else {
         /* RESPONSE */
         sane_rpc_code opcode = get_sane_expected_response_type(sess, pinfo);
-        gint array_len;
+        guint array_len;
 
         switch (opcode) {
             case SANE_NET_INIT:
@@ -943,7 +943,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
             case SANE_NET_GET_OPTION_DESCRIPTORS:
                 WORD_OR_RETURN(&r, &array_len);
 
-                for (int i = 0; i < array_len; i++) {
+                for (guint i = 0; i < array_len; i++) {
                     WORD_OR_RETURN(&r, NULL);
 
                     // read name, title and description
@@ -956,29 +956,29 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                     }
 
                     // constraint type
-                    gint constraint_type;
+                    guint constraint_type;
                     WORD_OR_RETURN(&r, &constraint_type);
 
-                    gint string_count;
-                    gint value_list_length;
+                    guint string_count;
+                    guint value_list_length;
                     switch (constraint_type) {
                         case SANE_CONSTRAINT_STRING_LIST:
                             WORD_OR_RETURN(&r, &string_count);
 
-                            for (int j = 0; j < string_count; j++) {
+                            for (guint j = 0; j < string_count; j++) {
                                 STRING_OR_RETURN(&r);
                             }
                             break;
                         case SANE_CONSTRAINT_WORD_LIST:
                             WORD_OR_RETURN(&r, &value_list_length);
 
-                            for (int j = 0; j < value_list_length; j++) {
+                            for (guint j = 0; j < value_list_length; j++) {
                                 WORD_OR_RETURN(&r, NULL);
                             }
                             break;
                         case SANE_CONSTRAINT_RANGE:
                             // Pointer to range, then min, max, quantization
-                            for (int j = 0; j < 4; j++) {
+                            for (guint j = 0; j < 4; j++) {
                                 WORD_OR_RETURN(&r, NULL);
                             }
                             break;
@@ -998,7 +998,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                     WORD_OR_RETURN(&r, NULL);
                 }
 
-                gint value_len;
+                guint value_len;
                 WORD_OR_RETURN(&r, &value_len);
 
                 if (tvb_skip_bytes(&r, value_len + SANE_WORD_LENGTH) == 0) {
@@ -1010,9 +1010,9 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
             case SANE_NET_GET_DEVICES:
                 WORD_OR_RETURN(&r, NULL);
 
-                gint device_count;
+                guint device_count;
                 WORD_OR_RETURN(&r, &device_count);
-                for (int i = 0; i < device_count - 1; i++) {
+                for (guint i = 0; i < device_count - 1; i++) {
                     WORD_OR_RETURN(&r, NULL);
                     STRING_OR_RETURN(&r);
                     STRING_OR_RETURN(&r);
