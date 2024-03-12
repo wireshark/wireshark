@@ -954,6 +954,13 @@ class Item:
                 rs = range_strings[self.rs_name]
                 self.check_range_string_range(rs.min_value, rs.max_value)
 
+        # Could/should this item be FT_FRAMENUM ?
+        #if ((self.label.lower().find(' frame') != -1 or self.label.lower().find('frame ') != -1) and self.label.lower().find('frames') == -1 and
+        #    (self.label.lower().find('in') != -1 or self.label.lower().find('for') != -1) and
+        #    self.item_type == 'FT_UINT32' and self.mask_value == 0x0):
+        #    print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '", label "' + label + '"', 'item type is', self.item_type, '- could be FT_FRANENUM?')
+        #    warnings_found += 1
+
 
     def __str__(self):
         return 'Item ({0} "{1}" {2} type={3}:{4} {5} mask={6})'.format(self.filename, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
