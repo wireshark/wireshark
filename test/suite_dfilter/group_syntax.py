@@ -321,6 +321,10 @@ class TestDfilterArithmetic:
         dfilter = "1 - 2"
         checkDFilterFail(dfilter, error)
 
+    def test_add_7(self, checkDFilterCount):
+        dfilter = r"udp.dstport == 66+'\x01'"
+        checkDFilterCount(dfilter, 2)
+
     def test_sub_1(self, checkDFilterCount):
         dfilter = "udp.srcport == udp.dstport - 1"
         checkDFilterCount(dfilter, 2)
