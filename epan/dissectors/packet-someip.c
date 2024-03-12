@@ -23,6 +23,7 @@
 #include <epan/reassemble.h>
 #include <epan/addr_resolv.h>
 #include <epan/stats_tree.h>
+#include <epan/prefs-int.h>
 
 #include "packet-udp.h"
 #include "packet-dtls.h"
@@ -126,6 +127,7 @@
 
 /* ID wireshark identifies the dissector by */
 static int proto_someip;
+static module_t *someip_module = NULL;
 
 static dissector_handle_t someip_handle_udp = NULL;
 static dissector_handle_t someip_handle_tcp = NULL;
@@ -608,6 +610,7 @@ static guint someip_parameter_base_type_list_num = 0;
 void proto_register_someip(void);
 void proto_reg_handoff_someip(void);
 
+static void deregister_dynamic_hf_data(hf_register_info **hf_array, guint *hf_size);
 static void update_dynamic_hf_entries_someip_parameter_list(void);
 static void update_dynamic_hf_entries_someip_parameter_arrays(void);
 static void update_dynamic_hf_entries_someip_parameter_structs(void);
@@ -745,6 +748,14 @@ register_someip_port_tcp(guint32 portnumber) {
 
 /*** UAT Callbacks and Helpers ***/
 
+static void
+set_prefs_changed(void) {
+    /* This ensures that proto_reg_handoff_someip is called, even if SOME/IP is not bound to any port yet. */
+    if (someip_module) {
+        someip_module->prefs_changed_flags |= (PREF_EFFECT_DISSECTION|PREF_EFFECT_FIELDS);
+    }
+}
+
 static char*
 check_filter_string(gchar *filter_string, guint32 id) {
     char   *err = NULL;
@@ -809,7 +820,7 @@ update_serviceid(void *r, char **err) {
 }
 
 static void
-free_generic_one_id_string_cb(void*r) {
+free_generic_one_id_string_cb(void *r) {
     generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
 
     /* freeing result of g_strdup */
@@ -898,7 +909,7 @@ update_generic_two_identifier_16bit(void *r, char **err) {
 }
 
 static void
-free_generic_two_id_string_cb(void*r) {
+free_generic_two_id_string_cb(void *r) {
     generic_two_id_string_t *rec = (generic_two_id_string_t *)r;
 
     /* freeing result of g_strdup */
@@ -1332,6 +1343,7 @@ static void
 reset_someip_parameter_list_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_parameter_list) {
+        deregister_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size);
         g_hash_table_destroy(data_someip_parameter_list);
         data_someip_parameter_list = NULL;
     }
@@ -1343,7 +1355,8 @@ post_update_someip_parameter_list_cb(void) {
 
     data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_list);
     post_update_someip_parameter_list_read_in_data(someip_parameter_list, someip_parameter_list_num, data_someip_parameter_list);
-    update_dynamic_hf_entries_someip_parameter_list();
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_enums, id, someip_parameter_enum_uat_t)
@@ -1410,7 +1423,7 @@ update_someip_parameter_enum(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_enum_cb(void*r) {
+free_someip_parameter_enum_cb(void *r) {
     someip_parameter_enum_uat_t *rec = (someip_parameter_enum_uat_t *)r;
     if (rec->name) {
         g_free(rec->name);
@@ -1505,6 +1518,8 @@ post_update_someip_parameter_enum_cb(void) {
 
     data_someip_parameter_enums = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_enum);
     post_update_someip_parameter_enum_read_in_data(someip_parameter_enums, someip_parameter_enums_num, data_someip_parameter_enums);
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_arrays, id, someip_parameter_array_uat_t)
@@ -1584,7 +1599,7 @@ update_someip_parameter_array(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_array_cb(void*r) {
+free_someip_parameter_array_cb(void *r) {
     someip_parameter_array_uat_t *rec = (someip_parameter_array_uat_t *)r;
 
     if (rec->name) g_free(rec->name);
@@ -1656,25 +1671,23 @@ post_update_someip_parameter_array_read_in_data(someip_parameter_array_uat_t *da
 }
 
 static void
-post_update_someip_parameter_array_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_arrays) {
-        g_hash_table_destroy(data_someip_parameter_arrays);
-        data_someip_parameter_arrays = NULL;
-    }
-
-    data_someip_parameter_arrays = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_array);
-    post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
-    update_dynamic_hf_entries_someip_parameter_arrays();
-}
-
-static void
 reset_someip_parameter_array_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_parameter_arrays) {
+        deregister_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size);
         g_hash_table_destroy(data_someip_parameter_arrays);
         data_someip_parameter_arrays = NULL;
     }
+}
+
+static void
+post_update_someip_parameter_array_cb(void) {
+    reset_someip_parameter_array_cb();
+
+    data_someip_parameter_arrays = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_array);
+    post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_structs, id, someip_parameter_struct_uat_t)
@@ -1844,25 +1857,23 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
 }
 
 static void
-post_update_someip_parameter_struct_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_structs) {
-        g_hash_table_destroy(data_someip_parameter_structs);
-        data_someip_parameter_structs = NULL;
-    }
-
-    data_someip_parameter_structs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_struct);
-    post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
-    update_dynamic_hf_entries_someip_parameter_structs();
-}
-
-static void
 reset_someip_parameter_struct_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_parameter_structs) {
+        deregister_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size);
         g_hash_table_destroy(data_someip_parameter_structs);
         data_someip_parameter_structs = NULL;
     }
+}
+
+static void
+post_update_someip_parameter_struct_cb(void) {
+    reset_someip_parameter_struct_cb();
+
+    data_someip_parameter_structs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_struct);
+    post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_unions, id, someip_parameter_union_uat_t)
@@ -1946,7 +1957,7 @@ update_someip_parameter_union(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_union_cb(void*r) {
+free_someip_parameter_union_cb(void *r) {
     someip_parameter_union_uat_t *rec = (someip_parameter_union_uat_t *)r;
 
     if (rec->name) {
@@ -2038,6 +2049,7 @@ static void
 reset_someip_parameter_union_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_parameter_unions) {
+        deregister_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size);
         g_hash_table_destroy(data_someip_parameter_unions);
         data_someip_parameter_unions = NULL;
     }
@@ -2049,7 +2061,8 @@ post_update_someip_parameter_union_cb(void) {
 
     data_someip_parameter_unions = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_union);
     post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
-    update_dynamic_hf_entries_someip_parameter_unions();
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_base_type_list, id, someip_parameter_base_type_list_uat_t)
@@ -2114,7 +2127,7 @@ update_someip_parameter_base_type_list(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_base_type_list_cb(void*r) {
+free_someip_parameter_base_type_list_cb(void *r) {
     someip_parameter_base_type_list_uat_t *rec = (someip_parameter_base_type_list_uat_t *)r;
 
     if (rec->name) {
@@ -2159,6 +2172,8 @@ post_update_someip_parameter_base_type_list_cb(void) {
             g_hash_table_insert(data_someip_parameter_base_type_list, key, &someip_parameter_base_type_list[i]);
         }
     }
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_strings, id, someip_parameter_string_uat_t)
@@ -2225,7 +2240,7 @@ update_someip_parameter_string_list(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_string_list_cb(void*r) {
+free_someip_parameter_string_list_cb(void *r) {
     someip_parameter_string_uat_t *rec = (someip_parameter_string_uat_t *)r;
 
     if (rec->name) {
@@ -2253,11 +2268,7 @@ post_update_someip_parameter_string_list_cb(void) {
     guint   i;
     gint64 *key = NULL;
 
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_strings) {
-        g_hash_table_destroy(data_someip_parameter_strings);
-        data_someip_parameter_strings = NULL;
-    }
+    reset_someip_parameter_string_list_cb();
 
     /* we don't need to free the data as long as we don't alloc it first */
     data_someip_parameter_strings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, NULL);
@@ -2274,6 +2285,8 @@ post_update_someip_parameter_string_list_cb(void) {
             g_hash_table_insert(data_someip_parameter_strings, key, &someip_parameter_strings[i]);
         }
     }
+
+    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_typedefs, id, someip_parameter_typedef_uat_t)
@@ -2317,7 +2330,7 @@ update_someip_parameter_typedef_list(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_typedef_list_cb(void*r) {
+free_someip_parameter_typedef_list_cb(void *r) {
     someip_parameter_typedef_uat_t *rec = (someip_parameter_typedef_uat_t *)r;
 
     if (rec->name) {
@@ -2357,6 +2370,8 @@ post_update_someip_parameter_typedef_list_cb(void) {
             g_hash_table_insert(data_someip_parameter_typedefs, key, &someip_parameter_typedefs[i]);
         }
     }
+
+    set_prefs_changed();
 }
 
 
@@ -3442,7 +3457,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE:
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM:
     default:
-        /* This happends only if configuration or message are buggy. */
+        /* This happens only if configuration or message are buggy. */
         return -2;
     }
 }
@@ -3909,7 +3924,6 @@ dissect_some_ip_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 void
 proto_register_someip(void) {
-    module_t        *someip_module;
     expert_module_t *expert_module_someip;
 
     uat_t *someip_service_uat;
