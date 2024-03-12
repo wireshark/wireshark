@@ -243,7 +243,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
           case UB_HOSTNAME:
-            proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
+            proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_UTF_8);
             break;
           case UB_PRODUCT:
             uValue = tvb_get_string_enc(pinfo->pool, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
