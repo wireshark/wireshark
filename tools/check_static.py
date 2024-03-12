@@ -29,7 +29,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 # Allow this as a default build folder name...
-build_folder = os.getcwd() + '-build' 
+build_folder = os.getcwd() + '-build'
 
 
 # Record which symbols are referred to (by a set of files).
@@ -88,7 +88,15 @@ class DefinedSymbols:
         self.from_generated_file = isGeneratedFile(file)
 
         # Make sure that file is built.
-        object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
+        if self.filename.startswith('epan'):
+            object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
+        elif self.filename.startswith('plugins'):
+            plugin_base_dir = os.path.dirname(file)
+            plugin_base_name = os.path.basename(plugin_base_dir)
+            object_file = os.path.join(build_folder, plugin_base_dir, 'CMakeFiles', plugin_base_name + '.dir', os.path.basename(file) + '.o')
+        else:
+            #print("Warning - can't determine object file for ", self.filename)
+            return
         if not os.path.exists(object_file):
             #print('Warning -', object_file, 'does not exist')
             return
@@ -261,7 +269,7 @@ if args.build_folder:
 if args.file:
     # Add specified file(s)
     for f in args.file:
-        if not f.startswith('epan'):
+        if not os.path.isfile(f) and not f.startswith('epan'):
             f = os.path.join('epan', 'dissectors', f)
         if not os.path.isfile(f):
             print('Chosen file', f, 'does not exist.')
