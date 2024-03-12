@@ -12,36 +12,36 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#define UB_TLV_TYPE      0
-#define UB_TLV_LENGTH    1
+#define UB_TLV_TYPE          0
+#define UB_TLV_LENGTH        1
 
-#define UB_HW_ADDR       1
-#define UB_HW_IP_ADDR    2
-#define UB_FIRMWARE_FULL 3
-#define UB_HW_IP_ADDR_2  4
-#define UB_HW_ADDR_2     5
-#define UB_USERNAME      6
-#define UB_SALT          7
-#define UB_RND_CHALLENGE 8
-#define UB_CHALLENGE     9
-#define UB_UPTIME        10
-#define UB_HOSTNAME      11
-#define UB_PRODUCT       12
-#define UB_ESSID         13
-#define UB_WLAN_MODE     14
-#define UB_WEBUI         15
-#define UB_SYSTEM_ID     16
-#define UB_SEQ_NUM       18
-#define UB_HW_ADDR_3     19
-#define UB_TYPE          20
-#define UB_MODEL         21
-#define UB_FIRMWARE      22
-#define UB_DEFAULT       23
-#define UB_LOCATING      24
-#define UB_DHCP_CLIENT   25
+#define UB_HW_ADDR           1
+#define UB_HW_IP_ADDR        2
+#define UB_FIRMWARE_FULL     3
+#define UB_HW_IP_ADDR_2      4
+#define UB_HW_ADDR_2         5
+#define UB_USERNAME          6
+#define UB_SALT              7
+#define UB_RND_CHALLENGE     8
+#define UB_CHALLENGE         9
+#define UB_UPTIME            10
+#define UB_HOSTNAME          11
+#define UB_PRODUCT           12
+#define UB_ESSID             13
+#define UB_WLAN_MODE         14
+#define UB_WEBUI             15
+#define UB_SYSTEM_ID         16
+#define UB_SEQ_NUM           18
+#define UB_HW_ADDR_3         19
+#define UB_TYPE              20
+#define UB_MODEL             21
+#define UB_FIRMWARE          22
+#define UB_DEFAULT           23
+#define UB_LOCATING          24
+#define UB_DHCP_CLIENT       25
 #define UB_DHCP_CLIENT_BOUND 26
-#define UB_PLATFORM_VERS 27
-#define UB_SSHD_PORT     28
+#define UB_PLATFORM_VERS     27
+#define UB_SSHD_PORT         28
 
 void proto_register_ubdp(void);
 void proto_reg_handoff_ubdp(void);
@@ -386,10 +386,10 @@ proto_register_ubdp(void)
       &ett_ubdp_tlv
     };
 
-  static ei_register_info ei[] = {
-	 { &ei_ubdp_bad_version, { "ubdp.bad-version-detected", PI_PROTOCOL, PI_WARN, "Bad Version Detected", EXPFILL }},
-     { &ei_ubdp_unexpected_len, { "ubdp.bad-field-length-detected", PI_PROTOCOL, PI_WARN, "Bad Length Field Detected", EXPFILL }},
-  };
+    static ei_register_info ei[] = {
+      { &ei_ubdp_bad_version, { "ubdp.bad-version-detected", PI_PROTOCOL, PI_WARN, "Bad Version Detected", EXPFILL }},
+      { &ei_ubdp_unexpected_len, { "ubdp.bad-field-length-detected", PI_PROTOCOL, PI_WARN, "Bad Length Field Detected", EXPFILL }},
+    };
 
     expert_module_t* expert_ubdp;
 
