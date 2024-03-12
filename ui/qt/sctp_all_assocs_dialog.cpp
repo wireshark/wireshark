@@ -49,10 +49,6 @@ void SCTPAllAssocsDialog::fillTable()
     int numAssocs;
 
     ui->assocList->setColumnHidden(0, true);
-    ui->assocList->setColumnWidth(1,  85);
-    ui->assocList->setColumnWidth(2,  85);
-    ui->assocList->setColumnWidth(3,  150);
-    ui->assocList->setColumnWidth(4,  150);
 
     sctp_assocs = sctp_stat_get_info();
     if (sctp_assocs->is_registered == FALSE) {
@@ -63,19 +59,43 @@ void SCTPAllAssocsDialog::fillTable()
     numAssocs = 0;
     ui->assocList->setRowCount(static_cast<int>(g_list_length(sctp_assocs->assoc_info_list)));
 
+    /* https://doc.qt.io/qt-6/qtablewidget.html#setItem suggests turning
+     * off sorting before setting several items of a row in a loop.
+     */
+    bool sorting = ui->assocList->isSortingEnabled();
+    if (sorting) {
+        ui->assocList->setSortingEnabled(false);
+    }
     list = g_list_first(sctp_assocs->assoc_info_list);
 
+    QTableWidgetItem *item;
     while (list) {
         assinfo = gxx_list_data(const sctp_assoc_info_t*, list);
-        ui->assocList->setItem(numAssocs, 0, new QTableWidgetItem(QString("%1").arg(assinfo->assoc_id)));
-        ui->assocList->setItem(numAssocs, 1, new QTableWidgetItem(QString("%1").arg(assinfo->port1)));
-        ui->assocList->setItem(numAssocs, 2, new QTableWidgetItem(QString("%1").arg(assinfo->port2)));
-        ui->assocList->setItem(numAssocs, 3, new QTableWidgetItem(QString("%1").arg(assinfo->n_packets)));
-        ui->assocList->setItem(numAssocs, 4, new QTableWidgetItem(QString("%1").arg(assinfo->n_data_chunks)));
-        ui->assocList->setItem(numAssocs, 5, new QTableWidgetItem(QString("%1").arg(assinfo->n_data_bytes)));
+        item = new QTableWidgetItem();
+        item->setData(Qt::DisplayRole, assinfo->assoc_id);
+        ui->assocList->setItem(numAssocs, 0, item);
+        item = new QTableWidgetItem();
+        item->setData(Qt::DisplayRole, assinfo->port1);
+        ui->assocList->setItem(numAssocs, 1, item);
+        item = new QTableWidgetItem();
+        item->setData(Qt::DisplayRole, assinfo->port2);
+        ui->assocList->setItem(numAssocs, 2, item);
+        item = new QTableWidgetItem();
+        item->setData(Qt::DisplayRole, assinfo->n_packets);
+        ui->assocList->setItem(numAssocs, 3, item);
+        item = new QTableWidgetItem();
+        item->setData(Qt::DisplayRole, assinfo->n_data_chunks);
+        ui->assocList->setItem(numAssocs, 4, item);
+        item = new QTableWidgetItem();
+        item->setData(Qt::DisplayRole, assinfo->n_data_bytes);
+        ui->assocList->setItem(numAssocs, 5, item);
         list = gxx_list_next(list);
         numAssocs++;
     }
+    if (sorting) {
+        ui->assocList->setSortingEnabled(true);
+    }
+    ui->assocList->resizeColumnsToContents();
     ui->analyseButton->setEnabled(false);
     ui->setFilterButton->setEnabled(false);
     connect(ui->assocList, SIGNAL(itemSelectionChanged()), this, SLOT(getSelectedItem()));
