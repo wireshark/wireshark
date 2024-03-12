@@ -910,8 +910,8 @@ parse_charconst(dfsyntax_t *dfs, const char *s, unsigned long *valuep)
 					dfilter_fail(dfs, DF_ERROR_GENERIC, dfs->string_loc, "%s isn't a valid character constant.", s);
 					return false;
 				}
+				cp++;
 			}
-			cp++;
 			break;
 
 		case 'u':
