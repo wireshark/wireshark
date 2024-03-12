@@ -367,7 +367,7 @@ df_semcheck_param(dfwork_t *dfw, const char *func_name _U_, ftenum_t logical_fty
 /* For upper() and lower() checks that the parameter passed to
  * it is an FT_STRING */
 static ftenum_t
-ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
+ul_semcheck_is_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_ftype _U_,
                             GSList *param_list, df_loc_t func_loc _U_)
 {
     ws_assert(g_slist_length(param_list) == 1);
@@ -376,9 +376,6 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t logic
 
     resolve_unparsed(dfw, param, true);
 
-    if (stnode_type_id(param) != STTYPE_FIELD) {
-        dfunc_fail(dfw, param, "Only fields can be used as parameter for %s()", func_name);
-    }
     ftype = df_semcheck_param(dfw, func_name, logical_ftype, param, func_loc);
     if (!FT_IS_STRING(ftype)) {
         dfunc_fail(dfw, param, "Only string type fields can be used as parameter for %s()", func_name);
@@ -569,8 +566,8 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t logica
 /* The table of all display-filter functions */
 static df_func_def_t
 df_functions[] = {
-    { "lower",  df_func_lower,  1, 1, FT_STRING, ul_semcheck_is_field_string },
-    { "upper",  df_func_upper,  1, 1, FT_STRING, ul_semcheck_is_field_string },
+    { "lower",  df_func_lower,  1, 1, FT_STRING, ul_semcheck_is_string },
+    { "upper",  df_func_upper,  1, 1, FT_STRING, ul_semcheck_is_string },
     /* Length function is implemented as a DFVM instruction. */
     { "len",    NULL,           1, 1, FT_UINT32, ul_semcheck_can_length },
     { "count",  df_func_count,  1, 1, FT_UINT32, ul_semcheck_is_field },
