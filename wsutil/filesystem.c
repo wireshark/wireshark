@@ -1168,50 +1168,24 @@ init_plugin_dir(void)
          * Let {WIRESHARK,LOGRAY}_PLUGIN_DIR take precedence.
          */
         plugin_dir = g_strdup(g_getenv(plugin_dir_envar));
-        return;
     }
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #if defined(HAVE_MSYSTEM)
-    if (running_in_build_directory_flag) {
+    else if (running_in_build_directory_flag) {
         plugin_dir = g_build_filename(install_prefix, "plugins", (char *)NULL);
     } else {
         plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
     }
 #elif defined(_WIN32)
-    /*
-     * On Windows, the data file directory is the installation
-     * directory; the plugins are stored under it.
-     *
-     * Assume we're running the installed version of Wireshark;
-     * on Windows, the data file directory is the directory
-     * in which the Wireshark binary resides.
-     */
-    plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (char *)NULL);
-
-    /*
-     * Make sure that pathname refers to a directory.
-     */
-    if (test_for_directory(plugin_dir) != EISDIR) {
+    else {
         /*
-         * Either it doesn't refer to a directory or it
-         * refers to something that doesn't exist.
-         *
-         * Assume that means we're running a version of
-         * Wireshark we've built in a build directory,
-         * in which case {datafile dir}\plugins is the
-         * top-level plugins source directory, and use
-         * that directory and set the "we're running in
-         * a build directory" flag, so the plugin
-         * scanner will check all subdirectories of that
-         * directory for plugins.
+         * On Windows, plugins are stored under the program file directory
+         * in both the build and the installation directories.
          */
-        g_free(plugin_dir);
-        plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (char *)NULL);
-        running_in_build_directory_flag = true;
+        plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (char *)NULL);
     }
-#else
-#ifdef ENABLE_APPLICATION_BUNDLE
+#elif defined(ENABLE_APPLICATION_BUNDLE)
     /*
      * If we're running from an app bundle and weren't started
      * with special privileges, use the Contents/PlugIns/wireshark
@@ -1225,7 +1199,7 @@ init_plugin_dir(void)
         plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
                                         CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
-#endif
+#else
     else if (running_in_build_directory_flag) {
         /*
          * We're (probably) being run from the build directory and
