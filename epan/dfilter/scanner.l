@@ -767,8 +767,8 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 					dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
+				cp++;
 			}
-			cp++;
 			break;
 
 		case 'u':
