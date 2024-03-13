@@ -77,7 +77,7 @@ BASIC_LIST="base-devel \
 	libpcap \
 	libssh \
 	libxml2 \
-	lua52 \
+	lua53 \
 	lz4 \
 	minizip \
 	ninja \
