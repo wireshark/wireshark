@@ -187,9 +187,10 @@ static gboolean dns_qr_rt_d_statistics_enabled = TRUE;       // d = aDditional
 
 // storage to store ttls of each answer-authority-additional record and is
 // overwritten for each response
-static guint dns_qr_r_ra_ttls[4096];    // ra = Answer array
-static guint dns_qr_r_ru_ttls[4096];    // ru = aUthority array
-static guint dns_qr_r_rd_ttls[4096];    // rd = aDditional array
+#define TTL_MAXIMUM_ELEMENTS 4096
+static guint dns_qr_r_ra_ttls[TTL_MAXIMUM_ELEMENTS]; // ra = Answer array
+static guint dns_qr_r_ru_ttls[TTL_MAXIMUM_ELEMENTS]; // ru = aUthority array
+static guint dns_qr_r_rd_ttls[TTL_MAXIMUM_ELEMENTS]; // rd = aDditional array
 static guint dns_qr_r_ra_ttl_index = 0; // ra = Answer index
 static guint dns_qr_r_ru_ttl_index = 0; // ru = aUthority index
 static guint dns_qr_r_rd_ttl_index = 0; // rd = aDditional index
@@ -1978,7 +1979,14 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   // storing ttl in the context-specific array and then increments its array's
   // index for storing ttl of the next record
   if (dns_qr_statistics_enabled) {
-    p_dns_qr_r_rx_ttls[(*p_dns_qr_r_rx_ttl_index)++] = ttl_value;
+    // cap (or limit check) has been put in-place to avoid overflow
+    // check https://gitlab.com/wireshark/wireshark/-/issues/19700
+    if (*p_dns_qr_r_rx_ttl_index < TTL_MAXIMUM_ELEMENTS) {
+      p_dns_qr_r_rx_ttls[(*p_dns_qr_r_rx_ttl_index)++] = ttl_value;
+    }
+    else {
+      ws_debug("index(%u) >= (%u)TTL_MAXIMUM_ELEMENTS", *p_dns_qr_r_rx_ttl_index, TTL_MAXIMUM_ELEMENTS);
+    }
   }
   proto_item_append_text(ttl_item, " (%s)", unsigned_time_secs_to_str(pinfo->pool, ttl_value));
   if (ttl_value & 0x80000000) {
@@ -5956,7 +5964,12 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       // rt_a = Answers
       if (dns_qr_rt_a_statistics_enabled) {
         ws_debug("rt_a = Response-TTL_Answers\n");
-        for (guint ui = 0; ui < pi->nanswers; ui++) {
+        guint ui_limit = pi->nanswers;
+        if (ui_limit > TTL_MAXIMUM_ELEMENTS) { // limit check to avoid overflow
+          ws_debug("rt_a = Response-TTL_Answers (answers(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating upto TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
+          ui_limit = TTL_MAXIMUM_ELEMENTS;
+        }
+        for (guint ui = 0; ui < ui_limit; ui++) {
           tick_stat_node(st, st_str_qr_rt_a_packets, st_node_qr_rt_packets, TRUE);
           if (dns_qr_r_ra_ttls[ui] == 0) {
             st_node = tick_stat_node(st, "zero", st_node_qr_rt_a_packets, TRUE);
@@ -5991,7 +6004,12 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       // rt_u = aUthority
       if (dns_qr_rt_u_statistics_enabled) {
         ws_debug("rt_u = Response-TTL_aUthority\n");
-        for (guint ui = 0; ui < pi->nauthorities; ui++) {
+        guint ui_limit = pi->nauthorities;
+        if (ui_limit > TTL_MAXIMUM_ELEMENTS) { // limit check to avoid overflow
+          ws_debug("rt_a = Response-TTL_Answers (authorities(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating upto TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
+          ui_limit = TTL_MAXIMUM_ELEMENTS;
+        }
+        for (guint ui = 0; ui < ui_limit; ui++) {
           tick_stat_node(st, st_str_qr_rt_u_packets, st_node_qr_rt_packets, TRUE);
           if (dns_qr_r_ru_ttls[ui] == 0) {
             st_node = tick_stat_node(st, "zero", st_node_qr_rt_u_packets, TRUE);
@@ -6026,7 +6044,12 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       // rt_d = aDditional
       if (dns_qr_rt_d_statistics_enabled) {
         ws_debug("rt_d = Response-TTL_aDditional\n");
-        for (guint ui = 0; ui < pi->nadditionals; ui++) {
+        guint ui_limit = pi->nadditionals;
+        if (ui_limit > TTL_MAXIMUM_ELEMENTS) { // limit check to avoid overflow
+          ws_debug("rt_a = Response-TTL_Answers (additionals(%u) > (%u)TTL_MAXIMUM_ELEMENTS) (iterating upto TTL_MAXIMUM_ELEMENTS)\n", ui_limit, TTL_MAXIMUM_ELEMENTS);
+          ui_limit = TTL_MAXIMUM_ELEMENTS;
+        }
+        for (guint ui = 0; ui < ui_limit; ui++) {
           tick_stat_node(st, st_str_qr_rt_d_packets, st_node_qr_rt_packets, TRUE);
           if (dns_qr_r_rd_ttls[ui] == 0) {
             st_node = tick_stat_node(st, "zero", st_node_qr_rt_d_packets, TRUE);
