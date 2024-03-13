@@ -11,11 +11,26 @@
  */
 
 #include <string.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include "protobuf_lang_tree.h"
 #include "protobuf-helper.h" /* only for PROTOBUF_TYPE_XXX enumeration */
+
+#define MAX_PROTOBUF_NODE_DEPTH 100
+static bool
+check_node_depth(const pbl_node_t *node)
+{
+    int depth = 1;
+    for (const pbl_node_t *parent = node; parent ; parent = parent->parent) {
+        depth++;
+    }
+    if (depth > MAX_PROTOBUF_NODE_DEPTH) {
+        return false;
+    }
+    return true;
+}
 
 extern void
 pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...);
@@ -277,6 +292,7 @@ pbl_find_node_in_pool(const pbl_descriptor_pool_t* pool, const char* full_name, 
 
 /* get the full name of node. if it is NULL, it will be built. */
 const char*
+// NOLINTNEXTLINE(misc-no-recursion)
 pbl_get_node_full_name(pbl_node_t* node)
 {
     const char* parent_full_name;
@@ -292,6 +308,9 @@ pbl_get_node_full_name(pbl_node_t* node)
     }
 
     if (node->nodetype == PBL_ONEOF) {
+        if (!check_node_depth(node)) {
+            return NULL;
+        }
         return pbl_get_node_full_name(node->parent);
     }
 
@@ -745,6 +764,7 @@ pbl_enum_value_descriptor_number(const pbl_enum_value_descriptor_t* enumValue)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 pbl_traverse_sub_tree(const pbl_node_t* node, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata)
 {
     GList* it;
@@ -757,6 +777,9 @@ pbl_traverse_sub_tree(const pbl_node_t* node, void (*cb)(const pbl_message_descr
     }
 
     if (node->children) {
+        if (!check_node_depth(node)) {
+            return;
+        }
         for (it = g_queue_peek_head_link(node->children); it; it = it->next) {
             pbl_traverse_sub_tree((const pbl_node_t*) it->data, cb, userdata);
         }
@@ -985,11 +1008,16 @@ pbl_node_t* pbl_create_option_node(pbl_file_descriptor_t* file, int lineno,
 
 /* add a node as a child of parent node, and return the parent pointer */
 pbl_node_t*
+// NOLINTNEXTLINE(misc-no-recursion)
 pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
 {
     pbl_node_t* node = NULL;
     if (child == NULL || parent == NULL) {
         return parent;
+    }
+
+    if (!check_node_depth(parent)) {
+        return NULL;
     }
 
     /* add a message node for mapField first */
@@ -1070,6 +1098,7 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
 
 /* merge one('from') node's children to another('to') node, and return the 'to' pointer */
 pbl_node_t*
+// NOLINTNEXTLINE(misc-no-recursion)
 pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
 {
     GList* it;
@@ -1120,6 +1149,7 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
 
 /* free a pbl_node_t and its children. */
 void
+// NOLINTNEXTLINE(misc-no-recursion)
 pbl_free_node(gpointer anode)
 {
     pbl_method_descriptor_t* method_node;
@@ -1158,6 +1188,7 @@ pbl_free_node(gpointer anode)
             g_free(field_node->default_value.s);
         }
         if (field_node->options_node) {
+            // We recurse here, but we're limited by depth checks at allocation time
             pbl_free_node(field_node->options_node);
         }
         break;

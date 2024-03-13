@@ -434,6 +434,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
  * Return consumed bytes
  */
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, packet_info *pinfo,
     proto_item *ti_field, int field_type, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
     json_dumper *dumper)
@@ -580,6 +581,7 @@ abs_time_to_rfc3339(wmem_allocator_t *scope, const nstime_t *nstime, bool use_ut
 
 /* Dissect field value based on a specific type. */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo,
     proto_item *ti_field, int field_type, const guint64 value, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
     gboolean is_top_level, json_dumper *dumper)
@@ -891,6 +893,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
 
 /* add all possible values according to field types. */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 protobuf_try_dissect_field_value_on_multi_types(proto_tree *value_tree, tvbuff_t *tvb, guint offset, guint length,
     packet_info *pinfo, proto_item *ti_field, int* field_types, const guint64 value, const gchar* prepend_text,
     json_dumper *dumper)
@@ -908,6 +911,7 @@ protobuf_try_dissect_field_value_on_multi_types(proto_tree *value_tree, tvbuff_t
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_info *pinfo, proto_tree *protobuf_tree,
     const PbwDescriptor* message_desc, gboolean is_top_level, const PbwFieldDescriptor** field_desc_ptr,
     const PbwFieldDescriptor* prev_field_desc, json_dumper *dumper)
@@ -1053,6 +1057,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     /* add value subtree. we add uint value for numeric field or string for length-delimited at least. */
     value_tree = proto_item_add_subtree(ti_value, ett_protobuf_value);
 
+    increment_dissection_depth(pinfo);
     if (field_desc) {
         if (dumper) {
             if (prev_field_desc == NULL || pbw_FieldDescriptor_number(prev_field_desc) != (int) field_number) {
@@ -1094,6 +1099,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
                 ti_field, field_types, value_uint64, "", dumper);
         }
     }
+    decrement_dissection_depth(pinfo);
 
     if (field_desc && !show_details) {
         proto_item_set_hidden(ti_field_number);
@@ -1420,6 +1426,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo, proto_tree *protobuf_tree,
     const PbwDescriptor* message_desc, int hf_msg, gboolean is_top_level, json_dumper *dumper, wmem_allocator_t* scope, char** retval)
 {
@@ -1507,6 +1514,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     }
 
     /* each time we dissect one protobuf field. */
+    increment_dissection_depth(pinfo);
     while (offset < max_offset)
     {
         field_desc = NULL;
@@ -1520,6 +1528,7 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
 
         prev_field_desc = field_desc;
     }
+    decrement_dissection_depth(pinfo);
 
     if (dumper && prev_field_desc && pbw_FieldDescriptor_is_repeated(prev_field_desc)) {
         /* The last field is repeated field, we close the JSON array */
@@ -1745,13 +1754,18 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static gboolean
-load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path)
+// NOLINTNEXTLINE(misc-no-recursion)
+load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path, unsigned depth)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     const gchar   *dot;
     const gchar   *name;            /* current file or dir name (without parent dir path) */
     gchar         *path;            /* sub file or dir path of dir_path */
+
+    if (depth > prefs.gui_max_tree_depth) {
+        return FALSE;
+    }
 
     if (g_file_test(dir_path, G_FILE_TEST_IS_DIR)) {
         if ((dir = ws_dir_open(dir_path, 0, NULL)) != NULL) {
@@ -1768,7 +1782,7 @@ load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path)
                         return FALSE;
                     }
                 } else {
-                    if (!load_all_files_in_dir(pool, path)) {
+                    if (!load_all_files_in_dir(pool, path, depth + 1)) {
                         g_free(path);
                         ws_dir_close(dir);
                         return FALSE;
@@ -2091,7 +2105,7 @@ protobuf_reinit(int target)
         /* load all .proto files in the marked search paths, we can invoke FindMethodByName etc later. */
         for (i = 0; i < num_proto_paths; ++i) {
             if ((i < 2) || protobuf_search_paths[i - 2].load_all) {
-                if (!load_all_files_in_dir(pbw_pool, source_paths[i])) {
+                if (!load_all_files_in_dir(pbw_pool, source_paths[i], 0)) {
                     buffer_error("Protobuf: Loading .proto files action stopped!\n");
                     loading_completed = FALSE;
                     break; /* stop loading when error occurs */
