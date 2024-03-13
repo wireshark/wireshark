@@ -86,6 +86,7 @@
 #include <glib.h>
 
 #include <ws_exit_codes.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/wslog.h>
@@ -990,6 +991,7 @@ text2pcap_cmdarg_err_cont(const char *msg_format, va_list ap)
 int
 main(int argc, char *argv[])
 {
+    char  *configuration_init_error;
     static const struct report_message_routines text2pcap_report_routines = {
         failure_message,
         failure_message,
@@ -1022,6 +1024,18 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
 
     init_process_policies();
+
+    /*
+     * Make sure our plugin path is initialized for wtap_init.
+     */
+    configuration_init_error = configuration_init(argv[0], NULL);
+    if (configuration_init_error != NULL) {
+        fprintf(stderr,
+                "text2pcap: Can't get pathname of directory containing the text2pcap program: %s.\n",
+                configuration_init_error);
+        g_free(configuration_init_error);
+    }
+
     init_report_message("text2pcap", &text2pcap_report_routines);
     wtap_init(TRUE);
 
