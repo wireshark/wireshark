@@ -110,6 +110,7 @@ ADDITIONAL_LIST=(
     libxml2
     lz4
     minizip
+    opencore-amr
     opus
     snappy
     spandsp
