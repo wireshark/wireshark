@@ -457,7 +457,7 @@
 
   <!-- Androiddump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpAndroiddump_exe" Guid="*">
         <File Id="filAndroiddump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\androiddump.exe" />
       </Component>
@@ -477,7 +477,7 @@
 
   <!-- Randpktdump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpRandpktdump_exe" Guid="*">
         <File Id="filRandpktdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\randpktdump.exe" />
       </Component>
@@ -497,7 +497,7 @@
 
   <!-- Etwdump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpEtwdump_exe" Guid="*">
         <File Id="filEtwdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\etwdump.exe" />
       </Component>
@@ -517,7 +517,7 @@
 
   <!-- Sshdump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpSshdump_exe" Guid="*">
         <File Id="filSshdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\sshdump.exe" />
       </Component>
@@ -537,7 +537,7 @@
 
   <!-- Ciscodump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpCiscodump_exe" Guid="*">
         <File Id="filCiscodump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Ciscodump.exe" />
       </Component>
@@ -557,7 +557,7 @@
 
   <!-- Wifidump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpWifidump_exe" Guid="*">
         <File Id="filWifidump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\wifidump.exe" />
       </Component>
@@ -577,7 +577,7 @@
 
   <!-- Udpdump -->
   <Fragment>
-    <DirectoryRef Id="dirExtcap">
+    <DirectoryRef Id="dirExtcapWireshark">
       <Component Id="cmpUdpdump_exe" Guid="*">
         <File Id="filUdpdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\Udpdump.exe" />
       </Component>
