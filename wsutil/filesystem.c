@@ -596,7 +596,7 @@ get_executable_path(const char *program_name)
  * g_mallocated string containing an error on failure.
  */
 #ifdef _WIN32
-char *
+static char *
 configuration_init_w32(const char* arg0 _U_)
 {
     TCHAR prog_pathname_w[_MAX_PATH+2];
@@ -681,7 +681,7 @@ configuration_init_w32(const char* arg0 _U_)
 
 #else /* !_WIN32 */
 
-char *
+static char *
 configuration_init_posix(const char* arg0)
 {
     const char *execname;
@@ -1185,7 +1185,8 @@ init_plugin_dir(void)
          */
         plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (char *)NULL);
     }
-#elif defined(ENABLE_APPLICATION_BUNDLE)
+#else
+#ifdef ENABLE_APPLICATION_BUNDLE
     /*
      * If we're running from an app bundle and weren't started
      * with special privileges, use the Contents/PlugIns/wireshark
@@ -1199,7 +1200,7 @@ init_plugin_dir(void)
         plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
                                         CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
-#else
+#endif // ENABLE_APPLICATION_BUNDLE
     else if (running_in_build_directory_flag) {
         /*
          * We're (probably) being run from the build directory and
@@ -1211,7 +1212,7 @@ init_plugin_dir(void)
     } else {
         plugin_dir = g_build_filename(install_prefix, PLUGIN_DIR, (char *)NULL);
     }
-#endif
+#endif // HAVE_MSYSTEM / _WIN32
 #endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
 }
 
@@ -1293,10 +1294,11 @@ init_extcap_dir(void)
          * in the program file directory in both the build and installation
          * directories.
          */
-        extcap_dir = g_build_filename(get_progfile_dir(),EXTCAP_DIR_NAME,
+        extcap_dir = g_build_filename(get_progfile_dir(), EXTCAP_DIR_NAME,
             CONFIGURATION_NAMESPACE_LOWER, (char *)NULL);
     }
-#elif defined (ENABLE_APPLICATION_BUNDLE)
+#else
+#ifdef ENABLE_APPLICATION_BUNDLE
     else if (appbundle_dir != NULL) {
         /*
          * If we're running from an app bundle and weren't started
@@ -1309,7 +1311,7 @@ init_extcap_dir(void)
          */
         extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (char *)NULL);
     }
-#else
+#endif // ENABLE_APPLICATION_BUNDLE
     else if (running_in_build_directory_flag) {
         /*
          * We're (probably) being run from the build directory and
@@ -1324,7 +1326,7 @@ init_extcap_dir(void)
         extcap_dir = g_build_filename(install_prefix,
             is_packet_configuration_namespace() ? EXTCAP_DIR : LOG_EXTCAP_DIR, (char *)NULL);
     }
-#endif
+#endif // HAVE_MSYSTEM / _WIN32
 }
 
 static void
