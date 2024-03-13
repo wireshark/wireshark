@@ -1773,7 +1773,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
             tracer_->setVisible(false);
             hint += "Hover over the graph for details. " + stream_desc_ + "</i></small>";
             ui->hintLabel->setText(hint);
-            ui->streamPlot->replot();
+            ui->streamPlot->replot(QCustomPlot::rpQueuedReplot);
             return;
         }
 
@@ -1788,7 +1788,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
                 .arg(packet_seg->th_ack)
                 .arg(packet_seg->th_win);
         tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));
-        sp->replot();
+        sp->replot(QCustomPlot::rpQueuedReplot);
     } else {
         if (rubber_band_ && rubber_band_->isVisible() && event) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
