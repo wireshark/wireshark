@@ -160,6 +160,7 @@ input_file = None
 g_conform = None
 lexer = None
 in_oid = False
+quiet = False
 
 class LexError(Exception):
     def __init__(self, tok, filename=None):
@@ -2068,6 +2069,8 @@ class EthCtx:
 
     #--- dupl_report -----------------------------------------------------
     def dupl_report(self):
+        if quiet:
+            return
         # types
         tmplist = sorted(self.eth_type_dupl.keys())
         for t in tmplist:
@@ -8064,13 +8067,14 @@ def ignore_comments(string):
 
     return ''.join(chunks)
 
-def eth_main():
+def asn2wrs_main():
     global input_file
     global g_conform
     global lexer
-    print("ASN.1 to Wireshark dissector compiler");
+    global quiet
+
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kLCr:");
+        opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:qFTo:O:c:I:eESs:kLCr:");
     except getopt.GetoptError:
         eth_usage(); sys.exit(2)
     if len(args) < 1:
@@ -8112,17 +8116,22 @@ def eth_main():
         if o in ("-C",):
             ectx.constraints_check = True
         if o in ("-L",):
-            ectx.conform.suppress_line = True;
+            ectx.conform.suppress_line = True
+        if o in ("-q",):
+            quiet = True
         if o in ("-X",):
             warnings.warn("Command line option -X is obsolete and can be removed")
         if o in ("-T",):
             warnings.warn("Command line option -T is obsolete and can be removed")
 
+    if not quiet:
+        print("ASN.1 to Wireshark dissector compiler")
+
     if conf_to_read:
         ectx.conform.read(conf_to_read)
 
     for o, a in opts:
-        if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-C", "-X", "-T"):
+        if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-C", "-q", "-X", "-T"):
             pass  # already processed
         else:
             par = []
@@ -8226,7 +8235,7 @@ def main():
 
 if __name__ == '__main__':
     if (os.path.splitext(os.path.basename(sys.argv[0]))[0].lower() in ('asn2wrs', 'asn2eth')):
-        eth_main()
+        asn2wrs_main()
     else:
         main()
 

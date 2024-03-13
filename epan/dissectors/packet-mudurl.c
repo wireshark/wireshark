@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-mudurl.c                                                            */
-/* asn2wrs.py -b -L -p mudurl -c ./mudurl.cnf -s ./packet-mudurl-template -D . -O ../.. MUDURL.asn */
+/* asn2wrs.py -b -q -L -p mudurl -c ./mudurl.cnf -s ./packet-mudurl-template -D . -O ../.. MUDURL.asn */
 
 /* packet-mudurl-template.c
  * Routines for mudurl found in draft-ietf-opsawg-mud

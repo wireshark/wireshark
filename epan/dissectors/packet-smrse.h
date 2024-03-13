@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-smrse.h                                                             */
-/* asn2wrs.py -b -L -p smrse -c ./smrse.cnf -s ./packet-smrse-template -D . -O ../.. SMRSE.asn */
+/* asn2wrs.py -b -q -L -p smrse -c ./smrse.cnf -s ./packet-smrse-template -D . -O ../.. SMRSE.asn */
 
 /* packet-smrse.h
  * Routines for SMRSE Short Message Relay Service packet dissection

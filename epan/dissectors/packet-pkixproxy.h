@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixproxy.h                                                         */
-/* asn2wrs.py -b -L -p pkixproxy -c ./pkixproxy.cnf -s ./packet-pkixproxy-template -D . -O ../.. PKIXProxy.asn */
+/* asn2wrs.py -b -q -L -p pkixproxy -c ./pkixproxy.cnf -s ./packet-pkixproxy-template -D . -O ../.. PKIXProxy.asn */
 
 /* packet-pkixproxy.h
  * Routines for RFC3820 PKIXProxy packet dissection

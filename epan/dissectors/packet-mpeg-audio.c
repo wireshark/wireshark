@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-mpeg-audio.c                                                        */
-/* asn2wrs.py -L -p mpeg-audio -c ./mpeg-audio.cnf -s ./packet-mpeg-audio-template -D . -O ../.. mpeg-audio.asn */
+/* asn2wrs.py -q -L -p mpeg-audio -c ./mpeg-audio.cnf -s ./packet-mpeg-audio-template -D . -O ../.. mpeg-audio.asn */
 
 /* MPEG audio packet decoder.
  * Written by Shaun Jackman <sjackman@gmail.com>.

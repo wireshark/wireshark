@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ieee1609dot2.h                                                      */
-/* asn2wrs.py -L -p ieee1609dot2 -c ./ieee1609dot2.cnf -s ./packet-ieee1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn Ieee1609Dot2CrlBaseTypes.asn Ieee1609Dot2Crl.asn Ieee1609Dot2.asn IEEE1609dot12.asn */
+/* asn2wrs.py -q -L -p ieee1609dot2 -c ./ieee1609dot2.cnf -s ./packet-ieee1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn Ieee1609Dot2CrlBaseTypes.asn Ieee1609Dot2Crl.asn Ieee1609Dot2.asn IEEE1609dot12.asn */
 
 /* packet-IEEE1609dot2.h
  * Routines for IEEE 1609.2

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-atn-cm.c                                                            */
-/* asn2wrs.py -u -L -p atn-cm -c ./atn-cm.cnf -s ./packet-atn-cm-template -D . -O ../.. atn-cm.asn */
+/* asn2wrs.py -u -q -L -p atn-cm -c ./atn-cm.cnf -s ./packet-atn-cm-template -D . -O ../.. atn-cm.asn */
 
 /* packet-atn-cm.c
  * By Mathias Guettler <guettler@web.de>

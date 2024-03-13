@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-mms.c                                                               */
-/* asn2wrs.py -b -L -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../.. mms.asn */
+/* asn2wrs.py -b -q -L -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../.. mms.asn */
 
 /* packet-mms_asn1.c
  *

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-snmp.c                                                              */
-/* asn2wrs.py -b -L -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . -O ../.. snmp.asn */
+/* asn2wrs.py -b -q -L -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . -O ../.. snmp.asn */
 
 /* packet-snmp.c
  * Routines for SNMP (simple network management protocol)

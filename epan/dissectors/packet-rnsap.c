@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rnsap.c                                                             */
-/* asn2wrs.py -L -p rnsap -c ./rnsap.cnf -s ./packet-rnsap-template -D . -O ../.. RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
+/* asn2wrs.py -q -L -p rnsap -c ./rnsap.cnf -s ./packet-rnsap-template -D . -O ../.. RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
 
 /* packet-rnsap.c
  * Routines for dissecting Universal Mobile Telecommunications System (UMTS);

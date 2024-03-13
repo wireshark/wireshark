@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-kpm-v2.c                                                            */
-/* asn2wrs.py -L -p kpm-v2 -c ./kpm-v2.cnf -s ./packet-kpm-v2-template -D . -O ../.. e2sm-kpm-v2.02.asn e2sm-v3.01.asn */
+/* asn2wrs.py -q -L -p kpm-v2 -c ./kpm-v2.cnf -s ./packet-kpm-v2-template -D . -O ../.. e2sm-kpm-v2.02.asn e2sm-v3.01.asn */
 
 /* packet-kpm-v2-template.c
  * Copyright 2021, Martin Mathieson

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cmp.h                                                               */
-/* asn2wrs.py -b -L -p cmp -c ./cmp.cnf -s ./packet-cmp-template -D . -O ../.. CMP.asn */
+/* asn2wrs.py -b -q -L -p cmp -c ./cmp.cnf -s ./packet-cmp-template -D . -O ../.. CMP.asn */
 
 /* packet-cmp.h
  * Routines for RFC2510 Certificate Management Protocol packet dissection

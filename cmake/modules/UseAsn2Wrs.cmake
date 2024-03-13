@@ -31,7 +31,7 @@ function(ASN2WRS)
 	endforeach()
 
 	if(NOT ENABLE_DEBUG_A2W)
-		set(A2W_FLAGS ${A2W_FLAGS} -L)
+		set(A2W_FLAGS ${A2W_FLAGS} -q -L)
 	endif()
 
 	# Creates a dissector in the source directory and store the timestamp.

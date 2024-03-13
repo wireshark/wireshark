@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-dsp.h                                                               */
-/* asn2wrs.py -b -L -p dsp -c ./dsp.cnf -s ./packet-dsp-template -D . -O ../.. dsp.asn */
+/* asn2wrs.py -b -q -L -p dsp -c ./dsp.cnf -s ./packet-dsp-template -D . -O ../.. dsp.asn */
 
 /* packet-dsp.h
  * Routines for X.511 (X.500 Directory Access Protocol) packet dissection

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-nist-csor.h                                                         */
-/* asn2wrs.py -b -L -p nist-csor -c ./nist-csor.cnf -s ./packet-nist-csor-template -D . -O ../.. aes1.asn */
+/* asn2wrs.py -b -q -L -p nist-csor -c ./nist-csor.cnf -s ./packet-nist-csor-template -D . -O ../.. aes1.asn */
 
 /* packet-nist-csor.h
  * Routines for NIST CSOR

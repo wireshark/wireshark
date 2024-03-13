@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-goose.c                                                             */
-/* asn2wrs.py -b -L -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../.. goose.asn */
+/* asn2wrs.py -b -q -L -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../.. goose.asn */
 
 /* packet-goose.c
  * Routines for IEC 61850 GOOSE packet dissection

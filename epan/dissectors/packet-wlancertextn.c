@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-wlancertextn.c                                                      */
-/* asn2wrs.py -b -L -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . -O ../.. WLANCERTEXTN.asn */
+/* asn2wrs.py -b -q -L -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . -O ../.. WLANCERTEXTN.asn */
 
 /* packet-wlancertextn.c
  * Routines for Wireless Certificate Extension (RFC3770)

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lppe.c                                                              */
-/* asn2wrs.py -L -p lppe -c ./lppe.cnf -s ./packet-lppe-template -D . -O ../.. LPPe.asn */
+/* asn2wrs.py -q -L -p lppe -c ./lppe.cnf -s ./packet-lppe-template -D . -O ../.. LPPe.asn */
 
 /* packet-lppe.c
  * Routines for LPP Extensions (LLPe) packet dissection

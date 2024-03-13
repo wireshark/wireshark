@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rrlp.c                                                              */
-/* asn2wrs.py -L -p rrlp -c ./rrlp.cnf -s ./packet-rrlp-template -D . -O ../.. ../gsm_map/MAP-ExtensionDataTypes.asn ../gsm_map/MAP-LCS-DataTypes.asn RRLP-Messages.asn RRLP-Components.asn */
+/* asn2wrs.py -q -L -p rrlp -c ./rrlp.cnf -s ./packet-rrlp-template -D . -O ../.. ../gsm_map/MAP-ExtensionDataTypes.asn ../gsm_map/MAP-LCS-DataTypes.asn RRLP-Messages.asn RRLP-Components.asn */
 
 /* packet-rrlp.c
  * Routines for 3GPP Radio Resource LCS Protocol (RRLP) packet dissection

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-crmf.h                                                              */
-/* asn2wrs.py -b -L -p crmf -c ./crmf.cnf -s ./packet-crmf-template -D . -O ../.. CRMF.asn */
+/* asn2wrs.py -b -q -L -p crmf -c ./crmf.cnf -s ./packet-crmf-template -D . -O ../.. CRMF.asn */
 
 /* packet-crmf.h
  * Routines for RFC2511 Certificate Request Message Format packet dissection

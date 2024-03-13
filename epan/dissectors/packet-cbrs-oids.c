@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cbrs-oids.c                                                         */
-/* asn2wrs.py -b -L -p cbrs-oids -c ./cbrs-oids.cnf -s ./packet-cbrs-oids-template -D . -O ../.. cbrs-oids.asn */
+/* asn2wrs.py -b -q -L -p cbrs-oids -c ./cbrs-oids.cnf -s ./packet-cbrs-oids-template -D . -O ../.. cbrs-oids.asn */
 
 /* packet-cbrs-oids.c
  *

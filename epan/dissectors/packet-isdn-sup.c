@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-isdn-sup.c                                                          */
-/* asn2wrs.py -b -L -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../.. Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn MLPP-Operations-And-Errors.asn */
+/* asn2wrs.py -b -q -L -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../.. Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn MLPP-Operations-And-Errors.asn */
 
 /* packet-isdn-sup-template.c
  * Routines for ETSI Integrated Services Digital Network (ISDN)

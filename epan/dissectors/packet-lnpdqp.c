@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lnpdqp.c                                                            */
-/* asn2wrs.py -b -L -p lnpdqp -c ./lnpdqp.cnf -s ./packet-lnpdqp-template -D . -O ../.. LNPDQP.asn */
+/* asn2wrs.py -b -q -L -p lnpdqp -c ./lnpdqp.cnf -s ./packet-lnpdqp-template -D . -O ../.. LNPDQP.asn */
 
 /* packet-lnpdqp-template.c
  * Routines for Local Number Portability Database Query Protocol dissection

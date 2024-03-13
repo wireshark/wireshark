@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-mpeg-pes.c                                                          */
-/* asn2wrs.py -L -p mpeg-pes -c ./mpeg-pes.cnf -s ./packet-mpeg-pes-template -D . -O ../.. mpeg-pes.asn */
+/* asn2wrs.py -q -L -p mpeg-pes -c ./mpeg-pes.cnf -s ./packet-mpeg-pes-template -D . -O ../.. mpeg-pes.asn */
 
 /* MPEG Packetized Elementary Stream (PES) packet decoder.
  * Written by Shaun Jackman <sjackman@gmail.com>.
