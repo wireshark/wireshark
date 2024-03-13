@@ -1312,6 +1312,8 @@ reset_someip_parameter_list_cb(void) {
         g_hash_table_destroy(data_someip_parameter_list);
         data_someip_parameter_list = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -1320,8 +1322,6 @@ post_update_someip_parameter_list_cb(void) {
 
     data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_list);
     post_update_someip_parameter_list_read_in_data(someip_parameter_list, someip_parameter_list_num, data_someip_parameter_list);
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_enums, id, someip_parameter_enum_uat_t)
@@ -1475,6 +1475,8 @@ reset_someip_parameter_enum_cb(void) {
         g_hash_table_destroy(data_someip_parameter_enums);
         data_someip_parameter_enums = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -1483,8 +1485,6 @@ post_update_someip_parameter_enum_cb(void) {
 
     data_someip_parameter_enums = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_enum);
     post_update_someip_parameter_enum_read_in_data(someip_parameter_enums, someip_parameter_enums_num, data_someip_parameter_enums);
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_arrays, id, someip_parameter_array_uat_t)
@@ -1643,6 +1643,8 @@ reset_someip_parameter_array_cb(void) {
         g_hash_table_destroy(data_someip_parameter_arrays);
         data_someip_parameter_arrays = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -1651,8 +1653,6 @@ post_update_someip_parameter_array_cb(void) {
 
     data_someip_parameter_arrays = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_array);
     post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_structs, id, someip_parameter_struct_uat_t)
@@ -1829,6 +1829,8 @@ reset_someip_parameter_struct_cb(void) {
         g_hash_table_destroy(data_someip_parameter_structs);
         data_someip_parameter_structs = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -1837,8 +1839,6 @@ post_update_someip_parameter_struct_cb(void) {
 
     data_someip_parameter_structs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_struct);
     post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_unions, id, someip_parameter_union_uat_t)
@@ -2018,6 +2018,8 @@ reset_someip_parameter_union_cb(void) {
         g_hash_table_destroy(data_someip_parameter_unions);
         data_someip_parameter_unions = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -2026,8 +2028,6 @@ post_update_someip_parameter_union_cb(void) {
 
     data_someip_parameter_unions = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_union);
     post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_base_type_list, id, someip_parameter_base_type_list_uat_t)
@@ -2113,6 +2113,8 @@ reset_someip_parameter_base_type_list_cb(void) {
         g_hash_table_destroy(data_someip_parameter_base_type_list);
         data_someip_parameter_base_type_list = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -2137,8 +2139,6 @@ post_update_someip_parameter_base_type_list_cb(void) {
             g_hash_table_insert(data_someip_parameter_base_type_list, key, &someip_parameter_base_type_list[i]);
         }
     }
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_strings, id, someip_parameter_string_uat_t)
@@ -2226,6 +2226,8 @@ reset_someip_parameter_string_list_cb(void) {
         g_hash_table_destroy(data_someip_parameter_strings);
         data_someip_parameter_strings = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -2250,8 +2252,6 @@ post_update_someip_parameter_string_list_cb(void) {
             g_hash_table_insert(data_someip_parameter_strings, key, &someip_parameter_strings[i]);
         }
     }
-
-    set_prefs_changed();
 }
 
 UAT_HEX_CB_DEF(someip_parameter_typedefs, id, someip_parameter_typedef_uat_t)
@@ -2311,6 +2311,8 @@ reset_someip_parameter_typedef_list_cb(void) {
         g_hash_table_destroy(data_someip_parameter_typedefs);
         data_someip_parameter_typedefs = NULL;
     }
+
+    set_prefs_changed();
 }
 
 static void
@@ -2335,8 +2337,6 @@ post_update_someip_parameter_typedef_list_cb(void) {
             g_hash_table_insert(data_someip_parameter_typedefs, key, &someip_parameter_typedefs[i]);
         }
     }
-
-    set_prefs_changed();
 }
 
 
