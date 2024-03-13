@@ -1794,43 +1794,10 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 }
 
 static diam_avp_t *
-build_address_avp(const avp_type_t *type _U_, guint32 code,
-		  diam_vnd_t *vendor, const char *name,
-		  const value_string *vs _U_, void *data _U_)
+build_gen_address_avp(diam_avp_t *a, address_avp_t *t, const char *name)
 {
-	diam_avp_t *a = wmem_new0(wmem_epan_scope(), diam_avp_t);
-	address_avp_t *t = wmem_new(wmem_epan_scope(), address_avp_t);
 	gint *ettp = &(t->ett);
 
-	a->code = code;
-	a->vendor = vendor;
-/*
- * It seems like the radius AVPs 1-255 will use the defs from RADIUS in which case:
- * https://tools.ietf.org/html/rfc2685
- * Address
- *    The Address field is four octets.  The value 0xFFFFFFFF indicates
- *    that the NAS Should allow the user to select an address (e.g.
- *    Negotiated).  The value 0xFFFFFFFE indicates that the NAS should
- *    select an address for the user (e.g. Assigned from a pool of
- *    addresses kept by the NAS).  Other valid values indicate that the
- *    NAS should use that value as the user's IP address.
- *
- * Where as in Diameter:
- * RFC3588
- * Address
- *    The Address format is derived from the OctetString AVP Base
- *    Format.  It is a discriminated union, representing, for example a
- *    32-bit (IPv4) [IPV4] or 128-bit (IPv6) [IPV6] address, most
- *    significant octet first.  The first two octets of the Address
- *    AVP represents the AddressType, which contains an Address Family
- *    defined in [IANAADFAM].  The AddressType is used to discriminate
- *    the content and format of the remaining octets.
- */
-	if (code<256) {
-		a->dissector_rfc = address_radius_avp;
-	} else {
-		a->dissector_rfc = address_rfc_avp;
-	}
 	a->ett = -1;
 	a->hf_value = -1;
 	a->type_data = t;
@@ -1867,6 +1834,74 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 	g_ptr_array_add(build_dict.ett,ettp);
 
 	return a;
+}
+
+/*
+ * RFC 6733 says:
+ * > AVP numbers 1 through 255 are reserved for reuse of RADIUS attributes,
+ * > without setting the Vendor-Id field.
+ *
+ * This clearly applies not to vendor dictionaries. However, some vendors seem to have
+ * translated their RADIUS dictionaries to Diameter with that assumption in mind, while
+ * others have not.
+ *
+ * To make this work universally, the type `ipaddress` is assumed to be using the RADIUS
+ * encoding for AVP < 256 and Diameter for AVPs >= 256, while the `address` type will
+ * use Diameter encoding for all AVPs
+ */
+static diam_avp_t *
+build_ipaddress_avp(const avp_type_t *type _U_, guint32 code,
+		    diam_vnd_t *vendor, const char *name,
+		    const value_string *vs _U_, void *data _U_)
+{
+	diam_avp_t *a = wmem_new0(wmem_epan_scope(), diam_avp_t);
+	address_avp_t *t = wmem_new(wmem_epan_scope(), address_avp_t);
+
+	a->code = code;
+	a->vendor = vendor;
+/*
+ * It seems like the radius AVPs 1-255 will use the defs from RADIUS in which case:
+ * https://tools.ietf.org/html/rfc2685
+ * Address
+ *    The Address field is four octets.  The value 0xFFFFFFFF indicates
+ *    that the NAS Should allow the user to select an address (e.g.
+ *    Negotiated).  The value 0xFFFFFFFE indicates that the NAS should
+ *    select an address for the user (e.g. Assigned from a pool of
+ *    addresses kept by the NAS).  Other valid values indicate that the
+ *    NAS should use that value as the user's IP address.
+ *
+ * Where as in Diameter:
+ * RFC3588
+ * Address
+ *    The Address format is derived from the OctetString AVP Base
+ *    Format.  It is a discriminated union, representing, for example a
+ *    32-bit (IPv4) [IPV4] or 128-bit (IPv6) [IPV6] address, most
+ *    significant octet first.  The first two octets of the Address
+ *    AVP represents the AddressType, which contains an Address Family
+ *    defined in [IANAADFAM].  The AddressType is used to discriminate
+ *    the content and format of the remaining octets.
+ */
+	if (code<256) {
+		a->dissector_rfc = address_radius_avp;
+	} else {
+		a->dissector_rfc = address_rfc_avp;
+	}
+	return build_gen_address_avp(a, t, name);
+}
+
+static diam_avp_t *
+build_address_avp(const avp_type_t *type _U_, guint32 code,
+		  diam_vnd_t *vendor, const char *name,
+		  const value_string *vs _U_, void *data _U_)
+{
+	diam_avp_t *a = wmem_new0(wmem_epan_scope(), diam_avp_t);
+	address_avp_t *t = wmem_new(wmem_epan_scope(), address_avp_t);
+
+	a->code = code;
+	a->vendor = vendor;
+	a->dissector_rfc = address_rfc_avp;
+
+	return build_gen_address_avp(a, t, name);
 }
 
 static diam_avp_t *
@@ -1978,7 +2013,8 @@ static const avp_type_t basic_types[] = {
 	{"unsigned64"			, unsigned64_avp	, FT_UINT64			, BASE_DEC			, build_simple_avp  },
 	{"float32"				, float32_avp		, FT_FLOAT			, BASE_NONE			, build_simple_avp  },
 	{"float64"				, float64_avp		, FT_DOUBLE			, BASE_NONE			, build_simple_avp  },
-	{"ipaddress"			, NULL				, FT_NONE			, BASE_NONE			, build_address_avp },
+	{"ipaddress"			, NULL				, FT_NONE			, BASE_NONE			, build_ipaddress_avp },
+	{"address"			, NULL				, FT_NONE			, BASE_NONE			, build_address_avp },
 	{"diameteruri"			, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
 	{"diameteridentity"		, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
 	{"ipfilterrule"			, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },

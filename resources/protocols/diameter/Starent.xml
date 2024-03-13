@@ -1176,16 +1176,16 @@
 	<type type-name="Unsigned32"/>
 	</avp>
 
-	<avp name="SN-IPv6-Primary-DNS" code="101" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
-	<type type-name="IPAddress"/>
+	<avp name="SN1-IPv6-Primary-DNS" code="101" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<type type-name="Address"/>
 	</avp>
 
 	<avp name="SN-IPv6-rtr-advt-interval" code="96" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
 	<type type-name="Unsigned32"/>
 	</avp>
 
-	<avp name="SN-IPv6-Secondary-DNS" code="102" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
-	<type type-name="OctetString"/>
+	<avp name="SN1-IPv6-Secondary-DNS" code="102" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<type type-name="Address"/>
 	</avp>
 
 	<avp name="SN-IPv6-Sec-Pool" code="124" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
@@ -1618,8 +1618,8 @@
 	<type type-name="UTF8String"/>
 	</avp>
 
-	<avp name="SN-Primary-DNS-Server" code="5" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
-	<type type-name="IPAddress"/>
+	<avp name="SN1-Primary-DNS-Server" code="5" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<type type-name="Address"/>
 	</avp>
 
 	<avp name="SN-Primary-NBNS-Server" code="148" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
@@ -1881,8 +1881,8 @@
 	<type type-name="UTF8String"/>
 	</avp>
 
-	<avp name="SN-Secondary-DNS-Server" code="6" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
-	<type type-name="IPAddress"/>
+	<avp name="SN1-Secondary-DNS-Server" code="6" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+	<type type-name="Address"/>
 	</avp>
 
 	<avp name="SN-Secondary-NBNS-Server" code="149" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">

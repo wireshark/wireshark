@@ -305,6 +305,17 @@
 			The UTF8String MUST not contain any octets with a value of
 			zero.
 		-->
+		<typedefn type-name="Address" type-parent="OctetString"/>
+		<!--
+			The Address format is derived from the OctetString AVP Base
+			Format. It represents 32 bit (IPv4) [17] or 128 bit (IPv6) [16]
+			address, most significant octet first. The format of the
+			address (IPv4 or IPv6) is determined by the length. If the
+			attribute value is an IPv4 address, the AVP Length field MUST
+			be 12 (16 if 'V' bit is enabled), otherwise the AVP Length
+			field MUST be set to 24 (28 if the 'V' bit is enabled) for IPv6
+			addresses.
+		-->
 		<typedefn type-name="IPAddress" type-parent="OctetString"/>
 		<!--
 			The IPAddress format is derived from the OctetString AVP Base
@@ -315,6 +326,8 @@
 			be 12 (16 if 'V' bit is enabled), otherwise the AVP Length
 			field MUST be set to 24 (28 if the 'V' bit is enabled) for IPv6
 			addresses.
+			For AVPs with codes < 256, the RADIUS ipaddr encoding is used
+			instead.
 		-->
 		<typedefn type-name="DiameterIdentity" type-parent="OctetString"/>
 		<!--
