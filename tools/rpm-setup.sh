@@ -218,13 +218,17 @@ then
 	add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
 	echo "Required Qt5 Mutlimedia and/or Qt5 Print Support is unavailable" >&2
 
-	# This in only required on OpenSUSE
+	# This is only required on OpenSUSE
 	add_package BASIC_LIST libqt5-qtsvg-devel ||
 	echo "Required OpenSUSE package libqt5-qtsvg-devel is unavailable. Not required for other distributions." >&2
 
-	# This in only required on OpenSUSE
+	# This is only required on OpenSUSE
 	add_package BASIC_LIST libQt5Concurrent-devel ||
 	echo "Required OpenSUSE package libQt5Concurrent-devel is unavailable. Not required for other distributions." >&2
+
+	# This is only required on OpenSUSE
+	add_package ADDITIONAL_LIST libQt5DBus-devel ||
+	echo "Optional OpenSUSE package libQt5DBus-devel is unavailable. Not required for other distributions." >&2
 
 	add_package ADDITIONAL_LIST qt5-qtimageformats ||
 	add_package ADDITIONAL_LIST libqt5-qtimageformats ||
