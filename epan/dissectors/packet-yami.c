@@ -123,7 +123,8 @@ static int ett_yami_msg_data = -1;
 static int ett_yami_param = -1;
 
 static int
-dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *par_ti)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item *par_ti)
 {
 	const int orig_offset = offset;
 
@@ -404,7 +405,9 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			proto_item_append_text(ti, ", Type: nested, %u parameters: ", count);
 
 			for (i = 0; i < count; i++) {
-				offset = dissect_yami_parameter(tvb, yami_param, offset, ti);
+				increment_dissection_depth(pinfo);
+				offset = dissect_yami_parameter(tvb, pinfo, yami_param, offset, ti);
+				decrement_dissection_depth(pinfo);
 				/* smth went wrong */
 				if (offset == -1)
 					return -1;
@@ -422,7 +425,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 }
 
 static int
-dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
+dissect_yami_data(tvbuff_t *tvb, packet_info *pinfo, gboolean data, proto_tree *tree, int offset)
 {
 	const int orig_offset = offset;
 
@@ -442,7 +445,7 @@ dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
 	proto_item_append_text(ti, ", %u parameters: ", count);
 
 	for (i = 0; i < count; i++) {
-		offset = dissect_yami_parameter(tvb, yami_data_tree, offset, ti);
+		offset = dissect_yami_parameter(tvb, pinfo, yami_data_tree, offset, ti);
 		/* smth went wrong */
 		if (offset == -1)
 			return -1;
@@ -499,13 +502,13 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		if (message_header_size <= frame_payload_size) {
 			const int orig_offset = offset;
 
-			offset = dissect_yami_data(tvb, FALSE, yami_tree, offset);
+			offset = dissect_yami_data(tvb, pinfo, FALSE, yami_tree, offset);
 			if (offset != orig_offset + message_header_size) {
 				/* XXX, expert info */
 				offset = orig_offset + message_header_size;
 			}
 
-			dissect_yami_data(tvb, TRUE, yami_tree, offset);
+			dissect_yami_data(tvb, pinfo, TRUE, yami_tree, offset);
 		}
 	}
 

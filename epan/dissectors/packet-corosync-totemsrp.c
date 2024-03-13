@@ -473,6 +473,7 @@ dissect_corosync_totemsrp_srp_addr(tvbuff_t *tvb,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_corosync_totemsrp_mcast(tvbuff_t *tvb,
                                   packet_info *pinfo, proto_tree *tree,
                                   guint length, int offset,
@@ -797,6 +798,7 @@ dissect_corosync_totemsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 #define COROSYNC_TOTEMSRP_TEST_BIG_ENDIAN       0xFF22
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_corosync_totemsrp0(tvbuff_t *tvb,
                            packet_info *pinfo, proto_tree *tree,
                            gboolean encapsulated)
@@ -868,6 +870,7 @@ dissect_corosync_totemsrp0(tvbuff_t *tvb,
   info.nodeid = corosync_totemsrp_get_guint32(tvb, offset, encoding);
   offset += 4;
 
+  increment_dissection_depth(pinfo);
   switch (message_header__type) {
   case COROSYNC_TOTEMSRP_MESSAGE_TYPE_ORF_TOKEN:
     dissect_corosync_totemsrp_orf_token(tvb, pinfo, corosync_tree, length, offset, encoding);
@@ -896,6 +899,7 @@ dissect_corosync_totemsrp0(tvbuff_t *tvb,
   default:
     break;
   }
+  decrement_dissection_depth(pinfo);
 
   return length;
 }
