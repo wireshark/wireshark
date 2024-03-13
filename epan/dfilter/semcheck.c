@@ -2031,6 +2031,11 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 			ftype = sttype_pointer_ftenum(st_node);
 			break;
 
+		case STTYPE_STRING:
+			dfilter_fvalue_from_string(dfw, logical_ftype, st_node, NULL);
+			ftype = sttype_pointer_ftenum(st_node);
+			break;
+
 		case STTYPE_CHARCONST:
 			dfilter_fvalue_from_charconst(dfw, logical_ftype, st_node);
 			ftype = sttype_pointer_ftenum(st_node);
@@ -2068,7 +2073,6 @@ check_arithmetic(dfwork_t *dfw, stnode_t *st_node, ftenum_t logical_ftype)
 				ftype = check_arithmetic_LHS_NUMBER(dfw, st_op, st_node, st_arg1, st_arg2, logical_ftype);
 			break;
 
-		case STTYPE_STRING:
 		case STTYPE_SET:
 		case STTYPE_PCRE:
 		case STTYPE_UNPARSED:
