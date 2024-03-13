@@ -411,12 +411,9 @@ snmp_match_request_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	{
 		proto_item *it;
 
-		// if it is a request
-		if (srrp->request_frame_id == pinfo->fd->num)
+		// if it is the response
+		if (srrp->response_frame_id == pinfo->fd->num)
 		{
-			it=proto_tree_add_uint(tree, hf_snmp_response_in, tvb, 0, 0, srrp->response_frame_id);
-			proto_item_set_generated(it);
-		} else {
 			nstime_t ns;
 			it=proto_tree_add_uint(tree, hf_snmp_response_to, tvb, 0, 0, srrp->request_frame_id);
 			proto_item_set_generated(it);
@@ -425,6 +422,9 @@ snmp_match_request_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_item_set_generated(it);
 
 			return srrp;
+		} else {
+			it=proto_tree_add_uint(tree, hf_snmp_response_in, tvb, 0, 0, srrp->response_frame_id);
+			proto_item_set_generated(it);
 		}
 	}
 
