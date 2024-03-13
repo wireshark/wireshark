@@ -174,6 +174,7 @@ static gint ett_hsms_data_item = -1;
 #define HSMS_MIN_LENGTH 14
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, int *offset)
 {
     proto_item *hdr_stream_item;
@@ -265,7 +266,9 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             if (item_format_code == 0)
             {
                 /* add sub items for list element to item tree */
+                increment_dissection_depth(pinfo);
                 int subItemLength = dissect_secs_variable(tvb, pinfo, hsms_data_item_tree, data, offset);
+                decrement_dissection_depth(pinfo);
 
                 /* check for parsing error in sub list */
                 if (subItemLength == -1)
@@ -733,11 +736,7 @@ proto_register_hsms(void)
     };
 
     /* Register the protocol name and description */
-    proto_hsms = proto_register_protocol (
-        "High-speed SECS Message Service Protocol", /* name       */
-        "HSMS",      /* short name */
-        "hsms"       /* abbrev     */
-        );
+    proto_hsms = proto_register_protocol ("High-speed SECS Message Service Protocol", "HSMS", "hsms");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_hsms, hf, array_length(hf));

@@ -83,6 +83,7 @@ static int ett_yami_msg_data = -1;
 static int ett_yami_param = -1;
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item *par_ti)
 {
 	const int orig_offset = offset;
@@ -364,7 +365,9 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			proto_item_append_text(ti, ", Type: nested, %u parameters: ", count);
 
 			for (i = 0; i < count; i++) {
+				increment_dissection_depth(pinfo);
 				offset = dissect_yami_parameter(tvb, pinfo, yami_param, offset, ti);
+				decrement_dissection_depth(pinfo);
 				/* smth went wrong */
 				if (offset == -1)
 					return -1;

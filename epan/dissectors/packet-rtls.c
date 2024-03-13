@@ -212,6 +212,7 @@ dissect_rtls_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtls_tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_rtls_message_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtls_tree, guint offset, guint type)
 {
     proto_item *ti_rssi;
@@ -361,6 +362,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
 
                 offset = dissect_rtls_header(tvb, pinfo, sub_tree, offset, &data_length);
 
+                // We recurse here, but we'll run out of packet before we run out of stack.
                 offset = dissect_rtls_message_type(tvb, pinfo, sub_tree, offset, type);
 
                 proto_item_set_len(sub_tree, data_length + 16);
@@ -774,6 +776,7 @@ proto_register_rtls(void)
 void
 proto_reg_handoff_rtls(void)
 {
+    // If this is ever streamed (transported over TCP) we need to add recursion checks
     dissector_add_for_decode_as_with_preference("udp.port", rtls_handle);
 }
 
