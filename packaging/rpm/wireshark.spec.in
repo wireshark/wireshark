@@ -120,8 +120,7 @@ BuildRequires:	(c-ares-devel or libcares-devel)
 BuildRequires:	speexdsp-devel
 
 %if %{with lua}
-# We only support Lua before 5.3 (#10881)
-BuildRequires:	(compat-lua-devel < 5.3 or lua51-devel)
+BuildRequires:	(lua-devel or lua53-devel or compat-lua-devel or lua52-devel or lua51-devel)
 %endif
 
 %if %{with nghttp2}
