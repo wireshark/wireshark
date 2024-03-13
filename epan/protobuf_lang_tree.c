@@ -1052,7 +1052,9 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
         ((pbl_option_descriptor_t*)child)->value = g_strconcat(oval, ",", nval, NULL);
         g_free(nval);
     } else if (node && child->file && parent->file
-        && child->file->pool && child->file->pool->error_cb) {
+		&& child->file->pool && child->file->pool->error_cb
+		/* Let's assume that any set of base types we point at are valid.. */
+		&& !strstr(node->file->filename, "google")) {
         child->file->pool->error_cb(
             "Protobuf: Warning: \"%s\" of [%s:%d] is already defined in file [%s:%d].\n",
             child->name, child->file->filename, child->lineno, node->file->filename, node->lineno);
