@@ -31,6 +31,7 @@ falcodump - Dump log data to a file using a Falco source plugin.
 [manarg]
 [ *--cloudtrail-s3downloadconcurrency*=<number of concurrent downloads> ]
 [ *--cloudtrail-s3interval*=<timeframe> ]
+[ *--cloudtrail-s3accountlist*=<comma separated account IDs> ]
 [ *--cloudtrail-sqsdelete*=<true or false> ]
 [ *--cloudtrail-useasync*=<true or false> ]
 [ *--cloudtrail-uses3sns*=<true or false> ]
@@ -100,6 +101,9 @@ Controls the number of background goroutines used to download S3 files (Default:
 --cloudtrail-s3interval::
 Download log files over the specified interval (Default: no interval)
 
+--cloudtrail-s3accountlist::
+If source is an organization CloudTrail S3 bucket download log files for all specified account IDs (Default: no account IDs)
+
 --cloudtrail-sqsdelete::
 If true then the plugin will delete SQS messages from the queue immediately after receiving them (Default: true)
 
@@ -133,6 +137,10 @@ The __region__, __year__, __month__, and __day__ components can be omitted in or
 For example, the source 's3://mybucket/AWSLogs/012345678/CloudTrail/us-west-2/2023' will fetch all CloudWatch logs for the year 2023.
 
 If the URL ends with '__account-id__/' or '__account-id__/CloudTrail/' (for example 's3://mybucket/AWSLOGS/012345678912/') the option '--cloudtrail-s3interval' can be used to define the time frame. A s3interval of '1d' for example would get all events of the last 24 hours from all available regions. A s3interval of '2w-1w' would get all events from all regions from two weeks ago up to one week ago. The s3invterval can also be defined as a RFC 3339-style timestamp like '2024-02-29T18:07:17Z' or '2024-02-29T00:00:00Z-2024-03-01T23:59:59Z'.
+
+If the URL ends with 'AWSLogs/__org-id__' option '--cloudtrail-s3accountlist' can be used to specify account IDs. This can be combined with '--cloudtrail-s3interval'. A source like 's3://my-org-bucket/AWSLogs/o-123abc/' with '--cloudstrail-s3accountlist' set to '123456789012,987654321098' and '--cloudtrail-s3interval' set to '30m' would get all events of the last 30min from all regions for accounts 123456789012 and 987654321098.
+
+If source URL is the organization CloudTrail bucket (like 's3://my-org-bucket/AWSLogs/o-123abc') and '--s3accountlist' is not set the plugin iterates over all accounts (limited by '--s3interval' if set). Attention: Depending on the size of the organization and the time interval, this can take a long time.
 
 The cloudtrail plugin uses the AWS SDK for Go, which can obtain profile, region, and credential settings from a set of standard https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/[environment variables and configuration files].
 Falcodump will show a list of locally configured profiles and the current regions, and will let you supply a custom value as well.
