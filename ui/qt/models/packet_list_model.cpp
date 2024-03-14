@@ -1014,13 +1014,8 @@ void PacketListModel::ensureRowColorized(int row)
 
 int PacketListModel::visibleIndexOf(frame_data *fdata) const
 {
-    int row = 0;
-    foreach (PacketListRecord *record, visible_rows_) {
-        if (record->frameData() == fdata) {
-            return row;
-        }
-        row++;
+    if (fdata == nullptr) {
+        return -1;
     }
-
-    return -1;
+    return packetNumberToRow(fdata->num);
 }
