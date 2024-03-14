@@ -328,9 +328,9 @@ dissect_dcom_ActivationPropertiesCustomerHdr(tvbuff_t *tvb, gint offset, packet_
             NULL, NDR_POINTER_UNIQUE, "OpaqueDataPtr: Pointer To NULL", 0);
 
     offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
-    proto_item_set_len(sub_item, offset - old_offset);
+    proto_item_set_len(sub_item, u32CustomHdrSize);
 
-    return offset;
+    return old_offset + u32CustomHdrSize;
 }
 
 
@@ -343,10 +343,10 @@ dissect_dcom_ActivationProperty(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* the following data depends on the clsid, get the routine by clsid */
     routine = dcom_get_routine_by_uuid(clsid);
     if (routine){
-        offset = routine(tvb, offset, pinfo, tree, di, drep, size);
+        routine(tvb, offset, pinfo, tree, di, drep, size);
     }
 
-    return offset;
+    return offset+size;
 }
 
 
