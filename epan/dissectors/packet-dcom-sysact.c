@@ -71,6 +71,13 @@ static gint ett_dcom_actctxinfo;
 static int hf_sysact_actctxinfo_cltok;
 static int hf_sysact_context;
 
+static gint ett_dcom_instanceinfo;
+static int hf_sysact_instinfo_mode;
+static int hf_sysact_instinfo_stg;
+
+static gint ett_dcom_istorage;
+static int hf_sysact_istg;
+
 static gint ett_dcom_context;
 static int hf_sysact_ctx_id;
 static int hf_sysact_ctx_flags;
@@ -142,7 +149,8 @@ static e_guid_t clsid_ServerLocationInfo = { 0x000001a4, 0x0000, 0x0000, { 0xC0,
 static e_guid_t clsid_ScmRequestInfo = { 0x000001aa, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_PropsOutInfo = { 0x00000339, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_ScmReplyInfo = { 0x000001b6, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-/*static e_guid_t clsid_InstanceInfo = { 0x000001ad, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };*/
+static e_guid_t clsid_InstanceInfo = { 0x000001ad, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static e_guid_t iid_IStorage = { 0x0000000B, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 
 
 static const value_string instninfo_actflags[] = {
@@ -415,6 +423,26 @@ dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo
     return offset;
 }
 
+
+
+static int
+dissect_dcom_IStorage(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size _U_)
+{
+    proto_item  *sub_item;
+    proto_tree  *sub_tree;
+    gint        old_offset;
+
+    old_offset = offset;
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_dcom_istorage, &sub_item, "IStorage");
+
+    offset = dissect_dcom_OBJREF(tvb, offset, pinfo, sub_tree, di, drep, hf_sysact_istg, NULL);
+
+    proto_item_set_len(sub_item, offset - old_offset);
+
+    return offset;
+}
+
 static int
 dissect_dcom_ContextMarshaler(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size _U_)
@@ -650,6 +678,85 @@ dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, gint offset, packet_info *pinf
     offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, sub_tree, di, drep,
             dissect_ActCtxInfo_PropCtx, NDR_POINTER_UNIQUE,
             "PrototypePtr", -1);
+    offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+    len = offset - old_offset;
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
+    }
+
+    offset = old_offset + size;
+    return offset;
+}
+
+
+static int
+dissect_InstInfo_IfdROT(tvbuff_t *tvb _U_, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+{
+    /*TBD*/
+    return offset;
+}
+
+
+static int
+dissect_InstInfo_IfdStg(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+{
+    if (di->conformant_run) {
+        return offset;
+    }
+
+    offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, di, drep,
+            hf_sysact_instinfo_stg, NULL);
+    return offset;
+}
+
+
+static int
+dissect_dcom_InstanceInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+              proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size)
+{
+    proto_tree *sub_tree;
+    gint old_offset, len;
+
+    old_offset = offset;
+
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_dcom_instanceinfo, NULL, "InstanceInfo");
+
+    offset = dissect_TypeSzCommPrivHdr(tvb, offset, pinfo, sub_tree, di, drep);
+
+    /*
+    typedef struct tagInstanceInfoData {
+        [string] wchar_t* fileName;
+        DWORD mode;
+        MInterfacePointer* ifdROT;
+        MInterfacePointer* ifdStg;
+    } InstanceInfoData;
+    */
+
+    offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, sub_tree, di, drep,
+            dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE, "FileNamePtr",
+            hf_sysact_li_string);
+
+    offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
+            hf_sysact_instinfo_mode, NULL);
+
+    offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, sub_tree, di, drep,
+            dissect_InstInfo_IfdROT, NDR_POINTER_UNIQUE,
+            "ifdROTPtr", -1);
+    offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, sub_tree, di, drep,
+            dissect_InstInfo_IfdStg, NDR_POINTER_UNIQUE,
+            "ifdStgPtr", -1);
     offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
     len = offset - old_offset;
@@ -1110,6 +1217,8 @@ sysact_register_routines(void)
     dcom_register_routine(dissect_dcom_ScmRqstInfo, &clsid_ScmRequestInfo);
     dcom_register_routine(dissect_dcom_PropsOutInfo, &clsid_PropsOutInfo);
     dcom_register_routine(dissect_dcom_ScmReplyInfo, &clsid_ScmReplyInfo);
+    dcom_register_routine(dissect_dcom_InstanceInfo, &clsid_InstanceInfo);
+    dcom_register_routine(dissect_dcom_IStorage, &iid_IStorage);
 
     return;
 }
@@ -1280,6 +1389,16 @@ proto_register_ISystemActivator (void)
         { &hf_sysact_context,
         { "ClientContext", "isystemactivator.properties.context", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        /*InstanceInfo*/
+        { &hf_sysact_instinfo_mode,
+        { "Mode", "isystemactivator.properties.instinfo.mode", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sysact_instinfo_stg,
+        { "IfdStg", "isystemactivator.properties.instinfo.ifdstg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        /*IStorage*/
+        { &hf_sysact_istg,
+        { "IStorage", "isystemactivator.properties.istg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         /*dcom Context*/
         { &hf_sysact_ctx_id,
         { "ContextID", "isystemactivator.properties.context.id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1380,6 +1499,8 @@ proto_register_ISystemActivator (void)
         &ett_dcom_reserved,
         &ett_dcom_instantianinfo,
         &ett_dcom_actctxinfo,
+        &ett_dcom_instanceinfo,
+        &ett_dcom_istorage,
         &ett_dcom_context,
         &ett_dcom_securityinfo,
         &ett_dcom_locationinfo,
