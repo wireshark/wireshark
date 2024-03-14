@@ -21,18 +21,18 @@ typedef struct {
 	const char*  longname;
 	int          produceable_type;
 	int          sample_wtap_encap;
-	guint8*      sample_buffer;
+	uint8_t*     sample_buffer;
 	int          sample_length;
-	guint8*      pseudo_buffer;
-	guint        pseudo_length;
+	uint8_t*     pseudo_buffer;
+	unsigned     pseudo_length;
 	wtap_dumper* dump;
 	const char*  filename;
-	guint        produce_max_bytes;
+	unsigned     produce_max_bytes;
 
 } randpkt_example;
 
 /* Return the number of active examples */
-guint randpkt_example_count(void);
+unsigned randpkt_example_count(void);
 
 /* Return the list of the active examples */
 void randpkt_example_list(char*** abbrev_list, char*** longname_list);
@@ -47,10 +47,10 @@ randpkt_example* randpkt_find_example(int type);
 int randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes, int file_type_subtype);
 
 /* Loop the packet generation */
-void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packet_delay_ms);
+void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t packet_delay_ms);
 
 /* Close the current example */
-gboolean randpkt_example_close(randpkt_example* example);
+bool randpkt_example_close(randpkt_example* example);
 
 #endif
 
