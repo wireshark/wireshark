@@ -146,6 +146,7 @@ private slots:
     void updateWidgets();
     void itemEntered(QTreeWidgetItem *item, int column);
     void mouseMovePlot(QMouseEvent *event);
+    void mouseMoveUpdate();
     void graphClicked(QMouseEvent *event);
     void graphDoubleClicked(QMouseEvent *event);
     void plotClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
@@ -250,6 +251,8 @@ private:
     int lock_ui_;
     bool read_capture_enabled_;
     double silence_skipped_time_;
+    QTimer *mouse_update_timer_;
+    QPoint mouse_pos_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);

@@ -207,6 +207,11 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
     ui->streamTreeWidget->setMouseTracking(true);
+    mouse_update_timer_ = new QTimer(this);
+    mouse_update_timer_->setSingleShot(true);
+    mouse_update_timer_->setInterval(10);
+    connect(mouse_update_timer_, &QTimer::timeout, this, &RtpPlayerDialog::mouseMoveUpdate);
+
     connect(ui->streamTreeWidget, &QTreeWidget::itemEntered, this, &RtpPlayerDialog::itemEntered);
 
     connect(ui->audioPlot, &QCustomPlot::mouseMove, this, &RtpPlayerDialog::mouseMovePlot);
@@ -1132,9 +1137,23 @@ void RtpPlayerDialog::itemEntered(QTreeWidgetItem *item, int column _U_)
 
 void RtpPlayerDialog::mouseMovePlot(QMouseEvent *event)
 {
+    // The calculations are expensive, so just store the position and
+    // calculate no more than once per some interval. (On Linux the
+    // QMouseEvents can be sent absurdly often, every 25 microseconds!)
+    mouse_pos_ = event->pos();
+    if (!mouse_update_timer_->isActive()) {
+        mouse_update_timer_->start();
+    }
+}
+
+void RtpPlayerDialog::mouseMoveUpdate()
+{
+    // findItemByCoords is expensive (because of calling pointDistance),
+    // and updateHintLabel calls it as well via getHoveredPacket. Some
+    // way to only perform the distance calculations once would be better.
     updateHintLabel();
 
-    QTreeWidgetItem *ti = findItemByCoords(event->pos());
+    QTreeWidgetItem *ti = findItemByCoords(mouse_pos_);
     handleItemHighlight(ti, true);
 }
 
