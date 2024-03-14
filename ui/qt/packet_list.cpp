@@ -1656,16 +1656,14 @@ void PacketList::goLastPacket(void) {
     scrollViewChanged(false);
 }
 
-// XXX We can jump to the wrong packet if a display filter is applied
 void PacketList::goToPacket(int packet, int hf_id)
 {
     if (!cf_goto_frame(cap_file_, packet))
         return;
 
-    int row = packet_list_model_->packetNumberToRow(packet);
-    if (row >= 0) {
-        selectionModel()->setCurrentIndex(packet_list_model_->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-        scrollTo(currentIndex(), PositionAtCenter);
+    // cf_goto_frame only returns true if packet_list_select_row_from_data
+    // succeeds, the latter has already selected and scrolled to the frame.
+    if (hf_id > 0) {
         proto_tree_->goToHfid(hf_id);
     }
 
