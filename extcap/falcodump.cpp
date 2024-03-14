@@ -114,7 +114,7 @@ struct plugin_configuration {
         json_dumper_finish(&dumper);
         std::string config_blob = dumper.output_string->str;
         ws_debug("configuration: %s", dumper.output_string->str);
-        g_string_free(dumper.output_string, TRUE);
+        g_string_free(dumper.output_string, true);
         return config_blob;
     }
 };
@@ -142,7 +142,7 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
     // Look in files as specified in https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
     char *cred_path = g_strdup(g_getenv("AWS_SHARED_CREDENTIALS_FILE"));
     if (cred_path == NULL) {
-        cred_path = g_build_filename(g_get_home_dir(), ".aws", "credentials", (gchar *)NULL);
+        cred_path = g_build_filename(g_get_home_dir(), ".aws", "credentials", (char *)NULL);
     }
 
     aws_fp = ws_fopen(cred_path, "r");
@@ -162,7 +162,7 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
 
     char *conf_path = g_strdup(g_getenv("AWS_CONFIG_FILE"));
     if (conf_path == NULL) {
-        conf_path = g_build_filename(g_get_home_dir(), ".aws", "config", (gchar *)NULL);
+        conf_path = g_build_filename(g_get_home_dir(), ".aws", "config", (char *)NULL);
     }
 
     aws_fp = ws_fopen(conf_path, "r");
@@ -526,7 +526,7 @@ const std::pair<const std::string,bool> get_schema_properties(const std::string 
             default_value,
         };
         property_list.push_back(properties);
-        g_free((gpointer)call);
+        g_free((void *)call);
         idx += prop_tokens;
         opt_idx++;
     }

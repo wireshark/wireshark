@@ -182,7 +182,7 @@ static int read_output_bytes_any(ssh_channel channel, int bytes, char* outbuf)
 	int total;
 	int bytes_read;
 
-	total = (bytes > 0 ? bytes : G_MAXINT);
+	total = (bytes > 0 ? bytes : INT_MAX);
 	bytes_read = 0;
 
 	while(ssh_channel_read_timeout(channel, &chr, 1, 0, CISCODUMP_READ_TIMEOUT_MSEC) > 0 && bytes_read < total) {
@@ -205,7 +205,7 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 	int total;
 	int bytes_read;
 
-	total = (bytes > 0 ? bytes : G_MAXINT);
+	total = (bytes > 0 ? bytes : INT_MAX);
 	bytes_read = 0;
 
 	while(ssh_channel_read_timeout(channel, &chr, 1, 0, CISCODUMP_READ_TIMEOUT_MSEC) > 0 && bytes_read < total) {
