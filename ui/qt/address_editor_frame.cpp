@@ -87,6 +87,7 @@ QString AddressEditorFrame::addressToString(const FieldInformation& finfo)
     return addr_str;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void AddressEditorFrame::addAddresses(const ProtoNode& node, QStringList& addresses)
 {
     QString addrString = addressToString(FieldInformation(&node));
@@ -95,6 +96,7 @@ void AddressEditorFrame::addAddresses(const ProtoNode& node, QStringList& addres
     }
     ProtoNode::ChildIterator kids = node.children();
     while (kids.element().isValid()) {
+        // We recurse here, but we're limited by tree depth checks in epan
         addAddresses(kids.element(), addresses);
         kids.next();
     }

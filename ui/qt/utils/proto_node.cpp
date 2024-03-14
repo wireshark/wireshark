@@ -12,6 +12,7 @@
 
 #include <epan/prefs.h>
 
+// NOLINTNEXTLINE(misc-no-recursion)
 ProtoNode::ProtoNode(proto_node *node, ProtoNode *parent) :
     node_(node), parent_(parent)
 {
@@ -28,6 +29,7 @@ ProtoNode::ProtoNode(proto_node *node, ProtoNode *parent) :
 
         for (proto_node *child = node_->first_child; child; child = child->next) {
             if (!isHidden(child)) {
+                // We recurse here, but we're limited by tree depth checks in epan
                 m_children.append(new ProtoNode(child, this));
             }
         }

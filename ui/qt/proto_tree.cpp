@@ -482,6 +482,7 @@ void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
     proto_tree_children_foreach(node, foreachTreeNode, proto_tree_ptr);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void ProtoTree::foreachExpand(const QModelIndex &index = QModelIndex()) {
 
     // Restore expanded state. (Note QModelIndex() refers to the root node)
@@ -494,6 +495,7 @@ void ProtoTree::foreachExpand(const QModelIndex &index = QModelIndex()) {
             if (node && node->isValid() && tree_expanded(node->protoNode()->finfo->tree_type)) {
                 expand(childIndex);
             }
+            // We recurse here, but we're limited by tree depth checks in epan
             foreachExpand(childIndex);
         }
     }
@@ -780,6 +782,7 @@ void ProtoTree::restoreSelectedField()
     autoScrollTo(cur_index);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 QString ProtoTree::traverseTree(const QModelIndex & travTree, int identLevel) const
 {
     QString result = "";
@@ -796,6 +799,7 @@ QString ProtoTree::traverseTree(const QModelIndex & travTree, int identLevel) co
             int children = proto_tree_model_->rowCount(travTree);
             identLevel++;
             for (int child = 0; child < children; child++)
+                // We recurse here, but we're limited by tree depth checks in epan
                 result += traverseTree(proto_tree_model_->index(child, 0, travTree), identLevel);
         }
     }

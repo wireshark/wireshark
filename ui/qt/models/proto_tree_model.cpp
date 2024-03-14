@@ -188,6 +188,7 @@ struct find_hfid_ {
     ProtoNode *node;
 };
 
+// NOLINTNEXTLINE(misc-no-recursion)
 bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr)
 {
     struct find_hfid_ *find_hfid = (struct find_hfid_ *) find_hfid_ptr;
@@ -196,6 +197,7 @@ bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr)
         return true;
     }
     for (int i = 0; i < node->childrenCount(); i++) {
+        // We recurse here, but we're limited by tree depth checks in epan
         if (foreachFindHfid(node->child(i), find_hfid)) {
                 return true;
         }
@@ -221,6 +223,7 @@ struct find_field_info_ {
     ProtoNode *node;
 };
 
+// NOLINTNEXTLINE(misc-no-recursion)
 bool ProtoTreeModel::foreachFindField(ProtoNode *node, gpointer find_finfo_ptr)
 {
     struct find_field_info_ *find_finfo = (struct find_field_info_ *) find_finfo_ptr;
@@ -229,6 +232,7 @@ bool ProtoTreeModel::foreachFindField(ProtoNode *node, gpointer find_finfo_ptr)
         return true;
     }
     for (int i = 0; i < node->childrenCount(); i++) {
+        // We recurse here, but we're limited by tree depth checks in epan
         if (foreachFindField(node->child(i), find_finfo)) {
                 return true;
         }
