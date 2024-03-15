@@ -21,7 +21,7 @@ target_include_directories(lrexlib SYSTEM PRIVATE
 add_dependencies(lrexlib register_wslua)
 
 if(FETCH_lua)
-	add_dependencies(lrexlib lua52)
+	add_dependencies(lrexlib lua53)
 endif()
 
 add_compile_definitions(
