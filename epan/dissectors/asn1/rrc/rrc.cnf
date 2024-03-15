@@ -1363,6 +1363,7 @@ if(state_dec >= 0 && state_dec <= 3) {
     guint *flowd_p;
     guint *cur_val=NULL;
     struct rrc_info *rrcinf;
+    fp_info *fpinf;
 
     %(DEFAULT_BODY)s
 
@@ -1372,16 +1373,17 @@ if(state_dec >= 0 && state_dec <= 3) {
 
         if(num_chans_per_flow[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
-            if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
+            fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+            if((rrcinf == NULL) || (fpinf == NULL) || (rrcinf->hrnti[fpinf->cur_tb] == 0)){
                 expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
             else{
                 /*If it doesn't exists, insert it*/
-                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
+                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]))) == NULL ){
 
                     flowd_p = g_new0(guint, 1);
                     *flowd_p = (1U<<flowd);    /*Set the bit to mark it as true*/
-                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
+                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]), flowd_p);
 
                 }else{
                     *cur_val = (1U<<flowd) | *cur_val;
@@ -1398,6 +1400,7 @@ if(state_dec >= 0 && state_dec <= 3) {
     guint *flowd_p;
     guint *cur_val=NULL;
     struct rrc_info *rrcinf;
+    fp_info *fpinf;
 
     %(DEFAULT_BODY)s
 
@@ -1408,16 +1411,17 @@ if(state_dec >= 0 && state_dec <= 3) {
 
         if(num_chans_per_flow[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
-            if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
+            fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+            if((rrcinf == NULL) || (fpinf == NULL) || (rrcinf->hrnti[fpinf->cur_tb] == 0)){
                 expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
             else{
                 /*If it doesn't exists, insert it*/
-                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
+                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]))) == NULL ){
 
                     flowd_p = g_new0(guint, 1);
                     *flowd_p = (1U<<flowd);    /* Set the bit to mark it as true*/
-                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
+                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[fpinf->cur_tb]), flowd_p);
 
                 }else{
                     *cur_val = (1U<<flowd) | *cur_val;
@@ -1435,15 +1439,19 @@ if(state_dec >= 0 && state_dec <= 3) {
 #.FN_BODY H-RNTI VAL_PTR = &hrnti_tvb
   tvbuff_t *hrnti_tvb;
   struct rrc_info *rrcinf;
+  fp_info *fpinf;
 %(DEFAULT_BODY)s
 
 #.FN_FTR H-RNTI
   rrcinf = (struct rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
-  if (!rrcinf) {
-    rrcinf = wmem_new0(wmem_file_scope(), struct rrc_info);
-    p_add_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0, rrcinf);
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  if (fpinf) {
+    if (!rrcinf) {
+      rrcinf = wmem_new0(wmem_file_scope(), struct rrc_info);
+      p_add_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0, rrcinf);
+    }
+    rrcinf->hrnti[fpinf->cur_tb] = tvb_get_ntohs(hrnti_tvb, 0);
   }
-  rrcinf->hrnti[actx->pinfo->fd->subnum] = tvb_get_ntohs(hrnti_tvb, 0);
 
 #.FN_BODY START-Value VAL_PTR = &start_val
   tvbuff_t * start_val;

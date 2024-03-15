@@ -72,9 +72,9 @@ typedef struct _frame_data {
   GSList      *pfd;          /**< Per frame proto data */
   GHashTable  *dependent_frames;     /**< A hash table of frames which this one depends on */
   const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
-  guint16      subnum;       /**< subframe number, for protocols that require this */
-  /* Keep the bitfields below to 16 bits, so this plus the previous field
-     are 32 bits. */
+  guint8       tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET  */
+  /* Keep the bitfields below to 24 bits, so this plus the previous field
+     are 32 bits. (XXX - The previous field could be a bitfield too.) */
   unsigned int passed_dfilter   : 1; /**< 1 = display, 0 = no display */
   unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
   /* Do NOT use packet_char_enc enum here: MSVC compiler does not handle an enum in a bit field properly */
@@ -91,7 +91,6 @@ typedef struct _frame_data {
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
   guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
-  guint8       tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET */
 } frame_data;
 DIAG_ON_PEDANTIC
 

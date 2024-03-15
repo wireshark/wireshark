@@ -469,9 +469,11 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item    *rrc_item = NULL;
     proto_tree    *rrc_tree = NULL;
     struct rrc_info *rrcinf;
+    fp_info *fpinf;
 
     top_tree = tree;
     rrcinf = (struct rrc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rrc, 0);
+    fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 
     /* make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
@@ -483,8 +485,8 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);
     rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
 
-    if (rrcinf) {
-        switch (rrcinf->msgtype[pinfo->fd->subnum]) {
+    if (rrcinf && fpinf) {
+        switch (rrcinf->msgtype[fpinf->cur_tb]) {
             case RRC_MESSAGE_TYPE_PCCH:
                 call_dissector(rrc_pcch_handle, tvb, pinfo, rrc_tree);
                 break;

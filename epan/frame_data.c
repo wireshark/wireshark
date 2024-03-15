@@ -158,7 +158,6 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   fdata->pfd = NULL;
   fdata->num = num;
   fdata->file_off = offset;
-  fdata->subnum = 0;
   fdata->passed_dfilter = 1;
   fdata->dependent_of_displayed = 0;
   fdata->dependent_frames = NULL;
@@ -308,7 +307,6 @@ void
 frame_data_reset(frame_data *fdata)
 {
   fdata->visited = 0;
-  fdata->subnum = 0;
 
   if (fdata->pfd) {
     g_slist_free(fdata->pfd);
