@@ -278,24 +278,6 @@ main(int argc, char *argv[])
 
     wtap_dump_params_init(&params, wth);
 
-    /* Open outfile (same filetype/encap as input file) */
-    if (strcmp(outfile, "-") == 0) {
-      pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth),
-                                  WTAP_UNCOMPRESSED, &params, &err, &err_info);
-    } else {
-      pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth),
-                           WTAP_UNCOMPRESSED, &params, &err, &err_info);
-    }
-    g_free(params.idb_inf);
-    params.idb_inf = NULL;
-
-    if (pdh == NULL) {
-        cfile_dump_open_failure_message(outfile, err, err_info,
-                                        wtap_file_type_subtype(wth));
-        wtap_dump_params_cleanup(&params);
-        ret = OUTPUT_FILE_ERROR;
-        goto clean_exit;
-    }
 
     /* Allocate the array of frame pointers. */
     frames = g_ptr_array_new();
@@ -337,35 +319,67 @@ main(int argc, char *argv[])
         g_ptr_array_sort(frames, frames_compare);
     }
 
-    /* Write out each sorted frame in turn */
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
-    for (i = 0; i < frames->len; i++) {
-        FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
-        /* Avoid writing if already sorted and configured to */
-        if (write_output_regardless || (wrong_order_count > 0)) {
-            frame_write(frame, wth, pdh, &rec, &buf, infile, outfile);
+    /* Avoid writing if already sorted and configured to */
+    if (write_output_regardless || (wrong_order_count > 0)) {
+        /* Open outfile (same filetype/encap as input file) */
+        if (strcmp(outfile, "-") == 0) {
+          pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth),
+                                      WTAP_UNCOMPRESSED, &params, &err, &err_info);
+        } else {
+          pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth),
+                               WTAP_UNCOMPRESSED, &params, &err, &err_info);
         }
-        g_slice_free(FrameRecord_t, frame);
-    }
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
+        g_free(params.idb_inf);
+        params.idb_inf = NULL;
 
-    if (!write_output_regardless && (wrong_order_count == 0)) {
+        if (pdh == NULL) {
+            cfile_dump_open_failure_message(outfile, err, err_info,
+                                            wtap_file_type_subtype(wth));
+            wtap_dump_params_cleanup(&params);
+            ret = OUTPUT_FILE_ERROR;
+            goto clean_exit;
+        }
+
+
+        /* Write out each sorted frame in turn */
+        wtap_rec_init(&rec);
+        ws_buffer_init(&buf, 1514);
+        for (i = 0; i < frames->len; i++) {
+            FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
+
+            frame_write(frame, wth, pdh, &rec, &buf, infile, outfile);
+
+            g_slice_free(FrameRecord_t, frame);
+        }
+
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
+
+
+
+        /* Close outfile */
+        if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
+            cfile_close_failure_message(outfile, err, err_info);
+            wtap_dump_params_cleanup(&params);
+            ret = OUTPUT_FILE_ERROR;
+            goto clean_exit;
+        }
+    } else {
         printf("Not writing output file because input file is already in order.\n");
+
+        /* Free frame memory */
+        for (i = 0; i < frames->len; i++) {
+            FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
+
+            g_slice_free(FrameRecord_t, frame);
+        }
     }
+
 
     /* Free the whole array */
     g_ptr_array_free(frames, TRUE);
 
-    /* Close outfile */
-    if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
-        cfile_close_failure_message(outfile, err, err_info);
-        wtap_dump_params_cleanup(&params);
-        ret = OUTPUT_FILE_ERROR;
-        goto clean_exit;
-    }
     wtap_dump_params_cleanup(&params);
 
     /* Finally, close infile and release resources. */
