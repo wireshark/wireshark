@@ -476,6 +476,7 @@ typedef struct heur_dtbl_entry {
  *  Call this in the parent dissectors proto_register function.
  *
  * @param name the name of this protocol
+ * @param ui_name the name used in the user interface
  * @param proto the value obtained when registering the protocol
  */
 WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list_with_description(const char *name, const char *ui_name, const int proto);
