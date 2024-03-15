@@ -119,12 +119,14 @@ static int ett_lineage[N_PROC_LINEAGE_ENTRIES];
 static int ett_sinsp_enriched;
 static int ett_sinsp_span;
 static int ett_address;
+static int ett_json;
 
 static int container_io_tap;
 
 static gboolean pref_show_internal = false;
 
 static dissector_table_t ptype_dissector_table;
+static dissector_handle_t json_handle = NULL;
 
 static int fd_follow_tap;
 
@@ -1059,6 +1061,19 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                 proto_item_set_hidden(pi);
             }
 
+            if ((strcmp(hfinfo->abbrev, "ct.response") == 0 ||
+                    strcmp(hfinfo->abbrev, "ct.request") == 0 ||
+                    strcmp(hfinfo->abbrev, "ct.resources") == 0 ) &&
+                    strcmp(sfe->res.str, "null") != 0) {
+               tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, sfe->res.str, (unsigned)strlen(sfe->res.str), (unsigned)strlen(sfe->res.str));
+               add_new_data_source(pinfo, json_tvb, "JSON Object");
+               proto_tree *json_tree = proto_item_add_subtree(pi, ett_json);
+               gchar *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
+               call_dissector(json_handle, json_tvb, pinfo, json_tree);
+
+               /* Restore Protocol and Info columns */
+               col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
+            }
             int addr_fld_idx = bi->hf_id_to_addr_id[fld_idx];
             if (addr_fld_idx >= 0) {
                 ws_in4_addr v4_addr;
@@ -1170,6 +1185,7 @@ proto_reg_handoff_falcoplugin(void)
     stats_tree_set_group(st_config, REGISTER_LOG_STAT_GROUP_UNSORTED);
     stats_tree_set_first_column_name(st_config, "Container, process, and FD I/O");
 
+    json_handle = find_dissector("json");
 }
 
 void
@@ -1307,6 +1323,7 @@ proto_register_falcoplugin(void)
         &ett_sinsp_enriched,
         &ett_sinsp_span,
         &ett_address,
+        &ett_json,
     };
 
     /*
