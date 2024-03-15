@@ -108,6 +108,7 @@ ADDITIONAL_LIST=(
     libsmi
     libssh
     libxml2
+    lua
     lz4
     minizip
     opencore-amr
@@ -139,10 +140,6 @@ if (( ${#OPTIONS[@]} != 0 )); then
 fi
 
 install_formulae "${ACTUAL_LIST[@]}"
-
-if [ $INSTALL_OPTIONAL -ne 0 ] ; then
-    brew install lua@5.3 || printf "Lua 5.3 installation failed.\\n"
-fi
 
 if [ $INSTALL_DMG_DEPS -ne 0 ] ; then
     printf "Sorry, you'll have to install dmgbuild yourself for the time being.\\n"
