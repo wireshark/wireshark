@@ -536,7 +536,9 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
     struct sockaddr_in server;
     struct sockaddr_in client;
     int                status;
+#ifndef _WIN32
     int                result;
+#endif
     int                tries = 0;
 
     memset(&server, 0x0, sizeof(server));
