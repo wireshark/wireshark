@@ -1396,6 +1396,7 @@ gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, gui
 }
 
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint32 tag_number){
     guint32 tag_offset_start = offset + tag_number*4*2;
     guint32 tag_offset = 0, total_tag_len = 0;
@@ -1490,6 +1491,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 scfg_tag_number = tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
 
+                // We recurse here, but we're limited by tree depth checks in epan
                 dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number);
                 tag_offset += tag_len - 4 - 4;
                 }

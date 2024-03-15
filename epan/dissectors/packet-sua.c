@@ -808,6 +808,7 @@ dissect_correlation_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -817,6 +818,7 @@ dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -917,6 +919,7 @@ static const value_string routing_indicator_values[] = {
 #define ADDRESS_SSN_BITMASK      0x0001
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_source_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, guint8 *ssn)
 {
   proto_tree *address_indicator_tree;
@@ -938,6 +941,7 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_destination_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, guint8 *ssn)
 {
   proto_tree *address_indicator_tree;
@@ -1179,6 +1183,7 @@ dissect_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_routing_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -1221,6 +1226,7 @@ dissect_tid_label_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 #define ADDRESS_RANGE_ADDRESS_PARAMETERS_OFFSET  PARAMETER_VALUE_OFFSET
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_address_range_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
@@ -1610,6 +1616,7 @@ static const value_string v8_parameter_tag_values[] = {
   { 0,                                          NULL } };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   guint16 tag, length, padding_length;
@@ -1642,6 +1649,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
             && tag != V8_SUBSYSTEM_NUMBER_PARAMETER_TAG)
     return;
 
+  increment_dissection_depth(pinfo);
   switch(tag) {
   case V8_DATA_PARAMETER_TAG:
     dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
@@ -1786,7 +1794,9 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  };
+  }
+  decrement_dissection_depth(pinfo);
+
   if (parameter_tree && (padding_length > 0))
     proto_tree_add_item(parameter_tree, hf_sua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
@@ -1888,6 +1898,7 @@ static const value_string parameter_tag_values[] = {
   { 0,                                          NULL } };
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   guint16 tag, length, padding_length;
@@ -1937,6 +1948,7 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
             && tag != SUBSYSTEM_NUMBER_PARAMETER_TAG)
     return;   /* Nothing to do here */
 
+  increment_dissection_depth(pinfo);
   switch(tag) {
   case DATA_PARAMETER_TAG:
     dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
@@ -2090,12 +2102,15 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  };
+  }
+  decrement_dissection_depth(pinfo);
+
   if (parameter_tree && (padding_length > 0))
     proto_tree_add_item(parameter_tree, hf_sua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   gint offset, length, total_length, remaining_length;

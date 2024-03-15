@@ -168,6 +168,7 @@ dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         proto_item *ti;
@@ -188,6 +189,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         msdp_tree = proto_item_add_subtree(ti, ett_msdp);
 
         offset = 0;
+        increment_dissection_depth(pinfo);
         while (tvb_reported_length_remaining(tvb, offset) != 0) {
                 proto_tree_add_item_ret_uint(msdp_tree, hf_msdp_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
                 length_item = proto_tree_add_item_ret_uint(msdp_tree, hf_msdp_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN, &length);
@@ -268,6 +270,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         break;
                 }
         }
+        decrement_dissection_depth(pinfo);
 
         return tvb_captured_length(tvb);
 }
@@ -377,6 +380,7 @@ static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int 
         return;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, guint16 tlv_len, proto_item *length_item)
 {
         guint8              error, error_sub;
