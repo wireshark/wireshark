@@ -19,6 +19,9 @@ It is used for troubleshooting, analysis, development and education.
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+Lua 5.3 and 5.4 are supported, and the Lua version included with the
+Windows and MacOS installers is now 5.4.6.
+
 Improved display filter support for value strings (optional string
 representations for numeric fields).
 
@@ -190,12 +193,17 @@ The following features are new (or have been significantly updated) since versio
 * The "Find Packet" dialog can search backwards, and find additional occurrences
   of a string, hex value, or regular expression in a single frame.
 
-// Lua 5.3 is supported. Different versions of Lua are not guaranteed to be
-// compatible. If your Lua dissector does not work, check the Lua manual for
-// incompatabilities and suggested workarounds:
-// https://www.lua.org/manual/5.2/manual.html#8
-// https://www.lua.org/manual/5.3/manual.html#8
-// https://www.lua.org/manual/5.4/manual.html#8
+* The included Lua version has been updated to 5.4. While most Lua dissectors
+  should continue to work (the lua_bitop library has been patched to work with
+  Lua 5.3 and 5.4, in addition to the native Lua support for bit operations
+  present in those versions), different versions of Lua are not guaranteed to
+  be compatible. If a Lua dissector has issues, check the manuals for
+  https://www.lua.org/manual/5.4/manual.html#8[Lua 5.4],
+  https://www.lua.org/manual/5.3/manual.html#8[Lua 5.3], and
+  https://www.lua.org/manual/5.2/manual.html#8[Lua 5.2] for
+  incompatibilities and suggested workarounds. Note that features marked as
+  deprecated in one version are removed in the subsequent version without
+  additional notice, so it can be worth checking the manual for previous versions.
 
 === Removed Features and Support
 
