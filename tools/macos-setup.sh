@@ -161,11 +161,11 @@ if [ "$GNUTLS_VERSION" ]; then
     # Which requires libtasn1
     LIBTASN1_VERSION=4.19.0
 fi
-# lua_bitop.c has been ported to 5.3 so use that
-# yet, and we need to check for compatibility issues (we'd want Lua
-# scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
-# features present in all three versions)
-LUA_VERSION=5.3.6
+# lua_bitop.c has been ported to 5.3 and 5.4 so use the latest release.
+# We may still need to check for compatibility issues (we'd want Lua
+# scripts to work with 5.1 through 5.4, as long as they only use Lua
+# features present in all versions)
+LUA_VERSION=5.4.6
 SNAPPY_VERSION=1.1.10
 ZSTD_VERSION=1.5.5
 LIBXML2_VERSION=2.11.5
