@@ -31,6 +31,7 @@
 #include <plugin_manager.h>
 
 #include <scap_engines.h>
+#include <stdlib.h>
 
 #define WS_LOG_DOMAIN "falcodump"
 
@@ -862,10 +863,12 @@ int main(int argc, char **argv)
 
     help_header = ws_strdup_printf(
             " %s --extcap-interfaces\n"
+            " %s --extcap-interface=%s --extcap-capture-filter=<filter>\n"
             " %s --extcap-interface=%s --extcap-dlts\n"
             " %s --extcap-interface=%s --extcap-config\n"
-            " %s --extcap-interface=%s --fifo=<filename> --capture --plugin-source=<source url>\n",
+            " %s --extcap-interface=%s --fifo=<filename> --capture --plugin-source=<source url> [--extcap-capture-filter=<filter>]\n",
             argv[0],
+            argv[0], FALCODUMP_PLUGIN_PLACEHOLDER,
             argv[0], FALCODUMP_PLUGIN_PLACEHOLDER,
             argv[0], FALCODUMP_PLUGIN_PLACEHOLDER,
             argv[0], FALCODUMP_PLUGIN_PLACEHOLDER);
@@ -978,7 +981,7 @@ int main(int argc, char **argv)
         goto end;
     }
 
-    if (extcap_conf->capture) {
+    if (extcap_conf->capture || extcap_conf->capture_filter) {
         bool builtin_capture = false;
 
 #ifdef DEBUG_SINSP
@@ -1012,7 +1015,12 @@ int main(int argc, char **argv)
 #endif
         {
             if (plugin_source.empty()) {
-                ws_warning("Missing or invalid parameter: --plugin-source");
+                if (extcap_conf->capture) {
+                    ws_warning("Missing or invalid parameter: --plugin-source");
+                } else {
+                    // XXX Can we bypass this somehow?
+                    fprintf(stdout, "Validating a capture filter requires a plugin source");
+                }
                 goto end;
             }
 
@@ -1040,6 +1048,20 @@ int main(int argc, char **argv)
                 // scap_dump_open handles "-"
             } catch (sinsp_exception &e) {
                 ws_warning("%s", e.what());
+                goto end;
+            }
+        }
+
+        if (extcap_conf->capture_filter) {
+            try {
+                sinsp_filter_compiler compiler(&inspector, extcap_conf->capture_filter);
+                compiler.compile();
+            } catch (sinsp_exception &e) {
+                fprintf(stdout, "%s", e.what());
+                goto end;
+            }
+            if (!extcap_conf->capture) {
+                ret = EXIT_SUCCESS;
                 goto end;
             }
         }
