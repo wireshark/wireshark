@@ -1119,6 +1119,7 @@ static gchar *fully_qualified_name(GPtrArray *hier, gchar *name, gchar *proto_na
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static xml_ns_t *make_xml_hier(gchar      *elem_name,
                                xml_ns_t   *root,
                                wmem_map_t *elements,
@@ -1142,6 +1143,11 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
 
     if (! ( orig = (xml_ns_t *)wmem_map_lookup(elements, elem_name) )) {
         g_string_append_printf(error, "element '%s' is not defined\n", elem_name);
+        return NULL;
+    }
+
+    if (hier->len >= prefs.gui_max_tree_depth) {
+        g_string_append_printf(error, "hierarchy too deep: %u\n", hier->len);
         return NULL;
     }
 

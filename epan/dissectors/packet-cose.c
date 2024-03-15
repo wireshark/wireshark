@@ -558,6 +558,8 @@ static void dissect_ciphertext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 }
 static void dissect_cose_recipient(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset);
+
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_cose_recipient_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
     wscbor_chunk_t *chunk_list = wscbor_chunk_read(pinfo->pool, tvb, offset);
     wscbor_require_array(chunk_list);
@@ -571,6 +573,8 @@ static void dissect_cose_recipient_list(tvbuff_t *tvb, packet_info *pinfo, proto
     }
     proto_item_set_len(item_list, *offset - chunk_list->start);
 }
+
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_cose_recipient(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
     wscbor_chunk_t *chunk_recip = wscbor_chunk_read(pinfo->pool, tvb, offset);
     wscbor_require_array_size(chunk_recip, 3, 4);
@@ -581,7 +585,9 @@ static void dissect_cose_recipient(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         dissect_headers(tvb, pinfo, tree_recip, offset);
         dissect_ciphertext(tvb, pinfo, tree_recip, offset);
         if (chunk_recip->head_value > 3) {
+            increment_dissection_depth(pinfo);
             dissect_cose_recipient_list(tvb, pinfo, tree_recip, offset);
+            decrement_dissection_depth(pinfo);
         }
     }
     proto_item_set_len(item_recip, *offset - chunk_recip->start);
