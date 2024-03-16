@@ -45,6 +45,7 @@ typedef struct quic_cid {
     guint8      reset_token[16];
     gboolean    reset_token_set;
     uint64_t    seq_num;
+    uint64_t    path_id;
 } quic_cid_t;
 
 /**

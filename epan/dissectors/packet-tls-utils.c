@@ -8374,6 +8374,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                     // parameter is sent, the sequence number of the supplied
                     // connection ID is 1."
                     cid.seq_num = 1;
+                    // Multipath draft-07 "Also, the Path Identifier for the
+                    // connection ID specified in the "preferred address"
+                    // transport parameter is 0."
+                    cid.path_id = 0;
                     tvb_memcpy(tvb, cid.cid, offset, connectionid_length);
                     quic_add_connection(pinfo, &cid);
                 }
@@ -8534,9 +8538,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_INITIAL_MAX_PATHS:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_paths,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                if (value == 1) {
+                if (value > 1) {
                     quic_add_multipath(pinfo);
                 }
+                /* multipath draft-07: "The value of the initial_max_paths
+                 * parameter MUST be at least 2. */
                 offset += parameter_length;
             break;
             default:
