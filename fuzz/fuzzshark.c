@@ -90,7 +90,7 @@ fuzzshark_pref_set(const char *name, const char *value)
 }
 
 static const nstime_t *
-fuzzshark_get_frame_ts(struct packet_provider_data *prov _U_, guint32 frame_num _U_)
+fuzzshark_get_frame_ts(struct packet_provider_data *prov _U_, uint32_t frame_num _U_)
 {
 	static nstime_t empty;
 
@@ -281,13 +281,13 @@ fuzz_init(int argc _U_, char **argv)
 	 * dissection-time handlers for file-type-dependent blocks can
 	 * register using the file type/subtype value for the file type.
 	 */
-	wtap_init(TRUE);
+	wtap_init(true);
 
 	/* Register all dissectors; we must do this before checking for the
 	   "-G" flag, as the "-G" flag dumps information registered by the
 	   dissectors, and we must do it before we read the preferences, in
 	   case any dissectors register preferences. */
-	if (!epan_init(NULL, NULL, FALSE))
+	if (!epan_init(NULL, NULL, false))
 	{
 		ret = EPAN_INIT_FAIL;
 		goto clean_exit;
@@ -318,7 +318,7 @@ fuzz_init(int argc _U_, char **argv)
 	fuzz_prefs_apply();
 
 	/* Build the column format array */
-	build_column_format_array(&fuzz_cinfo, prefs_p->num_cols, TRUE);
+	build_column_format_array(&fuzz_cinfo, prefs_p->num_cols, true);
 
 #if defined(FUZZ_DISSECTOR_TABLE) && defined(FUZZ_DISSECTOR_TARGET)
 # define FUZZ_EPAN 1
@@ -346,7 +346,7 @@ fuzz_init(int argc _U_, char **argv)
 #endif
 
 	fuzz_epan = fuzzshark_epan_new();
-	fuzz_edt = epan_dissect_new(fuzz_epan, TRUE, FALSE);
+	fuzz_edt = epan_dissect_new(fuzz_epan, true, false);
 
 	return 0;
 clean_exit:
@@ -357,12 +357,12 @@ clean_exit:
 
 #ifdef FUZZ_EPAN
 int
-LLVMFuzzerTestOneInput(const guint8 *buf, size_t real_len)
+LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 {
-	static guint32 framenum = 0;
+	static uint32_t framenum = 0;
 	epan_dissect_t *edt = fuzz_edt;
 
-	guint32 len = (guint32) real_len;
+	uint32_t len = (uint32_t) real_len;
 
 	wtap_rec rec;
 	frame_data fdlocal;
@@ -374,7 +374,7 @@ LLVMFuzzerTestOneInput(const guint8 *buf, size_t real_len)
 	rec.rec_header.packet_header.len = len;
 
 	/* whdr.pkt_encap = WTAP_ENCAP_ETHERNET; */
-	rec.rec_header.packet_header.pkt_encap = G_MAXINT16;
+	rec.rec_header.packet_header.pkt_encap = INT16_MAX;
 	rec.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN; /* most common flags... */
 
 	frame_data_init(&fdlocal, ++framenum, &rec, /* offset */ 0, /* cum_bytes */ 0);
