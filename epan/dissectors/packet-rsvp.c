@@ -2948,6 +2948,7 @@ dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object
  * (TODO: TLV type 12, 13, 25)
  *------------------------------------------------------------------------------*/
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
                       tvbuff_t *tvb, int offset, int length,
                       int subtree_type)
@@ -3156,8 +3157,10 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
             proto_tree_add_uint_format_value(rsvp_ifid_subtree, hf_rsvp_type, tvb, offset+tlv_off, 2,
                                 tlv_type, "%d (%s-Exclusions)", tlv_type, tlv_name);
             proto_tree_add_item(rsvp_ifid_subtree, hf_rsvp_ifid_tlv_length, tvb, offset+tlv_off+2, 2, ENC_BIG_ENDIAN);
+            increment_dissection_depth(pinfo);
             dissect_rsvp_ifid_tlv(ti2, pinfo, rsvp_ifid_subtree, tvb, offset+tlv_off+4,
                                   tlv_len-4, TREE(TT_HOP_SUBOBJ));
+            decrement_dissection_depth(pinfo);
             break;
         case 516:
             /* FF: ERROR_STRING TLV, RFC 4783 */
@@ -7585,6 +7588,7 @@ dissect_rsvp_unknown(proto_tree *ti _U_,
  * Dissect a single RSVP message in a tree
  *------------------------------------------------------------------------------*/
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       int tree_mode, rsvp_conversation_info *rsvph, gboolean e2ei)
 {
@@ -7671,7 +7675,9 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 tvbuff_t *tvb_sub;
                 sub_len = tvb_get_ntohs(tvb, len2+6);
                 tvb_sub = tvb_new_subset_length(tvb, len2, sub_len);
+                increment_dissection_depth(pinfo);
                 dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG), rsvph, e2ei);
+                decrement_dissection_depth(pinfo);
                 len2 += sub_len;
             }
         } else {

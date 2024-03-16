@@ -3531,6 +3531,7 @@ static int parse_CPropertyRestriction(tvbuff_t *tvb, packet_info *pinfo, int off
 	return offset;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int parse_CCoercionRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CCoercionRestriction *v, const char *fmt, ...)
 {
 	proto_tree *tree;
@@ -3746,6 +3747,7 @@ static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *
 	return offset + 4;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CRestriction *v, const char *fmt, ...)
 {
 	proto_tree *tree;
@@ -3767,6 +3769,7 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	proto_tree_add_uint(tree, hf_mswsp_crestrict_weight, tvb, offset, 4, v->Weight);
 	offset += 4;
 
+	increment_dissection_depth(pinfo);
 	switch(v->ulType) {
 	case RTNone:
 		break;
@@ -3819,6 +3822,7 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	default:
 		proto_item_append_text(item, " Not supported!");
 	}
+	decrement_dissection_depth(pinfo);
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
@@ -3861,6 +3865,7 @@ static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset
 	return offset;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CNodeRestriction *v, const char *fmt, ...)
 {
 	proto_tree *tree;
@@ -7980,8 +7985,7 @@ proto_register_mswsp(void)
 	};
 	int i;
 
-	proto_mswsp = proto_register_protocol("Windows Search Protocol",
-										  "MS-WSP", "mswsp");
+	proto_mswsp = proto_register_protocol("Windows Search Protocol", "MS-WSP", "mswsp");
 
 	proto_register_field_array(proto_mswsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

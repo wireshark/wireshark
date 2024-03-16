@@ -696,6 +696,7 @@ static void dissect_name_ie(tvbuff_t *tvb, packet_info *pinfo _U_, guint offset,
 
 
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, proto_tree *tree,
 		  proto_item *gsup_ti, guint8 msg_type)
 {
@@ -729,6 +730,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		proto_tree_add_item(att_tree, hf_gsup_iei, tvb, offset-2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(att_tree, hf_gsup_ie_len, tvb, offset-1, 1, len);
 
+		increment_dissection_depth(pinfo);
 		switch (tag) {
 		/* Nested TLVs */
 		case OSMO_GSUP_AUTH_TUPLE_IE:
@@ -884,6 +886,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			proto_tree_add_item(att_tree, hf_gsup_ie_payload, tvb, offset, len, ENC_NA);
 			break;
 		}
+		decrement_dissection_depth(pinfo);
 
 		offset += len;
 	}
