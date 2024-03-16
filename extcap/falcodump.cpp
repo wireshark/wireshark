@@ -31,7 +31,6 @@
 #include <plugin_manager.h>
 
 #include <scap_engines.h>
-#include <stdlib.h>
 
 #define WS_LOG_DOMAIN "falcodump"
 
@@ -60,6 +59,10 @@ enum {
     OPT_HELP,
     OPT_VERSION,
     OPT_PLUGIN_API_VERSION,
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+    OPT_INCLUDE_CAPTURE_PROCESSES,
+    OPT_INCLUDE_SWITCH_CALLS,
+#endif
     OPT_PLUGIN_SOURCE,
     OPT_SCHEMA_PROPERTIES_START,
 };
@@ -79,6 +82,13 @@ struct config_properties {
     std::vector<std::string>enum_values;
     std::string current_value;
 };
+
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+struct syscall_configuration {
+    bool include_capture_processes;
+    bool include_switch_calls;
+};
+#endif
 
 struct plugin_configuration {
     std::vector<struct config_properties> property_list;
@@ -705,6 +715,10 @@ static const std::vector<ws_option> get_longopts(const std::map<std::string, str
         { "help", ws_no_argument, NULL, OPT_HELP},
         { "version", ws_no_argument, NULL, OPT_VERSION},
         { "plugin-api-version", ws_no_argument, NULL, OPT_PLUGIN_API_VERSION},
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+        { "filter-capture-processes", ws_required_argument, NULL, OPT_INCLUDE_CAPTURE_PROCESSES },
+        { "filter-switch-calls", ws_required_argument, NULL, OPT_INCLUDE_SWITCH_CALLS },
+#endif
         { "plugin-source", ws_required_argument, NULL, OPT_PLUGIN_SOURCE },
         { 0, 0, 0, 0}
     };
@@ -722,6 +736,110 @@ static const std::vector<ws_option> get_longopts(const std::map<std::string, str
     longopts.push_back(base_longopts[idx]);
     return longopts;
 }
+
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+static bool
+get_bool_value(const char *bool_str)
+{
+    if (!bool_str) {
+        return false;
+    }
+    switch (bool_str[0]) {
+        case 'f':
+        case 'F':
+        case '0':
+            return false;
+            break;
+        default:
+            return true;
+    }
+}
+
+// Show the configuration for a given plugin/interface.
+static int show_syscall_config(void)
+{
+    printf(
+        "arg {number=0}"
+        "{call=--filter-capture-processes}"
+        "{display=Include capture processes}"
+        "{type=boolean}"
+        "{tooltip=Include system calls made by any capture processes (falcodump, dumpcap, and Logray)}"
+        "{required=false}"
+        "{group=Capture}\n"
+
+        "arg {number=1}"
+        "{call=--filter-switch-calls}"
+        "{display=Include \"switch\" calls}"
+        "{type=boolean}"
+        "{tooltip=Include \"switch\" system calls}"
+        "{required=false}"
+        "{group=Capture}\n"
+
+        "value {arg=0}{value=1}\n"
+        );
+
+    return EXIT_SUCCESS;
+}
+
+#include <fstream>
+#include <iostream>
+static const std::string syscall_capture_filter(const struct syscall_configuration &syscall_config, const char *capture_filter)
+{
+    if (syscall_config.include_capture_processes && syscall_config.include_switch_calls) {
+        if (capture_filter) {
+            return std::string(capture_filter);
+        } else {
+            return std::string();
+        }
+    }
+
+    std::string filter;
+
+    if (capture_filter) {
+        filter = "(" + std::string(capture_filter) + ") and (";
+    }
+
+    if (!syscall_config.include_capture_processes) {
+        // We want to exclude Logray and any of its children, including
+        // this one (falcodump).
+
+        std::string pid, comm, _s, ppid;
+
+        // Exclude this process only at a minimum.
+        std::ifstream stat_stream("/proc/self/stat");
+        stat_stream >> pid >> comm >> _s >> ppid;
+        std::string process_filter = "proc.pid != " + pid;
+        if (comm != "(falcodump)") {
+            ws_warning("Our process is named %s, not falcodump", comm.c_str());
+        }
+        stat_stream.close();
+
+        // If our parent is Logray, exclude it and its direct children.
+        std::ifstream pstat_stream("/proc/" + ppid + "/stat");
+        pstat_stream >> _s >> comm;
+        if (comm == "(logray)") {
+            // XXX Use proc.apid instead?
+            process_filter = "proc.pid != " + ppid + " and proc.ppid != " + ppid;
+        }
+        pstat_stream.close();
+
+        filter += process_filter;
+    }
+
+    if (!syscall_config.include_switch_calls) {
+        if (!syscall_config.include_capture_processes) {
+            filter += " and ";
+        }
+        filter += "evt.type != switch";
+    }
+
+    if (capture_filter) {
+        filter += ")";
+    }
+
+    return filter;
+}
+#endif // HAS_ENGINE_KMOD || HAS_ENGINE_MODERN_BPF
 
 // Show the configuration for a given plugin/interface.
 static int show_plugin_config(const std::string &interface, const struct plugin_configuration &plugin_config)
@@ -796,6 +914,9 @@ int main(int argc, char **argv)
     int ret = EXIT_FAILURE;
     extcap_parameters* extcap_conf = g_new0(extcap_parameters, 1);
     std::map<std::string, struct plugin_configuration> plugin_configs;
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+    struct syscall_configuration syscall_config = {};
+#endif
     char* help_url;
     char* help_header = NULL;
     sinsp inspector;
@@ -878,6 +999,8 @@ int main(int argc, char **argv)
     extcap_help_add_option(extcap_conf, "--version", "print the version");
     extcap_help_add_option(extcap_conf, "--plugin-api-version", "print the Falco plugin API version");
     extcap_help_add_option(extcap_conf, "--plugin-source", "plugin source URL");
+    extcap_help_add_option(extcap_conf, "--include-capture-processes", "Include capture processes");
+    extcap_help_add_option(extcap_conf, "--include-switch-calls", "Include \"switch\" calls");
 
     for (const auto &it : plugin_configs) {
         const struct plugin_configuration plugin_config = it.second;
@@ -916,6 +1039,16 @@ int main(int argc, char **argv)
                 fprintf(stdout, "Falco plugin API version %s\n", inspector.get_plugin_api_version());
                 ret = EXIT_SUCCESS;
                 goto end;
+
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+            case OPT_INCLUDE_CAPTURE_PROCESSES:
+                syscall_config.include_capture_processes = get_bool_value(ws_optarg);
+                break;
+
+            case OPT_INCLUDE_SWITCH_CALLS:
+                syscall_config.include_switch_calls = get_bool_value(ws_optarg);
+                break;
+#endif
 
             case OPT_PLUGIN_SOURCE:
                 plugin_source = ws_optarg;
@@ -964,14 +1097,14 @@ int main(int argc, char **argv)
 #ifdef HAS_ENGINE_KMOD
         if (strcmp(extcap_conf->interface, KMOD_ENGINE) == 0)
         {
-            ret = EXIT_SUCCESS;
+            ret = show_syscall_config();
         }
         else
 #endif
-#ifdef HAS_ENGINE_KMOD
+#ifdef HAS_ENGINE_MODERN_BPF
         if (strcmp(extcap_conf->interface, MODERN_BPF_ENGINE) == 0)
         {
-            ret = EXIT_SUCCESS;
+            ret = show_syscall_config();
         }
         else
 #endif
@@ -1001,7 +1134,7 @@ int main(int argc, char **argv)
         }
         else
 #endif
-#ifdef HAS_ENGINE_KMOD
+#ifdef HAS_ENGINE_MODERN_BPF
         if (strcmp(extcap_conf->interface, MODERN_BPF_ENGINE) == 0)
         {
             try {
@@ -1052,7 +1185,8 @@ int main(int argc, char **argv)
             }
         }
 
-        if (extcap_conf->capture_filter) {
+        if (!extcap_conf->capture) {
+            // Check our filter syntax
             try {
                 sinsp_filter_compiler compiler(&inspector, extcap_conf->capture_filter);
                 compiler.compile();
@@ -1060,10 +1194,8 @@ int main(int argc, char **argv)
                 fprintf(stdout, "%s", e.what());
                 goto end;
             }
-            if (!extcap_conf->capture) {
-                ret = EXIT_SUCCESS;
-                goto end;
-            }
+            ret = EXIT_SUCCESS;
+            goto end;
         }
 
         sinsp_dumper dumper;
@@ -1074,6 +1206,19 @@ int main(int argc, char **argv)
             ws_warning("%s", e.what());
             goto end;
         }
+
+#if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
+        std::string capture_filter = syscall_capture_filter(syscall_config, extcap_conf->capture_filter);
+        if (!capture_filter.empty()) {
+            ws_debug("Setting filter %s\n", capture_filter.c_str());
+            try {
+                inspector.set_filter(capture_filter);
+            } catch (sinsp_exception &e) {
+                fprintf(stdout, "%s", e.what());
+                goto end;
+            }
+        }
+#endif
 
         if (builtin_capture) {
             inspector.start_capture();
