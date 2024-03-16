@@ -8526,23 +8526,23 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_enable_multipath,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 if (value == 1) {
-                    quic_add_multipath(pinfo);
+                    quic_add_multipath(pinfo, QUIC_MP_NO_PATH_ID);
                 }
                 offset += parameter_length;
             break;
             case SSL_HND_QUIC_TP_ENABLE_MULTIPATH_DRAFT05:
             case SSL_HND_QUIC_TP_ENABLE_MULTIPATH:
                 /* No Payload */
-                quic_add_multipath(pinfo);
+                quic_add_multipath(pinfo, QUIC_MP_NO_PATH_ID);
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_PATHS:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_paths,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 if (value > 1) {
-                    quic_add_multipath(pinfo);
+                    quic_add_multipath(pinfo, QUIC_MP_PATH_ID);
                 }
                 /* multipath draft-07: "The value of the initial_max_paths
-                 * parameter MUST be at least 2. */
+                 * parameter MUST be at least 2." TODO: Expert Info? */
                 offset += parameter_length;
             break;
             default:

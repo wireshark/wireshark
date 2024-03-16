@@ -58,6 +58,12 @@ typedef struct quic_cid {
 #define QUIC_STREAM_CLIENT_UNI  2
 #define QUIC_STREAM_SERVER_UNI  3
 
+/** QUIC Multipath versions; pre draft-07 uses sequence number
+ * instead of path ID.
+ */
+#define QUIC_MP_NO_PATH_ID 1
+#define QUIC_MP_PATH_ID 2
+
 /** Set/Get protocol-specific data for the QUIC STREAM. */
 
 void    quic_stream_add_proto_data(struct _packet_info *pinfo, quic_stream_info *stream_info, void *proto_data);
@@ -85,7 +91,7 @@ quic_add_loss_bits(packet_info *pinfo, guint64 value);
 void
 quic_add_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, gint offset, const quic_cid_t *cid);
 void
-quic_add_multipath(packet_info *pinfo);
+quic_add_multipath(packet_info *pinfo, unsigned version);
 void
 quic_add_grease_quic_bit(packet_info *pinfo);
 void

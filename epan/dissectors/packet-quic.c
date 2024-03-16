@@ -426,8 +426,8 @@ struct quic_info_data {
     bool            client_loss_bits_send : 1; /**< The client wants to send loss bits info */
     bool            server_loss_bits_recv : 1; /**< The server is able to read loss bits info */
     bool            server_loss_bits_send : 1; /**< The server wants to send loss bits info */
-    bool            client_multipath : 1; /**< The client supports multipath */
-    bool            server_multipath : 1; /**< The server supports multipath */
+    unsigned        client_multipath : 2; /**< The client supports multipath */
+    unsigned        server_multipath : 2; /**< The server supports multipath */
     bool            client_grease_quic_bit : 1; /**< The client supports greasing the Fixed (QUIC) bit */
     bool            server_grease_quic_bit : 1; /**< The server supports greasing the Fixed (QUIC) bit */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
@@ -507,7 +507,7 @@ static wmem_list_t *quic_connections;   /* All unique connections. */
 static guint32 quic_cid_lengths;        /* Bitmap of CID lengths. */
 static guint quic_connections_count;
 
-static gboolean
+static unsigned
 quic_multipath_negotiated(quic_info_data_t *conn);
 
 /* Returns the QUIC draft version or 0 if not applicable. */
@@ -2632,17 +2632,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, &seq_num, &len_sequence);
-            if (frame_type == FT_MP_NEW_CONNECTION_ID_OLD) {
-                // In multipath prior to draft-07, appdata number spaces and
-                // the nonce use the sequence number for each CID where
-                // draft-07 uses the path ID.
-                //
-                // XXX - If frame type == FT_NEW_CONNECTION_ID, that means
-                // Path ID 0 in draft-07 but we should use seq_num for path_id
-                // in older drafts. To handle properly we would need to store
-                // whether old or new MP was negotiated.
-                path_id = seq_num;
-            }
             offset += len_sequence;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_retire_prior_to, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_retire_prior_to);
@@ -3743,14 +3732,17 @@ quic_add_loss_bits(packet_info *pinfo, guint64 value)
 }
 
 /* Check if "multipath" feature has been negotiated */
-static gboolean
+static unsigned
 quic_multipath_negotiated(quic_info_data_t *conn)
 {
-    return conn->client_multipath && conn->server_multipath;
+    if (conn->client_multipath != conn->server_multipath)
+        return 0;
+
+    return conn->client_multipath;
 }
 
 void
-quic_add_multipath(packet_info *pinfo)
+quic_add_multipath(packet_info *pinfo, unsigned version)
 {
     quic_datagram *dgram_info;
     quic_info_data_t *conn;
@@ -3759,9 +3751,9 @@ quic_add_multipath(packet_info *pinfo)
     if (dgram_info && dgram_info->conn) {
         conn = dgram_info->conn;
         if (dgram_info->from_server) {
-            conn->server_multipath = TRUE;
+            conn->server_multipath = version;
         } else {
-            conn->client_multipath = TRUE;
+            conn->client_multipath = version;
         }
     }
 }
@@ -4669,7 +4661,11 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Senders MUST not coalesce packets with a different Connection ID
          * into the same datagram, so we can store the path ID here.
          */
-        dgram_info->path_id = dcid.path_id;
+        if (conn && quic_multipath_negotiated(conn) == QUIC_MP_NO_PATH_ID) {
+            dgram_info->path_id = dcid.seq_num;
+        } else {
+            dgram_info->path_id = dcid.path_id;
+        }
 #if 0
         proto_tree_add_debug_text(quic_tree, "Connection: %d %p DCID=%s SCID=%s from_server:%d", pinfo->num, dgram_info->conn, cid_to_string(pinfo->pool, &dcid), cid_to_string(pinfo->pool, &scid), dgram_info->from_server);
     } else {
