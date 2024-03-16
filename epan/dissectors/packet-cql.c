@@ -635,6 +635,7 @@ static int parse_option(proto_tree* metadata_subtree, packet_info *pinfo, tvbuff
 		default:
 			break;
 	}
+	decrement_dissection_depth(pinfo);
 
 	return offset;
 }
