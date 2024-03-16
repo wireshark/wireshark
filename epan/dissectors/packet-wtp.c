@@ -287,6 +287,7 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
 
 /* Code to actually dissect the packets */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     char          *szInfo;
@@ -359,6 +360,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             /* Skip the length field for the WTP sub-tvb */
             wtp_tvb = tvb_new_subset_length(tvb, offCur + c_fieldlen, c_pdulen);
+            // We recurse here, but we'll run out of packet before we run out of stack.
             dissect_wtp_common(wtp_tvb, pinfo, wtp_tree);
             offCur += c_fieldlen + c_pdulen;
             i++;
