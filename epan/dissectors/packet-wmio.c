@@ -528,6 +528,7 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info
  *  ObjectBlock = ObjectFlags [Decoration] Encoding
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_objectblock(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
     gint8 flags = tvb_get_guint8(tvb, offset);
@@ -536,6 +537,8 @@ dissect_wmio_objectblock(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
                 ett_wmio_object_flags, wmio_object_flags, ENC_NA);
     offset+=1;
 
+    increment_dissection_depth(pinfo);
+
     if (WMIO_OBJECT_FLAG_HAS_DECORATION & flags){
         offset = dissect_wmio_object_decoration(tvb, offset, pinfo, tree);
     }
@@ -543,6 +546,8 @@ dissect_wmio_objectblock(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
     if (WMIO_OBJECT_FLAG_CIM_CLASS & flags){
         offset = dissect_wmio_encoding_classtype(tvb, offset, pinfo, tree);
     }
+
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
@@ -570,13 +575,18 @@ dissect_wmio_object_decoration(tvbuff_t *tvb, gint offset, packet_info *pinfo, p
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_encoding_classtype(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
+    increment_dissection_depth(pinfo);
+
     // ParentClass
     offset = dissect_wmio_encoding_classandmethodspart(tvb, offset, pinfo, tree, hf_parentclass, ett_parentclass, true);
 
     // CurrentClass
     offset = dissect_wmio_encoding_classandmethodspart(tvb, offset, pinfo, tree, hf_currentclass, ett_currentclass, true);
+
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
@@ -586,6 +596,7 @@ dissect_wmio_encoding_classtype(tvbuff_t *tvb, gint offset, packet_info *pinfo, 
  *  ClassAndMethodsPart = ClassPart [MethodsPart]
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_encoding_classandmethodspart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_id, bool methods)
 {
     proto_item *item = NULL;
@@ -1064,6 +1075,7 @@ dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, gint offset, packet_info *pi
  *  MethodSignature = HeapMethodSignatureBlockRef
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_encoding_methodsignature(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_tree *parent_tree, int hfindex, gint methodsheapoffset)
 {
@@ -1095,6 +1107,7 @@ dissect_wmio_encoding_methodsignature(tvbuff_t *tvb, gint offset, packet_info *p
  *  MethodDescription = MethodName MethodFlags MethodPadding MethodOrigin MethodQualifiers InputSignature OutputSignature
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_tree *parent_tree, gint methodsheapoffset)
 {
@@ -1132,6 +1145,7 @@ dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, gint offset, p
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_tree *parent_tree, guint32 methodscount, gint methodsheapoffset)
 {
@@ -1155,6 +1169,7 @@ dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, gint offset, packet_info
  *  MethodsPart = EncodingLength MethodCount MethodCountPadding *MethodDescription MethodHeap
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_wmio_encoding_methodpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item *item = NULL;
