@@ -1029,6 +1029,7 @@ void solaredge_decrypt(const guint8 *in, gint length, guint8 *out, gcry_cipher_h
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length)
 {
 	gint current_offset;
@@ -1054,6 +1055,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	current_offset = offset + SOLAREDGE_POST_HEADER_LENGTH;
 	col_append_str(pinfo->cinfo, COL_INFO, " ");
 
+	increment_dissection_depth(pinfo);
 	switch(device_header.type) {
 		case SOLAREDGE_DEVICETYPE_OPTIMIZER:
 			col_append_str(pinfo->cinfo, COL_INFO, "Optimizer");
@@ -1218,6 +1220,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			current_offset += device_header.device_length;
 		break;
 	}
+	decrement_dissection_depth(pinfo);
 
 	if (current_offset < length) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
@@ -1227,6 +1230,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_, gint ett, conversation_t *conv)
 {
 	proto_item *ti;
@@ -1276,6 +1280,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 	current_offset += 2;
 	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(header.command_type, solaredge_packet_commandtypes, "Unknown command"));
 
+	increment_dissection_depth(pinfo);
 	switch (header.command_type) {
 		case SOLAREDGE_COMMAND_MISC_ENCRYPTED:
 			proto_tree_add_item(solaredge_header_tree, hf_solaredge_payload_type, tvb, current_offset, header.length, ENC_NA);
@@ -1335,6 +1340,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 			current_offset += header.length;
 		break;
 	}
+	decrement_dissection_depth(pinfo);
 
 	/* Validate CRC */
 	proto_tree_add_checksum(solaredge_header_tree, tvb, SOLAREDGE_HEADER_LENGTH + header.length, hf_solaredge_crc_type, hf_solaredge_crc_status_type, &ei_solaredge_invalid_crc, pinfo, calculate_crc(&header, tvb_get_ptr(tvb, SOLAREDGE_HEADER_LENGTH, header.length), header.length), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -1653,11 +1659,7 @@ proto_register_solaredge(void)
 		&ett_solaredge_packet_post_device
 	};
 
-	proto_solaredge = proto_register_protocol (
-		"SolarEdge monitoring protocol",
-		"SolarEdge",
-		"solaredge"
-	);
+	proto_solaredge = proto_register_protocol ("SolarEdge monitoring protocol", "SolarEdge", "solaredge");
 	solaredge_handle = register_dissector("solaredge", dissect_solaredge, proto_solaredge);
 
 	module_t * module_solaredge = prefs_register_protocol(proto_solaredge, NULL);

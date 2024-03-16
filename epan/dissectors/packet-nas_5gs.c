@@ -2897,12 +2897,14 @@ static const value_string nas_5gs_mm_pld_cont_opt_ie_type_vals[] = {
  *   9.11.3.39    Payload container
  */
 static guint16
+// NOLINTNEXTLINE(misc-no-recursion)
 de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
     struct nas5gs_private_data *nas5gs_data = nas5gs_get_private_data(pinfo);
 
+    increment_dissection_depth(pinfo);
     switch (nas5gs_data->payload_container_type) {
     case 1: /* N1 SM information */
         dissect_nas_5gs_common(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0, NULL);
@@ -3032,6 +3034,7 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
         break;
     }
+    decrement_dissection_depth(pinfo);
 
     return len;
 }

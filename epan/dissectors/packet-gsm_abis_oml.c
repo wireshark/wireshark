@@ -1567,6 +1567,7 @@ dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 
 /* Dissect OML FOM Attributes after OML + FOM header */
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		  packet_info *pinfo, proto_tree *tree)
 {
@@ -1770,7 +1771,9 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 							    tvb, loffset++, 1,
 							    ENC_LITTLE_ENDIAN);
 				}
+				increment_dissection_depth(pinfo);
 				dissect_oml_attrs(tvb, loffset, len - 1 - not_counted, pinfo, att_tree);
+				decrement_dissection_depth(pinfo);
 			}
 			break;
 		case NM_ATT_INTERF_BOUND:
@@ -2804,8 +2807,7 @@ proto_register_abis_oml(void)
 	NM_ATT_TLVDEF_IPA(NM_ATT_IPACC_CGI,		TLV_TYPE_TL16V, 0);
 
 	/* assign our custom match functions */
-	proto_abis_oml = proto_register_protocol("GSM A-bis OML", "A-bis OML",
-						 "gsm_abis_oml");
+	proto_abis_oml = proto_register_protocol("GSM A-bis OML", "A-bis OML", "gsm_abis_oml");
 
 	proto_register_field_array(proto_abis_oml, hf, array_length(hf));
 
