@@ -2844,6 +2844,7 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, guint32 id, gchar *name, gint wtlv_offset) {
     someip_payload_parameter_struct_t *config = NULL;
 
@@ -2903,6 +2904,7 @@ dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_typedef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint32 id, gchar *name _U_, int *hf_id, gint wtlv_offset) {
     someip_payload_parameter_typedef_t *config = NULL;
 
@@ -2957,6 +2959,7 @@ dissect_someip_payload_array_dim_length(tvbuff_t *tvb, packet_info *pinfo, proto
 
 /* returns bytes parsed, length needs to be gint to encode "non-existing" as -1 */
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, gint length, gint lower_limit, gint upper_limit,
     someip_parameter_array_t *config) {
     tvbuff_t   *subtvb = NULL;
@@ -3005,6 +3008,7 @@ dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static gint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_array_dim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, gint length, gint lower_limit, gint upper_limit, someip_parameter_array_t *config, guint current_dim, gchar *name, guint32 length_of_length) {
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
@@ -3053,6 +3057,7 @@ dissect_someip_payload_array_dim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, guint32 id, gchar *name, gint wtlv_offset) {
     someip_parameter_array_t *config = NULL;
 
@@ -3104,6 +3109,7 @@ dissect_someip_payload_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, guint32 id, gchar *name, gint wtlv_offset) {
     someip_parameter_union_t        *config = NULL;
     someip_parameter_union_item_t   *item = NULL;
@@ -3183,9 +3189,11 @@ dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr, gint wtlv_offset) {
     gint bytes_parsed = 0;
 
+    increment_dissection_depth(pinfo);
     switch (data_type) {
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF:
         bytes_parsed = dissect_someip_payload_typedef(tvb, pinfo, tree, offset, idref, name, hf_id_ptr, wtlv_offset);
@@ -3213,6 +3221,7 @@ dissect_someip_payload_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         col_append_str(pinfo->cinfo, COL_INFO, " [SOME/IP: Payload Config Error]");
         break;
     }
+    decrement_dissection_depth(pinfo);
 
     return bytes_parsed;
 }
@@ -3294,6 +3303,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, someip_payload_parameter_item_t *items, guint32 num_of_items, gboolean wtlv) {
     someip_payload_parameter_item_t *item;
 
