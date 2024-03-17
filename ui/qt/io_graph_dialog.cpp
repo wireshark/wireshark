@@ -1847,6 +1847,12 @@ void IOGraph::setPlotStyle(int style)
     case psStackedBar:
         if (graph_) {
             bars_ = new QCPBars(parent_->xAxis, parent_->yAxis);
+            // default widthType is wtPlotCoords. Scale with the interval
+            // size to prevent overlap. (Multiply this by a factor to have
+            // a gap between bars; the QCustomPlot default is 0.75.)
+            if (interval_) {
+                bars_->setWidth(interval_ / 1000.0);
+            }
             parent_->removeGraph(graph_);
             graph_ = NULL;
         }
@@ -2267,6 +2273,9 @@ bool IOGraph::hasItemToShow(int idx, double value) const
 void IOGraph::setInterval(int interval)
 {
     interval_ = interval;
+    if (bars_) {
+        bars_->setWidth(interval_ / 1000.0);
+    }
 }
 
 // Get the value at the given interval (idx) for the current value unit.
