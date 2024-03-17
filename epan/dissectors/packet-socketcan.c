@@ -112,6 +112,7 @@ static heur_dtbl_entry_t *heur_dtbl_entry;
 #define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
 #define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
 
+#define CANXL_FLAGS_OFFSET CAN_LEN_OFFSET
 #define CANXL_LEN_OFFSET   6
 #define CANXL_DATA_OFFSET  12
 
@@ -591,29 +592,9 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         NULL,
     };
 
-    /*
-     * If we weren't told the type of this frame, check
-     * whether the CANFD_FDF flag is set in the FD flags
-     * field of the header; if so, it's a CAN FD frame.
-     * otherwise, it's a CAN frame.
-     *
-     * However, trust the CANFD_FDF flag only if the only
-     * bits set in the FD flags field are the known bits,
-     * and the two bytes following that field are both
-     * zero.  This is because some older LINKTYPE_CAN_SOCKETCAN
-     * frames had uninitialized junk in the FD flags field,
-     * so we treat a frame with what appears to be uninitialized
-     * junk as being CAN rather than CAN FD, under the assumption
-     * that the CANFD_FDF bit is set because the field is
-     * uninitialized, not because it was explicitly set because
-     * it's a CAN FD frame.  At least some newer code that sets
-     * that flag also makes sure that the fields in question are
-     * initialized, so we assume that if they're not initialized
-     * the code is older code that didn't support CAN FD.
-     */
+    /* determine CAN packet type */
     if (can_packet_type == PACKET_TYPE_UNKNOWN) {
-        guint8 frame_length;
-        guint8 fd_flags;
+        guint8 canxl_flags;
 
         /*
          * Check whether the frame has the CANXL_XLF flag set in what
@@ -621,35 +602,14 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
          * or CAN FD frame; if so, then it's a CAN XL frame (and that
          * field is the flags field of that frame).
          */
-        frame_length = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
-        if (frame_length & CANXL_XLF) {
+        canxl_flags = tvb_get_guint8(tvb, CANXL_FLAGS_OFFSET);
+        if ((tvb_reported_length(tvb) > 12) && (canxl_flags & CANXL_XLF)) {
             can_packet_type = PACKET_TYPE_CAN_XL;
         } else {
-            /*
-             * This is a CAN classic or CAN FD frame.
-             * Check whether the flags field has the CANFD_FDF
-             * flag set, has no unknown flag bits set, and has
-             * no bits set in the two reserved fields.  If so,
-             * it's a CAN FD frame; otherwise, it's either a
-             * CAN classic frame, or a frame where the CANFD_FDF
-             * flag is set but where that might just be because
-             * that field contains uninitialized junk rather
-             * than because it's a CAN FD frame, so we treat it
-             * as a CAN classic frame.
-             */
-            fd_flags = tvb_get_guint8(tvb, CANFD_FLAG_OFFSET);
-
-            if ((fd_flags & CANFD_FDF) &&
-                    ((fd_flags & ~(CANFD_BRS | CANFD_ESI | CANFD_FDF)) == 0) &&
-                    tvb_get_guint8(tvb, CANFD_FLAG_OFFSET + 1) == 0 &&
-                    tvb_get_guint8(tvb, CANFD_FLAG_OFFSET + 2) == 0) {
+            if (tvb_reported_length(tvb) == 72)
                 can_packet_type = PACKET_TYPE_CAN_FD;
-            } else {
-                if (tvb_reported_length(tvb) == 72)
-                    can_packet_type = PACKET_TYPE_CAN_FD;
-                else
-                    can_packet_type = PACKET_TYPE_CAN;
-            }
+            else if  (tvb_reported_length(tvb) == 16)
+                can_packet_type = PACKET_TYPE_CAN;
         }
     }
 
