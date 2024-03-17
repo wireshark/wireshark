@@ -2844,6 +2844,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *proto_root;
@@ -2860,6 +2861,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     thread_nwd_tree = proto_item_add_subtree(proto_root, ett_thread_nwd);
 
     /* Thread Network Data TLVs */
+    increment_dissection_depth(pinfo);
     while (tvb_offset_exists(tvb, offset)) {
 
         /* Get the length ahead of time to pass to next function so we can highlight
@@ -3195,6 +3197,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 offset += tlv_len;
         }
     }
+    decrement_dissection_depth(pinfo);
     return tvb_captured_length(tvb);
 }
 

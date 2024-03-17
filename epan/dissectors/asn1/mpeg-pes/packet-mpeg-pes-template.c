@@ -399,6 +399,7 @@ static int
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int prefix;
@@ -434,6 +435,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	offset = dissect_mpeg_pes_PES(tvb, offset, &asn1_ctx,
 			tree, proto_mpeg_pes);
 
+	increment_dissection_depth(pinfo);
 	if (stream == STREAM_PICTURE) {
 		int frame_type;
 
@@ -598,6 +600,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 				offset / 8, -1, ENC_NA);
 	}
+	decrement_dissection_depth(pinfo);
 	return TRUE;
 }
 
