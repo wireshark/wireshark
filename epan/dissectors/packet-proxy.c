@@ -245,8 +245,10 @@ dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int next_offset)
 {
+    increment_dissection_depth(pinfo);
     while (offset < next_offset) {
         guint32 type, length;
         proto_item *ti_tlv;
@@ -298,6 +300,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
         break;
         }
     }
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }

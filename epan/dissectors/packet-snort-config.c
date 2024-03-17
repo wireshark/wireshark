@@ -503,6 +503,7 @@ static gboolean delete_string_entry(gpointer key,
 }
 
 /* See if this is an include line, if it is open the file and call parse_config_file() */
+// NOLINTNEXTLINE(misc-no-recursion)
 static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, const char *config_directory, int recursion_level)
 {
     int length;
@@ -841,6 +842,7 @@ static gboolean delete_rule(gpointer  key _U_,
 /* Parse this file, adding details to snort_config. */
 /* N.B. using recursion_level to limit stack depth. */
 #define MAX_CONFIG_FILE_RECURSE_DEPTH 8
+// NOLINTNEXTLINE(misc-no-recursion)
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
                               const char *filename, const char *dirname, int recursion_level)
 {
