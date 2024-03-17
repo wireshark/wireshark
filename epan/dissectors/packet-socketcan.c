@@ -77,6 +77,7 @@ static int hf_can_err_ctrl_specific;
 static int hf_canxl_priority;
 static int hf_canxl_vcid;
 static int hf_canxl_secflag;
+static int hf_canxl_xlflag;
 static int hf_canxl_sdu_type;
 static int hf_canxl_len;
 static int hf_canxl_acceptance_field;
@@ -85,6 +86,7 @@ static expert_field ei_can_err_dlc_mismatch;
 
 static int hf_canfd_brsflag;
 static int hf_canfd_esiflag;
+static int hf_canfd_fdflag;
 
 static gint ett_can;
 static gint ett_can_fd;
@@ -108,9 +110,6 @@ static heur_dtbl_entry_t *heur_dtbl_entry;
 #define CAN_DATA_OFFSET    8
 
 #define CANFD_FLAG_OFFSET  5
-
-#define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
-#define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
 
 #define CANXL_FLAGS_OFFSET CAN_LEN_OFFSET
 #define CANXL_LEN_OFFSET   6
@@ -566,6 +565,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     static int * const canfd_flag_fields[] = {
         &hf_canfd_brsflag,
         &hf_canfd_esiflag,
+        &hf_canfd_fdflag,
         NULL,
     };
     static int * const can_err_flags[] = {
@@ -589,6 +589,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     };
     static int * const canxl_flag_fields[] = {
         &hf_canxl_secflag,
+        &hf_canxl_xlflag,
         NULL,
     };
 
@@ -862,6 +863,8 @@ proto_register_socketcan(void) {
             "Bit Rate Setting", "canfd.flags.brs", FT_BOOLEAN, 8, NULL, CANFD_BRS, NULL, HFILL } },
         { &hf_canfd_esiflag, {
             "Error State Indicator", "canfd.flags.esi", FT_BOOLEAN, 8, NULL, CANFD_ESI, NULL, HFILL } },
+        { &hf_canfd_fdflag, {
+            "FD Frame", "canfd.flags.fdf", FT_BOOLEAN, 8, NULL, CANFD_FDF, NULL, HFILL } },
         { &hf_can_err_tx_timeout, {
             "Transmit timeout", "can.err.tx_timeout", FT_BOOLEAN, 32, NULL, CAN_ERR_TX_TIMEOUT, NULL, HFILL } },
         { &hf_can_err_lostarb, {
@@ -928,6 +931,8 @@ proto_register_socketcan(void) {
             "VCID", "canxl.vcid", FT_UINT32, BASE_DEC, NULL, 0x00FF0000, NULL, HFILL } },
         { &hf_canxl_secflag, {
             "Simple Extended Context", "canxl.flags.sec", FT_BOOLEAN, 8, NULL, CANXL_SEC, NULL, HFILL } },
+        { &hf_canxl_xlflag, {
+            "XL Frame", "canxl.flags.xl", FT_BOOLEAN, 8, NULL, CANXL_XLF, NULL, HFILL } },
         { &hf_canxl_sdu_type, {
             "SDU type", "canxl.sdu_type", FT_UINT8, BASE_HEX, VALS(canxl_sdu_type_vals), 0, NULL, HFILL } },
         { &hf_canxl_len, {
