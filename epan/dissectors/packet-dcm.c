@@ -2920,6 +2920,7 @@ Decode one tag. If it is a sequence or item start create a subtree. Returns new 
 http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html
 */
 static guint32
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos,
                 gboolean is_first_tag, const gchar **tag_description,
@@ -3220,6 +3221,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (vl == 0xFFFFFFFF) {
             /* Undefined length */
 
+            increment_dissection_depth(pinfo);
             while ((!local_end_of_seq_or_item) && (!pdv->open_tag.is_header_fragmented) && (offset < endpos)) {
 
                 offset = dissect_dcm_tag(tvb, pinfo, seq_ptree, pdv, offset, endpos, FALSE, &item_description, &local_end_of_seq_or_item);
@@ -3229,11 +3231,13 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     is_first_desc = FALSE;
                 }
             }
+            decrement_dissection_depth(pinfo);
         }
         else {
             /* Defined length */
             endpos_item = offset + vl_max;
 
+            increment_dissection_depth(pinfo);
             while (offset < endpos_item) {
 
                 offset = dissect_dcm_tag(tvb, pinfo, seq_ptree, pdv, offset, endpos_item, FALSE, &item_description, &local_end_of_seq_or_item);
@@ -3243,6 +3247,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     is_first_desc = FALSE;
                 }
             }
+            decrement_dissection_depth(pinfo);
         }
     } /*  if ((is_sequence || is_item) && (vl > 0)) */
     else if ((grp == 0xFFFE) && (elm == 0xE00D)) {
@@ -3292,7 +3297,9 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         /* Regular value. Identify the type, decode and display */
 
+        increment_dissection_depth(pinfo);
         offset = dissect_dcm_tag_value(tvb, pinfo, tag_ptree, pdv, offset, grp, elm, vl, vl_max, vr, &tag_value);
+        decrement_dissection_depth(pinfo);
 
         /* -------------------------------------------------------------
            We have decoded the value. Now store those tags of interest

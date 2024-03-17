@@ -2576,6 +2576,7 @@ dissect_rsl_ie_ms_timing_offset(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * which was considered erroneous at reception.
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_rsl_ie_err_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
 {
     proto_item *ti;
@@ -3907,6 +3908,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint8 msg_disc, msg_type, sys_info_type;
@@ -3922,6 +3924,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     }
     offset++;
 
+    increment_dissection_depth(pinfo);
     switch (msg_type) {
 /* Radio Link Layer Management messages */
     /* 8.3.1 DATA REQUEST */
@@ -4573,6 +4576,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     default:
         break;
     }
+    decrement_dissection_depth(pinfo);
 
     return offset;
 

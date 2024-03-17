@@ -759,6 +759,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
                  const char* label, proto_item** ret_item, int hf_ip4, int hf_ip6, int *advance) {
     guint8 af, et, flags, mask_len, ja_af;
@@ -1011,6 +1012,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                     case PIM_JOIN_ATTRIBUTE_TYPE_RPF:
                         if ((ja_length == 6) || (ja_length == 18)) {
                             int advance_attr;
+                            // We recurse here, but we'll run out of packet before we run out of stack.
                             if (!dissect_pim_addr(pinfo, ja_tree, tvb, ja_offset, pimv2_unicast, NULL, NULL,
                                     hf_pim_unicast_addr_ipv4, hf_pim_unicast_addr_ipv6, &advance_attr))
                                 break;
@@ -2292,8 +2294,7 @@ proto_register_pim(void)
     expert_module_t* expert_pim;
     module_t *pim_module;
 
-    proto_pim = proto_register_protocol("Protocol Independent Multicast",
-                                        "PIM", "pim");
+    proto_pim = proto_register_protocol("Protocol Independent Multicast", "PIM", "pim");
     proto_register_field_array(proto_pim, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_pim = expert_register_protocol(proto_pim);
