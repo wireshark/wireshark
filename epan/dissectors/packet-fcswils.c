@@ -1207,6 +1207,7 @@ dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree, int offset)
 {
     proto_tree *zmbr_tree;
@@ -1229,6 +1230,7 @@ dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree,
     offset += 8 + ZONENAME_LEN(tvb, offset+4);
     for (i = 0; i < numrec; i++) {
         if (objtype == FC_SWILS_ZONEOBJ_ZONESET) {
+            // We recurse here, but we'll run out of packet before we run out of stack.
             dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
             offset += get_zoneobj_len(tvb, offset);
         }

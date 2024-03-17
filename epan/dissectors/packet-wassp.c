@@ -4736,6 +4736,7 @@ static int decode_lbs_tag_header(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int in_len, int which_tab, int ru_msg_type)
 {
 	proto_item *tlvi;
@@ -4921,9 +4922,11 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 					tableNo = WASSP_SUBTLV_GET_ENTRY_IDX_TABIDX(tmp_decr, tlv_type);
 					if ((tableNo == RADIO_CONFIG_BLOCK) && (ru_msg_type == WASSP_RU_Ack))
 					{
+						// We recurse here, but we'll run out of packet before we run out of stack.
 						offset = dissect_wassp_sub_tlv(tmp_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, TAB_RU_ACK_RADIO_CONFIG, ru_msg_type);
 					}
 					else
+						// We recurse here, but we'll run out of packet before we run out of stack.
 						offset = dissect_wassp_sub_tlv(tmp_tree, tvb, pinfo, offset + TLV_VALUE, length - TLV_VALUE, tableNo, ru_msg_type);
 				}
 
