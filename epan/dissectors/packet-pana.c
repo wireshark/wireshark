@@ -276,6 +276,7 @@ pana_avp_get_type(guint16 avp_code, guint32 vendor_id)
  * Function for AVP dissector.
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 {
 
@@ -367,6 +368,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                         group_tvb = tvb_new_subset_length_caplen(tvb, offset,
                                                                    MIN(avp_data_length, tvb_reported_length(tvb)-offset),
                                                                    avp_data_length);
+                                        // We recurse here, but we'll run out of packet before we run out of stack.
                                         dissect_avps(group_tvb, pinfo, avp_group_tree);
                                         break;
                                 }
@@ -427,6 +429,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                                                 tvb, offset, avp_data_length,
                                                                                 ett_pana_avp, NULL, "AVP Value (PANA packet)");
                                         encap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
+                                        // We recurse here, but we'll run out of packet before we run out of stack.
                                         dissect_pana_pdu(encap_tvb, pinfo, avp_encap_tree);
                                         break;
                                 }
@@ -445,6 +448,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
  * Function for the PANA PDU dissector.
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -859,8 +863,7 @@ proto_register_pana(void)
         };
 
         /* Register the protocol name and description */
-        proto_pana = proto_register_protocol("Protocol for carrying Authentication for Network Access",
-                                             "PANA", "pana");
+        proto_pana = proto_register_protocol("Protocol for carrying Authentication for Network Access", "PANA", "pana");
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_pana, hf, array_length(hf));

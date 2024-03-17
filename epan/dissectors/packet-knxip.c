@@ -2646,6 +2646,7 @@ static void make_key_info( gchar* text, gint text_max, const guint8* key, const 
 
 /* Dissect SECURE_WRAPPER
 */
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, proto_item* item, proto_tree* tree, gint* p_offset )
 {
   guint8 ok = 1;
@@ -2803,7 +2804,9 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
               /* Dissect embedded KIP packet */
               {
                 tvbuff_t* tvb3 = tvb_new_subset_length( tvb2, 0, size2 );
+                increment_dissection_depth(pinfo);
                 dissect_knxip( tvb3, pinfo, root, NULL );
+                decrement_dissection_depth(pinfo);
               }
             }
           }
@@ -3177,6 +3180,7 @@ static guint8 dissect_session_status( tvbuff_t* tvb, packet_info* pinfo, proto_i
 
 /* Dissect KNX-IP data after KNX-IP header
 */
+// NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U_, guint16 service, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* kip_item, proto_tree* kip_tree )
 {
   guint8 ok = 1;
@@ -3740,6 +3744,7 @@ get_knxip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
   return tvb_get_ntohs( tvb, offset+4 );
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ )
 {
   gint offset = 0;
