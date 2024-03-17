@@ -135,6 +135,7 @@ static const value_string proxy2_tlv_vals[] = {
 static int
 dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int header_len)
 {
+    increment_dissection_depth(pinfo);
     while (offset < header_len) {
         guint32 type, length;
         proto_item *ti_tlv;
@@ -186,6 +187,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
         break;
         }
     }
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
