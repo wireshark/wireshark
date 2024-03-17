@@ -102,6 +102,10 @@ reset_io_graph_items(io_graph_item_t *items, gsize count) {
  * @param [in] pinfo Packet of interest.
  * @param [in] interval Time interval in milliseconds.
  * @return Array index on success, -1 on failure.
+ *
+ * @note pinfo->rel_ts, and hence the index, is not affected by ignoring
+ * frames, but is affected by time references. (Ignoring frames before
+ * a time reference can be useful, though.)
  */
 int get_io_graph_index(packet_info *pinfo, int interval);
 

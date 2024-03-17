@@ -39,7 +39,14 @@ class QCustomPlot;
 class QCPAxisTicker;
 class QCPAxisTickerDateTime;
 
-// GTK+ sets this to 100000 (NUM_IO_ITEMS)
+// GTK+ set this to 100000 (NUM_IO_ITEMS)
+// This is the maximum index returned from get_io_graph_index that will
+// be added to the graph. Thus, for a minimum interval size of 1 ms we
+// can span no more than 250 s, and if we decrease the minimum interval
+// size without increasing this it would decrease proportionately (e.g.
+// for 1 μs no more than 0.25 s.)
+//
+// XXX - Perhaps this should be configurable?
 const int max_io_items_ = 250000;
 
 // XXX - Move to its own file?
@@ -187,6 +194,7 @@ private:
     bool need_recalc_; // Medium weight: recalculate values, then replot
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
+    int precision_;
 
     QSharedPointer<QCPAxisTicker> number_ticker_;
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;

@@ -54,7 +54,6 @@
 // - We retap and redraw more than we should.
 // - Smoothing doesn't seem to match GTK+
 // - Closing the color picker on macOS sends the dialog to the background.
-// - The color picker triggers https://bugreports.qt.io/browse/QTBUG-58699.
 
 // To do:
 // - Use scroll bars?
@@ -63,6 +62,13 @@
 // - Explicitly handle missing values, e.g. via NAN.
 // - Add a "show missing" or "show zero" option to the UAT?
 //   It would add yet another graph configuration column.
+// - Increase max number of items (or make configurable)
+
+// Scale factor to convert the units the interval is stored in to seconds.
+// Must match what get_io_graph_index() in io_graph_item expects.
+// Increase this in order to make smaller intervals possible.
+const int SCALE = 1000;
+const double SCALE_F = (double)SCALE;
 
 const qreal graph_line_width_ = 1.0;
 
@@ -373,21 +379,21 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     stat_timer_->start(stat_update_interval_);
 
     // Intervals (ms)
-    ui->intervalComboBox->addItem(tr("1 ms"),        1);
-    ui->intervalComboBox->addItem(tr("2 ms"),        2);
-    ui->intervalComboBox->addItem(tr("5 ms"),        5);
-    ui->intervalComboBox->addItem(tr("10 ms"),      10);
-    ui->intervalComboBox->addItem(tr("20 ms"),      20);
-    ui->intervalComboBox->addItem(tr("50 ms"),      50);
-    ui->intervalComboBox->addItem(tr("100 ms"),    100);
-    ui->intervalComboBox->addItem(tr("200 ms"),    200);
-    ui->intervalComboBox->addItem(tr("500 ms"),    500);
-    ui->intervalComboBox->addItem(tr("1 sec"),    1000);
-    ui->intervalComboBox->addItem(tr("2 sec"),    2000);
-    ui->intervalComboBox->addItem(tr("5 sec"),    5000);
-    ui->intervalComboBox->addItem(tr("10 sec"),  10000);
-    ui->intervalComboBox->addItem(tr("1 min"),   60000);
-    ui->intervalComboBox->addItem(tr("10 min"), 600000);
+    ui->intervalComboBox->addItem(tr("1 ms"),   SCALE / 1000);
+    ui->intervalComboBox->addItem(tr("2 ms"),   SCALE / 500);
+    ui->intervalComboBox->addItem(tr("5 ms"),   SCALE / 200);
+    ui->intervalComboBox->addItem(tr("10 ms"),  SCALE / 100);
+    ui->intervalComboBox->addItem(tr("20 ms"),  SCALE / 50);
+    ui->intervalComboBox->addItem(tr("50 ms"),  SCALE / 20);
+    ui->intervalComboBox->addItem(tr("100 ms"), SCALE / 10);
+    ui->intervalComboBox->addItem(tr("200 ms"), SCALE / 5);
+    ui->intervalComboBox->addItem(tr("500 ms"), SCALE / 2);
+    ui->intervalComboBox->addItem(tr("1 sec"),  SCALE);
+    ui->intervalComboBox->addItem(tr("2 sec"),  SCALE * 2);
+    ui->intervalComboBox->addItem(tr("5 sec"),  SCALE * 5);
+    ui->intervalComboBox->addItem(tr("10 sec"), SCALE * 10);
+    ui->intervalComboBox->addItem(tr("1 min"),  SCALE * 60);
+    ui->intervalComboBox->addItem(tr("10 min"), SCALE * 600);
     ui->intervalComboBox->setCurrentIndex(9);
 
     ui->todCheckBox->setChecked(false);
@@ -1127,7 +1133,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
             }
             hint += tr("%1 (%2s%3).")
                     .arg(msg)
-                    .arg(QString::number(ts, 'g', 4))
+                    .arg(QString::number(ts, 'f', precision_))
                     .arg(val);
         }
         iop->replot(QCustomPlot::rpQueuedReplot);
@@ -1282,6 +1288,11 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
 {
     int interval = ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt();
     bool need_retap = false;
+
+    precision_ = ceil(log10(SCALE_F / interval));
+    if (precision_ < 0) {
+        precision_ = 0;
+    }
 
     if (uat_model_ != NULL) {
         for (int row = 0; row < uat_model_->rowCount(); row++) {
@@ -1664,7 +1675,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
     stream << '\n';
 
     for (int interval = 0; interval <= max_interval; interval++) {
-        double interval_start = (double)interval * ((double)ui_interval / 1000.0);
+        double interval_start = (double)interval * ((double)ui_interval / SCALE_F);
         stream << interval_start;
         foreach (IOGraph *iog, activeGraphs) {
             double value = 0.0;
@@ -1851,7 +1862,7 @@ void IOGraph::setPlotStyle(int style)
             // size to prevent overlap. (Multiply this by a factor to have
             // a gap between bars; the QCustomPlot default is 0.75.)
             if (interval_) {
-                bars_->setWidth(interval_ / 1000.0);
+                bars_->setWidth(interval_ / SCALE_F);
             }
             parent_->removeGraph(graph_);
             graph_ = NULL;
@@ -2013,7 +2024,7 @@ double IOGraph::startOffset()
 
 int IOGraph::packetFromTime(double ts)
 {
-    int idx = ts * 1000 / interval_;
+    int idx = ts * SCALE_F / interval_;
     if (idx >= 0 && idx < (int) cur_idx_) {
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_MAX:
@@ -2082,7 +2093,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
     }
 
     for (int i = 0; i <= cur_idx_; i++) {
-        double ts = (double) i * interval_ / 1000;
+        double ts = (double) i * interval_ / SCALE_F;
         if (x_axis && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(x_axis->ticker())) {
             ts += start_time_;
         }
@@ -2274,7 +2285,7 @@ void IOGraph::setInterval(int interval)
 {
     interval_ = interval;
     if (bars_) {
-        bars_->setWidth(interval_ / 1000.0);
+        bars_->setWidth(interval_ / SCALE_F);
     }
 }
 
