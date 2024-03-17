@@ -1130,7 +1130,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
                     .arg(QString::number(ts, 'g', 4))
                     .arg(val);
         }
-        iop->replot();
+        iop->replot(QCustomPlot::rpQueuedReplot);
     } else {
         if (event && rubber_band_ && rubber_band_->isVisible()) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
