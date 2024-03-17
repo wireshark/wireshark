@@ -35,6 +35,7 @@ static int hf_can_extflag;
 static int hf_can_rtrflag;
 static int hf_can_errflag;
 static int hf_can_reserved;
+static int hf_can_len8dlc;
 static int hf_can_padding;
 
 static int hf_can_err_tx_timeout;
@@ -722,7 +723,8 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             proto_tree_add_bitmask_list(can_tree, tvb, CANFD_FLAG_OFFSET, 1, canfd_flag_fields, ENC_NA);
             proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET+1, 2, ENC_NA);
         } else {
-            proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET, 3, ENC_NA);
+            proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET, 2, ENC_NA);
+            proto_tree_add_item(can_tree, hf_can_len8dlc, tvb, CANFD_FLAG_OFFSET+2, 1, ENC_NA);
         }
 
         if (frame_type == LINUX_CAN_ERR) {
@@ -855,6 +857,8 @@ proto_register_socketcan(void) {
             "Error Message Flag", "can.flags.err", FT_BOOLEAN, 32, NULL, CAN_ERR_FLAG, NULL, HFILL } },
         { &hf_can_len, {
             "Frame-Length", "can.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_can_len8dlc, {
+            "Len 8 DLC", "can.len8dlc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_can_reserved, {
             "Reserved", "can.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_can_padding, {
