@@ -1795,6 +1795,7 @@ static guint dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 
 /***************************************************************************************************/
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint _depth)
 {
 
@@ -1993,6 +1994,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 			while (_offset < _tlv_end)
 			{
 				_old_offset = _offset;
+				// We recurse here, but we'll run out of packet before we run out of stack.
 				_offset = dissect_wlccp_tlvs(_tlv_tree, _tvb, _offset, _depth++);
 				DISSECTOR_ASSERT(_offset > _old_offset);
 			} /* while bytes_left >= 4*/

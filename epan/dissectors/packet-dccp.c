@@ -755,6 +755,7 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
  * This function dissects DCCP options
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *dccp_options_tree, proto_tree *tree _U_,
                 e_dccphdr *dccph _U_,
@@ -890,6 +891,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
 		    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
+                    // We recurse here, but we'll run out of packet before we run out of stack.
                     dissect_options(tvb, pinfo, mp_option_sub_tree, tree, dccph, offset, offset + option_len);
                     break;
                 case 1:
@@ -1943,8 +1945,7 @@ proto_register_dccp(void)
     expert_module_t* expert_dccp;
 
     proto_dccp =
-        proto_register_protocol("Datagram Congestion Control Protocol", "DCCP",
-                                "dccp");
+        proto_register_protocol("Datagram Congestion Control Protocol", "DCCP", "dccp");
     dccp_handle = register_dissector("dccp", dissect_dccp, proto_dccp);
     proto_register_field_array(proto_dccp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
