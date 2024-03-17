@@ -3341,12 +3341,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation>Диалоговые окна открытия файлов</translation>
+        <source>&quot;File&quot; dialog location</source>
+        <oldsource>&quot;File&quot; dialogs</oldsource>
+        <translation type="unfinished">Диалоговые окна открытия файлов</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation>Файлы захвата</translation>
+        <translation type="vanished">Файлы захвата</translation>
     </message>
     <message>
         <source>Temp</source>
@@ -3354,7 +3355,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation>Безымянные файлы захвата</translation>
+        <translation type="vanished">Безымянные файлы захвата</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3366,11 +3367,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>dfilters, preferences, ethers, …</source>
-        <translation>dfilters, preferences, ethers, …</translation>
+        <translation type="vanished">dfilters, preferences, ethers, …</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, …</source>
-        <translation>dfilters, preferences, manuf, …</translation>
+        <translation type="vanished">dfilters, preferences, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3386,7 +3387,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>program files</source>
-        <translation>Файлы программ</translation>
+        <translation type="vanished">Файлы программ</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
@@ -3394,7 +3395,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>Исполняемые файлы подключаемых модулей</translation>
+        <translation type="vanished">Исполняемые файлы подключаемых модулей</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3413,12 +3414,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сценарии Lua</translation>
     </message>
     <message>
-        <source>Personal Extcap path</source>
-        <translation>Пользовательский путь Extcap</translation>
+        <source>Untitled capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
-        <translation>модули внешненго захвата (extcap)</translation>
+        <source>Preferences, profiles, manuf, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation>Пользовательский путь Extcap</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3459,6 +3472,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>Размещаемые файлы</translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

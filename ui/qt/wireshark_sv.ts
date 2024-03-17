@@ -3333,12 +3333,13 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation>”Arkiv”-dialoger</translation>
+        <source>&quot;File&quot; dialog location</source>
+        <oldsource>&quot;File&quot; dialogs</oldsource>
+        <translation type="unfinished">”Arkiv”-dialoger</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation>fångstfiler</translation>
+        <translation type="vanished">fångstfiler</translation>
     </message>
     <message>
         <source>Temp</source>
@@ -3346,7 +3347,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation>namnlösa fångstfiler</translation>
+        <translation type="vanished">namnlösa fångstfiler</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3358,11 +3359,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>dfilters, preferences, ethers, …</source>
-        <translation>dfilter, inställningar, ether:ar, …</translation>
+        <translation type="vanished">dfilter, inställningar, ether:ar, …</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, …</source>
-        <translation>dfilter, inställningar, manuf, …</translation>
+        <translation type="vanished">dfilter, inställningar, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3378,7 +3379,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>program files</source>
-        <translation>programfiler</translation>
+        <translation type="vanished">programfiler</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
@@ -3386,7 +3387,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>binära insticksmoduler</translation>
+        <translation type="vanished">binära insticksmoduler</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3405,12 +3406,24 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Lua-skript</translation>
     </message>
     <message>
-        <source>Personal Extcap path</source>
-        <translation>Personlig extcap-sökväg</translation>
+        <source>Untitled capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
-        <translation>insticksmoduler för extern fångst (extcap)</translation>
+        <source>Preferences, profiles, manuf, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation>Personlig extcap-sökväg</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3451,6 +3464,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Typical Files</source>
         <translation>Typiska filer</translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -3331,12 +3331,13 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation>&quot;Fichier&quot; dialogues</translation>
+        <source>&quot;File&quot; dialog location</source>
+        <oldsource>&quot;File&quot; dialogs</oldsource>
+        <translation type="unfinished">&quot;Fichier&quot; dialogues</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation>capturer des fichiers</translation>
+        <translation type="vanished">capturer des fichiers</translation>
     </message>
     <message>
         <source>Temp</source>
@@ -3344,7 +3345,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation>fichiers de capture sans titre</translation>
+        <translation type="vanished">fichiers de capture sans titre</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3356,11 +3357,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>dfilters, preferences, ethers, …</source>
-        <translation>dfiltres, préférences, éthers, …</translation>
+        <translation type="vanished">dfiltres, préférences, éthers, …</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, …</source>
-        <translation>filtres, préférences, fabrication, …</translation>
+        <translation type="vanished">filtres, préférences, fabrication, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3376,7 +3377,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>program files</source>
-        <translation>fichiers de programme</translation>
+        <translation type="vanished">fichiers de programme</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
@@ -3384,7 +3385,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>plugins binaires</translation>
+        <translation type="vanished">plugins binaires</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3403,12 +3404,24 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Personal Extcap path</source>
-        <translation>Chemin d&apos;accès Extcap personnel</translation>
+        <source>Untitled capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
+        <source>Preferences, profiles, manuf, …</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation>Chemin d&apos;accès Extcap personnel</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3449,6 +3462,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Typical Files</source>
         <translation>Fichiers typiques</translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

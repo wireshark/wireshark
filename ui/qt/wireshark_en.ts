@@ -3328,19 +3328,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>untitled capture files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3349,14 +3337,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Global configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, manuf, …</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3372,15 +3352,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>program files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Personal Plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>binary plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3400,11 +3372,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&quot;File&quot; dialog location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Untitled capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preferences, profiles, manuf, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Personal Extcap path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
+        <source>External capture (extcap) plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -3327,12 +3327,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation>&quot;Dosya&quot; diyalogları</translation>
+        <source>&quot;File&quot; dialog location</source>
+        <oldsource>&quot;File&quot; dialogs</oldsource>
+        <translation type="unfinished">&quot;Dosya&quot; diyalogları</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation>yakalama dosyaları</translation>
+        <translation type="vanished">yakalama dosyaları</translation>
     </message>
     <message>
         <source>Temp</source>
@@ -3340,7 +3341,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation>başlıksız yakalama dosyaları</translation>
+        <translation type="vanished">başlıksız yakalama dosyaları</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3352,11 +3353,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>dfilters, preferences, ethers, …</source>
-        <translation>filtreler, tercihler, eterler, …</translation>
+        <translation type="vanished">filtreler, tercihler, eterler, …</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, …</source>
-        <translation>filtreler, tercihler, üretici, …</translation>
+        <translation type="vanished">filtreler, tercihler, üretici, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3372,7 +3373,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>program files</source>
-        <translation>program dosyaları</translation>
+        <translation type="vanished">program dosyaları</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
@@ -3380,7 +3381,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>ikili eklentiler</translation>
+        <translation type="vanished">ikili eklentiler</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3399,12 +3400,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Lua betikleri</translation>
     </message>
     <message>
-        <source>Personal Extcap path</source>
-        <translation>Kişisel Excap yolu</translation>
+        <source>Untitled capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
-        <translation>harici yakalama (extcap) eklentileri</translation>
+        <source>Preferences, profiles, manuf, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation>Kişisel Excap yolu</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3445,6 +3458,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>Tipik Dosyalar</translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

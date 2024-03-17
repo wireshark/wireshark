@@ -3335,12 +3335,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation>Finestre &quot;File&quot;</translation>
+        <source>&quot;File&quot; dialog location</source>
+        <oldsource>&quot;File&quot; dialogs</oldsource>
+        <translation type="unfinished">Finestre &quot;File&quot;</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation>file di cattura</translation>
+        <translation type="vanished">file di cattura</translation>
     </message>
     <message>
         <source>Temp</source>
@@ -3348,7 +3349,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation>file di cattura senza titolo</translation>
+        <translation type="vanished">file di cattura senza titolo</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3360,11 +3361,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>dfilters, preferences, ethers, …</source>
-        <translation>dfilters, preferences, ethers, </translation>
+        <translation type="vanished">dfilters, preferences, ethers, </translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, …</source>
-        <translation>dfilters, preferences, manuf, </translation>
+        <translation type="vanished">dfilters, preferences, manuf, </translation>
     </message>
     <message>
         <source>System</source>
@@ -3380,7 +3381,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>program files</source>
-        <translation>file di programma</translation>
+        <translation type="vanished">file di programma</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
@@ -3388,7 +3389,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>plugin binari</translation>
+        <translation type="vanished">plugin binari</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3407,12 +3408,24 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Script Lua</translation>
     </message>
     <message>
-        <source>Personal Extcap path</source>
-        <translation>Percorso Extcap personale</translation>
+        <source>Untitled capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
-        <translation>estensioni di cattura esterna (extcap)</translation>
+        <source>Preferences, profiles, manuf, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
+        <translation>Percorso Extcap personale</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3453,6 +3466,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Typical Files</source>
         <translation>File tipici</translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14234,15 +14255,15 @@ a:hover {
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <source>Query-Response</source>
-        <translation type="unfinished"></translation>
+        <translation>Query-Risposta</translation>
     </message>
     <message>
         <source>DNS Query-Response Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche Query-Risposta DNS</translation>
     </message>
     <message>
         <source>Request Sequences</source>

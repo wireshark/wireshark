@@ -10,6 +10,9 @@ Wireshark 4.3.0 Release Notes
 
  What’s New
 
+  Lua 5.3 and 5.4 are supported, and the Lua version included with the
+  Windows and MacOS installers is now 5.4.6.
+
   Improved display filter support for value strings (optional string
   representations for numeric fields).
 
@@ -194,6 +197,18 @@ Wireshark 4.3.0 Release Notes
        additional occurrences of a string, hex value, or regular
        expression in a single frame.
 
+     • The included Lua version has been updated to 5.4. While most Lua
+       dissectors should continue to work (the lua_bitop library has
+       been patched to work with Lua 5.3 and 5.4, in addition to the
+       native Lua support for bit operations present in those versions),
+       different versions of Lua are not guaranteed to be compatible. If
+       a Lua dissector has issues, check the manuals for Lua 5.4[8], Lua
+       5.3[9], and Lua 5.2[10] for incompatibilities and suggested
+       workarounds. Note that features marked as deprecated in one
+       version are removed in the subsequent version without additional
+       notice, so it can be worth checking the manual for previous
+       versions.
+
   Removed Features and Support
 
      • The tshark `-G` option with no argument is deprecated and will be
@@ -242,7 +257,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[8] on the Wireshark web site.
+   be found on the download page[11] on the Wireshark web site.
 
  File Locations
 
@@ -257,24 +272,24 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[9] and on the
+  Community support is available on Wireshark’s Q&A site[12] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[10].
+  for all of Wireshark’s mailing lists can be found on the web site[13].
 
-  Bugs and feature requests can be reported on the issue tracker[11].
+  Bugs and feature requests can be reported on the issue tracker[14].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[12].
+  SharkFest[15].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[13].
+  at wiresharkfoundation.org[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[14].
+  A complete FAQ is available on the Wireshark web site[17].
 
  References
 
@@ -285,10 +300,13 @@ Wireshark 4.3.0 Release Notes
    5. https://gitlab.com/wireshark/wireshark/-/issues/18588
    6. https://gitlab.com/wireshark/wireshark/-/issues/19076
    7. https://gitlab.com/wireshark/wireshark/-/issues/17484
-   8. https://www.wireshark.org/download.html
-   9. https://ask.wireshark.org/
-  10. https://www.wireshark.org/lists/
-  11. https://gitlab.com/wireshark/wireshark/-/issues
-  12. https://sharkfest.wireshark.org
-  13. https://wiresharkfoundation.org
-  14. https://www.wireshark.org/faq.html
+   8. https://www.lua.org/manual/5.4/manual.html#8
+   9. https://www.lua.org/manual/5.3/manual.html#8
+  10. https://www.lua.org/manual/5.2/manual.html#8
+  11. https://www.wireshark.org/download.html
+  12. https://ask.wireshark.org/
+  13. https://www.wireshark.org/lists/
+  14. https://gitlab.com/wireshark/wireshark/-/issues
+  15. https://sharkfest.wireshark.org
+  16. https://wiresharkfoundation.org
+  17. https://www.wireshark.org/faq.html

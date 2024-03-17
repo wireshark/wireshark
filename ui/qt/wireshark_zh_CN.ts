@@ -3321,12 +3321,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialogs</source>
-        <translation>“文件”对话框</translation>
+        <source>&quot;File&quot; dialog location</source>
+        <oldsource>&quot;File&quot; dialogs</oldsource>
+        <translation type="unfinished">“文件”对话框</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation>捕获文件</translation>
+        <translation type="vanished">捕获文件</translation>
     </message>
     <message>
         <source>Temp</source>
@@ -3334,7 +3335,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation>无标题捕获文件</translation>
+        <translation type="vanished">无标题捕获文件</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3343,14 +3344,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Global configuration</source>
         <translation>全局配置</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, manuf, …</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>System</source>
@@ -3366,7 +3359,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>program files</source>
-        <translation>程序文件</translation>
+        <translation type="vanished">程序文件</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
@@ -3374,7 +3367,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>二进制插件</translation>
+        <translation type="vanished">二进制插件</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3393,11 +3386,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Personal Extcap path</source>
+        <source>Untitled capture files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>external capture (extcap) plugins</source>
+        <source>Preferences, profiles, manuf, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Extcap path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3439,6 +3444,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>典型文件</translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
