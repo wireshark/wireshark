@@ -1289,6 +1289,7 @@ dissect_dcom_VARTYPE(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					 proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex)
 {
@@ -1349,6 +1350,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, di, drep, &u32Pointer);
 	}
 
+	increment_dissection_depth(pinfo);
 	switch (u32VarType) {
 		case(WIRESHARK_VT_EMPTY):
 			break;
@@ -1445,6 +1447,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, sub_tree, drep,
 							10000);
 	}
+	decrement_dissection_depth(pinfo);
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, ": %s",
