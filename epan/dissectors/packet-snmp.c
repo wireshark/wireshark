@@ -819,7 +819,7 @@ dissect_snmp_VarBind(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
 		return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 	}
 
-	/* Now, we know where everithing is */
+	/* Now, we know where everything is */
 
 	/* fetch ObjectName and its relative oid_info */
 	oid_bytes = (guint8*)tvb_memdup(actx->pinfo->pool, tvb, name_offset, name_len);

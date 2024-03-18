@@ -246,7 +246,7 @@ static const value_string socket_state_vals[] = {
 	{ 0, NULL }
 };
 
-/* Geneirc */
+/* Generic */
 
 static int
 _tvb_check_if_zeros(tvbuff_t *tvb, int offset, int len)

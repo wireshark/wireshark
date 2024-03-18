@@ -3803,7 +3803,7 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
         case 0:
         case 1:
 
-        /*case 2: ethernet bandwidth profile accordig to RFC 6003*/
+        /*case 2: ethernet bandwidth profile according to RFC 6003*/
         case 2:
             rsvp_ethspec_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+tlv_off, tlv_len, subtree_type, NULL,
@@ -8055,7 +8055,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     rsvph = wmem_new0(pinfo->pool, rsvp_conversation_info);
 
-    /* Copy over the source and destination addresses from the pinfo strucutre */
+    /* Copy over the source and destination addresses from the pinfo structure */
     set_address(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
     set_address(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 

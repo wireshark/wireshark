@@ -80,6 +80,7 @@ class TypoSourceDocumentParser(HTMLParser):
 print('Fetching Wikipedia\'s list of common misspellings.')
 req_headers = { 'User-Agent': 'Wireshark check-wikipedia-typos' }
 req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
+wiki_db = dict()
 try:
     response = urllib.request.urlopen(req)
     content = response.read()
@@ -417,6 +418,9 @@ def isGeneratedFile(filename):
     if filename.endswith('pci-ids.c') or filename.endswith('services-data.c') or filename.endswith('manuf-data.c'):
         return True
 
+    if filename.endswith('packet-woww.c'):
+        return True
+
     # Open file
     f_read = open(os.path.join(filename), 'r', encoding="utf8")
     for line_no,line in enumerate(f_read):
@@ -496,7 +500,7 @@ parser.add_argument('--folder', action='append',
 parser.add_argument('--glob', action='store', default='',
                     help='specify glob to test - should give in "quotes"')
 parser.add_argument('--no-recurse', action='store_true', default='',
-                    help='do not recurse inside chosen folder')
+                    help='do not recurse inside chosen folder(s)')
 parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',

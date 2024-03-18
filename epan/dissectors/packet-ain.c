@@ -745,7 +745,7 @@ static int ain_opcode_type;
 #define AIN_OPCODE_RETURN_ERROR  3
 #define AIN_OPCODE_REJECT        4
 
-/* Forvard declarations */
+/* Forward declarations */
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);

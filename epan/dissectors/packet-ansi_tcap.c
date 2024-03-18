@@ -1366,7 +1366,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
                         }
                 }
                 if (g_ansi_tcap_HandleSRT && p_tcap_context && p_tcap_context->callback) {
-                        /* Callback fonction for the upper layer */
+                        /* Callback function for the upper layer */
                         (p_tcap_context->callback)(tvb, pinfo, stat_tree, p_tcap_context);
                 }
         }

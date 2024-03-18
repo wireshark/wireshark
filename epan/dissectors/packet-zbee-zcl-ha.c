@@ -586,7 +586,7 @@ proto_reg_handoff_zbee_zcl_met_idt(void)
 
 /* Alert structure masks */
 #define ZBEE_ZCL_APPL_EVTALT_ALERT_ID_MASK                0x0000FF  /* Alerts Id : [0..7] */
-#define ZBEE_ZCL_APPL_EVTALT_CATEGORY_MASK                0x000F00  /* Cetegory : [8..11] */
+#define ZBEE_ZCL_APPL_EVTALT_CATEGORY_MASK                0x000F00  /* Category : [8..11] */
 #define ZBEE_ZCL_APPL_EVTALT_STATUS_MASK                  0x003000  /* Presence / Recovery: [12..13] */
 #define ZBEE_ZCL_APPL_EVTALT_RESERVED_MASK                0x00C000  /* Reserved : [14..15] */
 #define ZBEE_ZCL_APPL_EVTALT_PROPRIETARY_MASK             0xFF0000  /* Non-Standardized / Proprietary : [16..23] */

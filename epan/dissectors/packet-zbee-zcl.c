@@ -1757,7 +1757,7 @@ static void dissect_zcl_read_attr_struct(tvbuff_t* tvb, packet_info* pinfo _U_, 
     gboolean client_attr = direction == ZBEE_ZCL_FCF_TO_CLIENT;
     tvb_len = tvb_captured_length(tvb);
     while (*offset < tvb_len && i < ZBEE_ZCL_NUM_SEL_ETT) {
-        /* Create subtree for aelector field */
+        /* Create subtree for selector field */
         sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_sel[i], NULL, "Selector");
         i++;
         /* Dissect the attribute identifier */
@@ -1789,7 +1789,7 @@ static void dissect_zcl_write_attr_struct(tvbuff_t* tvb, packet_info* pinfo _U_,
     gboolean client_attr = direction == ZBEE_ZCL_FCF_TO_CLIENT;
     tvb_len = tvb_captured_length(tvb);
     while(*offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT){
-        /* Create subtree for aelector field */
+        /* Create subtree for selector field */
         sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_attr[i], NULL, "Attribute Record");
         sub_tree_1 = proto_tree_add_subtree(sub_tree, tvb, *offset, 0, ett_zbee_zcl_attr[i], NULL, "Selector");
         i++;

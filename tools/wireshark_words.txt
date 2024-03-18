@@ -83,6 +83,7 @@ append
 apphdr
 appid
 appkey
+applctrl
 applicability
 appset
 arbitrated
@@ -362,6 +363,7 @@ copycss
 copyfile
 corba
 corosync
+correlator
 corrigendum
 couchbase
 coverity
@@ -587,6 +589,7 @@ encodings
 encrypt
 encrypting
 encryptionkey
+encrypts
 endace
 endian
 endianness
@@ -646,6 +649,7 @@ executables
 exflags
 exocet
 expansions
+extapp
 extattr
 extcap
 extensibility
@@ -731,6 +735,7 @@ getnext
 getopt
 getsetinfo
 getter
+getters
 gidaddr
 gigabit
 gigamon
@@ -991,6 +996,7 @@ logout
 logray
 lookups
 loopback
+loran
 lossy
 lscap
 lucent
@@ -1024,6 +1030,7 @@ mbsfn
 mbytes
 mcaal
 mcast
+mcinfo
 mcmemberrecord
 mcptt
 mcsset
@@ -1707,6 +1714,7 @@ signaal
 signaling
 signon
 simulcast
+singulation
 sistemas
 sizeof
 skippable
@@ -1749,6 +1757,7 @@ spoofing
 spooled
 sqlwarn
 srbid
+srcdst
 srcip
 srcport
 srtcp

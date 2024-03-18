@@ -1267,7 +1267,7 @@ static const value_string wassp_tlv_types[] =
 	{ EID_MU_TUNNEL_PRIVATE_GROUP_ID_STRING, "MU Tunnel Private Group ID String"},
 	{ EID_MU_USER_ID_STRING, "MU User ID String"},
 	{ EID_MU_DEFENDED_STATE, "MU Defended State"},
-	{ EID_MU_MOD_MASK, "MU Modulation Maske"},
+	{ EID_MU_MOD_MASK, "MU Modulation Mask"},
 	{ EID_LOCATOR_TRACKED, "Locator Tracked"},
 	{ EID_PORT, "Port"},
 	{ EID_RETRIES_COUNT, "Retries Count"},

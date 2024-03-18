@@ -14379,7 +14379,7 @@ dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, guint *
             *offset += 4;
         }
         else if (app_id == ZBEE_ZCL_GP_APP_ID_ZGP) {
-            /* App_id = 010: MAC address + Endoint */
+            /* App_id = 010: MAC address + Endpoint */
             proto_tree_add_item(tree, hf_zbee_gp_ieee, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
             *offset += 8;
             proto_tree_add_item(tree, hf_zbee_gp_endpoint, tvb, *offset, 1, ENC_NA);

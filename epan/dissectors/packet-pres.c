@@ -46,7 +46,7 @@ void proto_reg_handoff_pres(void);
 /* Initialize the protocol and registered fields */
 static int proto_pres;
 
-/* Initialize the connectionles protocol */
+/* Initialize the connectionless protocol */
 static int proto_clpres;
 
 /*      pointers for acse dissector  */

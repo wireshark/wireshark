@@ -3042,7 +3042,7 @@ static const value_string pn_io_f_crc_seed[] = {
     { 0, NULL }
 };
 
-/* F_Block_ID dissection due to ver2.6 specifikation of PI */
+/* F_Block_ID dissection due to ver2.6 specification of PI */
 static const value_string pn_io_f_block_id[] = {
     { 0x00, "No F_WD_Time_2, no F_iPar_CRC" },
     { 0x01, "No F_WD_Time_2, F_iPar_CRC" },
