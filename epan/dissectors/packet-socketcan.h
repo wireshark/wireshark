@@ -125,14 +125,17 @@ gboolean socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_t
 gboolean socketcan_set_source_and_destination_columns(packet_info* pinfo, can_info_t *caninfo);
 
 /*
- * CAN XL SDU types.
+ * CAN XL SDU types from CAN CiA 611-1
  */
-#define CANXL_SDU_TYPE_CONTENT_BASED_ADDRESSING	                 0x01
-#define CANXL_SDU_TYPE_CLASSICAL_CAN_AND_CAN_FD_MAPPED_TUNNELING 0x03
-#define CANXL_SDU_TYPE_IEEE_802_3_MAC_FRAME_TUNNELLING           0x04
-#define CANXL_SDU_TYPE_IEEE_802_3_MAC_FRAME_MAPPED_TUNNELING     0x05
-#define CANXL_SDU_TYPE_CLASSICAL_CAN_MAPPED_TUNNELING            0x06
-#define CANXL_SDU_TYPE_CAN_FD_MAPPED_TUNNELING                   0x07
+#define CANXL_SDU_TYPE_CONTENT_BASED_ADDRESSING 0x01
+#define CANXL_SDU_TYPE_CAN_CC_CAN_FD            0x03
+#define CANXL_SDU_TYPE_IEEE_802_3               0x04
+#define CANXL_SDU_TYPE_IEEE_802_3_EXTENDED      0x05
+#define CANXL_SDU_TYPE_CAN_CC                   0x06
+#define CANXL_SDU_TYPE_CAN_FD                   0x07
+#define CANXL_SDU_TYPE_CIA_611_2                0x08
+#define CANXL_SDU_TYPE_AUTOSAR_MPDU             0x09
+#define CANXL_SDU_TYPE_CIA_613_2                0x0A
 
 #endif /* __PACKET_SOCKETCAN_H__ */
 
