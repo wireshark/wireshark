@@ -4596,6 +4596,7 @@ static guint8 parseAttribute(struct parseCtx *ctx)
     return 1;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint8 parseAttributes(struct parseCtx *ctx)
 {
     /* AVPs surrounded by '(' ')' but needs at least an avp */

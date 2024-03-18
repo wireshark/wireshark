@@ -595,6 +595,7 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
  * read a struct and add it to tree
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
             packet_info *pinfo, int add_type_field)
 {

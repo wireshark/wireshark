@@ -1083,6 +1083,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 			      guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
