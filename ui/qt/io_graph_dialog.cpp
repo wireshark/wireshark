@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
 #include "io_graph_dialog.h"
 #include <ui_io_graph_dialog.h>
 
@@ -46,6 +47,8 @@
 #include <QSpacerItem>
 #include <QTimer>
 #include <QVariant>
+
+#include <new> // std::bad_alloc
 
 // Bugs and uncertainties:
 // - Regular (non-stacked) bar graphs are drawn on top of each other on the Z axis.
@@ -1715,6 +1718,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     bars_(NULL),
     val_units_(IOG_ITEM_UNIT_FIRST),
     hf_index_(-1),
+    interval_(0),
     cur_idx_(-1)
 {
     Q_ASSERT(parent_ != NULL);
@@ -2040,7 +2044,7 @@ int IOGraph::packetFromTime(double ts)
 void IOGraph::clearAllData()
 {
     cur_idx_ = -1;
-    reset_io_graph_items(items_, max_io_items_);
+    reset_io_graph_items(&items_[0], items_.size());
     if (graph_) {
         graph_->data()->clear();
     }
@@ -2294,7 +2298,7 @@ double IOGraph::getItemValue(int idx, const capture_file *cap_file) const
 {
     ws_assert(idx < max_io_items_);
 
-    return get_io_graph_item(items_, val_units_, idx, hf_index_, cap_file, interval_, cur_idx_);
+    return get_io_graph_item(&items_[0], val_units_, idx, hf_index_, cap_file, interval_, cur_idx_);
 }
 
 // "tap_reset" callback for register_tap_listener
@@ -2320,13 +2324,33 @@ tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dis
 
     /* some sanity checks */
     if ((idx < 0) || (idx >= max_io_items_)) {
-        iog->cur_idx_ = max_io_items_ - 1;
+        iog->cur_idx_ = (int)iog->items_.size() - 1;
         return TAP_PACKET_DONT_REDRAW;
+    }
+
+    if ((size_t)idx >= iog->items_.size()) {
+        const size_t old_size = iog->items_.size();
+        size_t new_size;
+        if (old_size == 0) {
+            new_size = 1024;
+        } else {
+            new_size = MIN(old_size << 1, old_size + 262144);
+        }
+        new_size = MAX(new_size, (size_t)idx + 1);
+        try {
+            iog->items_.resize(new_size);
+        } catch (std::bad_alloc&) {
+            // std::vector.resize() has strong exception safety
+            ws_warning("Failed memory allocation!");
+            return TAP_PACKET_DONT_REDRAW;
+        }
+        // resize zero-initializes new items, which is what we want
+        //reset_io_graph_items(&iog->items_[old_size], new_size - old_size);
     }
 
     /* update num_items */
     if (idx > iog->cur_idx_) {
-        iog->cur_idx_ = (guint32) idx;
+        iog->cur_idx_ = idx;
         recalc = true;
     }
 
@@ -2344,7 +2368,7 @@ tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dis
         adv_edt = edt;
     }
 
-    if (!update_io_graph_item(iog->items_, idx, pinfo, adv_edt, iog->hf_index_, iog->val_units_, iog->interval_)) {
+    if (!update_io_graph_item(&iog->items_[0], idx, pinfo, adv_edt, iog->hf_index_, iog->val_units_, iog->interval_)) {
         return TAP_PACKET_DONT_REDRAW;
     }
 

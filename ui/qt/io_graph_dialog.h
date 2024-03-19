@@ -29,6 +29,8 @@
 #include <QMenu>
 #include <QTextStream>
 
+#include <vector>
+
 class QRubberBand;
 class QTimer;
 
@@ -39,15 +41,18 @@ class QCustomPlot;
 class QCPAxisTicker;
 class QCPAxisTickerDateTime;
 
-// GTK+ set this to 100000 (NUM_IO_ITEMS)
+// GTK+ set this to 100000 (NUM_IO_ITEMS) before raising it to unlimited
+// in commit 524583298beb671f43e972476693866754d38a38.
 // This is the maximum index returned from get_io_graph_index that will
 // be added to the graph. Thus, for a minimum interval size of 1 ms we
-// can span no more than 250 s, and if we decrease the minimum interval
+// can span no more than 4.66 days, and if we decrease the minimum interval
 // size without increasing this it would decrease proportionately (e.g.
-// for 1 μs no more than 0.25 s.)
-//
-// XXX - Perhaps this should be configurable?
-const int max_io_items_ = 250000;
+// for 1 μs no more than 16.8 s.)
+// Each io_graph_item_t is 152 bytes on a LP64 system, so the max size
+// we'll attempt to allocate for the array of items is 2.375 GiB
+// (plus a tiny amount extra for the std::vector bookkeeping.)
+// 2^24 = 16777216
+const int max_io_items_ = 1 << 24;
 
 // XXX - Move to its own file?
 class IOGraph : public QObject {
@@ -128,7 +133,7 @@ private:
 
     // Cached data. We should be able to change the Y axis without retapping as
     // much as is feasible.
-    io_graph_item_t items_[max_io_items_];
+    std::vector<io_graph_item_t> items_;
     int cur_idx_;
 };
 
