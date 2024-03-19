@@ -995,6 +995,9 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	address       save_net_dst;
 	address       save_src;
 	address       save_dst;
+	guint32	      save_ptype;
+	guint32	      save_srcport;
+	guint32	      save_destport;
 
 	/*
 	* This isn't a packet being transported inside
@@ -1024,6 +1027,9 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	copy_address_shallow(&save_net_dst, &pinfo->net_dst);
 	copy_address_shallow(&save_src, &pinfo->src);
 	copy_address_shallow(&save_dst, &pinfo->dst);
+	save_ptype = pinfo->ptype;
+	save_srcport = pinfo->srcport;
+	save_destport = pinfo->destport;
 
 	/* Dissect the contained packet. */
 	TRY {
@@ -1031,7 +1037,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 	CATCH(BoundsError) {
 		/*
-		* Restore the column writability and addresses.
+		* Restore the column writability and addresses and ports.
 		*/
 		col_set_writable(pinfo->cinfo, -1, save_writable);
 		copy_address_shallow(&pinfo->dl_src, &save_dl_src);
@@ -1040,6 +1046,9 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		copy_address_shallow(&pinfo->net_dst, &save_net_dst);
 		copy_address_shallow(&pinfo->src, &save_src);
 		copy_address_shallow(&pinfo->dst, &save_dst);
+		pinfo->ptype = save_ptype;
+		pinfo->srcport = save_srcport;
+		pinfo->destport = save_destport;
 
 		/*
 		* Restore the current protocol, so any
@@ -1082,6 +1091,9 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	copy_address_shallow(&pinfo->net_dst, &save_net_dst);
 	copy_address_shallow(&pinfo->src, &save_src);
 	copy_address_shallow(&pinfo->dst, &save_dst);
+	pinfo->ptype = save_ptype;
+	pinfo->srcport = save_srcport;
+	pinfo->destport = save_destport;
 	pinfo->want_pdu_tracking = 0;
 	return len;
 }
