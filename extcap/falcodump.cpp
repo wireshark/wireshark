@@ -716,8 +716,8 @@ static const std::vector<ws_option> get_longopts(const std::map<std::string, str
         { "version", ws_no_argument, NULL, OPT_VERSION},
         { "plugin-api-version", ws_no_argument, NULL, OPT_PLUGIN_API_VERSION},
 #if defined(HAS_ENGINE_KMOD) || defined(HAS_ENGINE_MODERN_BPF)
-        { "filter-capture-processes", ws_required_argument, NULL, OPT_INCLUDE_CAPTURE_PROCESSES },
-        { "filter-switch-calls", ws_required_argument, NULL, OPT_INCLUDE_SWITCH_CALLS },
+        { "include-capture-processes", ws_required_argument, NULL, OPT_INCLUDE_CAPTURE_PROCESSES },
+        { "include-switch-calls", ws_required_argument, NULL, OPT_INCLUDE_SWITCH_CALLS },
 #endif
         { "plugin-source", ws_required_argument, NULL, OPT_PLUGIN_SOURCE },
         { 0, 0, 0, 0}
@@ -760,7 +760,7 @@ static int show_syscall_config(void)
 {
     printf(
         "arg {number=0}"
-        "{call=--filter-capture-processes}"
+        "{call=--include-capture-processes}"
         "{display=Include capture processes}"
         "{type=boolean}"
         "{tooltip=Include system calls made by any capture processes (falcodump, dumpcap, and Logray)}"
@@ -768,7 +768,7 @@ static int show_syscall_config(void)
         "{group=Capture}\n"
 
         "arg {number=1}"
-        "{call=--filter-switch-calls}"
+        "{call=--include-switch-calls}"
         "{display=Include \"switch\" calls}"
         "{type=boolean}"
         "{tooltip=Include \"switch\" system calls}"
