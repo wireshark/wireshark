@@ -6260,7 +6260,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_tree *bsr_tree;
                         proto_item *bsr_ti, *bsr_median_ti;
                         proto_item *buffer_size_ti;
-                        guint8     buffer_size[4];
+                        guint32     buffer_size[4];
                         int hfindex[4];
                         value_string_ext *p_vs_ext;
                         guint32 *p_buffer_size_median;
@@ -6294,7 +6294,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* LCID Group 0 */
                         buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[0],
                                                                       tvb, offset, 1,
-                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[0]);
+                                                                      ENC_BIG_ENDIAN, &buffer_size[0]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6302,7 +6302,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             proto_item_set_generated(bsr_median_ti);
                         }
 
-                        if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
+                        if ((gint)buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6313,7 +6313,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* LCID Group 1 */
                         buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[1],
                                                                       tvb, offset, 2,
-                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[1]);
+                                                                      ENC_BIG_ENDIAN, &buffer_size[1]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6322,7 +6322,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         offset++;
-                        if (buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
+                        if ((gint)buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 1 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6333,7 +6333,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* LCID Group 2 */
                         buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[2],
                                                                       tvb, offset, 2,
-                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[2]);
+                                                                      ENC_BIG_ENDIAN, &buffer_size[2]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6342,7 +6342,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         offset++;
-                        if (buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
+                        if ((gint)buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 2 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6353,7 +6353,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* LCID Group 3 */
                         buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[3],
                                                                       tvb, offset, 1,
-                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[3]);
+                                                                      ENC_BIG_ENDIAN, &buffer_size[3]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6362,7 +6362,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         offset++;
-                        if (buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
+                        if ((gint)buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 3 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
