@@ -332,7 +332,7 @@ main(int argc, char *argv[])
         }
         g_free(params.idb_inf);
         params.idb_inf = NULL;
-    
+
         if (pdh == NULL) {
             cfile_dump_open_failure_message(outfile, err, err_info,
                                             wtap_file_type_subtype(wth));
@@ -365,10 +365,10 @@ main(int argc, char *argv[])
             ret = OUTPUT_FILE_ERROR;
             goto clean_exit;
         }
-    } else { 
+    } else {
         printf("Not writing output file because input file is already in order.\n");
-	
-	/* Free frame memory */
+
+        /* Free frame memory */
         for (i = 0; i < frames->len; i++) {
             FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
