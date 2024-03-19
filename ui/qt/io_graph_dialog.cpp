@@ -1272,8 +1272,8 @@ void IOGraphDialog::loadProfileGraphs()
         }
     }
 
-    uat_model_ = new UatModel(NULL, iog_uat_);
-    uat_delegate_ = new UatDelegate;
+    uat_model_ = new UatModel(ui->graphUat, iog_uat_);
+    uat_delegate_ = new UatDelegate(ui->graphUat);
     ui->graphUat->setModel(uat_model_);
     ui->graphUat->setItemDelegate(uat_delegate_);
 

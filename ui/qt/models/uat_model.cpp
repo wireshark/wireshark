@@ -12,6 +12,7 @@
 
 #include "uat_model.h"
 #include <epan/to_str.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <QBrush>
 #include <QDebug>
 
@@ -128,13 +129,10 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
             }
         case PT_TXTMOD_BOOL:
         case PT_TXTMOD_COLOR:
+            g_free(str);
             return QVariant();
         default:
-            {
-            QString qstr(str);
-            g_free(str);
-            return qstr;
-            }
+            return gchar_free_to_qstring(str);
         }
     }
 
@@ -171,7 +169,7 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         guint length = 0;
         field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
 
-        return QColor(QString(str));
+        return QColor(gchar_free_to_qstring(str));
     }
 
     // expose error message if any.
