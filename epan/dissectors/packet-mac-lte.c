@@ -3151,7 +3151,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item  *ul_grant_ti;
     guint32      timing_advance;
     guint32      ul_grant;
-    guint16      temp_crnti;
+    guint32      temp_crnti;
     const gchar *rapid_description;
     guint32      bits_offset;
 
@@ -3356,7 +3356,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Temporary C-RNTI */
     proto_tree_add_item_ret_uint(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2,
-                                 ENC_BIG_ENDIAN, (guint32*)&temp_crnti);
+                                 ENC_BIG_ENDIAN, &temp_crnti);
     offset += 2;
 
     rapid_description = get_mac_lte_rapid_description(rapid);
@@ -3379,6 +3379,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 {
     guint       number_of_rars         = 0; /* No of RAR bodies expected following headers */
     guint8     *rapids                 = (guint8 *)wmem_alloc(pinfo->pool, MAX_RAR_PDUS * sizeof(guint8));
+    guint32     temp_rapid;
     gboolean    backoff_indicator_seen = FALSE;
     guint32     backoff_indicator      = 0;
     guint8      extension;
@@ -3469,7 +3470,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             const gchar *rapid_description;
 
             proto_tree_add_item_ret_uint(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1,
-                                         ENC_BIG_ENDIAN, (guint32*)&rapids[number_of_rars]);
+                                         ENC_BIG_ENDIAN, &temp_rapid);
+            rapids[number_of_rars] = (guint8)temp_rapid;
 
             rapid_description = get_mac_lte_rapid_description(rapids[number_of_rars]);
 
