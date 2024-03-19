@@ -55,6 +55,7 @@ static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t bthci_evt_handle;
 static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t bthci_sco_handle;
+static dissector_handle_t bthci_iso_handle;
 
 #define OPCODE_NEW_INDEX         0
 #define OPCODE_DELETE_INDEX      1
@@ -74,6 +75,8 @@ static dissector_handle_t bthci_sco_handle;
 #define OPCODE_CONTROL_CLOSE     15
 #define OPCODE_CONTROL_COMMAND   16
 #define OPCODE_CONTROL_EVENT     17
+#define OPCODE_ISO_TX_PACKET     18
+#define OPCODE_ISO_RX_PACKET     19
 
 static const value_string opcode_vals[] = {
     { OPCODE_NEW_INDEX,         "New Index" },
@@ -94,6 +97,8 @@ static const value_string opcode_vals[] = {
     { OPCODE_CONTROL_CLOSE,     "Control Close" },
     { OPCODE_CONTROL_COMMAND,   "Control Command" },
     { OPCODE_CONTROL_EVENT,     "Control Event" },
+    { OPCODE_ISO_TX_PACKET,     "ISO Tx Packet" },
+    { OPCODE_ISO_RX_PACKET,     "ISO Rx Packet" },
     { 0, NULL }
 };
 value_string_ext(hci_mon_opcode_vals_ext) = VALUE_STRING_EXT_INIT(opcode_vals);
@@ -493,6 +498,13 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* XXX - dissect the payload of the event */
 
         break;
+
+    case OPCODE_ISO_TX_PACKET:
+    case OPCODE_ISO_RX_PACKET:
+        call_dissector_with_data(bthci_iso_handle, next_tvb, pinfo, tree, bluetooth_data);
+        offset = tvb_reported_length(tvb);
+
+        break;
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -654,6 +666,7 @@ proto_reg_handoff_hci_mon(void)
     bthci_evt_handle = find_dissector_add_dependency("bthci_evt", proto_hci_mon);
     bthci_acl_handle = find_dissector_add_dependency("bthci_acl", proto_hci_mon);
     bthci_sco_handle = find_dissector_add_dependency("bthci_sco", proto_hci_mon);
+    bthci_iso_handle = find_dissector_add_dependency("bthci_iso_data", proto_hci_mon);
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR, hci_mon_handle);
 }
