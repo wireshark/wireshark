@@ -4557,9 +4557,11 @@ tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
  * means "start with the low half byte and proceed to the high half
  * byte), formating the digits into characters according to the
  * input digit set, and return a pointer to a UTF-8 string, allocated
- * using the wmem scope.  A high-order nibble of 0xf is considered a
- * 'filler' and will end the conversion. Similarrily if odd is set the last
- * high nibble will be omitted.
+ * using the wmem scope.  A nibble of 0xf is considered a 'filler'
+ * and will end the conversion. Similarly if odd is set the last
+ * high nibble will be omitted. (Note that if both skip_first and
+ * odd are true, then both the first and last semi-octet are skipped,
+ * i.e. an even number of nibbles are considered.)
  */
 gchar *
 tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint len, const dgt_set_t *dgt, gboolean skip_first, gboolean odd, gboolean bigendian)
@@ -4567,7 +4569,7 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 	const guint8 *ptr;
 	int           i = 0;
 	char         *digit_str;
-	guint8        octet;
+	guint8        octet, nibble;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -4598,10 +4600,17 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 		octet = *ptr;
 		if (!skip_first) {
 			if (bigendian) {
-				digit_str[i] = dgt->out[(octet >> 4) & 0x0f];
+				nibble = (octet >> 4) & 0x0f;
 			} else {
-				digit_str[i] = dgt->out[octet & 0x0f];
+				nibble = octet & 0x0f;
 			}
+			if (nibble == 0x0f) {
+				/*
+				 * Stop digit.
+				 */
+				break;
+			}
+			digit_str[i] = dgt->out[nibble];
 			i++;
 		}
 		skip_first = FALSE;
@@ -4609,11 +4618,13 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 		/*
 		 * unpack second value in byte
 		 */
-		if (!bigendian) {
-			octet = octet >> 4;
+		if (bigendian) {
+			nibble = octet & 0x0f;
+		} else {
+			nibble = octet >> 4;
 		}
 
-		if (octet == 0x0f) {
+		if (nibble == 0x0f) {
 			/*
 			 * This is the stop digit or a filler digit.  Ignore
 			 * it.
@@ -4621,10 +4632,10 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 			break;
 		}
 		if ((len == 1) && (odd == TRUE )){
-			/* Last octet, skip last high nibble incase of odd number of digits */
+			/* Last octet, skip last high nibble in case of odd number of digits */
 			break;
 		}
-		digit_str[i] = dgt->out[octet & 0x0f];
+		digit_str[i] = dgt->out[nibble];
 		i++;
 
 		ptr++;
