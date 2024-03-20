@@ -588,11 +588,22 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
         tftp_info->is_simple_file            /* This is a simple file */
         && filename != NULL                  /* There is a file name */
         && !tftp_info->blocks_missing        /* No missing blocks */
-        && tftp_info->last_package_available /* Last package known */
+        && (tftp_info->last_package_available || !PINFO_FD_VISITED(pinfo))
+          /* If this is the first pass (i.e., this is tshark one-pass
+           * mode and we're tapping), then we can't know if the last
+           * block is present in the file yet. */
     ) {
 
-      if (blocknum == 1 && !tftp_info->payload_data) {
+      if (PINFO_FD_VISITED(pinfo)) {
+        if (blocknum == 1 && !tftp_info->payload_data) {
           tftp_info->payload_data = (guint8 *)g_try_malloc((gsize)tftp_info->file_length);
+        }
+      } else {
+        /* We allocate this in file scope so that it doesn't leak if it
+         * turns out we don't have all the blocks so we never send this
+         * to the tap.
+         */
+        tftp_info->payload_data = (guint8 *)wmem_realloc(wmem_file_scope(), tftp_info->payload_data, (gsize)tftp_info->file_length);
       }
 
       if (tftp_info->payload_data == NULL ||
