@@ -29,14 +29,14 @@ extern "C" {
 /** geometry values for use in window_get_geometry() and window_set_geometry() */
 typedef struct window_geometry_s {
     gchar       *key;           /**< current key in hashtable (internally used only) */
-    gboolean    set_pos;        /**< set the x and y position values */
+    bool        set_pos;        /**< set the x and y position values */
     gint        x;              /**< the windows x position */
     gint        y;              /**< the windows y position */
-    gboolean    set_size;       /**< set the width and height values */
+    bool        set_size;       /**< set the width and height values */
     gint        width;          /**< the windows width */
     gint        height;         /**< the windows height */
-    gboolean    set_maximized;  /**< set the maximized state */
-    gboolean    maximized;      /**< the windows maximized state */
+    bool        set_maximized;  /**< set the maximized state */
+    bool        maximized;      /**< the windows maximized state */
     char*       qt_geom;        /**< hex bytestring from Qt's saveGeometry() */
 } window_geometry_t;
 

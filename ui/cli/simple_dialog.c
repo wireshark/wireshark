@@ -39,7 +39,7 @@ simple_dialog(
 }
 
 void
-simple_message_box(ESD_TYPE_E type _U_, gboolean *notagain _U_,
+simple_message_box(ESD_TYPE_E type _U_, bool *notagain _U_,
                    const char *secondary_msg, const char *msg_format, ...)
 {
   va_list ap;

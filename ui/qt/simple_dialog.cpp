@@ -121,7 +121,7 @@ simple_dialog_async(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...
  * and checkbox, and optional secondary text.
  */
 void
-simple_message_box(ESD_TYPE_E type, gboolean *notagain,
+simple_message_box(ESD_TYPE_E type, bool *notagain,
                    const char *secondary_msg, const char *msg_format, ...)
 {
     if (notagain && *notagain) {

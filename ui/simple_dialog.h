@@ -13,6 +13,8 @@
 #ifndef __SIMPLE_DIALOG_UI_H__
 #define __SIMPLE_DIALOG_UI_H__
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -122,7 +124,7 @@ extern char *simple_dialog_format_message(const char *msg);
  * Alert box, with optional "don't show this message again" variable
  * and checkbox, and optional secondary text.
  */
-extern void simple_message_box(ESD_TYPE_E type, gboolean *notagain,
+extern void simple_message_box(ESD_TYPE_E type, bool *notagain,
                                const char *secondary_msg,
                                const char *msg_format, ...) G_GNUC_PRINTF(4, 5);
 
