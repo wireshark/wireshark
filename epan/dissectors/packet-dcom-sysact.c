@@ -143,7 +143,8 @@ static e_guid_t iid_ActivationPropertiesOut = { 0x000001a3, 0x0000, 0x0000, { 0x
 static e_guid_t clsid_SpecialSystemProperties = { 0x000001b9, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_InstantiationInfo = { 0x000001ab, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_ActivationContextInfo = { 0x000001a5, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-static e_guid_t clsid_ContextMarshaler = { 0x0000033b, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+//static e_guid_t clsid_ContextMarshaler = { 0x0000033b, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static e_guid_t iid_IContext = { 0x000001c0, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_SecurityInfo = { 0x000001a6, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_ServerLocationInfo = { 0x000001a4, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static e_guid_t clsid_ScmRequestInfo = { 0x000001aa, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
@@ -444,7 +445,7 @@ dissect_dcom_IStorage(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_dcom_ContextMarshaler(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_dcom_IContext(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, dcerpc_info *di, guint8 *drep, gint size _U_)
 {
     proto_item  *sub_item;
@@ -1211,7 +1212,7 @@ sysact_register_routines(void)
     dcom_register_routine(dissect_dcom_SpecialSystemProperties, &clsid_SpecialSystemProperties);
     dcom_register_routine(dissect_dcom_InstantiationInfo, &clsid_InstantiationInfo);
     dcom_register_routine(dissect_dcom_ActivationContextInfo, &clsid_ActivationContextInfo);
-    dcom_register_routine(dissect_dcom_ContextMarshaler, &clsid_ContextMarshaler);
+    dcom_register_routine(dissect_dcom_IContext, &iid_IContext);
     dcom_register_routine(dissect_dcom_SecurtiyInfo, &clsid_SecurityInfo);
     dcom_register_routine(dissect_dcom_LocationInfo, &clsid_ServerLocationInfo);
     dcom_register_routine(dissect_dcom_ScmRqstInfo, &clsid_ScmRequestInfo);
