@@ -174,24 +174,24 @@ static const char iseries_hdr_magic_le_ucs_2[] = {
 };
 
 typedef struct {
-  gboolean have_date;           /* TRUE if we found a capture start date */
+  bool have_date;           /* true if we found a capture start date */
   int      year, month, day;    /* The start date */
   int      format;              /* Trace format type        */
 } iseries_t;
 
-static gboolean iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf,
-                              int *err, gchar ** err_info, gint64 *data_offset);
-static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
+static bool iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf,
+                              int *err, char ** err_info, int64_t *data_offset);
+static bool iseries_seek_read (wtap * wth, int64_t seek_off,
                                    wtap_rec *rec,
-                                   Buffer * buf, int *err, gchar ** err_info);
-static gboolean iseries_check_file_type (wtap * wth, int *err, gchar **err_info,
+                                   Buffer * buf, int *err, char ** err_info);
+static bool iseries_check_file_type (wtap * wth, int *err, char **err_info,
                                          int format);
-static gint64 iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info);
-static gboolean iseries_parse_packet (wtap * wth, FILE_T fh,
+static int64_t iseries_seek_next_packet (wtap * wth, int *err, char **err_info);
+static bool iseries_parse_packet (wtap * wth, FILE_T fh,
                                       wtap_rec *rec,
-                                      Buffer * buf, int *err, gchar ** err_info);
-static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
-static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
+                                      Buffer * buf, int *err, char ** err_info);
+static int iseries_UNICODE_to_ASCII (uint8_t * buf, unsigned bytes);
+static bool iseries_parse_hex_string (const char * ascii, uint8_t * buf,
                                           size_t len);
 
 static int iseries_file_type_subtype = -1;
@@ -204,9 +204,9 @@ void register_iseries(void);
  * rather than file_gets(), if we're reading a UCS-2 file.
  */
 wtap_open_return_val
-iseries_open (wtap * wth, int *err, gchar ** err_info)
+iseries_open (wtap * wth, int *err, char ** err_info)
 {
-  gint offset;
+  int offset;
   char magic[ISERIES_LINE_LENGTH];
 
   /*
@@ -327,18 +327,18 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
  * contents of this trace by checking the header page for
  * requisite requirements and additional information.
  */
-static gboolean
-iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
+static bool
+iseries_check_file_type (wtap * wth, int *err, char **err_info, int format)
 {
-  gboolean   is_iseries = FALSE;
-  guint      line;
+  bool       is_iseries = false;
+  unsigned   line;
   int        num_items_scanned;
   char       buf[ISERIES_LINE_LENGTH], protocol[9];
   iseries_t *iseries;
 
   /* Save trace format for passing between packets */
   iseries                = g_new(iseries_t, 1);
-  iseries->have_date     = FALSE;
+  iseries->have_date     = false;
   iseries->format        = format;
 
   for (line = 0; line < ISERIES_HDR_LINES_TO_CHECK; line++)
@@ -358,7 +358,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
        */
       if (iseries->format == ISERIES_FORMAT_UNICODE)
         {
-          iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
+          iseries_UNICODE_to_ASCII ((uint8_t *)buf, ISERIES_LINE_LENGTH);
         }
       ascii_strup_inplace (buf);
       num_items_scanned = sscanf (buf,
@@ -369,7 +369,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
           if (memcmp (protocol, "ETHERNET", 8) == 0)
             {
               *err = 0;
-              is_iseries = TRUE;
+              is_iseries = true;
             }
         }
 
@@ -383,7 +383,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
                                   &iseries->year);
       if (num_items_scanned == 3)
         {
-          iseries->have_date = TRUE;
+          iseries->have_date = true;
         }
     }
 
@@ -398,18 +398,18 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 /*
  * Find the next packet and parse it; called from wtap_read().
  */
-static gboolean
+static bool
 iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar ** err_info, gint64 *data_offset)
+    char ** err_info, int64_t *data_offset)
 {
-  gint64 offset;
+  int64_t offset;
 
   /*
    * Locate the next packet
    */
   offset = iseries_seek_next_packet (wth, err, err_info);
   if (offset < 0)
-    return FALSE;
+    return false;
   *data_offset     = offset;
 
   /*
@@ -424,13 +424,13 @@ iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf, int *err,
  * *err to 0, and, on failure, sets *err to the error and *err_info
  * to null or an additional error string.
  */
-static gint64
-iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
+static int64_t
+iseries_seek_next_packet (wtap * wth, int *err, char **err_info)
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
   char       buf[ISERIES_LINE_LENGTH],type[5];
   int        line, num_items_scanned;
-  gint64     cur_off;
+  int64_t    cur_off;
   long       buflen;
 
   for (line = 0; line < ISERIES_MAX_TRACE_LEN; line++)
@@ -446,7 +446,7 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
       if (iseries->format == ISERIES_FORMAT_UNICODE)
         {
           /* buflen is #bytes to 1st 0x0A */
-          buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
+          buflen = iseries_UNICODE_to_ASCII ((uint8_t *) buf, ISERIES_LINE_LENGTH);
         }
       else
         {
@@ -490,14 +490,14 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
 /*
  * Read packets in random-access fashion
  */
-static gboolean
-iseries_seek_read (wtap * wth, gint64 seek_off, wtap_rec *rec,
-                   Buffer * buf, int *err, gchar ** err_info)
+static bool
+iseries_seek_read (wtap * wth, int64_t seek_off, wtap_rec *rec,
+                   Buffer * buf, int *err, char ** err_info)
 {
 
   /* seek to packet location */
   if (file_seek (wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
-    return FALSE;
+    return false;
 
   /*
    * Parse the packet and extract the various fields
@@ -508,12 +508,12 @@ iseries_seek_read (wtap * wth, gint64 seek_off, wtap_rec *rec,
 
 static int
 append_hex_digits(char *ascii_buf, int ascii_offset, int max_offset,
-                  char *data, int *err, gchar **err_info)
+                  char *data, int *err, char **err_info)
 {
   int in_offset, out_offset;
   int c;
   unsigned int i;
-  gboolean overflow = FALSE;
+  bool overflow = false;
 
   in_offset = 0;
   out_offset = ascii_offset;
@@ -554,7 +554,7 @@ append_hex_digits(char *ascii_buf, int ascii_offset, int max_offset,
               return ascii_offset; /* pretend we appended nothing */
             }
           if (out_offset >= max_offset)
-            overflow = TRUE;
+            overflow = true;
           else
             {
               ascii_buf[out_offset] = c;
@@ -587,8 +587,8 @@ done:
 }
 
 /* return the multiplier for nanoseconds */
-static guint32
-csec_multiplier(guint32 csec)
+static uint32_t
+csec_multiplier(uint32_t csec)
 {
   if (csec < 10) return 100000000;
   if (csec < 100) return 10000000;
@@ -602,17 +602,17 @@ csec_multiplier(guint32 csec)
 }
 
 /* Parses a packet. */
-static gboolean
+static bool
 iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
-                      Buffer *buf, int *err, gchar **err_info)
+                      Buffer *buf, int *err, char **err_info)
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
-  gint64     cur_off;
-  gboolean   isValid, isCurrentPacket;
+  int64_t    cur_off;
+  bool       isValid, isCurrentPacket;
   int        num_items_scanned, line, pktline, buflen;
   int        pkt_len, pktnum, hr, min, sec;
   char       direction[2], destmac[13], srcmac[13], type[5];
-  guint32    csec;
+  uint32_t   csec;
   char       data[ISERIES_LINE_LENGTH * 2];
   int        offset;
   char      *ascii_buf;
@@ -624,18 +624,18 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
    * situations and the header lines output at each page throw and ensure we
    * read both the captured and packet lengths.
    */
-  isValid = FALSE;
+  isValid = false;
   for (line = 1; line < ISERIES_PKT_LINES_TO_CHECK; line++)
     {
       if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
         {
           *err = file_error (fh, err_info);
-          return FALSE;
+          return false;
         }
       /* Convert UNICODE data to ASCII */
       if (iseries->format == ISERIES_FORMAT_UNICODE)
         {
-         iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
+         iseries_UNICODE_to_ASCII ((uint8_t *)data, ISERIES_LINE_LENGTH);
         }
       ascii_strup_inplace (data);
       num_items_scanned =
@@ -650,49 +650,49 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a negative packet number");
-              return FALSE;
+              return false;
             }
 
           if (pkt_len < 0)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a negative packet length");
-              return FALSE;
+              return false;
             }
 
           if (hr < 0)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a negative hour in the time stamp");
-              return FALSE;
+              return false;
             }
 
           if (hr > 23)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a hour in the time stamp greater than 23");
-              return FALSE;
+              return false;
             }
 
           if (min < 0)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a negative minute in the time stamp");
-              return FALSE;
+              return false;
             }
 
           if (min > 59)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a minute in the time stamp greater than 59");
-              return FALSE;
+              return false;
             }
 
           if (sec < 0)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a negative second in the time stamp");
-              return FALSE;
+              return false;
             }
 
           /*
@@ -703,32 +703,32 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a second in the time stamp greater than 60");
-              return FALSE;
+              return false;
             }
 
           if (strlen(destmac) != 12)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a destination MAC address shorter than 6 bytes");
-              return FALSE;
+              return false;
             }
 
           if (strlen(srcmac) != 12)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has a source MAC address shorter than 6 bytes");
-              return FALSE;
+              return false;
             }
 
           if (strlen(type) != 4)
             {
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup ("iseries: packet header has an Ethernet type/length field than 2 bytes");
-              return FALSE;
+              return false;
             }
 
           /* OK! We found the packet header line */
-          isValid = TRUE;
+          isValid = true;
           /*
            * XXX - The Capture length returned by the iSeries trace doesn't
            * seem to include the Ethernet header, so we add its length here.
@@ -736,7 +736,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
            * Check the length first, just in case it's *so* big that, after
            * adding the Ethernet header length, it overflows.
            */
-          if ((guint)pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD - 14)
+          if ((unsigned)pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD - 14)
             {
               /*
                * Probably a corrupt capture file; don't blow up trying
@@ -747,9 +747,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
                */
               *err = WTAP_ERR_BAD_FILE;
               *err_info = ws_strdup_printf("iseries: File has %" PRIu64 "-byte packet, bigger than maximum of %u",
-                                          (guint64)pkt_len + 14,
+                                          (uint64_t)pkt_len + 14,
                                           WTAP_MAX_PACKET_SIZE_STANDARD);
-              return FALSE;
+              return false;
             }
           pkt_len += 14;
           break;
@@ -763,7 +763,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
     {
       *err = WTAP_ERR_BAD_FILE;
       *err_info = g_strdup ("iseries: packet header isn't valid");
-      return FALSE;
+      return false;
     }
 
   rec->rec_type = REC_TYPE_PACKET;
@@ -824,7 +824,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
   /*
    * Start reading packet contents
    */
-  isCurrentPacket = TRUE;
+  isCurrentPacket = true;
 
   /* loop through packet lines and breakout when the next packet header is read */
   pktline = 0;
@@ -846,7 +846,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
       /* Convert UNICODE data to ASCII and determine line length */
       if (iseries->format == ISERIES_FORMAT_UNICODE)
         {
-         buflen = iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
+         buflen = iseries_UNICODE_to_ASCII ((uint8_t *)data, ISERIES_LINE_LENGTH);
         }
       else
         {
@@ -887,7 +887,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
               if (ascii_offset == -1)
                 {
                   /* Bad line. */
-                  return FALSE;
+                  return false;
                 }
               continue;
             }
@@ -909,7 +909,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
               if (ascii_offset == -1)
                 {
                   /* Bad line. */
-                  return FALSE;
+                  return false;
                 }
               continue;
             }
@@ -932,14 +932,14 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
           if (ascii_offset == -1)
             {
               /* Bad line. */
-              return FALSE;
+              return false;
             }
           continue;
         }
 
       /*
        * If we see the identifier for the next packet then rewind and set
-       * isCurrentPacket FALSE
+       * isCurrentPacket false
        */
       ascii_strup_inplace (data);
       /* If packet header found return the offset */
@@ -948,7 +948,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
           "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
       if ((num_items_scanned == 1) && pktline > 1)
         {
-          isCurrentPacket = FALSE;
+          isCurrentPacket = false;
           cur_off = file_tell( fh);
           if (cur_off == -1)
             {
@@ -971,7 +971,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
    * XXX - this can happen for IPv6 packets if the next header isn't the
    * last header.
    */
-  rec->rec_header.packet_header.caplen = ((guint32) ascii_offset)/2;
+  rec->rec_header.packet_header.caplen = ((uint32_t) ascii_offset)/2;
 
   /* Make sure we have enough room for the packet. */
   ws_buffer_assure_space (buf, rec->rec_header.packet_header.caplen);
@@ -981,11 +981,11 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
   /* free buffer allocs and return */
   *err = 0;
   g_free (ascii_buf);
-  return TRUE;
+  return true;
 
 errxit:
   g_free (ascii_buf);
-  return FALSE;
+  return false;
 }
 
 /*
@@ -994,10 +994,10 @@ errxit:
  * XXX - This may be possible with iconv or similar
  */
 static int
-iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
+iseries_UNICODE_to_ASCII (uint8_t * buf, unsigned bytes)
 {
-  guint   i;
-  guint8 *bufptr;
+  unsigned   i;
+  uint8_t *bufptr;
 
   bufptr = buf;
 
@@ -1025,13 +1025,13 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
  * Simple routine to convert an ASCII hex string to binary data
  * Requires ASCII hex data and buffer to populate with binary data
  */
-static gboolean
-iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
+static bool
+iseries_parse_hex_string (const char * ascii, uint8_t * buf, size_t len)
 {
   size_t i;
   int byte;
-  gint   hexvalue;
-  guint8 bytevalue;
+  int    hexvalue;
+  uint8_t bytevalue;
 
   byte = 0;
   for (i = 0; i < len; i++)
@@ -1039,18 +1039,18 @@ iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
       hexvalue = g_ascii_xdigit_value(ascii[i]);
       i++;
       if (hexvalue == -1)
-        return FALSE;        /* not a valid hex digit */
-      bytevalue = (guint8)(hexvalue << 4);
+        return false;        /* not a valid hex digit */
+      bytevalue = (uint8_t)(hexvalue << 4);
       if (i >= len)
-        return FALSE;        /* only one hex digit of the byte is present */
+        return false;        /* only one hex digit of the byte is present */
       hexvalue = g_ascii_xdigit_value(ascii[i]);
       if (hexvalue == -1)
-        return FALSE;        /* not a valid hex digit */
-      bytevalue |= (guint8) hexvalue;
+        return false;        /* not a valid hex digit */
+      bytevalue |= (uint8_t) hexvalue;
       buf[byte] = bytevalue;
       byte++;
     }
-  return TRUE;
+  return true;
 }
 
 static const struct supported_block_type iseries_blocks_supported[] = {
@@ -1062,7 +1062,7 @@ static const struct supported_block_type iseries_blocks_supported[] = {
 
 static const struct file_type_subtype_info iseries_info = {
   "IBM iSeries comm. trace (ASCII)", "iseries_ascii", "txt", NULL,
-  FALSE, BLOCKS_SUPPORTED(iseries_blocks_supported),
+  false, BLOCKS_SUPPORTED(iseries_blocks_supported),
   NULL, NULL, NULL
 };
 
@@ -1075,7 +1075,7 @@ static const struct supported_block_type iseries_unicode_blocks_supported[] = {
 
 static const struct file_type_subtype_info iseries_unicode_info = {
   "IBM iSeries comm. trace (Unicode)", "iseries_unicode", "txt", NULL,
-  FALSE, BLOCKS_SUPPORTED(iseries_unicode_blocks_supported),
+  false, BLOCKS_SUPPORTED(iseries_unicode_blocks_supported),
   NULL, NULL, NULL
 };
 

@@ -12,7 +12,7 @@
 
 #include "wtap.h"
 
-wtap_open_return_val dpa400_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val dpa400_open(wtap *wth, int *err, char **err_info);
 
 #endif
 

@@ -49,43 +49,43 @@ typedef enum {
 } pcap_variant_t;
 
 typedef struct {
-	gboolean byte_swapped;
+	bool byte_swapped;
 	swapped_type_t lengths_swapped;
-	guint16	version_major;
-	guint16	version_minor;
+	uint16_t version_major;
+	uint16_t version_minor;
 	pcap_variant_t variant;
 	int fcs_len;
 	void *encap_priv;
 } libpcap_t;
 
 /* Try to read the first few records of the capture file. */
-static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
-    size_t n_variants, int *err, gchar **err_info);
-static int libpcap_try(wtap *wth, int *err, gchar **err_info);
-static int libpcap_try_record(wtap *wth, int *err, gchar **err_info);
+static bool libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
+    size_t n_variants, int *err, char **err_info);
+static int libpcap_try(wtap *wth, int *err, char **err_info);
+static int libpcap_try_record(wtap *wth, int *err, char **err_info);
 
-static gboolean libpcap_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean libpcap_read_packet(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
+static bool libpcap_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool libpcap_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool libpcap_read_packet(wtap *wth, FILE_T fh,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void libpcap_close(wtap *wth);
 
-static gboolean libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info);
-static gboolean libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info);
-static gboolean libpcap_dump_pcap_ss990417(wtap_dumper *wdh,
-    const wtap_rec *rec, const guint8 *pd, int *err, gchar **err_info);
-static gboolean libpcap_dump_pcap_ss990915(wtap_dumper *wdh,
-    const wtap_rec *rec, const guint8 *pd, int *err, gchar **err_info);
-static gboolean libpcap_dump_pcap_ss991029(wtap_dumper *wdh,
-    const wtap_rec *rec, const guint8 *pd, int *err, gchar **err_info);
-static gboolean libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info);
+static bool libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info);
+static bool libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info);
+static bool libpcap_dump_pcap_ss990417(wtap_dumper *wdh,
+    const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
+static bool libpcap_dump_pcap_ss990915(wtap_dumper *wdh,
+    const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
+static bool libpcap_dump_pcap_ss991029(wtap_dumper *wdh,
+    const wtap_rec *rec, const uint8_t *pd, int *err, char **err_info);
+static bool libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info);
 
 /*
  * Subfields of the field containing the link-layer header type.
@@ -173,11 +173,11 @@ static const pcap_variant_t variants_modified[] = {
 };
 #define N_VARIANTS_MODIFIED	G_N_ELEMENTS(variants_modified)
 
-wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val libpcap_open(wtap *wth, int *err, char **err_info)
 {
-	guint32 magic;
+	uint32_t magic;
 	struct pcap_hdr hdr;
-	gboolean byte_swapped;
+	bool byte_swapped;
 	pcap_variant_t variant;
 	libpcap_t *libpcap;
 	int skip_size = 0;
@@ -197,7 +197,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   a program using either standard or ss990417 libpcap,
 		   or maybe it was written by AIX.  That means we don't
 		   yet know the variant. */
-		byte_swapped = FALSE;
+		byte_swapped = false;
 		variant = PCAP_UNKNOWN;
 		break;
 
@@ -206,7 +206,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   and was running a program using either standard or
 		   ss990417 libpcap, or maybe it was written by AIX.
 		   That means we don't yet know the variant. */
-		byte_swapped = TRUE;
+		byte_swapped = true;
 		variant = PCAP_UNKNOWN;
 		break;
 
@@ -215,7 +215,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		/* Weird Ixia variant that has extra crud, written in our
 		   byte order.  It's otherwise like standard pcap. */
 		skip_size = 1;
-		byte_swapped = FALSE;
+		byte_swapped = false;
 		variant = PCAP;
 		break;
 
@@ -225,7 +225,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   byte order opposite to ours.  It's otherwise like
 		   standard pcap. */
 		skip_size = 1;
-		byte_swapped = TRUE;
+		byte_swapped = true;
 		variant = PCAP;
 		break;
 
@@ -234,7 +234,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   a program using either ss990915 or ss991029 libpcap.
 		   That means we don't yet know the variant; there's
 		   no obvious default, so default to "unknown". */
-		byte_swapped = FALSE;
+		byte_swapped = false;
 		variant = PCAP_UNKNOWN;
 		break;
 
@@ -244,7 +244,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   or ss991029 libpcap.  That means we don't yet know
 		   the variant; there's no obvious default, so default
 		   to "unknown". */
-		byte_swapped = TRUE;
+		byte_swapped = true;
 		variant = PCAP_UNKNOWN;
 		break;
 
@@ -252,7 +252,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		/* Host that wrote it has our byte order, and was writing
 		   the file in a format similar to standard libpcap
 		   except that the time stamps have nanosecond resolution. */
-		byte_swapped = FALSE;
+		byte_swapped = false;
 		variant = PCAP_NSEC;
 		break;
 
@@ -261,7 +261,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   ours, and was writing the file in a format similar to
 		   standard libpcap except that the time stamps have
 		   nanosecond resolution. */
-		byte_swapped = TRUE;
+		byte_swapped = true;
 		variant = PCAP_NSEC;
 		break;
 
@@ -653,15 +653,15 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
-static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
-    size_t n_variants, int *err, gchar **err_info)
+static bool libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
+    size_t n_variants, int *err, char **err_info)
 {
 	libpcap_t *libpcap = (libpcap_t *)wth->priv;
 #define MAX_FIGURES_OF_MERIT \
 	MAX(N_VARIANTS_MODIFIED, N_VARIANTS_STANDARD)
 	int figures_of_merit[MAX_FIGURES_OF_MERIT];
 	int best_variant;
-	gint64 first_packet_offset;
+	int64_t first_packet_offset;
 
 	first_packet_offset = file_tell(wth->fh);
 	for (size_t i = 0; i < n_variants; i++) {
@@ -671,7 +671,7 @@ static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
 			/*
 			 * Well, we couldn't even read it.  Give up.
 			 */
-			return FALSE;
+			return false;
 		}
 		if (figures_of_merit[i] == 0) {
 			/*
@@ -681,9 +681,9 @@ static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET,
 			    err) == -1) {
-				return FALSE;
+				return false;
 			}
-			return TRUE;
+			return true;
 		}
 
 		/*
@@ -693,7 +693,7 @@ static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
 		 */
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET,
 		    err) == -1) {
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -713,7 +713,7 @@ static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
 			best_variant = figures_of_merit[i];
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 /*
@@ -722,7 +722,7 @@ static gboolean libpcap_try_variants(wtap *wth, const pcap_variant_t *variants,
 #define MAX_RECORDS_TO_TRY	3
 
 /* Try to read the first MAX_RECORDS_TO_TRY records of the capture file. */
-static int libpcap_try(wtap *wth, int *err, gchar **err_info)
+static int libpcap_try(wtap *wth, int *err, char **err_info)
 {
 	int ret;
 	int i;
@@ -770,7 +770,7 @@ static int libpcap_try(wtap *wth, int *err, gchar **err_info)
    are wrong with the header; this is used by the heuristics that try to
    guess what type of file it is, with the type with the fewest problems
    being chosen. */
-static int libpcap_try_record(wtap *wth, int *err, gchar **err_info)
+static int libpcap_try_record(wtap *wth, int *err, char **err_info)
 {
 	/*
 	 * pcaprec_ss990915_hdr is the largest header type.
@@ -894,43 +894,43 @@ static int libpcap_try_record(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean libpcap_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool libpcap_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return libpcap_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean
-libpcap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool
+libpcap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	if (!libpcap_read_packet(wth, wth->random_fh, rec, buf, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+    Buffer *buf, int *err, char **err_info)
 {
 	struct pcaprec_ss990915_hdr hdr;
-	guint packet_size;
-	guint orig_size;
+	unsigned packet_size;
+	unsigned orig_size;
 	int phdr_len;
 	libpcap_t *libpcap = (libpcap_t *)wth->priv;
-	gboolean is_nokia;
+	bool is_nokia;
 
 	if (!libpcap_read_header(wth, fh, err, err_info, &hdr))
-		return FALSE;
+		return false;
 
 	if (hdr.hdr.incl_len > wtap_max_snaplen_for_encap(wth->file_encap)) {
 		/*
@@ -944,7 +944,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 			    hdr.hdr.incl_len,
 			    wtap_max_snaplen_for_encap(wth->file_encap));
 		}
-		return FALSE;
+		return false;
 	}
 
 	packet_size = hdr.hdr.incl_len;
@@ -968,14 +968,14 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * Skip the padding.
 		 */
 		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
-			return FALSE;
+			return false;
 	}
 
 	is_nokia = (libpcap->variant == PCAP_NOKIA);
 	phdr_len = pcap_process_pseudo_header(fh, is_nokia,
 	    wth->file_encap, packet_size, rec, err, err_info);
 	if (phdr_len < 0)
-		return FALSE;	/* error */
+		return false;	/* error */
 
 	/*
 	 * Don't count any pseudo-header as part of the packet.
@@ -1000,9 +1000,9 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		/* Set interface ID for ERF format */
 		rec->presence_flags |= WTAP_HAS_INTERFACE_ID;
 		if ((interface_id = erf_populate_interface_from_header((erf_t*) libpcap->encap_priv, wth, &rec->rec_header.packet_header.pseudo_header, err, err_info)) < 0)
-			return FALSE;
+			return false;
 
-		rec->rec_header.packet_header.interface_id = (guint) interface_id;
+		rec->rec_header.packet_header.interface_id = (unsigned) interface_id;
 	}
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->rec_header.packet_header.len = orig_size;
@@ -1011,21 +1011,21 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	 * Read the packet data.
 	 */
 	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
-		return FALSE;	/* failed */
+		return false;	/* failed */
 
 	pcap_read_post_process(is_nokia, wth->file_encap, rec,
 	    ws_buffer_start_ptr(buf), libpcap->byte_swapped, libpcap->fcs_len);
-	return TRUE;
+	return true;
 }
 
 /* Read the header of the next packet.
 
-   Return FALSE on an error, TRUE on success. */
-static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
+   Return false on an error, true on success. */
+static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, char **err_info,
     struct pcaprec_ss990915_hdr *hdr)
 {
 	int bytes_to_read;
-	guint32 temp;
+	uint32_t temp;
 	libpcap_t *libpcap = (libpcap_t *)wth->priv;
 
 	switch (libpcap->variant) {
@@ -1054,7 +1054,7 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		ws_assert_not_reached();
 	}
 	if (!wtap_read_bytes_or_eof(fh, hdr, bytes_to_read, err, err_info))
-		return FALSE;
+		return false;
 
 	if (libpcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
@@ -1087,7 +1087,7 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Returns 0 if we could write the specified encapsulation type,
@@ -1104,13 +1104,13 @@ static int libpcap_dump_can_write_encap(int encap)
 	return 0;
 }
 
-static gboolean libpcap_dump_write_file_header(wtap_dumper *wdh, guint32 magic,
+static bool libpcap_dump_write_file_header(wtap_dumper *wdh, uint32_t magic,
     int *err)
 {
 	struct pcap_hdr file_hdr;
 
 	if (!wtap_dump_file_write(wdh, &magic, sizeof magic, err))
-		return FALSE;
+		return false;
 
 	/* current "libpcap" format is 2.4 */
 	file_hdr.version_major = 2;
@@ -1129,20 +1129,20 @@ static gboolean libpcap_dump_write_file_header(wtap_dumper *wdh, guint32 magic,
 	 * the snapshot length in the header file the maximum for the
 	 * link-layer type we'll be writing.
 	 */
-	file_hdr.snaplen = (wdh->snaplen != 0) ? (guint)wdh->snaplen :
+	file_hdr.snaplen = (wdh->snaplen != 0) ? (unsigned)wdh->snaplen :
 						 wtap_max_snaplen_for_encap(wdh->file_encap);
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->file_encap);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 /* Good old fashioned pcap.
-   Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean
-libpcap_dump_open_pcap(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool
+libpcap_dump_open_pcap(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
 	/* This is a libpcap file */
 	wdh->subtype_write = libpcap_dump_pcap;
@@ -1152,10 +1152,10 @@ libpcap_dump_open_pcap(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 }
 
 /* Like classic pcap, but with nanosecond resolution.
-   Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean
-libpcap_dump_open_pcap_nsec(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool
+libpcap_dump_open_pcap_nsec(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
 	/* This is a nanosecond-resolution libpcap file */
 	wdh->subtype_write = libpcap_dump_pcap_nsec;
@@ -1165,11 +1165,11 @@ libpcap_dump_open_pcap_nsec(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 }
 
 /* Modified, but with the old magic, sigh.
-   Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean
+static bool
 libpcap_dump_open_pcap_ss990417(wtap_dumper *wdh, int *err,
-    gchar **err_info _U_)
+    char **err_info _U_)
 {
 	/* This is a modified-by-patch-SS990417 libpcap file */
 	wdh->subtype_write = libpcap_dump_pcap_ss990417;
@@ -1179,11 +1179,11 @@ libpcap_dump_open_pcap_ss990417(wtap_dumper *wdh, int *err,
 }
 
 /* New magic, extra crap.
-   Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean
+static bool
 libpcap_dump_open_pcap_ss990915(wtap_dumper *wdh, int *err,
-    gchar **err_info _U_)
+    char **err_info _U_)
 {
 	/* This is a modified-by-patch-SS990915 libpcap file */
 	wdh->subtype_write = libpcap_dump_pcap_ss990915;
@@ -1193,11 +1193,11 @@ libpcap_dump_open_pcap_ss990915(wtap_dumper *wdh, int *err,
 }
 
 /* Same magic as SS990915, *different* extra crap, sigh.
-   Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean
+static bool
 libpcap_dump_open_pcap_ss991029(wtap_dumper *wdh, int *err,
-    gchar **err_info _U_)
+    char **err_info _U_)
 {
 	/* This is a modified-by-patch-SS991029 libpcap file */
 	wdh->subtype_write = libpcap_dump_pcap_ss991029;
@@ -1225,10 +1225,10 @@ static void libpcap_close(wtap *wth)
 }
 
 /* Nokia libpcap of some sort.
-   Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean
-libpcap_dump_open_pcap_nokia(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool
+libpcap_dump_open_pcap_nokia(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
 	/* This is a Nokia libpcap file */
 	wdh->subtype_write = libpcap_dump_pcap_nokia;
@@ -1237,9 +1237,9 @@ libpcap_dump_open_pcap_nokia(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	return libpcap_dump_write_file_header(wdh, PCAP_MAGIC, err);
 }
 
-static gboolean
+static bool
 libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
-    struct pcaprec_hdr *hdr, size_t hdr_size, const guint8 *pd, int *err)
+    struct pcaprec_hdr *hdr, size_t hdr_size, const uint8_t *pd, int *err)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	int phdrsize;
@@ -1249,7 +1249,7 @@ libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
 	/* We can only write packet records. */
 	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-		return FALSE;
+		return false;
 	}
 
 	/*
@@ -1258,38 +1258,38 @@ libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
 	 */
 	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return FALSE;
+		return false;
 	}
 
 	/*
 	 * Don't write anything we're not willing to read.
 	 * (The cast is to prevent an overflow.)
 	 */
-	if ((guint64)rec->rec_header.packet_header.caplen + phdrsize > wtap_max_snaplen_for_encap(wdh->file_encap)) {
+	if ((uint64_t)rec->rec_header.packet_header.caplen + phdrsize > wtap_max_snaplen_for_encap(wdh->file_encap)) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
-		return FALSE;
+		return false;
 	}
 
 	hdr->incl_len = rec->rec_header.packet_header.caplen + phdrsize;
 	hdr->orig_len = rec->rec_header.packet_header.len + phdrsize;
 
 	if (!wtap_dump_file_write(wdh, hdr, hdr_size, err))
-		return FALSE;
+		return false;
 
 	if (!pcap_write_phdr(wdh, wdh->file_encap, pseudo_header, err))
-		return FALSE;
+		return false;
 
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /* Good old fashioned pcap.
    Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean
-libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
-    int *err, gchar **err_info _U_)
+   Returns true on success, false on failure. */
+static bool
+libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
+    int *err, char **err_info _U_)
 {
 	struct pcaprec_hdr rec_hdr;
 
@@ -1298,11 +1298,11 @@ libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 	 * stamps as unsigned, but most of it probably handles
 	 * them as signed.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > INT32_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
-		return FALSE;
+		return false;
 	}
-	rec_hdr.ts_sec = (guint32) rec->ts.secs;
+	rec_hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.ts_usec = rec->ts.nsecs / 1000;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr, sizeof rec_hdr,
 	    pd, err);
@@ -1310,10 +1310,10 @@ libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 
 /* Like classic pcap, but with nanosecond resolution.
    Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean
-libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
-    int *err, gchar **err_info _U_)
+   Returns true on success, false on failure. */
+static bool
+libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
+    int *err, char **err_info _U_)
 {
 	struct pcaprec_hdr rec_hdr;
 
@@ -1322,11 +1322,11 @@ libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 	 * stamps as unsigned, but most of it probably handles
 	 * them as signed.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > INT32_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
-		return FALSE;
+		return false;
 	}
-	rec_hdr.ts_sec = (guint32) rec->ts.secs;
+	rec_hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.ts_usec = rec->ts.nsecs;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr, sizeof rec_hdr,
 	    pd, err);
@@ -1334,10 +1334,10 @@ libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 
 /* Modified, but with the old magic, sigh.
    Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean
+   Returns true on success, false on failure. */
+static bool
 libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info _U_)
+    const uint8_t *pd, int *err, char **err_info _U_)
 {
 	struct pcaprec_modified_hdr rec_hdr;
 
@@ -1346,11 +1346,11 @@ libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
 	 * stamps as unsigned, but most of it probably handles
 	 * them as signed.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > INT32_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
-		return FALSE;
+		return false;
 	}
-	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
+	rec_hdr.hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	/* XXX - what should we supply here?
 
@@ -1380,10 +1380,10 @@ libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
 
 /* New magic, extra crap.
    Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean
+   Returns true on success, false on failure. */
+static bool
 libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info _U_)
+    const uint8_t *pd, int *err, char **err_info _U_)
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
 
@@ -1392,11 +1392,11 @@ libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
 	 * stamps as unsigned, but most of it probably handles
 	 * them as signed.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > INT32_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
-		return FALSE;
+		return false;
 	}
-	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
+	rec_hdr.hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	rec_hdr.ifindex = 0;
 	rec_hdr.protocol = 0;
@@ -1409,10 +1409,10 @@ libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
 
 /* Same magic as SS990915, *different* extra crap, sigh.
    Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean
+   Returns true on success, false on failure. */
+static bool
 libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info _U_)
+    const uint8_t *pd, int *err, char **err_info _U_)
 {
 	struct pcaprec_modified_hdr rec_hdr;
 
@@ -1421,11 +1421,11 @@ libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
 	 * stamps as unsigned, but most of it probably handles
 	 * them as signed.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > INT32_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
-		return FALSE;
+		return false;
 	}
-	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
+	rec_hdr.hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	/* XXX - what should we supply here?
 
@@ -1455,10 +1455,10 @@ libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
 
 /* Nokia libpcap of some sort.
    Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean
+   Returns true on success, false on failure. */
+static bool
 libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info _U_)
+    const uint8_t *pd, int *err, char **err_info _U_)
 {
 	struct pcaprec_nokia_hdr rec_hdr;
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
@@ -1468,11 +1468,11 @@ libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
 	 * stamps as unsigned, but most of it probably handles
 	 * them as signed.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > INT32_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
-		return FALSE;
+		return false;
 	}
-	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
+	rec_hdr.hdr.ts_sec = (uint32_t) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	/* restore the "mysterious stuff" that came with the packet */
 	memcpy(rec_hdr.stuff, pseudo_header->nokia.stuff, 4);
@@ -1490,43 +1490,43 @@ static const struct supported_block_type pcap_blocks_supported[] = {
 static const struct file_type_subtype_info pcap_info = {
 	/* Gianluca Varenni suggests that we add "deprecated" to the description. */
 	"Wireshark/tcpdump/... - pcap", "pcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	libpcap_dump_can_write_encap, libpcap_dump_open_pcap, NULL
 };
 
 static const struct file_type_subtype_info pcap_nsec_info = {
 	"Wireshark/tcpdump/... - nanosecond pcap", "nsecpcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	libpcap_dump_can_write_encap, libpcap_dump_open_pcap_nsec, NULL
 };
 
 static const struct file_type_subtype_info pcap_aix_info = {
 	"AIX tcpdump - pcap", "aixpcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	NULL, NULL, NULL
 };
 
 static const struct file_type_subtype_info pcap_ss990417_info = {
 	"RedHat 6.1 tcpdump - pcap", "rh6_1pcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	libpcap_dump_can_write_encap, libpcap_dump_open_pcap_ss990417, NULL
 };
 
 static const struct file_type_subtype_info pcap_ss990915_info = {
 	"SuSE 6.3 tcpdump - pcap", "suse6_3pcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	libpcap_dump_can_write_encap, libpcap_dump_open_pcap_ss990915, NULL
 };
 
 static const struct file_type_subtype_info pcap_ss991029_info = {
 	"Modified tcpdump - pcap", "modpcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	libpcap_dump_can_write_encap, libpcap_dump_open_pcap_ss991029, NULL
 };
 
 static const struct file_type_subtype_info pcap_nokia_info = {
 	"Nokia tcpdump - pcap", "nokiapcap", "pcap", "cap;dmp",
-	FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	false, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	libpcap_dump_can_write_encap, libpcap_dump_open_pcap_nokia, NULL
 };
 

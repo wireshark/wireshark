@@ -91,10 +91,10 @@ DIAG_ON_LEMON()
 %type msg { msg_t }
 
 %type timestamp { nstime_t }
-%type id { guint32  }
-%type flags { guint8 }
+%type id { uint32_t }
+%type flags { uint8_t }
 
-%type byte { guint8 }
+%type byte { uint8_t }
 %type data_max_8 { msg_data_t }
 %type data_max_64 { msg_data_t }
 %type data0 { msg_data_t }
@@ -123,7 +123,7 @@ line ::= maybe_spaces msg(M) .
 #endif
 
     state->msg          = M;
-    state->is_msg_valid = TRUE;
+    state->is_msg_valid = true;
 }
 
 line ::= maybe_spaces .
@@ -139,9 +139,9 @@ maybe_spaces ::= .
 msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) RTR(R) .
 {
     M.ts          = T;
-    M.is_fd       = FALSE;
+    M.is_fd       = false;
     M.id          = I | CAN_RTR_FLAG;
-    M.data.length = (guint8)R.v0;
+    M.data.length = (uint8_t)R.v0;
 
     memset(M.data.data, 0, sizeof(M.data.data));
 }
@@ -149,7 +149,7 @@ msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) RTR(R) .
 msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) data_max_8(D) .
 {
     M.ts    = T;
-    M.is_fd = FALSE;
+    M.is_fd = false;
     M.id    = I;
     M.data  = D;
 }
@@ -157,7 +157,7 @@ msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) data_max_8(D) .
 msg(M) ::= timestamp(T) SPACE ifname SPACE id(I) flags(F) data_max_64(D) .
 {
     M.ts    = T;
-    M.is_fd = TRUE;
+    M.is_fd = true;
     M.id    = I;
     M.flags = F;
     M.data  = D;
@@ -182,12 +182,12 @@ any ::= BYTE .
 
 id(R) ::= STD_ID(A) .
 {
-    R = (guint32)A.v0;
+    R = (uint32_t)A.v0;
 }
 
 id(R) ::= EXT_ID(A) .
 {
-    R = (guint32)A.v0;
+    R = (uint32_t)A.v0;
 
     if (!(R & CAN_ERR_FLAG))
         R |= CAN_EFF_FLAG;
@@ -195,7 +195,7 @@ id(R) ::= EXT_ID(A) .
 
 flags(R) ::= FLAGS(A) .
 {
-    R = (guint8)A.v0;
+    R = (uint8_t)A.v0;
 }
 
 data_max_8 ::= data0 .
@@ -219,7 +219,7 @@ data_max_64 ::= data64 .
 
 byte(R) ::= BYTE(A) .
 {
-    R = (guint8)A.v0;
+    R = (uint8_t)A.v0;
 }
 
 data0(R) ::= .
@@ -274,8 +274,8 @@ data64(R) ::= data32(A) data32(B) . { merge_msg_data(&R, &A, &B); }
 #include "candump_scanner_lex.h"
 #include "candump_parser.h"
 
-gboolean
-run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
+bool
+run_candump_parser(candump_state_t *state, int *err, char **err_info)
 {
     int              lex_code;
     yyscan_t         scanner;
@@ -290,7 +290,7 @@ run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
         *err      = errno;
         *err_info = g_strdup(g_strerror(errno));
 
-        return FALSE;
+        return false;
     }
 
     parser = CandumpParserAlloc(g_malloc);
@@ -346,10 +346,10 @@ run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
         else
             *err = WTAP_ERR_BAD_FILE;
 
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 }

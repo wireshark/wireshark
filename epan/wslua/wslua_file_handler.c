@@ -132,10 +132,10 @@ report_error(int *err, gchar **err_info, const char *fmt, ...)
         break;
 
 /* some declarations */
-static gboolean
+static bool
 wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
                        int *err, gchar **err_info, gint64 *offset);
-static gboolean
+static bool
 wslua_filehandler_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
                             int *err, gchar **err_info);
 static void
@@ -235,7 +235,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     return retval;
 }
 
-static gboolean
+static bool
 wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *buf,
                               int *err, gchar **err_info, gint64 *offset)
 {
@@ -289,20 +289,20 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *b
     return (retval == 1);
 }
 
-/* The classic wtap read routine.  This returns TRUE if it found the next packet,
- * else FALSE.
+/* The classic wtap read routine.  This returns true if it found the next packet,
+ * else false.
  * If it finds a frame/packet, it should set the pseudo-header info (ie, let Lua set it).
  * Also Lua needs to set data_offset to the beginning of the line we're returning.
  * This will be the seek_off parameter when this frame is re-read.
  */
-static gboolean
+static bool
 wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
                        int *err, gchar **err_info, gint64 *offset)
 {
     return wslua_filehandler_read_packet(wth, wth->fh, rec, buf, err, err_info, offset);
 }
 
-static gboolean
+static bool
 wslua_filehandler_seek_read_packet(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
                             int *err, gchar **err_info)
 {
@@ -356,23 +356,23 @@ wslua_filehandler_seek_read_packet(wtap *wth, gint64 seek_off, wtap_rec *rec, Bu
 /* Default FileHandler:seek_read() implementation.
  * Do a standard file_seek() and then call FileHandler:read().
  */
-static gboolean
+static bool
 wslua_filehandler_seek_read_default(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
                                     int *err, gchar **err_info)
 {
     gint64 offset = file_seek(wth->random_fh, seek_off, SEEK_SET, err);
 
     if (offset < 0) {
-        return FALSE;
+        return false;
     }
 
     return wslua_filehandler_read_packet(wth, wth->random_fh, rec, buf, err, err_info, &offset);
 }
 
-/* Classic wtap seek_read function, called by wtap core.  This must return TRUE on
- * success, FALSE on error.
+/* Classic wtap seek_read function, called by wtap core.  This must return true on
+ * success, false on error.
  */
-static gboolean
+static bool
 wslua_filehandler_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
                             int *err, gchar **err_info)
 {
@@ -380,7 +380,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *b
 
     if (fh->removed) {
         /* Return success when removed during reloading Lua plugins */
-        return TRUE;
+        return true;
     }
 
     if (fh->seek_read_ref != LUA_NOREF) {
@@ -497,21 +497,21 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 }
 
 /* some declarations */
-static gboolean
+static bool
 wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
                       const guint8 *pd, int *err, gchar **err_info);
-static gboolean
+static bool
 wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info);
 
 
 /* The classic wtap dump_open function.
- * This returns 1 (TRUE) on success.
+ * This returns true on success.
  */
-static int
+static bool
 wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
-    int retval = 0;
+    bool retval = false;
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
@@ -540,7 +540,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
     (*fp)->expired = TRUE;
     (*fc)->expired = TRUE;
 
-    if (retval == 1) {
+    if (retval == true) {
         /* this is our file type - set the routines and settings into wtap */
 
         if (fh->write_ref != LUA_NOREF) {
@@ -548,7 +548,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
         }
         else {
             ws_warning("FileHandler was not set with a write function, even though write_open() returned true");
-            return 0;
+            return false;
         }
 
         /* it's ok to not have a finish routine */
@@ -565,10 +565,10 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
     return retval;
 }
 
-/* The classic wtap dump routine.  This returns TRUE if it writes the current packet,
- * else FALSE.
+/* The classic wtap dump routine.  This returns true if it writes the current
+ * packet, else false.
 */
-static gboolean
+static bool
 wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
                       const guint8 *pd, int *err, gchar **err_info)
 {
@@ -607,10 +607,10 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
     return (retval == 1);
 }
 
-/* The classic wtap dump_finish routine.  This returns TRUE if it
- * writes out the last information cleanly, else FALSE.
+/* The classic wtap dump_finish routine.  This returns true if it
+ * writes out the last information cleanly, else false.
 */
-static gboolean
+static bool
 wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);

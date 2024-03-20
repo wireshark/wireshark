@@ -18,7 +18,7 @@
 /* See RFC 1761 for a description of the "snoop" file format. */
 
 typedef struct {
-	gboolean is_shomiti;
+	bool is_shomiti;
 } snoop_t;
 
 /* Magic number in "snoop" files. */
@@ -28,27 +28,27 @@ static const char snoop_magic[] = {
 
 /* "snoop" file header (minus magic number). */
 struct snoop_hdr {
-	guint32	version;	/* version number (should be 2) */
-	guint32	network;	/* network type */
+	uint32_t	version;	/* version number (should be 2) */
+	uint32_t	network;	/* network type */
 };
 
 /* "snoop" record header. */
 struct snooprec_hdr {
-	guint32	orig_len;	/* actual length of packet */
-	guint32	incl_len;	/* number of octets captured in file */
-	guint32	rec_len;	/* length of record */
-	guint32	cum_drops;	/* cumulative number of dropped packets */
-	guint32	ts_sec;		/* timestamp seconds */
-	guint32	ts_usec;	/* timestamp microseconds */
+	uint32_t	orig_len;	/* actual length of packet */
+	uint32_t	incl_len;	/* number of octets captured in file */
+	uint32_t	rec_len;	/* length of record */
+	uint32_t	cum_drops;	/* cumulative number of dropped packets */
+	uint32_t	ts_sec;		/* timestamp seconds */
+	uint32_t	ts_usec;	/* timestamp microseconds */
 };
 
 /*
  * The link-layer header on ATM packets.
  */
 struct snoop_atm_hdr {
-	guint8	flags;		/* destination and traffic type */
-	guint8	vpi;		/* VPI */
-	guint16	vci;		/* VCI */
+	uint8_t	flags;		/* destination and traffic type */
+	uint8_t	vpi;		/* VPI */
+	uint16_t	vci;		/* VCI */
 };
 
 /*
@@ -56,11 +56,11 @@ struct snoop_atm_hdr {
  * captures.
  */
 struct shomiti_trailer {
-	guint16	phy_rx_length;	/* length on the wire, including FCS? */
-	guint16	phy_rx_status;	/* status flags */
-	guint32	ts_40_ns_lsb;	/* 40 ns time stamp, low-order bytes? */
-	guint32	ts_40_ns_msb;	/* 40 ns time stamp, low-order bytes? */
-	gint32	frame_id;	/* "FrameID"? */
+	uint16_t	phy_rx_length;	/* length on the wire, including FCS? */
+	uint16_t	phy_rx_status;	/* status flags */
+	uint32_t	ts_40_ns_lsb;	/* 40 ns time stamp, low-order bytes? */
+	uint32_t	ts_40_ns_msb;	/* 40 ns time stamp, low-order bytes? */
+	int32_t	frame_id;	/* "FrameID"? */
 };
 
 /*
@@ -77,19 +77,19 @@ struct shomiti_trailer {
 #define RX_STATUS_FIFO_ERROR		0x0080	/* receive FIFO error */
 #define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
-static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool snoop_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 static int snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info);
-static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
+    Buffer *buf, int *err, char **err_info);
+static bool snoop_read_atm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
+static bool snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, char **err_info,
     int *header_size);
-static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info);
+static bool snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info);
 
 static int snoop_file_type_subtype = -1;
 static int shomiti_file_type_subtype = -1;
@@ -175,13 +175,13 @@ void register_snoop(void);
  * 4MB from 16MB Token Ring, and distinguishing both of them from the
  * "Shomiti" versions of same.
  */
-wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val snoop_open(wtap *wth, int *err, char **err_info)
 {
 	char magic[sizeof snoop_magic];
 	struct snoop_hdr hdr;
 	struct snooprec_hdr rec_hdr;
-	guint padbytes;
-	gboolean is_shomiti;
+	unsigned padbytes;
+	bool is_shomiti;
 	static const int snoop_encap[] = {
 		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
@@ -248,7 +248,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 	};
 	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
 	int file_encap;
-	gint64 saved_offset;
+	int64_t saved_offset;
 	snoop_t *snoop;
 
 	/* Read in the string that should be at the start of a "snoop" file */
@@ -314,7 +314,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Start out assuming it's not a Shomiti capture.
 	 */
-	is_shomiti = FALSE;
+	is_shomiti = false;
 
 	/* Read first record header. */
 	saved_offset = file_tell(wth->fh);
@@ -348,7 +348,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we have padding; how much?
 			 */
 			padbytes = g_ntohl(rec_hdr.rec_len) -
-			    ((guint)sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
+			    ((unsigned)sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
 
 			/*
 			 * Is it at least the size of a Shomiti trailer?
@@ -443,20 +443,20 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
  * If the header is longer than 8 bytes, what are the other fields?
  */
 typedef struct {
-	guint8 pad[4];
-	guint8 undecrypt[2];
-	guint8 rate;
-	guint8 preamble;
-	guint8 code;
-	guint8 signal;
-	guint8 qual;
-	guint8 channel;
+	uint8_t pad[4];
+	uint8_t undecrypt[2];
+	uint8_t rate;
+	uint8_t preamble;
+	uint8_t code;
+	uint8_t signal;
+	uint8_t qual;
+	uint8_t channel;
 } shomiti_wireless_header;
 
 
 /* Read the next packet */
-static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	int	padbytes;
 
@@ -464,43 +464,43 @@ static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 	padbytes = snoop_read_packet(wth, wth->fh, rec, buf, err, err_info);
 	if (padbytes == -1)
-		return FALSE;
+		return false;
 
 	/*
 	 * Skip over the padding, if any.
 	 */
 	if (padbytes != 0) {
 		if (!wtap_read_bytes(wth->fh, NULL, padbytes, err, err_info))
-			return FALSE;
+			return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
-snoop_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+snoop_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	if (snoop_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 static int
 snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+    Buffer *buf, int *err, char **err_info)
 {
 	snoop_t *snoop = (snoop_t *)wth->priv;
 	struct snooprec_hdr hdr;
-	guint32 rec_size;
-	guint32	packet_size;
-	guint32 orig_size;
+	uint32_t rec_size;
+	uint32_t	packet_size;
+	uint32_t orig_size;
 	int header_size;
 
 	/* Read record header. */
@@ -566,9 +566,9 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		rec_size -= (guint32)sizeof (struct snoop_atm_hdr);
-		orig_size -= (guint32)sizeof (struct snoop_atm_hdr);
-		packet_size -= (guint32)sizeof (struct snoop_atm_hdr);
+		rec_size -= (uint32_t)sizeof (struct snoop_atm_hdr);
+		orig_size -= (uint32_t)sizeof (struct snoop_atm_hdr);
+		packet_size -= (uint32_t)sizeof (struct snoop_atm_hdr);
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -640,19 +640,19 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		atm_guess_lane_type(rec, ws_buffer_start_ptr(buf));
 	}
 
-	return rec_size - ((guint)sizeof hdr + packet_size);
+	return rec_size - ((unsigned)sizeof hdr + packet_size);
 }
 
-static gboolean
+static bool
 snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	struct snoop_atm_hdr atm_phdr;
-	guint8	vpi;
-	guint16	vci;
+	uint8_t	vpi;
+	uint16_t	vci;
 
 	if (!wtap_read_bytes(fh, &atm_phdr, sizeof atm_phdr, err, err_info))
-		return FALSE;
+		return false;
 
 	vpi = atm_phdr.vpi;
 	vci = pntoh16(&atm_phdr.vci);
@@ -726,19 +726,19 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
+    union wtap_pseudo_header *pseudo_header, int *err, char **err_info,
     int *header_size)
 {
 	shomiti_wireless_header whdr;
 	int	rsize;
 
 	if (!wtap_read_bytes(fh, &whdr, sizeof whdr, err, err_info))
-		return FALSE;
+		return false;
 
 	/* the 4th byte of the pad is actually a header length,
 	 * we've already read 8 bytes of it, and it must never
@@ -752,23 +752,23 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("snoop: Header length in Surveyor record is %u, less than minimum of 8",
 		    whdr.pad[3]);
-		return FALSE;
+		return false;
 	}
 	/* Skip the header. */
 	rsize = ((int) whdr.pad[3]) - 8;
 	if (!wtap_read_bytes(fh, NULL, rsize, err, err_info))
-		return FALSE;
+		return false;
 
 	memset(&pseudo_header->ieee_802_11, 0, sizeof(pseudo_header->ieee_802_11));
 	pseudo_header->ieee_802_11.fcs_len = 4;
-	pseudo_header->ieee_802_11.decrypted = FALSE;
-	pseudo_header->ieee_802_11.datapad = FALSE;
+	pseudo_header->ieee_802_11.decrypted = false;
+	pseudo_header->ieee_802_11.datapad = false;
 	pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
-	pseudo_header->ieee_802_11.has_channel = TRUE;
+	pseudo_header->ieee_802_11.has_channel = true;
 	pseudo_header->ieee_802_11.channel = whdr.channel;
-	pseudo_header->ieee_802_11.has_data_rate = TRUE;
+	pseudo_header->ieee_802_11.has_data_rate = true;
 	pseudo_header->ieee_802_11.data_rate = whdr.rate;
-	pseudo_header->ieee_802_11.has_signal_percent = TRUE;
+	pseudo_header->ieee_802_11.has_signal_percent = true;
 	pseudo_header->ieee_802_11.signal_percent = whdr.signal;
 
 	/*
@@ -778,25 +778,25 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	if (RATE_IS_DSSS(pseudo_header->ieee_802_11.data_rate)) {
 		/* 11b */
 		pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11B;
-		pseudo_header->ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+		pseudo_header->ieee_802_11.phy_info.info_11b.has_short_preamble = false;
 	} else if (RATE_IS_OFDM(pseudo_header->ieee_802_11.data_rate)) {
 		/* 11a or 11g, depending on the band. */
 		if (CHAN_IS_BG(pseudo_header->ieee_802_11.channel)) {
 			/* 11g */
 			pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11G;
-			pseudo_header->ieee_802_11.phy_info.info_11g.has_mode = FALSE;
+			pseudo_header->ieee_802_11.phy_info.info_11g.has_mode = false;
 		} else {
 			/* 11a */
 			pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11A;
-			pseudo_header->ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
-			pseudo_header->ieee_802_11.phy_info.info_11a.has_turbo_type = FALSE;
+			pseudo_header->ieee_802_11.phy_info.info_11a.has_channel_type = false;
+			pseudo_header->ieee_802_11.phy_info.info_11a.has_turbo_type = false;
 		}
 	}
 
 	/* add back the header and don't forget the pad as well */
 	*header_size = rsize + 8 + 4;
 
-	return TRUE;
+	return true;
 }
 
 static const int wtap_encap[] = {
@@ -831,9 +831,9 @@ static int snoop_dump_can_write_encap(int encap)
 	return 0;
 }
 
-/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+/* Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool snoop_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
 	struct snoop_hdr file_hdr;
 
@@ -842,27 +842,27 @@ static gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_
 
 	/* Write the file header. */
 	if (!wtap_dump_file_write(wdh, &snoop_magic, sizeof snoop_magic, err))
-		return FALSE;
+		return false;
 
 	/* current "snoop" format is 2 */
 	file_hdr.version = g_htonl(2);
 	file_hdr.network = g_htonl(wtap_encap[wdh->file_encap]);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 /* Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean snoop_dump(wtap_dumper *wdh,
+   Returns true on success, false on failure. */
+static bool snoop_dump(wtap_dumper *wdh,
 	const wtap_rec *rec,
-	const guint8 *pd, int *err, gchar **err_info _U_)
+	const uint8_t *pd, int *err, char **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	struct snooprec_hdr rec_hdr;
 	int reclen;
-	guint padlen;
+	unsigned padlen;
 	static const char zeroes[4] = {0};
 	struct snoop_atm_hdr atm_hdr;
 	int atm_hdrsize;
@@ -870,7 +870,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	/* We can only write packet records. */
 	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-		return FALSE;
+		return false;
 	}
 
 	/*
@@ -879,7 +879,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	 */
 	if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return FALSE;
+		return false;
 	}
 
 	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS)
@@ -898,7 +898,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	/* Don't write anything we're not willing to read. */
 	if (rec->rec_header.packet_header.caplen + atm_hdrsize > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
-		return FALSE;
+		return false;
 	}
 
 	rec_hdr.orig_len = g_htonl(rec->rec_header.packet_header.len + atm_hdrsize);
@@ -908,7 +908,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	rec_hdr.ts_sec = g_htonl(rec->ts.secs);
 	rec_hdr.ts_usec = g_htonl(rec->ts.nsecs / 1000);
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
-		return FALSE;
+		return false;
 
 	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
@@ -943,19 +943,19 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 			}
 			break;
 		}
-		atm_hdr.vpi = (guint8) pseudo_header->atm.vpi;
+		atm_hdr.vpi = (uint8_t) pseudo_header->atm.vpi;
 		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
 		if (!wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr, err))
-			return FALSE;
+			return false;
 	}
 
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-		return FALSE;
+		return false;
 
 	/* Now write the padding. */
 	if (!wtap_dump_file_write(wdh, zeroes, padlen, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 static const struct supported_block_type snoop_blocks_supported[] = {
@@ -967,7 +967,7 @@ static const struct supported_block_type snoop_blocks_supported[] = {
 
 static const struct file_type_subtype_info snoop_info = {
 	"Sun snoop", "snoop", "snoop", "cap",
-	FALSE, BLOCKS_SUPPORTED(snoop_blocks_supported),
+	false, BLOCKS_SUPPORTED(snoop_blocks_supported),
 	snoop_dump_can_write_encap, snoop_dump_open, NULL
 };
 
@@ -980,7 +980,7 @@ static const struct supported_block_type shomiti_blocks_supported[] = {
 
 static const struct file_type_subtype_info shomiti_info = {
 	"Shomiti/Finisar Surveyor", "shomiti", "cap", NULL,
-	FALSE, BLOCKS_SUPPORTED(shomiti_blocks_supported),
+	false, BLOCKS_SUPPORTED(shomiti_blocks_supported),
 	NULL, NULL, NULL
 };
 

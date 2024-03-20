@@ -31,24 +31,24 @@ static int logcat_text_long_file_type_subtype = -1;
 void register_logcat_text(void);
 
 /* Returns '?' for invalid priorities */
-static gchar get_priority(const guint8 priority) {
-    static gchar priorities[] = "??VDIWEFS";
+static char get_priority(const uint8_t priority) {
+    static char priorities[] = "??VDIWEFS";
 
-    if (priority >= (guint8) sizeof(priorities))
+    if (priority >= (uint8_t) sizeof(priorities))
         return '?';
 
     return priorities[priority];
 }
 
-static gint buffered_detect_version(const guint8 *pd)
+static int buffered_detect_version(const uint8_t *pd)
 {
     const struct logger_entry     *log_entry;
     const struct logger_entry_v2  *log_entry_v2;
-    gint                     version;
-    const guint8            *msg_payload = NULL;
-    guint8                  *msg_part;
-    guint8                  *msg_end;
-    guint16                  msg_len;
+    int                      version;
+    const uint8_t           *msg_payload = NULL;
+    uint8_t                 *msg_part;
+    uint8_t                 *msg_end;
+    uint16_t                 msg_len;
 
     log_entry    = (const struct logger_entry *)(const void *) pd;
     log_entry_v2 = (const struct logger_entry_v2 *)(const void *) pd;
@@ -65,10 +65,10 @@ static gint buffered_detect_version(const guint8 *pd)
      * version is in use. First assume the smallest msg. */
     for (version = 1; version <= 2; ++version) {
         if (version == 1) {
-            msg_payload = (const guint8 *) (log_entry + 1);
+            msg_payload = (const uint8_t *) (log_entry + 1);
         } else if (version == 2) {
             /* v2 is 4 bytes longer */
-            msg_payload = (const guint8 *) (log_entry_v2 + 1);
+            msg_payload = (const uint8_t *) (log_entry_v2 + 1);
             if (log_entry_v2->hdr_size != sizeof(*log_entry_v2))
                 continue;
         }
@@ -78,14 +78,14 @@ static gint buffered_detect_version(const guint8 *pd)
             continue;
 
         /* Is there a terminating '\0' for the tag? */
-        msg_part = (guint8 *) memchr(msg_payload, '\0', log_entry->len - 1);
+        msg_part = (uint8_t *) memchr(msg_payload, '\0', log_entry->len - 1);
         if (msg_part == NULL)
             continue;
 
         /* if msg is '\0'-terminated, is it equal to the payload len? */
         ++msg_part;
-        msg_len = (guint16)(log_entry->len - (msg_part - msg_payload));
-        msg_end = (guint8 *) memchr(msg_part, '\0', msg_len);
+        msg_len = (uint16_t)(log_entry->len - (msg_part - msg_payload));
+        msg_end = (uint8_t *) memchr(msg_part, '\0', msg_len);
         /* is the end of the buffer (-1) equal to the end of msg? */
         if (msg_end && (msg_payload + log_entry->len - 1 != msg_end))
             continue;
@@ -96,11 +96,11 @@ static gint buffered_detect_version(const guint8 *pd)
     return -1;
 }
 
-static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
-        gint milliseconds, gint pid, gint tid, gchar priority, const gchar *tag,
-        const gchar *log)
+static char *logcat_log(const struct dumper_t *dumper, uint32_t seconds,
+        int milliseconds, int pid, int tid, char priority, const char *tag,
+        const char *log)
 {
-    gchar  time_buffer[15];
+    char   time_buffer[15];
     time_t datetime;
     struct tm *tm;
 
@@ -160,8 +160,8 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 
 }
 
-static void get_time(gchar *string, wtap_rec *rec) {
-    gint ms;
+static void get_time(char *string, wtap_rec *rec) {
+    int ms;
     struct tm date;
     time_t seconds;
 
@@ -181,30 +181,30 @@ static void get_time(gchar *string, wtap_rec *rec) {
     }
 }
 
-static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
-        Buffer *buf, gint file_type) {
-    gint8 *pd;
-    gchar *cbuff;
-    gchar *ret = NULL;
+static bool logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
+        Buffer *buf, int file_type) {
+    int8_t *pd;
+    char *cbuff;
+    char *ret = NULL;
 
-    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+    cbuff = (char*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     do {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, fh);
     } while (NULL != ret && 3 > strlen(cbuff) && !file_eof(fh));
 
     if (NULL == ret || 3 > strlen(cbuff)) {
         g_free(cbuff);
-        return FALSE;
+        return false;
     }
 
     if (logcat_text_long_file_type_subtype == file_type &&
             !g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW), G_REGEX_MATCH_NOTEMPTY)) {
-        gint64 file_off = 0;
-        gchar *lbuff;
+        int64_t file_off = 0;
+        char *lbuff;
         int err;
-        gchar *ret2 = NULL;
+        char *ret2 = NULL;
 
-        lbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+        lbuff = (char*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
         file_off = file_tell(fh);
         ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE_STANDARD, fh);
         while (NULL != ret2 && 2 < strlen(lbuff) && !file_eof(fh)) {
@@ -216,7 +216,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
         if(NULL == ret2 || 2 < strlen(lbuff)) {
             g_free(cbuff);
             g_free(lbuff);
-            return FALSE;
+            return false;
         }
 
         file_seek(fh,file_off,SEEK_SET,&err);
@@ -225,7 +225,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
 
     rec->rec_type = REC_TYPE_PACKET;
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
-    rec->rec_header.packet_header.caplen = (guint32)strlen(cbuff);
+    rec->rec_header.packet_header.caplen = (uint32_t)strlen(cbuff);
     rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
 
     ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen + 1);
@@ -246,38 +246,38 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     }
     memcpy(pd, cbuff, rec->rec_header.packet_header.caplen + 1);
     g_free(cbuff);
-    return TRUE;
+    return true;
 }
 
-static gboolean logcat_text_read(wtap *wth, wtap_rec *rec,
-        Buffer *buf, int *err _U_ , gchar **err_info _U_, gint64 *data_offset) {
+static bool logcat_text_read(wtap *wth, wtap_rec *rec,
+        Buffer *buf, int *err _U_ , char **err_info _U_, int64_t *data_offset) {
     *data_offset = file_tell(wth->fh);
 
     return logcat_text_read_packet(wth->fh, rec, buf, wth->file_type_subtype);
 }
 
-static gboolean logcat_text_seek_read(wtap *wth, gint64 seek_off,
-        wtap_rec *rec, Buffer *buf, int *err, gchar **err_info _U_) {
+static bool logcat_text_seek_read(wtap *wth, int64_t seek_off,
+        wtap_rec *rec, Buffer *buf, int *err, char **err_info _U_) {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     if (!logcat_text_read_packet(wth->random_fh, rec, buf,
             wth->file_type_subtype)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-wtap_open_return_val logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
-    gchar *cbuff;
-    gchar *ret = NULL;
+wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info _U_) {
+    char *cbuff;
+    char *ret = NULL;
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+    cbuff = (char*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     do {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
@@ -429,34 +429,34 @@ static int logcat_text_long_dump_can_write_encap(int encap) {
     }
 }
 
-static gboolean logcat_text_dump_text(wtap_dumper *wdh,
+static bool logcat_text_dump_text(wtap_dumper *wdh,
     const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info)
+    const uint8_t *pd, int *err, char **err_info)
 {
-    gchar                          *buf;
-    gint                            length;
-    gchar                           priority;
+    char                           *buf;
+    int                             length;
+    char                            priority;
     const struct logger_entry      *log_entry;
     const struct logger_entry_v2   *log_entry_v2;
-    gint                            payload_length;
-    const gchar                    *tag;
-    gint32                          pid;
-    gint32                          tid;
-    gint32                          seconds;
-    gint32                          milliseconds;
-    const guint8                   *msg_payload = NULL;
-    const gchar                    *msg_begin;
-    gint                            msg_pre_skip;
-    gchar                          *log;
-    gchar                          *log_part;
-    gchar                          *log_next;
-    gint                           logcat_version;
+    int                             payload_length;
+    const char                     *tag;
+    int32_t                         pid;
+    int32_t                         tid;
+    int32_t                         seconds;
+    int32_t                         milliseconds;
+    const uint8_t                  *msg_payload = NULL;
+    const char                     *msg_begin;
+    int                             msg_pre_skip;
+    char                           *log;
+    char                           *log_part;
+    char                           *log_next;
+    int                            logcat_version;
     const struct dumper_t          *dumper        = (const struct dumper_t *) wdh->priv;
 
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-        return FALSE;
+        return false;
     }
 
     /*
@@ -465,26 +465,26 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
      */
     if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-        return FALSE;
+        return false;
     }
 
     switch (wdh->file_encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         {
-            gint skipped_length;
+            int skipped_length;
 
             skipped_length = logcat_exported_pdu_length(pd);
             pd += skipped_length;
 
-            if (!wtap_dump_file_write(wdh, (const gchar*) pd, rec->rec_header.packet_header.caplen - skipped_length, err)) {
-                return FALSE;
+            if (!wtap_dump_file_write(wdh, (const char*) pd, rec->rec_header.packet_header.caplen - skipped_length, err)) {
+                return false;
             }
         }
         break;
     case WTAP_ENCAP_LOGCAT:
         /* Skip EXPORTED_PDU*/
         if (wdh->file_encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
-            gint skipped_length;
+            int skipped_length;
 
             skipped_length = logcat_exported_pdu_length(pd);
             pd += skipped_length;
@@ -507,24 +507,24 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
 
         /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
         if (logcat_version == 1) {
-            msg_payload = (const guint8 *) (log_entry + 1);
+            msg_payload = (const uint8_t *) (log_entry + 1);
 
             priority = get_priority(msg_payload[0]);
             tag = msg_payload + 1;
-            msg_pre_skip = 1 + (gint) strlen(tag) + 1;
+            msg_pre_skip = 1 + (int) strlen(tag) + 1;
             msg_begin = msg_payload + msg_pre_skip;
         } else if (logcat_version == 2) {
-            msg_payload = (const guint8 *) (log_entry_v2 + 1);
+            msg_payload = (const uint8_t *) (log_entry_v2 + 1);
 
             priority = get_priority(msg_payload[0]);
             tag = msg_payload + 1;
-            msg_pre_skip = 1 + (gint) strlen(tag) + 1;
+            msg_pre_skip = 1 + (int) strlen(tag) + 1;
             msg_begin = msg_payload + msg_pre_skip;
         } else {
             *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("logcat: version %d isn't supported",
                                         logcat_version);
-            return FALSE;
+            return false;
         }
 
         /* copy the message part. If a nul byte was missing, it will be added. */
@@ -554,13 +554,13 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
             buf = logcat_log(dumper, seconds, milliseconds, pid, tid, priority, tag, log_part);
             if (!buf) {
                 g_free(log);
-                return FALSE;
+                return false;
             }
-            length = (guint32) strlen(buf);
+            length = (uint32_t) strlen(buf);
 
             if (!wtap_dump_file_write(wdh, buf, length, err)) {
                 g_free(log);
-                return FALSE;
+                return false;
             }
         } while (log_next != NULL );
 
@@ -575,19 +575,19 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     case WTAP_ENCAP_LOGCAT_THREADTIME:
     case WTAP_ENCAP_LOGCAT_LONG:
         if (dumper->type == wdh->file_encap) {
-            if (!wtap_dump_file_write(wdh, (const gchar*) pd, rec->rec_header.packet_header.caplen, err)) {
-                return FALSE;
+            if (!wtap_dump_file_write(wdh, (const char*) pd, rec->rec_header.packet_header.caplen, err)) {
+                return false;
             }
         } else {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type) {
+static bool logcat_text_dump_open(wtap_dumper *wdh, unsigned dump_type) {
     struct dumper_t *dumper;
 
     dumper = g_new(struct dumper_t, 1);
@@ -596,34 +596,34 @@ static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type) {
     wdh->priv = dumper;
     wdh->subtype_write = logcat_text_dump_text;
 
-    return TRUE;
+    return true;
 }
 
-static gboolean logcat_text_brief_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_brief_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_BRIEF);
 }
 
-static gboolean logcat_text_process_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_process_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_PROCESS);
 }
 
-static gboolean logcat_text_tag_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_tag_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_TAG);
 }
 
-static gboolean logcat_text_time_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_time_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_TIME);
 }
 
-static gboolean logcat_text_thread_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_thread_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_THREAD);
 }
 
-static gboolean logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_THREADTIME);
 }
 
-static gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+static bool logcat_text_long_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_) {
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_LONG);
 }
 
@@ -636,7 +636,7 @@ static const struct supported_block_type logcat_text_brief_blocks_supported[] = 
 
 static const struct file_type_subtype_info logcat_text_brief_info = {
     "Android Logcat Brief text format", "logcat-brief", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_brief_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_brief_blocks_supported),
     logcat_text_brief_dump_can_write_encap, logcat_text_brief_dump_open, NULL
 };
 
@@ -649,7 +649,7 @@ static const struct supported_block_type logcat_text_process_blocks_supported[] 
 
 static const struct file_type_subtype_info logcat_text_process_info = {
     "Android Logcat Process text format", "logcat-process", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_process_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_process_blocks_supported),
     logcat_text_process_dump_can_write_encap, logcat_text_process_dump_open, NULL
 };
 
@@ -662,7 +662,7 @@ static const struct supported_block_type logcat_text_tag_blocks_supported[] = {
 
 static const struct file_type_subtype_info logcat_text_tag_info = {
     "Android Logcat Tag text format", "logcat-tag", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_tag_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_tag_blocks_supported),
     logcat_text_tag_dump_can_write_encap, logcat_text_tag_dump_open, NULL
 };
 
@@ -675,7 +675,7 @@ static const struct supported_block_type logcat_text_thread_blocks_supported[] =
 
 static const struct file_type_subtype_info logcat_text_thread_info = {
     "Android Logcat Thread text format", "logcat-thread", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_thread_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_thread_blocks_supported),
     logcat_text_thread_dump_can_write_encap, logcat_text_thread_dump_open, NULL
 };
 
@@ -688,7 +688,7 @@ static const struct supported_block_type logcat_text_time_blocks_supported[] = {
 
 static const struct file_type_subtype_info logcat_text_time_info = {
     "Android Logcat Time text format", "logcat-time", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_time_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_time_blocks_supported),
     logcat_text_time_dump_can_write_encap, logcat_text_time_dump_open, NULL
 };
 
@@ -701,7 +701,7 @@ static const struct supported_block_type logcat_text_threadtime_blocks_supported
 
 static const struct file_type_subtype_info logcat_text_threadtime_info = {
     "Android Logcat Threadtime text format", "logcat-threadtime", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_threadtime_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_threadtime_blocks_supported),
     logcat_text_threadtime_dump_can_write_encap, logcat_text_threadtime_dump_open, NULL
 };
 
@@ -714,7 +714,7 @@ static const struct supported_block_type logcat_text_long_blocks_supported[] = {
 
 static const struct file_type_subtype_info logcat_text_long_info = {
     "Android Logcat Long text format", "logcat-long", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(logcat_text_long_blocks_supported),
+    false, BLOCKS_SUPPORTED(logcat_text_long_blocks_supported),
     logcat_text_long_dump_can_write_encap, logcat_text_long_dump_open, NULL
 };
 

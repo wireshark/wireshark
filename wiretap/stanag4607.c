@@ -31,37 +31,37 @@ static int stanag4607_file_type_subtype = -1;
 
 void register_stanag4607(void);
 
-static gboolean is_valid_id(guint16 version_id)
+static bool is_valid_id(uint16_t version_id)
 {
 #define VERSION_21 0x3231
 #define VERSION_30 0x3330
   if ((version_id != VERSION_21) &&
       (version_id != VERSION_30))
      /* Not a stanag4607 file */
-     return FALSE;
-  return TRUE;
+     return false;
+  return true;
 }
 
-static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
-                               Buffer *buf, int *err, gchar **err_info)
+static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
+                               Buffer *buf, int *err, char **err_info)
 {
   stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
-  guint32 millisecs, secs, nsecs;
-  gint64 offset = 0;
-  guint8 stanag_pkt_hdr[PKT_HDR_SIZE+SEG_HDR_SIZE];
-  guint32 packet_size;
+  uint32_t millisecs, secs, nsecs;
+  int64_t offset = 0;
+  uint8_t stanag_pkt_hdr[PKT_HDR_SIZE+SEG_HDR_SIZE];
+  uint32_t packet_size;
 
   *err = 0;
 
   /* Combined packet header and segment header */
   if (!wtap_read_bytes_or_eof(fh, stanag_pkt_hdr, sizeof stanag_pkt_hdr, err, err_info))
-    return FALSE;
+    return false;
   offset += sizeof stanag_pkt_hdr;
 
   if (!is_valid_id(pntoh16(&stanag_pkt_hdr[0]))) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup("Bad version number");
-    return FALSE;
+    return false;
   }
 
   rec->rec_type = REC_TYPE_PACKET;
@@ -77,7 +77,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     *err = WTAP_ERR_BAD_FILE;
     *err_info = ws_strdup_printf("stanag4607: File has %" PRIu32 "d-byte packet, "
       "bigger than maximum of %u", packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
-    return FALSE;
+    return false;
   }
   if (packet_size < PKT_HDR_SIZE+SEG_HDR_SIZE) {
     /*
@@ -87,7 +87,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     *err = WTAP_ERR_BAD_FILE;
     *err_info = ws_strdup_printf("stanag4607: File has %" PRIu32 "d-byte packet, "
       "smaller than minimum of %u", packet_size, PKT_HDR_SIZE+SEG_HDR_SIZE);
-    return FALSE;
+    return false;
   }
   rec->rec_header.packet_header.caplen = packet_size;
   rec->rec_header.packet_header.len = packet_size;
@@ -106,11 +106,11 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
 #define JOB_DEFINITION_SEGMENT 5
 #define PLATFORM_LOCATION_SEGMENT 13
   if (MISSION_SEGMENT == stanag_pkt_hdr[32]) {
-    guint8 mseg[39];
+    uint8_t mseg[39];
     struct tm tm;
 
     if (!wtap_read_bytes(fh, &mseg, sizeof mseg, err, err_info))
-      return FALSE;
+      return false;
     offset += sizeof mseg;
 
     tm.tm_year = pntoh16(&mseg[35]) - 1900;
@@ -125,14 +125,14 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   }
   else if (PLATFORM_LOCATION_SEGMENT == stanag_pkt_hdr[32]) {
     if (!wtap_read_bytes(fh, &millisecs, sizeof millisecs, err, err_info))
-      return FALSE;
+      return false;
     offset += sizeof millisecs;
     millisecs = g_ntohl(millisecs);
   }
   else if (DWELL_SEGMENT == stanag_pkt_hdr[32]) {
-    guint8 dseg[19];
+    uint8_t dseg[19];
     if (!wtap_read_bytes(fh, &dseg, sizeof dseg, err, err_info))
-      return FALSE;
+      return false;
     offset += sizeof dseg;
     millisecs = pntoh32(&dseg[15]);
   }
@@ -145,32 +145,32 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
 
   /* wind back to the start of the packet ... */
   if (file_seek(fh, - offset, SEEK_CUR, err) == -1)
-    return FALSE;
+    return false;
 
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static gboolean stanag4607_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                                int *err, gchar **err_info, gint64 *data_offset)
+static bool stanag4607_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                int *err, char **err_info, int64_t *data_offset)
 {
   *data_offset = file_tell(wth->fh);
 
   return stanag4607_read_file(wth, wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
+static bool stanag4607_seek_read(wtap *wth, int64_t seek_off,
                                wtap_rec *rec,
-                               Buffer *buf, int *err, gchar **err_info)
+                               Buffer *buf, int *err, char **err_info)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-    return FALSE;
+    return false;
 
   return stanag4607_read_file(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
-wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val stanag4607_open(wtap *wth, int *err, char **err_info)
 {
-  guint16 version_id;
+  uint16_t version_id;
   stanag4607_t *stanag4607;
 
   if (!wtap_read_bytes(wth->fh, &version_id, sizeof version_id, err, err_info))
@@ -216,7 +216,7 @@ static const struct supported_block_type stanag4607_blocks_supported[] = {
 
 static const struct file_type_subtype_info stanag4607_info = {
   "STANAG 4607 Format", "stanag4607", NULL, NULL,
-  FALSE, BLOCKS_SUPPORTED(stanag4607_blocks_supported),
+  false, BLOCKS_SUPPORTED(stanag4607_blocks_supported),
   NULL, NULL, NULL
 };
 

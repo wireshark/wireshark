@@ -11,6 +11,6 @@
 #include <glib.h>
 #include "wtap.h"
 
-wtap_open_return_val _5views_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val _5views_open(wtap *wth, int *err, char **err_info);
 
 #endif

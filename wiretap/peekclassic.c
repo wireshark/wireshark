@@ -40,23 +40,23 @@
 
 /* master header */
 typedef struct peekclassic_master_header {
-	guint8  version;
-	guint8  status;
+	uint8_t version;
+	uint8_t status;
 } peekclassic_master_header_t;
 #define PEEKCLASSIC_MASTER_HDR_SIZE 2
 
 /* secondary header (V5,V6,V7) */
 typedef struct peekclassic_v567_header {
-	guint32 filelength;
-	guint32 numPackets;
-	guint32 timeDate;
-	guint32 timeStart;
-	guint32 timeStop;
-	guint32 mediaType;  /* Media Type Ethernet=0 Token Ring = 1 */
-	guint32 physMedium; /* Physical Medium native=0 802.1=1 */
-	guint32 appVers;    /* App Version Number Maj.Min.Bug.Build */
-	guint32 linkSpeed;  /* Link Speed Bits/sec */
-	guint32 reserved[3];
+	uint32_t filelength;
+	uint32_t numPackets;
+	uint32_t timeDate;
+	uint32_t timeStart;
+	uint32_t timeStop;
+	uint32_t mediaType;  /* Media Type Ethernet=0 Token Ring = 1 */
+	uint32_t physMedium; /* Physical Medium native=0 802.1=1 */
+	uint32_t appVers;    /* App Version Number Maj.Min.Bug.Build */
+	uint32_t linkSpeed;  /* Link Speed Bits/sec */
+	uint32_t reserved[3];
 } peekclassic_v567_header_t;
 #define PEEKCLASSIC_V567_HDR_SIZE 48
 
@@ -96,8 +96,8 @@ typedef struct peekclassic_header {
 
 /* 64-bit time in micro seconds from the (Mac) epoch */
 typedef struct peekclassic_utime {
-	guint32 upper;
-	guint32 lower;
+	uint32_t upper;
+	uint32_t lower;
 } peekclassic_utime;
 
 /*
@@ -139,25 +139,25 @@ typedef struct {
 	time_t reference_time;
 } peekclassic_t;
 
-static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool peekclassic_seek_read_v7(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool peekclassic_seek_read_v56(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
 static int peekclassic_v56_file_type_subtype = -1;
 static int peekclassic_v7_file_type_subtype = -1;
 
 void register_peekclassic(void);
 
-wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val peekclassic_open(wtap *wth, int *err, char **err_info)
 {
 	peekclassic_header_t ep_hdr;
 	time_t reference_time;
@@ -360,8 +360,8 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
-static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	int sliceLength;
 
@@ -371,59 +371,59 @@ static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
 	sliceLength = peekclassic_read_packet_v7(wth, wth->fh, rec, buf,
 	    err, err_info);
 	if (sliceLength < 0)
-		return FALSE;
+		return false;
 
 	/* Skip extra ignored data at the end of the packet. */
-	if ((guint32)sliceLength > rec->rec_header.packet_header.caplen) {
+	if ((uint32_t)sliceLength > rec->rec_header.packet_header.caplen) {
 		if (!wtap_read_bytes(wth->fh, NULL, sliceLength - rec->rec_header.packet_header.caplen,
 		    err, err_info))
-			return FALSE;
+			return false;
 	}
 
 	/* Records are padded to an even length, so if the slice length
 	   is odd, read the padding byte. */
 	if (sliceLength & 0x01) {
 		if (!wtap_read_bytes(wth->fh, NULL, 1, err, err_info))
-			return FALSE;
+			return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool peekclassic_seek_read_v7(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	/* Read the packet. */
 	if (peekclassic_read_packet_v7(wth, wth->random_fh, rec, buf,
 	    err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 #define RADIO_INFO_SIZE	4
 
 static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
-	guint8 ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
+	uint8_t ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
 #if 0
-	guint16 protoNum;
+	uint16_t protoNum;
 #endif
-	guint16 length;
-	guint16 sliceLength;
-	guint8  flags;
-	guint8  status;
-	guint64 timestamp;
+	uint16_t length;
+	uint16_t sliceLength;
+	uint8_t flags;
+	uint8_t status;
+	uint64_t timestamp;
 	time_t tsecs;
-	guint32 tusecs;
-	guint32 pack_flags;
-	guint8 radio_info[RADIO_INFO_SIZE];
+	uint32_t tusecs;
+	uint32_t pack_flags;
+	uint8_t radio_info[RADIO_INFO_SIZE];
 
 	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return -1;
@@ -453,7 +453,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	tsecs = (time_t) (timestamp/1000000);
-	tusecs = (guint32) (timestamp - tsecs*1000000);
+	tusecs = (uint32_t) (timestamp - tsecs*1000000);
 	rec->ts.secs  = tsecs - EPOCH_DELTA_1904_01_01_00_00_00_UTC;
 	rec->ts.nsecs = tusecs * 1000;
 	rec->rec_header.packet_header.len    = length;
@@ -472,8 +472,8 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = FALSE;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = false;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = false;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 
 		/*
@@ -509,13 +509,13 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		if (!wtap_read_bytes(fh, radio_info, RADIO_INFO_SIZE, err, err_info))
 			return -1;
 
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate = radio_info[0];
 
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_channel = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_channel = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.channel = radio_info[1];
 
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.signal_percent = radio_info[2];
 
 		/*
@@ -525,18 +525,18 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		if (RATE_IS_DSSS(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
 			/* 11b */
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = false;
 		} else if (RATE_IS_OFDM(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
 			/* 11a or 11g, depending on the band. */
 			if (CHAN_IS_BG(rec->rec_header.packet_header.pseudo_header.ieee_802_11.channel)) {
 				/* 11g */
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = FALSE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = false;
 			} else {
 				/* 11a */
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = FALSE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_channel_type = false;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = false;
 			}
 		}
 
@@ -572,63 +572,63 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	return sliceLength;
 }
 
-static gboolean peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* read the packet */
 	if (!peekclassic_read_packet_v56(wth, wth->fh, rec, buf,
 	    err, err_info))
-		return FALSE;
+		return false;
 
 	/*
 	 * XXX - is the captured packet data padded to a multiple
 	 * of 2 bytes?
 	 */
-	return TRUE;
+	return true;
 }
 
-static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool peekclassic_seek_read_v56(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	/* read the packet */
 	if (!peekclassic_read_packet_v56(wth, wth->random_fh, rec, buf,
 	    err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	peekclassic_t *peekclassic = (peekclassic_t *)wth->priv;
-	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
-	guint16 length;
-	guint16 sliceLength;
-	guint8  flags;
+	uint8_t ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
+	uint16_t length;
+	uint16_t sliceLength;
+	uint8_t flags;
 #if 0
-	guint8  status;
+	uint8_t status;
 #endif
-	guint32 timestamp;
+	uint32_t timestamp;
 #if 0
-	guint16 destNum;
-	guint16 srcNum;
+	uint16_t destNum;
+	uint16_t srcNum;
 #endif
 #if 0
-	guint16 protoNum;
+	uint16_t protoNum;
 	char    protoStr[8];
 #endif
-	guint32 pack_flags;
+	uint32_t pack_flags;
 
 	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
-		return FALSE;
+		return false;
 
 	/* Extract the fields from the packet */
 	length = pntoh16(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);
@@ -700,7 +700,7 @@ static const struct supported_block_type peekclassic_v56_blocks_supported[] = {
 
 static const struct file_type_subtype_info peekclassic_v56_info = {
 	"Savvius classic (V5 and V6)", "peekclassic56", "pkt", "tpc;apc;wpz",
-	FALSE, BLOCKS_SUPPORTED(peekclassic_v56_blocks_supported),
+	false, BLOCKS_SUPPORTED(peekclassic_v56_blocks_supported),
 	NULL, NULL, NULL
 };
 
@@ -713,7 +713,7 @@ static const struct supported_block_type peekclassic_v7_blocks_supported[] = {
 
 static const struct file_type_subtype_info peekclassic_v7_info = {
 	"Savvius classic (V7)", "peekclassic7", "pkt", "tpc;apc;wpz",
-	FALSE, BLOCKS_SUPPORTED(peekclassic_v7_blocks_supported),
+	false, BLOCKS_SUPPORTED(peekclassic_v7_blocks_supported),
 	NULL, NULL, NULL
 };
 

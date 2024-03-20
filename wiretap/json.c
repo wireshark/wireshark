@@ -22,14 +22,14 @@ static int json_file_type_subtype = -1;
 
 void register_json(void);
 
-wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val json_open(wtap *wth, int *err, char **err_info)
 {
-    guint8* filebuf;
+    uint8_t* filebuf;
     int bytes_read;
 
     /* XXX checking the full file contents might be a bit expensive, maybe
      * resort to simpler heuristics like '{' or '[' (with some other chars)? */
-    filebuf = (guint8*)g_malloc0(MAX_FILE_SIZE);
+    filebuf = (uint8_t*)g_malloc0(MAX_FILE_SIZE);
     if (!filebuf)
         return WTAP_OPEN_ERROR;
 
@@ -46,7 +46,7 @@ wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
-    if (json_validate(filebuf, bytes_read) == FALSE) {
+    if (json_validate(filebuf, bytes_read) == false) {
         g_free(filebuf);
         return WTAP_OPEN_NOT_MINE;
     }
@@ -78,7 +78,7 @@ static const struct supported_block_type json_blocks_supported[] = {
 
 static const struct file_type_subtype_info json_info = {
     "JavaScript Object Notation", "json", "json", NULL,
-    FALSE, BLOCKS_SUPPORTED(json_blocks_supported),
+    false, BLOCKS_SUPPORTED(json_blocks_supported),
     NULL, NULL, NULL
 };
 

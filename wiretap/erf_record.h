@@ -103,23 +103,23 @@
 /*
  * Calculate 3-bit ERF InterfaceID value from ERF Header flags byte
  */
-#define erf_interface_id_from_flags(flags) ((((guint8)flags) & ERF_HDR_CAP_HI_MASK >> 4 ) | (((guint8)flags) & ERF_HDR_CAP_LO_MASK))
+#define erf_interface_id_from_flags(flags) ((((uint8_t)flags) & ERF_HDR_CAP_HI_MASK >> 4 ) | (((uint8_t)flags) & ERF_HDR_CAP_LO_MASK))
 
 /* Host ID and Anchor ID*/
-#define ERF_EHDR_HOST_ID_MASK G_GUINT64_CONSTANT(0xffffffffffff)
-#define ERF_EHDR_ANCHOR_ID_MASK G_GUINT64_CONSTANT(0xffffffffffff)
-#define ERF_EHDR_MORE_EXTHDR_MASK G_GUINT64_CONSTANT(0x8000000000000000)
-#define ERF_EHDR_ANCHOR_ID_DEFINITION_MASK G_GUINT64_CONSTANT(0x80000000000000)
+#define ERF_EHDR_HOST_ID_MASK UINT64_C(0xffffffffffff)
+#define ERF_EHDR_ANCHOR_ID_MASK UINT64_C(0xffffffffffff)
+#define ERF_EHDR_MORE_EXTHDR_MASK UINT64_C(0x8000000000000000)
+#define ERF_EHDR_ANCHOR_ID_DEFINITION_MASK UINT64_C(0x80000000000000)
 
-#define ERF_EHDR_FLOW_ID_STACK_TYPE_MASK G_GUINT64_CONSTANT(0xff00000000)
-#define ERF_EHDR_FLOW_ID_SOURCE_ID_MASK  G_GUINT64_CONSTANT(0xff000000000000)
+#define ERF_EHDR_FLOW_ID_STACK_TYPE_MASK UINT64_C(0xff00000000)
+#define ERF_EHDR_FLOW_ID_SOURCE_ID_MASK  UINT64_C(0xff000000000000)
 
 /* ERF Provenance metadata */
 #define ERF_META_SECTION_MASK 0xFF00
 #define ERF_META_IS_SECTION(type) (type > 0 && (type & ERF_META_SECTION_MASK) == ERF_META_SECTION_MASK)
-#define ERF_META_HOST_ID_IMPLICIT G_MAXUINT64
-#define ERF_ANCHOR_ID_IS_DEFINITION(anchor_id) ((guint64)anchor_id & ERF_EHDR_ANCHOR_ID_DEFINITION_MASK)
-#define ERF_EHDR_SET_MORE_EXTHDR(ext_hdr) ((guint64)ext_hdr | ERF_EHDR_MORE_EXTHDR_MASK)
+#define ERF_META_HOST_ID_IMPLICIT UINT64_MAX
+#define ERF_ANCHOR_ID_IS_DEFINITION(anchor_id) ((uint64_t)anchor_id & ERF_EHDR_ANCHOR_ID_DEFINITION_MASK)
+#define ERF_EHDR_SET_MORE_EXTHDR(ext_hdr) ((uint64_t)ext_hdr | ERF_EHDR_MORE_EXTHDR_MASK)
 
 #define ERF_META_SECTION_CAPTURE     0xFF00
 #define ERF_META_SECTION_HOST        0xFF01
@@ -401,28 +401,28 @@
   * The timestamp is 64bit unsigned fixed point little-endian value with
   * 32 bits for second and 32 bits for fraction.
   */
-typedef guint64 erf_timestamp_t;
+typedef uint64_t erf_timestamp_t;
 
 typedef struct erf_record {
 	erf_timestamp_t	ts;
-	guint8		type;
-	guint8		flags;
-	guint16		rlen;
-	guint16		lctr;
-	guint16		wlen;
+	uint8_t		type;
+	uint8_t		flags;
+	uint16_t	rlen;
+	uint16_t	lctr;
+	uint16_t	wlen;
 } erf_header_t;
 
 typedef struct erf_mc_hdr {
-	guint32	mc;
+	uint32_t	mc;
 } erf_mc_header_t;
 
 typedef struct erf_aal2_hdr {
-	guint32	aal2;
+	uint32_t	aal2;
 } erf_aal2_header_t;
 
 typedef struct erf_eth_hdr {
-	guint8 offset;
-	guint8 pad;
+	uint8_t offset;
+	uint8_t pad;
 } erf_eth_header_t;
 
 union erf_subhdr {

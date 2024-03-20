@@ -16,15 +16,15 @@
 #include "i4btrace.h"
 
 typedef struct {
-	gboolean byte_swapped;
+	bool byte_swapped;
 } i4btrace_t;
 
-static gboolean i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *offset);
-static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static int i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info);
+static bool i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *offset);
+static bool i4btrace_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info);
 
 static int i4btrace_file_type_subtype = -1;
 
@@ -62,10 +62,10 @@ void register_i4btrace(void);
  */
 #define PACKETS_TO_CHECK	5
 
-wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val i4btrace_open(wtap *wth, int *err, char **err_info)
 {
 	i4b_trace_hdr_t hdr;
-	gboolean byte_swapped = FALSE;
+	bool byte_swapped = false;
 	i4btrace_t *i4btrace;
 
 	/* I4B trace files have no magic in the header... Sigh */
@@ -92,7 +92,7 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 		 * It looks valid byte-swapped, so assume it's a
 		 * trace written in the opposite byte order.
 		 */
-		byte_swapped = TRUE;
+		byte_swapped = true;
 	}
 
 	/*
@@ -100,7 +100,7 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	 * a short read, we don't fail, so that we can report
 	 * the file as a truncated I4B file.
 	 */
-	if (!wtap_read_bytes(wth->fh, NULL, hdr.length - (guint32)sizeof(hdr),
+	if (!wtap_read_bytes(wth->fh, NULL, hdr.length - (uint32_t)sizeof(hdr),
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return WTAP_OPEN_ERROR;
@@ -140,7 +140,7 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 			 * we can report the file as a truncated I4B file.
 			 */
 			if (!wtap_read_bytes(wth->fh, NULL,
-			    hdr.length - (guint32)sizeof(hdr), err, err_info)) {
+			    hdr.length - (uint32_t)sizeof(hdr), err, err_info)) {
 				if (*err != WTAP_ERR_SHORT_READ)
 					return WTAP_OPEN_ERROR;
 
@@ -181,20 +181,20 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return i4b_read_rec(wth, wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean
-i4btrace_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool
+i4btrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	if (!i4b_read_rec(wth, wth->random_fh, rec, buf, err, err_info)) {
 		/* Read error or EOF */
@@ -202,21 +202,21 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 			/* EOF means "short read" in random-access mode */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	i4btrace_t *i4btrace = (i4btrace_t *)wth->priv;
 	i4b_trace_hdr_t hdr;
-	guint32 length;
+	uint32_t length;
 
 	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
-		return FALSE;
+		return false;
 
 	if (i4btrace->byte_swapped) {
 		/*
@@ -229,9 +229,9 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;	/* record length < header! */
 		*err_info = ws_strdup_printf("i4btrace: record length %u < header length %lu",
 		    hdr.length, (unsigned long)sizeof(hdr));
-		return FALSE;
+		return false;
 	}
-	length = hdr.length - (guint32)sizeof(hdr);
+	length = hdr.length - (uint32_t)sizeof(hdr);
 	if (length > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
@@ -240,7 +240,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("i4btrace: File has %u-byte packet, bigger than maximum of %u",
 		    length, WTAP_MAX_PACKET_SIZE_STANDARD);
-		return FALSE;
+		return false;
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
@@ -306,7 +306,7 @@ static const struct supported_block_type i4btrace_blocks_supported[] = {
 
 static const struct file_type_subtype_info i4btrace_info = {
 	"I4B ISDN trace", "i4btrace", NULL, NULL,
-	FALSE, BLOCKS_SUPPORTED(i4btrace_blocks_supported),
+	false, BLOCKS_SUPPORTED(i4btrace_blocks_supported),
 	NULL, NULL, NULL
 };
 

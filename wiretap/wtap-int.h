@@ -25,9 +25,9 @@ void wtap_init_file_type_subtypes(void);
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
-typedef gboolean (*subtype_read_func)(struct wtap*, wtap_rec *,
-                                      Buffer *, int *, char **, gint64 *);
-typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, wtap_rec *,
+typedef bool (*subtype_read_func)(struct wtap*, wtap_rec *,
+                                      Buffer *, int *, char **, int64_t *);
+typedef bool (*subtype_seek_read_func)(struct wtap*, int64_t, wtap_rec *,
                                            Buffer *, int *, char **);
 
 /**
@@ -36,13 +36,13 @@ typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, wtap_rec *,
 struct wtap {
     FILE_T                      fh;
     FILE_T                      random_fh;              /**< Secondary FILE_T for random access */
-    gboolean                    ispipe;                 /**< TRUE if the file is a pipe */
+    bool                        ispipe;                 /**< true if the file is a pipe */
     int                         file_type_subtype;
-    guint                       snapshot_length;
+    unsigned                    snapshot_length;
     GArray                      *shb_hdrs;
     GArray                      *shb_iface_to_global;   /**< An array mapping the per-section interface numbers to global IDs */
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
-    guint                       next_interface_data;    /**< Next interface data that wtap_get_next_interface_description() will show */
+    unsigned                    next_interface_data;    /**< Next interface data that wtap_get_next_interface_description() will show */
     GArray                      *nrbs;                  /**< holds the Name Res Blocks, or NULL */
     GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
     GArray                      *meta_events;           /**< An array of meta eventss (of type wtap_block_t), or NULL if not supported. */
@@ -85,13 +85,13 @@ struct wtap_dumper;
  */
 typedef void *WFILE_T;
 
-typedef gboolean (*subtype_add_idb_func)(struct wtap_dumper*, wtap_block_t,
-                                         int *, gchar **);
+typedef bool (*subtype_add_idb_func)(struct wtap_dumper*, wtap_block_t,
+                                         int *, char **);
 
-typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
+typedef bool (*subtype_write_func)(struct wtap_dumper*,
                                        const wtap_rec *rec,
-                                       const guint8*, int*, gchar**);
-typedef gboolean (*subtype_finish_func)(struct wtap_dumper*, int*, gchar**);
+                                       const uint8_t*, int*, char**);
+typedef bool (*subtype_finish_func)(struct wtap_dumper*, int*, char**);
 
 struct wtap_dumper {
     WFILE_T                 fh;
@@ -104,8 +104,8 @@ struct wtap_dumper {
                                               * encapsulation types
                                               */
     wtap_compression_type   compression_type;
-    gboolean                needs_reload;    /* TRUE if the file requires re-loading after saving with wtap */
-    gint64                  bytes_dumped;
+    bool                    needs_reload;    /* true if the file requires re-loading after saving with wtap */
+    int64_t                 bytes_dumped;
 
     void                    *priv;           /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
     void                    *wslua_data;     /* this one holds wslua state info and is not free'd */
@@ -127,17 +127,17 @@ struct wtap_dumper {
     const GArray            *nrbs_growing;          /**< A reference to an array of NRBs (of type wtap_block_t) */
     const GArray            *dsbs_growing;          /**< A reference to an array of DSBs (of type wtap_block_t) */
     const GArray            *mevs_growing;          /**< A reference to an array of Sysdig meta events (of type wtap_block_t) */
-    guint                   nrbs_growing_written;   /**< Number of already processed NRBs in nrbs_growing. */
-    guint                   dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
-    guint                   mevs_growing_written;   /**< Number of already processed meta events in mevs_growing. */
+    unsigned                nrbs_growing_written;   /**< Number of already processed NRBs in nrbs_growing. */
+    unsigned                dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
+    unsigned                mevs_growing_written;   /**< Number of already processed meta events in mevs_growing. */
 };
 
-WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
+WS_DLL_PUBLIC bool wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
     size_t bufsize, int *err);
-WS_DLL_PUBLIC gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
-WS_DLL_PUBLIC gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
+WS_DLL_PUBLIC int64_t wtap_dump_file_seek(wtap_dumper *wdh, int64_t offset, int whence, int *err);
+WS_DLL_PUBLIC int64_t wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
-extern gint wtap_num_file_types;
+extern int wtap_num_file_types;
 
 #include <wsutil/pint.h>
 
@@ -146,7 +146,7 @@ extern gint wtap_num_file_types;
  */
 #define PBSWAP64(p) \
     {            \
-        guint8 tmp;        \
+        uint8_t tmp;        \
         tmp = (p)[7];      \
         (p)[7] = (p)[0];   \
         (p)[0] = tmp;      \
@@ -162,7 +162,7 @@ extern gint wtap_num_file_types;
     }
 #define PBSWAP32(p) \
     {            \
-        guint8 tmp;         \
+        uint8_t tmp;         \
         tmp = (p)[3];       \
         (p)[3] = (p)[0];    \
         (p)[0] = tmp;       \
@@ -172,7 +172,7 @@ extern gint wtap_num_file_types;
     }
 #define PBSWAP16(p) \
     {            \
-        guint8 tmp;        \
+        uint8_t tmp;        \
         tmp = (p)[1];      \
         (p)[1] = (p)[0];   \
         (p)[0] = tmp;      \
@@ -186,89 +186,89 @@ extern gint wtap_num_file_types;
 #ifndef phtons
 #define phtons(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 8);    \
-        (p)[1] = (guint8)((v) >> 0);    \
+        (p)[0] = (uint8_t)((v) >> 8);    \
+        (p)[1] = (uint8_t)((v) >> 0);    \
     }
 #endif
 
 #ifndef phton24
 #define phton24(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 16);    \
-        (p)[1] = (guint8)((v) >> 8);     \
-        (p)[2] = (guint8)((v) >> 0);     \
+        (p)[0] = (uint8_t)((v) >> 16);    \
+        (p)[1] = (uint8_t)((v) >> 8);     \
+        (p)[2] = (uint8_t)((v) >> 0);     \
     }
 #endif
 
 #ifndef phtonl
 #define phtonl(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 24);    \
-        (p)[1] = (guint8)((v) >> 16);    \
-        (p)[2] = (guint8)((v) >> 8);     \
-        (p)[3] = (guint8)((v) >> 0);     \
+        (p)[0] = (uint8_t)((v) >> 24);    \
+        (p)[1] = (uint8_t)((v) >> 16);    \
+        (p)[2] = (uint8_t)((v) >> 8);     \
+        (p)[3] = (uint8_t)((v) >> 0);     \
     }
 #endif
 
 #ifndef phtonll
 #define phtonll(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 56);    \
-        (p)[1] = (guint8)((v) >> 48);    \
-        (p)[2] = (guint8)((v) >> 40);    \
-        (p)[3] = (guint8)((v) >> 32);    \
-        (p)[4] = (guint8)((v) >> 24);    \
-        (p)[5] = (guint8)((v) >> 16);    \
-        (p)[6] = (guint8)((v) >> 8);     \
-        (p)[7] = (guint8)((v) >> 0);     \
+        (p)[0] = (uint8_t)((v) >> 56);    \
+        (p)[1] = (uint8_t)((v) >> 48);    \
+        (p)[2] = (uint8_t)((v) >> 40);    \
+        (p)[3] = (uint8_t)((v) >> 32);    \
+        (p)[4] = (uint8_t)((v) >> 24);    \
+        (p)[5] = (uint8_t)((v) >> 16);    \
+        (p)[6] = (uint8_t)((v) >> 8);     \
+        (p)[7] = (uint8_t)((v) >> 0);     \
     }
 #endif
 
 #ifndef phtole8
 #define phtole8(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 0);    \
+        (p)[0] = (uint8_t)((v) >> 0);    \
     }
 #endif
 
 #ifndef phtoles
 #define phtoles(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 0);    \
-        (p)[1] = (guint8)((v) >> 8);    \
+        (p)[0] = (uint8_t)((v) >> 0);    \
+        (p)[1] = (uint8_t)((v) >> 8);    \
     }
 #endif
 
 #ifndef phtole24
 #define phtole24(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 0);     \
-        (p)[1] = (guint8)((v) >> 8);     \
-        (p)[2] = (guint8)((v) >> 16);    \
+        (p)[0] = (uint8_t)((v) >> 0);     \
+        (p)[1] = (uint8_t)((v) >> 8);     \
+        (p)[2] = (uint8_t)((v) >> 16);    \
     }
 #endif
 
 #ifndef phtolel
 #define phtolel(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 0);     \
-        (p)[1] = (guint8)((v) >> 8);     \
-        (p)[2] = (guint8)((v) >> 16);    \
-        (p)[3] = (guint8)((v) >> 24);    \
+        (p)[0] = (uint8_t)((v) >> 0);     \
+        (p)[1] = (uint8_t)((v) >> 8);     \
+        (p)[2] = (uint8_t)((v) >> 16);    \
+        (p)[3] = (uint8_t)((v) >> 24);    \
     }
 #endif
 
 #ifndef phtolell
 #define phtolell(p, v) \
     {                 \
-        (p)[0] = (guint8)((v) >> 0);     \
-        (p)[1] = (guint8)((v) >> 8);     \
-        (p)[2] = (guint8)((v) >> 16);    \
-        (p)[3] = (guint8)((v) >> 24);    \
-        (p)[4] = (guint8)((v) >> 32);    \
-        (p)[5] = (guint8)((v) >> 40);    \
-        (p)[6] = (guint8)((v) >> 48);    \
-        (p)[7] = (guint8)((v) >> 56);    \
+        (p)[0] = (uint8_t)((v) >> 0);     \
+        (p)[1] = (uint8_t)((v) >> 8);     \
+        (p)[2] = (uint8_t)((v) >> 16);    \
+        (p)[3] = (uint8_t)((v) >> 24);    \
+        (p)[4] = (uint8_t)((v) >> 32);    \
+        (p)[5] = (uint8_t)((v) >> 40);    \
+        (p)[6] = (uint8_t)((v) >> 48);    \
+        (p)[7] = (uint8_t)((v) >> 56);    \
     }
 #endif
 
@@ -281,40 +281,40 @@ extern gint wtap_num_file_types;
  * Read a given number of bytes from a file into a buffer or, if
  * buf is NULL, just discard them.
  *
- * If we succeed, return TRUE.
+ * If we succeed, return true.
  *
- * If we get an EOF, return FALSE with *err set to 0, reporting this
+ * If we get an EOF, return false with *err set to 0, reporting this
  * as an EOF.
  *
- * If we get fewer bytes than the specified number, return FALSE with
+ * If we get fewer bytes than the specified number, return false with
  * *err set to WTAP_ERR_SHORT_READ, reporting this as a short read
  * error.
  *
- * If we get a read error, return FALSE with *err and *err_info set
+ * If we get a read error, return false with *err and *err_info set
  * appropriately.
  */
 WS_DLL_PUBLIC
-gboolean
+bool
 wtap_read_bytes_or_eof(FILE_T fh, void *buf, unsigned int count, int *err,
-    gchar **err_info);
+    char **err_info);
 
 /*
  * Read a given number of bytes from a file into a buffer or, if
  * buf is NULL, just discard them.
  *
- * If we succeed, return TRUE.
+ * If we succeed, return true.
  *
  * If we get fewer bytes than the specified number, including getting
- * an EOF, return FALSE with *err set to WTAP_ERR_SHORT_READ, reporting
+ * an EOF, return false with *err set to WTAP_ERR_SHORT_READ, reporting
  * this as a short read error.
  *
- * If we get a read error, return FALSE with *err and *err_info set
+ * If we get a read error, return false with *err and *err_info set
  * appropriately.
  */
 WS_DLL_PUBLIC
-gboolean
+bool
 wtap_read_bytes(FILE_T fh, void *buf, unsigned int count, int *err,
-    gchar **err_info);
+    char **err_info);
 
 /*
  * Read packet data into a Buffer, growing the buffer as necessary.
@@ -326,24 +326,24 @@ wtap_read_bytes(FILE_T fh, void *buf, unsigned int count, int *err,
  * has been cut short, even if the read didn't read any data at all.)
  */
 WS_DLL_PUBLIC
-gboolean
-wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
-    gchar **err_info);
+bool
+wtap_read_packet_bytes(FILE_T fh, Buffer *buf, unsigned length, int *err,
+    char **err_info);
 
 /*
  * Implementation of wth->subtype_read that reads the full file contents
  * as a single packet.
  */
-gboolean
+bool
 wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
+    int *err, char **err_info, int64_t *data_offset);
 
 /*
  * Implementation of wth->subtype_seek_read that reads the full file contents
  * as a single packet.
  */
-gboolean
-wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+bool
+wtap_full_file_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
 /**
  * Add an IDB to the interface data for a file.

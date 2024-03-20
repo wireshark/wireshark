@@ -116,7 +116,7 @@ list_idb_merge_modes(void) {
     }
 }
 
-static gboolean
+static bool
 merge_callback(merge_event event, int num,
         const merge_in_file_t in_files[], const guint in_file_count,
         void *data _U_)
@@ -178,7 +178,7 @@ merge_callback(merge_event event, int num,
     }
 
     /* false = do not stop merging */
-    return FALSE;
+    return false;
 }
 
 int

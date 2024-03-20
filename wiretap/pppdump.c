@@ -85,10 +85,10 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static gboolean pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-	int *err, gchar **err_info, gint64 *data_offset);
-static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, char **err_info, int64_t *data_offset);
+static bool pppdump_seek_read(wtap *wth, int64_t seek_off,
+	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
 static int pppdump_file_type_subtype = -1;
 
@@ -109,8 +109,8 @@ void register_pppdump(void);
  * "dir" is the direction of the packet.
  */
 typedef struct {
-	gint64		offset;
-	gint64		num_bytes_to_skip;
+	int64_t		offset;
+	int64_t		num_bytes_to_skip;
 	direction_enum	dir;
 } pkt_id;
 
@@ -124,8 +124,8 @@ typedef struct {
  *
  * "cnt" is the number of bytes of packet data we've accumulated.
  *
- * "esc" is TRUE if the next byte we see is escaped (and thus must be XORed
- * with 0x20 before saving it), FALSE otherwise.
+ * "esc" is true if the next byte we see is escaped (and thus must be XORed
+ * with 0x20 before saving it), false otherwise.
  *
  * "buf" is a buffer containing the packet data we've accumulated.
  *
@@ -143,11 +143,11 @@ typedef struct {
 typedef struct {
 	direction_enum	dir;
 	int		cnt;
-	gboolean	esc;
-	guint8		buf[PPPD_BUF_SIZE];
-	gint64		id_offset;
-	gint64		sd_offset;
-	gint64		cd_offset;
+	bool	esc;
+	uint8_t		buf[PPPD_BUF_SIZE];
+	int64_t		id_offset;
+	int64_t		sd_offset;
+	int64_t		cd_offset;
 } pkt_t;
 
 /*
@@ -187,25 +187,25 @@ typedef struct {
  */
 typedef struct _pppdump_t {
 	time_t			timestamp;
-	guint			tenths;
+	unsigned			tenths;
 	pkt_t			spkt;
 	pkt_t			rpkt;
-	gint64			offset;
+	int64_t			offset;
 	int			num_bytes;
 	pkt_t			*pkt;
 	struct _pppdump_t	*seek_state;
 	GPtrArray		*pids;
-	guint			pkt_cnt;
+	unsigned			pkt_cnt;
 } pppdump_t;
 
 static int
-process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
-    int *err, gchar **err_info, pkt_id *pid);
+process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, uint8_t *pd,
+    int *err, char **err_info, pkt_id *pid);
 
-static gboolean
-collate(pppdump_t *state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
+static bool
+collate(pppdump_t *state, FILE_T fh, int *err, char **err_info, uint8_t *pd,
 		int *num_bytes, direction_enum *direction, pkt_id *pid,
-		gint64 num_bytes_to_skip);
+		int64_t num_bytes_to_skip);
 
 static void
 pppdump_close(wtap *wth);
@@ -219,14 +219,14 @@ init_state(pppdump_t *state)
 
 	state->spkt.dir = DIRECTION_SENT;
 	state->spkt.cnt = 0;
-	state->spkt.esc = FALSE;
+	state->spkt.esc = false;
 	state->spkt.id_offset = 0;
 	state->spkt.sd_offset = 0;
 	state->spkt.cd_offset = 0;
 
 	state->rpkt.dir = DIRECTION_RECV;
 	state->rpkt.cnt = 0;
-	state->rpkt.esc = FALSE;
+	state->rpkt.esc = false;
 	state->rpkt.id_offset = 0;
 	state->rpkt.sd_offset = 0;
 	state->rpkt.cd_offset = 0;
@@ -237,9 +237,9 @@ init_state(pppdump_t *state)
 
 
 wtap_open_return_val
-pppdump_open(wtap *wth, int *err, gchar **err_info)
+pppdump_open(wtap *wth, int *err, char **err_info)
 {
-	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
+	uint8_t		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
 	pppdump_t	*state;
 
 	/* There is no file header, only packet records. Fortunately for us,
@@ -325,13 +325,13 @@ pppdump_set_phdr(wtap_rec *rec, int num_bytes,
 	rec->rec_header.packet_header.caplen = num_bytes;
 	rec->rec_header.packet_header.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
 
-	rec->rec_header.packet_header.pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);
+	rec->rec_header.packet_header.pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? true : false);
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean
-pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
-    gint64 *data_offset)
+static bool
+pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info,
+    int64_t *data_offset)
 {
 	int		num_bytes;
 	direction_enum	direction;
@@ -346,7 +346,7 @@ pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
 		pid = g_new(pkt_id, 1);
 		if (!pid) {
 			*err = errno;	/* assume a malloc failed and set "errno" */
-			return FALSE;
+			return false;
 		}
 		pid->offset = 0;
 	} else
@@ -356,7 +356,7 @@ pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
 	if (!collate(state, wth->fh, err, err_info, ws_buffer_start_ptr(buf),
 	    &num_bytes, &direction, pid, 0)) {
 		g_free(pid);
-		return FALSE;
+		return false;
 	}
 
 	if (pid != NULL)
@@ -373,7 +373,7 @@ pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
 	rec->ts.secs = state->timestamp;
 	rec->ts.nsecs = state->tenths * 100000000;
 
-	return TRUE;
+	return true;
 }
 
 /* Returns number of bytes copied for record, -1 if failure.
@@ -382,8 +382,8 @@ pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
  * comes with the ppp distribution.
  */
 static int
-process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
-    int *err, gchar **err_info, pkt_id *pid)
+process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, uint8_t *pd,
+    int *err, char **err_info, pkt_id *pid)
 {
 	int	c;
 	int	num_bytes = n;
@@ -423,7 +423,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 					 * so this is the end of a frame.
 					 * Make a frame out of that stuff.
 					 */
-					pkt->esc = FALSE;
+					pkt->esc = false;
 
 					num_written = pkt->cnt;
 					pkt->cnt = 0;
@@ -502,7 +502,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 					 * but XOR the next octet with
 					 * 0x20.
 					 */
-					pkt->esc = TRUE;
+					pkt->esc = true;
 					break;
 				}
 				/*
@@ -523,7 +523,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 					 * character should be escaped.
 					 */
 					c ^= 0x20;
-					pkt->esc = FALSE;
+					pkt->esc = false;
 				}
 
 				if (pkt->cnt >= PPPD_BUF_SIZE) {
@@ -541,19 +541,19 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 	return 0;
 }
 
-/* Returns TRUE if packet data copied, FALSE if error occurred or EOF (no more records). */
-static gboolean
-collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
+/* Returns true if packet data copied, false if error occurred or EOF (no more records). */
+static bool
+collate(pppdump_t* state, FILE_T fh, int *err, char **err_info, uint8_t *pd,
 		int *num_bytes, direction_enum *direction, pkt_id *pid,
-		gint64 num_bytes_to_skip)
+		int64_t num_bytes_to_skip)
 {
 	int		id;
 	pkt_t		*pkt = NULL;
 	int		byte0, byte1;
 	int		n, num_written = 0;
-	gint64		start_offset;
-	guint32		time_long;
-	guint8		time_short;
+	int64_t		start_offset;
+	uint32_t		time_long;
+	uint8_t		time_short;
 
 	/*
 	 * Process any data left over in the current record when doing
@@ -566,12 +566,12 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 		    pd, err, err_info, pid);
 
 		if (num_written < 0) {
-			return FALSE;
+			return false;
 		}
 		else if (num_written > 0) {
 			*num_bytes = num_written;
 			*direction = pkt->dir;
-			return TRUE;
+			return true;
 		}
 		/* if 0 bytes written, keep processing */
 	} else {
@@ -646,12 +646,12 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				    pd, err, err_info, pid);
 
 				if (num_written < 0) {
-					return FALSE;
+					return false;
 				}
 				else if (num_written > 0) {
 					*num_bytes = num_written;
 					*direction = pkt->dir;
-					return TRUE;
+					return true;
 				}
 				/* if 0 bytes written, keep looping */
 				break;
@@ -662,17 +662,17 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				break;
 
 			case PPPD_RESET_TIME:
-				if (!wtap_read_bytes(fh, &time_long, sizeof(guint32), err, err_info))
-					return FALSE;
-				state->offset += sizeof(guint32);
+				if (!wtap_read_bytes(fh, &time_long, sizeof(uint32_t), err, err_info))
+					return false;
+				state->offset += sizeof(uint32_t);
 				state->timestamp = pntoh32(&time_long);
 				state->tenths = 0;
 				break;
 
 			case PPPD_TIME_STEP_LONG:
-				if (!wtap_read_bytes(fh, &time_long, sizeof(guint32), err, err_info))
-					return FALSE;
-				state->offset += sizeof(guint32);
+				if (!wtap_read_bytes(fh, &time_long, sizeof(uint32_t), err, err_info))
+					return false;
+				state->offset += sizeof(uint32_t);
 				state->tenths += pntoh32(&time_long);
 
 				if (state->tenths >= 10) {
@@ -683,9 +683,9 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				break;
 
 			case PPPD_TIME_STEP_SHORT:
-				if (!wtap_read_bytes(fh, &time_short, sizeof(guint8), err, err_info))
-					return FALSE;
-				state->offset += sizeof(guint8);
+				if (!wtap_read_bytes(fh, &time_short, sizeof(uint8_t), err, err_info))
+					return false;
+				state->offset += sizeof(uint8_t);
 				state->tenths += time_short;
 
 				if (state->tenths >= 10) {
@@ -699,7 +699,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				/* XXX - bad file */
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = ws_strdup_printf("pppdump: bad ID byte 0x%02x", id);
-				return FALSE;
+				return false;
 		}
 
 	}
@@ -716,26 +716,26 @@ done:
 			*err = WTAP_ERR_SHORT_READ;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 
 
 /* Used to read packets in random-access fashion */
-static gboolean
+static bool
 pppdump_seek_read(wtap *wth,
-		 gint64 seek_off,
+		 int64_t seek_off,
 		 wtap_rec *rec,
 		 Buffer *buf,
 		 int *err,
-		 gchar **err_info)
+		 char **err_info)
 {
 	int		num_bytes;
-	guint8		*pd;
+	uint8_t		*pd;
 	direction_enum	direction;
 	pppdump_t	*state;
 	pkt_id		*pid;
-	gint64		num_bytes_to_skip;
+	int64_t		num_bytes_to_skip;
 
 	state = (pppdump_t *)wth->priv;
 
@@ -743,11 +743,11 @@ pppdump_seek_read(wtap *wth,
 	if (!pid) {
 		*err = WTAP_ERR_BAD_FILE;	/* XXX - better error? */
 		*err_info = g_strdup("pppdump: PID not found for record");
-		return FALSE;
+		return false;
 	}
 
 	if (file_seek(wth->random_fh, pid->offset, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	init_state(state->seek_state);
 	state->seek_state->offset = pid->offset;
@@ -770,13 +770,13 @@ pppdump_seek_read(wtap *wth,
 	do {
 		if (!collate(state->seek_state, wth->random_fh, err, err_info,
 		    pd, &num_bytes, &direction, NULL, num_bytes_to_skip))
-			return FALSE;
+			return false;
 		num_bytes_to_skip = 0;
 	} while (direction != pid->dir);
 
 	pppdump_set_phdr(rec, num_bytes, pid->dir);
 
-	return TRUE;
+	return true;
 }
 
 static void
@@ -786,7 +786,7 @@ pppdump_close(wtap *wth)
 
 	state = (pppdump_t *)wth->priv;
 
-	if (state->seek_state) { /* should always be TRUE */
+	if (state->seek_state) { /* should always be true */
 		g_free(state->seek_state);
 	}
 
@@ -795,7 +795,7 @@ pppdump_close(wtap *wth)
 		for (i = 0; i < g_ptr_array_len(state->pids); i++) {
 			g_free(g_ptr_array_index(state->pids, i));
 		}
-		g_ptr_array_free(state->pids, TRUE);
+		g_ptr_array_free(state->pids, true);
 	}
 }
 
@@ -808,7 +808,7 @@ static const struct supported_block_type pppdump_blocks_supported[] = {
 
 static const struct file_type_subtype_info pppdump_info = {
 	"pppd log (pppdump format)", "pppd", NULL, NULL,
-	FALSE, BLOCKS_SUPPORTED(pppdump_blocks_supported),
+	false, BLOCKS_SUPPORTED(pppdump_blocks_supported),
 	NULL, NULL, NULL
 };
 

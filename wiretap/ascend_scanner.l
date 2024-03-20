@@ -248,7 +248,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
         }
         /* Are valid values ever > 2^32? If so we need to adjust YYSTYPE and a lot of */
         /* upstream code accordingly. */
-        yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+        yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
         retval = DECNUM;
     }
     g_free (atcopy);
@@ -257,13 +257,13 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wds_sess>{D}* {
     BEGIN(sc_gen_task);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return DECNUM;
 }
 
 <sc_gen_task>(0x|0X)?{H}{2,8} {
     BEGIN(sc_gen_time_s);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 16);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 16);
     return HEXNUM;
 }
 
@@ -273,7 +273,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_gen_time_s>{D}{1,10} {
     BEGIN(sc_gen_time_u);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return DECNUM;
 }
 
@@ -283,14 +283,14 @@ WDD_TYPE    "type "[^\n\r\t ]+
     /* only want the most significant 2 digits. convert to usecs */
     if (strlen(atcopy) > 2)
         atcopy[2] = '\0';
-    yyextra->token.u32_val = (guint32) strtoul(atcopy, NULL, 10) * 10000;
+    yyextra->token.u32_val = (uint32_t) strtoul(atcopy, NULL, 10) * 10000;
     g_free(atcopy);
     return DECNUM;
 }
 
 <sc_gen_octets>{D}{1,10} {
     BEGIN(sc_gen_counter);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return DECNUM;
 }
 
@@ -300,7 +300,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_gen_byte>{H}{2} {
-    yyextra->token.u8_val = (guint8) strtoul(yytext, NULL, 16);
+    yyextra->token.u8_val = (uint8_t) strtoul(yytext, NULL, 16);
     return HEXBYTE;
 }
 
@@ -323,19 +323,19 @@ WDD_TYPE    "type "[^\n\r\t ]+
   */
 <sc_wdd_date_m>{D}{2} {
     BEGIN(sc_wdd_date_d);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return WDD_DECNUM;
 }
 
 <sc_wdd_date_d>\/{D}{2}\/ {
     BEGIN(sc_wdd_date_y);
-    yyextra->token.u32_val = (guint32) strtoul(yytext+1, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext+1, NULL, 10);
     return WDD_DECNUM;
 }
 
 <sc_wdd_date_y>{D}{4} {
     BEGIN(sc_wdd_time);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return WDD_DECNUM;
 }
 
@@ -349,19 +349,19 @@ WDD_TYPE    "type "[^\n\r\t ]+
   */
 <sc_wdd_time_h>{D}{2} {
     BEGIN(sc_wdd_time_m);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return WDD_DECNUM;
 }
 
 <sc_wdd_time_m>:{D}{2}: {
     BEGIN(sc_wdd_time_s);
-    yyextra->token.u32_val = (guint32) strtoul(yytext+1, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext+1, NULL, 10);
     return WDD_DECNUM;
 }
 
 <sc_wdd_time_s>{D}{2} {
     BEGIN(sc_wdd_cause);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 10);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 10);
     return WDD_DECNUM;
 }
 
@@ -383,7 +383,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wdd_chunknum>{H}{1,8} {
     BEGIN(sc_wdd_type);
-    yyextra->token.u32_val = (guint32) strtoul(yytext, NULL, 16);
+    yyextra->token.u32_val = (uint32_t) strtoul(yytext, NULL, 16);
     return HEXNUM;
 }
 

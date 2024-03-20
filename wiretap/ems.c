@@ -22,10 +22,10 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
 
-static gboolean ems_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar
-        **err_info, gint64 *data_offset);
-static gboolean ems_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer
-        *buf, int *err, gchar **err_info);
+static bool ems_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char
+        **err_info, int64_t *data_offset);
+static bool ems_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer
+        *buf, int *err, char **err_info);
 
 #define MAX_EMS_LINE_LEN 256
 #define EMS_MSG_SIZE 40
@@ -110,14 +110,14 @@ static int peek_relevant_character(FILE_T fh) {
 
 /**
  * Parses EMS line to ems_msg struct.
- * Return FALSE on error, true otherwise.
+ * Return false on error, true otherwise.
  */
-static gboolean parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
+static bool parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
     char line[MAX_EMS_LINE_LEN];
     int i;
 
     if (!file_gets(line, sizeof(line) / sizeof(line[0]), fh)) {
-        return FALSE;
+        return false;
     }
 
     i = sscanf(line, "%03u %02u %02u %02u %02u %02u %02u %u %64c",
@@ -131,7 +131,7 @@ static gboolean parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
                 &ems_msg->mt,
                 ems_msg->sbas_msg);
     if (9 != i) {
-        return FALSE;
+        return false;
     }
 
     if (ems_msg->prn > 255 ||
@@ -142,13 +142,13 @@ static gboolean parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
             ems_msg->minute > 59 ||
             ems_msg->second > 59 ||
             ems_msg->mt > 255) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
-wtap_open_return_val ems_open(wtap *wth, int *err, gchar **err_info) {
+wtap_open_return_val ems_open(wtap *wth, int *err, char **err_info) {
     int c;
     ems_msg_t msg;
 
@@ -191,8 +191,8 @@ wtap_open_return_val ems_open(wtap *wth, int *err, gchar **err_info) {
     return WTAP_OPEN_NOT_MINE;
 }
 
-static gboolean ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info) {
+static bool ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
+        int *err, char **err_info) {
 
     int c;
     ems_msg_t msg;
@@ -201,7 +201,7 @@ static gboolean ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
     c = peek_relevant_character(fh);
     if (c < 0) {
         *err = file_error(fh, err_info);
-        return FALSE;
+        return false;
     }
 
     // parse line with EMS message
@@ -224,7 +224,7 @@ static gboolean ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
             uint8_t v;
             char s[3] = {msg.sbas_msg[i*2], msg.sbas_msg[i*2+1], 0};
             if (!ws_hexstrtou8(s, NULL, &v)) {
-                return FALSE;
+                return false;
             }
             ws_buffer_end_ptr(buf)[8 + i] = v;
         }
@@ -242,38 +242,38 @@ static gboolean ems_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf,
                 + 2000, msg.month, msg.day, msg.hour, msg.minute, msg.second);
         iso8601_to_nstime(&rec->ts, ts, ISO8601_DATETIME);
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-static gboolean ems_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar
-        **err_info, gint64 *offset) {
+static bool ems_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char
+        **err_info, int64_t *offset) {
 
     *offset = file_tell(wth->fh);
     ws_debug("reading at offset %" PRId64, *offset);
 
     if (!ems_read_message(wth->fh, rec, buf, err, err_info)) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean ems_seek_read(wtap *wth, gint64 offset, wtap_rec *rec, Buffer
-        *buf, int *err, gchar **err_info) {
+static bool ems_seek_read(wtap *wth, int64_t offset, wtap_rec *rec, Buffer
+        *buf, int *err, char **err_info) {
 
     if (file_seek(wth->random_fh, offset, SEEK_SET, err) == -1) {
         *err = file_error(wth->fh, err_info);
-        return FALSE;
+        return false;
     }
 
     if (!ems_read_message(wth->random_fh, rec, buf, err, err_info)) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type ems_blocks_supported[] = {
@@ -282,7 +282,7 @@ static const struct supported_block_type ems_blocks_supported[] = {
 
 static const struct file_type_subtype_info ems_info = {
     "EGNOS Message Server File Format", "ems", "ems", "ems",
-    FALSE, BLOCKS_SUPPORTED(ems_blocks_supported),
+    false, BLOCKS_SUPPORTED(ems_blocks_supported),
     NULL, NULL, NULL
 };
 

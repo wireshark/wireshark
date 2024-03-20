@@ -18,7 +18,7 @@
 #include <glib.h>
 #include "wtap.h"
 
-wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val observer_open(wtap *wth, int *err, char **err_info);
 
 /*
  * In v15 the high_byte was added to allow a larger offset This was done by
@@ -28,10 +28,10 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info);
 typedef struct capture_file_header
 {
     char    observer_version[31];
-    guint8  offset_to_first_packet_high_byte; /* allows to extend the offset to the first packet to 256*0x10000 = 16 MB */
-    guint16 offset_to_first_packet;
+    uint8_t offset_to_first_packet_high_byte; /* allows to extend the offset to the first packet to 256*0x10000 = 16 MB */
+    uint16_t offset_to_first_packet;
     char    probe_instance;
-    guint8  number_of_information_elements;   /* number of TLVs in the header */
+    uint8_t number_of_information_elements;   /* number of TLVs in the header */
 } capture_file_header;
 
 #define CAPTURE_FILE_HEADER_FROM_LE_IN_PLACE(_capture_file_header) \
@@ -42,8 +42,8 @@ typedef struct capture_file_header
 
 typedef struct tlv_header
 {
-    guint16 type;
-    guint16 length;        /* includes the length of the TLV header */
+    uint16_t type;
+    uint16_t length;        /* includes the length of the TLV header */
 } tlv_header;
 
 #define TLV_HEADER_FROM_LE_IN_PLACE(_tlv_header) \
@@ -106,9 +106,9 @@ typedef struct tlv_header
 /*                                          0x0106 */
 
 typedef struct tlv_time_info {
-    guint16 type;
-    guint16 length;
-    guint32 time_format;
+    uint16_t type;
+    uint16_t length;
+    uint32_t time_format;
 } tlv_time_info;
 
 /*
@@ -129,13 +129,13 @@ typedef struct tlv_time_info {
  */
 typedef struct tlv_network_load
 {
-    guint32 utilization;        /* network utilization, in .1% units */
-    guint32 unknown1;           /* zero in all captures I've seen */
-    guint32 unknown2;           /* zero in all captures I've seen */
-    guint32 packets_per_second;
-    guint32 unknown3;           /* zero in all captures I've seen */
-    guint32 bytes_per_second;
-    guint32 unknown4;           /* zero in all captures I've seen */
+    uint32_t utilization;        /* network utilization, in .1% units */
+    uint32_t unknown1;           /* zero in all captures I've seen */
+    uint32_t unknown2;           /* zero in all captures I've seen */
+    uint32_t packets_per_second;
+    uint32_t unknown3;           /* zero in all captures I've seen */
+    uint32_t bytes_per_second;
+    uint32_t unknown4;           /* zero in all captures I've seen */
 } tlv_network_load;
 
 #define TLV_NETWORK_LOAD_FROM_LE_IN_PLACE(_tlv_network_load) \
@@ -167,14 +167,14 @@ typedef struct tlv_network_load
  * are for TLVs where conditions is 0x90.
  */
 typedef struct tlv_wireless_info {
-    guint8 quality;
-    guint8 signalStrength;
-    guint8 rate;
-    guint8 frequency;
-    guint8 qualityPercent;
-    guint8 strengthPercent;
-    guint8 conditions;
-    guint8 reserved;
+    uint8_t quality;
+    uint8_t signalStrength;
+    uint8_t rate;
+    uint8_t frequency;
+    uint8_t qualityPercent;
+    uint8_t strengthPercent;
+    uint8_t conditions;
+    uint8_t reserved;
 } tlv_wireless_info;
 
 /*
@@ -186,7 +186,7 @@ typedef struct tlv_wireless_info {
 
 typedef struct tlv_capture_start_stop
 {
-    guint32 start_stop;
+    uint32_t start_stop;
 } tlv_capture_start_stop;
 
 #define START_STOP_TYPE_STOP   0
@@ -194,21 +194,21 @@ typedef struct tlv_capture_start_stop
 
 typedef struct packet_entry_header
 {
-    guint32 packet_magic;
-    guint32 network_speed;
-    guint16 captured_size;
-    guint16 network_size;
-    guint16 offset_to_frame;
-    guint16 offset_to_next_packet;
-    guint8 network_type;
-    guint8 flags;
-    guint8 number_of_information_elements;    /* number of TLVs in the header */
-    guint8 packet_type;
-    guint16 errors;
-    guint16 reserved;
-    guint64 packet_number;
-    guint64 original_packet_number;
-    guint64 nano_seconds_since_2000;
+    uint32_t packet_magic;
+    uint32_t network_speed;
+    uint16_t captured_size;
+    uint16_t network_size;
+    uint16_t offset_to_frame;
+    uint16_t offset_to_next_packet;
+    uint8_t network_type;
+    uint8_t flags;
+    uint8_t number_of_information_elements;    /* number of TLVs in the header */
+    uint8_t packet_type;
+    uint16_t errors;
+    uint16_t reserved;
+    uint64_t packet_number;
+    uint64_t original_packet_number;
+    uint64_t nano_seconds_since_2000;
 } packet_entry_header;
 
 #define PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(_packet_entry_header) \

@@ -18,9 +18,9 @@
  */
 
 extern void
-atm_guess_traffic_type(wtap_rec *rec, const guint8 *pd);
+atm_guess_traffic_type(wtap_rec *rec, const uint8_t *pd);
 
 extern void
-atm_guess_lane_type(wtap_rec *rec, const guint8 *pd);
+atm_guess_lane_type(wtap_rec *rec, const uint8_t *pd);
 
 #endif /* __ATM_H__ */

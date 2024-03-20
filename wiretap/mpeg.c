@@ -41,7 +41,7 @@
 typedef struct {
 	nstime_t now;
 	time_t t0;
-	gboolean is_audio;
+	bool is_audio;
 } mpeg_t;
 
 static int mpeg_file_type_subtype = -1;
@@ -51,7 +51,7 @@ void register_mpeg(void);
 static int
 mpeg_resync(FILE_T fh, int *err)
 {
-	gint64 offset = file_tell(fh);
+	int64_t offset = file_tell(fh);
 	int count = 0;
 	int byte = file_getc(fh);
 
@@ -72,14 +72,14 @@ mpeg_resync(FILE_T fh, int *err)
 #define SCRHZ 27000000
 
 static unsigned int
-mpeg_read_audio_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar **err_info)
+mpeg_read_audio_packet(wtap *wth, FILE_T fh, bool is_random, int *err, char **err_info)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	unsigned int packet_size;
-	guint32 n;
+	uint32_t n;
 	if (!wtap_read_bytes_or_eof(fh, &n, sizeof n, err, err_info))
 		return 0;
-	if (file_seek(fh, -(gint64)(sizeof n), SEEK_CUR, err) == -1)
+	if (file_seek(fh, -(int64_t)(sizeof n), SEEK_CUR, err) == -1)
 		return 0;
 	n = g_ntohl(n);
 	struct mpa mpa;
@@ -101,7 +101,7 @@ mpeg_read_audio_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar
 				return 0;
 			if (!wtap_read_bytes_or_eof(fh, &n, sizeof n, err, err_info))
 				return 0;
-			if (file_seek(fh, -(gint64)(6+sizeof(n)), SEEK_CUR, err) == -1)
+			if (file_seek(fh, -(int64_t)(6+sizeof(n)), SEEK_CUR, err) == -1)
 				return 0;
 			n = g_ntohl(n);
 
@@ -115,15 +115,15 @@ mpeg_read_audio_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar
 }
 
 static unsigned int
-mpeg_read_pes_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar **err_info)
+mpeg_read_pes_packet(wtap *wth, FILE_T fh, bool is_random, int *err, char **err_info)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	unsigned int packet_size = 0;
-	guint32 n;
+	uint32_t n;
 	while (1) {
 		if (!wtap_read_bytes_or_eof(fh, &n, sizeof n, err, err_info))
 			return 0;
-		if (file_seek(fh, -(gint64)(sizeof n), SEEK_CUR, err) == -1)
+		if (file_seek(fh, -(int64_t)(sizeof n), SEEK_CUR, err) == -1)
 			return 0;
 		n = g_ntohl(n);
 		if (PES_VALID(n)) {
@@ -144,8 +144,8 @@ mpeg_read_pes_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar *
 			return 0;
 	}
 
-	gint64 offset = file_tell(fh);
-	guint8 stream;
+	int64_t offset = file_tell(fh);
+	uint8_t stream;
 
 	if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 		return 0;
@@ -154,41 +154,41 @@ mpeg_read_pes_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar *
 		return 0;
 
 	if (stream == 0xba) {
-		guint32 pack1;
-		guint32 pack0;
-		guint64 pack;
-		guint8 stuffing;
+		uint32_t pack1;
+		uint32_t pack0;
+		uint64_t pack;
+		uint8_t stuffing;
 
 		if (!wtap_read_bytes(fh, &pack1, sizeof pack1, err, err_info))
 			return 0;
 		if (!wtap_read_bytes(fh, &pack0, sizeof pack0, err, err_info))
 			return 0;
-		pack = (guint64)g_ntohl(pack1) << 32 | g_ntohl(pack0);
+		pack = (uint64_t)g_ntohl(pack1) << 32 | g_ntohl(pack0);
 
 		switch (pack >> 62) {
 			case 1:
 				if (!wtap_read_bytes(fh, NULL, 1, err,
 				    err_info))
-					return FALSE;
+					return false;
 				if (!wtap_read_bytes(fh, &stuffing,
 				    sizeof stuffing, err, err_info))
-					return FALSE;
+					return false;
 				stuffing &= 0x07;
 				packet_size = 14 + stuffing;
 
 				if (!is_random) {
-					guint64 bytes = pack >> 16;
-					guint64 ts_val =
+					uint64_t bytes = pack >> 16;
+					uint64_t ts_val =
 						(bytes >> 43 & 0x0007) << 30 |
 						(bytes >> 27 & 0x7fff) << 15 |
 						(bytes >> 11 & 0x7fff) << 0;
-					guint ext = (guint)((bytes >> 1) & 0x1ff);
-					guint64 cr = 300 * ts_val + ext;
-					guint rem = (guint)(cr % SCRHZ);
+					unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
+					uint64_t cr = 300 * ts_val + ext;
+					unsigned rem = (unsigned)(cr % SCRHZ);
 					mpeg->now.secs
 						= mpeg->t0 + (time_t)(cr / SCRHZ);
 					mpeg->now.nsecs
-						= (int)(G_GINT64_CONSTANT(1000000000) * rem / SCRHZ);
+						= (int)(INT64_C(1000000000) * rem / SCRHZ);
 				}
 				break;
 			default:
@@ -198,9 +198,9 @@ mpeg_read_pes_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar *
 		/* MPEG_program_end_code */
 		packet_size = 4;
 	} else {
-		guint16 length;
+		uint16_t length;
 		if (!wtap_read_bytes(fh, &length, sizeof length, err, err_info))
-			return FALSE;
+			return false;
 		length = g_ntohs(length);
 		packet_size = 6 + length;
 	}
@@ -211,9 +211,9 @@ mpeg_read_pes_packet(wtap *wth, FILE_T fh, gboolean is_random, int *err, gchar *
 	return packet_size;
 }
 
-static gboolean
+static bool
 mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
-    gboolean is_random, int *err, gchar **err_info)
+    bool is_random, int *err, char **err_info)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	unsigned int packet_size;
@@ -233,10 +233,10 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	}
 
 	if (packet_size == 0)
-		return FALSE;
+		return false;
 
 	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
-		return FALSE;
+		return false;
 
 	rec->rec_type = REC_TYPE_PACKET;
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -250,47 +250,47 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->rec_header.packet_header.len = packet_size;
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 mpeg_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-		gchar **err_info, gint64 *data_offset)
+		char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return mpeg_read_packet(wth, wth->fh, rec, buf, FALSE, err, err_info);
+	return mpeg_read_packet(wth, wth->fh, rec, buf, false, err, err_info);
 }
 
-static gboolean
-mpeg_seek_read(wtap *wth, gint64 seek_off,
+static bool
+mpeg_seek_read(wtap *wth, int64_t seek_off,
 		wtap_rec *rec, Buffer *buf,
-		int *err, gchar **err_info)
+		int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
-	if (!mpeg_read_packet(wth, wth->random_fh, rec, buf, TRUE, err,
+	if (!mpeg_read_packet(wth, wth->random_fh, rec, buf, true, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 struct _mpeg_magic {
 	size_t len;
-	const gchar* match;
-	gboolean is_audio;
+	const char* match;
+	bool is_audio;
 } magic[] = {
-	{ 3, "TAG", TRUE }, /* ID3v1 */
+	{ 3, "TAG", true }, /* ID3v1 */
 	/* XXX: ID3v1 tags come at the end of MP3 files, so in practice the
 	 * untagged magic number is used instead.
 	 */
-	{ 3, "ID3", TRUE }, /* ID3v2 */
-	{ 3, "\0\0\1", FALSE }, /* MPEG PES */
-	{ 2, "\xff\xfb", TRUE }, /* MP3 (MPEG-1 Audio Layer 3, no CRC), taken from https://en.wikipedia.org/wiki/MP3#File_structure */
+	{ 3, "ID3", true }, /* ID3v2 */
+	{ 3, "\0\0\1", false }, /* MPEG PES */
+	{ 2, "\xff\xfb", true }, /* MP3 (MPEG-1 Audio Layer 3, no CRC), taken from https://en.wikipedia.org/wiki/MP3#File_structure */
 #if 0
 	/* XXX: The value above is for MPEG-1 Audio Layer 3 with no CRC.
 	 * Only the first three nibbles are the guaranteed sync byte.
@@ -303,19 +303,19 @@ struct _mpeg_magic {
 	 * The mpeg-audio dissector handles these, so wiretap should open
 	 * them. Including all of them might increase false positives though.
 	 */
-	{ 2, "\xff\xf2", TRUE }, /* MPEG-2 Audio Layer 3, CRC */
-	{ 2, "\xff\xf3", TRUE }, /* MPEG-2 Audio Layer 3, No CRC */
-	{ 2, "\xff\xf4", TRUE }, /* MPEG-2 Audio Layer 2, CRC */
-	{ 2, "\xff\xf5", TRUE }, /* MPEG-2 Audio Layer 2, No CRC */
-	{ 2, "\xff\xf6", TRUE }, /* MPEG-2 Audio Layer 1, CRC */
-	{ 2, "\xff\xf7", TRUE }, /* MPEG-2 Audio Layer 1, No CRC */
-	{ 2, "\xff\xfa", TRUE }, /* MPEG-1 Audio Layer 3, CRC */
-	{ 2, "\xff\xfc", TRUE }, /* MPEG-1 Audio Layer 2, CRC */
-	{ 2, "\xff\xfd", TRUE }, /* MPEG-1 Audio Layer 2, No CRC */
-	{ 2, "\xff\xfe", TRUE }, /* MPEG-1 Audio Layer 1, CRC */
-	{ 2, "\xff\xff", TRUE }, /* MPEG-1 Audio Layer 1, No CRC */
+	{ 2, "\xff\xf2", true }, /* MPEG-2 Audio Layer 3, CRC */
+	{ 2, "\xff\xf3", true }, /* MPEG-2 Audio Layer 3, No CRC */
+	{ 2, "\xff\xf4", true }, /* MPEG-2 Audio Layer 2, CRC */
+	{ 2, "\xff\xf5", true }, /* MPEG-2 Audio Layer 2, No CRC */
+	{ 2, "\xff\xf6", true }, /* MPEG-2 Audio Layer 1, CRC */
+	{ 2, "\xff\xf7", true }, /* MPEG-2 Audio Layer 1, No CRC */
+	{ 2, "\xff\xfa", true }, /* MPEG-1 Audio Layer 3, CRC */
+	{ 2, "\xff\xfc", true }, /* MPEG-1 Audio Layer 2, CRC */
+	{ 2, "\xff\xfd", true }, /* MPEG-1 Audio Layer 2, No CRC */
+	{ 2, "\xff\xfe", true }, /* MPEG-1 Audio Layer 1, CRC */
+	{ 2, "\xff\xff", true }, /* MPEG-1 Audio Layer 1, No CRC */
 #endif
-	{ 0, NULL, FALSE }
+	{ 0, NULL, false }
 };
 
 /*
@@ -333,7 +333,7 @@ struct _mpeg_magic {
  * Untagged MPEG Audio files would still have to be heuristics, though.
  */
 wtap_open_return_val
-mpeg_open(wtap *wth, int *err, gchar **err_info)
+mpeg_open(wtap *wth, int *err, char **err_info)
 {
 	char magic_buf[16];
 	struct _mpeg_magic* m;
@@ -385,7 +385,7 @@ static const struct supported_block_type mpeg_blocks_supported[] = {
 
 static const struct file_type_subtype_info mpeg_info = {
 	"MPEG", "mpeg", "mpeg", "mpg;mp3",
-	FALSE, BLOCKS_SUPPORTED(mpeg_blocks_supported),
+	false, BLOCKS_SUPPORTED(mpeg_blocks_supported),
 	NULL, NULL, NULL
 };
 

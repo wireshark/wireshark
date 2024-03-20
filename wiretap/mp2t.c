@@ -39,22 +39,22 @@
 
 
 typedef struct {
-    guint32 start_offset;
-    guint64 bitrate;
+    uint32_t start_offset;
+    uint64_t bitrate;
     /* length of trailing data (e.g. FEC) that's appended after each packet */
-    guint8  trailer_len;
+    uint8_t trailer_len;
 } mp2t_filetype_t;
 
 static int mp2t_file_type_subtype = -1;
 
 void register_mp2t(void);
 
-static gboolean
-mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
+static bool
+mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, int64_t offset,
                  wtap_rec *rec, Buffer *buf, int *err,
-                 gchar **err_info)
+                 char **err_info)
 {
-    guint64 tmp;
+    uint64_t tmp;
 
     /*
      * MP2T_SIZE will always be less than WTAP_MAX_PACKET_SIZE_STANDARD, so
@@ -62,7 +62,7 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
      */
     ws_buffer_assure_space(buf, MP2T_SIZE);
     if (!wtap_read_bytes_or_eof(fh, ws_buffer_start_ptr(buf), MP2T_SIZE, err, err_info))
-        return FALSE;
+        return false;
 
     rec->rec_type = REC_TYPE_PACKET;
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -84,19 +84,19 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
      * case our attempt to guess it from the PCRs of one of the programs
      * doesn't get the right answer.
      */
-    tmp = ((guint64)(offset - mp2t->start_offset) * 8); /* offset, in bits */
+    tmp = ((uint64_t)(offset - mp2t->start_offset) * 8); /* offset, in bits */
     rec->ts.secs = (time_t)(tmp / mp2t->bitrate);
     rec->ts.nsecs = (int)((tmp % mp2t->bitrate) * 1000000000 / mp2t->bitrate);
 
     rec->rec_header.packet_header.caplen = MP2T_SIZE;
     rec->rec_header.packet_header.len = MP2T_SIZE;
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 mp2t_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-        gchar **err_info, gint64 *data_offset)
+        char **err_info, int64_t *data_offset)
 {
     mp2t_filetype_t *mp2t;
 
@@ -106,27 +106,27 @@ mp2t_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 
     if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, rec, buf, err,
                           err_info)) {
-        return FALSE;
+        return false;
     }
 
     /* if there's a trailer, skip it and go to the start of the next packet */
     if (mp2t->trailer_len!=0) {
         if (!wtap_read_bytes(wth->fh, NULL, mp2t->trailer_len, err, err_info)) {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
-mp2t_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-        Buffer *buf, int *err, gchar **err_info)
+static bool
+mp2t_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+        Buffer *buf, int *err, char **err_info)
 {
     mp2t_filetype_t *mp2t;
 
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err)) {
-        return FALSE;
+        return false;
     }
 
     mp2t = (mp2t_filetype_t*) wth->priv;
@@ -135,16 +135,16 @@ mp2t_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
                           err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-static guint64
-mp2t_read_pcr(guint8 *buffer)
+static uint64_t
+mp2t_read_pcr(uint8_t *buffer)
 {
-    guint64 base;
-    guint64 ext;
+    uint64_t base;
+    uint64_t ext;
 
     base = pntoh40(buffer);
     base >>= 7;
@@ -155,22 +155,22 @@ mp2t_read_pcr(guint8 *buffer)
     return (base * 300 + ext);
 }
 
-static gboolean
-mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
-        int *err, gchar **err_info, guint32 *idx, guint64 *pcr, guint16 *pid)
+static bool
+mp2t_find_next_pcr(wtap *wth, uint8_t trailer_len,
+        int *err, char **err_info, uint32_t *idx, uint64_t *pcr, uint16_t *pid)
 {
-    guint8 buffer[MP2T_SIZE+TRAILER_LEN_MAX];
-    gboolean found;
-    guint8 afc;
-    guint timeout = 0;
+    uint8_t buffer[MP2T_SIZE+TRAILER_LEN_MAX];
+    bool found;
+    uint8_t afc;
+    unsigned timeout = 0;
 
-    found = FALSE;
-    while (FALSE == found && timeout++ < SYNC_STEPS * SYNC_STEPS) {
+    found = false;
+    while (false == found && timeout++ < SYNC_STEPS * SYNC_STEPS) {
         (*idx)++;
         if (!wtap_read_bytes_or_eof(
                     wth->fh, buffer, MP2T_SIZE+trailer_len, err, err_info)) {
             /* Read error, short read, or EOF */
-            return FALSE;
+            return false;
         }
 
         if (MP2T_SYNC_BYTE != buffer[0]) {
@@ -196,21 +196,21 @@ mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
         /* We have a PCR value! */
         *pcr = mp2t_read_pcr(&buffer[6]);
         *pid = 0x01ff & pntoh16(&buffer[1]);
-        found = TRUE;
+        found = true;
     }
 
     return found;
 }
 
 static wtap_open_return_val
-mp2t_bits_per_second(wtap *wth, guint32 first, guint8 trailer_len,
-        guint64 *bitrate, int *err, gchar **err_info)
+mp2t_bits_per_second(wtap *wth, uint32_t first, uint8_t trailer_len,
+        uint64_t *bitrate, int *err, char **err_info)
 {
-    guint32 pn1, pn2;
-    guint64 pcr1, pcr2;
-    guint16 pid1, pid2;
-    guint32 idx;
-    guint64 pcr_delta, bits_passed;
+    uint32_t pn1, pn2;
+    uint64_t pcr1, pcr2;
+    uint16_t pid1, pid2;
+    uint32_t idx;
+    uint64_t pcr_delta, bits_passed;
 
     /* Find the first PCR + PID.
      * Then find another PCR in that PID.
@@ -267,10 +267,10 @@ mp2t_bits_per_second(wtap *wth, guint32 first, guint8 trailer_len,
         return WTAP_OPEN_NOT_MINE;
     }
     pcr_delta = pcr2 - pcr1;
-    /* cast one of the factors to guint64
-       otherwise, the multiplication would use guint32 and could
-       overflow before the result is assigned to the guint64 bits_passed */
-    bits_passed = (guint64)MP2T_SIZE * (pn2 - pn1) * 8;
+    /* cast one of the factors to uint64_t
+       otherwise, the multiplication would use uint32_t and could
+       overflow before the result is assigned to the uint64_t bits_passed */
+    bits_passed = (uint64_t)MP2T_SIZE * (pn2 - pn1) * 8;
 
     *bitrate = ((MP2T_PCR_CLOCK * bits_passed) / pcr_delta);
     if (*bitrate == 0) {
@@ -292,16 +292,16 @@ mp2t_bits_per_second(wtap *wth, guint32 first, guint8 trailer_len,
 }
 
 wtap_open_return_val
-mp2t_open(wtap *wth, int *err, gchar **err_info)
+mp2t_open(wtap *wth, int *err, char **err_info)
 {
-    guint8 buffer[MP2T_SIZE+TRAILER_LEN_MAX];
-    guint8 trailer_len = 0;
-    guint sync_steps = 0;
-    guint i;
-    guint32 first = 0;
+    uint8_t buffer[MP2T_SIZE+TRAILER_LEN_MAX];
+    uint8_t trailer_len = 0;
+    unsigned sync_steps = 0;
+    unsigned i;
+    uint32_t first = 0;
     mp2t_filetype_t *mp2t;
     wtap_open_return_val status;
-    guint64 bitrate;
+    uint64_t bitrate;
 
 
     if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
@@ -411,14 +411,14 @@ static int mp2t_dump_can_write_encap(int encap)
 }
 
 /* Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
+   Returns true on success, false on failure. */
+static bool mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const uint8_t *pd, int *err, char **err_info _U_)
 {
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-        return FALSE;
+        return false;
     }
 
     /*
@@ -427,27 +427,27 @@ static gboolean mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
      */
     if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-        return FALSE;
+        return false;
     }
 
     /* A MPEG-2 Transport Stream is just the packet bytes, with no header.
      * The sync byte is supposed to identify where packets start.
      */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err)) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
-/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+/* Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean mp2t_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
+static bool mp2t_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
 {
     /* There is no header, so we just always return true. */
     wdh->subtype_write = mp2t_dump;
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type mp2t_blocks_supported[] = {
@@ -459,7 +459,7 @@ static const struct supported_block_type mp2t_blocks_supported[] = {
 
 static const struct file_type_subtype_info mp2t_info = {
     "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg",
-    FALSE, BLOCKS_SUPPORTED(mp2t_blocks_supported),
+    false, BLOCKS_SUPPORTED(mp2t_blocks_supported),
     mp2t_dump_can_write_encap, mp2t_dump_open, NULL
 };
 

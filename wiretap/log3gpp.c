@@ -41,51 +41,51 @@ typedef enum packet_direction_t
 
 typedef struct {
     time_t	start_secs;
-    guint32	start_usecs;
+    uint32_t	start_usecs;
 } log3gpp_t;
 
-gint first_packet_offset;
-gchar firstline[MAX_FIRST_LINE_LENGTH];
-gchar secondline[MAX_TIMESTAMP_LINE_LENGTH];
-gint secondline_length = 0;
+int first_packet_offset;
+char firstline[MAX_FIRST_LINE_LENGTH];
+char secondline[MAX_TIMESTAMP_LINE_LENGTH];
+int secondline_length = 0;
 
 /***********************************************************/
 /* Transient data used for parsing                         */
 
 /* 'Magic number' at start of 3gpp log files. */
-static const gchar log3gpp_magic[] = "3GPP protocols transcript";
+static const char log3gpp_magic[] = "3GPP protocols transcript";
 
 /* Protocol name of the packet that the packet was captured at */
-static gchar protocol_name[MAX_PROTOCOL_NAME+1];
+static char protocol_name[MAX_PROTOCOL_NAME+1];
 
 /* Optional string parameter giving info required for the protocol dissector */
-static gchar protocol_parameters[MAX_PROTOCOL_PAR_STRING+1];
+static char protocol_parameters[MAX_PROTOCOL_PAR_STRING+1];
 /************************************************************/
 /* Functions called from wiretap core                       */
-static gboolean log3gpp_read( wtap* wth, wtap_rec* rec, Buffer* buf,
-                                    int* err, gchar** err_info, gint64* data_offset);
-static gboolean log3gpp_seek_read(struct wtap *wth, gint64 seek_off,
+static bool log3gpp_read( wtap* wth, wtap_rec* rec, Buffer* buf,
+                                    int* err, char** err_info, int64_t* data_offset);
+static bool log3gpp_seek_read(struct wtap *wth, int64_t seek_off,
                                   wtap_rec *rec,
                                   Buffer *buf,
-                                  int *err, gchar **err_info);
+                                  int *err, char **err_info);
 
 /************************************************************/
 /* Private helper functions                                 */
-static gboolean read_new_line(FILE_T fh, gint* length,
-    gchar* buf, size_t bufsize, int* err,
-    gchar** err_info);
+static bool read_new_line(FILE_T fh, int* length,
+    char* buf, size_t bufsize, int* err,
+    char** err_info);
 
-static gboolean parse_line(char* linebuff, gint line_length, gint *seconds, gint *useconds,
+static bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
                            long *data_offset,
-                           gint *data_chars,
+                           int *data_chars,
                            packet_direction_t *direction,
-                           gboolean *is_text_data);
-static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+                           bool *is_text_data);
+static int write_stub_header(unsigned char *frame_buffer, char *timestamp_string,
                              packet_direction_t direction);
-static guchar hex_from_char(gchar c);
-/*not used static gchar char_from_hex(guchar hex);*/
+static unsigned char hex_from_char(char c);
+/*not used static char char_from_hex(unsigned char hex);*/
 
-static gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs);
+static bool get_file_time_stamp(const char* linebuff, time_t *secs, uint32_t *usecs);
 
 
 static int log3gpp_file_type_subtype = -1;
@@ -107,15 +107,15 @@ static void log3gpp_close(wtap* wth)
 /* Open file (for reading)                 */
 /********************************************/
 wtap_open_return_val
-log3gpp_open(wtap *wth, int *err, gchar **err_info _U_)
+log3gpp_open(wtap *wth, int *err, char **err_info _U_)
 {
     time_t  timestamp;
-    guint32 usecs;
+    uint32_t usecs;
     log3gpp_t *log3gpp;
     wtap_open_return_val retval;
     /* Buffer to hold a single text line read from the file */
-    static gchar linebuff[MAX_LINE_LENGTH];
-    gint firstline_length = 0;
+    static char linebuff[MAX_LINE_LENGTH];
+    int firstline_length = 0;
 
     /* Clear errno before reading from the file */
     errno = 0;
@@ -212,28 +212,28 @@ log3gpp_open(wtap *wth, int *err, gchar **err_info _U_)
 /**************************************************/
 /* Read packet function.                          */
 /* Look for and read the next usable packet       */
-/* - return TRUE and details if found             */
+/* - return true and details if found             */
 /**************************************************/
-gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
-    int* err, gchar** err_info, gint64* data_offset)
+bool log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
+    int* err, char** err_info, int64_t* data_offset)
 {
-    gint64 offset = file_tell(wth->fh);
-    static gchar linebuff[MAX_LINE_LENGTH + 1];
+    int64_t offset = file_tell(wth->fh);
+    static char linebuff[MAX_LINE_LENGTH + 1];
     long dollar_offset;
     packet_direction_t direction;
-    gboolean is_text_data;
+    bool is_text_data;
     log3gpp_t *log3gpp = (log3gpp_t *)wth->priv;
 
     /* Search for a line containing a usable packet */
     while (1)
     {
         int line_length, seconds, useconds, data_chars;
-        gint64 this_offset = offset;
+        int64_t this_offset = offset;
 
         /* Are looking for first packet after 2nd line */
         if (file_tell(wth->fh) == 0)
         {
-            this_offset += (gint64)first_packet_offset +1+1;
+            this_offset += (int64_t)first_packet_offset +1+1;
         }
 
         /* Clear errno before reading from the file */
@@ -243,7 +243,7 @@ gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
         if (!read_new_line(wth->fh, &line_length, linebuff,
             sizeof linebuff, err, err_info)) {
             if (*err != 0) {
-                return FALSE;  /* error */
+                return false;  /* error */
             }
             /* No more lines can be read, so quit. */
             break;
@@ -256,11 +256,11 @@ gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
                        &direction,
                        &is_text_data))
         {
-            guchar *frame_buffer;
+            unsigned char *frame_buffer;
             int n;
             int stub_offset = 0;
             char timestamp_string[MAX_TIMESTAMP_LEN+1];
-            /*not used gint64 *pkey = NULL;*/
+            /*not used int64_t *pkey = NULL;*/
 
             snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
@@ -310,7 +310,7 @@ gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
                                                    hex_from_char(linebuff[dollar_offset+n+1]);
               }
               *err = errno = 0;
-              return TRUE;
+              return true;
             }
             else
             {
@@ -335,33 +335,33 @@ gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
               memcpy(&frame_buffer[stub_offset],&linebuff[dollar_offset],data_chars);
               frame_buffer[stub_offset+data_chars-1]= '\0';
               *err = errno = 0;
-              return TRUE;
+              return true;
             }
         }
     }
 
     /* No packet details to return... */
     *err = errno;
-    return FALSE;
+    return false;
 }
 
 
 /**************************************************/
 /* Read & seek function.                          */
 /**************************************************/
-static gboolean
-log3gpp_seek_read(wtap *wth, gint64 seek_off,
+static bool
+log3gpp_seek_read(wtap *wth, int64_t seek_off,
                     wtap_rec *rec _U_ , Buffer *buf,
-                    int *err, gchar **err_info)
+                    int *err, char **err_info)
 {
     long dollar_offset;
-    static gchar linebuff[MAX_LINE_LENGTH + 1];
+    static char linebuff[MAX_LINE_LENGTH + 1];
     packet_direction_t direction;
     int seconds, useconds, data_chars;
-    gboolean is_text_data;
+    bool is_text_data;
     log3gpp_t* log3gpp = (log3gpp_t*)wth->priv;
     int length = 0;
-    guchar *frame_buffer;
+    unsigned char *frame_buffer;
 
     /* Reset errno */
     *err = errno = 0;
@@ -369,13 +369,13 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
     /* Seek to beginning of packet */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     {
-        return FALSE;
+        return false;
     }
 
     /* Re-read whole line (this really should succeed) */
     if (!read_new_line(wth->random_fh, &length, linebuff,
         sizeof linebuff, err, err_info)) {
-        return FALSE;
+        return false;
     }
 
     /* Try to parse this line again (should succeed as re-reading...) */
@@ -426,7 +426,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
                                                hex_from_char(linebuff[dollar_offset+n+1]);
           }
           *err = errno = 0;
-          return TRUE;
+          return true;
         }
         else
         {
@@ -434,7 +434,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
           memcpy(&frame_buffer[stub_offset],&linebuff[dollar_offset],data_chars);
           frame_buffer[stub_offset+data_chars-1] = '\0';
           *err = errno = 0;
-          return TRUE;
+          return true;
         }
     }
 
@@ -443,7 +443,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
     *err_info = ws_strdup_printf("prot 3gpp: seek_read failed to read/parse "
                                 "line at position %" PRId64,
                                 seek_off);
-    return FALSE;
+    return false;
 }
 
 /****************************/
@@ -454,23 +454,23 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
 /* Read a new line from the file, starting at offset.                 */
 /* - writes data to static var linebuff                               */
 /* - on return 'offset' will point to the next position to read from  */
-/* - return TRUE if this read is successful                           */
+/* - return true if this read is successful                           */
 /**********************************************************************/
-static gboolean
-read_new_line(FILE_T fh, gint* length,
-    gchar* linebuff, size_t linebuffsize, int* err, gchar** err_info)
+static bool
+read_new_line(FILE_T fh, int* length,
+    char* linebuff, size_t linebuffsize, int* err, char** err_info)
 {
     /* Read in a line */
-    gint64 pos_before = file_tell(fh);
+    int64_t pos_before = file_tell(fh);
 
     if (file_gets(linebuff, (int)linebuffsize - 1, fh) == NULL) {
         /* No characters found, or error */
         *err = file_error(fh, err_info);
-        return FALSE;
+        return false;
     }
 
     /* Set length (avoiding strlen()) and offset.. */
-    *length = (gint)(file_tell(fh) - pos_before);
+    *length = (int)(file_tell(fh) - pos_before);
 
     /* ...but don't want to include newline in line length */
     if (*length > 0 && linebuff[*length - 1] == '\n') {
@@ -483,7 +483,7 @@ read_new_line(FILE_T fh, gint* length,
         *length = *length - 1;
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -491,12 +491,12 @@ read_new_line(FILE_T fh, gint* length,
 /* Parse a line from buffer, by identifying:                          */
 /* - timestamp                                                        */
 /* - data position and length                                         */
-/* Return TRUE if this packet looks valid and can be displayed        */
+/* Return true if this packet looks valid and can be displayed        */
 /**********************************************************************/
-gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *useconds,
-                    long *data_offset, gint *data_chars,
+bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
+                    long *data_offset, int *data_chars,
                     packet_direction_t *direction,
-                    gboolean *is_text_data)
+                    bool *is_text_data)
 {
     int  n = 0;
     int  protocol_chars = 0;
@@ -510,10 +510,10 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     /* Find and read the timestamp                                       */
     /*********************************************************************/
     /* Now scan to the next digit, which should be the start of the timestamp */
-    for (; !g_ascii_isdigit((guchar)linebuff[n]) && (n < line_length); n++);
+    for (; !g_ascii_isdigit((unsigned char)linebuff[n]) && (n < line_length); n++);
     if (n >= line_length)
     {
-        return FALSE;
+        return false;
     }
 
     /* Seconds */
@@ -523,17 +523,17 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
          (n < line_length);
          n++, seconds_chars++)
     {
-        if (!g_ascii_isdigit((guchar)linebuff[n]))
+        if (!g_ascii_isdigit((unsigned char)linebuff[n]))
         {
             /* Found a non-digit before decimal point. Fail */
-            return FALSE;
+            return false;
         }
         seconds_buff[seconds_chars] = linebuff[n];
     }
     if (seconds_chars > MAX_SECONDS_CHARS || n >= line_length)
     {
         /* Didn't fit in buffer.  Fail rather than use truncated */
-        return FALSE;
+        return false;
     }
 
     /* Convert found value into number */
@@ -550,7 +550,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     /* The decimal point must follow the last of the seconds digits */
     if (linebuff[n] != '.')
     {
-        return FALSE;
+        return false;
     }
     /* Skip it */
     n++;
@@ -560,9 +560,9 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
          (linebuff[n] != ' ') && (subsecond_decimals_chars < MAX_SUBSECOND_DECIMALS) && (n < line_length);
          n++, subsecond_decimals_chars++)
     {
-        if (!g_ascii_isdigit((guchar)linebuff[n]))
+        if (!g_ascii_isdigit((unsigned char)linebuff[n]))
         {
-            return FALSE;
+            return false;
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
     }
@@ -570,7 +570,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS || n >= line_length)
     {
         /* More numbers than expected - give up */
-        return FALSE;
+        return false;
     }
 
     /* Convert found value into microseconds */
@@ -584,7 +584,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     /* Space character must follow end of timestamp */
     if (linebuff[n] != ' ')
     {
-        return FALSE;
+        return false;
     }
     n++;
 
@@ -595,32 +595,32 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
          (linebuff[n] != ' ') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
          n++, protocol_chars++)
     {
-        if (!g_ascii_isalnum((guchar)linebuff[n]) && linebuff[n] != '_' && linebuff[n] != '.' && linebuff[n] != '-')
+        if (!g_ascii_isalnum((unsigned char)linebuff[n]) && linebuff[n] != '_' && linebuff[n] != '.' && linebuff[n] != '-')
         {
-            return FALSE;
+            return false;
         }
         protocol_name[protocol_chars] = linebuff[n];
     }
     if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length)
     {
         /* If doesn't fit, fail rather than truncate */
-        return FALSE;
+        return false;
     }
     protocol_name[protocol_chars] = '\0';
 
     /* Space char must follow protocol name */
     if (linebuff[n] != ' ')
     {
-        return FALSE;
+        return false;
     }
     /* Skip it */
     n++;
 
     /* Scan ahead to the next space */
-    for (; (!g_ascii_isalnum((guchar)linebuff[n])) && (n < line_length); n++);
+    for (; (!g_ascii_isalnum((unsigned char)linebuff[n])) && (n < line_length); n++);
     if (n >= line_length)
     {
-        return FALSE;
+        return false;
     }
 
 
@@ -629,7 +629,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
       *direction = uplink;
       *data_offset = n;
       *data_chars = line_length - n;
-      *is_text_data = TRUE;
+      *is_text_data = true;
     }
     else
     {
@@ -644,7 +644,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
       }
       else
       {
-        return FALSE;
+        return false;
       }
       n++;
 
@@ -658,7 +658,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
       if (prot_option_chars == MAX_PROTOCOL_PAR_STRING || n >= line_length)
       {
         /* If doesn't fit, fail rather than truncate */
-        return FALSE;
+        return false;
       }
 
       /* Skip it */
@@ -670,15 +670,15 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     /* Set number of chars that comprise the hex string protocol data */
     *data_chars = line_length - n;
 
-    *is_text_data = FALSE;
+    *is_text_data = false;
     }
-    return TRUE;
+    return true;
 }
 
 /*****************************************************************/
 /* Write the stub info to the data buffer while reading a packet */
 /*****************************************************************/
-int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+int write_stub_header(unsigned char *frame_buffer, char *timestamp_string,
                       packet_direction_t direction)
 {
     int stub_offset = 0;
@@ -705,7 +705,7 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
 /********************************************************/
 /* Return hex nibble equivalent of hex string character */
 /********************************************************/
-guchar hex_from_char(gchar c)
+unsigned char hex_from_char(char c)
 {
     if ((c >= '0') && (c <= '9'))
     {
@@ -729,7 +729,7 @@ guchar hex_from_char(gchar c)
 /********************************************************/
 /* Return character corresponding to hex nibble value   */
 /********************************************************/
-/*gchar char_from_hex(guchar hex)
+/*char char_from_hex(unsigned char hex)
 {
     static char hex_lookup[16] =
     { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
@@ -745,9 +745,9 @@ guchar hex_from_char(gchar c)
 /************************************************************************/
 /* Parse year, month, day, hour, minute, seconds out of formatted line. */
 /* Set secs and usecs as output                                         */
-/* Return FALSE if no valid time can be read                            */
+/* Return false if no valid time can be read                            */
 /************************************************************************/
-gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs)
+bool get_file_time_stamp(const char* linebuff, time_t *secs, uint32_t *usecs)
 {
     int n;
     struct tm tm;
@@ -760,7 +760,7 @@ gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs
     /* If line longer than expected, file is probably not correctly formatted */
     if (strlen(linebuff) > MAX_TIMESTAMP_LINE_LENGTH)
     {
-        return FALSE;
+        return false;
     }
 
     /**************************************************************/
@@ -786,7 +786,7 @@ gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs
     else
     {
         /* Give up if not found a properly-formatted date */
-        return FALSE;
+        return false;
     }
     /* Skip space char */
     n++;
@@ -798,7 +798,7 @@ gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs
     if (scan_found != 6)
     {
         /* Give up if not all found */
-        return FALSE;
+        return false;
     }
 
     /******************************************************/
@@ -816,7 +816,7 @@ gboolean get_file_time_stamp(const gchar* linebuff, time_t *secs, guint32 *usecs
     /* Multiply 4 digits given to get micro-seconds */
     *usecs = *usecs * 100;
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type log3gpp_blocks_supported[] = {
@@ -828,7 +828,7 @@ static const struct supported_block_type log3gpp_blocks_supported[] = {
 
 static const struct file_type_subtype_info log3gpp_info = {
     "3GPP Log", "3gpp_log", "*.log", NULL,
-    TRUE, BLOCKS_SUPPORTED(log3gpp_blocks_supported),
+    true, BLOCKS_SUPPORTED(log3gpp_blocks_supported),
     NULL, NULL, NULL
 };
 

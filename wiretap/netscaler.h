@@ -107,6 +107,6 @@
 #define NSPR_HEADER_VERSION300 0x30
 #define NSPR_HEADER_VERSION350 0x35
 
-wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val nstrace_open(wtap *wth, int *err, char **err_info);
 
 #endif /* _NETSCALER_H */

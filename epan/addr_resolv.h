@@ -306,10 +306,10 @@ WS_DLL_PUBLIC bool get_hash_wka_used(hashwka_t* wka);
 WS_DLL_PUBLIC char* get_hash_wka_resolved_name(hashwka_t* wka);
 
 /* adds a hostname/IPv4 in the hash table */
-WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name, const gboolean static_entry);
+WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name, const bool static_entry);
 
 /* adds a hostname/IPv6 in the hash table */
-WS_DLL_PUBLIC void add_ipv6_name(const ws_in6_addr *addr, const gchar *name, const gboolean static_entry);
+WS_DLL_PUBLIC void add_ipv6_name(const ws_in6_addr *addr, const gchar *name, const bool static_entry);
 
 /** Add an additional "hosts" file for IPv4 and IPv6 name resolution.
  *

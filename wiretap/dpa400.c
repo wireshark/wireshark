@@ -24,35 +24,35 @@ enum {
 };
 
 struct dpa400_header {
-	guint8 t0;
-	guint8 sb0;
-	guint8 t1;
-	guint8 sb1;
-	guint8 t2;
-	guint8 sb2;
+	uint8_t t0;
+	uint8_t sb0;
+	uint8_t t1;
+	uint8_t sb1;
+	uint8_t t2;
+	uint8_t sb2;
 };
 
 static int dpa400_file_type_subtype = -1;
 
 void register_dpa400(void);
 
-static gboolean dpa400_read_header(FILE_T fh, struct dpa400_header *hdr, int *err, gchar **err_info)
+static bool dpa400_read_header(FILE_T fh, struct dpa400_header *hdr, int *err, char **err_info)
 {
 	if (!wtap_read_bytes_or_eof(fh, hdr, sizeof(struct dpa400_header), err, err_info))
-		return FALSE;
+		return false;
 
 	if (hdr->sb0 || hdr->sb1 || hdr->sb2) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dpa400: malformed packet header");
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void get_ts(struct dpa400_header *hdr, nstime_t *ts)
 {
-	guint32 val;
+	uint32_t val;
 
 	val = (hdr->t0 | (hdr->t1 << 8) | ((hdr->t2 & 0x7f) << 16)) << 5;
 
@@ -62,33 +62,33 @@ static void get_ts(struct dpa400_header *hdr, nstime_t *ts)
 
 static void get_ts_overflow(nstime_t *ts)
 {
-	guint32 val = 0x7fffff << 5;
+	uint32_t val = 0x7fffff << 5;
 
 	ts->secs = val / 1000000;
 	ts->nsecs = (val % 1000000) * 1000;
 }
 
-static guint8 get_from(struct dpa400_header *hdr)
+static uint8_t get_from(struct dpa400_header *hdr)
 {
 	return hdr->t2 & 0x80;
 }
 
-static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
-	guint8 chunk[2];
-	guint32 ctr = 0;
+	uint8_t chunk[2];
+	uint32_t ctr = 0;
 
 	if (!wth || !rec || !buf)
-		return FALSE;
+		return false;
 
 	if (!wtap_read_bytes_or_eof(fh, chunk, sizeof(chunk), err, err_info))
-		return FALSE;
+		return false;
 
 	if (chunk[1] != 1) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dpa400: malformed packet framing");
-		return FALSE;
+		return false;
 	}
 
 	ws_buffer_clean(buf);
@@ -101,7 +101,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		struct dpa400_header hdr;
 
 		if (!dpa400_read_header(fh, &hdr, err, err_info))
-			return FALSE;
+			return false;
 
 		get_ts(&hdr, &rec->ts);
 
@@ -118,17 +118,17 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		struct dpa400_header hdr;
 
 		if (!dpa400_read_header(fh, &hdr, err, err_info))
-			return FALSE;
+			return false;
 
 		get_ts(&hdr, &rec->ts);
 
 		if (!wtap_read_bytes_or_eof(fh, chunk, sizeof(chunk), err, err_info))
-			return FALSE;
+			return false;
 
 		if (chunk[1]) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("dpa400: malformed packet");
-			return FALSE;
+			return false;
 		}
 
 		ws_buffer_append(buf, &chunk[0], 1);
@@ -144,10 +144,10 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 	case DPA400_DATA: {
 		struct dpa400_header hdr;
-		guint8 from_source;
+		uint8_t from_source;
 
 		if (!dpa400_read_header(fh, &hdr, err, err_info))
-			return FALSE;
+			return false;
 
 		get_ts(&hdr, &rec->ts);
 
@@ -157,7 +157,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 		while (1) {
 			if (!wtap_read_bytes_or_eof(fh, chunk, sizeof(chunk), err, err_info))
-				return FALSE;
+				return false;
 
 			if (chunk[1])
 				break;
@@ -166,7 +166,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = ws_strdup_printf("dpa400: File has data record bigger than maximum of %u",
 					WTAP_MAX_PACKET_SIZE_STANDARD);
-				return FALSE;
+				return false;
 			}
 
 			ws_buffer_append(buf, &chunk[0], 1);
@@ -194,30 +194,30 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	default:
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("dpa400: unknown packet type %02x", chunk[0]);
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-static gboolean dpa400_seek_read(wtap *wth,gint64 seek_off, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+static bool dpa400_seek_read(wtap *wth,int64_t seek_off, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	return dpa400_read_packet(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
-static gboolean dpa400_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool dpa400_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return dpa400_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
-wtap_open_return_val dpa400_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val dpa400_open(wtap *wth, int *err, char **err_info)
 {
 	char magic[4];
 	const char dpa_magic[] = { 'D', 'B', 'F', 'R' };
@@ -259,7 +259,7 @@ static const struct supported_block_type dpa400_blocks_supported[] = {
 
 static const struct file_type_subtype_info dpa400_info = {
 	"Unigraf DPA-400 capture", "dpa400", "bin", NULL,
-	FALSE, BLOCKS_SUPPORTED(dpa400_blocks_supported),
+	false, BLOCKS_SUPPORTED(dpa400_blocks_supported),
 	NULL, NULL, NULL
 };
 

@@ -33,8 +33,8 @@ const char PREEB_BEGIN[] = "-----BEGIN ";
 const char POSTEB_BEGIN[] = "-----END ";
 #define POSTEB_BEGIN_LEN (sizeof POSTEB_BEGIN - 1)
 
-static gboolean rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *buf,
-    int* err, gchar** err_info)
+static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *buf,
+    int* err, char** err_info)
 {
     /* Make the chunk size large enough that most lines can fit in a single chunk.
        Strict RFC 7468 syntax only allows up to 64 characters per line, but we provide
@@ -45,7 +45,7 @@ static gboolean rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *
 
     if (!(line_chunk_end = file_getsp(line_chunk, sizeof line_chunk, fh))) {
         *err = file_error(fh, err_info);
-        return FALSE;
+        return false;
     }
 
     // First chunk determines the line type.
@@ -57,13 +57,13 @@ static gboolean rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *
         *line_type = LINE_TYPE_OTHER;
 
     for (;;) {
-        gsize line_chunk_len = line_chunk_end - line_chunk;
-        if (line_chunk_len > G_MAXINT - ws_buffer_length(buf)) {
+        size_t line_chunk_len = line_chunk_end - line_chunk;
+        if (line_chunk_len > INT_MAX - ws_buffer_length(buf)) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf(
                 "File contains an encoding larger than the maximum of %d bytes",
-                G_MAXINT);
-            return FALSE;
+                INT_MAX);
+            return false;
         }
 
         ws_buffer_append(buf, line_chunk, line_chunk_len);
@@ -73,35 +73,35 @@ static gboolean rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *
 
         if (!(line_chunk_end = file_getsp(line_chunk, sizeof line_chunk, fh))) {
             *err = file_error(fh, err_info);
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean rfc7468_read_impl(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+static bool rfc7468_read_impl(FILE_T fh, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info)
 {
     ws_buffer_clean(buf);
 
-    gboolean saw_preeb = FALSE;
+    bool saw_preeb = false;
 
     for (;;) {
         enum line_type line_type;
 
         if (!rfc7468_read_line(fh, &line_type, buf, err, err_info)) {
-            if (*err != 0 || !saw_preeb) return FALSE;
+            if (*err != 0 || !saw_preeb) return false;
 
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup("Missing post-encapsulation boundary at end of file");
-            return FALSE;
+            return false;
         }
 
         if (saw_preeb) {
             if (line_type == LINE_TYPE_POSTEB) break;
         } else {
-            if (line_type == LINE_TYPE_PREEB) saw_preeb = TRUE;
+            if (line_type == LINE_TYPE_PREEB) saw_preeb = true;
         }
     }
 
@@ -109,30 +109,30 @@ static gboolean rfc7468_read_impl(FILE_T fh, wtap_rec *rec, Buffer *buf,
     rec->presence_flags = 0;
     rec->ts.secs = 0;
     rec->ts.nsecs = 0;
-    rec->rec_header.packet_header.caplen = (guint32)ws_buffer_length(buf);
-    rec->rec_header.packet_header.len = (guint32)ws_buffer_length(buf);
+    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(buf);
+    rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(buf);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean rfc7468_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool rfc7468_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
     return rfc7468_read_impl(wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean rfc7468_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool rfc7468_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0)
-        return FALSE;
+        return false;
 
     return rfc7468_read_impl(wth->random_fh, rec, buf, err, err_info);
 }
 
-wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val rfc7468_open(wtap *wth, int *err, char **err_info)
 {
     /* To detect whether this file matches our format, we need to find the
        first pre-encapsulation boundary, which may be located anywhere in the file,
@@ -191,7 +191,7 @@ static const struct supported_block_type rfc7468_blocks_supported[] = {
 
 static const struct file_type_subtype_info rfc7468_info = {
     "RFC 7468 files", "rfc7468", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(rfc7468_blocks_supported),
+    false, BLOCKS_SUPPORTED(rfc7468_blocks_supported),
     NULL, NULL, NULL
 };
 

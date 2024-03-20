@@ -20,21 +20,21 @@
 //#define CANDUMP_DEBUG
 
 typedef struct {
-    guint8     length;
-    guint8     data[CANFD_MAX_DLEN];
+    uint8_t    length;
+    uint8_t    data[CANFD_MAX_DLEN];
 } msg_data_t;
 
 typedef struct {
     nstime_t   ts;
-    guint32    id;
-    gboolean   is_fd;
-    guint8     flags;
+    uint32_t   id;
+    bool       is_fd;
+    uint8_t    flags;
     msg_data_t data;
 } msg_t;
 
 typedef struct {
-    gint64 v0;
-    gint64 v1;
+    int64_t v0;
+    int64_t v1;
 } token_t;
 
 typedef struct {
@@ -43,21 +43,21 @@ typedef struct {
 } candump_priv_t;
 
 typedef struct {
-    gboolean is_msg_valid;
+    bool is_msg_valid;
     msg_t    msg;
 
     FILE_T  fh;
-    guint64 file_bytes_read;
+    uint64_t file_bytes_read;
 
     int     err;
-    gchar  *err_info;
-    gchar  *parse_error;
+    char   *err_info;
+    char   *parse_error;
 
     token_t token;
 } candump_state_t;
 
-gboolean
-run_candump_parser(candump_state_t *state, int *err, gchar **err_info);
+bool
+run_candump_parser(candump_state_t *state, int *err, char **err_info);
 
 #ifdef CANDUMP_DEBUG
 #include <stdio.h>

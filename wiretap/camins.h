@@ -16,6 +16,6 @@
 #include <glib.h>
 #include <wiretap/wtap.h>
 
-wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_);
+wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info _U_);
 
 #endif /* _CAMINS_H */

@@ -42,25 +42,25 @@
 #define MEDIUM_TOKEN_RING	2
 
 typedef struct commview_ncf_header {
-	guint16		data_len;
-	guint16		source_data_len;
-	guint8		version;
-	guint16		year;
-	guint8		month;
-	guint8		day;
-	guint8		hours;
-	guint8		minutes;
-	guint8		seconds;
-	guint32		usecs;
-	guint8		flags;		/* Bit-field positions defined below */
-	guint8		signal_level_percent;
-	guint8		rate;
-	guint8		band;
-	guint8		channel;
-	guint8		direction;	/* Or for WiFi, high order byte of
+	uint16_t	data_len;
+	uint16_t	source_data_len;
+	uint8_t		version;
+	uint16_t	year;
+	uint8_t		month;
+	uint8_t		day;
+	uint8_t		hours;
+	uint8_t		minutes;
+	uint8_t		seconds;
+	uint32_t	usecs;
+	uint8_t		flags;		/* Bit-field positions defined below */
+	uint8_t		signal_level_percent;
+	uint8_t		rate;
+	uint8_t		band;
+	uint8_t		channel;
+	uint8_t		direction;	/* Or for WiFi, high order byte of
 					 * packet rate. */
-	gint8		signal_level_dbm;	/* WiFi-only */
-	gint8		noise_level_dbm;	/* WiFi-only */
+	int8_t		signal_level_dbm;	/* WiFi-only */
+	int8_t		noise_level_dbm;	/* WiFi-only */
 } commview_ncf_header_t;
 
 #define COMMVIEW_NCF_HEADER_SIZE 24
@@ -82,15 +82,15 @@ typedef struct commview_ncf_header {
 #define BAND_11N_5GHZ		0x40
 #define BAND_11N_2_4GHZ		0x80
 
-static gboolean commview_ncf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                              int *err, gchar **err_info, gint64 *data_offset);
-static gboolean commview_ncf_seek_read(wtap *wth, gint64 seek_off,
+static bool commview_ncf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                              int *err, char **err_info, int64_t *data_offset);
+static bool commview_ncf_seek_read(wtap *wth, int64_t seek_off,
 				   wtap_rec *rec,
-				   Buffer *buf, int *err, gchar **err_info);
-static gboolean commview_ncf_read_header(commview_ncf_header_t *cv_hdr, FILE_T fh,
-				     int *err, gchar **err_info);
-static gboolean commview_ncf_dump(wtap_dumper *wdh,	const wtap_rec *rec,
-			      const guint8 *pd, int *err, gchar **err_info);
+				   Buffer *buf, int *err, char **err_info);
+static bool commview_ncf_read_header(commview_ncf_header_t *cv_hdr, FILE_T fh,
+				     int *err, char **err_info);
+static bool commview_ncf_dump(wtap_dumper *wdh,	const wtap_rec *rec,
+			      const uint8_t *pd, int *err, char **err_info);
 
 static int commview_ncf_file_type_subtype = -1;
 static int commview_ncfx_file_type_subtype = -1;
@@ -98,7 +98,7 @@ static int commview_ncfx_file_type_subtype = -1;
 void register_commview(void);
 
 wtap_open_return_val
-commview_ncf_open(wtap *wth, int *err, gchar **err_info)
+commview_ncf_open(wtap *wth, int *err, char **err_info)
 {
 	commview_ncf_header_t cv_hdr;
 
@@ -140,14 +140,14 @@ commview_ncf_open(wtap *wth, int *err, gchar **err_info)
 
 static int
 commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	commview_ncf_header_t cv_hdr;
 	struct tm tm;
-	guint frequency;
+	unsigned frequency;
 
 	if(!commview_ncf_read_header(&cv_hdr, fh, err, err_info))
-		return FALSE;
+		return false;
 	/*
 	 * The maximum value of cv_hdr.data_len is 65535, which is less
 	 * than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to
@@ -165,58 +165,58 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = -1; /* Unknown */
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = FALSE;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = false;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = false;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 		switch (cv_hdr.band) {
 
 		case BAND_11A:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_channel_type = false;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = true;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.turbo_type =
 			    PHDR_802_11A_TURBO_TYPE_NORMAL;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, FALSE);
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, false);
 			break;
 
 		case BAND_11B:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = false;
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, true);
 			break;
 
 		case BAND_11G:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = true;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.mode =
 			    PHDR_802_11G_MODE_NORMAL;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, true);
 			break;
 
 		case BAND_11A_TURBO:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = true;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.turbo_type =
 			    PHDR_802_11A_TURBO_TYPE_TURBO;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, FALSE);
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, false);
 			break;
 
 		case BAND_SUPERG:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = true;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.mode =
 			    PHDR_802_11G_MODE_SUPER_G;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, true);
 			break;
 
 		case BAND_11N_5GHZ:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11N;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, FALSE);
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, false);
 			break;
 
 		case BAND_11N_2_4GHZ:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11N;
-			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
+			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, true);
 			break;
 
 		case BAND_PUBLIC_SAFETY:
@@ -233,17 +233,17 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			break;
 		}
 		if (frequency != 0) {
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_frequency = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_frequency = true;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.frequency = frequency;
 		}
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_channel = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_channel = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.channel = cv_hdr.channel;
 
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate =
 		    cv_hdr.rate | (cv_hdr.direction << 8);
 
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.signal_percent = cv_hdr.signal_level_percent;
 
 		/*
@@ -258,11 +258,11 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 */
 		if (cv_hdr.signal_level_dbm != 0) {
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.signal_dbm = -cv_hdr.signal_level_dbm;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_dbm = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_dbm = true;
 		}
 		if (cv_hdr.noise_level_dbm != 0) {
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.noise_dbm = -cv_hdr.noise_level_dbm;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_noise_dbm = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_noise_dbm = true;
 		}
 		if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy == PHDR_802_11_PHY_UNKNOWN) {
 			/*
@@ -273,7 +273,7 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			if (RATE_IS_DSSS(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
 				/* 11b */
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = false;
 			} else if (RATE_IS_OFDM(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
 				/* 11a or 11g, depending on the band. */
 				if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_frequency) {
@@ -290,7 +290,7 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			if (RATE_IS_DSSS(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
 				/* DSSS, so 11b. */
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = false;
 			}
 		}
 		break;
@@ -303,7 +303,7 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("commview: unsupported encap for NCF: %u",
 					    cv_hdr.flags & FLAGS_MEDIUM);
-		return FALSE;
+		return false;
 	}
 
 	tm.tm_year = cv_hdr.year - 1900;
@@ -327,65 +327,65 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
-static gboolean
+static bool
 commview_ncf_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info, gint64 *data_offset)
+    char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return commview_ncf_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean
-commview_ncf_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool
+commview_ncf_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	return commview_ncf_read_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
-static gboolean
+static bool
 commview_ncf_read_header(commview_ncf_header_t *cv_hdr, FILE_T fh, int *err,
-    gchar **err_info)
+    char **err_info)
 {
 	if (!wtap_read_bytes_or_eof(fh, &cv_hdr->data_len, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->source_data_len, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->version, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->year, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->month, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->day, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->hours, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->minutes, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->seconds, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->usecs, 4, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->flags, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->signal_level_percent, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->rate, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->band, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->channel, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->direction, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->signal_level_dbm, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->noise_level_dbm, 1, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Convert multi-byte values from little endian to host endian format */
 	cv_hdr->data_len = GUINT16_FROM_LE(cv_hdr->data_len);
@@ -393,7 +393,7 @@ commview_ncf_read_header(commview_ncf_header_t *cv_hdr, FILE_T fh, int *err,
 	cv_hdr->year = GUINT16_FROM_LE(cv_hdr->year);
 	cv_hdr->usecs = GUINT32_FROM_LE(cv_hdr->usecs);
 
-	return TRUE;
+	return true;
 }
 
 /* Returns 0 if we can write out the specified encapsulation type
@@ -415,22 +415,22 @@ commview_ncf_dump_can_write_encap(int encap)
 	}
 }
 
-/* Returns TRUE on success, FALSE on failure;
+/* Returns true on success, false on failure;
    sets "*err" to an error code on failure */
-static gboolean
-commview_ncf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
+static bool
+commview_ncf_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
 {
 	wdh->subtype_write = commview_ncf_dump;
 
 	/* There is no file header to write out */
-	return TRUE;
+	return true;
 }
 
 /* Write a record for a packet to a dump file.
- * Returns TRUE on success, FALSE on failure. */
-static gboolean
-commview_ncf_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
-    int *err, gchar **err_info _U_)
+ * Returns true on success, false on failure. */
+static bool
+commview_ncf_dump(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
+    int *err, char **err_info _U_)
 {
 	commview_ncf_header_t cv_hdr = {0};
 	struct tm *tm;
@@ -438,7 +438,7 @@ commview_ncf_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 	/* We can only write packet records. */
 	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-		return FALSE;
+		return false;
 	}
 
 	/* Don't write out anything bigger than we can read.
@@ -446,11 +446,11 @@ commview_ncf_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 	 * imposes a hard limit.) */
 	if (rec->rec_header.packet_header.caplen > 65535) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
-		return FALSE;
+		return false;
 	}
 
-	cv_hdr.data_len = GUINT16_TO_LE((guint16)rec->rec_header.packet_header.caplen);
-	cv_hdr.source_data_len = GUINT16_TO_LE((guint16)rec->rec_header.packet_header.caplen);
+	cv_hdr.data_len = GUINT16_TO_LE((uint16_t)rec->rec_header.packet_header.caplen);
+	cv_hdr.source_data_len = GUINT16_TO_LE((uint16_t)rec->rec_header.packet_header.caplen);
 	cv_hdr.version = 0;
 
 	tm = localtime(&rec->ts.secs);
@@ -563,11 +563,11 @@ commview_ncf_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 		      0;
 		cv_hdr.rate =
 		    rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate ?
-		      (guint8)(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate & 0xFF) :
+		      (uint8_t)(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate & 0xFF) :
 		      0;
 		cv_hdr.direction =
 		    rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate ?
-		      (guint8)((rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate >> 8) & 0xFF) :
+		      (uint8_t)((rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate >> 8) & 0xFF) :
 		      0;
 		cv_hdr.signal_level_percent =
 		    rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent ?
@@ -589,88 +589,88 @@ commview_ncf_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 
 	default :
 		*err = WTAP_ERR_UNWRITABLE_ENCAP;
-		return FALSE;
+		return false;
 	}
 
 	if (!wtap_dump_file_write(wdh, &cv_hdr.data_len, 2, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.source_data_len, 2, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.version, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.year, 2, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.month, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.day, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.hours, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.minutes, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.seconds, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.usecs, 4, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.flags, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_percent, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.rate, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.band, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.channel, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level_dbm, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 typedef struct commview_ncfx_header {
-	guint32		data_len;
-	guint16		year;
-	guint8		month;
-	guint8		day;
-	guint8		hours;
-	guint8		minutes;
-	guint8		seconds;
-	guint32		usecs;
-	guint8		medium_type;
-	guint8		decryption_flag;
-	guint8		direction;
-	guint8		reserved1;
-	guint8		reserved2;
+	uint32_t	data_len;
+	uint16_t	year;
+	uint8_t		month;
+	uint8_t		day;
+	uint8_t		hours;
+	uint8_t		minutes;
+	uint8_t		seconds;
+	uint32_t	usecs;
+	uint8_t		medium_type;
+	uint8_t		decryption_flag;
+	uint8_t		direction;
+	uint8_t		reserved1;
+	uint8_t		reserved2;
 } commview_ncfx_header_t;
 
 #define COMMVIEW_NCFX_HEADER_SIZE	20
 
 typedef struct commview_ncfx_rf_header {
-	guint16		header_len;		/* includes extension headers */
-	guint16		status_modulation;
-	guint16		frequency_band;
-	guint16		channel;
-	guint8		noise_level_dbm;	/* abs(noise in dBm) */
-	guint8		signal_level_dbm;	/* abs(signal in dBm) */
-	guint8		signal_level_percent;
-	guint8		reserved;
-	guint32		phy_rate;		/* in 100Kbps units */
-	guint32		extensions_present;
+	uint16_t	header_len;		/* includes extension headers */
+	uint16_t	status_modulation;
+	uint16_t	frequency_band;
+	uint16_t	channel;
+	uint8_t		noise_level_dbm;	/* abs(noise in dBm) */
+	uint8_t		signal_level_dbm;	/* abs(signal in dBm) */
+	uint8_t		signal_level_percent;
+	uint8_t		reserved;
+	uint32_t	phy_rate;		/* in 100Kbps units */
+	uint32_t	extensions_present;
 } commview_ncfx_rf_header_t;
 
 #define COMMVIEW_NCFX_RF_HEADER_SIZE	20
 
 typedef struct commview_ncfx_mcs_header {
-	guint8		mcs_index;
-	guint8		n_streams;
-	guint8		channel_width;
-	guint8		guard_interval;
+	uint8_t		mcs_index;
+	uint8_t		n_streams;
+	uint8_t		channel_width;
+	uint8_t		guard_interval;
 } commview_ncfx_mcs_header_t;
 
 #define COMMVIEW_NCFX_MCS_HEADER_SIZE	4
@@ -692,21 +692,21 @@ typedef struct commview_ncfx_mcs_header {
 /* Presence bits */
 #define PRESENCE_MCS_HEADER	0x00000001	/* type 0, bit 0 */
 
-static gboolean commview_ncfx_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean commview_ncfx_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean commview_ncfx_read_header(commview_ncfx_header_t *cv_hdr,
-    FILE_T fh, int *err, gchar **err_info);
-static gboolean commview_ncfx_read_rf_header(commview_ncfx_rf_header_t *cv_rf_hdr,
-    FILE_T fh, int *err, gchar **err_info);
-static gboolean commview_ncfx_read_mcs_header(commview_ncfx_mcs_header_t *cv_mcs_hdr,
-    FILE_T fh, int *err, gchar **err_info);
-static gboolean commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec,
-     const guint8 *pd, int *err, gchar **err_info);
+static bool commview_ncfx_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool commview_ncfx_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool commview_ncfx_read_header(commview_ncfx_header_t *cv_hdr,
+    FILE_T fh, int *err, char **err_info);
+static bool commview_ncfx_read_rf_header(commview_ncfx_rf_header_t *cv_rf_hdr,
+    FILE_T fh, int *err, char **err_info);
+static bool commview_ncfx_read_mcs_header(commview_ncfx_mcs_header_t *cv_mcs_hdr,
+    FILE_T fh, int *err, char **err_info);
+static bool commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec,
+     const uint8_t *pd, int *err, char **err_info);
 
 wtap_open_return_val
-commview_ncfx_open(wtap *wth, int *err, gchar **err_info)
+commview_ncfx_open(wtap *wth, int *err, char **err_info)
 {
 	commview_ncfx_header_t cv_hdr;
 
@@ -762,17 +762,17 @@ commview_ncfx_open(wtap *wth, int *err, gchar **err_info)
 
 static int
 commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	commview_ncfx_header_t cv_hdr;
-	guint32 length_remaining;
+	uint32_t length_remaining;
 	struct tm tm;
 	commview_ncfx_rf_header_t cv_rf_hdr;
-	guint frequency;
+	unsigned frequency;
 	commview_ncfx_mcs_header_t cv_mcs_hdr;
 
 	if (!commview_ncfx_read_header(&cv_hdr, fh, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Amount of data remaining in the record, after the header */
 	length_remaining = cv_hdr.data_len - COMMVIEW_NCFX_HEADER_SIZE;
@@ -789,7 +789,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = 0; /* No FCS */
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = (cv_hdr.decryption_flag == 0x01);
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = false;
 
 		/*
 		 * Make sure we have enough data left for the RF header.
@@ -798,7 +798,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf("commview: RF header goes past the NCFX data length %u",
 			    cv_hdr.data_len);
-			return FALSE;
+			return false;
 		}
 		length_remaining -= COMMVIEW_NCFX_RF_HEADER_SIZE;
 
@@ -806,7 +806,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * Read the RF header.
 		 */
 		if (!commview_ncfx_read_rf_header(&cv_rf_hdr, fh, err, err_info))
-			return FALSE;
+			return false;
 		if (cv_rf_hdr.status_modulation & STATUS_MODULATION_HE_PHY)
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11AX;
 		else if (cv_rf_hdr.status_modulation & STATUS_MODULATION_VHT_PHY)
@@ -822,7 +822,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		switch (cv_rf_hdr.frequency_band) {
 
 		case BAND_5GHZ:
-			frequency = ieee80211_chan_to_mhz(cv_rf_hdr.channel, FALSE);
+			frequency = ieee80211_chan_to_mhz(cv_rf_hdr.channel, false);
 			if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy == PHDR_802_11_PHY_UNKNOWN) {
 				/*
 				 * None of the modulation bits were set, so
@@ -833,7 +833,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			break;
 
 		case BAND_2_4GHZ:
-			frequency = ieee80211_chan_to_mhz(cv_rf_hdr.channel, TRUE);
+			frequency = ieee80211_chan_to_mhz(cv_rf_hdr.channel, true);
 			if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy == PHDR_802_11_PHY_UNKNOWN) {
 				/*
 				 * None of the modulation bits were set, so
@@ -859,10 +859,10 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			break;
 		}
 		if (frequency != 0) {
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_frequency = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_frequency = true;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.frequency = frequency;
 		}
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_channel = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_channel = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.channel = cv_rf_hdr.channel;
 
 		/*
@@ -871,11 +871,11 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * pseudo_header.ieee_802_11.data_rate is in units of 500
 		 * Kbits/s.
 		 */
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate =
 		    cv_rf_hdr.phy_rate/5;
 
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = TRUE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = true;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.signal_percent = cv_rf_hdr.signal_level_percent;
 
 		/*
@@ -887,11 +887,11 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 */
 		if (cv_rf_hdr.signal_level_dbm != 0) {
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.signal_dbm = -cv_rf_hdr.signal_level_dbm;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_dbm = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_dbm = true;
 		}
 		if (cv_rf_hdr.noise_level_dbm != 0) {
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.noise_dbm = -cv_rf_hdr.noise_level_dbm;
-			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_noise_dbm = TRUE;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_noise_dbm = true;
 		}
 
 		if (cv_rf_hdr.extensions_present & PRESENCE_MCS_HEADER) {
@@ -903,7 +903,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = ws_strdup_printf("commview: MCS header goes past the NCFX data length %u",
 				    cv_hdr.data_len);
-				return FALSE;
+				return false;
 			}
 			length_remaining -= COMMVIEW_NCFX_MCS_HEADER_SIZE;
 
@@ -912,22 +912,22 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			 */
 			if (!commview_ncfx_read_mcs_header(&cv_mcs_hdr, fh,
 			    err, err_info))
-				return FALSE;
+				return false;
 			switch (rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy) {
 
 			case PHDR_802_11_PHY_11N:
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.has_mcs_index = TRUE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.has_mcs_index = true;
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.mcs_index = cv_mcs_hdr.mcs_index;
 				/* number of STBC streams? */
 				switch (cv_mcs_hdr.channel_width) {
 
 				case 0x00:
-					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.has_bandwidth = TRUE;
+					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.has_bandwidth = true;
 					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
 					break;
 
 				case 0x01:
-					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.has_bandwidth = TRUE;
+					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.has_bandwidth = true;
 					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
 					break;
 
@@ -947,17 +947,17 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 				switch (cv_mcs_hdr.channel_width) {
 
 				case 0x00:
-					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.has_bandwidth = TRUE;
+					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.has_bandwidth = true;
 					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
 					break;
 
 				case 0x01:
-					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.has_bandwidth = TRUE;
+					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.has_bandwidth = true;
 					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
 					break;
 
 				case 0x02:
-					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.has_bandwidth = TRUE;
+					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.has_bandwidth = true;
 					rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_80_MHZ;
 					break;
 
@@ -968,7 +968,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 				break;
 
 			case PHDR_802_11_PHY_11AX:
-				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ax.has_mcs_index = TRUE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ax.has_mcs_index = true;
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ax.mcs = cv_mcs_hdr.mcs_index;
 				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11ax.nsts = cv_mcs_hdr.n_streams;
 				/* Bandwidth stuff? */
@@ -985,7 +985,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("commview: unsupported encap for NCFX: %u",
 					    cv_hdr.medium_type);
-		return FALSE;
+		return false;
 	}
 
 	tm.tm_year = cv_hdr.year - 1900;
@@ -1008,7 +1008,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("commview: File has %u-byte packet, bigger than maximum of %u",
 		    length_remaining, WTAP_MAX_PACKET_SIZE_STANDARD);
-		return FALSE;
+		return false;
 	}
 
 	rec->rec_header.packet_header.len = length_remaining;
@@ -1020,31 +1020,31 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
-static gboolean
+static bool
 commview_ncfx_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info, gint64 *data_offset)
+    char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return commview_ncfx_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean
-commview_ncfx_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool
+commview_ncfx_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	return commview_ncfx_read_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
-static gboolean
+static bool
 commview_ncfx_read_header(commview_ncfx_header_t *cv_hdr, FILE_T fh, int *err,
-    gchar **err_info)
+    char **err_info)
 {
 	if (!wtap_read_bytes_or_eof(fh, &cv_hdr->data_len, 4, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Convert data length from little endian to host endian format */
 	cv_hdr->data_len = GUINT32_FROM_LE(cv_hdr->data_len);
@@ -1055,69 +1055,69 @@ commview_ncfx_read_header(commview_ncfx_header_t *cv_hdr, FILE_T fh, int *err,
 		*err_info = ws_strdup_printf("commview: NCFX data length %u < %u",
 					    cv_hdr->data_len,
 					    COMMVIEW_NCFX_HEADER_SIZE);
-		return FALSE;
+		return false;
 	}
 
 	if (!wtap_read_bytes(fh, &cv_hdr->year, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->month, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->day, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->hours, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->minutes, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->seconds, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->usecs, 4, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->medium_type, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->decryption_flag, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->direction, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->reserved1, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_hdr->reserved2, 1, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Convert multi-byte values from little endian to host endian format */
 	cv_hdr->year = GUINT16_FROM_LE(cv_hdr->year);
 	cv_hdr->usecs = GUINT32_FROM_LE(cv_hdr->usecs);
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 commview_ncfx_read_rf_header(commview_ncfx_rf_header_t *cv_rf_hdr, FILE_T fh,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->header_len, 2, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Convert header length from little endian to host endian format */
 	cv_rf_hdr->header_len = GUINT16_FROM_LE(cv_rf_hdr->header_len);
 
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->status_modulation, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->frequency_band, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->channel, 2, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->noise_level_dbm, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->signal_level_dbm, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->signal_level_percent, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->reserved, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->phy_rate, 4, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_rf_hdr->extensions_present, 4, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Convert remaining multi-byte values from little endian to host endian format */
 	cv_rf_hdr->status_modulation = GUINT16_FROM_LE(cv_rf_hdr->status_modulation);
@@ -1126,23 +1126,23 @@ commview_ncfx_read_rf_header(commview_ncfx_rf_header_t *cv_rf_hdr, FILE_T fh,
 	cv_rf_hdr->phy_rate = GUINT32_FROM_LE(cv_rf_hdr->phy_rate);
 	cv_rf_hdr->extensions_present = GUINT32_FROM_LE(cv_rf_hdr->extensions_present);
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 commview_ncfx_read_mcs_header(commview_ncfx_mcs_header_t *cv_mcs_hdr, FILE_T fh,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	if (!wtap_read_bytes(fh, &cv_mcs_hdr->mcs_index, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_mcs_hdr->n_streams, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_mcs_hdr->channel_width, 1, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &cv_mcs_hdr->guard_interval, 1, err, err_info))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 /* Returns 0 if we can write out the specified encapsulation type
@@ -1163,22 +1163,22 @@ commview_ncfx_dump_can_write_encap(int encap)
 	}
 }
 
-/* Returns TRUE on success, FALSE on failure;
+/* Returns true on success, false on failure;
    sets "*err" to an error code on failure */
-static gboolean
-commview_ncfx_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
+static bool
+commview_ncfx_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
 {
 	wdh->subtype_write = commview_ncfx_dump;
 
 	/* There is no file header to write out */
-	return TRUE;
+	return true;
 }
 
 /* Write a record for a packet to a dump file.
- * Returns TRUE on success, FALSE on failure. */
-static gboolean
-commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
-    int *err, gchar **err_info _U_)
+ * Returns true on success, false on failure. */
+static bool
+commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec, const uint8_t *pd,
+    int *err, char **err_info _U_)
 {
 	commview_ncfx_header_t cv_hdr = {0};
 	struct tm *tm;
@@ -1186,7 +1186,7 @@ commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 	/* We can only write packet records. */
 	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-		return FALSE;
+		return false;
 	}
 
 	/* Don't write out anything bigger than we can read.
@@ -1194,10 +1194,10 @@ commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 	 * imposes a hard limit.) */
 	if (rec->rec_header.packet_header.caplen > 65535) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
-		return FALSE;
+		return false;
 	}
 
-	cv_hdr.data_len = GUINT32_TO_LE((guint32)rec->rec_header.packet_header.caplen);
+	cv_hdr.data_len = GUINT32_TO_LE((uint32_t)rec->rec_header.packet_header.caplen);
 
 	tm = localtime(&rec->ts.secs);
 	if (tm != NULL) {
@@ -1294,49 +1294,49 @@ commview_ncfx_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 		cv_hdr.reserved = 0;
 		cv_hdr.phy_rate =
 		    rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_data_rate ?
-		      (guint32)(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate & 0xFF) :
+		      (uint32_t)(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate & 0xFF) :
 		      0;
 #endif
 		break;
 
 	default :
 		*err = WTAP_ERR_UNWRITABLE_ENCAP;
-		return FALSE;
+		return false;
 	}
 
 	if (!wtap_dump_file_write(wdh, &cv_hdr.data_len, 4, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.year, 2, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.month, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.day, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.hours, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.minutes, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.seconds, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.usecs, 4, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.medium_type, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.decryption_flag, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.reserved1, 1, err))
-		return FALSE;
+		return false;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.reserved2, 1, err))
-		return FALSE;
+		return false;
 
 	/* XXX - RF and MCS headers */
 
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 static const struct supported_block_type commview_blocks_supported[] = {
@@ -1348,13 +1348,13 @@ static const struct supported_block_type commview_blocks_supported[] = {
 
 static const struct file_type_subtype_info commview_ncf_info = {
 	"TamoSoft CommView NCF", "commview-ncf", "ncf", NULL,
-	FALSE, BLOCKS_SUPPORTED(commview_blocks_supported),
+	false, BLOCKS_SUPPORTED(commview_blocks_supported),
 	commview_ncf_dump_can_write_encap, commview_ncf_dump_open, NULL
 };
 
 static const struct file_type_subtype_info commview_ncfx_info = {
 	"TamoSoft CommView NCFX", "commview-ncfx", "ncfx", NULL,
-	FALSE, BLOCKS_SUPPORTED(commview_blocks_supported),
+	false, BLOCKS_SUPPORTED(commview_blocks_supported),
 	commview_ncfx_dump_can_write_encap, commview_ncfx_dump_open, NULL
 };
 

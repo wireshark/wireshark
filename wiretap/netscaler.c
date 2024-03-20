@@ -82,22 +82,22 @@
 
 typedef struct nspr_header_v10
 {
-    guint8 ph_RecordType[2]; /* Record Type */
-    guint8 ph_RecordSize[2]; /* Record Size including header */
+    uint8_t ph_RecordType[2]; /* Record Type */
+    uint8_t ph_RecordSize[2]; /* Record Size including header */
 } nspr_header_v10_t;
-#define nspr_header_v10_s    ((guint32)sizeof(nspr_header_v10_t))
+#define nspr_header_v10_s    ((uint32_t)sizeof(nspr_header_v10_t))
 
 /* This is V20 short header (2 bytes long) to be included where needed */
 #define NSPR_HEADER_V20(prefix) \
-    guint8 prefix##_RecordType; /* Record Type */ \
-    guint8 prefix##_RecordSize  /* Record Size including header */ \
+    uint8_t prefix##_RecordType; /* Record Type */ \
+    uint8_t prefix##_RecordSize  /* Record Size including header */ \
                                 /* end of declaration */
 
 /* This is new long header (3 bytes long) to be included where needed */
 #define NSPR_HEADER3B_V20(prefix) \
-    guint8 prefix##_RecordType;    /* Record Type */ \
-    guint8 prefix##_RecordSizeLow; /* Record Size including header */ \
-    guint8 prefix##_RecordSizeHigh /* Record Size including header */ \
+    uint8_t prefix##_RecordType;    /* Record Type */ \
+    uint8_t prefix##_RecordSizeLow; /* Record Size including header */ \
+    uint8_t prefix##_RecordSizeHigh /* Record Size including header */ \
                                    /* end of declaration */
 #define NSPR_HEADER3B_V21 NSPR_HEADER3B_V20
 #define NSPR_HEADER3B_V22 NSPR_HEADER3B_V20
@@ -108,7 +108,7 @@ typedef struct nspr_hd_v20
     NSPR_HEADER3B_V20(phd); /* long performance header */
 
 } nspr_hd_v20_t;
-#define nspr_hd_v20_s    ((guint32)sizeof(nspr_hd_v20_t))
+#define nspr_hd_v20_s    ((uint32_t)sizeof(nspr_hd_v20_t))
 
 
 /*
@@ -121,23 +121,23 @@ typedef struct nspr_hd_v20
 /* Performance Data Header with device number */
 typedef struct nspr_headerdev_v10
 {
-    guint8 ph_RecordType[2]; /* Record Type */
-    guint8 ph_RecordSize[2]; /* Record Size including header */
-    guint8 ph_DevNo[4];      /* Network Device (NIC/CONN) number */
+    uint8_t ph_RecordType[2]; /* Record Type */
+    uint8_t ph_RecordSize[2]; /* Record Size including header */
+    uint8_t ph_DevNo[4];      /* Network Device (NIC/CONN) number */
 } nspr_headerdev_v10_t;
-#define nspr_headerdev_v10_s    ((guint32)sizeof(nspr_headerdev_v10_t))
+#define nspr_headerdev_v10_s    ((uint32_t)sizeof(nspr_headerdev_v10_t))
 
 typedef struct nspr_hd_v10
 {
     nspr_header_v10_t phd; /* performance header */
 } nspr_hd_v10_t;
-#define nspr_hd_v10_s    ((guint32)sizeof(nspr_hd_v10_t))
+#define nspr_hd_v10_s    ((uint32_t)sizeof(nspr_hd_v10_t))
 
 typedef struct nspr_hdev_v10
 {
     nspr_headerdev_v10_t phd; /* performance header */
 } nspr_hdev_v10_t;
-#define nspr_hdev_v10_s    ((guint32)sizeof(nspr_hdev_v10_t))
+#define nspr_hdev_v10_s    ((uint32_t)sizeof(nspr_hdev_v10_t))
 
 /* if structure has defined phd as first field, it can use following names */
 #define nsprRecordType    phd.ph_RecordType
@@ -151,60 +151,60 @@ typedef struct nspr_hdev_v10
 typedef struct nspr_signature_v10
 {
     nspr_header_v10_t phd; /* performance header */
-    guint8 sig_EndianType; /* Endian Type for the data */
-    guint8 sig_Reserved0;
-    guint8 sig_Reserved1[2];
-    gchar sig_Signature[NSPR_SIGSIZE_V10]; /* Signature value */
+    uint8_t sig_EndianType; /* Endian Type for the data */
+    uint8_t sig_Reserved0;
+    uint8_t sig_Reserved1[2];
+    char sig_Signature[NSPR_SIGSIZE_V10]; /* Signature value */
 } nspr_signature_v10_t;
-#define nspr_signature_v10_s    ((guint32)sizeof(nspr_signature_v10_t))
+#define nspr_signature_v10_s    ((uint32_t)sizeof(nspr_signature_v10_t))
 
 /* NSPR_SIGNATURE_V20 structure */
 #define NSPR_SIGSIZE_V20        sizeof(NSPR_SIGSTR_V20) /* signature value size in bytes */
 typedef struct nspr_signature_v20
 {
     NSPR_HEADER_V20(sig);  /* short performance header */
-    guint8 sig_EndianType; /* Endian Type for the data */
-    gchar sig_Signature[NSPR_SIGSIZE_V20]; /* Signature value */
+    uint8_t sig_EndianType; /* Endian Type for the data */
+    char sig_Signature[NSPR_SIGSIZE_V20]; /* Signature value */
 } nspr_signature_v20_t;
-#define nspr_signature_v20_s    ((guint32)sizeof(nspr_signature_v20_t))
+#define nspr_signature_v20_s    ((uint32_t)sizeof(nspr_signature_v20_t))
 
 /* NSPR_SIGNATURE_V30 structure */
 #define NSPR_SIGSIZE_V30        sizeof(NSPR_SIGSTR_V30) /* signature value size in bytes */
 typedef struct nspr_signature_v30
 {
     NSPR_HEADER_V20(sig);  /* short performance header */
-    guint8 sig_EndianType; /* Endian Type for the data */
-    gchar sig_Signature[NSPR_SIGSIZE_V30]; /* Signature value */
+    uint8_t sig_EndianType; /* Endian Type for the data */
+    char sig_Signature[NSPR_SIGSIZE_V30]; /* Signature value */
 } nspr_signature_v30_t;
-#define nspr_signature_v30_s    ((guint32)sizeof(nspr_signature_v30_t))
+#define nspr_signature_v30_s    ((uint32_t)sizeof(nspr_signature_v30_t))
 
 #define NSPR_SIGSIZE_V35        sizeof(NSPR_SIGSTR_V35) /* signature value size in bytes */
 typedef struct nspr_signature_v35
 {
     NSPR_HEADER_V20(sig);  /* short performance header */
-    guint8 sig_EndianType; /* Endian Type for the data */
-    gchar sig_Signature[NSPR_SIGSIZE_V35]; /* Signature value */
+    uint8_t sig_EndianType; /* Endian Type for the data */
+    char sig_Signature[NSPR_SIGSIZE_V35]; /* Signature value */
 } nspr_signature_v35_t;
-#define nspr_signature_v35_s    ((guint32)sizeof(nspr_signature_v35_t))
+#define nspr_signature_v35_s    ((uint32_t)sizeof(nspr_signature_v35_t))
 
 /* NSPR_ABSTIME_V10 and NSPR_SYSTARTIME_V10 structure */
 typedef struct nspr_abstime_v10
 {
     nspr_header_v10_t phd; /* performance header */
-    guint8 abs_RelTime[4]; /* relative time is ms from last time */
-    guint8 abs_Time[4];    /* absolute time in seconds from 1970 */
+    uint8_t abs_RelTime[4]; /* relative time is ms from last time */
+    uint8_t abs_Time[4];    /* absolute time in seconds from 1970 */
 } nspr_abstime_v10_t;
-#define nspr_abstime_v10_s    ((guint32)sizeof(nspr_abstime_v10_t))
+#define nspr_abstime_v10_s    ((uint32_t)sizeof(nspr_abstime_v10_t))
 
 
 /* NSPR_ABSTIME_V20 and NSPR_SYSTARTIME_V20 structure */
 typedef struct nspr_abstime_v20
 {
     NSPR_HEADER_V20(abs);  /* short performance header */
-    guint8 abs_RelTime[2]; /* relative time is ms from last time */
-    guint8 abs_Time[4];    /* absolute time in seconds from 1970 */
+    uint8_t abs_RelTime[2]; /* relative time is ms from last time */
+    uint8_t abs_Time[4];    /* absolute time in seconds from 1970 */
 } nspr_abstime_v20_t;
-#define nspr_abstime_v20_s    ((guint32)sizeof(nspr_abstime_v20_t))
+#define nspr_abstime_v20_s    ((uint32_t)sizeof(nspr_abstime_v20_t))
 
 
 
@@ -212,287 +212,287 @@ typedef struct nspr_abstime_v20
 typedef struct nspr_pktracefull_v10
 {
     nspr_headerdev_v10_t phd; /* performance header */
-    guint8 fp_RelTimeHr[4];   /* High resolution relative time */
+    uint8_t fp_RelTimeHr[4];   /* High resolution relative time */
 } nspr_pktracefull_v10_t;
-#define nspr_pktracefull_v10_s    ((guint32)(sizeof(nspr_pktracefull_v10_t)))
+#define nspr_pktracefull_v10_s    ((uint32_t)(sizeof(nspr_pktracefull_v10_t)))
 
 /* new full packet trace structure v20 */
 typedef struct nspr_pktracefull_v20
 {
     NSPR_HEADER3B_V20(fp);  /* long performance header */
-    guint8 fp_DevNo;        /* Network Device (NIC) number */
-    guint8 fp_RelTimeHr[4]; /* High resolution relative time */
+    uint8_t fp_DevNo;        /* Network Device (NIC) number */
+    uint8_t fp_RelTimeHr[4]; /* High resolution relative time */
 } nspr_pktracefull_v20_t;
-#define nspr_pktracefull_v20_s    ((guint32)(sizeof(nspr_pktracefull_v20_t)))
+#define nspr_pktracefull_v20_s    ((uint32_t)(sizeof(nspr_pktracefull_v20_t)))
 
 /* new full packet trace structure v21 */
 typedef struct nspr_pktracefull_v21
 {
     NSPR_HEADER3B_V21(fp);  /* long performance header */
-    guint8 fp_DevNo;        /* Network Device (NIC) number */
-    guint8 fp_RelTimeHr[4]; /* High resolution relative time */
-    guint8 fp_PcbDevNo[4];  /* PCB devno */
-    guint8 fp_lPcbDevNo[4]; /* link PCB devno */
+    uint8_t fp_DevNo;        /* Network Device (NIC) number */
+    uint8_t fp_RelTimeHr[4]; /* High resolution relative time */
+    uint8_t fp_PcbDevNo[4];  /* PCB devno */
+    uint8_t fp_lPcbDevNo[4]; /* link PCB devno */
 } nspr_pktracefull_v21_t;
-#define nspr_pktracefull_v21_s    ((guint32)(sizeof(nspr_pktracefull_v21_t)))
+#define nspr_pktracefull_v21_s    ((uint32_t)(sizeof(nspr_pktracefull_v21_t)))
 
 /* new full packet trace structure v22 */
 typedef struct nspr_pktracefull_v22
 {
     NSPR_HEADER3B_V22(fp);  /* long performance header */
-    guint8 fp_DevNo;        /* Network Device (NIC) number */
-    guint8 fp_RelTimeHr[4]; /* High resolution relative time */
-    guint8 fp_PcbDevNo[4];  /* PCB devno */
-    guint8 fp_lPcbDevNo[4]; /* link PCB devno */
-    guint8 fp_VlanTag[2];   /* vlan tag */
+    uint8_t fp_DevNo;        /* Network Device (NIC) number */
+    uint8_t fp_RelTimeHr[4]; /* High resolution relative time */
+    uint8_t fp_PcbDevNo[4];  /* PCB devno */
+    uint8_t fp_lPcbDevNo[4]; /* link PCB devno */
+    uint8_t fp_VlanTag[2];   /* vlan tag */
 } nspr_pktracefull_v22_t;
-#define nspr_pktracefull_v22_s    ((guint32)(sizeof(nspr_pktracefull_v22_t)))
+#define nspr_pktracefull_v22_s    ((uint32_t)(sizeof(nspr_pktracefull_v22_t)))
 
 typedef struct nspr_pktracefull_v23
 {
     NSPR_HEADER3B_V22(fp);  /* long performance header */
-    guint8 fp_DevNo;        /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8]; /* High resolution absolute time */
-    guint8 fp_PcbDevNo[4];  /* PCB devno */
-    guint8 fp_lPcbDevNo[4]; /* link PCB devno */
-    guint8 fp_VlanTag[2];   /* vlan tag */
-    guint8 fp_Coreid[2];    /* coreid of the packet */
+    uint8_t fp_DevNo;        /* Network Device (NIC) number */
+    uint8_t fp_AbsTimeHr[8]; /* High resolution absolute time */
+    uint8_t fp_PcbDevNo[4];  /* PCB devno */
+    uint8_t fp_lPcbDevNo[4]; /* link PCB devno */
+    uint8_t fp_VlanTag[2];   /* vlan tag */
+    uint8_t fp_Coreid[2];    /* coreid of the packet */
 } nspr_pktracefull_v23_t;
-#define nspr_pktracefull_v23_s    ((guint32)(sizeof(nspr_pktracefull_v23_t)))
+#define nspr_pktracefull_v23_s    ((uint32_t)(sizeof(nspr_pktracefull_v23_t)))
 
 /* New full packet trace structure v24 for cluster tracing */
 typedef struct nspr_pktracefull_v24
 {
     NSPR_HEADER3B_V22(fp);   /* long performance header */
-    guint8 fp_DevNo;         /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];  /* High resolution absolute time in nanosec */
-    guint8 fp_PcbDevNo[4];   /* PCB devno */
-    guint8 fp_lPcbDevNo[4];  /* link PCB devno */
-    guint8 fp_VlanTag[2];    /* vlan tag */
-    guint8 fp_Coreid[2];     /* coreid of the packet */
-    guint8 fp_srcNodeId[2];  /* source node # */
-    guint8 fp_destNodeId[2]; /* destination node # */
-    guint8 fp_clFlags;       /* cluster flags */
+    uint8_t fp_DevNo;         /* Network Device (NIC) number */
+    uint8_t fp_AbsTimeHr[8];  /* High resolution absolute time in nanosec */
+    uint8_t fp_PcbDevNo[4];   /* PCB devno */
+    uint8_t fp_lPcbDevNo[4];  /* link PCB devno */
+    uint8_t fp_VlanTag[2];    /* vlan tag */
+    uint8_t fp_Coreid[2];     /* coreid of the packet */
+    uint8_t fp_srcNodeId[2];  /* source node # */
+    uint8_t fp_destNodeId[2]; /* destination node # */
+    uint8_t fp_clFlags;       /* cluster flags */
 } nspr_pktracefull_v24_t;
-#define nspr_pktracefull_v24_s    ((guint32)(sizeof(nspr_pktracefull_v24_t)))
+#define nspr_pktracefull_v24_s    ((uint32_t)(sizeof(nspr_pktracefull_v24_t)))
 
 /* New full packet trace structure v25 for vm info tracing */
 typedef struct nspr_pktracefull_v25
 {
     NSPR_HEADER3B_V22(fp);    /* long performance header */
-    guint8 fp_DevNo;          /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];   /* High resolution absolute time in nanosec */
-    guint8 fp_PcbDevNo[4];    /* PCB devno */
-    guint8 fp_lPcbDevNo[4];   /* link PCB devno */
-    guint8 fp_VlanTag[2];     /* vlan tag */
-    guint8 fp_Coreid[2];      /* coreid of the packet */
-    guint8 fp_srcNodeId[2];   /* source node # */
-    guint8 fp_destNodeId[2];  /* destination node # */
-    guint8 fp_clFlags;        /* cluster flags */
-    guint8 fp_src_vmname_len; /* vm src info */
-    guint8 fp_dst_vmname_len; /* vm src info */
+    uint8_t fp_DevNo;          /* Network Device (NIC) number */
+    uint8_t fp_AbsTimeHr[8];   /* High resolution absolute time in nanosec */
+    uint8_t fp_PcbDevNo[4];    /* PCB devno */
+    uint8_t fp_lPcbDevNo[4];   /* link PCB devno */
+    uint8_t fp_VlanTag[2];     /* vlan tag */
+    uint8_t fp_Coreid[2];      /* coreid of the packet */
+    uint8_t fp_srcNodeId[2];   /* source node # */
+    uint8_t fp_destNodeId[2];  /* destination node # */
+    uint8_t fp_clFlags;        /* cluster flags */
+    uint8_t fp_src_vmname_len; /* vm src info */
+    uint8_t fp_dst_vmname_len; /* vm src info */
 } nspr_pktracefull_v25_t;
-#define nspr_pktracefull_v25_s    ((guint32)(sizeof(nspr_pktracefull_v25_t)))
+#define nspr_pktracefull_v25_s    ((uint32_t)(sizeof(nspr_pktracefull_v25_t)))
 
 /* New full packet trace structure v26 for vm info tracing */
 typedef struct nspr_pktracefull_v26
 {
     NSPR_HEADER3B_V22(fp);     /* long performance header */
-    guint8 fp_DevNo;           /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];    /* High resolution absolute time in nanosec */
-    guint8 fp_PcbDevNo[4];     /* PCB devno */
-    guint8 fp_lPcbDevNo[4];    /* link PCB devno */
-    guint8 fp_VlanTag[2];      /* vlan tag */
-    guint8 fp_Coreid[2];       /* coreid of the packet */
-    guint8 fp_srcNodeId[2];    /* source node # */
-    guint8 fp_destNodeId[2];   /* destination node # */
-    guint8 fp_clFlags;         /* cluster flags */
-    guint8 fp_src_vmname_len;  /* vm src info */
-    guint8 fp_dst_vmname_len;  /* vm src info */
-    guint8 fp_reserved;
-    guint8 fp_ns_activity[4];
-    guint8 fp_reserved_32[12]; /* Adding more field to reduce wireshark changes every time */
+    uint8_t fp_DevNo;           /* Network Device (NIC) number */
+    uint8_t fp_AbsTimeHr[8];    /* High resolution absolute time in nanosec */
+    uint8_t fp_PcbDevNo[4];     /* PCB devno */
+    uint8_t fp_lPcbDevNo[4];    /* link PCB devno */
+    uint8_t fp_VlanTag[2];      /* vlan tag */
+    uint8_t fp_Coreid[2];       /* coreid of the packet */
+    uint8_t fp_srcNodeId[2];    /* source node # */
+    uint8_t fp_destNodeId[2];   /* destination node # */
+    uint8_t fp_clFlags;         /* cluster flags */
+    uint8_t fp_src_vmname_len;  /* vm src info */
+    uint8_t fp_dst_vmname_len;  /* vm src info */
+    uint8_t fp_reserved;
+    uint8_t fp_ns_activity[4];
+    uint8_t fp_reserved_32[12]; /* Adding more field to reduce wireshark changes every time */
 } nspr_pktracefull_v26_t;
-#define nspr_pktracefull_v26_s    ((guint32)(sizeof(nspr_pktracefull_v26_t)))
+#define nspr_pktracefull_v26_s    ((uint32_t)(sizeof(nspr_pktracefull_v26_t)))
 
 /* partial packet trace structure */
 typedef struct nspr_pktracepart_v10
 {
     nspr_headerdev_v10_t phd; /* performance header */
-    guint8 pp_RelTimeHr[4];   /* High resolution relative time */
-    guint8 pp_PktSizeOrg[2];  /* Original packet size */
-    guint8 pp_PktOffset[2];   /* starting offset in packet */
+    uint8_t pp_RelTimeHr[4];   /* High resolution relative time */
+    uint8_t pp_PktSizeOrg[2];  /* Original packet size */
+    uint8_t pp_PktOffset[2];   /* starting offset in packet */
 } nspr_pktracepart_v10_t;
-#define nspr_pktracepart_v10_s    ((guint32)(sizeof(nspr_pktracepart_v10_t)))
+#define nspr_pktracepart_v10_s    ((uint32_t)(sizeof(nspr_pktracepart_v10_t)))
 
 /* new partial packet trace structure */
 typedef struct nspr_pktracepart_v20
 {
     NSPR_HEADER3B_V20(pp);   /* long performance header */
-    guint8 pp_DevNo;         /* Network Device (NIC) number */
-    guint8 pp_RelTimeHr[4];  /* High resolution relative time */
-    guint8 pp_PktSizeOrg[2]; /* Original packet size */
-    guint8 pp_PktOffset[2];  /* starting offset in packet */
+    uint8_t pp_DevNo;         /* Network Device (NIC) number */
+    uint8_t pp_RelTimeHr[4];  /* High resolution relative time */
+    uint8_t pp_PktSizeOrg[2]; /* Original packet size */
+    uint8_t pp_PktOffset[2];  /* starting offset in packet */
 } nspr_pktracepart_v20_t;
-#define nspr_pktracepart_v20_s    ((guint32)(sizeof(nspr_pktracepart_v20_t)))
+#define nspr_pktracepart_v20_s    ((uint32_t)(sizeof(nspr_pktracepart_v20_t)))
 
 /* new partial packet trace structure */
 typedef struct nspr_pktracepart_v21
 {
     NSPR_HEADER3B_V21(pp);   /* long performance header */
-    guint8 pp_DevNo;         /* Network Device (NIC) number */
-    guint8 pp_RelTimeHr[4];  /* High resolution relative time */
-    guint8 pp_PktSizeOrg[2]; /* Original packet size */
-    guint8 pp_PktOffset[2];  /* starting offset in packet */
-    guint8 pp_PcbDevNo[4];   /* PCB devno */
-    guint8 pp_lPcbDevNo[4];  /* link PCB devno */
+    uint8_t pp_DevNo;         /* Network Device (NIC) number */
+    uint8_t pp_RelTimeHr[4];  /* High resolution relative time */
+    uint8_t pp_PktSizeOrg[2]; /* Original packet size */
+    uint8_t pp_PktOffset[2];  /* starting offset in packet */
+    uint8_t pp_PcbDevNo[4];   /* PCB devno */
+    uint8_t pp_lPcbDevNo[4];  /* link PCB devno */
 } nspr_pktracepart_v21_t;
-#define nspr_pktracepart_v21_s    ((guint32)(sizeof(nspr_pktracepart_v21_t)))
+#define nspr_pktracepart_v21_s    ((uint32_t)(sizeof(nspr_pktracepart_v21_t)))
 
 /* new partial packet trace structure v22 */
 typedef struct nspr_pktracepart_v22
 {
     NSPR_HEADER3B_V22(pp);   /* long performance header */
-    guint8 pp_DevNo;         /* Network Device (NIC) number */
-    guint8 pp_RelTimeHr[4];  /* High resolution relative time */
-    guint8 pp_PktSizeOrg[2]; /* Original packet size */
-    guint8 pp_PktOffset[2];  /* starting offset in packet */
-    guint8 pp_PcbDevNo[4];   /* PCB devno */
-    guint8 pp_lPcbDevNo[4];  /* link PCB devno */
-    guint8 pp_VlanTag[2];    /* Vlan Tag */
+    uint8_t pp_DevNo;         /* Network Device (NIC) number */
+    uint8_t pp_RelTimeHr[4];  /* High resolution relative time */
+    uint8_t pp_PktSizeOrg[2]; /* Original packet size */
+    uint8_t pp_PktOffset[2];  /* starting offset in packet */
+    uint8_t pp_PcbDevNo[4];   /* PCB devno */
+    uint8_t pp_lPcbDevNo[4];  /* link PCB devno */
+    uint8_t pp_VlanTag[2];    /* Vlan Tag */
 } nspr_pktracepart_v22_t;
-#define nspr_pktracepart_v22_s    ((guint32)(sizeof(nspr_pktracepart_v22_t)))
+#define nspr_pktracepart_v22_s    ((uint32_t)(sizeof(nspr_pktracepart_v22_t)))
 
 typedef struct nspr_pktracepart_v23
 {
     NSPR_HEADER3B_V22(pp);   /* long performance header */
-    guint8 pp_DevNo;         /* Network Device (NIC) number */
-    guint8 pp_AbsTimeHr[8];  /* High resolution absolute time */
-    guint8 pp_PktSizeOrg[2]; /* Original packet size */
-    guint8 pp_PktOffset[2];  /* starting offset in packet */
-    guint8 pp_PcbDevNo[4];   /* PCB devno */
-    guint8 pp_lPcbDevNo[4];  /* link PCB devno */
-    guint8 pp_VlanTag[2];    /* vlan tag */
-    guint8 pp_Coreid[2];     /* Coreid of the packet */
+    uint8_t pp_DevNo;         /* Network Device (NIC) number */
+    uint8_t pp_AbsTimeHr[8];  /* High resolution absolute time */
+    uint8_t pp_PktSizeOrg[2]; /* Original packet size */
+    uint8_t pp_PktOffset[2];  /* starting offset in packet */
+    uint8_t pp_PcbDevNo[4];   /* PCB devno */
+    uint8_t pp_lPcbDevNo[4];  /* link PCB devno */
+    uint8_t pp_VlanTag[2];    /* vlan tag */
+    uint8_t pp_Coreid[2];     /* Coreid of the packet */
 } nspr_pktracepart_v23_t;
-#define nspr_pktracepart_v23_s    ((guint32)(sizeof(nspr_pktracepart_v23_t)))
+#define nspr_pktracepart_v23_s    ((uint32_t)(sizeof(nspr_pktracepart_v23_t)))
 
 /* New partial packet trace structure v24 for cluster tracing */
 typedef struct nspr_pktracepart_v24
 {
     NSPR_HEADER3B_V22(pp);   /* long performance header */
-    guint8 pp_DevNo;         /* Network Device (NIC) number */
-    guint8 pp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
-    guint8 pp_PktSizeOrg[2]; /* Original packet size */
-    guint8 pp_PktOffset[2];  /* starting offset in packet */
-    guint8 pp_PcbDevNo[4];   /* PCB devno */
-    guint8 pp_lPcbDevNo[4];  /* link PCB devno */
-    guint8 pp_VlanTag[2];    /* vlan tag */
-    guint8 pp_Coreid[2];     /* Coreid of the packet */
-    guint8 pp_srcNodeId[2];  /* source node # */
-    guint8 pp_destNodeId[2]; /* destination node # */
-    guint8 pp_clFlags;       /* cluster flags */
+    uint8_t pp_DevNo;         /* Network Device (NIC) number */
+    uint8_t pp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    uint8_t pp_PktSizeOrg[2]; /* Original packet size */
+    uint8_t pp_PktOffset[2];  /* starting offset in packet */
+    uint8_t pp_PcbDevNo[4];   /* PCB devno */
+    uint8_t pp_lPcbDevNo[4];  /* link PCB devno */
+    uint8_t pp_VlanTag[2];    /* vlan tag */
+    uint8_t pp_Coreid[2];     /* Coreid of the packet */
+    uint8_t pp_srcNodeId[2];  /* source node # */
+    uint8_t pp_destNodeId[2]; /* destination node # */
+    uint8_t pp_clFlags;       /* cluster flags */
 } nspr_pktracepart_v24_t;
-#define nspr_pktracepart_v24_s    ((guint32)(sizeof(nspr_pktracepart_v24_t)))
+#define nspr_pktracepart_v24_s    ((uint32_t)(sizeof(nspr_pktracepart_v24_t)))
 
 /* New partial packet trace structure v25 for vm info tracing */
 typedef struct nspr_pktracepart_v25
 {
     NSPR_HEADER3B_V22(pp);    /* long performance header */
-    guint8 pp_DevNo;          /* Network Device (NIC) number */
-    guint8 pp_AbsTimeHr[8];   /*High resolution absolute time in nanosec*/
-    guint8 pp_PktSizeOrg[2];  /* Original packet size */
-    guint8 pp_PktOffset[2];   /* starting offset in packet */
-    guint8 pp_PcbDevNo[4];    /* PCB devno */
-    guint8 pp_lPcbDevNo[4];   /* link PCB devno */
-    guint8 pp_VlanTag[2];     /* vlan tag */
-    guint8 pp_Coreid[2];      /* Coreid of the packet */
-    guint8 pp_srcNodeId[2];   /* source node # */
-    guint8 pp_destNodeId[2];  /* destination node # */
-    guint8 pp_clFlags;        /* cluster flags */
-    guint8 pp_src_vmname_len; /* vm info */
-    guint8 pp_dst_vmname_len; /* vm info */
+    uint8_t pp_DevNo;          /* Network Device (NIC) number */
+    uint8_t pp_AbsTimeHr[8];   /*High resolution absolute time in nanosec*/
+    uint8_t pp_PktSizeOrg[2];  /* Original packet size */
+    uint8_t pp_PktOffset[2];   /* starting offset in packet */
+    uint8_t pp_PcbDevNo[4];    /* PCB devno */
+    uint8_t pp_lPcbDevNo[4];   /* link PCB devno */
+    uint8_t pp_VlanTag[2];     /* vlan tag */
+    uint8_t pp_Coreid[2];      /* Coreid of the packet */
+    uint8_t pp_srcNodeId[2];   /* source node # */
+    uint8_t pp_destNodeId[2];  /* destination node # */
+    uint8_t pp_clFlags;        /* cluster flags */
+    uint8_t pp_src_vmname_len; /* vm info */
+    uint8_t pp_dst_vmname_len; /* vm info */
 } nspr_pktracepart_v25_t;
-#define nspr_pktracepart_v25_s    ((guint32)(sizeof(nspr_pktracepart_v25_t)))
+#define nspr_pktracepart_v25_s    ((uint32_t)(sizeof(nspr_pktracepart_v25_t)))
 
 /* New full packet trace structure v30 for multipage spanning data */
 typedef struct  nspr_pktracefull_v30
 {
     NSPR_HEADER3B_V30(fp);  /* long performance header */
-    guint8 fp_DevNo;   /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
-    guint8 fp_PcbDevNo[4];    /* PCB devno */
-    guint8 fp_lPcbDevNo[4];   /* link PCB devno */
-    guint8 fp_PktSizeOrg[2];  /* Original packet size */
-    guint8 fp_VlanTag[2]; /* vlan tag */
-    guint8 fp_Coreid[2]; /* coreid of the packet */
-    guint8 fp_srcNodeId[2]; /* cluster nodeid of the packet */
-    guint8 fp_destNodeId[2];
-    guint8 fp_clFlags;
-    guint8 fp_src_vmname_len;
-    guint8 fp_dst_vmname_len;
-    guint8 fp_reserved[3];
-    guint8 fp_ns_activity[4];
-    guint8 fp_reserved_32[12];
+    uint8_t fp_DevNo;   /* Network Device (NIC) number */
+    uint8_t fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    uint8_t fp_PcbDevNo[4];    /* PCB devno */
+    uint8_t fp_lPcbDevNo[4];   /* link PCB devno */
+    uint8_t fp_PktSizeOrg[2];  /* Original packet size */
+    uint8_t fp_VlanTag[2]; /* vlan tag */
+    uint8_t fp_Coreid[2]; /* coreid of the packet */
+    uint8_t fp_srcNodeId[2]; /* cluster nodeid of the packet */
+    uint8_t fp_destNodeId[2];
+    uint8_t fp_clFlags;
+    uint8_t fp_src_vmname_len;
+    uint8_t fp_dst_vmname_len;
+    uint8_t fp_reserved[3];
+    uint8_t fp_ns_activity[4];
+    uint8_t fp_reserved_32[12];
 } nspr_pktracefull_v30_t;
-#define nspr_pktracefull_v30_s  ((guint32)(sizeof(nspr_pktracefull_v30_t)))
+#define nspr_pktracefull_v30_s  ((uint32_t)(sizeof(nspr_pktracefull_v30_t)))
 
 /* New full packet trace structure v35 for multipage spanning data */
 typedef struct  nspr_pktracefull_v35
 {
     NSPR_HEADER3B_V30(fp);  /* long performance header */
-    guint8 fp_DevNo;   /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
-    guint8 fp_PcbDevNo[4];    /* PCB devno */
-    guint8 fp_lPcbDevNo[4];   /* link PCB devno */
-    guint8 fp_PktSizeOrg[2];  /* Original packet size */
-    guint8 fp_VlanTag[2]; /* vlan tag */
-    guint8 fp_Coreid[2]; /* coreid of the packet */
-    guint8 fp_headerlen[2];
-    guint8 fp_errorcode;
-    guint8 fp_app;
-    guint8 fp_ns_activity[4];
-    guint8 fp_nextrectype;
+    uint8_t fp_DevNo;   /* Network Device (NIC) number */
+    uint8_t fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    uint8_t fp_PcbDevNo[4];    /* PCB devno */
+    uint8_t fp_lPcbDevNo[4];   /* link PCB devno */
+    uint8_t fp_PktSizeOrg[2];  /* Original packet size */
+    uint8_t fp_VlanTag[2]; /* vlan tag */
+    uint8_t fp_Coreid[2]; /* coreid of the packet */
+    uint8_t fp_headerlen[2];
+    uint8_t fp_errorcode;
+    uint8_t fp_app;
+    uint8_t fp_ns_activity[4];
+    uint8_t fp_nextrectype;
 } nspr_pktracefull_v35_t;
-#define nspr_pktracefull_v35_s  ((guint32)(sizeof(nspr_pktracefull_v35_t)))
+#define nspr_pktracefull_v35_s  ((uint32_t)(sizeof(nspr_pktracefull_v35_t)))
 
 /* New partial packet trace structure v26 for vm info tracing */
 typedef struct nspr_pktracepart_v26
 {
     NSPR_HEADER3B_V22(pp);     /* long performance header */
-    guint8 pp_DevNo;           /* Network Device (NIC) number */
-    guint8 pp_AbsTimeHr[8];    /*High resolution absolute time in nanosec*/
-    guint8 pp_PktSizeOrg[2];   /* Original packet size */
-    guint8 pp_PktOffset[2];    /* starting offset in packet */
-    guint8 pp_PcbDevNo[4];     /* PCB devno */
-    guint8 pp_lPcbDevNo[4];    /* link PCB devno */
-    guint8 pp_VlanTag[2];      /* vlan tag */
-    guint8 pp_Coreid[2];       /* Coreid of the packet */
-    guint8 pp_srcNodeId[2];    /* source node # */
-    guint8 pp_destNodeId[2];   /* destination node # */
-    guint8 pp_clFlags;         /* cluster flags */
-    guint8 pp_src_vmname_len;  /* vm info */
-    guint8 pp_dst_vmname_len;  /* vm info */
-    guint8 pp_reserved;
-    guint8 pp_ns_activity[4];
-    guint8 pp_reserved_32[12]; /* Adding more field to reduce wireshark changes every time */
+    uint8_t pp_DevNo;           /* Network Device (NIC) number */
+    uint8_t pp_AbsTimeHr[8];    /*High resolution absolute time in nanosec*/
+    uint8_t pp_PktSizeOrg[2];   /* Original packet size */
+    uint8_t pp_PktOffset[2];    /* starting offset in packet */
+    uint8_t pp_PcbDevNo[4];     /* PCB devno */
+    uint8_t pp_lPcbDevNo[4];    /* link PCB devno */
+    uint8_t pp_VlanTag[2];      /* vlan tag */
+    uint8_t pp_Coreid[2];       /* Coreid of the packet */
+    uint8_t pp_srcNodeId[2];    /* source node # */
+    uint8_t pp_destNodeId[2];   /* destination node # */
+    uint8_t pp_clFlags;         /* cluster flags */
+    uint8_t pp_src_vmname_len;  /* vm info */
+    uint8_t pp_dst_vmname_len;  /* vm info */
+    uint8_t pp_reserved;
+    uint8_t pp_ns_activity[4];
+    uint8_t pp_reserved_32[12]; /* Adding more field to reduce wireshark changes every time */
 } nspr_pktracepart_v26_t;
-#define nspr_pktracepart_v26_s    ((guint32)(sizeof(nspr_pktracepart_v26_t)))
+#define nspr_pktracepart_v26_s    ((uint32_t)(sizeof(nspr_pktracepart_v26_t)))
 
 #define __TNDO(rec,enumprefix,structname,hdrname)\
-    static const guint8 enumprefix##_##hdrname##_offset = (guint8)sizeof(nspr_##structname##_t);
+    static const uint8_t enumprefix##_##hdrname##_offset = (uint8_t)sizeof(nspr_##structname##_t);
 
 #define __TNO(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structprefix##_##structfieldname));
+    static const uint8_t enumprefix##_##hdrname##_offset = (uint8_t)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structprefix##_##structfieldname));
 
 #define __TNL(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    static const guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structprefix##_##structfieldname);
+    static const uint8_t enumprefix##_##hdrname##_len = (uint8_t)sizeof(((nspr_##structname##_t*)0)->structprefix##_##structfieldname);
 
 #define __TNV1O(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structfieldname));
+    static const uint8_t enumprefix##_##hdrname##_offset = (uint8_t)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structfieldname));
 
 #define __TNV1L(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    static const guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structfieldname);
+    static const uint8_t enumprefix##_##hdrname##_len = (uint8_t)sizeof(((nspr_##structname##_t*)0)->structfieldname);
 
 #define TRACE_V10_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
     __TNV1O(rec,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
@@ -581,26 +581,26 @@ typedef struct nspr_pktracepart_v26
 
 #define ns_setrelativetime(nstrace, RelativeTimems) \
     do { \
-        guint32    rsec; \
+        uint32_t   rsec; \
         (nstrace)->nspm_curtimemsec += RelativeTimems; \
-        rsec = (guint32)((nstrace)->nspm_curtimemsec - (nstrace)->nspm_curtimelastmsec)/1000; \
+        rsec = (uint32_t)((nstrace)->nspm_curtimemsec - (nstrace)->nspm_curtimelastmsec)/1000; \
         (nstrace)->nspm_curtime += rsec; \
         (nstrace)->nspm_curtimelastmsec += rsec * 1000; \
     } while (0)
 
 
 typedef struct {
-    gchar  *pnstrace_buf;
-    guint32 page_size;
-    gint64  xxx_offset;
-    guint32 nstrace_buf_offset;
-    guint32 nstrace_buflen;
+    char   *pnstrace_buf;
+    uint32_t page_size;
+    int64_t xxx_offset;
+    uint32_t nstrace_buf_offset;
+    uint32_t nstrace_buflen;
     /* Performance Monitor Time variables */
-    guint32 nspm_curtime;         /* current time since 1970 */
-    guint64 nspm_curtimemsec;     /* current time in milliseconds */
-    guint64 nspm_curtimelastmsec; /* nspm_curtime last update time in milliseconds */
-    guint64 nsg_creltime;
-    guint64 file_size;
+    uint32_t nspm_curtime;         /* current time since 1970 */
+    uint64_t nspm_curtimemsec;     /* current time in milliseconds */
+    uint64_t nspm_curtimelastmsec; /* nspm_curtime last update time in milliseconds */
+    uint64_t nsg_creltime;
+    uint64_t file_size;
 } nstrace_t;
 
 /*
@@ -612,40 +612,40 @@ typedef struct {
 #define NSPM_SIGNATURE_3_5       3
 #define NSPM_SIGNATURE_NOMATCH  -1
 
-static int nspm_signature_version(gchar*, guint);
-static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
-                                 int *err, gchar **err_info,
-                                 gint64 *data_offset);
-static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
-                                 int *err, gchar **err_info,
-                                 gint64 *data_offset);
-static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
-                                 int *err, gchar **err_info,
-                                 gint64 *data_offset);
-static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
+static int nspm_signature_version(char*, unsigned);
+static bool nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                 int *err, char **err_info,
+                                 int64_t *data_offset);
+static bool nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                 int *err, char **err_info,
+                                 int64_t *data_offset);
+static bool nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                 int *err, char **err_info,
+                                 int64_t *data_offset);
+static bool nstrace_seek_read_v10(wtap *wth, int64_t seek_off,
                                       wtap_rec *rec,
                                       Buffer *buf,
-                                      int *err, gchar **err_info);
-static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
+                                      int *err, char **err_info);
+static bool nstrace_seek_read_v20(wtap *wth, int64_t seek_off,
                                       wtap_rec *rec,
                                       Buffer *buf,
-                                      int *err, gchar **err_info);
-static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
+                                      int *err, char **err_info);
+static bool nstrace_seek_read_v30(wtap *wth, int64_t seek_off,
                                       wtap_rec *rec,
                                       Buffer *buf,
-                                      int *err, gchar **err_info);
+                                      int *err, char **err_info);
 static void nstrace_close(wtap *wth);
 
-static gboolean nstrace_set_start_time_v10(wtap *wth, int *err,
-                                           gchar **err_info);
-static gboolean nstrace_set_start_time_v20(wtap *wth, int *err,
-                                           gchar **err_info);
-static gboolean nstrace_set_start_time(wtap *wth, int version, int *err,
-                                       gchar **err_info);
-static guint64 ns_hrtime2nsec(guint32 tm);
+static bool nstrace_set_start_time_v10(wtap *wth, int *err,
+                                           char **err_info);
+static bool nstrace_set_start_time_v20(wtap *wth, int *err,
+                                           char **err_info);
+static bool nstrace_set_start_time(wtap *wth, int version, int *err,
+                                       char **err_info);
+static uint64_t ns_hrtime2nsec(uint32_t tm);
 
-static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                             const guint8 *pd, int *err, gchar **err_info);
+static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
+                             const uint8_t *pd, int *err, char **err_info);
 
 
 static int nstrace_1_0_file_type_subtype = -1;
@@ -659,38 +659,38 @@ void register_nstrace(void);
  * Minimum of the page size and the amount of data left in the file;
  * the last page of a file can be short.
  */
-#define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
-#define GET_READ_PAGE_SIZEV3(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE_TRACE)?NSPR_PAGESIZE_TRACE:remaining_file_size))
+#define GET_READ_PAGE_SIZE(remaining_file_size) ((int32_t)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
+#define GET_READ_PAGE_SIZEV3(remaining_file_size) ((int32_t)((remaining_file_size>NSPR_PAGESIZE_TRACE)?NSPR_PAGESIZE_TRACE:remaining_file_size))
 
 /*
  * Check whether we have enough room to retrieve the data in the caller.
  * If not, we have a malformed file.
  */
-static gboolean nstrace_ensure_buflen(nstrace_t* nstrace, guint offset, guint len, int *err, gchar** err_info)
+static bool nstrace_ensure_buflen(nstrace_t* nstrace, unsigned offset, unsigned len, int *err, char** err_info)
 {
     if (offset > nstrace->nstrace_buflen || nstrace->nstrace_buflen - offset < len) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup("nstrace: malformed file");
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-static guint64 ns_hrtime2nsec(guint32 tm)
+static uint64_t ns_hrtime2nsec(uint32_t tm)
 {
-    guint32    val = tm & NSPR_HRTIME_MASKTM;
+    uint32_t   val = tm & NSPR_HRTIME_MASKTM;
     switch(tm & NSPR_HRTIME_MASKFMT)
     {
-    case NSPR_HRTIME_SEC:     return (guint64)val*1000000000;
-    case NSPR_HRTIME_MSEC:    return (guint64)val*1000000;
-    case NSPR_HRTIME_USEC:    return (guint64)val*1000;
+    case NSPR_HRTIME_SEC:     return (uint64_t)val*1000000000;
+    case NSPR_HRTIME_MSEC:    return (uint64_t)val*1000000;
+    case NSPR_HRTIME_USEC:    return (uint64_t)val*1000;
     case NSPR_HRTIME_NSEC:    return val;
     }
     return tm;
 }
 
-static gboolean
-nstrace_read_page(wtap *wth, int *err, gchar **err_info)
+static bool
+nstrace_read_page(wtap *wth, int *err, char **err_info)
 {
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     int bytes_read;
@@ -698,28 +698,28 @@ nstrace_read_page(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(nstrace->pnstrace_buf, nstrace->page_size, wth->fh);
     if (bytes_read < 0) {
         *err = file_error(wth->fh, err_info);
-        return FALSE;
+        return false;
     }
     if (bytes_read == 0) {
         /*
          * EOF.
          */
         *err = 0;
-        return FALSE;
+        return false;
     }
-    nstrace->nstrace_buflen = (guint32)bytes_read;
-    return TRUE;
+    nstrace->nstrace_buflen = (uint32_t)bytes_read;
+    return true;
 }
 
 /*
 ** Netscaler trace format open routines
 */
-wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val nstrace_open(wtap *wth, int *err, char **err_info)
 {
     int file_version;
-    gchar *nstrace_buf;
-    gint64 file_size;
-    gint32 page_size;
+    char *nstrace_buf;
+    int64_t file_size;
+    int32_t page_size;
     int bytes_read;
     nstrace_t *nstrace;
 
@@ -729,7 +729,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_NOT_MINE;
     /* The size is 64 bits; we assume it fits in 63 bits, so it's positive */
 
-    nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
+    nstrace_buf = (char *)g_malloc(NSPR_PAGESIZE);
     page_size = NSPR_PAGESIZE;
 
     /*
@@ -752,7 +752,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     /*
      * Scan it for a signature block.
      */
-    file_version = nspm_signature_version(nstrace_buf, (guint)bytes_read);
+    file_version = nspm_signature_version(nstrace_buf, (unsigned)bytes_read);
     switch (file_version) {
 
     case NSPM_SIGNATURE_1_0:
@@ -773,7 +773,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
          * (XXX - use g_realloc()?)
          */
         g_free(nstrace_buf);
-        nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
+        nstrace_buf = (char *)g_malloc(NSPR_PAGESIZE_TRACE);
         page_size = NSPR_PAGESIZE_TRACE;
         break;
 
@@ -785,7 +785,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
          * (XXX - use g_realloc()?)
          */
         g_free(nstrace_buf);
-        nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
+        nstrace_buf = (char *)g_malloc(NSPR_PAGESIZE_TRACE);
         page_size = NSPR_PAGESIZE_TRACE;
         break;
 
@@ -851,7 +851,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Set the start time by looking for the abstime record */
-    if ((nstrace_set_start_time(wth, file_version, err, err_info)) == FALSE)
+    if ((nstrace_set_start_time(wth, file_version, err, err_info)) == false)
     {
         /*
          * No absolute time record seen, so we just reset the read
@@ -922,7 +922,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 ** checking whether either a '\n' or '\0' follows the first line?
 */
 #define nspm_signature_func(ver) \
-    static guint32 nspm_signature_isv##ver(gchar *sigp, size_t sigsize) {\
+    static uint32_t nspm_signature_isv##ver(char *sigp, size_t sigsize) {\
         size_t versiglen = sizeof(NSPR_SIGSTR_V##ver)-1;\
         return sigsize >= versiglen && strncmp(sigp,NSPR_SIGSTR_V##ver,versiglen) == 0;\
     }
@@ -945,9 +945,9 @@ nspm_signature_func(35)
 ** XXX - can we assume the signature block is the first block?
 */
 static int
-nspm_signature_version(gchar *nstrace_buf, guint len)
+nspm_signature_version(char *nstrace_buf, unsigned len)
 {
-    gchar *dp = nstrace_buf;
+    char *dp = nstrace_buf;
 
     for ( ; len > MIN(nspr_signature_v10_s, nspr_signature_v20_s); dp++, len--)
     {
@@ -1017,7 +1017,7 @@ nspm_signature_version(gchar *nstrace_buf, guint len)
 #define nspr_getv10recordsize(hdp) (pletoh16(&(hdp)->nsprRecordSize))
 #define nspr_getv20recordtype(hdp) ((hdp)->phd_RecordType)
 #define nspr_getv20recordsize(hdp) \
-    (guint32)(((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
+    (uint32_t)(((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
         (((hdp)->phd_RecordSizeHigh * NSPR_V20RECORDSIZE_2BYTES)+ \
          ((hdp)->phd_RecordSizeLow & ~NSPR_V20RECORDSIZE_2BYTES)) : \
           (hdp)->phd_RecordSizeLow)
@@ -1032,29 +1032,29 @@ nspm_signature_version(gchar *nstrace_buf, guint len)
  * as a NetScaler trace.
  */
 #define nstrace_set_start_time_ver(ver) \
-    gboolean nstrace_set_start_time_v##ver(wtap *wth, int *err, gchar **err_info) \
+    bool nstrace_set_start_time_v##ver(wtap *wth, int *err, char **err_info) \
     {\
         nstrace_t *nstrace = (nstrace_t *)wth->priv;\
-        gchar* nstrace_buf = nstrace->pnstrace_buf;\
-        guint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;\
-        guint32 nstrace_buflen = nstrace->nstrace_buflen;\
-        guint32 record_size;\
+        char* nstrace_buf = nstrace->pnstrace_buf;\
+        uint32_t nstrace_buf_offset = nstrace->nstrace_buf_offset;\
+        uint32_t nstrace_buflen = nstrace->nstrace_buflen;\
+        uint32_t record_size;\
         do\
         {\
             while (nstrace_buf_offset < nstrace_buflen)\
             {\
                 if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v##ver##_t), err, err_info))\
-                    return FALSE;\
+                    return false;\
                 nspr_hd_v##ver##_t *fp = (nspr_hd_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
                 switch (nspr_getv##ver##recordtype(fp))\
                 {\
                     case NSPR_ABSTIME_V##ver:\
                         if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v##ver##_t), err, err_info))\
-                            return FALSE;\
+                            return false;\
                         ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v##ver##_t *) fp)->abs_Time), pletoh16(&((nspr_abstime_v##ver##_t *) fp)->abs_RelTime));\
                         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv##ver##recordsize(fp);\
                         nstrace->nstrace_buflen = nstrace_buflen;\
-                        return TRUE;\
+                        return true;\
                      case NSPR_UNUSEDSPACE_V10:\
                         nstrace_buf_offset = nstrace_buflen;\
                         break;\
@@ -1063,7 +1063,7 @@ nspm_signature_version(gchar *nstrace_buf, guint len)
                         if (record_size == 0) {\
                             *err = WTAP_ERR_BAD_FILE;\
                             *err_info = g_strdup("nstrace: zero size record found");\
-                            return FALSE;\
+                            return false;\
                         }\
                         nstrace_buf_offset += record_size;\
                 }\
@@ -1072,7 +1072,7 @@ nspm_signature_version(gchar *nstrace_buf, guint len)
             nstrace->xxx_offset += nstrace_buflen;\
             nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));\
         }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));\
-        return FALSE;\
+        return false;\
     }
 
 nstrace_set_start_time_ver(10)
@@ -1087,8 +1087,8 @@ nstrace_set_start_time_ver(20)
 ** the next record after the ABSTIME record. Inorder to report correct time values, all trace
 ** records before the ABSTIME record are ignored.
 */
-static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
-                                       gchar **err_info)
+static bool nstrace_set_start_time(wtap *wth, int file_version, int *err,
+                                       char **err_info)
 {
     if (file_version == NSPM_SIGNATURE_1_0)
         return nstrace_set_start_time_v10(wth, err, err_info);
@@ -1096,7 +1096,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
         return nstrace_set_start_time_v20(wth, err, err_info);
     else if (file_version == NSPM_SIGNATURE_3_0)
         return nstrace_set_start_time_v20(wth, err, err_info);
-    return FALSE;
+    return false;
 }
 
 #define __TNDO(rec,enumprefix,structname,hdrname)\
@@ -1126,8 +1126,8 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
     do {\
         (rec)->presence_flags = WTAP_HAS_TS;\
         nsg_creltime += ns_hrtime2nsec(pletoh32(&type->type##_RelTimeHr));\
-        (rec)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = nstrace->nspm_curtime + (uint32_t) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (uint32_t) (nsg_creltime % 1000000000);\
     }while(0)
 
 #define PARTSIZEDEFV10(rec,pp,ver) \
@@ -1149,14 +1149,14 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
         if ((nstrace_buflen - nstrace_buf_offset) < sizeof(nspr_pktrace##fullpart##_v##ver##_t)) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
-            return FALSE;\
+            return false;\
         }\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Check sanity of record size */\
         if (pletoh16(&type->nsprRecordSize) < sizeof *type) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record size is less than record header size");\
-            return FALSE;\
+            return false;\
         }\
         (rec)->rec_type = REC_TYPE_PACKET;\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
@@ -1167,7 +1167,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
         if ((nstrace_buflen - nstrace_buf_offset) < (rec)->rec_header.packet_header.caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record crosses page boundary");\
-            return FALSE;\
+            return false;\
         }\
         ws_buffer_assure_space((buf), (rec)->rec_header.packet_header.caplen);\
         memcpy(ws_buffer_start_ptr((buf)), type, (rec)->rec_header.packet_header.caplen);\
@@ -1175,24 +1175,24 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
         nstrace->nstrace_buf_offset = nstrace_buf_offset + (rec)->rec_header.packet_header.caplen;\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
-        return TRUE;\
+        return true;\
     }while(0)
 
-static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
-    guint64 nsg_creltime = nstrace->nsg_creltime;
-    gchar *nstrace_buf = nstrace->pnstrace_buf;
-    guint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
-    guint32 nstrace_buflen = nstrace->nstrace_buflen;
+    uint64_t nsg_creltime = nstrace->nsg_creltime;
+    char *nstrace_buf = nstrace->pnstrace_buf;
+    uint32_t nstrace_buf_offset = nstrace->nstrace_buf_offset;
+    uint32_t nstrace_buflen = nstrace->nstrace_buflen;
 
     *err = 0;
     *err_info = NULL;
     do
     {
         while ((nstrace_buf_offset < nstrace_buflen) &&
-            ((nstrace_buflen - nstrace_buf_offset) >= ((gint32)sizeof((( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))))
+            ((nstrace_buflen - nstrace_buf_offset) >= ((int32_t)sizeof((( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))))
         {
 
 #define GENERATE_CASE_FULL(rec,buf,ver,HEADERVER) \
@@ -1218,12 +1218,12 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
                 case NSPR_ABSTIME_V10:
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v10_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
                     if (pletoh16(&fp->nsprRecordSize) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
-                        return FALSE;
+                        return false;
                     }
                     ns_setabstime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_Time), pletoh32(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
                     nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
@@ -1233,12 +1233,12 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
                 case NSPR_RELTIME_V10:
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v10_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
                     if (pletoh16(&fp->nsprRecordSize) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
-                        return FALSE;
+                        return false;
                     }
                     ns_setrelativetime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_RelTime));
                     nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
@@ -1252,12 +1252,12 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
                 default:
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v10_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
                     if (pletoh16(&fp->nsprRecordSize) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
-                        return FALSE;
+                        return false;
                     }
                     nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
                     break;
@@ -1270,7 +1270,7 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
     }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));
 
-    return FALSE;
+    return false;
 }
 
 #undef PACKET_DESCRIBE
@@ -1279,8 +1279,8 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
     do {\
         (rec)->presence_flags = WTAP_HAS_TS;\
         nsg_creltime += ns_hrtime2nsec(pletoh32(fp->type##_RelTimeHr));\
-        (rec)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = nstrace->nspm_curtime + (uint32_t) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (uint32_t) (nsg_creltime % 1000000000);\
     }while(0)
 
 #define TIMEDEFV23(rec,fp,type) \
@@ -1288,8 +1288,8 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
         (rec)->presence_flags = WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
-        (rec)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
-        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = (uint32_t) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (uint32_t) (nsg_creltime % 1000000000);\
     }while(0)
 
 #define TIMEDEFV21(rec,fp,type) TIMEDEFV20(rec,fp,type)
@@ -1336,13 +1336,13 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
         if ((nstrace_buflen - nstrace_buf_offset) < sizeof *fp) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
-            return FALSE;\
+            return false;\
         }\
         /* Check sanity of record size */\
         if (nspr_getv20recordsize((nspr_hd_v20_t *)fp) < sizeof *fp) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record size is less than record header size");\
-            return FALSE;\
+            return false;\
         }\
         (rec)->rec_type = REC_TYPE_PACKET;\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
@@ -1354,7 +1354,7 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
         if ((nstrace_buflen - nstrace_buf_offset) < (rec)->rec_header.packet_header.caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record crosses page boundary");\
-            return FALSE;\
+            return false;\
         }\
         ws_buffer_assure_space((buf), (rec)->rec_header.packet_header.caplen);\
         memcpy(ws_buffer_start_ptr((buf)), fp, (rec)->rec_header.packet_header.caplen);\
@@ -1362,24 +1362,24 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
-        return TRUE;\
+        return true;\
     }while(0)
 
-static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
-    guint64 nsg_creltime = nstrace->nsg_creltime;
-    gchar *nstrace_buf = nstrace->pnstrace_buf;
-    guint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
-    guint32 nstrace_buflen = nstrace->nstrace_buflen;
+    uint64_t nsg_creltime = nstrace->nsg_creltime;
+    char *nstrace_buf = nstrace->pnstrace_buf;
+    uint32_t nstrace_buf_offset = nstrace->nstrace_buf_offset;
+    uint32_t nstrace_buflen = nstrace->nstrace_buflen;
 
     *err = 0;
     *err_info = NULL;
     do
     {
         while ((nstrace_buf_offset < nstrace_buflen) &&
-            ((nstrace_buflen - nstrace_buf_offset) >= ((gint32)sizeof((( nspr_hd_v20_t*)&nstrace_buf[nstrace_buf_offset])->phd_RecordType))))
+            ((nstrace_buflen - nstrace_buf_offset) >= ((int32_t)sizeof((( nspr_hd_v20_t*)&nstrace_buf[nstrace_buf_offset])->phd_RecordType))))
         {
             switch ((( nspr_hd_v20_t*)&nstrace_buf[nstrace_buf_offset])->phd_RecordType)
             {
@@ -1433,18 +1433,18 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
                 case NSPR_ABSTIME_V20:
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v20_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
-                        return FALSE;
+                        return false;
                     }
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info))
-                        return FALSE;
+                        return false;
                     ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v20_t *) fp20)->abs_Time), pletoh16(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
                     break;
                 }
@@ -1452,15 +1452,15 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
                 case NSPR_RELTIME_V20:
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v20_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
-                        return FALSE;
+                        return false;
                     }
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info))
-                        return FALSE;
+                        return false;
                     ns_setrelativetime(nstrace, pletoh16(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     break;
@@ -1478,12 +1478,12 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
                 default:
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v20_t), err, err_info))
-                        return FALSE;
+                        return false;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
-                        return FALSE;
+                        return false;
                     }
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     break;
@@ -1496,7 +1496,7 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
     }while((nstrace_buflen > 0) && (nstrace_read_page(wth, err, err_info)));
 
-    return FALSE;
+    return false;
 }
 
 #undef PACKET_DESCRIBE
@@ -1511,8 +1511,8 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
         (rec)->presence_flags = WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
-        (rec)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
-        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = (uint32_t) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (uint32_t) (nsg_creltime % 1000000000);\
     }while(0)
 
 #define TIMEDEFV35 TIMEDEFV30
@@ -1542,7 +1542,7 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
             g_free(nstrace_tmpbuff);\
-            return FALSE;\
+            return false;\
         }\
         nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         (rec)->rec_type = REC_TYPE_PACKET;\
@@ -1557,7 +1557,7 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             g_free(nstrace_tmpbuff);\
-            return FALSE;\
+            return false;\
         }\
         ws_buffer_assure_space((buf), (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
@@ -1567,13 +1567,13 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
                 *err = WTAP_ERR_BAD_FILE;\
                 *err_info = g_strdup("nstrace: malformed file");\
                 g_free(nstrace_tmpbuff);\
-                return FALSE;\
+                return false;\
             }\
             nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
         }\
         nst_dataSize = nspr_getv20recordsize(hdp);\
         rec_size = nst_dataSize - nstrace_tmpbuff_off;\
-        nsg_nextPageOffset = ((nstrace_buf_offset + rec_size) >= (guint)nstrace->nstrace_buflen) ?\
+        nsg_nextPageOffset = ((nstrace_buf_offset + rec_size) >= (unsigned)nstrace->nstrace_buflen) ?\
         ((nstrace_buf_offset + rec_size) - (NSPR_PAGESIZE_TRACE - 1)) : 0;\
         /* Copy record data */\
         while (nsg_nextPageOffset) {\
@@ -1587,13 +1587,13 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
             bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE_TRACE, wth->fh);\
             if ( !file_eof(wth->fh) && bytes_read != NSPR_PAGESIZE_TRACE) {\
                 g_free(nstrace_tmpbuff);\
-                return FALSE;\
+                return false;\
             } else {\
                 nstrace_buf_offset = 0;\
             }\
             nstrace_buflen = bytes_read;\
             rec_size = nst_dataSize - nstrace_tmpbuff_off;\
-            nsg_nextPageOffset = ((nstrace_buf_offset + rec_size) >= (guint)nstrace->nstrace_buflen) ?\
+            nsg_nextPageOffset = ((nstrace_buf_offset + rec_size) >= (unsigned)nstrace->nstrace_buflen) ?\
             ((nstrace_buf_offset + rec_size) - (NSPR_PAGESIZE_TRACE- 1)): 0;\
         } \
         /* Copy the rest of the record */\
@@ -1605,29 +1605,29 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
         g_free(nstrace_tmpbuff);\
-        return TRUE;\
+        return true;\
     } while(0)
 
-static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
-    guint64 nsg_creltime;
-    gchar *nstrace_buf = nstrace->pnstrace_buf;
-    guint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
-    guint32 nstrace_buflen = nstrace->nstrace_buflen;
-    guint8* nstrace_tmpbuff;
-    guint32 nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0,nsg_nextPageOffset=0;
+    uint64_t nsg_creltime;
+    char *nstrace_buf = nstrace->pnstrace_buf;
+    uint32_t nstrace_buf_offset = nstrace->nstrace_buf_offset;
+    uint32_t nstrace_buflen = nstrace->nstrace_buflen;
+    uint8_t* nstrace_tmpbuff;
+    uint32_t nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0,nsg_nextPageOffset=0;
     nspr_hd_v20_t *hdp;
     int bytes_read = 0;
 
     *err = 0;
     *err_info = NULL;
     if(nstrace_buflen == 0){
-      return FALSE; /* Reached End Of File */
+      return false; /* Reached End Of File */
     }
 
-    nstrace_tmpbuff = (guint8*)g_malloc(65536);
+    nstrace_tmpbuff = (uint8_t*)g_malloc(65536);
 
     do
     {
@@ -1636,7 +1636,7 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup("nstrace: malformed file");
             g_free(nstrace_tmpbuff);
-            return FALSE;
+            return false;
         }
 
         if (!nstrace_buf[nstrace_buf_offset] && nstrace_buf_offset <= NSPR_PAGESIZE_TRACE){
@@ -1650,14 +1650,14 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
         {
             if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info)) {
                 g_free(nstrace_tmpbuff);
-                return FALSE;
+                return false;
             }
             hdp = (nspr_hd_v20_t *) &nstrace_buf[nstrace_buf_offset];
             if (nspr_getv20recordsize(hdp) == 0) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup("nstrace: zero size record found");
                 g_free(nstrace_tmpbuff);
-                return FALSE;
+                return false;
             }
             switch (hdp->phd_RecordType)
             {
@@ -1688,7 +1688,7 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
                     nstrace_buf_offset += nspr_getv20recordsize(hdp);
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info)) {
                         g_free(nstrace_tmpbuff);
-                        return FALSE;
+                        return false;
                     }
                     ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v20_t *) &nstrace_buf[nstrace_buf_offset])->abs_Time), pletoh16(&((nspr_abstime_v20_t *) &nstrace_buf[nstrace_buf_offset])->abs_RelTime));
                     break;
@@ -1698,7 +1698,7 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info)) {
                         g_free(nstrace_tmpbuff);
-                        return FALSE;
+                        return false;
                     }
                     ns_setrelativetime(nstrace, pletoh16(&((nspr_abstime_v20_t *) &nstrace_buf[nstrace_buf_offset])->abs_RelTime));
                     nstrace_buf_offset += nspr_getv20recordsize(hdp);
@@ -1709,7 +1709,7 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
                 {
                     if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info)) {
                         g_free(nstrace_tmpbuff);
-                        return FALSE;
+                        return false;
                     }
                     nstrace_buf_offset += nspr_getv20recordsize(hdp);
                     break;
@@ -1719,14 +1719,14 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = NSPR_PAGESIZE_TRACE;
-    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) > 0 && (file_eof(wth->fh) || (guint32)bytes_read == nstrace_buflen));
+    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) > 0 && (file_eof(wth->fh) || (uint32_t)bytes_read == nstrace_buflen));
 
     if (bytes_read < 0)
         *err = file_error(wth->fh, err_info);
     else
         *err = 0;
     g_free(nstrace_tmpbuff);
-    return FALSE;
+    return false;
 }
 
 #undef PACKET_DESCRIBE
@@ -1752,25 +1752,25 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
         (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
     }while(0)
 
-static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool nstrace_seek_read_v10(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     nspr_hd_v10_t hdr;
-    guint record_length;
-    guint8 *pd;
+    unsigned record_length;
+    uint8_t *pd;
     unsigned int bytes_to_read;
 
     *err = 0;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     /*
     ** Read the record header.
     */
     if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, sizeof hdr,
                          err, err_info))
-        return FALSE;
+        return false;
 
     /*
     ** Get the record length.
@@ -1787,7 +1787,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         bytes_to_read = (unsigned int)(record_length - sizeof hdr);
         if (!wtap_read_bytes(wth->random_fh, pd + sizeof hdr, bytes_to_read,
                              err, err_info))
-            return FALSE;
+            return false;
     }
 
     /*
@@ -1816,7 +1816,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
 #undef GENERATE_CASE_FULL
 #undef GENERATE_CASE_PART
 
-    return TRUE;
+    return true;
 }
 
 #undef PACKET_DESCRIBE
@@ -1845,29 +1845,29 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
         (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
-        return TRUE;\
+        return true;\
     }while(0)
 
-static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool nstrace_seek_read_v20(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     nspr_hd_v20_t hdr;
-    guint record_length;
-    guint hdrlen;
-    guint8 *pd;
+    unsigned record_length;
+    unsigned hdrlen;
+    uint8_t *pd;
     unsigned int bytes_to_read;
-    guint64 nsg_creltime;
+    uint64_t nsg_creltime;
 
     *err = 0;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     /*
     ** Read the first 2 bytes of the record header.
     */
     if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, 2, err, err_info))
-        return FALSE;
+        return false;
     hdrlen = 2;
 
     /*
@@ -1876,7 +1876,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
         if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
                              err, err_info))
-            return FALSE;
+            return false;
         hdrlen = 3;
     }
 
@@ -1895,7 +1895,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
         bytes_to_read = (unsigned int)(record_length - hdrlen);
         if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
                              err, err_info))
-            return FALSE;
+            return false;
     }
 
 #define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
@@ -1947,7 +1947,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
 #undef GENERATE_CASE_PART
 #undef GENERATE_CASE_PART_V25
 
-    return TRUE;
+    return true;
 }
 
 #undef PACKET_DESCRIBE
@@ -1971,28 +1971,28 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
         (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
-        return TRUE;\
+        return true;\
     }while(0)
 
-static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool nstrace_seek_read_v30(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     nspr_hd_v20_t hdr;
-    guint record_length;
-    guint hdrlen;
-    guint8 *pd;
+    unsigned record_length;
+    unsigned hdrlen;
+    uint8_t *pd;
     unsigned int bytes_to_read;
-    guint64 nsg_creltime;
+    uint64_t nsg_creltime;
 
     *err = 0;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
     /*
     ** Read the first 2 bytes of the record header.
     */
     if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, 2, err, err_info))
-        return FALSE;
+        return false;
     hdrlen = 2;
 
     /*
@@ -2001,7 +2001,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
         if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
                              err, err_info))
-            return FALSE;
+            return false;
         hdrlen = 3;
     }
 
@@ -2022,7 +2022,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
         bytes_to_read = (unsigned int)(record_length - hdrlen);
         if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
                              err, err_info))
-            return FALSE;
+            return false;
     }
 
     (rec)->rec_header.packet_header.caplen = (rec)->rec_header.packet_header.len = record_length;
@@ -2040,7 +2040,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
             GENERATE_CASE_V30(rec,35, 350);
         }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -2061,11 +2061,11 @@ static void nstrace_close(wtap *wth)
 #define NSTRACE_3_5       3
 
 typedef struct {
-    guint version;
-    guint16 page_offset;
-    guint16 page_len;
-    guint32 absrec_time;
-    gboolean newfile;
+    unsigned version;
+    uint16_t page_offset;
+    uint16_t page_len;
+    uint32_t absrec_time;
+    bool newfile;
 } nstrace_dump_t;
 
 /* Returns 0 if we could write the specified encapsulation type,
@@ -2109,10 +2109,10 @@ static int nstrace_35_dump_can_write_encap(int encap)
     return WTAP_ERR_UNWRITABLE_ENCAP;
 }
 
-/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+/* Returns true on success, false on failure; sets "*err" to an error code on
 ** failure */
-static gboolean nstrace_dump_open(wtap_dumper *wdh, guint version, int *err _U_,
-                                  gchar **err_info _U_)
+static bool nstrace_dump_open(wtap_dumper *wdh, unsigned version, int *err _U_,
+                                  char **err_info _U_)
 {
     nstrace_dump_t *nstrace;
 
@@ -2129,42 +2129,42 @@ static gboolean nstrace_dump_open(wtap_dumper *wdh, guint version, int *err _U_,
       nstrace->page_len = NSPR_PAGESIZE;
 
     nstrace->absrec_time = 0;
-    nstrace->newfile = TRUE;
+    nstrace->newfile = true;
 
-    return TRUE;
+    return true;
 }
 
-static gboolean nstrace_10_dump_open(wtap_dumper *wdh, int *err,
-                                     gchar **err_info)
+static bool nstrace_10_dump_open(wtap_dumper *wdh, int *err,
+                                     char **err_info)
 {
     return nstrace_dump_open(wdh, NSTRACE_1_0, err, err_info);
 }
 
-static gboolean nstrace_20_dump_open(wtap_dumper *wdh, int *err,
-                                     gchar **err_info)
+static bool nstrace_20_dump_open(wtap_dumper *wdh, int *err,
+                                     char **err_info)
 {
     return nstrace_dump_open(wdh, NSTRACE_2_0, err, err_info);
 }
 
-static gboolean nstrace_30_dump_open(wtap_dumper *wdh, int *err,
-                                     gchar **err_info)
+static bool nstrace_30_dump_open(wtap_dumper *wdh, int *err,
+                                     char **err_info)
 {
     return nstrace_dump_open(wdh, NSTRACE_3_0, err, err_info);
 }
 
-static gboolean nstrace_35_dump_open(wtap_dumper *wdh, int *err,
-                                     gchar **err_info)
+static bool nstrace_35_dump_open(wtap_dumper *wdh, int *err,
+                                     char **err_info)
 {
     return nstrace_dump_open(wdh, NSTRACE_3_5, err, err_info);
 }
 
-static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
+static bool nstrace_add_signature(wtap_dumper *wdh, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
     if (nstrace->version == NSTRACE_1_0)
     {
-        guint16 val16b;
+        uint16_t val16b;
         nspr_signature_v10_t sig10;
 
         /* populate the record */
@@ -2178,10 +2178,10 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &sig10, nspr_signature_v10_s,
             err))
-            return FALSE;
+            return false;
 
         /* Move forward the page offset */
-        nstrace->page_offset += (guint16) nspr_signature_v10_s;
+        nstrace->page_offset += (uint16_t) nspr_signature_v10_s;
 
     } else if (nstrace->version == NSTRACE_2_0)
     {
@@ -2194,10 +2194,10 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &sig20, sig20.sig_RecordSize,
             err))
-            return FALSE;
+            return false;
 
         /* Move forward the page offset */
-        nstrace->page_offset += (guint16) sig20.sig_RecordSize;
+        nstrace->page_offset += (uint16_t) sig20.sig_RecordSize;
 
     } else if (nstrace->version == NSTRACE_3_0)
     {
@@ -2210,10 +2210,10 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &sig30, sig30.sig_RecordSize,
             err))
-            return FALSE;
+            return false;
 
         /* Move forward the page offset */
-        nstrace->page_offset += (guint16) sig30.sig_RecordSize;
+        nstrace->page_offset += (uint16_t) sig30.sig_RecordSize;
     } else if (nstrace->version == NSTRACE_3_5)
     {
         nspr_signature_v35_t sig35;
@@ -2225,32 +2225,32 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &sig35, sig35.sig_RecordSize,
             err))
-            return FALSE;
+            return false;
 
         /* Move forward the page offset */
-        nstrace->page_offset += (guint16) sig35.sig_RecordSize;
+        nstrace->page_offset += (uint16_t) sig35.sig_RecordSize;
     } else
     {
         ws_assert_not_reached();
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 
-static gboolean
+static bool
 nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
-     const guint8 *pd, int *err)
+     const uint8_t *pd, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
-    guint64 nsg_creltime;
+    uint64_t nsg_creltime;
 
     if (nstrace->version == NSTRACE_1_0)
     {
-        guint16 val16;
-        guint32 reltime;
-        guint64 abstime;
+        uint16_t val16;
+        uint32_t reltime;
+        uint64_t abstime;
         nspr_abstime_v10_t abs10;
 
         /* populate the record */
@@ -2263,12 +2263,12 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
         nsg_creltime = ns_hrtime2nsec(reltime);
 
         memset(abs10.abs_RelTime, 0, sizeof abs10.abs_RelTime);
-        abstime = GUINT32_TO_LE((guint32)rec->ts.secs - (guint32)(nsg_creltime/1000000000));
+        abstime = GUINT32_TO_LE((uint32_t)rec->ts.secs - (uint32_t)(nsg_creltime/1000000000));
         memcpy(abs10.abs_Time, &abstime, sizeof abs10.abs_Time);
 
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &abs10, nspr_abstime_v10_s, err))
-            return FALSE;
+            return false;
 
         /* Move forward the page offset */
         nstrace->page_offset += nspr_abstime_v10_s;
@@ -2276,8 +2276,8 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
     } else if ((nstrace->version == NSTRACE_2_0) ||
         (nstrace->version == NSTRACE_3_0) ||
         (nstrace->version == NSTRACE_3_5))    {
-        guint32 reltime;
-        guint64 abstime;
+        uint32_t reltime;
+        uint64_t abstime;
         nspr_abstime_v20_t abs20;
 
         abs20.abs_RecordType = NSPR_ABSTIME_V20;
@@ -2287,12 +2287,12 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
         nsg_creltime = ns_hrtime2nsec(reltime);
 
         memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
-        abstime = GUINT32_TO_LE((guint32)rec->ts.secs - (guint32)(nsg_creltime/1000000000));
+        abstime = GUINT32_TO_LE((uint32_t)rec->ts.secs - (uint32_t)(nsg_creltime/1000000000));
         memcpy(abs20.abs_RelTime, &abstime, sizeof abs20.abs_RelTime);
 
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &abs20, nspr_abstime_v20_s, err))
-            return FALSE;
+            return false;
 
         /* Move forward the page offset */
         nstrace->page_offset += nspr_abstime_v20_s;
@@ -2300,24 +2300,24 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
     } else
     {
         ws_assert_not_reached();
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 
 /* Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info _U_)
+   Returns true on success, false on failure. */
+static bool nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info _U_)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-        return FALSE;
+        return false;
     }
 
     /*
@@ -2326,33 +2326,33 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
      */
     if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-        return FALSE;
+        return false;
     }
 
-    if (nstrace->newfile == TRUE)
+    if (nstrace->newfile == true)
     {
-        nstrace->newfile = FALSE;
+        nstrace->newfile = false;
         /* Add the signature record and abs time record */
         if (nstrace->version == NSTRACE_1_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, rec, pd, err))
-                return FALSE;
+                return false;
         } else if (nstrace->version == NSTRACE_2_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, rec, pd, err))
-                return FALSE;
+                return false;
         } else if (nstrace->version == NSTRACE_3_0 ||
                    nstrace->version == NSTRACE_3_5 )
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, rec, pd, err))
-                return FALSE;
+                return false;
         } else
         {
             ws_assert_not_reached();
-            return FALSE;
+            return false;
         }
     }
 
@@ -2366,24 +2366,24 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
             {
                 /* Start on the next page */
                 if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
-                    return FALSE;
+                    return false;
 
                 nstrace->page_offset = 0;
 
                 /* Possibly add signature and abstime records and increment offset */
                 if (!nstrace_add_signature(wdh, err))
-                    return FALSE;
+                    return false;
             }
 
             /* Write the actual record as is */
             if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-                return FALSE;
+                return false;
 
-            nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
+            nstrace->page_offset += (uint16_t) rec->rec_header.packet_header.caplen;
         } else if (nstrace->version == NSTRACE_2_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-            return FALSE;
+            return false;
         }
 
         break;
@@ -2398,27 +2398,27 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
         if (nstrace->version == NSTRACE_1_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-            return FALSE;
+            return false;
         } else if (nstrace->version == NSTRACE_2_0)
         {
             if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
                 if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
-                    return FALSE;
+                    return false;
 
                 nstrace->page_offset = 0;
 
                 /* Possibly add signature and abstime records and increment offset */
                 if (!nstrace_add_signature(wdh, err))
-                    return FALSE;
+                    return false;
             }
 
             /* Write the actual record as is */
             if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-                return FALSE;
+                return false;
 
-            nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
+            nstrace->page_offset += (uint16_t) rec->rec_header.packet_header.caplen;
         }
 
         break;
@@ -2428,44 +2428,44 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
         if (nstrace->version == NSTRACE_1_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-            return FALSE;
+            return false;
         } else if (nstrace->version == NSTRACE_2_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-            return FALSE;
+            return false;
         } else if (nstrace->version == NSTRACE_3_0 || nstrace->version == NSTRACE_3_5)
         {
             if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
                 if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
-                    return FALSE;
+                    return false;
 
                 nstrace->page_offset = 0;
 
                 /* Possibly add signature and abstime records and increment offset */
                 if (!nstrace_add_signature(wdh, err))
-                    return FALSE;
+                    return false;
             }
 
             /* Write the actual record as is */
             if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-                return FALSE;
+                return false;
 
-            nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
+            nstrace->page_offset += (uint16_t) rec->rec_header.packet_header.caplen;
         } else
         {
             ws_assert_not_reached();
-            return FALSE;
+            return false;
         }
         break;
 
     default:
         ws_assert_not_reached();
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type nstrace_1_0_blocks_supported[] = {
@@ -2477,7 +2477,7 @@ static const struct supported_block_type nstrace_1_0_blocks_supported[] = {
 
 static const struct file_type_subtype_info nstrace_1_0_info = {
     "NetScaler Trace (Version 1.0)", "nstrace10", NULL, NULL,
-    TRUE, BLOCKS_SUPPORTED(nstrace_1_0_blocks_supported),
+    true, BLOCKS_SUPPORTED(nstrace_1_0_blocks_supported),
     nstrace_10_dump_can_write_encap, nstrace_10_dump_open, NULL
 };
 
@@ -2490,7 +2490,7 @@ static const struct supported_block_type nstrace_2_0_blocks_supported[] = {
 
 static const struct file_type_subtype_info nstrace_2_0_info = {
     "NetScaler Trace (Version 2.0)", "nstrace20", "cap", NULL,
-    TRUE, BLOCKS_SUPPORTED(nstrace_2_0_blocks_supported),
+    true, BLOCKS_SUPPORTED(nstrace_2_0_blocks_supported),
     nstrace_20_dump_can_write_encap, nstrace_20_dump_open, NULL
 };
 
@@ -2503,7 +2503,7 @@ static const struct supported_block_type nstrace_3_0_blocks_supported[] = {
 
 static const struct file_type_subtype_info nstrace_3_0_info = {
     "NetScaler Trace (Version 3.0)", "nstrace30", "cap", NULL,
-    TRUE, BLOCKS_SUPPORTED(nstrace_3_0_blocks_supported),
+    true, BLOCKS_SUPPORTED(nstrace_3_0_blocks_supported),
     nstrace_30_dump_can_write_encap, nstrace_30_dump_open, NULL
 };
 
@@ -2516,7 +2516,7 @@ static const struct supported_block_type nstrace_3_5_blocks_supported[] = {
 
 static const struct file_type_subtype_info nstrace_3_5_info = {
     "NetScaler Trace (Version 3.5)", "nstrace35", "cap", NULL,
-    TRUE, BLOCKS_SUPPORTED(nstrace_3_5_blocks_supported),
+    true, BLOCKS_SUPPORTED(nstrace_3_5_blocks_supported),
     nstrace_35_dump_can_write_encap, nstrace_35_dump_open, NULL
 };
 

@@ -779,7 +779,7 @@ wtap_wtap_encap_to_pcap_encap(int encap)
  * allocate a huge and wasteful buffer and, at least on 32-bit platforms,
  * run the risk of running out of memory.
  */
-guint
+unsigned
 wtap_max_snaplen_for_encap(int wtap_encap)
 {
 	switch (wtap_encap) {
@@ -820,12 +820,12 @@ wtap_max_snaplen_for_encap(int wtap_encap)
 
 static int
 pcap_read_nokiaatm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, guint packet_size,
-    int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, unsigned packet_size,
+    int *err, char **err_info)
 {
-	guint8	atm_phdr[NOKIAATM_LEN];
-	guint8	vpi;
-	guint16	vci;
+	uint8_t	atm_phdr[NOKIAATM_LEN];
+	uint8_t	vpi;
+	uint16_t	vci;
 
 	if (packet_size < NOKIAATM_LEN) {
 		/*
@@ -867,12 +867,12 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 
 static int
 pcap_read_sunatm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, guint packet_size,
-    int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, unsigned packet_size,
+    int *err, char **err_info)
 {
-	guint8	atm_phdr[SUNATM_LEN];
-	guint8	vpi;
-	guint16	vci;
+	uint8_t	atm_phdr[SUNATM_LEN];
+	uint8_t	vpi;
+	uint16_t	vci;
 
 	if (packet_size < SUNATM_LEN) {
 		/*
@@ -957,11 +957,11 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 	return SUNATM_LEN;
 }
 
-static gboolean
+static bool
 pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 atm_hdr[SUNATM_LEN];
+	uint8_t atm_hdr[SUNATM_LEN];
 
 	/*
 	 * Write the ATM header.
@@ -995,11 +995,11 @@ pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
 		}
 		break;
 	}
-	atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
+	atm_hdr[SUNATM_VPI] = (uint8_t)pseudo_header->atm.vpi;
 	phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
 	if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1013,9 +1013,9 @@ pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
 
 static int
 pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
-	guint8	irda_phdr[IRDA_SLL_LEN];
+	uint8_t	irda_phdr[IRDA_SLL_LEN];
 
 	if (packet_size < IRDA_SLL_LEN) {
 		/*
@@ -1042,11 +1042,11 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return IRDA_SLL_LEN;
 }
 
-static gboolean
+static bool
 pcap_write_irda_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 irda_hdr[IRDA_SLL_LEN];
+	uint8_t irda_hdr[IRDA_SLL_LEN];
 
 	/*
 	 * Write the IrDA header.
@@ -1055,8 +1055,8 @@ pcap_write_irda_pseudoheader(wtap_dumper *wdh,
 	phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET], pseudo_header->irda.pkttype);
 	phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
 	if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1069,9 +1069,9 @@ pcap_write_irda_pseudoheader(wtap_dumper *wdh,
 
 static int
 pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
-	guint8 mtp2_hdr[MTP2_HDR_LEN];
+	uint8_t mtp2_hdr[MTP2_HDR_LEN];
 
 	if (packet_size < MTP2_HDR_LEN) {
 		/*
@@ -1093,11 +1093,11 @@ pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return MTP2_HDR_LEN;
 }
 
-static gboolean
+static bool
 pcap_write_mtp2_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 mtp2_hdr[MTP2_HDR_LEN];
+	uint8_t mtp2_hdr[MTP2_HDR_LEN];
 
 	/*
 	 * Write the MTP2 header.
@@ -1108,8 +1108,8 @@ pcap_write_mtp2_pseudoheader(wtap_dumper *wdh,
 	phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
 	    pseudo_header->mtp2.link_number);
 	if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1128,9 +1128,9 @@ pcap_write_mtp2_pseudoheader(wtap_dumper *wdh,
 
 static int
 pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
-	guint8	lapd_phdr[LAPD_SLL_LEN];
+	uint8_t	lapd_phdr[LAPD_SLL_LEN];
 
 	if (packet_size < LAPD_SLL_LEN) {
 		/*
@@ -1158,11 +1158,11 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return LAPD_SLL_LEN;
 }
 
-static gboolean
+static bool
 pcap_write_lapd_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 lapd_hdr[LAPD_SLL_LEN];
+	uint8_t lapd_hdr[LAPD_SLL_LEN];
 
 	/*
 	 * Write the LAPD header.
@@ -1173,8 +1173,8 @@ pcap_write_lapd_pseudoheader(wtap_dumper *wdh,
 	lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
 	    pseudo_header->lapd.we_network?0x01:0x00;
 	if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1189,9 +1189,9 @@ pcap_write_lapd_pseudoheader(wtap_dumper *wdh,
 
 static int
 pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
-	guint8	sita_phdr[SITA_HDR_LEN];
+	uint8_t	sita_phdr[SITA_HDR_LEN];
 
 	if (packet_size < SITA_HDR_LEN) {
 		/*
@@ -1215,11 +1215,11 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return SITA_HDR_LEN;
 }
 
-static gboolean
+static bool
 pcap_write_sita_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 sita_hdr[SITA_HDR_LEN];
+	uint8_t sita_hdr[SITA_HDR_LEN];
 
 	/*
 	 * Write the SITA header.
@@ -1231,8 +1231,8 @@ pcap_write_sita_pseudoheader(wtap_dumper *wdh,
 	sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.sita_errors2;
 	sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.sita_proto;
 	if (!wtap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1240,7 +1240,7 @@ pcap_write_sita_pseudoheader(wtap_dumper *wdh,
  * Values in network byte order.
  */
 struct pcap_bt_phdr {
-	guint32 direction;     /* Bit 0 hold the frame direction. */
+	uint32_t direction;     /* Bit 0 hold the frame direction. */
 };
 
 #define LIBPCAP_BT_PHDR_SENT    0
@@ -1248,7 +1248,7 @@ struct pcap_bt_phdr {
 
 static int
 pcap_read_bt_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
 	struct pcap_bt_phdr phdr;
 
@@ -1265,22 +1265,22 @@ pcap_read_bt_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct pcap_bt_phdr),
 	    err, err_info))
 		return -1;
-	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & LIBPCAP_BT_PHDR_RECV) == 0)? TRUE: FALSE;
+	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & LIBPCAP_BT_PHDR_RECV) == 0)? true: false;
 	return (int)sizeof (struct pcap_bt_phdr);
 }
 
-static gboolean
+static bool
 pcap_write_bt_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint32 direction;
+	uint32_t direction;
 	struct pcap_bt_phdr bt_hdr;
 
 	direction = pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV;
 	bt_hdr.direction = GUINT32_TO_BE(direction);
 	if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1288,14 +1288,14 @@ pcap_write_bt_pseudoheader(wtap_dumper *wdh,
  * Values in network byte order.
  */
 struct pcap_bt_monitor_phdr {
-	guint16 adapter_id;
-	guint16 opcode;
+	uint16_t adapter_id;
+	uint16_t opcode;
 };
 
 static int
 pcap_read_bt_monitor_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, guint packet_size,
-    int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, unsigned packet_size,
+    int *err, char **err_info)
 {
 	struct pcap_bt_monitor_phdr phdr;
 
@@ -1318,7 +1318,7 @@ pcap_read_bt_monitor_pseudoheader(FILE_T fh,
 	return (int)sizeof (struct pcap_bt_monitor_phdr);
 }
 
-static gboolean
+static bool
 pcap_write_bt_monitor_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
@@ -1328,8 +1328,8 @@ pcap_write_bt_monitor_pseudoheader(wtap_dumper *wdh,
 	bt_monitor_hdr.opcode = GUINT16_TO_BE(pseudo_header->btmon.opcode);
 
 	if (!wtap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1341,10 +1341,10 @@ pcap_write_bt_monitor_pseudoheader(wtap_dumper *wdh,
 
 static int
 pcap_read_llcp_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, guint packet_size,
-    int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, unsigned packet_size,
+    int *err, char **err_info)
 {
-	guint8 phdr[LLCP_HEADER_LEN];
+	uint8_t phdr[LLCP_HEADER_LEN];
 
 	if (packet_size < LLCP_HEADER_LEN) {
 		*err = WTAP_ERR_BAD_FILE;
@@ -1359,24 +1359,24 @@ pcap_read_llcp_pseudoheader(FILE_T fh,
 	return LLCP_HEADER_LEN;
 }
 
-static gboolean
+static bool
 pcap_write_llcp_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 phdr[LLCP_HEADER_LEN];
+	uint8_t phdr[LLCP_HEADER_LEN];
 
 	phdr[LLCP_ADAPTER_OFFSET] = pseudo_header->llcp.adapter;
 	phdr[LLCP_FLAGS_OFFSET] = pseudo_header->llcp.flags;
 	if (!wtap_dump_file_write(wdh, &phdr, sizeof phdr, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
  * Pseudo-header at the beginning of DLT_PPP_WITH_DIR frames.
  */
 struct pcap_ppp_phdr {
-	guint8 direction;
+	uint8_t direction;
 };
 
 /*
@@ -1384,7 +1384,7 @@ struct pcap_ppp_phdr {
  */
 static int
 pcap_read_ppp_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
 	struct pcap_ppp_phdr phdr;
 
@@ -1402,11 +1402,11 @@ pcap_read_ppp_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	    err, err_info))
 		return -1;
 	/* Any non-zero value means "sent" */
-	pseudo_header->p2p.sent = (phdr.direction != 0) ? TRUE: FALSE;
+	pseudo_header->p2p.sent = (phdr.direction != 0) ? true: false;
 	return (int)sizeof (struct pcap_ppp_phdr);
 }
 
-static gboolean
+static bool
 pcap_write_ppp_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
@@ -1415,17 +1415,17 @@ pcap_write_ppp_pseudoheader(wtap_dumper *wdh,
 	/* Any non-zero value means "sent" */
 	ppp_hdr.direction = (pseudo_header->p2p.sent ? 1 : 0);
 	if (!wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 static int
 pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
-    union wtap_pseudo_header *pseudo_header, guint packet_size,
-    int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, unsigned packet_size,
+    int *err, char **err_info)
 {
-	guint8 erf_hdr[sizeof(struct erf_phdr)];
-	guint8 erf_subhdr[sizeof(union erf_subhdr)];
+	uint8_t erf_hdr[sizeof(struct erf_phdr)];
+	uint8_t erf_subhdr[sizeof(union erf_subhdr)];
 	int phdr_len;
 
 	if (packet_size < sizeof(struct erf_phdr)) {
@@ -1452,11 +1452,11 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	 * while the lower 32 bits contain the binary fraction of the second.
 	 * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */
 	if (rec) {
-		guint64 ts = pseudo_header->erf.phdr.ts;
+		uint64_t ts = pseudo_header->erf.phdr.ts;
 		rec->ts.secs = (time_t) (ts >> 32);
 		ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
 		ts += (ts & 0x80000000) << 1; /* rounding */
-		rec->ts.nsecs = ((guint32) (ts >> 32));
+		rec->ts.nsecs = ((uint32_t) (ts >> 32));
 		if (rec->ts.nsecs >= 1000000000) {
 			rec->ts.nsecs -= 1000000000;
 			rec->ts.secs += 1;
@@ -1479,8 +1479,8 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	 */
 	if (pseudo_header->erf.phdr.type & 0x80) {
 		int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-		guint8 erf_exhdr[8];
-		guint8 type;
+		uint8_t erf_exhdr[8];
+		uint8_t type;
 
 		do {
 			if (phdr_len > INT_MAX - 8) {
@@ -1489,7 +1489,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 				    INT_MAX);
 				return -1;
 			}
-			if (packet_size < (guint)phdr_len + 8) {
+			if (packet_size < (unsigned)phdr_len + 8) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = ws_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the extension headers",
 				    packet_size);
@@ -1499,7 +1499,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 				return -1;
 			type = erf_exhdr[0];
 			if (i < max) {
-				guint64 erf_exhdr_sw;
+				uint64_t erf_exhdr_sw;
 
 				erf_exhdr_sw = pntoh64(erf_exhdr);
 				memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
@@ -1525,7 +1525,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 			    INT_MAX);
 			return -1;
 		}
-		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_mc_header_t))) {
+		if (packet_size < (unsigned)(phdr_len + (int)sizeof(erf_mc_header_t))) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the Multi Channel header",
 			    packet_size);
@@ -1544,7 +1544,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 			    INT_MAX);
 			return -1;
 		}
-		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_aal2_header_t))) {
+		if (packet_size < (unsigned)(phdr_len + (int)sizeof(erf_aal2_header_t))) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the AAL2 header",
 			    packet_size);
@@ -1566,7 +1566,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 			    INT_MAX);
 			return -1;
 		}
-		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_eth_header_t))) {
+		if (packet_size < (unsigned)(phdr_len + (int)sizeof(erf_eth_header_t))) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the Ethernet additional header",
 			    packet_size);
@@ -1584,12 +1584,12 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	return phdr_len;
 }
 
-static gboolean
+static bool
 pcap_write_erf_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	guint8 erf_hdr[sizeof(struct erf_phdr)];
-	guint8 erf_subhdr[sizeof(union erf_subhdr)];
+	uint8_t erf_hdr[sizeof(struct erf_phdr)];
+	uint8_t erf_subhdr[sizeof(union erf_subhdr)];
 
 	/*
 	 * Write the ERF header.
@@ -1613,15 +1613,15 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
 	phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
 	if (!wtap_dump_file_write(wdh, erf_hdr,  sizeof(struct erf_phdr), err))
-		return FALSE;
+		return false;
 
 	/*
 	 * Now write out the extension headers.
 	 */
 	if (pseudo_header->erf.phdr.type & 0x80) {
 		int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-		guint8 erf_exhdr[8];
-		guint8 type;
+		uint8_t erf_exhdr[8];
+		uint8_t type;
 
 		do {
 			phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
@@ -1630,7 +1630,7 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 			if(i == max-1)
 				erf_exhdr[0] = erf_exhdr[0] & 0x7F;
 			if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
-				return FALSE;
+				return false;
 			i++;
 		} while (type & 0x80 && i < max);
 	}
@@ -1649,13 +1649,13 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 		phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_mc_hdr), err))
-			return FALSE;
+			return false;
 		break;
 	case ERF_TYPE_AAL2:
 		phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_aal2_hdr), err))
-			return FALSE;
+			return false;
 		break;
 	case ERF_TYPE_ETH:
 	case ERF_TYPE_COLOR_ETH:
@@ -1664,12 +1664,12 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 		memcpy(&erf_subhdr[0], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_eth_hdr), err))
-			return FALSE;
+			return false;
 		break;
 	default:
 		break;
 	}
-	return TRUE;
+	return true;
 }
 
 /*
@@ -1677,13 +1677,13 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
  * Pigeon Point Systems.
  */
 struct i2c_linux_file_hdr {
-	guint8 bus;
-	guint8 flags[4];
+	uint8_t bus;
+	uint8_t flags[4];
 };
 
 static int
 pcap_read_i2c_linux_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    guint packet_size, int *err, gchar **err_info)
+    unsigned packet_size, int *err, char **err_info)
 {
 	struct i2c_linux_file_hdr i2c_linux_hdr;
 
@@ -1707,7 +1707,7 @@ pcap_read_i2c_linux_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_hea
 	return (int)sizeof (struct i2c_linux_file_hdr);
 }
 
-static gboolean
+static bool
 pcap_write_i2c_linux_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
@@ -1719,10 +1719,10 @@ pcap_write_i2c_linux_pseudoheader(wtap_dumper *wdh,
 	memset(&i2c_linux_hdr, 0, sizeof(i2c_linux_hdr));
 	i2c_linux_hdr.bus = pseudo_header->i2c.bus |
 			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
-	phtonl((guint8 *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
+	phtonl((uint8_t *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
 	if (!wtap_dump_file_write(wdh, &i2c_linux_hdr, sizeof(i2c_linux_hdr), err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /*
@@ -1730,11 +1730,11 @@ pcap_write_i2c_linux_pseudoheader(wtap_dumper *wdh,
  */
 #define NOKIA_LEN	4	/* length of the header */
 
-static gboolean
+static bool
 pcap_read_nokia_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, int *err, char **err_info)
 {
-	guint8	phdr[NOKIA_LEN];
+	uint8_t	phdr[NOKIA_LEN];
 
 
 	/* backtrack to read the 4 mysterious bytes that aren't considered
@@ -1745,15 +1745,15 @@ pcap_read_nokia_pseudoheader(FILE_T fh,
 		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
 
 	if (!wtap_read_bytes(fh, phdr, NOKIA_LEN, err, err_info))
-		return FALSE;
+		return false;
 
 	memcpy(pseudo_header->nokia.stuff, phdr, NOKIA_LEN);
 
-	return TRUE;
+	return true;
 }
 
 /*
@@ -1806,8 +1806,8 @@ pcap_read_nokia_pseudoheader(FILE_T fh,
  * This structure is 8 bytes long.
  */
 struct iso_rec {
-	gint32 error_count;
-	gint32 numdesc;
+	int32_t error_count;
+	int32_t numdesc;
 };
 
 /*
@@ -1818,19 +1818,19 @@ struct iso_rec {
  * The values are in *host* byte order.
  */
 struct linux_usb_phdr {
-	guint64 id;             /* urb id, to link submission and completion events */
-	guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
-	guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
-	guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
-	guint8 device_address;  /* 0-127 */
-	guint16 bus_id;
-	gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
-	gint8 data_flag;        /* 0, if urb data is present */
-	gint64 ts_sec;
-	gint32 ts_usec;
-	gint32 status;
-	guint32 urb_len;        /* whole len of urb this event refers to */
-	guint32 data_len;       /* amount of urb data really present in this event */
+	uint64_t id;             /* urb id, to link submission and completion events */
+	uint8_t event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
+	uint8_t transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
+	uint8_t endpoint_number; /* Endpoint number (0-15) and transfer direction */
+	uint8_t device_address;  /* 0-127 */
+	uint16_t bus_id;
+	int8_t setup_flag;       /* 0, if the urb setup header is meaningful */
+	int8_t data_flag;        /* 0, if urb data is present */
+	int64_t ts_sec;
+	int32_t ts_usec;
+	int32_t status;
+	uint32_t urb_len;        /* whole len of urb this event refers to */
+	uint32_t data_len;       /* amount of urb data really present in this event */
 
 	/*
 	 * Packet-type-dependent data.
@@ -1838,7 +1838,7 @@ struct linux_usb_phdr {
 	 * Otherwise, some isochronous transfer information.
 	 */
 	union {
-		guint8 data[8];
+		uint8_t data[8];
 		struct iso_rec iso;
 	} s;
 
@@ -1854,10 +1854,10 @@ struct linux_usb_phdr {
 	 * these last 16 bytes.  In pre-2.6.31 kernels, it's zero padding;
 	 * in 2.6.31 and later, it's the following data.
 	 */
-	gint32 interval;    /* only for Interrupt and Isochronous events */
-	gint32 start_frame; /* for Isochronous */
-	guint32 xfer_flags; /* copy of URB's transfer_flags */
-	guint32 ndesc;      /* actual number of isochronous descriptors */
+	int32_t interval;    /* only for Interrupt and Isochronous events */
+	int32_t start_frame; /* for Isochronous */
+	uint32_t xfer_flags; /* copy of URB's transfer_flags */
+	uint32_t ndesc;      /* actual number of isochronous descriptors */
 };
 
 /*
@@ -1879,10 +1879,10 @@ struct linux_usb_phdr {
 #define URB_TRANSFER_IN   0x80		/* to host */
 
 struct linux_usb_isodesc {
-	gint32 iso_status;
-	guint32 iso_off;
-	guint32 iso_len;
-	guint32 _pad;
+	int32_t iso_status;
+	uint32_t iso_off;
+	uint32_t iso_len;
+	uint32_t _pad;
 };
 
 /*
@@ -1893,11 +1893,11 @@ struct linux_usb_isodesc {
  * This structure is 8 bytes long.
  */
 struct usb_device_setup_hdr {
-	gint8 bmRequestType;
-	guint8 bRequest;
-	guint16 wValue;
-	guint16 wIndex;
-	guint16 wLength;
+	int8_t bmRequestType;
+	uint8_t bRequest;
+	uint16_t wValue;
+	uint16_t wIndex;
+	uint16_t wLength;
 };
 
 /*
@@ -1917,21 +1917,21 @@ struct usb_device_setup_hdr {
 	{ \
 		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
 			return; \
-		PBSWAP16((guint8 *)fieldp); \
+		PBSWAP16((uint8_t *)fieldp); \
 	}
 
 #define CHECK_AND_SWAP32(fieldp) \
 	{ \
 		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
 			return; \
-		PBSWAP32((guint8 *)fieldp); \
+		PBSWAP32((uint8_t *)fieldp); \
 	}
 
 #define CHECK_AND_SWAP64(fieldp) \
 	{ \
 		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
 			return; \
-		PBSWAP64((guint8 *)fieldp); \
+		PBSWAP64((uint8_t *)fieldp); \
 	}
 
 /*
@@ -1972,8 +1972,8 @@ struct usb_device_setup_hdr {
 #define LINUX_SLL_P_CANXL		0x000E	/* Controller Area Network extended length */
 
 static void
-pcap_byteswap_can_socketcan_pseudoheader(guint packet_size, guint16 protocol,
-    guint8 *pd)
+pcap_byteswap_can_socketcan_pseudoheader(unsigned packet_size, uint16_t protocol,
+    uint8_t *pd)
 {
 	switch (protocol) {
 
@@ -2022,10 +2022,10 @@ pcap_byteswap_can_socketcan_pseudoheader(guint packet_size, guint16 protocol,
 }
 
 static void
-pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
+pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, uint8_t *pd)
 {
-	guint packet_size;
-	guint16 protocol;
+	unsigned packet_size;
+	uint16_t protocol;
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2050,10 +2050,10 @@ pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
 }
 
 static void
-pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, guint8 *pd)
+pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, uint8_t *pd)
 {
-	guint packet_size;
-	guint16 protocol;
+	unsigned packet_size;
+	uint16_t protocol;
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2078,13 +2078,13 @@ pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec, guint8 *pd)
 }
 
 static void
-pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, guint8 *pd,
-    gboolean header_len_64_bytes)
+pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, uint8_t *pd,
+    bool header_len_64_bytes)
 {
-	guint packet_size;
+	unsigned packet_size;
 	struct linux_usb_phdr *usb_phdr;
 	struct linux_usb_isodesc *pisodesc;
-	gint32 iso_numdesc, i;
+	int32_t iso_numdesc, i;
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2160,25 +2160,25 @@ pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, guint8 *pd,
 }
 
 struct nflog_hdr {
-	guint8 nflog_family;		/* address family */
-	guint8 nflog_version;		/* version */
-	guint16 nflog_rid;		/* resource ID */
+	uint8_t nflog_family;		/* address family */
+	uint8_t nflog_version;		/* version */
+	uint16_t nflog_rid;		/* resource ID */
 };
 
 struct nflog_tlv {
-	guint16 tlv_length;		/* tlv length */
-	guint16 tlv_type;		/* tlv type */
+	uint16_t tlv_length;		/* tlv length */
+	uint16_t tlv_type;		/* tlv type */
 	/* value follows this */
 };
 
 static void
-pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
+pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, uint8_t *pd)
 {
-	guint packet_size;
-	guint8 *p;
+	unsigned packet_size;
+	uint8_t *p;
 	struct nflog_hdr *nfhdr;
 	struct nflog_tlv *tlv;
-	guint size;
+	unsigned size;
 
 	/*
 	 * Minimum of captured and actual length (just in case the
@@ -2201,15 +2201,15 @@ pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
 		return;
 	}
 
-	packet_size -= (guint)sizeof(struct nflog_hdr);
+	packet_size -= (unsigned)sizeof(struct nflog_hdr);
 	p += sizeof(struct nflog_hdr);
 
 	while (packet_size >= sizeof(struct nflog_tlv)) {
 		tlv = (struct nflog_tlv *) p;
 
 		/* Swap the type and length. */
-		PBSWAP16((guint8 *)&tlv->tlv_type);
-		PBSWAP16((guint8 *)&tlv->tlv_length);
+		PBSWAP16((uint8_t *)&tlv->tlv_type);
+		PBSWAP16((uint8_t *)&tlv->tlv_length);
 
 		/* Get the length of the TLV. */
 		size = tlv->tlv_length;
@@ -2241,26 +2241,26 @@ pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
 #define PFLOG_RULESET_NAME_SIZE	16
 
 struct pfloghdr {
-	guint8		length;
-	guint8		af;
-	guint8		action;
-	guint8		reason;
+	uint8_t		length;
+	uint8_t		af;
+	uint8_t		action;
+	uint8_t		reason;
 	char		ifname[PFLOG_IFNAMSIZ];
 	char		ruleset[PFLOG_RULESET_NAME_SIZE];
-	guint32		rulenr;
-	guint32		subrulenr;
-	guint32		uid;
-	gint32		pid;
-	guint32		rule_uid;
-	gint32		rule_pid;
-	guint8		dir;
+	uint32_t		rulenr;
+	uint32_t		subrulenr;
+	uint32_t		uid;
+	int32_t		pid;
+	uint32_t		rule_uid;
+	int32_t		rule_pid;
+	uint8_t		dir;
 	/* More follows, depending on the header length */
 };
 
 static void
-pcap_byteswap_pflog_pseudoheader(wtap_rec *rec, guint8 *pd)
+pcap_byteswap_pflog_pseudoheader(wtap_rec *rec, uint8_t *pd)
 {
-	guint packet_size;
+	unsigned packet_size;
 	struct pfloghdr *pflhdr;
 
 	/*
@@ -2278,19 +2278,19 @@ pcap_byteswap_pflog_pseudoheader(wtap_rec *rec, guint8 *pd)
 	}
 
 	pflhdr = (struct pfloghdr *)pd;
-	if (pflhdr->length < (guint) (offsetof(struct pfloghdr, rule_pid) + sizeof pflhdr->rule_pid)) {
+	if (pflhdr->length < (unsigned) (offsetof(struct pfloghdr, rule_pid) + sizeof pflhdr->rule_pid)) {
 		/* Header doesn't include the UID and PID fields */
 		return;
 	}
-	PBSWAP32((guint8 *)&pflhdr->uid);
-	PBSWAP32((guint8 *)&pflhdr->pid);
-	PBSWAP32((guint8 *)&pflhdr->rule_uid);
-	PBSWAP32((guint8 *)&pflhdr->rule_pid);
+	PBSWAP32((uint8_t *)&pflhdr->uid);
+	PBSWAP32((uint8_t *)&pflhdr->pid);
+	PBSWAP32((uint8_t *)&pflhdr->rule_uid);
+	PBSWAP32((uint8_t *)&pflhdr->rule_pid);
 }
 
 int
-pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia, int wtap_encap,
-    guint packet_size, wtap_rec *rec, int *err, gchar **err_info)
+pcap_process_pseudo_header(FILE_T fh, bool is_nokia, int wtap_encap,
+    unsigned packet_size, wtap_rec *rec, int *err, char **err_info)
 {
 	int phdr_len = 0;
 
@@ -2348,8 +2348,8 @@ pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia, int wtap_encap,
 		 */
 		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = -1;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = FALSE;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = false;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = false;
 		break;
 
 	case WTAP_ENCAP_IRDA:
@@ -2386,7 +2386,7 @@ pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia, int wtap_encap,
 
 	case WTAP_ENCAP_BLUETOOTH_H4:
 		/* We don't have pseudoheader, so just pretend we received everything. */
-		rec->rec_header.packet_header.pseudo_header.p2p.sent = FALSE;
+		rec->rec_header.packet_header.pseudo_header.p2p.sent = false;
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
@@ -2490,7 +2490,7 @@ fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
 		 * while processing the isochronous descriptors.
 		 */
 		pre_truncation_data_len = 0;
-		for (guint32 desc = 0;
+		for (uint32_t desc = 0;
 		    desc < hdr->ndesc && bytes_left >= sizeof (struct linux_usb_isodesc);
 		    desc++, bytes_left -= sizeof (struct linux_usb_isodesc)) {
 			u_int desc_end;
@@ -2544,7 +2544,7 @@ fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
 }
 
 static void
-pcap_fixup_len(wtap_rec *rec, const guint8 *pd)
+pcap_fixup_len(wtap_rec *rec, const uint8_t *pd)
 {
 	struct linux_usb_phdr *usb_phdr;
 
@@ -2586,8 +2586,8 @@ pcap_fixup_len(wtap_rec *rec, const guint8 *pd)
 }
 
 void
-pcap_read_post_process(gboolean is_nokia, int wtap_encap,
-    wtap_rec *rec, guint8 *pd, gboolean bytes_swapped, int fcs_len)
+pcap_read_post_process(bool is_nokia, int wtap_encap,
+    wtap_rec *rec, uint8_t *pd, bool bytes_swapped, int fcs_len)
 {
 	switch (wtap_encap) {
 
@@ -2637,12 +2637,12 @@ pcap_read_post_process(gboolean is_nokia, int wtap_encap,
 
 	case WTAP_ENCAP_USB_LINUX:
 		if (bytes_swapped)
-			pcap_byteswap_linux_usb_pseudoheader(rec, pd, FALSE);
+			pcap_byteswap_linux_usb_pseudoheader(rec, pd, false);
 		break;
 
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
 		if (bytes_swapped)
-			pcap_byteswap_linux_usb_pseudoheader(rec, pd, TRUE);
+			pcap_byteswap_linux_usb_pseudoheader(rec, pd, true);
 
 		/*
 		 * Fix up the on-the-network length if necessary.
@@ -2684,7 +2684,7 @@ pcap_read_post_process(gboolean is_nokia, int wtap_encap,
 	}
 }
 
-gboolean
+bool
 wtap_encap_requires_phdr(int wtap_encap)
 {
 	switch (wtap_encap) {
@@ -2700,9 +2700,9 @@ wtap_encap_requires_phdr(int wtap_encap)
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 	case WTAP_ENCAP_ERF:
 	case WTAP_ENCAP_I2C_LINUX:
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 int
@@ -2758,8 +2758,8 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		 */
 		if (pseudo_header->erf.phdr.type & 0x80) {
 			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-			guint8 erf_exhdr[8];
-			guint8 type;
+			uint8_t erf_exhdr[8];
+			uint8_t type;
 
 			do {
 				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
@@ -2811,7 +2811,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 	return hdrsize;
 }
 
-gboolean
+bool
 pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
     int *err)
 {
@@ -2819,60 +2819,60 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 
 	case WTAP_ENCAP_ATM_PDUS:
 		if (!pcap_write_sunatm_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_IRDA:
 		if (!pcap_write_irda_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		if (!pcap_write_mtp2_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
 		if (!pcap_write_lapd_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_SITA:
 		if (!pcap_write_sita_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		if (!pcap_write_bt_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
 		if (!pcap_write_bt_monitor_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_NFC_LLCP:
 		if (!pcap_write_llcp_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		if (!pcap_write_ppp_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_ERF:
 		if (!pcap_write_erf_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 
 	case WTAP_ENCAP_I2C_LINUX:
 		if (!pcap_write_i2c_linux_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
+			return false;
 		break;
 	}
-	return TRUE;
+	return true;
 }
 
 /*

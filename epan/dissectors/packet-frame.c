@@ -393,7 +393,7 @@ call_frame_end_routine(gpointer routine)
 	(*func)();
 }
 
-static gboolean
+static bool
 frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
@@ -486,10 +486,10 @@ frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 		proto_item_set_hidden(hidden_item);
 	}
 	fr_user_data->n_changes++;
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 frame_add_hash(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
@@ -510,10 +510,10 @@ frame_add_hash(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
 						 hash->hash_bytes->len);
 	}
 	fr_user_data->n_changes++;
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 frame_add_verdict(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
 {
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
@@ -556,7 +556,7 @@ frame_add_verdict(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 		}
 	}
 	fr_user_data->n_changes++;
-	return TRUE;
+	return true;
 }
 
 static int

@@ -25,8 +25,8 @@
 /*    Record header format */
 
 typedef struct {
-      guint8    record_type[2];
-      guint8    record_length[2];
+      uint8_t   record_type[2];
+      uint8_t   record_length[2];
 } LA_RecordHeader;
 
 #define LA_RecordHeaderSize 4
@@ -49,8 +49,8 @@ typedef struct {
 
 #define     LA_ProFileLimit       (1024 * 1024 * 32)
 
-typedef guint8  Eadr[6];
-typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
+typedef uint8_t Eadr[6];
+typedef uint16_t TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /*
  * These records have only 2-byte alignment for 4-byte quantities,
@@ -60,19 +60,19 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /*
  * typedef struct {
- *       guint8      day;
- *       guint8      mon;
- *       gint16      year;
+ *       uint8_t     day;
+ *       uint8_t     mon;
+ *       int16_t     year;
  *       } Date;
  */
 
 /*
  * typedef struct {
- *       guint8      second;
- *       guint8      minute;
- *       guint8      hour;
- *       guint8      day;
- *       gint16      reserved;
+ *       uint8_t     second;
+ *       uint8_t     minute;
+ *       uint8_t     hour;
+ *       uint8_t     day;
+ *       int16_t     reserved;
  *       } Time;
  */
 
@@ -85,16 +85,16 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
  *       Time        timeopn;
  *       Time        timeclo;
  *       Eadr        statadr;
- *       gint16      mxseqno;
- *       gint16      slcoff;
- *       gint16      mxslc;
- *       gint32      totpktt;
- *       gint32      statrg;
- *       gint32      stptrg;
- *       gint32      mxpkta[36];
- *       gint16      board_type;
- *       gint16      board_version;
- *       gint8       reserved[18];
+ *       int16_t     mxseqno;
+ *       int16_t     slcoff;
+ *       int16_t     mxslc;
+ *       int32_t     totpktt;
+ *       int32_t     statrg;
+ *       int32_t     stptrg;
+ *       int32_t     mxpkta[36];
+ *       int16_t     board_type;
+ *       int16_t     board_version;
+ *       int8_t      reserved[18];
  *       } Summary;
  */
 
@@ -102,8 +102,8 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /*
  * typedef struct {
- *       gint16      rid;
- *       gint16      rlen;
+ *       int16_t     rid;
+ *       int16_t     rlen;
  *       Summary     s;
  *       } LA_SummaryRecord;
  */
@@ -118,10 +118,10 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /*
  * typedef struct {
- *       gint16      rid;
- *       gint16      rlen;
- *       gint16      seqno;
- *       gint32      totpktf;
+ *       int16_t     rid;
+ *       int16_t     rlen;
+ *       int16_t     seqno;
+ *       int32_t     totpktf;
  *       } LA_SubfileSummaryRecord;
  */
 
@@ -132,13 +132,13 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /*
  * typedef struct {
- *       gint16      rid;
- *       gint16      rlen;
- *       gint16      idxsp;                    = LA_IndexSize
- *       gint16      idxct;
- *       gint8       idxgranu;
- *       gint8       idxvd;
- *       gint32      trcidx[LA_IndexSize + 2]; +2 undocumented but used by La 2.2
+ *       int16_t     rid;
+ *       int16_t     rlen;
+ *       int16_t     idxsp;                    = LA_IndexSize
+ *       int16_t     idxct;
+ *       int8_t      idxgranu;
+ *       int8_t      idxvd;
+ *       int32_t     trcidx[LA_IndexSize + 2]; +2 undocumented but used by La 2.2
  *       } LA_IndexRecord;
  */
 
@@ -147,19 +147,19 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /*
  * typedef struct {
- *       guint16     rx_channels;
- *       guint16     rx_errors;
- *       gint16      rx_frm_len;
- *       gint16      rx_frm_sln;
+ *       uint16_t    rx_channels;
+ *       uint16_t    rx_errors;
+ *       int16_t     rx_frm_len;
+ *       int16_t     rx_frm_sln;
  *       TimeStamp   rx_time;
- *       guint32     pktno;
- *       gint16      prvlen;
- *       gint16      offset;
- *       gint16      tx_errs;
- *       gint16      rx_filters;
- *       gint8       unused[2];
- *       gint16      hwcolls;
- *       gint16      hwcollschans;
+ *       uint32_t    pktno;
+ *       int16_t     prvlen;
+ *       int16_t     offset;
+ *       int16_t     tx_errs;
+ *       int16_t     rx_filters;
+ *       int8_t      unused[2];
+ *       int16_t     hwcolls;
+ *       int16_t     hwcollschans;
  *       Packetdata ....;
  *       } LA_PacketRecord;
  */
@@ -167,14 +167,14 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 #define LA_PacketRecordSize 32
 
 typedef struct {
-      gboolean        init;
+      bool            init;
       nstime_t        start;
-      guint32         pkts;
+      uint32_t        pkts;
       int             encap;
       int             lastlen;
       } LA_TmpInfo;
 
-static const guint8 LA_HeaderRegularFake[] = {
+static const uint8_t LA_HeaderRegularFake[] = {
 0x01,0x10,0x4c,0x00,0x01,0x05,0x54,0x72,0x61,0x63,0x65,0x20,0x44,0x69,0x73,0x70,
 0x6c,0x61,0x79,0x20,0x54,0x72,0x61,0x63,0x65,0x20,0x46,0x69,0x6c,0x65,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -182,7 +182,7 @@ static const guint8 LA_HeaderRegularFake[] = {
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
       };
 
-static const guint8 LA_RxChannelNameFake[] = {
+static const uint8_t LA_RxChannelNameFake[] = {
 0x06,0x10,0x80,0x00,0x43,0x68,0x61,0x6e ,0x6e,0x65,0x6c,0x31,0x00,0x43,0x68,0x61,
 0x6e,0x6e,0x65,0x6c,0x32,0x00,0x43,0x68 ,0x61,0x6e,0x6e,0x65,0x6c,0x33,0x00,0x43,
 0x68,0x61,0x6e,0x6e,0x65,0x6c,0x34,0x00 ,0x43,0x68,0x61,0x6e,0x6e,0x65,0x6c,0x35,
@@ -194,14 +194,14 @@ static const guint8 LA_RxChannelNameFake[] = {
 0x00,0x00,0x00,0x00
       };
 
-static const guint8 LA_TxChannelNameFake[] = {
+static const uint8_t LA_TxChannelNameFake[] = {
                     0x0b,0x10,0x36,0x00 ,0x54,0x72,0x61,0x6e,0x73,0x31,0x00,0x00,
 0x00,0x54,0x72,0x61,0x6e,0x73,0x32,0x00 ,0x00,0x00,0x54,0x72,0x61,0x6e,0x73,0x33,
 0x00,0x00,0x00,0x54,0x72,0x61,0x6e,0x73 ,0x34,0x00,0x00,0x00,0x54,0x72,0x61,0x6e,
 0x73,0x35,0x00,0x00,0x00,0x54,0x72,0x61 ,0x6e,0x73,0x36,0x00,0x00,0x00
       };
 
-static const guint8 LA_RxTemplateNameFake[] = {
+static const uint8_t LA_RxTemplateNameFake[] = {
                                                                        0x35,0x10,
 0x90,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -215,14 +215,14 @@ static const guint8 LA_RxTemplateNameFake[] = {
 0x00,0x00
       };
 
-static const guint8 LA_TxTemplateNameFake[] = {
+static const uint8_t LA_TxTemplateNameFake[] = {
           0x36,0x10,0x36,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00
       };
 
-static const guint8 LA_DisplayOptionsFake[] = {
+static const uint8_t LA_DisplayOptionsFake[] = {
                                                              0x0a,0x10,0x0a,0x01,
 0x00,0x00,0x01,0x00,0x01,0x02,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -243,13 +243,13 @@ static const guint8 LA_DisplayOptionsFake[] = {
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00
       };
 
-static const guint8 LA_CyclicInformationFake[] = {
+static const uint8_t LA_CyclicInformationFake[] = {
                                                    0x09,0x10,0x1a,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
       };
 
-static const guint8 z64[64] = {
+static const uint8_t z64[64] = {
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -260,28 +260,28 @@ typedef struct {
       time_t  start;
 } lanalyzer_t;
 
-static gboolean lanalyzer_read(wtap *wth, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
-static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
-    gchar **err_info);
+static bool lanalyzer_read(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+static bool lanalyzer_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
+    char **err_info);
 
 static int lanalyzer_file_type_subtype = -1;
 
 void register_lanalyzer(void);
 
-wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val lanalyzer_open(wtap *wth, int *err, char **err_info)
 {
       LA_RecordHeader rec_header;
       char header_fixed[2];
       char *comment;
-      gboolean found_summary;
+      bool found_summary;
       char summary[210];
-      guint16 board_type, mxslc;
-      guint16 record_type, record_length;
-      guint8 cr_day, cr_month;
-      guint16 cr_year;
+      uint16_t board_type, mxslc;
+      uint16_t record_type, record_length;
+      uint8_t cr_day, cr_month;
+      uint16_t cr_year;
       struct tm tm;
       time_t start;
       int file_encap;
@@ -341,7 +341,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
        * If we don't have a summary record, we don't know the link-layer
        * header type, so we can't read the file.
        */
-      found_summary = FALSE;
+      found_summary = false;
       while (1) {
             if (!wtap_read_bytes_or_eof(wth->fh, &rec_header,
                                         LA_RecordHeaderSize, err, err_info)) {
@@ -419,7 +419,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                         *err_info = ws_strdup_printf("lanalyzer: file has more than one summary record");
                         return WTAP_OPEN_ERROR;
                   }
-                  found_summary = TRUE;
+                  found_summary = true;
 
                   /* Skip the rest of the record */
                   record_length -= sizeof summary;
@@ -481,25 +481,25 @@ done:
 
 #define DESCRIPTOR_LEN  32
 
-static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
-                                            wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
+                                            wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
       char         LE_record_type[2];
       char         LE_record_length[2];
-      guint16      record_type, record_length;
+      uint16_t     record_type, record_length;
       int          record_data_size;
       int          packet_size;
-      gchar        descriptor[DESCRIPTOR_LEN];
+      char         descriptor[DESCRIPTOR_LEN];
       lanalyzer_t *lanalyzer;
-      guint16      time_low, time_med, time_high, true_size;
-      guint64      t;
+      uint16_t     time_low, time_med, time_high, true_size;
+      uint64_t     t;
       time_t       tsecs;
 
       /* read the record type and length. */
       if (!wtap_read_bytes_or_eof(fh, LE_record_type, 2, err, err_info))
-            return FALSE;
+            return false;
       if (!wtap_read_bytes(fh, LE_record_length, 2, err, err_info))
-            return FALSE;
+            return false;
 
       record_type = pletoh16(LE_record_type);
       record_length = pletoh16(LE_record_length);
@@ -511,7 +511,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
             *err = WTAP_ERR_BAD_FILE;
             *err_info = ws_strdup_printf("lanalyzer: record type %u seen after trace summary record",
                                         record_type);
-            return FALSE;
+            return false;
       }
 
       if (record_length < DESCRIPTOR_LEN) {
@@ -522,13 +522,13 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
             *err = WTAP_ERR_BAD_FILE;
             *err_info = ws_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
                                         record_length);
-            return FALSE;
+            return false;
       }
       record_data_size = record_length - DESCRIPTOR_LEN;
 
       /* Read the descriptor data */
       if (!wtap_read_bytes(fh, descriptor, DESCRIPTOR_LEN, err, err_info))
-            return FALSE;
+            return false;
 
       true_size = pletoh16(&descriptor[4]);
       packet_size = pletoh16(&descriptor[6]);
@@ -548,7 +548,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
              */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup("lanalyzer: Record length is less than packet size");
-            return FALSE;
+            return false;
       }
 
       rec->rec_type = REC_TYPE_PACKET;
@@ -558,12 +558,12 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       time_low = pletoh16(&descriptor[8]);
       time_med = pletoh16(&descriptor[10]);
       time_high = pletoh16(&descriptor[12]);
-      t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
-            (((guint64)time_high) << 32);
+      t = (((uint64_t)time_low) << 0) + (((uint64_t)time_med) << 16) +
+            (((uint64_t)time_high) << 32);
       tsecs = (time_t) (t/2000000);
       lanalyzer = (lanalyzer_t *)wth->priv;
       rec->ts.secs = tsecs + lanalyzer->start;
-      rec->ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
+      rec->ts.nsecs = ((uint32_t) (t - tsecs*2000000)) * 500;
 
       if (true_size - 4 >= packet_size) {
             /*
@@ -590,8 +590,8 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 }
 
 /* Read the next packet */
-static gboolean lanalyzer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                               int *err, gchar **err_info, gint64 *data_offset)
+static bool lanalyzer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                               int *err, char **err_info, int64_t *data_offset)
 {
       *data_offset = file_tell(wth->fh);
 
@@ -600,27 +600,27 @@ static gboolean lanalyzer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
                                          err_info);
 }
 
-static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-                                    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool lanalyzer_seek_read(wtap *wth, int64_t seek_off,
+                                    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
       if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-            return FALSE;
+            return false;
 
       /* Read the record  */
       if (!lanalyzer_read_trace_record(wth, wth->random_fh, rec, buf,
                                        err, err_info)) {
             if (*err == 0)
                   *err = WTAP_ERR_SHORT_READ;
-            return FALSE;
+            return false;
       }
-      return TRUE;
+      return true;
 }
 
 /*---------------------------------------------------
- * Returns TRUE on success, FALSE on error
+ * Returns true on success, false on error
  * Write "cnt" bytes of zero with error control
  *---------------------------------------------------*/
-static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
+static bool s0write(wtap_dumper *wdh, size_t cnt, int *err)
 {
       size_t snack;
 
@@ -628,63 +628,63 @@ static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
             snack = cnt > 64 ? 64 : cnt;
 
             if (!wtap_dump_file_write(wdh, z64, snack, err))
-                  return FALSE;
+                  return false;
             cnt -= snack;
       }
-      return TRUE; /* ok */
+      return true; /* ok */
 }
 
 /*---------------------------------------------------
- * Returns TRUE on success, FALSE on error
+ * Returns true on success, false on error
  * Write an 8-bit value
  *---------------------------------------------------*/
-static gboolean s8write(wtap_dumper *wdh, const guint8 s8, int *err)
+static bool s8write(wtap_dumper *wdh, const uint8_t s8, int *err)
 {
       return wtap_dump_file_write(wdh, &s8, 1, err);
 }
 /*---------------------------------------------------
- * Returns TRUE on success, FALSE on error
+ * Returns true on success, false on error
  * Write a 16-bit value as little-endian
  *---------------------------------------------------*/
-static gboolean s16write(wtap_dumper *wdh, const guint16 s16, int *err)
+static bool s16write(wtap_dumper *wdh, const uint16_t s16, int *err)
 {
-      guint16 s16_le = GUINT16_TO_LE(s16);
+      uint16_t s16_le = GUINT16_TO_LE(s16);
       return wtap_dump_file_write(wdh, &s16_le, 2, err);
 }
 /*---------------------------------------------------
- * Returns TRUE on success, FALSE on error
+ * Returns true on success, false on error
  * Write a 32-bit value as little-endian
  *---------------------------------------------------*/
-static gboolean s32write(wtap_dumper *wdh, const guint32 s32, int *err)
+static bool s32write(wtap_dumper *wdh, const uint32_t s32, int *err)
 {
-      guint32 s32_le = GUINT32_TO_LE(s32);
+      uint32_t s32_le = GUINT32_TO_LE(s32);
       return wtap_dump_file_write(wdh, &s32_le, 4, err);
 }
 /*---------------------------------------------------
- * Returns TRUE on success, FALSE on error
+ * Returns true on success, false on error
  * Write a 48-bit value as little-endian
  *---------------------------------------------------*/
-static gboolean s48write(wtap_dumper *wdh, const guint64 s48, int *err)
+static bool s48write(wtap_dumper *wdh, const uint64_t s48, int *err)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
-      guint16 s48_upper_le = GUINT16_SWAP_LE_BE((guint16) (s48 >> 32));
-      guint32 s48_lower_le = GUINT32_SWAP_LE_BE((guint32) (s48 & 0xFFFFFFFF));
+      uint16_t s48_upper_le = GUINT16_SWAP_LE_BE((uint16_t) (s48 >> 32));
+      uint32_t s48_lower_le = GUINT32_SWAP_LE_BE((uint32_t) (s48 & 0xFFFFFFFF));
 #else
-      guint16 s48_upper_le = (guint16) (s48 >> 32);
-      guint32 s48_lower_le = (guint32) (s48 & 0xFFFFFFFF);
+      uint16_t s48_upper_le = (uint16_t) (s48 >> 32);
+      uint32_t s48_lower_le = (uint32_t) (s48 & 0xFFFFFFFF);
 #endif
       return wtap_dump_file_write(wdh, &s48_lower_le, 4, err) &&
              wtap_dump_file_write(wdh, &s48_upper_le, 2, err);
 }
 /*---------------------------------------------------
  * Write a record for a packet to a dump file.
- * Returns TRUE on success, FALSE on failure.
+ * Returns true on success, false on failure.
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump(wtap_dumper *wdh,
+static bool lanalyzer_dump(wtap_dumper *wdh,
         const wtap_rec *rec,
-        const guint8 *pd, int *err, gchar **err_info _U_)
+        const uint8_t *pd, int *err, char **err_info _U_)
 {
-      guint64 x;
+      uint64_t x;
       int    len;
 
       LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->priv);
@@ -694,7 +694,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       /* We can only write packet records. */
       if (rec->rec_type != REC_TYPE_PACKET) {
             *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-            return FALSE;
+            return false;
             }
 
       /*
@@ -703,13 +703,13 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
        */
       if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
             *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-            return FALSE;
+            return false;
             }
 
       if (wdh->bytes_dumped + thisSize > LA_ProFileLimit) {
             /* printf(" LA_ProFileLimit reached\n");     */
             *err = EFBIG;
-            return FALSE; /* and don't forget the header */
+            return false; /* and don't forget the header */
             }
 
       len = rec->rec_header.packet_header.caplen + (rec->rec_header.packet_header.caplen ? LA_PacketRecordSize : 0);
@@ -717,13 +717,13 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       /* len goes into a 16-bit field, so there's a hard limit of 65535. */
       if (len > 65535) {
             *err = WTAP_ERR_PACKET_TOO_LARGE;
-            return FALSE;
+            return false;
             }
 
       if (!s16write(wdh, 0x1005, err))
-            return FALSE;
-      if (!s16write(wdh, (guint16)len, err))
-            return FALSE;
+            return false;
+      if (!s16write(wdh, (uint16_t)len, err))
+            return false;
 
       if (!itmp->init) {
             /* collect some information for the
@@ -731,19 +731,19 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
              */
             itmp->start   = rec->ts;
             itmp->pkts    = 0;
-            itmp->init    = TRUE;
+            itmp->init    = true;
             itmp->encap   = wdh->file_encap;
             itmp->lastlen = 0;
             }
 
       if (!s16write(wdh, 0x0001, err))                    /* pr.rx_channels */
-            return FALSE;
+            return false;
       if (!s16write(wdh, 0x0008, err))                    /* pr.rx_errors   */
-            return FALSE;
-      if (!s16write(wdh, (guint16) (rec->rec_header.packet_header.len + 4), err)) /* pr.rx_frm_len  */
-            return FALSE;
-      if (!s16write(wdh, (guint16) rec->rec_header.packet_header.caplen, err))    /* pr.rx_frm_sln  */
-            return FALSE;
+            return false;
+      if (!s16write(wdh, (uint16_t) (rec->rec_header.packet_header.len + 4), err)) /* pr.rx_frm_len  */
+            return false;
+      if (!s16write(wdh, (uint16_t) rec->rec_header.packet_header.caplen, err))    /* pr.rx_frm_sln  */
+            return false;
 
       nstime_delta(&td, &rec->ts, &itmp->start);
 
@@ -752,21 +752,21 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       x += td.secs * 2000000;      /* seconds -> half-microseconds */
 
       if (!s48write(wdh, x, err))                        /* pr.rx_time[i]  */
-            return FALSE;
+            return false;
 
       if (!s32write(wdh, ++itmp->pkts, err))             /* pr.pktno      */
-            return FALSE;
-      if (!s16write(wdh, (guint16)itmp->lastlen, err))   /* pr.prlen      */
-            return FALSE;
+            return false;
+      if (!s16write(wdh, (uint16_t)itmp->lastlen, err))   /* pr.prlen      */
+            return false;
       itmp->lastlen = len;
 
       if (!s0write(wdh, 12, err))
-            return FALSE;
+            return false;
 
       if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-            return FALSE;
+            return false;
 
-      return TRUE;
+      return true;
 }
 
 /*---------------------------------------------------
@@ -789,10 +789,10 @@ static int lanalyzer_dump_can_write_encap(int encap)
 }
 
 /*---------------------------------------------------
- * Returns TRUE on success, FALSE on failure; sets "*err" to an
+ * Returns true on success, false on failure; sets "*err" to an
  * error code on failure
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool lanalyzer_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
       int   jump;
       void  *tmp;
@@ -800,10 +800,10 @@ static gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info
       tmp = g_malloc(sizeof(LA_TmpInfo));
       if (!tmp) {
             *err = errno;
-            return FALSE;
+            return false;
             }
 
-      ((LA_TmpInfo*)tmp)->init = FALSE;
+      ((LA_TmpInfo*)tmp)->init = false;
       wdh->priv           = tmp;
       wdh->subtype_write  = lanalyzer_dump;
       wdh->subtype_finish = lanalyzer_dump_finish;
@@ -824,151 +824,151 @@ static gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info
            + LA_IndexRecordSize;
 
       if (wtap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1)
-            return FALSE;
+            return false;
 
       wdh->bytes_dumped = jump;
-      return TRUE;
+      return true;
 }
 
 /*---------------------------------------------------
  *
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
+static bool lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 {
       LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->priv);
-      guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
+      uint16_t board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
                               ? BOARD_325TR     /* LANalyzer Board Type */
                               : BOARD_325;      /* LANalyzer Board Type */
       struct tm *fT;
 
       fT = localtime(&itmp->start.secs);
       if (fT == NULL)
-            return FALSE;
+            return false;
 
       if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
-            return FALSE;
+            return false;
 
       if (!wtap_dump_file_write(wdh, &LA_HeaderRegularFake,
                                 sizeof LA_HeaderRegularFake, err))
-            return FALSE;
+            return false;
       if (!wtap_dump_file_write(wdh, &LA_RxChannelNameFake,
                                 sizeof LA_RxChannelNameFake, err))
-            return FALSE;
+            return false;
       if (!wtap_dump_file_write(wdh, &LA_TxChannelNameFake,
                                 sizeof LA_TxChannelNameFake, err))
-            return FALSE;
+            return false;
       if (!wtap_dump_file_write(wdh, &LA_RxTemplateNameFake,
                                 sizeof LA_RxTemplateNameFake, err))
-            return FALSE;
+            return false;
       if (!wtap_dump_file_write(wdh, &LA_TxTemplateNameFake,
                                 sizeof LA_TxTemplateNameFake, err))
-            return FALSE;
+            return false;
       if (!wtap_dump_file_write(wdh, &LA_DisplayOptionsFake,
                                 sizeof LA_DisplayOptionsFake, err))
-            return FALSE;
+            return false;
       /*-----------------------------------------------------------------*/
       if (!s16write(wdh, RT_Summary, err))         /* rid */
-            return FALSE;
+            return false;
       if (!s16write(wdh, SummarySize, err))        /* rlen */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.datcre.day */
-            return FALSE;
-      if (!s8write(wdh, (guint8) (fT->tm_mon+1), err))     /* s.datcre.mon */
-            return FALSE;
-      if (!s16write(wdh, (guint16) (fT->tm_year + 1900), err)) /* s.datcre.year */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.datclo.day */
-            return FALSE;
-      if (!s8write(wdh, (guint8) (fT->tm_mon+1), err))     /* s.datclo.mon */
-            return FALSE;
-      if (!s16write(wdh, (guint16) (fT->tm_year + 1900), err)) /* s.datclo.year */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_sec, err))         /* s.timeopn.second */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_min, err))         /* s.timeopn.minute */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_hour, err))        /* s.timeopn.hour */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.timeopn.mday */
-            return FALSE;
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_mday, err))        /* s.datcre.day */
+            return false;
+      if (!s8write(wdh, (uint8_t) (fT->tm_mon+1), err))     /* s.datcre.mon */
+            return false;
+      if (!s16write(wdh, (uint16_t) (fT->tm_year + 1900), err)) /* s.datcre.year */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_mday, err))        /* s.datclo.day */
+            return false;
+      if (!s8write(wdh, (uint8_t) (fT->tm_mon+1), err))     /* s.datclo.mon */
+            return false;
+      if (!s16write(wdh, (uint16_t) (fT->tm_year + 1900), err)) /* s.datclo.year */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_sec, err))         /* s.timeopn.second */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_min, err))         /* s.timeopn.minute */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_hour, err))        /* s.timeopn.hour */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_mday, err))        /* s.timeopn.mday */
+            return false;
       if (!s0write(wdh, 2, err))
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_sec, err))         /* s.timeclo.second */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_min, err))         /* s.timeclo.minute */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_hour, err))        /* s.timeclo.hour */
-            return FALSE;
-      if (!s8write(wdh, (guint8) fT->tm_mday, err))        /* s.timeclo.mday */
-            return FALSE;
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_sec, err))         /* s.timeclo.second */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_min, err))         /* s.timeclo.minute */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_hour, err))        /* s.timeclo.hour */
+            return false;
+      if (!s8write(wdh, (uint8_t) fT->tm_mday, err))        /* s.timeclo.mday */
+            return false;
       if (!s0write(wdh, 2, err))
-            return FALSE;
+            return false;
       if (!s0write(wdh, 6, err))                           /* EAddr  == 0      */
-            return FALSE;
+            return false;
       if (!s16write(wdh, 1, err))                  /* s.mxseqno */
-            return FALSE;
+            return false;
       if (!s16write(wdh, 0, err))                  /* s.slcoffo */
-            return FALSE;
+            return false;
       if (!s16write(wdh, 1514, err))               /* s.mxslc */
-            return FALSE;
+            return false;
       if (!s32write(wdh, itmp->pkts, err))         /* s.totpktt */
-            return FALSE;
+            return false;
       /*
        * statrg == 0; ? -1
        * stptrg == 0; ? -1
        * s.mxpkta[0]=0
        */
       if (!s0write(wdh, 12, err))
-            return FALSE;
+            return false;
       if (!s32write(wdh, itmp->pkts, err))         /* sr.s.mxpkta[1]  */
-            return FALSE;
+            return false;
       if (!s0write(wdh, 34*4, err))                /* s.mxpkta[2-33]=0  */
-            return FALSE;
+            return false;
       if (!s16write(wdh, board_type, err))
-            return FALSE;
+            return false;
       if (!s0write(wdh, 20, err))                     /* board_version == 0 */
-            return FALSE;
+            return false;
       /*-----------------------------------------------------------------*/
       if (!s16write(wdh, RT_SubfileSummary, err))     /* ssr.rid */
-            return FALSE;
+            return false;
       if (!s16write(wdh, LA_SubfileSummaryRecordSize-4, err)) /* ssr.rlen */
-            return FALSE;
+            return false;
       if (!s16write(wdh, 1, err))                     /* ssr.seqno */
-            return FALSE;
+            return false;
       if (!s32write(wdh, itmp->pkts, err))            /* ssr.totpkts */
-            return FALSE;
+            return false;
       /*-----------------------------------------------------------------*/
       if (!wtap_dump_file_write(wdh, &LA_CyclicInformationFake,
                                 sizeof LA_CyclicInformationFake, err))
-            return FALSE;
+            return false;
       /*-----------------------------------------------------------------*/
       if (!s16write(wdh, RT_Index, err))              /* rid */
-            return FALSE;
+            return false;
       if (!s16write(wdh, LA_IndexRecordSize -4, err)) /* rlen */
-            return FALSE;
+            return false;
       if (!s16write(wdh, LA_IndexSize, err))          /* idxsp */
-            return FALSE;
+            return false;
       if (!s0write(wdh, LA_IndexRecordSize - 6, err))
-            return FALSE;
+            return false;
 
-      return TRUE;
+      return true;
 }
 
 /*---------------------------------------------------
  * Finish writing to a dump file.
- * Returns TRUE on success, FALSE on failure.
+ * Returns true on success, false on failure.
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
-        gchar **err_info _U_)
+static bool lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
+        char **err_info _U_)
 {
       /* bytes_dumped already accounts for the size of the header,
        * but lanalyzer_dump_header() (via wtap_dump_file_write())
        * will keep incrementing it.
        */
-      gint64 saved_bytes_dumped = wdh->bytes_dumped;
+      int64_t saved_bytes_dumped = wdh->bytes_dumped;
       lanalyzer_dump_header(wdh,err);
       wdh->bytes_dumped = saved_bytes_dumped;
-      return *err ? FALSE : TRUE;
+      return *err ? false : true;
 }
 
 static const struct supported_block_type lanalyzer_blocks_supported[] = {
@@ -980,7 +980,7 @@ static const struct supported_block_type lanalyzer_blocks_supported[] = {
 
 static const struct file_type_subtype_info lanalyzer_info = {
       "Novell LANalyzer","lanalyzer", "tr1", NULL,
-      TRUE, BLOCKS_SUPPORTED(lanalyzer_blocks_supported),
+      true, BLOCKS_SUPPORTED(lanalyzer_blocks_supported),
       lanalyzer_dump_can_write_encap, lanalyzer_dump_open, NULL
 };
 

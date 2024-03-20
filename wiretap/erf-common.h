@@ -23,7 +23,7 @@ typedef struct erf_private erf_t;
 erf_t* erf_priv_create(void);
 erf_t* erf_priv_free(erf_t* erf_priv);
 
-int erf_populate_interface_from_header(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+int erf_populate_interface_from_header(erf_t* erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
 
 #endif /* __W_ERF_COMMON_H__ */
 

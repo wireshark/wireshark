@@ -41,12 +41,12 @@
 // SYSLOG_IDENTIFIER=kernel
 // MESSAGE=Initializing cgroup subsys cpuset
 
-static gboolean systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info, gint64 *data_offset);
-static gboolean systemd_journal_seek_read(wtap *wth, gint64 seek_off,
-        wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
-        Buffer *buf, int *err, gchar **err_info);
+static bool systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, char **err_info, int64_t *data_offset);
+static bool systemd_journal_seek_read(wtap *wth, int64_t seek_off,
+        wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
+        Buffer *buf, int *err, char **err_info);
 
 // The Journal Export Format specification doesn't place limits on entry
 // lengths or lines per entry. We do.
@@ -66,13 +66,13 @@ static int systemd_journal_file_type_subtype = -1;
 
 void register_systemd_journal(void);
 
-wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_info _U_)
+wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, char **err_info _U_)
 {
-    gchar *entry_buff = (gchar*) g_malloc(MAX_EXPORT_ENTRY_LENGTH);
-    gchar *entry_line = NULL;
-    gboolean got_cursor = FALSE;
-    gboolean got_rt_ts = FALSE;
-    gboolean got_mt_ts = FALSE;
+    char *entry_buff = (char*) g_malloc(MAX_EXPORT_ENTRY_LENGTH);
+    char *entry_line = NULL;
+    bool got_cursor = false;
+    bool got_rt_ts = false;
+    bool got_mt_ts = false;
     int line_num;
 
     errno = 0;
@@ -84,11 +84,11 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_i
         if (entry_line[0] == '\n') {
             break;
         } else if (strncmp(entry_line, FLD__CURSOR, strlen(FLD__CURSOR)) == 0) {
-            got_cursor = TRUE;
+            got_cursor = true;
         } else if (strncmp(entry_line, FLD__REALTIME_TIMESTAMP, strlen(FLD__REALTIME_TIMESTAMP)) == 0) {
-            got_rt_ts = TRUE;
+            got_rt_ts = true;
         } else if (strncmp(entry_line, FLD__MONOTONIC_TIMESTAMP, strlen(FLD__MONOTONIC_TIMESTAMP)) == 0) {
-            got_mt_ts = TRUE;
+            got_mt_ts = true;
         }
     }
     g_free(entry_buff);
@@ -119,27 +119,27 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_i
 }
 
 /* Read the next packet */
-static gboolean systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info, gint64 *data_offset)
+static bool systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
     /* Read record. */
     if (!systemd_journal_read_export_entry(wth->fh, rec, buf, err, err_info)) {
         /* Read error or EOF */
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
-    static gboolean
-systemd_journal_seek_read(wtap *wth, gint64 seek_off,
+    static bool
+systemd_journal_seek_read(wtap *wth, int64_t seek_off,
         wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info)
+        int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     /* Read record. */
     if (!systemd_journal_read_export_entry(wth->random_fh, rec, buf, err, err_info)) {
@@ -148,26 +148,26 @@ systemd_journal_seek_read(wtap *wth, gint64 seek_off,
             /* EOF means "short read" in random-access mode */
             *err = WTAP_ERR_SHORT_READ;
         }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-static gboolean
-systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     size_t fld_end = 0;
-    gchar *buf_ptr;
-    gchar *entry_line = NULL;
-    gboolean got_cursor = FALSE;
-    gboolean got_rt_ts = FALSE;
-    gboolean got_mt_ts = FALSE;
-    gboolean got_double_newline = FALSE;
+    char *buf_ptr;
+    char *entry_line = NULL;
+    bool got_cursor = false;
+    bool got_rt_ts = false;
+    bool got_mt_ts = false;
+    bool got_double_newline = false;
     int line_num;
     size_t rt_ts_len = strlen(FLD__REALTIME_TIMESTAMP);
 
     ws_buffer_assure_space(buf, MAX_EXPORT_ENTRY_LENGTH);
-    buf_ptr = (gchar *) ws_buffer_start_ptr(buf);
+    buf_ptr = (char *) ws_buffer_start_ptr(buf);
 
     for (line_num = 0; line_num < MAX_EXPORT_ENTRY_LINES; line_num++) {
         entry_line = file_gets(buf_ptr + fld_end, MAX_EXPORT_ENTRY_LENGTH - (int) fld_end, fh);
@@ -176,10 +176,10 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
         }
         fld_end += strlen(entry_line);
         if (entry_line[0] == '\n') {
-            got_double_newline = TRUE;
+            got_double_newline = true;
             break;
         } else if (strncmp(entry_line, FLD__CURSOR, strlen(FLD__CURSOR)) == 0) {
-            got_cursor = TRUE;
+            got_cursor = true;
         } else if (strncmp(entry_line, FLD__REALTIME_TIMESTAMP, rt_ts_len) == 0) {
             errno = 0;
             unsigned long rt_ts = strtoul(entry_line+rt_ts_len, NULL, 10);
@@ -187,20 +187,20 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
                 rec->ts.secs = (time_t) rt_ts / 1000000;
                 rec->ts.nsecs = (rt_ts % 1000000) * 1000;
                 rec->tsprec = WTAP_TSPREC_USEC;
-                got_rt_ts = TRUE;
+                got_rt_ts = true;
             }
         } else if (strncmp(entry_line, FLD__MONOTONIC_TIMESTAMP, strlen(FLD__MONOTONIC_TIMESTAMP)) == 0) {
-            got_mt_ts = TRUE;
+            got_mt_ts = true;
         } else if (!strstr(entry_line, "=")) {
             // Start of binary data.
             if (fld_end >= MAX_EXPORT_ENTRY_LENGTH - 8) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("systemd: binary length too long");
-                return FALSE;
+                return false;
             }
-            guint64 data_len, le_data_len;
+            uint64_t data_len, le_data_len;
             if (!wtap_read_bytes(fh, &le_data_len, 8, err, err_info)) {
-                return FALSE;
+                return false;
             }
             memcpy(buf_ptr + fld_end, &le_data_len, 8);
             fld_end += 8;
@@ -208,11 +208,11 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
             if (data_len < 1 || data_len - 1 >= MAX_EXPORT_ENTRY_LENGTH - fld_end) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("systemd: binary data too long");
-                return FALSE;
+                return false;
             }
             // Data + trailing \n
             if (!wtap_read_bytes(fh, buf_ptr + fld_end, (unsigned) data_len + 1, err, err_info)) {
-                return FALSE;
+                return false;
             }
             fld_end += (size_t) data_len + 1;
         }
@@ -222,19 +222,19 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
     }
 
     if (!got_cursor || !got_rt_ts || !got_mt_ts) {
-        return FALSE;
+        return false;
     }
 
     if (!got_double_newline && !file_eof(fh)) {
-        return FALSE;
+        return false;
     }
 
     rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
     rec->block = wtap_block_create(WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    rec->rec_header.systemd_journal_export_header.record_len = (guint32) fld_end;
+    rec->rec_header.systemd_journal_export_header.record_len = (uint32_t) fld_end;
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type systemd_journal_blocks_supported[] = {
@@ -246,7 +246,7 @@ static const struct supported_block_type systemd_journal_blocks_supported[] = {
 
 static const struct file_type_subtype_info systemd_journal_info = {
     "systemd journal export", "systemd_journal", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(systemd_journal_blocks_supported),
+    false, BLOCKS_SUPPORTED(systemd_journal_blocks_supported),
     NULL, NULL, NULL
 };
 

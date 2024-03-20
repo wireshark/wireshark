@@ -69,61 +69,61 @@ static const char capsa_magic[] = {
 
 /* Capsa (format indicator 1) record header. */
 struct capsarec_hdr {
-	guint32 unknown1;	/* low-order 32 bits of a number? */
-	guint32 unknown2;	/* 0x00 0x00 0x00 0x00 */
-	guint32 timestamplo;	/* low-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
-	guint32 timestamphi;	/* high-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
-	guint16	rec_len;	/* length of record */
-	guint16	incl_len;	/* number of octets captured in file */
-	guint16	orig_len;	/* actual length of packet */
-	guint16 unknown5;	/* 0x00 0x00 */
-	guint8 count1;		/* count1*4 bytes after unknown8 */
-	guint8 count2;		/* count2*4 bytes after that */
-	guint16 unknown7;	/* 0x01 0x10 */
-	guint32 unknown8;	/* 0x00 0x00 0x00 0x00 or random numbers */
+	uint32_t unknown1;	/* low-order 32 bits of a number? */
+	uint32_t unknown2;	/* 0x00 0x00 0x00 0x00 */
+	uint32_t timestamplo;	/* low-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
+	uint32_t timestamphi;	/* high-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
+	uint16_t rec_len;	/* length of record */
+	uint16_t incl_len;	/* number of octets captured in file */
+	uint16_t orig_len;	/* actual length of packet */
+	uint16_t unknown5;	/* 0x00 0x00 */
+	uint8_t  count1;	/* count1*4 bytes after unknown8 */
+	uint8_t  count2;	/* count2*4 bytes after that */
+	uint16_t unknown7;	/* 0x01 0x10 */
+	uint32_t unknown8;	/* 0x00 0x00 0x00 0x00 or random numbers */
 };
 
 /* Packet Builder (format indicator 2) record header. */
 struct pbrec_hdr {
-	guint16	rec_len;	/* length of record */
-	guint16	incl_len;	/* number of octets captured in file */
-	guint16	orig_len;	/* actual length of packet */
-	guint16 unknown1;
-	guint16 unknown2;
-	guint16 unknown3;
-	guint32 unknown4;
-	guint32 timestamplo;	/* low-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
-	guint32 timestamphi;	/* high-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
-	guint32 unknown5;
-	guint32 unknown6;
+	uint16_t rec_len;	/* length of record */
+	uint16_t incl_len;	/* number of octets captured in file */
+	uint16_t orig_len;	/* actual length of packet */
+	uint16_t unknown1;
+	uint16_t unknown2;
+	uint16_t unknown3;
+	uint32_t unknown4;
+	uint32_t timestamplo;	/* low-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
+	uint32_t timestamphi;	/* high-order 32 bits of the time stamp, in microseconds since January 1, 1970, 00:00:00 UTC */
+	uint32_t unknown5;
+	uint32_t unknown6;
 };
 
 typedef struct {
-	guint16 format_indicator;
-	guint32 number_of_frames;
-	guint32 frame_count;
-	gint64 base_offset;
-	guint32 record_offsets[N_RECORDS_PER_GROUP];
+	uint16_t format_indicator;
+	uint32_t number_of_frames;
+	uint32_t frame_count;
+	int64_t  base_offset;
+	uint32_t record_offsets[N_RECORDS_PER_GROUP];
 } capsa_t;
 
-static gboolean capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean capsa_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool capsa_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 static int capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info);
+    Buffer *buf, int *err, char **err_info);
 
 static int capsa_file_type_subtype = -1;
 static int packet_builder_file_type_subtype = -1;
 
 void register_capsa(void);
 
-wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val capsa_open(wtap *wth, int *err, char **err_info)
 {
 	char magic[sizeof capsa_magic];
-	guint16 format_indicator;
+	uint16_t format_indicator;
 	int file_type_subtype;
-	guint32 number_of_frames;
+	uint32_t number_of_frames;
 	capsa_t *capsa;
 
 	/* Read in the string that should be at the start of a Capsa file */
@@ -231,11 +231,11 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	capsa_t *capsa = (capsa_t *)wth->priv;
-	guint32 frame_within_block;
+	uint32_t frame_within_block;
 	int	padbytes;
 
 	if (capsa->frame_count == capsa->number_of_frames) {
@@ -243,7 +243,7 @@ static gboolean capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 		 * No more frames left.  Return an EOF.
 		 */
 		*err = 0;
-		return FALSE;
+		return false;
 	}
 	frame_within_block = capsa->frame_count % N_RECORDS_PER_GROUP;
 	if (frame_within_block == 0) {
@@ -254,72 +254,72 @@ static gboolean capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 		 */
 		capsa->base_offset = file_tell(wth->fh);
 		if (!wtap_read_bytes(wth->fh, NULL, 1, err, err_info))
-			return FALSE;
+			return false;
 
 		/*
 		 * Now read the record offsets.
 		 */
 		if (!wtap_read_bytes(wth->fh, &capsa->record_offsets,
 		    sizeof capsa->record_offsets, err, err_info))
-			return FALSE;
+			return false;
 
 		/*
 		 * And finish processing all 805 bytes by skipping
 		 * the last 4 bytes.
 		 */
 		if (!wtap_read_bytes(wth->fh, NULL, 4, err, err_info))
-			return FALSE;
+			return false;
 	}
 
 	*data_offset = capsa->base_offset +
 	    GUINT32_FROM_LE(capsa->record_offsets[frame_within_block]);
 	if (!file_seek(wth->fh, *data_offset, SEEK_SET, err))
-		return FALSE;
+		return false;
 
 	padbytes = capsa_read_packet(wth, wth->fh, rec, buf, err, err_info);
 	if (padbytes == -1)
-		return FALSE;
+		return false;
 
 	/*
 	 * Skip over the padding, if any.
 	 */
 	if (padbytes != 0) {
 		if (!wtap_read_bytes(wth->fh, NULL, padbytes, err, err_info))
-			return FALSE;
+			return false;
 	}
 
 	capsa->frame_count++;
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
-capsa_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+capsa_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	if (capsa_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 static int
 capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+    Buffer *buf, int *err, char **err_info)
 {
 	capsa_t *capsa = (capsa_t *)wth->priv;
 	struct capsarec_hdr capsarec_hdr;
 	struct pbrec_hdr pbrec_hdr;
-	guint32 rec_size;
-	guint32	packet_size;
-	guint32 orig_size;
-	guint32 header_size;
-	guint64 timestamp;
+	uint32_t rec_size;
+	uint32_t packet_size;
+	uint32_t orig_size;
+	uint32_t header_size;
+	uint64_t timestamp;
 
 	/* Read record header. */
 	switch (capsa->format_indicator) {
@@ -332,7 +332,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		orig_size = GUINT16_FROM_LE(capsarec_hdr.orig_len);
 		packet_size = GUINT16_FROM_LE(capsarec_hdr.incl_len);
 		header_size = sizeof capsarec_hdr;
-		timestamp = (((guint64)GUINT32_FROM_LE(capsarec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(capsarec_hdr.timestamplo);
+		timestamp = (((uint64_t)GUINT32_FROM_LE(capsarec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(capsarec_hdr.timestamplo);
 
 		/*
 		 * OK, the rest of this is variable-length.
@@ -355,7 +355,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		orig_size = GUINT16_FROM_LE(pbrec_hdr.orig_len);
 		packet_size = GUINT16_FROM_LE(pbrec_hdr.incl_len);
 		header_size = sizeof pbrec_hdr;
-		timestamp = (((guint64)GUINT32_FROM_LE(pbrec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(pbrec_hdr.timestamplo);
+		timestamp = (((uint64_t)GUINT32_FROM_LE(pbrec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(pbrec_hdr.timestamplo);
 		/*
 		 * XXX - from the results of some conversions between
 		 * Capsa format and pcap by Colasoft Packet Builder,
@@ -444,7 +444,7 @@ static const struct supported_block_type capsa_blocks_supported[] = {
 
 static const struct file_type_subtype_info capsa_info = {
 	"Colasoft Capsa format", "capsa", "cscpkt", NULL,
-	FALSE, BLOCKS_SUPPORTED(capsa_blocks_supported),
+	false, BLOCKS_SUPPORTED(capsa_blocks_supported),
 	NULL, NULL, NULL
 };
 
@@ -457,7 +457,7 @@ static const struct supported_block_type packet_builder_blocks_supported[] = {
 
 static const struct file_type_subtype_info packet_builder_info = {
 	"Colasoft Packet Builder format", "colasoft-pb", "cscpkt", NULL,
-	FALSE, BLOCKS_SUPPORTED(packet_builder_blocks_supported),
+	false, BLOCKS_SUPPORTED(packet_builder_blocks_supported),
 	NULL, NULL, NULL
 };
 

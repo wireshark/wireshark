@@ -33,11 +33,11 @@ typedef struct merge_in_file_s {
     wtap_rec        rec;
     Buffer          frame_buffer;
     in_file_state_e state;
-    guint32         packet_num;     /* current packet number */
-    gint64          size;           /* file size */
+    uint32_t        packet_num;     /* current packet number */
+    int64_t         size;           /* file size */
     GArray         *idb_index_map;  /* used for mapping the old phdr interface_id values to new during merge */
-    guint           nrbs_seen;      /* number of elements processed so far from wth->nrbs */
-    guint           dsbs_seen;      /* number of elements processed so far from wth->dsbs */
+    unsigned        nrbs_seen;      /* number of elements processed so far from wth->nrbs */
+    unsigned        dsbs_seen;      /* number of elements processed so far from wth->dsbs */
 } merge_in_file_t;
 
 /** Return values from merge_files(). */
@@ -104,11 +104,11 @@ merge_idb_merge_mode_to_string(const int mode);
  * was invoked, the num is an int specific to the event, in_files is an array
  * of the created merge info, in_file_count is the size of the array, data is
  * whatever was passed in the data member of this struct. The callback_func
- * routine's return value should be TRUE if merging should be aborted.
+ * routine's return value should be true if merging should be aborted.
  */
 typedef struct {
-    gboolean (*callback_func)(merge_event event, int num,
-                              const merge_in_file_t in_files[], const guint in_file_count,
+    bool (*callback_func)(merge_event event, int num,
+                              const merge_in_file_t in_files[], const unsigned in_file_count,
                               void *data);
     void *data; /**< private data to use for passing through to the callback function */
 } merge_progress_callback_t;
@@ -136,12 +136,12 @@ typedef struct {
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
-merge_files(const gchar* out_filename, const int file_type,
-            const char *const *in_filenames, const guint in_file_count,
-            const gboolean do_append, const idb_merge_mode mode,
-            guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
-            int *err, gchar **err_info, guint *err_fileno,
-            guint32 *err_framenum);
+merge_files(const char* out_filename, const int file_type,
+            const char *const *in_filenames, const unsigned in_file_count,
+            const bool do_append, const idb_merge_mode mode,
+            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb,
+            int *err, char **err_info, unsigned *err_fileno,
+            uint32_t *err_framenum);
 
 /** Merge the given input files to a temporary file
  *
@@ -168,13 +168,13 @@ merge_files(const gchar* out_filename, const int file_type,
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
-merge_files_to_tempfile(const char *tmpdir, gchar **out_filenamep, const char *pfx,
+merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pfx,
                         const int file_type, const char *const *in_filenames,
-                        const guint in_file_count, const gboolean do_append,
-                        const idb_merge_mode mode, guint snaplen,
-                        const gchar *app_name, merge_progress_callback_t* cb,
-                        int *err, gchar **err_info, guint *err_fileno,
-                        guint32 *err_framenum);
+                        const unsigned in_file_count, const bool do_append,
+                        const idb_merge_mode mode, unsigned snaplen,
+                        const char *app_name, merge_progress_callback_t* cb,
+                        int *err, char **err_info, unsigned *err_fileno,
+                        uint32_t *err_framenum);
 
 /** Merge the given input files to the standard output
  *
@@ -198,11 +198,11 @@ merge_files_to_tempfile(const char *tmpdir, gchar **out_filenamep, const char *p
  */
 WS_DLL_PUBLIC merge_result
 merge_files_to_stdout(const int file_type, const char *const *in_filenames,
-                      const guint in_file_count, const gboolean do_append,
-                      const idb_merge_mode mode, guint snaplen,
-                      const gchar *app_name, merge_progress_callback_t* cb,
-                      int *err, gchar **err_info, guint *err_fileno,
-                      guint32 *err_framenum);
+                      const unsigned in_file_count, const bool do_append,
+                      const idb_merge_mode mode, unsigned snaplen,
+                      const char *app_name, merge_progress_callback_t* cb,
+                      int *err, char **err_info, unsigned *err_fileno,
+                      uint32_t *err_framenum);
 
 #ifdef __cplusplus
 }

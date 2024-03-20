@@ -50,8 +50,8 @@
  */
 
 typedef struct _ascend_magic_string {
-    guint        type;
-    const gchar *strptr;
+    unsigned     type;
+    const char  *strptr;
     size_t       strlength;
 } ascend_magic_string;
 
@@ -75,11 +75,11 @@ static const ascend_magic_string ascend_magic[] = {
 
 #define ASCEND_DATE             "Date:"
 
-static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info, gint64 *data_offset);
-static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
+static bool ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, char **err_info, int64_t *data_offset);
+static bool ascend_seek_read(wtap *wth, int64_t seek_off,
         wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info);
+        int *err, char **err_info);
 
 static int ascend_file_type_subtype = -1;
 
@@ -88,16 +88,16 @@ void register_ascend(void);
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
-static gint64 ascend_find_next_packet(wtap *wth, int *err, gchar **err_info)
+static int64_t ascend_find_next_packet(wtap *wth, int *err, char **err_info)
 {
     int byte;
-    gint64 date_off = -1, cur_off, packet_off;
+    int64_t date_off = -1, cur_off, packet_off;
     size_t string_level[ASCEND_MAGIC_STRINGS];
-    guint string_i = 0;
-    static const gchar ascend_date[] = ASCEND_DATE;
+    unsigned string_i = 0;
+    static const char ascend_date[] = ASCEND_DATE;
     size_t ascend_date_len           = sizeof ascend_date - 1; /* strlen of a constant string */
     size_t ascend_date_string_level;
-    guint excessive_read_count = 262144;
+    unsigned excessive_read_count = 262144;
 
     memset(&string_level, 0, sizeof(string_level));
     ascend_date_string_level = 0;
@@ -115,8 +115,8 @@ static gint64 ascend_find_next_packet(wtap *wth, int *err, gchar **err_info)
         * Ascend magic string string_i.
         */
         for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
-        const gchar *strptr = ascend_magic[string_i].strptr;
-        size_t len          = ascend_magic[string_i].strlength;
+        const char *strptr = ascend_magic[string_i].strptr;
+        size_t len         = ascend_magic[string_i].strlength;
 
         if (byte == *(strptr + string_level[string_i])) {
             /*
@@ -219,10 +219,10 @@ found:
     return packet_off;
 }
 
-wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info)
 {
-    gint64 offset;
-    guint8 buf[ASCEND_MAX_PKT_LEN];
+    int64_t offset;
+    uint8_t buf[ASCEND_MAX_PKT_LEN];
     ascend_state_t parser_state = {0};
     ws_statb64 statbuf;
     ascend_t *ascend;
@@ -286,7 +286,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
     }
     ascend->inittime = statbuf.st_ctime;
-    ascend->adjusted = FALSE;
+    ascend->adjusted = false;
     wth->file_tsprec = WTAP_TSPREC_USEC;
 
     /*
@@ -301,11 +301,11 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Parse the capture file.
-   Returns TRUE if we got a packet, FALSE otherwise. */
-static gboolean
+   Returns true if we got a packet, false otherwise. */
+static bool
 parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
-             guint length, gint64 *next_packet_seek_start_ret,
-             int *err, gchar **err_info)
+             unsigned length, int64_t *next_packet_seek_start_ret,
+             int *err, char **err_info)
 {
     ascend_state_t parser_state = {0};
     int retval;
@@ -348,7 +348,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
         We won't know where the data ends until we run into the next packet. */
     if (parser_state.caplen) {
         if (! ascend->adjusted) {
-        ascend->adjusted = TRUE;
+        ascend->adjusted = true;
         if (parser_state.saw_timestamp) {
             /*
             * Capture file contained a date and time.
@@ -374,7 +374,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
         rec->rec_header.packet_header.caplen = parser_state.caplen;
         rec->rec_header.packet_header.len = parser_state.wirelen;
 
-        return TRUE;
+        return true;
     }
 
     /* Didn't see any data. Still, perhaps the parser was happy.  */
@@ -393,15 +393,15 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
         *err_info = g_strdup("no data returned by parse");
         }
     }
-    return FALSE;
+    return false;
 }
 
 /* Read the next packet; called from wtap_read(). */
-static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-	gchar **err_info, gint64 *data_offset)
+static bool ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+	char **err_info, int64_t *data_offset)
 {
     ascend_t *ascend = (ascend_t *)wth->priv;
-    gint64 offset;
+    int64_t offset;
 
     /* parse_ascend() will advance the point at which to look for the next
         packet's header, to just after the last packet's header (ie. at the
@@ -409,16 +409,16 @@ static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
         packet's header because we might mistake part of it for a new header. */
     if (file_seek(wth->fh, ascend->next_packet_seek_start,
                     SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     offset = ascend_find_next_packet(wth, err, err_info);
     if (offset == -1) {
         /* EOF or read error */
-        return FALSE;
+        return false;
     }
     if (!parse_ascend(ascend, wth->fh, rec, buf, wth->snapshot_length,
                         &ascend->next_packet_seek_start, err, err_info))
-        return FALSE;
+        return false;
 
     /* Flex might have gotten an EOF and caused *err to be set to
         WTAP_ERR_SHORT_READ.  If so, that's not an error, as the parser
@@ -430,20 +430,20 @@ static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
         *err_info = NULL;
     }
     *data_offset = offset;
-    return TRUE;
+    return true;
 }
 
-static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
+static bool ascend_seek_read(wtap *wth, int64_t seek_off,
         wtap_rec *rec, Buffer *buf,
-        int *err, gchar **err_info)
+        int *err, char **err_info)
 {
     ascend_t *ascend = (ascend_t *)wth->priv;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
     if (!parse_ascend(ascend, wth->random_fh, rec, buf,
                     wth->snapshot_length, NULL, err, err_info))
-        return FALSE;
+        return false;
 
     /* Flex might have gotten an EOF and caused *err to be set to
         WTAP_ERR_SHORT_READ.  If so, that's not an error, as the parser
@@ -454,7 +454,7 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
         g_free(*err_info);
         *err_info = NULL;
     }
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type ascend_blocks_supported[] = {
@@ -466,7 +466,7 @@ static const struct supported_block_type ascend_blocks_supported[] = {
 
 static const struct file_type_subtype_info ascend_info = {
     "Lucent/Ascend access server trace", "ascend", "txt", NULL,
-    FALSE, BLOCKS_SUPPORTED(ascend_blocks_supported),
+    false, BLOCKS_SUPPORTED(ascend_blocks_supported),
     NULL, NULL, NULL
 };
 

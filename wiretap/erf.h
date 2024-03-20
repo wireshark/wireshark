@@ -29,9 +29,9 @@
 struct erf_private {
   GHashTable* if_map;
   GHashTable* anchor_map;
-  guint64 implicit_host_id;
-  guint64 capture_gentime;
-  guint64 host_gentime;
+  uint64_t implicit_host_id;
+  uint64_t capture_gentime;
+  uint64_t host_gentime;
 };
 
 #define MIN_RECORDS_FOR_ERF_CHECK 3
@@ -40,7 +40,7 @@ struct erf_private {
 /*Configurable through ERF_HOST_ID environment variable */
 #define ERF_WS_DEFAULT_HOST_ID 0
 
-wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info);
 
 #endif /* __W_ERF_H__ */
 

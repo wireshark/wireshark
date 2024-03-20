@@ -29,17 +29,17 @@ static const char btsnoop_magic[] = {
 
 /* "btsnoop" file header (minus magic number). */
 struct btsnoop_hdr {
-    guint32     version;        /* version number (should be 1) */
-    guint32     datalink;       /* datalink type */
+    uint32_t    version;        /* version number (should be 1) */
+    uint32_t    datalink;       /* datalink type */
 };
 
 /* "btsnoop" record header. */
 struct btsnooprec_hdr {
-    guint32     orig_len;       /* actual length of packet */
-    guint32     incl_len;       /* number of octets captured in file */
-    guint32     flags;          /* packet flags */
-    guint32     cum_drops;      /* cumulative number of dropped packets */
-    gint64      ts_usec;        /* timestamp microseconds */
+    uint32_t    orig_len;       /* actual length of packet */
+    uint32_t    incl_len;       /* number of octets captured in file */
+    uint32_t    flags;          /* packet flags */
+    uint32_t    cum_drops;      /* cumulative number of dropped packets */
+    int64_t     ts_usec;        /* timestamp microseconds */
 };
 
 /* H1 is unframed data with the packet type encoded in the flags field of capture header */
@@ -61,20 +61,20 @@ struct btsnooprec_hdr {
 #define KHciLoggerACLDataFrame                  0
 #define KHciLoggerCommandOrEvent                0x00000002
 
-static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
+static const int64_t KUnixTimeBase = INT64_C(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
-static gboolean btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *offset);
-static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *offset);
+static bool btsnoop_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool btsnoop_read_record(wtap *wth, FILE_T fh,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
 static int btsnoop_file_type_subtype = -1;
 
 void register_btsnoop(void);
 
-wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val btsnoop_open(wtap *wth, int *err, char **err_info)
 {
     char magic[sizeof btsnoop_magic];
     struct btsnoop_hdr hdr;
@@ -153,36 +153,36 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-static gboolean btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                             int *err, gchar **err_info, gint64 *offset)
+static bool btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                             int *err, char **err_info, int64_t *offset)
 {
     *offset = file_tell(wth->fh);
 
     return btsnoop_read_record(wth, wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-                                  wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool btsnoop_seek_read(wtap *wth, int64_t seek_off,
+                                  wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     return btsnoop_read_record(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
-static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
-                                    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool btsnoop_read_record(wtap *wth, FILE_T fh,
+                                    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     struct btsnooprec_hdr hdr;
-    guint32 packet_size;
-    guint32 flags;
-    guint32 orig_size;
-    gint64 ts;
+    uint32_t packet_size;
+    uint32_t flags;
+    uint32_t orig_size;
+    int64_t ts;
 
     /* Read record header. */
 
     if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
-        return FALSE;
+        return false;
 
     packet_size = g_ntohl(hdr.incl_len);
     orig_size = g_ntohl(hdr.orig_len);
@@ -195,7 +195,7 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
                                     packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
-        return FALSE;
+        return false;
     }
 
     ts = GINT64_FROM_BE(hdr.ts_usec);
@@ -204,15 +204,15 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     rec->rec_type = REC_TYPE_PACKET;
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    rec->ts.secs = (guint)(ts / 1000000);
-    rec->ts.nsecs = (guint)((ts % 1000000) * 1000);
+    rec->ts.secs = (unsigned)(ts / 1000000);
+    rec->ts.nsecs = (unsigned)((ts % 1000000) * 1000);
     rec->rec_header.packet_header.caplen = packet_size;
     rec->rec_header.packet_header.len = orig_size;
     if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
     {
-        rec->rec_header.packet_header.pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+        rec->rec_header.packet_header.pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? false : true;
     } else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI) {
-        rec->rec_header.packet_header.pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+        rec->rec_header.packet_header.pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? false : true;
         if(flags & KHciLoggerCommandOrEvent)
         {
             if(rec->rec_header.packet_header.pseudo_header.bthci.sent)
@@ -259,20 +259,20 @@ static int btsnoop_dump_can_write_encap(int encap)
     return 0;
 }
 
-static gboolean btsnoop_dump(wtap_dumper *wdh,
+static bool btsnoop_dump(wtap_dumper *wdh,
     const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info)
+    const uint8_t *pd, int *err, char **err_info)
 {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     struct btsnooprec_hdr rec_hdr;
-    guint32 flags;
-    gint64 nsecs;
-    gint64 ts_usec;
+    uint32_t flags;
+    int64_t nsecs;
+    int64_t ts_usec;
 
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-        return FALSE;
+        return false;
     }
 
     /*
@@ -281,13 +281,13 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
      */
     if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
         *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-        return FALSE;
+        return false;
     }
 
     /* Don't write out anything bigger than we can read. */
     if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
-        return FALSE;
+        return false;
     }
 
     rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen);
@@ -301,8 +301,8 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
         case BTHCI_CHANNEL_COMMAND:
             if (!pseudo_header->bthci.sent) {
                 *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-                *err_info = ws_strdup_printf("btsnoop: Command channel, sent FALSE");
-                return FALSE;
+                *err_info = ws_strdup_printf("btsnoop: Command channel, sent false");
+                return false;
             }
             flags = KHciLoggerCommandOrEvent|KHciLoggerHostToController;
             break;
@@ -310,8 +310,8 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
         case BTHCI_CHANNEL_EVENT:
             if (pseudo_header->bthci.sent) {
                 *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-                *err_info = ws_strdup_printf("btsnoop: Event channel, sent TRUE");
-                return FALSE;
+                *err_info = ws_strdup_printf("btsnoop: Event channel, sent true");
+                return false;
             }
             flags = KHciLoggerCommandOrEvent|KHciLoggerControllerToHost;
             break;
@@ -327,7 +327,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
             *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("btsnoop: Unknown channel %u",
                                         pseudo_header->bthci.channel);
-            return FALSE;
+            return false;
         }
         break;
 
@@ -351,29 +351,29 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("btsnoop: invalid encapsulation %u",
                                     wdh->file_encap);
-        return FALSE;
+        return false;
     }
     rec_hdr.flags = GUINT32_TO_BE(flags);
     rec_hdr.cum_drops = GUINT32_TO_BE(0);
 
     nsecs = rec->ts.nsecs;
-    ts_usec  = ((gint64) rec->ts.secs * 1000000) + (nsecs / 1000);
+    ts_usec  = ((int64_t) rec->ts.secs * 1000000) + (nsecs / 1000);
     ts_usec += KUnixTimeBase;
     rec_hdr.ts_usec = GINT64_TO_BE(ts_usec);
 
     if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
-        return FALSE;
+        return false;
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-        return FALSE;
-    return TRUE;
+        return false;
+    return true;
 }
 
-/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+/* Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool btsnoop_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
     struct btsnoop_hdr file_hdr;
-    guint32 datalink;
+    uint32_t datalink;
 
     /* This is a btsnoop file */
     wdh->subtype_write = btsnoop_dump;
@@ -398,12 +398,12 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("btsnoop: invalid encapsulation %u",
                                     wdh->file_encap);
-        return FALSE;
+        return false;
     }
 
     /* Write the file header. */
     if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
-        return FALSE;
+        return false;
 
     /* current "btsnoop" format is 1 */
     file_hdr.version  = GUINT32_TO_BE(1);
@@ -411,9 +411,9 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
     file_hdr.datalink = GUINT32_TO_BE(datalink);
 
     if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type btsnoop_blocks_supported[] = {
@@ -425,7 +425,7 @@ static const struct supported_block_type btsnoop_blocks_supported[] = {
 
 static const struct file_type_subtype_info btsnoop_info = {
     "Symbian OS btsnoop", "btsnoop", "log", NULL,
-    FALSE, BLOCKS_SUPPORTED(btsnoop_blocks_supported),
+    false, BLOCKS_SUPPORTED(btsnoop_blocks_supported),
     btsnoop_dump_can_write_encap, btsnoop_dump_open, NULL
 };
 

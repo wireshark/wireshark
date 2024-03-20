@@ -11,6 +11,6 @@
 
 #include <wtap.h>
 
-wtap_open_return_val log3gpp_open(wtap* wth, int* err, gchar** err_info);
+wtap_open_return_val log3gpp_open(wtap* wth, int* err, char** err_info);
 
 #endif /* __LOG_3GPP_H__ */

@@ -78,7 +78,7 @@
 /* a timestamp consists of a 2-bit position, followed by an 11-bit value. */
 #define TS_VALUE_SHIFT  11
 #define TS_POS_MASK     (0x3 << TS_VALUE_SHIFT)
-#define TS_VALUE_MASK   G_GUINT64_CONSTANT((1 << TS_VALUE_SHIFT) - 1)
+#define TS_VALUE_MASK   (UINT64_C((1 << TS_VALUE_SHIFT) - 1))
 
 typedef enum {
     SIZE_HAVE_NONE,
@@ -123,12 +123,12 @@ void register_camins(void);
 static wtap_open_return_val detect_camins_file(FILE_T fh)
 {
     int      err;
-    gchar   *err_info;
-    guint8   block[2];
-    guint8   search_block = 0;
-    guint8   gap_count = 0;
-    guint32  valid_pairs = 0, invalid_pairs = 0;
-    guint64  read_bytes = 0;
+    char    *err_info;
+    uint8_t  block[2];
+    uint8_t  search_block = 0;
+    uint8_t  gap_count = 0;
+    uint32_t valid_pairs = 0, invalid_pairs = 0;
+    uint64_t read_bytes = 0;
 
     while (wtap_read_bytes(fh, block, sizeof(block), &err, &err_info)) {
        if (search_block != 0) {
@@ -193,10 +193,10 @@ static wtap_open_return_val detect_camins_file(FILE_T fh)
 
 
 /* update the current time counter with infos from a timestamp block */
-static void process_timestamp(guint16 timestamp, guint64 *time_us)
+static void process_timestamp(uint16_t timestamp, uint64_t *time_us)
 {
-    guint8 pos, shift;
-    guint64 val;
+    uint8_t pos, shift;
+    uint64_t val;
 
     if (!time_us)
         return;
@@ -216,25 +216,25 @@ static void process_timestamp(guint16 timestamp, guint64 *time_us)
    to retrieve the data
    if requested by the caller, we increment the time counter as we
    walk through the file */
-static gboolean
+static bool
 find_next_pkt_info(FILE_T fh,
-        guint8 *dat_trans_type, /* transaction type used for the data bytes */
-        guint16 *dat_len,       /* the number of data bytes in the packet */
-        guint64 *time_us,
-        int *err, gchar **err_info)
+        uint8_t *dat_trans_type, /* transaction type used for the data bytes */
+        uint16_t *dat_len,       /* the number of data bytes in the packet */
+        uint64_t *time_us,
+        int *err, char **err_info)
 {
-    guint8       block[2];
+    uint8_t      block[2];
     size_read_t  size_stat;
 
     if (!dat_trans_type || !dat_len)
-        return FALSE;
+        return false;
 
     RESET_STAT_VALS;
 
     do {
         if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info)) {
             RESET_STAT_VALS;
-            return FALSE;
+            return false;
         }
 
         /* our strategy is to continue reading until we have a high and a
@@ -277,19 +277,19 @@ find_next_pkt_info(FILE_T fh,
         }
     } while (size_stat != SIZE_HAVE_ALL);
 
-    return TRUE;
+    return true;
 }
 
 
 /* buffer allocated by the caller, must be long enough to hold
    dat_len bytes, ... */
-static gint
-read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
-                 guint64 *time_us, int *err, gchar **err_info)
+static int
+read_packet_data(FILE_T fh, uint8_t dat_trans_type, uint8_t *buf, uint16_t dat_len,
+                 uint64_t *time_us, int *err, char **err_info)
 {
-    guint8  *p;
-    guint8   block[2];
-    guint16  bytes_count = 0;
+    uint8_t *p;
+    uint8_t  block[2];
+    uint16_t bytes_count = 0;
 
     if (!buf)
         return -1;
@@ -313,7 +313,7 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
         else if (IS_TRANS_SIZE(block[1])) {
             /* go back before the size transaction block
                the next packet should be able to pick up this block */
-            if (-1 == file_seek(fh, -(gint64)sizeof(block), SEEK_CUR, err))
+            if (-1 == file_seek(fh, -(int64_t)sizeof(block), SEEK_CUR, err))
                 return -1;
             break;
         }
@@ -325,9 +325,9 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
 
 /* create a DVB-CI pseudo header
    return its length or -1 for error */
-static gint
-create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len,
-    gchar **err_info)
+static int
+create_pseudo_hdr(uint8_t *buf, uint8_t dat_trans_type, uint16_t dat_len,
+    char **err_info)
 {
     buf[0] = DVB_CI_PSEUDO_HDR_VER;
 
@@ -347,18 +347,18 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len,
 }
 
 
-static gboolean
+static bool
 camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    guint64 *time_us, int *err, gchar **err_info)
+    uint64_t *time_us, int *err, char **err_info)
 {
-    guint8      dat_trans_type;
-    guint16     dat_len;
-    guint8     *p;
-    gint        offset, bytes_read;
+    uint8_t     dat_trans_type;
+    uint16_t    dat_len;
+    uint8_t    *p;
+    int         offset, bytes_read;
 
     if (!find_next_pkt_info(
                 fh, &dat_trans_type, &dat_len, time_us, err, err_info))
-        return FALSE;
+        return false;
     /*
      * The maximum value of length is 65535, which, even after
      * DVB_CI_PSEUDO_HDR_LEN is added to it, is less than
@@ -374,7 +374,7 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
            find_next_pkt_info() */
         *err = WTAP_ERR_INTERNAL;
         /* create_pseudo_hdr() set err_info appropriately */
-        return FALSE;
+        return false;
     }
 
     bytes_read = read_packet_data(fh, dat_trans_type,
@@ -382,7 +382,7 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     /* 0<=bytes_read<=dat_len is very likely a corrupted packet
        we let the dissector handle this */
     if (bytes_read < 0)
-        return FALSE;
+        return false;
     offset += bytes_read;
 
     rec->rec_type = REC_TYPE_PACKET;
@@ -397,33 +397,33 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     rec->rec_header.packet_header.caplen = offset;
     rec->rec_header.packet_header.len = offset;
 
-    return TRUE;
+    return true;
 }
 
 
-static gboolean
+static bool
 camins_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info, gint64 *data_offset)
+    char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return camins_read_packet(wth->fh, rec, buf, (guint64 *)(wth->priv),
+    return camins_read_packet(wth->fh, rec, buf, (uint64_t *)(wth->priv),
                               err, err_info);
 }
 
 
-static gboolean
-camins_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
-                 int *err, gchar **err_info)
+static bool
+camins_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+                 int *err, char **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
-        return FALSE;
+        return false;
 
     return camins_read_packet(wth->random_fh, rec, buf, NULL, err, err_info);
 }
 
 
-wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
+wtap_open_return_val camins_open(wtap *wth, int *err, char **err_info _U_)
 {
     wtap_open_return_val status;
 
@@ -443,7 +443,7 @@ wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
 
    /* wth->priv stores a pointer to the global time counter. we update
       it as we go through the file sequentially. */
-   wth->priv = g_new0(guint64, 1);
+   wth->priv = g_new0(uint64_t, 1);
 
    wth->subtype_read = camins_read;
    wth->subtype_seek_read = camins_seek_read;
@@ -471,7 +471,7 @@ static const struct supported_block_type camins_blocks_supported[] = {
 
 static const struct file_type_subtype_info camins_info = {
    "CAM Inspector file", "camins", "camins", NULL,
-   FALSE, BLOCKS_SUPPORTED(camins_blocks_supported),
+   false, BLOCKS_SUPPORTED(camins_blocks_supported),
    NULL, NULL, NULL
 };
 

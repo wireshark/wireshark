@@ -18,21 +18,21 @@
 #define CANFD_MAX_DLEN 64
 
 typedef struct can_frame {
-    guint32 can_id;                       /* 32 bit CAN_ID + EFF/RTR/ERR flags */
-    guint8  can_dlc;                      /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
-    guint8  __pad;                        /* padding */
-    guint8  __res0;                       /* reserved / padding */
-    guint8  __res1;                       /* reserved / padding */
-    guint8  data[CAN_MAX_DLEN];
+    uint32_t can_id;                       /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+    uint8_t can_dlc;                      /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
+    uint8_t __pad;                        /* padding */
+    uint8_t __res0;                       /* reserved / padding */
+    uint8_t __res1;                       /* reserved / padding */
+    uint8_t data[CAN_MAX_DLEN];
 } can_frame_t;
 
 typedef struct canfd_frame {
-    guint32 can_id;                       /* 32 bit CAN_ID + EFF flag */
-    guint8  len;                          /* frame payload length in byte */
-    guint8  flags;                        /* additional flags for CAN FD */
-    guint8  __res0;                       /* reserved / padding */
-    guint8  __res1;                       /* reserved / padding */
-    guint8  data[CANFD_MAX_DLEN];
+    uint32_t can_id;                       /* 32 bit CAN_ID + EFF flag */
+    uint8_t len;                          /* frame payload length in byte */
+    uint8_t flags;                        /* additional flags for CAN FD */
+    uint8_t __res0;                       /* reserved / padding */
+    uint8_t __res1;                       /* reserved / padding */
+    uint8_t data[CANFD_MAX_DLEN];
 } canfd_frame_t;
 
 #endif  /* SOCKETCAN_H__ */

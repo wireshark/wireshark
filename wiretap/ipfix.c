@@ -61,30 +61,30 @@
 
 #define RECORDS_FOR_IPFIX_CHECK 20
 
-static gboolean
+static bool
 ipfix_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info, gint64 *data_offset);
-static gboolean
-ipfix_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+    char **err_info, int64_t *data_offset);
+static bool
+ipfix_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
 #define IPFIX_VERSION 10
 
 /* ipfix: message header */
 typedef struct ipfix_message_header_s {
-    guint16 version;
-    guint16 message_length;
-    guint32 export_time_secs;
-    guint32 sequence_number;
-    guint32 observation_id; /* might be 0 for none */
+    uint16_t version;
+    uint16_t message_length;
+    uint32_t export_time_secs;
+    uint32_t sequence_number;
+    uint32_t observation_id; /* might be 0 for none */
     /* x bytes msg_body */
 } ipfix_message_header_t;
 #define IPFIX_MSG_HDR_SIZE 16
 
 /* ipfix: common Set header for every Set type */
 typedef struct ipfix_set_header_s {
-    guint16 set_type;
-    guint16 set_length;
+    uint16_t set_type;
+    uint16_t set_length;
     /* x bytes set_body */
 } ipfix_set_header_t;
 #define IPFIX_SET_HDR_SIZE 4
@@ -96,13 +96,13 @@ void register_ipfix(void);
 
 /* Read IPFIX message header from file.  Return true on success.  Set *err to
  * 0 on EOF, any other value for "real" errors (EOF is ok, since return
- * value is still FALSE)
+ * value is still false)
  */
-static gboolean
-ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, gchar **err_info)
+static bool
+ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, char **err_info)
 {
     if (!wtap_read_bytes_or_eof(fh, pfx_hdr, IPFIX_MSG_HDR_SIZE, err, err_info))
-        return FALSE;
+        return false;
 
     /* fix endianness, because IPFIX files are always big-endian */
     pfx_hdr->version = g_ntohs(pfx_hdr->version);
@@ -116,37 +116,37 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
         /* Not an ipfix file. */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("ipfix: wrong version %d", pfx_hdr->version);
-        return FALSE;
+        return false;
     }
 
     if (pfx_hdr->message_length < 16) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("ipfix: message length %u is too short", pfx_hdr->message_length);
-        return FALSE;
+        return false;
     }
 
     /* go back to before header */
     if (file_seek(fh, 0 - IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
         ws_debug("couldn't go back in file before header");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 
 /* Read IPFIX message header from file and fill in the struct wtap_rec
  * for the packet, and, if that succeeds, read the packet data.
  * Return true on success.  Set *err to 0 on EOF, any other value for "real"
- * errors (EOF is ok, since return value is still FALSE).
+ * errors (EOF is ok, since return value is still false).
  */
-static gboolean
-ipfix_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+ipfix_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     ipfix_message_header_t msg_hdr;
 
     if (!ipfix_read_message_header(&msg_hdr, fh, err, err_info))
-        return FALSE;
+        return false;
     /*
      * The maximum value of msg_hdr.message_length is 65535, which is
      * less than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need
@@ -171,11 +171,11 @@ ipfix_read_message(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_
  * WTAP_OPEN_ERROR on bad error like file system
  */
 wtap_open_return_val
-ipfix_open(wtap *wth, int *err, gchar **err_info)
+ipfix_open(wtap *wth, int *err, char **err_info)
 {
-    gint i, n, records_for_ipfix_check = RECORDS_FOR_IPFIX_CHECK;
-    gchar *s;
-    guint16 checked_len;
+    int i, n, records_for_ipfix_check = RECORDS_FOR_IPFIX_CHECK;
+    char *s;
+    uint16_t checked_len;
     ipfix_message_header_t msg_hdr;
     ipfix_set_header_t set_hdr;
 
@@ -285,9 +285,9 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
 
 /* classic wtap: read packet */
-static gboolean
+static bool
 ipfix_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info, gint64 *data_offset)
+    char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
     ws_debug("offset is initially %" PRId64, *data_offset);
@@ -295,23 +295,23 @@ ipfix_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     if (!ipfix_read_message(wth->fh, rec, buf, err, err_info)) {
         ws_debug("couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 
 /* classic wtap: seek to file position and read packet */
-static gboolean
-ipfix_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool
+ipfix_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
     /* seek to the right file position */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
         ws_debug("couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
-        return FALSE;   /* Seek error */
+        return false;   /* Seek error */
     }
 
     ws_debug("reading at offset %" PRIu64, seek_off);
@@ -320,9 +320,9 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
         ws_debug("couldn't read message header");
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type ipfix_blocks_supported[] = {
@@ -334,7 +334,7 @@ static const struct supported_block_type ipfix_blocks_supported[] = {
 
 static const struct file_type_subtype_info ipfix_info = {
     "IPFIX File Format", "ipfix", "pfx", "ipfix",
-    FALSE, BLOCKS_SUPPORTED(ipfix_blocks_supported),
+    false, BLOCKS_SUPPORTED(ipfix_blocks_supported),
     NULL, NULL, NULL
 };
 

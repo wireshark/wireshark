@@ -458,10 +458,10 @@ c_ares_ghba_sync_cb(void *arg, int status, int timeouts _U_, struct hostent *he)
         for (p = he->h_addr_list; *p != NULL; p++) {
             switch(sdd->family) {
                 case AF_INET:
-                    add_ipv4_name(sdd->addr.ip4, he->h_name, FALSE);
+                    add_ipv4_name(sdd->addr.ip4, he->h_name, false);
                     break;
                 case AF_INET6:
-                    add_ipv6_name(&sdd->addr.ip6, he->h_name, FALSE);
+                    add_ipv6_name(&sdd->addr.ip6, he->h_name, false);
                     break;
                 default:
                     /* Throw an exception? */
@@ -1261,10 +1261,10 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
         for (p = he->h_addr_list; *p != NULL; p++) {
             switch(caqm->family) {
                 case AF_INET:
-                    add_ipv4_name(caqm->addr.ip4, he->h_name, FALSE);
+                    add_ipv4_name(caqm->addr.ip4, he->h_name, false);
                     break;
                 case AF_INET6:
-                    add_ipv6_name(&caqm->addr.ip6, he->h_name, FALSE);
+                    add_ipv6_name(&caqm->addr.ip6, he->h_name, false);
                     break;
                 default:
                     /* Throw an exception? */
@@ -2669,9 +2669,9 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
         entry_found = TRUE;
         if (store_entries) {
             if (is_ipv6) {
-                add_ipv6_name(&host_addr.ip6_addr, cp, TRUE);
+                add_ipv6_name(&host_addr.ip6_addr, cp, true);
             } else {
-                add_ipv4_name(host_addr.ip4_addr, cp, TRUE);
+                add_ipv4_name(host_addr.ip4_addr, cp, true);
             }
         }
     }
@@ -3362,7 +3362,7 @@ get_hostname6(const ws_in6_addr *addr)
 
 /* -------------------------- */
 void
-add_ipv4_name(const guint addr, const gchar *name, gboolean static_entry)
+add_ipv4_name(const guint addr, const gchar *name, bool static_entry)
 {
     hashipv4_t *tp;
 
@@ -3390,7 +3390,7 @@ add_ipv4_name(const guint addr, const gchar *name, gboolean static_entry)
 
 /* -------------------------- */
 void
-add_ipv6_name(const ws_in6_addr *addrp, const gchar *name, const gboolean static_entry)
+add_ipv6_name(const ws_in6_addr *addrp, const gchar *name, const bool static_entry)
 {
     hashipv6_t *tp;
 

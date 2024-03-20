@@ -91,22 +91,22 @@ void register_mplog(void);
    - if two blocks of our packet's block type are more than 200us apart,
      we treat this as a packet boundary as described above
    */
-static gboolean mplog_read_packet(FILE_T fh, wtap_rec *rec,
-        Buffer *buf, int *err, gchar **err_info)
+static bool mplog_read_packet(FILE_T fh, wtap_rec *rec,
+        Buffer *buf, int *err, char **err_info)
 {
-    guint8 *p, *start_p;
+    uint8_t *p, *start_p;
     /* --- the last block of a known type --- */
-    guint64 last_ctr = 0;
+    uint64_t last_ctr = 0;
     /* --- the current block --- */
-    guint8 block[MPLOG_BLOCK_SIZE]; /* the entire block */
-    guint8 data, type; /* its data and block type bytes */
-    guint64 ctr; /* its timestamp counter */
+    uint8_t block[MPLOG_BLOCK_SIZE]; /* the entire block */
+    uint8_t data, type; /* its data and block type bytes */
+    uint64_t ctr; /* its timestamp counter */
     /* --- the packet we're assembling --- */
-    gint pkt_bytes = 0;
-    guint8 pkt_type = TYPE_UNKNOWN;
+    int pkt_bytes = 0;
+    uint8_t pkt_type = TYPE_UNKNOWN;
     /* the timestamp of the packet's first block,
        this will become the packet's timestamp */
-    guint64 pkt_ctr = 0;
+    uint64_t pkt_ctr = 0;
 
 
     ws_buffer_assure_space(buf, PKT_BUF_LEN);
@@ -162,7 +162,7 @@ static gboolean mplog_read_packet(FILE_T fh, wtap_rec *rec,
     } while (pkt_bytes < ISO14443_MAX_PKT_LEN);
 
     if (pkt_type == TYPE_UNKNOWN)
-        return FALSE;
+        return false;
 
     start_p[0] = ISO14443_PSEUDO_HDR_VER;
 
@@ -183,13 +183,13 @@ static gboolean mplog_read_packet(FILE_T fh, wtap_rec *rec,
     rec->rec_header.packet_header.caplen = ISO14443_PSEUDO_HDR_LEN + pkt_bytes;
     rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
 
-    return TRUE;
+    return true;
 }
 
 
-static gboolean
+static bool
 mplog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-        gchar **err_info, gint64 *data_offset)
+        char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
@@ -197,27 +197,27 @@ mplog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 }
 
 
-static gboolean
-mplog_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
-                int *err, gchar **err_info)
+static bool
+mplog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf,
+                int *err, char **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
-        return FALSE;
+        return false;
 
     if (!mplog_read_packet(wth->random_fh, rec, buf, err, err_info)) {
         /* Even if we got an immediate EOF, that's an error. */
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 
-wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val mplog_open(wtap *wth, int *err, char **err_info)
 {
-    gboolean ok;
-    guint8 magic[6];
+    bool ok;
+    uint8_t magic[6];
 
     ok = wtap_read_bytes(wth->fh, magic, 6, err, err_info);
     if (!ok) {
@@ -264,7 +264,7 @@ static const struct supported_block_type mplog_blocks_supported[] = {
 
 static const struct file_type_subtype_info mplog_info = {
     "Micropross mplog", "mplog", "mplog", NULL,
-    FALSE, BLOCKS_SUPPORTED(mplog_blocks_supported),
+    false, BLOCKS_SUPPORTED(mplog_blocks_supported),
     NULL, NULL, NULL
 };
 

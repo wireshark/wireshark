@@ -17,7 +17,7 @@
 #define RUBY_MARSHAL_MAJOR 4
 #define RUBY_MARSHAL_MINOR 8
 
-wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, char **err_info);
 
 #endif
 

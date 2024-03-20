@@ -16,23 +16,23 @@ static int hcidump_file_type_subtype = -1;
 void register_hcidump(void);
 
 struct dump_hdr {
-	guint16 len;
-	guint8  in;
-	guint8  pad;
-	guint32 ts_sec;
-	guint32 ts_usec;
+	uint16_t len;
+	uint8_t  in;
+	uint8_t  pad;
+	uint32_t ts_sec;
+	uint32_t ts_usec;
 };
 
 #define DUMP_HDR_SIZE (sizeof(struct dump_hdr))
 
-static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool hcidump_read_packet(FILE_T fh, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
 	struct dump_hdr dh;
-	guint packet_size;
+	unsigned packet_size;
 
 	if (!wtap_read_bytes_or_eof(fh, &dh, DUMP_HDR_SIZE, err, err_info))
-		return FALSE;
+		return false;
 
 	packet_size = GUINT16_FROM_LE(dh.len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
@@ -43,7 +43,7 @@ static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("hcidump: File has %u-byte packet, bigger than maximum of %u",
 			packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
-		return FALSE;
+		return false;
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
@@ -54,32 +54,32 @@ static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 	rec->rec_header.packet_header.caplen = packet_size;
 	rec->rec_header.packet_header.len = packet_size;
 
-	rec->rec_header.packet_header.pseudo_header.p2p.sent = (dh.in ? FALSE : TRUE);
+	rec->rec_header.packet_header.pseudo_header.p2p.sent = (dh.in ? false : true);
 
 	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static gboolean hcidump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool hcidump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return hcidump_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool hcidump_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	return hcidump_read_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
-wtap_open_return_val hcidump_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val hcidump_open(wtap *wth, int *err, char **err_info)
 {
 	struct dump_hdr dh;
-	guint8 type;
+	uint8_t type;
 
 	if (!wtap_read_bytes(wth->fh, &dh, DUMP_HDR_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
@@ -131,7 +131,7 @@ static const struct supported_block_type hcidummp_blocks_supported[] = {
 
 static const struct file_type_subtype_info hcidump_info = {
 	"Bluetooth HCI dump", "hcidump", NULL, NULL,
-	FALSE, BLOCKS_SUPPORTED(hcidummp_blocks_supported),
+	false, BLOCKS_SUPPORTED(hcidummp_blocks_supported),
 	NULL, NULL, NULL
 };
 

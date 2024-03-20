@@ -21,33 +21,33 @@
 #define LOGGER_ENTRY_MAX_PAYLOAD 4076
 
 struct logger_entry {
-    guint16 len;    /* length of the payload */
-    guint16 __pad;  /* no matter what, we get 2 bytes of padding */
-    gint32  pid;    /* generating process's pid */
-    gint32  tid;    /* generating process's tid */
-    gint32  sec;    /* seconds since Epoch */
-    gint32  nsec;   /* nanoseconds */
+    uint16_t len;   /* length of the payload */
+    uint16_t __pad; /* no matter what, we get 2 bytes of padding */
+    int32_t  pid;   /* generating process's pid */
+    int32_t  tid;   /* generating process's tid */
+    int32_t  sec;   /* seconds since Epoch */
+    int32_t  nsec;  /* nanoseconds */
 /*    char    msg[0]; *//* the entry's payload */
 };
 
 struct logger_entry_v2 {
-    guint16 len;    /* length of the payload */
-    guint16 hdr_size; /* sizeof(struct logger_entry_v2) */
-    gint32  pid;    /* generating process's pid */
-    gint32  tid;    /* generating process's tid */
-    gint32  sec;    /* seconds since Epoch */
-    gint32  nsec;   /* nanoseconds */
+    uint16_t len;    /* length of the payload */
+    uint16_t hdr_size; /* sizeof(struct logger_entry_v2) */
+    int32_t  pid;    /* generating process's pid */
+    int32_t  tid;    /* generating process's tid */
+    int32_t  sec;    /* seconds since Epoch */
+    int32_t  nsec;   /* nanoseconds */
     union {
                         /* v1: not present */
-        guint32 euid;   /* v2: effective UID of logger */
-        guint32 lid;    /* v3: log id of the payload */
+        uint32_t euid;  /* v2: effective UID of logger */
+        uint32_t lid;   /* v3: log id of the payload */
     } id;
 /*    char    msg[0]; *//* the entry's payload */
 };
 
-wtap_open_return_val  logcat_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val  logcat_open(wtap *wth, int *err, char **err_info);
 
-gint     logcat_exported_pdu_length(const guint8 *pd);
+int      logcat_exported_pdu_length(const uint8_t *pd);
 #endif
 
 /*

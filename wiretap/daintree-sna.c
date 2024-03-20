@@ -41,8 +41,8 @@
 #include "daintree-sna.h"
 
 typedef struct daintree_sna_header {
-	guint32 len;
-	guint64 ts;
+	uint32_t len;
+	uint64_t ts;
 } daintree_sna_header_t;
 
 #define DAINTREE_SNA_HEADER_SIZE 2
@@ -57,21 +57,21 @@ static const char daintree_magic_text[] = "#Format=";
 
 #define COMMENT_LINE daintree_magic_text[0]
 
-static gboolean daintree_sna_read(wtap *wth, wtap_rec *rec,
-	Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
+static bool daintree_sna_read(wtap *wth, wtap_rec *rec,
+	Buffer *buf, int *err, char **err_info, int64_t *data_offset);
 
-static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool daintree_sna_seek_read(wtap *wth, int64_t seek_off,
+	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
-static gboolean daintree_sna_read_packet(FILE_T fh, wtap_rec *rec,
-	Buffer *buf, int *err, gchar **err_info);
+static bool daintree_sna_read_packet(FILE_T fh, wtap_rec *rec,
+	Buffer *buf, int *err, char **err_info);
 
 static int daintree_sna_file_type_subtype = -1;
 
 void register_daintree_sna(void);
 
 /* Open a file and determine if it's a Daintree file */
-wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val daintree_sna_open(wtap *wth, int *err, char **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 
@@ -120,9 +120,9 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the capture file sequentially
  * Wireshark scans the file with sequential reads during preview and initial display. */
-static gboolean
+static bool
 daintree_sna_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-	int *err, gchar **err_info, gint64 *data_offset)
+	int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
@@ -132,12 +132,12 @@ daintree_sna_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 /* Read the capture file randomly
  * Wireshark opens the capture file for random access when displaying user-selected packets */
-static gboolean
-daintree_sna_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-	Buffer *buf, int *err, gchar **err_info)
+static bool
+daintree_sna_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+	Buffer *buf, int *err, char **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	/* parse that line and the following packet data */
 	return daintree_sna_read_packet(wth->random_fh, rec, buf, err,
@@ -148,24 +148,24 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
  * Then convert packet data from ASCII hex string to binary in place,
  * sanity-check its length against what we assume is the packet length field,
  * and copy it into a Buffer. */
-static gboolean
+static bool
 daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
-	guint64 seconds;
+	uint64_t seconds;
 	int useconds;
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	char readData[READDATA_BUF_SIZE];
-	guchar *str = (guchar *)readData;
-	guint bytes;
-	guint8 *p;
+	unsigned char *str = (unsigned char *)readData;
+	unsigned bytes;
+	uint8_t *p;
 
 	/* we've only seen file header lines starting with '#', but
 	 * if others appear in the file, they are tossed */
 	do {
 		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, fh) == NULL) {
 			*err = file_error(fh, err_info);
-			return FALSE; /* all done */
+			return false; /* all done */
 		}
 	} while (readLine[0] == COMMENT_LINE);
 
@@ -177,7 +177,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	    &seconds, &useconds, &rec->rec_header.packet_header.len, readData) != 4) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: invalid read record");
-		return FALSE;
+		return false;
 	}
 
 	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
@@ -185,7 +185,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("daintree_sna: packet length <= %u bytes, no frame data present",
 		    FCS_LENGTH);
-		return FALSE;
+		return false;
 	}
 	rec->rec_header.packet_header.len -= FCS_LENGTH;
 
@@ -199,13 +199,13 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	 */
 	p = str; /* overlay source buffer */
 	bytes = 0;
-	/* convert hex string to guint8 */
+	/* convert hex string to uint8_t */
 	while(*str) {
 		/* most significant nibble */
 		if (!g_ascii_isxdigit(*str)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("daintree_sna: non-hex digit in hex data");
-			return FALSE;
+			return false;
 		}
 		if(g_ascii_isdigit(*str)) {
 			*p = (*str - '0') << 4;
@@ -218,7 +218,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		if (!g_ascii_isxdigit(*str)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("daintree_sna: non-hex digit in hex data");
-			return FALSE;
+			return false;
 		}
 		if(g_ascii_isdigit(*str)) {
 			*p += *str - '0';
@@ -237,21 +237,21 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("daintree_sna: Only %u bytes of packet data",
 		    bytes);
-		return FALSE;
+		return false;
 	}
 	bytes -= FCS_LENGTH;
 	if (bytes > rec->rec_header.packet_header.len) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("daintree_sna: capture length (%u) > packet length (%u)",
 		    bytes, rec->rec_header.packet_header.len);
-		return FALSE;
+		return false;
 	}
 
 	rec->rec_header.packet_header.caplen = bytes;
 
 	ws_buffer_assure_space(buf, bytes);
 	memcpy(ws_buffer_start_ptr(buf), readData, bytes);
-	return TRUE;
+	return true;
 }
 
 static const struct supported_block_type daintree_sna_blocks_supported[] = {
@@ -263,7 +263,7 @@ static const struct supported_block_type daintree_sna_blocks_supported[] = {
 
 static const struct file_type_subtype_info daintree_sna_info = {
 	"Daintree SNA", "dsna", "dcf", NULL,
-	FALSE, BLOCKS_SUPPORTED(daintree_sna_blocks_supported),
+	false, BLOCKS_SUPPORTED(daintree_sna_blocks_supported),
 	NULL, NULL, NULL
 };
 

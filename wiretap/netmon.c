@@ -44,35 +44,35 @@ static const char netmon_2_x_magic[MAGIC_SIZE] = {
 
 /* Network Monitor file header (minus magic number). */
 struct netmon_hdr {
-	guint8	ver_minor;	/* minor version number */
-	guint8	ver_major;	/* major version number */
-	guint16	network;	/* network type */
-	guint16	ts_year;	/* year of capture start */
-	guint16	ts_month;	/* month of capture start (January = 1) */
-	guint16	ts_dow;		/* day of week of capture start (Sun = 0) */
-	guint16	ts_day;		/* day of month of capture start */
-	guint16	ts_hour;	/* hour of capture start */
-	guint16	ts_min;		/* minute of capture start */
-	guint16	ts_sec;		/* second of capture start */
-	guint16	ts_msec;	/* millisecond of capture start */
-	guint32	frametableoffset;	/* frame index table offset */
-	guint32	frametablelength;	/* frame index table size */
-	guint32	userdataoffset;		/* user data offset */
-	guint32	userdatalength;		/* user data size */
-	guint32	commentdataoffset;	/* comment data offset */
-	guint32	commentdatalength;	/* comment data size */
-	guint32	processinfooffset;	/* offset to process info structure */
-	guint32	processinfocount;	/* number of process info structures */
-	guint32	networkinfooffset;	/* offset to network info structure */
-	guint32	networkinfolength;	/* length of network info structure */
+	uint8_t	 ver_minor;	/* minor version number */
+	uint8_t	 ver_major;	/* major version number */
+	uint16_t network;	/* network type */
+	uint16_t ts_year;	/* year of capture start */
+	uint16_t ts_month;	/* month of capture start (January = 1) */
+	uint16_t ts_dow;	/* day of week of capture start (Sun = 0) */
+	uint16_t ts_day;	/* day of month of capture start */
+	uint16_t ts_hour;	/* hour of capture start */
+	uint16_t ts_min;	/* minute of capture start */
+	uint16_t ts_sec;	/* second of capture start */
+	uint16_t ts_msec;	/* millisecond of capture start */
+	uint32_t frametableoffset;	/* frame index table offset */
+	uint32_t frametablelength;	/* frame index table size */
+	uint32_t userdataoffset;	/* user data offset */
+	uint32_t userdatalength;	/* user data size */
+	uint32_t commentdataoffset;	/* comment data offset */
+	uint32_t commentdatalength;	/* comment data size */
+	uint32_t processinfooffset;	/* offset to process info structure */
+	uint32_t processinfocount;	/* number of process info structures */
+	uint32_t networkinfooffset;	/* offset to network info structure */
+	uint32_t networkinfolength;	/* length of network info structure */
 };
 
 /* Network Monitor 1.x record header; not defined in STRUCT.H, but deduced by
  * looking at capture files. */
 struct netmonrec_1_x_hdr {
-	guint32	ts_delta;	/* time stamp - msecs since start of capture */
-	guint16	orig_len;	/* actual length of packet */
-	guint16	incl_len;	/* number of octets captured in file */
+	uint32_t ts_delta;	/* time stamp - msecs since start of capture */
+	uint16_t orig_len;	/* actual length of packet */
+	uint16_t incl_len;	/* number of octets captured in file */
 };
 
 /*
@@ -80,9 +80,9 @@ struct netmonrec_1_x_hdr {
  * help files.
  */
 struct netmonrec_2_x_hdr {
-	guint64	ts_delta;	/* time stamp - usecs since start of capture */
-	guint32	orig_len;	/* actual length of packet */
-	guint32	incl_len;	/* number of octets captured in file */
+	uint64_t ts_delta;	/* time stamp - usecs since start of capture */
+	uint32_t orig_len;	/* actual length of packet */
+	uint32_t incl_len;	/* number of octets captured in file */
 };
 
 /*
@@ -94,49 +94,49 @@ struct netmonrec_2_x_hdr {
  * natural boundaries.
  */
 struct netmonrec_2_1_trlr {
-	guint8 network[2];		/* network type for this packet */
+	uint8_t network[2];		/* network type for this packet */
 };
 
 struct netmonrec_2_2_trlr {
-	guint8 network[2];		/* network type for this packet */
-	guint8 process_info_index[4];	/* index into the process info table */
+	uint8_t network[2];		/* network type for this packet */
+	uint8_t process_info_index[4];	/* index into the process info table */
 };
 
 struct netmonrec_2_3_trlr {
-	guint8 network[2];		/* network type for this packet */
-	guint8 process_info_index[4];	/* index into the process info table */
-	guint8 utc_timestamp[8];	/* packet time stamp, as .1 us units since January 1, 1601, 00:00:00 UTC */
-	guint8 timezone_index;		/* index of time zone information */
+	uint8_t network[2];		/* network type for this packet */
+	uint8_t process_info_index[4];	/* index into the process info table */
+	uint8_t utc_timestamp[8];	/* packet time stamp, as .1 us units since January 1, 1601, 00:00:00 UTC */
+	uint8_t timezone_index;		/* index of time zone information */
 };
 
 struct netmonrec_comment {
-	guint32 numFramePerComment;	/* Currently, this is always set to 1. Each comment is attached to only one frame. */
-	guint32 frameOffset;		/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
-	guint8* title;			/* Comment title */
-	guint32 descLength;		/* Number of bytes in the comment description. Must be at least zero. */
-	guint8* description;		/* Comment description */
+	uint32_t numFramePerComment;	/* Currently, this is always set to 1. Each comment is attached to only one frame. */
+	uint32_t frameOffset;		/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
+	uint8_t* title;			/* Comment title */
+	uint32_t descLength;		/* Number of bytes in the comment description. Must be at least zero. */
+	uint8_t* description;		/* Comment description */
 };
 
 /* Just the first few fields of netmonrec_comment so it can be read sequentially from file */
 struct netmonrec_comment_header {
-	guint32 numFramePerComment;
-	guint32 frameOffset;
-	guint32 titleLength;
+	uint32_t numFramePerComment;
+	uint32_t frameOffset;
+	uint32_t titleLength;
 };
 
 union ip_address {
-	guint32 ipv4;
+	uint32_t ipv4;
 	ws_in6_addr ipv6;
 };
 
 struct netmonrec_process_info {
-	guint8* path;				/* A Unicode string of length PathSize */
-	guint32 iconSize;
-	guint8* iconData;
-	guint32 pid;
-	guint16 localPort;
-	guint16 remotePort;
-	gboolean isIPv6;
+	uint8_t* path;				/* A Unicode string of length PathSize */
+	uint32_t iconSize;
+	uint8_t* iconData;
+	uint32_t pid;
+	uint16_t localPort;
+	uint16_t remotePort;
+	bool isIPv6;
 	union ip_address localAddr;
 	union ip_address remoteAddr;
 };
@@ -145,22 +145,22 @@ struct netmonrec_process_info {
  * The link-layer header on ATM packets.
  */
 struct netmon_atm_hdr {
-	guint8	dest[6];	/* "Destination address" - what is it? */
-	guint8	src[6];		/* "Source address" - what is it? */
-	guint16	vpi;		/* VPI */
-	guint16	vci;		/* VCI */
+	uint8_t	 dest[6];	/* "Destination address" - what is it? */
+	uint8_t	 src[6];	/* "Source address" - what is it? */
+	uint16_t vpi;		/* VPI */
+	uint16_t vci;		/* VCI */
 };
 
 typedef struct {
-	time_t  start_secs;
-	guint32 start_nsecs;
-	guint8  version_major;
-	guint8  version_minor;
-	guint32 *frame_table;
-	guint32 frame_table_size;
+	time_t   start_secs;
+	uint32_t start_nsecs;
+	uint8_t  version_major;
+	uint8_t  version_minor;
+	uint32_t *frame_table;
+	uint32_t frame_table_size;
 	GHashTable* comment_table;
 	GHashTable* process_info_table;
-	guint current_frame;
+	unsigned current_frame;
 } netmon_t;
 
 /*
@@ -215,17 +215,17 @@ static const int netmon_encap[] = {
 #define NETMON_NET_DNS_CACHE		0xFFFE
 #define NETMON_NET_NETMON_FILTER	0xFFFF
 
-static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static bool netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool netmon_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool netmon_read_atm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
 static void netmon_close(wtap *wth);
-static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info);
-static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
-    gchar **err_info);
+static bool netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info);
+static bool netmon_dump_finish(wtap_dumper *wdh, int *err,
+    char **err_info);
 
 static int netmon_1_x_file_type_subtype = -1;
 static int netmon_2_x_file_type_subtype = -1;
@@ -237,14 +237,14 @@ void register_netmon(void);
  * but is not guaranteed to be null-terminated (as it came from a file),
  * to a null-terminated UTF-8 string.
  */
-static guint8 *
-utf_16_to_utf_8(const guint8 *in, guint32 length)
+static uint8_t *
+utf_16_to_utf_8(const uint8_t *in, uint32_t length)
 {
-	guint8 *result, *out;
+	uint8_t *result, *out;
 	gunichar2 uchar2;
 	gunichar uchar;
 	size_t n_bytes;
-	guint32 i;
+	uint32_t i;
 
 	/*
 	 * Get the length of the resulting UTF-8 string, and validate
@@ -316,7 +316,7 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 	 * Now allocate a buffer big enough for the UTF-8 string plus a
 	 * trailing NUL, and generate the string.
 	 */
-	result = (guint8 *)g_malloc(n_bytes + 1);
+	result = (uint8_t *)g_malloc(n_bytes + 1);
 
 	out = result;
 	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
@@ -389,7 +389,7 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 }
 
 
-static void netmonrec_comment_destroy(gpointer key) {
+static void netmonrec_comment_destroy(void *key) {
 	struct netmonrec_comment *comment = (struct netmonrec_comment*) key;
 
 	g_free(comment->title);
@@ -397,7 +397,7 @@ static void netmonrec_comment_destroy(gpointer key) {
 	g_free(comment);
 }
 
-static void netmonrec_process_info_destroy(gpointer key) {
+static void netmonrec_process_info_destroy(void *key) {
 	struct netmonrec_process_info *process_info = (struct netmonrec_process_info*) key;
 
 	g_free(process_info->path);
@@ -405,21 +405,21 @@ static void netmonrec_process_info_destroy(gpointer key) {
 	g_free(process_info);
 }
 
-wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 {
 	char magic[MAGIC_SIZE];
 	struct netmon_hdr hdr;
 	int file_type;
 	struct tm tm;
-	guint32 frame_table_offset;
-	guint32 frame_table_length;
-	guint32 frame_table_size;
-	guint32 *frame_table;
-	guint32 comment_table_offset, process_info_table_offset;
-	guint32 comment_table_size, process_info_table_count;
+	uint32_t frame_table_offset;
+	uint32_t frame_table_length;
+	uint32_t frame_table_size;
+	uint32_t *frame_table;
+	uint32_t comment_table_offset, process_info_table_offset;
+	uint32_t comment_table_size, process_info_table_count;
 	GHashTable *comment_table, *process_info_table;
 	struct netmonrec_comment* comment_rec;
-	gint64 file_size = wtap_file_size(wth, err);
+	int64_t file_size = wtap_file_size(wth, err);
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 	unsigned int i;
 #endif
@@ -554,8 +554,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletoh32(&hdr.frametablelength);
-	frame_table_size = frame_table_length / (guint32)sizeof (guint32);
-	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
+	frame_table_size = frame_table_length / (uint32_t)sizeof (uint32_t);
+	if ((frame_table_size * sizeof (uint32_t)) != frame_table_length) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
 		    frame_table_length);
@@ -659,7 +659,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * large chunks of memory for the frame table
 	 */
 
-	frame_table = (guint32 *)g_try_malloc(frame_table_length);
+	frame_table = (uint32_t *)g_try_malloc(frame_table_length);
 	if (frame_table_length != 0 && frame_table == NULL) {
 		*err = ENOMEM;	/* we assume we're out of memory */
 		return WTAP_OPEN_ERROR;
@@ -693,9 +693,9 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 		while (comment_table_size > 16) {
 			struct netmonrec_comment_header comment_header;
-			guint32 title_length;
-			guint32 desc_length;
-			guint8 *utf16_str;
+			uint32_t title_length;
+			uint32_t desc_length;
+			uint8_t *utf16_str;
 
 			/* Read the first 12 bytes of the structure */
 			if (!wtap_read_bytes(wth->fh, &comment_header, 12, err, err_info)) {
@@ -733,7 +733,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			 * size is a count of octets, not octet pairs or
 			 * Unicode characters.
 			 */
-			utf16_str = (guint8*)g_malloc(title_length);
+			utf16_str = (uint8_t*)g_malloc(title_length);
 			if (!wtap_read_bytes(wth->fh, utf16_str, title_length,
 			    err, err_info)) {
 				g_hash_table_destroy(comment_table);
@@ -772,7 +772,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 					return WTAP_OPEN_ERROR;
 				}
 
-				comment_rec->description = (guint8*)g_malloc(comment_rec->descLength);
+				comment_rec->description = (uint8_t*)g_malloc(comment_rec->descLength);
 
 				/* Read the comment description */
 				if (!wtap_read_bytes(wth->fh, comment_rec->description, comment_rec->descLength, err, err_info)) {
@@ -787,7 +787,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	if ((process_info_table_offset > 0) && (process_info_table_count > 0)) {
-		guint16 version;
+		uint16_t version;
 
 		/* Go to the process table offset */
 		if (file_seek(wth->fh, process_info_table_offset, SEEK_SET, err) == -1) {
@@ -809,10 +809,10 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 		while (process_info_table_count > 0)
 		{
 			struct netmonrec_process_info* process_info;
-			guint32 tmp32;
-			guint16 tmp16;
-			guint32 path_size;
-			guint8 *utf16_str;
+			uint32_t tmp32;
+			uint16_t tmp16;
+			uint32_t path_size;
+			uint8_t *utf16_str;
 
 			process_info = g_new0(struct netmonrec_process_info, 1);
 
@@ -840,7 +840,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			 * size is a count of octets, not octet pairs or
 			 * Unicode characters.
 			 */
-			utf16_str = (guint8*)g_malloc(path_size);
+			utf16_str = (uint8_t*)g_malloc(path_size);
 			if (!wtap_read_bytes(wth->fh, utf16_str, path_size,
 			    err, err_info)) {
 				g_free(process_info);
@@ -913,7 +913,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
-			process_info->isIPv6 = ((pletoh32(&tmp32) == 0) ? FALSE : TRUE);
+			process_info->isIPv6 = ((pletoh32(&tmp32) == 0) ? false : true);
 
 			if (process_info->isIPv6) {
 				if (!wtap_read_bytes(wth->fh, &process_info->localAddr.ipv6, 16, err, err_info)) {
@@ -925,7 +925,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 					return WTAP_OPEN_ERROR;
 				}
 			} else {
-				guint8 ipbuffer[16];
+				uint8_t ipbuffer[16];
 				if (!wtap_read_bytes(wth->fh, ipbuffer, 16, err, err_info)) {
 					g_hash_table_destroy(process_info_table);
 					return WTAP_OPEN_ERROR;
@@ -1020,28 +1020,28 @@ typedef enum {
 
 static process_record_retval
 netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+    Buffer *buf, int *err, char **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
-	int	hdr_size = 0;
+	int	 hdr_size = 0;
 	union {
 		struct netmonrec_1_x_hdr hdr_1_x;
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
-	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
-	gint64	t;
-	time_t	secs;
-	int	nsecs;
-	guint32	packet_size = 0;
-	guint32 orig_size = 0;
-	int	trlr_size;
+	int64_t	 delta = 0;	/* signed - frame times can be before the nominal start */
+	int64_t	 t;
+	time_t	 secs;
+	int	 nsecs;
+	uint32_t packet_size = 0;
+	uint32_t orig_size = 0;
+	int	 trlr_size;
 	union {
 		struct netmonrec_2_1_trlr trlr_2_1;
 		struct netmonrec_2_2_trlr trlr_2_2;
 		struct netmonrec_2_3_trlr trlr_2_3;
 	}	trlr;
-	guint16 network;
-	int	pkt_encap;
+	uint16_t network;
+	int	 pkt_encap;
 	struct netmonrec_comment* comment_rec = NULL;
 
 	/* Read record header. */
@@ -1111,8 +1111,8 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= (guint)sizeof (struct netmon_atm_hdr);
-		packet_size -= (guint)sizeof (struct netmon_atm_hdr);
+		orig_size -= (unsigned)sizeof (struct netmon_atm_hdr);
+		packet_size -= (unsigned)sizeof (struct netmon_atm_hdr);
 		break;
 
 	default:
@@ -1125,14 +1125,14 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		/*
 		 * According to Paul Long, this offset is unsigned.
 		 * It's 32 bits, so the maximum value will fit in
-		 * a gint64 such as delta, even after multiplying
+		 * a int64_t such as delta, even after multiplying
 		 * it by 1000000.
 		 *
-		 * pletoh32() returns a guint32; we cast it to gint64
+		 * pletoh32() returns a uint32_t; we cast it to int64_t
 		 * before multiplying, so that the product doesn't
-		 * overflow a guint32.
+		 * overflow a uint32_t.
 		 */
-		delta = ((gint64)pletoh32(&hdr.hdr_1_x.ts_delta))*1000000;
+		delta = ((int64_t)pletoh32(&hdr.hdr_1_x.ts_delta))*1000000;
 		break;
 
 	case 2:
@@ -1353,7 +1353,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 * contains a UTC per-packet time stamp; use
 			 * that instead of the start time and offset.
 			 */
-			guint64 d;
+			uint64_t d;
 
 			d = pletoh64(trlr.trlr_2_3.utc_timestamp);
 
@@ -1430,17 +1430,17 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 }
 
 /* Read the next packet */
-static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
-	gint64	rec_offset;
+	int64_t	rec_offset;
 
 	for (;;) {
 		/* Have we reached the end of the packet data? */
 		if (netmon->current_frame >= netmon->frame_table_size) {
 			*err = 0;	/* it's just an EOF, not an error */
-			return FALSE;
+			return false;
 		}
 
 		/* Seek to the beginning of the current record, if we're
@@ -1456,7 +1456,7 @@ static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 		rec_offset = netmon->frame_table[netmon->current_frame];
 		if (file_tell(wth->fh) != rec_offset) {
 			if (file_seek(wth->fh, rec_offset, SEEK_SET, err) == -1)
-				return FALSE;
+				return false;
 		}
 		netmon->current_frame++;
 
@@ -1469,20 +1469,20 @@ static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 			continue;
 
 		case SUCCESS:
-			return TRUE;
+			return true;
 
 		case FAILURE:
-			return FALSE;
+			return false;
 		}
 	}
 }
 
-static gboolean
-netmon_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+netmon_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	switch (netmon_process_record(wth, wth->random_fh, rec, buf, err,
 	    err_info)) {
@@ -1493,26 +1493,26 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
-		return FALSE;
+		return false;
 
 	case SUCCESS:
-		return TRUE;
+		return true;
 
 	case FAILURE:
-		return FALSE;
+		return false;
 	}
 }
 
-static gboolean
+static bool
 netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	struct netmon_atm_hdr atm_phdr;
-	guint16	vpi, vci;
+	uint16_t	vpi, vci;
 
 	if (!wtap_read_bytes(fh, &atm_phdr, sizeof (struct netmon_atm_hdr),
 	    err, err_info))
-		return FALSE;
+		return false;
 
 	vpi = g_ntohs(atm_phdr.vpi);
 	vci = g_ntohs(atm_phdr.vci);
@@ -1528,7 +1528,7 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
 
-	return TRUE;
+	return true;
 }
 
 /* Throw away the frame table used by the sequential I/O stream. */
@@ -1554,14 +1554,14 @@ netmon_close(wtap *wth)
 }
 
 typedef struct {
-	gboolean is_v2;
-	gboolean got_first_record_time;
+	bool is_v2;
+	bool got_first_record_time;
 	nstime_t first_record_time;
-	guint32	frame_table_offset;
-	guint32	*frame_table;
-	guint	frame_table_index;
-	guint	frame_table_size;
-	gboolean no_more_room;		/* TRUE if no more records can be written */
+	uint32_t frame_table_offset;
+	uint32_t *frame_table;
+	unsigned frame_table_index;
+	unsigned frame_table_size;
+	bool no_more_room;		/* true if no more records can be written */
 } netmon_dump_t;
 
 static const int wtap_encap[] = {
@@ -1611,10 +1611,10 @@ static int netmon_dump_can_write_encap_2_x(int encap)
 	return 0;
 }
 
-/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+/* Returns true on success, false on failure; sets "*err" to an error code on
    failure */
-static gboolean netmon_dump_open(wtap_dumper *wdh, gboolean is_v2,
-                                 int *err, gchar **err_info _U_)
+static bool netmon_dump_open(wtap_dumper *wdh, bool is_v2,
+                                 int *err, char **err_info _U_)
 {
 	netmon_dump_t *netmon;
 
@@ -1623,7 +1623,7 @@ static gboolean netmon_dump_open(wtap_dumper *wdh, gboolean is_v2,
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
 	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	wdh->bytes_dumped = CAPTUREFILE_HEADER_SIZE;
 	wdh->subtype_write = netmon_dump;
@@ -1633,29 +1633,29 @@ static gboolean netmon_dump_open(wtap_dumper *wdh, gboolean is_v2,
 	wdh->priv = (void *)netmon;
 	netmon->is_v2 = is_v2;
 	netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
-	netmon->got_first_record_time = FALSE;
+	netmon->got_first_record_time = false;
 	netmon->frame_table = NULL;
 	netmon->frame_table_index = 0;
 	netmon->frame_table_size = 0;
-	netmon->no_more_room = FALSE;
+	netmon->no_more_room = false;
 
-	return TRUE;
+	return true;
 }
 
-static gboolean netmon_dump_open_1_x(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool netmon_dump_open_1_x(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
-	return netmon_dump_open(wdh, FALSE, err, err_info);
+	return netmon_dump_open(wdh, false, err, err_info);
 }
 
-static gboolean netmon_dump_open_2_x(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool netmon_dump_open_2_x(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
-	return netmon_dump_open(wdh, TRUE, err, err_info);
+	return netmon_dump_open(wdh, true, err, err_info);
 }
 
 /* Write a record for a packet to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info _U_)
+   Returns true on success, false on failure. */
+static bool netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
+    const uint8_t *pd, int *err, char **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
@@ -1667,20 +1667,20 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	size_t hdr_size;
 	struct netmon_atm_hdr atm_hdr;
 	int atm_hdrsize;
-	gint64	secs;
-	gint32	nsecs;
+	int64_t	secs;
+	int32_t	nsecs;
 
 	/* We can only write packet records. */
 	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-		return FALSE;
+		return false;
 	}
 
 	if (netmon->is_v2) {
 		/* Don't write anything we're not willing to read. */
 		if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 			*err = WTAP_ERR_PACKET_TOO_LARGE;
-			return FALSE;
+			return false;
 		}
 	} else {
 		/*
@@ -1689,7 +1689,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		 */
 		if (wdh->file_encap != rec->rec_header.packet_header.pkt_encap) {
 			*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-			return FALSE;
+			return false;
 		}
 
 		/*
@@ -1698,7 +1698,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		 */
 		if (rec->rec_header.packet_header.caplen > 65535) {
 			*err = WTAP_ERR_PACKET_TOO_LARGE;
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -1713,7 +1713,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 			 * No.  Fail.
 			 */
 			*err = WTAP_ERR_UNWRITABLE_ENCAP;
-			return FALSE;
+			return false;
 		}
 
 		/*
@@ -1732,7 +1732,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		 * handle.
 		 */
 		*err = EFBIG;
-		return FALSE;
+		return false;
 	}
 
 	/*
@@ -1748,14 +1748,14 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		netmon->first_record_time.secs = rec->ts.secs;
 		netmon->first_record_time.nsecs =
 		    (rec->ts.nsecs/1000000)*1000000;
-		netmon->got_first_record_time = TRUE;
+		netmon->got_first_record_time = true;
 	}
 
 	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct netmon_atm_hdr);
 	else
 		atm_hdrsize = 0;
-	secs = (gint64)(rec->ts.secs - netmon->first_record_time.secs);
+	secs = (int64_t)(rec->ts.secs - netmon->first_record_time.secs);
 	nsecs = rec->ts.nsecs - netmon->first_record_time.nsecs;
 	while (nsecs < 0) {
 		/*
@@ -1803,7 +1803,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	rec_size = 0;
 
 	if (!wtap_dump_file_write(wdh, hdrp, hdr_size, err))
-		return FALSE;
+		return false;
 	rec_size += hdr_size;
 
 	if (wdh->file_encap == WTAP_ENCAP_ATM_PDUS) {
@@ -1816,12 +1816,12 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		atm_hdr.vpi = g_htons(pseudo_header->atm.vpi);
 		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
 		if (!wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr, err))
-			return FALSE;
+			return false;
 		rec_size += sizeof atm_hdr;
 	}
 
 	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
-		return FALSE;
+		return false;
 	rec_size += rec->rec_header.packet_header.caplen;
 
 	if (wdh->file_encap == WTAP_ENCAP_PER_PACKET) {
@@ -1830,7 +1830,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		 */
 		if (!wtap_dump_file_write(wdh, &rec_2_x_trlr,
 		    sizeof rec_2_x_trlr, err))
-			return FALSE;
+			return false;
 		rec_size += sizeof rec_2_x_trlr;
 	}
 
@@ -1841,7 +1841,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		/*
 		 * Haven't yet allocated the buffer for the frame table.
 		 */
-		netmon->frame_table = (guint32 *)g_malloc(1024 * sizeof *netmon->frame_table);
+		netmon->frame_table = (uint32_t *)g_malloc(1024 * sizeof *netmon->frame_table);
 		netmon->frame_table_size = 1024;
 	} else {
 		/*
@@ -1852,7 +1852,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 			 * Yes - double the size of the frame table.
 			 */
 			netmon->frame_table_size *= 2;
-			netmon->frame_table = (guint32 *)g_realloc(netmon->frame_table,
+			netmon->frame_table = (uint32_t *)g_realloc(netmon->frame_table,
 			    netmon->frame_table_size * sizeof *netmon->frame_table);
 		}
 	}
@@ -1874,22 +1874,22 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	 * Note: this also catches the unlikely possibility that
 	 * the record itself is > 2^32 - 1 bytes long.
 	 */
-	if ((guint64)netmon->frame_table_offset + rec_size > G_MAXUINT32) {
+	if ((uint64_t)netmon->frame_table_offset + rec_size > UINT32_MAX) {
 		/*
 		 * Yup, too big.
 		 */
-		netmon->no_more_room = TRUE;
+		netmon->no_more_room = true;
 	}
 	netmon->frame_table_index++;
-	netmon->frame_table_offset += (guint32) rec_size;
+	netmon->frame_table_offset += (uint32_t) rec_size;
 
-	return TRUE;
+	return true;
 }
 
 /* Finish writing to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
-    gchar **err_info _U_)
+   Returns true on success, false on failure. */
+static bool netmon_dump_finish(wtap_dumper *wdh, int *err,
+    char **err_info _U_)
 {
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	size_t n_to_write;
@@ -1897,17 +1897,17 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	const char *magicp;
 	size_t magic_size;
 	struct tm *tm;
-	gint64 saved_bytes_dumped;
+	int64_t saved_bytes_dumped;
 
 	/* Write out the frame table.  "netmon->frame_table_index" is
 	   the number of entries we've put into it. */
 	n_to_write = netmon->frame_table_index * sizeof *netmon->frame_table;
 	if (!wtap_dump_file_write(wdh, netmon->frame_table, n_to_write, err))
-		return FALSE;
+		return false;
 
 	/* Now go fix up the file header. */
 	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 	/* Save bytes_dumped since following calls to wtap_dump_file_write()
 	 * will still (mistakenly) increase it.
 	 */
@@ -1943,7 +1943,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 		file_hdr.ver_minor = 1;
 	}
 	if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
-		return FALSE;
+		return false;
 
 	if (wdh->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
@@ -1977,10 +1977,10 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	file_hdr.frametablelength =
 	    GUINT32_TO_LE(netmon->frame_table_index * sizeof *netmon->frame_table);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
-		return FALSE;
+		return false;
 
 	wdh->bytes_dumped = saved_bytes_dumped;
-	return TRUE;
+	return true;
 }
 
 static const struct supported_block_type netmon_1_x_blocks_supported[] = {
@@ -1992,7 +1992,7 @@ static const struct supported_block_type netmon_1_x_blocks_supported[] = {
 
 static const struct file_type_subtype_info netmon_1_x_info = {
 	"Microsoft NetMon 1.x", "netmon1", "cap", NULL,
-	TRUE, BLOCKS_SUPPORTED(netmon_1_x_blocks_supported),
+	true, BLOCKS_SUPPORTED(netmon_1_x_blocks_supported),
 	netmon_dump_can_write_encap_1_x, netmon_dump_open_1_x, NULL
 };
 
@@ -2005,7 +2005,7 @@ static const struct supported_block_type netmon_2_x_blocks_supported[] = {
 
 static const struct file_type_subtype_info netmon_2_x_info = {
 	"Microsoft NetMon 2.x", "netmon2", "cap", NULL,
-	TRUE, BLOCKS_SUPPORTED(netmon_2_x_blocks_supported),
+	true, BLOCKS_SUPPORTED(netmon_2_x_blocks_supported),
 	netmon_dump_can_write_encap_2_x, netmon_dump_open_2_x, NULL
 };
 

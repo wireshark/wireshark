@@ -22,19 +22,19 @@ void register_eri_enb_log(void);
 
 #define MAX_LINE_LENGTH            131072
 
-static gboolean eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
-	Buffer* buf, int* err _U_, gchar** err_info _U_)
+static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
+	Buffer* buf, int* err _U_, char** err_info _U_)
 {
 	static char line[MAX_LINE_LENGTH];
 	/* Read in a line */
-	gint64 pos_before = file_tell(fh);
+	int64_t pos_before = file_tell(fh);
 
 	while (file_gets(line, sizeof(line), fh) != NULL)
 	{
 		nstime_t packet_time;
-		gint length;
+		int length;
 		/* Set length (avoiding strlen()) and offset.. */
-		length = (gint)(file_tell(fh) - pos_before);
+		length = (int)(file_tell(fh) - pos_before);
 
 		/* ...but don't want to include newline in line length */
 		if (length > 0 && line[length - 1] == '\n') {
@@ -68,15 +68,15 @@ static gboolean eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
 		ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
 		memcpy(ws_buffer_start_ptr(buf), line, rec->rec_header.packet_header.caplen);
 
-		return TRUE;
+		return true;
 
 	}
-	return FALSE;
+	return false;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean eri_enb_log_read(wtap* wth, wtap_rec* rec, Buffer* buf,
-	int* err, gchar** err_info, gint64* data_offset)
+static bool eri_enb_log_read(wtap* wth, wtap_rec* rec, Buffer* buf,
+	int* err, char** err_info, int64_t* data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
@@ -84,19 +84,19 @@ static gboolean eri_enb_log_read(wtap* wth, wtap_rec* rec, Buffer* buf,
 }
 
 /* Used to read packets in random-access fashion */
-static gboolean eri_enb_log_seek_read(wtap* wth, gint64 seek_off,
-	wtap_rec* rec, Buffer* buf, int* err, gchar** err_info)
+static bool eri_enb_log_seek_read(wtap* wth, int64_t seek_off,
+	wtap_rec* rec, Buffer* buf, int* err, char** err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{
-		return FALSE;
+		return false;
 	}
 
 	return eri_enb_log_get_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
 wtap_open_return_val
-eri_enb_log_open(wtap *wth, int *err, gchar **err_info)
+eri_enb_log_open(wtap *wth, int *err, char **err_info)
 {
 	char line1[64];
 
@@ -138,7 +138,7 @@ static const struct supported_block_type eri_enb_log_blocks_supported[] = {
 
 static const struct file_type_subtype_info eri_enb_log_info = {
 	"Ericsson eNode-B raw log", "eri_enb_log", "eri_enb_log", NULL,
-	FALSE, BLOCKS_SUPPORTED(eri_enb_log_blocks_supported),
+	false, BLOCKS_SUPPORTED(eri_enb_log_blocks_supported),
 	NULL, NULL, NULL
 };
 

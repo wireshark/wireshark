@@ -117,7 +117,7 @@ wtap_get_all_compression_type_extensions_list(void)
 
 	for (struct compression_type *p = compression_types;
 	    p->type != WTAP_UNCOMPRESSED; p++)
-		extensions = g_slist_prepend(extensions, (gpointer)p->extension);
+		extensions = g_slist_prepend(extensions, (void *)p->extension);
 
 	return extensions;
 }
@@ -148,11 +148,11 @@ typedef enum {
  *       imposes a limit on the buffer size when we're reading a
  *       gzipped file.
  *
- * Thus, we use guint for the buffer sizes, offsets, amount available
+ * Thus, we use unsigned for the buffer sizes, offsets, amount available
  * from the buffer, etc.
  *
  * If we want an even bigger buffer for uncompressed data, or for
- * some other form of compression, then the guint-sized values should
+ * some other form of compression, then the unsigned-sized values should
  * be in structure values used only for reading gzipped files, and
  * other values should be used for uncompressed data or data
  * compressed using other algorithms (e.g., in a union).
@@ -160,30 +160,30 @@ typedef enum {
 #define MAX_READ_BUF_SIZE	(1U << 30)
 
 struct wtap_reader_buf {
-    guint8 *buf;  /* buffer */
-    guint8 *next; /* next byte to deliver from buffer */
-    guint avail;  /* number of bytes available to deliver at next */
+    uint8_t *buf;  /* buffer */
+    uint8_t *next; /* next byte to deliver from buffer */
+    unsigned avail;  /* number of bytes available to deliver at next */
 };
 
 struct wtap_reader {
     int fd;                     /* file descriptor */
-    gint64 raw_pos;             /* current position in file (just to not call lseek()) */
-    gint64 pos;                 /* current position in uncompressed data */
-    guint size;                 /* buffer size */
+    int64_t raw_pos;            /* current position in file (just to not call lseek()) */
+    int64_t pos;                /* current position in uncompressed data */
+    unsigned size;              /* buffer size */
 
     struct wtap_reader_buf in;  /* input buffer, containing compressed data */
     struct wtap_reader_buf out; /* output buffer, containing uncompressed data */
 
-    gboolean eof;               /* TRUE if end of input file reached */
-    gint64 start;               /* where the gzip data started, for rewinding */
-    gint64 raw;                 /* where the raw data started, for seeking */
+    bool eof;                   /* true if end of input file reached */
+    int64_t start;              /* where the gzip data started, for rewinding */
+    int64_t raw;                /* where the raw data started, for seeking */
     compression_t compression;  /* type of compression, if any */
     compression_t last_compression; /* last known compression type */
-    gboolean is_compressed;     /* FALSE if completely uncompressed, TRUE otherwise */
+    bool is_compressed;         /* false if completely uncompressed, true otherwise */
 
     /* seek request */
-    gint64 skip;                /* amount to skip (already rewound if backwards) */
-    gboolean seek_pending;      /* TRUE if seek request pending */
+    int64_t skip;               /* amount to skip (already rewound if backwards) */
+    bool seek_pending;          /* true if seek request pending */
 
     /* error information */
     int err;                    /* error code */
@@ -192,7 +192,7 @@ struct wtap_reader {
 #ifdef HAVE_ZLIB
     /* zlib inflate stream */
     z_stream strm;              /* stream structure in-place (not a pointer) */
-    gboolean dont_check_crc;    /* TRUE if we aren't supposed to check the CRC */
+    bool dont_check_crc;        /* true if we aren't supposed to check the CRC */
 #endif
     /* fast seeking */
     GPtrArray *fast_seek;
@@ -206,7 +206,7 @@ struct wtap_reader {
 };
 
 /* Current read offset within a buffer. */
-static guint
+static unsigned
 offset_in_buffer(struct wtap_reader_buf *buf)
 {
     /* buf->next points to the next byte to read, and buf->buf points
@@ -215,11 +215,11 @@ offset_in_buffer(struct wtap_reader_buf *buf)
 
        This will fit in an unsigned int, because it can't be bigger
        than the size of the buffer, which is an unsigned int. */
-    return (guint)(buf->next - buf->buf);
+    return (unsigned)(buf->next - buf->buf);
 }
 
 /* Number of bytes of data that are in a buffer. */
-static guint
+static unsigned
 bytes_in_buffer(struct wtap_reader_buf *buf)
 {
     /* buf->next + buf->avail points just past the last byte of data in
@@ -227,9 +227,9 @@ bytes_in_buffer(struct wtap_reader_buf *buf)
        Thus, (buf->next + buf->avail) - buf->buf is the number of bytes
        of data in the buffer.
 
-       This will fit in an guint, because it can't be bigger
-       than the size of the buffer, which is a guint. */
-    return (guint)((buf->next + buf->avail) - buf->buf);
+       This will fit in an unsigned, because it can't be bigger
+       than the size of the buffer, which is a unsigned. */
+    return (unsigned)((buf->next + buf->avail) - buf->buf);
 }
 
 /* Reset a buffer, discarding all data in the buffer, so we read into
@@ -244,7 +244,7 @@ buf_reset(struct wtap_reader_buf *buf)
 static int
 buf_read(FILE_T state, struct wtap_reader_buf *buf)
 {
-    guint space_left, to_read;
+    unsigned space_left, to_read;
     unsigned char *read_ptr;
     ssize_t ret;
 
@@ -273,9 +273,9 @@ buf_read(FILE_T state, struct wtap_reader_buf *buf)
         return -1;
     }
     if (ret == 0)
-        state->eof = TRUE;
+        state->eof = true;
     state->raw_pos += ret;
-    buf->avail += (guint)ret;
+    buf->avail += (unsigned)ret;
     return 0;
 }
 
@@ -294,8 +294,8 @@ fill_in_buffer(FILE_T state)
 #define ZLIB_WINSIZE 32768
 
 struct fast_seek_point {
-    gint64 out;         /* corresponding offset in uncompressed data */
-    gint64 in;          /* offset in input file of first full byte */
+    int64_t out;         /* corresponding offset in uncompressed data */
+    int64_t in;          /* offset in input file of first full byte */
 
     compression_t compression;
     union {
@@ -306,8 +306,8 @@ struct fast_seek_point {
             unsigned char window[ZLIB_WINSIZE]; /* preceding 32K of uncompressed data */
 
             /* be gentle with Z_STREAM_END, 8 bytes more... Another solution would be to comment checks out */
-            guint32 adler;
-            guint32 total_out;
+            uint32_t adler;
+            uint32_t total_out;
         } zlib;
     } data;
 };
@@ -318,13 +318,13 @@ struct zlib_cur_seek_point {
     unsigned int have;
 };
 
-#define SPAN G_GINT64_CONSTANT(1048576)
+#define SPAN INT64_C(1048576)
 static struct fast_seek_point *
-fast_seek_find(FILE_T file, gint64 pos)
+fast_seek_find(FILE_T file, int64_t pos)
 {
     struct fast_seek_point *smallest = NULL;
     struct fast_seek_point *item;
-    guint low, i, max;
+    unsigned low, i, max;
 
     if (!file->fast_seek)
         return NULL;
@@ -346,7 +346,7 @@ fast_seek_find(FILE_T file, gint64 pos)
 }
 
 static void
-fast_seek_header(FILE_T file, gint64 in_pos, gint64 out_pos,
+fast_seek_header(FILE_T file, int64_t in_pos, int64_t out_pos,
                  compression_t compression)
 {
     struct fast_seek_point *item = NULL;
@@ -402,7 +402,7 @@ fast_seek_reset(
 /* Get a one-byte integer and return 0 on success and the value in *ret.
    Otherwise -1 is returned, state->err is set, and *ret is not modified. */
 static int
-gz_next1(FILE_T state, guint8 *ret)
+gz_next1(FILE_T state, uint8_t *ret)
 {
     int ch;
 
@@ -423,9 +423,9 @@ gz_next1(FILE_T state, guint8 *ret)
    in *ret.  Otherwise -1 is returned, state->err is set, and *ret is not
    modified. */
 static int
-gz_next2(FILE_T state, guint16 *ret)
+gz_next2(FILE_T state, uint16_t *ret)
 {
-    guint16 val;
+    uint16_t val;
     int ch;
 
     val = GZ_GETC();
@@ -438,7 +438,7 @@ gz_next2(FILE_T state, guint16 *ret)
         }
         return -1;
     }
-    val += (guint16)ch << 8;
+    val += (uint16_t)ch << 8;
     *ret = val;
     return 0;
 }
@@ -447,14 +447,14 @@ gz_next2(FILE_T state, guint16 *ret)
    in *ret.  Otherwise -1 is returned, state->err is set, and *ret is not
    modified. */
 static int
-gz_next4(FILE_T state, guint32 *ret)
+gz_next4(FILE_T state, uint32_t *ret)
 {
-    guint32 val;
+    uint32_t val;
     int ch;
 
     val = GZ_GETC();
     val += (unsigned)GZ_GETC() << 8;
-    val += (guint32)GZ_GETC() << 16;
+    val += (uint32_t)GZ_GETC() << 16;
     ch = GZ_GETC();
     if (ch == -1) {
         if (state->err == 0) {
@@ -464,7 +464,7 @@ gz_next4(FILE_T state, guint32 *ret)
         }
         return -1;
     }
-    val += (guint32)ch << 24;
+    val += (uint32_t)ch << 24;
     *ret = val;
     return 0;
 }
@@ -511,7 +511,7 @@ gz_skipzstr(FILE_T state)
 }
 
 static void
-zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gint64 in_pos, gint64 out_pos)
+zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, int64_t in_pos, int64_t out_pos)
 {
     /* it's for sure after gzip header, so file->fast_seek->len != 0 */
     struct fast_seek_point *item = (struct fast_seek_point *)file->fast_seek->pdata[file->fast_seek->len - 1];
@@ -554,8 +554,8 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gin
          *
          * The same applies to strm.total_out.
          */
-        val->data.zlib.adler = (guint32) file->strm.adler;
-        val->data.zlib.total_out = (guint32) file->strm.total_out;
+        val->data.zlib.adler = (uint32_t) file->strm.adler;
+        val->data.zlib.total_out = (uint32_t) file->strm.total_out;
         g_ptr_array_add(file->fast_seek, val);
     }
 }
@@ -564,7 +564,7 @@ static void /* gz_decomp */
 zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 {
     int ret = 0;        /* XXX */
-    guint32 crc, len;
+    uint32_t crc, len;
     z_streamp strm = &(state->strm);
 
     unsigned char *buf2 = buf;
@@ -633,7 +633,7 @@ DIAG_ON(cast-qual)
             unsigned int ready = count2 - strm->avail_out;
 
             if (ready < ZLIB_WINSIZE) {
-                guint left = ZLIB_WINSIZE - cur->pos;
+                unsigned left = ZLIB_WINSIZE - cur->pos;
 
                 if (ready >= left) {
                     memcpy(cur->window + cur->pos, buf2, left);
@@ -697,7 +697,7 @@ DIAG_ON(cast-qual)
 static int
 gz_head(FILE_T state)
 {
-    guint already_read;
+    unsigned already_read;
 
     /* get some data in the input buffer */
     if (state->in.avail == 0) {
@@ -730,10 +730,10 @@ gz_head(FILE_T state)
                  * those cases, you lose.
                  */
 #ifdef HAVE_ZLIB
-                guint8 cm;
-                guint8 flags;
-                guint16 len;
-                guint16 hcrc;
+                uint8_t cm;
+                uint8_t flags;
+                uint16_t len;
+                uint16_t hcrc;
 
                 state->in.avail--;
                 state->in.next++;
@@ -818,7 +818,7 @@ gz_head(FILE_T state)
                 inflateReset(&(state->strm));
                 state->strm.adler = crc32(0L, Z_NULL, 0);
                 state->compression = ZLIB;
-                state->is_compressed = TRUE;
+                state->is_compressed = true;
 #ifdef Z_BLOCK
                 if (state->fast_seek) {
                     struct zlib_cur_seek_point *cur = g_new(struct zlib_cur_seek_point,1);
@@ -873,7 +873,7 @@ gz_head(FILE_T state)
         }
 
         state->compression = ZSTD;
-        state->is_compressed = TRUE;
+        state->is_compressed = true;
         return 0;
 #else
         state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
@@ -898,7 +898,7 @@ gz_head(FILE_T state)
         }
 #endif
         state->compression = LZ4;
-        state->is_compressed = TRUE;
+        state->is_compressed = true;
         return 0;
 #else
         state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
@@ -964,10 +964,10 @@ fill_out_buffer(FILE_T state)
         }
 
         state->in.next = state->in.next + input.pos;
-        state->in.avail -= (guint)input.pos;
+        state->in.avail -= (unsigned)input.pos;
 
         state->out.next = output.dst;
-        state->out.avail = (guint)output.pos;
+        state->out.avail = (unsigned)output.pos;
 
         if (ret == 0) {
             state->last_compression = state->compression;
@@ -996,10 +996,10 @@ fill_out_buffer(FILE_T state)
          * value > state->in.avail.
          */
         state->in.next = state->in.next + inBufSize;
-        state->in.avail -= (guint)inBufSize;
+        state->in.avail -= (unsigned)inBufSize;
 
         state->out.next = state->out.buf;
-        state->out.avail = (guint)outBufSize;
+        state->out.avail = (unsigned)outBufSize;
 
         if (ret == 0) {
             state->last_compression = state->compression;
@@ -1011,16 +1011,16 @@ fill_out_buffer(FILE_T state)
 }
 
 static int
-gz_skip(FILE_T state, gint64 len)
+gz_skip(FILE_T state, int64_t len)
 {
-    guint n;
+    unsigned n;
 
     /* skip over len bytes or reach end-of-file, whichever comes first */
     while (len)
         if (state->out.avail != 0) {
             /* We have stuff in the output buffer; skip over
                it. */
-            n = (gint64)state->out.avail > len ? (unsigned)len : state->out.avail;
+            n = (int64_t)state->out.avail > len ? (unsigned)len : state->out.avail;
             state->out.avail -= n;
             state->out.next += n;
             state->pos += n;
@@ -1050,10 +1050,10 @@ static void
 gz_reset(FILE_T state)
 {
     buf_reset(&state->out);       /* no output data available */
-    state->eof = FALSE;           /* not at end of file */
+    state->eof = false;           /* not at end of file */
     state->compression = UNKNOWN; /* look for compression header */
 
-    state->seek_pending = FALSE;  /* no seek request pending */
+    state->seek_pending = false;  /* no seek request pending */
     state->err = 0;               /* clear error */
     state->err_info = NULL;
     state->pos = 0;               /* no uncompressed data yet */
@@ -1087,7 +1087,7 @@ file_fdopen(int fd)
 #ifdef HAVE_ZSTD
     size_t zstd_buf_size;
 #endif
-    guint want = GZBUFSIZE;
+    unsigned want = GZBUFSIZE;
     FILE_T state;
 #ifdef USE_LZ4
     size_t ret;
@@ -1108,7 +1108,7 @@ file_fdopen(int fd)
     state->fd = fd;
 
     /* we don't yet know whether it's compressed */
-    state->is_compressed = FALSE;
+    state->is_compressed = false;
     state->last_compression = UNKNOWN;
 
     /* save the current position for rewinding (only if reading) */
@@ -1130,7 +1130,7 @@ file_fdopen(int fd)
          * Yes, st_blksize can be bigger than an int; apparently,
          * it's a long on LP64 Linux, for example.
          *
-         * If the value is too big to fit into a guint,
+         * If the value is too big to fit into a unsigned,
          * just use the maximum read buffer size.
          *
          * On top of that, the Single UNIX Speification says that
@@ -1152,7 +1152,7 @@ file_fdopen(int fd)
          * (We only support 32-bit and 64-bit 2's-complement platforms.)
          */
         if (st.st_blksize <= (long)MAX_READ_BUF_SIZE)
-            want = (guint)st.st_blksize;
+            want = (unsigned)st.st_blksize;
         else
             want = MAX_READ_BUF_SIZE;
         /* XXX, verify result? */
@@ -1163,14 +1163,14 @@ file_fdopen(int fd)
     zstd_buf_size = ZSTD_DStreamInSize();
     if (zstd_buf_size > want) {
         if (zstd_buf_size <= MAX_READ_BUF_SIZE)
-            want = (guint)zstd_buf_size;
+            want = (unsigned)zstd_buf_size;
         else
             want = MAX_READ_BUF_SIZE;
     }
     zstd_buf_size = ZSTD_DStreamOutSize();
     if (zstd_buf_size > want) {
         if (zstd_buf_size <= MAX_READ_BUF_SIZE)
-            want = (guint)zstd_buf_size;
+            want = (unsigned)zstd_buf_size;
         else
             want = MAX_READ_BUF_SIZE;
     }
@@ -1199,7 +1199,7 @@ file_fdopen(int fd)
     }
 
     /* for now, assume we should check the crc */
-    state->dont_check_crc = FALSE;
+    state->dont_check_crc = false;
 #endif
 
 #ifdef HAVE_ZSTD
@@ -1281,7 +1281,7 @@ file_open(const char *path)
     suffixp = strrchr(path, '.');
     if (suffixp != NULL) {
         if (g_ascii_strcasecmp(suffixp, ".caz") == 0)
-            ft->dont_check_crc = TRUE;
+            ft->dont_check_crc = true;
     }
 #endif
 
@@ -1289,16 +1289,16 @@ file_open(const char *path)
 }
 
 void
-file_set_random_access(FILE_T stream, gboolean random_flag _U_, GPtrArray *seek)
+file_set_random_access(FILE_T stream, bool random_flag _U_, GPtrArray *seek)
 {
     stream->fast_seek = seek;
 }
 
-gint64
-file_seek(FILE_T file, gint64 offset, int whence, int *err)
+int64_t
+file_seek(FILE_T file, int64_t offset, int whence, int *err)
 {
     struct fast_seek_point *here;
-    guint n;
+    unsigned n;
 
     if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
         ws_assert_not_reached();
@@ -1318,7 +1318,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
            XXX - we don't actually use this yet, but, for uncompressed
            files, we could optimize it, if desired, by directly using
            ws_lseek64(). */
-        if (gz_skip(file, G_MAXINT64) == -1) {
+        if (gz_skip(file, INT64_MAX) == -1) {
             *err = file->err;
             return -1;
         }
@@ -1334,7 +1334,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
            which we're skipping; update the offset to include that. */
         offset += file->skip;
     }
-    file->seek_pending = FALSE;
+    file->seek_pending = false;
 
     /*
      * Are we moving at all?
@@ -1370,7 +1370,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
              * not at all likely to see files big enough to ever
              * see a negative offset that large.
              */
-            guint adjustment = (unsigned)(-offset);
+            unsigned adjustment = (unsigned)(-offset);
 
             file->out.avail += adjustment;
             file->out.next -= adjustment;
@@ -1389,9 +1389,9 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
              * Yes.  Adjust appropriately.
              *
              * offset is < an unsigned and thus fits in an unsigned,
-             * so we can cast it to guint safely.
+             * so we can cast it to unsigned safely.
              */
-            file->out.avail -= (guint)offset;
+            file->out.avail -= (unsigned)offset;
             file->out.next += offset;
             file->pos += offset;
             return file->pos;
@@ -1408,7 +1408,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
      */
     if ((here = fast_seek_find(file, file->pos + offset)) &&
         (offset < 0 || offset > SPAN || here->compression == UNCOMPRESSED)) {
-        gint64 off, off2;
+        int64_t off, off2;
 
         /*
          * Yes.  Use that data to do the seek.
@@ -1442,8 +1442,8 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
         file->raw_pos = off;
         buf_reset(&file->out);
-        file->eof = FALSE;
-        file->seek_pending = FALSE;
+        file->eof = false;
+        file->seek_pending = false;
         file->err = 0;
         file->err_info = NULL;
         buf_reset(&file->in);
@@ -1491,7 +1491,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
             /* Don't skip forward yet, wait until we want to read from
                the file; that way, if we do multiple seeks in a row,
                all involving forward skips, they will be combined. */
-            file->seek_pending = TRUE;
+            file->seek_pending = true;
             file->skip = offset;
         }
         return file->pos + offset;
@@ -1520,8 +1520,8 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         }
         file->raw_pos += (offset - file->out.avail);
         buf_reset(&file->out);
-        file->eof = FALSE;
-        file->seek_pending = FALSE;
+        file->eof = false;
+        file->seek_pending = false;
         file->err = 0;
         file->err_info = NULL;
         buf_reset(&file->in);
@@ -1563,7 +1563,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
      *
      * Skip what's in output buffer (one less gzgetc() check).
      */
-    n = (gint64)file->out.avail > offset ? (unsigned)offset : file->out.avail;
+    n = (int64_t)file->out.avail > offset ? (unsigned)offset : file->out.avail;
     file->out.avail -= n;
     file->out.next += n;
     file->pos += n;
@@ -1574,20 +1574,20 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         /* Don't skip forward yet, wait until we want to read from
            the file; that way, if we do multiple seeks in a row,
            all involving forward skips, they will be combined. */
-        file->seek_pending = TRUE;
+        file->seek_pending = true;
         file->skip = offset;
     }
     return file->pos + offset;
 }
 
-gint64
+int64_t
 file_tell(FILE_T stream)
 {
     /* return position */
     return stream->pos + (stream->seek_pending ? stream->skip : 0);
 }
 
-gint64
+int64_t
 file_tell_raw(FILE_T stream)
 {
     return stream->raw_pos;
@@ -1604,7 +1604,7 @@ file_fstat(FILE_T stream, ws_statb64 *statb, int *err)
     return 0;
 }
 
-gboolean
+bool
 file_iscompressed(FILE_T stream)
 {
     return stream->is_compressed;
@@ -1645,7 +1645,7 @@ file_get_compression_type(FILE_T stream)
 int
 file_read(void *buf, unsigned int len, FILE_T file)
 {
-    guint got, n;
+    unsigned got, n;
 
     /* if len is zero, avoid unnecessary operations */
     if (len == 0)
@@ -1653,7 +1653,7 @@ file_read(void *buf, unsigned int len, FILE_T file)
 
     /* process a skip request */
     if (file->seek_pending) {
-        file->seek_pending = FALSE;
+        file->seek_pending = false;
         if (gz_skip(file, file->skip) == -1)
             return -1;
     }
@@ -1722,7 +1722,7 @@ file_peekc(FILE_T file)
 
     /* process a skip request */
     if (file->seek_pending) {
-        file->seek_pending = FALSE;
+        file->seek_pending = false;
         if (gz_skip(file, file->skip) == -1)
             return -1;
     }
@@ -1778,7 +1778,7 @@ file_getc(FILE_T file)
 char *
 file_getsp(char *buf, int len, FILE_T file)
 {
-    guint left, n;
+    unsigned left, n;
     char *str;
     unsigned char *eol;
 
@@ -1792,7 +1792,7 @@ file_getsp(char *buf, int len, FILE_T file)
 
     /* process a skip request */
     if (file->seek_pending) {
-        file->seek_pending = FALSE;
+        file->seek_pending = false;
         if (gz_skip(file, file->skip) == -1)
             return NULL;
     }
@@ -1864,7 +1864,7 @@ file_eof(FILE_T file)
  * I/O stream.  Also returns an error string for some errors.
  */
 int
-file_error(FILE_T fh, gchar **err_info)
+file_error(FILE_T fh, char **err_info)
 {
     if (fh->err!=0 && err_info) {
         /* g_strdup() returns NULL for NULL argument */
@@ -1879,7 +1879,7 @@ file_clearerr(FILE_T stream)
     /* clear error and end-of-file */
     stream->err = 0;
     stream->err_info = NULL;
-    stream->eof = FALSE;
+    stream->eof = false;
 }
 
 void
@@ -1890,15 +1890,15 @@ file_fdclose(FILE_T file)
     file->fd = -1;
 }
 
-gboolean
+bool
 file_fdreopen(FILE_T file, const char *path)
 {
     int fd;
 
     if ((fd = ws_open(path, O_RDONLY|O_BINARY, 0000)) == -1)
-        return FALSE;
+        return false;
     file->fd = fd;
-    return TRUE;
+    return true;
 }
 
 void
@@ -1937,9 +1937,9 @@ file_close(FILE_T file)
 /* internal gzip file state data structure for writing */
 struct wtap_writer {
     int fd;                 /* file descriptor */
-    gint64 pos;             /* current position in uncompressed data */
-    guint size;             /* buffer size, zero if not allocated yet */
-    guint want;             /* requested buffer size, default is GZBUFSIZE */
+    int64_t pos;            /* current position in uncompressed data */
+    unsigned size;          /* buffer size, zero if not allocated yet */
+    unsigned want;          /* requested buffer size, default is GZBUFSIZE */
     unsigned char *in;      /* input buffer */
     unsigned char *out;     /* output buffer (double-sized when reading) */
     unsigned char *next;    /* next output data to deliver or write */
@@ -2112,10 +2112,10 @@ gz_comp(GZWFILE_T state, int flush)
    failure or on an attempt to write 0 bytes (in which case state->err
    is Z_OK); return the number of bytes written on success. */
 unsigned
-gzwfile_write(GZWFILE_T state, const void *buf, guint len)
+gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
 {
-    guint put = len;
-    guint n;
+    unsigned put = len;
+    unsigned n;
     z_streamp strm;
 
     strm = &(state->strm);

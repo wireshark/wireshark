@@ -11,6 +11,6 @@
 
 #include "wtap.h"
 
-wtap_open_return_val eri_enb_log_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val eri_enb_log_open(wtap *wth, int *err, char **err_info);
 
 #endif /* __W_ERI_ENB_LOG_H__*/

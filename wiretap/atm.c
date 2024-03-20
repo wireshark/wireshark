@@ -20,7 +20,7 @@
  */
 
 void
-atm_guess_traffic_type(wtap_rec *rec, const guint8 *pd)
+atm_guess_traffic_type(wtap_rec *rec, const uint8_t *pd)
 {
 	/*
 	 * Start out assuming nothing other than that it's AAL5.
@@ -98,7 +98,7 @@ atm_guess_traffic_type(wtap_rec *rec, const guint8 *pd)
 }
 
 void
-atm_guess_lane_type(wtap_rec *rec, const guint8 *pd)
+atm_guess_lane_type(wtap_rec *rec, const uint8_t *pd)
 {
 	if (rec->rec_header.packet_header.caplen >= 2) {
 		if (pd[0] == 0xff && pd[1] == 0x00) {

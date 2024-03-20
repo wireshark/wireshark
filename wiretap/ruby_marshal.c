@@ -20,12 +20,12 @@ static int ruby_marshal_file_type_subtype = -1;
 
 void register_ruby_marshal(void);
 
-static gboolean is_ruby_marshal(const guint8* filebuf)
+static bool is_ruby_marshal(const uint8_t* filebuf)
 {
     if (filebuf[0] != RUBY_MARSHAL_MAJOR)
-        return FALSE;
+        return false;
     if (filebuf[1] != RUBY_MARSHAL_MINOR)
-        return FALSE;
+        return false;
     switch (filebuf[2]) {
         case '0':
         case 'T':
@@ -46,17 +46,17 @@ static gboolean is_ruby_marshal(const guint8* filebuf)
         case 'e':
         case ';':
         case '@':
-            return TRUE;
+            return true;
             break;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, char **err_info)
 {
     /* The size of this buffer should match the expectations of is_ruby_marshal */
-    guint8 filebuf[3];
+    uint8_t filebuf[3];
     int bytes_read;
 
     bytes_read = file_read(filebuf, sizeof(filebuf), wth->fh);
@@ -93,7 +93,7 @@ static const struct supported_block_type ruby_marshal_blocks_supported[] = {
 
 static const struct file_type_subtype_info ruby_marshal_info = {
     "Ruby marshal files", "ruby_marshal", NULL, NULL,
-    FALSE, BLOCKS_SUPPORTED(ruby_marshal_blocks_supported),
+    false, BLOCKS_SUPPORTED(ruby_marshal_blocks_supported),
     NULL, NULL, NULL
 };
 

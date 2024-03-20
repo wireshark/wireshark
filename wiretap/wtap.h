@@ -388,22 +388,22 @@ extern "C" {
 
 /* Packet "pseudo-header" information for Ethernet capture files. */
 struct eth_phdr {
-    gint   fcs_len;  /* Number of bytes of FCS - -1 means "unknown" */
+    int    fcs_len;  /* Number of bytes of FCS - -1 means "unknown" */
 };
 
 /* Packet "pseudo-header" information for capture files for traffic
    between DTE and DCE. */
 #define FROM_DCE 0x80
 struct dte_dce_phdr {
-    guint8  flags;   /* ENCAP_LAPB, ENCAP_V120, ENCAP_FRELAY: 1st bit means From DCE */
+    uint8_t flags;   /* ENCAP_LAPB, ENCAP_V120, ENCAP_FRELAY: 1st bit means From DCE */
 };
 
 /* Packet "pseudo-header" information for ISDN capture files. */
 
 /* Direction */
 struct isdn_phdr {
-    gboolean uton;
-    guint8   channel;   /* 0 = D-channel; n = B-channel n */
+    bool uton;
+    uint8_t  channel;   /* 0 = D-channel; n = B-channel n */
 };
 
 /* Packet "pseudo-header" for ATM capture files.
@@ -415,10 +415,10 @@ struct isdn_phdr {
 /*
  * Status bits.
  */
-#define ATM_RAW_CELL         0x01 /* TRUE if the packet is a single cell */
-#define ATM_NO_HEC           0x02 /* TRUE if the cell has HEC stripped out */
-#define ATM_AAL2_NOPHDR      0x04 /* TRUE if the AAL2 PDU has no pseudo-header */
-#define ATM_REASSEMBLY_ERROR 0x08 /* TRUE if this is an incompletely-reassembled PDU */
+#define ATM_RAW_CELL         0x01 /* true if the packet is a single cell */
+#define ATM_NO_HEC           0x02 /* true if the cell has HEC stripped out */
+#define ATM_AAL2_NOPHDR      0x04 /* true if the AAL2 PDU has no pseudo-header */
+#define ATM_REASSEMBLY_ERROR 0x08 /* true if this is an incompletely-reassembled PDU */
 
 /*
  * AAL types.
@@ -485,18 +485,18 @@ struct isdn_phdr {
 #define TRAF_ST_IPSILON_FT2      3  /* Ipsilon: Flow Type 2 */
 
 struct atm_phdr {
-    guint32 flags;      /* status flags */
-    guint8  aal;        /* AAL of the traffic */
-    guint8  type;       /* traffic type */
-    guint8  subtype;    /* traffic subtype */
-    guint16 vpi;        /* virtual path identifier */
-    guint16 vci;        /* virtual circuit identifier */
-    guint8  aal2_cid;   /* channel id */
-    guint16 channel;    /* link: 0 for DTE->DCE, 1 for DCE->DTE */
-    guint16 cells;      /* number of cells */
-    guint16 aal5t_u2u;  /* user-to-user indicator */
-    guint16 aal5t_len;  /* length of the packet */
-    guint32 aal5t_chksum;   /* checksum for AAL5 packet */
+    uint32_t flags;      /* status flags */
+    uint8_t aal;        /* AAL of the traffic */
+    uint8_t type;       /* traffic type */
+    uint8_t subtype;    /* traffic subtype */
+    uint16_t vpi;        /* virtual path identifier */
+    uint16_t vci;        /* virtual circuit identifier */
+    uint8_t aal2_cid;   /* channel id */
+    uint16_t channel;    /* link: 0 for DTE->DCE, 1 for DCE->DTE */
+    uint16_t cells;      /* number of cells */
+    uint16_t aal5t_u2u;  /* user-to-user indicator */
+    uint16_t aal5t_len;  /* length of the packet */
+    uint32_t aal5t_chksum;   /* checksum for AAL5 packet */
 };
 
 /* Packet "pseudo-header" for the output from "wandsession", "wannext",
@@ -512,17 +512,17 @@ struct atm_phdr {
 #define ASCEND_PFX_ETHER    6
 
 struct ascend_phdr {
-    guint16 type;                         /* ASCEND_PFX_*, as defined above */
+    uint16_t type;                         /* ASCEND_PFX_*, as defined above */
     char    user[ASCEND_MAX_STR_LEN];     /* Username, from wandsession header */
-    guint32 sess;                         /* Session number, from wandsession header */
+    uint32_t sess;                         /* Session number, from wandsession header */
     char    call_num[ASCEND_MAX_STR_LEN]; /* Called number, from WDD header */
-    guint32 chunk;                        /* Chunk number, from WDD header */
-    guint32 task;                         /* Task number */
+    uint32_t chunk;                        /* Chunk number, from WDD header */
+    uint32_t task;                         /* Task number */
 };
 
 /* Packet "pseudo-header" for point-to-point links with direction flags. */
 struct p2p_phdr {
-    gboolean sent;
+    bool sent;
 };
 
 /*
@@ -575,13 +575,13 @@ struct p2p_phdr {
  * 802.11 legacy FHSS.
  */
 struct ieee_802_11_fhss {
-    guint    has_hop_set:1;
-    guint    has_hop_pattern:1;
-    guint    has_hop_index:1;
+    unsigned has_hop_set:1;
+    unsigned has_hop_pattern:1;
+    unsigned has_hop_index:1;
 
-    guint8   hop_set;        /* Hop set */
-    guint8   hop_pattern;    /* Hop pattern */
-    guint8   hop_index;      /* Hop index */
+    uint8_t  hop_set;        /* Hop set */
+    uint8_t  hop_pattern;    /* Hop pattern */
+    uint8_t  hop_index;      /* Hop index */
 };
 
 /*
@@ -589,9 +589,9 @@ struct ieee_802_11_fhss {
  */
 struct ieee_802_11b {
     /* Which of this information is present? */
-    guint    has_short_preamble:1;
+    unsigned has_short_preamble:1;
 
-    gboolean short_preamble; /* Short preamble */
+    bool short_preamble; /* Short preamble */
 };
 
 /*
@@ -599,11 +599,11 @@ struct ieee_802_11b {
  */
 struct ieee_802_11a {
     /* Which of this information is present? */
-    guint    has_channel_type:1;
-    guint    has_turbo_type:1;
+    unsigned has_channel_type:1;
+    unsigned has_turbo_type:1;
 
-    guint    channel_type:2;
-    guint    turbo_type:2;
+    unsigned channel_type:2;
+    unsigned turbo_type:2;
 };
 
 /*
@@ -635,9 +635,9 @@ struct ieee_802_11a {
  */
 struct ieee_802_11g {
     /* Which of this information is present? */
-    guint    has_mode:1;
+    unsigned has_mode:1;
 
-    guint32  mode;           /* Various proprietary extensions */
+    uint32_t mode;           /* Various proprietary extensions */
 };
 
 /*
@@ -651,21 +651,21 @@ struct ieee_802_11g {
  */
 struct ieee_802_11n {
     /* Which of this information is present? */
-    guint    has_mcs_index:1;
-    guint    has_bandwidth:1;
-    guint    has_short_gi:1;
-    guint    has_greenfield:1;
-    guint    has_fec:1;
-    guint    has_stbc_streams:1;
-    guint    has_ness:1;
+    unsigned has_mcs_index:1;
+    unsigned has_bandwidth:1;
+    unsigned has_short_gi:1;
+    unsigned has_greenfield:1;
+    unsigned has_fec:1;
+    unsigned has_stbc_streams:1;
+    unsigned has_ness:1;
 
-    guint16  mcs_index;      /* MCS index */
-    guint    bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
-    guint    short_gi:1;     /* True for short guard interval */
-    guint    greenfield:1;   /* True for greenfield, short for mixed */
-    guint    fec:1;          /* FEC: 0 = BCC, 1 = LDPC */
-    guint    stbc_streams:2; /* Number of STBC streams */
-    guint    ness;           /* Number of extension spatial streams */
+    uint16_t mcs_index;      /* MCS index */
+    unsigned bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
+    unsigned short_gi:1;     /* True for short guard interval */
+    unsigned greenfield:1;   /* True for greenfield, short for mixed */
+    unsigned fec:1;          /* FEC: 0 = BCC, 1 = LDPC */
+    unsigned stbc_streams:2; /* Number of STBC streams */
+    unsigned ness;           /* Number of extension spatial streams */
 };
 
 /*
@@ -703,29 +703,29 @@ struct ieee_802_11n {
  */
 struct ieee_802_11ac {
     /* Which of this information is present? */
-    guint    has_stbc:1;
-    guint    has_txop_ps_not_allowed:1;
-    guint    has_short_gi:1;
-    guint    has_short_gi_nsym_disambig:1;
-    guint    has_ldpc_extra_ofdm_symbol:1;
-    guint    has_beamformed:1;
-    guint    has_bandwidth:1;
-    guint    has_fec:1;
-    guint    has_group_id:1;
-    guint    has_partial_aid:1;
+    unsigned has_stbc:1;
+    unsigned has_txop_ps_not_allowed:1;
+    unsigned has_short_gi:1;
+    unsigned has_short_gi_nsym_disambig:1;
+    unsigned has_ldpc_extra_ofdm_symbol:1;
+    unsigned has_beamformed:1;
+    unsigned has_bandwidth:1;
+    unsigned has_fec:1;
+    unsigned has_group_id:1;
+    unsigned has_partial_aid:1;
 
-    guint    stbc:1;         /* 1 if all spatial streams have STBC */
-    guint    txop_ps_not_allowed:1;
-    guint    short_gi:1;     /* True for short guard interval */
-    guint    short_gi_nsym_disambig:1;
-    guint    ldpc_extra_ofdm_symbol:1;
-    guint    beamformed:1;
-    guint8   bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
-    guint8   mcs[4];         /* MCS index per user */
-    guint8   nss[4];         /* NSS per user */
-    guint8   fec;            /* Bit array of FEC per user: 0 = BCC, 1 = LDPC */
-    guint8   group_id;
-    guint16  partial_aid;
+    unsigned stbc:1;         /* 1 if all spatial streams have STBC */
+    unsigned txop_ps_not_allowed:1;
+    unsigned short_gi:1;     /* True for short guard interval */
+    unsigned short_gi_nsym_disambig:1;
+    unsigned ldpc_extra_ofdm_symbol:1;
+    unsigned beamformed:1;
+    uint8_t  bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
+    uint8_t  mcs[4];         /* MCS index per user */
+    uint8_t  nss[4];         /* NSS per user */
+    uint8_t  fec;            /* Bit array of FEC per user: 0 = BCC, 1 = LDPC */
+    uint8_t  group_id;
+    uint16_t partial_aid;
 };
 
 /*
@@ -744,9 +744,9 @@ struct ieee_802_11ac {
 
 struct ieee_802_11ad {
     /* Which of this information is present? */
-    guint    has_mcs_index:1;
+    unsigned has_mcs_index:1;
 
-    guint8   mcs;            /* MCS index */
+    uint8_t  mcs;            /* MCS index */
 };
 
 /*
@@ -754,14 +754,14 @@ struct ieee_802_11ad {
  */
 struct ieee_802_11ax {
     /* Which of this information is present? */
-    guint    has_mcs_index:1;
-    guint    has_bwru:1;
-    guint    has_gi:1;
+    unsigned has_mcs_index:1;
+    unsigned has_bwru:1;
+    unsigned has_gi:1;
 
-    guint8   nsts:4;         /* Number of Space-time Streams */
-    guint8   mcs:4;          /* MCS index */
-    guint8   bwru:4;         /* Bandwidth/RU allocation */
-    guint8   gi:2;           /* Guard Interval */
+    uint8_t  nsts:4;         /* Number of Space-time Streams */
+    uint8_t  mcs:4;          /* MCS index */
+    uint8_t  bwru:4;         /* Bandwidth/RU allocation */
+    uint8_t  gi:2;           /* Guard Interval */
 };
 
 union ieee_802_11_phy_info {
@@ -776,40 +776,40 @@ union ieee_802_11_phy_info {
 };
 
 struct ieee_802_11_phdr {
-    gint     fcs_len;          /* Number of bytes of FCS - -1 means "unknown" */
-    guint    decrypted:1;      /* TRUE if frame is decrypted even if "protected" bit is set */
-    guint    datapad:1;        /* TRUE if frame has padding between 802.11 header and payload */
-    guint    no_a_msdus:1;     /* TRUE if we should ignore the A-MSDU bit */
-    guint    phy;              /* PHY type */
+    int      fcs_len;          /* Number of bytes of FCS - -1 means "unknown" */
+    unsigned decrypted:1;      /* true if frame is decrypted even if "protected" bit is set */
+    unsigned datapad:1;        /* true if frame has padding between 802.11 header and payload */
+    unsigned no_a_msdus:1;     /* true if we should ignore the A-MSDU bit */
+    unsigned phy;              /* PHY type */
     union ieee_802_11_phy_info phy_info;
 
     /* Which of this information is present? */
-    guint    has_channel:1;
-    guint    has_frequency:1;
-    guint    has_data_rate:1;
-    guint    has_signal_percent:1;
-    guint    has_noise_percent:1;
-    guint    has_signal_dbm:1;
-    guint    has_noise_dbm:1;
-    guint    has_signal_db:1;
-    guint    has_noise_db:1;
-    guint    has_tsf_timestamp:1;
-    guint    has_aggregate_info:1;        /* aggregate flags and ID */
-    guint    has_zero_length_psdu_type:1; /* zero-length PSDU type */
+    unsigned has_channel:1;
+    unsigned has_frequency:1;
+    unsigned has_data_rate:1;
+    unsigned has_signal_percent:1;
+    unsigned has_noise_percent:1;
+    unsigned has_signal_dbm:1;
+    unsigned has_noise_dbm:1;
+    unsigned has_signal_db:1;
+    unsigned has_noise_db:1;
+    unsigned has_tsf_timestamp:1;
+    unsigned has_aggregate_info:1;        /* aggregate flags and ID */
+    unsigned has_zero_length_psdu_type:1; /* zero-length PSDU type */
 
-    guint16  channel;                     /* Channel number */
-    guint32  frequency;                   /* Channel center frequency */
-    guint16  data_rate;                   /* Data rate, in .5 Mb/s units */
-    guint8   signal_percent;              /* Signal level, as a percentage */
-    guint8   noise_percent;               /* Noise level, as a percentage */
-    gint8    signal_dbm;                  /* Signal level, in dBm */
-    gint8    noise_dbm;                   /* Noise level, in dBm */
-    guint8   signal_db;                   /* Signal level, in dB from an arbitrary point */
-    guint8   noise_db;                    /* Noise level, in dB from an arbitrary point */
-    guint64  tsf_timestamp;
-    guint32  aggregate_flags;             /* A-MPDU flags */
-    guint32  aggregate_id;                /* ID for A-MPDU reassembly */
-    guint8   zero_length_psdu_type;       /* type of zero-length PSDU */
+    uint16_t channel;                     /* Channel number */
+    uint32_t frequency;                   /* Channel center frequency */
+    uint16_t data_rate;                   /* Data rate, in .5 Mb/s units */
+    uint8_t  signal_percent;              /* Signal level, as a percentage */
+    uint8_t  noise_percent;               /* Noise level, as a percentage */
+    int8_t   signal_dbm;                  /* Signal level, in dBm */
+    int8_t   noise_dbm;                   /* Noise level, in dBm */
+    uint8_t  signal_db;                   /* Signal level, in dB from an arbitrary point */
+    uint8_t  noise_db;                    /* Noise level, in dB from an arbitrary point */
+    uint64_t tsf_timestamp;
+    uint32_t aggregate_flags;             /* A-MPDU flags */
+    uint32_t aggregate_id;                /* ID for A-MPDU reassembly */
+    uint8_t  zero_length_psdu_type;       /* type of zero-length PSDU */
 };
 
 /*
@@ -843,14 +843,14 @@ struct ieee_802_11_phdr {
 #define COSINE_DIR_RX 2
 
 struct cosine_phdr {
-    guint8  encap;      /* COSINE_ENCAP_* as defined above */
-    guint8  direction;  /* COSINE_DIR_*, as defined above */
+    uint8_t encap;      /* COSINE_ENCAP_* as defined above */
+    uint8_t direction;  /* COSINE_DIR_*, as defined above */
     char    if_name[COSINE_MAX_IF_NAME_LEN];  /* Encap & Logical I/F name */
-    guint16 pro;        /* Protocol */
-    guint16 off;        /* Offset */
-    guint16 pri;        /* Priority */
-    guint16 rm;         /* Rate Marking */
-    guint16 err;        /* Error Code */
+    uint16_t pro;        /* Protocol */
+    uint16_t off;        /* Offset */
+    uint16_t pri;        /* Priority */
+    uint16_t rm;         /* Rate Marking */
+    uint16_t err;        /* Error Code */
 };
 
 /* Packet "pseudo-header" for IrDA capture files. */
@@ -875,17 +875,17 @@ struct cosine_phdr {
 #define IRDA_CLASS_MASK     0xFF00
 
 struct irda_phdr {
-    guint16 pkttype;    /* packet type */
+    uint16_t pkttype;    /* packet type */
 };
 
 /* Packet "pseudo-header" for nettl (HP-UX) capture files. */
 
 struct nettl_phdr {
-    guint16 subsys;
-    guint32 devid;
-    guint32 kind;
-    gint32  pid;
-    guint32 uid;
+    uint16_t subsys;
+    uint32_t devid;
+    uint32_t kind;
+    int32_t pid;
+    uint32_t uid;
 };
 
 /* Packet "pseudo-header" for MTP2 files. */
@@ -895,31 +895,31 @@ struct nettl_phdr {
 #define MTP2_ANNEX_A_USED_UNKNOWN  2
 
 struct mtp2_phdr {
-    guint8  sent;
-    guint8  annex_a_used;
-    guint16 link_number;
+    uint8_t sent;
+    uint8_t annex_a_used;
+    uint16_t link_number;
 };
 
 /* Packet "pseudo-header" for K12 files. */
 
 typedef union {
     struct {
-        guint16 vp;
-        guint16 vc;
-        guint16 cid;
+        uint16_t vp;
+        uint16_t vc;
+        uint16_t cid;
     } atm;
 
-    guint32 ds0mask;
+    uint32_t ds0mask;
 } k12_input_info_t;
 
 struct k12_phdr {
-    guint32           input;
-    const gchar      *input_name;
-    const gchar      *stack_file;
-    guint32           input_type;
+    uint32_t          input;
+    const char       *input_name;
+    const char       *stack_file;
+    uint32_t          input_type;
     k12_input_info_t  input_info;
-    guint8           *extra_info;
-    guint32           extra_length;
+    uint8_t          *extra_info;
+    uint32_t          extra_length;
     void*             stuff;
 };
 
@@ -928,8 +928,8 @@ struct k12_phdr {
 #define K12_PORT_ATMPVC    0x01020000
 
 struct lapd_phdr {
-    guint16 pkttype;    /* packet type */
-    guint8 we_network;
+    uint16_t pkttype;    /* packet type */
+    uint8_t we_network;
 };
 
 struct wtap;
@@ -941,7 +941,7 @@ struct catapult_dct2000_phdr
         struct atm_phdr  atm;
         struct p2p_phdr  p2p;
     } inner_pseudo_header;
-    gint64       seek_off;
+    int64_t      seek_off;
     struct wtap *wth;
 };
 
@@ -949,16 +949,16 @@ struct catapult_dct2000_phdr
  * Endace Record Format pseudo header
  */
 struct erf_phdr {
-    guint64 ts;     /* Time stamp */
-    guint8  type;
-    guint8  flags;
-    guint16 rlen;
-    guint16 lctr;
-    guint16 wlen;
+    uint64_t ts;     /* Time stamp */
+    uint8_t type;
+    uint8_t flags;
+    uint16_t rlen;
+    uint16_t lctr;
+    uint16_t wlen;
 };
 
 struct erf_ehdr {
-  guint64 ehdr;
+  uint64_t ehdr;
 };
 
 /*
@@ -969,8 +969,8 @@ struct erf_ehdr {
 #define MAX_ERF_EHDR 16
 
 struct wtap_erf_eth_hdr {
-    guint8 offset;
-    guint8 pad;
+    uint8_t offset;
+    uint8_t pad;
 };
 
 struct erf_mc_phdr {
@@ -979,8 +979,8 @@ struct erf_mc_phdr {
     union
     {
         struct wtap_erf_eth_hdr eth_hdr;
-        guint32 mc_hdr;
-        guint32 aal2_hdr;
+        uint32_t mc_hdr;
+        uint32_t aal2_hdr;
     } subhdr;
 };
 
@@ -1040,17 +1040,17 @@ struct erf_mc_phdr {
 #define SITA_PROTO_BOP_FRL             (0x12)
 
 struct sita_phdr {
-    guint8  sita_flags;
-    guint8  sita_signals;
-    guint8  sita_errors1;
-    guint8  sita_errors2;
-    guint8  sita_proto;
+    uint8_t sita_flags;
+    uint8_t sita_signals;
+    uint8_t sita_errors1;
+    uint8_t sita_errors2;
+    uint8_t sita_proto;
 };
 
 /*pseudo header for Bluetooth HCI*/
 struct bthci_phdr {
-    gboolean  sent;
-    guint32   channel;
+    bool      sent;
+    uint32_t  channel;
 };
 
 #define BTHCI_CHANNEL_COMMAND  1
@@ -1061,32 +1061,32 @@ struct bthci_phdr {
 
 /* pseudo header for WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
 struct btmon_phdr {
-    guint16   adapter_id;
-    guint16   opcode;
+    uint16_t  adapter_id;
+    uint16_t  opcode;
 };
 
 /* pseudo header for WTAP_ENCAP_LAYER1_EVENT */
 struct l1event_phdr {
-    gboolean uton;
+    bool uton;
 };
 
 /* * I2C pseudo header */
 struct i2c_phdr {
-    guint8  is_event;
-    guint8  bus;
-    guint32 flags;
+    uint8_t is_event;
+    uint8_t bus;
+    uint32_t flags;
 };
 
 /* pseudo header for WTAP_ENCAP_GSM_UM */
 struct gsm_um_phdr {
-    gboolean uplink;
-    guint8   channel;
+    bool uplink;
+    uint8_t  channel;
     /* The following are only populated for downlink */
-    guint8   bsic;
-    guint16  arfcn;
-    guint32  tdma_frame;
-    guint8   error;
-    guint16  timeshift;
+    uint8_t  bsic;
+    uint16_t arfcn;
+    uint32_t tdma_frame;
+    uint8_t  error;
+    uint16_t timeshift;
 };
 
 #define GSM_UM_CHANNEL_UNKNOWN  0
@@ -1101,51 +1101,51 @@ struct gsm_um_phdr {
 
 /* Pseudo-header for nstrace packets */
 struct nstr_phdr {
-    gint64 rec_offset;
-    gint32 rec_len;
-    guint8 nicno_offset;
-    guint8 nicno_len;
-    guint8 dir_offset;
-    guint8 dir_len;
-    guint16 eth_offset;
-    guint8 pcb_offset;
-    guint8 l_pcb_offset;
-    guint8 rec_type;
-    guint8 vlantag_offset;
-    guint8 coreid_offset;
-    guint8 srcnodeid_offset;
-    guint8 destnodeid_offset;
-    guint8 clflags_offset;
-    guint8 src_vmname_len_offset;
-    guint8 dst_vmname_len_offset;
-    guint8 ns_activity_offset;
-    guint8 data_offset;
+    int64_t rec_offset;
+    int32_t rec_len;
+    uint8_t nicno_offset;
+    uint8_t nicno_len;
+    uint8_t dir_offset;
+    uint8_t dir_len;
+    uint16_t eth_offset;
+    uint8_t pcb_offset;
+    uint8_t l_pcb_offset;
+    uint8_t rec_type;
+    uint8_t vlantag_offset;
+    uint8_t coreid_offset;
+    uint8_t srcnodeid_offset;
+    uint8_t destnodeid_offset;
+    uint8_t clflags_offset;
+    uint8_t src_vmname_len_offset;
+    uint8_t dst_vmname_len_offset;
+    uint8_t ns_activity_offset;
+    uint8_t data_offset;
 };
 
 /* Packet "pseudo-header" for Nokia output */
 struct nokia_phdr {
     struct eth_phdr eth;
-    guint8 stuff[4];    /* mysterious stuff */
+    uint8_t stuff[4];    /* mysterious stuff */
 };
 
 #define LLCP_PHDR_FLAG_SENT 0
 struct llcp_phdr {
-    guint8 adapter;
-    guint8 flags;
+    uint8_t adapter;
+    uint8_t flags;
 };
 
 /* pseudo header for WTAP_ENCAP_LOGCAT */
 struct logcat_phdr {
-    gint version;
+    int version;
 };
 
 /* Packet "pseudo-header" information for header data from NetMon files. */
 
 struct netmon_phdr {
-    guint8* title;          /* Comment title, as a null-terminated UTF-8 string */
-    guint32 descLength;     /* Number of bytes in the comment description */
-    guint8* description;    /* Comment description, in ASCII RTF */
-    guint sub_encap;        /* "Real" encap value for the record that will be used once pseudo header data is display */
+    uint8_t* title;          /* Comment title, as a null-terminated UTF-8 string */
+    uint32_t descLength;     /* Number of bytes in the comment description */
+    uint8_t* description;    /* Comment description, in ASCII RTF */
+    unsigned sub_encap;        /* "Real" encap value for the record that will be used once pseudo header data is display */
     union sub_wtap_pseudo_header {
         struct eth_phdr     eth;
         struct atm_phdr     atm;
@@ -1248,11 +1248,11 @@ union wtap_pseudo_header {
 #define REC_TYPE_CUSTOM_BLOCK           5    /**< pcapng custom block */
 
 typedef struct {
-    guint32   caplen;           /* data length in the file */
-    guint32   len;              /* data length on the wire */
+    uint32_t  caplen;           /* data length in the file */
+    uint32_t  len;              /* data length on the wire */
     int       pkt_encap;        /* WTAP_ENCAP_ value for this packet */
                                 /* pcapng variables */
-    guint32   interface_id;     /* identifier of the interface. */
+    uint32_t  interface_id;     /* identifier of the interface. */
                                 /* options */
 
     union wtap_pseudo_header  pseudo_header;
@@ -1330,37 +1330,37 @@ typedef struct {
     (ll_dependent_errors))
 
 typedef struct {
-    guint     record_type;      /* the type of record this is - file type-specific value */
-    guint32   record_len;       /* length of the record */
+    unsigned  record_type;      /* the type of record this is - file type-specific value */
+    uint32_t  record_len;       /* length of the record */
 } wtap_ft_specific_header;
 
 typedef struct {
     const char *pathname;       /* Path name of file. */
-    guint     record_type;      /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
+    unsigned  record_type;      /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
     int       byte_order;
-    /* guint32 sentinel; */
-    guint64   timestamp;        /* ns since epoch - XXX dup of ts */
-    guint64   thread_id;
-    guint32   event_len;        /* length of the event */
-    guint32   event_filelen;    /* event data length in the file */
-    guint16   event_type;
-    guint32   nparams;          /* number of parameters of the event */
-    guint16   cpu_id;
+    /* uint32_t sentinel; */
+    uint64_t  timestamp;        /* ns since epoch - XXX dup of ts */
+    uint64_t  thread_id;
+    uint32_t  event_len;        /* length of the event */
+    uint32_t  event_filelen;    /* event data length in the file */
+    uint16_t  event_type;
+    uint32_t  nparams;          /* number of parameters of the event */
+    uint16_t  cpu_id;
     /* ... Event ... */
 } wtap_syscall_header;
 
 typedef struct {
-    guint32   record_len;       /* length of the record */
+    uint32_t  record_len;       /* length of the record */
 } wtap_systemd_journal_export_header;
 
 typedef struct {
-    guint32   length;           /* length of the record */
-    guint32   pen;              /* private enterprise number */
-    gboolean  copy_allowed;     /* CB can be written */
+    uint32_t  length;           /* length of the record */
+    uint32_t  pen;              /* private enterprise number */
+    bool      copy_allowed;     /* CB can be written */
     union {
         struct nflx {
-            guint32   type;             /* block type */
-            guint32   skipped;          /* Used if type == BBLOG_TYPE_SKIPPED_BLOCK */
+            uint32_t  type;             /* block type */
+            uint32_t  skipped;          /* Used if type == BBLOG_TYPE_SKIPPED_BLOCK */
         } nflx_custom_data_header;
     } custom_data_header;
 } wtap_custom_block_header;
@@ -1375,11 +1375,11 @@ typedef struct {
  * We assume that time_t is signed; it is signed on Windows/MSVC and
  * on many UN*Xes.
  *
- * So, if time_t is 32-bit, we define this as G_MAXINT32, as that's
+ * So, if time_t is 32-bit, we define this as INT32_MAX, as that's
  * the largest value a time_t can have, and it fits in an unsigned
  * 32-bit quantity.  If it's 64-bit or larger, we define this as
- * G_MAXUINT32, as, even if it's signed, it can be as large as
- * G_MAXUINT32, and that's the largest value that can fit in
+ * UINT32_MAX, as, even if it's signed, it can be as large as
+ * UINT32_MAX, and that's the largest value that can fit in
  * a 32-bit unsigned quantity.
  *
  * Comparing against this, rather than against G_MAXINT2, when checking
@@ -1390,16 +1390,16 @@ typedef struct {
  * XXX - what if time_t is unsigned?  Are there any platforms where
  * it is?
  */
-#define WTAP_NSTIME_32BIT_SECS_MAX ((time_t)(sizeof(time_t) > sizeof(gint32) ? G_MAXUINT32 : G_MAXINT32))
+#define WTAP_NSTIME_32BIT_SECS_MAX ((time_t)(sizeof(time_t) > sizeof(int32_t) ? UINT32_MAX : INT32_MAX))
 
 typedef struct wtap_rec {
-    guint     rec_type;          /* what type of record is this? */
-    guint32   presence_flags;    /* what stuff do we have? */
-    guint     section_number;    /* section, within file, containing this record */
+    unsigned  rec_type;          /* what type of record is this? */
+    uint32_t  presence_flags;    /* what stuff do we have? */
+    unsigned  section_number;    /* section, within file, containing this record */
     nstime_t  ts;                /* time stamp */
     int       tsprec;            /* WTAP_TSPREC_ value for this record */
     nstime_t  ts_rel_cap;        /* time stamp relative from capture start */
-    gboolean  ts_rel_cap_valid;  /* is ts_rel_cap valid and can be used? */
+    bool      ts_rel_cap_valid;  /* is ts_rel_cap valid and can be used? */
     union {
         wtap_packet_header packet_header;
         wtap_ft_specific_header ft_specific_header;
@@ -1409,7 +1409,7 @@ typedef struct wtap_rec {
     } rec_header;
 
     wtap_block_t block ;         /* packet block; holds comments and verdicts in its options */
-    gboolean block_was_modified; /* TRUE if ANY aspect of the block has been modified */
+    bool block_was_modified; /* true if ANY aspect of the block has been modified */
 
     /*
      * We use a Buffer so that we don't have to allocate and free
@@ -1450,17 +1450,17 @@ typedef struct wtap_rec {
 #endif
 
 typedef struct hashipv4 {
-    guint             addr;
-    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip[WS_INET_ADDRSTRLEN];
-    gchar             name[MAXNAMELEN];
+    unsigned          addr;
+    uint8_t           flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
+    char              ip[WS_INET_ADDRSTRLEN];
+    char              name[MAXNAMELEN];
 } hashipv4_t;
 
 typedef struct hashipv6 {
-    guint8            addr[16];
-    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip6[WS_INET6_ADDRSTRLEN];
-    gchar             name[MAXNAMELEN];
+    uint8_t           addr[16];
+    uint8_t           flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
+    char              ip6[WS_INET6_ADDRSTRLEN];
+    char              name[MAXNAMELEN];
 } hashipv6_t;
 
 /** A struct with lists of resolved addresses.
@@ -1505,7 +1505,7 @@ typedef struct wtap_dump_params {
     const GArray *mevs_growing;             /**< Meta events that will be written while writing packets, or NULL.
                                                  This array may grow since the dumper was opened and will subsequently
                                                  be written before newer packets are written in wtap_dump. */
-    gboolean    dont_copy_idbs;             /**< XXX - don't copy IDBs; this should eventually always be the case. */
+    bool        dont_copy_idbs;             /**< XXX - don't copy IDBs; this should eventually always be the case. */
 } wtap_dump_params;
 
 /* Zero-initializer for wtap_dump_params. */
@@ -1576,8 +1576,8 @@ struct file_extension_info {
     /* the file type description */
     const char *name;
 
-    /* TRUE if this is a capture file type */
-    gboolean is_capture_file;
+    /* true if this is a capture file type */
+    bool is_capture_file;
 
     /* a semicolon-separated list of file extensions used for this type */
     const char *extensions;
@@ -1676,7 +1676,7 @@ struct open_info {
     wtap_open_type type;              /* Open routine type */
     wtap_open_routine_t open_routine; /* Open routine */
     const char *extensions;           /* List of extensions used for this file type */
-    gchar **extensions_set;           /* Array of those extensions; populated using extensions member during initialization */
+    char **extensions_set;           /* Array of those extensions; populated using extensions member during initialization */
     void* wslua_data;                 /* Data for Lua file readers */
 };
 WS_DLL_PUBLIC struct open_info *open_routines;
@@ -1703,7 +1703,7 @@ typedef enum {
  * Entry in a table of supported option types.
  */
 struct supported_option_type {
-    guint opt;
+    unsigned opt;
     option_support_t support; /* OPTION_NOT_SUPPORTED allowed, equivalent to absence */
 };
 
@@ -1765,7 +1765,7 @@ struct file_type_subtype_info {
     /**
      * When writing this file format, is seeking required?
      */
-    gboolean writing_must_seek;
+    bool writing_must_seek;
 
     /**
      * Number of block types supported.
@@ -1780,6 +1780,10 @@ struct file_type_subtype_info {
     /**
      * Can this type write this encapsulation format?
      * Should be NULL is this file type doesn't have write support.
+     *
+     * XXX - This returns an int because it can return err codes,
+     * specifically WTAP_ERR_CHECK_WSLUA (instead of having an
+     * int *err parameter like the other functions.)
      */
     int (*can_write_encap)(int);
 
@@ -1787,7 +1791,7 @@ struct file_type_subtype_info {
      * The function to open the capture file for writing.
      * Should be NULL if this file type doesn't have write support.
      */
-    int (*dump_open)(wtap_dumper *, int *, gchar **);
+    bool (*dump_open)(wtap_dumper *, int *, char **);
 
     /**
      * If can_write_encap returned WTAP_ERR_CHECK_WSLUA, then this is used instead.
@@ -1804,7 +1808,7 @@ struct file_type_subtype_info {
  * @param load_wiretap_plugins Load Wiretap plugins when initializing library.
 */
 WS_DLL_PUBLIC
-void wtap_init(gboolean load_wiretap_plugins);
+void wtap_init(bool load_wiretap_plugins);
 
 /** On failure, "wtap_open_offline()" returns NULL, and puts into the
  * "int" pointed to by its second argument:
@@ -1815,12 +1819,12 @@ void wtap_init(gboolean load_wiretap_plugins);
  * a negative number, indicating the type of error, on other failures.
  * @param[out] err_info for some errors, a string giving more details of
  * the error
- * @param do_random TRUE if random access to the file will be done,
- * FALSE if not
+ * @param do_random true if random access to the file will be done,
+ * false if not
  */
 WS_DLL_PUBLIC
 struct wtap* wtap_open_offline(const char *filename, unsigned int type, int *err,
-    gchar **err_info, gboolean do_random);
+    char **err_info, bool do_random);
 
 /**
  * If we were compiled with zlib and we're at EOF, unset EOF so that
@@ -1834,11 +1838,11 @@ void wtap_cleareof(wtap *wth);
  * Set callback functions to add new hostnames. Currently pcapng-only.
  * MUST match add_ipv4_name and add_ipv6_name in addr_resolv.c.
  */
-typedef void (*wtap_new_ipv4_callback_t) (const guint addr, const gchar *name, const gboolean static_entry);
+typedef void (*wtap_new_ipv4_callback_t) (const unsigned addr, const char *name, const bool static_entry);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
 
-typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name, const gboolean static_entry);
+typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const char *name, const bool static_entry);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 
@@ -1846,7 +1850,7 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
  * Set callback function to receive new decryption secrets for a particular
  * secrets type (as defined in secrets-types.h). Currently pcapng-only.
  */
-typedef void (*wtap_new_secrets_callback_t)(guint32 secrets_type, const void *secrets, guint size);
+typedef void (*wtap_new_secrets_callback_t)(uint32_t secrets_type, const void *secrets, unsigned size);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets);
 
@@ -1860,21 +1864,21 @@ void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secr
  * the type of error, if the read failed.
  * @param err_info for some errors, a string giving more details of
  * the error
- * @param offset a pointer to a gint64, set to the offset in the file
+ * @param offset a pointer to a int64_t, set to the offset in the file
  * that should be used on calls to wtap_seek_read() to reread that record,
  * if the read succeeded.
- * @return TRUE on success, FALSE on failure.
+ * @return true on success, false on failure.
  */
 WS_DLL_PUBLIC
-gboolean wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info, gint64 *offset);
+bool wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    char **err_info, int64_t *offset);
 
 /** Read the record at a specified offset in a capture file, filling in
  * *phdr and *buf.
  *
  * @wth a wtap * returned by a call that opened a file for random-access
  * reading.
- * @seek_off a gint64 giving an offset value returned by a previous
+ * @seek_off a int64_t giving an offset value returned by a previous
  * wtap_read() call.
  * @rec a pointer to a struct wtap_rec, filled in with information
  * about the record.
@@ -1883,11 +1887,11 @@ gboolean wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
  * the type of error, if the read failed.
  * @param err_info for some errors, a string giving more details of
  * the error
- * @return TRUE on success, FALSE on failure.
+ * @return true on success, false on failure.
  */
 WS_DLL_PUBLIC
-gboolean wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info);
+bool wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info);
 
 /*** initialize a wtap_rec structure ***/
 WS_DLL_PUBLIC
@@ -1925,11 +1929,11 @@ GSList *wtap_get_all_compression_type_extensions_list(void);
 /** Return an approximation of the amount of data we've read sequentially
  * from the file so far. */
 WS_DLL_PUBLIC
-gint64 wtap_read_so_far(wtap *wth);
+int64_t wtap_read_so_far(wtap *wth);
 WS_DLL_PUBLIC
-gint64 wtap_file_size(wtap *wth, int *err);
+int64_t wtap_file_size(wtap *wth, int *err);
 WS_DLL_PUBLIC
-guint wtap_snapshot_length(wtap *wth); /* per file */
+unsigned wtap_snapshot_length(wtap *wth); /* per file */
 WS_DLL_PUBLIC
 int wtap_file_type_subtype(wtap *wth);
 WS_DLL_PUBLIC
@@ -1945,7 +1949,7 @@ int wtap_file_tsprec(wtap *wth);
  * @return The number of existing section headers.
  */
 WS_DLL_PUBLIC
-guint wtap_file_get_num_shbs(wtap *wth);
+unsigned wtap_file_get_num_shbs(wtap *wth);
 
 /**
  * @brief Gets existing section header block, not for new file.
@@ -1960,7 +1964,7 @@ guint wtap_file_get_num_shbs(wtap *wth);
  * @return The specified existing section header, which must NOT be g_free'd.
  */
 WS_DLL_PUBLIC
-wtap_block_t wtap_file_get_shb(wtap *wth, guint shb_num);
+wtap_block_t wtap_file_get_shb(wtap *wth, unsigned shb_num);
 
 /**
  * @brief Sets or replaces the section header comment.
@@ -1973,7 +1977,7 @@ wtap_block_t wtap_file_get_shb(wtap *wth, guint shb_num);
  * @param comment The comment string.
  */
 WS_DLL_PUBLIC
-void wtap_write_shb_comment(wtap *wth, gchar *comment);
+void wtap_write_shb_comment(wtap *wth, char *comment);
 
 /**
  * @brief Gets the unique interface id for a SHB's interface
@@ -1987,7 +1991,7 @@ void wtap_write_shb_comment(wtap *wth, gchar *comment);
  * @return The unique wtap session-wide interface id for that interface
  */
 WS_DLL_PUBLIC
-unsigned wtap_file_get_shb_global_interface_id(wtap *wth, guint shb_num, uint32_t interface_id);
+unsigned wtap_file_get_shb_global_interface_id(wtap *wth, unsigned shb_num, uint32_t interface_id);
 
 /**
  * @brief Gets existing interface descriptions.
@@ -2041,7 +2045,7 @@ void wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info);
  * @return A newly allocated gcahr array string, which must be g_free'd.
  */
 WS_DLL_PUBLIC
-gchar *wtap_get_debug_if_descr(const wtap_block_t if_descr,
+char *wtap_get_debug_if_descr(const wtap_block_t if_descr,
                                const int indent,
                                const char* line_end);
 
@@ -2068,7 +2072,7 @@ wtap_block_t wtap_file_get_nrb(wtap *wth);
  * @return The number of existing decryption secrets blocks.
  */
 WS_DLL_PUBLIC
-guint wtap_file_get_num_dsbs(wtap *wth);
+unsigned wtap_file_get_num_dsbs(wtap *wth);
 
 /**
  * @brief Gets existing decryption secrets block, not for new file.
@@ -2081,7 +2085,7 @@ guint wtap_file_get_num_dsbs(wtap *wth);
  * @return The specified existing decryption secrets block, which must NOT be g_free'd.
  */
 WS_DLL_PUBLIC
-wtap_block_t wtap_file_get_dsb(wtap *wth, guint dsb_num);
+wtap_block_t wtap_file_get_dsb(wtap *wth, unsigned dsb_num);
 
 /**
  * @brief Adds a Decryption Secrets Block to the open wiretap session.
@@ -2100,10 +2104,10 @@ void wtap_file_add_decryption_secrets(wtap *wth, const wtap_block_t dsb);
  *
  * @param wth The wiretap session from which to remove the
  * decryption secrets.
- * @return TRUE if any DSBs were removed
+ * @return true if any DSBs were removed
  */
 WS_DLL_PUBLIC
-gboolean wtap_file_discard_decryption_secrets(wtap *wth);
+bool wtap_file_discard_decryption_secrets(wtap *wth);
 
 /*** close the file descriptors for the current file ***/
 WS_DLL_PUBLIC
@@ -2111,7 +2115,7 @@ void wtap_fdclose(wtap *wth);
 
 /*** reopen the random file descriptor for the current file ***/
 WS_DLL_PUBLIC
-gboolean wtap_fdreopen(wtap *wth, const char *filename, int *err);
+bool wtap_fdreopen(wtap *wth, const char *filename, int *err);
 
 /** Close only the sequential side, freeing up memory it uses. */
 WS_DLL_PUBLIC
@@ -2123,7 +2127,7 @@ void wtap_close(wtap *wth);
 
 /*** dump packets into a capture file ***/
 WS_DLL_PUBLIC
-gboolean wtap_dump_can_open(int filetype);
+bool wtap_dump_can_open(int filetype);
 
 /**
  * Given a GArray of WTAP_ENCAP_ types, return the per-file encapsulation
@@ -2133,18 +2137,18 @@ WS_DLL_PUBLIC
 int wtap_dump_required_file_encap_type(const GArray *file_encaps);
 
 /**
- * Return TRUE if we can write this encapsulation type in this
- * capture file type/subtype, FALSE if not.
+ * Return true if we can write this encapsulation type in this
+ * capture file type/subtype, false if not.
  */
 WS_DLL_PUBLIC
-gboolean wtap_dump_can_write_encap(int file_type_subtype, int encap);
+bool wtap_dump_can_write_encap(int file_type_subtype, int encap);
 
 /**
- * Return TRUE if we can write this capture file type/subtype out in
- * compressed form, FALSE if not.
+ * Return true if we can write this capture file type/subtype out in
+ * compressed form, false if not.
  */
 WS_DLL_PUBLIC
-gboolean wtap_dump_can_compress(int file_type_subtype);
+bool wtap_dump_can_compress(int file_type_subtype);
 
 /**
  * Initialize the per-file information based on an existing file. Its
@@ -2219,7 +2223,7 @@ void wtap_dump_params_cleanup(wtap_dump_params *params);
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
     wtap_compression_type compression_type, const wtap_dump_params *params,
-    int *err, gchar **err_info);
+    int *err, char **err_info);
 
 /**
  * @brief Creates a dumper for a temporary file.
@@ -2240,7 +2244,7 @@ WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile(const char *tmpdir, char **filenamep,
     const char *pfx,
     int file_type_subtype, wtap_compression_type compression_type,
-    const wtap_dump_params *params, int *err, gchar **err_info);
+    const wtap_dump_params *params, int *err, char **err_info);
 
 /**
  * @brief Creates a dumper for an existing file descriptor.
@@ -2257,7 +2261,7 @@ wtap_dumper* wtap_dump_open_tempfile(const char *tmpdir, char **filenamep,
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
     wtap_compression_type compression_type, const wtap_dump_params *params,
-    int *err, gchar **err_info);
+    int *err, char **err_info);
 
 /**
  * @brief Creates a dumper for the standard output.
@@ -2273,7 +2277,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
     wtap_compression_type compression_type, const wtap_dump_params *params,
-    int *err, gchar **err_info);
+    int *err, char **err_info);
 
 /*
  * Add an IDB to the list of IDBs for a file we're writing.
@@ -2284,27 +2288,27 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
  * @param[out] err Will be set to an error code on failure.
  * @param[out] err_info for some errors, a string giving more details of
  * the error.
- * @return TRUE on success, FALSE on failure.
+ * @return true on success, false on failure.
  */
 WS_DLL_PUBLIC
-gboolean wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
-     gchar **err_info);
+bool wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
+     char **err_info);
 WS_DLL_PUBLIC
-gboolean wtap_dump(wtap_dumper *, const wtap_rec *, const guint8 *,
-     int *err, gchar **err_info);
+bool wtap_dump(wtap_dumper *, const wtap_rec *, const uint8_t *,
+     int *err, char **err_info);
 WS_DLL_PUBLIC
-gboolean wtap_dump_flush(wtap_dumper *, int *);
+bool wtap_dump_flush(wtap_dumper *, int *);
 WS_DLL_PUBLIC
 int wtap_dump_file_type_subtype(wtap_dumper *wdh);
 WS_DLL_PUBLIC
-gint64 wtap_get_bytes_dumped(wtap_dumper *);
+int64_t wtap_get_bytes_dumped(wtap_dumper *);
 WS_DLL_PUBLIC
-void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
+void wtap_set_bytes_dumped(wtap_dumper *wdh, int64_t bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
-gboolean wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists);
+bool wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
-gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
+bool wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 void wtap_dump_discard_name_resolution(wtap_dumper *wdh);
 WS_DLL_PUBLIC
@@ -2315,27 +2319,27 @@ void wtap_dump_discard_decryption_secrets(wtap_dumper *wdh);
  * shb_hdr and idb_inf are not freed by this routine.
  *
  * @param wdh handle for the file we're closing.
- * @param[out] needs_reload if not null, points to a gboolean that will
- *    be set to TRUE if a full reload of the file would be required if
- *    this was done as part of a "Save" or "Save As" operation, FALSE
+ * @param[out] needs_reload if not null, points to a bool that will
+ *    be set to true if a full reload of the file would be required if
+ *    this was done as part of a "Save" or "Save As" operation, false
  *    if no full reload would be required.
  * @param[out] err points to an int that will be set to an error code
  *    on failure.
- * @param[out] err_info for some errors, points to a gchar * that will
+ * @param[out] err_info for some errors, points to a char * that will
  *    be set to a string giving more details of the error.
  *
- * @return TRUE on success, FALSE on failure.
+ * @return true on success, false on failure.
  */
 WS_DLL_PUBLIC
-gboolean wtap_dump_close(wtap_dumper *wdh, gboolean *needs_reload,
-    int *err, gchar **err_info);
+bool wtap_dump_close(wtap_dumper *wdh, bool *needs_reload,
+    int *err, char **err_info);
 
 /**
- * Return TRUE if we can write a file out with the given GArray of file
+ * Return true if we can write a file out with the given GArray of file
  * encapsulations and the given bitmask of comment types.
  */
 WS_DLL_PUBLIC
-gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types);
+bool wtap_dump_can_write(const GArray *file_encaps, uint32_t required_comment_types);
 
 /**
  * Generates arbitrary packet data in "exported PDU" format
@@ -2350,7 +2354,7 @@ gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment
  * @param data_len      length of data
  */
 WS_DLL_PUBLIC
-void wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, const guint8 *data, guint16 data_len);
+void wtap_buffer_append_epdu_tag(Buffer *buf, uint16_t epdu_tag, const uint8_t *data, uint16_t data_len);
 
 /**
  * Generates packet data for an unsigned integer in "exported PDU" format.
@@ -2361,7 +2365,7 @@ void wtap_buffer_append_epdu_tag(Buffer *buf, guint16 epdu_tag, const guint8 *da
  * @param val           integer value to write to buf
  */
 WS_DLL_PUBLIC
-void wtap_buffer_append_epdu_uint(Buffer *buf, guint16 epdu_tag, guint32 val);
+void wtap_buffer_append_epdu_uint(Buffer *buf, uint16_t epdu_tag, uint32_t val);
 
 /**
  * Generates packet data for a string in "exported PDU" format.
@@ -2372,7 +2376,7 @@ void wtap_buffer_append_epdu_uint(Buffer *buf, guint16 epdu_tag, guint32 val);
  * @param val           string value to write to buf
  */
 WS_DLL_PUBLIC
-void wtap_buffer_append_epdu_string(Buffer *buf, guint16 epdu_tag, const char *val);
+void wtap_buffer_append_epdu_string(Buffer *buf, uint16_t epdu_tag, const char *val);
 
 /**
  * Close off a set of "exported PDUs" added to the buffer.
@@ -2383,7 +2387,7 @@ void wtap_buffer_append_epdu_string(Buffer *buf, guint16 epdu_tag, const char *v
  * @return Total length of buf populated to date
  */
 WS_DLL_PUBLIC
-gint wtap_buffer_append_epdu_end(Buffer *buf);
+int wtap_buffer_append_epdu_end(Buffer *buf);
 
 /*
  * Sort the file types by name or by description?
@@ -2400,7 +2404,7 @@ typedef enum {
  */
 WS_DLL_PUBLIC
 GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
-    const GArray *file_encaps, guint32 required_comment_types,
+    const GArray *file_encaps, uint32_t required_comment_types,
     ft_sort_order sort_order);
 
 /**
@@ -2437,7 +2441,7 @@ block_support_t wtap_file_type_subtype_supports_block(int file_type_subtype,
  */
 WS_DLL_PUBLIC
 option_support_t wtap_file_type_subtype_supports_option(int file_type_subtype,
-    wtap_block_type_t type, guint opttype);
+    wtap_block_type_t type, unsigned opttype);
 
 /* Return a list of all extensions that are used by all capture file
  * types, including compressed extensions, e.g. not just "pcap" but
@@ -2495,7 +2499,7 @@ const char *wtap_default_file_extension(int file_type_subtype);
 /* Return a list of file extensions that are used by the specified file type
  * and subtype.
  *
- * If include_compressed is TRUE, the list will include compressed
+ * If include_compressed is true, the list will include compressed
  * extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
  * gzipped files.
  *
@@ -2503,7 +2507,7 @@ const char *wtap_default_file_extension(int file_type_subtype);
  * with g_free().
  */
 WS_DLL_PUBLIC
-GSList *wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed);
+GSList *wtap_get_file_extensions_list(int file_type_subtype, bool include_compressed);
 
 WS_DLL_PUBLIC
 const char *wtap_encap_name(int encap);
@@ -2528,7 +2532,7 @@ int wtap_get_num_encap_types(void);
 WS_DLL_PUBLIC
 const char *wtap_get_file_extension_type_name(int extension_type);
 WS_DLL_PUBLIC
-GSList *wtap_get_file_extension_type_extensions(guint extension_type);
+GSList *wtap_get_file_extension_type_extensions(unsigned extension_type);
 
 /*** dynamically register new file types and encapsulations ***/
 WS_DLL_PUBLIC
@@ -2550,13 +2554,13 @@ WS_DLL_PUBLIC
 int wtap_plugins_supported(void);
 
 WS_DLL_PUBLIC
-void wtap_register_open_info(struct open_info *oi, const gboolean first_routine);
+void wtap_register_open_info(struct open_info *oi, const bool first_routine);
 WS_DLL_PUBLIC
-gboolean wtap_has_open_info(const gchar *name);
+bool wtap_has_open_info(const char *name);
 WS_DLL_PUBLIC
-gboolean wtap_uses_lua_filehandler(const wtap* wth);
+bool wtap_uses_lua_filehandler(const wtap* wth);
 WS_DLL_PUBLIC
-void wtap_deregister_open_info(const gchar *name);
+void wtap_deregister_open_info(const char *name);
 
 WS_DLL_PUBLIC
 unsigned int open_info_name_to_type(const char *name);

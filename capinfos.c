@@ -1022,13 +1022,13 @@ cleanup_capture_info(capture_info *cf_info)
 }
 
 static void
-count_ipv4_address(const guint addr _U_, const gchar *name _U_, const gboolean static_entry _U_)
+count_ipv4_address(const guint addr _U_, const gchar *name _U_, const bool static_entry _U_)
 {
     num_ipv4_addresses++;
 }
 
 static void
-count_ipv6_address(const void *addrp _U_, const gchar *name _U_, const gboolean static_entry _U_)
+count_ipv6_address(const void *addrp _U_, const gchar *name _U_, const bool static_entry _U_)
 {
     num_ipv6_addresses++;
 }

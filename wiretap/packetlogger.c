@@ -22,13 +22,13 @@
 #include "packetlogger.h"
 
 typedef struct {
-	gboolean byte_swapped;
+	bool byte_swapped;
 } packetlogger_t;
 
 typedef struct packetlogger_header {
-	guint32 len;
-	guint32 ts_secs;
-	guint32 ts_usecs;
+	uint32_t len;
+	uint32_t ts_secs;
+	uint32_t ts_usecs;
 } packetlogger_header_t;
 
 /* Packet types. */
@@ -49,23 +49,23 @@ typedef struct packetlogger_header {
 #define PKT_CONFIG          0xFD
 #define PKT_NEW_CONTROLLER  0xFE
 
-static gboolean packetlogger_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-				  int *err, gchar **err_info,
-				  gint64 *data_offset);
-static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
+static bool packetlogger_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+				  int *err, char **err_info,
+				  int64_t *data_offset);
+static bool packetlogger_seek_read(wtap *wth, int64_t seek_off,
 				       wtap_rec *rec,
-				       Buffer *buf, int *err, gchar **err_info);
-static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
-					 FILE_T fh, gboolean byte_swapped,
-					 int *err, gchar **err_info);
+				       Buffer *buf, int *err, char **err_info);
+static bool packetlogger_read_header(packetlogger_header_t *pl_hdr,
+					 FILE_T fh, bool byte_swapped,
+					 int *err, char **err_info);
 static void packetlogger_byte_swap_header(packetlogger_header_t *pl_hdr);
 static wtap_open_return_val packetlogger_check_record(wtap *wth,
 						      packetlogger_header_t *pl_hdr,
 						      int *err,
-						      gchar **err_info);
-static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
+						      char **err_info);
+static bool packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 					 Buffer *buf, int *err,
-					 gchar **err_info);
+					 char **err_info);
 
 static int packetlogger_file_type_subtype = -1;
 
@@ -76,9 +76,9 @@ void register_packetlogger(void);
  */
 #define PACKETS_TO_CHECK	5
 
-wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val packetlogger_open(wtap *wth, int *err, char **err_info)
 {
-	gboolean byte_swapped = FALSE;
+	bool byte_swapped = false;
 	packetlogger_header_t pl_hdr;
 	wtap_open_return_val ret;
 	packetlogger_t *packetlogger;
@@ -108,7 +108,7 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 		 * Byte-swap the header.
 		 */
 		packetlogger_byte_swap_header(&pl_hdr);
-		byte_swapped = TRUE;
+		byte_swapped = true;
 	}
 
 	/*
@@ -219,47 +219,47 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE; /* Our kind of file */
 }
 
-static gboolean
+static bool
 packetlogger_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
-		  gchar **err_info, gint64 *data_offset)
+		  char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	return packetlogger_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean
-packetlogger_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-		       Buffer *buf, int *err, gchar **err_info)
+static bool
+packetlogger_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+		       Buffer *buf, int *err, char **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	if(!packetlogger_read_packet(wth, wth->random_fh, rec, buf, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh,
-			 gboolean byte_swapped, int *err, gchar **err_info)
+			 bool byte_swapped, int *err, char **err_info)
 {
 	if (!wtap_read_bytes_or_eof(fh, &pl_hdr->len, 4, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &pl_hdr->ts_secs, 4, err, err_info))
-		return FALSE;
+		return false;
 	if (!wtap_read_bytes(fh, &pl_hdr->ts_usecs, 4, err, err_info))
-		return FALSE;
+		return false;
 
 	/* Convert multi-byte values to host endian */
 	if (byte_swapped)
 		packetlogger_byte_swap_header(pl_hdr);
 
-	return TRUE;
+	return true;
 }
 
 static void
@@ -272,10 +272,10 @@ packetlogger_byte_swap_header(packetlogger_header_t *pl_hdr)
 
 static wtap_open_return_val
 packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
-    gchar **err_info)
+    char **err_info)
 {
-	guint32 length;
-	guint8 type;
+	uint32_t length;
+	uint8_t type;
 
 	/* Is the header length valid?  If not, assume it's not ours. */
 	if (pl_hdr->len < 8 || pl_hdr->len >= 65536)
@@ -341,21 +341,21 @@ packetlogger_check_record(wtap *wth, packetlogger_header_t *pl_hdr, int *err,
 	return WTAP_OPEN_MINE;
 }
 
-static gboolean
+static bool
 packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
-			 int *err, gchar **err_info)
+			 int *err, char **err_info)
 {
 	packetlogger_t *packetlogger = (packetlogger_t *)wth->priv;
 	packetlogger_header_t pl_hdr;
 
 	if(!packetlogger_read_header(&pl_hdr, fh, packetlogger->byte_swapped,
 	    err, err_info))
-		return FALSE;
+		return false;
 
 	if (pl_hdr.len < 8) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
-		return FALSE;
+		return false;
 	}
 	if (pl_hdr.len - 8 > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
@@ -365,7 +365,7 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("packetlogger: File has %u-byte packet, bigger than maximum of %u",
 		    pl_hdr.len - 8, WTAP_MAX_PACKET_SIZE_STANDARD);
-		return FALSE;
+		return false;
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
@@ -390,7 +390,7 @@ static const struct supported_block_type packetlogger_blocks_supported[] = {
 
 static const struct file_type_subtype_info packetlogger_info = {
 	"macOS PacketLogger", "pklg", "pklg", NULL,
-	FALSE, BLOCKS_SUPPORTED(packetlogger_blocks_supported),
+	false, BLOCKS_SUPPORTED(packetlogger_blocks_supported),
 	NULL, NULL, NULL
 };
 

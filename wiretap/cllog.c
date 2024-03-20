@@ -743,20 +743,20 @@ static int cllog_file_type_subtype = -1;
 #define CAN_EFF_MASK 0x1FFFFFFF /* extended frame format (EFF) */
 #define CAN_SFF_MASK 0x000007FF /* standard frame format (SFF) */
 
-static gboolean
-cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info _U_)
+static bool
+cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info _U_)
 {
     cCLLog_logFileInfo_t *clLog = (cCLLog_logFileInfo_t *) wth->priv;
     char line[MAX_LOG_LINE_LENGTH];
     cCLLog_message_t logEntry;
-    guint8 *can_data;
+    uint8_t *can_data;
 
     /* Read a line */
     if (file_gets(line, sizeof(line), fh) == NULL)
     {
         /* EOF or error. */
         *err = file_error(wth->fh, err_info);
-        return FALSE;
+        return false;
     }
 
     /* Default the log entry structure */
@@ -765,7 +765,7 @@ cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gc
     /* Parse the line */
     if (!parseLogLine(clLog, line, &logEntry, err, err_info))
     {
-        return FALSE;
+        return false;
     }
 
     rec->rec_type = REC_TYPE_PACKET;
@@ -803,28 +803,28 @@ cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gc
         can_data[0] |= 0x80;
 
     memcpy(&can_data[8], logEntry.data, logEntry.length);
-    return TRUE;
+    return true;
 }
 
-static gboolean
-cllog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *data_offset)
+static bool
+cllog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char **err_info, int64_t *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
     return cllog_read_common(wth, wth->fh, rec, buf, err, err_info);
 }
 
-static gboolean
-cllog_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+cllog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     return cllog_read_common(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
 wtap_open_return_val
-cllog_open(wtap *wth, int *err, gchar **err_info _U_)
+cllog_open(wtap *wth, int *err, char **err_info _U_)
 {
     cCLLog_logFileInfo_t *clLog;
     char line[ MAX_LOG_LINE_LENGTH ];
@@ -986,7 +986,7 @@ static const struct supported_block_type cllog_blocks_supported[] = {
 
 static const struct file_type_subtype_info cllog_info = {
     "CSS Electronics CLX000 CAN log", "cllog", "txt", NULL,
-    FALSE, BLOCKS_SUPPORTED(cllog_blocks_supported),
+    false, BLOCKS_SUPPORTED(cllog_blocks_supported),
     NULL, NULL, NULL
 };
 

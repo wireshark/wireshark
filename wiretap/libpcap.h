@@ -50,52 +50,52 @@
 
 /* "libpcap" file header (minus magic number). */
 struct pcap_hdr {
-	guint16	version_major;	/* major version number */
-	guint16	version_minor;	/* minor version number */
-	gint32	thiszone;	/* GMT to local correction */
-	guint32	sigfigs;	/* accuracy of timestamps */
-	guint32	snaplen;	/* max length of captured packets, in octets */
-	guint32	network;	/* data link type */
+	uint16_t version_major;	/* major version number */
+	uint16_t version_minor;	/* minor version number */
+	int32_t	 thiszone;	/* GMT to local correction */
+	uint32_t sigfigs;	/* accuracy of timestamps */
+	uint32_t snaplen;	/* max length of captured packets, in octets */
+	uint32_t network;	/* data link type */
 };
 
 /* "libpcap" record header. */
 struct pcaprec_hdr {
-	guint32	ts_sec;		/* timestamp seconds */
-	guint32	ts_usec;	/* timestamp microseconds (nsecs for PCAP_NSEC_MAGIC) */
-	guint32	incl_len;	/* number of octets of packet saved in file */
-	guint32	orig_len;	/* actual length of packet */
+	uint32_t ts_sec;	/* timestamp seconds */
+	uint32_t ts_usec;	/* timestamp microseconds (nsecs for PCAP_NSEC_MAGIC) */
+	uint32_t incl_len;	/* number of octets of packet saved in file */
+	uint32_t orig_len;	/* actual length of packet */
 };
 
 /* "libpcap" record header for Alexey's patched version. */
 struct pcaprec_modified_hdr {
 	struct pcaprec_hdr hdr;	/* the regular header */
-	guint32 ifindex;	/* index, in *capturing* machine's list of
+	uint32_t ifindex;	/* index, in *capturing* machine's list of
 				   interfaces, of the interface on which this
 				   packet came in. */
-	guint16 protocol;	/* Ethernet packet type */
-	guint8 pkt_type;	/* broadcast/multicast/etc. indication */
-	guint8 pad;		/* pad to a 4-byte boundary */
+	uint16_t protocol;	/* Ethernet packet type */
+	uint8_t pkt_type;	/* broadcast/multicast/etc. indication */
+	uint8_t pad;		/* pad to a 4-byte boundary */
 };
 
 /* "libpcap" record header for Alexey's patched version in its ss990915
    incarnation; this version shows up in SuSE Linux 6.3. */
 struct pcaprec_ss990915_hdr {
 	struct pcaprec_hdr hdr;	/* the regular header */
-	guint32 ifindex;	/* index, in *capturing* machine's list of
+	uint32_t ifindex;	/* index, in *capturing* machine's list of
 				   interfaces, of the interface on which this
 				   packet came in. */
-	guint16 protocol;	/* Ethernet packet type */
-	guint8 pkt_type;	/* broadcast/multicast/etc. indication */
-	guint8 cpu1, cpu2;	/* SMP debugging gunk? */
-	guint8 pad[3];		/* pad to a 4-byte boundary */
+	uint16_t protocol;	/* Ethernet packet type */
+	uint8_t pkt_type;	/* broadcast/multicast/etc. indication */
+	uint8_t cpu1, cpu2;	/* SMP debugging gunk? */
+	uint8_t pad[3];		/* pad to a 4-byte boundary */
 };
 
 /* "libpcap" record header for version used on some Nokia boxes (firewalls?) */
 struct pcaprec_nokia_hdr {
 	struct pcaprec_hdr hdr;	/* the regular header */
-	guint8 stuff[4];	/* mysterious stuff */
+	uint8_t stuff[4];	/* mysterious stuff */
 };
 
-wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val libpcap_open(wtap *wth, int *err, char **err_info);
 
 #endif

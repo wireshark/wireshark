@@ -60,10 +60,10 @@ static const char dct3trace_magic_end[]  = "</dump>";
 
 #define MAX_PACKET_LEN 23
 
-static gboolean dct3trace_read(wtap *wth, wtap_rec *rec,
-	Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
-static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static bool dct3trace_read(wtap *wth, wtap_rec *rec,
+	Buffer *buf, int *err, char **err_info, int64_t *data_offset);
+static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
+	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
 
 static int dct3trace_file_type_subtype = -1;
 
@@ -87,9 +87,9 @@ hc2b(unsigned char hex)
 }
 
 static int
-hex2bin(guint8 *out, guint8 *out_end, char *in)
+hex2bin(uint8_t *out, uint8_t *out_end, char *in)
 {
-	guint8 *out_start = out;
+	uint8_t *out_start = out;
 	int is_low = 0;
 	int c;
 
@@ -121,8 +121,8 @@ hex2bin(guint8 *out, guint8 *out_end, char *in)
 	return (int)(out - out_start);
 }
 
-static gboolean
-xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **err_info)
+static bool
+xml_get_int(int *val, const char *str, const char *pattern, int *err, char **err_info)
 {
 	const char *ptr, *endptr;
 	char *start, *end;
@@ -132,7 +132,7 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	if (ptr == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("dct3trace: %s not found", pattern);
-		return FALSE;
+		return false;
 	}
 	/*
 	 * XXX - should we just skip past the pattern and check for ="?
@@ -141,7 +141,7 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	if (start == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("dct3trace: opening quote for %s not found", pattern);
-		return FALSE;
+		return false;
 	}
 	start++;
 	/*
@@ -152,12 +152,12 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	if (end == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("dct3trace: closing quote for %s not found", pattern);
-		return FALSE;
+		return false;
 	}
 	if (end - start > 31) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("dct3trace: %s value is too long", pattern);
-		return FALSE;
+		return false;
 	}
 
 	memcpy(buf, start, end - start);
@@ -175,18 +175,18 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 				*err_info = ws_strdup_printf("dct3trace: %s value is too large, maximum is %d", pattern, *val);
 		} else
 			*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
-		return FALSE;
+		return false;
 	}
 	if (*endptr != '\0') {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 
-wtap_open_return_val dct3trace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val dct3trace_open(wtap *wth, int *err, char **err_info)
 {
 	char line1[64], line2[64];
 
@@ -226,12 +226,12 @@ wtap_open_return_val dct3trace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 
-static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
-	Buffer *buf, int *err, gchar **err_info)
+static bool dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
+	Buffer *buf, int *err, char **err_info)
 {
 	char line[1024];
-	guint8 databuf[MAX_PACKET_LEN], *bufp;
-	gboolean have_data = FALSE;
+	uint8_t databuf[MAX_PACKET_LEN], *bufp;
+	bool have_data = false;
 	int len = 0;
 
 	bufp = &databuf[0];
@@ -241,7 +241,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 		{
 			/* Return on end of file </dump> */
 			*err = 0;
-			return FALSE;
+			return false;
 		}
 		else if( memcmp(dct3trace_magic_record_end, line, strlen(dct3trace_magic_record_end)) == 0 )
 		{
@@ -263,14 +263,14 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 				ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
 				memcpy( ws_buffer_start_ptr(buf), databuf, rec->rec_header.packet_header.caplen );
 
-				return TRUE;
+				return true;
 			}
 			else
 			{
 				/* If not got any data return error */
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("dct3trace: record without data");
-				return FALSE;
+				return false;
 			}
 		}
 		else if( memcmp(dct3trace_magic_record_start, line, strlen(dct3trace_magic_record_start)) == 0 )
@@ -281,25 +281,25 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 
 			rec->rec_header.packet_header.pseudo_header.gsm_um.uplink = !strstr(line, "direction=\"down\"");
 			if (!xml_get_int(&channel, line, "logicalchannel", err, err_info))
-				return FALSE;
+				return false;
 
 			/* Parse downlink only fields */
 			if( !rec->rec_header.packet_header.pseudo_header.gsm_um.uplink )
 			{
 				if (!xml_get_int(&tmp, line, "physicalchannel", err, err_info))
-					return FALSE;
+					return false;
 				rec->rec_header.packet_header.pseudo_header.gsm_um.arfcn = tmp;
 				if (!xml_get_int(&tmp, line, "sequence", err, err_info))
-					return FALSE;
+					return false;
 				rec->rec_header.packet_header.pseudo_header.gsm_um.tdma_frame = tmp;
 				if (!xml_get_int(&tmp, line, "bsic", err, err_info))
-					return FALSE;
+					return false;
 				rec->rec_header.packet_header.pseudo_header.gsm_um.bsic = tmp;
 				if (!xml_get_int(&tmp, line, "error", err, err_info))
-					return FALSE;
+					return false;
 				rec->rec_header.packet_header.pseudo_header.gsm_um.error = tmp;
 				if (!xml_get_int(&tmp, line, "timeshift", err, err_info))
-					return FALSE;
+					return false;
 				rec->rec_header.packet_header.pseudo_header.gsm_um.timeshift = tmp;
 			}
 
@@ -317,13 +317,13 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 			ptr = strstr(line, "data=\"");
 			if( ptr )
 			{
-				have_data = TRUE; /* If has data... */
+				have_data = true; /* If has data... */
 				len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], ptr+6);
 				if (len == -1)
 				{
 					*err = WTAP_ERR_BAD_FILE;
 					*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
-					return FALSE;
+					return false;
 				}
 			}
 		}
@@ -339,7 +339,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 				continue;
 			}
 
-			have_data = TRUE;
+			have_data = true;
 
 			/*
 			 * We know we have no data already, so we know
@@ -363,7 +363,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 			{
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
-				return FALSE;
+				return false;
 			}
 			len += data_len;
 
@@ -377,13 +377,13 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 	{
 		*err = WTAP_ERR_SHORT_READ;
 	}
-	return FALSE;
+	return false;
 }
 
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean dct3trace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool dct3trace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
@@ -392,12 +392,12 @@ static gboolean dct3trace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 
 
 /* Used to read packets in random-access fashion */
-static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
+	wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{
-		return FALSE;
+		return false;
 	}
 
 	return dct3trace_get_packet(wth->random_fh, rec, buf, err, err_info);
@@ -412,7 +412,7 @@ static const struct supported_block_type dct3trace_blocks_supported[] = {
 
 static const struct file_type_subtype_info dct3trace_info = {
 	"Gammu DCT3 trace", "dct3trace", "xml", NULL,
-	FALSE, BLOCKS_SUPPORTED(dct3trace_blocks_supported),
+	false, BLOCKS_SUPPORTED(dct3trace_blocks_supported),
 	NULL, NULL, NULL
 };
 

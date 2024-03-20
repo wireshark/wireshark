@@ -61,16 +61,16 @@ typedef enum {
 } msg_type_t;
 
 typedef struct {
-    guint year;
-    guint month;
-    guint day;
+    unsigned year;
+    unsigned month;
+    unsigned day;
 } msg_date_t;
 
 typedef struct {
-    guint hours;
-    guint minutes;
-    guint seconds;
-    guint micros;
+    unsigned hours;
+    unsigned minutes;
+    unsigned seconds;
+    unsigned micros;
 } msg_time_t;
 
 typedef struct {
@@ -79,27 +79,27 @@ typedef struct {
 } msg_date_time_t;
 
 typedef struct {
-    guint      length;
-    guint8     data[CANFD_MAX_DLEN];
+    unsigned   length;
+    uint8_t    data[CANFD_MAX_DLEN];
 } msg_data_t;
 
 typedef struct {
     msg_time_t timestamp;
     msg_type_t type;
-    guint32    id;
+    uint32_t   id;
     msg_data_t data;
 } msg_t;
 
 typedef struct {
-    gint64 v0;
-    gint64 v1;
-    gint64 v2;
-    gint64 v3;
+    int64_t v0;
+    int64_t v1;
+    int64_t v2;
+    int64_t v3;
 } token_t;
 
 typedef struct {
-    gint64      file_start_offset;
-    gint64      file_end_offset;
+    int64_t     file_start_offset;
+    int64_t     file_end_offset;
     protocol_type_t  protocol;
     data_mode_t data_mode;
     time_mode_t time_mode;
@@ -109,11 +109,11 @@ typedef struct {
 
 typedef struct {
     FILE_T   fh;
-    gint64   file_bytes_read;
+    int64_t  file_bytes_read;
 
-    gchar   *parse_error;
+    char    *parse_error;
     int      err;
-    gchar   *err_info;
+    char    *err_info;
 
     token_t  token;
 
@@ -122,9 +122,9 @@ typedef struct {
     msg_t            msg;
 } busmaster_state_t;
 
-gboolean
+bool
 run_busmaster_parser(busmaster_state_t *state,
-                     int               *err, gchar **err_info);
+                     int               *err, char **err_info);
 
 #ifdef BUSMASTER_DEBUG
 #include <stdio.h>

@@ -24,41 +24,41 @@ static int ber_file_type_subtype = -1;
 
 void register_ber(void);
 
-static gboolean ber_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-                                   int *err, gchar **err_info,
-                                   gint64 *data_offset)
+static bool ber_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                   int *err, char **err_info,
+                                   int64_t *data_offset)
 {
   if (!wtap_full_file_read(wth, rec, buf, err, err_info, data_offset))
-    return FALSE;
+    return false;
 
   /* Pass the file name. */
   rec->rec_header.packet_header.pseudo_header.ber.pathname = wth->pathname;
-  return TRUE;
+  return true;
 }
 
-static gboolean ber_full_file_seek_read(wtap *wth, gint64 seek_off,
+static bool ber_full_file_seek_read(wtap *wth, int64_t seek_off,
                                         wtap_rec *rec, Buffer *buf,
-                                        int *err, gchar **err_info)
+                                        int *err, char **err_info)
 {
   if (!wtap_full_file_seek_read(wth, seek_off, rec, buf, err, err_info))
-    return FALSE;
+    return false;
 
   /* Pass the file name. */
   rec->rec_header.packet_header.pseudo_header.ber.pathname = wth->pathname;
-  return TRUE;
+  return true;
 }
 
-wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val ber_open(wtap *wth, int *err, char **err_info)
 {
 #define BER_BYTES_TO_CHECK 8
-  guint8 bytes[BER_BYTES_TO_CHECK];
-  guint8 ber_id;
-  gint8 ber_class;
-  gint8 ber_tag;
-  gboolean ber_pc;
-  guint8 oct, nlb = 0;
+  uint8_t bytes[BER_BYTES_TO_CHECK];
+  uint8_t ber_id;
+  int8_t ber_class;
+  int8_t ber_tag;
+  bool ber_pc;
+  uint8_t oct, nlb = 0;
   int len = 0;
-  gint64 file_size;
+  int64_t file_size;
   int offset = 0, i;
 
   if (!wtap_read_bytes(wth->fh, &bytes, BER_BYTES_TO_CHECK, err, err_info)) {
@@ -138,7 +138,7 @@ static const struct supported_block_type ber_blocks_supported[] = {
 
 static const struct file_type_subtype_info ber_info = {
   "ASN.1 Basic Encoding Rules", "ber", NULL, NULL,
-  FALSE, BLOCKS_SUPPORTED(ber_blocks_supported),
+  false, BLOCKS_SUPPORTED(ber_blocks_supported),
   NULL, NULL, NULL
 };
 

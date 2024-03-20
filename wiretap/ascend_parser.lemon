@@ -190,24 +190,24 @@ data_packet ::= wdp8_hdr datagroup .
 data_packet ::= wdd_date wdd_hdr datagroup .
 data_packet ::= wdd_hdr datagroup .
 
-%type isdn_prefix { guint16 }
+%type isdn_prefix { uint16_t }
 isdn_prefix(U16) ::= ISDN_PREFIX(A_TOK) . { U16 = A_TOK.u16_val; }
 
-%type ether_prefix { guint16 }
+%type ether_prefix { uint16_t }
 ether_prefix(U16) ::= ETHER_PREFIX(A_TOK) . { U16 = A_TOK.u16_val; }
 
-%type wds_prefix { guint16 }
+%type wds_prefix { uint16_t }
 wds_prefix(U16) ::= WDS_PREFIX(A_TOK) . { U16 = A_TOK.u16_val; }
 
 string ::= STRING .
 
-%type decnum { guint32 }
+%type decnum { uint32_t }
 decnum(U32) ::= DECNUM(A_TOK) . { U32 = A_TOK.u32_val; }
 
-%type hexnum { guint32 }
+%type hexnum { uint32_t }
 hexnum(U32) ::= HEXNUM(A_TOK) . { U32 = A_TOK.u32_val; }
 
-%type wdd_decnum { guint32 }
+%type wdd_decnum { uint32_t }
 wdd_decnum(U32) ::= WDD_DECNUM(A_TOK) . { U32 = A_TOK.u32_val; }
 
 /*
@@ -356,8 +356,8 @@ wdd_date ::= WDD_DATE wdd_decnum(MONTH) wdd_decnum(MDAY) wdd_decnum(YEAR) WDD_TI
     wddt.tm_year = (YEAR > 1970) ? YEAR - 1900 : 70;
     wddt.tm_isdst = -1;
 
-    parser_state->timestamp = (guint32) mktime(&wddt);
-    parser_state->saw_timestamp = TRUE;
+    parser_state->timestamp = (uint32_t) mktime(&wddt);
+    parser_state->saw_timestamp = true;
 
     (void) g_strlcpy(parser_state->pseudo_header->call_num, CN_T.str_val, ASCEND_MAX_STR_LEN);
 }
@@ -441,7 +441,7 @@ datagroup ::= dataln .
 
 /* Run the parser. */
 bool
-run_ascend_parser(guint8 *pd, ascend_state_t *parser_state, int *err, gchar **err_info)
+run_ascend_parser(uint8_t *pd, ascend_state_t *parser_state, int *err, char **err_info)
 {
     yyscan_t scanner = NULL;
     void *parser;
@@ -462,7 +462,7 @@ run_ascend_parser(guint8 *pd, ascend_state_t *parser_state, int *err, gchar **er
     /*
     * We haven't seen a time stamp yet.
     */
-    parser_state->saw_timestamp = FALSE;
+    parser_state->saw_timestamp = false;
     parser_state->timestamp = 0;
 
     parser_state->first_hexbyte = 0;

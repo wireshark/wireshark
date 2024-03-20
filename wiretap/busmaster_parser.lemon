@@ -97,15 +97,15 @@ DIAG_ON_LEMON()
 %type msg_time { msg_time_t }
 %type msg_type { msg_type_t }
 %type err_msg_type { msg_type_t }
-%type msg_length { guint }
-%type msg_id { guint32 }
+%type msg_length { unsigned }
+%type msg_id { uint32_t }
 
 %type ref_date { msg_date_t }
 %type ref_time { msg_time_t }
 
 %type start_time { msg_date_time_t }
 
-%type byte { guint8 }
+%type byte { uint8_t }
 %type data { msg_data_t }
 %type data0 { msg_data_t }
 %type data1 { msg_data_t }
@@ -260,35 +260,35 @@ j1939_msg ::= msg_time(msg_time) INT msg_id(msg_id) INT J1939_MSG_TYPE INT INT I
 
 ref_date(R) ::= INT(D) COLON INT(M) COLON INT(Y) .
 {
-    R.year  = (guint)Y.v0;
-    R.month = (guint)M.v0;
-    R.day   = (guint)D.v0;
+    R.year  = (unsigned)Y.v0;
+    R.month = (unsigned)M.v0;
+    R.day   = (unsigned)D.v0;
 }
 
 ref_time(R) ::= INT(H) COLON INT(M) COLON INT(S) COLON INT(U) .
 {
-    R.hours   = (guint)H.v0;
-    R.minutes = (guint)M.v0;
-    R.seconds = (guint)S.v0;
-    R.micros  = (guint)U.v0 * 1000;
+    R.hours   = (unsigned)H.v0;
+    R.minutes = (unsigned)M.v0;
+    R.seconds = (unsigned)S.v0;
+    R.micros  = (unsigned)U.v0 * 1000;
 }
 
 msg_time(R) ::= MSG_TIME(M) .
 {
-    R.hours   = (guint)M.v0;
-    R.minutes = (guint)M.v1;
-    R.seconds = (guint)M.v2;
-    R.micros  = (guint)M.v3 * 100;
+    R.hours   = (unsigned)M.v0;
+    R.minutes = (unsigned)M.v1;
+    R.seconds = (unsigned)M.v2;
+    R.micros  = (unsigned)M.v3 * 100;
 }
 
 msg_id(R) ::= INT(V) .
 {
-    R = (guint)V.v0;
+    R = (unsigned)V.v0;
 }
 
 msg_length(R) ::= INT(V) .
 {
-    R = (guint)V.v0;
+    R = (unsigned)V.v0;
 }
 
 msg_type(R) ::= MSG_TYPE(V) .
@@ -320,7 +320,7 @@ data(R) ::= data64(A) . { R = A; }
 
 byte(R) ::= INT(A) .
 {
-    R = (guint8)A.v0;
+    R = (uint8_t)A.v0;
 }
 
 data0(R) ::= .
@@ -375,9 +375,9 @@ data64(R) ::= data32(A) data32(B) . { merge_msg_data(&R, &A, &B); }
 #include "busmaster_scanner_lex.h"
 #include "busmaster_parser.h"
 
-gboolean
+bool
 run_busmaster_parser(busmaster_state_t *state,
-                     int               *err, gchar **err_info)
+                     int               *err, char **err_info)
 {
     int       lex_code;
     yyscan_t  scanner;
@@ -392,7 +392,7 @@ run_busmaster_parser(busmaster_state_t *state,
     {
         *err      = errno;
         *err_info = g_strdup(g_strerror(errno));
-        return FALSE;
+        return false;
     }
 
     parser = BusmasterParserAlloc(g_malloc);
@@ -446,10 +446,10 @@ run_busmaster_parser(busmaster_state_t *state,
         else
             *err = WTAP_ERR_BAD_FILE;
 
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 }

@@ -42,7 +42,7 @@ void register_eyesdn(void);
  */
 
 
-static gboolean esc_read(FILE_T fh, guint8 *buf, int len, int *err, gchar **err_info)
+static bool esc_read(FILE_T fh, uint8_t *buf, int len, int *err, char **err_info)
 {
 	int i;
 	int value;
@@ -54,13 +54,13 @@ static gboolean esc_read(FILE_T fh, guint8 *buf, int len, int *err, gchar **err_
 			*err=file_error(fh, err_info);
 			if(*err==0)
 				*err=WTAP_ERR_SHORT_READ;
-			return FALSE;
+			return false;
 		}
 		if(value==0xff) {
 			/* error !!, read into next frame */
 			*err=WTAP_ERR_BAD_FILE;
 			*err_info=g_strdup("eyesdn: No flag character seen in frame");
-			return FALSE;
+			return false;
 		}
 		if(value==0xfe) {
 			/* we need to escape */
@@ -70,14 +70,14 @@ static gboolean esc_read(FILE_T fh, guint8 *buf, int len, int *err, gchar **err_
 				*err=file_error(fh, err_info);
 				if(*err==0)
 					*err=WTAP_ERR_SHORT_READ;
-				return FALSE;
+				return false;
 			}
 			value+=2;
 		}
 		buf[i]=value;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Magic text to check for eyesdn-ness of file */
@@ -88,20 +88,20 @@ static const unsigned char eyesdn_hdr_magic[]  =
 /* Size of a record header */
 #define EYESDN_HDR_LENGTH		12
 
-static gboolean eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-	int *err, gchar **err_info, gint64 *data_offset);
-static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static int read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer* buf,
-	int *err, gchar **err_info);
+static bool eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, char **err_info, int64_t *data_offset);
+static bool eyesdn_seek_read(wtap *wth, int64_t seek_off,
+	wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer* buf,
+	int *err, char **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
    and "*err_info" to null or an additional error string. */
-static gint64 eyesdn_seek_next_packet(wtap *wth, int *err, gchar **err_info)
+static int64_t eyesdn_seek_next_packet(wtap *wth, int *err, char **err_info)
 {
 	int byte;
-	gint64 cur_off;
+	int64_t cur_off;
 
 	while ((byte = file_getc(wth->fh)) != EOF) {
 		if (byte == 0xff) {
@@ -119,7 +119,7 @@ static gint64 eyesdn_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 	return -1;
 }
 
-wtap_open_return_val eyesdn_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val eyesdn_open(wtap *wth, int *err, char **err_info)
 {
 	char	magic[EYESDN_HDR_MAGIC_SIZE];
 
@@ -143,15 +143,15 @@ wtap_open_return_val eyesdn_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next record and parse it; called from wtap_read(). */
-static gboolean eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
-	gint64	offset;
+	int64_t	offset;
 
 	/* Find the next record */
 	offset = eyesdn_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
-		return FALSE;
+		return false;
 	*data_offset = offset;
 
 	/* Parse the record */
@@ -159,35 +159,35 @@ static gboolean eyesdn_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 /* Used to read packets in random-access fashion */
-static gboolean
-eyesdn_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-	Buffer *buf, int *err, gchar **err_info)
+static bool
+eyesdn_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+	Buffer *buf, int *err, char **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return false;
 
 	return read_eyesdn_rec(wth->random_fh, rec, buf, err, err_info);
 }
 
 /* Parses a record. */
-static gboolean
+static bool
 read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
-    gchar **err_info)
+    char **err_info)
 {
 	union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
-	guint8		hdr[EYESDN_HDR_LENGTH];
+	uint8_t		hdr[EYESDN_HDR_LENGTH];
 	time_t		secs;
 	int		usecs;
-	guint		pkt_len;
-	guint8		channel, direction;
-	guint8		*pd;
+	unsigned	pkt_len;
+	uint8_t		channel, direction;
+	uint8_t		*pd;
 
 	/* Our file pointer should be at the summary information header
 	 * for a packet. Read in that header and extract the useful
 	 * information.
 	 */
 	if (!esc_read(fh, hdr, EYESDN_HDR_LENGTH, err, err_info))
-		return FALSE;
+		return false;
 
 	/* extract information from header */
 	usecs = pntoh24(&hdr[0]);
@@ -232,21 +232,21 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 	case EYESDN_ENCAP_ATM: { /* ATM cells */
 #define CELL_LEN 53
 		unsigned char cell[CELL_LEN];
-		gint64 cur_off;
+		int64_t cur_off;
 
 		if(pkt_len != CELL_LEN) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = ws_strdup_printf(
 			    "eyesdn: ATM cell has a length != 53 (%u)",
 			    pkt_len);
-			return FALSE;
+			return false;
 		}
 
 		cur_off = file_tell(fh);
 		if (!esc_read(fh, cell, CELL_LEN, err, err_info))
-			return FALSE;
+			return false;
 		if (file_seek(fh, cur_off, SEEK_SET, err) == -1)
-			return FALSE;
+			return false;
 		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
 		pseudo_header->atm.flags=ATM_RAW_CELL;
 		pseudo_header->atm.aal=AAL_UNKNOWN;
@@ -294,7 +294,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
 		    pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
-		return FALSE;
+		return false;
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
@@ -310,17 +310,17 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 
 	pd = ws_buffer_start_ptr(buf);
 	if (!esc_read(fh, pd, pkt_len, err, err_info))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 
-static gboolean
-esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
+static bool
+esc_write(wtap_dumper *wdh, const uint8_t *buf, int len, int *err)
 {
 	int i;
-	guint8 byte;
-	static const guint8 esc = 0xfe;
+	uint8_t byte;
+	static const uint8_t esc = 0xfe;
 
 	for(i=0; i<len; i++) {
 		byte=buf[i];
@@ -329,28 +329,28 @@ esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
 			 * Escape the frame delimiter and escape byte.
 			 */
 			if (!wtap_dump_file_write(wdh, &esc, sizeof esc, err))
-				return FALSE;
+				return false;
 			byte-=2;
 		}
 		if (!wtap_dump_file_write(wdh, &byte, sizeof byte, err))
-			return FALSE;
+			return false;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean eyesdn_dump(wtap_dumper *wdh,
+static bool eyesdn_dump(wtap_dumper *wdh,
 			    const wtap_rec *rec,
-			    const guint8 *pd, int *err, gchar **err_info);
+			    const uint8_t *pd, int *err, char **err_info);
 
-static gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static bool eyesdn_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
 	wdh->subtype_write=eyesdn_dump;
 
 	if (!wtap_dump_file_write(wdh, eyesdn_hdr_magic,
 	    EYESDN_HDR_MAGIC_SIZE, err))
-		return FALSE;
+		return false;
 	*err=0;
-	return TRUE;
+	return true;
 }
 
 static int eyesdn_dump_can_write_encap(int encap)
@@ -372,14 +372,14 @@ static int eyesdn_dump_can_write_encap(int encap)
 }
 
 /* Write a record for a packet to a dump file.
- *    Returns TRUE on success, FALSE on failure. */
-static gboolean eyesdn_dump(wtap_dumper *wdh,
+ *    Returns true on success, false on failure. */
+static bool eyesdn_dump(wtap_dumper *wdh,
 			    const wtap_rec *rec,
-			    const guint8 *pd, int *err, gchar **err_info _U_)
+			    const uint8_t *pd, int *err, char **err_info _U_)
 {
-	static const guint8 start_flag = 0xff;
+	static const uint8_t start_flag = 0xff;
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
-	guint8 buf[EYESDN_HDR_LENGTH];
+	uint8_t buf[EYESDN_HDR_LENGTH];
 	int usecs;
 	time_t secs;
 	int channel;
@@ -390,7 +390,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	/* We can only write packet records. */
 	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-		return FALSE;
+		return false;
 	}
 
 	/* Don't write out anything bigger than we can read.
@@ -398,7 +398,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	 * imposes a hard limit.) */
 	if (rec->rec_header.packet_header.caplen > 65535) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
-		return FALSE;
+		return false;
 	}
 
 	usecs=rec->ts.nsecs/1000;
@@ -450,29 +450,29 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 
 	default:
 		*err=WTAP_ERR_UNWRITABLE_ENCAP;
-		return FALSE;
+		return false;
 	}
 
 	phton24(&buf[0], usecs);
 
-	buf[3] = (guint8)0;
-	buf[4] = (guint8)(0xff & (secs >> 24));
-	buf[5] = (guint8)(0xff & (secs >> 16));
-	buf[6] = (guint8)(0xff & (secs >> 8));
-	buf[7] = (guint8)(0xff & (secs >> 0));
+	buf[3] = (uint8_t)0;
+	buf[4] = (uint8_t)(0xff & (secs >> 24));
+	buf[5] = (uint8_t)(0xff & (secs >> 16));
+	buf[6] = (uint8_t)(0xff & (secs >> 8));
+	buf[7] = (uint8_t)(0xff & (secs >> 0));
 
-	buf[8] = (guint8) channel;
-	buf[9] = (guint8) (origin?1:0) + (protocol << 1);
+	buf[8] = (uint8_t) channel;
+	buf[9] = (uint8_t) (origin?1:0) + (protocol << 1);
 	phtons(&buf[10], size);
 
 	/* start flag */
 	if (!wtap_dump_file_write(wdh, &start_flag, sizeof start_flag, err))
-		return FALSE;
+		return false;
 	if (!esc_write(wdh, buf, 12, err))
-		return FALSE;
+		return false;
 	if (!esc_write(wdh, pd, size, err))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 static const struct supported_block_type eyesdn_blocks_supported[] = {
@@ -484,7 +484,7 @@ static const struct supported_block_type eyesdn_blocks_supported[] = {
 
 static const struct file_type_subtype_info eyesdn_info = {
 	"EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "trc", NULL,
-	FALSE, BLOCKS_SUPPORTED(eyesdn_blocks_supported),
+	false, BLOCKS_SUPPORTED(eyesdn_blocks_supported),
 	eyesdn_dump_can_write_encap, eyesdn_dump_open, NULL
 };
 

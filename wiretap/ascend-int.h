@@ -19,39 +19,39 @@
 
 typedef struct {
     time_t inittime;
-    gboolean adjusted;
-    gint64 next_packet_seek_start;
+    bool adjusted;
+    int64_t next_packet_seek_start;
 } ascend_t;
 
 typedef struct {
     int length;
-    guint32 u32_val;
-    guint16 u16_val;
-    guint8 u8_val;
+    uint32_t u32_val;
+    uint16_t u16_val;
+    uint8_t u8_val;
     char str_val[ASCEND_MAX_STR_LEN];
 } ascend_token_t;
 
 typedef struct {
     FILE_T fh;
-    const gchar *ascend_parse_error;
+    const char *ascend_parse_error;
     int err;
-    gchar *err_info;
+    char *err_info;
     struct ascend_phdr *pseudo_header;
-    guint8 *pkt_data;
+    uint8_t *pkt_data;
 
-    gboolean saw_timestamp;
+    bool saw_timestamp;
     time_t timestamp;
 
-    gint64 first_hexbyte;
-    guint32 wirelen;
-    guint32 caplen;
+    int64_t first_hexbyte;
+    uint32_t wirelen;
+    uint32_t caplen;
     time_t secs;
-    guint32 usecs;
+    uint32_t usecs;
 
     ascend_token_t token;
 } ascend_state_t;
 
 extern bool
-run_ascend_parser(guint8 *pd, ascend_state_t *parser_state, int *err, gchar **err_info);
+run_ascend_parser(uint8_t *pd, ascend_state_t *parser_state, int *err, char **err_info);
 
 #endif /* ! __ASCEND_INT_H__ */

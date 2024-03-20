@@ -114,33 +114,33 @@ DIAG_OFF_FLEX()
 typedef struct {
 	FILE_T fh;
 	int err;
-	gchar *err_info;
+	char *err_info;
 	int start_state;
 
-	guint g_h;
-	guint g_m;
-	guint g_s;
-	guint g_ms;
-	guint g_ns;
-	gint g_encap;
-	guint8 *bb;
-	guint ii;
-	gboolean is_k12text;
-	gboolean at_eof;
-	guint junk_chars;
-	gchar* error_str;
-	guint64 file_bytes_read;
-	gboolean ok_frame;
+	unsigned g_h;
+	unsigned g_m;
+	unsigned g_s;
+	unsigned g_ms;
+	unsigned g_ns;
+	int g_encap;
+	uint8_t *bb;
+	unsigned ii;
+	bool is_k12text;
+	bool at_eof;
+	unsigned junk_chars;
+	char* error_str;
+	uint64_t file_bytes_read;
+	bool ok_frame;
 } k12text_state_t;
 
 #define KERROR(text) do { yyextra->error_str = g_strdup(text); yyterminate(); } while(0)
-#define SET_HOURS(text) yyextra->g_h = (guint) strtoul(text,NULL,10)
-#define SET_MINUTES(text) yyextra->g_m = (guint) strtoul(text,NULL,10)
-#define SET_SECONDS(text) yyextra->g_s = (guint) strtoul(text,NULL,10)
-#define SET_MS(text) yyextra->g_ms = (guint) strtoul(text,NULL,10)
-#define SET_NS(text) yyextra->g_ns = (guint) strtoul(text,NULL,10)
-#define ADD_BYTE(text) do {if (yyextra->ii >= WTAP_MAX_PACKET_SIZE_STANDARD) {KERROR("frame too large");} yyextra->bb[yyextra->ii++] = (guint8)strtoul(text,NULL,16); } while(0)
-#define FINALIZE_FRAME() do { yyextra->ok_frame = TRUE; } while (0)
+#define SET_HOURS(text) yyextra->g_h = (unsigned) strtoul(text,NULL,10)
+#define SET_MINUTES(text) yyextra->g_m = (unsigned) strtoul(text,NULL,10)
+#define SET_SECONDS(text) yyextra->g_s = (unsigned) strtoul(text,NULL,10)
+#define SET_MS(text) yyextra->g_ms = (unsigned) strtoul(text,NULL,10)
+#define SET_NS(text) yyextra->g_ns = (unsigned) strtoul(text,NULL,10)
+#define ADD_BYTE(text) do {if (yyextra->ii >= WTAP_MAX_PACKET_SIZE_STANDARD) {KERROR("frame too large");} yyextra->bb[yyextra->ii++] = (uint8_t)strtoul(text,NULL,16); } while(0)
+#define FINALIZE_FRAME() do { yyextra->ok_frame = true; } while (0)
 /*~ #define ECHO*/
 #define YY_USER_ACTION yyextra->file_bytes_read += yyleng;
 #define YY_USER_INIT { \
@@ -176,7 +176,7 @@ typedef struct {
 	 * each call to k12text_read(), since the lexer undoubtedly did some
 	 * amount of look-ahead when processing the previous frame.
 	 */
-	gint64	next_frame_offset;
+	int64_t	next_frame_offset;
 } k12text_t;
 
 /*
@@ -214,9 +214,9 @@ hdlc HDLC
 
 %START MAGIC NEXT_FRAME HOURS MINUTES M2S SECONDS S2M MS M2N NS ENCAP STARTBYTES BYTE
 %%
-<MAGIC>{start_timestamp}  { yyextra->is_k12text = TRUE; yyterminate(); }
+<MAGIC>{start_timestamp}  { yyextra->is_k12text = true; yyterminate(); }
 
-<MAGIC>. { if (++ yyextra->junk_chars > MAX_JUNK) { yyextra->is_k12text = FALSE;  yyterminate(); } }
+<MAGIC>. { if (++ yyextra->junk_chars > MAX_JUNK) { yyextra->is_k12text = false;  yyterminate(); } }
 
 <NEXT_FRAME>{start_timestamp} {BEGIN(HOURS); }
 <HOURS>{oneormoredigits} { SET_HOURS(yytext); BEGIN(MINUTES); }
@@ -238,7 +238,7 @@ hdlc HDLC
 <BYTE>{end_bytes} { FINALIZE_FRAME(); yyterminate(); }
 
 . {  if (++yyextra->junk_chars > MAX_JUNK) { KERROR("too much junk");  } }
-<<EOF>> { yyextra->at_eof = TRUE; yyterminate(); }
+<<EOF>> { yyextra->at_eof = true; yyterminate(); }
 
 %%
 
@@ -249,9 +249,9 @@ DIAG_ON_FLEX()
 
 /* Fill in pkthdr */
 
-static gboolean
+static bool
 k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	rec->rec_type = REC_TYPE_PACKET;
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -278,19 +278,19 @@ k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
 		    /* pseudo_header for these types.			*/
 		    *err = WTAP_ERR_UNSUPPORTED;
 		    *err_info = g_strdup("k12text: MTP2 packets not yet supported");
-		    return FALSE;
+		    return false;
 	    case WTAP_ENCAP_ATM_PDUS:  /* not (yet) supported		*/
 		    /* XXX: I don't know how to fill in the		*/
 		    /* pseudo_header for these types.			*/
 		    *err = WTAP_ERR_UNSUPPORTED;
 		    *err_info = g_strdup("k12text: SSCOP packets not yet supported");
-		    return FALSE;
+		    return false;
 	    default:
 		    *err = WTAP_ERR_UNSUPPORTED;
 		    *err_info = g_strdup("k12text: unknown encapsulation type");
-		    return FALSE;
+		    return false;
 	}
-	return TRUE;
+	return true;
 }
 
 /* Note: k12text_reset is called each time data is to be processed from	*/
@@ -300,9 +300,9 @@ k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
 /*       used even when multiple files are open simultaneously (as for	*/
 /*       a file merge).							*/
 
-static gboolean
+static bool
 k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
-    int *err, gchar **err_info)
+    int *err, char **err_info)
 {
 	yyscan_t scanner = NULL;
 
@@ -310,7 +310,7 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 		/* errno is set if this fails */
 		*err = errno;
 		*err_info = NULL;
-		return FALSE;
+		return false;
 	}
 	state->fh = fh;
 	state->err = 0;
@@ -318,9 +318,9 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 	state->start_state = start_state;
 
 	state->g_encap = WTAP_ENCAP_UNKNOWN;
-	state->ok_frame = FALSE;
-	state->is_k12text = FALSE;
-	state->at_eof = FALSE;
+	state->ok_frame = false;
+	state->is_k12text = false;
+	state->at_eof = false;
 	state->junk_chars = 0;
 	state->error_str = NULL;
 	state->file_bytes_read=0;
@@ -340,13 +340,13 @@ k12text_run_scanner(k12text_state_t *state, FILE_T fh, int start_state,
 		/* I/O error. */
 		*err = state->err;
 		*err_info = state->err_info;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
-k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, gint64 *data_offset)
+static bool
+k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, int64_t *data_offset)
 {
 	k12text_t *k12text = (k12text_t *)wth->priv;
 	k12text_state_t state;
@@ -361,16 +361,16 @@ k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, 
 	 */
 
 	if ( file_seek(wth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
-		return FALSE;
+		return false;
 	}
-	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+	state.bb = (uint8_t*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
 	if (!k12text_run_scanner(&state, wth->fh, NEXT_FRAME, err, err_info)) {
 		g_free(state.bb);
-		return FALSE;
+		return false;
 	}
 
-	if (state.ok_frame == FALSE) {
+	if (state.ok_frame == false) {
 		if (state.at_eof) {
 			*err = 0;
 			*err_info = NULL;
@@ -379,7 +379,7 @@ k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, 
 			*err_info = state.error_str;
 		}
 		g_free(state.bb);
-		return FALSE;
+		return false;
 	}
 
 	*data_offset = k12text->next_frame_offset;           /* file position for beginning of this frame   */
@@ -387,31 +387,31 @@ k12text_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, char ** err_info, 
 
 	if (!k12text_set_headers(rec, &state, err, err_info)) {
 		g_free(state.bb);
-		return FALSE;
+		return false;
 	}
 	ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
 	memcpy(ws_buffer_start_ptr(buf), state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
-	return TRUE;
+	return true;
 }
 
-static gboolean
-k12text_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
+static bool
+k12text_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	k12text_state_t state;
 
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-		return FALSE;
+		return false;
 	}
-	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+	state.bb = (uint8_t*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
 	if (!k12text_run_scanner(&state, wth->random_fh, NEXT_FRAME, err, err_info)) {
 		g_free(state.bb);
-		return FALSE;
+		return false;
 	}
 
-	if (state.ok_frame == FALSE) {
+	if (state.ok_frame == false) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (state.at_eof) {
 			/* What happened ? The desired frame was previously read without a problem */
@@ -420,27 +420,27 @@ k12text_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *e
 			*err_info = state.error_str;
 		}
 		g_free(state.bb);
-		return FALSE;
+		return false;
 	}
 
 	if (!k12text_set_headers(rec, &state, err, err_info)) {
 		g_free(state.bb);
-		return FALSE;
+		return false;
 	}
 	ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
 	memcpy(ws_buffer_start_ptr(buf), state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
-	return TRUE;
+	return true;
 }
 
 wtap_open_return_val
-k12text_open(wtap *wth, int *err, gchar **err_info)
+k12text_open(wtap *wth, int *err, char **err_info)
 {
 	k12text_t *k12text;
 	k12text_state_t state;
 
-	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
+	state.bb = (uint8_t*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 	if (!k12text_run_scanner(&state, wth->fh, MAGIC, err, err_info)) {
 		g_free(state.bb);
 		return WTAP_OPEN_ERROR;
@@ -483,25 +483,25 @@ static const struct { int e; const char* s; } encaps[] = {
 	{ 0, NULL }
 };
 
-static gboolean
+static bool
 k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
-	     const guint8 *pd, int *err, gchar **err_info _U_) {
+	     const uint8_t *pd, int *err, char **err_info _U_) {
 #define K12BUF_SIZE 196808
 	char *buf;
 	size_t left = K12BUF_SIZE;
 	size_t wl;
 	char *p;
 	const char* str_enc;
-	guint i;
-	guint ns;
-	guint ms;
-	gboolean ret;
+	unsigned i;
+	unsigned ns;
+	unsigned ms;
+	bool ret;
 	struct tm *tmp;
 
 	/* Don't write anything bigger than we're willing to read. */
 	if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
-		return FALSE;
+		return false;
 	}
 
 	str_enc = NULL;
@@ -516,7 +516,7 @@ k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		 * That encapsulation type is not supported.  Fail.
 		 */
 		*err = WTAP_ERR_UNWRITABLE_ENCAP;
-		return FALSE;
+		return false;
 	}
 
 	buf = (char *)g_malloc(K12BUF_SIZE);
@@ -554,12 +554,12 @@ k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
 }
 
 
-static gboolean
-k12text_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
+static bool
+k12text_dump_open(wtap_dumper *wdh, int *err _U_, char **err_info _U_)
 {
     wdh->subtype_write = k12text_dump;
 
-    return TRUE;
+    return true;
 }
 
 static int
@@ -587,7 +587,7 @@ static const struct supported_block_type k12text_blocks_supported[] = {
 
 static const struct file_type_subtype_info k12text_info = {
     "K12 text file", "k12text", "txt", NULL,
-    FALSE, BLOCKS_SUPPORTED(k12text_blocks_supported),
+    false, BLOCKS_SUPPORTED(k12text_blocks_supported),
     k12text_dump_can_write_encap, k12text_dump_open, NULL
 };
 

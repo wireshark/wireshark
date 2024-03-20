@@ -126,14 +126,14 @@ to handle them.
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
 
-static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset);
-static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
-    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
+static bool vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset);
+static bool vms_seek_read(wtap *wth, int64_t seek_off,
+    wtap_rec *rec, Buffer *buf, int *err, char **err_info);
+static bool parse_single_hex_dump_line(char* rec, uint8_t *buf,
     long byte_offset, int in_off, int remaining_bytes);
-static gboolean parse_vms_packet(FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info);
+static bool parse_vms_packet(FILE_T fh, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info);
 
 static int vms_file_type_subtype = -1;
 
@@ -143,7 +143,7 @@ void register_vms(void);
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
    and sets "*err_info" to null or an additional error string. */
-static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
+static long vms_seek_next_packet(wtap *wth, int *err, char **err_info)
 {
     long cur_off;
     char buf[VMS_LINE_LENGTH];
@@ -174,18 +174,18 @@ static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 /* Look through the first part of a file to see if this is
  * a VMS trace file.
  *
- * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
+ * Returns true if it is, false if it isn't or if we get an I/O error;
  * if we get an I/O error, "*err" will be set to a non-zero value and
  * "*err_info will be set to null or an additional error string.
  *
  * Leaves file handle at beginning of line that contains the VMS Magic
  * identifier.
  */
-static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
+static bool vms_check_file_type(wtap *wth, int *err, char **err_info)
 {
     char buf[VMS_LINE_LENGTH];
-    guint reclen, line;
-    gint64 mpos;
+    unsigned reclen, line;
+    int64_t mpos;
 
     buf[VMS_LINE_LENGTH-1] = '\0';
 
@@ -194,15 +194,15 @@ static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
         if (mpos == -1) {
             /* Error. */
             *err = file_error(wth->fh, err_info);
-            return FALSE;
+            return false;
         }
         if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) == NULL) {
             /* EOF or error. */
             *err = file_error(wth->fh, err_info);
-            return FALSE;
+            return false;
         }
 
-        reclen = (guint) strlen(buf);
+        reclen = (unsigned) strlen(buf);
         if (reclen < strlen(VMS_HDR_MAGIC_STR1) ||
             reclen < strlen(VMS_HDR_MAGIC_STR2) ||
             reclen < strlen(VMS_HDR_MAGIC_STR3)) {
@@ -216,17 +216,17 @@ static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
              * re-read it. */
             if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
                 /* Error. */
-                return FALSE;
+                return false;
             }
-            return TRUE;
+            return true;
         }
     }
     *err = 0;
-    return FALSE;
+    return false;
 }
 
 
-wtap_open_return_val vms_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val vms_open(wtap *wth, int *err, char **err_info)
 {
     /* Look for VMS header */
     if (!vms_check_file_type(wth, err, err_info)) {
@@ -254,10 +254,10 @@ wtap_open_return_val vms_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info, gint64 *data_offset)
+static bool vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, char **err_info, int64_t *data_offset)
 {
-    gint64   offset = 0;
+    int64_t  offset = 0;
 
     /* Find the next packet */
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
@@ -267,7 +267,7 @@ static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 #endif
     if (offset < 1) {
         *err = file_error(wth->fh, err_info);
-        return FALSE;
+        return false;
     }
     *data_offset = offset;
 
@@ -276,19 +276,19 @@ static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 }
 
 /* Used to read packets in random-access fashion */
-static gboolean
-vms_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
+static bool
+vms_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, char **err_info)
 {
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
-        return FALSE;
+        return false;
 
     if (!parse_vms_packet(wth->random_fh, rec, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /* isdumpline assumes that dump lines start with some non-alphanumerics
@@ -296,7 +296,7 @@ vms_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
  * by 3 spaces.
  */
 static int
-isdumpline( gchar *line )
+isdumpline( char *line )
 {
     int i, j;
 
@@ -306,34 +306,34 @@ isdumpline( gchar *line )
     for (j=0; j<4; j++) {
         for (i=0; i<8; i++, line++)
             if (! g_ascii_isxdigit(*line))
-                return FALSE;
+                return false;
 
         for (i=0; i<3; i++, line++)
             if (*line != ' ')
-                return FALSE;
+                return false;
     }
 
     return g_ascii_isspace(*line);
 }
 
 /* Parses a packet record. */
-static gboolean
-parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+static bool
+parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
     char    line[VMS_LINE_LENGTH + 1];
     int     num_items_scanned;
-    gboolean have_pkt_len = FALSE;
-    guint32 pkt_len = 0;
+    bool have_pkt_len = false;
+    uint32_t pkt_len = 0;
     int     pktnum;
     int     csec = 101;
     struct tm tm;
     char mon[4] = {'J', 'A', 'N', 0};
-    gchar  *p;
-    const gchar *endp;
-    static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
-    guint32 i;
+    char   *p;
+    const char *endp;
+    static const char months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+    uint32_t i;
     int     offset = 0;
-    guint8 *pd;
+    uint8_t *pd;
 
     tm.tm_year = 1970;
     tm.tm_mon = 0;
@@ -349,7 +349,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
             if ((*err == 0) && (csec != 101)) {
                 *err = WTAP_ERR_SHORT_READ;
             }
-            return FALSE;
+            return false;
         }
         line[VMS_LINE_LENGTH] = '\0';
 
@@ -376,7 +376,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
             if (num_items_scanned != 8) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup("vms: header line not valid");
-                return FALSE;
+                return false;
             }
         }
         if ( (! have_pkt_len) && (p = strstr(line, "Length "))) {
@@ -387,22 +387,22 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
             if ( !*p ) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup("vms: Length field not valid");
-                return FALSE;
+                return false;
             }
 
             if (!ws_strtou32(p, &endp, &pkt_len) || (*endp != '\0' && !g_ascii_isspace(*endp))) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("vms: Length field '%s' not valid", p);
-                return FALSE;
+                return false;
             }
-            have_pkt_len = TRUE;
+            have_pkt_len = true;
             break;
         }
     } while (! isdumpline(line));
     if (! have_pkt_len) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("vms: Length field not found");
-        return FALSE;
+        return false;
     }
     if (pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
@@ -413,7 +413,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("vms: File has %u-byte packet, bigger than maximum of %u",
                                     pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
-        return FALSE;
+        return false;
     }
 
     p = strstr(months, mon);
@@ -441,7 +441,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
             if (*err == 0) {
                 *err = WTAP_ERR_SHORT_READ;
             }
-            return FALSE;
+            return false;
         }
         line[VMS_LINE_LENGTH] = '\0';
         if (i == 0) {
@@ -451,7 +451,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
                     if (*err == 0) {
                         *err = WTAP_ERR_SHORT_READ;
                     }
-                    return FALSE;
+                    return false;
                 }
                 line[VMS_LINE_LENGTH] = '\0';
             }
@@ -462,7 +462,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
                                         offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup("vms: hex dump not valid");
-            return FALSE;
+            return false;
         }
     }
     /* Avoid TCPIPTRACE-W-BUFFERSFUL, TCPIPtrace could not save n packets.
@@ -476,11 +476,11 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
         if (*err == 0) {
             /* There is no next line, so there's no "TCPIPtrace could not
              * save n packets" line; not an error. */
-            return TRUE;
+            return true;
         }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /*
@@ -498,10 +498,10 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
  * we are passed to validate the record. We place the bytes in the buffer
  * at the specified offset.
  *
- * Returns TRUE if good hex dump, FALSE if bad.
+ * Returns true if good hex dump, false if bad.
  */
-static gboolean
-parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
+static bool
+parse_single_hex_dump_line(char* rec, uint8_t *buf, long byte_offset,
                int in_off, int remaining_bytes) {
 
     int        i;
@@ -516,7 +516,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
     value = (int)strtoul(s + 45 + in_off, NULL, 16);    /* XXX - error check? */
 
     if (value != byte_offset) {
-        return FALSE;
+        return false;
     }
 
     if (remaining_bytes > 16)
@@ -530,10 +530,10 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
         lbuf[0] = rec[offsets[i] + in_off];
         lbuf[1] = rec[offsets[i] + 1 + in_off];
 
-        buf[byte_offset + i] = (guint8) strtoul(lbuf, NULL, 16);
+        buf[byte_offset + i] = (uint8_t) strtoul(lbuf, NULL, 16);
     }
 
-    return TRUE;
+    return true;
 }
 
 static const struct supported_block_type vms_blocks_supported[] = {
@@ -545,7 +545,7 @@ static const struct supported_block_type vms_blocks_supported[] = {
 
 static const struct file_type_subtype_info vms_info = {
     "TCPIPtrace (VMS)", "tcpiptrace", "txt", NULL,
-    FALSE, BLOCKS_SUPPORTED(vms_blocks_supported),
+    false, BLOCKS_SUPPORTED(vms_blocks_supported),
     NULL, NULL, NULL
 };
 

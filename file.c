@@ -1382,7 +1382,7 @@ typedef struct _callback_data_t {
 } callback_data_t;
 
 
-static gboolean
+static bool
 merge_callback(merge_event event, int num _U_,
         const merge_in_file_t in_files[], const guint in_file_count,
         void *data)
@@ -5566,7 +5566,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     }                    how_to_save;
     save_callback_args_t callback_args;
     callback_args.export = FALSE;
-    gboolean needs_reload = FALSE;
+    bool needs_reload = false;
 
     /* XXX caller should avoid saving the file while a read is pending
      * (e.g. by delaying the save action) */
