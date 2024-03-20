@@ -1462,6 +1462,7 @@ static gint dissect_extrememesh_probe(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	return MESH_NEXT_PROTOCOL_INVALID;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static gint dissect_extrememesh_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *meshTree = tree;
@@ -1514,6 +1515,7 @@ static gint dissect_extrememesh_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			next_proto = MESH_NEXT_PROTOCOL_INVALID;
 			break;
 		case MESH_NEXT_PROTOCOL_MCH:
+			// We recurse here, but we'll run out of packet before we run out of stack.
 			next_proto = dissect_extrememesh_mch(nextTvb, pinfo, meshTree);
 			break;
 		case MESH_NEXT_PROTOCOL_ENCAPSULATED_ETH:

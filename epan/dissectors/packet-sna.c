@@ -2220,6 +2220,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
  */
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 		      enum parse parse)
 {
@@ -2246,6 +2247,7 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 			len = tvb_get_guint8(tvb, offset+1);
 		}
 		if (len) {
+			// We recurse here, but we'll run out of packet before we run out of stack.
 			dissect_sna_control(tvb, offset, len, tree, hpr, parse);
 			pad = (len+3) & 0xfffc;
 			if (pad > len) {
@@ -2285,6 +2287,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_sna_control(tvbuff_t *parent_tvb, int offset, int control_len,
 		proto_tree *tree, int hpr, enum parse parse)
 {
@@ -2351,6 +2354,7 @@ dissect_sna_control(tvbuff_t *parent_tvb, int offset, int control_len,
 	switch(key) {
 		case 0x05:
 			if (hpr)
+				// We recurse here, but we'll run out of packet before we run out of stack.
 				dissect_control_05hpr(tvb, sub_tree, hpr,
 				    parse);
 			else
@@ -3447,8 +3451,7 @@ proto_register_sna(void)
 	};
 	module_t *sna_module;
 
-	proto_sna = proto_register_protocol("Systems Network Architecture",
-	    "SNA", "sna");
+	proto_sna = proto_register_protocol("Systems Network Architecture", "SNA", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	sna_handle = register_dissector("sna", dissect_sna, proto_sna);

@@ -820,6 +820,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, gint object_id, gint resource_id, const lwm2m_resource_t *resource)
 {
 	guint valueOffset = 1 + element->length_of_identifier + element->length_of_length;
@@ -839,6 +840,7 @@ addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mEleme
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, gint object_id, gint resource_id)
 {
 	proto_tree *element_tree = NULL;
@@ -906,6 +908,7 @@ static guint parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
 	return element->totalLength;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, gint object_id, gint resource_id)
 {
 	guint length;
@@ -916,6 +919,7 @@ static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *
 
 	length = tvb_reported_length(tvb);
 
+	increment_dissection_depth(pinfo);
 	while ( length > 0 ) {
 		tvbuff_t* sub = tvb_new_subset_length(tvb, offset, length);
 		elementLength = parseTLVHeader(sub, &element);
@@ -932,6 +936,7 @@ static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *
 			break;
 		}
 	}
+	decrement_dissection_depth(pinfo);
 
 	proto_item_append_text(tlv_tree, " (%u element%s)", element_count, plurality(element_count, "", "s"));
 }
@@ -1170,11 +1175,7 @@ void proto_register_lwm2mtlv(void)
 	module_t *lwm2mtlv_module;
 
 	/* Register our configuration options */
-	proto_lwm2mtlv = proto_register_protocol (
-		"Lightweight M2M TLV",
-		"LwM2M-TLV",
-		"lwm2mtlv"
-	);
+	proto_lwm2mtlv = proto_register_protocol ("Lightweight M2M TLV", "LwM2M-TLV","lwm2mtlv");
 
 	proto_register_field_array(proto_lwm2mtlv, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

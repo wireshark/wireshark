@@ -1572,21 +1572,25 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
  * Dissector for Errored TLVs
  */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mpls_echo_tlv_errored(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     int errored_tlv_length;
 
+    increment_dissection_depth(pinfo);
     while (rem >= 4) {
         errored_tlv_length = dissect_mpls_echo_tlv(tvb, pinfo, offset, tree, rem, TRUE);
         rem    -= errored_tlv_length;
         offset += errored_tlv_length;
     }
+    increment_dissection_depth(pinfo);
 }
 
 /*
  * Dissector for MPLS Echo TLVs and return bytes consumed
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem, gboolean in_errored)
 {
     proto_tree *ti = NULL, *mpls_echo_tlv_tree = NULL;
