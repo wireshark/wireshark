@@ -8400,8 +8400,12 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                   hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
                   &conn_triad);
 
-               proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset+8, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+9, 1, ENC_LITTLE_ENDIAN);
+               // Remaining Path Size is an optional structure.
+               if (tvb_reported_length_remaining(tvb, offset + 8) > 0)
+               {
+                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset+8, 1, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+9, 1, ENC_LITTLE_ENDIAN);
+               }
 
                /* With an error reply the connection will either never be established or it has since already closed
                   That means the conversation should end too */
