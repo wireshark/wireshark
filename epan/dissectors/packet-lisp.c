@@ -1185,6 +1185,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_natt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, guint16 length)
 {
@@ -1455,6 +1456,7 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, guint16 length, proto_item *tir)
 {
@@ -1622,6 +1624,7 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_lcaf_rle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, guint16 length, proto_item *tir)
 {
