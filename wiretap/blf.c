@@ -204,6 +204,7 @@ blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel, guint16 
  * up until the first captured packet.
  */
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 blf_prepare_interface_name(blf_params_t* params, int pkt_encap, guint16 channel, guint16 hwchannel, gchar* name, gboolean force_new_name) {
     gint64 key = blf_calc_key_value(pkt_encap, channel, hwchannel);
     gchar* old_name;
@@ -242,6 +243,7 @@ blf_prepare_interface_name(blf_params_t* params, int pkt_encap, guint16 channel,
         /* Just for Ethernet, prepare the equivalent STATUS interface */
         iface_name = new_name != NULL ? ws_strdup_printf("STATUS-%s", new_name) : NULL;
 
+        // We recurse here once.
         ret = blf_prepare_interface_name(params, WTAP_ENCAP_WIRESHARK_UPPER_PDU, channel, hwchannel, iface_name, force_new_name);
         if (iface_name) {
             g_free(iface_name);
