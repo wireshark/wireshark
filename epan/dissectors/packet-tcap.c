@@ -3654,6 +3654,7 @@ static void cleanup_tcap(void)
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   gint tag_offset, saved_offset, len_offset;
@@ -3696,7 +3697,9 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
       if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
       {
         next_tvb = tvb_new_subset_length(tvb, offset, len-(2*ind_field));
+        increment_dissection_depth(actx->pinfo);
         dissect_tcap_param(actx, subtree,next_tvb,0);
+        decrement_dissection_depth(actx->pinfo);
       }
 
       if (ind_field)
