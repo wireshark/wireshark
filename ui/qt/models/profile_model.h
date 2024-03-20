@@ -58,6 +58,7 @@ public:
     enum {
         COL_NAME,
         COL_TYPE,
+        COL_AUTO_SWITCH_FILTER,
         _LAST_ENTRY
     } columns_;
 
@@ -149,6 +150,7 @@ private:
     QVariant dataDisplay(const QModelIndex & idx) const;
     QVariant dataFontRole(const QModelIndex & idx) const;
     QVariant dataBackgroundRole(const QModelIndex & idx) const;
+    QVariant dataForegroundRole(const QModelIndex & idx) const;
     QVariant dataToolTipRole(const QModelIndex & idx) const;
     QVariant dataPath(const QModelIndex & idx) const;
 

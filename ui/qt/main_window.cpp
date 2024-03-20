@@ -15,6 +15,7 @@
 
 #include "funnel_statistics.h"
 #include "packet_list.h"
+#include "utils/profile_switcher.h"
 #include "widgets/display_filter_combo.h"
 
 // Packet Menu actions
@@ -30,7 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     byte_view_tab_(nullptr),
     packet_diagram_(nullptr),
     df_combo_box_(nullptr),
-    main_status_bar_(nullptr)
+    main_status_bar_(nullptr),
+    profile_switcher_(new ProfileSwitcher())
 {
 
 }

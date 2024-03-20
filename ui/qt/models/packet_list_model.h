@@ -80,6 +80,7 @@ public:
     void setMaximumRowHeight(int height);
 
 signals:
+    void packetAppended(capture_file *cap_file, frame_data *fdata, qsizetype row);
     void goToPacket(int);
     void maxLineCountChanged(const QModelIndex &ih_index) const;
     void itemHeightChanged(const QModelIndex &ih_index);

@@ -80,6 +80,7 @@ set(WIRESHARK_UTILS_HEADERS
 	../qt/utils/field_information.h
 	../qt/utils/frame_information.h
 	../qt/utils/idata_printable.h
+	../qt/utils/profile_switcher.h
 	../qt/utils/proto_node.h
 	../qt/utils/qt_ui_utils.h
 	../qt/utils/stock_icon.h
@@ -309,6 +310,7 @@ set(WIRESHARK_UTILS_SRCS
 	../qt/utils/data_printer.cpp
 	../qt/utils/field_information.cpp
 	../qt/utils/frame_information.cpp
+	../qt/utils/profile_switcher.cpp
 	../qt/utils/proto_node.cpp
 	../qt/utils/qt_ui_utils.cpp
 	../qt/utils/stock_icon.cpp

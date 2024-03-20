@@ -980,6 +980,8 @@ int PacketListModel::appendPacket(frame_data *fdata)
         pos = static_cast<int>( visible_rows_.count() + new_visible_rows_.count() ) - 1;
     }
 
+    emit packetAppended(cap_file_, fdata, physical_rows_.size() - 1);
+
     return static_cast<int>(pos);
 }
 

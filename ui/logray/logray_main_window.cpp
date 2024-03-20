@@ -70,6 +70,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/widgets/filter_expression_toolbar.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/profile_switcher.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/variant_pointer.h>
@@ -507,6 +508,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     proto_tree_->installEventFilter(this);
 
     packet_list_->setProtoTree(proto_tree_);
+    packet_list_->setProfileSwitcher(profile_switcher_);
     packet_list_->installEventFilter(this);
 
     main_stack_ = main_ui_->mainStack;
@@ -544,12 +546,10 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     setTabOrder(df_combo_box_->lineEdit(), packet_list_);
     setTabOrder(packet_list_, proto_tree_);
 
-    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEventHandler(CaptureEvent)));
-    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
-            mainApp, SLOT(captureEventHandler(CaptureEvent)));
-    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
-            main_ui_->statusBar, SLOT(captureEventHandler(CaptureEvent)));
+    connect(&capture_file_, &CaptureFile::captureEvent, this, &LograyMainWindow::captureEventHandler);
+    connect(&capture_file_, &CaptureFile::captureEvent, mainApp, &WiresharkApplication::captureEventHandler);
+    connect(&capture_file_, &CaptureFile::captureEvent, main_ui_->statusBar, &MainStatusBar::captureEventHandler);
+    connect(&capture_file_, &CaptureFile::captureEvent, profile_switcher_, &ProfileSwitcher::captureEventHandler);
 
     connect(mainApp, &MainApplication::freezePacketList, packet_list_, &PacketList::freezePacketList);
     connect(mainApp, &MainApplication::columnsChanged, packet_list_, &PacketList::columnsChanged);

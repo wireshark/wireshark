@@ -32,6 +32,7 @@ public:
     ProfileTreeEditDelegate(QWidget *parent = Q_NULLPTR);
 
     // QAbstractItemDelegate interface
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 
 private:
@@ -54,12 +55,13 @@ signals:
 
     // QWidget interface
 protected:
+    virtual void showEvent(QShowEvent *);
     virtual void mouseDoubleClickEvent(QMouseEvent *event);
 
     // QAbstractItemView interface
 protected slots:
     virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    virtual void clicked(const QModelIndex &index);
+    virtual void itemClicked(const QModelIndex &index);
 
 private:
     ProfileTreeEditDelegate *delegate_;

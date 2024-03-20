@@ -10,10 +10,12 @@
 #include <ui/qt/models/url_link_delegate.h>
 #include <ui/qt/models/profile_model.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/profile_tree_view.h>
 
 #include <QDesktopServices>
 #include <QDir>
+#include <QHeaderView>
 #include <QItemDelegate>
 #include <QLineEdit>
 #include <QUrl>
@@ -32,6 +34,15 @@ void ProfileUrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 ProfileTreeEditDelegate::ProfileTreeEditDelegate(QWidget *parent) : QItemDelegate(parent), editor_(Q_NULLPTR) {}
 
+QWidget *ProfileTreeEditDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                                   const QModelIndex &index) const
+{
+    if (index.column() == ProfileModel::COL_AUTO_SWITCH_FILTER) {
+        return new DisplayFilterEdit(parent);
+    }
+    return QItemDelegate::createEditor(parent, option, index);
+}
+
 void ProfileTreeEditDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     if (qobject_cast<QLineEdit *>(editor))
@@ -46,8 +57,9 @@ ProfileTreeView::ProfileTreeView(QWidget *parent) :
 {
     delegate_ = new ProfileTreeEditDelegate();
     setItemDelegateForColumn(ProfileModel::COL_NAME, delegate_);
+    setItemDelegateForColumn(ProfileModel::COL_AUTO_SWITCH_FILTER, delegate_);
 
-    connect(this, &QAbstractItemView::clicked, this, &ProfileTreeView::clicked);
+    connect(this, &QAbstractItemView::clicked, this, &ProfileTreeView::itemClicked);
     connect(delegate_, &ProfileTreeEditDelegate::commitData, this, &ProfileTreeView::itemUpdated);
 }
 
@@ -80,7 +92,7 @@ void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QIt
     }
 }
 
-void ProfileTreeView::clicked(const QModelIndex &index)
+void ProfileTreeView::itemClicked(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
@@ -116,4 +128,31 @@ void ProfileTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 bool ProfileTreeView::activeEdit()
 {
     return (state() == QAbstractItemView::EditingState);
+}
+
+// If our auto switch filters are shorter than the filter column title,
+// stretch the name column.
+void ProfileTreeView::showEvent(QShowEvent *)
+{
+    bool have_wide_filter = false;
+    int auto_switch_title_width = fontMetrics().horizontalAdvance(model()->headerData(ProfileModel::COL_AUTO_SWITCH_FILTER, Qt::Horizontal).toString());
+    for (int row = 0; row < model()->rowCount(); row++) {
+        QString filter = model()->data(model()->index(row, ProfileModel::COL_AUTO_SWITCH_FILTER)).toString();
+        if (fontMetrics().horizontalAdvance(filter) > auto_switch_title_width) {
+            have_wide_filter = true;
+            break;
+        }
+    }
+
+    if (have_wide_filter) {
+        return;
+    }
+
+    int col_name_size_hint = sizeHintForColumn(ProfileModel::COL_NAME);
+    int col_asf_size_hint = qMax(header()->sectionSizeHint(ProfileModel::COL_AUTO_SWITCH_FILTER), sizeHintForColumn(ProfileModel::COL_AUTO_SWITCH_FILTER));
+    int extra = columnWidth(ProfileModel::COL_AUTO_SWITCH_FILTER) - col_asf_size_hint;
+    if (extra > 0) {
+        setColumnWidth(ProfileModel::COL_NAME, col_name_size_hint + extra);
+    }
+
 }

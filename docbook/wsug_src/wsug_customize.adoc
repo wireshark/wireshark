@@ -1078,6 +1078,12 @@ added and deleted profiles will not be deleted.
 btn:[Help]::
 Show this help page.
 
+==== Automatic Profile Switching
+
+You can configure Wireshark to automatically change configuration profiles by adding a display filter to the "Auto Switch Filter" setting for a profile.
+When you open a capture file, Wireshark will check each filter against the first 1000 packets and will switch to the first profile with a matching filter.
+Manually changing your profile will disable this behavior until you open a different capture file.
+
 [#ChUserTable]
 
 === User Table

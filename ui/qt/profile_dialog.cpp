@@ -111,6 +111,9 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     currentItemChanged();
 
+    pd_ui_->profileTreeView->resizeColumnToContents(ProfileModel::COL_NAME);
+    pd_ui_->profileTreeView->resizeColumnToContents(ProfileModel::COL_TYPE);
+
     pd_ui_->profileTreeView->setFocus();
 }
 
@@ -364,9 +367,6 @@ void ProfileDialog::updateWidgets()
 
     pd_ui_->hintLabel->setUrl(hintUrl);
 
-    /* ensure the name column is resized to it's content */
-    pd_ui_->profileTreeView->resizeColumnToContents(ProfileModel::COL_NAME);
-
     pd_ui_->deleteToolButton->setEnabled(enable_del);
     ok_button_->setEnabled(enable_ok);
 }
@@ -557,8 +557,6 @@ void ProfileDialog::filterChanged(const QString &text)
     else if (qobject_cast<QLineEdit *>(sender()))
         sort_model_->setFilterString(text);
 
-    pd_ui_->profileTreeView->resizeColumnToContents(ProfileModel::COL_NAME);
-
     QModelIndex active = sort_model_->mapFromSource(model_->activeProfile());
     if (active.isValid())
         pd_ui_->profileTreeView->setCurrentIndex(active);
@@ -626,7 +624,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
         {
             QString msg = tr("An error has occurred while exporting profiles");
              if (err.length() > 0)
-                 msg.append(QString("\n\n%1: %3").arg(tr("Error")).arg(err));
+                 msg.append(QString("\n\n%1: %2").arg(tr("Error"), err));
             QMessageBox::critical(this, tr("Exporting profiles"), msg);
         }
     }
@@ -725,11 +723,7 @@ void ProfileDialog::resetTreeView()
 
     selectionChanged();
 
-    if (sort_model_->columnCount() <= 1)
+    if (sort_model_->columnCount() <= 1) {
         pd_ui_->profileTreeView->header()->hide();
-    else
-    {
-        pd_ui_->profileTreeView->header()->setStretchLastSection(false);
-        pd_ui_->profileTreeView->header()->setSectionResizeMode(ProfileModel::COL_NAME, QHeaderView::Stretch);
     }
 }

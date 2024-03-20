@@ -76,6 +76,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/field_information.h
 	utils/frame_information.h
 	utils/idata_printable.h
+	utils/profile_switcher.h
 	utils/proto_node.h
 	utils/qt_ui_utils.h
 	utils/rtp_audio_file.h
@@ -339,6 +340,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/data_printer.cpp
 	utils/field_information.cpp
 	utils/frame_information.cpp
+	utils/profile_switcher.cpp
 	utils/proto_node.cpp
 	utils/qt_ui_utils.cpp
 	utils/rtp_audio_file.cpp

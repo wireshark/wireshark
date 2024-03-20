@@ -19,6 +19,9 @@ It is used for troubleshooting, analysis, development and education.
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+Wireshark now supports automatic profile switching.
+You can associate a display filter with a configuration profile, and when you open a capture file that matches the filter, Wireshark will automatically switch to that profile.
+
 Lua 5.3 and 5.4 are supported, and the Lua version included with the
 Windows and MacOS installers is now 5.4.6.
 

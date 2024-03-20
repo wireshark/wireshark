@@ -31,6 +31,7 @@ class FieldInformation;
 class MainStatusBar;
 class PacketDiagram;
 class PacketList;
+class ProfileSwitcher;
 class ProtoTree;
 class WelcomePage;
 
@@ -96,6 +97,7 @@ protected:
     PacketDiagram *packet_diagram_;
     DisplayFilterCombo *df_combo_box_;
     MainStatusBar *main_status_bar_;
+    ProfileSwitcher *profile_switcher_;
 
 signals:
     void setCaptureFile(capture_file *cf);

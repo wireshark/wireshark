@@ -80,6 +80,12 @@ public:
      */
     static const QColor warningBackground();
 
+    /**
+     * Returns an appropriate foreground color for disabled text.
+     * @return The foreground color.
+     */
+    static const QColor disabledForeground();
+
 private:
     static QList<QRgb> graph_colors_;
     static QList<QRgb> sequence_colors_;

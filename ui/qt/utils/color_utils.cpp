@@ -214,3 +214,8 @@ const QColor ColorUtils::warningBackground()
     }
     return QColor(tango_butter_2);
 }
+
+const QColor ColorUtils::disabledForeground()
+{
+    return alphaBlend(QApplication::palette().windowText(), QApplication::palette().window(), 0.65);
+}

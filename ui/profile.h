@@ -38,6 +38,9 @@ typedef struct {
     bool      is_global;
     bool      from_global;
     bool      is_import;
+    // Settings
+    bool      prefs_changed;
+    char     *auto_switch_filter;
 } profile_def;
 
 /** @file
@@ -103,7 +106,7 @@ char *apply_profile_changes(void);
  *
  * @return Parent profile name
  */
-const char *get_profile_parent (const char *profilename);
+const char *get_profile_parent(const char *profilename);
 
 /** Check the validity of a profile name.
  *

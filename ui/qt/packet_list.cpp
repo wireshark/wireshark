@@ -48,6 +48,7 @@
 #include "main_application.h"
 #include <ui/qt/utils/data_printer.h>
 #include <ui/qt/utils/frame_information.h>
+#include <ui/qt/utils/profile_switcher.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/widgets/packet_list_header.h>
@@ -214,8 +215,8 @@ packet_list_multi_select_active(void)
 
 PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
-    proto_tree_(NULL),
-    cap_file_(NULL),
+    proto_tree_(nullptr),
+    cap_file_(nullptr),
     ctx_column_(-1),
     overlay_timer_id_(0),
     create_near_overlay_(true),
@@ -230,7 +231,8 @@ PacketList::PacketList(QWidget *parent) :
     frozen_selected_rows_(QModelIndexList()),
     cur_history_(-1),
     in_history_(false),
-    finfo_array(NULL)
+    finfo_array(nullptr),
+    profile_switcher_(nullptr)
 {
     setItemsExpandable(false);
     setRootIsDecorated(false);
@@ -1113,6 +1115,14 @@ bool PacketList::havePreviousHistory(bool update_cur)
         }
     }
     return false;
+}
+
+void PacketList::setProfileSwitcher(ProfileSwitcher *profile_switcher)
+{
+    profile_switcher_ = profile_switcher;
+    if (profile_switcher) {
+        connect(packet_list_model_, &PacketListModel::packetAppended, profile_switcher_, &ProfileSwitcher::checkPacket);
+    }
 }
 
 frame_data *PacketList::getFDataForRow(int row) const

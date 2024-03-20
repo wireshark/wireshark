@@ -24,6 +24,7 @@
 
 class PacketListHeader;
 class OverlayScrollBar;
+class ProfileSwitcher;
 
 class QAction;
 class QTimerEvent;
@@ -86,6 +87,7 @@ public:
     void resetColumns();
     bool haveNextHistory(bool update_cur = false);
     bool havePreviousHistory(bool update_cur = false);
+    void setProfileSwitcher(ProfileSwitcher *profile_switcher);
 
     frame_data * getFDataForRow(int row) const;
 
@@ -148,6 +150,7 @@ private:
     int cur_history_;
     bool in_history_;
     GPtrArray *finfo_array; // Packet data from the last selected packet entry
+    ProfileSwitcher *profile_switcher_;
 
     void setFrameReftime(bool set, frame_data *fdata);
     void setColumnVisibility();

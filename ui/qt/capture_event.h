@@ -11,6 +11,7 @@
 #define CAPTURE_EVENT_H
 
 #include <QEvent>
+#include <QString>
 
 typedef struct _capture_session capture_session;
 
