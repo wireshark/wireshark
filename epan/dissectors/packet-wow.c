@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/charsets.h>
+#include <epan/wmem_scopes.h>
 #include "packet-tcp.h"
 
 void proto_register_wow(void);
@@ -209,8 +210,6 @@ struct game_version {
 	gint8 patch_version;
 	gint16 revision;
 };
-// 2 is the lowest valid version.
-static uint8_t wow_protocol_version = 2;
 
 static void
 parse_logon_proof_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, uint8_t protocol_version) {
@@ -629,7 +628,14 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-        uint8_t* protocol_version = &wow_protocol_version;
+        conversation_t* conv = find_or_create_conversation(pinfo);
+        uint8_t* protocol_version = (uint8_t*)conversation_get_proto_data(conv, proto_wow);
+        if (protocol_version == NULL) {
+            protocol_version = (uint8_t*)wmem_new0(wmem_file_scope(), uint8_t);
+            conversation_add_proto_data(conv, proto_wow, protocol_version);
+            // 2 is the lowest valid version.
+            *protocol_version = 2;
+        }
 
 	switch(cmd) {
 
