@@ -209,42 +209,11 @@ struct game_version {
 	gint8 patch_version;
 	gint16 revision;
 };
-static struct game_version client_game_version = { -1, -1, -1, -1 };
+// 2 is the lowest valid version.
+static uint8_t wow_protocol_version = 2;
 
-// WoW uses a kind of SemVer.
-// So 1.0.0 is always greater than any 0.x.y, and
-// 1.2.0 is always greater than any 1.1.y
-static gboolean
-version_is_at_or_above(struct game_version* game_version, int major, int minor, int patch)
-{
-	if (game_version->major_version > major) {
-		return TRUE;
-	}
-	else if (game_version->major_version < major) {
-		return FALSE;
-	}
-	// Major versions must be equal
-
-	if (game_version->minor_version > minor) {
-		return TRUE;
-	}
-	else if (game_version->minor_version < minor) {
-		return FALSE;
-	}
-	// Both major and minor versions are equal
-
-	if (game_version->patch_version > patch) {
-		return TRUE;
-	}
-	else if (game_version->patch_version < patch) {
-		return FALSE;
-	}
-	// All versions are identical
-
-	return TRUE;
-}
 static void
-parse_logon_proof_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, struct game_version* game_version) {
+parse_logon_proof_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, uint8_t protocol_version) {
 	guint8 two_factor_enabled;
 
 	proto_tree_add_item(wow_tree, hf_wow_srp_a, tvb,
@@ -263,7 +232,7 @@ parse_logon_proof_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	if (!version_is_at_or_above(game_version, 1, 12, 0)) {
+	if (protocol_version < 3) {
 		return;
 	}
 	two_factor_enabled = tvb_get_guint8(tvb, offset);
@@ -287,7 +256,7 @@ parse_logon_proof_client_to_server(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 
 
 static void
-parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, struct game_version* game_version) {
+parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, uint8_t protocol_version) {
 	guint8 error;
 
 	error = tvb_get_guint8(tvb, offset);
@@ -303,7 +272,7 @@ parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 			    tvb, offset, 20, ENC_NA);
 	offset += 20;
 
-	if (version_is_at_or_above(game_version, 2, 4, 0)) {
+	if (protocol_version >= 5) {
 		proto_tree_add_item(wow_tree, hf_wow_account_flags,
 				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -313,13 +282,13 @@ parse_logon_proof_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 
 			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	if (version_is_at_or_above(game_version, 2, 0, 3)) {
+	if (protocol_version >= 5) {
 		proto_tree_add_item(wow_tree, hf_wow_unknown_flags,
 				    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 }
 static void
-parse_realm_list_server_to_client(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, struct game_version* game_version) {
+parse_realm_list_server_to_client(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, uint8_t protocol_version) {
 	guint8 num_realms, ii, number_of_realms_field_size, realm_name_offset, realm_type_field_size, realm_flags;
 	gchar *string, *realm_name;
 	gint len;
@@ -331,7 +300,7 @@ parse_realm_list_server_to_client(packet_info *pinfo, tvbuff_t *tvb, proto_tree 
 
 	offset += 4; /* Unknown field; always 0 */
 
-	if (version_is_at_or_above(game_version, 2, 4, 3)) {
+	if (protocol_version >= 8) {
 		/* Possibly valid for versions starting at 2.0.0 as well */
 		number_of_realms_field_size = 2;
 		realm_name_offset = 3;
@@ -360,7 +329,7 @@ parse_realm_list_server_to_client(packet_info *pinfo, tvbuff_t *tvb, proto_tree 
 		proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, realm_type_field_size, ENC_LITTLE_ENDIAN);
 		offset += realm_type_field_size;
 
-		if (version_is_at_or_above(game_version, 2, 4, 3)) {
+		if (protocol_version >= 8) {
 			/* Possibly valid for versions starting at 2.0.0 as well */
 			proto_tree_add_item(wow_realms_tree, hf_wow_realm_locked, tvb, offset, 1, ENC_NA);
 			offset += 1;
@@ -390,7 +359,7 @@ parse_realm_list_server_to_client(packet_info *pinfo, tvbuff_t *tvb, proto_tree 
 		proto_tree_add_item(wow_realms_tree, hf_wow_realm_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
-		if (version_is_at_or_above(game_version, 2, 4, 3) && (realm_flags & FLAG_SPECIFY_BUILD)) {
+		if (protocol_version >= 8 && (realm_flags & FLAG_SPECIFY_BUILD)) {
 			proto_tree_add_item(wow_realms_tree, hf_wow_version1,
 					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
@@ -458,10 +427,11 @@ parse_logon_reconnect_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_
 }
 
 static void
-parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, struct game_version* game_version) {
+parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, uint8_t* protocol_version) {
 	guint8 srp_i_len;
 	gchar *string;
 
+        *protocol_version = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(wow_tree, hf_wow_protocol_version, tvb,
 			offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -483,22 +453,18 @@ parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_
 	offset += 4;
 
 
-	game_version->major_version = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(wow_tree, hf_wow_version1,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	game_version->minor_version = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(wow_tree, hf_wow_version2,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	game_version->patch_version = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(wow_tree, hf_wow_version3,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	game_version->revision = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(wow_tree, hf_wow_build, tvb,
 			offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -546,7 +512,7 @@ parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_
 }
 
 static void
-parse_logon_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, struct game_version* game_version) {
+parse_logon_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guint32 offset, uint8_t protocol_version) {
     guint8 error, srp_g_len, srp_n_len, two_factor_enabled;
 
 	proto_tree_add_item(wow_tree, hf_wow_protocol_version, tvb,
@@ -592,7 +558,7 @@ parse_logon_challenge_server_to_client(tvbuff_t *tvb, proto_tree *wow_tree, guin
 			offset, 16, ENC_NA);
 	offset += 16;
 
-	if (!version_is_at_or_above(game_version, 1, 12, 0)) {
+	if (protocol_version < 3) {
 		/* The two factor fields were added in the 1.12 update. */
 		return;
 	}
@@ -641,7 +607,6 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	guint8 cmd;
 	guint32 offset = 0;
 
-        struct game_version* game_version = &client_game_version;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOW");
 
@@ -664,6 +629,8 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+        uint8_t* protocol_version = &wow_protocol_version;
+
 	switch(cmd) {
 
 		case AUTH_LOGON_RECONNECT_PROOF:
@@ -675,25 +642,25 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (WOW_SERVER_TO_CLIENT) {
 				parse_logon_reconnect_challenge_server_to_client(tvb, wow_tree, offset);
 			} else if (WOW_CLIENT_TO_SERVER) {
-				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset, game_version);
+				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset, protocol_version);
 			}
 
 			break;
 
 		case AUTH_LOGON_CHALLENGE :
 			if(WOW_CLIENT_TO_SERVER) {
-				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset, game_version);
+				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset, protocol_version);
 			} else if(WOW_SERVER_TO_CLIENT) {
-				parse_logon_challenge_server_to_client(tvb, wow_tree, offset, game_version);
+				parse_logon_challenge_server_to_client(tvb, wow_tree, offset, *protocol_version);
 			}
 
 			break;
 
 		case AUTH_LOGON_PROOF :
 			if (WOW_CLIENT_TO_SERVER) {
-				parse_logon_proof_client_to_server(tvb, wow_tree, offset, game_version);
+				parse_logon_proof_client_to_server(tvb, wow_tree, offset, *protocol_version);
 			} else if (WOW_SERVER_TO_CLIENT) {
-				parse_logon_proof_server_to_client(tvb, wow_tree, offset, game_version);
+				parse_logon_proof_server_to_client(tvb, wow_tree, offset, *protocol_version);
 			}
 
 			break;
@@ -702,7 +669,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if(WOW_CLIENT_TO_SERVER) {
 
 			} else if(WOW_SERVER_TO_CLIENT) {
-				parse_realm_list_server_to_client(pinfo, tvb, wow_tree, offset, game_version);
+				parse_realm_list_server_to_client(pinfo, tvb, wow_tree, offset, *protocol_version);
 
 			}
 
