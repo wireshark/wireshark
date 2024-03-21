@@ -243,7 +243,6 @@ static int hf_woww_charter_entry;
 static int hf_woww_charter_owner;
 static int hf_woww_chat_credit;
 static int hf_woww_chat_data_line_count;
-static int hf_woww_chat_data_size_uncompressed;
 static int hf_woww_chat_notify;
 static int hf_woww_chat_type;
 static int hf_woww_checked_timestamp;
@@ -299,7 +298,6 @@ static int hf_woww_days_since_ticket_creation;
 static int hf_woww_deadline;
 static int hf_woww_deaths;
 static int hf_woww_debug_log_format;
-static int hf_woww_decompressed_addon_info_size;
 static int hf_woww_decompressed_size;
 static int hf_woww_delay;
 static int hf_woww_delay_time;
@@ -2631,7 +2629,7 @@ static const value_string e_area_strings[] =  {
     { AREA_LIGHTHOUSE, "Lighthouse" },
     { AREA_WESTERN_PLAGUELANDS, "Western Plaguelands" },
     { AREA_NINE, "Nine" },
-    { AREA_THE_CEMETARY, "The Cemetery" },
+    { AREA_THE_CEMETARY, "The Cemetary" },
     { AREA_STRANGLETHORN_VALE, "Stranglethorn Vale" },
     { AREA_ECHO_RIDGE_MINE, "Echo Ridge Mine" },
     { AREA_BOOTY_BAY, "Booty Bay" },
@@ -4144,7 +4142,7 @@ static const value_string e_faction_strings[] =  {
     { FACTION_TROGG, "Trogg" },
     { FACTION_TROLL_FROSTMANE, "Troll Frostmane" },
     { FACTION_ORC_BLACKROCK, "Orc Blackrock" },
-    { FACTION_VILLIAN, "Villain" },
+    { FACTION_VILLIAN, "Villian" },
     { FACTION_VICTIM, "Victim" },
     { FACTION_BEAST_BEAR, "Beast Bear" },
     { FACTION_OGRE, "Ogre" },
@@ -4879,7 +4877,7 @@ typedef enum {
     SKILL_RIDING_WOLF = 0x095,
     SKILL_RIDING_TIGER = 0x096,
     SKILL_RIDING_RAM = 0x098,
-    SKILL_SWIMING = 0x09B,
+    SKILL_SWIMMING = 0x09B,
     SKILL_TWO_HANDED_MACES = 0x0A0,
     SKILL_UNARMED = 0x0A2,
     SKILL_MARKSMANSHIP = 0x0A3,
@@ -5005,7 +5003,7 @@ static const value_string e_skill_strings[] =  {
     { SKILL_RIDING_WOLF, "Riding Wolf" },
     { SKILL_RIDING_TIGER, "Riding Tiger" },
     { SKILL_RIDING_RAM, "Riding Ram" },
-    { SKILL_SWIMING, "Swimming" },
+    { SKILL_SWIMMING, "Swimming" },
     { SKILL_TWO_HANDED_MACES, "Two Handed Maces" },
     { SKILL_UNARMED, "Unarmed" },
     { SKILL_MARKSMANSHIP, "Marksmanship" },
@@ -7603,7 +7601,7 @@ typedef enum {
     BATTLEGROUND_BRACKET_TENS = 0x0,
     BATTLEGROUND_BRACKET_TWENTIES = 0x1,
     BATTLEGROUND_BRACKET_THIRTIES = 0x2,
-    BATTLEGROUND_BRACKET_FOURTIES = 0x3,
+    BATTLEGROUND_BRACKET_FORTIES = 0x3,
     BATTLEGROUND_BRACKET_FIFTIES = 0x4,
     BATTLEGROUND_BRACKET_SIXTY = 0x5,
 } e_battleground_bracket;
@@ -7611,7 +7609,7 @@ static const value_string e_battleground_bracket_strings[] =  {
     { BATTLEGROUND_BRACKET_TENS, "Tens" },
     { BATTLEGROUND_BRACKET_TWENTIES, "Twenties" },
     { BATTLEGROUND_BRACKET_THIRTIES, "Thirties" },
-    { BATTLEGROUND_BRACKET_FOURTIES, "Forties" },
+    { BATTLEGROUND_BRACKET_FORTIES, "Forties" },
     { BATTLEGROUND_BRACKET_FIFTIES, "Fifties" },
     { BATTLEGROUND_BRACKET_SIXTY, "Sixty" },
     { 0, NULL }
@@ -12488,7 +12486,7 @@ add_body_fields(guint32 header_opcode,
             add_cstring(ptv, &hf_woww_username);
             ptvcursor_add(ptv, hf_woww_client_seed, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_client_proof, 20, ENC_NA);
-            ptvcursor_add(ptv, hf_woww_decompressed_addon_info_size, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
             compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
@@ -13098,7 +13096,7 @@ add_body_fields(guint32 header_opcode,
             add_cstring(ptv, &hf_woww_reserved_for_future_use);
             if (category == GM_TICKET_TYPE_BEHAVIOR_HARASSMENT) {
                 ptvcursor_add(ptv, hf_woww_chat_data_line_count, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_chat_data_size_uncompressed, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
                 compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
                 if (compressed_tvb != NULL) {
                     ptvcursor_t* old_ptv = ptv;
@@ -18306,7 +18304,7 @@ add_body_fields(guint32 header_opcode,
             for (guint32 i1 = 0; i1 < amount_of_targets; ++i1) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellLogMiss %i", i1);
                 ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_spell_miss_info, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             break;
@@ -18365,7 +18363,7 @@ add_body_fields(guint32 header_opcode,
             for (guint32 i1 = 0; i1 < amount_of_misses; ++i1) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss %i", i1);
                 ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN, &miss_info);
+                ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 1, ENC_LITTLE_ENDIAN, &miss_info);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellCastTargets");
@@ -20086,12 +20084,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_chat_data_size_uncompressed,
-            { "Chat Data Size Uncompressed", "woww.chat.data.size.uncompressed",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_chat_notify,
             { "Chat Notify", "woww.chat.notify",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_chat_notify_strings), 0,
@@ -20419,12 +20411,6 @@ proto_register_woww(void)
         { &hf_woww_debug_log_format,
             { "Debug Log Format", "woww.debug.log.format",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_decompressed_addon_info_size,
-            { "Decompressed Addon Info Size", "woww.decompressed.addon.info.size",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -23112,7 +23098,7 @@ proto_register_woww(void)
         },
         { &hf_woww_spell_miss_info,
             { "Spell Miss Info", "woww.spell.miss.info",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_spell_miss_info_strings), 0,
+                FT_UINT8, BASE_HEX_DEC, VALS(e_spell_miss_info_strings), 0,
                 NULL, HFILL
             }
         },
