@@ -1582,8 +1582,9 @@ get_control_selector_values(guint8 entity_id, usb_conv_info_t *usb_conv_info)
     video_entity_t    *entity = NULL;
     value_string_ext  *selectors = NULL;
 
-    if (usb_conv_info == NULL)
+    if (usb_conv_info == NULL || usb_conv_info->class_data_type != USB_CONV_VIDEO) {
         return NULL;
+    }
 
     video_conv_info = (video_conv_info_t *)usb_conv_info->class_data;
     if (video_conv_info)
