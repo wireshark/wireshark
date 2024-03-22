@@ -534,6 +534,52 @@ get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 	return pkt_len + size_field_offset + 2;
 }
 
+static void
+add_body_fields(packet_info *pinfo, guint8 header_opcode, ptvcursor_t *ptv, uint32_t *protocol_version) {
+    switch(header_opcode) {
+        case CMD_AUTH_RECONNECT_PROOF:
+            parse_logon_reconnect_proof(pinfo, ptv);
+            break;
+
+        case CMD_AUTH_RECONNECT_CHALLENGE:
+            if (WOW_SERVER_TO_CLIENT) {
+                parse_logon_reconnect_challenge_server_to_client(ptv);
+            } else if (WOW_CLIENT_TO_SERVER) {
+                parse_logon_challenge_client_to_server(protocol_version, ptv);
+            }
+
+            break;
+
+        case CMD_AUTH_LOGON_CHALLENGE :
+            if(WOW_CLIENT_TO_SERVER) {
+                parse_logon_challenge_client_to_server(protocol_version, ptv);
+            } else if(WOW_SERVER_TO_CLIENT) {
+                parse_logon_challenge_server_to_client(*protocol_version, ptv);
+            }
+
+            break;
+
+        case CMD_AUTH_LOGON_PROOF :
+            if (WOW_CLIENT_TO_SERVER) {
+                parse_logon_proof_client_to_server(*protocol_version, ptv);
+            } else if (WOW_SERVER_TO_CLIENT) {
+                parse_logon_proof_server_to_client(*protocol_version, ptv);
+            }
+
+            break;
+
+        case CMD_REALM_LIST :
+            if(WOW_CLIENT_TO_SERVER) {
+
+            } else if(WOW_SERVER_TO_CLIENT) {
+                parse_realm_list_server_to_client(*protocol_version, ptv);
+
+            }
+
+            break;
+    }
+}
+
 static int
 dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -574,51 +620,9 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             *protocol_version = 2;
         }
 
-	switch(cmd) {
+        add_body_fields(pinfo, cmd, ptv, protocol_version);
 
-		case CMD_AUTH_RECONNECT_PROOF:
-			parse_logon_reconnect_proof(pinfo, ptv);
-			break;
-
-		case CMD_AUTH_RECONNECT_CHALLENGE:
-			if (WOW_SERVER_TO_CLIENT) {
-				parse_logon_reconnect_challenge_server_to_client(ptv);
-			} else if (WOW_CLIENT_TO_SERVER) {
-				parse_logon_challenge_client_to_server(protocol_version, ptv);
-			}
-
-			break;
-
-		case CMD_AUTH_LOGON_CHALLENGE :
-			if(WOW_CLIENT_TO_SERVER) {
-				parse_logon_challenge_client_to_server(protocol_version, ptv);
-			} else if(WOW_SERVER_TO_CLIENT) {
-				parse_logon_challenge_server_to_client(*protocol_version, ptv);
-			}
-
-			break;
-
-		case CMD_AUTH_LOGON_PROOF :
-			if (WOW_CLIENT_TO_SERVER) {
-				parse_logon_proof_client_to_server(*protocol_version, ptv);
-			} else if (WOW_SERVER_TO_CLIENT) {
-				parse_logon_proof_server_to_client(*protocol_version, ptv);
-			}
-
-			break;
-
-		case CMD_REALM_LIST :
-			if(WOW_CLIENT_TO_SERVER) {
-
-			} else if(WOW_SERVER_TO_CLIENT) {
-				parse_realm_list_server_to_client(*protocol_version, ptv);
-
-			}
-
-			break;
-	}
-
-	return tvb_captured_length(tvb);
+        return tvb_captured_length(tvb);
 }
 
 
