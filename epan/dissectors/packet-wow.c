@@ -27,30 +27,31 @@ void proto_reg_handoff_wow(void);
 static dissector_handle_t wow_handle;
 
 typedef enum {
-	AUTH_LOGON_CHALLENGE       = 0x00,
-	AUTH_LOGON_PROOF           = 0x01,
-	AUTH_LOGON_RECONNECT       = 0x02,
-	AUTH_LOGON_RECONNECT_PROOF = 0x03,
-	REALM_LIST                 = 0x10,
-	XFER_INITIATE              = 0x30,
-	XFER_DATA                  = 0x31,
-	XFER_ACCEPT                = 0x32,
-	XFER_RESUME                = 0x33,
-	XFER_CANCEL                = 0x34
+	CMD_AUTH_LOGON_CHALLENGE       = 0x00,
+	CMD_AUTH_LOGON_PROOF           = 0x01,
+	CMD_AUTH_RECONNECT_CHALLENGE   = 0x02,
+	CMD_AUTH_RECONNECT_PROOF       = 0x03,
+    CMD_SURVEY_RESULT              = 0x04,
+	CMD_REALM_LIST                 = 0x10,
+	CMD_XFER_INITIATE              = 0x30,
+	CMD_XFER_DATA                  = 0x31,
+	CMD_XFER_ACCEPT                = 0x32,
+	CMD_XFER_RESUME                = 0x33,
+	CMD_XFER_CANCEL                = 0x34
 } auth_cmd_e;
 
 static const value_string cmd_vs[] = {
-	{ AUTH_LOGON_CHALLENGE,       "Authentication Logon Challenge"     },
-	{ AUTH_LOGON_PROOF,           "Authentication Logon Proof"         },
-	{ AUTH_LOGON_RECONNECT,       "Authentication Reconnect Challenge" },
-	{ AUTH_LOGON_RECONNECT_PROOF, "Authentication Reconnect Proof"     },
-	{ REALM_LIST,                 "Realm List"                         },
-	{ XFER_INITIATE,              "Transfer Initiate"                  },
-	{ XFER_DATA,                  "Transfer Data"                      },
-	{ XFER_ACCEPT,                "Transfer Accept"                    },
-	{ XFER_RESUME,                "Transfer Resume"                    },
-	{ XFER_CANCEL,                "Transfer Cancel"                    },
-	{ 0, NULL                                                          }
+	{ CMD_AUTH_LOGON_CHALLENGE,       "CMD_AUTH_LOGON_CHALLENGE" },
+	{ CMD_AUTH_LOGON_PROOF,           "CMD_AUTH_LOGON_PROOF" },
+	{ CMD_AUTH_RECONNECT_CHALLENGE,   "CMD_AUTH_RECONNECT_CHALLENGE" },
+	{ CMD_AUTH_RECONNECT_PROOF,       "CMD_AUTH_RECONNECT_PROOF" },
+	{ CMD_REALM_LIST,                 "CMD_REALM_LIST" },
+	{ CMD_XFER_INITIATE,              "CMD_XFER_INITIATE" },
+	{ CMD_XFER_DATA,                  "CMD_XFER_DATA" },
+	{ CMD_XFER_ACCEPT,                "CMD_XFER_ACCEPT" },
+	{ CMD_XFER_RESUME,                "CMD_XFER_RESUME" },
+	{ CMD_XFER_CANCEL,                "CMD_XFER_CANCEL" },
+	{ 0, NULL }
 };
 
 typedef enum {
@@ -587,9 +588,9 @@ get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 
 	cmd = tvb_get_guint8(tvb, offset);
 
-	if(WOW_SERVER_TO_CLIENT && cmd == REALM_LIST)
+	if(WOW_SERVER_TO_CLIENT && cmd == CMD_REALM_LIST)
 		size_field_offset = 1;
-	if(WOW_CLIENT_TO_SERVER && cmd == AUTH_LOGON_CHALLENGE)
+	if(WOW_CLIENT_TO_SERVER && cmd == CMD_AUTH_LOGON_CHALLENGE)
 		size_field_offset = 2;
 
 	pkt_len = tvb_get_letohs(tvb, size_field_offset);
@@ -639,12 +640,12 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	switch(cmd) {
 
-		case AUTH_LOGON_RECONNECT_PROOF:
+		case CMD_AUTH_RECONNECT_PROOF:
 			parse_logon_reconnect_proof(tvb, pinfo, wow_tree, offset);
 
 			break;
 
-		case AUTH_LOGON_RECONNECT:
+		case CMD_AUTH_RECONNECT_CHALLENGE:
 			if (WOW_SERVER_TO_CLIENT) {
 				parse_logon_reconnect_challenge_server_to_client(tvb, wow_tree, offset);
 			} else if (WOW_CLIENT_TO_SERVER) {
@@ -653,7 +654,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 			break;
 
-		case AUTH_LOGON_CHALLENGE :
+		case CMD_AUTH_LOGON_CHALLENGE :
 			if(WOW_CLIENT_TO_SERVER) {
 				parse_logon_challenge_client_to_server(pinfo, tvb, wow_tree, offset, protocol_version);
 			} else if(WOW_SERVER_TO_CLIENT) {
@@ -662,7 +663,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 			break;
 
-		case AUTH_LOGON_PROOF :
+		case CMD_AUTH_LOGON_PROOF :
 			if (WOW_CLIENT_TO_SERVER) {
 				parse_logon_proof_client_to_server(tvb, wow_tree, offset, *protocol_version);
 			} else if (WOW_SERVER_TO_CLIENT) {
@@ -671,7 +672,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 			break;
 
-		case REALM_LIST :
+		case CMD_REALM_LIST :
 			if(WOW_CLIENT_TO_SERVER) {
 
 			} else if(WOW_SERVER_TO_CLIENT) {
@@ -694,9 +695,9 @@ dissect_wow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	cmd = tvb_get_guint8(tvb, 0);
 
-	if(WOW_SERVER_TO_CLIENT && cmd == REALM_LIST)
+	if(WOW_SERVER_TO_CLIENT && cmd == CMD_REALM_LIST)
 		size_field_offset = 1;
-	if(WOW_CLIENT_TO_SERVER && cmd == AUTH_LOGON_CHALLENGE)
+	if(WOW_CLIENT_TO_SERVER && cmd == CMD_AUTH_LOGON_CHALLENGE)
 		size_field_offset = 2;
 
 	if(size_field_offset > -1) {
