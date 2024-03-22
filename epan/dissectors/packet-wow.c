@@ -313,7 +313,7 @@ static int hf_wow_width;
 static gboolean wow_preference_desegment = TRUE;
 
 static gint ett_wow;
-static gint ett_wow_realms;
+static gint ett_message;
 
 struct game_version {
 	gint8 major_version;
@@ -413,7 +413,7 @@ parse_realm_list_server_to_client(uint32_t protocol_version, ptvcursor_t* ptv) {
                                                  ptvcursor_current_offset(ptv) + realm_name_offset,
 						 &len, ENC_UTF_8);
 
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_wow_realms, "%s", realm_name);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "%s", realm_name);
 		ptvcursor_add(ptv, hf_wow_realm_type, realm_type_field_size, ENC_LITTLE_ENDIAN);
 
 		if (protocol_version >= 8) {
@@ -1095,7 +1095,7 @@ proto_register_wow(void)
 
 	static gint *ett[] = {
 		&ett_wow,
-		&ett_wow_realms
+        &ett_message,
 	};
 
 	proto_wow = proto_register_protocol("World of Warcraft",
