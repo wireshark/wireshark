@@ -3,7 +3,7 @@
  * Binary Log File (BLF) file format from Vector Informatik decoder
  * for the Wiretap library.
  *
- * Copyright (c) 2021-2022 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright (c) 2021-2024 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -394,14 +394,14 @@ typedef struct blf_flexraymessage {
 #define BLF_FLEXRAYRCVMSG_CHANNELMASK_B           0x02
 #define BLF_FLEXRAYRCVMSG_CHANNELMASK_AB          0x03
 
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_NULL_FRAME    0x00000001
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_VALID_DATA    0x00000002
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_SYNC          0x00000004
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_STARTUP       0x00000008
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_PAYLOAD_PREAM 0x00000010
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_RES_20        0x00000020
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_ERROR         0x00000040
-#define BLF_FLEXRAYRCVMSG_DATA_FLAG_RES_80        0x00000080
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_NULL_FRAME    0x00000001
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_VALID_DATA    0x00000002
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_SYNC          0x00000004
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_STARTUP       0x00000008
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_PAYLOAD_PREAM 0x00000010
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_RES_20        0x00000020
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_ERROR         0x00000040
+#define BLF_FLEXRAYRCVMSG_FRAME_FLAG_RES_80        0x00000080
 
 typedef struct blf_flexrayrcvmessage {
     uint16_t channel;

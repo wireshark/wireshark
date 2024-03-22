@@ -5,7 +5,7 @@
  *
  * File format support for the Binary Log File (BLF) file format from
  * Vector Informatik decoder
- * Copyright (c) 2021-2022 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright (c) 2021-2024 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -2108,20 +2108,20 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
 
     /* Frame Header */
     tmpbuf[2] = ((0x0700 & frheader.frameId) >> 8);
-    if ((frheader.data & BLF_FLEXRAYRCVMSG_DATA_FLAG_PAYLOAD_PREAM) == BLF_FLEXRAYRCVMSG_DATA_FLAG_PAYLOAD_PREAM) {
+    if ((frheader.frameFlags & BLF_FLEXRAYRCVMSG_FRAME_FLAG_PAYLOAD_PREAM) == BLF_FLEXRAYRCVMSG_FRAME_FLAG_PAYLOAD_PREAM) {
         tmpbuf[2] |= BLF_DLT_FLEXRAY_PPI;
     }
 
-    if ((frheader.data & BLF_FLEXRAYRCVMSG_DATA_FLAG_SYNC) == BLF_FLEXRAYRCVMSG_DATA_FLAG_SYNC) {
+    if ((frheader.frameFlags & BLF_FLEXRAYRCVMSG_FRAME_FLAG_SYNC) == BLF_FLEXRAYRCVMSG_FRAME_FLAG_SYNC) {
         tmpbuf[2] |= BLF_DLT_FLEXRAY_SFI;
     }
 
-    if ((frheader.data & BLF_FLEXRAYRCVMSG_DATA_FLAG_NULL_FRAME) != BLF_FLEXRAYRCVMSG_DATA_FLAG_NULL_FRAME) {
+    if ((frheader.frameFlags & BLF_FLEXRAYRCVMSG_FRAME_FLAG_NULL_FRAME) != BLF_FLEXRAYRCVMSG_FRAME_FLAG_NULL_FRAME) {
         /* NFI needs to be inversed !? */
         tmpbuf[2] |= BLF_DLT_FLEXRAY_NFI;
     }
 
-    if ((frheader.data & BLF_FLEXRAYRCVMSG_DATA_FLAG_STARTUP) == BLF_FLEXRAYRCVMSG_DATA_FLAG_STARTUP) {
+    if ((frheader.frameFlags & BLF_FLEXRAYRCVMSG_FRAME_FLAG_STARTUP) == BLF_FLEXRAYRCVMSG_FRAME_FLAG_STARTUP) {
         tmpbuf[2] |= BLF_DLT_FLEXRAY_STFI;
     }
 
