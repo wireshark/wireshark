@@ -350,176 +350,6 @@ add_string(ptvcursor_t* ptv, const int* hf) {
     ptvcursor_add(ptv, *hf, len, ENC_UTF_8);
 }
 
-static void
-parse_logon_proof_client_to_server(uint32_t protocol_version, ptvcursor_t* ptv) {
-	ptvcursor_add(ptv, hf_wow_client_public_key, 32, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_crc_hash, 20, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_number_of_telemetry_keys, 1, ENC_LITTLE_ENDIAN);
-	if (protocol_version < 3) {
-		return;
-	}
-
-        guint32 two_factor_enabled = 0;
-	ptvcursor_add_ret_uint(ptv, hf_wow_security_flag, 1, ENC_LITTLE_ENDIAN, &two_factor_enabled);
-	if (!two_factor_enabled) {
-		return;
-	}
-
-	ptvcursor_add(ptv, hf_wow_pin_salt, 16, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_pin_hash, 20, ENC_NA);
-}
-
-
-static void
-parse_logon_proof_server_to_client(uint32_t protocol_version, ptvcursor_t* ptv) {
-	guint32 error = 0;
-
-	ptvcursor_add_ret_uint(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN, &error);
-	if (error != LOGIN_RESULT_SUCCESS) {
-		// Following fields are only present when not an error.
-		return;
-	}
-
-	ptvcursor_add(ptv, hf_wow_server_proof, 20, ENC_NA);
-	if (protocol_version >= 5) {
-		ptvcursor_add(ptv, hf_wow_account_flag, 4, ENC_LITTLE_ENDIAN);
-	}
-
-	ptvcursor_add(ptv, hf_wow_hardware_survey_id, 4, ENC_LITTLE_ENDIAN);
-	if (protocol_version >= 5) {
-		ptvcursor_add(ptv, hf_wow_unknown_int, 2, ENC_LITTLE_ENDIAN);
-	}
-}
-static void
-parse_realm_list_server_to_client(uint32_t protocol_version, ptvcursor_t* ptv) {
-	guint32 num_realms, ii, number_of_realms_field_size, realm_name_offset, realm_type_field_size, realm_flags;
-	gchar *realm_name;
-	gint len;
-
-	ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
-
-        ptvcursor_advance(ptv, 4); /* Unknown field; always 0 */
-
-	if (protocol_version >= 8) {
-		/* Possibly valid for versions starting at 2.0.0 as well */
-		number_of_realms_field_size = 2;
-		realm_name_offset = 3;
-		realm_type_field_size = 1;
-	} else {
-		number_of_realms_field_size = 1;
-		realm_name_offset = 5;
-		realm_type_field_size = 4;
-	}
-
-	ptvcursor_add_ret_uint(ptv, hf_wow_number_of_realms, number_of_realms_field_size, ENC_LITTLE_ENDIAN, &num_realms);
-
-	for(ii = 0; ii < num_realms; ii++) {
-                tvbuff_t* tvb = ptvcursor_tvbuff(ptv);
-		realm_name = tvb_get_stringz_enc(wmem_file_scope(), tvb,
-                                                 ptvcursor_current_offset(ptv) + realm_name_offset,
-						 &len, ENC_UTF_8);
-
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "%s", realm_name);
-		ptvcursor_add(ptv, hf_wow_realm_type, realm_type_field_size, ENC_LITTLE_ENDIAN);
-
-		if (protocol_version >= 8) {
-			/* Possibly valid for versions starting at 2.0.0 as well */
-			ptvcursor_add(ptv, hf_wow_locked, 1, ENC_NA);
-		}
-
-		ptvcursor_add_ret_uint(ptv, hf_wow_realm_flag, 1, ENC_LITTLE_ENDIAN, &realm_flags);
-                add_cstring(ptv, &hf_wow_name);
-                add_cstring(ptv, &hf_wow_address);
-
-		ptvcursor_add(ptv, hf_wow_population, 4, ENC_LITTLE_ENDIAN);
-		ptvcursor_add(ptv, hf_wow_number_of_characters_on_realm, 1, ENC_LITTLE_ENDIAN);
-		ptvcursor_add(ptv, hf_wow_realm_category, 1, ENC_LITTLE_ENDIAN);
-		ptvcursor_add(ptv, hf_wow_realm_id, 1, ENC_LITTLE_ENDIAN);
-		if (protocol_version >= 8 && (realm_flags & REALM_FLAG_SPECIFY_BUILD)) {
-			ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
-			ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
-			ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
-			ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
-		}
-                ptvcursor_pop_subtree(ptv);
-	}
-}
-
-static void
-parse_logon_reconnect_proof(packet_info *pinfo, ptvcursor_t *ptv) {
-	if (WOW_CLIENT_TO_SERVER) {
-		ptvcursor_add(ptv, hf_wow_challenge_data, 16, ENC_NA);
-		ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
-		ptvcursor_add(ptv, hf_wow_client_checksum, 20, ENC_NA);
-		ptvcursor_add(ptv, hf_wow_number_of_telemetry_keys, 1, ENC_LITTLE_ENDIAN);
-	}
-	else if (WOW_SERVER_TO_CLIENT) {
-		ptvcursor_add(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN);
-	}
-}
-
-static void
-parse_logon_reconnect_challenge_server_to_client(ptvcursor_t* ptv) {
-	guint32 error = 0;
-	ptvcursor_add_ret_uint(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN, &error);
-	if (error != LOGIN_RESULT_SUCCESS) {
-		// Following fields are only present when not an error.
-		return;
-	}
-
-	ptvcursor_add(ptv, hf_wow_challenge_data, 16, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_checksum_salt, 16, ENC_NA);
-}
-
-static void parse_logon_challenge_client_to_server(uint32_t *protocol_version, ptvcursor_t* ptv) {
-	ptvcursor_add_ret_uint(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN, protocol_version);
-	ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_BIG_ENDIAN);
-	add_string(ptv, &hf_wow_account_name);
-}
-
-static void
-parse_logon_challenge_server_to_client(uint32_t protocol_version, ptvcursor_t* ptv) {
-    guint32 error, srp_g_len, srp_n_len, two_factor_enabled;
-
-	ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
-	ptvcursor_add_ret_uint(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN, &error);
-	if (error != LOGIN_RESULT_SUCCESS) {
-		// Following fields are only present when not an error.
-		return;
-	}
-
-	ptvcursor_add(ptv, hf_wow_server_public_key, 32, ENC_NA);
-	ptvcursor_add_ret_uint(ptv, hf_wow_generator_length, 1, ENC_LITTLE_ENDIAN, &srp_g_len);
-	ptvcursor_add(ptv, hf_wow_generator, srp_g_len, ENC_NA);
-	ptvcursor_add_ret_uint(ptv, hf_wow_large_safe_prime_length, 1, ENC_LITTLE_ENDIAN, &srp_n_len);
-	ptvcursor_add(ptv, hf_wow_large_safe_prime, srp_n_len, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_salt, 32, ENC_NA);
-	ptvcursor_add(ptv, hf_wow_crc_salt, 16, ENC_NA);
-
-	if (protocol_version < 3) {
-		/* The two factor fields were added in the 1.12 update. */
-		return;
-	}
-
-	ptvcursor_add_ret_uint(ptv, hf_wow_security_flag, 1, ENC_LITTLE_ENDIAN, &two_factor_enabled);
-	if (!two_factor_enabled) {
-		return;
-	}
-	ptvcursor_add(ptv, hf_wow_pin_grid_seed, 4, ENC_LITTLE_ENDIAN);
-	ptvcursor_add(ptv, hf_wow_pin_salt, 16, ENC_NA);
-}
-
 static guint
 get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
@@ -541,48 +371,526 @@ get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 
 static void
 add_body_fields(packet_info *pinfo, guint8 header_opcode, ptvcursor_t *ptv, uint32_t *protocol_version) {
-    switch(header_opcode) {
-        case CMD_AUTH_RECONNECT_PROOF:
-            parse_logon_reconnect_proof(pinfo, ptv);
-            break;
+    /* AUTOGENERATED_START_VARIABLES */
+    guint32 compressed_data_length = 0;
+    guint32 flag = 0;
+    guint32 generator_length = 0;
+    guint32 large_safe_prime_length = 0;
+    guint32 number_of_realms = 0;
+    guint32 number_of_telemetry_keys = 0;
+    guint32 result = 0;
+    guint32 security_flag = 0;
+    guint32 size = 0;
+/* AUTOGENERATED_END_VARIABLES */
 
+    /* AUTOGENERATED_START_PARSER */
+    switch (header_opcode) {
+        case CMD_AUTH_LOGON_CHALLENGE:
+            switch (*protocol_version) {
+                case 2:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_protocol_version_int, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_public_key, 32, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_generator_length, 1, ENC_LITTLE_ENDIAN, &generator_length);
+                            ptvcursor_add(ptv, hf_wow_generator, generator_length, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_large_safe_prime_length, 1, ENC_LITTLE_ENDIAN, &large_safe_prime_length);
+                            ptvcursor_add(ptv, hf_wow_large_safe_prime, large_safe_prime_length, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_salt, 32, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_crc_salt, 16, ENC_NA);
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                        ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_pop_subtree(ptv);
+                        ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_LITTLE_ENDIAN);
+                        add_string(ptv, &hf_wow_account_name);
+                    }
+                break;
+                case 3:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_protocol_version_int, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_public_key, 32, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_generator_length, 1, ENC_LITTLE_ENDIAN, &generator_length);
+                            ptvcursor_add(ptv, hf_wow_generator, generator_length, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_large_safe_prime_length, 1, ENC_LITTLE_ENDIAN, &large_safe_prime_length);
+                            ptvcursor_add(ptv, hf_wow_large_safe_prime, large_safe_prime_length, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_salt, 32, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_crc_salt, 16, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_security_flag, 1, ENC_LITTLE_ENDIAN, &security_flag);
+                            if (security_flag == SECURITY_FLAG_PIN) {
+                                ptvcursor_add(ptv, hf_wow_pin_grid_seed, 4, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_pin_salt, 16, ENC_NA);
+                            }
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                        ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_pop_subtree(ptv);
+                        ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_LITTLE_ENDIAN);
+                        add_string(ptv, &hf_wow_account_name);
+                    }
+                break;
+                case 5:
+                case 6:
+                case 7:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_protocol_version_int, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_public_key, 32, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_generator_length, 1, ENC_LITTLE_ENDIAN, &generator_length);
+                            ptvcursor_add(ptv, hf_wow_generator, generator_length, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_large_safe_prime_length, 1, ENC_LITTLE_ENDIAN, &large_safe_prime_length);
+                            ptvcursor_add(ptv, hf_wow_large_safe_prime, large_safe_prime_length, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_salt, 32, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_crc_salt, 16, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_security_flag, 1, ENC_LITTLE_ENDIAN, &security_flag);
+                            if (security_flag & SECURITY_FLAG_PIN) {
+                                ptvcursor_add(ptv, hf_wow_pin_grid_seed, 4, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_pin_salt, 16, ENC_NA);
+                            }
+                            if (security_flag & SECURITY_FLAG_MATRIX_CARD) {
+                                ptvcursor_add(ptv, hf_wow_width, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_height, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_digit_count, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_challenge_count, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_seed, 8, ENC_LITTLE_ENDIAN);
+                            }
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                        ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_pop_subtree(ptv);
+                        ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_LITTLE_ENDIAN);
+                        add_string(ptv, &hf_wow_account_name);
+                    }
+                break;
+                case 8:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_protocol_version_int, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_public_key, 32, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_generator_length, 1, ENC_LITTLE_ENDIAN, &generator_length);
+                            ptvcursor_add(ptv, hf_wow_generator, generator_length, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_large_safe_prime_length, 1, ENC_LITTLE_ENDIAN, &large_safe_prime_length);
+                            ptvcursor_add(ptv, hf_wow_large_safe_prime, large_safe_prime_length, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_salt, 32, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_crc_salt, 16, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_security_flag, 1, ENC_LITTLE_ENDIAN, &security_flag);
+                            if (security_flag & SECURITY_FLAG_PIN) {
+                                ptvcursor_add(ptv, hf_wow_pin_grid_seed, 4, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_pin_salt, 16, ENC_NA);
+                            }
+                            if (security_flag & SECURITY_FLAG_MATRIX_CARD) {
+                                ptvcursor_add(ptv, hf_wow_width, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_height, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_digit_count, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_challenge_count, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_seed, 8, ENC_LITTLE_ENDIAN);
+                            }
+                            if (security_flag & SECURITY_FLAG_AUTHENTICATOR) {
+                                ptvcursor_add(ptv, hf_wow_required, 1, ENC_LITTLE_ENDIAN);
+                            }
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                        ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_pop_subtree(ptv);
+                        ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_LITTLE_ENDIAN);
+                        add_string(ptv, &hf_wow_account_name);
+                    }
+                break;
+            }
+            break;
+        case CMD_AUTH_LOGON_PROOF:
+            switch (*protocol_version) {
+                case 2:
+                case 3:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_proof, 20, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_hardware_survey_id, 4, ENC_LITTLE_ENDIAN);
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_client_public_key, 32, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_crc_hash, 20, ENC_NA);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_telemetry_keys, 1, ENC_LITTLE_ENDIAN, &number_of_telemetry_keys);
+                        for (guint32 i1 = 0; i1 < number_of_telemetry_keys; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TelemetryKey %i", i1);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 2, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_bytes, 4, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_cd_key_proof, 20, ENC_NA);
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                    }
+                break;
+                case 5:
+                case 6:
+                case 7:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_proof, 20, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_hardware_survey_id, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 2, ENC_LITTLE_ENDIAN);
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_client_public_key, 32, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_crc_hash, 20, ENC_NA);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_telemetry_keys, 1, ENC_LITTLE_ENDIAN, &number_of_telemetry_keys);
+                        for (guint32 i1 = 0; i1 < number_of_telemetry_keys; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TelemetryKey %i", i1);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 2, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_bytes, 4, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_cd_key_proof, 20, ENC_NA);
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                    }
+                break;
+                case 8:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_server_proof, 20, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_account_flag, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_hardware_survey_id, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 2, ENC_LITTLE_ENDIAN);
+                        }
+                        else {
+                            ptvcursor_add(ptv, hf_wow_padding, 2, ENC_LITTLE_ENDIAN);
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_client_public_key, 32, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_crc_hash, 20, ENC_NA);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_telemetry_keys, 1, ENC_LITTLE_ENDIAN, &number_of_telemetry_keys);
+                        for (guint32 i1 = 0; i1 < number_of_telemetry_keys; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TelemetryKey %i", i1);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 2, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_unknown_bytes, 4, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_cd_key_proof, 20, ENC_NA);
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                    }
+                break;
+            }
+            break;
         case CMD_AUTH_RECONNECT_CHALLENGE:
+            switch (*protocol_version) {
+                case 2:
+                case 5:
+                case 6:
+                case 7:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_challenge_data, 16, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_checksum_salt, 16, ENC_NA);
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                        ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_pop_subtree(ptv);
+                        ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_LITTLE_ENDIAN);
+                        add_string(ptv, &hf_wow_account_name);
+                    }
+                break;
+                case 8:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add_ret_uint(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN, &result);
+                        if (result == LOGIN_RESULT_SUCCESS) {
+                            ptvcursor_add(ptv, hf_wow_challenge_data, 16, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_checksum_salt, 16, ENC_NA);
+                        }
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_protocol_version, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_game_name, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                        ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_pop_subtree(ptv);
+                        ptvcursor_add(ptv, hf_wow_platform, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_os, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_LITTLE_ENDIAN);
+                        add_string(ptv, &hf_wow_account_name);
+                    }
+                break;
+            }
+            break;
+        case CMD_AUTH_RECONNECT_PROOF:
+            switch (*protocol_version) {
+                case 2:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_proof_data, 16, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_checksum, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_key_count, 1, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+                case 5:
+                case 6:
+                case 7:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_padding, 2, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_proof_data, 16, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_checksum, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_key_count, 1, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+                case 8:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_login_result, 1, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_padding, 2, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_proof_data, 16, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_client_checksum, 20, ENC_NA);
+                        ptvcursor_add(ptv, hf_wow_key_count, 1, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+            }
+            break;
+        case CMD_REALM_LIST:
+            switch (*protocol_version) {
+                case 2:
+                case 3:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_header_padding, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_realms, 1, ENC_LITTLE_ENDIAN, &number_of_realms);
+                        for (guint32 i1 = 0; i1 < number_of_realms; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Realm %i", i1);
+                            ptvcursor_add(ptv, hf_wow_realm_type, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_flag, 1, ENC_LITTLE_ENDIAN);
+                            add_cstring(ptv, &hf_wow_name);
+                            add_cstring(ptv, &hf_wow_address);
+                            ptvcursor_add(ptv, hf_wow_population, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_number_of_characters_on_realm, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_category, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_id, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                        ptvcursor_add(ptv, hf_wow_footer_padding, 2, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_padding, 4, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+                case 5:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_header_padding, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_realms, 1, ENC_LITTLE_ENDIAN, &number_of_realms);
+                        for (guint32 i1 = 0; i1 < number_of_realms; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Realm %i", i1);
+                            ptvcursor_add(ptv, hf_wow_realm_type, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_locked, 1, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_realm_flag, 1, ENC_LITTLE_ENDIAN);
+                            add_cstring(ptv, &hf_wow_name);
+                            add_cstring(ptv, &hf_wow_address);
+                            ptvcursor_add(ptv, hf_wow_population, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_number_of_characters_on_realm, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_category, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_id, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                        ptvcursor_add(ptv, hf_wow_footer_padding, 2, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_padding, 4, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+                case 6:
+                case 7:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_header_padding, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_realms, 2, ENC_LITTLE_ENDIAN, &number_of_realms);
+                        for (guint32 i1 = 0; i1 < number_of_realms; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Realm %i", i1);
+                            ptvcursor_add(ptv, hf_wow_realm_type, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_locked, 1, ENC_NA);
+                            ptvcursor_add(ptv, hf_wow_realm_flag, 1, ENC_LITTLE_ENDIAN);
+                            add_cstring(ptv, &hf_wow_name);
+                            add_cstring(ptv, &hf_wow_address);
+                            ptvcursor_add(ptv, hf_wow_population, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_number_of_characters_on_realm, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_category, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_id, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                        ptvcursor_add(ptv, hf_wow_footer_padding, 2, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_padding, 4, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+                case 8:
+                    if (WOW_SERVER_TO_CLIENT) {
+                        ptvcursor_add(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add(ptv, hf_wow_header_padding, 4, ENC_LITTLE_ENDIAN);
+                        ptvcursor_add_ret_uint(ptv, hf_wow_number_of_realms, 2, ENC_LITTLE_ENDIAN, &number_of_realms);
+                        for (guint32 i1 = 0; i1 < number_of_realms; ++i1) {
+                            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Realm %i", i1);
+                            ptvcursor_add(ptv, hf_wow_realm_type, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_locked, 1, ENC_NA);
+                            ptvcursor_add_ret_uint(ptv, hf_wow_realm_flag, 1, ENC_LITTLE_ENDIAN, &flag);
+                            add_cstring(ptv, &hf_wow_name);
+                            add_cstring(ptv, &hf_wow_address);
+                            ptvcursor_add(ptv, hf_wow_population, 4, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_number_of_characters_on_realm, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_category, 1, ENC_LITTLE_ENDIAN);
+                            ptvcursor_add(ptv, hf_wow_realm_id, 1, ENC_LITTLE_ENDIAN);
+                            if (flag & REALM_FLAG_SPECIFY_BUILD) {
+                                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Version");
+                                ptvcursor_add(ptv, hf_wow_major, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_minor, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_patch, 1, ENC_LITTLE_ENDIAN);
+                                ptvcursor_add(ptv, hf_wow_build, 2, ENC_LITTLE_ENDIAN);
+                                ptvcursor_pop_subtree(ptv);
+                            }
+                            ptvcursor_pop_subtree(ptv);
+                        }
+                        ptvcursor_add(ptv, hf_wow_footer_padding, 2, ENC_LITTLE_ENDIAN);
+                    }
+                    else {
+                        ptvcursor_add(ptv, hf_wow_padding, 4, ENC_LITTLE_ENDIAN);
+                    }
+                break;
+            }
+            break;
+        case CMD_SURVEY_RESULT:
             if (WOW_SERVER_TO_CLIENT) {
-                parse_logon_reconnect_challenge_server_to_client(ptv);
-            } else if (WOW_CLIENT_TO_SERVER) {
-                parse_logon_challenge_client_to_server(protocol_version, ptv);
+                ptvcursor_add(ptv, hf_wow_survey_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_ret_uint(ptv, hf_wow_compressed_data_length, 2, ENC_LITTLE_ENDIAN, &compressed_data_length);
+                ptvcursor_add(ptv, hf_wow_data, compressed_data_length, ENC_NA);
             }
-
+            else {
+                ptvcursor_add(ptv, hf_wow_survey_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_ret_uint(ptv, hf_wow_compressed_data_length, 2, ENC_LITTLE_ENDIAN, &compressed_data_length);
+                ptvcursor_add(ptv, hf_wow_data, compressed_data_length, ENC_NA);
+            }
+            break;
+        case CMD_XFER_DATA:
+            if (WOW_SERVER_TO_CLIENT) {
+                ptvcursor_add_ret_uint(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN, &size);
+                ptvcursor_add(ptv, hf_wow_data, size, ENC_NA);
+            }
+            else {
+                ptvcursor_add_ret_uint(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN, &size);
+                ptvcursor_add(ptv, hf_wow_data, size, ENC_NA);
+            }
+            break;
+        case CMD_XFER_INITIATE:
+            if (WOW_SERVER_TO_CLIENT) {
+                add_string(ptv, &hf_wow_filename);
+                ptvcursor_add(ptv, hf_wow_file_size, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_wow_file_md, 16, ENC_NA);
+            }
+            else {
+                add_string(ptv, &hf_wow_filename);
+                ptvcursor_add(ptv, hf_wow_file_size, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_wow_file_md, 16, ENC_NA);
+            }
+            break;
+        case CMD_XFER_RESUME:
+            if (WOW_SERVER_TO_CLIENT) {
+                ptvcursor_add(ptv, hf_wow_offset, 8, ENC_LITTLE_ENDIAN);
+            }
+            else {
+                ptvcursor_add(ptv, hf_wow_offset, 8, ENC_LITTLE_ENDIAN);
+            }
             break;
 
-        case CMD_AUTH_LOGON_CHALLENGE :
-            if(WOW_CLIENT_TO_SERVER) {
-                parse_logon_challenge_client_to_server(protocol_version, ptv);
-            } else if(WOW_SERVER_TO_CLIENT) {
-                parse_logon_challenge_server_to_client(*protocol_version, ptv);
-            }
-
-            break;
-
-        case CMD_AUTH_LOGON_PROOF :
-            if (WOW_CLIENT_TO_SERVER) {
-                parse_logon_proof_client_to_server(*protocol_version, ptv);
-            } else if (WOW_SERVER_TO_CLIENT) {
-                parse_logon_proof_server_to_client(*protocol_version, ptv);
-            }
-
-            break;
-
-        case CMD_REALM_LIST :
-            if(WOW_CLIENT_TO_SERVER) {
-
-            } else if(WOW_SERVER_TO_CLIENT) {
-                parse_realm_list_server_to_client(*protocol_version, ptv);
-
-            }
-
+        default:
             break;
     }
+/* AUTOGENERATED_END_PARSER */
 }
 
 static int
@@ -1135,10 +1443,4 @@ proto_reg_handoff_wow(void)
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-/* AUTOGENERATED_START_VARIABLES */
-/* AUTOGENERATED_END_VARIABLES */
-
-/* AUTOGENERATED_START_PARSER */
-/* AUTOGENERATED_END_PARSER */
 
