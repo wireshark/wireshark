@@ -438,7 +438,9 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += 2;
 
     /* End of line */
-    if (tvb_get_guint8(tvb, offset) != '\r' || tvb_get_guint8(tvb, offset + 1) != '\n')
+    if (tvb_captured_length_remaining(tvb, offset) < 2 ||
+        tvb_get_guint8(tvb, offset) != '\r' ||
+        tvb_get_guint8(tvb, offset + 1) != '\n')
     {
         expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_invalid_end_of_line);
     }
