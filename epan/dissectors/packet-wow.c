@@ -583,29 +583,22 @@ add_body_fields(packet_info *pinfo, guint8 header_opcode, ptvcursor_t *ptv, uint
 static int
 dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_item *ti;
-	proto_tree *wow_tree;
-
-	guint8 cmd;
-	guint32 offset = 0;
-
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOW");
-
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	cmd = tvb_get_guint8(tvb, offset);
+	guint32 offset = 0;
+	guint8 header_opcode = tvb_get_guint8(tvb, offset);
 
 	col_set_str(pinfo->cinfo, COL_INFO,
-			    val_to_str_const(cmd, cmd_vs,
+			    val_to_str_const(header_opcode, cmd_vs,
 				       "Unrecognized packet type"));
 
 	if(!tree) {
 		return tvb_captured_length(tvb);
 	}
 
-	ti = proto_tree_add_item(tree, proto_wow, tvb, 0, -1, ENC_NA);
-	wow_tree = proto_item_add_subtree(ti, ett_wow);
+	proto_item* ti = proto_tree_add_item(tree, proto_wow, tvb, 0, -1, ENC_NA);
+	proto_tree* wow_tree = proto_item_add_subtree(ti, ett_wow);
 
 	ptvcursor_t* ptv = ptvcursor_new(wmem_packet_scope(), wow_tree, tvb, offset);
 
@@ -620,7 +613,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             *protocol_version = 2;
         }
 
-        add_body_fields(pinfo, cmd, ptv, protocol_version);
+        add_body_fields(pinfo, header_opcode, ptv, protocol_version);
 
         return tvb_captured_length(tvb);
 }
