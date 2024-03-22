@@ -344,6 +344,13 @@ add_cstring(ptvcursor_t* ptv, const int* hf) {
 }
 
 static void
+add_string(ptvcursor_t* ptv, const int* hf) {
+    gint32 len = 0;
+    ptvcursor_add_ret_uint(ptv, hf_wow_string_length, 1, ENC_NA, &len);
+    ptvcursor_add(ptv, *hf, len, ENC_UTF_8);
+}
+
+static void
 parse_logon_proof_client_to_server(uint32_t protocol_version, ptvcursor_t* ptv) {
 	ptvcursor_add(ptv, hf_wow_client_public_key, 32, ENC_NA);
 	ptvcursor_add(ptv, hf_wow_client_proof, 20, ENC_NA);
@@ -478,9 +485,7 @@ static void parse_logon_challenge_client_to_server(uint32_t *protocol_version, p
 	ptvcursor_add(ptv, hf_wow_locale, 4, ENC_LITTLE_ENDIAN);
 	ptvcursor_add(ptv, hf_wow_utc_timezone_offset, 4, ENC_LITTLE_ENDIAN);
 	ptvcursor_add(ptv, hf_wow_client_ip_address, 4, ENC_BIG_ENDIAN);
-	guint32 srp_i_len = 0;
-	ptvcursor_add_ret_uint(ptv, hf_wow_string_length, 1, ENC_LITTLE_ENDIAN, &srp_i_len);
-	ptvcursor_add(ptv, hf_wow_account_name, srp_i_len, ENC_UTF_8);
+	add_string(ptv, &hf_wow_account_name);
 }
 
 static void
