@@ -19,15 +19,28 @@ static int hf_nmea0183_unknown_field;
 static int hf_nmea0183_checksum;
 static int hf_nmea0183_checksum_calculated;
 
+static int hf_nmea0183_zda_time;
+static int hf_nmea0183_zda_time_hour;
+static int hf_nmea0183_zda_time_minute;
+static int hf_nmea0183_zda_time_second;
+static int hf_nmea0183_zda_date_day;
+static int hf_nmea0183_zda_date_month;
+static int hf_nmea0183_zda_date_year;
+static int hf_nmea0183_zda_local_zone_hour;
+static int hf_nmea0183_zda_local_zone_minute;
+
 static int ett_nmea0183;
 static int ett_nmea0183_checksum;
 static int ett_nmea0183_sentence;
+static int ett_nmea0183_zda_time;
 
 static expert_field ei_nmea0183_invalid_first_character;
 static expert_field ei_nmea0183_missing_checksum_character;
 static expert_field ei_nmea0183_invalid_end_of_line;
 static expert_field ei_nmea0183_checksum_incorrect;
 static expert_field ei_nmea0183_sentence_too_long;
+static expert_field ei_nmea0183_field_time_too_short;
+static expert_field ei_nmea0183_field_missing;
 
 static int proto_nmea0183;
 
@@ -317,10 +330,18 @@ static uint8_t calculate_checksum(tvbuff_t *tvb, const gint start, const gint le
 
 /* Find first occurrence of a field separator in tvbuff, starting at offset. Searches
  * to end of tvbuff.
- * Returns the offset of the found separator, or offset of end of tvbuff if not found. */
+ * Returns the offset of the found separator.
+ * If separator is not found, return the offset of end of tvbuff.
+ * If offset is out of bounds, return the offset of end of tvbuff.
+ **/
 static gint
 tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const gint offset)
 {
+    if (tvb_captured_length_remaining(tvb, offset) == 0)
+    {
+        return tvb_captured_length(tvb);
+    }
+
     gint end_of_field_offset = tvb_find_guint8(tvb, offset, -1, ',');
     if (end_of_field_offset == -1)
     {
@@ -329,9 +350,115 @@ tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const gint offset)
     return end_of_field_offset;
 }
 
+/* Add a zero length item which indicates an expected but missing field */
+proto_item *
+proto_tree_add_missing_field(proto_tree *tree, packet_info *pinfo, int hf, tvbuff_t *tvb,
+                             const gint offset)
+{
+    proto_item *ti = NULL;
+    ti = proto_tree_add_item(tree, hf, tvb, offset, 0, ENC_ASCII);
+    proto_item_append_text(ti, "[missing]");
+    expert_add_info(pinfo, ti, &ei_nmea0183_field_missing);
+    return ti;
+}
+
+/* Dissect a time field. The field is split into a tree with hour, minute and second elements.
+ * Returns length including separator
+ **/
+static int
+dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                            int hf_time, int hf_hour, int hf_minute, int hf_second, int ett_time)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf_time, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_time, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, ": [empty]");
+    }
+    else if (end_of_field_offset - offset >= 6)
+    {
+        const guint8 *hour = NULL;
+        const guint8 *minute = NULL;
+        const guint8 *second = NULL;
+        proto_tree *time_subtree = proto_item_add_subtree(ti, ett_time);
+
+        proto_tree_add_item_ret_string(time_subtree, hf_hour,
+                                       tvb, offset, 2, ENC_ASCII,
+                                       pinfo->pool, &hour);
+
+        proto_tree_add_item_ret_string(time_subtree, hf_minute,
+                                       tvb, offset + 2, 2, ENC_ASCII,
+                                       pinfo->pool, &minute);
+
+        proto_tree_add_item_ret_string(time_subtree, hf_second,
+                                       tvb, offset + 4, end_of_field_offset - offset - 4,
+                                       ENC_ASCII, pinfo->pool, &second);
+
+        proto_item_append_text(ti, ": %s:%s:%s", hour, minute, second);
+    }
+    else
+    {
+        expert_add_info(pinfo, ti, &ei_nmea0183_field_time_too_short);
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a single field containing a dimensionless value. Returns length including separator */
+static int
+dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    ti = proto_tree_add_item(tree, hf, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[empty]");
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a ZDA (Time & Date) sentence. The time field is split into individual parts. */
+static int
+dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset = 0;
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "ZDA sentence - Time & Date");
+
+    offset += dissect_nmea0183_field_time(tvb, pinfo, subtree, offset, hf_nmea0183_zda_time,
+                                          hf_nmea0183_zda_time_hour, hf_nmea0183_zda_time_minute,
+                                          hf_nmea0183_zda_time_second, ett_nmea0183_zda_time);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_day);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_month);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_year);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_hour);
+
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_minute);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a sentence where the sentence id is unknown. Each field is shown as an generic field. */
 static int
-dissect_nmea0183_sentence(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset = 0;
 
@@ -410,7 +537,14 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Data */
     offset += 1;
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
-    offset += dissect_nmea0183_sentence(data_tvb, pinfo, nmea0183_tree);
+    if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
+    {
+        offset += dissect_nmea0183_sentence_zda(data_tvb, pinfo, nmea0183_tree);
+    }
+    else
+    {
+        offset += dissect_nmea0183_sentence_unknown(data_tvb, pinfo, nmea0183_tree);
+    }
 
     /* Checksum */
     offset += 1;
@@ -430,6 +564,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         expert_add_info(pinfo, ti, &ei_nmea0183_checksum_incorrect);
     }
 
+    // Calculated checksum highlights 2 bytes, which is the ascii hex value of a 1 byte checksum
     proto_item *checksum_tree = proto_item_add_subtree(ti, ett_nmea0183_checksum);
     ti = proto_tree_add_uint(checksum_tree, hf_nmea0183_checksum_calculated,
                              tvb, offset, 2, calculated_checksum);
@@ -484,13 +619,59 @@ void proto_register_nmea0183(void)
          {"Calculated checksum", "nmea0183.checksum_calculated",
           FT_UINT8, BASE_HEX,
           NULL, 0x0,
-          "NMEA 0183 Calculated checksum", HFILL}}};
+          "NMEA 0183 Calculated checksum", HFILL}},
+        {&hf_nmea0183_zda_time,
+         {"UTC Time", "nmea0183.zda_time",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA UTC Time field", HFILL}},
+        {&hf_nmea0183_zda_time_hour,
+         {"Hour", "nmea0183.zda_time_hour",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA UTC hour", HFILL}},
+        {&hf_nmea0183_zda_time_minute,
+         {"Minute", "nmea0183.zda_time_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA UTC minute", HFILL}},
+        {&hf_nmea0183_zda_time_second,
+         {"Second", "nmea0183.zda_time_second",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA UTC second", HFILL}},
+        {&hf_nmea0183_zda_date_day,
+         {"Day", "nmea0183.zda_date_day",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA Day field", HFILL}},
+        {&hf_nmea0183_zda_date_month,
+         {"Month", "nmea0183.zda_date_month",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA Month field", HFILL}},
+        {&hf_nmea0183_zda_date_year,
+         {"Year", "nmea0183.zda_date_year",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA Year field", HFILL}},
+        {&hf_nmea0183_zda_local_zone_hour,
+         {"Local zone hour", "nmea0183.zda_local_zone_hour",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA Local zone hour field", HFILL}},
+        {&hf_nmea0183_zda_local_zone_minute,
+         {"Local zone minute", "nmea0183.zda_local_zone_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ZDA Local zone minute field", HFILL}}};
 
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_nmea0183,
         &ett_nmea0183_checksum,
-        &ett_nmea0183_sentence};
+        &ett_nmea0183_sentence,
+        &ett_nmea0183_zda_time};
 
     static ei_register_info ei[] = {
         {&ei_nmea0183_invalid_first_character,
@@ -507,7 +688,13 @@ void proto_register_nmea0183(void)
           "Incorrect checksum", EXPFILL}},
         {&ei_nmea0183_sentence_too_long,
          {"nmea0183.sentence_too_long", PI_PROTOCOL, PI_WARN,
-          "Sentence is too long. Maximum is 82 bytes including $ and <CR><LF>", EXPFILL}}};
+          "Sentence is too long. Maximum is 82 bytes including $ and <CR><LF>", EXPFILL}},
+        {&ei_nmea0183_field_time_too_short,
+         {"nmea0183.field_time_too_short", PI_PROTOCOL, PI_WARN,
+          "Field containing time is too short. Field should be at least 6 characters", EXPFILL}},
+        {&ei_nmea0183_field_missing,
+         {"nmea0183.field_missing", PI_PROTOCOL, PI_WARN,
+          "Field expected, but not found", EXPFILL}}};
 
     proto_nmea0183 = proto_register_protocol(
         "NMEA 0183 protocol", /* name        */
