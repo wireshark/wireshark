@@ -35,14 +35,17 @@ static expert_field ei_unreassembled = EI_INIT;
 void
 register_show_exception(void)
 {
-	static ei_register_info ei[] = {
+	static ei_register_info ei_malformed_set[] = {
 		{ &ei_malformed_dissector_bug, { "_ws.malformed.dissector_bug", PI_MALFORMED, PI_ERROR, "Dissector bug", EXPFILL }},
 		{ &ei_malformed_reassembly, { "_ws.malformed.reassembly", PI_MALFORMED, PI_ERROR, "Reassembly error", EXPFILL }},
 		{ &ei_malformed, { "_ws.malformed.expert", PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occurred)", EXPFILL }},
+	};
+	static ei_register_info ei_unreassembled_set[] = {
 		{ &ei_unreassembled, { "_ws.unreassembled.expert", PI_REASSEMBLE, PI_NOTE, "Unreassembled fragment (change preferences to enable reassembly)", EXPFILL }},
 	};
 
 	expert_module_t* expert_malformed;
+	expert_module_t* expert_unreassembled;
 
 	proto_short = proto_register_protocol("Short Frame", "Short frame", "_ws.short");
 	proto_malformed = proto_register_protocol("Malformed Packet",
@@ -52,7 +55,9 @@ register_show_exception(void)
 	    "Unreassembled fragmented packet", "_ws.unreassembled");
 
 	expert_malformed = expert_register_protocol(proto_malformed);
-	expert_register_field_array(expert_malformed, ei, array_length(ei));
+	expert_register_field_array(expert_malformed, ei_malformed_set, array_length(ei_malformed_set));
+	expert_unreassembled = expert_register_protocol(proto_unreassembled);
+	expert_register_field_array(expert_unreassembled, ei_unreassembled_set, array_length(ei_unreassembled_set));
 
 	/* "Short Frame", "Malformed Packet", and "Unreassembled Fragmented
 	   Packet" aren't really protocols, they're error indications;
