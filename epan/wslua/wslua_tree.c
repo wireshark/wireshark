@@ -857,7 +857,8 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
                                                          `PI_ASSUMPTION`,
                                                          `PI_DEPRECATED`,
                                                          `PI_RECEIVE`,
-                                                         or `PI_INTERFACE`. */
+                                                         `PI_INTERFACE`,
+                                                         or `PI_DISSECTOR_BUG`. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of:
                                                             `PI_COMMENT`,
                                                             `PI_CHAT`,

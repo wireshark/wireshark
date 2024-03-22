@@ -963,6 +963,8 @@ typedef proto_node proto_item;
 #define PI_RECEIVE              0x0f000000
 /** Something happened at the interface layer (out of buffers, hardware error, etc.) */
 #define PI_INTERFACE            0x10000000
+/** A bug in a dissector was detected, usually PI_ERROR severity */
+#define PI_DISSECTOR_BUG        0x11000000
 
 /*
  * add more, see

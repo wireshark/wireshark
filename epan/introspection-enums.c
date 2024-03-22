@@ -407,6 +407,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(PI_DEBUG),
     ENUM(PI_DECRYPTION),
     ENUM(PI_DEPRECATED),
+    ENUM(PI_DISSECTOR_BUG),
     ENUM(PI_ERROR),
     ENUM(PI_GROUP_MASK),
     ENUM(PI_INTERFACE),

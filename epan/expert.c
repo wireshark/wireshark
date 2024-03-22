@@ -81,6 +81,7 @@ const value_string expert_group_vals[] = {
 	{ PI_DEPRECATED,        "Deprecated" },
 	{ PI_RECEIVE,           "Receive" },
 	{ PI_INTERFACE,         "Interface" },
+	{ PI_DISSECTOR_BUG,     "Dissector bug" },
 	{ 0, NULL }
 };
 
@@ -382,6 +383,7 @@ expert_register_field_init(expert_field_info *expinfo, expert_module_t *module)
 		case PI_DEPRECATED:
 		case PI_RECEIVE:
 		case PI_INTERFACE:
+		case PI_DISSECTOR_BUG:
 			break;
 		default:
 			REPORT_DISSECTOR_BUG("Expert info for %s has invalid group=0x%08x\n", expinfo->name, expinfo->group);
