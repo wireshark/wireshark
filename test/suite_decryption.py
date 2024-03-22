@@ -542,7 +542,7 @@ class TestDecryptTLS:
             fr'13|/second|{second_response}',
         ] == stdout.splitlines()
 
-     def test_tls13_rfc8446_noearly(self, cmd_tshark, dirs, features, capture_file, test_env):
+    def test_tls13_rfc8446_noearly(self, cmd_tshark, dirs, features, capture_file, test_env):
         '''TLS 1.3 (with undecryptable early data).'''
         key_file = os.path.join(dirs.key_dir, 'tls13-rfc8446-noearly.keys')
         stdout = subprocess.check_output((cmd_tshark,
