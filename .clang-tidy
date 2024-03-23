@@ -6,6 +6,8 @@
 # Checking the entire build by passing `-DCMAKE_C_CLANG_TIDY=clang-tidy`
 # and `-DCMAKE_CXX_CLANG_TIDY=clang-tidy` to CMake
 
+# A full list of Clang-tidy checks can be found at
+# https://clang.llvm.org/extra/clang-tidy/checks/list.html
 ExtraArgs:
   - '-Wno-unknown-warning-option'
 
@@ -14,6 +16,9 @@ ExtraArgs:
 Checks:
   - '-*'
   - 'misc-no-recursion'
+
+# We can remove the configs under epan and plugins, and wiretap if we
+# ever uncomment this.
 
 #WarningsAsErrors: 'misc-no-recursion'
 
