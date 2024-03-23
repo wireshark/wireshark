@@ -4519,6 +4519,7 @@ dissect_Diagnosis(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep,
         guint16 *body_length, guint16 u16UserStructureIdentifier)
@@ -4580,6 +4581,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
 
 /* dissect the alarm notification block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 body_length)
@@ -4594,6 +4596,8 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+
+    increment_dissection_depth(pinfo);
 
     offset = dissect_Alarm_header(tvb, offset, pinfo, tree, item, drep);
 
@@ -4618,6 +4622,8 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
 
         offset = dissect_AlarmUserStructure(tvb, offset, pinfo, tree, item, drep, &body_length, u16UserStructureIdentifier);
     }
+
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
@@ -4788,6 +4794,7 @@ dissect_IandM4_block(tvbuff_t *tvb, int offset,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_IandM5_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -5299,6 +5306,7 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 
 /* dissect the AssetManagementInfo */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_AssetManagementInfo(tvbuff_t *tvb, int offset,
 packet_info *pinfo _U_, proto_tree *tree, guint8 *drep)
 {
@@ -5321,6 +5329,7 @@ packet_info *pinfo _U_, proto_tree *tree, guint8 *drep)
 
 /* dissect the AssetManagementData block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_AssetManagementData_block(tvbuff_t *tvb, int offset,
 packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep,
 guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
@@ -5330,7 +5339,9 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    increment_dissection_depth(pinfo);
     offset = dissect_AssetManagementInfo(tvb, offset, pinfo, tree, drep);
+    decrement_dissection_depth(pinfo);
     return offset;
 }
 
@@ -5490,6 +5501,7 @@ dissect_RecordInputDataObjectElement_block(tvbuff_t *tvb, int offset,
 
 /* dissect the RecordOutputDataObjectElement block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -6056,6 +6068,7 @@ dissect_SubmoduleListBlock(tvbuff_t *tvb, int offset,
 
 /* dissect the PDevData block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDevData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -6122,6 +6135,7 @@ dissect_CheckMAUTypeExtension_block(tvbuff_t *tvb, int offset,
 
 /* dissect the PDPortDataAdjust block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDPortData_Adjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16BodyLength)
@@ -6162,6 +6176,7 @@ dissect_PDPortData_Adjust_block(tvbuff_t *tvb, int offset,
 
 /* dissect the PDPortDataCheck blocks */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDPortData_Check_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16BodyLength)
@@ -6359,6 +6374,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 
 /* dissect the PDPortDataRealExtended blocks */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDPortDataRealExtended_block(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
@@ -6395,6 +6411,7 @@ dissect_PDPortDataRealExtended_block(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
@@ -6479,6 +6496,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
@@ -6556,6 +6574,7 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
 
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -7167,6 +7186,7 @@ dissect_CheckPortState_block(tvbuff_t *tvb, int offset,
 
 /* dissect the PDPortFODataReal block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16BodyLength)
@@ -7440,6 +7460,7 @@ dissect_AdjustDCPBoundary_block(tvbuff_t *tvb, int offset,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_MrpInstanceDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
@@ -7485,6 +7506,7 @@ dissect_MrpInstanceDataAdjust_block(tvbuff_t *tvb, int offset,
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_MrpInstanceDataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
@@ -7595,6 +7617,7 @@ dissect_PDInterfaceAdjust_block(tvbuff_t *tvb, int offset,
 
 /* TSNNetworkControlDataReal */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_TSNNetworkControlDataReal_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -7707,6 +7730,7 @@ dissect_TSNNetworkControlDataReal_block(tvbuff_t* tvb, int offset,
 
 /* TSNNetworkControlDataAdjust */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_TSNNetworkControlDataAdjust_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -7906,6 +7930,7 @@ dissect_TSNSyncTreeData_block(tvbuff_t* tvb, int offset,
 
 /* TSNDomainPortConfigBlock */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_TSNDomainPortConfig_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -8066,6 +8091,7 @@ dissect_TSNTimeData_block(tvbuff_t* tvb, int offset,
 
 /* TSNUploadNetworkAttributesBlock */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_TSNUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -8171,6 +8197,7 @@ dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
 
 /* TSNExpectedNetworkAttributesBlock */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_TSNExpectedNetworkAttributes_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -8805,6 +8832,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
 
 /* dissect the PDIRData block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDIRData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -9209,6 +9237,7 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
 
 /* dissect the DiagnosisData block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 body_length)
@@ -9257,6 +9286,7 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
                 proto_item_append_text(sub_item, " reserved");
     }
     offset = offset +2; /* Advance behind ChannelNumber */
+    increment_dissection_depth(pinfo);
     /* ChannelProperties */
     offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
     body_length-=8;
@@ -9281,6 +9311,7 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
         offset = dissect_AlarmUserStructure(tvb, offset, pinfo, tree, item, drep,
             &body_length, u16UserStructureIdentifier);
     }
+    decrement_dissection_depth(pinfo);
     return offset;
 }
 
@@ -9379,6 +9410,7 @@ dissect_IOCRProperties(tvbuff_t *tvb, int offset,
 
 /* dissect the ARData block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_ARData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BlockLength)
 {
@@ -9419,6 +9451,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     i32EndOffset = offset + u16BlockLength;
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_number_of_ars, &u16NumberOfARs);
+    increment_dissection_depth(pinfo);
     /* BlockversionLow:  0 */
     if (u8BlockVersionLow == 0) {
         while (u16NumberOfARs--) {
@@ -9667,6 +9700,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             proto_item_set_len(ar_item, offset - u32ARDataStart);
         }
     }
+    decrement_dissection_depth(pinfo);
     return offset;
 }
 
@@ -9849,6 +9883,7 @@ dissect_FSParameter_block(tvbuff_t *tvb, int offset,
 
 /* dissect the FSUDataAdjust block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16BodyLength)
@@ -9878,6 +9913,7 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 
 /* dissect the ARFSUDataAdjust block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16BodyLength)
@@ -11159,6 +11195,7 @@ dissect_RSInfoBlock_block(tvbuff_t *tvb, int offset,
 
 /* dissect the PDIRSubframeData block  0x022a */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_PDIRSubframeData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
@@ -12152,6 +12189,7 @@ dissect_CIMSNMPAdjust_block(tvbuff_t *tvb, int offset,
 
 /* dissect the MultipleBlockHeader block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16BodyLength)
@@ -12190,6 +12228,7 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
 
 /* dissect Combined Object Container Content block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_COContainerContent_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
@@ -12438,6 +12477,7 @@ dissect_RS_AckEvent_block(tvbuff_t *tvb, int offset,
 
 /* dissect one PN-IO block (depending on the block type) */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
@@ -12493,6 +12533,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(sub_item, " Block_Length: %d greater than remaining Bytes, trying with Blocklen = remaining (%d)", u16BodyLength, remainingBytes);
         u16BodyLength = remainingBytes;
     }
+    increment_dissection_depth(pinfo);
     switch (u16BlockType) {
     case(0x0001):
     case(0x0002):
@@ -12928,6 +12969,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     default:
         dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
     }
+    decrement_dissection_depth(pinfo);
     offset += u16BodyLength;
 
     proto_item_set_len(sub_item, offset - u32SubStart);
@@ -12938,6 +12980,7 @@ dissect_block(tvbuff_t *tvb, int offset,
 
 /* dissect any PN-IO block */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_a_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -12956,6 +12999,7 @@ dissect_a_block(tvbuff_t *tvb, int offset,
 
 /* dissect any number of PN-IO blocks */
 int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_blocks(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -13909,6 +13953,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 #define PN_IO_MAX_RECURSION_DEPTH 100
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_IODWriteReq(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep, pnio_ar_t **ar, guint recursion_count)
 {
@@ -13920,6 +13965,8 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
                               tvb, 0, 0);
         return tvb_captured_length(tvb);
     }
+
+    increment_dissection_depth(pinfo);
 
     /* IODWriteHeader */
     offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, ar);
@@ -13949,6 +13996,8 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
             break;
         }
     }
+
+    decrement_dissection_depth(pinfo);
 
     return offset;
 }
