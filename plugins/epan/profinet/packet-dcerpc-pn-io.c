@@ -8283,6 +8283,7 @@ dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
 
 /* TSNExpectedNetworkAttributesBlock */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_TSNExpectedNetworkAttributes_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
