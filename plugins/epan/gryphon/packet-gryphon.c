@@ -1116,6 +1116,7 @@ decode_event(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 decode_misc (tvbuff_t *tvb, int offset, packet_info* pinfo, proto_tree *pt)
 {
     tvbuff_t    *next_tvb;
@@ -2712,6 +2713,7 @@ resp_restore_session(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 cmd_addresp(tvbuff_t *tvb, int offset, packet_info* pinfo, proto_tree *pt)
 {
     proto_item  *item;
@@ -3697,6 +3699,7 @@ get_conversation_data(packet_info* pinfo)
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int dst, proto_tree *pt)
 {
     guint32         cmd;
@@ -3748,6 +3751,7 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
         ft = proto_tree_add_subtree_format(pt, tvb, offset, msglen, ett_gryphon_command_data, NULL,
             "Data: (%d byte%s)", msglen, plurality(msglen, "", "s"));
 
+        increment_dissection_depth(pinfo);
         switch (cmd)
         {
         case CMD_INIT:
@@ -3955,12 +3959,14 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
             offset += msglen;
             break;
         }
+        decrement_dissection_depth(pinfo);
     }
 
     return offset;
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tree *pt)
 {
     int             msglen;
@@ -4039,6 +4045,7 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
         ft = proto_tree_add_subtree_format(pt, tvb, offset, msglen, ett_gryphon_response_data, NULL,
             "Data: (%d byte%s)", msglen, plurality(msglen, "", "s"));
 
+        increment_dissection_depth(pinfo);
         switch (cmd)
         {
         case CMD_GET_CONFIG:
@@ -4188,6 +4195,7 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
             proto_tree_add_item(ft, hf_gryphon_data, tvb, offset, msglen, ENC_NA);
             offset += msglen;
         }
+        decrement_dissection_depth(pinfo);
     }
 
     return offset;
@@ -4199,6 +4207,7 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
 * So, this function will decode a packet and return the offset.
 */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_msgresp_add)
 {
     proto_tree      *gryphon_tree;
@@ -4270,6 +4279,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
 
     body_tree = proto_tree_add_subtree(gryphon_tree, tvb, offset, msglen, ett_gryphon_body, NULL, "Body");
 
+    increment_dissection_depth(pinfo);
     switch (frmtyp) {
     case GY_FT_CMD:
         offset = decode_command(tvb, pinfo, msglen, offset, dest, body_tree);
@@ -4296,6 +4306,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
         proto_tree_add_item(body_tree, hf_gryphon_data, tvb, offset, msglen, ENC_NA);
         break;
     }
+    decrement_dissection_depth(pinfo);
 
     /*debug*/
     /*i = msgend - offset;*/

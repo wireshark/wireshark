@@ -793,6 +793,7 @@ proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
     return item;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
     static int * const diag_mask[] = {&hf_opcua_diag_mask_symbolicflag,
@@ -827,6 +828,7 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_diag_mask, ett_opcua_diagnosticinfo_encodingmask, diag_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
+    increment_dissection_depth(pinfo);
     if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG)
     {
         parseInt32(subtree, tvb, pinfo, &iOffset, hf_opcua_diag_symbolicid);
@@ -855,6 +857,7 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     {
         parseDiagnosticInfo(subtree, tvb, pinfo, &iOffset, "Inner DiagnosticInfo");
     }
+    decrement_dissection_depth(pinfo);
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
@@ -875,6 +878,7 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
     proto_item_set_end(ti, tvb, *pOffset);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
     static int * const datavalue_mask[] = {&hf_opcua_datavalue_mask_valueflag,
@@ -895,6 +899,7 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_datavalue_mask, ett_opcua_datavalue_encodingmask, datavalue_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
+    increment_dissection_depth(pinfo);
     if (EncodingMask & DATAVALUE_ENCODINGBYTE_VALUE)
     {
         parseVariant(subtree, tvb, pinfo, &iOffset, "Value");
@@ -919,11 +924,13 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
     {
         parseUInt16(subtree, tvb, pinfo, &iOffset, hf_opcua_ServerPicoseconds);
     }
+    decrement_dissection_depth(pinfo);
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
     proto_item *ti;
@@ -951,6 +958,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
     if (EncodingMask & VARIANT_ARRAYMASK)
     {
         /* type is encoded in bits 0-5 */
+        increment_dissection_depth(pinfo);
         switch(EncodingMask & 0x3f)
         {
         case OpcUaType_Null: break;
@@ -980,6 +988,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
         case OpcUaType_DataValue: parseArrayComplex(subtree, tvb, pinfo, &iOffset, "DataValue", "DataValue", parseDataValue, ett_opcua_array_DataValue); break;
         case OpcUaType_Variant: parseArrayComplex(subtree, tvb, pinfo, &iOffset, "Variant", "Variant", parseVariant, ett_opcua_array_Variant); break;
         }
+        decrement_dissection_depth(pinfo);
 
         if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
         {
@@ -1009,6 +1018,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
     else
     {
         /* type is encoded in bits 0-5 */
+        increment_dissection_depth(pinfo);
         switch(EncodingMask & 0x3f)
         {
         case OpcUaType_Null: break;
@@ -1038,6 +1048,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
         case OpcUaType_DataValue: parseDataValue(subtree, tvb, pinfo, &iOffset, "Value"); break;
         case OpcUaType_Variant: parseVariant(subtree, tvb, pinfo, &iOffset, "Value"); break;
         }
+        decrement_dissection_depth(pinfo);
     }
 
     proto_item_set_end(ti, tvb, iOffset);
