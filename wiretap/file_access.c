@@ -2939,6 +2939,7 @@ cleanup_open_routines(void)
 static GArray *backwards_compatibility_lua_names;
 
 void
+// NOLINTNEXTLINE(misc-no-recursion)
 wtap_register_backwards_compatibility_lua_name(const char *name, int ft)
 {
 	struct backwards_compatibiliity_lua_name entry;

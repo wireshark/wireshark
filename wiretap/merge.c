@@ -1216,7 +1216,9 @@ tempfile_free(void *data) {
     g_free(filename);
 }
 
+#define MAX_MERGE_FILES 10000 // Arbitrary
 static merge_result
+// NOLINTNEXTLINE(misc-no-recursion)
 merge_files_common(const char* out_filename, /* filename in normal output mode,
                    optional tempdir in tempfile mode (NULL for OS default) */
                    char **out_filenamep, const char *pfx, /* tempfile mode  */
@@ -1240,6 +1242,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
     int                 dup_fd;
 
     ws_assert(in_file_count > 0);
+    ws_assert(in_file_count < MAX_MERGE_FILES);
     ws_assert(in_filenames != NULL);
     ws_assert(err != NULL);
     ws_assert(err_info != NULL);
@@ -1399,6 +1402,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
 
     if (temp_files != NULL) {
         if (status == MERGE_OK) {
+            // We recurse here, but we're limited by MAX_MERGE_FILES
             status = merge_files_common(out_filename, out_filenamep, pfx,
                         file_type, (const char**)temp_files->pdata,
                         temp_files->len, do_append, mode, snaplen, app_name,
