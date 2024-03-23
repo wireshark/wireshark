@@ -245,7 +245,8 @@ static const char* connection_type(char con_type[]) {
   return "Unknown";
 }
 
-static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]){
+// NOLINTNEXTLINE(misc-no-recursion)
+static gboolean check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, int offset, const char format[]){
 
   /*
   * Returns TRUE if tvbuff beginning at offset matches a certain format
@@ -282,11 +283,14 @@ static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]
       return FALSE;
     return TRUE;
   }
-  return check_slsk_format(tvb, offset, &format[1]);
+  increment_dissection_depth(pinfo);
+  gboolean valid = check_slsk_format(tvb, pinfo, offset, &format[1]);
+  decrement_dissection_depth(pinfo);
+  return valid;
 
 }
 
-static const char* get_message_type(tvbuff_t *tvb) {
+static const char* get_message_type(tvbuff_t *tvb, packet_info *pinfo) {
   /*
   * Checks if the Message Code is known.
   * If unknown checks if the Message Code is stored in a byte.
@@ -295,11 +299,11 @@ static const char* get_message_type(tvbuff_t *tvb) {
   int msg_code = tvb_get_letohl(tvb, 4);
   const gchar *message_type =  try_val_to_str(msg_code, slsk_tcp_msgs);
   if (message_type == NULL) {
-    if (check_slsk_format(tvb, 4, "bisis"))
+    if (check_slsk_format(tvb, pinfo, 4, "bisis"))
       message_type = "Distributed Search";
-    else if (check_slsk_format(tvb, 4, "bssi"))
+    else if (check_slsk_format(tvb, pinfo, 4, "bssi"))
       message_type = "Peer Init";
-    else if (check_slsk_format(tvb, 4, "bi"))
+    else if (check_slsk_format(tvb, pinfo, 4, "bi"))
       message_type = "Pierce Fw";
     else
       message_type = "Unknown";
@@ -342,7 +346,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   col_set_str(pinfo->cinfo, COL_INFO, "SoulSeek Message");
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", get_message_type(tvb));
+  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", get_message_type(tvb, pinfo));
 
 /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_slsk, tvb, 0, -1, ENC_NA);
@@ -357,7 +361,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (msg_code) {
 
       case  1:
-        if (check_slsk_format(tvb, offset, "issi")) {
+        if (check_slsk_format(tvb, pinfo, offset, "issi")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Login (Code: %02d)", msg_code);
@@ -369,7 +373,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ibs") || check_slsk_format(tvb, offset, "ibsi")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ibs") || check_slsk_format(tvb, pinfo, offset, "ibsi")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Login Reply (Code: %02d)", msg_code);
@@ -387,7 +391,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case  2:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Set Wait Port (Code: %02d)", msg_code);
@@ -398,7 +402,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case  3:
-        if (check_slsk_format(tvb, offset, "isii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Peer Address Reply (Code: %02d)", msg_code);
@@ -410,7 +414,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_port, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "is")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Peer Address (Code: %02d)", msg_code);
@@ -421,7 +425,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 4:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Shared File List (Code: %02d)", msg_code);
@@ -430,7 +434,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case  5:
-        if (check_slsk_format(tvb, offset, "isb")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isb")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "User Exists Reply (Code: %02d)", msg_code);
@@ -440,7 +444,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_user_exists, tvb, offset, 1, ENC_NA);
           offset += 1;
         }
-        else if (check_slsk_format(tvb, offset, "is")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "User Exists Request (Code: %02d)", msg_code);
@@ -448,7 +452,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "i*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "i*")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Shared File List (Code: %02d)", msg_code);
@@ -478,11 +482,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
               uncompr_tvb_offset = 0;
-              if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "i*")) {
+              if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "i*")) {
                 proto_tree_add_item_ret_int(slsk_compr_packet_tree, hf_slsk_num_directories, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
                 for (i = 0; i < j; i++) {
-                  if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "si*")) {
+                  if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "si*")) {
                     start_offset = uncompr_tvb_offset;
                     subtree = proto_tree_add_subtree_format(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_directory, &ti_subtree, "Directory #%d", i+1);
                     proto_tree_add_item_ret_length(subtree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -490,7 +494,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item_ret_int(subtree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
                     uncompr_tvb_offset += 4;
                     for (i2 = 0; i2 < j2; i2++) {
-                      if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
+                      if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "bsiisi*")) {
                         start_offset2 = uncompr_tvb_offset;
                         subtree2 = proto_tree_add_subtree_format(subtree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_file, &ti_subtree2, "File #%d", i2+1);
                         proto_tree_add_item(subtree2, hf_slsk_file_code, uncompr_tvb, uncompr_tvb_offset, 1, ENC_NA);
@@ -506,7 +510,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_item_ret_int(subtree2, hf_slsk_file_num_attributes, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j3);
                         uncompr_tvb_offset += 4;
                         for (i3 = 0; i3 < j3; i3++) {
-                          if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
+                          if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "ii*")) {
                             subtree3 = proto_tree_add_subtree_format(subtree2, uncompr_tvb, uncompr_tvb_offset, 8, ett_slsk_file_attribute, NULL, "Attribute #%d", i3+1);
                             proto_tree_add_item(subtree3, hf_slsk_file_attribute_type, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                             uncompr_tvb_offset += 4;
@@ -539,7 +543,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case  7:
-        if (check_slsk_format(tvb, offset, "isi")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isi")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get User Status Reply (Code: %02d)", msg_code);
@@ -549,7 +553,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_status_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "is")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get User Status (Code: %02d)", msg_code);
@@ -560,7 +564,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 9:
-        if (check_slsk_format(tvb, offset, "i*")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i*")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "File Search Result (Code: %02d)", msg_code);
@@ -592,7 +596,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
               uncompr_tvb_offset = 0;
-              if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "sii*")) {
+              if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "sii*")) {
                 proto_tree_add_item_ret_length(slsk_compr_packet_tree, hf_slsk_username, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_NA, &str_len);
                 uncompr_tvb_offset += str_len;
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
@@ -600,7 +604,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item_ret_int(slsk_compr_packet_tree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
                 for (i = 0; i < j; i++) {
-                  if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
+                  if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "bsiisi*")) {
                     start_offset2 = uncompr_tvb_offset;
                     subtree2 = proto_tree_add_subtree_format(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_file, &ti_subtree2, "File #%d", i+1);
                     proto_tree_add_item(subtree2, hf_slsk_file_code, uncompr_tvb, uncompr_tvb_offset, 1, ENC_NA);
@@ -616,7 +620,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item_ret_int(subtree2, hf_slsk_file_num_attributes, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
                     uncompr_tvb_offset += 4;
                     for (i2 = 0; i2 < j2; i2++) {
-                      if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
+                      if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "ii*")) {
                         subtree3 = proto_tree_add_subtree_format(subtree2, uncompr_tvb, uncompr_tvb_offset, 8, ett_slsk_file_attribute, NULL, "Attribute #%d", i2+1);
                         proto_tree_add_item(subtree3, hf_slsk_file_attribute_type, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                         uncompr_tvb_offset += 4;
@@ -650,7 +654,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 13:
-        if (check_slsk_format(tvb, offset, "isss")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isss")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Say ChatRoom (Code: %02d)", msg_code);
@@ -662,7 +666,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_chat_message, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "iss")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "iss")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Say ChatRoom (Code: %02d)", msg_code);
@@ -675,7 +679,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 14:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Join/Add Room (Code: %02d)", msg_code);
@@ -683,7 +687,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_room, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "isi*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "isi*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Join Room User List (Code: %02d)", msg_code);
@@ -695,20 +699,20 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
             } else {
               break; /* invalid format */
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "i*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "i*")) {
                 proto_tree_add_item(slsk_tree, hf_slsk_status_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
               } else {
@@ -716,13 +720,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               }
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "iiiii*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "iiiii*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 20, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_average_speed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
@@ -739,13 +743,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               }
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_num_slotsfull_records, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "i*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "i*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_slotsfull, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
@@ -758,7 +762,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 15:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server & Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Leave Room (Code: %02d)", msg_code);
@@ -766,7 +770,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_room, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "i")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "User Info Request (Code: %02d)", msg_code);
@@ -775,7 +779,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 16:
-        if (check_slsk_format(tvb, offset, "issiiiiiii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "issiiiiiii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "User Joined Room (Code: %02d)", msg_code);
@@ -799,7 +803,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_slotsfull, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "isbiib") || check_slsk_format(tvb, offset, "isbsiib")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "isbiib") || check_slsk_format(tvb, pinfo, offset, "isbsiib")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "User Info Reply (Code: %02d)", msg_code);
@@ -822,7 +826,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 17:
-        if (check_slsk_format(tvb, offset, "iss")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iss")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "User Left Room (Code: %02d)", msg_code);
@@ -835,7 +839,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 18:
-        if (check_slsk_format(tvb, offset, "iiss")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iiss")) {
           /* Client-to-Server */
           guint32 len;
 
@@ -853,7 +857,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             format_text(pinfo->pool, str, len));
           offset += 4+len;
         }
-        else if (check_slsk_format(tvb, offset, "issiii")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "issiii")) {
           /* Server-to-Client */
           guint32 len;
 
@@ -878,7 +882,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 22:
-        if (check_slsk_format(tvb, offset, "iss")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iss")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Message User Send (Code: %02d)", msg_code);
@@ -888,7 +892,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_chat_message, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "iiiss")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "iiiss")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Message User Receive (Code: %02d)", msg_code);
@@ -905,7 +909,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 23:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Message User Receive Ack (Code: %02d)", msg_code);
@@ -916,7 +920,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 26:
-        if (check_slsk_format(tvb, offset, "iis")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iis")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "File Search (Code: %02d)", msg_code);
@@ -929,7 +933,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 28:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Set Status (Code: %02d)", msg_code);
@@ -940,7 +944,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 32:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Ping (Code: %02d)", msg_code);
@@ -949,7 +953,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 34:
-        if (check_slsk_format(tvb, offset, "isi")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isi")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Update Upload Speed (Code: %02d)", msg_code);
@@ -962,7 +966,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 35:
-        if (check_slsk_format(tvb, offset, "iii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iii")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Shared Files & Folders (Code: %02d)", msg_code);
@@ -975,7 +979,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 36:
-        if (check_slsk_format(tvb, offset, "isiiiii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isiiiii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get User Stats Reply (Code: %02d)", msg_code);
@@ -993,7 +997,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_directories, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "is")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Client */
           /* Client-to-Server: send after login successful */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
@@ -1002,7 +1006,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "iis")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "iis")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Folder Contents Request (Code: %02d)", msg_code);
@@ -1015,7 +1019,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 37:
-        if (check_slsk_format(tvb, offset, "i*")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i*")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Folder Contents Response (Code: %02d)", msg_code);
@@ -1045,7 +1049,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
 
               uncompr_tvb_offset = 0;
-              if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "isi*")) {
+              if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "isi*")) {
                 guint32 len;
 
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
@@ -1056,7 +1060,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item_ret_int(slsk_compr_packet_tree, hf_slsk_num_directories, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
                 for (i = 0; i < j; i++) {
-                  if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "si*")) {
+                  if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "si*")) {
                     start_offset = uncompr_tvb_offset;
                     subtree = proto_tree_add_subtree_format(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_directory, &ti_subtree, "Directory #%d", i+1);
                     proto_tree_add_item_ret_length(subtree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1064,7 +1068,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item_ret_int(subtree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
                     uncompr_tvb_offset += 4;
                     for (i2 = 0; i2 < j2; i2++) {
-                      if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
+                      if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "bsiisi*")) {
                         start_offset2 = uncompr_tvb_offset;
                         subtree2 = proto_tree_add_subtree_format(subtree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_file, &ti_subtree2, "File #%d", i2+1);
                         proto_tree_add_item(subtree2, hf_slsk_file_code, uncompr_tvb, uncompr_tvb_offset, 1, ENC_NA);
@@ -1080,7 +1084,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_item_ret_int(subtree2, hf_slsk_file_num_attributes, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j3);
                         uncompr_tvb_offset += 4;
                         for (i3 = 0; i3 < j3; i3++) {
-                          if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
+                          if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "ii*")) {
                             subtree3 = proto_tree_add_subtree_format(subtree2, uncompr_tvb, uncompr_tvb_offset, 8, ett_slsk_file_attribute, NULL, "Attribute #%d", i3+1);
                             proto_tree_add_item(subtree3, hf_slsk_file_attribute_type, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                             uncompr_tvb_offset += 4;
@@ -1113,7 +1117,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 40:
-        if (check_slsk_format(tvb, offset, "isi")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isi")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Queued Downloads (Code: %02d)", msg_code);
@@ -1123,7 +1127,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_slotsfull, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "iiis") || check_slsk_format(tvb, offset, "iiisii")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "iiis") || check_slsk_format(tvb, pinfo, offset, "iiisii")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Transfer Request (Code: %02d)", msg_code);
@@ -1145,7 +1149,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 41:
-        if (check_slsk_format(tvb, offset, "iibs") || check_slsk_format(tvb, offset, "iibii") || check_slsk_format(tvb, offset, "iib")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iibs") || check_slsk_format(tvb, pinfo, offset, "iibii") || check_slsk_format(tvb, pinfo, offset, "iib")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Transfer Response (Code: %02d)", msg_code);
@@ -1170,7 +1174,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 42:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Placehold Upload (Code: %02d)", msg_code);
@@ -1181,7 +1185,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 43:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Queue Upload (Code: %02d)", msg_code);
@@ -1192,7 +1196,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 44:
-        if (check_slsk_format(tvb, offset, "isi")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isi")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Place In Queue (Code: %02d)", msg_code);
@@ -1205,7 +1209,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 46:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Upload Failed (Code: %02d)", msg_code);
@@ -1216,7 +1220,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 50:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Make Own Recommendation (Code: %02d)", msg_code);
@@ -1224,7 +1228,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "isi")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "isi")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Remove Own Recommendation (Code: %02d)", msg_code);
@@ -1234,7 +1238,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_ranking, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "iss")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "iss")) {
           /* Client-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Queue Failed (Code: %02d)", msg_code);
@@ -1247,7 +1251,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 51:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server: "Add Things I like" */
           /* Client-to-Client:  "Place In Queue Request" */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
@@ -1259,7 +1263,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 52:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Remove Things I like (Code: %02d)", msg_code);
@@ -1270,13 +1274,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 54:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Recommendations (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ii*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Recommendations Reply (Code: %02d)", msg_code);
@@ -1286,7 +1290,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "si*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1302,7 +1306,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 55:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Type 55 (Code: %02d)", msg_code);
@@ -1311,13 +1315,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 56:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Global Rankings (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ii*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Global Rankings Reply (Code: %02d)", msg_code);
@@ -1327,7 +1331,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "si*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1343,7 +1347,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 57:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get User Recommendations (Code: %02d)", msg_code);
@@ -1351,7 +1355,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "isi*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "isi*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get User Recommendations Reply (Code: %02d)", msg_code);
@@ -1363,7 +1367,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1377,7 +1381,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 58:
-        if (check_slsk_format(tvb, offset, "isi*")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isi*")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Admin Command (Code: %02d)", msg_code);
@@ -1389,7 +1393,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_string, &ti_subtree, "String #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_string, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1403,7 +1407,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 60:
-        if (check_slsk_format(tvb, offset, "isii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isii")) {
           /* Client-to-Server & Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Place In Line Response (Code: %02d)", msg_code);
@@ -1418,7 +1422,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 62:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Room Added (Code: %02d)", msg_code);
@@ -1429,7 +1433,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 63:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Room Removed (Code: %02d)", msg_code);
@@ -1440,13 +1444,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 64:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Room List Request (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ii*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Room List (Code: %02d)", msg_code);
@@ -1456,7 +1460,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_room, &ti_subtree, "Room #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_room, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1466,11 +1470,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               break; /* invalid format */
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "i*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "i*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_room, &ti_subtree, "Room #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
@@ -1483,7 +1487,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 65:
-        if (check_slsk_format(tvb, offset, "isissiii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isissiii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Exact File Search (Code: %02d)", msg_code);
@@ -1499,7 +1503,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(slsk_tree, hf_slsk_bytes, tvb, offset, 16, ENC_NA);
           offset += 12;
         }
-        else if (check_slsk_format(tvb, offset, "iissiiib")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "iissiiib")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Exact File Search (Code: %02d)", msg_code);
@@ -1516,7 +1520,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 66:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Admin Message (Code: %02d)", msg_code);
@@ -1527,13 +1531,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 67:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Global User List Request (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "isi*")) {     /* same as case 14 */
+        else if (check_slsk_format(tvb, pinfo, offset, "isi*")) {     /* same as case 14 */
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Global User List (Code: %02d)", msg_code);
@@ -1545,18 +1549,18 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
             } else {
               break; /* invalid format */
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "i*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "i*")) {
                 proto_tree_add_item(slsk_tree, hf_slsk_status_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
               } else {
@@ -1564,13 +1568,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               }
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "iiiii*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "iiiii*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 20, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_average_speed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
@@ -1587,13 +1591,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               }
             }
           }
-          if (check_slsk_format(tvb, offset, "i*")) {
+          if (check_slsk_format(tvb, pinfo, offset, "i*")) {
             proto_tree_add_item_ret_int(slsk_tree, hf_slsk_num_slotsfull_records, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
             for (i = 0; i < j; i++) {
-              if (check_slsk_format(tvb, offset, "i*")) {
+              if (check_slsk_format(tvb, pinfo, offset, "i*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_slotsfull, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
@@ -1606,7 +1610,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 68:
-        if (check_slsk_format(tvb, offset, "isiiiis")) {
+        if (check_slsk_format(tvb, pinfo, offset, "isiiiis")) {
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Tunneled Message (Code: %02d)", msg_code);
           offset += 4;
@@ -1626,13 +1630,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 69:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Privileged User List Request (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ii*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Privileged User List (Code: %02d)", msg_code);
@@ -1642,7 +1646,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
             } else {
@@ -1653,7 +1657,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 71:
-        if (check_slsk_format(tvb, offset, "ib")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ib")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Parent List (Code: %02d)", msg_code);
@@ -1664,7 +1668,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 73:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Type 73 (Code: %02d)", msg_code);
@@ -1675,7 +1679,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 83:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Parent Min Speed (Code: %02d)", msg_code);
@@ -1686,7 +1690,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 84:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Parent Speed Connection Ratio (Code: %02d)", msg_code);
@@ -1697,7 +1701,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 86:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Parent Inactivity Before Disconnect (Code: %02d)", msg_code);
@@ -1708,7 +1712,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 87:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Server Inactivity Before Disconnect (Code: %02d)", msg_code);
@@ -1719,7 +1723,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 88:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Nodes In Cache Before Disconnect (Code: %02d)", msg_code);
@@ -1730,7 +1734,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 90:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Seconds Before Ping Children (Code: %02d)", msg_code);
@@ -1741,7 +1745,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 91:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Add To Privileged (Code: %02d)", msg_code);
@@ -1752,13 +1756,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 92:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Check Privileges (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ii")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Check Privileges Reply (Code: %02d)", msg_code);
@@ -1769,7 +1773,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 93:
-        if (check_slsk_format(tvb, offset, "ibisis")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ibisis")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Embedded Message (Code: %02d)", msg_code);
@@ -1792,7 +1796,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 100:
-        if (check_slsk_format(tvb, offset, "ib")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ib")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Become Parent (Code: %02d)", msg_code);
@@ -1803,7 +1807,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 102:
-        if (check_slsk_format(tvb, offset, "ii*")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Random Parent Addresses (Code: %02d)", msg_code);
@@ -1813,7 +1817,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "sii*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "sii*")) {
 
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
@@ -1829,7 +1833,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 103:
-        if (check_slsk_format(tvb, offset, "iis")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iis")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Send Wishlist Entry (Code: %02d)", msg_code);
@@ -1842,7 +1846,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 104:
-        if (check_slsk_format(tvb, offset, "ii")) {
+        if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Type 104 (Code: %02d)", msg_code);
@@ -1853,13 +1857,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 110:
-        if (check_slsk_format(tvb, offset, "i")) {
+        if (check_slsk_format(tvb, pinfo, offset, "i")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Similar Users (Code: %02d)", msg_code);
           offset += 4;
         }
-        else if (check_slsk_format(tvb, offset, "ii*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Similar Users Reply (Code: %02d)", msg_code);
@@ -1869,7 +1873,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "si*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_user, &ti_subtree, "User #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1885,7 +1889,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 111:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Recommendations for Item (Code: %02d)", msg_code);
@@ -1893,7 +1897,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "isi*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "isi*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Recommendations for Item Reply (Code: %02d)", msg_code);
@@ -1905,7 +1909,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "si*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1921,7 +1925,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 112:
-        if (check_slsk_format(tvb, offset, "is")) {
+        if (check_slsk_format(tvb, pinfo, offset, "is")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Similar Users for Item (Code: %02d)", msg_code);
@@ -1929,7 +1933,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "isi*")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "isi*")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Similar Users for Item Reply (Code: %02d)", msg_code);
@@ -1941,7 +1945,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
           for (i = 0; i < j; i++) {
-            if (check_slsk_format(tvb, offset, "s*")) {
+            if (check_slsk_format(tvb, pinfo, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
             } else {
@@ -1952,7 +1956,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       case 1001:
-        if (check_slsk_format(tvb, offset, "iis")) {
+        if (check_slsk_format(tvb, pinfo, offset, "iis")) {
           /* Client-to-Server */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Can't Connect To Peer (Code: %02d)", msg_code);
@@ -1962,7 +1966,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
         }
-        else if (check_slsk_format(tvb, offset, "ii")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "ii")) {
           /* Server-to-Client */
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Can't Connect To Peer (Code: %02d)", msg_code);
@@ -1973,7 +1977,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
       default:
-        if (check_slsk_format(tvb, offset, "bisis")) {
+        if (check_slsk_format(tvb, pinfo, offset, "bisis")) {
           if ( tvb_get_guint8(tvb, offset) == 3 ){
             /* Client-to-Client */
             proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 1, msg_code,
@@ -1989,7 +1993,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += str_len;
           }
         }
-        else if (check_slsk_format(tvb, offset, "bssi")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "bssi")) {
           if ( tvb_get_guint8(tvb, offset) == 1 ){
             /* Client-to-Client */
             guint32 len;
@@ -2009,7 +2013,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 4;
           }
         }
-        else if (check_slsk_format(tvb, offset, "bi")) {
+        else if (check_slsk_format(tvb, pinfo, offset, "bi")) {
           if ( tvb_get_guint8(tvb, offset) == 0 ){
             /* Client-to-Client */
             proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 1, msg_code,

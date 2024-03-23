@@ -484,6 +484,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, socks_hash_entry_t *hash_info, sock_state_t* state_info) {
 
@@ -535,7 +536,9 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
             (tvb_get_guint8(tvb, offset + 2) == 0) &&
             (tvb_reported_length_remaining(tvb, offset + 2 + num_auth_methods) > 0)) {
                 new_state_info.client = clientV5Command;
+                increment_dissection_depth(pinfo);
                 client_display_socks_v5(tvb, offset, pinfo, tree, hash_info, &new_state_info);
+                decrement_dissection_depth(pinfo);
         }
     }
     else if (state_info->client == clientV5Command) {
@@ -763,6 +766,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 client_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
     int offset, packet_info *pinfo, gboolean start_of_frame) {
 
@@ -788,7 +792,9 @@ client_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
             /* No authentication needed */
             hash_info->clientState = clientV5Command;
             if (tvb_reported_length_remaining(tvb, offset + 2 + num_auth_methods) > 0) {
+                increment_dissection_depth(pinfo);
                 client_state_machine_v5(hash_info, tvb, offset + 2 + num_auth_methods, pinfo, FALSE);
+                decrement_dissection_depth(pinfo);
             }
         } else {
             hash_info->clientState = clientWaitForAuthReply;
