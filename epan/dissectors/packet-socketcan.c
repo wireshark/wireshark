@@ -599,6 +599,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
     /* determine CAN packet type */
     if (can_packet_type == PACKET_TYPE_UNKNOWN) {
+        guint8 canfd_flags;
         guint8 canxl_flags;
 
         /*
@@ -607,13 +608,20 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
          * or CAN FD frame; if so, then it's a CAN XL frame (and that
          * field is the flags field of that frame).
          */
+        canfd_flags = tvb_get_guint8(tvb, CANFD_FLAG_OFFSET);
         canxl_flags = tvb_get_guint8(tvb, CANXL_FLAGS_OFFSET);
-        if ((tvb_reported_length(tvb) > 12) && (canxl_flags & CANXL_XLF)) {
-            can_packet_type = PACKET_TYPE_CAN_XL;
+
+        if (canxl_flags & CANXL_XLF) {
+            /* CAN XL: check for min/max data length */
+            if ((tvb_reported_length(tvb) >= 13) && (tvb_reported_length(tvb) <= 2060))
+                can_packet_type = PACKET_TYPE_CAN_XL;
         } else {
-            if (tvb_reported_length(tvb) == 72)
-                can_packet_type = PACKET_TYPE_CAN_FD;
-            else if  (tvb_reported_length(tvb) == 16)
+            /* CAN CC/FD */
+            if ((tvb_reported_length(tvb) == 72) || (canfd_flags & CANFD_FDF)) {
+                /* CAN FD: check for min/max data length */
+                if ((tvb_reported_length(tvb) >= 8) && (tvb_reported_length(tvb) <= 72))
+                    can_packet_type = PACKET_TYPE_CAN_FD;
+            } else if ((tvb_reported_length(tvb) >= 8) && (tvb_reported_length(tvb) <= 16))
                 can_packet_type = PACKET_TYPE_CAN;
         }
     }
