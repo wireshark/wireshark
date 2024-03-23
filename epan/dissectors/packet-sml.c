@@ -1224,6 +1224,7 @@ static void TupleEntryTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *procPa
 	proto_item_set_end(TupleEntry, tvb, *offset);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tree, guint *offset, guint *data, guint *length){
 	proto_item *parameterName;
 	proto_item *procParValue;
@@ -1388,7 +1389,9 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 			tree_Entry_list = proto_tree_add_subtree(child_list, tvb, *offset, -1, ett_sml_tree_Entry, &tree_Entry, "tree_Entry");
 			*offset+=1;
 
+			increment_dissection_depth(pinfo);
 			child_tree(tvb, pinfo,tree_Entry_list, offset, data, length);
+			decrement_dissection_depth(pinfo);
 
 			proto_item_set_end(tree_Entry, tvb, *offset);
 			proto_item_set_end(child, tvb, *offset);
@@ -1412,7 +1415,9 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 				}
 				*offset+=1;
 
+				increment_dissection_depth(pinfo);
 				child_tree(tvb, pinfo, tree_Entry_list, offset, data, length);
+				decrement_dissection_depth(pinfo);
 				proto_item_set_end(tree_Entry, tvb, *offset);
 			}
 			proto_item_set_end(child, tvb, *offset);
