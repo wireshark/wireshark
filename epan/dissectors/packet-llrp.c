@@ -1519,6 +1519,7 @@ static guint dissect_llrp_item_array(tvbuff_t * const tvb, packet_info *pinfo,
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *param_tree,
         guint suboffset, const guint param_end)
 {
@@ -1806,6 +1807,7 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 }
 
 static guint
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset, const guint end, const guint depth)
 {
@@ -1857,6 +1859,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 2;
 
             suboffset = offset;
+            increment_dissection_depth(pinfo);
             switch(type) {
             case LLRP_TLV_RO_BOUND_SPEC:
             case LLRP_TLV_UHF_CAPABILITIES:
@@ -2503,6 +2506,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 break;
             }
+            decrement_dissection_depth(pinfo);
             /* Have we decoded exactly the number of bytes declared in the parameter? */
             if(suboffset != param_end) {
                 /* Report problem */
@@ -2566,7 +2570,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      * will already show up as 'unknown'. */
                     real_len = 0;
                     break;
-            };
+            }
 
             ti = proto_tree_add_none_format(tree, hf_llrp_param, tvb,
                     offset, real_len + 1, "TV Parameter : %s",
@@ -3996,8 +4000,7 @@ proto_register_llrp(void)
     expert_module_t* expert_llrp;
 
     /* Register the protocol name and description */
-    proto_llrp = proto_register_protocol("Low Level Reader Protocol",
-            "LLRP", "llrp");
+    proto_llrp = proto_register_protocol("Low Level Reader Protocol", "LLRP", "llrp");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_llrp, hf, array_length(hf));

@@ -725,7 +725,8 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
 
 /* Dissect OSC bundle */
 static int
-dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
 {
     proto_tree  *bundle_tree;
     gint         end = offset + len;
@@ -768,10 +769,11 @@ dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint off
             continue;
 
         /* peek first bundle element char */
+        increment_dissection_depth(pinfo);
         switch(tvb_get_guint8(tvb, offset))
         {
             case '#': /* this is a bundle */
-                if(dissect_osc_bundle(tvb, ti, bundle_tree, offset, size))
+                if(dissect_osc_bundle(tvb, pinfo, ti, bundle_tree, offset, size))
                     return -1;
                 else
                     break;
@@ -783,6 +785,7 @@ dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint off
             default:
                 return -1; /* neither message nor bundle */
         }
+        decrement_dissection_depth(pinfo);
 
         /* check for integer overflow */
         if(size > G_MAXINT - offset)
@@ -817,7 +820,7 @@ dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         switch(tvb_get_guint8(tvb, offset))
         {
             case '#': /* this is a bundle */
-                if(dissect_osc_bundle(tvb, ti, osc_tree, offset, len))
+                if(dissect_osc_bundle(tvb, pinfo, ti, osc_tree, offset, len))
                     return;
                 else
                     break;

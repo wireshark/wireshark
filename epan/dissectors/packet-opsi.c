@@ -484,17 +484,23 @@ get_opsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 }
 
 static int
-get_opsi_attribute_index(int min, int max, int attribute_type)
+// NOLINTNEXTLINE(misc-no-recursion)
+get_opsi_attribute_index(packet_info *pinfo, int min, int max, int attribute_type)
 {
 	int middle, at;
 
 	middle = (min+max)/2;
 	at = opsi_attributes[middle].attribute_type;
 	if (at == attribute_type) return middle;
+	int attr_idx;
+	increment_dissection_depth(pinfo);
 	if (attribute_type > at) {
-		return (middle == max) ? -1 : get_opsi_attribute_index(middle+1, max, attribute_type);
+		attr_idx = (middle == max) ? -1 : get_opsi_attribute_index(pinfo, middle+1, max, attribute_type);
+	} else {
+		attr_idx = (middle == min) ? -1 : get_opsi_attribute_index(pinfo, min, middle-1, attribute_type);
 	}
-	return (middle == min) ? -1 : get_opsi_attribute_index(min, middle-1, attribute_type);
+	decrement_dissection_depth(pinfo);
+	return attr_idx;
 }
 
 
@@ -512,7 +518,7 @@ dissect_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *opsi_tree, int
 		attribute_length 	= tvb_get_ntohs(tvb, offset+2);
 		if (attribute_length > length) break;
 		/* We perform a standard log(n) lookup */
-		i = get_opsi_attribute_index(0, OPSI_ATTRIBUTES_COUNT-1, attribute_type);
+		i = get_opsi_attribute_index(pinfo, 0, OPSI_ATTRIBUTES_COUNT-1, attribute_type);
 		if (i == -1) {
 			proto_tree_add_expert_format(opsi_tree, pinfo, &ei_opsi_unknown_attribute, tvb, offset, attribute_length,
 										"Unknown attribute (%d)", attribute_type);
@@ -845,8 +851,7 @@ proto_register_opsi(void)
 	expert_module_t* expert_opsi;
 
 /* Register the protocol name and description */
-	proto_opsi = proto_register_protocol("Open Policy Service Interface",
-	    "OPSI", "opsi");
+	proto_opsi = proto_register_protocol("Open Policy Service Interface", "OPSI", "opsi");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_opsi, hf, array_length(hf));

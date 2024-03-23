@@ -149,6 +149,8 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset
         }
     }
 }
+
+// NOLINTNEXTLINE(misc-no-recursion)
 int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tree,
     guint offset, guint bLittleEndian, gboolean bParse)
 {
@@ -169,6 +171,7 @@ int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tre
     return offset;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
     guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse)
 {
@@ -252,6 +255,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
                        uTyp, val_to_str_ext_const(uTyp, GET_VALS_EXTP(PrmTyp2), "      Unkn") + 6,
                        uPrm, uPrm);
 
+        increment_dissection_depth(pinfo);
         switch (uTyp)
         {
             case MQ_MQCFT_NONE:
@@ -571,6 +575,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
             }
             break;
         }
+        decrement_dissection_depth(pinfo);
         offset = tOfs + uLen;
     }
     if (u != uCount)
