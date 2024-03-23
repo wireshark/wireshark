@@ -537,7 +537,7 @@ class TestDecryptTLS:
             r'5|/first|',
             fr'6|/first|{first_response}',
             r'8|/early|',
-            fr'10||{early_response}',
+            fr'10|/early|{early_response}',
             r'12|/second|',
             fr'13|/second|{second_response}',
         ] == stdout.splitlines()
