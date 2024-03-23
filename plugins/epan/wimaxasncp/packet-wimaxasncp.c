@@ -1789,6 +1789,7 @@ static void wimaxasncp_dissect_tlv_value(
 
 /* ========================================================================= */
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static guint dissect_wimaxasncp_tlvs(
     tvbuff_t    *tvb,
     packet_info *pinfo,
@@ -1897,8 +1898,9 @@ static guint dissect_wimaxasncp_tlvs(
                     MIN(length, tvb_captured_length_remaining(tvb, offset)),
                     length);
 
-                /* N.B.  This is a recursive call... */
+                increment_dissection_depth(pinfo);
                 dissect_wimaxasncp_tlvs(tlv_tvb, pinfo, tlv_tree);
+                decrement_dissection_depth(pinfo);
             }
             else
             {

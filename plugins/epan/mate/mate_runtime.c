@@ -645,6 +645,7 @@ static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 }
 
 static proto_node *
+// NOLINTNEXTLINE(misc-no-recursion)
 proto_tree_find_node_from_finfo(proto_tree *tree, field_info *finfo)
 {
         proto_node *pnode = tree;
@@ -659,6 +660,7 @@ proto_tree_find_node_from_finfo(proto_tree *tree, field_info *finfo)
         while (child != NULL) {
                 current = child;
                 child   = current->next;
+                // We recurse here, but we're limited by tree depth checks in epan
                 if ((pnode = proto_tree_find_node_from_finfo((proto_tree *)current, finfo))) {
                         return pnode;
 		}
