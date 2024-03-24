@@ -2865,7 +2865,7 @@ s8-client-port	3153/tcp/udp	# S8Cargo Client Port
 ccmrmi		3154/tcp/udp	# ON RMI Registry
 jpegmpeg	3155/tcp/udp	# JpegMpeg Port
 indura		3156/tcp/udp	# Indura Collector
-e3consultants	3157/tcp/udp	# CCC Listener Port
+lsa-comm	3157/tcp/udp	# LSA Communicator
 stvp		3158/tcp/udp	# SmashTV Protocol
 navegaweb-port	3159/tcp/udp	# NavegaWeb Tarification
 tip-app-server	3160/tcp/udp	# TIP Application Server
