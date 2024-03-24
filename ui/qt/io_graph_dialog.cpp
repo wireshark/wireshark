@@ -2029,7 +2029,7 @@ double IOGraph::startOffset()
 int IOGraph::packetFromTime(double ts)
 {
     int idx = ts * SCALE_F / interval_;
-    if (idx >= 0 && idx < (int) cur_idx_) {
+    if (idx >= 0 && idx <= cur_idx_) {
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_MAX:
         case IOG_ITEM_UNIT_CALC_MIN:
