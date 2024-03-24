@@ -8587,11 +8587,16 @@ dissect_gtpv2_ie_up_security_policy(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 /* 219 Alternative IMSI / 8.150 */
 static void
-dissect_gtpv2_ie_alternative_imsi(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_alternative_imsi(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, guint16 length, guint8 message_type, guint8 instance, session_args_t* args)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    /*
+     * TS 29.274 V18.4.0 says:
+     * Alternative IMSI is in the form of an IMSI as defined in 3GPP TS 23.003.
+     */
+    dissect_gtpv2_imsi(tvb, pinfo, tree, item, length, message_type, instance, args);
 }
 
+/* 220 NF Instance ID / 8.151 */
 static void
 dissect_gtpv2_ie_nf_instance_id(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 _U_ length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
@@ -8606,6 +8611,7 @@ dissect_gtpv2_ie_nf_instance_id(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_gtpv2_nf_instance_id_nf_instance_id, tvb, 0, 36, ENC_BIG_ENDIAN);
 }
 
+/* 221 Timer in Seconds / 8.152 */
 static void
 dissect_gtpv2_timer_in_seconds(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 _U_ length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
@@ -8791,10 +8797,9 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_PSCELL_ID, dissect_gtpv2_ie_pscell_id },                       /* 217 PSCell Id Fixed Length / 8.148 */
     {GTPV2_IE_UP_SECURITY_POLICY, dissect_gtpv2_ie_up_security_policy },     /* 218 UP Security Policy Extendable / 8.149 */
     {GTPV2_IE_ALT_IMSI, dissect_gtpv2_ie_alternative_imsi },                 /* 219 Alternative IMSI Variable Length / 8.150 */
-    {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext },
     {GTPV2_IE_NF_INSTANCE_ID, dissect_gtpv2_ie_nf_instance_id },              /* 220 NF Instance ID*/
     {GTPV2_IE_TIMER_IN_SECONDS, dissect_gtpv2_timer_in_seconds },             /* 221 Timer in Seconds*/
-
+    {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext },
     {0, dissect_gtpv2_unknown}
 };
 
