@@ -3333,21 +3333,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialog location</source>
-        <oldsource>&quot;File&quot; dialogs</oldsource>
-        <translation type="unfinished">”Arkiv”-dialoger</translation>
-    </message>
-    <message>
-        <source>capture files</source>
-        <translation type="vanished">fångstfiler</translation>
-    </message>
-    <message>
         <source>Temp</source>
         <translation>Temp</translation>
-    </message>
-    <message>
-        <source>untitled capture files</source>
-        <translation type="vanished">namnlösa fångstfiler</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3356,14 +3343,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Global configuration</source>
         <translation>Global konfiguration</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <translation type="vanished">dfilter, inställningar, ether:ar, …</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, manuf, …</source>
-        <translation type="vanished">dfilter, inställningar, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3378,16 +3357,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Program</translation>
     </message>
     <message>
-        <source>program files</source>
-        <translation type="vanished">programfiler</translation>
-    </message>
-    <message>
         <source>Personal Plugins</source>
         <translation>Personliga insticksmoduler</translation>
-    </message>
-    <message>
-        <source>binary plugins</source>
-        <translation type="vanished">binära insticksmoduler</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3404,6 +3375,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Lua scripts</source>
         <translation>Lua-skript</translation>
+    </message>
+    <message>
+        <source>&quot;File&quot; dialog location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Untitled capture files</source>
@@ -3424,6 +3403,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Personal Extcap path</source>
         <translation>Personlig extcap-sökväg</translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3464,14 +3447,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Typical Files</source>
         <translation>Typiska filer</translation>
-    </message>
-    <message>
-        <source>Capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -3327,21 +3327,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialog location</source>
-        <oldsource>&quot;File&quot; dialogs</oldsource>
-        <translation type="unfinished">&quot;파일&quot; 대화 상자</translation>
-    </message>
-    <message>
-        <source>capture files</source>
-        <translation type="vanished">캡처 파일</translation>
-    </message>
-    <message>
         <source>Temp</source>
         <translation>임시</translation>
-    </message>
-    <message>
-        <source>untitled capture files</source>
-        <translation type="vanished">이름 없는 캡처 파일</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3350,14 +3337,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Global configuration</source>
         <translation>전역 설정</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <translation type="vanished">dfilters, 설정, ethers, …</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, manuf, …</source>
-        <translation type="vanished">dfilters, 설정, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3372,16 +3351,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>프로그램</translation>
     </message>
     <message>
-        <source>program files</source>
-        <translation type="vanished">프로그램 파일</translation>
-    </message>
-    <message>
         <source>Personal Plugins</source>
         <translation>사용자 플러그인</translation>
-    </message>
-    <message>
-        <source>binary plugins</source>
-        <translation type="vanished">바이너리 플러그인</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3398,6 +3369,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Lua scripts</source>
         <translation>Lua 스크립트</translation>
+    </message>
+    <message>
+        <source>&quot;File&quot; dialog location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Untitled capture files</source>
@@ -3418,6 +3397,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Personal Extcap path</source>
         <translation>사용자 Extcap 경로</translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3458,14 +3441,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>일반적인 파일</translation>
-    </message>
-    <message>
-        <source>Capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

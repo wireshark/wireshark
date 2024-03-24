@@ -3335,21 +3335,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialog location</source>
-        <oldsource>&quot;File&quot; dialogs</oldsource>
-        <translation type="unfinished">&quot;Datei&quot; Dialoge</translation>
-    </message>
-    <message>
-        <source>capture files</source>
-        <translation type="vanished">Mitschnittdateien</translation>
-    </message>
-    <message>
         <source>Temp</source>
         <translation>Temp</translation>
-    </message>
-    <message>
-        <source>untitled capture files</source>
-        <translation type="vanished">Unbenannte Mitschnittdateien</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3358,14 +3345,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Global configuration</source>
         <translation>Globale Konfiguration</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <translation type="vanished">dfilters, preferences, ethers, …</translation>
-    </message>
-    <message>
-        <source>dfilters, preferences, manuf, …</source>
-        <translation type="vanished">dfilters, preferences, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3380,16 +3359,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Programm</translation>
     </message>
     <message>
-        <source>program files</source>
-        <translation type="vanished">program files</translation>
-    </message>
-    <message>
         <source>Personal Plugins</source>
         <translation>Benutzerspezifische Plugins</translation>
-    </message>
-    <message>
-        <source>binary plugins</source>
-        <translation type="vanished">binary plugins</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3406,6 +3377,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Lua scripts</source>
         <translation>Lua Skripte</translation>
+    </message>
+    <message>
+        <source>&quot;File&quot; dialog location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Untitled capture files</source>
@@ -3426,6 +3405,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Personal Extcap path</source>
         <translation>Benutzerspezifischer Extcap Pfad</translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3466,14 +3449,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Typical Files</source>
         <translation>Typische Dateien</translation>
-    </message>
-    <message>
-        <source>Capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

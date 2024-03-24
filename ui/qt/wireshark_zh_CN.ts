@@ -3321,21 +3321,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialog location</source>
-        <oldsource>&quot;File&quot; dialogs</oldsource>
-        <translation type="unfinished">“文件”对话框</translation>
-    </message>
-    <message>
-        <source>capture files</source>
-        <translation type="vanished">捕获文件</translation>
-    </message>
-    <message>
         <source>Temp</source>
         <translation>临时</translation>
-    </message>
-    <message>
-        <source>untitled capture files</source>
-        <translation type="vanished">无标题捕获文件</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3358,16 +3345,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>程序</translation>
     </message>
     <message>
-        <source>program files</source>
-        <translation type="vanished">程序文件</translation>
-    </message>
-    <message>
         <source>Personal Plugins</source>
         <translation>个人插件</translation>
-    </message>
-    <message>
-        <source>binary plugins</source>
-        <translation type="vanished">二进制插件</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3383,6 +3362,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;File&quot; dialog location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3403,6 +3390,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Personal Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3444,14 +3435,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Typical Files</source>
         <translation>典型文件</translation>
-    </message>
-    <message>
-        <source>Capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

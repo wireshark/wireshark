@@ -3308,21 +3308,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 <context>
     <name>FolderListModel</name>
     <message>
-        <source>&quot;File&quot; dialog location</source>
-        <oldsource>&quot;File&quot; dialogs</oldsource>
-        <translation type="unfinished">Diálogos de &quot;Archivo&quot;</translation>
-    </message>
-    <message>
-        <source>capture files</source>
-        <translation type="vanished">archivos de captura</translation>
-    </message>
-    <message>
         <source>Temp</source>
         <translation>Temporal</translation>
-    </message>
-    <message>
-        <source>untitled capture files</source>
-        <translation type="vanished">archivos de captura sin título</translation>
     </message>
     <message>
         <source>Personal configuration</source>
@@ -3345,16 +3332,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Programa</translation>
     </message>
     <message>
-        <source>program files</source>
-        <translation type="vanished">archivos de programa</translation>
-    </message>
-    <message>
         <source>Personal Plugins</source>
         <translation>Complementos personales</translation>
-    </message>
-    <message>
-        <source>binary plugins</source>
-        <translation type="vanished">complementos binarios</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -3370,6 +3349,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Lua scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;File&quot; dialog location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3391,6 +3378,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Personal Extcap path</source>
         <translation>Ruta personal de Extcap</translation>
+    </message>
+    <message>
+        <source>External capture (extcap) plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3431,14 +3422,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Typical Files</source>
         <translation>Archivos típicos</translation>
-    </message>
-    <message>
-        <source>Capture files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

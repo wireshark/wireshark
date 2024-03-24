@@ -2738,7 +2738,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 3154, "ccmrmi",           "ON RMI Registry" },
     { 3155, "jpegmpeg",         "JpegMpeg Port" },
     { 3156, "indura",           "Indura Collector" },
-    { 3157, "e3consultants",    "CCC Listener Port" },
+    { 3157, "lsa-comm",         "LSA Communicator" },
     { 3158, "stvp",             "SmashTV Protocol" },
     { 3159, "navegaweb-port",   "NavegaWeb Tarification" },
     { 3160, "tip-app-server",   "TIP Application Server" },
