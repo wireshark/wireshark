@@ -563,8 +563,7 @@ void FollowStreamDialog::resetStream()
     FollowStreamDialog::resetStream(&follow_info_);
 }
 
-frs_return_t
-FollowStreamDialog::readStream()
+void FollowStreamDialog::readStream()
 {
 
     // interrupt any reading already running
@@ -596,8 +595,6 @@ FollowStreamDialog::readStream()
         ui->teStreamContent->setWordWrapMode(QTextOption::WrapAnywhere);
     }
 
-    frs_return_t ret;
-
     client_buffer_count_ = 0;
     server_buffer_count_ = 0;
     client_packet_count_ = 0;
@@ -605,19 +602,16 @@ FollowStreamDialog::readStream()
     last_packet_ = 0;
     turns_ = 0;
 
-    if (follower_) {
-        ret = readFollowStream();
-    } else {
-        ret = (frs_return_t)0;
+    if (!follower_) {
         ws_assert_not_reached();
     }
+
+    readFollowStream();
 
     ui->teStreamContent->moveCursor(QTextCursor::Start);
 
     doc_length = ui->teStreamContent->verticalScrollBar()->maximum() + ui->teStreamContent->verticalScrollBar()->pageStep();
     ui->teStreamContent->verticalScrollBar()->setValue(doc_length * scroll_ratio);
-
-    return ret;
 }
 
 void
@@ -696,8 +690,7 @@ static inline void sanitize_buffer(QByteArray &buffer, size_t nchars) {
     }
 }
 
-frs_return_t
-FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
+void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
                                 nstime_t abs_ts, guint32 *global_pos)
 {
     gchar initbuf[256];
@@ -961,8 +954,6 @@ DIAG_ON(stringop-overread)
             turns_++;
         }
     }
-
-    return FRS_OK;
 }
 
 bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, guint stream_num, guint sub_stream_num)
@@ -1187,14 +1178,12 @@ void FollowStreamDialog::captureFileClosed()
     WiresharkDialog::captureFileClosed();
 }
 
-frs_return_t
-FollowStreamDialog::readFollowStream()
+void FollowStreamDialog::readFollowStream()
 {
     guint32 global_client_pos = 0, global_server_pos = 0;
     guint32 *global_pos;
     gboolean skip;
     GList* cur;
-    frs_return_t frs_return;
     follow_record_t *follow_record;
     QElapsedTimer elapsed_timer;
     QByteArray buffer;
@@ -1227,15 +1216,13 @@ FollowStreamDialog::readFollowStream()
             // modified. Try to avoid doing that as much as possible
             // (and avoid new memory allocations that have to be freed).
             buffer.setRawData((char*)follow_record->data->data, follow_record->data->len);
-            frs_return = showBuffer(
-                        buffer,
-                        follow_record->data->len,
-                        follow_record->is_server,
-                        follow_record->packet_num,
-                        follow_record->abs_ts,
-                        global_pos);
-            if (frs_return == FRS_PRINT_ERROR)
-                return frs_return;
+            showBuffer(
+                    buffer,
+                    follow_record->data->len,
+                    follow_record->is_server,
+                    follow_record->packet_num,
+                    follow_record->abs_ts,
+                    global_pos);
             if (elapsed_timer.elapsed() > info_update_freq_) {
                 fillHintLabel(ui->teStreamContent->currentPacket());
                 mainApp->processEvents();
@@ -1247,7 +1234,5 @@ FollowStreamDialog::readFollowStream()
     loop_break_mutex.lock();
     isReadRunning = FALSE;
     loop_break_mutex.unlock();
-
-    return FRS_OK;
 }
 

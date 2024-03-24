@@ -24,13 +24,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum {
-    FRS_OK,
-    FRS_OPEN_ERROR,
-    FRS_READ_ERROR,
-    FRS_PRINT_ERROR
-} frs_return_t;
-
 /* Show Stream */
 typedef enum {
     FROM_CLIENT,

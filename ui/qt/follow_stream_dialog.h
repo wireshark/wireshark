@@ -86,13 +86,10 @@ private:
     void resetStream(void);
     void updateWidgets(bool follow_in_progress);
     void updateWidgets() { updateWidgets(false); } // Needed for WiresharkDialog?
-    frs_return_t
-    showBuffer(QByteArray &buffer, size_t nchars, gboolean is_from_server,
+    void showBuffer(QByteArray &buffer, size_t nchars, gboolean is_from_server,
                 guint32 packet_num, nstime_t abs_ts, guint32 *global_pos);
-
-    frs_return_t readStream();
-    frs_return_t readFollowStream();
-    frs_return_t readSslStream();
+    void readStream();
+    void readFollowStream();
 
     void followStream();
     void addText(QString text, gboolean is_from_server, guint32 packet_num, gboolean colorize = true);
