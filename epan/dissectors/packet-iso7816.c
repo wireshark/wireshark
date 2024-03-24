@@ -634,18 +634,20 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     ret = dissect_iso7816_class(tvb, offset, pinfo, tree);
-    if (ret==-1) {
+    if (ret == -1) {
         /* the class byte says that the remaining APDU is not
             in ISO7816 format */
 
-        iso7816_trans->handle =
-            dissector_get_payload_handle(iso7816_apdu_pld_table);
-        if (iso7816_trans->handle != NULL) {
-            ret = call_dissector(iso7816_trans->handle, tvb, pinfo, tree);
-            if (ret == 0) {
-                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                        "Command APDU using proprietary format");
-                return 1; /* we only dissected the class byte */
+        if (iso7816_trans) {
+            iso7816_trans->handle =
+                dissector_get_payload_handle(iso7816_apdu_pld_table);
+            if (iso7816_trans->handle != NULL) {
+                ret = call_dissector(iso7816_trans->handle, tvb, pinfo, tree);
+                if (ret == 0) {
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+                            "Command APDU using proprietary format");
+                    return 1; /* we only dissected the class byte */
+                }
             }
         }
 
