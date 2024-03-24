@@ -1310,7 +1310,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             next_tvb = process_reassembled_data(tvb, new_off, pinfo, "Reassembled GSE",
                 dvbs2_frag_head, &dvb_s2_gse_frag_items, &update_col_info, tree);
 
-            if (next_tvb != NULL) {
+            if (next_tvb != NULL && subpacket_data) {
                 /* We have a reassembled packet. */
                 complete = TRUE;
                 labeltype = subpacket_data->labeltype;
