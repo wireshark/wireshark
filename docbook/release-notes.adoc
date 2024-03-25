@@ -34,7 +34,7 @@ wsbuglink:18734[].
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2024-06[]
+// * wssalink:2024-07[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2024-xxx[].
@@ -52,6 +52,15 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
+* Fuzz job issue: fuzz-2024-03-03-7204.pcap wsbuglink:19685[].
+
+* Fuzz job issue: randpkt-2024-03-05-8004.pcap wsbuglink:19688[].
+
+* '--export-objects' does not work as expected on tshark version later than 3.2.10 wsbuglink:19715[].
+
+* Fuzz job issue: fuzz-2024-03-21-7215.pcap wsbuglink:19717[].
+
+
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -68,9 +77,147 @@ There are no new protocols in this release.
 
 // There are no updated protocols in this release.
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.19.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.22.. | ag packet- | sort -u)
 [commaize]
 --
+6LoWPAN
+AFP
+AllJoyn
+AMQP
+ASAP
+Babel
+BACnet
+Banana
+BEEP
+Bencode
+BFCP
+BGP
+BT-DHT
+BT BNEP
+BT SDP
+BVLC
+CIP
+CMIP
+CMP
+COROSYNC/TOTEMSRP
+COSE
+CQL
+CSN.1
+DAP
+DICOM
+DCOM
+DHCPv6
+DISP
+DOCSIS MAC MGMT
+DOF
+DVB-S2
+EDONKEY
+ErlDP
+Etch
+FC-SWILS
+GNW
+GLOW
+GOOSE
+GQUIC
+GSM A-bis OML
+GSUP
+GTPv2
+H.223
+H.225.0
+H.245
+H.248
+H.264
+H.265
+HSMS
+ICMPv6
+ICQ
+IEEE1609dot2
+IPP
+ISAKMP
+iSCSI
+ISIS LSP
+ISO 7816
+ISUP
+ITS
+JXTA
+Kafka
+KINK
+KNX/IP
+LDAP
+LDP
+5GLI
+LISP TCP
+LISP
+LLRP
+LwM2M-TLV
+M2UA
+M3UA
+MBIM
+MMS
+MONGO
+MPEG PES
+MPLS Echo
+MQ PCF
+MQTT-SN
+MSDP
+MsgPack
+MS-WSP
+NAS-5GS
+CFLOW
+NETLINK
+NHRP
+OpenFlow
+OpenWire
+OPSI
+OSC
+P22
+P7
+PANA
+PIM
+ProtoBuf
+PROXY
+Q.2931
+QNET
+RDP
+RESP
+RPL
+RSL
+RSVP
+RTLS
+RTMPT
+RTPS
+S7COMM
+SCTP
+SIMULCRYPT
+SoulSeek
+SMB2
+SML
+SNA
+Socks
+SolarEdge
+SOME/IP
+SUA
+TCAP
+TEAP
+TFTP
+Thread
+TN5250
+USBHID
+USBVIDEO
+VP9
+WASSP
+WLCCP
+WTP
+X.509IF
+X.509SAT
+XML
+XMPP
+YAMI
+Z39.50
+ZigBee ZCL
+Gryphon
+PNIO
+WiMAX ASN CP
 --
 
 === New and Updated Capture File Support
@@ -81,13 +228,15 @@ There is no new or updated capture file support in this release.
 // --
 // --
 
-=== New File Format Decoding Support
+=== Updated File Format Decoding Support
 
-There is no new or updated file format support in this release.
+// There is no updated file format support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+RBM
+--
 
 
 // === New and Updated Capture Interfaces support
