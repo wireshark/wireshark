@@ -253,7 +253,7 @@ set(WSDG_GRAPHICS
 	wsdg_src/images/ws-capture-sync.png
 	wsdg_src/images/ws-capture-sync.png
 	wsdg_src/images/ws-function-blocks.dia
-	wsdg_src/images/ws-function-blocks.png
+	wsdg_src/images/ws-function-blocks.svg
 	wsdg_src/images/ws-logo.png
 )
 

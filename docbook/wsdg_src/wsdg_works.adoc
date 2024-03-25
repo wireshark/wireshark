@@ -19,7 +19,7 @@ The following will give you a simplified overview of Wireshark’s function bloc
 [#ChWorksFigOverview]
 
 .Wireshark function blocks
-image::images/ws-function-blocks.png[{pdf-scaledwidth}]
+image::images/ws-function-blocks.svg[{pdf-scaledwidth}]
 
 The function blocks in more detail:
 
