@@ -3604,6 +3604,42 @@ static int      hf_pie_ixia_sip_call_id;
 static int      hf_pie_ixia_sip_content_type;
 static int      hf_pie_ixia_sip_route;
 static int      hf_pie_ixia_sip_geolocation;
+static int      hf_pie_ixia_diameter_message;
+static int      hf_pie_ixia_diameter_command_code;
+static int      hf_pie_ixia_diameter_request;
+static int      hf_pie_ixia_diameter_response;
+static int      hf_pie_ixia_diameter_application_id;
+static int      hf_pie_ixia_diameter_origin_host;
+static int      hf_pie_ixia_diameter_origin_realm;
+static int      hf_pie_ixia_diameter_dest_host;
+static int      hf_pie_ixia_diameter_dest_realm;
+static int      hf_pie_ixia_diameter_user_name;
+static int      hf_pie_ixia_diameter_sc_address;
+static int      hf_pie_ixia_diameter_auth_vector_rand;
+static int      hf_pie_ixia_diameter_auth_vector_xres;
+static int      hf_pie_ixia_diameter_auth_vector_autn;
+static int      hf_pie_ixia_diameter_auth_vector_kasme;
+static int      hf_pie_ixia_diameter_sub_data_ambr_max_req_bw_ul;
+static int      hf_pie_ixia_diameter_sub_data_ambr_max_req_bw_dl;
+static int      hf_pie_ixia_diameter_apn_configuration_profile;
+static int      hf_pie_ixia_diameter_access_restriction_data_flags;
+static int      hf_pie_ixia_diameter_route_record;
+static int      hf_pie_ixia_diameter_framed_ip_address;
+static int      hf_pie_ixia_diameter_3gpp_user_location_info;
+static int      hf_pie_ixia_diameter_called_station_id;
+static int      hf_pie_ixia_diameter_qos_class_identifier;
+static int      hf_pie_ixia_diameter_qos_max_req_bw_dl;
+static int      hf_pie_ixia_diameter_qos_max_req_bw_ul;
+static int      hf_pie_ixia_diameter_qos_guaranteed_br_ul;
+static int      hf_pie_ixia_diameter_qos_guaranteed_br_dl;
+static int      hf_pie_ixia_diameter_qos_apn_agg_max_br_ul;
+static int      hf_pie_ixia_diameter_qos_apn_agg_max_br_dl;
+static int      hf_pie_ixia_diameter_integrity_key;
+static int      hf_pie_ixia_diameter_confidentiality_key;
+static int      hf_pie_ixia_diameter_result_code;
+static int      hf_pie_ixia_diameter_subscription_id_data;
+static int      hf_pie_ixia_session_fingerprint;
+static int      hf_pie_ixia_session_parse_errors;
 
 static int      hf_pie_netscaler;
 static int      hf_pie_netscaler_roundtriptime;
@@ -11122,6 +11158,151 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_IXIA << 16) | 329):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_geolocation,
                                      tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 330):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_message,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 331):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_command_code,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 332):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_request,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 333):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_response,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 334):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_application_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 335):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_origin_host,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 336):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_origin_realm,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 337):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_dest_host,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 338):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_dest_realm,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 339):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_user_name,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 340):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_sc_address,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 341):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_auth_vector_rand,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 342):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_auth_vector_xres,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 343):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_auth_vector_autn,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 344):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_auth_vector_kasme,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 345):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_sub_data_ambr_max_req_bw_ul,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 346):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_sub_data_ambr_max_req_bw_dl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 347):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_apn_configuration_profile,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 348):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_access_restriction_data_flags,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 349):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_route_record,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 350):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_framed_ip_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 351):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_3gpp_user_location_info,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 352):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_called_station_id,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 353):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_class_identifier,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 354):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_max_req_bw_dl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 355):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_max_req_bw_ul,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 356):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_guaranteed_br_ul,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 357):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_guaranteed_br_dl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 358):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_apn_agg_max_br_ul,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 359):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_qos_apn_agg_max_br_dl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 360):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_integrity_key,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 361):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_confidentiality_key,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 362):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_result_code,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 363):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_subscription_id_data,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 364):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_session_fingerprint,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 365):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_session_parse_errors,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
             /* END Ixia Communications */
 
@@ -19641,6 +19822,268 @@ proto_register_netflow(void)
          {"SIP Geolocation", "cflow.pie.ixia.sip-geolocation",
           FT_STRING, BASE_NONE, NULL, 0x0,
           "SIP Header Geolocation", HFILL}
+        },
+
+        /* ixia, 3054 / 330 */
+        {&hf_pie_ixia_diameter_message,
+         {"Diameter Message", "cflow.pie.ixia.diameter-message",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of Diameter Messages", HFILL}
+        },
+
+        /* ixia, 3054 / 331 */
+        {&hf_pie_ixia_diameter_command_code,
+         {"Command Code", "cflow.pie.ixia.diameter-command-code",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter Command Code", HFILL}
+        },
+
+        /* ixia, 3054 / 332 */
+        {&hf_pie_ixia_diameter_request,
+         {"Request", "cflow.pie.ixia.diameter-request",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Diameter Request", HFILL}
+        },
+
+        /* ixia, 3054 / 333 */
+        {&hf_pie_ixia_diameter_response,
+        {"Response", "cflow.pie.ixia.diameter-response",
+         FT_UINT8, BASE_DEC, NULL, 0x0,
+         "Diameter Response", HFILL}
+        },
+
+         /* ixia, 3054 / 334 */
+        {&hf_pie_ixia_diameter_application_id,
+         {"Application ID", "cflow.pie.ixia.diameter-application-id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter Application ID", HFILL}
+        },
+
+        /* ixia, 3054 / 335 */
+        {&hf_pie_ixia_diameter_origin_host,
+         {"Origin Host", "cflow.pie.ixia.diameter-origin-host",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Origin Host", HFILL}
+        },
+
+        /* ixia, 3054 / 336 */
+        {&hf_pie_ixia_diameter_origin_realm,
+         {"Origin Realm", "cflow.pie.ixia.diameter-origin-realm",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Origin Realm", HFILL}
+        },
+
+        /* ixia, 3054 / 337 */
+        {&hf_pie_ixia_diameter_dest_host,
+         {"Destination Host", "cflow.pie.ixia.diameter-dest-host",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Destination Host", HFILL}
+        },
+
+        /* ixia, 3054 / 338 */
+        {&hf_pie_ixia_diameter_dest_realm,
+         {"Destination Realm", "cflow.pie.ixia.diameter-dest-realm",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Destination Realm", HFILL}
+        },
+
+        /* ixia, 3054 / 339 */
+        {&hf_pie_ixia_diameter_user_name,
+         {"User Name", "cflow.pie.ixia.diameter-user-name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter User Name", HFILL}
+        },
+
+        /* ixia, 3054 / 340 */
+        {&hf_pie_ixia_diameter_sc_address,
+         {"SC Address", "cflow.pie.ixia.diameter-sc-address",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter SC Address", HFILL}
+        },
+
+        /* ixia, 3054 / 341 */
+        {&hf_pie_ixia_diameter_auth_vector_rand,
+         {"Auth Vector RAND", "cflow.pie.ixia.diameter-auth-vector-rand",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter Authentication Vector RAND", HFILL}
+        },
+
+        /* ixia, 3054 / 342 */
+        {&hf_pie_ixia_diameter_auth_vector_xres,
+         {"Auth Vector XRES", "cflow.pie.ixia.diameter-auth-vector-xres",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter Authentication Vector XRES", HFILL}
+        },
+
+        /* ixia, 3054 / 343 */
+        {&hf_pie_ixia_diameter_auth_vector_autn,
+         {"Auth Vector AUTN", "cflow.pie.ixia.diameter-auth-vector-autn",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter Authentication Vector AUTN", HFILL}
+        },
+
+        /* ixia, 3054 / 344 */
+        {&hf_pie_ixia_diameter_auth_vector_kasme,
+         {"Auth Vector KASME", "cflow.pie.ixia.diameter-auth-vector-kasme",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter Authentication Vector KASME", HFILL}
+        },
+
+        /* ixia, 3054 / 345 */
+        {&hf_pie_ixia_diameter_sub_data_ambr_max_req_bw_ul,
+         {"Subscription Data AMBR Max Requested Bandwidth Upload",
+          "cflow.pie.ixia.diameter-sub-data-ambr-max-req-bw-ul",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter Subscription Data AMBR Max Requested Bandwidth Upload",
+          HFILL}
+        },
+
+        /* ixia, 3054 / 346 */
+        {&hf_pie_ixia_diameter_sub_data_ambr_max_req_bw_dl,
+         {"Subscription Data AMBR Max Requested Bandwidth Download",
+          "cflow.pie.ixia.diameter-sub-data-ambr-max-req-bw-dl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter Subscription Data AMBR Max Requested Bandwidth Download",
+          HFILL}
+        },
+
+        /* ixia, 3054 / 347 */
+        {&hf_pie_ixia_diameter_apn_configuration_profile,
+         {"APN Configuration Profile",
+          "cflow.pie.ixia.diameter-apn-configuration-profile",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter APN Configuration Profile", HFILL}
+        },
+
+        /* ixia, 3054 / 348 */
+        {&hf_pie_ixia_diameter_access_restriction_data_flags,
+         {"Access Restriction Data Flags",
+          "cflow.pie.ixia.diameter-access-restriction-data-flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          "Diameter Access Restriction Data Flags", HFILL}
+        },
+
+        /* ixia, 3054 / 349 */
+        {&hf_pie_ixia_diameter_route_record,
+         {"Route Record", "cflow.pie.ixia.diameter-route-record",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Route Record", HFILL}
+        },
+
+        /* ixia, 3054 / 350 */
+        {&hf_pie_ixia_diameter_framed_ip_address,
+         {"Framed IP Address", "cflow.pie.ixia.diameter-framed-ip-address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "Diameter Framed IP Address", HFILL}
+        },
+
+        /* ixia, 3054 / 351 */
+        {&hf_pie_ixia_diameter_3gpp_user_location_info,
+         {"3GPP ULI", "cflow.pie.ixia.diameter-3gpp-user-location-info",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter 3GPP User Location Info", HFILL}
+        },
+
+        /* ixia, 3054 / 352 */
+        {&hf_pie_ixia_diameter_called_station_id,
+         {"Called Station ID", "cflow.pie.ixia.diameter-called-station-id",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Called Station ID", HFILL}
+        },
+
+        /* ixia, 3054 / 353 */
+        {&hf_pie_ixia_diameter_qos_class_identifier,
+         {"QoS Class Identifier", "cflow.pie.ixia.diameter-qos-class-identifier",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          "Diameter QoS Class Identifier", HFILL}
+        },
+
+        /* ixia, 3054 / 354 */
+        {&hf_pie_ixia_diameter_qos_max_req_bw_dl,
+         {"QoS Maximum Requested Bandwidth Download",
+          "cflow.pie.ixia.diameter-qos-max-req-bw-dl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter QoS Maximum Requested Bandwidth Download", HFILL}
+        },
+
+        /* ixia, 3054 / 355 */
+        {&hf_pie_ixia_diameter_qos_max_req_bw_ul,
+         {"QoS Maximum Requested Bandwidth Upload",
+          "cflow.pie.ixia.diameter-qos-max-req-bw-ul",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter QoS Maximum Requested Bandwidth Upload", HFILL}
+        },
+
+        /* ixia, 3054 / 356 */
+        {&hf_pie_ixia_diameter_qos_guaranteed_br_ul,
+         {"QoS Guaranteed Bitrate Upload",
+          "cflow.pie.ixia.diameter-qos-guaranteed-br-ul",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter Guaranteed Bitrate Upload", HFILL}
+        },
+
+        /* ixia, 3054 / 357 */
+        {&hf_pie_ixia_diameter_qos_guaranteed_br_dl,
+         {"QoS Guaranteed Bitrate Download",
+          "cflow.pie.ixia.diameter-qos-guaranteed-br-dl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter QoS Guaranteed Bitrate Upload", HFILL}
+        },
+
+        /* ixia, 3054 / 358 */
+        {&hf_pie_ixia_diameter_qos_apn_agg_max_br_ul,
+         {"QoS APN AMBR Upload", "cflow.pie.ixia.diameter-qos-apn-agg-max-br-ul",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter QoS APN Aggregated Maximum Bitrate Upload", HFILL}
+        },
+
+        /* ixia, 3054 / 359 */
+        {&hf_pie_ixia_diameter_qos_apn_agg_max_br_dl,
+         {"QoS APN AMBR Download", "cflow.pie.ixia.diameter-qos-apn-agg-max-br-dl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Diameter QoS APN Aggregated Maximum Bitrate Download", HFILL}
+        },
+
+        /* ixia, 3054 / 360 */
+        {&hf_pie_ixia_diameter_integrity_key,
+         {"Integrity Key", "cflow.pie.ixia.diameter-integrity-key",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter Integrity Key", HFILL}
+        },
+
+        /* ixia, 3054 / 361 */
+        {&hf_pie_ixia_diameter_confidentiality_key,
+         {"Confidentiality Key", "cflow.pie.ixia.diameter-confidentiality-key",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Diameter Confidentiality Key", HFILL}
+        },
+
+        /* ixia, 3054 / 362 */
+        {&hf_pie_ixia_diameter_result_code,
+         {"Result Code", "cflow.pie.ixia.diameter-result-code",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          "Diameter Result Code", HFILL}
+        },
+
+        /* ixia, 3054 / 363 */
+        {&hf_pie_ixia_diameter_subscription_id_data,
+         {"Subscription ID Data", "cflow.pie.ixia.diameter-subscription-id-data",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Diameter Subscription ID Data", HFILL}
+        },
+
+        /* ixia, 3054 / 364 */
+        {&hf_pie_ixia_session_fingerprint,
+         {"Fingerprint", "cflow.pie.ixia.session-fingerprint",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Session Fingerprint", HFILL}
+        },
+
+        /* ixia, 3054 / 365 */
+        {&hf_pie_ixia_session_parse_errors,
+         {"Parse Errors", "cflow.pie.ixia.session-parse-errors",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Session Parse Errors Count", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
