@@ -68,11 +68,6 @@ fi
 XZ_VERSION=5.2.5
 
 #
-# Some packages need lzip to unpack their current source.
-#
-LZIP_VERSION=1.21
-
-#
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
@@ -88,7 +83,7 @@ NINJA_VERSION=${NINJA_VERSION-1.10.2}
 #
 # The following libraries and tools are required even to build only TShark.
 #
-GETTEXT_VERSION=0.21
+GETTEXT_VERSION=0.22.5
 GLIB_VERSION=2.76.6
 if [ "$GLIB_VERSION" ]; then
     GLIB_MAJOR_VERSION="$( expr $GLIB_VERSION : '\([0-9][0-9]*\).*' )"
@@ -316,21 +311,6 @@ uninstall_xz() {
         fi
 
         installed_xz_version=""
-    fi
-}
-
-install_lzip() {
-    if [ "$LZIP_VERSION" -a ! -f lzip-$LZIP_VERSION-done ] ; then
-        echo "Downloading, building, and installing lzip:"
-        [ -f lzip-$LZIP_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.savannah.gnu.org/releases/lzip/lzip-$LZIP_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat lzip-$LZIP_VERSION.tar.gz | tar xf -
-        cd lzip-$LZIP_VERSION
-        ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch lzip-$LZIP_VERSION-done
     fi
 }
 
@@ -780,110 +760,8 @@ install_gettext() {
         $no_build && echo "Skipping installation" && return
         gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf -
         cd gettext-$GETTEXT_VERSION
-
-        #
-        # This is annoying.
-        #
-        # GNU gettext's configuration script checks for the presence of an
-        # implementation of iconv().  Not only does it check whether iconv()
-        # is available, *but* it checks for certain behavior *not* specified
-        # by POSIX that the GNU implementation provides, namely that an
-        # attempt to convert the UTF-8 for the EURO SYMBOL chaaracter to
-        # ISO 8859-1 results in an error.
-        #
-        # macOS, prior to Sierra, provided the GNU iconv library (as it's
-        # a POSIX API).
-        #
-        # Sierra appears to have picked up an implementation from FreeBSD
-        # (that implementation originated with the CITRUS project:
-        #
-        #    http://citrus.bsdclub.org
-        #
-        # with additional work done to integrate it into NetBSD, and then
-        # adopted by FreeBSD with further work done).
-        #
-        # That implementation does *NOT* return an error in that case; instead,
-        # it transliterates the EURO SYMBOL to "EUR".
-        #
-        # Both behaviors conform to POSIX.
-        #
-        # This causes GNU gettext's configure script to conclude that it
-        # should not say iconv() is available.  That, unfortunately, causes
-        # the build to fail with a linking error when trying to build
-        # libtextstyle (a library for which we have no use, that is offered
-        # as a separate library by the GNU project:
-        #
-        #    https://www.gnu.org/software/gettext/libtextstyle/manual/libtextstyle.html
-        #
-        # and that is presumably bundled in GNU gettext because some gettext
-        # tool depends on it).  The failure appears to be due to:
-        #
-        #     libtextstyle's exported symbols file is generated from a
-        #     template and a script that passes through only symbols
-        #     that appear in a header file that declares the symbol
-        #     as extern;
-        #
-        #     one such header file declares iconv_ostream_create, but only
-        #     if HAVE_ICONV is defined.
-        #
-        #     the source file that defines iconv_ostream_create does so
-        #     only if HAVE_ICONV is defined;
-        #
-        #     the aforementioned script pays *NO ATTENTION* to #ifdefs,
-        #     so it will include iconv_ostream_create in the list of
-        #     symbols to export regardless of whether a working iconv()
-        #     was found;
-        #
-        #     the linker failing because it was told to export a symbol
-        #     that doesn't exist.
-        #
-        # This is a collection of multiple messes:
-        #
-        #    1) not all versions of iconv() defaulting to "return an error
-        #    if the target character set doesn't have a character that
-        #    corresponds to the source character" and not offering a way
-        #    to force that behavior;
-        #
-        #    2) either some parts of GNU gettext - and libraries bundled
-        #    with it, for some mysterious reason - depending on the GNU
-        #    behavior rather than assuming only what POSIX specifies, and
-        #    the configure script checking for the GNU behavior and not
-        #    setting HAVE_ICONV if it's not found;
-        #
-        #    3) the process for building the exported symbols file not
-        #    removing symbols that won't exist in the build due to
-        #    a "working" iconv() not being found;
-        #
-        #    4) the file that would define iconv_ostream_create() not
-        #    defining as an always-failing stub if HAVE_ICONV isn't
-        #    defined;
-        #
-        #    5) macOS's linker failing if a symbol is specified in an
-        #    exported symbols file but not found, while other linkers
-        #    just ignore it?  (I add this because I'm a bit surprised
-        #    that this has not been fixed, as I suspect it would fail
-        #    on FreeBSD and possibly NetBSD as well, as I think their
-        #    iconv()s also default to transliterating rather than failing
-        #    if an input character has no corresponding character in
-        #    the output encoding.)
-        #
-        # The Homebrew folks are aware of this and have reported it to
-        # Apple as a "feedback", for what that's worth:
-        #
-        #    https://github.com/Homebrew/homebrew-core/commit/af3b4da5a096db3d9ee885e99ed29b33dec1f1c4
-        #
-        # We adopt their fix, which is to run the configure script with
-        # "am_cv_func_iconv_works=y" as one of the arguments if it's
-        # running on Sonoma; in at least one test, doing so on Ventura
-        # caused the build to fail.
-        #
-        if [[ $DARWIN_MAJOR_VERSION -ge 23 ]]; then
-            workaround_arg="am_cv_func_iconv_works=y"
-        else
-            workaround_arg=
-        fi
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" $workaround_arg
+            ./configure "${CONFIGURE_OPTS[@]}"
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ..
@@ -924,7 +802,7 @@ install_pkg_config() {
         $no_build && echo "Skipping installation" && return
         gzcat pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar xf -
         cd pkg-config-$PKG_CONFIG_VERSION
-        ./configure "${CONFIGURE_OPTS[@]}" --with-internal-glib
+        CFLAGS="$CFLAGS -Wno-int-conversion" ./configure "${CONFIGURE_OPTS[@]}" --with-internal-glib
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ..
@@ -1464,9 +1342,9 @@ uninstall_libgcrypt() {
 install_gmp() {
     if [ "$GMP_VERSION" ] && [ ! -f "gmp-$GMP_VERSION-done" ] ; then
         echo "Downloading, building, and installing GMP:"
-        [ -f "gmp-$GMP_VERSION.tar.lz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.lz
+        [ -f "gmp-$GMP_VERSION.tar.xz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.xz
         $no_build && echo "Skipping installation" && return
-        lzip -c -d "gmp-$GMP_VERSION.tar.lz" | tar xf -
+        xzcat "gmp-$GMP_VERSION.tar.xz" | tar xf -
         cd "gmp-$GMP_VERSION"
         #
         # Create a fat binary: https://gmplib.org/manual/Notes-for-Package-Builds.html
@@ -1519,7 +1397,7 @@ uninstall_gmp() {
             # Get rid of the previously downloaded and unpacked version.
             #
             rm -rf "gmp-$installed_gmp_version"
-            rm -rf "gmp-$installed_gmp_version.tar.lz"
+            rm -rf "gmp-$installed_gmp_version.tar.xz"
         fi
 
         installed_gmp_version=""
@@ -1529,7 +1407,7 @@ uninstall_gmp() {
 install_libtasn1() {
     if [ "$LIBTASN1_VERSION" ] && [ ! -f "libtasn1-$LIBTASN1_VERSION-done" ] ; then
         echo "Downloading, building, and installing libtasn1:"
-        [ -f "libtasn1-$LIBTASN1_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://ftpmirror.gnu.org/libtasn1/libtasn1-$LIBTASN1_VERSION.tar.gz"
+        [ -f "libtasn1-$LIBTASN1_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://ftp.gnu.org/gnu/libtasn1/libtasn1-$LIBTASN1_VERSION.tar.gz"
         $no_build && echo "Skipping installation" && return
         gzcat "libtasn1-$LIBTASN1_VERSION.tar.gz" | tar xf -
         cd "libtasn1-$LIBTASN1_VERSION"
@@ -2612,6 +2490,7 @@ install_falco_libs() {
         tar -xf "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
         mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
         cd "falco-libs-$FALCO_LIBS_VERSION"
+	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-uthash_h-install.patch"
         mkdir build_dir
         cd build_dir
         "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
@@ -2620,9 +2499,6 @@ install_falco_libs() {
             ..
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
-        # Falco libs doesn't install uthash.
-        curl "${CURL_REMOTE_NAME_OPTS[@]}" https://raw.githubusercontent.com/troydhanson/uthash/v1.9.8/src/uthash.h
-        $DO_MV uthash.h "$installation_prefix"/include/falcosecurity/
         cd ../..
         touch "falco-libs-$FALCO_LIBS_VERSION-done"
     fi
@@ -2780,7 +2656,7 @@ install_minizip() {
         # support "make install", "make uninstall", or "make distclean",
         # and with a Makefile.am file that, if we do an autoreconf,
         # gives us a configure script, and a Makefile.in that, if we run
-        # the configure script, gives us a Makefile that supports ll of
+        # the configure script, gives us a Makefile that supports all of
         # those targets, and that installs a pkg-config .pc file for
         # minizip.
         #
@@ -3294,14 +3170,8 @@ install_all() {
         uninstall_pcre2 -r
     fi
 
-    if [ -n "$installed_lzip_version" -a \
-              "$installed_lzip_version" != "$LZIP_VERSION" ] ; then
-        echo "Installed lzip version is $installed_lzip_version"
-        if [ -z "$LZIP_VERSION" ] ; then
-            echo "lzip is not requested"
-        else
-            echo "Requested lzip version is $LZIP_VERSION"
-        fi
+    if [ -n "$installed_lzip_version" ] ; then
+        echo "Removing legacy install of lzip"
         uninstall_lzip -r
     fi
 
@@ -3398,8 +3268,6 @@ install_all() {
     # Now intall xz: it is the sole download format of glib later than 2.31.2.
     #
     install_xz
-
-    install_lzip
 
     install_autoconf
 
@@ -3647,6 +3515,7 @@ uninstall_all() {
 
         uninstall_pcre
 
+        # Legacy, remove
         uninstall_lzip
 
         uninstall_xz
