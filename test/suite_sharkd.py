@@ -75,7 +75,23 @@ class TestSharkd:
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"status"},
         ), (
-            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000,"columns":["No.","Time","Source","Destination","Protocol","Length","Info"]}},
+            {"jsonrpc":"2.0","id":1,"result":{"frames":0,"duration":0.000000000,"columns":["No.","Time","Source","Destination","Protocol","Length","Info"],
+                "column_info":[{
+                    "title":"No.","format": "%m","visible":True, "resolved":True
+                },{
+                    "title": "Time", "format": "%t", "visible":True, "resolved":True
+                },{
+                    "title": "Source", "format": "%s", "visible":True, "resolved":True
+                },{
+                    "title": "Destination", "format": "%d", "visible":True, "resolved":True
+                },{
+                    "title": "Protocol", "format": "%p", "visible":True, "resolved":True
+                },{
+                    "title": "Length", "format": "%L", "visible":True, "resolved":True
+                },{
+                    "title": "Info", "format": "%i", "visible":True, "resolved":True
+                }]
+            }},
         ))
 
     def test_sharkd_req_status(self, check_sharkd_session, capture_file):
@@ -88,7 +104,23 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"result":{"frames": 4, "duration": 0.070345000,
                 "filename": "dhcp.pcap", "filesize": 1400,
-                "columns":["No.","Time","Source","Destination","Protocol","Length","Info"]}},
+                "columns":["No.","Time","Source","Destination","Protocol","Length","Info"],
+                "column_info":[{
+                    "title":"No.","format": "%m","visible":True, "resolved":True
+                },{
+                    "title": "Time", "format": "%t", "visible":True, "resolved":True
+                },{
+                    "title": "Source", "format": "%s", "visible":True, "resolved":True
+                },{
+                    "title": "Destination", "format": "%d", "visible":True, "resolved":True
+                },{
+                    "title": "Protocol", "format": "%p", "visible":True, "resolved":True
+                },{
+                    "title": "Length", "format": "%L", "visible":True, "resolved":True
+                },{
+                    "title": "Info", "format": "%i", "visible":True, "resolved":True
+                }]
+            }},
         ))
 
     def test_sharkd_req_analyse(self, check_sharkd_session, capture_file):
