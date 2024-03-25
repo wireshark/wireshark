@@ -1220,11 +1220,16 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
  * Process status request
  *
  * Output object with attributes:
- *   (m) frames   - count of currently loaded frames
- *   (m) duration - time difference between time of first frame, and last loaded frame
- *   (o) filename - capture filename
- *   (o) filesize - capture filesize
- *   (o) columns  - array of column titles
+ *   (m) frames      - count of currently loaded frames
+ *   (m) duration    - time difference between time of first frame, and last loaded frame
+ *   (o) filename    - capture filename
+ *   (o) filesize    - capture filesize
+ *   (o) columns     - array of column titles
+ *   (o) column_info - array of column infos, array of object with attributes:
+ *                      'title'    - column title
+ *                      'format'   - column format (%x or %Cus:<expr>:<occurrence> if COL_CUSTOM)
+ *                      'visible'  - true if column is visible
+ *                      'resolved' - true if column is resolved
  */
 static void
 sharkd_session_process_status(void)
@@ -1256,6 +1261,24 @@ sharkd_session_process_status(void)
         for (int i = 0; i < cfile.cinfo.num_cols; ++i)
         {
             sharkd_json_value_string(NULL, get_column_title(i));
+        }
+        sharkd_json_array_close();
+
+        sharkd_json_array_open("column_info");
+        for (int i = 0; i < cfile.cinfo.num_cols; ++i)
+        {
+            int fmt = get_column_format(i);
+            sharkd_json_object_open(NULL);
+            sharkd_json_value_string("title", get_column_title(i));
+            if (fmt != COL_CUSTOM)
+            {
+                sharkd_json_value_string("format", col_format_to_string(fmt));
+            } else {
+                sharkd_json_value_stringf("format", "%s:%s:%d", col_format_to_string(fmt), get_column_custom_fields(i), get_column_custom_occurrence(i));
+            }
+            sharkd_json_value_anyf("visible", get_column_visible(i) ? "true" : "false");
+            sharkd_json_value_anyf("resolved", get_column_resolved(i) ? "true" : "false");
+            sharkd_json_object_close();
         }
         sharkd_json_array_close();
     }
