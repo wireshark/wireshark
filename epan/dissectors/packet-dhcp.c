@@ -8531,7 +8531,7 @@ proto_register_dhcp(void)
 
 	       /* AEROHIVE (Extremenetworks) vendor suboptions */
 	       { &hf_dhcp_option43_aerohive_suboption,
-		 { "Option 43 Suboption", "dhcp.option.vendor.cisco.suboption",
+		 { "Option 43 Suboption", "dhcp.option.vendor.aerohive.suboption",
 		   FT_UINT8, BASE_DEC, VALS(option43_aerohive_suboption_vals), 0x0,
 		   "Option 43:AEROHIVE Suboption", HFILL }},
 
