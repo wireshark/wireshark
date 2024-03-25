@@ -198,7 +198,7 @@ static int hf_mms_reportEventConditionStatus_01;  /* ReportEventConditionStatus_
 static int hf_mms_alterEventConditionMonitoring_01;  /* AlterEventConditionMonitoring_Response */
 static int hf_mms_triggerEvent_01;                /* TriggerEvent_Response */
 static int hf_mms_defineEventAction_01;           /* DefineEventAction_Response */
-static int hf_mms_deleteEventAction;              /* DeleteEventAction_Response */
+static int hf_mms_confirmedServiceRequest_deleteEventAction_01;  /* DeleteEventAction_Response */
 static int hf_mms_getEventActionAttributes_01;    /* GetEventActionAttributes_Response */
 static int hf_mms_reportActionStatus;             /* ReportEventActionStatus_Response */
 static int hf_mms_defineEventEnrollment_01;       /* DefineEventEnrollment_Response */
@@ -1557,7 +1557,7 @@ static const ber_choice_t TypeSpecification_choice[] = {
 
 static int
 dissect_mms_TypeSpecification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // TypeSpecification → TypeSpecification/array → TypeSpecification
+  // TypeSpecification -> TypeSpecification/array -> TypeSpecification
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1747,7 +1747,7 @@ static const ber_sequence_t AlternateAccess_sequence_of[1] = {
 
 static int
 dissect_mms_AlternateAccess(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // AlternateAccess → AlternateAccess/_item → AlternateAccessSelection → AlternateAccessSelection/selectAlternateAccess → AlternateAccess
+  // AlternateAccess -> AlternateAccess/_item -> AlternateAccessSelection -> AlternateAccessSelection/selectAlternateAccess -> AlternateAccess
   actx->pinfo->dissection_depth += 4;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
@@ -1808,7 +1808,7 @@ static const ber_choice_t VariableSpecification_choice[] = {
 
 static int
 dissect_mms_VariableSpecification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // VariableSpecification → ScatteredAccessDescription → ScatteredAccessDescription/_item → VariableSpecification
+  // VariableSpecification -> ScatteredAccessDescription -> ScatteredAccessDescription/_item -> VariableSpecification
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -2093,7 +2093,7 @@ static const ber_choice_t Data_choice[] = {
 
 static int
 dissect_mms_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // Data → Data/array → Data
+  // Data -> Data/array -> Data
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -6536,7 +6536,7 @@ static const ber_choice_t ConfirmedServiceResponse_choice[] = {
   {  51, &hf_mms_alterEventConditionMonitoring_01, BER_CLASS_CON, 51, BER_FLAGS_IMPLTAG, dissect_mms_AlterEventConditionMonitoring_Response },
   {  52, &hf_mms_triggerEvent_01 , BER_CLASS_CON, 52, BER_FLAGS_IMPLTAG, dissect_mms_TriggerEvent_Response },
   {  53, &hf_mms_defineEventAction_01, BER_CLASS_CON, 53, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventAction_Response },
-  {  54, &hf_mms_deleteEventAction, BER_CLASS_CON, 54, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventAction_Response },
+  {  54, &hf_mms_confirmedServiceRequest_deleteEventAction_01, BER_CLASS_CON, 54, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventAction_Response },
   {  55, &hf_mms_getEventActionAttributes_01, BER_CLASS_CON, 55, BER_FLAGS_IMPLTAG, dissect_mms_GetEventActionAttributes_Response },
   {  56, &hf_mms_reportActionStatus, BER_CLASS_CON, 56, BER_FLAGS_IMPLTAG, dissect_mms_ReportEventActionStatus_Response },
   {  57, &hf_mms_defineEventEnrollment_01, BER_CLASS_CON, 57, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventEnrollment_Response },
@@ -8015,8 +8015,8 @@ void proto_register_mms(void) {
       { "defineEventAction", "mms.defineEventAction_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventAction_Response", HFILL }},
-    { &hf_mms_deleteEventAction,
-      { "deleteEventAction", "mms.deleteEventAction",
+    { &hf_mms_confirmedServiceRequest_deleteEventAction_01,
+      { "deleteEventAction", "mms.confirmedServiceRequest.deleteEventAction",
         FT_INT32, BASE_DEC, NULL, 0,
         "DeleteEventAction_Response", HFILL }},
     { &hf_mms_getEventActionAttributes_01,

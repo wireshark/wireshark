@@ -1561,7 +1561,7 @@ class EthCtx:
 
         if len(cycle_funcs) > 1:
             out += f'''\
-  // {' → '.join(cycle_funcs)}
+  // {' -> '.join(cycle_funcs)}
   actx->pinfo->dissection_depth += {len(cycle_funcs) - 1};
   increment_dissection_depth(actx->pinfo);
 '''

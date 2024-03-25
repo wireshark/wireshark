@@ -23,7 +23,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 ConfirmedServiceRequest/deleteEventCondition        confirmedServiceRequest_deleteEventCondition
 ConfirmedServiceResponse/deleteEventCondition       confirmedServiceResponse_deleteEventCondition
 ConfirmedServiceRequest/deleteEventAction           confirmedServiceRequest_deleteEventAction
-ConfirmedServiceRequest/deleteEventAction           confirmedServiceRequest_deleteEventAction
+ConfirmedServiceResponse/deleteEventAction           confirmedServiceRequest_deleteEventAction
 ConfirmedServiceRequest/deleteEventEnrollment       confirmedServiceRequest_deleteEventEnrollment
 ConfirmedServiceResponse/deleteEventEnrollment      confirmedServiceResponse_deleteEventEnrollment
 TypeSpecification/bit-string                        typeSpecification_bit-string
@@ -48,7 +48,7 @@ AlterEventEnrollment-Response/currentState/state    alterEventEnrollment-Respons
 ConfirmedServiceRequest/deleteEventCondition        ABBREV=confirmedServiceRequest.deleteEventCondition
 ConfirmedServiceResponse/deleteEventCondition       ABBREV=confirmedServiceResponse.deleteEventCondition
 ConfirmedServiceRequest/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
-ConfirmedServiceRequest/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
+ConfirmedServiceResponse/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
 ConfirmedServiceRequest/deleteEventEnrollment       ABBREV=confirmedServiceRequest.deleteEventEnrollment
 ConfirmedServiceResponse/deleteEventEnrollment      ABBREV=confirmedServiceResponse.deleteEventEnrollment
 TypeSpecification/bit-string                        ABBREV=typeSpecification_bit-string
