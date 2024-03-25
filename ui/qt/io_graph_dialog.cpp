@@ -2055,8 +2055,9 @@ int IOGraph::packetFromTime(double ts)
     if (idx >= 0 && idx <= cur_idx_) {
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_MAX:
+            return items_[idx].max_frame_in_invl;
         case IOG_ITEM_UNIT_CALC_MIN:
-            return items_[idx].extreme_frame_in_invl;
+            return items_[idx].min_frame_in_invl;
         default:
             return items_[idx].last_frame_in_invl;
         }
@@ -2067,7 +2068,9 @@ int IOGraph::packetFromTime(double ts)
 void IOGraph::clearAllData()
 {
     cur_idx_ = -1;
-    reset_io_graph_items(&items_[0], items_.size());
+    if (items_.size()) {
+        reset_io_graph_items(&items_[0], items_.size(), hf_index_);
+    }
     if (graph_) {
         graph_->data()->clear();
     }

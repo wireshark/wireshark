@@ -179,24 +179,15 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     case FT_INT48:
     case FT_INT56:
     case FT_INT64:
-    case FT_UINT8:
-    case FT_UINT16:
-    case FT_UINT24:
-    case FT_UINT32:
-    case FT_UINT40:
-    case FT_UINT48:
-    case FT_UINT56:
-    case FT_UINT64:
-    case FT_DOUBLE:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_SUM:
             value = item->double_tot;
             break;
         case IOG_ITEM_UNIT_CALC_MAX:
-            value = item->double_max;
+            value = item->int_max;
             break;
         case IOG_ITEM_UNIT_CALC_MIN:
-            value = item->double_min;
+            value = item->int_min;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
@@ -210,20 +201,51 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
         }
         break;
 
-    case FT_FLOAT:
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+    case FT_UINT40:
+    case FT_UINT48:
+    case FT_UINT56:
+    case FT_UINT64:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_SUM:
-            value = item->float_tot;
+            value = item->double_tot;
             break;
         case IOG_ITEM_UNIT_CALC_MAX:
-            value = item->float_max;
+            value = item->uint_max;
             break;
         case IOG_ITEM_UNIT_CALC_MIN:
-            value = item->float_min;
+            value = item->uint_min;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
-                value = (double)item->float_tot / item->fields;
+                value = item->double_tot / item->fields;
+            } else {
+                value = 0;
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+
+    case FT_DOUBLE:
+    case FT_FLOAT:
+        switch (val_units_) {
+        case IOG_ITEM_UNIT_CALC_SUM:
+            value = item->double_tot;
+            break;
+        case IOG_ITEM_UNIT_CALC_MAX:
+            value = item->double_max;
+            break;
+        case IOG_ITEM_UNIT_CALC_MIN:
+            value = item->double_min;
+            break;
+        case IOG_ITEM_UNIT_CALC_AVERAGE:
+            if (item->fields) {
+                value = item->double_tot / item->fields;
             } else {
                 value = 0;
             }

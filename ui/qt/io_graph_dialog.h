@@ -48,8 +48,8 @@ class QCPAxisTickerDateTime;
 // can span no more than 4.66 days, and if we decrease the minimum interval
 // size without increasing this it would decrease proportionately (e.g.
 // for 1 μs no more than 16.8 s.)
-// Each io_graph_item_t is 152 bytes on a LP64 system, so the max size
-// we'll attempt to allocate for the array of items is 2.375 GiB
+// Each io_graph_item_t is 88 bytes on a system with 64 bit time_t, so
+// the max size we'll attempt to allocate for the array of items is 1.375 GiB
 // (plus a tiny amount extra for the std::vector bookkeeping.)
 // 2^24 = 16777216
 const int max_io_items_ = 1 << 24;

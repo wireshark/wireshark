@@ -4310,7 +4310,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
     sharkd_json_result_epilogue();
 }
 
-#define SHARKD_IOGRAPH_MAX_ITEMS 250000 /* 250k limit of items is taken from wireshark-qt, on x86_64 sizeof(io_graph_item_t) is 152, so single graph can take max 36 MB */
+#define SHARKD_IOGRAPH_MAX_ITEMS 250000 /* 250k limit of items is taken from wireshark-qt, on x86_64 sizeof(io_graph_item_t) is 88, so single graph can take max 21 MB */
 
 struct sharkd_iograph
 {
@@ -4344,14 +4344,14 @@ sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const vo
             int new_size = idx + 1024;
 
             graph->items = (io_graph_item_t *) g_realloc(graph->items, sizeof(io_graph_item_t) * new_size);
-            reset_io_graph_items(&graph->items[graph->space_items], new_size - graph->space_items);
+            reset_io_graph_items(&graph->items[graph->space_items], new_size - graph->space_items, graph->hf_index);
 
             graph->space_items = new_size;
         }
         else if (graph->items == NULL)
         {
             graph->items = g_new(io_graph_item_t, graph->space_items);
-            reset_io_graph_items(graph->items, graph->space_items);
+            reset_io_graph_items(graph->items, graph->space_items, graph->hf_index);
         }
 
         graph->num_items = idx + 1;

@@ -41,24 +41,32 @@ typedef struct _io_graph_item_t {
     guint32  frames;            /* always calculated, will hold number of frames*/
     guint64  bytes;             /* always calculated, will hold number of bytes*/
     guint64  fields;
-    gint64   int_max;
-    gint64   int_min;
-    gint64   int_tot;
-    /* XXX - Why do we always use 64-bit ints but split floats between
-     * gfloat and gdouble?
+    /* We use a double for totals because of overflow. For min and max,
+     * unsigned 64 bit integers larger than 2^53 cannot all be represented
+     * in a double, and this is useful for determining the frame with the
+     * min or max value, even though for plotting it will be converted to a
+     * double.
      */
-    gfloat   float_max;
-    gfloat   float_min;
-    gfloat   float_tot;
-    gdouble  double_max;
-    gdouble  double_min;
-    gdouble  double_tot;
-    nstime_t time_max;
-    nstime_t time_min;
-    nstime_t time_tot;
-    guint32  first_frame_in_invl;
-    guint32  extreme_frame_in_invl; /* frame with min/max value */
-    guint32  last_frame_in_invl;
+    union {
+        nstime_t time_max;
+        double   double_max;
+        int64_t  int_max;
+        uint64_t uint_max;
+    };
+    union {
+        nstime_t time_min;
+        double   double_min;
+        int64_t  int_min;
+        uint64_t uint_min;
+    };
+    union {
+        nstime_t time_tot;
+        double   double_tot;
+    };
+    uint32_t  first_frame_in_invl;
+    uint32_t  min_frame_in_invl;
+    uint32_t  max_frame_in_invl;
+    uint32_t  last_frame_in_invl;
 } io_graph_item_t;
 
 /** Reset (zero) an io_graph_item_t.
@@ -67,7 +75,7 @@ typedef struct _io_graph_item_t {
  * @param count [in] The number of items in the array.
  */
 static inline void
-reset_io_graph_items(io_graph_item_t *items, gsize count) {
+reset_io_graph_items(io_graph_item_t *items, gsize count, int hf_index _U_) {
     io_graph_item_t *item;
     gsize i;
 
@@ -77,21 +85,70 @@ reset_io_graph_items(io_graph_item_t *items, gsize count) {
         item->frames     = 0;
         item->bytes      = 0;
         item->fields     = 0;
-        item->int_max    = 0;
-        item->int_min    = 0;
-        item->int_tot    = 0;
-        item->float_max  = 0;
-        item->float_min  = 0;
-        item->float_tot  = 0;
-        item->double_max = 0;
-        item->double_min = 0;
-        item->double_tot = 0;
+        item->first_frame_in_invl = 0;
+        item->min_frame_in_invl = 0;
+        item->max_frame_in_invl = 0;
+        item->last_frame_in_invl  = 0;
+
         nstime_set_zero(&item->time_max);
         nstime_set_zero(&item->time_min);
         nstime_set_zero(&item->time_tot);
-        item->first_frame_in_invl = 0;
-        item->extreme_frame_in_invl = 0;
-        item->last_frame_in_invl  = 0;
+
+#if 0
+        /* XXX - On C, type punning is explicitly allowed since C99 so
+         * setting the nstime_t values to 0 is always sufficient.
+         * On C++ that appears technically to be undefined behavior (though
+         * I don't know of any compilers for which it doesn't work and I
+         * can't get UBSAN to complain about it) and this would be safer.
+         */
+        if (hf_index > 0) {
+
+            switch (proto_registrar_get_ftype(hf_index)) {
+
+            case FT_INT8:
+            case FT_INT16:
+            case FT_INT24:
+            case FT_INT32:
+            case FT_INT40:
+            case FT_INT48:
+            case FT_INT56:
+            case FT_INT64:
+                item->int_max = 0;
+                item->int_min = 0;
+                item->double_tot = 0;
+                break;
+
+            case FT_UINT8:
+            case FT_UINT16:
+            case FT_UINT24:
+            case FT_UINT32:
+            case FT_UINT40:
+            case FT_UINT48:
+            case FT_UINT56:
+            case FT_UINT64:
+                item->uint_max = 0;
+                item->uint_min = 0;
+                item->double_tot = 0;
+                break;
+
+            case FT_DOUBLE:
+            case FT_FLOAT:
+                item->double_max = 0;
+                item->double_min = 0;
+                item->double_tot = 0;
+                break;
+
+            case FT_RELATIVE_TIME:
+                nstime_set_zero(&item->time_max);
+                nstime_set_zero(&item->time_min);
+                nstime_set_zero(&item->time_tot);
+                break;
+
+            default:
+                break;
+            }
+        }
+#endif
     }
 }
 
@@ -181,21 +238,14 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
             case FT_UINT32:
                 new_uint64 = fvalue_get_uinteger(((field_info *)gp->pdata[i])->value);
 
-                if ((new_uint64 > (guint64)item->int_max) || (item->fields == 0)) {
-                    item->int_max = new_uint64;
-                    item->double_max = (gdouble)new_uint64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                if ((new_uint64 > item->uint_max) || (item->fields == 0)) {
+                    item->uint_max = new_uint64;
+                    item->max_frame_in_invl = pinfo->num;
                 }
-                if ((new_uint64 < (guint64)item->int_min) || (item->fields == 0)) {
-                    item->int_min = new_uint64;
-                    item->double_min = (gdouble)new_uint64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                if ((new_uint64 < item->uint_min) || (item->fields == 0)) {
+                    item->uint_min = new_uint64;
+                    item->min_frame_in_invl = pinfo->num;
                 }
-                item->int_tot += new_uint64;
                 item->double_tot += (gdouble)new_uint64;
                 item->fields++;
                 break;
@@ -206,19 +256,12 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_int64 = fvalue_get_sinteger(((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
-                    item->double_max = (gdouble)new_int64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                    item->max_frame_in_invl = pinfo->num;
                 }
                 if ((new_int64 < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int64;
-                    item->double_min = (gdouble)new_int64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                    item->min_frame_in_invl = pinfo->num;
                 }
-                item->int_tot += new_int64;
                 item->double_tot += (gdouble)new_int64;
                 item->fields++;
                 break;
@@ -227,21 +270,14 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
             case FT_UINT56:
             case FT_UINT64:
                 new_uint64 = fvalue_get_uinteger64(((field_info *)gp->pdata[i])->value);
-                if ((new_uint64 > (guint64)item->int_max) || (item->fields == 0)) {
-                    item->int_max = new_uint64;
-                    item->double_max = (gdouble)new_uint64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                if ((new_uint64 > item->uint_max) || (item->fields == 0)) {
+                    item->uint_max = new_uint64;
+                    item->max_frame_in_invl = pinfo->num;
                 }
-                if ((new_uint64 < (guint64)item->int_min) || (item->fields == 0)) {
-                    item->int_min = new_uint64;
-                    item->double_min = (gdouble)new_uint64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                if ((new_uint64 < item->uint_min) || (item->fields == 0)) {
+                    item->uint_min = new_uint64;
+                    item->min_frame_in_invl = pinfo->num;
                 }
-                item->int_tot += new_uint64;
                 item->double_tot += (gdouble)new_uint64;
                 item->fields++;
                 break;
@@ -252,52 +288,37 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_int64 = fvalue_get_sinteger64(((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
-                    item->double_max = (gdouble)new_int64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                    item->max_frame_in_invl = pinfo->num;
                 }
                 if ((new_int64 < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int64;
-                    item->double_min = (gdouble)new_int64;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                    item->min_frame_in_invl = pinfo->num;
                 }
-                item->int_tot += new_int64;
                 item->double_tot += (gdouble)new_int64;
                 item->fields++;
                 break;
             case FT_FLOAT:
                 new_float = (gfloat)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
-                if ((new_float > item->float_max) || (item->fields == 0)) {
-                    item->float_max = new_float;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                if ((new_float > item->double_max) || (item->fields == 0)) {
+                    item->double_max = new_float;
+                    item->max_frame_in_invl = pinfo->num;
                 }
-                if ((new_float < item->float_min) || (item->fields == 0)) {
-                    item->float_min = new_float;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                if ((new_float < item->double_min) || (item->fields == 0)) {
+                    item->double_min = new_float;
+                    item->min_frame_in_invl = pinfo->num;
                 }
-                item->float_tot += new_float;
+                item->double_tot += new_float;
                 item->fields++;
                 break;
             case FT_DOUBLE:
                 new_double = fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                 if ((new_double > item->double_max) || (item->fields == 0)) {
                     item->double_max = new_double;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                    item->max_frame_in_invl = pinfo->num;
                 }
                 if ((new_double < item->double_min) || (item->fields == 0)) {
                     item->double_min = new_double;
-                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                        item->extreme_frame_in_invl = pinfo->num;
-                    }
+                    item->min_frame_in_invl = pinfo->num;
                 }
                 item->double_tot += new_double;
                 item->fields++;
@@ -311,8 +332,8 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     guint64 t, pt; /* time in us */
                     int j;
                     /*
-                     * Add the time this call spanned each interval according to its contribution
-                     * to that interval.
+                     * Add the time this call spanned each interval according to
+                     * its contribution to that interval.
                      */
                     t = new_time->secs;
                     t = t * 1000000 + new_time->nsecs / 1000;
@@ -354,18 +375,14 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                               && (new_time->nsecs > item->time_max.nsecs))
                          || (item->fields == 0)) {
                         item->time_max = *new_time;
-                        if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
-                            item->extreme_frame_in_invl = pinfo->num;
-                        }
+                        item->max_frame_in_invl = pinfo->num;
                     }
                     if ( (new_time->secs<item->time_min.secs)
                          || ( (new_time->secs == item->time_min.secs)
                               && (new_time->nsecs < item->time_min.nsecs))
                          || (item->fields == 0)) {
                         item->time_min = *new_time;
-                        if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
-                            item->extreme_frame_in_invl = pinfo->num;
-                        }
+                        item->min_frame_in_invl = pinfo->num;
                     }
                     nstime_add(&item->time_tot, new_time);
                     item->fields++;
