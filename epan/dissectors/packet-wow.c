@@ -1443,4 +1443,3 @@ proto_reg_handoff_wow(void)
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
