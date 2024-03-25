@@ -28,16 +28,17 @@ wsbuglink:18734[].
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2024-06[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2024-06[]
+T.38 dissector crash.
+wsbuglink:19695[].
 // cveidlink:2024-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.2: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
+// Fixed in master: 6fd3af5e99
+// Fixed in release-4.2: 7be4bbb413d
+// Fixed in release-4.0: c04f268605c
+// Fixed in release-3.6: n/a
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-125
+// CWE-762
+// * Fuzz job crash: fuzz-2024-03-07-7208.pcap. wsbuglink:19695[].
 
 The following bugs have been fixed:
 
@@ -45,6 +46,12 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
+
+* Packet Dissection CSV Export includes last column even if hidden. wsbuglink:19666[].
+* Fuzz job issue: fuzz-2024-03-03-7204.pcap. wsbuglink:19685[].
+* Fuzz job issue: randpkt-2024-03-05-8004.pcap. wsbuglink:19688[].
+* '--export-objects' does not work as expected on tshark version later than 3.2.10. wsbuglink:19715[].
+* Fuzz job issue: fuzz-2024-03-21-7215.pcap. wsbuglink:19717[].
 
 === New and Updated Features
 
@@ -59,9 +66,151 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.11.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.14.. | ag packet- | sort -u)
 [commaize]
 --
+6LoWPAN
+AFP
+AllJoyn
+AMQP
+ASAP
+Babel
+BACnet
+Banana
+BEEP
+Bencode
+BFCP
+BGP
+BT-DHT
+BT BNEP
+BT SDP
+BVLC
+CIP
+CMIP
+CMP
+COROSYNC/TOTEMSRP
+COSE
+CQL
+CSN.1
+DAP
+DICOM
+DCOM
+DHCPv6
+DISP
+DOCSIS MAC MGMT
+DOF
+DVB-S2
+EDONKEY
+ErlDP
+Etch
+EXTREME MESH
+FC-SWILS
+GNW
+GIOP
+GLOW
+GOOSE
+GQUIC
+GSM A-bis OML
+GSUP
+GTPv2
+H.223
+H.225.0
+H.245
+H.248
+H.264
+H.265
+HSMS
+ICMPv6
+ICQ
+IEEE1609dot2
+IPP
+ISAKMP
+iSCSI
+ISIS LSP
+ISO 7816
+ISUP
+ITS
+JXTA
+Kafka
+KINK
+KNX/IP
+LDAP
+LDP
+5GLI
+LISP TCP
+LISP
+LLRP
+LwM2M-TLV
+M2UA
+M3UA
+MBIM
+MMS
+MONGO
+MPEG PES
+MPLS Echo
+MQ PCF
+MQTT-SN
+MSDP
+MsgPack
+MS-WSP
+NAS-5GS
+CFLOW
+NETLINK
+NHRP
+OpenFlow
+OpenWire
+OPSI
+OSC
+P22
+P7
+PANA
+PIM
+ProtoBuf
+PROXY
+Q.2931
+QNET
+RDP
+RESP
+RPL
+RSL
+RSVP
+RTLS
+RTMPT
+RTPS
+S7COMM
+SCTP
+SIMULCRYPT
+SoulSeek
+SMB2
+SML
+SNA
+SNMP
+Socks
+SolarEdge
+SOME/IP
+SUA
+T.38
+TCAP
+TEAP
+TFTP
+Thread
+TN5250
+USBHID
+USBVIDEO
+VP9
+WASSP
+WLCCP
+WTP
+X.509IF
+X.509SAT
+XML
+XMPP
+YAMI
+Z39.50
+ZigBee ZCL
+Gryphon
+PNIO
+WiMAX ASN CP
 --
 
 === New and Updated Capture File Support
@@ -72,17 +221,20 @@ There are no new protocols in this release.
 // --
 // --
 
+=== Updated File Format Decoding Support
+
+// There is no updated file format support in this release.
+// Add one file type per line between the -- delimiters.
+[commaize]
+--
+BLF
+JPEG
+RBM
+--
+
 // === New and Updated Capture Interfaces support
 
 // === Major API Changes
-
-=== New File Format Decoding Support
-
-There is no new or updated file format support in this release.
-// Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
 
 // === New and Updated Capture Interfaces support
 
