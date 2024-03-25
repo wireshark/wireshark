@@ -3864,7 +3864,7 @@ static const per_sequence_t GenericParameter_sequence[] = {
 
 static int
 dissect_h245_GenericParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // GenericParameter → ParameterValue → ParameterValue/genericParameter → GenericParameter
+  // GenericParameter -> ParameterValue -> ParameterValue/genericParameter -> GenericParameter
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5664,7 +5664,7 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // VideoCapability → ExtendedVideoCapability → ExtendedVideoCapability/videoCapability → VideoCapability
+  // VideoCapability -> ExtendedVideoCapability -> ExtendedVideoCapability/videoCapability -> VideoCapability
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   gint32 value;
@@ -5985,7 +5985,7 @@ static const per_choice_t AudioCapability_choice[] = {
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // AudioCapability → VBDCapability → AudioCapability
+  // AudioCapability -> VBDCapability -> AudioCapability
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   gint32 value;
@@ -7148,7 +7148,7 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // DataType → H235Media → H235Media/mediaType → RedundancyEncoding → DataType
+  // DataType -> H235Media -> H235Media/mediaType -> RedundancyEncoding -> DataType
   actx->pinfo->dissection_depth += 4;
   increment_dissection_depth(actx->pinfo);
 gint choice_index;
@@ -8869,7 +8869,7 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // MultiplexElement → MultiplexElement/type → MultiplexElement/type/subElementList → MultiplexElement
+  // MultiplexElement -> MultiplexElement/type -> MultiplexElement/type/subElementList -> MultiplexElement
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   /*MultiplexElement*/
@@ -9503,7 +9503,7 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // AudioMode → VBDMode → AudioMode
+  // AudioMode -> VBDMode -> AudioMode
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   gint32 value;
@@ -9861,7 +9861,7 @@ static const per_choice_t ModeElementType_choice[] = {
 
 static int
 dissect_h245_ModeElementType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // ModeElementType → RedundancyEncodingDTMode → RedundancyEncodingDTModeElement → RedundancyEncodingDTModeElement/type → FECMode → ModeElementType
+  // ModeElementType -> RedundancyEncodingDTMode -> RedundancyEncodingDTModeElement -> RedundancyEncodingDTModeElement/type -> FECMode -> ModeElementType
   actx->pinfo->dissection_depth += 5;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,

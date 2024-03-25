@@ -3967,7 +3967,7 @@ static const per_sequence_t EnumeratedParameter_sequence[] = {
 
 static int
 dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // EnumeratedParameter → Content → Content/compound → EnumeratedParameter
+  // EnumeratedParameter -> Content -> Content/compound -> EnumeratedParameter
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   gef_ctx_t *parent_gefx;
@@ -3992,7 +3992,7 @@ static const per_sequence_t GenericData_sequence[] = {
 
 int
 dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // GenericData → GenericData/parameters → EnumeratedParameter → Content → Content/nested → GenericData
+  // GenericData -> GenericData/parameters -> EnumeratedParameter -> Content -> Content/nested -> GenericData
   actx->pinfo->dissection_depth += 5;
   increment_dissection_depth(actx->pinfo);
   void *priv_data = actx->private_data;

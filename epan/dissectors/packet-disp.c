@@ -1041,7 +1041,7 @@ static const ber_sequence_t Subtree_sequence[] = {
 
 static int
 dissect_disp_Subtree(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // Subtree → Subtree/subtree → Subtree
+  // Subtree -> Subtree/subtree -> Subtree
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -1204,7 +1204,7 @@ static const ber_sequence_t IncrementalStepRefresh_sequence[] = {
 
 static int
 dissect_disp_IncrementalStepRefresh(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // IncrementalStepRefresh → IncrementalStepRefresh/subordinateUpdates → SubordinateChanges → IncrementalStepRefresh
+  // IncrementalStepRefresh -> IncrementalStepRefresh/subordinateUpdates -> SubordinateChanges -> IncrementalStepRefresh
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,

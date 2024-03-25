@@ -432,7 +432,7 @@ static const ber_choice_t Criteria_choice[] = {
 
 int
 dissect_x509sat_Criteria(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // Criteria → Criteria/and → Criteria
+  // Criteria -> Criteria/and -> Criteria
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,

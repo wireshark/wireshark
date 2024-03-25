@@ -7426,7 +7426,7 @@ static const per_sequence_t RANParameter_Testing_Item_sequence[] = {
 
 static int
 dissect_e2ap_RANParameter_Testing_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // RANParameter-Testing-Item → RANParameter-Testing-Item/ranParameter-Type → RANParameter-Testing-Item-Choice-List → RANParameter-Testing-LIST → RANParameter-Testing-Item
+  // RANParameter-Testing-Item -> RANParameter-Testing-Item/ranParameter-Type -> RANParameter-Testing-Item-Choice-List -> RANParameter-Testing-LIST -> RANParameter-Testing-Item
   actx->pinfo->dissection_depth += 4;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7818,7 +7818,7 @@ static const per_sequence_t RANParameter_Definition_sequence[] = {
 
 static int
 dissect_e2ap_RANParameter_Definition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // RANParameter-Definition → RANParameter-Definition-Choice → RANParameter-Definition-Choice-LIST → RANParameter-Definition-Choice-LIST/ranParameter-List → RANParameter-Definition-Choice-LIST-Item → RANParameter-Definition
+  // RANParameter-Definition -> RANParameter-Definition-Choice -> RANParameter-Definition-Choice-LIST -> RANParameter-Definition-Choice-LIST/ranParameter-List -> RANParameter-Definition-Choice-LIST-Item -> RANParameter-Definition
   actx->pinfo->dissection_depth += 5;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7975,7 +7975,7 @@ static const per_choice_t RANParameter_ValueType_choice[] = {
 
 static int
 dissect_e2ap_RANParameter_ValueType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // RANParameter-ValueType → RANParameter-ValueType-Choice-Structure → RANParameter-STRUCTURE → RANParameter-STRUCTURE/sequence-of-ranParameters → RANParameter-STRUCTURE-Item → RANParameter-ValueType
+  // RANParameter-ValueType -> RANParameter-ValueType-Choice-Structure -> RANParameter-STRUCTURE -> RANParameter-STRUCTURE/sequence-of-ranParameters -> RANParameter-STRUCTURE-Item -> RANParameter-ValueType
   actx->pinfo->dissection_depth += 5;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,

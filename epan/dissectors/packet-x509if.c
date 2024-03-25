@@ -1047,7 +1047,7 @@ static const ber_choice_t Refinement_choice[] = {
 
 int
 dissect_x509if_Refinement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // Refinement → Refinement/and → Refinement
+  // Refinement -> Refinement/and -> Refinement
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1491,7 +1491,7 @@ static const ber_choice_t ContextCombination_choice[] = {
 
 int
 dissect_x509if_ContextCombination(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // ContextCombination → ContextCombination/and → ContextCombination
+  // ContextCombination -> ContextCombination/and -> ContextCombination
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1615,7 +1615,7 @@ static const ber_choice_t AttributeCombination_choice[] = {
 
 int
 dissect_x509if_AttributeCombination(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // AttributeCombination → AttributeCombination/and → AttributeCombination
+  // AttributeCombination -> AttributeCombination/and -> AttributeCombination
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,

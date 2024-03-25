@@ -1085,7 +1085,7 @@ dissect_glow_SEQUENCE_OF_Element(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_glow_ElementCollection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // ElementCollection → ElementCollection/_untag → Element → Node → Node/_untag → ElementCollection
+  // ElementCollection -> ElementCollection/_untag -> Element -> Node -> Node/_untag -> ElementCollection
   actx->pinfo->dissection_depth += 5;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1116,7 +1116,7 @@ dissect_glow_Parameter_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_glow_Parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // Parameter → Parameter/_untag → ElementCollection → ElementCollection/_untag → Element → Parameter
+  // Parameter -> Parameter/_untag -> ElementCollection -> ElementCollection/_untag -> Element -> Parameter
   actx->pinfo->dissection_depth += 5;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1173,7 +1173,7 @@ dissect_glow_Template_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_glow_Template(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // Template → Template/_untag → TemplateElement → Parameter → Parameter/_untag → ElementCollection → ElementCollection/_untag → Element → Template
+  // Template -> Template/_untag -> TemplateElement -> Parameter -> Parameter/_untag -> ElementCollection -> ElementCollection/_untag -> Element -> Template
   actx->pinfo->dissection_depth += 8;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,

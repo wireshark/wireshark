@@ -3031,7 +3031,7 @@ static const ber_choice_t RPNStructure_choice[] = {
 
 static int
 dissect_z3950_RPNStructure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // RPNStructure → RPNStructure/rpnRpnOp → RPNStructure
+  // RPNStructure -> RPNStructure/rpnRpnOp -> RPNStructure
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -6541,7 +6541,7 @@ static const ber_sequence_t ElementInfo_sequence[] = {
 
 static int
 dissect_z3950_ElementInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // ElementInfo → ElementDataType → ElementDataType/structured → ElementInfo
+  // ElementInfo -> ElementDataType -> ElementDataType/structured -> ElementInfo
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -8021,7 +8021,7 @@ static const ber_sequence_t TaggedElement_sequence[] = {
 
 static int
 dissect_z3950_TaggedElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // TaggedElement → ElementData → ElementData/subtree → TaggedElement
+  // TaggedElement -> ElementData -> ElementData/subtree -> TaggedElement
   actx->pinfo->dissection_depth += 3;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,

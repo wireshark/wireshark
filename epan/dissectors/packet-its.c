@@ -14998,7 +14998,7 @@ static const per_sequence_t gdd_GddStructure_sequence[] = {
 
 static int
 dissect_gdd_GddStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  // GddStructure → GddAttributes → GddAttributes/_item → InternationalSign-destinationInformation → InternationalSign-destinationInformation/ioList → DestinationInformationIO → DestinationInformationIO/destPlace → DestinationPlace → GddStructure
+  // GddStructure -> GddAttributes -> GddAttributes/_item -> InternationalSign-destinationInformation -> InternationalSign-destinationInformation/ioList -> DestinationInformationIO -> DestinationInformationIO/destPlace -> DestinationPlace -> GddStructure
   actx->pinfo->dissection_depth += 8;
   increment_dissection_depth(actx->pinfo);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
