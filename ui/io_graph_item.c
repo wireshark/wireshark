@@ -256,8 +256,11 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             // (for response time fields such as smb.time, rpc.time, etc.)
             // This interval is expressed in milliseconds.
             if (idx == cur_idx_ && cap_file) {
-                interval = (guint32)(nstime_to_msec(&cap_file->elapsed_time) + 0.5);
-                interval -= (interval_ * idx);
+                // If this is the last interval, it may not be full width.
+                uint64_t start_ms = (uint64_t)interval_ * idx;
+                nstime_t timediff = { start_ms / 1000, (start_ms % 1000) * 1000000 };
+                nstime_delta(&timediff, &cap_file->elapsed_time, &timediff);
+                interval = (uint32_t)(nstime_to_msec(&timediff) + 0.5);
             } else {
                 interval = interval_;
             }
