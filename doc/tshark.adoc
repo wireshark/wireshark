@@ -326,7 +326,7 @@ is selected.  This option can be used multiple times on the command line.
 At least one field must be provided if the *-T fields* option is
 selected. Column types may be used prefixed with "_ws.col."
 
-Example: *tshark -e frame.number -e ip.addr -e udp -e _ws.col.info*
+Example: *tshark -T fields -e frame.number -e ip.addr -e udp -e _ws.col.info*
 
 Fields are separated by tab characters by default.  *-E* controls the
 format of the printed fields.
@@ -646,7 +646,7 @@ Protocol match filter used for ek|json|jsonraw|pdml output file types.
 Only the protocol's parent node is included. Child nodes are only
 included if explicitly specified in the filter.
 
-Example: *tshark -j "ip ip.flags http"*
+Example: *tshark -T json -j "ip ip.flags http"*
 --
 
 -J  <protocol match filter>::
@@ -656,7 +656,7 @@ Protocol top level filter used for ek|json|jsonraw|pdml output file types.
 The protocol's parent node and all child nodes are included.
 Lower-level protocols must be explicitly specified in the filter.
 
-Example: *tshark -J "tcp http"*
+Example: *tshark -T pdml -J "tcp http"*
 --
 
 -l::
