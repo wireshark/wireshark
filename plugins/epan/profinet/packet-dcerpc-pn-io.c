@@ -861,6 +861,36 @@ static int hf_pn_io_pe_service_modifier;
 static int hf_pn_io_pe_service_status;
 static int hf_pn_io_pe_service_structure_id;
 static int hf_pn_io_pe_service_errorcode;
+static int hf_pn_io_pe_service_datarequest;
+static int hf_pn_io_pe_service_dataresponse;
+static int hf_pn_io_pe_data_count;
+static int hf_pn_io_pe_pause_time;
+static int hf_pn_io_pe_time_min_pause;
+static int hf_pn_io_pe_time_to_pause;
+static int hf_pn_io_pe_time_min_length_of_stay;
+static int hf_pn_io_pe_time_max_length_of_stay;
+static int hf_pn_io_pe_regular_time_to_operate;
+static int hf_pn_io_pe_current_time_to_operate;
+static int hf_pn_io_pe_current_time_to_destination;
+static int hf_pn_io_pe_mode_power_consumption;
+static int hf_pn_io_pe_energy_to_destination;
+static int hf_pn_io_pe_energy_to_operate;
+static int hf_pn_io_pe_energy_to_pause;
+static int hf_pn_io_pe_version_major;
+static int hf_pn_io_pe_version_minor;
+static int hf_pn_io_pe_entity_class;
+static int hf_pn_io_pe_entity_subclass;
+static int hf_pn_io_pe_entity_dyn_t_and_e;
+static int hf_pn_io_pe_entity_pe_ase;
+static int hf_pn_io_pe_maximum_command_respond_time;
+static int hf_pn_io_pe_mode_id;
+static int hf_pn_io_pe_mode_attributes_value;
+static int hf_pn_io_pe_mode_attributes_value_bit0;
+static int hf_pn_io_pe_mode_attributes_value_otherbits;
+static int hf_pn_io_pe_wol_wake_up_method;
+static int hf_pn_io_pe_wol_wake_up_data_length;
+static int hf_pn_io_pe_mode_id_source;
+static int hf_pn_io_pe_mode_id_destination;
 static int hf_pn_io_pe_operational_mode;
 
 static int hf_pn_io_snmp_community_name_length;
@@ -947,6 +977,9 @@ static gint ett_pn_io_mau_type_extension;
 
 static gint ett_pn_io_pe_service_request;
 static gint ett_pn_io_pe_service_response;
+static gint ett_pn_io_pe_service_datarequest;
+static gint ett_pn_io_pe_service_dataresponse;
+static gint ett_pn_io_pe_mode_attributes;
 static gint ett_pn_io_pe_operational_mode;
 
 static gint ett_pn_io_tsn_domain_port_config;
@@ -2716,6 +2749,33 @@ static const range_string pn_io_mau_type_extension[] = {
     { 0, 0, NULL }
 };
 
+static const value_string pn_io_pe_entity_classes[] = {
+    { 0x01, "PE Standby" },
+    { 0x02, "PE Measurement" },
+    { 0x03, "PE Standby and PE Measurement" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pe_entity_subclasses[] = {
+    { 0x00, "No subclass" },
+    { 0x01, "PESAP does not support PE_energy_saving_disabled" },
+    { 0x02, "PESAP does support PE_energy_saving_disabled" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pe_dyn_t_and_e_values[] = {
+    { 0x00, "none" },
+    { 0x01, "static values" },
+    { 0x02, "dynamic values" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pe_use_pe_ase[] = {
+    { 0x01, "PE Entity uses PE ASE" },
+    { 0x02, "PE Entity does not use PE ASE" },
+    { 0, NULL }
+};
+
 static const range_string pn_io_pe_services[] = {
     { 0x00, 0x00, "reserved" },
     { 0x01, 0x01, "Start_Pause" },
@@ -2745,6 +2805,7 @@ static const value_string pn_io_pe_services_modifier[] = {
     { 0x0301, "List_Energy_Saving_Modes" },
     { 0x0302, "Get_Mode" },
     { 0x0400, "PEM_Status" },
+    { 0x0401, "PEM_Status_Ext1" },
     { 0x0500, "PE_Identify" },
     { 0x0600, "Query_Version" },
     { 0x0700, "Query_Attributes" },
@@ -2756,9 +2817,11 @@ static const value_string pn_io_pe_services_modifier[] = {
     { 0x1101, "Reset_Energy_Meter_MeasurementID" },
     { 0x1102, "Reset_Energy_Meter_ObjectNumber" },
     { 0x1103, "Reset_Energy_Meter_MeasurementID_ObjectNumber" },
+    { 0x11FE, "Reset_Energy_Meter" },
     { 0x1200, "Set_Energy_Meter" },
     { 0x2000, "Info_Sleep_Mode_WOL" },
     { 0x2100, "Go_Sleep_Mode_WOL" },
+    { 0x2101, "Go_Sleep_Mode_WOL_with_pause_time" },
     { 0, NULL }
 };
 
@@ -2801,6 +2864,18 @@ static const range_string pn_io_pe_operational_mode[] = {
     { 0xFE, 0xFE, "PE_SleepModeWOL" },
     { 0xFF, 0xFF, "PE_ReadyToOperate" },
     { 0, 0, NULL }
+};
+
+static const value_string pn_io_pe_mode_attributes_bit0[] = {
+    { 0x00, "only static time and energy values available" },
+    { 0x01, "dynamic time and energy values available" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pe_wol_wake_up_method[] = {
+    { 0x01, "Wake-up based on magic packet" },
+    { 0x02, "Wake-up based on vendor specific data (PE Version < V1.3)" },
+    { 0, NULL }
 };
 
 static const value_string pn_io_port_state[] = {
@@ -10036,6 +10111,7 @@ dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
     guint8      modifier;
     guint8      structure_id;
     guint16     service_modifier;
+    gboolean    col_add = FALSE;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -10055,8 +10131,47 @@ dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
     proto_item_append_text(item, ": %s", val_to_str_const(service_modifier, pn_io_pe_services_modifier, "Unknown"));
 
     if (u16BodyLength > 0) {
-        /* todo: dissect Service Request data */
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "PE RequestData");
+        proto_item *pedata_item;
+        proto_tree *pedata_tree;
+        guint32 u32PauseTime;
+        guint8 u8ModeID;
+
+        pedata_item = proto_tree_add_item(tree, hf_pn_io_pe_service_datarequest, tvb, offset, u16BodyLength, ENC_NA);
+        pedata_tree = proto_item_add_subtree(pedata_item, ett_pn_io_pe_service_datarequest);
+
+        switch (service_modifier) {
+        case 0x0100:    /* Start_Pause */
+        case 0x0101:
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_pause_time, &u32PauseTime);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceRequest, Ref:0x%02x, Start Pause %u msec",
+                request_ref, u32PauseTime);
+            col_add = TRUE;
+            break;
+        case 0x0302:    /* Get_Mode */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_mode_id, &u8ModeID);
+            offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceRequest, Ref:0x%02x, Get_Mode:0x%02x",
+                request_ref, u8ModeID);
+            col_add = TRUE;
+            break;
+        case 0x2101:    /* Go_Sleep_Mode_WOL_with_pause_time */
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_pause_time, &u32PauseTime);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceRequest, Ref:0x%02x, Go_Sleep_Mode_WOL %u msec",
+                request_ref, u32PauseTime);
+            col_add = TRUE;
+            break;
+        default:
+            offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "PE RequestData");
+            break;
+        }
+    }
+
+    if (!col_add) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceRequest, Ref:0x%02x, %s",
+            request_ref, val_to_str_const(service_modifier, pn_io_pe_services_modifier, "Unknown"));
     }
 
     return offset;
@@ -10071,6 +10186,8 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
     guint8 request_ref;
     guint8 status;
     guint8 structure_id;
+    guint16 service_modifier;
+    gboolean col_add = FALSE;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -10084,15 +10201,254 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_structure_id, &structure_id);
     u16BodyLength -= 4;
 
-    proto_item_append_text(item, ": %s", rval_to_str_const(service_response_id, pn_io_pe_services, "Unknown"));
 
     if (structure_id == 0xFF) {
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_errorcode, &status);
         /* align padding */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
-    } else if (u16BodyLength > 0) {
-        /* todo: dissect Service Response data */
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "PE ResponseData");
+
+        proto_item_append_text(item, ": %s", rval_to_str_const(service_response_id, pn_io_pe_services, "Unknown"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref:0x%02x, %s (ERROR)",
+            request_ref, rval_to_str_const(service_response_id, pn_io_pe_services, "Unknown"));
+        col_add = TRUE;
+    } else {
+        /*
+         * In the response we do not have modifier as in the request.
+         * To properly deconde the service name we have to use response structure ID based on service ID.
+         * There is no easy 1 to 1 mapping.
+         */
+        if (service_response_id == 0x01) {
+            service_modifier = (service_response_id << 8) | (structure_id-1);
+        } else if (service_response_id == 0x03) {
+            service_modifier = (service_response_id << 8) | (structure_id);
+        } else if (service_response_id == 0x04) {
+            service_modifier = (service_response_id << 8) | (structure_id-1);
+        } else if (service_response_id == 0x10) {
+            if (structure_id == 0x02) {
+                service_modifier = (service_response_id << 8) | 0x01;
+            } else if (structure_id == 0x04) {
+                service_modifier = (service_response_id << 8) | 0x03;
+            } else if (structure_id == 0x01) {
+                service_modifier = (service_response_id << 8) | 0x02;
+            } else if (structure_id == 0x03) {
+                service_modifier = (service_response_id << 8) | 0x04;
+            } else {
+                service_modifier = (service_response_id << 8);
+            }
+        } else if (service_response_id == 0x11) {
+            /* no match to reset_meter_* possible, use generic text */
+            service_modifier = (service_response_id << 8) | 0xFE;
+        } else {
+            service_modifier = (service_response_id << 8);
+        }
+        proto_item_append_text(item, ": %s", val_to_str_const(service_modifier, pn_io_pe_services_modifier, "Unknown"));
+    }
+
+    if ((u16BodyLength > 0) && (structure_id != 0xFF)) {
+        proto_item *pedata_item;
+        proto_tree *pedata_tree;
+        guint8 u8Count;
+        guint8 u8ServiceID;
+        guint8 u8ModeID;
+        guint8 u8ModeSource;
+        guint8 u8ModeDestination;
+        guint8 u8ModeAttributes;
+        guint32 u32CTTD;
+        guint32 u32CTTO;
+        guint32 u32MaxCRT;
+        guint32 u32RTTO;
+        guint32 u32TMinP;
+        guint32 u32TMinLS;
+        guint32 u32TMaxLS;
+        guint32 u32TTP;
+        guint32 u32ModePower;
+        guint32 u32EnergyConsumption;
+        guint8 u8VersionMajor;
+        guint8 u8VersionMinor;
+        guint8 u8EntityClass;
+        guint8 u8EntitySubClass;
+        guint8 u8EntityDynTEValues;
+        guint8 u8EntityPEASE;
+        guint8 u8WOLMethod;
+        guint16 u16WOLDataLength;
+
+        pedata_item = proto_tree_add_item(tree, hf_pn_io_pe_service_dataresponse, tvb, offset, u16BodyLength, ENC_NA);
+        pedata_tree = proto_item_add_subtree(pedata_item, ett_pn_io_pe_service_dataresponse);
+
+        switch (service_response_id) {
+        case 0x01:      /* Start_Pause */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_mode_id, &u8ModeID);
+            /* align padding */
+            offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+            if (structure_id == 0x02) {
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_current_time_to_destination, &u32CTTD);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_regular_time_to_operate, &u32RTTO);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_time_min_length_of_stay, &u32TMinLS);
+            }
+            break;
+        case 0x02:      /* End_Pause */
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_current_time_to_operate, &u32CTTO);
+            break;
+        case 0x03:      /* Query_Modes */
+            if (structure_id == 0x01) {
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_data_count, &u8Count);
+                while (u8Count--) {
+                    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                        hf_pn_io_pe_mode_id, &u8ModeID);
+                }
+            } else if (structure_id == 0x02) {
+                proto_item *attributes_item;
+                proto_tree *attributes_tree;
+
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep, hf_pn_io_pe_mode_id, &u8ModeID);
+                attributes_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_mode_attributes_value, tvb, offset, 1, ENC_NA);
+                attributes_tree = proto_item_add_subtree(attributes_item, ett_pn_io_pe_mode_attributes);
+                /* Attributes.Bit0 */
+                dissect_dcerpc_uint8(tvb, offset, pinfo, attributes_tree, drep,
+                    hf_pn_io_pe_mode_attributes_value_bit0, &u8ModeAttributes);
+                /* Attributes.OtherBits */
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, attributes_tree, drep,
+                    hf_pn_io_pe_mode_attributes_value_otherbits, &u8ModeAttributes);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_time_min_pause, &u32TMinP);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_time_to_pause, &u32TTP);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_regular_time_to_operate, &u32RTTO);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_time_min_length_of_stay, &u32TMinLS);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_time_max_length_of_stay, &u32TMaxLS);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_power_consumption, &u32ModePower);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_energy_to_pause, &u32EnergyConsumption);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_energy_to_operate, &u32EnergyConsumption);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref:0x%02x, Get_Mode:0x%02x",
+                    request_ref, u8ModeID);
+                col_add = TRUE;
+            } else {
+                /* ... */
+                offset = dissect_pn_user_data(tvb, offset, pinfo, pedata_tree, u16BodyLength, "PE ResponseData not decoded [invalid StructID]");
+            }
+            break;
+        case 0x04:      /* PEM_Status */
+            if (structure_id == 0x01) {
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_id_source, &u8ModeSource);
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_id_destination, &u8ModeDestination);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_current_time_to_operate, &u32CTTO);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_current_time_to_destination, &u32CTTD);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_power_consumption, &u32ModePower);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_energy_to_destination, &u32EnergyConsumption);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_energy_to_operate, &u32EnergyConsumption);
+            } else if (structure_id == 0x02) {
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_id_source, &u8ModeSource);
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_id_destination, &u8ModeDestination);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_regular_time_to_operate, &u32RTTO);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_current_time_to_operate, &u32CTTO);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_current_time_to_destination, &u32CTTD);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_mode_power_consumption, &u32ModePower);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_energy_to_destination, &u32EnergyConsumption);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_energy_to_operate, &u32EnergyConsumption);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref:0x%02x, PEM_Status_Ext1", request_ref);
+                col_add = TRUE;
+            } else {
+                /* ... */
+                offset = dissect_pn_user_data(tvb, offset, pinfo, pedata_tree, u16BodyLength, "PE ResponseData not decoded [invalid StructID]");
+            }
+            break;
+        case 0x05:      /* PE_Identify */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_data_count, &u8Count);
+            while (u8Count--) {
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_service_request_id, &u8ServiceID);
+            }
+            break;
+        case 0x06:      /* Query_Version */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_version_major, &u8VersionMajor);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_version_minor, &u8VersionMinor);
+            proto_item_append_text(item, " V%u.%u", u8VersionMajor, u8VersionMinor);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref: 0x%02x, PE Version V%u.%u",
+                request_ref, u8VersionMajor, u8VersionMinor);
+            col_add = TRUE;
+            break;
+        case 0x07:      /* Query_Attributes */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_version_major, &u8VersionMajor);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_version_minor, &u8VersionMinor);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_entity_class, &u8EntityClass);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_entity_subclass, &u8EntitySubClass);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_entity_dyn_t_and_e, &u8EntityDynTEValues);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_entity_pe_ase, &u8EntityPEASE);
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_maximum_command_respond_time, &u32MaxCRT);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref: 0x%02x, Query_Attributes PE Version V%u.%u Class 0x%02x",
+                request_ref, u8VersionMajor, u8VersionMinor, u8EntityClass);
+            col_add = TRUE;
+            break;
+        case 0x20:      /* Info_Sleep_Mode_WOL */
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_regular_time_to_operate, &u32RTTO);
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_time_min_pause, &u32TMinP);
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_wol_wake_up_method, &u8WOLMethod);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_wol_wake_up_data_length, &u16WOLDataLength);
+            offset = dissect_pn_user_data(tvb, offset, pinfo, pedata_tree, u16WOLDataLength, "Wake_Up_Data");
+            break;
+        case 0x21:      /* Go_Sleep_Mode_WOL */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_mode_id, &u8ModeID);
+            /* align padding */
+            offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_current_time_to_destination, &u32CTTD);
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_regular_time_to_operate, &u32RTTO);
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_time_min_length_of_stay, &u32TMinLS);
+            break;
+        default:
+            /* ... */
+            offset = dissect_pn_user_data(tvb, offset, pinfo, pedata_tree, u16BodyLength, "ResponseData");
+            break;
+        }
+    }
+
+    if (!col_add) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref:0x%02x, %s",
+            request_ref, val_to_str_const(service_modifier, pn_io_pe_services_modifier, "Unknown"));
     }
 
     return offset;
@@ -17925,6 +18281,156 @@ proto_register_pn_io (void)
         FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_service_errorcode), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_pe_service_datarequest,
+      { "PE DataRequest", "pn_io.profienergy.datarerequest",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_service_dataresponse,
+      { "PE DataResponse", "pn_io.profienergy.dataresponse",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_data_count,
+      { "Count", "pn_io.profienergy.data.count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_pause_time,
+      { "Pause_time in msec", "pn_io.profienergy.time.pause",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_time_min_pause,
+      { "Time_min_Pause in msec", "pn_io.profienergy.time.min_pause",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_time_to_pause,
+      { "Time_to_Pause in msec", "pn_io.profienergy.time.to_pause",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_time_min_length_of_stay,
+      { "Time_min_length_of_stay in msec", "pn_io.profienergy.time.min_length_of_stay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_time_max_length_of_stay,
+      { "Time_max_length_of_stay in msec", "pn_io.profienergy.time.max_length_of_stay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_regular_time_to_operate,
+      { "Regular_time_to_operate in msec", "pn_io.profienergy.time.regular_to_operate",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_current_time_to_operate,
+      { "Current_time_to_operate in msec", "pn_io.profienergy.time.current_to_operate",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_current_time_to_destination,
+      { "Current_time_to_destination in msec", "pn_io.profienergy.time.current_to_destination",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_power_consumption,
+      { "Mode PowerConsumption in kW", "pn_io.profienergy.mode.power_consumption",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_energy_to_destination,
+      { "Energy Consumption_to_destination in kWh", "pn_io.profienergy.energy.to_destination",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_energy_to_operate,
+      { "Energy Consumption_to_operate in kWh", "pn_io.profienergy.energy.to_destination",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_energy_to_pause,
+      { "Energy Consumption_to_pause in kWh", "pn_io.profienergy.energy.to_pause",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_version_major,
+      { "PE VersionMajor", "pn_io.profienergy.version.major",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_version_minor,
+      { "PE VersionMinor", "pn_io.profienergy.version.minor",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_entity_class,
+      { "PE Entity Class", "pn_io.profienergy.entity.class",
+        FT_UINT8, BASE_HEX, VALS(pn_io_pe_entity_classes), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_entity_subclass,
+      { "PE Entity Subclass", "pn_io.profienergy.entity.subclass",
+        FT_UINT8, BASE_HEX, VALS(pn_io_pe_entity_subclasses), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_entity_dyn_t_and_e,
+      { "PE Dyn_T_and_E_values", "pn_io.profienergy.entity.dyn_t_and_e",
+        FT_UINT8, BASE_HEX, VALS(pn_io_pe_dyn_t_and_e_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_entity_pe_ase,
+      { "PE ASE", "pn_io.profienergy.entity.use_pease",
+        FT_UINT8, BASE_HEX, VALS(pn_io_pe_use_pe_ase), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_maximum_command_respond_time,
+      { "PE Max_command_respond_time in msec", "pn_io.profienergy.time.max_respond_time",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_id,
+      { "ModeID", "pn_io.profienergy.mode.id",
+         FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_attributes_value,
+    { "ModeAttributes", "pn_io.profienergy.mode.attributes",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_attributes_value_bit0,
+      { "ModeAttributes", "pn_io.profienergy.mode.attributes_bit0",
+         FT_UINT8, BASE_HEX, VALS(pn_io_pe_mode_attributes_bit0), 0x1,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_attributes_value_otherbits,
+      { "ModeAttributes", "pn_io.profienergy.mode.attributes_otherbits",
+        FT_UINT8, BASE_HEX, NULL, 0xFE,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_wol_wake_up_method,
+      { "Wake_Up_Method", "pn_io.profienergy.wol.wake_up_method",
+        FT_UINT8, BASE_HEX, VALS(pn_io_pe_wol_wake_up_method), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_wol_wake_up_data_length,
+      { "Wake_Up_Data_Length", "pn_io.profienergy.wol.wake_up_data_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_id_source,
+      { "ModeID Source", "pn_io.profienergy.mode.id_source",
+         FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_pe_mode_id_destination,
+      { "ModeID Destination", "pn_io.profienergy.mode.id_destination",
+         FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
+         NULL, HFILL }
+    },
     { &hf_pn_io_pe_operational_mode,
     { "PE_OperationalMode", "pn_io.pe_operationalmode",
        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
@@ -18028,6 +18534,9 @@ proto_register_pn_io (void)
         &ett_pn_io_mau_type_extension,
         &ett_pn_io_pe_service_request,
         &ett_pn_io_pe_service_response,
+        &ett_pn_io_pe_service_datarequest,
+        &ett_pn_io_pe_service_dataresponse,
+        &ett_pn_io_pe_mode_attributes,
         &ett_pn_io_pe_operational_mode,
         &ett_pn_io_neighbor,
         &ett_pn_io_tsn_domain_vid_config,
