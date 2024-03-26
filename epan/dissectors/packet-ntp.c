@@ -1271,10 +1271,10 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 * But, all V3 and V4 servers set this to IP address of their
 	 * higher level server. My decision was to resolve this address.
 	 */
-	buff = (gchar *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
+	buff = (gchar *)wmem_alloc(pinfo->pool, NTP_TS_SIZE);
 	if (stratum == 0) {
 		snprintf (buff, NTP_TS_SIZE, "Unidentified Kiss-o\'-Death message '%s'",
-			tvb_get_string_enc(wmem_packet_scope(), tvb, 12, 4, ENC_ASCII));
+			tvb_get_string_enc(pinfo->pool, tvb, 12, 4, ENC_ASCII));
 		for (i = 0; kod_messages[i].id; i++) {
 			if (tvb_memeql(tvb, 12, kod_messages[i].id, 4) == 0) {
 				snprintf(buff, NTP_TS_SIZE, "%s",
@@ -1284,7 +1284,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 		}
 	} else if (stratum == 1) {
 		snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%s'",
-			tvb_get_string_enc(wmem_packet_scope(), tvb, 12, 4, ENC_ASCII));
+			tvb_get_string_enc(pinfo->pool, tvb, 12, 4, ENC_ASCII));
 		for (i = 0; primary_sources[i].id; i++) {
 			if (tvb_memeql(tvb, 12, (const guint8*)primary_sources[i].id, 4) == 0) {
 				snprintf(buff, NTP_TS_SIZE, "%s",

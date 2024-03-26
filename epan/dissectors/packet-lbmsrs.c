@@ -1132,7 +1132,7 @@ static guint dissect_rsocket_frame(guint64 rsocket_frame_type,proto_tree* rsocke
 
 }
 
-static guint dissect_lbmsrs_sir_ser(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_sir, guint *cnt_ser, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_sir_ser(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_sir, guint *cnt_ser, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1173,7 +1173,7 @@ static guint dissect_lbmsrs_sir_ser(tvbuff_t * tvb, proto_tree * tree, guint off
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(sir_tree, hf_lbmsrs_sir_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
     offset += topic_len;
 
@@ -1367,7 +1367,7 @@ static guint dissect_lbmsrs_sir_ser(tvbuff_t * tvb, proto_tree * tree, guint off
     return (offset - start_offset);
 }
 
-static guint dissect_lbmsrs_sdr(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_sdr,gboolean *can_dissect_further)
+static guint dissect_lbmsrs_sdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_sdr,gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1416,7 +1416,7 @@ static guint dissect_lbmsrs_sdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(sdr_tree, hf_lbmsrs_sdr_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
     offset += topic_len;
 
@@ -1428,7 +1428,7 @@ static guint dissect_lbmsrs_sdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_rir(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_rir, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_rir(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_rir, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1468,7 +1468,7 @@ static guint dissect_lbmsrs_rir(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(rir_tree, hf_lbmsrs_rir_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
     offset += topic_len;
 
@@ -1534,7 +1534,7 @@ static guint dissect_lbmsrs_rir(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_rer(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_rer, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_rer(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_rer, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1574,7 +1574,7 @@ static guint dissect_lbmsrs_rer(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(rer_tree, hf_lbmsrs_rer_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
     offset += topic_len;
 
@@ -1641,7 +1641,7 @@ static guint dissect_lbmsrs_rer(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_rdr(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_rdr, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_rdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_rdr, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1681,7 +1681,7 @@ static guint dissect_lbmsrs_rdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(rdr_tree, hf_lbmsrs_rdr_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
     offset += topic_len;
 
@@ -1748,7 +1748,7 @@ static guint dissect_lbmsrs_rdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_wir(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_wir, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_wir(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_wir, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1788,7 +1788,7 @@ static guint dissect_lbmsrs_wir(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(wir_tree, hf_lbmsrs_wir_pattern, tvb, offset, pattern_len, ENC_ASCII | ENC_NA);
     offset += pattern_len;
 
@@ -1855,7 +1855,7 @@ static guint dissect_lbmsrs_wir(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_wdr(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_wdr, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_wdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_wdr, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -1895,7 +1895,7 @@ static guint dissect_lbmsrs_wdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(wdr_tree, hf_lbmsrs_wdr_pattern, tvb, offset, pattern_len, ENC_ASCII | ENC_NA);
     offset += pattern_len;
 
@@ -1962,7 +1962,7 @@ static guint dissect_lbmsrs_wdr(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_wer(tvbuff_t * tvb, proto_tree * tree, guint offset, guint *cnt_wer, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_wer(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint offset, guint *cnt_wer, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     gint start_offset = offset;
@@ -2002,7 +2002,7 @@ static guint dissect_lbmsrs_wer(tvbuff_t * tvb, proto_tree * tree, guint offset,
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(wer_tree, hf_lbmsrs_wer_pattern, tvb, offset, pattern_len, ENC_ASCII | ENC_NA);
     offset += pattern_len;
 
@@ -2068,7 +2068,7 @@ static guint dissect_lbmsrs_wer(tvbuff_t * tvb, proto_tree * tree, guint offset,
 
 }
 
-static guint dissect_lbmsrs_sli(tvbuff_t * tvb,  proto_tree * tree, guint offset, guint *cnt_sli, gboolean *can_dissect_further)
+static guint dissect_lbmsrs_sli(tvbuff_t * tvb, packet_info * pinfo,  proto_tree * tree, guint offset, guint *cnt_sli, gboolean *can_dissect_further)
 {
     guint total_payload_len = tvb_captured_length(tvb);
     guint start_offset = offset;
@@ -2109,7 +2109,7 @@ static guint dissect_lbmsrs_sli(tvbuff_t * tvb,  proto_tree * tree, guint offset
         return (offset - start_offset);
     }
     gint len;
-    char* name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(sli_tree, hf_lbmsrs_sli_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
     offset += topic_len;
 
@@ -2226,49 +2226,49 @@ static guint dissect_lbmsrs_batch(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         {
             case MSG_ID_SOURCE_INFO:
             {
-                len_dissected = dissect_lbmsrs_sir_ser(tvb,tree, offset, &cnt_sir, &cnt_ser,&can_dissect_further);
+                len_dissected = dissect_lbmsrs_sir_ser(tvb, pinfo, tree, offset, &cnt_sir, &cnt_ser,&can_dissect_further);
                 break;
             }
 
             case MSG_ID_SOURCE_DELETE:
             {
-                len_dissected = dissect_lbmsrs_sdr(tvb, tree, offset, &cnt_sdr, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_sdr(tvb, pinfo, tree, offset, &cnt_sdr, &can_dissect_further);
                 break;
             }
 
             case MSG_ID_RCV_INFO:
             {
-                len_dissected = dissect_lbmsrs_rir(tvb, tree, offset, &cnt_rir, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_rir(tvb, pinfo, tree, offset, &cnt_rir, &can_dissect_further);
                 break;
             }
             case MSG_ID_RCV_DELETE:
             {
-                len_dissected = dissect_lbmsrs_rdr(tvb, tree, offset, &cnt_rdr, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_rdr(tvb, pinfo, tree, offset, &cnt_rdr, &can_dissect_further);
                 break;
             }
             case MSG_ID_RCV_END:
             {
-                len_dissected = dissect_lbmsrs_rer(tvb, tree, offset, &cnt_rer, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_rer(tvb, pinfo, tree, offset, &cnt_rer, &can_dissect_further);
                 break;
             }
             case MSG_ID_WRCV_INFO:
             {
-                len_dissected = dissect_lbmsrs_wir(tvb, tree, offset, &cnt_wir, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_wir(tvb, pinfo, tree, offset, &cnt_wir, &can_dissect_further);
                 break;
             }
             case MSG_ID_WRCV_DELETE:
             {
-                len_dissected = dissect_lbmsrs_wdr(tvb, tree, offset, &cnt_wdr, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_wdr(tvb, pinfo, tree, offset, &cnt_wdr, &can_dissect_further);
                 break;
             }
             case MSG_ID_WRCV_END:
             {
-                len_dissected = dissect_lbmsrs_wer(tvb, tree, offset, &cnt_wer, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_wer(tvb, pinfo, tree, offset, &cnt_wer, &can_dissect_further);
                 break;
             }
             case MSG_ID_SRC_LEAVE:
             {
-                len_dissected = dissect_lbmsrs_sli(tvb, tree, offset, &cnt_sli, &can_dissect_further);
+                len_dissected = dissect_lbmsrs_sli(tvb, pinfo, tree, offset, &cnt_sli, &can_dissect_further);
                 break;
             }
 

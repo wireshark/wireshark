@@ -139,7 +139,7 @@ static int hf_nasdaq_itch_cross;
 static int
 order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset)
 {
-  const char *str_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 9, ENC_ASCII);
+  const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, 9, ENC_ASCII);
   guint32     value     = (guint32)strtoul(str_value, NULL, 10);
 
   proto_tree_add_uint(nasdaq_itch_tree, hf_nasdaq_itch_order_reference, tvb, offset, 9, value);
@@ -150,24 +150,24 @@ order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree
 
 /* -------------------------- */
 static int
-time_stamp(tvbuff_t *tvb, proto_tree *nasdaq_itch_tree, int id, int offset, int size)
+time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, int offset, int size)
 {
 
   if (nasdaq_itch_tree) {
       guint32     ms, val;
       const char *display   = "";
-      const char *str_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
+      const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
       ms = val = (guint32)strtoul(str_value, NULL, 10);
       switch (size) {
       case 3:
-          display = wmem_strdup_printf(wmem_packet_scope(), " %03u" , val);
+          display = wmem_strdup_printf(pinfo->pool, " %03u" , val);
           break;
       case 5:
           ms = val *1000;
           /* Fall Through */
       case 8: /* 0 86 400 000 */
-          display = wmem_strdup_printf(wmem_packet_scope(), " %u (%02u:%02u:%02u.%03u)", val,
+          display = wmem_strdup_printf(pinfo->pool, " %u (%02u:%02u:%02u.%03u)", val,
               ms/3600000, (ms % 3600000)/60000, (ms % 60000)/1000, ms %1000);
           break;
       }
@@ -181,7 +181,7 @@ static int
 number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, int offset, int big)
 {
   gint size = (big) ? 10 : 6;
-  const char *str_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
+  const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
   guint32 value = (guint32)strtoul(str_value, NULL, 10);
 
@@ -197,7 +197,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
 {
   gint size = (big) ? 19 : 10;
 
-  const char *str_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
+  const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
   gdouble     value     = guint64_to_gdouble(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
 
   proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
@@ -210,7 +210,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
 static int
 stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset)
 {
-  char *stock_p = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 6, ENC_ASCII);
+  char *stock_p = tvb_get_string_enc(pinfo->pool, tvb, offset, 6, ENC_ASCII);
 
   proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_stock, tvb, offset, 6, ENC_ASCII);
   col_append_fstr(pinfo->cinfo, COL_INFO, "<%s> ", stock_p);
@@ -293,7 +293,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   }
 
   if (version == 2) {
-    offset = time_stamp (tvb, nasdaq_itch_tree, hf_nasdaq_itch_millisecond, offset, 8);
+    offset = time_stamp (tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_millisecond, offset, 8);
   }
 
   proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_message_type, tvb, offset, 1, ENC_ASCII|ENC_NA);
@@ -302,11 +302,11 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   if (version == 3) {
     switch (nasdaq_itch_type) {
     case 'T': /* seconds */
-      /*offset =*/ time_stamp (tvb, nasdaq_itch_tree, hf_nasdaq_itch_second, offset, 5);
+      /*offset =*/ time_stamp (tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_second, offset, 5);
       return tvb_captured_length(tvb);
 
     case 'M': /* milliseconds */
-      /*offset =*/ time_stamp (tvb, nasdaq_itch_tree, hf_nasdaq_itch_millisecond, offset, 3);
+      /*offset =*/ time_stamp (tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_millisecond, offset, 3);
       return tvb_captured_length(tvb);
     }
   }

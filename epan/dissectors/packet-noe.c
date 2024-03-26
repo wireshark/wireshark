@@ -981,7 +981,7 @@ static guint64 decode_utf8(guint64 utf8)
     This function translates an UNICODE to the name associated.
     Need to have at least 48 bits value.
     ---------------------------------------------------------------------------*/
-static const char *decode_key_name(int unicode)
+static const char *decode_key_name(wmem_allocator_t *scope, int unicode)
 {
     const char *key_name;
 
@@ -997,7 +997,7 @@ static const char *decode_key_name(int unicode)
     }
     else if (unicode <= 0xFF)
     {
-        key_name = format_char(wmem_packet_scope(), unicode);
+        key_name = format_char(scope, unicode);
     }
     else
     {
@@ -1252,7 +1252,7 @@ static void decode_evt(proto_tree  *tree,
                 pt_length  -= 1;
             }
             unicode_value = decode_utf8(utf8_value);
-            key_name  = decode_key_name((int)unicode_value);
+            key_name  = decode_key_name(pinfo->pool, (int)unicode_value);
 
             /* add text to the frame "INFO" column */
             col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"", key_name);
@@ -1265,7 +1265,7 @@ static void decode_evt(proto_tree  *tree,
                 length, key_name,
                 "%s (UTF-8 Value: \"%s\", Unicode Value: 0x%" PRIx64 ")",
                 key_name,
-                tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length),
+                tvb_bytes_to_str(pinfo->pool, tvb, offset, length),
                 unicode_value);
             break;
         }

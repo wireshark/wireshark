@@ -476,7 +476,7 @@ ltp_data_seg_find_report(gpointer key _U_, gpointer value, gpointer user_data)
 		return;
 	}
 
-	wmem_list_t *found = wmem_itree_find_intervals(rpt_clms, wmem_packet_scope(), data_seg->data_fst, data_seg->data_lst);
+	wmem_list_t *found = wmem_itree_find_intervals(rpt_clms, data_seg->pinfo->pool, data_seg->data_fst, data_seg->data_lst);
 	for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
 		it = wmem_list_frame_next(it))
 	{
@@ -553,7 +553,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	{
 		if (data_fst <= data_lst)
 		{
-			wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, wmem_packet_scope(), data_fst, data_lst);
+			wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, pinfo->pool, data_fst, data_lst);
 			for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
 				it = wmem_list_frame_next(it))
 			{
@@ -789,7 +789,7 @@ ltp_check_reception_gap(proto_tree *ltp_rpt_tree, packet_info *pinfo,
 
 		const guint64 gap_fst = prec_lst + 1;
 		const guint64 gap_lst = next_fst - 1;
-		wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, wmem_packet_scope(), gap_fst, gap_lst);
+		wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, pinfo->pool, gap_fst, gap_lst);
 		for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
 			it = wmem_list_frame_next(it))
 		{
@@ -896,7 +896,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 		}
 
 		if (data_fst <= data_lst) {
-			wmem_list_t *found = wmem_itree_find_intervals(rpt, wmem_packet_scope(), data_fst, data_lst);
+			wmem_list_t *found = wmem_itree_find_intervals(rpt, pinfo->pool, data_fst, data_lst);
 			for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
 				it = wmem_list_frame_next(it))
 			{
@@ -966,7 +966,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 
 		if (ltp_analyze_sequence && session && (clm_fst <= clm_lst))
 		{
-			wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, wmem_packet_scope(), clm_fst, clm_lst);
+			wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, pinfo->pool, clm_fst, clm_lst);
 			for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
 				it = wmem_list_frame_next(it))
 			{
@@ -1136,7 +1136,7 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	ti = proto_tree_add_item(tree, proto_ltp, tvb, offset, -1, ENC_NA);
 	ltp_tree = proto_item_add_subtree(ti, ett_ltp);
 
-	ltp_tap_info_t *tap = wmem_new0(wmem_packet_scope(), ltp_tap_info_t);
+	ltp_tap_info_t *tap = wmem_new0(pinfo->pool, ltp_tap_info_t);
 
 	/* Adding Header Subtree */
 	ltp_header_tree = proto_tree_add_subtree(ltp_tree, tvb, frame_offset, 0, ett_ltp_hdr, NULL, "LTP Header");

@@ -1224,7 +1224,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				if (mgcp_type == MGCP_REQUEST)
 				{
 					endpointId = tvb_format_text(pinfo->pool, tvb, tvb_previous_offset, tokenlen);
-					mi->endpointId = wmem_strdup(wmem_packet_scope(), endpointId);
+					mi->endpointId = wmem_strdup(pinfo->pool, endpointId);
 					proto_tree_add_string(tree, hf_mgcp_req_endpoint, tvb,
 					                      tvb_previous_offset, tokenlen, endpointId);
 				}

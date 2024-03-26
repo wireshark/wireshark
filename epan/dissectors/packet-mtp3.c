@@ -734,7 +734,7 @@ reset_mtp3_standard(void)
 static int
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  mtp3_tap_rec_t* tap_rec = wmem_new0(wmem_packet_scope(), mtp3_tap_rec_t);
+  mtp3_tap_rec_t* tap_rec = wmem_new0(pinfo->pool, mtp3_tap_rec_t);
   gint heuristic_standard;
   guint8 si;
   mtp3_addr_pc_t* mtp3_addr_dpc;

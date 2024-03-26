@@ -309,7 +309,7 @@ static const value_string nb_type_name_vals[] = {
 #define NBNAME_BUF_LEN 128
 
 static void
-add_rr_to_tree(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
+add_rr_to_tree(proto_tree *rr_tree, packet_info *pinfo, tvbuff_t *tvb, int offset,
                const char *name, int namelen,
                int type, int class_val,
                guint ttl, gushort data_len)
@@ -321,7 +321,7 @@ add_rr_to_tree(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
     proto_tree_add_uint(rr_tree, hf_nbns_class, tvb, offset, 2, class_val);
     offset += 2;
     proto_tree_add_uint_format_value(rr_tree, hf_nbns_ttl, tvb, offset, 4, ttl, "%s",
-                        signed_time_secs_to_str(wmem_packet_scope(), ttl));
+                        signed_time_secs_to_str(pinfo->pool, ttl));
     offset += 4;
     proto_tree_add_uint(rr_tree, hf_nbns_data_length, tvb, offset, 2, data_len);
 }
@@ -632,9 +632,9 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
 
     cur_offset = offset;
 
-    name     = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
-    name_str = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
-    nbname   = (char *)wmem_alloc(wmem_packet_scope(), 16+4+1); /* 4 for [<last char>] */
+    name     = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
+    name_str = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
+    nbname   = (char *)wmem_alloc(pinfo->pool, 16+4+1); /* 4 for [<last char>] */
 
     name_len = MAX_NAME_LEN;
     len      = get_nbns_name_type_class(tvb, offset, nbns_data_offset, name,
@@ -669,7 +669,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
             (void) g_strlcat(name, " (", MAX_NAME_LEN);
             (void) g_strlcat(name, netbios_name_type_descr(name_type), MAX_NAME_LEN);
             (void) g_strlcat(name, ")", MAX_NAME_LEN);
-            add_rr_to_tree(rr_tree, tvb, offset, name,
+            add_rr_to_tree(rr_tree, pinfo, tvb, offset, name,
                                  name_len, type, dns_class, ttl, data_len);
         }
         while (data_len > 0) {
@@ -713,7 +713,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
                                       (cur_offset - offset) + data_len,
                                       ett_nbns_rr, NULL, "%s: type %s, class %s",
                                       name, type_name, class_name);
-            add_rr_to_tree(rr_tree, tvb, offset, name,
+            add_rr_to_tree(rr_tree, pinfo, tvb, offset, name,
                                      name_len, type, dns_class, ttl, data_len);
         }
 
@@ -930,7 +930,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
                                       (cur_offset - offset) + data_len,
                                       ett_nbns_rr, NULL, "%s: type %s, class %s",
                                       name, type_name, class_name);
-            add_rr_to_tree(rr_tree, tvb, offset, name,
+            add_rr_to_tree(rr_tree, pinfo, tvb, offset, name,
                                      name_len, type, dns_class, ttl, data_len);
             proto_tree_add_item(rr_tree, hf_nbns_data, tvb, cur_offset, data_len, ENC_NA);
         }
@@ -1173,7 +1173,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                             tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
+        name = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
 
         /* Source name */
         len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
@@ -1210,7 +1210,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     case NBDS_QUERY_REQUEST:
     case NBDS_POS_QUERY_RESPONSE:
     case NBDS_NEG_QUERY_RESPONSE:
-        name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
+        name = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
 
         /* Destination name */
         len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
@@ -1293,7 +1293,7 @@ dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         NULL
     };
 
-    name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
+    name = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
 
     msg_type = tvb_get_guint8(tvb, offset);
 

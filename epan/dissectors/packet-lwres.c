@@ -185,7 +185,7 @@ static const value_string message_types_values[] = {
     { 0,        NULL },
 };
 
-static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
+static void dissect_getnamebyaddr_request(tvbuff_t* tvb, packet_info *pinfo, proto_tree* lwres_tree)
 {
     guint32 flags,family;
     guint   addrlen, slen;
@@ -196,7 +196,7 @@ static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
     flags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH);
     family = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH + 4);
     addrlen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
-    addrs = tvb_ip_to_str(wmem_packet_scope(), tvb, LWRES_LWPACKET_LENGTH + 10);
+    addrs = tvb_ip_to_str(pinfo->pool, tvb, LWRES_LWPACKET_LENGTH + 10);
     slen = (int)strlen(addrs);
 
     if (lwres_tree == NULL)
@@ -430,7 +430,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, p
 
 }
 
-static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int offset)
+static void dissect_a_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree,guint32 nrec,int offset)
 {
     guint32 i, curr;
     const gchar* addrs;
@@ -449,7 +449,7 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
 
         curr = offset + (int)((sizeof(guint32)+sizeof(guint16)) * i);
 
-        addrs = tvb_ip_to_str(wmem_packet_scope(), tvb, curr+2);
+        addrs = tvb_ip_to_str(pinfo->pool, tvb, curr+2);
 
         addr_tree = proto_tree_add_subtree_format(a_rec_tree, tvb, curr,
                             6, ett_a_rec_addr, NULL, "Address %s", addrs);
@@ -748,7 +748,7 @@ static void dissect_rdata_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree
     switch(rdtype)
     {
         case T_A:
-            dissect_a_records(tvb,rdata_resp_tree,nrdatas,offset);
+            dissect_a_records(tvb,pinfo,rdata_resp_tree,nrdatas,offset);
         break;
 
         case T_SRV:
@@ -797,7 +797,7 @@ static void dissect_getaddrsbyname(tvbuff_t* tvb, packet_info *pinfo, proto_tree
 static void dissect_getnamebyaddr(tvbuff_t* tvb, packet_info *pinfo, proto_tree* lwres_tree, int type)
 {
     if(type == 1)
-        dissect_getnamebyaddr_request(tvb, lwres_tree);
+        dissect_getnamebyaddr_request(tvb, pinfo, lwres_tree);
     else
         dissect_getnamebyaddr_response(tvb, pinfo, lwres_tree);
 }

@@ -391,18 +391,17 @@ static lbm_transport_frame_t * lbtru_client_transport_frame_add(lbtru_client_tra
     return (frame_entry);
 }
 
-static char * lbtru_transport_source_string_format(const address * source_address, guint16 source_port, guint32 session_id)
+static char * lbtru_transport_source_string_format(wmem_allocator_t *scope, const address * source_address, guint16 source_port, guint32 session_id)
 {
-    /* Returns a packet-scoped string. */
     char * bufptr = NULL;
 
     if (session_id == 0)
     {
-        bufptr = wmem_strdup_printf(wmem_packet_scope(), "LBT-RU:%s:%" PRIu16, address_to_str(wmem_packet_scope(), source_address), source_port);
+        bufptr = wmem_strdup_printf(scope, "LBT-RU:%s:%" PRIu16, address_to_str(scope, source_address), source_port);
     }
     else
     {
-        bufptr = wmem_strdup_printf(wmem_packet_scope(), "LBT-RU:%s:%" PRIu16 ":%08x", address_to_str(wmem_packet_scope(), source_address), source_port, session_id);
+        bufptr = wmem_strdup_printf(scope, "LBT-RU:%s:%" PRIu16 ":%08x", address_to_str(scope, source_address), source_port, session_id);
     }
     return (bufptr);
 }
@@ -410,13 +409,12 @@ static char * lbtru_transport_source_string_format(const address * source_addres
 char * lbtru_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id)
 {
     /* Returns a file-scoped string. */
-    return (wmem_strdup(wmem_file_scope(), lbtru_transport_source_string_format(source_address, source_port, session_id)));
+    return lbtru_transport_source_string_format(wmem_file_scope(), source_address, source_port, session_id);
 }
 
-static char * lbtru_transport_source_string_transport(lbtru_transport_t * transport)
+static char * lbtru_transport_source_string_transport(wmem_allocator_t *scope, lbtru_transport_t * transport)
 {
-    /* Returns a packet-scoped string. */
-    return (lbtru_transport_source_string(&(transport->source_address), transport->source_port, transport->session_id));
+    return lbtru_transport_source_string_format(scope, &(transport->source_address), transport->source_port, transport->session_id);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -962,7 +960,7 @@ static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     }
     tap_info->ncf_reason = LBTRU_NCF_HDR_REASON(reason_format);
     tap_info->num_sqns = num_ncfs;
-    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_ncfs);
+    tap_info->sqns = wmem_alloc_array(pinfo->pool, guint32, num_ncfs);
     len_dissected += dissect_lbtru_ncf_list(tvb, offset + L_LBTRU_NCF_HDR_T, pinfo, ncf_tree, num_ncfs, LBTRU_NCF_HDR_REASON(reason_format), tap_info);
     proto_item_set_len(ncf_item, len_dissected);
     return (len_dissected);
@@ -1017,7 +1015,7 @@ static int dissect_lbtru_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         expert_add_info(pinfo, nak_item, &ei_lbtru_analysis_nak);
     }
     tap_info->num_sqns = num_naks;
-    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_naks);
+    tap_info->sqns = wmem_alloc_array(pinfo->pool, guint32, num_naks);
     len_dissected += dissect_lbtru_nak_list(tvb, offset + L_LBTRU_NAK_HDR_T, pinfo, nak_tree, num_naks, tap_info);
     proto_item_set_len(nak_item, len_dissected);
     return (len_dissected);
@@ -1180,7 +1178,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_item_set_generated(channel_item);
     channel_tree = proto_item_add_subtree(channel_item, ett_lbtru_channel);
 
-    tapinfo = wmem_new0(wmem_packet_scope(), lbm_lbtru_tap_info_t);
+    tapinfo = wmem_new0(pinfo->pool, lbm_lbtru_tap_info_t);
     tapinfo->type = packet_type;
 
     header_item = proto_tree_add_item(lbtru_tree, hf_lbtru_hdr, tvb, 0, -1, ENC_NA);
@@ -1431,7 +1429,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         {
             client = lbtru_client_transport_find(transport, &receiver_address, receiver_port, pinfo->num);
         }
-        tapinfo->transport = lbtru_transport_source_string_transport(transport);
+        tapinfo->transport = lbtru_transport_source_string_transport(pinfo->pool, transport);
         channel = transport->channel;
         fld_item = proto_tree_add_uint64(channel_tree, hf_lbtru_channel_id, tvb, 0, 0, channel);
         proto_item_set_generated(fld_item);

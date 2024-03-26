@@ -3382,7 +3382,7 @@ mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *p
 		int null_len = (nfields + 9) / 8;
 
 		char *null_buffer;
-		null_buffer = (guint8 *)wmem_alloc(wmem_packet_scope(), (size_t)null_len + 1);
+		null_buffer = (guint8 *)wmem_alloc(pinfo->pool, (size_t)null_len + 1);
 		tvb_get_raw_bytes_as_string(tvb, offset, null_buffer, (size_t)null_len + 1);
 		proto_tree_add_bytes_with_length(tree, hf_mysql_null_buffer, tvb, offset, null_len, null_buffer, null_len);
 		offset += null_len;

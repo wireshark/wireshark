@@ -2388,13 +2388,13 @@ add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, bo
         if (hinfo->type == FT_STRING) {
             col_append_fstr(pinfo->cinfo, COL_INFO,
                                 (const char*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
-                                 tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                 tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                      ptvcursor_current_offset(ptvc), rec->length, ENC_ASCII));
         } else if (hinfo->type == FT_STRINGZ) {
             int length;
             col_append_fstr(pinfo->cinfo, COL_INFO,
                                 (const char*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
-                                tvb_get_stringz_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                tvb_get_stringz_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), &length, ENC_ASCII));
         } else if (hinfo->type == FT_UINT_STRING) {
             uint32_t length = 0;
@@ -2420,12 +2420,12 @@ add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, bo
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
                                 (const char*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
-                                tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc)+rec->length, length, ENC_ASCII));
         } else if (hinfo->type == FT_BYTES) {
             col_append_fstr(pinfo->cinfo, COL_INFO,
                                 (const char*)(repeat ? rec->req_info_str->repeat_string : rec->req_info_str->first_string),
-                                tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                                tvb_bytes_to_str(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), rec->length));
         }
     }
@@ -2823,7 +2823,7 @@ static void ncp1633_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, con
         ptvcursor_advance(ptvc, 134);
         volume_name_len = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 1);
-        volume_name = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+        volume_name = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                 ptvcursor_current_offset(ptvc), volume_name_len, ENC_ASCII);
 
         expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
@@ -2839,7 +2839,7 @@ static void ncp1711_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, con
         uint8_t maj_ver, min_ver, os_lang, serv_type, kernel;
         uint16_t prod_rev;
 
-        fsname = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+        fsname = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                 ptvcursor_current_offset(ptvc), 48, ENC_ASCII);
         ptvcursor_advance(ptvc, 48);
         maj_ver = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
@@ -2865,7 +2865,7 @@ static void ncp1711_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, con
 static void ncp42_request_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, bool request)
 {
     if (ncp_echo_file && request) {
-        char* filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+        char* filehandle = tvb_bytes_to_str(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                                 ptvcursor_current_offset(ptvc)+1, 6);
 
         expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "Close file handle %s", filehandle);
@@ -2892,7 +2892,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                     ptvcursor_advance(ptvc, 8);
                     path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
-                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                    filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                 ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
                     break;
                 case 33:
@@ -2903,7 +2903,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                     ptvcursor_advance(ptvc, 8);
                     path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
-                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                    filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
                     break;
                 }
@@ -2918,7 +2918,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                     ptvcursor_advance(ptvc, 14);
                     path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
-                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                    filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
                     break;
                 case 33:
@@ -2929,7 +2929,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                     ptvcursor_advance(ptvc, 14);
                     path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
-                    filename = tvb_get_string_enc(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                    filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
                     break;
                 }
@@ -2945,7 +2945,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                 uint8_t oaction, oplockflg;
                 char* filehandle;
 
-                filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+                filehandle = tvb_bytes_to_str(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                                 ptvcursor_current_offset(ptvc), 4);
                 ptvcursor_advance(ptvc, 4);
                 oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
@@ -2998,7 +2998,7 @@ static void ncp572c_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp
             ptvcursor_advance(ptvc, 10);
             new_rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
             ptvcursor_advance(ptvc, 2);
-            filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+            filehandle = tvb_bytes_to_str(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                                     ptvcursor_current_offset(ptvc), 4);
 
             expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights_change, "Change handle %s rights from:(%s) to:(%s)",
@@ -3009,7 +3009,7 @@ static void ncp572c_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp
         } else {
             uint32_t rights;
 
-            filehandle = tvb_bytes_to_str(wmem_packet_scope(), ptvcursor_tvbuff(ptvc),
+            filehandle = tvb_bytes_to_str(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                                     ptvcursor_current_offset(ptvc), 4);
             ptvcursor_advance(ptvc, 4);
             rights = tvb_get_ntohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+8);
@@ -3410,7 +3410,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             ns.secs = tvb_get_letohl(tvb, voffset);
             ns.nsecs = 0;
             proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4,
-                &ns, "Timestamp: %s", abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                &ns, "Timestamp: %s", abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
             voffset = voffset + 4;
             proto_tree_add_item(nvtree, hf_nds_rnum, tvb, voffset, 2, ENC_LITTLE_ENDIAN);
             voffset = voffset+2;
@@ -3441,7 +3441,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             ns.secs = tvb_get_letohl(tvb, voffset);
             ns.nsecs = 0;
             proto_tree_add_time_format(nvtree, hf_nds_ds_time, tvb, voffset, 4,
-                &ns, "Time: %s", abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                &ns, "Time: %s", abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
             voffset = voffset + 4;
             break;
         case 0x00000019:        /* Typed Name */
@@ -4907,7 +4907,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.nsecs = 0;
                     proto_tree_add_time_format(atree, hf_es_seconds, tvb, ioffset,
                                                4, &ns, "Timestamp: %s",
-                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                               abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                     ioffset = ioffset + 4;
                     proto_tree_add_item(atree, hf_nds_replica_num, tvb, ioffset,
                                         2, ENC_LITTLE_ENDIAN);
@@ -4953,7 +4953,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.nsecs = 0;
                     proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                                4, &ns, "Creation Time: %s",
-                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                               abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                     ioffset = ioffset + 4;
                     proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
                                         2, ENC_LITTLE_ENDIAN);
@@ -5051,7 +5051,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                                    4, &ns, "Modification Timestamp: %s",
-                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                                   abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                         ioffset = ioffset + 4;
                         proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
                                             2, ENC_LITTLE_ENDIAN);
@@ -5379,7 +5379,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                                    4, &ns, "Modification Time: %s",
-                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                                   abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                         ioffset = ioffset + 4;
                         break;
                     case DSI_MODIFICATION_TIMESTAMP:  /* Modification Timestamp */
@@ -5387,7 +5387,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                                    4, &ns, "Modification Timestamp: %s",
-                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                                   abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                         ioffset = ioffset + 4;
                         proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
                                             2, ENC_LITTLE_ENDIAN);
@@ -5401,7 +5401,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                                    4, &ns, "Creation Timestamp: %s",
-                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                                   abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                         ioffset = ioffset + 4;
                         proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
                                             2, ENC_LITTLE_ENDIAN);
@@ -5477,7 +5477,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                                    4, &ns, "Purge Time: %s",
-                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                                   abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                         ioffset = ioffset + 4;
                         break;
                     case DSI_DEREFERENCED_BASE_CLASS: /* Dereference Base Class */
@@ -5752,7 +5752,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.nsecs = 0;
                     proto_tree_add_time_format(sub1tree, hf_es_seconds, tvb, ioffset,
                                                4, &ns, "Creation Timestamp: %s",
-                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                               abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                     ioffset = ioffset + 4;
                     proto_tree_add_item(sub1tree, hf_nds_replica_num, tvb, ioffset,
                                         2, ENC_LITTLE_ENDIAN);
@@ -5764,7 +5764,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ns.nsecs = 0;
                     proto_tree_add_time_format(sub1tree, hf_es_seconds, tvb, ioffset,
                                                4, &ns, "Modification Timestamp: %s",
-                                               abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                               abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                     ioffset = ioffset + 4;
                     proto_tree_add_item(sub1tree, hf_nds_replica_num, tvb, ioffset,
                                         2, ENC_LITTLE_ENDIAN);
@@ -5972,7 +5972,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ns.nsecs = 0;
                 proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
                                            4, &ns, "Creation Timestamp: %s",
-                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                           abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                 ioffset += 4;
                 proto_tree_add_item(ntree, hf_nds_replica_num, tvb, ioffset,
                                     2, ENC_LITTLE_ENDIAN);
@@ -6002,7 +6002,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ns.nsecs = 0;
                         proto_tree_add_time_format(sub2tree, hf_es_seconds, tvb, ioffset,
                                                    4, &ns, "Timestamp: %s",
-                                                   abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                                   abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                         ioffset += 4;
                         proto_tree_add_item(sub2tree, hf_nds_replica_num, tvb, ioffset,
                                             2, ENC_LITTLE_ENDIAN);
@@ -6079,7 +6079,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         ioffset += 4;
         dissect_nds_iterator(ntree, tvb, pinfo, value4, value5, ioffset, true);
 
-        values->vstring = wmem_strdup_printf(wmem_packet_scope(), "(%s)", values->vstring);
+        values->vstring = wmem_strdup_printf(pinfo->pool, "(%s)", values->vstring);
         break;
 
     default:
@@ -7678,7 +7678,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             if (temp_value.vvalue == 0x00)
                 break;
 
-            temp_value.vstring =(const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, nds_offset+4, temp_value.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+            temp_value.vstring =(const char*)tvb_get_string_enc(pinfo->pool, tvb, nds_offset+4, temp_value.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN);
             proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, nds_offset, 4+temp_value.vvalue, temp_value.vstring, "Alias Name: %s", temp_value.vstring);
             break;
         case NDS_TAG_REFERRAL_INFORMATION:
@@ -7828,7 +7828,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         if (temp_value.vvalue == 0)
             break;
 
-        temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, nds_offset+4, temp_value.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, nds_offset+4, temp_value.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN);
         proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, nds_offset, 4+temp_value.vvalue, temp_value.vstring, "Server Distinguished Name: %s", temp_value.vstring);
         nds_offset += 4+temp_value.vvalue;
         nds_offset += align_4(tvb, nds_offset);
@@ -8519,7 +8519,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         if (value1 == 0)
                             break;
 
-                        global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                         proto_tree_add_string(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, global_object_name);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                         if (!pinfo->fd->visited) {
@@ -8573,7 +8573,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         foffset += 4;
 
                         value1 = tvb_get_letohl(tvb, foffset);
-                        global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                         proto_tree_add_string(ncp_tree, hf_nds_output_delimiter, tvb, foffset, 4+value1, global_object_name);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                         if (!pinfo->fd->visited) {
@@ -8729,7 +8729,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, global_object_name, "Attribute Name Being Compared: %s", global_object_name);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                     if (!pinfo->fd->visited) {
@@ -8742,7 +8742,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     foffset += 4;       /* Attribute Count = 1 */
 
                     value1 = tvb_get_letohl(tvb, foffset);
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_value_string, tvb, foffset, 4+value1, temp_value.vstring, "Attribute Value: %s", temp_value.vstring);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
                     break;
@@ -8802,7 +8802,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     foffset += 2;
 
                     value1 = tvb_get_letohl(tvb, foffset);
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_name_filter, tvb, foffset, 4+value1, temp_value.vstring);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
                     foffset += 4+value1;
@@ -8812,7 +8812,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     foffset += align_4(tvb, foffset);
 
                     value1 = tvb_get_letohl(tvb, foffset);
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_class_filter, tvb, foffset, 4+value1, temp_value.vstring);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
                     foffset += 4+value1;
@@ -8873,7 +8873,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     value1 = tvb_get_letohl(tvb, foffset);
                     if (value1 == 0)
                         break;
-                    global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_relative_dn, tvb, foffset, 4+value1, global_object_name);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                     if (!pinfo->fd->visited) {
@@ -8939,7 +8939,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     foffset += align_4(tvb, foffset);
 
                     value1 = tvb_get_letohl(tvb, foffset);
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_new_rdn, tvb, foffset, 4+value1, temp_value.vstring);
                     break;
 
@@ -8952,7 +8952,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     value1 = tvb_get_letohl(tvb, foffset);
                     if (value1 == 0)
                         break;
-                    global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_nds_relative_dn, tvb, foffset, 4+value1, global_object_name, "Attribute Name: %s", global_object_name);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                     if (!pinfo->fd->visited) {
@@ -8982,7 +8982,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_attribute_dn, tvb, foffset, 4+value1, global_object_name);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                     if (!pinfo->fd->visited) {
@@ -9028,7 +9028,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_nds_base_class, tvb, foffset, 4+value1, global_object_name, "Class Name: %s", global_object_name);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                     if (!pinfo->fd->visited) {
@@ -9054,7 +9054,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    global_object_name = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    global_object_name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_nds_base, tvb, foffset, 4+value1, global_object_name, "Class Name: %s", global_object_name);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", global_object_name);
                     if (!pinfo->fd->visited) {
@@ -9081,7 +9081,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, temp_value.vstring, "Trustee Name: %s", temp_value.vstring);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
                     foffset += 4+value1;
@@ -9091,7 +9091,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, temp_value.vstring, "Attribute to be Checked: %s", temp_value.vstring);
                     foffset += 4+value1;
                     foffset += align_4(tvb, foffset);
@@ -9102,7 +9102,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         if (value1 == 0)
                             break;
 
-                        temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                         proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, foffset, 4+value1, temp_value.vstring, "Security Equivalence: %s", temp_value.vstring);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", temp_value.vstring);
                     }
@@ -9174,7 +9174,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_target_name, tvb, foffset, 4+value1, temp_value.vstring);
                     break;
                 case 0x1a: /* Not Defined */
@@ -9192,7 +9192,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     if (value1 == 0)
                         break;
 
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_stream_name, tvb, foffset, 4+value1, temp_value.vstring);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
                     break;
@@ -9222,7 +9222,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         if (value1 == 0)
                             break;
 
-                        temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                         proto_tree_add_string(ncp_tree, hf_nds_root_name, tvb, foffset, 4+value1, temp_value.vstring);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", temp_value.vstring);
                     }
@@ -9249,7 +9249,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     foffset += 4;
 
                     value1 = tvb_get_letohl(tvb, foffset);
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_new_rdn, tvb, foffset, 4+value1, temp_value.vstring);
                     foffset += (4+value1);
                     foffset += align_4(tvb, foffset);
@@ -9257,7 +9257,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     value1 = tvb_get_letohl(tvb, foffset);
                     if (value1 == 0)
                         break;
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_target_name, tvb, foffset, 4+value1, temp_value.vstring);
                     break;
                 case 0x2b:
@@ -9273,14 +9273,14 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree_add_uint_format(ncp_tree, hf_nds_ver, tvb, foffset, 4, value1, "Destination Parent Entry ID: 0x%08x", value1);
                     foffset += 4;
                     value1 = tvb_get_letohl(tvb, foffset);
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_new_rdn, tvb, foffset, 4+value1, temp_value.vstring);
                     foffset += (4+value1);
                     foffset += align_4(tvb, foffset);
                     value1 = tvb_get_letohl(tvb, foffset);
                     if (value1 == 0)
                         break;
-                    temp_value.vstring = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                    temp_value.vstring = (const char*)tvb_get_string_enc(pinfo->pool, tvb, foffset+4, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(ncp_tree, hf_nds_target_name, tvb, foffset, 4+value1, temp_value.vstring);
                     break;
                 case 0x2c: /* Not Defined */

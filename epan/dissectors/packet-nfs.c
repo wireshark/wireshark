@@ -1403,7 +1403,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		fhlen = fh_length;
 		/* align it */
-		fhdata = (guint32 *)tvb_memdup(wmem_packet_scope(), tvb, fh_offset, fh_length);
+		fhdata = (guint32 *)tvb_memdup(pinfo->pool, tvb, fh_offset, fh_length);
 		fhkey[0].length = 1;
 		fhkey[0].key	= &fhlen;
 		fhkey[1].length = fhlen/4;
@@ -1685,7 +1685,7 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 /* Checked with RedHat Linux 5.2 (nfs-server 2.2beta47 user-land nfsd) */
 
 static int
-dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
@@ -1701,7 +1701,7 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 			proto_tree *hash_tree;
 
 			hash_tree = proto_tree_add_subtree_format(tree, tvb, offset+4, hashlen + 1, ett_nfs_fh_hp, NULL,
-									"hash path: %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+5, hashlen));
+									"hash path: %s", tvb_bytes_to_str(pinfo->pool, tvb, offset+5, hashlen));
 			proto_tree_add_uint(hash_tree,
 					    hf_nfs_fh_hp_len, tvb, offset+4, 1,
 					    hashlen);
@@ -2105,7 +2105,7 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
  * The filehandle is always 32 bytes and first 4 bytes of ident ":OGL"
  */
 static int
-dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint16 offset=0;
 	guint16	fhlen;
@@ -2118,7 +2118,7 @@ dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 	if (fhlen != 36)
 		return tvb_captured_length(tvb);
 
-	ident = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+	ident = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 	if (strncmp(":OGL", ident, 4))
 		return 4;
 	offset += 4;
@@ -8154,7 +8154,7 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			* Get the entry name and create subtree of field nfs.name
 			*/
-			name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 16, name_len, ENC_UTF_8);
+			name = tvb_get_string_enc(pinfo->pool, tvb, offset + 16, name_len, ENC_UTF_8);
 
 			eitem = proto_tree_add_string_format(
 				dirlist_tree, hf_nfs_name, tvb, offset, -1, name, "Entry: %s", name);
@@ -10003,7 +10003,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
-		op_summary[ops_counter].optext = wmem_strbuf_new(wmem_packet_scope(), "");
+		op_summary[ops_counter].optext = wmem_strbuf_new(pinfo->pool, "");
 		opcode = tvb_get_ntohl(tvb, offset);
 		op_summary[ops_counter].opcode = opcode;
 
@@ -10851,7 +10851,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
-		op_summary[ops_counter].optext = wmem_strbuf_new(wmem_packet_scope(), "");
+		op_summary[ops_counter].optext = wmem_strbuf_new(pinfo->pool, "");
 		opcode = tvb_get_ntohl(tvb, offset);
 		op_summary[ops_counter].iserror = FALSE;
 		op_summary[ops_counter].opcode = opcode;
