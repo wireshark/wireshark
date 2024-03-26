@@ -394,6 +394,8 @@ static int hf_smb2_checksum_algorithm;
 static int hf_smb2_integrity_reserved;
 static int hf_smb2_integrity_flags;
 static int hf_smb2_integrity_flags_enforcement_off;
+static int hf_smb2_integrity_crc_chunk_size;
+static int hf_smb2_integrity_cluster_size;
 static int hf_smb2_FILE_OBJECTID_BUFFER;
 static int hf_smb2_lease_key;
 static int hf_smb2_lease_state;
@@ -2321,7 +2323,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000900E3, "FSCTL_READ_RAW_ENCRYPTED"},
 	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
 	{0x00090244, "FSCTL_CSV_TUNNEL_REQUEST"},
-	{0x0009027C, "FSCTL_GET_INTEGRITY_INFORMATION"},
+	{0x0009027C, "FSCTL_GET_INTEGRITY_INFORMATION"},              /* dissector implemented */
 	{0x00090284, "FSCTL_QUERY_FILE_REGIONS"},                     /* dissector implemented */
 	{0x000902c8, "FSCTL_CSV_SYNC_TUNNEL_REQUEST"},
 	{0x00090300, "FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT"},      /* dissector implemented */
@@ -8575,6 +8577,32 @@ dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static int
+dissect_smb2_FSCTL_GET_INTEGRITY_INFORMATION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, bool data_in _U_)
+{
+	static int * const integrity_flags[] = {
+		&hf_smb2_integrity_flags_enforcement_off,
+		NULL
+	};
+
+	proto_tree_add_item(tree, hf_smb2_checksum_algorithm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_smb2_integrity_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_integrity_flags, ett_smb2_integrity_flags, integrity_flags, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_integrity_crc_chunk_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_integrity_cluster_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
 dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, bool data_in)
 {
 	static int * const integrity_flags[] = {
@@ -9062,6 +9090,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x00090284: /* FSCTL_QUERY_FILE_REGIONS */
 		dissect_smb2_FSCTL_QUERY_FILE_REGIONS(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x0009027c: /* FSCTL_GET_INTEGRITY_INFORMATION request or response */
+		dissect_smb2_FSCTL_GET_INTEGRITY_INFORMATION(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009C280: /* FSCTL_SET_INTEGRITY_INFORMATION request or response */
 		dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvb, pinfo, tree, 0, data_in);
@@ -14481,6 +14512,16 @@ proto_register_smb2(void)
 		{ &hf_smb2_integrity_flags_enforcement_off,
 			{ "FSCTL_INTEGRITY_FLAG_CHECKSUM_ENFORCEMENT_OFF", "smb2.integrity_flags_enforcement", FT_BOOLEAN, 32,
 			NULL, 0x1, "If checksum error enforcement is off", HFILL }
+		},
+
+		{ &hf_smb2_integrity_crc_chunk_size,
+			{ "Checksum Chunk Size", "smb2.integrity_crc_chunk_size", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_integrity_cluster_size,
+			{ "Cluster Size", "smb2.cluster_size", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_share_type,
