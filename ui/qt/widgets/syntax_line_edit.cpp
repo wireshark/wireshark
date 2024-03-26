@@ -425,17 +425,23 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
     QPainter painter(this);
 
-    // In my (gcc) testing here, if I add "background: yellow;" to the DisplayFilterCombo
-    // stylesheet, when building with Qt 5.15.2 the combobox background is yellow and the
-    // text entry area (between the bookmark and apply button) is drawn in the correct
-    // base color (white for light mode and black for dark mode), and the correct syntax
-    // color otherwise. When building with Qt 6.2.4 and 6.3.1, the combobox background is
-    // yellow and the text entry area is always yellow, i.e. QLineEdit isn't painting its
-    // background for some reason.
+    // In the attempt to fix https://bugreports.qt.io/browse/QTBUG-81533
+    // the following commit was added to Qt 6.0.0 and later 5.15.3:
+    // https://code.qt.io/cgit/qt/qtbase.git/commit/src/widgets/widgets/qcombobox.cpp?h=5.15&id=6e470764a98434a120eba4fcc6035137cf9c92cf
     //
-    // It's not clear if this is a bug or just how things work under Qt6. Either way, it's
-    // easy to work around.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // It causes a similar problem to the one it was trying to fix, viz. if I
+    // add "background: yellow;" to the DisplayFilterCombo stylesheet, when
+    // building with Qt 5.15.2 the combobox background is yellow and the text
+    // entry area (between the bookmark and apply button) is drawn in the correct
+    // base color (white for light mode and black for dark mode), and the correct
+    // syntax color otherwise. When building with Qt 5.15.3 and 6.2.4 and 6.3.1,
+    // the combobox background is yellow and the text entry area is always yellow,
+    // i.e. QLineEdit isn't painting its background because the palette from
+    // the combobox is used instead.
+    //
+    // It's not clear if this is a bug or just how things work under Qt6.
+    // Either way, it's easy to work around.
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 3)
     // Must match CaptureFilterEdit and DisplayFilterEdit stylesheets.
     int pad = style()->pixelMetric(QStyle::PM_DefaultFrameWidth) + 1;
     QRect full_cr = cr.adjusted(-pad, 0, -1, 0);
