@@ -1448,6 +1448,23 @@ void IOGraphDialog::on_moveUpwardsToolButton_clicked()
             ioGraphs_[current_row] = temp;
 
             uat_model_->moveRow(current_row, current_row - 1);
+
+            // setting a QCPLayerable to its current layer moves it to the
+            // end as though it were the last added. Do that for all the
+            // elements starting with the first one that changed.
+            // (moveToLayer() is the same thing but with a parameter to prepend
+            // instead, which would be faster if we're in the top half of the
+            // list, except that's a protected function. There's no function
+            // to swap layerables in a layer.)
+            for (int row = current_row - 1; row < uat_model_->rowCount(); row++) {
+                temp = ioGraphs_[row];
+                if (temp->graph()) {
+                    temp->graph()->setLayer(temp->graph()->layer());
+                } else if (temp->bars()) {
+                    temp->bars()->setLayer(temp->bars()->layer());
+                }
+            }
+            ui->ioPlot->replot();
         }
     }
 }
@@ -1465,6 +1482,16 @@ void IOGraphDialog::on_moveDownwardsToolButton_clicked()
             ioGraphs_[current_row] = temp;
 
             uat_model_->moveRow(current_row, current_row + 1);
+
+            for (int row = current_row; row < uat_model_->rowCount(); row++) {
+                temp = ioGraphs_[row];
+                if (temp->graph()) {
+                    temp->graph()->setLayer(temp->graph()->layer());
+                } else if (temp->bars()) {
+                    temp->bars()->setLayer(temp->bars()->layer());
+                }
+            }
+            ui->ioPlot->replot();
         }
     }
 }
