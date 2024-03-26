@@ -26,6 +26,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
+#include <ui/qt/widgets/qcp_string_legend_item.h>
 #include "progress_frame.h"
 #include "main_application.h"
 
@@ -992,9 +993,9 @@ void IOGraphDialog::updateLegend()
 
     // Create a legend with a Title label at top.
     // Legend Title thanks to: https://www.qcustomplot.com/index.php/support/forum/443
-    QCPTextElement* legendTitle = qobject_cast<QCPTextElement*>(iop->legend->elementAt(0));
+    QCPStringLegendItem* legendTitle = qobject_cast<QCPStringLegendItem*>(iop->legend->elementAt(0));
     if (legendTitle == NULL) {
-        legendTitle = new QCPTextElement(iop, QString(""));
+        legendTitle = new QCPStringLegendItem(iop->legend, QString(""));
         iop->legend->insertRow(0);
         iop->legend->addElement(0, 0, legendTitle);
     }

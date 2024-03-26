@@ -555,6 +555,11 @@
    <header>widgets/qcustomplot.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>QCPStringLegendItem</class>
+   <extends>QCPAbstractLegendItem</extends>
+   <header>widgets/qcp_string_legend_item.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>

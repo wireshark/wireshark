@@ -45,6 +45,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/path_selection_edit.h
 	widgets/pref_module_view.h
 	widgets/profile_tree_view.h
+	widgets/qcp_string_legend_item.h
 	widgets/range_syntax_lineedit.h
 	widgets/resolved_addresses_view.h
 	widgets/rtp_audio_graph.h
@@ -307,6 +308,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/path_selection_edit.cpp
 	widgets/pref_module_view.cpp
 	widgets/profile_tree_view.cpp
+	widgets/qcp_string_legend_item.cpp
 	widgets/range_syntax_lineedit.cpp
 	widgets/resolved_addresses_view.cpp
 	widgets/rtp_audio_graph.cpp
