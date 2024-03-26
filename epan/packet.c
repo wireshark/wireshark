@@ -3124,6 +3124,7 @@ heur_dissector_table_foreach (const char  *table_name,
 {
 	heur_dissector_foreach_info_t info;
 	heur_dissector_list_t         sub_dissectors = find_heur_dissector_list(table_name);
+	DISSECTOR_ASSERT(sub_dissectors != NULL);
 
 	info.table_name    = table_name;
 	info.caller_func   = func;
