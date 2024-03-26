@@ -981,16 +981,16 @@ void IOGraphDialog::updateLegend()
 
     // Nothing.
     if (vu_label_set.size() < 1) {
+        iop->legend->layer()->replot();
         return;
     }
 
     // All the same. Use the Y Axis label.
     if (vu_label_set.size() == 1) {
         iop->yAxis->setLabel(vu_label_set.values()[0] + "/" + intervalText);
-        return;
     }
 
-    // Differing labels. Create a legend with a Title label at top.
+    // Create a legend with a Title label at top.
     // Legend Title thanks to: https://www.qcustomplot.com/index.php/support/forum/443
     QCPTextElement* legendTitle = qobject_cast<QCPTextElement*>(iop->legend->elementAt(0));
     if (legendTitle == NULL) {
@@ -1020,6 +1020,7 @@ void IOGraphDialog::updateLegend()
     else {
         iop->legend->setVisible(false);
     }
+    iop->legend->layer()->replot();
 }
 
 QRectF IOGraphDialog::getZoomRanges(QRect zoom_rect)

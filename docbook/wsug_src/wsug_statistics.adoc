@@ -498,7 +498,7 @@ Automatic updates::
 Redraw each graph automatically.
 
 Enable legend::
-Show a legend for graphs with more than one type of Y axis.
+Show a graph legend.
 
 The main dialog buttons along the bottom let you do the following:
 
