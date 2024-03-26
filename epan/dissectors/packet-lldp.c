@@ -125,6 +125,7 @@ static int hf_lldp_network_address_family;
 static int hf_port_id_ip4;
 static int hf_port_id_ip6;
 static int hf_time_to_live;
+static int hf_pdu_type;
 static int hf_mgn_address_len;
 static int hf_mgn_address_subtype;
 static int hf_mgn_addr_ipv4;
@@ -569,6 +570,7 @@ static gint ett_org_spc_hytec_trace_reply;
 
 static expert_field ei_lldp_bad_length;
 static expert_field ei_lldp_bad_length_excess;
+static expert_field ei_lldp_shutdown_excess_tlv;
 static expert_field ei_lldp_bad_type;
 static expert_field ei_lldp_tlv_deprecated;
 
@@ -1659,7 +1661,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	if (tlvsubType != CHASSIS_ID_TLV_TYPE)
 	{
 		proto_tree_add_expert_format(tree, pinfo, &ei_lldp_bad_type , tvb, offset, TLV_INFO_LEN(tempShort),
-			"Invalid Chassis ID (0x%02X), expected (0x%02X)", tlvsubType, CHASSIS_ID_TLV_TYPE);
+			"Invalid TLV type (0x%02X), expected ChassisID type (0x%02X)", tlvsubType, CHASSIS_ID_TLV_TYPE);
 
 		return -1;
 	}
@@ -1985,13 +1987,14 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
 /* Dissect Time To Live TLV (Mandatory) */
 static gint32
-dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint16 *isShutdown)
 {
 	guint8 tlvsubType;
 	guint16 tempShort;
 	guint32 dataLen = 0;
 
 	proto_tree	*time_to_live_tree;
+	proto_item	*ti;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -2002,24 +2005,36 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	/* Get tlv length and seconds field */
 	dataLen = TLV_INFO_LEN(tempShort);
 	tempShort = tvb_get_ntohs(tvb, (offset+2));
-	if (column_info_selection == DEFAULT_COLUMN_INFO)
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%u ", tempShort);
-	}
+	*isShutdown = !tempShort;
 
-	/* Set port tree */
-	time_to_live_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
-							  ett_time_to_live, NULL, "Time To Live = %u sec", tempShort);
+	/* LLDPDU types: IEEE 802.1AB-2016 9.1.2 */
+	if (tempShort != 0) {
+		time_to_live_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+			ett_time_to_live, NULL, "Time To Live = %u sec", tempShort);
+		ti = proto_tree_add_none_format(time_to_live_tree, hf_pdu_type, tvb, offset, dataLen + 2, "Normal LLDPDU");
+		proto_item_set_generated(ti);
+	} else {
+		time_to_live_tree = proto_tree_add_subtree_format(tree, tvb, offset, dataLen + 2,
+			ett_time_to_live, NULL, "Discard all info for this MSAP (Time To Live = 0)");
+		ti = proto_tree_add_none_format(time_to_live_tree, hf_pdu_type, tvb, offset, dataLen + 2, "Shutdown LLDPDU");
+		proto_item_set_generated(ti);
+	}
 
 	proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-
 	offset += 2;
 
 	/* Display time to live information */
 	proto_tree_add_item(time_to_live_tree, hf_time_to_live, tvb, offset, 2, ENC_BIG_ENDIAN);
-
 	offset += 2;
+
+	if (column_info_selection == DEFAULT_COLUMN_INFO) {
+		if (tempShort != 0) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%u ", tempShort);
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", "0 (Shutdown LLDPDU)");
+		}
+	}
 
 	return offset;
 }
@@ -4870,6 +4885,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree *lldp_tree = NULL;
 	tvbuff_t *new_tvb = NULL;
 	guint32 offset = 0;
+	guint16 isShutdown;
 	gint32 rtnValue = 0;
 	guint16 tempShort;
 	guint8 tlvType;
@@ -4882,6 +4898,17 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	ti = proto_tree_add_item(tree, proto_lldp, tvb, offset, -1, ENC_NA);
 	lldp_tree = proto_item_add_subtree(ti, ett_lldp);
+
+	// Maybe add an explicit field for the type of the destination mac address?
+
+	// IEEE 802.1AB-2016, Table 7-2—Support for MAC addresses in different systems
+	// Address                                   | C-VLAN Bridge | S-VLAN  Bridge | TPMR Bridge   | End station
+        // ------------------------------------------+---------------+----------------+---------------+-------------
+	// 01-80-C2-00-00-0E Nearest bridge          | Mandatory     | Mandatory      | Mandatory     | Mandatory
+	// 01-80-C2-00-00-03 Nearest non-TPMR bridge | Mandatory     | Mandatory      | Not permitted | Recommended
+	// 01-80-C2-00-00-00 Nearest Customer Bridge | Mandatory     | Not permitted  | Not permitted | Recommended
+	// Any other group MAC address               | Permitted     | Permitted      | Permitted     | Permitted
+	// Any individual MAC address                | Permitted     | Permitted      | Permitted     | Permitted
 
 	/* Get chassis id tlv */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -4916,7 +4943,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	tempShort = tvb_get_ntohs(tvb, offset);
 	new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
 
-	rtnValue = dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
+	rtnValue = dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0, &isShutdown);
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Time-to-Live TLV");
@@ -4931,7 +4958,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	{
 		tempShort = tvb_get_ntohs(tvb, offset);
 		tlvType = TLV_TYPE(tempShort);
-		/* pass only TLV to dissectors, Zero offset (point to front of tlv) */
+		/* pass single TLV to dissectors, Zero offset (point to front of tlv) */
 		new_tvb = tvb_new_subset_length(tvb, offset, TLV_INFO_LEN(tempShort)+2);
 		switch (tlvType)
 		{
@@ -4952,7 +4979,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			}
 			break;
 		case TIME_TO_LIVE_TLV_TYPE:
-			dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
+			dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0, &isShutdown);
 			rtnValue = -1;	/* Duplicate time-to-live tlv */
 			if (column_info_selection == DEFAULT_COLUMN_INFO)
 			{
@@ -4981,6 +5008,13 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		default:
 			rtnValue = dissect_lldp_unknown_tlv(new_tvb, pinfo, lldp_tree, 0);
 			break;
+		}
+
+		// Shutdown PDU: Verify that only ChassisID, PortID, TTL and optionally END TLVs are present
+		if (isShutdown && tlvType != END_OF_LLDPDU_TLV_TYPE)
+		{
+			proto_tree_add_expert_format(tree, pinfo, &ei_lldp_shutdown_excess_tlv , tvb, offset, TLV_INFO_LEN(tempShort),
+				"TLV type 0x%02X not allowed in Shutdown PDU", tlvType);
 		}
 
 		if (rtnValue < 0) {
@@ -5172,6 +5206,11 @@ proto_register_lldp(void)
 			{ "Seconds", "lldp.time_to_live", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
+		{ &hf_pdu_type,
+			{ "PDU Type", "lldp.pdu_type", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_mgn_address_len,
 			{ "Address String Length", "lldp.mgn.address.len", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }
@@ -6752,6 +6791,7 @@ proto_register_lldp(void)
 	static ei_register_info ei[] = {
 		{ &ei_lldp_bad_length, { "lldp.incorrect_length", PI_MALFORMED, PI_WARN, "Invalid length, too short", EXPFILL }},
 		{ &ei_lldp_bad_length_excess, { "lldp.excess_length", PI_MALFORMED, PI_WARN, "Invalid length, greater than expected", EXPFILL }},
+		{ &ei_lldp_shutdown_excess_tlv, { "lldp.excess_tlv", PI_MALFORMED, PI_WARN, "Excess TLV in Shutdown PDU", EXPFILL }},
 		{ &ei_lldp_bad_type, { "lldp.bad_type", PI_MALFORMED, PI_WARN, "Incorrect type", EXPFILL }},
 		{ &ei_lldp_tlv_deprecated, { "lldp.tlv_deprecated", PI_PROTOCOL, PI_WARN, "TLV has been deprecated", EXPFILL }},
 	};
