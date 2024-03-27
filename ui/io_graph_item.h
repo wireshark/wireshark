@@ -334,12 +334,20 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     /*
                      * Add the time this call spanned each interval according to
                      * its contribution to that interval.
+                     * If the call time is negative (unlikely, requires both an
+                     * out of order capture file plus retransmission), ignore.
                      */
+                    const nstime_t time_zero = NSTIME_INIT_ZERO;
+                    if (nstime_cmp(new_time, &time_zero) < 0) {
+                        break;
+                    }
                     t = new_time->secs;
                     t = t * 1000000 + new_time->nsecs / 1000;
                     j = idx;
                     /*
                      * Handle current interval
+                     * This cannot be negative, because get_io_graph_index
+                     * returns an invalid interval if so.
                      */
                     pt = pinfo->rel_ts.secs * 1000000 + pinfo->rel_ts.nsecs / 1000;
                     pt = pt % (interval * 1000);
@@ -355,6 +363,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                             load_item->time_tot.secs++;
                             load_item->time_tot.nsecs -= 1000000000;
                         }
+                        load_item->fields++;
 
                         if (j == 0) {
                             break;
@@ -370,16 +379,12 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     break;
                 }
                 default:
-                    if ( (new_time->secs > item->time_max.secs)
-                         || ( (new_time->secs == item->time_max.secs)
-                              && (new_time->nsecs > item->time_max.nsecs))
+                    if ( (nstime_cmp(new_time, &item->time_max) > 0)
                          || (item->fields == 0)) {
                         item->time_max = *new_time;
                         item->max_frame_in_invl = pinfo->num;
                     }
-                    if ( (new_time->secs<item->time_min.secs)
-                         || ( (new_time->secs == item->time_min.secs)
-                              && (new_time->nsecs < item->time_min.nsecs))
+                    if ( (nstime_cmp(new_time, &item->time_min) < 0)
                          || (item->fields == 0)) {
                         item->time_min = *new_time;
                         item->min_frame_in_invl = pinfo->num;
