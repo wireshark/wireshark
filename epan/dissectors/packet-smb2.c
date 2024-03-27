@@ -2268,6 +2268,7 @@ static const value_string compression_format_vals[] = {
 
 static const value_string checksum_algorithm_vals[] = {
 	{ 0x0000, "CHECKSUM_TYPE_NONE" },
+	{ 0x0001, "CHECKSUM_TYPE_CRC32" },
 	{ 0x0002, "CHECKSUM_TYPE_CRC64" },
 	{ 0xFFFF, "CHECKSUM_TYPE_UNCHANGED" },
 	{ 0, NULL }
