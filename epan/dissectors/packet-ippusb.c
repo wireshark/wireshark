@@ -203,7 +203,6 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     gint next_offset;
     guint8 last;
     guint8 status_code;
-    const guchar *last_chunk = NULL;
     struct ippusb_analysis *ippusbd = NULL;
     conversation_t *conv = NULL;
 
@@ -234,9 +233,10 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     last = tvb_get_guint8(tvb, captured_length - 1);
     status_code = tvb_get_bits8(tvb, 3 * BITS_PER_BYTE, BITS_PER_BYTE);
 
-    /* If segment has length of last chunk from chunk transfer */
-    if(captured_length == CHUNK_LENGTH_MIN){
-        last_chunk = tvb_get_ptr(tvb, offset, captured_length);
+    /* Is the segment the last chunk from chunk transfer? */
+    bool is_last_chunk = false;
+    if (captured_length == CHUNK_LENGTH_MIN) {
+        is_last_chunk = tvb_memeql(tvb, offset, CHUNKED_END, CHUNK_LENGTH_MIN) == 0;
     }
 
     if (is_http_header(first_linelen, first_line) && last == TAG_END_OF_ATTRIBUTES && status_code != PRINT_JOB && status_code != SEND_DOCUMENT) {
@@ -292,7 +292,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         new_msp->document |= MSP_HAS_DOCUMENT;
                     }
 
-                    if(!(last_chunk && strncmp(last_chunk, CHUNKED_END, CHUNK_LENGTH_MIN) == 0)){
+                    if (!is_last_chunk) {
                         /* If this segment is not the last chunk in a chunked transfer */
 
                         if (captured_length < reported_length && (new_msp->document & MSP_HAS_DOCUMENT)) {
@@ -403,7 +403,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     }
                 }
             }
-            else if (current_msp &&last_chunk && strncmp(last_chunk, CHUNKED_END, CHUNK_LENGTH_MIN) == 0) {
+            else if (current_msp && is_last_chunk) {
                 /* This is the last segment of the chunked transfer and reassembled packet */
 
                 proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
