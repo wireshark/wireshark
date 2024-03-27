@@ -22,12 +22,12 @@ If you or your organization would like to contribute or become a sponsor, please
 
 If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
 * wssalink:2024-06[]
 T.38 dissector crash.
 wsbuglink:19695[].
-// cveidlink:2024-xxx[].
+cveidlink:2024-2955[].
 // Fixed in master: 6fd3af5e99
 // Fixed in release-4.2: 7be4bbb413d
 // Fixed in release-4.0: c04f268605c
@@ -36,8 +36,8 @@ wsbuglink:19695[].
 // CWE-762
 // * Fuzz job crash: fuzz-2024-03-07-7208.pcap. wsbuglink:19695[].
 
-Additionally, CVE-2024-24478, CVE-2024-24479, and CVE-2024-24476 were recently requested without first contacting the Wireshark security team.
-In each case the CVE was requested based on invalid information and we have requested that they be rejected.
+Additionally, CVE-2024-24478, CVE-2024-24479, and CVE-2024-24476 were recently assigned to Wireshark without any coordination with the Wireshark project.
+As far as we can determine, each one is based on invalid assumptions and we have requested that they be rejected.
 
 The following bugs have been fixed:
 
@@ -46,7 +46,7 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
-* Extcap with configuration never starts; \"Configure all extcaps before start of capture.\" is shown instead. wsbuglink:18487[].
+* Extcap with configuration never starts; "Configure all extcaps before start of capture." is shown instead. wsbuglink:18487[].
 * Packet Dissection CSV Export includes last column even if hidden. wsbuglink:19666[].
 * Inject TLS secrets closes Wireshark on Windows. wsbuglink:19667[].
 * Fuzz job issue: fuzz-2024-02-27-7196.pcap. wsbuglink:19674[].
@@ -134,6 +134,7 @@ ICMPv6
 ICQ
 IEEE1609dot2
 IPP
+IPPUSB
 ISAKMP
 iSCSI
 ISIS LSP
