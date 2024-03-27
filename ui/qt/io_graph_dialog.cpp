@@ -2314,7 +2314,7 @@ bool IOGraph::hasItemToShow(int idx, double value) const
     case IOG_ITEM_UNIT_BITS:
     case IOG_ITEM_UNIT_CALC_FRAMES:
     case IOG_ITEM_UNIT_CALC_FIELDS:
-        if(value == 0.0 && (graph_ && graph_->scatterStyle().shape() != QCPScatterStyle::ssNone)) {
+        if (value == 0.0 && (graph_ && graph_->lineStyle() == QCPGraph::lsNone)) {
             result = false;
         }
         else {
