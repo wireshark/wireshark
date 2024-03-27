@@ -1949,11 +1949,8 @@ static guint chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
         return 0;
     }
     guint8 rectype = tvb_get_guint8(tvb, offset);
-    offset += 1;
-    guint16 recvers = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-    offset += 2;
-    guint16 reclen = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-    offset += 2;
+    guint16 recvers = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
+    guint16 reclen = tvb_get_guint16(tvb, offset+1+2, ENC_BIG_ENDIAN);
 
     switch(rectype) {
         // These overlap with TCPCLV3_DATA_SEGMENT but have invalid flags
