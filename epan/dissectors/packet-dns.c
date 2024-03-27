@@ -2263,7 +2263,7 @@ add_timestamp(proto_tree *tree, int hf_id, tvbuff_t *tvb, int offset)
      https://www.ietf.org/archive/id/draft-denis-dprive-dnscrypt-01.html
      https://github.com/DNSCrypt/dnscrypt-proxy/blob/master/dnscrypt-proxy/dnscrypt_certs.go
 */
-static void
+static int
 dissect_dnscrypt(proto_tree *tree, tvbuff_t *tvb, int offset, guint length)
 {
     proto_item *sub_item;
@@ -2298,6 +2298,8 @@ dissect_dnscrypt(proto_tree *tree, tvbuff_t *tvb, int offset, guint length)
 
     add_timestamp(sub_tree, hf_dns_dnscrypt_ts_end, tvb, offset);
     offset += 4;
+
+    return offset;
 }
 
 static int
