@@ -10201,6 +10201,8 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_structure_id, &structure_id);
     u16BodyLength -= 4;
 
+    /* Init service_modifier even when not used, to avoid gcc may by used initialized error/warning */
+    service_modifier = (service_response_id << 8);
 
     if (structure_id == 0xFF) {
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_pe_service_errorcode, &status);
@@ -10214,7 +10216,7 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
     } else {
         /*
          * In the response we do not have modifier as in the request.
-         * To properly deconde the service name we have to use response structure ID based on service ID.
+         * To properly decode the service name we have to use response structure ID based on service ID.
          * There is no easy 1 to 1 mapping.
          */
         if (service_response_id == 0x01) {
