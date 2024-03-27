@@ -1,0 +1,670 @@
+commit fd0af2372d6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 25 16:30:18 2024 -0700
+
+    Prep for 3.6.22
+
+commit 414233c581c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 23 17:16:46 2024 -0700
+
+    DVB-S2: Add a null check
+
+    (cherry picked from commit 105da2927f217e21216b0d1f3e5c6f4022d28ac6)
+
+commit 5aec8d63527
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 23 17:12:04 2024 -0700
+
+    ISO 7816: Add a null check
+
+    (cherry picked from commit 45342588857f4410c7e2c7d11c72105010e459b3)
+
+commit 672dc2e52cf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 23 17:03:35 2024 -0700
+
+    H.264+H.265: Add null checks
+
+    Make sure our field pointers are valid. Found by scan-build.
+
+    (cherry picked from commit 0cc1a5f11077094266b2bd3ddf272aa0a5c7ae88)
+
+    Conflicts:
+            epan/dissectors/packet-h264.c
+            epan/dissectors/packet-h265.c
+
+commit c11fd797a79
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 24 09:19:44 2024 +0000
+
+    [Automatic update for 2024-03-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f74b13dd122
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 23 10:37:13 2024 -0700
+
+    Add recursion checks to SoulSeek, SML, and Socks
+
+    (cherry picked from commit 5366c18d28774f30c463d95df0e5e58d61f85897)
+
+commit 9b45911680c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 23 11:53:04 2024 -0700
+
+    Recursion updates for Gryphon, MATE, OpcUa, PNIO, and WiMAX ASN CP
+
+    (cherry picked from commit 6d4375846b07b827c73be6474c34dc68284414ab)
+
+    Conflicts:
+            plugins/epan/mate/mate_runtime.c
+            plugins/epan/opcua/opcua_simpletypes.c
+            plugins/epan/profinet/packet-dcerpc-pn-io.c
+
+commit 19b321d7481
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 23 10:19:43 2024 -0700
+
+    Add recursion checks to LLRP, MQ PCF, OPSI, and OSC
+
+    (cherry picked from commit f9e954497fb9900dfc62fd55b870f0d859147ec6)
+
+commit f6b233f1d7b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 21 09:25:29 2024 -0700
+
+    USBVIDEO: Add a class data type check
+
+    Make sure our class data type is USB_CONV_VIDEO before trying to use it.
+
+    Fixes #19717
+
+    (cherry picked from commit 0e1bad2875f2d73a6d67169eeb9f1cdb7554e1c2)
+
+commit b09eded312e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Mar 20 12:02:51 2024 -0400
+
+    TFTP: Fix export objects in single pass tshark
+
+    We cannot know during the first pass if the capture file contains
+    the last block of a TFTP transfer, so we have to copy the blocks
+    regardless (if we have no missing blocks yet.)
+
+    Fix #19715
+
+    (cherry picked from commit e640ecd591fdc837ee2ed79b1e39bee5b34829e3)
+
+commit e6ceaf1ec6b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 20 09:54:17 2024 -0700
+
+    Add recursion checks to EXTREME MESH, LwM2M-TLV, MPLS ECHO, SNA, and TCAP
+
+    (cherry picked from commit 1ed5bd8dd2c7b1a8c79c60fb368717728f0d15c4)
+
+    Conflicts:
+            epan/dissectors/packet-extrememesh.c
+
+commit 54e2f837210
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 17 12:52:39 2024 -0700
+
+    Add recursion checks to DCOM, MPEG PES, PROXY, Snort config, and Thread
+
+    (cherry picked from commit 6653bfd82ed86417578a31525de67e5f1e299a89)
+
+    Conflicts:
+            epan/dissectors/asn1/mpeg-pes/packet-mpeg-pes-template.c
+            epan/dissectors/packet-mpeg-pes.c
+            epan/dissectors/packet-proxy.c
+            epan/dissectors/packet-snort-config.c
+
+commit ce9d84762ef
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 17 10:37:39 2024 -0700
+
+    Add recursion checks to DICOM, FC-SWILS, PIM, RSL, and WASSP
+
+    (cherry picked from commit e9f0d2c22a23bf279753884fd9a8980d2ae13642)
+
+    Conflicts:
+            epan/dissectors/packet-pim.c
+
+commit ff6d69f8ebc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 17 09:25:25 2024 -0700
+
+    Add recursion checks to KNX/IP, PANA, SOME/IP, and WLCCP
+
+    (cherry picked from commit db886b4acbc761e730d2364e3759019266404275)
+
+    Conflicts:
+            epan/dissectors/packet-dccp.c
+            epan/dissectors/packet-someip.c
+
+commit 7c3828366d4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 16 10:35:37 2024 -0700
+
+    Add recursion checks to CSN.1, GSM A-bis OML, NAS-5GS, SolarEdge, and WMIO
+
+    (cherry picked from commit 73b6bf25e27796352774f7d95ef053c1da1d1cfd)
+
+    Conflicts:
+            epan/dissectors/packet-solaredge.c
+            epan/dissectors/packet-wmio.c
+
+commit ec7b3751296
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 17 09:19:51 2024 +0000
+
+    [Automatic update for 2024-03-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1da02df75ee
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 16 09:44:46 2024 -0700
+
+    Add recursion checks to CQL, GSM GSUP, MSWSP, RSVP, and WTP
+
+    (cherry picked from commit 277d965657060085e14990d7eafc596f0b1f0ed0)
+
+    Conflicts:
+            epan/dissectors/packet-cql.c
+
+commit 3a784bb925f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 15 14:31:15 2024 -0700
+
+    Add recursion checks to COSE, GQUIC, SUA, and XML
+
+    (cherry picked from commit 7122291d5d0df839f4dd404cad13d93e36bd04a0)
+
+commit 59802471229
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Mar 12 19:28:43 2024 -0700
+
+    Add recursion checks to COROSYNC/TOTEMSRP, HSMS, ProtoBuf, RTLS, and YAMI
+
+    (cherry picked from commit 5b29346f9b7e4c67401afc2015b880de760eb73b)
+
+    Conflicts:
+            epan/dissectors/packet-protobuf.c
+            epan/dissectors/packet-rtls.c
+            epan/dissectors/packet-yami.c
+            epan/protobuf_lang_tree.c
+
+commit 07475ed0cab
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 12 23:29:14 2024 -0400
+
+    Qt: queue TCP stream graph replots during mouse moves
+
+    For a mouseMove event, don't immediately replot but queue
+    the replot for the next event loop iteration. This dramatically
+    improves performance on Linux for graphs with a large number
+    of points when moving the mouse for graphs.
+
+    (cherry picked from commit 1ea44a05e95d71d458750ee3f57fbf9801989e5f)
+
+commit d1baaad9b10
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 10 11:59:21 2024 -0700
+
+    Add recursion checks to BVLC, DOCSIS MAC MGMT, MsgPack, RTMPT, and ZigBee ZCL
+
+    (cherry picked from commit 9bfa8d9142ba9efa38827346486c895df9dce9cc)
+
+commit 8008069332d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 10 10:25:14 2024 -0700
+
+    Add recursion checks to BT SDP, GTPv2, NHRP, SCTP, and Windows common
+
+    (cherry picked from commit 128c298122e71147f7fa3d7b6df2d7f0fde4eb7a)
+
+    Conflicts:
+            epan/dissectors/packet-nhrp.c
+            epan/dissectors/packet-sctp.c
+
+commit e4390fa8b90
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 9 17:22:34 2024 -0800
+
+    Add recursion checks to BT BNEP, DOF, ICQ, Q.2931, and S7COMM
+
+    (cherry picked from commit e50ef0effb253534c1e8afa9102aa6d52f9cbd12)
+
+    Conflicts:
+            epan/dissectors/packet-s7comm.c
+
+commit 05b046133da
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 10 09:20:06 2024 +0000
+
+    [Automatic update for 2024-03-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ca493cc2b53
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 9 10:56:40 2024 -0800
+
+    Add recursion checks to BGP, Etch, LI5G, RPL, and SIMULCRYPT
+
+    (cherry picked from commit 6f2514fba5fca8cbdc0b3513979a68f56424f868)
+
+commit 6b38f37a003
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 9 10:32:56 2024 -0800
+
+    Add recursion checks to BFCP, EDONKEY, QNET, RTPS, and XMPP
+
+    (cherry picked from commit 709404e401cfb36fdeb38f0bc1bd481b7309c1d9)
+
+    Conflicts:
+            epan/dissectors/packet-rtps.c
+            epan/dissectors/packet-xmpp-utils.c
+
+commit fff87cf6412
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 5 09:19:39 2024 -0500
+
+    ICMPv6: Remove recursion check from 0 length option path
+
+    Fixup 972bb56d0ab3fc825955d58bee629ba13c1e1a99
+
+    Fix #19688
+
+    (cherry picked from commit ba82fcdef633214518aa2ea7f7a99f54e6bb03f3)
+
+commit d1c86073826
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 3 17:38:10 2024 -0800
+
+    ASAP: More recursion updates
+
+    Check against pinfo->flags.in_error_pkt.
+
+    (cherry picked from commit d46e93b274aec46d75ca91dcd4e6f4f7a4b9f420)
+
+commit a78fed56a13
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 4 14:13:59 2024 -0800
+
+    Add recursion checks to Bencode, BT-DHT, ErlDP, H.233, and H.264
+
+    (cherry picked from commit f38f79d6e14c5a278d5e08ba1b96f9f4c0e600e0)
+
+    Conflicts:
+            epan/dissectors/packet-bt-dht.c
+
+commit 8d7586f761e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 4 11:33:20 2024 -0800
+
+    Add recursion checks and suppressions to BEEP, Kafka, and OpenFlow
+
+    (cherry picked from commit fcde25cfb8dc0d86904aaeaab8b50e87e1985fc0)
+
+commit ce608200b47
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 4 10:51:16 2024 -0800
+
+    Add recursion checks to Banana, ISAKMP, KINK, M2UA, and M3UA
+
+    (cherry picked from commit 48e65f0c54b05dbc3d082dc645e3d111b46e9055)
+
+    Conflicts:
+            epan/dissectors/packet-kink.c
+
+commit 924063868fe
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 3 17:53:45 2024 -0800
+
+    Remove our recursion checks in ICMPv6 and NETLINK
+
+    We'll run out of packet before we run out of stack in each case.
+
+    (cherry picked from commit 972bb56d0ab3fc825955d58bee629ba13c1e1a99)
+
+    Conflicts:
+            epan/dissectors/packet-netlink.c
+
+commit e14888fa659
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 3 09:19:54 2024 +0000
+
+    [Automatic update for 2024-03-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 27b77fd7bf8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 2 18:42:13 2024 -0800
+
+    ASAP: Make sure pinfo is set
+
+    Fixes #19685.
+
+    (cherry picked from commit dc84bddc1f245512c56aa3f5e617db9fff729796)
+
+commit ce0c0e9f291
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 2 15:37:37 2024 -0800
+
+    Add recursion checks to BACnet, CIP, IPP, LISP, and NETLINK
+
+    (cherry picked from commit c4d62f97615f85b24f86a0ab2a8aa0d62851b6e5)
+
+    Conflicts:
+            epan/dissectors/packet-cip.c
+            epan/dissectors/packet-lisp.c
+            epan/dissectors/packet-netlink.c
+
+commit 1362a76c5ea
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 2 11:58:35 2024 -0800
+
+    Add recursion checks to ASAP, iSCSI, JXTA, MBIM, and MQTT-SN
+
+    (cherry picked from commit c49e1f2ceacac3e7a808f95c88d4eabf81c996e5)
+
+    Conflicts:
+            epan/dissectors/packet-mbim.c
+
+commit f975212d2e8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Mar 2 10:46:44 2024 -0800
+
+    Add recursion checks to AMQP, GNW, LDP, CFLOW, and RDP
+
+    (cherry picked from commit 3948fe5132f9641b662c888efb74b1bd01216cc9)
+
+    Conflicts:
+            epan/dissectors/packet-amqp.c
+            epan/dissectors/packet-rdp.c
+
+commit 70c2e688a83
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 1 13:48:31 2024 -0800
+
+    Add recursion checks to various protocols
+
+    (cherry picked from commit d0c09f485951a0b014102e8fc82aa5b854d9c33b)
+
+    Conflicts:
+            epan/dissectors/packet-resp.c
+            epan/dissectors/packet-teap.c
+
+commit e934645f842
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 1 09:32:24 2024 -0800
+
+    Rebuild our ASN.1 dissectors
+
+    Switch to simple recursion checks.
+
+commit 5cfa307748b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 28 17:13:45 2024 -0800
+
+    epan: Add simple recursion checks
+
+    Add a "dissection_depth" element to packet_info, and add
+    increment_dissection_depth and decrement_dissection_depth. Assert if our
+    dissection depth exceeds the gui_max_tree_depth preference.
+
+    Use them to replace some of the current p_get_proto_depth and
+    p_set_proto_depth calls.
+
+    Get rid of PINFO_LAYER_MAX_RECURSION_DEPTH and use the
+    gui_max_tree_depth preference in call_dissector and
+    dissector_try_heuristic.
+
+    (cherry picked from commit 4f35c3a34a33f06fb86d4567715d2e935f506cd5)
+
+    Conflicts:
+            epan/dissectors/file-jpeg.c
+            epan/dissectors/packet-smb2.c
+
+commit 75c6897d664
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 25 09:22:13 2024 +0000
+
+    [Automatic update for 2024-02-25]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 2320865465a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 22 18:35:09 2024 -0800
+
+    ICMPv6: Add a recursion check
+
+    Fix
+
+    ```
+    wireshark/epan/dissectors/packet-icmpv6.c:1709:1: warning: function 'dissect_icmpv6_nd_opt' is within a recursive call chain [misc-no-recursion]
+     1709 | dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+          | ^
+    wireshark/epan/dissectors/packet-icmpv6.c:1709:1: note: example recursive call chain, starting from function 'dissect_icmpv6_nd_opt'
+    wireshark/epan/dissectors/packet-icmpv6.c:2247:30: note: Frame #1: function 'dissect_icmpv6_nd_opt' calls function 'dissect_icmpv6_nd_opt' here:
+     2247 |                 opt_offset = dissect_icmpv6_nd_opt(tvb, opt_offset, pinfo, icmp6opt_tree);
+          |                              ^
+    wireshark/epan/dissectors/packet-icmpv6.c:2247:30: note: ... which was the starting point of the recursive call chain; there may be other cycles
+    ```
+
+    (cherry picked from commit 0eb0d6fdb4394872e68ed2c8c9d2cc1a1bc85db9)
+
+commit 6f61954e8a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 22 18:29:49 2024 -0800
+
+    DHCPv6: Add a recursion check
+
+    Fix
+
+    ```
+    wireshark/epan/dissectors/packet-dhcpv6.c:1846:1: warning: function 'dhcpv6_option' is within a recursive call chain [misc-no-recursion]
+     1846 | dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
+          | ^
+    wireshark/epan/dissectors/packet-dhcpv6.c:1846:1: note: example recursive call chain, starting from function 'dhcpv6_option'
+    wireshark/epan/dissectors/packet-dhcpv6.c:2052:28: note: Frame #1: function 'dhcpv6_option' calls function 'dhcpv6_option' here:
+     2052 |             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
+          |                            ^
+    wireshark/epan/dissectors/packet-dhcpv6.c:2052:28: note: ... which was the starting point of the recursive call chain; there may be other cycles
+    wireshark/epan/dissectors/packet-dhcpv6.c:2958:1: warning: function 'dissect_dhcpv6' is within a recursive call chain [misc-no-recursion]
+     2958 | dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+          | ^
+    ```
+
+    (cherry picked from commit 5a04c4ecee4a40851c8fd0f7de0ee96d257bb752)
+
+commit aba6f667317
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 22 18:50:24 2024 -0800
+
+    SMB2: Add recursion checks
+
+    (cherry picked from commit 1515b211e20354e097092de0b52e50862e64ce36)
+
+    Conflicts:
+            epan/dissectors/packet-smb2.c
+
+commit 001a0891e1f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 21 15:01:00 2024 -0800
+
+    AllJoyn: Add recursion checks
+
+    (cherry picked from commit 8b0e90d62e283d3aa7b00aa17a55a53bde362da4)
+
+commit 6ccfc73d39f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 21 14:27:58 2024 -0800
+
+    6LoWPAN: Add recursion checks
+
+    (cherry picked from commit 34c90f7a3d31c74c7f66a71dcd23eed326718190)
+
+commit 7dd70b362f3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 21 11:53:18 2024 -0800
+
+    TN5250: Add a recursion check
+
+    (cherry picked from commit 282bd19e887a56496011d14b1bf7bdde40f9216e)
+
+commit fda185e5180
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 21 11:08:42 2024 -0800
+
+    MONGO: Add a recursion check
+
+    (cherry picked from commit 7183ac40da718b4a0531f84adf090e9a97c1297a)
+
+commit 449065a253e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 20 15:22:07 2024 -0800
+
+    RBM: Add a recursion check
+
+    Fix
+
+    ```
+    wireshark/epan/dissectors/file-rbm.c:196:13: warning: function 'dissect_rbm_array' is within a recursive call chain [misc-no-recursion]
+      196 | static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:410:13: note: example recursive call chain, starting from function 'dissect_rbm_object'
+      410 | static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ptree, guint* offset, gchar** type, gchar** value)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:439:4: note: Frame #1: function 'dissect_rbm_object' calls function 'dissect_rbm_string' here:
+      439 |                         dissect_rbm_string(tvb, pinfo, tree, offset, &value_local);
+          |                         ^
+    wireshark/epan/dissectors/file-rbm.c:325:2: note: Frame #2: function 'dissect_rbm_string' calls function 'dissect_rbm_object' here:
+      325 |         dissect_rbm_object(tvb, pinfo, tree, offset, NULL, NULL);
+          |         ^
+    wireshark/epan/dissectors/file-rbm.c:325:2: note: ... which was the starting point of the recursive call chain; there may be other cycles
+    wireshark/epan/dissectors/file-rbm.c:222:13: warning: function 'dissect_rbm_hash' is within a recursive call chain [misc-no-recursion]
+      222 | static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:321:13: warning: function 'dissect_rbm_string' is within a recursive call chain [misc-no-recursion]
+      321 | static void dissect_rbm_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:329:13: warning: function 'dissect_rbm_regex' is within a recursive call chain [misc-no-recursion]
+      329 | static void dissect_rbm_regex(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:344:13: warning: function 'dissect_rbm_userclass' is within a recursive call chain [misc-no-recursion]
+      344 | static void dissect_rbm_userclass(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:355:13: warning: function 'dissect_rbm_variable' is within a recursive call chain [misc-no-recursion]
+      355 | static void dissect_rbm_variable(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:368:13: warning: function 'dissect_rbm_struct' is within a recursive call chain [misc-no-recursion]
+      368 | static void dissect_rbm_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:374:13: warning: function 'dissect_rbm_drb' is within a recursive call chain [misc-no-recursion]
+      374 | static void dissect_rbm_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:383:13: warning: function 'dissect_rbm_rubyobject' is within a recursive call chain [misc-no-recursion]
+      383 | static void dissect_rbm_rubyobject(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:400:13: warning: function 'dissect_rbm_extended' is within a recursive call chain [misc-no-recursion]
+      400 | static void dissect_rbm_extended(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:410:13: warning: function 'dissect_rbm_object' is within a recursive call chain [misc-no-recursion]
+      410 | static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ptree, guint* offset, gchar** type, gchar** value)
+          |             ^
+    wireshark/epan/dissectors/file-rbm.c:535:6: warning: function 'dissect_rbm_inline' is within a recursive call chain [misc-no-recursion]
+      535 | void dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** type, gchar** value)
+          |      ^
+    ```
+
+    (cherry picked from commit d7b15ff6d19763cc29f3cc4677aef28aed2879df)
+
+commit 847957bd93e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 20 14:03:02 2024 -0800
+
+    BLF: Add a recursion check
+
+    Fix
+
+    ```
+    wireshark/epan/dissectors/file-blf.c:498:1: warning: function 'dissect_blf_lobj' is within a recursive call chain [misc-no-recursion]
+      498 | dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset_orig) {
+          | ^
+    wireshark/epan/dissectors/file-blf.c:886:1: note: example recursive call chain, starting from function 'dissect_blf_next_object'
+      886 | dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
+          | ^
+    wireshark/epan/dissectors/file-blf.c:893:32: note: Frame #1: function 'dissect_blf_next_object' calls function 'dissect_blf_lobj' here:
+      893 |             int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset);
+          |                                ^
+    wireshark/epan/dissectors/file-blf.c:580:27: note: Frame #2: function 'dissect_blf_lobj' calls function 'dissect_blf_next_object' here:
+      580 |                     tmp = dissect_blf_next_object(sub_tvb, pinfo, subtree, offset_sub);
+          |                           ^
+    wireshark/epan/dissectors/file-blf.c:580:27: note: ... which was the starting point of the recursive call chain; there may be other cycles
+    wireshark/epan/dissectors/file-blf.c:886:1: warning: function 'dissect_blf_next_object' is within a recursive call chain [misc-no-recursion]
+      886 | dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
+          | ^
+    ```
+
+    (cherry picked from commit 3b2c961eeb3eda36a0253cc5111396a4d6a424e0)
+
+commit 80d57b2a09e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 20 09:41:29 2024 -0800
+
+    ISIS LSP: Add a recursion check
+
+    Fix
+
+    ```
+    wireshark/epan/dissectors/packet-isis-lsp.c:3431:1: warning: function 'dissect_sub_clv_tlv_22_22_23_141_222_223' is within a recursive call chain [misc-no-recursion]
+     3431 | dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
+          | ^
+    wireshark/epan/dissectors/packet-isis-lsp.c:3431:1: note: example recursive call chain, starting from function 'dissect_sub_clv_tlv_22_22_23_141_222_223'
+    wireshark/epan/dissectors/packet-isis-lsp.c:3541:21: note: Frame #1: function 'dissect_sub_clv_tlv_22_22_23_141_222_223' calls function 'dissect_sub_clv_tlv_22_22_23_141_222_223' here:
+     3541 |                     dissect_sub_clv_tlv_22_22_23_141_222_223(tvb, pinfo, subtree, local_offset, local_len);
+          |                     ^
+    wireshark/epan/dissectors/packet-isis-lsp.c:3541:21: note: ... which was the starting point of the recursive call chain; there may be other cycles
+    ```
+
+    Add Clang-Tidy suppressions as well.
+
+    (cherry picked from commit 16d85df6f447b082afce8cf183d187d6144f2870)
+
+commit ab671bf36a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 18 09:20:04 2024 +0000
+
+    [Automatic update for 2024-02-18]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b3465874d42
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 14 13:49:47 2024 -0800
+
+    GitLab CI: Fix our version
+
+    (cherry picked from commit 7566ef669ba6a32dda791143942930ed9c839bd8)
+
+commit 601b7014827
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 14 13:18:50 2024 -0800
+
+    GitLab CI: Add release notes artifacts
+
+    (cherry picked from commit d54031eda9e94e9c7ab28e8a70b2509dc20cdfc9)
+
+commit 0070509fb7c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 14 13:35:57 2024 -0800
+
+    Version: 3.6.21 → 3.6.22
