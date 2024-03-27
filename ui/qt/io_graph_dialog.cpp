@@ -1517,7 +1517,13 @@ void IOGraphDialog::on_logCheckBox_toggled(bool checked)
 {
     QCustomPlot *iop = ui->ioPlot;
 
-    iop->yAxis->setScaleType(checked ? QCPAxis::stLogarithmic : QCPAxis::stLinear);
+    if (checked) {
+        iop->yAxis->setScaleType(QCPAxis::stLogarithmic);
+        iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
+    } else {
+        iop->yAxis->setScaleType(QCPAxis::stLinear);
+        iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
+    }
     iop->replot();
 }
 
