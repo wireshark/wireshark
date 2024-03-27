@@ -4305,7 +4305,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* Old Routing Area Identification (note 12) Old Routing Area Identification/11.3.127 O TLV 8 */
     ELEM_OPT_TELV(BSSGP_IEI_OLD_RA_IDENTIFICATION, GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
     /* Attach Indicator(note 13) Attach Indicator / 11.3.128 O TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_ATTACH_INDIC, GSM_A_PDU_TYPE_GM, DE_BSSGP_ATTACH_INDIC, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_ATTACH_INDIC, BSSGP_PDU_TYPE, DE_BSSGP_ATTACH_INDIC, NULL);
 
     /* SGSN Group Identity (note 15)	SGSN Group Identity/11.3.131    C   TLV 5 */
     /* Additional P-TMSI (note 15)	Additional P-TMSI/11.3.132	C   TLV 6 */
