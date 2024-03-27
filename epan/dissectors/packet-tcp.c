@@ -2456,7 +2456,6 @@ finished_fwd:
             /* We ensure there is no matching packet waiting in the unacked list,
              * and take this opportunity to push the tail further than this single packet
              */
-            ual = tcpd->rev->tcp_analyze_seq_info->segments;
 
             guint32 tail_le = 0, tail_re = 0;
             for(ual=tcpd->rev->tcp_analyze_seq_info->segments; ual; ual=ual->next) {
