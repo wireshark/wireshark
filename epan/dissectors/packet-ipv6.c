@@ -2281,8 +2281,8 @@ dissect_opt_ioam_trace(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset += 2;
 
     nodelen = tvb_get_bits8(tvb, offset * 8, 5);
-    ti = proto_tree_add_bits_item(opt_tree, hf_ipv6_opt_ioam_trace_nodelen, tvb,
-                                  offset * 8, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(opt_tree, hf_ipv6_opt_ioam_trace_nodelen, tvb,
+                             offset * 8, 5, ENC_BIG_ENDIAN);
 
     proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_ioam_trace_flags,
                            ett_ipv6_opt_ioam_trace_flags, ioam_trace_flags, ENC_NA);
