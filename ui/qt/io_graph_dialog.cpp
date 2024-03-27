@@ -1858,10 +1858,23 @@ void IOGraph::setFilter(const QString &filter)
         g_string_free(error_string, TRUE);
         return;
     } else {
-        if (filter_.compare(filter) && visible_) {
+        /* If we changed the tap filter, we need to retap. */
+        /* XXX - When changing from an advanced graph to one that doesn't
+         * use the field, we don't actually need to retap if filter and
+         * full_filter produce the same results. (We do have to retap
+         * regardless if changing _to_ an advanced graph, because the
+         * extra fields in the io_graph_item_t aren't filled in from the
+         * edt for the basic graph.)
+         * Checking that in full generality would require more optimization
+         * in the dfilter engine plus functions to compare filters, but
+         * we could test the simple case where filter and vu_field are
+         * the same string.
+         */
+        if (full_filter_.compare(full_filter) && visible_) {
             emit requestRetap();
         }
         filter_ = filter;
+        full_filter_ = full_filter;
     }
 }
 
@@ -2026,8 +2039,18 @@ void IOGraph::setValueUnits(int val_units)
         val_units_ = (io_graph_item_unit_t)val_units;
 
         if (old_val_units != val_units) {
+            // If val_units changed, switching between a type that doesn't
+            // use the vu_field/hfi/edt to one of the advanced graphs that
+            // does requires a retap. setFilter will handle that.
+            // XXX - If we are switching between LOAD and one of the
+            // other advanced graphs, we also need to retap because
+            // LOAD doesn't fill in the io_graph_item_t the same way.
+            // We don't do that currently.
             setFilter(filter_); // Check config & prime vu field
             if (val_units < IOG_ITEM_UNIT_CALC_SUM) {
+                // XXX - Is this necessary? Won't modelDataChanged()
+                // always be called for colYAxis and that schedule
+                // a recalculation?
                 emit requestRecalc();
             }
         }
@@ -2047,6 +2070,8 @@ void IOGraph::setValueUnitField(const QString &vu_field)
     }
 
     if (old_hf_index != hf_index_) {
+        // If the field changed, and val_units is a type that uses it,
+        // we need to retap. setFilter will handle that.
         setFilter(filter_); // Check config & prime vu field
     }
 }

@@ -123,6 +123,7 @@ private:
     QCPGraph *graph_;
     QCPBars *bars_;
     QString filter_;
+    QString full_filter_; // Includes vu_field_ if used
     QBrush color_;
     io_graph_item_unit_t val_units_;
     QString vu_field_;
