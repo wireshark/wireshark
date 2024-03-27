@@ -1126,6 +1126,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	gint num_tunnel_types;
 	gint num_auth_types;
 	proto_item* auth_item;
+	gint bytes_available;
+	gint bytes_needed = 0;
 
 	per_packet_info = (vnc_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0);
 
@@ -1138,6 +1140,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_vnc, 0, per_packet_info);
 	}
+
+	bytes_available = tvb_reported_length_remaining(tvb, offset);
 
 	/* Packet dissection follows */
 	switch(per_packet_info->state) {
@@ -1184,6 +1188,13 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		if(per_conversation_info->client_proto_ver >= 3.007) {
 			num_security_types = tvb_get_guint8(tvb, offset);
+			bytes_needed = 1 + num_security_types;
+			if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = bytes_needed - bytes_available;
+				break;
+			}
+
 			if (tree) {
 				proto_tree_add_item(tree,
 						    hf_vnc_num_security_types,
@@ -1508,6 +1519,12 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 	case VNC_SESSION_STATE_VENCRYPT_SERVER_VERSION:
 	{
+		bytes_needed = 2;
+		if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = bytes_needed - bytes_available;
+			break;
+		}
 		proto_tree_add_item(tree, hf_vnc_vencrypt_server_major_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
 		gint major = tvb_get_guint8(tvb, offset++);
 		proto_tree_add_item(tree, hf_vnc_vencrypt_server_minor_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1518,6 +1535,12 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	}
 	case VNC_SESSION_STATE_VENCRYPT_CLIENT_VERSION:
 	{
+		bytes_needed = 2;
+		if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = bytes_needed - bytes_available;
+			break;
+		}
 		proto_tree_add_item(tree, hf_vnc_vencrypt_client_major_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
 		gint major = tvb_get_guint8(tvb, offset++);
 		proto_tree_add_item(tree, hf_vnc_vencrypt_client_minor_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1529,14 +1552,26 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	case VNC_SESSION_STATE_VENCRYPT_AUTH_CAPABILITIES:
 	{
 		gint i;
+		bytes_needed = 2;
+		if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+			break;
+		}
+		num_auth_types = tvb_get_guint8(tvb, offset + 1);
+		bytes_needed = 2 + 4 * num_auth_types;
+		if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = bytes_needed - bytes_available;
+			break;
+		}
 		col_set_str(pinfo->cinfo, COL_INFO, "VeNCrypt authentication types supported");
 		proto_tree_add_item(tree, hf_vnc_vencrypt_version_ack, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tree, hf_vnc_vencrypt_num_auth_types, tvb, offset, 1, ENC_BIG_ENDIAN);
-		num_tunnel_types = tvb_get_guint8(tvb, offset);
 		offset += 1;
 
-		for(i = 0; i < num_tunnel_types; i++) {
+		for(i = 0; i < num_auth_types; i++) {
 			proto_tree_add_item(tree, hf_vnc_vencrypt_auth_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		}
@@ -1546,6 +1581,12 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	}
 	case VNC_SESSION_STATE_VENCRYPT_AUTH_TYPE_REPLY:
 	{
+		bytes_needed = 4;
+		if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = bytes_needed - bytes_available;
+			break;
+		}
 		guint32 authtype = tvb_get_ntohl(tvb, offset);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "VeNCrypt authentication type %s (%d) selected by client",
 			val_to_str_const(authtype, vnc_vencrypt_auth_types_vs, "Unknown"),
