@@ -551,7 +551,7 @@ static char* ver2str(tvbuff_t *tvb, int offset)
 	}
 	// Alpha
 	if (alpha != 0x00) {
-		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "%c", alpha);
+		/*c_offset += */snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "%c", alpha);
 	} else {
 		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
 		snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
