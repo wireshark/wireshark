@@ -31,7 +31,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2024-06[]
 T.38 dissector crash.
 wsbuglink:19695[].
-// cveidlink:2024-xxx[].
+cveidlink:2024-2955[].
 // Fixed in master: 6fd3af5e99
 // Fixed in release-4.2: 7be4bbb413d
 // Fixed in release-4.0: c04f268605c
@@ -124,6 +124,7 @@ ICMPv6
 ICQ
 IEEE1609dot2
 IPP
+IPPUSB
 ISAKMP
 iSCSI
 ISIS LSP
