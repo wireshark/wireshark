@@ -844,7 +844,7 @@ void WiresharkMainWindow::startCapture() {
     startCapture(QStringList());
 }
 
-void WiresharkMainWindow::startCapture(QStringList interfaces _U_) {
+void WiresharkMainWindow::startCapture(QStringList interfaces) {
 #ifdef HAVE_LIBPCAP
     interface_options *interface_opts;
     guint i;
@@ -984,6 +984,8 @@ DIAG_ON(stringop-overread)
     } else {
         CaptureFile::globalCapFile()->window = NULL;
     }
+#else // HAVE_LIBPCAP
+    Q_UNUSED(interfaces)
 #endif // HAVE_LIBPCAP
 }
 

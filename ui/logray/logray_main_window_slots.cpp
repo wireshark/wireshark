@@ -797,11 +797,11 @@ void LograyMainWindow::captureFileClosed() {
 
 // ui/gtk/capture_dlg.c:start_capture_confirmed
 
-void LograyMainWindow::startCapture() {
-    startCapture(QStringList());
+void LograyMainWindow::startCapture(QStringList) {
+    startCapture();
 }
 
-void LograyMainWindow::startCapture(QStringList interfaces _U_) {
+void LograyMainWindow::startCapture() {
 #ifdef HAVE_LIBPCAP
     interface_options *interface_opts;
     guint i;

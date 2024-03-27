@@ -58,7 +58,7 @@ private:
     QListWidget *recent_files_;
 
 signals:
-    void startCapture(QStringList);
+    void startCapture(QStringList ifaces);
     void recentFileActivated(QString cfile);
     void captureFilterSyntaxChanged(bool valid);
     void showExtcapOptions(QString &device_name, bool startCaptureOnClose);

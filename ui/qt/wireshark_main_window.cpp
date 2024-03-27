@@ -587,35 +587,22 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
             main_ui_->statusBar, SLOT(captureEventHandler(CaptureEvent)));
 
-    connect(mainApp, SIGNAL(freezePacketList(bool)),
-            packet_list_, SLOT(freezePacketList(bool)));
-    connect(mainApp, SIGNAL(columnsChanged()),
-            packet_list_, SLOT(columnsChanged()));
-    connect(mainApp, SIGNAL(colorsChanged()),
-            packet_list_, SLOT(colorsChanged()));
-    connect(mainApp, SIGNAL(preferencesChanged()),
-            packet_list_, SLOT(preferencesChanged()));
-    connect(mainApp, SIGNAL(recentPreferencesRead()),
-            this, SLOT(applyRecentPaneGeometry()));
-    connect(mainApp, SIGNAL(recentPreferencesRead()),
-            this, SLOT(updateRecentActions()));
-    connect(mainApp, SIGNAL(packetDissectionChanged()),
-            this, SLOT(redissectPackets()), Qt::QueuedConnection);
+    connect(mainApp, &MainApplication::freezePacketList, packet_list_, &PacketList::freezePacketList);
+    connect(mainApp, &MainApplication::columnsChanged, packet_list_, &PacketList::columnsChanged);
+    connect(mainApp, &MainApplication::colorsChanged, packet_list_, &PacketList::colorsChanged);
+    connect(mainApp, &MainApplication::preferencesChanged, packet_list_, &PacketList::preferencesChanged);
+    connect(mainApp, &MainApplication::recentPreferencesRead, this, &WiresharkMainWindow::applyRecentPaneGeometry);
+    connect(mainApp, &MainApplication::recentPreferencesRead, this, &WiresharkMainWindow::updateRecentActions);
+    connect(mainApp, &MainApplication::packetDissectionChanged, this, &WiresharkMainWindow::redissectPackets, Qt::QueuedConnection);
 
-    connect(mainApp, SIGNAL(checkDisplayFilter()),
-            this, SLOT(checkDisplayFilter()));
-    connect(mainApp, SIGNAL(fieldsChanged()),
-            this, SLOT(fieldsChanged()));
-    connect(mainApp, SIGNAL(reloadLuaPlugins()),
-            this, SLOT(reloadLuaPlugins()));
+    connect(mainApp, &MainApplication::checkDisplayFilter, this, &WiresharkMainWindow::checkDisplayFilter);
+    connect(mainApp, &MainApplication::fieldsChanged, this, &WiresharkMainWindow::fieldsChanged);
+    connect(mainApp, &MainApplication::reloadLuaPlugins, this, &WiresharkMainWindow::reloadLuaPlugins);
 
-    connect(main_ui_->mainStack, SIGNAL(currentChanged(int)),
-            this, SLOT(mainStackChanged(int)));
+    connect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &WiresharkMainWindow::mainStackChanged);
 
-    connect(welcome_page_, SIGNAL(startCapture(QStringList)),
-            this, SLOT(startCapture(QStringList)));
-    connect(welcome_page_, SIGNAL(recentFileActivated(QString)),
-            this, SLOT(openCaptureFile(QString)));
+    connect(welcome_page_, &WelcomePage::startCapture, this, [this](QStringList interfaces) { startCapture(interfaces); });
+    connect(welcome_page_, &WelcomePage::recentFileActivated, this, [this](QString cfile) { openCaptureFile(cfile); });
 
     connect(main_ui_->addressEditorFrame, &AddressEditorFrame::redissectPackets,
             this, &WiresharkMainWindow::redissectPackets);
@@ -638,10 +625,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(this, &WiresharkMainWindow::setCaptureFile,
             proto_tree_, &ProtoTree::setCaptureFile);
 
-    connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
-            packet_list_, SLOT(setMonospaceFont(QFont)));
-    connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
-            proto_tree_, SLOT(setMonospaceFont(QFont)));
+    connect(mainApp, &MainApplication::zoomMonospaceFont, packet_list_, &PacketList::setMonospaceFont);
+    connect(mainApp, &MainApplication::zoomMonospaceFont, proto_tree_, &ProtoTree::setMonospaceFont);
 
     connectFileMenuActions();
     connectEditMenuActions();
