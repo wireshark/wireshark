@@ -14,7 +14,11 @@
 #include "dfilter-int.h"
 #include "drange.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
+WS_DLL_PUBLIC
 header_field_info *
 sttype_field_hfinfo(stnode_t *node);
 
@@ -57,4 +61,8 @@ sttype_field_set_number(stnode_t *node, const char *number_str);
 void
 sttype_field_remove_drange(stnode_t *node);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* STTYPE_FIELD_H */

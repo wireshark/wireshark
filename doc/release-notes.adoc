@@ -30,6 +30,8 @@ representations for numeric fields).
 
 Display filter functions can be implemented as runtime-loadable C plugins.
 
+Display filters can be translated to pcap filters using menu:Copy[Display filter as pcap filter] if each display filter field has a corresponding pcap filter equivalent.
+
 Custom columns can be defined using any valid field expression, such as
 display filter functions, slices, arithmetic calculations, logical tests,
 raw byte addressing, and the layer modifier.

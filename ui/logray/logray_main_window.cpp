@@ -369,29 +369,29 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 
     qRegisterMetaType<FilterAction::Action>("FilterAction::Action");
     qRegisterMetaType<FilterAction::ActionType>("FilterAction::ActionType");
-    connect(this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SLOT(queuedFilterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            Qt::QueuedConnection);
+    connect(this, &LograyMainWindow::filterAction, this, &LograyMainWindow::queuedFilterAction, Qt::QueuedConnection);
 
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(applyGlobalCommandLineOptions()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initFollowStreamMenus()));
+    connect(mainApp, &MainApplication::appInitialized, this, [this]() { setFeaturesEnabled(); });
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::applyGlobalCommandLineOptions);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::zoomText);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initViewColorizeMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::addStatsPluginsToMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::addDynamicMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::addPluginIFStructures);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initConversationMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initFollowStreamMenus);
+    connect(mainApp, &MainApplication::appInitialized, this,
+            [this]() { addDisplayFilterTranslationActions(main_ui_->menuEditCopy); });
 
-    connect(mainApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateTitlebar()));
+    connect(mainApp, &MainApplication::profileChanging, this, &LograyMainWindow::saveWindowGeometry);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::layoutPanes);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::layoutToolbars);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updatePreferenceActions);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::zoomText);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updateTitlebar);
 
     connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
@@ -409,6 +409,8 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &LograyMainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
+
+    connect(df_combo_box_, &QComboBox::editTextChanged, this, &LograyMainWindow::updateDisplayFilterTranslationActions);
 
     file_set_dialog_ = new FileSetDialog(this);
     connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),

@@ -23,8 +23,10 @@
 #include <QMainWindow>
 #include <QSplitter>
 
+class QMenu;
 class QSplitter;
 class QStackedWidget;
+
 class ByteViewTab;
 class DisplayFilterCombo;
 class FieldInformation;
@@ -98,6 +100,19 @@ protected:
     DisplayFilterCombo *df_combo_box_;
     MainStatusBar *main_status_bar_;
     ProfileSwitcher *profile_switcher_;
+
+protected slots:
+    void addDisplayFilterTranslationActions(QMenu *copy_menu);
+    void updateDisplayFilterTranslationActions(const QString &df_text);
+
+private:
+    QVector<QAction *> df_translate_actions_;
+
+    static const char *translator_;
+    static const char *translated_filter_;
+
+private slots:
+    void copyDisplayFilterTranslation(void);
 
 signals:
     void setCaptureFile(capture_file *cf);

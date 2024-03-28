@@ -12,6 +12,7 @@ set(DFILTER_PUBLIC_HEADERS
 	dfilter-int.h
 	dfilter-loc.h
 	dfilter-plugin.h
+	dfilter-translator.h
 	dfunctions.h
 	drange.h
 	syntax-tree.h
@@ -38,6 +39,7 @@ set(DFILTER_NONGENERATED_FILES
 	dfilter-macro.c
 	dfilter-macro-uat.c
 	dfilter-plugin.c
+	dfilter-translator.c
 	dfunctions.c
 	dfvm.c
 	drange.c

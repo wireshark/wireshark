@@ -13,9 +13,15 @@
 
 #include "main_window.h"
 
+#include "epan/dfilter/dfilter-translator.h"
+
+#include <QClipboard>
+
 #include "funnel_statistics.h"
+#include "main_application.h"
 #include "packet_list.h"
 #include "utils/profile_switcher.h"
+#include "utils/qt_ui_utils.h"
 #include "widgets/display_filter_combo.h"
 
 // Packet Menu actions
@@ -203,3 +209,67 @@ bool MainWindow::addPacketMenus(QMenu * ctx_menu, GPtrArray *finfo_array)
     }
     return insertedPacketMenu;
 }
+
+const char *MainWindow::translator_ = "translator";
+const char *MainWindow::translated_filter_ = "translated filter";
+
+void MainWindow::addDisplayFilterTranslationActions(QMenu *copy_menu) {
+    if (!copy_menu) {
+        return;
+    }
+
+    char **df_translators = get_dfilter_translator_list();
+
+    if (df_translators == NULL || df_translators[0] == NULL) {
+        return;
+    }
+
+    copy_menu->addSeparator();
+
+    for (size_t idx = 0; df_translators[idx]; idx++) {
+        QString translator = df_translators[idx];
+        QString action_text;
+        if (idx == 0) {
+            action_text = tr("Display filter as %1").arg(translator);
+        } else {
+            action_text = tr(UTF8_HORIZONTAL_ELLIPSIS "as %1").arg(translator);
+        }
+        QAction *xlate_action = copy_menu->addAction(action_text);
+        xlate_action->setProperty(translator_, QVariant::fromValue(translator));
+        xlate_action->setEnabled(false);
+        connect(xlate_action, &QAction::triggered, this, &MainWindow::copyDisplayFilterTranslation);
+        df_translate_actions_ += xlate_action;
+    }
+
+    g_free(df_translators);
+}
+
+void MainWindow::updateDisplayFilterTranslationActions(const QString &df_text)
+{
+    for (QAction *xlate_action : df_translate_actions_) {
+        bool enable = false;
+        QString translated_filter;
+        if (!df_text.isEmpty()) {
+            QString translator = xlate_action->property(translator_).toString();
+            translated_filter = gchar_free_to_qstring((char *)translate_dfilter(qUtf8Printable(translator),
+                                                                                 qUtf8Printable(df_text)));
+            if (!translated_filter.isEmpty()) {
+                enable = true;
+            }
+        }
+        xlate_action->setEnabled(enable);
+        xlate_action->setProperty(translated_filter_, QVariant::fromValue(translated_filter));
+    }
+}
+
+void MainWindow::copyDisplayFilterTranslation()
+{
+    QAction *xlate_action = qobject_cast<QAction *>(sender());
+    if (!xlate_action) {
+        return;
+    }
+
+    QString translated_filter = xlate_action->property(translated_filter_).toString();
+    mainApp->clipboard()->setText(translated_filter);
+}
+

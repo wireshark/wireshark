@@ -18,6 +18,7 @@
 
 #include <glib.h>
 
+#include <epan/dfilter/dfilter-translator.h>
 #include <epan/wmem_scopes.h>
 
 #include <wsutil/unicode-utils.h>

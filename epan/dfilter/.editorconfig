@@ -17,3 +17,7 @@ indent_size = 4
 [dfunctions.[ch]]
 indent_style = space
 indent_size = 4
+
+[translators.[ch]]
+indent_style = space
+indent_size = 4

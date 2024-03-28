@@ -402,23 +402,25 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(applyGlobalCommandLineOptions()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initFollowStreamMenus()));
+    connect(mainApp, &MainApplication::appInitialized, this, [this]() { setFeaturesEnabled(); });
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::applyGlobalCommandLineOptions);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::zoomText);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initViewColorizeMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::addStatsPluginsToMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::addDynamicMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::addPluginIFStructures);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initConversationMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initExportObjectsMenus);
+    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initFollowStreamMenus);
+    connect(mainApp, &MainApplication::appInitialized, this,
+            [this]() { addDisplayFilterTranslationActions(main_ui_->menuEditCopy); });
 
-    connect(mainApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateTitlebar()));
+    connect(mainApp, &MainApplication::profileChanging, this, &WiresharkMainWindow::saveWindowGeometry);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::layoutPanes);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::layoutToolbars);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updatePreferenceActions);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::zoomText);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updateTitlebar);
 
     connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
@@ -436,6 +438,8 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &WiresharkMainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
+
+    connect(df_combo_box_, &QComboBox::editTextChanged, this, &WiresharkMainWindow::updateDisplayFilterTranslationActions);
 
     file_set_dialog_ = new FileSetDialog(this);
     connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),

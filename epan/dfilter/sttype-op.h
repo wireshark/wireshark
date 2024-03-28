@@ -13,6 +13,10 @@
 
 #include "syntax-tree.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 void
 sttype_oper_set1(stnode_t *node, stnode_op_t op, stnode_t *val1);
 
@@ -31,6 +35,7 @@ sttype_oper_set_op(stnode_t *node, stnode_op_t op);
 stnode_op_t
 sttype_oper_get_op(stnode_t *node);
 
+WS_DLL_PUBLIC
 void
 sttype_oper_get(stnode_t *node, stnode_op_t *p_op, stnode_t **p_val1, stnode_t **p_val2);
 
@@ -40,4 +45,8 @@ sttype_test_set_match(stnode_t *node, stmatch_t how);
 stmatch_t
 sttype_test_get_match(stnode_t *node);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* STTYPE_TEST_H */

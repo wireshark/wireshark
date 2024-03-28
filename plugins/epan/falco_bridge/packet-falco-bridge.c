@@ -37,14 +37,17 @@
 
 #include <wiretap/wtap.h>
 
+#include <epan/conversation.h>
+#include <epan/conversation_filter.h>
+#include <epan/dfilter/dfilter-translator.h>
+#include <epan/dfilter/sttype-field.h>
+#include <epan/dfilter/sttype-op.h>
 #include <epan/exceptions.h>
 #include <epan/follow.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/proto_data.h>
-#include <epan/conversation.h>
-#include <epan/conversation_filter.h>
 #include <epan/stats_tree.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
@@ -85,7 +88,8 @@ typedef struct bridge_info {
     hf_register_info* hf_v6;
     int *hf_v6_ids;
     int* hf_id_to_addr_id; // Maps an hf offset to an hf_v[46] offset
-    uint32_t visible_fields;
+    unsigned visible_fields;
+    unsigned addr_fields;
     uint32_t* field_flags;
     int* field_ids;
     uint32_t num_conversation_filters;
@@ -144,8 +148,7 @@ const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx);
  * Array of plugin bridges
  */
 bridge_info* bridges;
-guint nbridges;
-guint n_conv_fields;
+size_t nbridges;
 
 /*
  * sinsp extractor span
@@ -219,7 +222,7 @@ is_filter_valid(packet_info *pinfo, void *cfi_ptr)
 }
 
 static gchar*
-build_filter(packet_info *pinfo _U_, void *cfi_ptr)
+build_conversation_filter(packet_info *pinfo _U_, void *cfi_ptr)
 {
     conv_filter_info *cfi = (conv_filter_info *)cfi_ptr;
 
@@ -228,6 +231,134 @@ build_filter(packet_info *pinfo _U_, void *cfi_ptr)
     }
 
     return ws_strdup_printf("%s eq %s", cfi->field_info->hfinfo.abbrev, cfi->strbuf->str);
+}
+
+// Falco rule translation
+
+const char *
+stnode_op_to_string(stnode_op_t op) {
+    switch (op) {
+    case STNODE_OP_NOT:         return "!";
+    case STNODE_OP_AND:         return "&&";
+    case STNODE_OP_OR:          return "||";
+    case STNODE_OP_ANY_EQ:      return "=";
+    case STNODE_OP_ALL_NE:      return "!=";
+    case STNODE_OP_GT:          return ">";
+    case STNODE_OP_GE:          return ">=";
+    case STNODE_OP_LT:          return "<";
+    case STNODE_OP_LE:          return "<=";
+    case STNODE_OP_CONTAINS:    return "icontains";
+    case STNODE_OP_UNARY_MINUS: return "-";
+    case STNODE_OP_IN:
+    case STNODE_OP_NOT_IN:
+    default:
+        break;
+    }
+    return NULL;
+}
+
+char *hfinfo_to_filtercheck(header_field_info *hfinfo) {
+    if (!hfinfo) {
+        return NULL;
+    }
+
+    const char *filtercheck = NULL;
+    for (size_t br_idx = 0; br_idx < nbridges && !filtercheck; br_idx++) {
+        bridge_info *bridge = &bridges[br_idx];
+        unsigned hf_idx;
+        for (hf_idx = 0; hf_idx < bridge->visible_fields; hf_idx++) {
+            if (hfinfo->id == bridge->hf_ids[hf_idx]) {
+                ptrdiff_t pfx_off = 0;
+                if (g_str_has_prefix(hfinfo->abbrev, FALCO_FIELD_NAME_PREFIX)) {
+                    pfx_off = strlen(FALCO_FIELD_NAME_PREFIX);
+                }
+                return g_strdup(hfinfo->abbrev + pfx_off);
+            }
+        }
+        for (hf_idx = 0; hf_idx < bridge->addr_fields; hf_idx++) {
+            if (hfinfo->id == bridge->hf_v4_ids[hf_idx] || hfinfo->id == bridge->hf_v6_ids[hf_idx]) {
+                size_t fc_len = strlen(hfinfo->abbrev) - strlen(".v?");
+                return g_strndup(hfinfo->abbrev, fc_len);
+            }
+        }
+    }
+    return NULL;
+}
+
+// Falco rule syntax is specified at
+// https://github.com/falcosecurity/libs/blob/master/userspace/libsinsp/filter/parser.h
+
+// NOLINTNEXTLINE(misc-no-recursion)
+bool visit_dfilter_node(stnode_t *node, stnode_op_t parent_bool_op, GString *falco_rule)
+{
+    stnode_t *left, *right;
+
+    if (stnode_type_id(node) == STTYPE_TEST) {
+        stnode_op_t op = STNODE_OP_UNINITIALIZED;
+        sttype_oper_get(node, &op, &left, &right);
+
+        const char *op_str = stnode_op_to_string(op);
+        if (!op_str) {
+            return false;
+        }
+
+        if (left && right) {
+            bool add_parens = (op == STNODE_OP_AND || op == STNODE_OP_OR) && op != parent_bool_op && parent_bool_op != STNODE_OP_UNINITIALIZED;
+            if (add_parens) {
+                g_string_append_c(falco_rule, '(');
+            }
+            if (!visit_dfilter_node(left, op, falco_rule)) {
+                return false;
+            }
+            g_string_append_printf(falco_rule, " %s ", op_str);
+            if (!visit_dfilter_node(right, op, falco_rule)) {
+                return false;
+            }
+            if (add_parens) {
+                g_string_append_c(falco_rule, ')');
+            }
+        }
+        else if (left) {
+            op = op == STNODE_OP_NOT ? op : parent_bool_op;
+            if (falco_rule->len > 0) {
+                g_string_append_c(falco_rule, ' ');
+            }
+            g_string_append_printf(falco_rule, "%s ", op_str);
+            if (!visit_dfilter_node(left, op, falco_rule)) {
+                return false;
+            }
+        }
+        else if (right) {
+            ws_assert_not_reached();
+        }
+    }
+    else if (stnode_type_id(node) == STTYPE_SET) {
+        return false;
+    }
+    else if (stnode_type_id(node) == STTYPE_FUNCTION) {
+        return false;
+    }
+    else if (stnode_type_id(node) == STTYPE_FIELD) {
+        header_field_info *hfinfo = sttype_field_hfinfo(node);
+        char *filtercheck = hfinfo_to_filtercheck(hfinfo);
+        if (!filtercheck) {
+            return false;
+        }
+        g_string_append_printf(falco_rule, "%s", filtercheck);
+        g_free(filtercheck);
+    }
+    else if (stnode_type_id(node) == STTYPE_FVALUE) {
+        g_string_append_printf(falco_rule, "%s", stnode_tostr(node, true));
+    }
+    else {
+        g_string_append_printf(falco_rule, "%s", stnode_type_name(node));
+    }
+
+    return true;
+}
+
+bool dfilter_to_falco_rule(stnode_t *root_node, GString *falco_rule) {
+    return visit_dfilter_node(root_node, STNODE_OP_UNINITIALIZED, falco_rule);
 }
 
 static void
@@ -240,7 +371,7 @@ create_source_hfids(bridge_info* bi)
 
     size_t tot_fields = get_sinsp_source_nfields(bi->ssi);
     bi->visible_fields = 0;
-    uint32_t addr_fields = 0;
+    bi->addr_fields = 0;
     sinsp_field_info_t sfi;
     bi->num_conversation_filters = 0;
 
@@ -254,7 +385,7 @@ create_source_hfids(bridge_info* bi)
             continue;
         }
         if (sfi.is_numeric_address || is_string_address_field(sfi.type, sfi.abbrev)) {
-            addr_fields++;
+            bi->addr_fields++;
         }
         bi->visible_fields++;
 
@@ -269,12 +400,12 @@ create_source_hfids(bridge_info* bi)
         bi->field_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
         bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(guint32));
 
-        if (addr_fields) {
+        if (bi->addr_fields) {
             bi->hf_id_to_addr_id = (int *)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
-            bi->hf_v4 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
-            bi->hf_v4_ids = (int*)wmem_alloc0(wmem_epan_scope(), addr_fields * sizeof(int));
-            bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
-            bi->hf_v6_ids = (int*)wmem_alloc0(wmem_epan_scope(), addr_fields * sizeof(int));
+            bi->hf_v4 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * sizeof(hf_register_info));
+            bi->hf_v4_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * sizeof(int));
+            bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * sizeof(hf_register_info));
+            bi->hf_v6_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * sizeof(int));
         }
 
         if (bi->num_conversation_filters) {
@@ -369,7 +500,7 @@ create_source_hfids(bridge_info* bi)
 
                 const char *source_name = get_sinsp_source_name(bi->ssi);
                 const char *conv_filter_name = wmem_strdup_printf(wmem_epan_scope(), "%s %s", source_name, bi->hf[fld_cnt].hfinfo.name);
-                register_log_conversation_filter(source_name, conv_filter_name, is_filter_valid, build_filter, &bi->conversation_filters[conv_fld_cnt]);
+                register_log_conversation_filter(source_name, conv_filter_name, is_filter_valid, build_conversation_filter, &bi->conversation_filters[conv_fld_cnt]);
                 if (conv_fld_cnt == 0) {
                     add_conversation_filter_protocol(source_name);
                 }
@@ -381,7 +512,7 @@ create_source_hfids(bridge_info* bi)
             }
 
             if (sfi.is_numeric_address || is_string_address_field(sfi.type, sfi.abbrev)) {
-                ws_assert(addr_fld_cnt < addr_fields);
+                ws_assert(addr_fld_cnt < bi->addr_fields);
                 bi->hf_id_to_addr_id[fld_cnt] = addr_fld_cnt;
 
                 hf_register_info finfo_v4 = {
@@ -1363,6 +1494,8 @@ proto_register_falcoplugin(void)
     proto_register_field_array(proto_falco_bridge, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_subtree_array(ett_lin, array_length(ett_lin));
+
+    register_dfilter_translator("Falco rule", dfilter_to_falco_rule);
 
     register_shutdown_routine(on_wireshark_exit);
 }

@@ -646,6 +646,40 @@ dfilter_compile_full(const char *text, dfilter_t **dfp,
 	return true;
 }
 
+struct stnode *dfilter_get_syntax_tree(const char *text)
+{
+	dfsyntax_t *dfs = NULL;
+	dfwork_t *dfw = NULL;
+
+	dfs = dfsyntax_new(DF_EXPAND_MACROS);
+
+	char *expanded_text = dfilter_macro_apply(text, NULL);
+	if (!expanded_text) {
+		dfsyntax_free(dfs);
+		return NULL;
+	}
+
+	bool ok = dfwork_parse(expanded_text, dfs);
+	if (!ok || !dfs->st_root) {
+		dfsyntax_free(dfs);
+		return NULL;
+	}
+
+	dfw = dfwork_new(expanded_text, dfs->flags);
+	dfw->st_root = dfs->st_root;
+	dfs->st_root = NULL;
+	dfsyntax_free(dfs);
+
+	if (!dfw_semcheck(dfw)) {
+		return NULL;
+	}
+
+	stnode_t *st_root = dfw->st_root;
+	dfw->st_root = NULL;
+	dfwork_free(dfw);
+
+	return st_root;
+}
 
 bool
 dfilter_apply(dfilter_t *df, proto_tree *tree)

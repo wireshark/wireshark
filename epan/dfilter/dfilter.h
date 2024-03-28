@@ -102,6 +102,15 @@ dfilter_compile_full(const char *text, dfilter_t **dfp,
 				DF_EXPAND_MACROS|DF_OPTIMIZE, \
 				__func__)
 
+struct stnode;
+
+/** Build a syntax tree for a filter
+ * @param text A display filter.
+ * @return The root node of a syntax tree on success or NULL on failure.
+ */
+WS_DLL_PUBLIC
+struct stnode *dfilter_get_syntax_tree(const char *text);
+
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */
 WS_DLL_PUBLIC

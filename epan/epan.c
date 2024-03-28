@@ -27,6 +27,7 @@
 #include "epan/frame_data.h"
 
 #include "dfilter/dfilter.h"
+#include "dfilter/dfilter-translator.h"
 #include "epan_dissect.h"
 
 #include <wsutil/nstime.h>
@@ -275,6 +276,8 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 
 	except_init();
 
+	dfilter_translator_init();
+
 	if (load_plugins) {
 #ifdef HAVE_PLUGINS
 		libwireshark_plugins = plugins_init(WS_PLUGIN_EPAN);
@@ -443,6 +446,8 @@ epan_cleanup(void)
 #endif
 	except_deinit();
 	addr_resolv_cleanup();
+
+	dfilter_translator_cleanup();
 
 	if (pinfo_pool_cache != NULL) {
 		wmem_destroy_allocator(pinfo_pool_cache);
