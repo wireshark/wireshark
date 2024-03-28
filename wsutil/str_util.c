@@ -13,6 +13,8 @@
 #include "str_util.h"
 
 #include <string.h>
+#include <locale.h>
+#include <math.h>
 
 #include <ws_codepoints.h>
 
@@ -373,6 +375,7 @@ ws_memrchr(const void *_haystack, int ch, size_t n)
 #define FORMAT_SIZE_PFX_MASK 0xff00
 
 static const char *thousands_grouping_fmt = NULL;
+static const char *thousands_grouping_fmt_flt = NULL;
 
 DIAG_OFF(format)
 static void test_printf_thousands_grouping(void) {
@@ -381,16 +384,204 @@ static void test_printf_thousands_grouping(void) {
     wmem_strbuf_append_printf(buf, "%'d", 22);
     if (g_strcmp0(wmem_strbuf_get_str(buf), "22") == 0) {
         thousands_grouping_fmt = "%'"PRId64;
+        thousands_grouping_fmt_flt = "%'.*f";
     } else {
         /* Don't use */
         thousands_grouping_fmt = "%"PRId64;
+        thousands_grouping_fmt_flt = "%.*f";
     }
     wmem_strbuf_destroy(buf);
 }
 DIAG_ON(format)
 
+static const char* decimal_point = NULL;
+
+static void truncate_numeric_strbuf(wmem_strbuf_t *strbuf, int n) {
+
+    const char *s = wmem_strbuf_get_str(strbuf);
+    char *p;
+    int count;
+
+    if (decimal_point == NULL) {
+        decimal_point = localeconv()->decimal_point;
+    }
+
+    p = strchr(s, decimal_point[0]);
+    if (p != NULL) {
+        count = n;
+        while (count >= 0) {
+            count--;
+            if (*p == '\0')
+                break;
+            p++;
+        }
+
+        p--;
+        while (*p == '0') {
+            p--;
+        }
+
+        if (*p != decimal_point[0]) {
+            p++;
+        }
+        wmem_strbuf_truncate(strbuf, p - s);
+    }
+}
+
+/* Given a floating point value, return it in a human-readable format,
+ * using units with metric prefixes (falling back to scientific notation
+ * with the base units if outside the range.)
+ */
+char *
+format_units(wmem_allocator_t *allocator, double size,
+             format_size_units_e unit, uint16_t flags,
+             int precision)
+{
+    wmem_strbuf_t *human_str = wmem_strbuf_new(allocator, NULL);
+    double power = 1000.0;
+    int pfx_off = 6;
+    bool is_small = false;
+    /* is_small is when to use the longer, spelled out unit.
+     * We use it for inf, NaN, 0, and unprefixed small values,
+     * but not for unprefixed values using scientific notation
+     * the value is outside the supported prefix range.
+     */
+    bool scientific = false;
+    double abs_size = fabs(size);
+    int exponent = 0;
+    static const char *si_prefix[] = {" a", " f", " p", " n", " μ", " m", " ", " k", " M", " G", " T", " P", " E"};
+    static const char *iec_prefix[] = {" ", " Ki", " Mi", " Gi", " Ti", " Pi", " Ei"};
+    const char **prefix = si_prefix;
+    int max_exp = (int)G_N_ELEMENTS(si_prefix) - 1;
+
+    char *ret_val;
+
+    if (thousands_grouping_fmt == NULL)
+        test_printf_thousands_grouping();
+
+    if (flags & FORMAT_SIZE_PREFIX_IEC) {
+        prefix = iec_prefix;
+        max_exp = (int)G_N_ELEMENTS(iec_prefix) - 1;
+        power = 1024.0;
+    }
+
+    if (isfinite(size) && size != 0.0) {
+
+        double comp = precision == 0 ? 10.0 : 1.0;
+
+        /* For precision 0, use the range [10, 10*power) because only
+         * one significant digit is not as useful. This is what format_size
+         * does for integers. ("ls -h" uses one digit after the decimal
+         * point only for the [1, 10) range, g_format_size() always displays
+         * tenths.) Prefer non-prefixed units for the range [1,10), though.
+         *
+         * We have a limited number of units to check, so this (which
+         * can be unrolled) is presumably faster than log + floor + pow/exp
+         */
+        if (abs_size < 1.0) {
+            while (abs_size < comp) {
+                abs_size *= power;
+                exponent--;
+                if ((exponent + pfx_off) < 0) {
+                    scientific = true;
+                    break;
+                }
+            }
+        } else {
+            while (abs_size >= comp*power) {
+                abs_size *= 1/power;
+                exponent++;
+                if ((exponent + pfx_off) > max_exp) {
+                    scientific = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (scientific) {
+        wmem_strbuf_append_printf(human_str, "%.*g", precision + 1, size);
+        exponent = 0;
+    } else {
+        if (exponent == 0) {
+            is_small = true;
+        }
+        size = copysign(abs_size, size);
+        // Truncate trailing zeros, but do it this way because we know
+        // we don't want scientific notation, and we don't want %g to
+        // switch to that if precision is small. (We could always use
+        // %g when precision is large.)
+        wmem_strbuf_append_printf(human_str, thousands_grouping_fmt_flt, precision, size);
+        truncate_numeric_strbuf(human_str, precision);
+        // XXX - when rounding to a certain precision, printf might
+        // round up to "power" from something like 999.99999995, which
+        // looks a little odd on a graph when transitioning from 1,000 bytes
+        // (for values just under 1 kB) to 1 kB (for values 1 kB and larger.)
+        // Due to edge cases in binary fp representation and how printf might
+        // round things, the right way to handle it is taking the printf output
+        // and comparing it to "1000" and "1024" and adjusting the exponent
+        // if so - though we need to compare to the version with the thousands
+        // separator if we have that (which makes it harder to use strnatcmp
+        // as is.)
+    }
+
+    if ((size_t)(pfx_off + exponent) < G_N_ELEMENTS(si_prefix)) {
+        wmem_strbuf_append(human_str, prefix[pfx_off+exponent]);
+    }
+
+    switch (unit) {
+        case FORMAT_SIZE_UNIT_NONE:
+            break;
+        case FORMAT_SIZE_UNIT_BYTES:
+            wmem_strbuf_append(human_str, is_small ? "bytes" : "B");
+            break;
+        case FORMAT_SIZE_UNIT_BITS:
+            wmem_strbuf_append(human_str, is_small ? "bits" : "b");
+            break;
+        case FORMAT_SIZE_UNIT_BITS_S:
+            wmem_strbuf_append(human_str, is_small ? "bits/s" : "bps");
+            break;
+        case FORMAT_SIZE_UNIT_BYTES_S:
+            wmem_strbuf_append(human_str, is_small ? "bytes/s" : "Bps");
+            break;
+        case FORMAT_SIZE_UNIT_PACKETS:
+            wmem_strbuf_append(human_str, is_small ? "packets" : "packets");
+            break;
+        case FORMAT_SIZE_UNIT_PACKETS_S:
+            wmem_strbuf_append(human_str, is_small ? "packets/s" : "packets/s");
+            break;
+        case FORMAT_SIZE_UNIT_SECONDS:
+            wmem_strbuf_append(human_str, is_small ? "seconds" : "s");
+            break;
+        case FORMAT_SIZE_UNIT_ERLANGS:
+            wmem_strbuf_append(human_str, is_small ? "erlangs" : "E");
+            break;
+        default:
+            ws_assert_not_reached();
+    }
+
+    ret_val = wmem_strbuf_finalize(human_str);
+    /* Convention is a space between the value and the units. If we have
+     * a prefix, the space is before the prefix. There are two possible
+     * uses of FORMAT_SIZE_UNIT_NONE:
+     * 1. Add a unit immediately after the string returned. In this case,
+     *    we would want the string to end with a space if there's no prefix.
+     * 2. The unit appears somewhere else, e.g. in a legend, header, or
+     *    different column. In this case, we don't want the string to end
+     *    with a space if there's no prefix.
+     * chomping the string here, as we've traditionally done, optimizes for
+     * the latter case but makes the former case harder.
+     * Perhaps the right approach is to distinguish the cases with a new
+     * enum value.
+     */
+    return g_strchomp(ret_val);
+}
+
 /* Given a size, return its value in a human-readable format */
-/* This doesn't handle fractional values. We might want to make size a double. */
+/* This doesn't handle fractional values. We might want to just
+ * call the version with the double and precision 0 (possibly
+ * slower due to the use of floating point math, but do we care?)
+ */
 char *
 format_size_wmem(wmem_allocator_t *allocator, int64_t size,
                         format_size_units_e unit, uint16_t flags)
@@ -447,6 +638,12 @@ format_size_wmem(wmem_allocator_t *allocator, int64_t size,
             break;
         case FORMAT_SIZE_UNIT_PACKETS_S:
             wmem_strbuf_append(human_str, is_small ? " packets/s" : "packets/s");
+            break;
+        case FORMAT_SIZE_UNIT_SECONDS:
+            wmem_strbuf_append(human_str, is_small ? " seconds" : "s");
+            break;
+        case FORMAT_SIZE_UNIT_ERLANGS:
+            wmem_strbuf_append(human_str, is_small ? " erlangs" : "E");
             break;
         default:
             ws_assert_not_reached();

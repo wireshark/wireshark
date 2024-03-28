@@ -230,16 +230,45 @@ int ws_xton(char ch);
 
 typedef enum {
     FORMAT_SIZE_UNIT_NONE,          /**< No unit will be appended. You must supply your own. */
+    /* Note: This does not append a trailing space if there is no prefix.
+     * If you intend to append the unit (instead of listing it in a legend
+     * header somewhere else), you should test whether there is a prefix
+     * (g_ascii_isdigit() on the last character almost surely works, though not
+     * if the size was infinite or NaN) and append a space before the unit
+     * if not (and optionally use a different form for the unit, as with
+     * certain types below.)
+     */
     FORMAT_SIZE_UNIT_BYTES,         /**< "bytes" for un-prefixed sizes, "B" otherwise. */
     FORMAT_SIZE_UNIT_BITS,          /**< "bits" for un-prefixed sizes, "b" otherwise. */
     FORMAT_SIZE_UNIT_BITS_S,        /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
     FORMAT_SIZE_UNIT_BYTES_S,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
     FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" */
     FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" */
+    FORMAT_SIZE_UNIT_SECONDS,       /**< "seconds" for un-prefixed sizes, "s" otherwise. */
+    FORMAT_SIZE_UNIT_ERLANGS,       /**< "erlangs" for un-prefixed sizes, "E" otherwise. */
 } format_size_units_e;
 
 #define FORMAT_SIZE_PREFIX_SI   (1 << 0)    /**< SI (power of 1000) prefixes will be used. */
 #define FORMAT_SIZE_PREFIX_IEC  (1 << 1)    /**< IEC (power of 1024) prefixes will be used. */
+
+/** Given a floating point value, return it in a human-readable format
+ *
+ * Prefixes up to "E/Ei" (exa, exbi) and down to "a" (atto; negative
+ * prefixes are SI-only) are currently supported. Values outside that
+ * range will use scientific notation.
+ *
+ * @param size The size value
+ * @param flags Flags to control the output (unit of measurement,
+ * SI vs IEC, etc). Unit and prefix flags may be ORed together.
+ * @param precision Maximum number of digits to appear after the
+ * decimal point. Trailing zeros are removed, as is the decimal
+ * point if not digits follow it.
+ * @return A newly-allocated string representing the value.
+ */
+WS_DLL_PUBLIC
+char *format_units(wmem_allocator_t *allocator, double size,
+                   format_size_units_e unit, uint16_t flags,
+                   int precision);
 
 /** Given a size, return its value in a human-readable format
  *
