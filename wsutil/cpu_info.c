@@ -201,7 +201,7 @@ get_cpu_info(GString *str)
     /*
      * Allocate a buffer for the subkey.
      */
-    subkey_buf = (wchar_t *)g_malloc(max_subkey_len * sizeof (wchar_t));
+    subkey_buf = g_new(wchar_t, max_subkey_len);
     if (subkey_buf == NULL) {
         /* Just give up. */
         g_tree_destroy(model_names);
@@ -383,6 +383,7 @@ get_cpu_info(GString *str)
      */
     uint32_t CPUInfo[4];
     char CPUBrandString[0x40];
+    char *model_name;
     unsigned nExIds;
 
     /*
