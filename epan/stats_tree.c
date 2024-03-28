@@ -62,6 +62,7 @@ stats_tree_node_to_str(const stat_node *node, gchar *buffer, guint len)
 }
 
 extern guint
+// NOLINTNEXTLINE(misc-no-recursion)
 stats_tree_branch_max_namelen(const stat_node *node, guint indent)
 {
     stat_node *child;
@@ -72,6 +73,7 @@ stats_tree_branch_max_namelen(const stat_node *node, guint indent)
 
     if (node->children) {
         for (child = node->children; child; child = child->next ) {
+            // Recursion is limited by proto.c checks
             len = stats_tree_branch_max_namelen(child,indent+1);
             maxlen = len > maxlen ? len : maxlen;
         }
@@ -92,6 +94,7 @@ stats_tree_branch_max_namelen(const stat_node *node, guint indent)
 
 /* frees the resources allocated by a stat_tree node */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 free_stat_node(stat_node *node)
 {
     stat_node *child;
@@ -102,6 +105,7 @@ free_stat_node(stat_node *node)
     for (child = node->children; child; child = next ) {
         /* child->next will be gone after free_stat_node, so cache it here */
         next = child->next;
+        // Recursion is limited by proto.c checks
         free_stat_node(child);
     }
     }
@@ -151,6 +155,7 @@ stats_tree_free(stats_tree *st)
 
 /* reset a node to its original state */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 reset_stat_node(stat_node *node)
 {
     stat_node *child;
@@ -185,6 +190,7 @@ reset_stat_node(stat_node *node)
 
     if (node->children) {
         for (child = node->children; child; child = child->next )
+            // Recursion is limited by proto.c checks
             reset_stat_node(child);
     }
 }
@@ -1401,6 +1407,7 @@ clean_for_xml_tag (gchar *str)
 }
 
 /** helper funcation to add note to formatted stats_tree */
+// NOLINTNEXTLINE(misc-no-recursion)
 WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
                          GString *s,
                          st_format_type format_type,

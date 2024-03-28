@@ -502,6 +502,7 @@ const gchar* expert_get_summary(expert_field *eiindex)
 /* set's the PI_ flags to a protocol item
  * (and its parent items till the toplevel) */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 expert_set_item_flags(proto_item *pi, const int group, const guint severity)
 {
 	if (pi != NULL && PITEM_FINFO(pi) != NULL && (severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK))) {
@@ -510,6 +511,7 @@ expert_set_item_flags(proto_item *pi, const int group, const guint severity)
 
 		/* propagate till toplevel item */
 		pi = proto_item_get_parent(pi);
+		// We recurse here, but we're limited by our tree depth checks in proto.c
 		expert_set_item_flags(pi, group, severity);
 	}
 }

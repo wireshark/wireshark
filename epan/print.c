@@ -1201,6 +1201,7 @@ write_ek_summary(column_info *cinfo, write_json_data* pdata)
 
 /* Write out a tree's data, and any child nodes, as JSON for EK */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 ek_fill_attr(proto_node *node, GHashTable *attr_table, write_json_data *pdata)
 {
     field_info *fi         = NULL;
@@ -1230,6 +1231,7 @@ ek_fill_attr(proto_node *node, GHashTable *attr_table, write_json_data *pdata)
                         pdata->filter = NULL;
                     }
 
+                    // We recurse here, but we're limited by our tree depth checks in proto.c
                     ek_fill_attr(current_node, attr_table, pdata);
 
                     /* Put protocol filter back */
@@ -1240,6 +1242,7 @@ ek_fill_attr(proto_node *node, GHashTable *attr_table, write_json_data *pdata)
                     // Don't traverse children if filtered out
                 }
             } else {
+                // We recurse here, but we're limited by our tree depth checks in proto.c
                 ek_fill_attr(current_node, attr_table, pdata);
             }
         } else {
@@ -1387,6 +1390,7 @@ ek_write_attr_hex(GSList *attr_instances, write_json_data *pdata)
 }
 
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 ek_write_attr(GSList *attr_instances, write_json_data *pdata)
 {
     GSList *current_node  = attr_instances;
@@ -1462,6 +1466,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void process_ek_attrs(gpointer key _U_, gpointer value, gpointer pdata)
 {
     GSList *attr_instances = (GSList *) value;
@@ -1470,6 +1475,7 @@ void process_ek_attrs(gpointer key _U_, gpointer value, gpointer pdata)
 
 /* Write out a tree's data, and any child nodes, as JSON for EK */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 proto_tree_write_node_ek(proto_node *node, write_json_data *pdata)
 {
     GHashTable *attr_table  = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);

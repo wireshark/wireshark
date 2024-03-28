@@ -226,6 +226,7 @@ frame_data_sequence_find(frame_data_sequence *fds, guint32 num)
 
 /* recursively frees a frame_data radix level */
 static void
+// NOLINTNEXTLINE(misc-no-recursion)
 free_frame_data_array(void *array, guint count, guint level, gboolean last)
 {
   guint i, level_count;
@@ -255,9 +256,11 @@ free_frame_data_array(void *array, guint count, guint level, gboolean last)
     frame_data **real_array = (frame_data **) array;
 
     for (i=0; i < level_count-1; i++) {
+      // We recurse here, but we're limited to four levels.
       free_frame_data_array(real_array[i], count, level-1, FALSE);
     }
 
+    // We recurse here, but we're limited to four levels.
     free_frame_data_array(real_array[level_count-1], count, level-1, last);
   }
   else if (level == 1) {

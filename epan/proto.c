@@ -751,6 +751,7 @@ proto_cleanup(void)
 }
 
 static gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
 			      gpointer data)
 {
@@ -770,6 +771,7 @@ proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
 		 */
 		current = child;
 		child   = current->next;
+		// We recurse here, but we're limited by prefs.gui_max_tree_depth
 		if (proto_tree_traverse_pre_order((proto_tree *)current, func, data))
 			return TRUE;
 	}
@@ -8509,6 +8511,7 @@ proto_is_pino(const protocol_t *protocol)
 }
 
 gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 proto_is_protocol_enabled(const protocol_t *protocol)
 {
 	if (protocol == NULL)
@@ -8522,6 +8525,7 @@ proto_is_protocol_enabled(const protocol_t *protocol)
 }
 
 gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 proto_is_protocol_enabled_by_default(const protocol_t *protocol)
 {
 	//parent protocol determines enable/disable for helper dissectors
@@ -8532,6 +8536,7 @@ proto_is_protocol_enabled_by_default(const protocol_t *protocol)
 }
 
 gboolean
+// NOLINTNEXTLINE(misc-no-recursion)
 proto_can_toggle_protocol(const int proto_id)
 {
 	protocol_t *protocol;

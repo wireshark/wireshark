@@ -80,6 +80,7 @@ static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLAS
 
 static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -2, NULL, NULL, NULL};
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static void prepopulate_oids(void) {
 	if (!oid_root.children) {
 		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
@@ -93,14 +94,14 @@ static void prepopulate_oids(void) {
 		 * make sure we got strings at least in the three root-children oids
 		 * that way oid_resolved() will always have a string to print
 		 */
+		// We recurse here once.
 		subid = 0; oid_add("itu-t",1,&subid);
 		subid = 1; oid_add("iso",1,&subid);
 		subid = 2; oid_add("joint-iso-itu-t",1,&subid);
 	}
 }
 
-
-
+// NOLINTNEXTLINE(misc-no-recursion)
 static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
 	guint i = 0;
 	oid_info_t* c = &oid_root;
@@ -158,6 +159,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 	return NULL;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void oid_add(const char* name, guint oid_len, guint32 *subids) {
 	ws_assert(subids && *subids <= 2);
 	if (oid_len) {
