@@ -23,7 +23,9 @@ tshark - Dump and analyze network traffic
 
 [manarg]
 *tshark*
-*-G* [ <report type> ] [ --elastic-mapping-filter <protocols> ] [ *-C* <profile> ]
+*-G* [ <report type> ]
+[ --elastic-mapping-filter <protocols> ]
+[ *-C* <profile> ]
 
 [manarg]
 *tshark*
