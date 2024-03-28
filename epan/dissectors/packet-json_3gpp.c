@@ -30,11 +30,14 @@
 #include "packet-gtpv2.h"
 #include "packet-gsm_a_common.h"
 #include "packet-json.h"
+#include "packet-http.h"
 #include "packet-http2.h"
 
 void proto_register_json_3gpp(void);
+void proto_reg_handoff_json_3gpp(void);
 
 static int proto_json_3gpp = -1;
+static int proto_http = -1;
 
 static gint ett_json_base64decoded_eps_ie = -1;
 static gint ett_json_base64decoded_nas5g_ie = -1;
@@ -237,7 +240,7 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 static void
 dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_, gboolean use_compact)
 {
-	const char *path;
+	const char *path = NULL;
 
 	/* TS 29.571 ch5.2.2
 	 * A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500 [25].
@@ -252,9 +255,20 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	 */
 
 	/* Exptect to have :path from HTTP2 here, if not return */
-	path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
-	if (!path) {
-		path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, TRUE);
+	if (proto_is_frame_protocol(pinfo->layers, "http2")) {
+		path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
+		if (!path) {
+			path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, TRUE);
+		}
+	} else if (proto_is_frame_protocol(pinfo->layers, "http")) {
+		/* 3GPP TS 29.500 says the service based interfaces use HTTP/2,
+		 * but that doesn't stop implementations like OAI from using
+		 * HTTP/1.1 with a 2.0 version string.
+		 */
+		http_req_res_t* curr_req_res = (http_req_res_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
+		if (curr_req_res) {
+			path = curr_req_res->request_uri;
+		}
 	}
 	if (!path) {
 		return;
@@ -1285,6 +1299,12 @@ proto_register_json_3gpp(void)
 
 	/* Fill hash table with static headers */
 	register_static_headers();
+}
+
+void
+proto_reg_handoff_json_3gpp(void)
+{
+	proto_http = proto_get_id_by_filter_name("http");
 }
 
 /*

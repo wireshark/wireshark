@@ -45,6 +45,10 @@ int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  * that range, i.e. obs-text, are replaced with UTF-8 REPLACEMENT CHARACTERS.
  * Dissectors may need to perform additional decoding (e.g., percent decoding or
  * the more robust decoding per RFC 8187.)
+ * @warning Don't call this if HTTP but not HTTP/2 is present in the packet
+ * (e.g. test with proto_is_frame_protocol() first). This ultimately calls
+ * get_http2_session, creating a HTTP/2 session on the current conversation,
+ * which can confuse the HTTP dissector. (This should be fixed.)
  */
 const gchar* http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction);
 
