@@ -14,7 +14,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-__This is the last release branch with support for 32-bit Windows.__
+This is expected to be the final release of the 3.6 branch.
+
+This is also the final release with support for 32-bit Windows.
 Updates will no longer be available after May 22, 2024 for that platform.
 wsbuglink:17779[]
 
@@ -27,8 +29,8 @@ wsbuglink:17779[]
 // The Windows installers now ship with Qt 5.15.2.
 // They previously shipped with Qt 5.12.1.
 
-If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you might have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
-wsbuglink:18734[].
+// If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you might have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
+// wsbuglink:18734[].
 
 === Bug Fixes
 
