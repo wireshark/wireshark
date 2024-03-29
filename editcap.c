@@ -2595,7 +2595,7 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
         if (chop.off_begin_pos > 0) {
             memmove(*buf + chop.off_begin_pos,
                     *buf + chop.off_begin_pos + chop.len_begin,
-                    out_phdr->caplen - chop.len_begin);
+                    out_phdr->caplen - (chop.off_begin_pos + chop.len_begin));
         } else {
             *buf += chop.len_begin;
         }
