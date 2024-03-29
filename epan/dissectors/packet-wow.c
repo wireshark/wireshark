@@ -843,48 +843,22 @@ add_body_fields(packet_info *pinfo, guint8 header_opcode, ptvcursor_t *ptv, uint
             }
             break;
         case CMD_SURVEY_RESULT:
-            if (WOW_SERVER_TO_CLIENT) {
-                ptvcursor_add(ptv, hf_wow_survey_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add_ret_uint(ptv, hf_wow_compressed_data_length, 2, ENC_LITTLE_ENDIAN, &compressed_data_length);
-                ptvcursor_add(ptv, hf_wow_data, compressed_data_length, ENC_NA);
-            }
-            else {
-                ptvcursor_add(ptv, hf_wow_survey_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add_ret_uint(ptv, hf_wow_compressed_data_length, 2, ENC_LITTLE_ENDIAN, &compressed_data_length);
-                ptvcursor_add(ptv, hf_wow_data, compressed_data_length, ENC_NA);
-            }
+            ptvcursor_add(ptv, hf_wow_survey_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_wow_error, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_wow_compressed_data_length, 2, ENC_LITTLE_ENDIAN, &compressed_data_length);
+            ptvcursor_add(ptv, hf_wow_data, compressed_data_length, ENC_NA);
             break;
         case CMD_XFER_DATA:
-            if (WOW_SERVER_TO_CLIENT) {
-                ptvcursor_add_ret_uint(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN, &size);
-                ptvcursor_add(ptv, hf_wow_data, size, ENC_NA);
-            }
-            else {
-                ptvcursor_add_ret_uint(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN, &size);
-                ptvcursor_add(ptv, hf_wow_data, size, ENC_NA);
-            }
+            ptvcursor_add_ret_uint(ptv, hf_wow_size, 2, ENC_LITTLE_ENDIAN, &size);
+            ptvcursor_add(ptv, hf_wow_data, size, ENC_NA);
             break;
         case CMD_XFER_INITIATE:
-            if (WOW_SERVER_TO_CLIENT) {
-                add_string(ptv, &hf_wow_filename);
-                ptvcursor_add(ptv, hf_wow_file_size, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_wow_file_md, 16, ENC_NA);
-            }
-            else {
-                add_string(ptv, &hf_wow_filename);
-                ptvcursor_add(ptv, hf_wow_file_size, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_wow_file_md, 16, ENC_NA);
-            }
+            add_string(ptv, &hf_wow_filename);
+            ptvcursor_add(ptv, hf_wow_file_size, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_wow_file_md, 16, ENC_NA);
             break;
         case CMD_XFER_RESUME:
-            if (WOW_SERVER_TO_CLIENT) {
-                ptvcursor_add(ptv, hf_wow_offset, 8, ENC_LITTLE_ENDIAN);
-            }
-            else {
-                ptvcursor_add(ptv, hf_wow_offset, 8, ENC_LITTLE_ENDIAN);
-            }
+            ptvcursor_add(ptv, hf_wow_offset, 8, ENC_LITTLE_ENDIAN);
             break;
 
         default:
