@@ -1435,6 +1435,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
 
         proto_tree_add_item(tag_tree, hf_gquic_tag_value, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
 
+        increment_dissection_depth(pinfo);
         switch(tag){
             case TAG_PAD:
                 proto_tree_add_item(tag_tree, hf_gquic_tag_pad, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
@@ -1491,7 +1492,6 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 scfg_tag_number = tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
 
-                // We recurse here, but we're limited by tree depth checks in epan
                 dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number);
                 tag_offset += tag_len - 4 - 4;
                 }
@@ -1714,6 +1714,8 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
         }
+        decrement_dissection_depth(pinfo);
+
         if(tag_offset != offset_end){
             /* Wrong Tag len... */
             proto_tree_add_expert(tag_tree, pinfo, &ei_gquic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len);
