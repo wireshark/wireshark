@@ -84,6 +84,9 @@ item_lengths['FT_INT56']  = 7
 item_lengths['FT_UINT64'] = 8
 item_lengths['FT_INT64']  = 8
 item_lengths['FT_ETHER']  = 6
+item_lengths['FT_IPv4']   = 4
+item_lengths['FT_IPv6']   = 16
+
 # TODO: other types...
 
 
@@ -184,7 +187,7 @@ class APICheck:
                         if self.fun_name.find('_add_uint') == -1:
                             print('Warning:', self.file + ':' + str(call.line_number),
                                 self.fun_name + ' called for', call.hf_name, ' - ',
-                                'item type is', items_defined[call.hf_name].item_type, 'but call has len yy', call.length)
+                                'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
                             warnings_found += 1
 
             # Needs a +ve length
@@ -332,7 +335,7 @@ class ProtoTreeAddItemCheck(APICheck):
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
                         # On balance, it is not worth complaining about these - the value is unlikely to be
                         # just the value found in these bytes..
-                        if self.fun_name.find('_add_uint') != -1:
+                        if self.fun_name.find('_add_uint') == -1:
                             print('Warning:', self.file + ':' + str(call.line_number),
                                 self.fun_name + ' called for', call.hf_name, ' - ',
                                 'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
