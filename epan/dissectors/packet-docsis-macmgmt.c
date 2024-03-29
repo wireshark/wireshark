@@ -3844,6 +3844,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   tvbuff_t *attr_tvb;
 
   total_len = tvb_reported_length_remaining (tvb, 0);
+  increment_dissection_depth(pinfo);
   while (pos < total_len)
   {
     type = tvb_get_guint8 (tvb, pos);
@@ -3884,7 +3885,6 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_cm_id, tvb, pos, length, ENC_NA);
       attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_cmid);
       attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      // We recurse here, but we're limited by our packet length and the depth check in proto_tree_add_node.
       dissect_attrs (attr_tvb, pinfo, attr_subtree);
       break;
     case BPKM_DISPLAY_STR:
@@ -4019,6 +4019,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     pos += length;            /* switch */
   }                           /* while */
+  decrement_dissection_depth(pinfo);
 }
 
 static int
