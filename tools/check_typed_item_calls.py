@@ -180,10 +180,12 @@ class APICheck:
             if self.fun_name.find('add_bits') == -1 and call.hf_name in items_defined:
                 if call.length and items_defined[call.hf_name].item_type in item_lengths:
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
-                        print('Warning:', self.file + ':' + str(call.line_number),
-                              self.fun_name + ' called for', call.hf_name, ' - ',
-                              'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
-                        warnings_found += 1
+                        # Don't warn if adding value - value is unlkely to just be bytes value
+                        if self.fun_name.find('_add_uint') == -1:
+                            print('Warning:', self.file + ':' + str(call.line_number),
+                                self.fun_name + ' called for', call.hf_name, ' - ',
+                                'item type is', items_defined[call.hf_name].item_type, 'but call has len yy', call.length)
+                            warnings_found += 1
 
             # Needs a +ve length
             if self.positive_length and call.length != None:
@@ -328,10 +330,13 @@ class ProtoTreeAddItemCheck(APICheck):
             if call.hf_name in items_defined:
                 if call.length and items_defined[call.hf_name].item_type in item_lengths:
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
-                        print('Warning:', self.file + ':' + str(call.line_number),
-                              self.fun_name + ' called for', call.hf_name, ' - ',
-                              'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
-                        warnings_found += 1
+                        # On balance, it is not worth complaining about these - the value is unlikely to be
+                        # just the value found in these bytes..
+                        if self.fun_name.find('_add_uint') != -1:
+                            print('Warning:', self.file + ':' + str(call.line_number),
+                                self.fun_name + ' called for', call.hf_name, ' - ',
+                                'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
+                            warnings_found += 1
             elif check_missing_items:
                 if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
                 #not in common_hf_var_names:
