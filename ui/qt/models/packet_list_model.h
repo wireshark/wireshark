@@ -55,8 +55,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     gint appendPacket(frame_data *fdata);
-    frame_data *getRowFdata(QModelIndex idx);
-    frame_data *getRowFdata(int row);
+    frame_data *getRowFdata(QModelIndex idx) const;
+    frame_data *getRowFdata(int row) const;
     void ensureRowColorized(int row);
     int visibleIndexOf(frame_data *fdata) const;
     /**

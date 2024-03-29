@@ -984,14 +984,14 @@ gint PacketListModel::appendPacket(frame_data *fdata)
     return static_cast<gint>(pos);
 }
 
-frame_data *PacketListModel::getRowFdata(QModelIndex idx)
+frame_data *PacketListModel::getRowFdata(QModelIndex idx) const
 {
     if (!idx.isValid())
         return Q_NULLPTR;
     return getRowFdata(idx.row());
 }
 
-frame_data *PacketListModel::getRowFdata(int row) {
+frame_data *PacketListModel::getRowFdata(int row) const {
     if (row < 0 || row >= visible_rows_.count())
         return NULL;
     PacketListRecord *record = visible_rows_[row];
