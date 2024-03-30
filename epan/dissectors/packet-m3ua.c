@@ -306,7 +306,7 @@ static dissector_handle_t m3ua_sctp_handle;
 static dissector_handle_t m3ua_tcp_handle;
 static dissector_table_t si_dissector_table;
 
-static gboolean m3ua_tcp_desegment = TRUE;
+static bool m3ua_tcp_desegment = true;
 
 static int ss7pc_address_type = -1;
 

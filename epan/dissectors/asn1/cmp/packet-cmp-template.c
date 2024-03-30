@@ -42,7 +42,7 @@ static dissector_handle_t cmp_tcp_style_http_handle;
 static dissector_handle_t cmp_tcp_handle;
 
 /* desegmentation of CMP over TCP */
-static gboolean cmp_desegment = TRUE;
+static bool cmp_desegment = true;
 
 static guint cmp_alternate_http_port = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;

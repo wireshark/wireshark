@@ -3277,7 +3277,7 @@ static const enum_val_t ngap_lte_container_vals[] = {
 
 /* Global variables */
 static range_t *gbl_ngapSctpRange = NULL;
-static gboolean ngap_dissect_container = TRUE;
+static bool ngap_dissect_container = true;
 static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
 static gint ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
 

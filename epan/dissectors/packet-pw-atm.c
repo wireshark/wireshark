@@ -247,10 +247,10 @@ static const char shortname_aal5_pdu[]          = "MPLS PW ATM AAL5 PDU";
  * Note that these options will affect PW type auto-guessing, if such heuristic
  * implemented in the future.
  */
-static gboolean pref_n1_cw_allow_cw_length_nonzero       = FALSE;
-static gboolean pref_n1_cw_extend_cw_length_with_rsvd    = FALSE;
-static gboolean pref_aal5_sdu_allow_cw_length_nonzero    = FALSE;
-static gboolean pref_aal5_sdu_extend_cw_length_with_rsvd = FALSE;
+static bool pref_n1_cw_allow_cw_length_nonzero       = false;
+static bool pref_n1_cw_extend_cw_length_with_rsvd    = false;
+static bool pref_aal5_sdu_allow_cw_length_nonzero    = false;
+static bool pref_aal5_sdu_extend_cw_length_with_rsvd = false;
 
 
 static int

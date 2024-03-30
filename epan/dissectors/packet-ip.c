@@ -58,25 +58,25 @@ static int ip_tap;
 static int exported_pdu_tap;
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field (RFC2474/2475) */
-static gboolean g_ip_dscp_actif = TRUE;
+static bool g_ip_dscp_actif = true;
 
 /* Defragment fragmented IP datagrams */
-static gboolean ip_defragment = TRUE;
+static bool ip_defragment = true;
 
 /* Place IP summary in proto tree */
-static gboolean ip_summary_in_tree = TRUE;
+static bool ip_summary_in_tree = true;
 
 /* Perform IP checksum */
-static gboolean ip_check_checksum = FALSE;
+static bool ip_check_checksum = false;
 
 /* Assume TSO and correct zero-length IP packets */
-static gboolean ip_tso_supported = TRUE;
+static bool ip_tso_supported = true;
 
 /* Use heuristics to determine subdissector */
-static gboolean try_heuristic_first = FALSE;
+static bool try_heuristic_first = false;
 
 /* Interpret the reserved flag as security flag (RFC 3514) */
-static gboolean ip_security_flag = FALSE;
+static bool ip_security_flag = false;
 
 static int proto_ip;
 

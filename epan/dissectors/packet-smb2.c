@@ -1511,7 +1511,7 @@ static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey,
 }
 
 /* ExportObject preferences variable */
-gboolean eosmb2_take_name_as_fid = FALSE ;
+bool eosmb2_take_name_as_fid = false ;
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
@@ -6541,8 +6541,8 @@ smb2_pipe_set_file_id(packet_info *pinfo, smb2_info_t *si)
 	dcerpc_set_transport_salt(persistent, pinfo);
 }
 
-static gboolean smb2_pipe_reassembly = TRUE;
-static gboolean smb2_verify_signatures = FALSE;
+static bool smb2_pipe_reassembly = true;
+static bool smb2_verify_signatures = false;
 static reassembly_table smb2_pipe_reassembly_table;
 
 static int

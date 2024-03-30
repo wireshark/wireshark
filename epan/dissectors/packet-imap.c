@@ -54,7 +54,7 @@ static dissector_handle_t imap_handle;
 static dissector_handle_t tls_handle;
 static dissector_handle_t imf_handle;
 
-static gboolean imap_ssl_heuristic = TRUE;
+static bool imap_ssl_heuristic = true;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_whitespace;

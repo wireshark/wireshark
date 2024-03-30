@@ -373,7 +373,7 @@ static gint ett_gryphon_blm_mode;
 static expert_field ei_gryphon_type;
 
 /* desegmentation of Gryphon */
-static gboolean gryphon_desegment = TRUE;
+static bool gryphon_desegment = true;
 
 /*
 * Length of the frame header.

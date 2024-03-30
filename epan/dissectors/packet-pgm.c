@@ -61,7 +61,7 @@ static dissector_handle_t pgm_handle;
 /*
  * Flag to control whether to check the PGM checksum.
  */
-static gboolean pgm_check_checksum = TRUE;
+static bool pgm_check_checksum = true;
 
 /* constants for hdr types */
 #define PGM_SPM_PCKT  0x00

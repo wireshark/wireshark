@@ -139,7 +139,7 @@ static dissector_handle_t amf_handle;
 static dissector_handle_t rtmpt_tcp_handle;
 static dissector_handle_t rtmpt_http_handle;
 
-static gboolean rtmpt_desegment = TRUE;
+static bool rtmpt_desegment = true;
 
 /* Native Bandwidth Detection (using the checkBandwidth(), onBWCheck(),
  * onBWDone() calls) transmits a series of increasing size packets over

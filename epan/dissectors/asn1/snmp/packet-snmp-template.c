@@ -73,8 +73,8 @@ static int snmp_tap;
 static int proto_snmp;
 static int proto_smux;
 
-static gboolean display_oid = TRUE;
-static gboolean snmp_var_in_tree = TRUE;
+static bool display_oid = true;
+static bool snmp_var_in_tree = true;
 
 void proto_register_snmp(void);
 void proto_reg_handoff_snmp(void);
@@ -173,7 +173,7 @@ static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,N
 #define TH_REPORT 0x04
 
 /* desegmentation of SNMP-over-TCP */
-static gboolean snmp_desegment = TRUE;
+static bool snmp_desegment = true;
 
 /* Global variables */
 

@@ -1689,7 +1689,7 @@ static guint32 opCode_PAYLD[] = {
 
 /* settings to be set by the user via the preferences dialog */
 static guint pref_rroce_udp_port = DEFAULT_RROCE_UDP_PORT;
-static gboolean try_heuristic_first = TRUE;
+static bool try_heuristic_first = true;
 
 /* saves information about connections that have been/are in the process of being
    negotiated via ConnectionManagement packets */

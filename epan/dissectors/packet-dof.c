@@ -697,8 +697,8 @@ typedef struct _dof_globals
     dof_packet_data *dof_packet_tail;
     dof_security_data *global_security;
     dof_learned_group_data *learned_group_data;
-    gboolean decrypt_all_packets;
-    gboolean track_operations;
+    bool decrypt_all_packets;
+    bool track_operations;
     guint track_operations_window;
 } dof_globals;
 
@@ -3223,8 +3223,8 @@ static int dof_dissect_dnp_length(tvbuff_t *tvb, packet_info *pinfo, guint8 vers
  * mode templates, security keys, and secrets to be configured.
  */
 
-static gboolean decrypt_all_packets = FALSE;
-static gboolean track_operations = FALSE;
+static bool decrypt_all_packets = false;
+static bool track_operations = false;
 static guint track_operations_window = 5;
 static guint32 next_dof_frame = 1;
 

@@ -466,8 +466,8 @@ static int hf_sprt_payload_rawbit_p;
 static int hf_sprt_payload_rawbit_n;
 
 /* Preferences  */
-static gboolean global_sprt_show_setup_info = TRUE; /* show how this SPRT stream got started */
-static gboolean global_sprt_show_dlci_info  = TRUE; /* show DLCI in I_OCTET messages, including setup frame (if we can) */
+static bool global_sprt_show_setup_info = true; /* show how this SPRT stream got started */
+static bool global_sprt_show_dlci_info  = true; /* show DLCI in I_OCTET messages, including setup frame (if we can) */
 
 
 /* dissector handle */

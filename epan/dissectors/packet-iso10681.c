@@ -131,7 +131,7 @@ static dissector_handle_t iso10681_handle_flexray = NULL;
 static dissector_table_t subdissector_table;
 
 static range_t   *iso10681_flexray_ids = NULL;
-static gboolean   iso10681_spread_over_multiple_cycles = TRUE;
+static bool       iso10681_spread_over_multiple_cycles = true;
 
 static reassembly_table iso10681_reassembly_table;
 static wmem_map_t *iso10681_frame_table = NULL;

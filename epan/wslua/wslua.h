@@ -145,7 +145,7 @@ typedef struct _wslua_pref_t {
     gchar* desc;
     pref_type_t type;
     union {
-        gboolean b;
+        bool b;
         guint u;
         gchar* s;
         gint e;

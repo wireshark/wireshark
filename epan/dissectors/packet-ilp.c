@@ -52,7 +52,7 @@ static int proto_ilp;
 
 #define ILP_HEADER_SIZE 2
 
-static gboolean ilp_desegment = TRUE;
+static bool ilp_desegment = true;
 
 static int hf_ilp_ILP_PDU_PDU;                    /* ILP_PDU */
 static int hf_ilp_length;                         /* INTEGER_0_65535 */

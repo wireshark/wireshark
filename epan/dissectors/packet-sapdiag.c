@@ -1218,16 +1218,16 @@ static expert_field ei_sapdiag_dynt_focus_more_cont_ids;
 static expert_field ei_sapdiag_password_field;
 
 /* Global RFC dissection preference */
-static gboolean global_sapdiag_rfc_dissection = TRUE;
+static bool global_sapdiag_rfc_dissection = true;
 
 /* Global SNC dissection preference */
-static gboolean global_sapdiag_snc_dissection = TRUE;
+static bool global_sapdiag_snc_dissection = true;
 
 /* Global port preference */
 static range_t *global_sapdiag_port_range;
 
 /* Global highlight preference */
-static gboolean global_sapdiag_highlight_items = TRUE;
+static bool global_sapdiag_highlight_items = true;
 
 /* Protocol handle */
 static dissector_handle_t sapdiag_handle;

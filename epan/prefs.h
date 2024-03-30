@@ -144,7 +144,7 @@ typedef struct _e_prefs {
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   color_t      gui_text_valid, gui_text_invalid, gui_text_deprecated;
-  gboolean     restore_filter_after_following_stream;
+  bool         restore_filter_after_following_stream;
   gint         gui_toolbar_main_style;
   gchar       *gui_font_name;
   color_t      gui_active_fg;
@@ -159,18 +159,18 @@ typedef struct _e_prefs {
   color_t      gui_ignored_bg;
   gchar       *gui_colorized_fg;
   gchar       *gui_colorized_bg;
-  gboolean     gui_geometry_save_position;
-  gboolean     gui_geometry_save_size;
-  gboolean     gui_geometry_save_maximized;
+  bool         gui_geometry_save_position;
+  bool         gui_geometry_save_size;
+  bool         gui_geometry_save_maximized;
   guint        gui_recent_df_entries_max;
   guint        gui_recent_files_count_max;
   guint        gui_fileopen_style;
   gchar       *gui_fileopen_dir;
   guint        gui_fileopen_preview;
   gchar       *gui_tlskeylog_command;
-  gboolean     gui_ask_unsaved;
-  gboolean     gui_autocomplete_filter;
-  gboolean     gui_find_wrap;
+  bool         gui_ask_unsaved;
+  bool         gui_autocomplete_filter;
+  bool         gui_find_wrap;
   gchar       *gui_window_title;
   gchar       *gui_prepend_window_title;
   gchar       *gui_start_title;
@@ -178,18 +178,18 @@ typedef struct _e_prefs {
   guint        gui_max_export_objects;
   guint        gui_max_tree_items;
   guint        gui_max_tree_depth;
-  gboolean     gui_welcome_page_show_recent;
+  bool         gui_welcome_page_show_recent;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
   splitter_layout_e gui_packet_dialog_layout;
   gchar       *gui_interfaces_hide_types;
-  gboolean     gui_interfaces_show_hidden;
-  gboolean     gui_interfaces_remote_display;
-  gboolean     gui_io_graph_automatic_update;
-  gboolean     gui_io_graph_enable_legend;
-  gboolean     gui_packet_details_show_byteview;
+  bool         gui_interfaces_show_hidden;
+  bool         gui_interfaces_remote_display;
+  bool         gui_io_graph_automatic_update;
+  bool         gui_io_graph_enable_legend;
+  bool         gui_packet_details_show_byteview;
   gchar       *capture_device;
   gchar       *capture_devices_linktypes;
   gchar       *capture_devices_descr;
@@ -199,57 +199,57 @@ typedef struct _e_prefs {
   gchar       *capture_devices_snaplen;
   gchar       *capture_devices_pmode;
   gchar       *capture_devices_filter; /* XXX - Mostly unused. Deprecate? */
-  gboolean     capture_prom_mode;
-  gboolean     capture_monitor_mode;
-  gboolean     capture_pcap_ng;
-  gboolean     capture_real_time;
+  bool         capture_prom_mode;
+  bool         capture_monitor_mode;
+  bool         capture_pcap_ng;
+  bool         capture_real_time;
   guint        capture_update_interval;
-  gboolean     capture_no_interface_load;
-  gboolean     capture_no_extcap;
-  gboolean     capture_show_info;
+  bool         capture_no_interface_load;
+  bool         capture_no_extcap;
+  bool         capture_show_info;
   GList       *capture_columns;
   guint        tap_update_interval;
-  gboolean     display_hidden_proto_items;
-  gboolean     display_byte_fields_with_spaces;
-  gboolean     enable_incomplete_dissectors_check;
-  gboolean     incomplete_dissectors_check_debug;
-  gboolean     strict_conversation_tracking_heuristics;
-  gboolean     ignore_dup_frames;
+  bool         display_hidden_proto_items;
+  bool         display_byte_fields_with_spaces;
+  bool         enable_incomplete_dissectors_check;
+  bool         incomplete_dissectors_check_debug;
+  bool         strict_conversation_tracking_heuristics;
+  bool         ignore_dup_frames;
   guint        ignore_dup_frames_cache_entries;
-  gboolean     filter_expressions_old;  /* TRUE if old filter expressions preferences were loaded. */
-  gboolean     cols_hide_new; /* TRUE if the new (index-based) gui.column.hide preference was loaded. */
-  gboolean     gui_update_enabled;
+  bool         filter_expressions_old;  /* TRUE if old filter expressions preferences were loaded. */
+  bool         cols_hide_new; /* TRUE if the new (index-based) gui.column.hide preference was loaded. */
+  bool         gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;
   gint         gui_debounce_timer;
   gchar       *saved_at_version;
-  gboolean     unknown_prefs; /* unknown or obsolete pref(s) */
-  gboolean     gui_packet_list_separator;
-  gboolean     gui_packet_header_column_definition;
-  gboolean     gui_packet_list_hover_style; /* Enable/Disable mouse-over colorization */
-  gboolean     gui_show_selected_packet;
-  gboolean     gui_show_file_load_time;
+  bool         unknown_prefs; /* unknown or obsolete pref(s) */
+  bool         gui_packet_list_separator;
+  bool         gui_packet_header_column_definition;
+  bool         gui_packet_list_hover_style; /* Enable/Disable mouse-over colorization */
+  bool         gui_show_selected_packet;
+  bool         gui_show_file_load_time;
   elide_mode_e gui_packet_list_elide_mode;
-  gboolean     gui_packet_list_show_related;
-  gboolean     gui_packet_list_show_minimap;
-  gboolean     gui_packet_list_sortable;
+  bool         gui_packet_list_show_related;
+  bool         gui_packet_list_show_minimap;
+  bool         gui_packet_list_sortable;
   guint        gui_packet_list_cached_rows_max;
   gint         gui_decimal_places1; /* Used for type 1 calculations */
   gint         gui_decimal_places2; /* Used for type 2 calculations */
   gint         gui_decimal_places3; /* Used for type 3 calculations */
-  gboolean     gui_rtp_player_use_disk1;
-  gboolean     gui_rtp_player_use_disk2;
-  gboolean     st_enable_burstinfo;
-  gboolean     st_burst_showcount;
+  bool         gui_rtp_player_use_disk1;
+  bool         gui_rtp_player_use_disk2;
+  bool         st_enable_burstinfo;
+  bool         st_burst_showcount;
   gint         st_burst_resolution;
   gint         st_burst_windowlen;
-  gboolean     st_sort_casesensitve;
-  gboolean     st_sort_rng_fixorder;
-  gboolean     st_sort_rng_nameonly;
+  bool         st_sort_casesensitve;
+  bool         st_sort_rng_fixorder;
+  bool         st_sort_rng_nameonly;
   gint         st_sort_defcolflag;
-  gboolean     st_sort_defdescending;
-  gboolean     st_sort_showfullname;
-  gboolean     extcap_save_on_start;
+  bool         st_sort_defdescending;
+  bool         st_sort_showfullname;
+  bool         extcap_save_on_start;
 } e_prefs;
 
 WS_DLL_PUBLIC e_prefs prefs;
@@ -498,7 +498,7 @@ WS_DLL_PUBLIC void prefs_register_uint_preference(module_t *module, const char *
  *                    field is changed in the preference dialog box
  */
 WS_DLL_PUBLIC void prefs_register_bool_preference(module_t *module, const char *name,
-    const char *title, const char *description, gboolean *var);
+    const char *title, const char *description, bool *var);
 
 /**
  * Register a preference with an enumerated value.

@@ -78,16 +78,16 @@
 
 // parent knob to turn on-off the entire query-response statistics (at runtime)
 // qr = Query-Response
-static gboolean dns_qr_statistics_enabled = TRUE;
+static bool dns_qr_statistics_enabled = true;
 
 // knob to turn on-off the display of query record name (at runtime)
 // qrn = Query-Record-Name
-static gboolean dns_qr_qrn_statistics_enabled = FALSE;
+static bool dns_qr_qrn_statistics_enabled = false;
 
 // knob to turn on-off the display of query-record-name for answers, authorities
 // and additionals with zero values (at runtime)
 // aud = Answers-aUthorities-aDdtionals; zv = Zero-Value
-static gboolean dns_qr_qrn_aud_zv_statistics_enabled = FALSE;
+static bool dns_qr_qrn_aud_zv_statistics_enabled = false;
 
 // support for above knobs
 static pref_t* perf_qr_enable_statistics;
@@ -673,9 +673,9 @@ static dissector_handle_t doq_handle;
 
 
 /* desegmentation of DNS over TCP */
-static gboolean dns_desegment = TRUE;
+static bool dns_desegment = true;
 
-static gboolean dns_qname_stats = FALSE;
+static bool dns_qname_stats = false;
 
 /* Maximum number of elapsed seconds between messages with the same
  * transaction ID to be considered as a retransmission

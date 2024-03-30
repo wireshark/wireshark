@@ -479,7 +479,7 @@ void proto_register_solaredge(void);
 
 static dissector_handle_t solaredge_handle;
 
-static gboolean global_show_unknown_fields = TRUE;
+static bool global_show_unknown_fields = true;
 
 static expert_field ei_solaredge_invalid_length;
 static expert_field ei_solaredge_invalid_crc;

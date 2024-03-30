@@ -1013,8 +1013,8 @@ static dissector_handle_t mqpcf_handle;
 
 static heur_dissector_list_t mq_heur_subdissector_list;
 
-static gboolean mq_desegment = TRUE;
-static gboolean mq_reassembly = TRUE;
+static bool mq_desegment = true;
+static bool mq_reassembly = true;
 
 static gboolean mq_in_reassembly = FALSE;
 

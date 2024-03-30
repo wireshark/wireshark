@@ -192,7 +192,7 @@ static value_string_ext nb_name_type_vals_ext = VALUE_STRING_EXT_INIT(nb_name_ty
 static reassembly_table netbios_reassembly_table;
 
 /* defragmentation of NetBIOS Frame */
-static gboolean netbios_defragment = TRUE;
+static bool netbios_defragment = true;
 
 /* See
 

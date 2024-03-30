@@ -46,7 +46,7 @@ static const value_string ixiatrailer_ftype_timestamp[] = {
 };
 
 /* Preference settings */
-static gboolean ixiatrailer_summary_in_tree = TRUE;
+static bool ixiatrailer_summary_in_tree = true;
 
 static int proto_ixiatrailer;
 static gint ett_ixiatrailer;

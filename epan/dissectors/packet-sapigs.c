@@ -115,7 +115,7 @@ static gint ett_sapigs;
 static range_t *global_sapigs_port_range;
 
 /* Global highlight preference */
-static gboolean global_sapigs_highlight_items = TRUE;
+static bool global_sapigs_highlight_items = true;
 
 /* Protocol handle */
 static dissector_handle_t sapigs_handle;

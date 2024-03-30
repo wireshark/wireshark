@@ -72,9 +72,9 @@ static gint proto_s5066;
 static dissector_table_t s5066sis_dissector_table;
 
 /* Enable desegmentation of S5066 over TCP */
-static gboolean s5066_desegment = TRUE;
+static bool s5066_desegment = true;
 /* Dissect old 'edition 1' of STANAG 5066 (It lacks the 'version' field.) */
-static gboolean s5066_edition_one = FALSE;
+static bool s5066_edition_one = false;
 /* This port is registered with IANA */
 #define S5066_PORT 5066
 /* Size of header outside 'size' field */

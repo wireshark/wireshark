@@ -46,7 +46,7 @@
  * IOS 4, probably most common
  */
 static gint global_a_variant = A_VARIANT_IOS401;
-static gboolean global_a_info_display = TRUE;
+static bool global_a_info_display = true;
 
 /* PROTOTYPES/FORWARDS */
 

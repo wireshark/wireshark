@@ -252,8 +252,8 @@ static expert_field ei_gsm_sms_short_data;
 static expert_field ei_gsm_sms_unexpected_data_length;
 static expert_field ei_gsm_sms_message_dissector_not_implemented;
 
-static gboolean reassemble_sms = TRUE;
-static gboolean reassemble_sms_with_lower_layers_info = TRUE;
+static bool reassemble_sms = true;
+static bool reassemble_sms_with_lower_layers_info = true;
 static proto_tree *g_tree;
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7

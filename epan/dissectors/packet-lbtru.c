@@ -633,10 +633,10 @@ static guint32 global_lbtru_source_port_low = LBTRU_DEFAULT_SOURCE_PORT_LOW;
 static guint32 global_lbtru_source_port_high = LBTRU_DEFAULT_SOURCE_PORT_HIGH;
 static guint32 global_lbtru_receiver_port_low = LBTRU_DEFAULT_RECEIVER_PORT_LOW;
 static guint32 global_lbtru_receiver_port_high = LBTRU_DEFAULT_RECEIVER_PORT_HIGH;
-static gboolean global_lbtru_expert_separate_naks = FALSE;
-static gboolean global_lbtru_expert_separate_ncfs = FALSE;
-static gboolean global_lbtru_use_tag = FALSE;
-static gboolean global_lbtru_sequence_analysis = FALSE;
+static bool global_lbtru_expert_separate_naks = false;
+static bool global_lbtru_expert_separate_ncfs = false;
+static bool global_lbtru_use_tag = false;
+static bool global_lbtru_sequence_analysis = false;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbtru_source_port_low = LBTRU_DEFAULT_SOURCE_PORT_LOW;

@@ -68,9 +68,9 @@ static int hf_h245_debug_dissector_try_string;
 
 h245_packet_info *h245_pi=NULL;
 
-static gboolean h245_reassembly = TRUE;
-static gboolean h245_shorttypes = FALSE;
-static gboolean info_col_fmt_prepend = FALSE;
+static bool h245_reassembly = true;
+static bool h245_shorttypes = false;
+static bool info_col_fmt_prepend = false;
 
 #include "packet-h245-val.h"
 

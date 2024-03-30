@@ -2208,7 +2208,7 @@ static int ett_skinny;
 static int ett_skinny_tree;
 
 /* preference globals */
-static gboolean global_skinny_desegment = true;
+static bool global_skinny_desegment = true;
 
 /* tap register id */
 static int skinny_tap;

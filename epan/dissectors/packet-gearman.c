@@ -66,7 +66,7 @@ static gint ett_gearman_content;
 
 static expert_field ei_gearman_pkt_type_unknown;
 
-static gboolean gearman_desegment  = TRUE;
+static bool gearman_desegment  = true;
 
 static const int GEARMAN_COMMAND_HEADER_SIZE = 12;
 static const int GEARMAN_PORT = 4730;

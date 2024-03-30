@@ -214,7 +214,7 @@ static gboolean ldap_found_in_frame = FALSE;
 #define UDP_PORT_CLDAP                  389
 
 /* desegmentation of LDAP */
-static gboolean ldap_desegment = TRUE;
+static bool ldap_desegment = true;
 static guint global_ldaps_tcp_port = TCP_PORT_LDAPS;
 static guint ssl_port = 0;
 

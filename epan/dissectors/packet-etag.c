@@ -28,7 +28,7 @@ static dissector_handle_t ethertype_handle;
 
 static int proto_etag;
 
-static gboolean etag_summary_in_tree = TRUE;
+static bool etag_summary_in_tree = true;
 
 static int hf_etag_etype;
 static int hf_etag_pcp;

@@ -193,7 +193,7 @@
 
 #define DLEP_MSG_HEADER_LEN 4
 
-static gboolean dlep_desegment = TRUE;
+static bool dlep_desegment = true;
 
 static dissector_handle_t dlep_msg_handle;
 static dissector_handle_t dlep_sig_handle;

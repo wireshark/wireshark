@@ -150,16 +150,16 @@ static int ett_protobuf_packed_repeated;
 static int ett_protobuf_json;
 
 /* preferences */
-static gboolean try_dissect_as_string = FALSE;
-static gboolean show_all_possible_field_types = FALSE;
-static gboolean dissect_bytes_as_string = FALSE;
-static gboolean old_dissect_bytes_as_string = FALSE;
-static gboolean show_details = FALSE;
-static gboolean pbf_as_hf = FALSE; /* dissect protobuf fields as header fields of wireshark */
-static gboolean preload_protos = FALSE;
+static bool try_dissect_as_string = false;
+static bool show_all_possible_field_types = false;
+static bool dissect_bytes_as_string = false;
+static gboolean old_dissect_bytes_as_string = false;
+static bool show_details = false;
+static bool pbf_as_hf = false; /* dissect protobuf fields as header fields of wireshark */
+static bool preload_protos = false;
 /* Show protobuf as JSON similar to https://developers.google.com/protocol-buffers/docs/proto3#json */
-static gboolean display_json_mapping = FALSE;
-static gboolean use_utc_fmt = FALSE;
+static bool display_json_mapping = false;
+static bool use_utc_fmt = false;
 static const char* default_message_type = "";
 
 

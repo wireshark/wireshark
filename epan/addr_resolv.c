@@ -379,7 +379,7 @@ static  wmem_list_t *async_dns_queue_head = NULL;
 static  GMutex async_dns_queue_mtx;
 
 //UAT for providing a list of DNS servers to C-ARES for name resolution
-gboolean use_custom_dns_server_list = FALSE;
+bool use_custom_dns_server_list = false;
 struct dns_server_data {
     char *ipaddr;
     guint32 udp_port;

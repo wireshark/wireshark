@@ -291,13 +291,13 @@ static guint pref_sample_bit_width_downlink = 14;
 
 static gint pref_iqCompressionUplink = COMP_BLOCK_FP;
 static gint pref_iqCompressionDownlink = COMP_BLOCK_FP;
-static gboolean pref_includeUdCompHeaderUplink = FALSE;
-static gboolean pref_includeUdCompHeaderDownlink = FALSE;
+static bool pref_includeUdCompHeaderUplink = false;
+static bool pref_includeUdCompHeaderDownlink = false;
 
 static guint pref_data_plane_section_total_rbs = 273;
 static guint pref_num_weights_per_bundle = 32;
 static guint pref_num_bf_antennas = 32;
-static gboolean pref_showIQSampleValues = TRUE;
+static bool pref_showIQSampleValues = true;
 
 
 static const enum_val_t compression_options[] = {

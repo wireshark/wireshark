@@ -328,7 +328,7 @@ static dissector_handle_t pimv1_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
-static gboolean use_main_tree  = TRUE;
+static bool use_main_tree  = true;
 
 /*
  * The Story About Ping^WPIM:

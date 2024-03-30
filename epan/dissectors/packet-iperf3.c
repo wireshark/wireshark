@@ -127,8 +127,8 @@ static udp_conversation_data *udp_set_conversation_data(packet_info *);
 
 
 /* protocol preferences */
-static gboolean iperf3_pref_64bit_seq_no = FALSE;
-static gboolean iperf3_pref_detect_udp_order = TRUE;
+static bool iperf3_pref_64bit_seq_no = false;
+static bool iperf3_pref_detect_udp_order = true;
 /* expert info */
 static expert_field ei_udp_out_of_order;
 

@@ -289,7 +289,7 @@ typedef enum {
 static gint erf_hdlc_type = ERF_HDLC_GUESS;
 static dissector_handle_t chdlc_handle, ppp_handle, frelay_handle, mtp2_handle;
 
-static gboolean erf_rawcell_first = FALSE;
+static bool erf_rawcell_first = false;
 
 typedef enum {
   ERF_AAL5_GUESS  = 0,

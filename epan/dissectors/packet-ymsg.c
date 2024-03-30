@@ -42,7 +42,7 @@ static gint ett_ymsg_content_line;
 #define TCP_PORT_YMSG_3	5050	/* This, however, is regular Yahoo Messenger */
 
 /* desegmentation of YMSG over TCP */
-static gboolean ymsg_desegment = TRUE;
+static bool ymsg_desegment = true;
 
 /*
  * This is from yahoolib2.c from libyahoo2.

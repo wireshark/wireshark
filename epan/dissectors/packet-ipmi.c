@@ -127,8 +127,8 @@ static gint proto_tmode;
 
 /* WARNING: Setting this to true might result in the entire dissector being
    disabled by default or removed completely. */
-static gboolean dissect_bus_commands = FALSE;
-static gboolean fru_langcode_is_english = TRUE;
+static bool dissect_bus_commands = false;
+static bool fru_langcode_is_english = true;
 static guint response_after_req = 5000;
 static guint response_before_req = 0;
 static guint message_format = MSGFMT_GUESS;

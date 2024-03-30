@@ -166,7 +166,7 @@ static guint             num_uat_key_records = 0;
 /* Common data */
 static guint8 g_conn_id;
 
-static gboolean ignore_late_keys = TRUE;
+static bool ignore_late_keys = true;
 
 /* Info types */
 typedef enum

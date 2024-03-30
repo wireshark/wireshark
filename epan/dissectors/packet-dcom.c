@@ -69,7 +69,7 @@ void proto_reg_handoff_dcom (void);
 
 static int proto_dcom;
 
-gboolean dcom_prefs_display_unmarshalling_details = FALSE;
+bool dcom_prefs_display_unmarshalling_details = false;
 
 
 static gint ett_dcom_this;

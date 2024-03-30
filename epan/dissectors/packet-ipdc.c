@@ -691,7 +691,7 @@ static gint ett_ipdc_line_status;
 
 static expert_field ei_ipdc_ipv4;
 
-static gboolean ipdc_desegment = TRUE;
+static bool ipdc_desegment = true;
 
 static dissector_handle_t q931_handle;
 

@@ -57,7 +57,7 @@ void proto_reg_handoff_2dparityfec(void);
 
 static dissector_handle_t handle_2dparityfec = NULL;
 
-static gboolean dissect_fec = FALSE;
+static bool dissect_fec = false;
 
 static int fec_rtp_payload_type = 96;
 

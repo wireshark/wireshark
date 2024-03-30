@@ -1821,11 +1821,11 @@ static expert_field ei_real_length_differs;
 static dissector_handle_t epl_handle;
 static dissector_handle_t epl_udp_handle;
 
-static gboolean show_cmd_layer_for_duplicated = FALSE;
-static gboolean show_pdo_meta_info = FALSE;
-static gboolean use_xdc_mappings = TRUE;
-static gboolean interpret_untyped_as_le = TRUE;
-static gboolean use_sdo_mappings = TRUE;
+static bool show_cmd_layer_for_duplicated = false;
+static bool show_pdo_meta_info = false;
+static bool use_xdc_mappings = true;
+static bool interpret_untyped_as_le = true;
+static bool use_sdo_mappings = true;
 
 static gint ett_epl_asnd_sdo_data_reassembled;
 
@@ -2473,7 +2473,7 @@ cleanup_dissector(void)
 }
 
 /* preference whether or not display the SoC flags in info column */
-gboolean show_soc_flags = FALSE;
+bool show_soc_flags = false;
 
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/

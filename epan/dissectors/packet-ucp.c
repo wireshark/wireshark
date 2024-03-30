@@ -45,7 +45,7 @@ typedef struct _ucp_tap_rec_t {
 } ucp_tap_rec_t;
 
 /* Preferences */
-static gboolean ucp_desegment = TRUE;
+static bool ucp_desegment = true;
 
 /* STX + TRN(2 num. char.) + / + LEN(5 num. char.) + / + 'O'/'R' + / + OT(2 num. char.) + / */
 #define UCP_HEADER_SIZE 15

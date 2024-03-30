@@ -97,8 +97,8 @@ static int proto_can;
 static int proto_canfd;
 static int proto_canxl;
 
-static gboolean byte_swap = FALSE;
-static gboolean heuristic_first = FALSE;
+static bool byte_swap = false;
+static bool heuristic_first = false;
 
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;

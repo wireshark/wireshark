@@ -320,7 +320,7 @@ static dissector_handle_t diameter_sctp_handle;
 #define DEFAULT_DIAMETER_TLS_PORT 5868
 
 /* desegmentation of Diameter over TCP */
-static gboolean gbl_diameter_desegment = TRUE;
+static bool gbl_diameter_desegment = true;
 
 /* Dissector tables */
 static dissector_table_t diameter_dissector_table;

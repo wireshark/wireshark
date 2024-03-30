@@ -55,7 +55,7 @@ static guint8      proxy_ipaddr[4];
 static const char *pref_proxy_ipaddr_s = NULL;
 
 static gboolean use_proxy_ipaddr = FALSE;
-static gboolean noesip_enabled   = FALSE;
+static bool noesip_enabled   = false;
 
 static dissector_handle_t uasip_handle;
 

@@ -68,7 +68,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 
 /* Decode the end of the ICMP payload as ICMP MPLS extensions
 if the packet in the payload has more than 128 bytes */
-static gboolean favor_icmp_mpls_ext = FALSE;
+static bool favor_icmp_mpls_ext = false;
 
 static int proto_icmp;
 

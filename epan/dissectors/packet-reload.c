@@ -514,7 +514,7 @@ typedef struct _reload_conv_info_t {
 #define TOPOLOGY_PLUGIN_CHORD_RELOAD "CHORD-RELOAD"
 
 /* reload user configuration variables */
-static gboolean    reload_defragment      = TRUE;
+static bool    reload_defragment      = true;
 static guint       reload_nodeid_length   = 16;
 static const char *reload_topology_plugin = TOPOLOGY_PLUGIN_CHORD_RELOAD;
 

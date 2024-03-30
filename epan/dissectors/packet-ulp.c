@@ -54,7 +54,7 @@ static int proto_ulp;
 
 #define ULP_HEADER_SIZE 2
 
-static gboolean ulp_desegment = TRUE;
+static bool ulp_desegment = true;
 
 static int hf_ulp_ULP_PDU_PDU;                    /* ULP_PDU */
 static int hf_ulp_length;                         /* INTEGER_0_65535 */

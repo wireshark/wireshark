@@ -40,10 +40,10 @@ static heur_dissector_list_t aeron_heuristic_subdissector_list;
 /* Preferences.                                                               */
 /*----------------------------------------------------------------------------*/
 
-static gboolean aeron_sequence_analysis = FALSE;
-static gboolean aeron_stream_analysis = FALSE;
-static gboolean aeron_reassemble_fragments = FALSE;
-static gboolean aeron_use_heuristic_subdissectors = FALSE;
+static bool aeron_sequence_analysis = false;
+static bool aeron_stream_analysis = false;
+static bool aeron_reassemble_fragments = false;
+static bool aeron_use_heuristic_subdissectors = false;
 
 /*----------------------------------------------------------------------------*/
 /* Aeron position routines.                                                   */

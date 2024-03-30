@@ -279,7 +279,7 @@ column_prefs_remove_nth(int col)
     recent_remove_column(col);
 }
 
-void save_migrated_uat(const char *uat_name, gboolean *old_pref)
+void save_migrated_uat(const char *uat_name, bool *old_pref)
 {
     char *err = NULL;
 

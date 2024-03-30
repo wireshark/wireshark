@@ -391,14 +391,14 @@ WS_DLL_PUBLIC_DEF const value_string chunk_type_values[] = {
 #define ASSOC_NOT_FOUND                    5
 
 /* Default values for preferences */
-static gboolean show_port_numbers           = TRUE;
-static gint sctp_checksum                   = SCTP_CHECKSUM_NONE;
-static gboolean enable_tsn_analysis         = TRUE;
-static gboolean enable_association_indexing = FALSE;
-static gboolean enable_ulp_dissection       = TRUE;
-static gboolean use_reassembly              = TRUE;
-static gboolean show_always_control_chunks  = TRUE;
-static gboolean show_relative_tsns          = TRUE;
+static bool show_port_numbers           = true;
+static gint sctp_checksum               = SCTP_CHECKSUM_NONE;
+static bool enable_tsn_analysis         = true;
+static bool enable_association_indexing = false;
+static bool enable_ulp_dissection       = true;
+static bool use_reassembly              = true;
+static bool show_always_control_chunks  = true;
+static bool show_relative_tsns          = true;
 
 /* Data types and functions for generation/handling of chunk types for chunk statistics */
 
@@ -2528,7 +2528,7 @@ dissect_error_causes(tvbuff_t *causes_tvb, packet_info *pinfo, proto_tree *tree)
  * Code to actually dissect the packets
 */
 
-static gboolean try_heuristic_first = FALSE;
+static bool try_heuristic_first = false;
 
 static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint32 ppi)

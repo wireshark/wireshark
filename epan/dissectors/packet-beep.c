@@ -34,7 +34,7 @@ void proto_reg_handoff_beep(void);
 static dissector_handle_t beep_handle;
 
 static range_t *global_beep_tcp_ports = NULL;
-static int global_beep_strict_term = TRUE;
+static bool global_beep_strict_term = true;
 
 static int proto_beep;
 

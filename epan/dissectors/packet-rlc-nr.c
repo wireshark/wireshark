@@ -41,7 +41,7 @@ void proto_reg_handoff_rlc_nr(void);
 /* Preference settings          */
 
 /* By default do call PDCP/RRC dissectors for SDU data */
-static gboolean global_rlc_nr_call_pdcp_for_srb = TRUE;
+static bool global_rlc_nr_call_pdcp_for_srb = true;
 
 enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_12, PDCP_drb_SN_18, PDCP_drb_SN_signalled};
 static const enum_val_t pdcp_drb_col_vals[] = {
@@ -56,14 +56,14 @@ static gint global_rlc_nr_call_pdcp_for_ul_drb = (gint)PDCP_drb_off;
 static gint global_rlc_nr_call_pdcp_for_dl_drb = (gint)PDCP_drb_off;
 
 
-static gboolean global_rlc_nr_call_rrc_for_ccch = TRUE;
+static bool global_rlc_nr_call_rrc_for_ccch = true;
 
 /* Preference to expect RLC headers without payloads */
-static gboolean global_rlc_nr_headers_expected = FALSE;
+static bool global_rlc_nr_headers_expected = false;
 
 /* Attempt reassembly. */
-static gboolean global_rlc_nr_reassemble_um_pdus = FALSE;
-static gboolean global_rlc_nr_reassemble_am_pdus = TRUE;
+static bool global_rlc_nr_reassemble_um_pdus = false;
+static bool global_rlc_nr_reassemble_am_pdus = true;
 
 /* Tree storing UE related parameters (ueid, drbid) -> pdcp_bearer_parameters */
 static wmem_tree_t *ue_parameters_tree;

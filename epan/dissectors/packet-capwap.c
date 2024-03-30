@@ -30,9 +30,9 @@ static dissector_handle_t capwap_data_handle;
 #define UDP_PORT_CAPWAP_DATA 5247
 
 static range_t *global_capwap_data_udp_ports = NULL;
-static gboolean global_capwap_draft_8_cisco = FALSE;
-static gboolean global_capwap_reassemble = TRUE;
-static gboolean global_capwap_swap_frame_control = TRUE;
+static bool global_capwap_draft_8_cisco = false;
+static bool global_capwap_reassemble = true;
+static bool global_capwap_swap_frame_control = true;
 
 static reassembly_table capwap_reassembly_table;
 

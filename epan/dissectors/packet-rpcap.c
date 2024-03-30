@@ -215,8 +215,8 @@ static dissector_handle_t pcap_pktdata_handle;
 static dissector_handle_t rpcap_tcp_handle;
 
 /* User definable values */
-static gboolean rpcap_desegment = TRUE;
-static gboolean decode_content = TRUE;
+static bool rpcap_desegment = true;
+static bool decode_content = true;
 static int global_linktype = -1;
 
 /* Global variables */

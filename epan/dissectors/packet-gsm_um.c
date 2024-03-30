@@ -38,7 +38,7 @@ static dissector_handle_t gsm_um_handle;
 static dissector_handle_t lapdm_handle;
 static dissector_handle_t dtap_handle;
 
-static gboolean dcs1800_gsm = TRUE;
+static bool dcs1800_gsm = true;
 
 #define	GSM_UM_L2_PSEUDO_LEN		0xfc
 

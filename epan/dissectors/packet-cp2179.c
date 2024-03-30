@@ -58,7 +58,7 @@ void proto_register_cp2179(void);
 #define SBO_OPERATE_REPLY_LEN              9
 #define SBO_SELECT_REPLY_LEN               10
 
-static gboolean cp2179_telnet_clean = TRUE;
+static bool cp2179_telnet_clean = true;
 
 /* Message Types */
 #define BASIC_SCAN_REQUEST                 1

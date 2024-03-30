@@ -1270,7 +1270,7 @@ static expert_field ei_pfcp_ie_encoding_error;
 
 static int pfcp_tap = -1;
 
-static gboolean g_pfcp_session = FALSE;
+static bool g_pfcp_session = false;
 static guint32 pfcp_session_count;
 
 typedef struct pfcp_rule_ids {

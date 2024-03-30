@@ -62,7 +62,7 @@ static int hf_tacacs_password;
 
 static gint ett_tacacs;
 
-static gboolean tacplus_preference_desegment = TRUE;
+static bool tacplus_preference_desegment = true;
 
 static const char *tacplus_opt_key;
 static GSList *tacplus_keys = NULL;

@@ -33,7 +33,7 @@ gint8	arq_enabled = 0;
 gint	scheduling_service_type = 0;
 gint	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
 extern	guint global_cid_max_basic;
-extern	gboolean include_cor2_changes;
+extern	bool include_cor2_changes;
 
 address bs_address = ADDRESS_INIT_NONE;
 

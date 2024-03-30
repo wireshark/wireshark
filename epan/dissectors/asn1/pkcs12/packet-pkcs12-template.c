@@ -54,7 +54,7 @@ static const char *object_identifier_id = NULL;
 static int iteration_count = 0;
 static tvbuff_t *salt = NULL;
 static const char *password = NULL;
-static gboolean try_null_password = FALSE;
+static bool try_null_password = false;
 
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);

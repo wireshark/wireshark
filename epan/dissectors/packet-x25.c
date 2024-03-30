@@ -515,10 +515,10 @@ static dissector_handle_t ositp_handle;
 static dissector_handle_t qllc_handle;
 
 /* Preferences */
-static gboolean payload_is_qllc_sna = FALSE;
-static gboolean call_request_nodata_is_cotp = FALSE;
-static gboolean payload_check_data = FALSE;
-static gboolean reassemble_x25 = TRUE;
+static bool payload_is_qllc_sna = false;
+static bool call_request_nodata_is_cotp = false;
+static bool payload_check_data = false;
+static bool reassemble_x25 = true;
 
 /* Reassembly of X.25 */
 

@@ -43,20 +43,20 @@ int proto_umts_rlc;
 extern int proto_fp;
 
 /* Preference to perform reassembly */
-static gboolean global_rlc_perform_reassemby = TRUE;
+static bool global_rlc_perform_reassemby = true;
 
 /* Preference to expect RLC headers without payloads */
-static gboolean global_rlc_headers_expected = FALSE;
+static bool global_rlc_headers_expected = false;
 
 /* Preference to expect ONLY ciphered data */
-static gboolean global_rlc_ciphered = FALSE;
+static bool global_rlc_ciphered = false;
 
 /* Preference to ignore ciphering state reported from RRC */
 /* This is important for captures with deciphered traffic AND the original security RRC messages present*/
-static gboolean global_ignore_rrc_ciphering_indication = FALSE;
+static bool global_ignore_rrc_ciphering_indication = false;
 
 /* Preference to try deciphering */
-static gboolean global_rlc_try_decipher = FALSE;
+static bool global_rlc_try_decipher = false;
 
 #ifdef HAVE_UMTS_KASUMI
 static const char *global_rlc_kasumi_key = NULL;

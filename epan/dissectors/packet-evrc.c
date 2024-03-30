@@ -191,7 +191,7 @@ static expert_field ei_evrc_unknown_variant;
  * Variables to allow for proper deletion of dissector registration when
  * the user changes values
  */
-static gboolean legacy_pt_60 = FALSE;
+static bool legacy_pt_60 = false;
 
 
 static guint8

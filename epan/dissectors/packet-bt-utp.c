@@ -221,12 +221,12 @@ static expert_field ei_extension_len_invalid;
 static gint ett_bt_utp;
 static gint ett_bt_utp_extension;
 
-static gboolean enable_version0 = FALSE;
+static bool enable_version0 = false;
 static guint max_window_size = V1_MAX_WINDOW_SIZE;
 /* XXX: Desegementation and OOO-reassembly are not supported yet */
 static gboolean utp_desegment = FALSE;
 /*static gboolean utp_reassemble_out_of_order = FALSE;*/
-static gboolean utp_analyze_seq = TRUE;
+static bool utp_analyze_seq = true;
 
 static guint32 bt_utp_stream_count = 0;
 

@@ -193,7 +193,7 @@ static int dissect_kerberos_FastOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_
 #endif
 
 /* Desegment Kerberos over TCP messages */
-static gboolean krb_desegment = TRUE;
+static bool krb_desegment = true;
 
 static gint proto_kerberos;
 
@@ -894,7 +894,7 @@ static int dissect_kerberos_defer_PA_FX_FAST_REQUEST(bool implicit_tag _U_, tvbu
 #ifdef HAVE_KERBEROS
 
 /* Decrypt Kerberos blobs */
-gboolean krb_decrypt = FALSE;
+bool krb_decrypt = false;
 
 /* keytab filename */
 static const char *keytab_filename = "";

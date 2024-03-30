@@ -84,9 +84,9 @@ static gboolean grpc_decompress_body = FALSE;
 #endif
 
 /* detect json automatically */
-static gboolean grpc_detect_json_automatically = TRUE;
+static bool grpc_detect_json_automatically = true;
 /* whether embed GRPC messages under HTTP2 (or other) protocol tree items */
-static gboolean grpc_embedded_under_http2 = FALSE;
+static bool grpc_embedded_under_http2 = false;
 
 void proto_register_grpc(void);
 void proto_reg_handoff_grpc(void);

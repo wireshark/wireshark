@@ -548,10 +548,10 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
 /* Preference settings               */
 
 /* Default ESP payload decode to off */
-static gboolean g_esp_enable_encryption_decode = FALSE;
+static bool g_esp_enable_encryption_decode = false;
 
 /* Default ESP payload Authentication Checking to off */
-static gboolean g_esp_enable_authentication_check = FALSE;
+static bool g_esp_enable_authentication_check = false;
 
 /**************************************************/
 /* Sequence number analysis                       */
@@ -658,10 +658,10 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
    (only works if payload is NULL encrypted and ESP payload decode is off or payload is NULL encrypted
    and the packet does not match a Security Association).
 */
-static gboolean g_esp_enable_null_encryption_decode_heuristic = FALSE;
+static bool g_esp_enable_null_encryption_decode_heuristic = false;
 
 /* Default to doing ESP sequence analysis */
-static gboolean g_esp_do_sequence_analysis = TRUE;
+static bool g_esp_do_sequence_analysis = true;
 
 
 

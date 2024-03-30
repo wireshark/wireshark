@@ -28,7 +28,7 @@
 #define DESEGMENT_ENABLED(pinfo) ((pinfo)->can_desegment && resp_desegment)
 
 static dissector_handle_t resp_handle;
-static gboolean resp_desegment = TRUE;
+static bool resp_desegment = true;
 
 static int proto_resp;
 

@@ -54,8 +54,8 @@ static dissector_handle_t sflow_handle;
 /*
  *  sflow_245_ports : holds the currently used range of ports for sflow
  */
-static gboolean global_dissect_samp_headers = TRUE;
-static gboolean global_analyze_samp_ip_headers = FALSE;
+static bool global_dissect_samp_headers = true;
+static bool global_analyze_samp_ip_headers = false;
 
 #define ENTERPRISE_DEFAULT 0
 

@@ -557,10 +557,10 @@ static guint32 global_mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
 static guint32 global_mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
 static const char * global_mim_incoming_mc_address = MIM_DEFAULT_MC_INCOMING_ADDRESS;
 static const char * global_mim_outgoing_mc_address = MIM_DEFAULT_MC_OUTGOING_ADDRESS;
-static gboolean global_lbtrm_expert_separate_naks = FALSE;
-static gboolean global_lbtrm_expert_separate_ncfs = FALSE;
-static gboolean global_lbtrm_use_tag = FALSE;
-static gboolean global_lbtrm_sequence_analysis = FALSE;
+static bool global_lbtrm_expert_separate_naks = false;
+static bool global_lbtrm_expert_separate_ncfs = false;
+static bool global_lbtrm_use_tag = false;
+static bool global_lbtrm_sequence_analysis = false;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbtrm_mc_address_low_host = 0;

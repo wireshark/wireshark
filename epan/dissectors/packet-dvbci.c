@@ -841,7 +841,7 @@ static dissector_handle_t dvbci_handle;
 
 static const gchar *dvbci_sek = NULL;
 static const gchar *dvbci_siv = NULL;
-static gboolean dvbci_dissect_lsc_msg = FALSE;
+static bool dvbci_dissect_lsc_msg = false;
 
 /* the output of pref_key_string_to_bin() applied to dvbci_sek and _siv */
 static unsigned char *dvbci_sek_bin = NULL;

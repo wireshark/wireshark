@@ -123,7 +123,7 @@ static const value_string fmp_encoding_mode_vals[] = {
     {0,NULL}
 };
 
-static gboolean fmp_fhandle_reqrep_matching = FALSE;
+static bool fmp_fhandle_reqrep_matching = false;
 
 static int
 dissect_fmp_genString(tvbuff_t *tvb, int offset, proto_tree *tree)

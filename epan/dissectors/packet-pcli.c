@@ -85,7 +85,7 @@ static int ett_pcli;
  * for pcli
  */
 
-static gboolean pcli_summary_in_tree = TRUE;
+static bool pcli_summary_in_tree = true;
 
 static dissector_table_t    pcli_subdissector_table;
 

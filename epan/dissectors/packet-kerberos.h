@@ -126,7 +126,7 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
-extern gboolean krb_decrypt;
+extern bool krb_decrypt;
 
 #endif /* HAVE_KERBEROS */
 

@@ -128,7 +128,7 @@ typedef struct {
     dissector_handle_t  payload_proto;
 } uat_rfcomm_channels_t;
 
-static gboolean               rfcomm_channels_enabled   = FALSE;
+static bool                   rfcomm_channels_enabled   = false;
 static uat_t                  *uat_rfcomm_channels      = NULL;
 static uat_rfcomm_channels_t  *rfcomm_channels          = NULL;
 static guint                  num_rfcomm_channels       = 0;

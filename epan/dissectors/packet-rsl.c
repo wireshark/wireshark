@@ -282,13 +282,13 @@ static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t gsm_a_sacch_handle;
 
 /* Decode things as nanoBTS traces */
-static gboolean global_rsl_use_nano_bts = FALSE;
+static bool global_rsl_use_nano_bts = false;
 
 /* Decode Osmocom specific messages and IEs */
-static gboolean global_rsl_use_osmo_bts = FALSE;
+static bool global_rsl_use_osmo_bts = false;
 
 /* Decode things in Physical Context Information field. */
-static gboolean global_rsl_dissect_phy_ctx_inf = TRUE;
+static bool global_rsl_dissect_phy_ctx_inf = true;
 
 /* Forward declarations */
 static int dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);

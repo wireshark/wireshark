@@ -51,7 +51,7 @@ static gint global_rlc_lte_am_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
 static gint global_rlc_lte_um_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
 
 /* By default do call PDCP/RRC dissectors for SDU data */
-static gboolean global_rlc_lte_call_pdcp_for_srb = TRUE;
+static bool global_rlc_lte_call_pdcp_for_srb = true;
 
 enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled, PDCP_drb_SN_15, PDCP_drb_SN_18};
 static const enum_val_t pdcp_drb_col_vals[] = {
@@ -65,15 +65,15 @@ static const enum_val_t pdcp_drb_col_vals[] = {
 };
 static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_SN_signalled;
 
-static gboolean global_rlc_lte_call_rrc_for_ccch = TRUE;
-static gboolean global_rlc_lte_call_rrc_for_mcch = FALSE;
-static gboolean global_rlc_lte_call_ip_for_mtch = FALSE;
+static bool global_rlc_lte_call_rrc_for_ccch = true;
+static bool global_rlc_lte_call_rrc_for_mcch = false;
+static bool global_rlc_lte_call_ip_for_mtch = false;
 
 /* Preference to expect RLC headers without payloads */
-static gboolean global_rlc_lte_headers_expected = FALSE;
+static bool global_rlc_lte_headers_expected = false;
 
 /* Re-assembly of segments */
-static gboolean global_rlc_lte_reassembly = TRUE;
+static bool global_rlc_lte_reassembly = true;
 
 /* Tree storing UE related parameters */
 #define NO_EXT_LI 0x0

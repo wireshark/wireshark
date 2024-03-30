@@ -183,9 +183,9 @@ static reassembly_table clnp_reassembly_table;
 
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
-static gboolean always_decode_transport = FALSE;
-static gboolean clnp_reassemble = TRUE;
-gboolean clnp_decode_atn_options = FALSE;
+static bool always_decode_transport = false;
+static bool clnp_reassemble = true;
+bool clnp_decode_atn_options = false;
 
 /* function definitions */
 

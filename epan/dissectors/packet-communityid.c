@@ -416,7 +416,7 @@ static int hf_communityid_hash;
 static dissector_handle_t communityid_handle;
 
 /* Config settings as handled by Wireshark's preference framework ... */
-static gboolean pref_cid_do_base64 = TRUE;
+static bool pref_cid_do_base64 = true;
 static guint pref_cid_seed = 0;
 /* ... and as interpreted by the Community ID code. */
 static communityid_cfg_t cid_cfg;

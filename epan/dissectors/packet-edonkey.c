@@ -177,7 +177,7 @@ static expert_field ei_kademlia_search_expression_type;
 #define EDONKEY_UDP_PORT_RANGE "4665,4672" /* Not IANA registered */
 
 /* desegmentation of eDonkey over TCP */
-static gboolean edonkey_desegment = TRUE;
+static bool edonkey_desegment = true;
 
 static const value_string kademlia_msgs[] = {
     { KADEMLIA2_BOOTSTRAP_REQ        ,"KADEMLIA2_BOOTSTRAP_REQ"      },

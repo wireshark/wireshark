@@ -84,7 +84,7 @@ static gint ett_scylla_mut;
 static gint ett_scylla_mut_pkey;
 static gint ett_scylla_read_data;
 
-static gboolean scylla_desegment = TRUE;
+static bool scylla_desegment = true;
 
 static expert_field ei_scylla_response_missing;
 

@@ -63,7 +63,7 @@ static dissector_handle_t rmt_fec_handle;
 
 static dissector_table_t media_type_dissector_table;
 
-static gboolean g_codepoint_as_fec_encoding = TRUE;
+static bool g_codepoint_as_fec_encoding = true;
 static gint     g_ext_192                   = LCT_PREFS_EXT_192_FLUTE;
 static gint     g_ext_193                   = LCT_PREFS_EXT_193_FLUTE;
 static gint     g_atsc3_mode                = LCT_ATSC3_MODE_AUTO;

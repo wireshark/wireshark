@@ -1477,11 +1477,11 @@ smb_eo_cleanup(void)
 	offset += len;			\
 	*bcp -= len;
 
-gboolean sid_display_hex = FALSE;
-gboolean sid_name_snooping = FALSE;
+bool sid_display_hex = false;
+bool sid_name_snooping = false;
 
 /* ExportObject preferences variable */
-gboolean eosmb_take_name_as_fid = FALSE ;
+bool eosmb_take_name_as_fid = false ;
 /* Utility to get an str representing ipv4 or ipv6 address */
 const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 	const gchar	*buf;
@@ -1582,8 +1582,8 @@ fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These are needed by the reassembly of SMB Transaction payload and DCERPC over SMB
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-static gboolean smb_trans_reassembly = TRUE;
-gboolean smb_dcerpc_reassembly = TRUE;
+static bool smb_trans_reassembly = true;
+bool smb_dcerpc_reassembly = true;
 
 static reassembly_table smb_trans_reassembly_table;
 

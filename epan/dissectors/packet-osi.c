@@ -39,7 +39,7 @@ static dissector_handle_t osi_juniper_handle;
 
 
 /* Preferences for OSI over TPKT over TCP */
-static gboolean tpkt_desegment = FALSE;
+static bool tpkt_desegment = false;
 
 gboolean
 osi_calc_checksum( tvbuff_t *tvb, int offset, guint len, guint32* c0, guint32* c1) {

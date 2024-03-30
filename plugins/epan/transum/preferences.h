@@ -25,17 +25,17 @@
 typedef struct _TSUM_PREFERENCES
 {
     int      capture_position;
-    gboolean reassembly;
+    bool     reassembly;
     wmem_map_t *tcp_svc_ports;
     wmem_map_t *udp_svc_ports;
-    gboolean orphan_ka_discard;
+    bool     orphan_ka_discard;
     int      time_multiplier;
-    gboolean rte_on_first_req;
-    gboolean rte_on_last_req;
-    gboolean rte_on_first_rsp;
-    gboolean rte_on_last_rsp;
-    gboolean summarisers_enabled;
-    gboolean summarise_tds;
-    gboolean summarisers_escape_quotes;
-    gboolean debug_enabled;
+    bool     rte_on_first_req;
+    bool     rte_on_last_req;
+    bool     rte_on_first_rsp;
+    bool     rte_on_last_rsp;
+    bool     summarisers_enabled;
+    bool     summarise_tds;
+    bool     summarisers_escape_quotes;
+    bool     debug_enabled;
 } TSUM_PREFERENCES;

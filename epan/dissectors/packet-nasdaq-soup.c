@@ -47,7 +47,7 @@ static dissector_handle_t nasdaq_soup_handle;
 static dissector_handle_t nasdaq_itch_handle;
 
 /* desegmentation of Nasdaq Soup */
-static gboolean nasdaq_soup_desegment = TRUE;
+static bool nasdaq_soup_desegment = true;
 
 /* Initialize the subtree pointers */
 static gint ett_nasdaq_soup;

@@ -562,7 +562,7 @@ static const guint rsocket_stream_id_field_size = 4;
 static guint32 lbmsrs_source_ip_address;
 static const char* global_lbmsrs_source_ip_address = LBMSRS_DEFAULT_SOURCE_IP;
 static guint32 global_lbmsrs_source_port = LBMSRS_DEFAULT_SOURCE_PORT;
-static gboolean global_lbmsrs_use_tag = FALSE;
+static bool global_lbmsrs_use_tag = false;
 static guint32 lbmsrs_source_port = LBMSRS_DEFAULT_SOURCE_PORT;
 static gboolean lbmsrs_use_tag = FALSE;
 

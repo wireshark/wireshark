@@ -1448,7 +1448,7 @@ static const value_string qnet6_kif_msgsend_msg_openfd_xtypes_vals[] = {
 /*
  * Perform LWL4 crc check
  */
-static gboolean qnet6_lwl4_check_crc = TRUE;
+static bool qnet6_lwl4_check_crc = true;
 
 /*
  * in sys/lsm/qnet/qos.h LR is using sockaddr as addr Family:1 means mac

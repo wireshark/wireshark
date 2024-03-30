@@ -2806,7 +2806,7 @@ static dissector_table_t        map_prop_err_opcode_table; /* proprietary operat
 static range_t *global_ssn_range;
 #define APPLICATON_CONTEXT_FROM_TRACE 0
 static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
-static gboolean pref_ericsson_proprietary_ext = FALSE;
+static bool pref_ericsson_proprietary_ext = false;
 
 /* Global variables */
 static guint32 opcode=0;

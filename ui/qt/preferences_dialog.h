@@ -52,7 +52,7 @@ private:
     AdvancedPrefsModel advancedPrefsModel_;
     AdvancedPrefDelegate advancedPrefsDelegate_;
     ModulePrefsModel modulePrefsModel_;
-    gboolean saved_capture_no_extcap_;
+    bool saved_capture_no_extcap_;
 
     QTimer *searchLineEditTimer;
     QString searchLineEditText;

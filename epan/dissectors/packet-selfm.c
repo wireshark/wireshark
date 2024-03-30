@@ -331,9 +331,9 @@ static dissector_handle_t selfm_handle;
 
 
 /* Globals for SEL Protocol Preferences */
-static gboolean selfm_desegment = TRUE;
-static gboolean selfm_telnet_clean = TRUE;
-static gboolean selfm_crc16 = FALSE;             /* Default CRC16 validation to false */
+static bool selfm_desegment = true;
+static bool selfm_telnet_clean = true;
+static bool selfm_crc16 = false;             /* Default CRC16 validation to false */
 static const char *selfm_ser_list = NULL;
 
 /***************************************************************************************/

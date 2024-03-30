@@ -524,8 +524,8 @@ static struct dmp_data {
 /* User definable values */
 static gint     dmp_nat_decode = NAT_DECODE_DMP;
 static gint     dmp_local_nation = 0;
-static gboolean use_seq_ack_analysis = TRUE;
-static gboolean dmp_align = FALSE;
+static bool use_seq_ack_analysis = true;
+static bool dmp_align = false;
 
 typedef struct _dmp_security_class_t {
   guint nation;

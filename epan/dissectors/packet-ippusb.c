@@ -75,7 +75,7 @@ static int hf_ippusb_reassembled_length;
 static int hf_ippusb_reassembled_data;
 
 /* Reassemble by default */
-static gboolean global_ippusb_reassemble = TRUE;
+static bool global_ippusb_reassemble = true;
 
 static const fragment_items ippusb_frag_items = {
     &ett_ippusb_fragment,

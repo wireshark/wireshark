@@ -57,7 +57,7 @@ static const value_string laplink_tcp_magic[] = {
 	{ 0, NULL }
 };
 
-static gboolean laplink_desegment = TRUE;
+static bool laplink_desegment = true;
 
 /* Code to actually dissect the packets - UDP */
 static gint

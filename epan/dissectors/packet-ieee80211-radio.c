@@ -102,9 +102,9 @@ static int wlan_radio_tap;
 static int wlan_radio_timeline_tap;
 
 /* Settings */
-static gboolean wlan_radio_always_short_preamble = FALSE;
-static gboolean wlan_radio_tsf_at_end = TRUE;
-static gboolean wlan_radio_timeline_enabled = FALSE;
+static bool wlan_radio_always_short_preamble = false;
+static bool wlan_radio_tsf_at_end = true;
+static bool wlan_radio_timeline_enabled = false;
 
 static const value_string phy_vals[] = {
     { PHDR_802_11_PHY_11_FHSS,       "802.11 FHSS" },

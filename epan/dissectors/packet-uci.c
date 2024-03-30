@@ -180,7 +180,7 @@ void proto_register_uci(void);
 #define UCI_APP_CONFIG_NB_OF_AZIMUTH_MEASUREMENTS 0xE4
 #define UCI_APP_CONFIG_NB_OF_ELEVATION_MEASUREMENTS 0xE5
 
-static gboolean gPREF_TCP_DESEGMENT = TRUE;
+static bool gPREF_TCP_DESEGMENT = true;
 static guint gPREF_TCP_PORT = 7000;
 
 static int proto_uci;

@@ -130,7 +130,7 @@ static const value_string kt_oper_vals[] = {
  * default configuration of the KT server all the same.
  */
 #define DEFAULT_KT_PORT_RANGE "1978-1979"
-static gboolean kt_present_key_val_as_ascii;
+static bool kt_present_key_val_as_ascii;
 
 /* Dissection routines */
 static int

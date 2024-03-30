@@ -235,10 +235,10 @@ static const fragment_items someip_tp_frag_items = {
     "SOME/IP-TP Segments"
 };
 
-static gboolean someip_tp_reassemble = TRUE;
-static gboolean someip_deserializer_activated = TRUE;
-static gboolean someip_deserializer_wtlv_default = FALSE;
-static gboolean someip_detect_dtls = FALSE;
+static bool someip_tp_reassemble = true;
+static bool someip_deserializer_activated = true;
+static bool someip_deserializer_wtlv_default = false;
+static bool someip_detect_dtls = false;
 
 /* SOME/IP Message Types */
 static const value_string someip_msg_type[] = {

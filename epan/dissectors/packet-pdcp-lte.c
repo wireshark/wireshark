@@ -426,10 +426,10 @@ void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_
 
 
 /* Preference settings for deciphering and integrity checking. */
-static gboolean global_pdcp_decipher_signalling = TRUE;
-static gboolean global_pdcp_decipher_userplane = FALSE;  /* Can be slow, so default to FALSE */
-static gboolean global_pdcp_check_integrity = TRUE;
-static gboolean global_pdcp_ignore_sec = FALSE;          /* Ignore Set Security Algo calls */
+static bool global_pdcp_decipher_signalling = true;
+static bool global_pdcp_decipher_userplane = false;  /* Can be slow, so default to FALSE */
+static bool global_pdcp_check_integrity = true;
+static bool global_pdcp_ignore_sec = false;          /* Ignore Set Security Algo calls */
 
 /* Use these values where we know the keys but may have missed the algorithm,
    e.g. when handing over and RRCReconfigurationRequest goes to target cell only */
@@ -542,10 +542,10 @@ static dissector_handle_t lte_rrc_dl_dcch_nb;
 #define SEQUENCE_ANALYSIS_PDCP_ONLY 2
 
 /* Preference variables */
-static gboolean global_pdcp_dissect_user_plane_as_ip = TRUE;
-static gboolean global_pdcp_dissect_signalling_plane_as_rrc = TRUE;
+static bool global_pdcp_dissect_user_plane_as_ip = true;
+static bool global_pdcp_dissect_signalling_plane_as_rrc = true;
 static gint     global_pdcp_check_sequence_numbers = TRUE;
-static gboolean global_pdcp_dissect_rohc = FALSE;
+static bool global_pdcp_dissect_rohc = false;
 
 /* Which layer info to show in the info column */
 enum layer_to_show {

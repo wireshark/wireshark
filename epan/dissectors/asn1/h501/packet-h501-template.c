@@ -42,7 +42,7 @@ static dissector_handle_t h501_tcp_handle;
 
 /* Preferences */
 #define H501_PORT 2099
-static gboolean h501_desegment_tcp = TRUE;
+static bool h501_desegment_tcp = true;
 
 void proto_reg_handoff_h501(void);
 

@@ -211,7 +211,7 @@ static int * const hfx_pcapng_option_data_packet_darwin_flags[] = {
     NULL
 };
 
-static gboolean pref_dissect_next_layer = FALSE;
+static bool pref_dissect_next_layer = false;
 
 static const value_string block_type_vals[] = {
     { BLOCK_TYPE_IDB,                       "Interface Description Block" },

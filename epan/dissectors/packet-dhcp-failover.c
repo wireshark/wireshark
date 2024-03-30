@@ -45,7 +45,7 @@ void proto_reg_handoff_dhcpfo(void);
 static dissector_handle_t dhcpfo_handle;
 
 /* desegmentation of DHCP failover over TCP */
-static gboolean dhcpfo_desegment = TRUE;
+static bool dhcpfo_desegment = true;
 
 /* enum preference to interpret Microsoft-formatted fields correctly */
 #define AUTODETECT_MS_DHCP	0

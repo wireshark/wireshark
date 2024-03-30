@@ -22,8 +22,8 @@
 #define EXEC_PORT 512
 
 /* Variables for our preferences */
-static gboolean preference_info_show_username = TRUE;
-static gboolean preference_info_show_command = FALSE;
+static bool preference_info_show_username = true;
+static bool preference_info_show_command = false;
 
 void proto_register_exec(void);
 void proto_reg_handoff_exec(void);

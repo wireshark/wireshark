@@ -187,8 +187,8 @@ static int proto_ltp;
 
 static int ltp_tap;
 
-static gboolean ltp_reassemble_block = TRUE;
-static gboolean ltp_analyze_sequence = TRUE;
+static bool ltp_reassemble_block = true;
+static bool ltp_analyze_sequence = true;
 
 /* LTP Header variables */
 static int hf_ltp_version;

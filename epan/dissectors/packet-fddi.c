@@ -48,7 +48,7 @@ static dissector_handle_t fddi_handle, fddi_bitswapped_handle;
 
 static capture_dissector_handle_t llc_cap_handle;
 
-static gboolean fddi_padding = FALSE;
+static bool fddi_padding = false;
 
 #define FDDI_PADDING            ((fddi_padding) ? 3 : 0)
 

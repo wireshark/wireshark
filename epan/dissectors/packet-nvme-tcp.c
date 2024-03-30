@@ -56,8 +56,8 @@ static dissector_handle_t nvmet_tls_handle;
 #define NVME_TCP_HEADER_SIZE 8
 #define PDU_LEN_OFFSET_FROM_HEADER 4
 static range_t *gPORT_RANGE;
-static gboolean nvme_tcp_check_hdgst = FALSE;
-static gboolean nvme_tcp_check_ddgst = FALSE;
+static bool nvme_tcp_check_hdgst = false;
+static bool nvme_tcp_check_ddgst = false;
 #define NVME_TCP_DATA_PDU_SIZE 24
 
 enum nvme_tcp_pdu_type {

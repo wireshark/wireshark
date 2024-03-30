@@ -232,14 +232,14 @@ void proto_reg_handoff_rtsp(void);
  * desegmentation of RTSP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean rtsp_desegment_headers = TRUE;
+static bool rtsp_desegment_headers = true;
 
 /*
  * desegmentation of RTSP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static gboolean rtsp_desegment_body = TRUE;
+static bool rtsp_desegment_body = true;
 
 /* http://www.iana.org/assignments/port-numbers lists two rtsp ports.
  * In Addition RTSP uses display port over Wi-Fi Display: 7236.

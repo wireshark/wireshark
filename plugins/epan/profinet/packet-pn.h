@@ -28,7 +28,7 @@ extern int       proto_pn_dcp;
 extern int proto_pn_io_apdu_status;
 extern int proto_pn_io_time_aware_status;
 
-extern gboolean  pnio_ps_selection;  /* given by pnio preferences */
+extern bool pnio_ps_selection;  /* given by pnio preferences */
 
 /* Structure for general station information */
 typedef struct tagStationInfo {

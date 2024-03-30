@@ -70,7 +70,7 @@ void proto_register_tns(void);
 #define OPI_OAUTH               3
 
 /* desegmentation of TNS over TCP */
-static gboolean tns_desegment = TRUE;
+static bool tns_desegment = true;
 
 static dissector_handle_t tns_handle;
 

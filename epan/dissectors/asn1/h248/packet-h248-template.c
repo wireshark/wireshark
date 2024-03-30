@@ -832,8 +832,8 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
 /* END Gateway Control Protocol -- Context Tracking */
 
 #define H248_PORT 2945
-static gboolean keep_persistent_data = FALSE;
-static gboolean h248_desegment = TRUE;
+static bool keep_persistent_data = false;
+static bool h248_desegment = true;
 
 
 

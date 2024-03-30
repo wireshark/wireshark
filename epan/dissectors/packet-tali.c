@@ -58,7 +58,7 @@ static gint ett_tali_msu_length;
 static dissector_table_t tali_dissector_table;
 
 /* Desegment TALI messages */
-static gboolean tali_desegment = TRUE;
+static bool tali_desegment = true;
 
 /* Code to actually dissect the packets */
 static guint

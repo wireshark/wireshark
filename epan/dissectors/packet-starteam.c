@@ -52,7 +52,7 @@ static gint ett_starteam_data;
 
 static dissector_handle_t starteam_tcp_handle;
 
-static gboolean starteam_desegment = TRUE;
+static bool starteam_desegment = true;
 
 #define STARTEAM_MAGIC    0x416C616E /* "Alan" */
 

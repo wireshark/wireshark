@@ -89,9 +89,9 @@ static const value_string gmhdr_plfm_str[] = {
 
 static dissector_handle_t ethertype_handle;
 
-static gboolean gmhdr_summary_in_tree = TRUE;
-static gboolean gmtrailer_summary_in_tree = TRUE;
-static gboolean gmhdr_decode_timestamp_trailer = TRUE;
+static bool gmhdr_summary_in_tree = true;
+static bool gmtrailer_summary_in_tree = true;
+static bool gmhdr_decode_timestamp_trailer = true;
 
 static int proto_gmhdr;
 static int proto_gmtrailer;

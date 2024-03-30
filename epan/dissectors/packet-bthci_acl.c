@@ -54,7 +54,7 @@ static expert_field ei_length_bad;
 static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t btl2cap_handle = NULL;
 
-static gboolean acl_reassembly = TRUE;
+static bool acl_reassembly = true;
 
 typedef struct _multi_fragment_pdu_t {
     guint32  first_frame;

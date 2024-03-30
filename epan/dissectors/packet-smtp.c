@@ -81,10 +81,10 @@ static gint ett_smtp_data_fragments;
 static expert_field ei_smtp_base64_decode;
 static expert_field ei_smtp_rsp_code;
 
-static gboolean    smtp_auth_parameter_decoding_enabled     = FALSE;
+static bool    smtp_auth_parameter_decoding_enabled     = false;
 /* desegmentation of SMTP command and response lines */
-static gboolean    smtp_desegment              = TRUE;
-static gboolean    smtp_data_desegment         = TRUE;
+static bool    smtp_desegment              = true;
+static bool    smtp_data_desegment         = true;
 
 static reassembly_table smtp_data_reassembly_table;
 

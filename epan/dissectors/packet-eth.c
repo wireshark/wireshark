@@ -50,16 +50,16 @@ static gint eth_padding = PADDING_ZEROS;
 static guint eth_trailer_length = 0;
 /* By default, try to autodetect FCS */
 static gint eth_fcs = -1;
-static gboolean eth_check_fcs = FALSE;
+static bool eth_check_fcs = false;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
-static gboolean eth_interpret_as_fw1_monitor = FALSE;
+static bool eth_interpret_as_fw1_monitor = false;
 /* When capturing on a Cisco FEX some frames start with an extra destination mac */
-static gboolean eth_deduplicate_dmac = FALSE;
+static bool eth_deduplicate_dmac = false;
 /* Preference settings defining conditions for which the CCSDS dissector is called */
-static gboolean ccsds_heuristic_length = FALSE;
-static gboolean ccsds_heuristic_version = FALSE;
-static gboolean ccsds_heuristic_header = FALSE;
-static gboolean ccsds_heuristic_bit = FALSE;
+static bool ccsds_heuristic_length = false;
+static bool ccsds_heuristic_version = false;
+static bool ccsds_heuristic_header = false;
+static bool ccsds_heuristic_bit = false;
 
 /* protocols and header fields */
 static int proto_eth;

@@ -109,7 +109,7 @@ static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint
 /* Global preferences variables (altered by the preferences dialog). */
 static guint32 global_lbmpdm_tcp_port_low   = LBMPDM_TCP_DEFAULT_PORT_LOW;
 static guint32 global_lbmpdm_tcp_port_high  = LBMPDM_TCP_DEFAULT_PORT_HIGH;
-static gboolean global_lbmpdm_tcp_use_tag   = FALSE;
+static bool global_lbmpdm_tcp_use_tag   = false;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbmpdm_tcp_port_low  = LBMPDM_TCP_DEFAULT_PORT_LOW;

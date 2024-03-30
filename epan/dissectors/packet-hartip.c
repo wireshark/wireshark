@@ -25,7 +25,7 @@ void proto_reg_handoff_hartip(void);
 static dissector_handle_t hartip_tcp_handle;
 static dissector_handle_t hartip_udp_handle;
 
-static gboolean hartip_desegment  = TRUE;
+static bool hartip_desegment  = true;
 
 static int proto_hartip;
 static int hf_hartip_hdr_version;

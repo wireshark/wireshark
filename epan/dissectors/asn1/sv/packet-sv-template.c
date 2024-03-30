@@ -107,7 +107,7 @@ static expert_field ei_sv_mal_utctime;
 static expert_field ei_sv_zero_pdu;
 static expert_field ei_sv_mal_gmidentity;
 
-static gboolean sv_decode_data_as_phsmeas = FALSE;
+static bool sv_decode_data_as_phsmeas = false;
 
 static dissector_handle_t sv_handle;
 

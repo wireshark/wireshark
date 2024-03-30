@@ -267,8 +267,8 @@ static expert_field ei_openwire_body_type_not_supported;
 
 static dissector_handle_t openwire_tcp_handle;
 
-static gboolean openwire_desegment = TRUE;
-static gboolean openwire_verbose_type = FALSE;
+static bool openwire_desegment = true;
+static bool openwire_verbose_type = false;
 
 #define OPENWIRE_PORT_TCP    61616
 

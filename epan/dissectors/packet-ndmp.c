@@ -354,10 +354,10 @@ struct ndmp_header {
 };
 
 /* desegmentation of NDMP packets */
-static gboolean ndmp_desegment = TRUE;
+static bool ndmp_desegment = true;
 
 /* defragmentation of fragmented NDMP records */
-static gboolean ndmp_defragment = TRUE;
+static bool ndmp_defragment = true;
 
 #define NDMP_MESSAGE_REQUEST	0x00
 #define NDMP_MESSAGE_REPLY	0x01

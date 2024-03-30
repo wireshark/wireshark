@@ -141,7 +141,7 @@ static int ett_netsync;
  * for monotone netsync
  */
 
-static gboolean netsync_desegment = TRUE;
+static bool netsync_desegment = true;
 
 static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {

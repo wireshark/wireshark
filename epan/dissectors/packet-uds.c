@@ -1105,7 +1105,7 @@ static const enum_val_t certificate_decoding_vals[] = {
 
 static gint uds_certificate_decoding_config = (gint)cert_parsing_off;
 
-static gboolean uds_dissect_small_sids_with_obd_ii = TRUE;
+static bool uds_dissect_small_sids_with_obd_ii = true;
 
 typedef struct _address_string {
     guint    address;

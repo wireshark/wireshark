@@ -310,10 +310,10 @@ static dissector_table_t dccp_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 /* preferences */
-static gboolean dccp_summary_in_tree = TRUE;
-static gboolean try_heuristic_first  = FALSE;
-static gboolean dccp_check_checksum  = TRUE;
-static gboolean dccp_relative_seq    = TRUE;
+static bool dccp_summary_in_tree = true;
+static bool try_heuristic_first  = false;
+static bool dccp_check_checksum  = true;
+static bool dccp_relative_seq    = true;
 static guint32  dccp_stream_count;
 
 static void

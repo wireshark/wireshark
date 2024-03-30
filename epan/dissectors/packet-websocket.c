@@ -54,7 +54,7 @@ static dissector_handle_t sip_handle;
 #define OPCODE_KEY (G_MAXUINT32 - 0)
 
 static gint  pref_text_type             = WEBSOCKET_NONE;
-static gboolean pref_decompress         = TRUE;
+static bool pref_decompress         = true;
 
 #define DEFAULT_MAX_UNMASKED_LEN        (1024 * 256)
 static guint pref_max_unmasked_len      = DEFAULT_MAX_UNMASKED_LEN;

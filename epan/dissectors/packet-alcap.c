@@ -403,7 +403,7 @@ static expert_field ei_alcap_response;
 
 static dissector_handle_t alcap_handle = NULL;
 
-static gboolean keep_persistent_info = TRUE;
+static bool keep_persistent_info = true;
 
 static wmem_tree_t* legs_by_dsaid = NULL;
 static wmem_tree_t* legs_by_osaid = NULL;

@@ -243,11 +243,11 @@ static dissector_handle_t fp_aal2_handle;
 static proto_tree *top_level_tree = NULL;
 
 /* Variables used for preferences */
-static gboolean preferences_call_mac_dissectors = TRUE;
-static gboolean preferences_show_release_info = TRUE;
-static gboolean preferences_payload_checksum = TRUE;
-static gboolean preferences_header_checksum = TRUE;
-static gboolean preferences_track_paging_indications = TRUE;
+static bool preferences_call_mac_dissectors = true;
+static bool preferences_show_release_info = true;
+static bool preferences_payload_checksum = true;
+static bool preferences_header_checksum = true;
+static bool preferences_track_paging_indications = true;
 
 /* E-DCH (T1) channel header information */
 struct edch_t1_subframe_info

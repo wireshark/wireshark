@@ -31,10 +31,10 @@
 #ifdef HAVE_LIBSMI
 #include <smi.h>
 
-static gboolean smi_init_done = FALSE;
-static gboolean oids_init_done = FALSE;
-static gboolean load_smi_modules = FALSE;
-static gboolean suppress_smi_errors = FALSE;
+static bool smi_init_done;
+static bool oids_init_done;
+static bool load_smi_modules;
+static bool suppress_smi_errors;
 #endif
 
 #define D(level,args) do if (debuglevel >= level) { printf args; printf("\n"); fflush(stdout); } while(0)

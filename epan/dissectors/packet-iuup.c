@@ -128,8 +128,8 @@ static wmem_map_t* circuits = NULL;
 
 static dissector_handle_t iuup_handle;
 
-static gboolean dissect_fields = FALSE;
-static gboolean two_byte_pseudoheader = FALSE;
+static bool dissect_fields = false;
+static bool two_byte_pseudoheader = false;
 
 #define PDUTYPE_DATA_WITH_CRC 0
 #define PDUTYPE_DATA_NO_CRC 1

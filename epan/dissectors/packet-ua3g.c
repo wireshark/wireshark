@@ -39,7 +39,7 @@ static gint ett_ua3g_option;
 static gint ett_ua3g_beep_beep_destination;
 static gint ett_ua3g_note;
 
-static gboolean setup_conversations_enabled = TRUE;
+static bool setup_conversations_enabled = true;
 
 static int  hf_ua3g_length;
 static int  hf_ua3g_opcode_sys;

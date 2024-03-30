@@ -74,7 +74,7 @@ static expert_field ei_wg_keepalive;
 static expert_field ei_wg_decryption_error;
 static expert_field ei_wg_decryption_unsupported;
 
-static gboolean     pref_dissect_packet = TRUE;
+static bool     pref_dissect_packet = true;
 static const char  *pref_keylog_file;
 
 static dissector_handle_t ip_handle;

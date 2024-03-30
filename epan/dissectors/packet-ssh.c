@@ -436,7 +436,7 @@ static expert_field ei_ssh_channel_number;
 static expert_field ei_ssh_invalid_keylen;
 static expert_field ei_ssh_mac_bad;
 
-static gboolean ssh_desegment = TRUE;
+static bool ssh_desegment = true;
 
 static dissector_handle_t ssh_handle;
 static dissector_handle_t sftp_handle=NULL;

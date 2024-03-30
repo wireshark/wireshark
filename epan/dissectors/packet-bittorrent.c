@@ -172,8 +172,8 @@ static gint ett_bittorrent;
 static gint ett_bittorrent_msg;
 static gint ett_peer_id;
 
-static gboolean bittorrent_desegment      = TRUE;
-static gboolean decode_client_information = FALSE;
+static bool bittorrent_desegment      = true;
+static bool decode_client_information = false;
 
 struct client_information {
    char        id[5];     /* string length must be <= 4 to allow space for NUL termination byte */

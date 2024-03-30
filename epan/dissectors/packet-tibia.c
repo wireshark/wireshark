@@ -114,12 +114,12 @@ static int dissect_tibia_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static dissector_handle_t tibia_handle;
 
 /* preferences */
-static gboolean try_otserv_key          = TRUE,
-                show_char_name          = TRUE,
-                show_acc_info           = TRUE,
-                show_xtea_key           = FALSE,
-                dissect_game_commands   = FALSE,
-                reassemble_tcp_segments = TRUE;
+static bool try_otserv_key          = true,
+                show_char_name          = true,
+                show_acc_info           = true,
+                show_xtea_key           = false,
+                dissect_game_commands   = false,
+                reassemble_tcp_segments = true;
 
 /* User Access Tables */
 #if HAVE_LIBGNUTLS

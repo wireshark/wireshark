@@ -121,9 +121,9 @@ static gint ett_h225;
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
-static gboolean h225_reassembly = TRUE;
-static gboolean h225_h245_in_tree = TRUE;
-static gboolean h225_tp_in_tree = TRUE;
+static bool h225_reassembly = true;
+static bool h225_h245_in_tree = true;
+static bool h225_tp_in_tree = true;
 
 /* Global variables */
 static guint32 ipv4_address;

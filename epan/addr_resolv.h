@@ -46,14 +46,14 @@ extern "C" {
  * @brief Flags to control name resolution.
  */
 typedef struct _e_addr_resolve {
-  gboolean mac_name;                          /**< Whether to resolve Ethernet MAC to manufacturer names */
-  gboolean network_name;                      /**< Whether to resolve IPv4, IPv6, and IPX addresses into host names */
-  gboolean transport_name;                    /**< Whether to resolve TCP/UDP/DCCP/SCTP ports into service names */
-  gboolean dns_pkt_addr_resolution;           /**< Whether to resolve addresses using captured DNS packets */
-  gboolean use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
-  gboolean vlan_name;                         /**< Whether to resolve VLAN IDs to names */
-  gboolean ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */
-  gboolean maxmind_geoip;                     /**< Whether to lookup geolocation information with mmdbresolve */
+  bool mac_name;                          /**< Whether to resolve Ethernet MAC to manufacturer names */
+  bool network_name;                      /**< Whether to resolve IPv4, IPv6, and IPX addresses into host names */
+  bool transport_name;                    /**< Whether to resolve TCP/UDP/DCCP/SCTP ports into service names */
+  bool dns_pkt_addr_resolution;           /**< Whether to resolve addresses using captured DNS packets */
+  bool use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
+  bool vlan_name;                         /**< Whether to resolve VLAN IDs to names */
+  bool ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */
+  bool maxmind_geoip;                     /**< Whether to lookup geolocation information with mmdbresolve */
 } e_addr_resolve;
 
 #define ADDR_RESOLV_MACADDR(at) \

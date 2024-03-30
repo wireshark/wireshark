@@ -175,10 +175,10 @@ static reassembly_table_functions udpcp_reassembly_table_functions =
 /**************************************************************************/
 
 /* Reassemble by default */
-static gboolean global_udpcp_reassemble = TRUE;
+static bool global_udpcp_reassemble = true;
 
 /* By default do try to decode payload as XML/SOAP */
-static gboolean global_udpcp_decode_payload_as_soap = TRUE;
+static bool global_udpcp_decode_payload_as_soap = true;
 
 
 static dissector_handle_t xml_handle;

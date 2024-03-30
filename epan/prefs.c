@@ -215,7 +215,7 @@ struct preference {
                                           Flags must be non-zero to ensure saving to disk */
     union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
         guint *uint;
-        gboolean *boolp;
+        bool *boolp;
         gint *enump;
         char **string;
         range_t **range;
@@ -1216,7 +1216,7 @@ prefs_register_uint_custom_preference(module_t *module, const char *name,
 void
 prefs_register_bool_preference(module_t *module, const char *name,
                                const char *title, const char *description,
-                               gboolean *var)
+                               bool *var)
 {
     pref_t *preference;
 

@@ -40,7 +40,7 @@
 #define BMI_HEADER_SIZE 24
 
 /* desegmentation of PVFS over TCP */
-static gboolean pvfs_desegment = TRUE;
+static bool pvfs_desegment = true;
 
 /* Forward declaration we need below */
 void proto_register_pvfs(void);

@@ -539,7 +539,7 @@ static gint ett_aim_userlookup;
 static expert_field ei_aim_messageblock_len;
 
 /* desegmentation of AIM over TCP */
-static gboolean aim_desegment = TRUE;
+static bool aim_desegment = true;
 
 static dissector_handle_t aim_handle;
 

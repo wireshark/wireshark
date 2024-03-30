@@ -338,7 +338,7 @@ static expert_field ei_ldp_malformed_interface_parameter;
 static expert_field ei_ldp_tlv_fec;
 
 /* desegmentation of LDP over TCP */
-static gboolean ldp_desegment = TRUE;
+static bool ldp_desegment = true;
 
 /*
  * The following define all the TLV types I know about

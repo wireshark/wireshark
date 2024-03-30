@@ -574,9 +574,9 @@ static lowpan_context_data  lowpan_context_default;
 static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_MAX];
 
 /* Preferences */
-static gboolean rfc4944_short_address_format = FALSE;
-static gboolean iid_has_universal_local_bit = FALSE;
-static gboolean ipv6_summary_in_tree = TRUE;
+static bool rfc4944_short_address_format = false;
+static bool iid_has_universal_local_bit = false;
+static bool ipv6_summary_in_tree = true;
 
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))

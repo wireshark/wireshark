@@ -46,7 +46,7 @@ static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;
 static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
 static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
 
-static gboolean show_deprecated = FALSE;
+static bool show_deprecated = false;
 
 static const value_string transaction_type_vals[] = {
     { 0x00,   "HANDSHAKE" },

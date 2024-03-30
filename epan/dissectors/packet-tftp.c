@@ -208,7 +208,7 @@ static const value_string tftp_error_code_vals[] = {
 static int tftp_eo_tap;
 
 /* Preference setting - defragment fragmented TFTP files */
-static gboolean tftp_defragment = FALSE;
+static bool tftp_defragment = false;
 
 /* Used for TFTP Export Object feature */
 typedef struct _tftp_eo_t {

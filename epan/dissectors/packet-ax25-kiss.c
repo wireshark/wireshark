@@ -122,7 +122,7 @@
 #define KISS_PORT_MASK          0xf0
 
 /* Global preferences */
-static gboolean gPREF_CKSUM_MODE = FALSE;
+static bool gPREF_CKSUM_MODE = false;
 
 void proto_register_ax25_kiss(void);
 void proto_reg_handoff_ax25_kiss(void);

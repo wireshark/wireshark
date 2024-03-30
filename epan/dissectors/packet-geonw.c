@@ -455,7 +455,7 @@ static int geonw_name_resolution_len(void);
 static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * tree);
 static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tree);
 
-static gboolean geonw_analyze_seq           = TRUE;
+static bool geonw_analyze_seq           = true;
 
 /*
  * GeoNetworking Address Type

@@ -142,7 +142,7 @@ static gint ett_lg8979_point;
 static gint ett_lg8979_ts;
 
 /* Globals for L&G 8979 Protocol Preferences */
-static gboolean lg8979_desegment = TRUE;
+static bool lg8979_desegment = true;
 
 #define LG8979_HEADER             0xFF
 

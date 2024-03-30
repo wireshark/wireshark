@@ -135,7 +135,7 @@ static struct ncp_common_header    *ncp_hdr;
 dissector_handle_t nds_data_handle;
 
 /* desegmentation of NCP over TCP */
-static gboolean ncp_desegment = TRUE;
+static bool ncp_desegment = true;
 
 #define TCP_PORT_NCP            524
 #define UDP_PORT_NCP            524

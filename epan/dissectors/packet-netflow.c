@@ -176,9 +176,9 @@ static range_t *global_netflow_ports = NULL;
  */
 static range_t *global_ipfix_ports = NULL;
 
-static gboolean netflow_preference_desegment = TRUE;
+static bool netflow_preference_desegment = true;
 
-static gboolean netflow_preference_tcpflags_1byte_cwr = FALSE;
+static bool netflow_preference_tcpflags_1byte_cwr = false;
 
 /*
  * Flowset (template) ID's

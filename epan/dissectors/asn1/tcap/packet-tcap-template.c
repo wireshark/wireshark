@@ -80,7 +80,7 @@ static range_t *ssn_range;
    or when the same TCAP transcation identifier is reused */
 static guint gtcap_RepetitionTimeout = 10;
 static guint gtcap_LostTimeout = 30;
-gboolean gtcap_PersistentSRT=FALSE;
+bool gtcap_PersistentSRT=false;
 gboolean gtcap_DisplaySRT=FALSE;
 gboolean gtcap_StatSRT=FALSE;
 

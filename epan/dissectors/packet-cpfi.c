@@ -48,7 +48,7 @@ void proto_reg_handoff_cpfi(void);
 
 /* configurable parameters */
 static guint gbl_cpfi_ttot_udp_port = CPFI_DEFAULT_TTOT_UDP_PORT;
-static gboolean cpfi_arrow_moves    = TRUE;
+static bool cpfi_arrow_moves    = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_cpfi;

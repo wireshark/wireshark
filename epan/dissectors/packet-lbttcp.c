@@ -266,7 +266,7 @@ static guint32 global_lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
 static guint32 global_lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
 static guint32 global_lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
 static guint32 global_lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
-static gboolean global_lbttcp_use_tag = FALSE;
+static bool global_lbttcp_use_tag = false;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbttcp_source_port_low = LBTTCP_DEFAULT_SOURCE_PORT_LOW;

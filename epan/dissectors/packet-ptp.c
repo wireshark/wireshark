@@ -1945,7 +1945,7 @@ static expert_field ei_ptp_v2_period_invalid;
  */
 
 /* Config for Analysis features */
-static gboolean ptp_analyze_messages = TRUE;
+static bool ptp_analyze_messages = true;
 
 /* Definitions for Analysis features */
 #define PTP_ANALYSIS_MAX_ALLOWED_DELTA_SECS 60

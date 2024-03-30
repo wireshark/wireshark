@@ -220,7 +220,7 @@ static range_t *global_saprouter_port_range;
 
 
 /* Global SNC dissection preference */
-static gboolean global_saprouter_snc_dissection = TRUE;
+static bool global_saprouter_snc_dissection = true;
 
 /* Protocol handle */
 static dissector_handle_t saprouter_handle;

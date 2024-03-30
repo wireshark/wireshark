@@ -25,8 +25,8 @@ static int proto_sametime;
 static dissector_handle_t sametime_handle;
 
 /*preferences*/
-static gboolean global_sametime_show_length = FALSE;
-static gboolean global_sametime_reassemble_packets = TRUE;
+static bool global_sametime_show_length = false;
+static bool global_sametime_reassemble_packets = true;
 
 /*heart beat*/
 static int hf_sametime_heartbeat;

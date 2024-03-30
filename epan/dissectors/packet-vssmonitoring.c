@@ -45,8 +45,8 @@ static int hf_vssmonitoring_srcport;
 
 static gint ett_vssmonitoring;
 
-static gboolean vss_dissect_portstamping_only = FALSE;
-static gboolean vss_two_byte_portstamps = FALSE;
+static bool vss_dissect_portstamping_only = false;
+static bool vss_two_byte_portstamps = false;
 
 static int
 dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

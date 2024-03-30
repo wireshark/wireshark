@@ -26,7 +26,7 @@ void proto_register_flexray(void);
 
 static dissector_handle_t flexray_handle;
 
-static gboolean prefvar_try_heuristic_first = FALSE;
+static bool prefvar_try_heuristic_first = false;
 
 static dissector_table_t subdissector_table;
 static dissector_table_t flexrayid_subdissector_table;

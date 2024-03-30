@@ -105,14 +105,14 @@ static const fragment_items sm_frag_items = {
 };
 
 /* Dissect all SM data as WSP if the UDH contains a Port Number IE */
-static gboolean port_number_udh_means_wsp = FALSE;
+static bool port_number_udh_means_wsp = false;
 
 /* Always try dissecting the 1st fragment of a SM,
  * even if it is not reassembled */
-static gboolean try_dissect_1st_frag = FALSE;
+static bool try_dissect_1st_frag = false;
 
 /* Prevent subdissectors changing column data */
-static gboolean prevent_subdissectors_changing_columns = FALSE;
+static bool prevent_subdissectors_changing_columns = false;
 
 static dissector_handle_t wsp_handle;
 

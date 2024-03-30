@@ -79,7 +79,7 @@ static gint ett_nlm_lock;
  * stuff to match MSG and RES packets for async NLM
  */
 
-static gboolean nlm_match_msgres = FALSE;
+static bool nlm_match_msgres = false;
 static wmem_map_t *nlm_msg_res_unmatched = NULL;
 static wmem_map_t *nlm_msg_res_matched = NULL;
 

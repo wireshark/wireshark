@@ -77,7 +77,7 @@ static dissector_handle_t tls_handle;
 #define TCP_PORT_SSL_POP        995
 
 /* desegmentation of POP command and response lines */
-static gboolean pop_data_desegment = TRUE;
+static bool pop_data_desegment = true;
 
 static reassembly_table pop_data_reassembly_table;
 

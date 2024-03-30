@@ -27,7 +27,7 @@ void proto_reg_handoff_vlan(void);
 
 static unsigned int q_in_q_ethertype = ETHERTYPE_QINQ_OLD;
 
-static gboolean vlan_summary_in_tree = TRUE;
+static bool vlan_summary_in_tree = true;
 
 enum version_value {
   IEEE_8021Q_1998,

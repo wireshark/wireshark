@@ -132,7 +132,7 @@ static guint flexray_segment_size_limit = 0;
 static guint window = 8;
 static range_t *configured_can_ids= NULL;
 static range_t *configured_ext_can_ids = NULL;
-static gboolean register_lin_diag_frames = TRUE;
+static bool register_lin_diag_frames = true;
 static range_t *configured_ipdum_pdu_ids = NULL;
 static gint ipdum_addressing = ZERO_BYTE_ADDRESSING;
 

@@ -2073,7 +2073,7 @@ enum {
 };
 
 /* Global variables */
-static gboolean g_s1ap_dissect_container = TRUE;
+static bool g_s1ap_dissect_container = true;
 static gint g_s1ap_dissect_lte_container_as = S1AP_LTE_CONTAINER_AUTOMATIC;
 
 static dissector_handle_t s1ap_handle;

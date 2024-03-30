@@ -185,13 +185,13 @@ typedef enum {
 } ieee802154_sun_type_t;
 
 /* boolean value set if the FCS must be ok before payload is dissected */
-static gboolean ieee802154_fcs_ok = TRUE;
+static bool ieee802154_fcs_ok = true;
 
 /* boolean value set to enable ack tracking */
-static gboolean ieee802154_ack_tracking = FALSE;
+static bool ieee802154_ack_tracking = false;
 
 /* boolean value set to enable 802.15.4e dissection compatibility */
-static gboolean ieee802154e_compatibility = FALSE;
+static bool ieee802154e_compatibility = false;
 
 /* TSCH ASN for nonce in decryption */
 static guint64 ieee802154_tsch_asn = 0;
@@ -1448,7 +1448,7 @@ static const value_string ieee802154_phr_wisun_phymodeid[] = {
 
 /* Preferences for 2003 security */
 static gint ieee802154_sec_suite = SECURITY_LEVEL_ENC_MIC_64;
-static gboolean ieee802154_extend_auth = TRUE;
+static bool ieee802154_extend_auth = true;
 
 /* Macro to check addressing, and throw a warning flag if incorrect. */
 #define IEEE802154_CMD_ADDR_CHECK(_pinfo_, _item_, _cmdid_, _x_)     \

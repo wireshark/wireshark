@@ -1024,9 +1024,9 @@ static int
 dissect_thread_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /* Preferences */
-static gboolean thread_use_pan_id_in_key = FALSE;
+static bool thread_use_pan_id_in_key = false;
 static const gchar *thread_seq_ctr_str = NULL;
-static gboolean thread_auto_acq_seq_ctr = TRUE;
+static bool thread_auto_acq_seq_ctr = true;
 
 
 static gboolean thread_seq_ctr_acqd = FALSE;

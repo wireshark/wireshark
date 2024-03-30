@@ -81,9 +81,9 @@ static int proto_tcpcl_exts;
 static const char *const proto_name_tcpcl = "TCPCL";
 
 static gint tcpcl_chdr_missing = CHDRMSN_V4FIRST;
-static gboolean tcpcl_desegment_transfer = TRUE;
-static gboolean tcpcl_analyze_sequence = TRUE;
-static gboolean tcpcl_decode_bundle = TRUE;
+static bool tcpcl_desegment_transfer = true;
+static bool tcpcl_analyze_sequence = true;
+static bool tcpcl_decode_bundle = true;
 
 /* For Reassembling TCP Convergence Layer segments */
 static reassembly_table xfer_reassembly_table;

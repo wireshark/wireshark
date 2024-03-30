@@ -17,7 +17,7 @@
 #include <epan/proto.h>
 #include <epan/wmem_scopes.h>
 
-WS_DLL_PUBLIC gboolean sid_name_snooping;
+WS_DLL_PUBLIC bool sid_name_snooping;
 
 /* SMB command codes, from the SNIA CIFS spec. With MSVC and a
  * libwireshark.dll, we need a special declaration.
@@ -326,7 +326,7 @@ extern smb_fid_info_t *dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_
 extern int dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, gboolean setstate);
 
-extern gboolean smb_dcerpc_reassembly;
+extern bool smb_dcerpc_reassembly;
 
 extern const value_string create_disposition_vals[];
 
@@ -339,7 +339,7 @@ extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int o
 extern const value_string oa_open_vals[];
 extern const value_string impersonation_level_vals[];
 
-extern gboolean sid_display_hex;
+extern bool sid_display_hex;
 
 extern int dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 

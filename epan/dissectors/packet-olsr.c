@@ -139,8 +139,8 @@ static const value_string nameservice_type_vals[] = {
     { 0, NULL }
 };
 
-static gboolean global_olsr_olsrorg = TRUE;
-static gboolean global_olsr_nrlolsr = TRUE;
+static bool global_olsr_olsrorg = true;
+static bool global_olsr_nrlolsr = true;
 
 static double getOlsrTime(guint8 timeval) {
   int high_bits, low_bits;

@@ -430,7 +430,7 @@ static value_string_ext packet_type_mapping_ext = VALUE_STRING_EXT_INIT(packet_t
 /* Initialize the protocol and registered fields */
 static int proto_adwin;
 
-static int global_adwin_dissect_data  = 1;
+static bool global_adwin_dissect_data = true;
 
 static int hf_adwin_address;
 static int hf_adwin_armVersion;

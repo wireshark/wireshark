@@ -65,7 +65,7 @@ static dissector_handle_t wlan_handle;
 static dissector_handle_t wlan_bsfc_handle;
 
 /* Set by preferences */
-static gboolean swap_frame_control;
+static bool swap_frame_control;
 
 typedef struct {
     guint8  flags;

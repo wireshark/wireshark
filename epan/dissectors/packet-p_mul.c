@@ -200,10 +200,10 @@ typedef struct _p_mul_ack_data {
 static wmem_map_t *p_mul_id_hash_table = NULL;
 
 /* User definable values to use for dissection */
-static gboolean p_mul_reassemble = TRUE;
+static bool p_mul_reassemble = true;
 static gint decode_option = DECODE_NONE;
-static gboolean use_relative_msgid = TRUE;
-static gboolean use_seq_ack_analysis = TRUE;
+static bool use_relative_msgid = true;
+static bool use_seq_ack_analysis = true;
 
 static reassembly_table p_mul_reassembly_table;
 

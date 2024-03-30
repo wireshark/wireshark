@@ -203,10 +203,10 @@
 #define NL4_URL     2
 #define NL4_NETADDR 3
 
-extern gboolean nfs_file_name_snooping;
+extern bool nfs_file_name_snooping;
 extern void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len,
 	                                int parent_offset, int parent_len, const char *name);
-extern gboolean nfs_fhandle_reqrep_matching;
+extern bool nfs_fhandle_reqrep_matching;
 extern int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
                            const char *name, guint32 *hash, rpc_call_info_value *civ);
 extern void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame);

@@ -89,22 +89,22 @@ static expert_field ei_udp_length_bad_zero;
 /* Preferences */
 
 /* Place UDP summary in proto tree */
-static gboolean udp_summary_in_tree = TRUE;
+static bool udp_summary_in_tree = true;
 
 /* Check UDP checksums */
-static gboolean udp_check_checksum = FALSE;
+static bool udp_check_checksum = false;
 
 /* Ignore zero-value UDP checksums over IPv6 */
-static gboolean udp_ignore_ipv6_zero_checksum = FALSE;
+static bool udp_ignore_ipv6_zero_checksum = false;
 
 /* Collect IPFIX process flow information */
-static gboolean udp_process_info = FALSE;
+static bool udp_process_info = false;
 
 /* Ignore an invalid checksum coverage field for UDP-Lite */
-static gboolean udplite_ignore_checksum_coverage = TRUE;
+static bool udplite_ignore_checksum_coverage = true;
 
 /* Check UDP-Lite checksums */
-static gboolean udplite_check_checksum = FALSE;
+static bool udplite_check_checksum = false;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -114,10 +114,10 @@ static guint32 udp_stream_count;
 /* separated into a stand alone routine so other protocol dissectors */
 /* can call to it, ie. socks */
 
-static gboolean try_heuristic_first = FALSE;
+static bool try_heuristic_first = false;
 
-static gboolean udp_calculate_ts = TRUE;
-static gboolean udplite_calculate_ts = TRUE;
+static bool udp_calculate_ts = true;
+static bool udplite_calculate_ts = true;
 
 /* Per-packet-info for UDP */
 typedef struct {

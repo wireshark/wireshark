@@ -34,7 +34,7 @@ static module_t *iua_module;
 static dissector_table_t lapd_gsm_sapi_dissector_table;
 
 /* Whether to use GSM SAPI vals or not */
-static gboolean global_iua_gsm_sapis = TRUE;
+static bool global_iua_gsm_sapis = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_iua;
@@ -81,7 +81,7 @@ static guint8 sapi_val;
 static gboolean sapi_val_assigned   = FALSE;
 
 /* option setable via preferences, default is plain RFC 3057 */
-static gboolean support_IG          = FALSE;
+static bool support_IG          = false;
 
 static dissector_handle_t q931_handle;
 static dissector_handle_t x25_handle;

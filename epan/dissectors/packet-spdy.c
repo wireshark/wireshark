@@ -233,17 +233,17 @@ static dissector_handle_t spdy_handle;
 static dissector_table_t media_type_subdissector_table;
 static dissector_table_t port_subdissector_table;
 
-static gboolean spdy_assemble_entity_bodies = TRUE;
+static bool spdy_assemble_entity_bodies = true;
 
 /*
  * Decompression of zlib encoded entities.
  */
 #ifdef HAVE_ZLIB
-static gboolean spdy_decompress_body = TRUE;
-static gboolean spdy_decompress_headers = TRUE;
+static bool spdy_decompress_body = true;
+static bool spdy_decompress_headers = true;
 #else
-static gboolean spdy_decompress_body = FALSE;
-static gboolean spdy_decompress_headers = FALSE;
+static bool spdy_decompress_body = false;
+static bool spdy_decompress_headers = false;
 #endif
 
 #ifdef HAVE_ZLIB

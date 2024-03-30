@@ -60,8 +60,8 @@
 void proto_register_dhcpv6(void);
 void proto_reg_handoff_dhcpv6(void);
 
-static gboolean dhcpv6_bulk_leasequery_desegment  = TRUE;
-static gboolean cablelabs_interface_id = FALSE;
+static bool dhcpv6_bulk_leasequery_desegment  = true;
+static bool cablelabs_interface_id = false;
 
 static int proto_dhcpv6;
 static int proto_dhcpv6_bulk_leasequery;

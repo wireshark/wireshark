@@ -56,7 +56,7 @@ GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_info_tree = NULL;
 wmem_tree_t* rrc_global_urnti_crnti_map = NULL;
 static int msg_type _U_;
-static gboolean rrc_nas_in_root_tree;
+static bool rrc_nas_in_root_tree;
 
 enum rrc_sib_segment_type {
   RRC_SIB_SEG_NO_SEGMENT = 0,

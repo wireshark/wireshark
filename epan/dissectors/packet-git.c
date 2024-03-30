@@ -73,7 +73,7 @@ static const value_string sideband_vals[] = {
 };
 
 /* desegmentation of Git over TCP */
-static gboolean git_desegment = TRUE;
+static bool git_desegment = true;
 
 static gboolean get_packet_length(tvbuff_t *tvb, int offset,
                                   guint16 *length)

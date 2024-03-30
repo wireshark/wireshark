@@ -22,7 +22,7 @@
 void proto_reg_handoff_yami(void);
 void proto_register_yami(void);
 
-static gboolean yami_desegment = TRUE;
+static bool yami_desegment = true;
 
 static dissector_handle_t yami_handle;
 

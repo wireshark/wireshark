@@ -71,11 +71,11 @@ static expert_field ei_hl7_malformed;
 
 /* FF: global_hl7_raw determines whether we are going to display
  * the raw text of the HL7 message (like SIP and MEGACO dissectors) */
-static gboolean global_hl7_raw = FALSE;
+static bool global_hl7_raw = false;
 
 /* FF: global_hl7_llp determines whether we are going to display
  * the LLP block markers */
-static gboolean global_hl7_llp = FALSE;
+static bool global_hl7_llp = false;
 
 /* as per Health Level Seven, Version 2.6, appendix A */
 static const string_string hl7_msg_type_vals[] = {

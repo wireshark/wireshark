@@ -93,8 +93,8 @@ typedef struct _udf_one_id_string {
 /*** Hash Tables for lookup data ***/
 static GHashTable *ht_diag_addr = NULL;
 
-static gboolean hsfz_check_header = FALSE;
-static gboolean hsfz_show_uds_in_ack = FALSE;
+static bool hsfz_check_header = false;
+static bool hsfz_show_uds_in_ack = false;
 
 static udf_one_id_string_t *udf_diag_addr = NULL;
 static guint udf_diag_addr_num = 0;

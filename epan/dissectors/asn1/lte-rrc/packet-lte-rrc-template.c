@@ -65,7 +65,7 @@ static wmem_map_t *lte_rrc_system_info_value_changed_hash = NULL;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
 
-static gboolean lte_rrc_nas_in_root_tree;
+static bool lte_rrc_nas_in_root_tree;
 
 extern int proto_mac_lte;
 extern int proto_rlc_lte;

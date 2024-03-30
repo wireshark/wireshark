@@ -33,8 +33,8 @@ static int hf_discard_text;
 static int hf_discard_md5_hash;
 static int hf_discard_len;
 
-static gboolean show_as_text = FALSE;
-static gboolean generate_md5_hash = FALSE;
+static bool show_as_text = false;
+static bool generate_md5_hash = false;
 
 static gint ett_discard;
 

@@ -141,7 +141,7 @@ typedef struct _fc_conv_data_t {
 } fc_conv_data_t;
 
 /* Reassembly stuff */
-static gboolean fc_reassemble = TRUE;
+static bool fc_reassemble = true;
 static guint32  fc_max_frame_size = 1024;
 static reassembly_table fc_reassembly_table;
 

@@ -269,13 +269,13 @@ void proto_reg_handoff_dcm(void);
 #define WIRESHARK_MEDIA_STORAGE_SOP_INSTANCE_UID_PREFIX "1.2.826.0.1.3680043.8.427.11.2"
 #define WIRESHARK_IMPLEMENTATION_VERSION                "WIRESHARK"
 
-static gboolean global_dcm_export_header = TRUE;
+static bool global_dcm_export_header = true;
 static guint    global_dcm_export_minsize = 4096;           /* Filter small objects in export */
 
-static gboolean global_dcm_seq_subtree = TRUE;
-static gboolean global_dcm_tag_subtree = FALSE;             /* Only useful for debugging */
-static gboolean global_dcm_cmd_details = TRUE;              /* Show details in header and info column */
-static gboolean global_dcm_reassemble = TRUE;               /* Merge fragmented PDVs */
+static bool global_dcm_seq_subtree = true;
+static bool global_dcm_tag_subtree = false;             /* Only useful for debugging */
+static bool global_dcm_cmd_details = true;              /* Show details in header and info column */
+static bool global_dcm_reassemble = true;               /* Merge fragmented PDVs */
 
 static wmem_map_t *dcm_tag_table = NULL;
 static wmem_map_t *dcm_uid_table = NULL;

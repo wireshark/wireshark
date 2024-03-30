@@ -269,7 +269,7 @@ void proto_reg_handoff_gsup(void);
 static int proto_gsup;
 
 /* show GSUP source/destination names as text (true) or only binary (false) */
-static gboolean show_name_as_text = TRUE;
+static bool show_name_as_text = true;
 
 static int hf_gsup_msg_type;
 static int hf_gsup_iei;

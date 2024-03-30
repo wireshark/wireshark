@@ -130,7 +130,7 @@ static gint ett_nbss;
 static gint ett_nbss_flags;
 
 /* desegmentation of NBSS over TCP */
-static gboolean nbss_desegment = TRUE;
+static bool nbss_desegment = true;
 
 /* See RFC 1001 and 1002 for information on the first three, and see
 

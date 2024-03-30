@@ -766,7 +766,7 @@ static expert_field ei_scsi_unknown_serv_action;
 static int scsi_tap;
 
 /* Defragment of SCSI DATA IN/OUT */
-static gboolean scsi_defragment = FALSE;
+static bool scsi_defragment = false;
 
 static reassembly_table scsi_reassembly_table;
 

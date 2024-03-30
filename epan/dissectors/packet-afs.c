@@ -32,7 +32,7 @@
 void proto_register_afs(void);
 
 /* Defragment (reassemble) fragmented AFS traffic */
-static gboolean afs_defragment = FALSE;
+static bool afs_defragment = false;
 
 #define AFS_PORT_FS     7000
 #define AFS_PORT_CB     7001

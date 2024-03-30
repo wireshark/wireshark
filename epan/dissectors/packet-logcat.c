@@ -46,7 +46,7 @@ static gint exported_pdu_tap = -1;
 
 static expert_field ei_invalid_payload_length;
 
-static gboolean  pref_one_line_info_column = TRUE;
+static bool  pref_one_line_info_column = true;
 
 const value_string priority_vals[] = {
     { 0x00,  "Unknown" },

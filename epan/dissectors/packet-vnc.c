@@ -896,7 +896,7 @@ static int hf_vnc_h264_data;
 
 /********** End of Server Message Types **********/
 
-static gboolean vnc_preference_desegment = TRUE;
+static bool vnc_preference_desegment = true;
 
 /* Initialize the subtree pointers */
 static gint ett_vnc;

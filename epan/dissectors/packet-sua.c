@@ -548,7 +548,7 @@ typedef enum {
 } Version_Type;
 
 static gint version = SUA_RFC;
-static gboolean set_addresses = FALSE;
+static bool set_addresses = false;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);

@@ -1588,19 +1588,19 @@ static const value_string ul_retx_grant_vals[] =
 static gint global_mac_lte_retx_counter_trigger = 3;
 
 /* By default try to decode transparent data (BCH, PCH and CCCH) data using LTE RRC dissector */
-static gboolean global_mac_lte_attempt_rrc_decode = TRUE;
+static bool global_mac_lte_attempt_rrc_decode = true;
 
 /* Whether should attempt to dissect frames failing CRC check */
-static gboolean global_mac_lte_dissect_crc_failures = FALSE;
+static bool global_mac_lte_dissect_crc_failures = false;
 
 /* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
-static gboolean global_mac_lte_attempt_srb_decode = TRUE;
+static bool global_mac_lte_attempt_srb_decode = true;
 
 /* Whether should attempt to decode MCH LCID 0 as MCCH */
-static gboolean global_mac_lte_attempt_mcch_decode = FALSE;
+static bool global_mac_lte_attempt_mcch_decode = false;
 
 /* Whether should call RLC dissector to decode MTCH LCIDs */
-static gboolean global_mac_lte_call_rlc_for_mtch = FALSE;
+static bool global_mac_lte_call_rlc_for_mtch = false;
 
 /* Where to take LCID -> DRB mappings from */
 enum lcid_drb_source {
@@ -1612,7 +1612,7 @@ static gint global_mac_lte_lcid_drb_source = (gint)FromStaticTable;
 static gint global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
 
 /* Whether or not to track SRs and related frames */
-static gboolean global_mac_lte_track_sr = TRUE;
+static bool global_mac_lte_track_sr = true;
 
 /* Which layer info to show in the info column */
 enum layer_to_show {
@@ -1623,13 +1623,13 @@ enum layer_to_show {
 static gint     global_mac_lte_layer_to_show = (gint)ShowRLCLayer;
 
 /* Whether to decode Contention Resolution body as UL CCCH */
-static gboolean global_mac_lte_decode_cr_body = FALSE;
+static bool global_mac_lte_decode_cr_body = false;
 
 /* Whether to record config and try to show DRX state for each configured UE */
-static gboolean global_mac_lte_show_drx = FALSE;
+static bool global_mac_lte_show_drx = false;
 
 /* Whether to record config and try to show DRX state for each configured UE */
-static gboolean global_mac_lte_show_BSR_median = FALSE;
+static bool global_mac_lte_show_BSR_median = false;
 
 
 /* When showing RLC info, count PDUs so can append info column properly */

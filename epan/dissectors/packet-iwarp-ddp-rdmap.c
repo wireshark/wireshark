@@ -320,7 +320,7 @@ static const value_string rdma_atomic_opcode_names[] = {
 
 static heur_dissector_list_t rdmap_heur_subdissector_list;
 
-static gboolean iwarp_rdma_send_reassemble = TRUE;
+static bool iwarp_rdma_send_reassemble = true;
 static reassembly_table iwarp_rdma_send_reassembly_table;
 
 static void

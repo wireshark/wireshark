@@ -64,7 +64,7 @@ static expert_field ei_btbnep_len_past_end;
 
 static dissector_handle_t btbnep_handle;
 
-static gboolean top_dissect                                              = TRUE;
+static bool top_dissect                                              = true;
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;

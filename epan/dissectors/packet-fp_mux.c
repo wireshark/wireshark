@@ -49,9 +49,9 @@ static expert_field ei_fpm_bad_length;
 
 /* Preferences */
 /* Place UID in proto tree */
-static gboolean fp_mux_uid_in_tree = TRUE;
+static bool fp_mux_uid_in_tree = true;
 /* Call heuristic FP dissectors on payload */
-static gboolean call_fp_heur = TRUE;
+static bool call_fp_heur = true;
 
 /* Enum Values */
 static const true_false_string fpmux_extension_flag_vals = {

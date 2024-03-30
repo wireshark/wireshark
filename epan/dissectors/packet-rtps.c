@@ -255,12 +255,12 @@ static wmem_map_t * mutable_member_mappings = NULL;
 static guint rtps_max_batch_samples_dissected = 16;
 static guint rtps_max_data_type_elements = DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE;
 static guint rtps_max_array_data_type_elements = DISSECTION_INFO_ARRAY_MAX_ELEMENTS_DEFAULT_VALUE;
-static gboolean enable_topic_info = TRUE;
-static gboolean enable_rtps_reassembly = FALSE;
-static gboolean enable_user_data_dissection = FALSE;
-static gboolean enable_max_array_data_type_elements = TRUE;
-static gboolean enable_max_data_type_elements = TRUE;
-static gboolean enable_rtps_crc_check = FALSE;
+static bool enable_topic_info = true;
+static bool enable_rtps_reassembly = false;
+static bool enable_user_data_dissection = false;
+static bool enable_max_array_data_type_elements = true;
+static bool enable_max_data_type_elements = true;
+static bool enable_rtps_crc_check = false;
 static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/

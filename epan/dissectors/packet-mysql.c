@@ -954,8 +954,8 @@ static const value_string mysql_response_code_vals[] = {
 static int proto_mysql;
 
 /* dissector configuration */
-static gboolean mysql_desegment = TRUE;
-static gboolean mysql_showquery = FALSE;
+static bool mysql_desegment = true;
+static bool mysql_showquery = false;
 
 /* expand-the-tree flags */
 static gint ett_mysql;

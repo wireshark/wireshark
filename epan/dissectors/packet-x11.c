@@ -198,7 +198,7 @@ static expert_field ei_x11_request_length;
 static expert_field ei_x11_keycode_value_out_of_range;
 
 /* desegmentation of X11 messages */
-static gboolean x11_desegment = TRUE;
+static bool x11_desegment = true;
 
 #define DEFAULT_X11_PORT_RANGE "6000-6063"
 

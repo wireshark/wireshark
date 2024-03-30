@@ -29,7 +29,7 @@ void proto_reg_handoff_xmpp(void);
 
 int proto_xmpp;
 
-static gboolean xmpp_desegment = TRUE;
+static bool xmpp_desegment = true;
 
 gint hf_xmpp_xmlns;
 gint hf_xmpp_id;

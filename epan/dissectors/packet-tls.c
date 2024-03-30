@@ -83,9 +83,9 @@ static ssldecrypt_assoc_t *tlskeylist_uats = NULL;
 static guint ntlsdecrypt = 0;
 #endif
 
-static gboolean tls_desegment          = TRUE;
-static gboolean tls_desegment_app_data = TRUE;
-static gboolean tls_ignore_mac_failed  = FALSE;
+static bool tls_desegment          = true;
+static bool tls_desegment_app_data = true;
+static bool tls_ignore_mac_failed  = false;
 
 
 /*********************************************************************

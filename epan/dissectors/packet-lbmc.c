@@ -4548,9 +4548,9 @@ static const true_false_string lbmc_umq_r_flag =
 /* Preferences.                                                               */
 /*----------------------------------------------------------------------------*/
 
-static gboolean lbmc_use_heuristic_subdissectors = TRUE;
-static gboolean lbmc_reassemble_fragments = FALSE;
-static gboolean lbmc_dissect_lbmpdm = FALSE;
+static bool lbmc_use_heuristic_subdissectors = true;
+static bool lbmc_reassemble_fragments = false;
+static bool lbmc_dissect_lbmpdm = false;
 static heur_dissector_list_t lbmc_heuristic_subdissector_list;
 
 /*----------------------------------------------------------------------------*/

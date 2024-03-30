@@ -167,7 +167,7 @@ static expert_field ei_isns_not_first_pdu;
 static expert_field ei_isns_invalid_attr_len;
 
 /* Desegment iSNS over TCP messages */
-static gboolean isns_desegment = TRUE;
+static bool isns_desegment = true;
 
 /* Function Id's */
 #define ISNS_FUNC_DEVATTRREG     0x0001

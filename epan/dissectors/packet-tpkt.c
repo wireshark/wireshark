@@ -43,7 +43,7 @@ static int hf_tpkt_continuation_data;
 static gint ett_tpkt;
 
 /* desegmentation of OSI over TPKT over TCP */
-static gboolean tpkt_desegment = TRUE;
+static bool tpkt_desegment = true;
 
 #define TCP_PORT_TPKT_RANGE       "102"
 

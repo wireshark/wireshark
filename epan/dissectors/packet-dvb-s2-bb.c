@@ -124,10 +124,10 @@ static const enum_val_t dvb_s2_modeadapt_enum[] = {
     {NULL, NULL, -1}
 };
 
-static gboolean dvb_s2_full_dissection = FALSE;
-static gboolean dvb_s2_df_dissection = FALSE;
+static bool dvb_s2_full_dissection = false;
+static bool dvb_s2_df_dissection = false;
 static gint dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
-static gboolean dvb_s2_try_all_modeadapt = TRUE;
+static bool dvb_s2_try_all_modeadapt = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_dvb_s2_modeadapt;

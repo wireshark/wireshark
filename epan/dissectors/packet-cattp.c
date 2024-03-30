@@ -91,7 +91,7 @@ static int hf_cattp_eaks;
 static expert_field ei_cattp_checksum;
 
 /* Preference to control whether to check the CATTP checksum */
-static gboolean cattp_check_checksum = TRUE;
+static bool cattp_check_checksum = true;
 
 /* Reason code mapping */
 static const value_string cattp_reset_reason[] = {

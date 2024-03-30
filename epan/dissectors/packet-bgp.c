@@ -3144,7 +3144,7 @@ static expert_field ei_bgp_mup_unknown_rt;
 static expert_field ei_bgp_mup_nlri_addr_len_err;
 
 /* desegmentation */
-static gboolean bgp_desegment = TRUE;
+static bool bgp_desegment = true;
 
 static gint bgp_asn_len = 0;
 

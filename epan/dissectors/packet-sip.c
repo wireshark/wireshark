@@ -833,38 +833,38 @@ static guint sip_tls_port = TLS_PORT_SIP;
 
 /* global_sip_raw_text determines whether we are going to display       */
 /* the raw text of the SIP message, much like the MEGACO dissector does.    */
-static gboolean global_sip_raw_text = FALSE;
+static bool global_sip_raw_text = false;
 /* global_sip_raw_text_without_crlf determines whether we are going to display  */
 /* the raw text of the SIP message with or without the '\r\n'.          */
-static gboolean global_sip_raw_text_without_crlf = FALSE;
+static bool global_sip_raw_text_without_crlf = false;
 /* global_sip_raw_text_body_default_encoding determines what charset we are going to display the body */
 static gint global_sip_raw_text_body_default_encoding = IANA_CS_UTF_8;
 /* strict_sip_version determines whether the SIP dissector enforces
  * the SIP version to be "SIP/2.0". */
-static gboolean strict_sip_version = TRUE;
+static bool strict_sip_version = true;
 
 /*
  * desegmentation of SIP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean sip_desegment_headers = TRUE;
+static bool sip_desegment_headers = true;
 
 /*
  * desegmentation of SIP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean sip_desegment_body = TRUE;
+static bool sip_desegment_body = true;
 
 /*
  * same source port for retransmissions
  */
-static gboolean sip_retrans_the_same_sport = TRUE;
+static bool sip_retrans_the_same_sport = true;
 
 /* whether we hold off tracking RTP conversations until an SDP answer is received */
-static gboolean sip_delay_sdp_changes = FALSE;
+static bool sip_delay_sdp_changes = false;
 
 /* Hide the generated Call IDs or not */
-static gboolean sip_hide_generatd_call_ids = FALSE;
+static bool sip_hide_generatd_call_ids = false;
 
 /* Extension header subdissectors */
 static dissector_table_t ext_hdr_subdissector_table;
@@ -1000,7 +1000,7 @@ UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_desc, header_field_t)
 
 /* SIP authorization parameters */
-static gboolean global_sip_validate_authorization = FALSE;
+static bool global_sip_validate_authorization = false;
 
 typedef struct _authorization_user_t {
     gchar* username;

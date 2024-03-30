@@ -130,10 +130,10 @@ static dissector_handle_t gssapi_handle;
  * as raw text, may cause problems with images sound etc
  * TODO improve to check for different content types ?
  */
-static gboolean display_unknown_body_as_text = FALSE;
-static gboolean remove_base64_encoding = FALSE;
+static bool display_unknown_body_as_text = false;
+static bool remove_base64_encoding = false;
 #ifdef HAVE_ZLIB
-static gboolean uncompress_data = TRUE;
+static bool uncompress_data = true;
 #endif
 
 typedef struct {

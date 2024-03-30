@@ -50,13 +50,13 @@ struct ncp_common_header {
 	uint8_t	conn_high; /* type=0x5555 doesn't have this */
 };
 
-extern gboolean nds_defragment;
-extern gboolean nds_echo_eid;
-extern gboolean ncp_echo_err;
-extern gboolean ncp_echo_conn;
-extern gboolean ncp_echo_server;
-extern gboolean ncp_echo_file;
-extern gboolean ncp_newstyle;
+extern bool nds_defragment;
+extern bool nds_echo_eid;
+extern bool ncp_echo_err;
+extern bool ncp_echo_conn;
+extern bool ncp_echo_server;
+extern bool ncp_echo_file;
+extern bool ncp_newstyle;
 
 struct _sub_ptvc_record {
 	int			*ett;

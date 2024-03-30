@@ -48,7 +48,7 @@ enum rsync_who {
     SERVER
 };
 
-static gboolean rsync_desegment = TRUE;
+static bool rsync_desegment = true;
 
 /* this is a guide to the current conversation state */
 struct rsync_conversation_data {

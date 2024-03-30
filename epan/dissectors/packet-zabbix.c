@@ -31,7 +31,7 @@ void proto_reg_handoff_zabbix(void);
 static dissector_handle_t zabbix_handle;
 
 /* Desegmentation of Zabbix protocol over TCP */
-static gboolean zabbix_desegment = true;
+static bool zabbix_desegment = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_zabbix;

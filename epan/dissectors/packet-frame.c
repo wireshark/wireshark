@@ -214,11 +214,11 @@ static dissector_handle_t sysdig_handle;
 static dissector_handle_t systemd_journal_handle;
 
 /* Preferences */
-static gboolean show_file_off       = FALSE;
-static gboolean force_docsis_encap  = FALSE;
-static gboolean generate_md5_hash   = FALSE;
-static gboolean generate_bits_field = TRUE;
-static gboolean disable_packet_size_limited_in_summary = FALSE;
+static bool show_file_off       = false;
+static bool force_docsis_encap  = false;
+static bool generate_md5_hash   = false;
+static bool generate_bits_field = true;
+static bool disable_packet_size_limited_in_summary = false;
 static guint    max_comment_lines   = 30;
 
 static const value_string p2p_dirs[] = {

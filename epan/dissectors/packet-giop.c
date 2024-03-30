@@ -1089,8 +1089,8 @@ typedef struct giop_conv_info_t {
 } giop_conv_info_t;
 
 
-static gboolean giop_desegment = TRUE;
-static gboolean giop_reassemble = TRUE;
+static bool giop_desegment = true;
+static bool giop_reassemble = true;
 static const char *giop_ior_file = "IOR.txt";
 
 /*

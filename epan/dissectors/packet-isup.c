@@ -2762,7 +2762,7 @@ static const true_false_string isup_Sequence_ind_value = {
 static int proto_isup;
 static int proto_bicc;
 
-static gboolean isup_show_cic_in_info = TRUE;
+static bool isup_show_cic_in_info = true;
 
 static int hf_isup_called;
 static int hf_isup_calling;
@@ -3217,7 +3217,7 @@ static dissector_handle_t sdp_handle = NULL;
 static dissector_handle_t q931_ie_handle = NULL;
 
 /* Declarations to desegment APM Messages */
-static gboolean isup_apm_desegment = TRUE;
+static bool isup_apm_desegment = true;
 
 static const fragment_items isup_apm_msg_frag_items = {
   /* Fragment subtrees */
@@ -12273,7 +12273,7 @@ proto_register_isup(void)
 
   prefs_register_bool_preference(isup_module, "show_cic_in_info", "Show CIC in Info column",
                                  "Show the CIC value (in addition to the message type) in the Info column",
-                                 (gint *)&isup_show_cic_in_info);
+                                 &isup_show_cic_in_info);
 
   prefs_register_bool_preference(isup_module, "defragment_apm",
                                  "Reassemble APM messages",

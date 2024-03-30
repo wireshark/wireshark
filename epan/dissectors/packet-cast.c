@@ -380,7 +380,7 @@ static gint ett_cast;
 static gint ett_cast_tree;
 
 /* desegmentation of SCCP */
-static gboolean cast_desegment = TRUE;
+static bool cast_desegment = true;
 
 /* Dissect a single CAST PDU */
 static int

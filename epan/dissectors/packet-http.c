@@ -255,25 +255,25 @@ UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
  * desegmentation of HTTP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean http_desegment_headers = TRUE;
+static bool http_desegment_headers = true;
 
 /*
  * desegmentation of HTTP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static gboolean http_desegment_body = TRUE;
+static bool http_desegment_body = true;
 
 /*
  * De-chunking of content-encoding: chunk entity bodies.
  */
-static gboolean http_dechunk_body = TRUE;
+static bool http_dechunk_body = true;
 
 /*
  * Decompression of zlib or brotli encoded entities.
  */
 #if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
-static gboolean http_decompress_body = TRUE;
+static bool http_decompress_body = true;
 #endif
 
 /* Simple Service Discovery Protocol

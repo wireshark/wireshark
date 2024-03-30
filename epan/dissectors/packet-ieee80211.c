@@ -148,19 +148,19 @@ sta_prop_equal_fn(gconstpointer v, gconstpointer w)
 #define GENMASK64(h, l)  (((G_GUINT64_CONSTANT(1) << ((h) - (l) + 1)) - 1) << (l))
 
 /* Defragment fragmented 802.11 datagrams */
-static gboolean wlan_defragment = TRUE;
+static bool wlan_defragment = true;
 
 /* call subdissector for retransmitted frames */
-static gboolean wlan_subdissector = TRUE;
+static bool wlan_subdissector = true;
 
 /* Check for the presence of the 802.11 FCS */
-static gboolean wlan_check_fcs = FALSE;
+static bool wlan_check_fcs = false;
 
 /* Check the FCS checksum */
-static gboolean wlan_check_checksum = FALSE;
+static bool wlan_check_checksum = false;
 
 /* Ignore vendor-specific HT elements */
-static gboolean wlan_ignore_draft_ht = FALSE;
+static bool wlan_ignore_draft_ht = false;
 
 /* Ignore the Protection bit; assume packet is decrypted */
 #define WLAN_IGNORE_PROT_NO     0
@@ -169,7 +169,7 @@ static gboolean wlan_ignore_draft_ht = FALSE;
 static gint wlan_ignore_prot = WLAN_IGNORE_PROT_NO;
 
 /* The Key MIC len has been set by the user */
-static gboolean wlan_key_mic_len_enable = FALSE;
+static bool wlan_key_mic_len_enable = false;
 static guint wlan_key_mic_len = 0;
 
 /* Counter incremented on each (re)association
@@ -180,7 +180,7 @@ static guint wlan_key_mic_len = 0;
 static guint32 association_counter = 0;
 
 /* Treat all Wi-Fi frames as being S1G frames where it is important */
-static gboolean treat_as_s1g = FALSE;
+static bool treat_as_s1g = false;
 
 /* Table for reassembly of fragments. */
 static reassembly_table wlan_reassembly_table;
@@ -284,7 +284,7 @@ UAT_VS_DEF(uat_wep_key_records, key, uat_wep_key_record_t, guint8, 0, STRING_KEY
 UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
 
 /* Stuff for the WEP/WPA/WPA2 decoder */
-static gboolean enable_decryption = TRUE;
+static bool enable_decryption = true;
 
 static void
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,

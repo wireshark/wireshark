@@ -556,7 +556,7 @@ static expert_field ei_saphdb_varpartlenght_incorrect;
 
 
 /* Global highlight preference */
-static gboolean global_saphdb_highlight_items = TRUE;
+static bool global_saphdb_highlight_items = true;
 
 
 /* Protocol handle */

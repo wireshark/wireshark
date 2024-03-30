@@ -26,13 +26,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-gboolean        nds_defragment  = true;
-gboolean        nds_echo_eid    = true;
-gboolean        ncp_echo_err    = true;
-gboolean        ncp_echo_conn   = false;
-gboolean        ncp_echo_server = true;
-gboolean        ncp_echo_file   = false;
-gboolean        ncp_newstyle    = true;
+bool nds_defragment  = true;
+bool nds_echo_eid    = true;
+bool ncp_echo_err    = true;
+bool ncp_echo_conn   = false;
+bool ncp_echo_server = true;
+bool ncp_echo_file   = false;
+bool ncp_newstyle    = true;
 
 extern dissector_handle_t nds_data_handle;
 typedef struct {

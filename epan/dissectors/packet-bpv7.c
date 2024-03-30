@@ -41,9 +41,9 @@ static const char *const proto_name_bp = "BPv7";
 static const char *const proto_name_bp_admin = "BPv7 Admin";
 
 /// Protocol preferences and defaults
-static gboolean bp_compute_crc = TRUE;
-static gboolean bp_reassemble_payload = TRUE;
-static gboolean bp_payload_try_heur = FALSE;
+static bool bp_compute_crc = true;
+static bool bp_reassemble_payload = true;
+static bool bp_payload_try_heur = false;
 
 /// Protocol handles
 static int proto_bp;

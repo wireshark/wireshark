@@ -61,7 +61,7 @@
 void proto_register_cops(void);
 
 /* Preference: desegmentation of COPS */
-static gboolean cops_desegment = TRUE;
+static bool cops_desegment = true;
 
 #define COPS_OBJECT_HDR_SIZE 4
 
@@ -829,7 +829,7 @@ static void decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 off
 static void cops_analyze_packetcable_dqos_obj(tvbuff_t *, packet_info *, proto_tree *, guint8, guint32);
 static void cops_analyze_packetcable_mm_obj(tvbuff_t *, packet_info *, proto_tree *, guint8, guint32);
 
-static gboolean cops_packetcable = TRUE;
+static bool cops_packetcable = true;
 
 /* End of addition for PacketCable */
 

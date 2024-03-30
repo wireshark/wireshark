@@ -44,7 +44,7 @@ static dissector_handle_t tetra_handle;
 #define TETRA_UDP_PORT  7074 /* Not IANA assigned */
 
 /* Whether the capture data include carrier numbers */
-static gboolean include_carrier_number = TRUE;
+static bool include_carrier_number = true;
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
 * our header fields; they are filled out when we call

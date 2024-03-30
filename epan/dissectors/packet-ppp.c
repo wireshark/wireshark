@@ -5702,7 +5702,7 @@ dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 /* PPP Multilink Protcol (RFC 1990) and
  * the Multiclass Extension to Multi-Link PPP (RFC 2686)
  */
-static gboolean mp_short_seqno = FALSE; /* Default to long sequence numbers */
+static bool mp_short_seqno = false; /* Default to long sequence numbers */
 static guint mp_max_fragments = 6;
 /* Maximum fragments to try to reassemble. This affects performance and
  * memory use significantly. */

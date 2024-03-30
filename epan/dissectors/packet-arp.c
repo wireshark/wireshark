@@ -104,12 +104,12 @@ static capture_dissector_handle_t arp_cap_handle;
 #define NO_STORM 2
 
 /* Preference settings */
-static gboolean global_arp_detect_request_storm = FALSE;
+static bool global_arp_detect_request_storm = false;
 static guint32  global_arp_detect_request_storm_packets = 30;
 static guint32  global_arp_detect_request_storm_period = 100;
 
-static gboolean global_arp_detect_duplicate_ip_addresses = TRUE;
-static gboolean global_arp_register_network_address_binding = TRUE;
+static bool global_arp_detect_duplicate_ip_addresses = true;
+static bool global_arp_register_network_address_binding = true;
 
 static guint32  arp_request_count = 0;
 static nstime_t time_at_start_of_count;

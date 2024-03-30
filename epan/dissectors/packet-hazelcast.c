@@ -84,7 +84,7 @@ static gint ett_hazelcast;
 static gint ett_hazelcast_flags;
 
 /* prefs */
-static gboolean hazelcast_desegment = TRUE;
+static bool hazelcast_desegment = true;
 #define HAZELCAST_PORT  5701 /* Not IANA registered */
 
 static const value_string operationTypes[] = {

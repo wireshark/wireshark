@@ -64,7 +64,7 @@ static dissector_handle_t s5066dts_handle;
 static dissector_handle_t s5066dts_over_tcp_handle;
 
 /* Configuration parameters */
-static gboolean config_proto_desegment = TRUE;
+static bool config_proto_desegment = true;
 
 /* Initialize expert fields */
 static expert_field ei_s5066dts_eow_hdr_drc_request_invalid;

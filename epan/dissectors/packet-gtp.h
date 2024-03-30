@@ -150,7 +150,7 @@ typedef struct gtp_hdr_ext_info {
 
 /* Data structures to keep track of sessions */
 extern guint32 gtp_session_count;
-extern gboolean g_gtp_session;
+extern bool g_gtp_session;
 
 typedef struct session_args {
     wmem_list_t *teid_list;

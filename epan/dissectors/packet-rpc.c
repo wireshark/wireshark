@@ -64,20 +64,20 @@ void proto_reg_handoff_rpc(void);
 #define RPC_TLS 2
 
 /* desegmentation of RPC over TCP */
-static gboolean rpc_desegment = TRUE;
+static bool rpc_desegment = true;
 
 /* defragmentation of fragmented RPC over TCP records */
-static gboolean rpc_defragment = TRUE;
+static bool rpc_defragment = true;
 
 /* try to dissect RPC packets for programs that are not known
  * (proprietary ones) by wireshark.
  */
-static gboolean rpc_dissect_unknown_programs = FALSE;
+static bool rpc_dissect_unknown_programs = false;
 
 /* try to find RPC fragment start if normal decode fails
  * (good when starting decode of mid-stream capture)
  */
-static gboolean rpc_find_fragment_start = FALSE;
+static bool rpc_find_fragment_start = false;
 
 static int rpc_tap;
 

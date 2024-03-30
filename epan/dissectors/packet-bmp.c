@@ -460,7 +460,7 @@ static dissector_handle_t bmp_handle;
 static dissector_handle_t dissector_bgp;
 
 /* desegmentation */
-static gboolean bmp_desegment = TRUE;
+static bool bmp_desegment = true;
 
 typedef struct bmpv4_tlv_info {
     guint16 type;

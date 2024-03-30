@@ -135,11 +135,11 @@ static expert_field ei_slsk_decompression_failed;
 
 
 /* desegmentation of SoulSeek Message over TCP */
-static gboolean slsk_desegment = TRUE;
+static bool slsk_desegment = true;
 #ifdef HAVE_ZLIB
-static gboolean slsk_decompress = TRUE;
+static bool slsk_decompress = true;
 #else
-static gboolean slsk_decompress = FALSE;
+static bool slsk_decompress = false;
 #endif
 
 static const value_string slsk_tcp_msgs[] = {

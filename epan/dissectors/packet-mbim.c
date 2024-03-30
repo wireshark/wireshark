@@ -1120,7 +1120,7 @@ static dissector_handle_t bulk_ndp_ctrl_handle;
 static dissector_handle_t mbim_control_handle;
 static dissector_handle_t iso7816_atr_handle;
 
-static gboolean mbim_control_decode_unknown_itf = FALSE;
+static bool mbim_control_decode_unknown_itf = false;
 
 enum {
     SMS_PDU_AUTOMATIC,

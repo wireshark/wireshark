@@ -28,7 +28,7 @@ void proto_register_winsrepl(void);
 void proto_reg_handoff_winsrepl(void);
 static dissector_handle_t winsrepl_handle;
 
-static gboolean winsrepl_reassemble = TRUE;
+static bool winsrepl_reassemble = true;
 
 static int proto_winsrepl;
 

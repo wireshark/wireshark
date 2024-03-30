@@ -58,7 +58,7 @@ static expert_field ei_sap_invalid_length;
 static range_t *global_sap_protocol_port_range;
 
 /* Global reassemble preference */
-static gboolean global_sap_protocol_desegment = TRUE;
+static bool global_sap_protocol_desegment = true;
 
 /* Protocol handle */
 static dissector_handle_t sap_protocol_handle;

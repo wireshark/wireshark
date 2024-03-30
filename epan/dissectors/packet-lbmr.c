@@ -1890,7 +1890,7 @@ static guint32 global_lbmr_uc_port_high = LBMR_DEFAULT_UC_PORT_HIGH;
 static guint32 global_lbmr_uc_port_low = LBMR_DEFAULT_UC_PORT_LOW;
 static guint32 global_lbmr_uc_dest_port = LBMR_DEFAULT_UC_DEST_PORT;
 static const char * global_lbmr_uc_address = LBMR_DEFAULT_UC_ADDRESS;
-static gboolean global_lbmr_use_tag = FALSE;
+static bool global_lbmr_use_tag = false;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbmr_mc_incoming_udp_port = LBMR_DEFAULT_MC_INCOMING_UDP_PORT;

@@ -318,7 +318,7 @@ static const value_string reason_vals[] =
 static value_string_ext reason_vals_ext = VALUE_STRING_EXT_INIT(reason_vals);
 
 /* desegmentation of OSI over ses  */
-static gboolean ses_desegment = TRUE;
+static bool ses_desegment = true;
 
 /* RTSE reassembly data */
 static guint ses_pres_ctx_id = 0;

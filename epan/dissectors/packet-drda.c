@@ -233,7 +233,7 @@ typedef ENUM_VAL_T_ENUM(typdefnam_vals) enum_typdefnam_t;
 ENUM_VAL_T_ARRAY_STATIC(typdefnam_vals);
 
 /* Preferences */
-static gboolean drda_desegment = TRUE;
+static bool drda_desegment = true;
 static guint drda_default_sqlam = 7;
 static gint drda_default_typdefnam = TYPDEFNAM_X86;
 static gint drda_default_ccsidsbc = IANA_CS_UTF_8;

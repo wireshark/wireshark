@@ -1550,7 +1550,7 @@ static const fragment_items dnp3_frag_items = {
 };
 
 /* desegmentation of DNP3 over TCP */
-static gboolean dnp3_desegment = TRUE;
+static bool dnp3_desegment = true;
 
 /* Enum for different quality type fields */
 enum QUALITY_TYPE {

@@ -42,7 +42,7 @@ static guint32 app_proto=0;
 static proto_tree *top_tree=NULL;
 
 /* Preferences */
-static gboolean rtse_reassemble = TRUE;
+static bool rtse_reassemble = true;
 
 #include "packet-rtse-hf.c"
 
@@ -218,7 +218,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         if (conversation != NULL) {
             rtse_id = conversation->conv_index;
         }
-        session->rtse_reassemble = TRUE;
+        session->rtse_reassemble = true;
     }
     if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
         frag_msg = fragment_end_seq_next (&rtse_reassembly_table,

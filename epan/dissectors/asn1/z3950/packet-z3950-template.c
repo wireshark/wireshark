@@ -107,7 +107,7 @@ void proto_register_z3950(void);
 /* Initialize the protocol and registered fields */
 static int proto_z3950;
 static int global_z3950_port = Z3950_PORT;
-static gboolean z3950_desegment = TRUE;
+static bool z3950_desegment = true;
 
 static const value_string z3950_bib1_att_types[] = {
     { Z3950_BIB1_AT_USE, "Use" },

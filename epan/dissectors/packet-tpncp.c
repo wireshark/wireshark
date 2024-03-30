@@ -106,7 +106,7 @@ static expert_field ei_tpncp_unknown_data;
 static gint ett_tpncp;
 static gint ett_tpncp_body;
 
-static gboolean global_tpncp_load_db = FALSE;
+static bool global_tpncp_load_db = false;
 
 static dissector_handle_t tpncp_handle;
 static dissector_handle_t tpncp_tcp_handle;

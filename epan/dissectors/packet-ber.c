@@ -185,11 +185,11 @@ static expert_field ei_ber_real_not_primitive;
 static dissector_handle_t ber_handle;
 static dissector_handle_t ber_file_handle;
 
-static gboolean show_internal_ber_fields     = FALSE;
-static gboolean decode_octetstring_as_ber        = FALSE;
-static gboolean decode_primitive_as_ber          = FALSE;
-static gboolean decode_unexpected                = FALSE;
-static gboolean decode_warning_leading_zero_bits = FALSE;
+static bool show_internal_ber_fields     = false;
+static bool decode_octetstring_as_ber        = false;
+static bool decode_primitive_as_ber          = false;
+static bool decode_unexpected                = false;
+static bool decode_warning_leading_zero_bits = false;
 
 static gchar *decode_as_syntax = NULL;
 

@@ -74,7 +74,7 @@ static xml_ns_t xml_ns     = {"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t unknown_ns = {"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
 
-static gboolean pref_heuristic_unicode    = FALSE;
+static bool pref_heuristic_unicode    = false;
 static gint pref_default_encoding = IANA_CS_UTF_8;
 
 

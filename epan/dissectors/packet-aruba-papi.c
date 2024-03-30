@@ -85,7 +85,7 @@ static expert_field ei_papi_debug_unknown;
 static dissector_table_t papi_dissector_table;
 
 /* Global PAPI Debug Preference */
-static gboolean g_papi_debug = FALSE;
+static bool g_papi_debug = false;
 
 /* Initialize the subtree pointers */
 static gint ett_papi;

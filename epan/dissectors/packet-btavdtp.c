@@ -325,7 +325,7 @@ static dissector_handle_t mp2t_handle;
 static dissector_handle_t mpeg_audio_handle;
 static dissector_handle_t atrac_handle;
 
-static gboolean  force_a2dp_scms_t = FALSE;
+static bool  force_a2dp_scms_t = false;
 static gint      force_a2dp_codec = CODEC_DEFAULT;
 
 static const enum_val_t pref_a2dp_codec[] = {
@@ -363,7 +363,7 @@ static int hf_btvdp_reserved;
 static dissector_handle_t h263_handle;
 static dissector_handle_t mp4v_es_handle;
 
-static gboolean  force_vdp_scms_t = FALSE;
+static bool  force_vdp_scms_t = false;
 static gint      force_vdp_codec = CODEC_H263_BASELINE;
 
 static const enum_val_t pref_vdp_codec[] = {

@@ -306,7 +306,7 @@ static dissector_handle_t sna_xid_handle;
 static int sna_address_type = -1;
 
 /* Defragment fragmented SNA BIUs*/
-static gboolean sna_defragment = TRUE;
+static bool sna_defragment = true;
 static reassembly_table sna_reassembly_table;
 
 /* Format Identifier */

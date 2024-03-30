@@ -111,8 +111,8 @@ static gint ett_gsm_r_uus1_alert_controller;
 
 
 /* Preferences */
-static gboolean q931_u2u  = FALSE;
-static gboolean gsm_a_u2u = TRUE;
+static bool q931_u2u  = false;
+static bool gsm_a_u2u = true;
 
 
 static expert_field ei_gsm_r_uus1_not_implemented_yet;

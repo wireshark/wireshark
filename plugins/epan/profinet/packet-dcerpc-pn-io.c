@@ -1029,7 +1029,7 @@ static e_guid_t uuid_pn_io_implicitar = { 0x00000000, 0x0000, 0x0000, { 0x00, 0x
 static guint16  ver_pn_io_implicitar = 1;
 
 /* PNIO Preference Variables */
-gboolean           pnio_ps_selection = TRUE;
+bool           pnio_ps_selection = true;
 static const char *pnio_ps_networkpath = "";
 
 wmem_list_t       *aruuid_frame_setup_list = NULL;

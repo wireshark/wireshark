@@ -1015,7 +1015,7 @@ static const value_string o43pxeclient_boot_menu_types[] = {
 	{  0, NULL },
 };
 
-static gboolean novell_string = FALSE;
+static bool novell_string = false;
 
 static gint dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
 

@@ -353,7 +353,7 @@ static const value_string vs_ppi_field_type[] = {
 static reassembly_table ampdu_reassembly_table;
 
 /* Reassemble A-MPDUs? */
-static gboolean ppi_ampdu_reassemble = TRUE;
+static bool ppi_ampdu_reassemble = true;
 
 
 static gboolean

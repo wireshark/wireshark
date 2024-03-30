@@ -42,9 +42,9 @@ void proto_register_idmp(void);
 void proto_reg_handoff_idm(void);
 void register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name);
 
-static gboolean           idmp_desegment       = TRUE;
+static bool           idmp_desegment       = true;
 #define IDMP_TCP_PORT     1102 /* made up for now - not IANA registered */
-static gboolean           idmp_reassemble      = TRUE;
+static bool           idmp_reassemble      = true;
 static dissector_handle_t idmp_handle          = NULL;
 
 static proto_tree *top_tree         = NULL;

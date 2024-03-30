@@ -34,7 +34,7 @@
 void proto_register_nas_5gs(void);
 void proto_reg_handoff_nas_5gs(void);
 
-static gboolean g_nas_5gs_null_decipher = FALSE;
+static bool g_nas_5gs_null_decipher = false;
 enum {
     DECODE_USER_DATA_AS_NONE,
     DECODE_USER_DATA_AS_IP,

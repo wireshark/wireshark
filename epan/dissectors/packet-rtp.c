@@ -301,15 +301,15 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static struct _rtp_packet_info *get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info);
 
 /* Preferences bool to control whether or not setup info should be shown */
-static gboolean global_rtp_show_setup_info = TRUE;
+static bool global_rtp_show_setup_info = true;
 
 /* desegment RTP streams */
-static gboolean desegment_rtp = TRUE;
+static bool desegment_rtp = true;
 
 /* RFC2198 Redundant Audio Data */
 #define RFC2198_DEFAULT_PT_RANGE "99"
 
-static gboolean rfc2198_deencapsulate = TRUE;
+static bool rfc2198_deencapsulate = true;
 
 
 

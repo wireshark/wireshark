@@ -162,7 +162,7 @@ static const fragment_items mtp2_frag_items = {
 static reassembly_table mtp2_reassembly_table;
 
 /* variables needed for property registration to wireshark menu */
-static gboolean reverse_bit_order_mtp2 = FALSE;
+static bool reverse_bit_order_mtp2 = false;
 
 static expert_field ei_mtp2_checksum_error;
 static expert_field ei_mtp2_li_bad;
@@ -170,8 +170,8 @@ static expert_field ei_mtp2_li_bad;
 /* Initialize the subtree pointers */
 static gint ett_mtp2;
 
-static gboolean use_extended_sequence_numbers_default = FALSE;
-static gboolean capture_contains_fcs_crc_default = FALSE;
+static bool use_extended_sequence_numbers_default = false;
+static bool capture_contains_fcs_crc_default = false;
 
 /* sequence number of the actual packet to be reassembled
  * this is needed because the reassemble handler uses a key based on the
@@ -537,8 +537,8 @@ mtp2_init_routine(void)
 
 /*  get one bit of a guint8 byte
 *   based on the order set in the preferences
-*   reverse_bit_order_mtp2 = FALSE: as the Q.703 states
-*   reverse_bit_order_mtp2 = TRUE: just the opposite
+*   reverse_bit_order_mtp2 = false: as the Q.703 states
+*   reverse_bit_order_mtp2 = true: just the opposite
 */
 static gboolean
 get_bit(guint8 byte, guint8 bit)

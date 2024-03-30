@@ -61,10 +61,10 @@ static dissector_handle_t iscsi_handle=NULL;
 
 static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT13;
 
-static gboolean iscsi_desegment = TRUE;
+static bool iscsi_desegment = true;
 
-static int demand_good_f_bit = FALSE;
-static int enable_bogosity_filter = TRUE;
+static bool demand_good_f_bit = false;
+static bool enable_bogosity_filter = true;
 static guint32 bogus_pdu_data_length_threshold = 256 * 1024;
 
 #define TCP_PORT_ISCSI_RANGE    "3260"

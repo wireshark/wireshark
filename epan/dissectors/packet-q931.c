@@ -244,14 +244,14 @@ static const fragment_items q931_frag_items = {
 static reassembly_table q931_reassembly_table;
 
 /* Preferences */
-static gboolean q931_reassembly = TRUE;
-static gboolean g931_iso_iec_cause = FALSE;
+static bool q931_reassembly = true;
+static bool g931_iso_iec_cause = false;
 
 static dissector_table_t codeset_dissector_table;
 static dissector_table_t ie_dissector_table;
 
 /* desegmentation of Q.931 over TPKT over TCP */
-static gboolean q931_desegment = TRUE;
+static bool q931_desegment = true;
 
 /* Subdissectors */
 static dissector_handle_t h225_handle;

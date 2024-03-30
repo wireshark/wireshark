@@ -1874,7 +1874,7 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
 }
 /* QUIC Streams tracking and reassembly. }}} */
 
-static gboolean quic_crypto_out_of_order = TRUE;
+static bool quic_crypto_out_of_order = true;
 
 static reassembly_table quic_crypto_reassembly_table;
 

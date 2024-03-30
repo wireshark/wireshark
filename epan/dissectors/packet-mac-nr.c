@@ -351,10 +351,10 @@ static dissector_handle_t nr_rrc_ul_ccch1_handle;
 /**************************************************************************/
 
 /* By default try to decode transparent data (BCCH, PCCH and CCCH) data using NR RRC dissector */
-static gboolean global_mac_nr_attempt_rrc_decode = TRUE;
+static bool global_mac_nr_attempt_rrc_decode = true;
 
 /* Whether should attempt to decode lcid 1-3 SDUs as srb1-3 (i.e. AM RLC) */
-static gboolean global_mac_nr_attempt_srb_decode = TRUE;
+static bool global_mac_nr_attempt_srb_decode = true;
 
 /* Which layer info to show in the info column */
 enum layer_to_show {

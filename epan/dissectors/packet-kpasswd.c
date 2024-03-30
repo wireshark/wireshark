@@ -26,7 +26,7 @@ static dissector_handle_t kpasswd_handle_udp;
 static dissector_handle_t kpasswd_handle_tcp;
 
 /* Desegment Kerberos over TCP messages */
-static gboolean kpasswd_desegment = TRUE;
+static bool kpasswd_desegment = true;
 
 static int proto_kpasswd;
 static int hf_kpasswd_message_len;

@@ -279,7 +279,7 @@ static gint ett_rtpproxy_ng_bencode;
 static range_t* rtpproxy_tcp_range = NULL;
 static range_t* rtpproxy_udp_range = NULL;
 
-static gboolean rtpproxy_establish_conversation = TRUE;
+static bool rtpproxy_establish_conversation = true;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
 /* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
 static guint rtpproxy_timeout = 1000;

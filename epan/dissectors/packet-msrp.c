@@ -108,7 +108,7 @@ static gint hf_header_array[array_length(msrp_headers)];
 #define MSRP_AUTHENTICATION_INFO                15
 
 static dissector_handle_t msrp_handle;
-static gboolean global_msrp_raw_text = TRUE;
+static bool global_msrp_raw_text = true;
 
 /* MSRP content type and internet media type used by other dissectors
  * are the same.  List of media types from IANA at:
@@ -119,7 +119,7 @@ static int dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
 /* Displaying conversation setup info */
-static gboolean global_msrp_show_setup_info = TRUE;
+static bool global_msrp_show_setup_info = true;
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Set up an MSRP conversation using the info given */

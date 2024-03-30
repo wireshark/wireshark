@@ -255,8 +255,8 @@ static gint ett_dcs;
 static dissector_handle_t smpp_handle;
 
 /* Reassemble SMPP TCP segments */
-static gboolean reassemble_over_tcp = TRUE;
-static gboolean smpp_gsm7_unpacked = TRUE;
+static bool reassemble_over_tcp = true;
+static bool smpp_gsm7_unpacked = true;
 
 typedef enum {
   DECODE_AS_DEFAULT    =   0,

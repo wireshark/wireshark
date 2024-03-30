@@ -125,7 +125,7 @@ static dissector_handle_t ppp_handle;
 
 
 /* Preference for showing discovery tag values and lengths */
-static gboolean global_pppoe_show_tags_and_lengths = FALSE;
+static bool global_pppoe_show_tags_and_lengths = false;
 
 
 #define PPPOE_CODE_SESSION    0x00

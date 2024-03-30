@@ -455,9 +455,9 @@ static dissector_handle_t  dtls_handle;
 static dissector_handle_t  dlr_handle;
 
 
-static gboolean enip_desegment  = TRUE;
-static gboolean enip_OTrun_idle = TRUE;
-static gboolean enip_TOrun_idle = FALSE;
+static bool enip_desegment  = true;
+static bool enip_OTrun_idle = true;
+static bool enip_TOrun_idle = false;
 
 static int proto_dlr;
 

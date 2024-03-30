@@ -41,7 +41,7 @@ static int ett_gsmrlp_xid;
 static expert_field ei_gsmrlp_fcs_bad;
 
 static dissector_handle_t l2rcop_handle;
-static gboolean decode_as_l2rcop = true;
+static bool decode_as_l2rcop = true;
 
 /* 3GPP TS 24.002 Section 5.2.1 */
 enum rlp_ftype {

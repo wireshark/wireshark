@@ -850,7 +850,7 @@ static gint ett_treelist[TT_MAX];
 #define TREE(X) ett_treelist[(X)]
 
 /* Should we dissect bundle messages? */
-static gboolean rsvp_bundle_dissect = TRUE;
+static bool rsvp_bundle_dissect = true;
 
 /* FF: How should we dissect generalized label? */
 static const enum_val_t rsvp_generalized_label_options[] = {

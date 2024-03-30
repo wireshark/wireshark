@@ -327,16 +327,16 @@ static gint hf_fi_product;
 static gint hf_fi_session;
 
 /* Wireshark preference to show RST cause in info column */
-static gboolean rstcause_in_info = TRUE;
+static bool rstcause_in_info = true;
 /** Wireshark preference to look at all trailer bytes for f5ethtrailer */
-static gboolean pref_walk_trailer = FALSE;
+static bool pref_walk_trailer = false;
 /* Wireshark preference to enable/disable the population of other dissectors'
  * fields.*/
-static gboolean pref_pop_other_fields = FALSE;
+static bool pref_pop_other_fields = false;
 /** Wireshark preference to perform analysis */
-static gboolean pref_perform_analysis = FALSE;
+static bool pref_perform_analysis = false;
 /** Wireshark preference to generate keylog entries from f5ethtrailer TLS data */
-static gboolean pref_generate_keylog = TRUE;
+static bool pref_generate_keylog = true;
 /** Identifiers for taps (when enabled), only the address is important, the
  * values are unused. */
 static gboolean tap_ip_enabled;

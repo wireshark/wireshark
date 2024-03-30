@@ -927,11 +927,11 @@ static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static int dissect_srtcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 
 /* Displaying set info */
-static gboolean global_rtcp_show_setup_info = TRUE;
+static bool global_rtcp_show_setup_info = true;
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Related to roundtrip calculation (using LSR and DLSR) */
-static gboolean global_rtcp_show_roundtrip_calculation = FALSE;
+static bool global_rtcp_show_roundtrip_calculation = false;
 #define MIN_ROUNDTRIP_TO_REPORT_DEFAULT 10
 static guint global_rtcp_show_roundtrip_calculation_minimum = MIN_ROUNDTRIP_TO_REPORT_DEFAULT;
 static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr);

@@ -38,7 +38,7 @@ void proto_reg_handoff_atalk(void);
 static reassembly_table atp_reassembly_table;
 
 /* desegmentation of ATP */
-static gboolean atp_defragment = TRUE;
+static bool atp_defragment = true;
 
 static dissector_handle_t afp_handle;
 static dissector_handle_t afp_server_status_handle;

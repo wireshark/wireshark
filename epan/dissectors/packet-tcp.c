@@ -49,7 +49,7 @@ static int mptcp_tap;
 static int exported_pdu_tap;
 
 /* Place TCP summary in proto tree */
-static gboolean tcp_summary_in_tree = TRUE;
+static bool tcp_summary_in_tree = true;
 
 static inline guint64 KEEP_32MSB_OF_GUINT64(guint64 nb) {
     return (nb >> 32) << 32;
@@ -72,7 +72,7 @@ static inline guint64 KEEP_32MSB_OF_GUINT64(guint64 nb) {
  * packet to the capture program but a checksummed packet got put onto
  * the wire.
  */
-static gboolean tcp_check_checksum = FALSE;
+static bool tcp_check_checksum = false;
 
 /*
  * Window scaling values to be used when not known (set as a preference) */
@@ -498,11 +498,11 @@ static expert_field ei_mptcp_mapping_missing;
  * This preference can be set for such protocols to make sure that we don't
  * invoke the subdissectors for retransmitted or out-of-order segments.
  */
-static gboolean tcp_no_subdissector_on_error = TRUE;
+static bool tcp_no_subdissector_on_error = true;
 
 /* Enable buffering of out-of-order TCP segments before passing it to a
  * subdissector (depends on "tcp_desegment"). */
-static gboolean tcp_reassemble_out_of_order = FALSE;
+static bool tcp_reassemble_out_of_order = false;
 
 /*
  * FF: https://www.rfc-editor.org/rfc/rfc6994.html
@@ -512,7 +512,7 @@ static gboolean tcp_reassemble_out_of_order = FALSE;
  * The ExID is used to differentiate different experiments and thus will
  * be used in data dissection.
  */
-static gboolean tcp_exp_options_rfc6994 = TRUE;
+static bool tcp_exp_options_rfc6994 = true;
 
 /*
  * This flag indicates which of Fast Retransmission or Out-of-Order
@@ -521,13 +521,13 @@ static gboolean tcp_exp_options_rfc6994 = TRUE;
  * behavior.
  * When set, we keep the historical interpretation (Fast RT > OOO)
  */
-static gboolean tcp_fastrt_precedence = TRUE;
+static bool tcp_fastrt_precedence = true;
 
 /* Process info, currently discovered via IPFIX */
-static gboolean tcp_display_process_info = FALSE;
+static bool tcp_display_process_info = false;
 
 /* Read the sequence number as syn cookie */
-static gboolean read_seq_as_syn_cookie = FALSE;
+static bool read_seq_as_syn_cookie = false;
 
 /*
  *  TCP option
@@ -1667,16 +1667,16 @@ static void conversation_completeness_fill(gchar *buf, guint32 value)
 /* **************************************************************************
  * RTT, relative sequence numbers, window scaling & etc.
  * **************************************************************************/
-static gboolean tcp_analyze_seq           = TRUE;
-static gboolean tcp_relative_seq          = TRUE;
-static gboolean tcp_track_bytes_in_flight = TRUE;
-static gboolean tcp_bif_seq_based         = FALSE;
-static gboolean tcp_calculate_ts          = TRUE;
+static bool tcp_analyze_seq           = true;
+static bool tcp_relative_seq          = true;
+static bool tcp_track_bytes_in_flight = true;
+static bool tcp_bif_seq_based         = false;
+static bool tcp_calculate_ts          = true;
 
-static gboolean tcp_analyze_mptcp                   = TRUE;
-static gboolean mptcp_relative_seq                  = TRUE;
-static gboolean mptcp_analyze_mappings              = FALSE;
-static gboolean mptcp_intersubflows_retransmission  = FALSE;
+static bool tcp_analyze_mptcp                   = true;
+static bool mptcp_relative_seq                  = true;
+static bool mptcp_analyze_mappings              = false;
+static bool mptcp_intersubflows_retransmission  = false;
 
 
 #define TCP_A_RETRANSMISSION          0x0001
@@ -3848,7 +3848,7 @@ static reassembly_table tcp_reassembly_table;
 
 /* functions to trace tcp segments */
 /* Enable desegmenting of TCP streams */
-static gboolean tcp_desegment = TRUE;
+static bool tcp_desegment = true;
 
 /* Returns the maximum contiguous sequence number of the reassembly associated
  * with the msp *if* a new fragment were added ending in the given maxnextseq.
@@ -5810,7 +5810,7 @@ dissect_tcpopt_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /* If set, do not put the TCP timestamp information on the summary line */
-static gboolean tcp_ignore_timestamps = FALSE;
+static bool tcp_ignore_timestamps = false;
 
 static int
 dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -7417,7 +7417,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
    This has been separated into a stand alone routine to other protocol
    dissectors can call to it, e.g., SOCKS. */
 
-static gboolean try_heuristic_first = FALSE;
+static bool try_heuristic_first = false;
 
 
 /* this function can be called with tcpd==NULL as from the msproxy dissector */

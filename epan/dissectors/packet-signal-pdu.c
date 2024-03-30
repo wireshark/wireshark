@@ -85,9 +85,9 @@ static int hf_payload_unparsed;
 
 static gint ett_spdu_payload;
 static gint ett_spdu_signal;
-static gboolean spdu_deserializer_activated                 = TRUE;
-static gboolean spdu_deserializer_show_hidden               = FALSE;
-static gboolean spdu_deserializer_hide_raw_values           = TRUE;
+static bool spdu_deserializer_activated                 = true;
+static bool spdu_deserializer_show_hidden               = false;
+static bool spdu_deserializer_hide_raw_values           = true;
 
 /*** expert info items ***/
 static expert_field ei_spdu_payload_truncated;

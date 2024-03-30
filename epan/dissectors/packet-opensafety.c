@@ -268,22 +268,22 @@ static dissector_handle_t opensafety_udpdata_handle = NULL;
 static dissector_handle_t opensafety_mbtcp_handle = NULL;
 static dissector_handle_t opensafety_pnio_handle = NULL;
 
-static gboolean global_display_intergap_data   = FALSE;
-static gboolean global_scm_udid_autoset        = TRUE;
-static gboolean global_udp_frame2_first        = FALSE;
-static gboolean global_siii_udp_frame2_first   = FALSE;
-static gboolean global_mbtcp_big_endian        = FALSE;
+static bool global_display_intergap_data       = false;
+static bool global_scm_udid_autoset            = true;
+static bool global_udp_frame2_first            = false;
+static bool global_siii_udp_frame2_first       = false;
+static bool global_mbtcp_big_endian            = false;
 static guint global_network_udp_port           = OPENSAFETY_UDP_PORT;
 static guint global_network_udp_port_sercosiii = OPENSAFETY_UDP_PORT_SIII;
-static gboolean global_classify_transport      = TRUE;
+static bool global_classify_transport          = true;
 
-static gboolean global_enable_udp    = TRUE;
-static gboolean global_enable_mbtcp  = TRUE;
+static bool global_enable_udp    = true;
+static bool global_enable_mbtcp  = true;
 
-static gboolean global_opensafety_debug_verbose = FALSE;
+static bool global_opensafety_debug_verbose = false;
 
 static const char * global_filter_nodes = "";
-static gboolean global_show_only_node_in_filter = TRUE;
+static bool global_show_only_node_in_filter = true;
 static wmem_list_t * global_filter_list = NULL;
 
 static gboolean heuristic_siii_dissection_enabled = TRUE;

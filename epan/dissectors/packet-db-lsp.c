@@ -51,9 +51,9 @@ static dissector_handle_t db_lsp_tcp_handle;
 static dissector_handle_t db_lsp_udp_handle;
 
 /* Use heuristic */
-static gboolean try_heuristic = TRUE;
+static bool try_heuristic = true;
 /* desegmentation of tcp payload */
-static gboolean db_lsp_desegment = TRUE;
+static bool db_lsp_desegment = true;
 
 #define TYPE_CONFIG   0x16
 #define TYPE_DATA     0x17

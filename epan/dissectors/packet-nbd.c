@@ -34,7 +34,7 @@ static int hf_nbd_data;
 static gint ett_nbd;
 
 
-static gboolean nbd_desegment = TRUE;
+static bool nbd_desegment = true;
 
 typedef struct _nbd_transaction_t {
 	guint32 req_frame;

@@ -329,7 +329,7 @@ static expert_field ei_bitcoin_address_length;
 static expert_field ei_bitcoin_script_len;
 
 
-static gboolean bitcoin_desegment  = TRUE;
+static bool bitcoin_desegment  = true;
 
 static guint
 get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,

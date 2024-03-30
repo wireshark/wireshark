@@ -30,7 +30,7 @@ void proto_reg_handoff_djiuav(void);
 static dissector_handle_t djiuav_handle;
 
 /* Enable desegmentation of djiuav over TCP */
-static gboolean djiuav_desegment = TRUE;
+static bool djiuav_desegment = true;
 
 /* Command/Response tracking */
 typedef struct _djiuav_conv_info_t {

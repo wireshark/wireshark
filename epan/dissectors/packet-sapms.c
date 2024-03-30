@@ -648,7 +648,7 @@ static expert_field ei_sapms_ip_invalid_length;
 static range_t *global_sapms_port_range;
 
 /* Global highlight preference */
-static gboolean global_sapms_highlight_items = TRUE;
+static bool global_sapms_highlight_items = true;
 
 /* Protocol handle */
 static dissector_handle_t sapms_handle;

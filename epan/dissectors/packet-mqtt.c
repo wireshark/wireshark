@@ -611,7 +611,7 @@ static expert_field ei_unknown_topic_alias;
 static gboolean reassemble_mqtt_over_tcp = TRUE;
 
 /* Show Publish Message as text */
-static gboolean show_msg_as_text;
+static bool show_msg_as_text;
 
 static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                               int offset, void *data _U_)

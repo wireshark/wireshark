@@ -81,7 +81,7 @@ static dissector_table_t lapd_sapi_dissector_table;
 static dissector_table_t lapd_gsm_sapi_dissector_table;
 
 /* Whether to use GSM SAPI vals or not */
-static gboolean global_lapd_gsm_sapis = FALSE;
+static bool global_lapd_gsm_sapis = false;
 
 /*
  * Bits in the address field.

@@ -165,16 +165,16 @@ static dissector_handle_t sigcomp_tcp_handle;
 #define SIGCOMP_TCP_PORT_RANGE "5555,6666" /* Not IANA registered */
 
 /* Default preference whether to display the bytecode in UDVM operands or not */
-static gboolean display_udvm_bytecode = FALSE;
+static bool display_udvm_bytecode = false;
 /* Default preference whether to dissect the UDVM code or not */
 /* WARNING: Setting this to true might result in the entire dissector being
    disabled by default or removed completely. */
-static gboolean dissect_udvm_code = FALSE;
-static gboolean display_raw_txt = FALSE;
+static bool dissect_udvm_code = false;
+static bool display_raw_txt = false;
 /* Default preference whether to decompress the message or not */
 /* WARNING: Setting this to true might result in the entire dissector being
    disabled by default or removed completely. */
-static gboolean decompress = FALSE;
+static bool decompress = false;
 /* Default preference whether to print debug info at execution of UDVM
  * 0 = No printout
  * 1 = details level 1

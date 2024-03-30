@@ -49,7 +49,7 @@ static expert_field ei_length_bad;
 static dissector_handle_t bthci_iso_handle;
 static dissector_handle_t bthci_iso_data_handle;
 
-static gboolean iso_reassembly = TRUE;
+static bool iso_reassembly = true;
 
 typedef struct _multi_fragment_pdu_t {
     guint32  first_frame;

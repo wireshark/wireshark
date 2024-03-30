@@ -130,12 +130,12 @@ static int hf_catapult_dct2000_rawtraffic_pdu;
 
 
 /* Variables used for preferences */
-static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
-static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
-static gboolean catapult_dct2000_dissect_lte_rrc = TRUE;
-static gboolean catapult_dct2000_dissect_mac_lte_oob_messages = TRUE;
-static gboolean catapult_dct2000_dissect_old_protocol_names = FALSE;
-static gboolean catapult_dct2000_use_protocol_name_as_dissector_name = FALSE;
+static bool catapult_dct2000_try_ipprim_heuristic = true;
+static bool catapult_dct2000_try_sctpprim_heuristic = true;
+static bool catapult_dct2000_dissect_lte_rrc = true;
+static bool catapult_dct2000_dissect_mac_lte_oob_messages = true;
+static bool catapult_dct2000_dissect_old_protocol_names = false;
+static bool catapult_dct2000_use_protocol_name_as_dissector_name = false;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000;

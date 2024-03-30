@@ -60,7 +60,7 @@ static const value_string message_results[] = {
 };
 
 /* desegmentation of Bazaar over TCP */
-static gboolean bzr_desegment = TRUE;
+static bool bzr_desegment = true;
 
 static guint get_bzr_prefixed_len(tvbuff_t *tvb, int offset)
 {

@@ -76,19 +76,19 @@ static guint    pref_au_index_length          = DEFAULT_AU_INDEX_LENGTH;        
 static guint    pref_au_index_delta_length    = DEFAULT_AU_INDEX_DELTA_LENGTH;     /* default Au index delta length */
 static guint    pref_cts_delta_length         = DEFAULT_CTS_DELTA_LENGTH;          /* default CTS delta  length */
 static guint    pref_dts_delta_length         = DEFAULT_DTS_DELTA_LENGTH;          /* default DTS delta  length */
-static gboolean pref_random_access_indication = DEFAULT_RANDOM_ACCESS_INDICATION;  /* default random access indication */
+static bool     pref_random_access_indication = DEFAULT_RANDOM_ACCESS_INDICATION;  /* default random access indication */
 static guint    pref_stream_state_indication  = DEFAULT_STREAM_STATE_INDICATION;   /* default stream state indication */
 static guint    version_type                  = V11;                               /* default to ISMACryp 1.1 */
 static guint    mode                          = AVC_VIDEO_MODE;                    /* default codec mode */
-static gboolean selective_encryption          = DEFAULT_SELECTIVE_ENCRYPTION;      /* default selective encryption flag */
-static gboolean slice_indication              = DEFAULT_SLICE_INDICATION;          /* default slice indication */
-static gboolean padding_indication            = DEFAULT_PADDING_INDICATION;        /* default padding indication */
+static bool     selective_encryption          = DEFAULT_SELECTIVE_ENCRYPTION;      /* default selective encryption flag */
+static bool     slice_indication              = DEFAULT_SLICE_INDICATION;          /* default slice indication */
+static bool     padding_indication            = DEFAULT_PADDING_INDICATION;        /* default padding indication */
 static guint    key_indicator_length          = DEFAULT_KEY_INDICATOR_LENGTH;      /* default key indicator length */
-static gboolean key_indicator_per_au_flag     = DEFAULT_KEY_INDICATOR_PER_AU;      /* default key indicator per au */
+static bool     key_indicator_per_au_flag     = DEFAULT_KEY_INDICATOR_PER_AU;      /* default key indicator per au */
 static guint    iv_length                     = DEFAULT_IV_LENGTH;                 /* default IV length */
 static guint    delta_iv_length               = DEFAULT_DELTA_IV_LENGTH;           /* default delta IV length */
-static gboolean pref_user_mode                = FALSE; /* preference user mode instead of RFC3640 mode? */
-static gboolean override_flag                 = FALSE; /* override use of RTP payload type to deduce ISMACryp version */
+static bool     pref_user_mode                = false; /* preference user mode instead of RFC3640 mode? */
+static bool     override_flag                 = false; /* override use of RTP payload type to deduce ISMACryp version */
 
 /* */
 

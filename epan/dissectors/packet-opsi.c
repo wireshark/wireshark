@@ -413,7 +413,7 @@ static opsi_attribute_handle_t opsi_attributes[] = {
 #define OPSI_ATTRIBUTES_COUNT (sizeof(opsi_attributes)/sizeof(opsi_attribute_handle_t))
 
 /* Desegmentation of OPSI (over TCP) */
-static gboolean opsi_desegment = TRUE;
+static bool opsi_desegment = true;
 
 static void
 decode_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)

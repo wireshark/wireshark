@@ -205,9 +205,9 @@ static dissector_handle_t radius_handle;
 
 
 static const gchar *shared_secret = "";
-static gboolean validate_authenticator = FALSE;
-static gboolean show_length = FALSE;
-static gboolean disable_extended_attributes = FALSE;
+static bool validate_authenticator = false;
+static bool show_length = false;
+static bool disable_extended_attributes = false;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 

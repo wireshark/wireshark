@@ -58,17 +58,17 @@ void proto_register_t38(void);
 static int t38_tap;
 
 /* dissect using the Pre Corrigendum T.38 ASN.1 specification (1998) */
-static gboolean use_pre_corrigendum_asn1_specification = TRUE;
+static bool use_pre_corrigendum_asn1_specification = true;
 
 /* dissect packets that looks like RTP version 2 packets as RTP     */
 /* instead of as T.38. This may result in that some T.38 UPTL       */
 /* packets with sequence number values higher than 32767 may be     */
 /* shown as RTP packets.                                            */
-static gboolean dissect_possible_rtpv2_packets_as_rtp = FALSE;
+static bool dissect_possible_rtpv2_packets_as_rtp = false;
 
 
 /* Reassembly of T.38 PDUs over TPKT over TCP */
-static gboolean t38_tpkt_reassembly = TRUE;
+static bool t38_tpkt_reassembly = true;
 
 /* Preference setting whether TPKT header is used when sending T.38 over TCP.
  * The default setting is Maybe where the dissector will look on the first
@@ -207,7 +207,7 @@ void proto_reg_handoff_t38(void);
 
 static void show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conv);
 /* Preferences bool to control whether or not setup info should be shown */
-static gboolean global_t38_show_setup_info = TRUE;
+static bool global_t38_show_setup_info = true;
 
 /* Can tap up to 4 T38 packets within same packet */
 /* We only tap the primary part, not the redundancy */

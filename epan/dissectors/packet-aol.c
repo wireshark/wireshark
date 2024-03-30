@@ -119,7 +119,7 @@ static expert_field ei_aol_pdu_length_bad;
 static expert_field ei_aol_end_missing;
 
 /* Prefs */
-static gboolean aol_desegment  = TRUE;
+static bool aol_desegment  = true;
 
 /**
  * Dissect the 'INIT' PDU.

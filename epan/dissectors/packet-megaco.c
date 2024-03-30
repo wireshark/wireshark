@@ -194,8 +194,8 @@ typedef enum
 * a detailed tree that expresses a somewhat more semantically meaningful
 * decode.
 */
-static gboolean global_megaco_raw_text = TRUE;
-static gboolean global_megaco_dissect_tree = TRUE;
+static bool global_megaco_raw_text = true;
+static bool global_megaco_dissect_tree = true;
 
 static const value_string megaco_context_vals[] = {
    { CHOOSE_CONTEXT,       "Choose one"     },
@@ -467,7 +467,7 @@ static dissector_handle_t h245_handle;
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_otp_handle;
 
-static gboolean keep_persistent_data = FALSE;
+static bool keep_persistent_data = false;
 
 /*
  * dissect_megaco_text over TCP, there will be a TPKT header there

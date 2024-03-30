@@ -57,7 +57,7 @@ static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 static reassembly_table nr_rrc_sib7_reassembly_table;
 static reassembly_table nr_rrc_sib8_reassembly_table;
 
-static gboolean nr_rrc_nas_in_root_tree;
+static bool nr_rrc_nas_in_root_tree;
 
 extern int proto_mac_nr;
 extern int proto_rlc_nr;

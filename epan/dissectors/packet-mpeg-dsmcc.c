@@ -62,7 +62,7 @@ static dissector_handle_t dsmcc_ts_handle, dsmcc_tcp_handle, dsmcc_udp_handle;
 
 
 static int proto_dsmcc;
-static gboolean dsmcc_sect_check_crc = FALSE;
+static bool dsmcc_sect_check_crc = false;
 
 /* NOTE: Please add values numerically according to 13818-6 so it is easier to
  * keep track of what parameters/tables are associated with each other.

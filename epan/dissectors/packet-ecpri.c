@@ -142,7 +142,7 @@ static int hf_ecpri_length;
 /**************************************************************************************************/
 /* Preference to use the eCPRI Specification 1.2 encoding                                         */
 /**************************************************************************************************/
-static gboolean pref_message_type_decoding    = TRUE;
+static bool pref_message_type_decoding    = true;
 
 /**************************************************************************************************/
 /* eCPRI Handle                                                                                   */

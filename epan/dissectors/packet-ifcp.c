@@ -127,7 +127,7 @@ static int ett_ifcp_protocol;
 static int ett_ifcp_version;
 static int ett_ifcp_frame_len;
 
-static gboolean ifcp_desegment    = TRUE;
+static bool ifcp_desegment    = true;
 
 static dissector_handle_t ifcp_handle = NULL;
 static dissector_handle_t fc_handle   = NULL;

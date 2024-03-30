@@ -52,7 +52,7 @@ static gint ett_gssapi_segments;
 
 static expert_field ei_gssapi_unknown_header;
 
-static gboolean gssapi_reassembly = TRUE;
+static bool gssapi_reassembly = true;
 
 static dissector_handle_t gssapi_handle;
 

@@ -41,7 +41,7 @@ typedef struct _fix_parameter {
 static int proto_fix;
 
 /* desegmentation of fix */
-static gboolean fix_desegment = TRUE;
+static bool fix_desegment = true;
 
 /* Initialize the subtree pointers */
 static gint ett_fix;

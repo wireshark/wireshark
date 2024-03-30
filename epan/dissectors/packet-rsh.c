@@ -30,9 +30,9 @@ void proto_reg_handoff_rsh(void);
 static dissector_handle_t rsh_handle;
 
 /* Variables for our preferences */
-static gboolean preference_info_show_client_username = FALSE;
-static gboolean preference_info_show_server_username = TRUE;
-static gboolean preference_info_show_command = FALSE;
+static bool preference_info_show_client_username = false;
+static bool preference_info_show_server_username = true;
+static bool preference_info_show_command = false;
 
 /* Initialize the protocol and registered fields */
 static int proto_rsh;

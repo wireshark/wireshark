@@ -189,7 +189,7 @@ static int hf_gquic_stream_data;
 static int hf_gquic_payload;
 
 #define QUIC_PORT_RANGE "80,443"
-static gboolean g_gquic_debug = FALSE;
+static bool g_gquic_debug = false;
 
 static gint ett_gquic;
 static gint ett_gquic_puflags;

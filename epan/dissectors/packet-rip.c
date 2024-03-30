@@ -66,7 +66,7 @@ static const value_string rip_auth_type[] = {
 #define RIP_ENTRY_LENGTH 20
 #define MD5_AUTH_DATA_LEN 16
 
-static gboolean pref_display_routing_domain = FALSE;
+static bool pref_display_routing_domain = false;
 
 static dissector_handle_t rip_handle;
 

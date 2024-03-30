@@ -192,7 +192,7 @@ static gint ett_sasp_wt_rep;
 static expert_field ei_msg_type_invalid;
 
 /* desegmentation of SASP over TCP */
-static gboolean sasp_desegment = TRUE;
+static bool sasp_desegment = true;
 
 static const value_string msg_table[] = {
     { 0x1010, "Registration Request" },

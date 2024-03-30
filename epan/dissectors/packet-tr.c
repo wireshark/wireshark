@@ -58,7 +58,7 @@ static int tr_tap;
 /*
  * Check for and attempt to fix Linux link-layer header mangling.
  */
-static gboolean fix_linux_botches = FALSE;
+static bool fix_linux_botches = false;
 
 #define TR_MIN_HEADER_LEN 14
 #define TR_MAX_HEADER_LEN 32

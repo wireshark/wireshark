@@ -207,10 +207,10 @@ typedef enum _memcache_type {
 } memcache_type_t;
 
 /* desegmentation of MEMCACHE header */
-static gboolean memcache_desegment_headers = TRUE;
+static bool memcache_desegment_headers = true;
 
 /* desegmentation of MEMCACHE payload */
-static gboolean memcache_desegment_body = TRUE;
+static bool memcache_desegment_body = true;
 
 /* should refer to either the request or the response dissector.
  */

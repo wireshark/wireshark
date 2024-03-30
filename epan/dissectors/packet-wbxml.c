@@ -172,8 +172,8 @@ static expert_field ei_wbxml_too_much_recursion;
 static dissector_handle_t wbxml_handle;
 
 /* WBXML Preferences */
-static gboolean skip_wbxml_token_mapping = FALSE;
-static gboolean disable_wbxml_token_parsing = FALSE;
+static bool skip_wbxml_token_mapping = false;
+static bool disable_wbxml_token_parsing = false;
 
 
 typedef struct _value_valuestring {

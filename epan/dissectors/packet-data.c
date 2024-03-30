@@ -32,10 +32,10 @@ static int hf_data_text;
 static int hf_data_uncompressed_data;
 static int hf_data_uncompressed_len;
 
-static gboolean new_pane = FALSE;
-static gboolean uncompress_data = FALSE;
-static gboolean show_as_text = FALSE;
-static gboolean generate_md5_hash = FALSE;
+static bool new_pane = false;
+static bool uncompress_data = false;
+static bool show_as_text = false;
+static bool generate_md5_hash = false;
 
 static gint ett_data;
 

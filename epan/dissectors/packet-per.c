@@ -97,7 +97,7 @@ printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->num,x,(int)tvb);
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
 */
-static gboolean display_internal_per_fields = FALSE;
+static bool display_internal_per_fields = false;
 
 
 

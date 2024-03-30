@@ -123,7 +123,7 @@ static int ett_json;
 
 static int container_io_tap;
 
-static gboolean pref_show_internal = false;
+static bool pref_show_internal = false;
 
 static dissector_table_t ptype_dissector_table;
 static dissector_handle_t json_handle = NULL;

@@ -33,7 +33,7 @@ void proto_reg_handoff_nasdaq_itch(void);
 static dissector_handle_t nasdaq_itch_handle;
 
 /* Chi-X version */
-static gboolean nasdaq_itch_chi_x = TRUE;
+static bool nasdaq_itch_chi_x = true;
 
 static const value_string message_types_val[] = {
  { 'A', "Add Order " },

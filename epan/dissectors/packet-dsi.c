@@ -108,7 +108,7 @@ static const value_string dsi_open_type_vals[] = {
 	{0,                   NULL } };
 
 /* desegmentation of DSI */
-static gboolean dsi_desegment = TRUE;
+static bool dsi_desegment = true;
 
 static dissector_handle_t afp_handle;
 static dissector_handle_t afp_server_status_handle;

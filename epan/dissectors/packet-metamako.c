@@ -35,7 +35,7 @@ void proto_register_metamako(void);
 void proto_reg_handoff_metamako(void);
 
 /* FCS Options */
-static gboolean metamako_check_fcs = TRUE;
+static bool metamako_check_fcs = true;
 static gint metamako_fcs_len = -1; /* By default, try to autodetect the FCS. */
 /* Heuristic Options */
 static gint metamako_trailer_present = -1; /* By default, try to autodetect the trailer. */

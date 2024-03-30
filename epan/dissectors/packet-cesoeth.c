@@ -97,8 +97,8 @@ static const value_string l1_m_names[] =
 };
 
 /* Preferences */
-static gboolean has_rtp_header = FALSE;
-static gboolean heuristic_rtp_header = TRUE;
+static bool has_rtp_header = false;
+static bool heuristic_rtp_header = true;
 
 
 static int

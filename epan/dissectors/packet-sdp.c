@@ -70,7 +70,7 @@ static wmem_tree_t *sdp_transport_reqs = NULL;
 static wmem_tree_t *sdp_transport_rsps = NULL;
 
 /* preference globals */
-static gboolean global_sdp_establish_conversation = TRUE;
+static bool global_sdp_establish_conversation = true;
 
 /* Top level fields */
 static int hf_protocol_version;

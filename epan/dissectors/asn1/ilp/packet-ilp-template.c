@@ -47,7 +47,7 @@ static int proto_ilp;
 
 #define ILP_HEADER_SIZE 2
 
-static gboolean ilp_desegment = TRUE;
+static bool ilp_desegment = true;
 
 #include "packet-ilp-hf.c"
 static int hf_ilp_mobile_directory_number;

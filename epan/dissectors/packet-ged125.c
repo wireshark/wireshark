@@ -143,7 +143,7 @@ static expert_field ei_ged125_TrunkCount_invalid;
 static dissector_handle_t ged125_handle;
 
 /* Preferences */
-static gboolean ged125_desegment_body = TRUE;
+static bool ged125_desegment_body = true;
 
 #define GED125_FAILURE_CONF_VALUE 1
 #define GED125_FAILURE_EVENT_VALUE 2

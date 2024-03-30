@@ -932,7 +932,7 @@ static const true_false_string tfs_random_public = {
 void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
 
-static gboolean btle_detect_retransmit = TRUE;
+static bool btle_detect_retransmit = true;
 
 static void
 btle_init(void)

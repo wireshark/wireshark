@@ -46,11 +46,11 @@ static int proto_tecmp_payload;
 static dissector_handle_t eth_handle;
 static int proto_vlan;
 
-static gboolean heuristic_first = FALSE;
-static gboolean analog_samples_are_signed_int = TRUE;
-static gboolean show_ethernet_in_tecmp_tree = FALSE;
-static gboolean detect_asam_cmp = TRUE;
-static gboolean detect_asam_cmp_ignore_user_defined = TRUE;
+static bool heuristic_first = false;
+static bool analog_samples_are_signed_int = true;
+static bool show_ethernet_in_tecmp_tree = false;
+static bool detect_asam_cmp = true;
+static bool detect_asam_cmp_ignore_user_defined = true;
 
 static dissector_table_t lin_subdissector_table;
 static dissector_table_t data_subdissector_table;

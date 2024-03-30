@@ -1040,7 +1040,7 @@ static const fragment_items dcerpc_frag_items = {
 };
 
 /* try to desegment big DCE/RPC packets over TCP? */
-static gboolean dcerpc_cn_desegment = TRUE;
+static bool dcerpc_cn_desegment = true;
 
 /* reassemble DCE/RPC fragments */
 /* reassembly of cl dcerpc fragments will not work for the case where ONE frame
@@ -1051,7 +1051,7 @@ static gboolean dcerpc_cn_desegment = TRUE;
    reassembly of co dcerpc fragments will not work for the case where TCP/SMB frames
    are coming in out of sequence, but that will hurt in a lot of other places as well.
 */
-static gboolean dcerpc_reassemble = TRUE;
+static bool dcerpc_reassemble = true;
 static reassembly_table dcerpc_co_reassembly_table;
 static reassembly_table dcerpc_cl_reassembly_table;
 

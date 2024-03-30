@@ -143,8 +143,8 @@ static int uri_address_type = -1;
 /**
 *   global preferences
 **/
-static gboolean gDESEGMENT = TRUE;
-static gboolean gMSG_MEDIA = TRUE;
+static bool gDESEGMENT = true;
+static bool gMSG_MEDIA = true;
 
 static dissector_handle_t jxta_udp_handle;
 

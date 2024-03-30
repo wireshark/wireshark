@@ -31,7 +31,7 @@ void proto_reg_handoff_pn_rt(void);
 
 /* Define the pn-rt proto */
 static int proto_pn_rt;
-static gboolean pnio_desegment = TRUE;
+static bool pnio_desegment = true;
 
 static dissector_handle_t pn_rt_handle;
 
@@ -89,7 +89,7 @@ static expert_field ei_pn_rt_sf_crc16;
  * the various user definable characteristics of the dissection
  */
 /* Place summary in proto tree */
-static gboolean pn_rt_summary_in_tree = TRUE;
+static bool pn_rt_summary_in_tree = true;
 
 /* heuristic to find the right pn-rt payload dissector */
 static heur_dissector_list_t heur_subdissector_list;

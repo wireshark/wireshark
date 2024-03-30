@@ -77,7 +77,7 @@ static dissector_handle_t modbus_handle;
 static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
 
-static gboolean cip_enhanced_info_column = TRUE;
+static bool cip_enhanced_info_column = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_cip;

@@ -175,7 +175,7 @@ static guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, prot
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Preferences bool to control whether or not setup info should be shown */
-static gboolean global_rdt_show_setup_info = TRUE;
+static bool global_rdt_show_setup_info = true;
 
 /* Packet types */
 #define RDT_ASMACTIION_PACKET               0xff00

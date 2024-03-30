@@ -58,7 +58,7 @@ void proto_reg_handoff_uma(void);
 
 /* Length field is 2 bytes and comes first */
 #define UMA_HEADER_SIZE 2
-static gboolean uma_desegment = TRUE;
+static bool uma_desegment = true;
 
 static dissector_handle_t uma_tcp_handle;
 static dissector_handle_t uma_udp_handle;

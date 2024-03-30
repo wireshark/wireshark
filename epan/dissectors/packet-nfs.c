@@ -1016,13 +1016,13 @@ typedef struct nfs_fhandle_data {
 
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
-gboolean nfs_fhandle_reqrep_matching = FALSE;
+bool nfs_fhandle_reqrep_matching = false;
 static wmem_tree_t *nfs_fhandle_frame_table = NULL;
 
 
 /* file name snooping */
-gboolean nfs_file_name_snooping = FALSE;
-static gboolean nfs_file_name_full_snooping = FALSE;
+bool nfs_file_name_snooping = false;
+static bool nfs_file_name_full_snooping = false;
 typedef struct nfs_name_snoop {
 	int	       fh_length;
 	unsigned char *fh;
@@ -1048,8 +1048,8 @@ static GHashTable *nfs_name_snoop_matched = NULL;
 static wmem_tree_t *nfs_name_snoop_known = NULL;
 static wmem_tree_t *nfs_file_handles = NULL;
 
-static gboolean nfs_display_v4_tag = TRUE;
-static gboolean display_major_nfs4_ops = TRUE;
+static bool nfs_display_v4_tag = true;
+static bool display_major_nfs4_ops = true;
 
 /* Types of RDMA reduced opaque data */
 typedef enum {

@@ -66,7 +66,7 @@ static gint ett_data;
 static dissector_handle_t  adb_service_handle;
 static dissector_handle_t  logcat_handle;
 
-static gboolean pref_dissect_more_detail_framebuffer = FALSE;
+static bool pref_dissect_more_detail_framebuffer = false;
 
 static wmem_tree_t *fragments = NULL;
 static wmem_tree_t *framebuffer_infos = NULL;

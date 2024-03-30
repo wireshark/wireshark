@@ -1148,7 +1148,7 @@ static dissector_handle_t couchbase_handle;
 static dissector_handle_t json_handle;
 
 /* desegmentation of COUCHBASE payload */
-static gboolean couchbase_desegment_body = TRUE;
+static bool couchbase_desegment_body = true;
 static guint couchbase_ssl_port = 11207;
 static guint couchbase_ssl_port_pref = 11207;
 

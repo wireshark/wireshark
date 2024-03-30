@@ -311,7 +311,7 @@ static expert_field ei_format_rev_conn_pt;
 static dissector_handle_t cipmotion_handle;
 static dissector_handle_t cipmotion3_handle;
 
-static gboolean display_full_attribute_data = FALSE;
+static bool display_full_attribute_data = false;
 
 /* These are the BITMASKS for the Time Data Set header field */
 #define TIME_DATA_SET_TIME_STAMP                0x1

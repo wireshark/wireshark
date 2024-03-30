@@ -71,11 +71,11 @@ void proto_reg_handoff_thrift(void);
 
 static dissector_handle_t thrift_handle;
 static dissector_handle_t thrift_http_handle;
-static gboolean framed_desegment = TRUE;
+static bool framed_desegment = true;
 static guint thrift_tls_port = 0;
 
-static gboolean show_internal_thrift_fields = FALSE;
-static gboolean try_generic_if_sub_dissector_fails = FALSE;
+static bool show_internal_thrift_fields = false;
+static bool try_generic_if_sub_dissector_fails = false;
 static guint nested_type_depth = 25;
 
 static dissector_table_t thrift_method_name_dissector_table;

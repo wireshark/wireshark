@@ -181,7 +181,7 @@ static expert_field ei_bpdu_type;
 static expert_field ei_bpdu_version_support;
 
 
-static gboolean bpdu_use_system_id_extensions = TRUE;
+static bool bpdu_use_system_id_extensions = true;
 
 static dissector_handle_t gvrp_handle;
 static dissector_handle_t gmrp_handle;

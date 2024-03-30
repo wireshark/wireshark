@@ -20,7 +20,7 @@ typedef enum {
 #define HEURISTIC_FAILED_STANDARD 0xffff
 
 extern gint mtp3_standard;
-extern gboolean mtp3_heuristic_standard;
+extern bool mtp3_heuristic_standard;
 
 WS_DLL_PUBLIC const value_string mtp3_standard_vals[];
 

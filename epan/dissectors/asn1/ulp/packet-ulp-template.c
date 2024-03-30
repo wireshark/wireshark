@@ -49,7 +49,7 @@ static int proto_ulp;
 
 #define ULP_HEADER_SIZE 2
 
-static gboolean ulp_desegment = TRUE;
+static bool ulp_desegment = true;
 
 #include "packet-ulp-hf.c"
 static int hf_ulp_mobile_directory_number;

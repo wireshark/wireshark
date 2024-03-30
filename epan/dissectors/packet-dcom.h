@@ -26,7 +26,7 @@ extern int hf_dcom_ipid;
 extern GHashTable *dcom_uuids;
 
 /* preferences */
-WS_DLL_PUBLIC gboolean dcom_prefs_display_unmarshalling_details;
+WS_DLL_PUBLIC bool dcom_prefs_display_unmarshalling_details;
 
 
 typedef struct dcom_machine_s {

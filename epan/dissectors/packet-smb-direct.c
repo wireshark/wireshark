@@ -93,7 +93,7 @@ enum SMB_DIRECT_HDR_TYPE {
 
 static heur_dissector_list_t smb_direct_heur_subdissector_list;
 
-static gboolean smb_direct_reassemble = TRUE;
+static bool smb_direct_reassemble = true;
 static reassembly_table smb_direct_reassembly_table;
 
 static void

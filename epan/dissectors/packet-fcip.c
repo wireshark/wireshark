@@ -119,7 +119,7 @@ static int hf_fcip_conn_flags;
 static int ett_fcip;
 
 static guint fcip_port         = 3225;
-static gboolean fcip_desegment = TRUE;
+static bool fcip_desegment = true;
 
 static dissector_handle_t fc_handle;
 static dissector_handle_t fcip_handle;

@@ -40,7 +40,7 @@ static int hf_openflow_version;
 
 static expert_field ei_openflow_version;
 
-static gboolean openflow_desegment = TRUE;
+static bool openflow_desegment = true;
 
 #define OFP_VERSION_1_0 1
 #define OFP_VERSION_1_1 2

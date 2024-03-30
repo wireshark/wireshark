@@ -71,7 +71,7 @@ static dissector_handle_t tds_handle;
 static dissector_handle_t smp_handle;
 static dissector_table_t smp_payload_table;
 
-static gboolean reassemble_smp = TRUE;
+static bool reassemble_smp = true;
 
 static void smp_prompt(packet_info *pinfo _U_, gchar* result)
 {

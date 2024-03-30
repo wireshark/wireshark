@@ -136,7 +136,7 @@ static void private_data_set_binding_id_port(asn1_ctx_t *actx, guint16 binding_i
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
-static gboolean glbl_dissect_container = FALSE;
+static bool glbl_dissect_container = false;
 
 static dissector_handle_t ranap_handle;
 

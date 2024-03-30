@@ -80,7 +80,7 @@ static int hf_pgsl_ab_ab_type;
 static int ett_pgsl;
 static int ett_pacch;
 
-static gboolean abis_pgsl_ir = FALSE;
+static bool abis_pgsl_ir = false;
 
 #define PGSL_MSG_DLDATA_REQ	1
 #define PGSL_MSG_DLDATA_IND	2

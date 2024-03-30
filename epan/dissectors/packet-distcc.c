@@ -40,7 +40,7 @@ static gint ett_distcc;
 static expert_field ei_distcc_short_pdu;
 
 
-static gboolean distcc_desegment = TRUE;
+static bool distcc_desegment = true;
 
 
 #define TCP_PORT_DISTCC 3632

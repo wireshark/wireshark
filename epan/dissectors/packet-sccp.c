@@ -709,10 +709,10 @@ static expert_field ei_sccp_gt_digits_missing;
 static expert_field ei_sccp_externally_reassembled;
 
 
-static gboolean sccp_reassemble = TRUE;
-static gboolean show_key_params = FALSE;
-static gboolean set_addresses = FALSE;
-static gboolean dt1_ignore_length = FALSE;
+static bool sccp_reassemble = true;
+static bool show_key_params = false;
+static bool set_addresses = false;
+static bool dt1_ignore_length = false;
 
 static int ss7pc_address_type = -1;
 
@@ -802,8 +802,8 @@ static const value_string sccp_users_vals[] = {
  * the various user definable characteristics of the dissection
  */
 static guint32  sccp_source_pc_global = 0;
-static gboolean sccp_show_length      = FALSE;
-static gboolean trace_sccp            = FALSE;
+static bool sccp_show_length      = false;
+static bool trace_sccp            = false;
 
 static heur_dissector_list_t heur_subdissector_list;
 

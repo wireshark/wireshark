@@ -1304,7 +1304,7 @@ static expert_field ei_tds_invalid_plp_type;
 static expert_field ei_tds_cursor_name_mismatch;
 
 /* Desegmentation of Netlib buffers crossing TCP segment boundaries. */
-static gboolean tds_desegment = TRUE;
+static bool tds_desegment = true;
 
 static const fragment_items tds_frag_items = {
     &ett_tds_fragment,
@@ -1328,7 +1328,7 @@ static const fragment_items tds_frag_items = {
 static reassembly_table tds_reassembly_table;
 
 /* defragmentation of multi-buffer TDS PDUs */
-static gboolean tds_defragment = TRUE;
+static bool tds_defragment = true;
 
 static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;

@@ -22,7 +22,7 @@ void proto_reg_handoff_gadu_gadu(void);
 #define TCP_PORT_GADU_GADU 8074	/* assigned by IANA */
 
 /* desegmentation of Gadu-Gadu over TCP */
-static gboolean gadu_gadu_desegment = TRUE;
+static bool gadu_gadu_desegment = true;
 
 static dissector_handle_t gadu_gadu_handle;
 

@@ -53,7 +53,7 @@ void proto_reg_handoff_dbus(void);
 
 static int proto_dbus;
 static gboolean dbus_desegment = TRUE;
-static gboolean dbus_resolve_names = TRUE;
+static bool dbus_resolve_names = true;
 
 static dissector_handle_t dbus_handle;
 static dissector_handle_t dbus_handle_tcp;

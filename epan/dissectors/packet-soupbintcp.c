@@ -102,7 +102,7 @@ static dissector_handle_t soupbintcp_handle;
 static heur_dissector_list_t heur_subdissector_list;
 
 /* Preferences */
-static gboolean soupbintcp_desegment = TRUE;
+static bool soupbintcp_desegment = true;
 
 /* Initialize the subtree pointers */
 static gint ett_soupbintcp;

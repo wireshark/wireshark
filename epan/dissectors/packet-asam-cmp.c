@@ -32,8 +32,8 @@ static int proto_asam_cmp;
 
 static dissector_handle_t eth_handle;
 
-static gboolean heuristic_first = FALSE;
-static gboolean old_11bit_canid_encoding = FALSE;
+static bool heuristic_first = false;
+static bool old_11bit_canid_encoding = false;
 
 static dissector_table_t lin_subdissector_table;
 

@@ -148,7 +148,7 @@ static expert_field ei_nhrp_ext_not_allowed;
 static expert_field ei_nhrp_ext_malformed;
 static expert_field ei_nhrp_ext_extra;
 
-static gboolean pref_auth_ext_has_addr = TRUE;
+static bool pref_auth_ext_has_addr = true;
 
 /* NHRP Packet Types */
 #define NHRP_RESOLUTION_REQ     1

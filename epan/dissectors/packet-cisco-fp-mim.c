@@ -26,7 +26,7 @@
 void proto_register_mim(void);
 void proto_reg_handoff_fabricpath(void);
 
-static gboolean fp_check_fcs = FALSE;
+static bool fp_check_fcs = false;
 
 static int proto_fp;
 static gint ett_mim;

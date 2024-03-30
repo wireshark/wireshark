@@ -35,7 +35,7 @@ void proto_reg_handoff_srvloc(void);
 static dissector_handle_t srvloc_handle;
 static dissector_handle_t srvloc_tcp_handle;
 
-static gboolean srvloc_desegment = TRUE;
+static bool srvloc_desegment = true;
 static int proto_srvloc;
 static int hf_srvloc_version;
 static int hf_srvloc_function;

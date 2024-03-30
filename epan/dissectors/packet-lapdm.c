@@ -101,7 +101,7 @@ static wmem_map_t *lapdm_last_n_s_map;
 
 static dissector_table_t lapdm_sapi_dissector_table;
 
-static gboolean reassemble_lapdm = TRUE;
+static bool reassemble_lapdm = true;
 
 /*
  * Bits in the address field.

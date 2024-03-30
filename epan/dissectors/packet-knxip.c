@@ -490,7 +490,7 @@ guint8 knxip_host_protocol;
 expert_field ei_knxip_error;
 expert_field ei_knxip_warning;
 
-static gboolean pref_desegment = TRUE;
+static bool pref_desegment = true;
 static const gchar* pref_key_texts[ MAX_KNX_DECRYPTION_KEYS ];
 //static const gchar* authentication_code_text;
 //static const gchar* password_hash_text;

@@ -55,8 +55,8 @@ static dissector_handle_t hpfeeds_handle;
 static heur_dissector_list_t heur_subdissector_list;
 
 /* Preferences */
-static gboolean hpfeeds_desegment = TRUE;
-static gboolean try_heuristic = TRUE;
+static bool hpfeeds_desegment = true;
+static bool try_heuristic = true;
 
 static int proto_hpfeeds;
 

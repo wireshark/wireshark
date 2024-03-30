@@ -82,7 +82,7 @@ static int * const flags_hf_flags[] = {
 static gint ett_monero;
 static gint ett_flags;
 
-static gboolean monero_desegment  = TRUE;
+static bool monero_desegment  = true;
 
 static guint
 get_monero_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
