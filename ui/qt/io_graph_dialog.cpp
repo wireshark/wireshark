@@ -2241,8 +2241,9 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
 //        qDebug() << "=rgd i" << i << ts << val;
     }
 
-    // attempt to rescale time values to specific units
-    if (enable_scaling) {
+    // attempt to rescale time values to specific units if this
+    // is the only enabled graph
+    if (enable_scaling && visible_) {
         calculateScaledValueUnit();
     } else {
         scaled_value_unit_.clear();
