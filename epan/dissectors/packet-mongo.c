@@ -1024,6 +1024,10 @@ get_mongo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
   * Get the length of the MONGO packet.
   */
   plen = tvb_get_letohl(tvb, offset);
+  /* XXX - This is signed, but we can only return an unsigned to
+   * tcp_dissect_pdus. If negative, should we return something like
+   * 1 (less than the fixed len 4) so that it causes a ReportedBoundsError?
+   */
 
   return plen;
 }
@@ -1041,6 +1045,13 @@ test_mongo(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
   uint32_t opcode;
 
   if (tvb_captured_length_remaining(tvb, offset) < 16) {
+    return FALSE;
+  }
+
+  if (tvb_get_letohil(tvb, offset) < 4) {
+    /* Message sizes are signed in the MongoDB Wire Protocol and
+     * include the header.
+     */
     return FALSE;
   }
 
@@ -1073,7 +1084,7 @@ proto_register_mongo(void)
     { &hf_mongo_message_length,
       { "Message Length", "mongo.message_length",
       FT_INT32, BASE_DEC, NULL, 0x0,
-      "Total message size (include this)", HFILL }
+      "Total message size (including header)", HFILL }
     },
     { &hf_mongo_request_id,
       { "Request ID", "mongo.request_id",
