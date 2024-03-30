@@ -831,7 +831,10 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
 
   switch (e_type) {
     case KIND_BODY:
-      dissect_bson_document(tvb, pinfo, offset, section_tree, hf_mongo_msg_sections_section_body);
+      section_len = dissect_bson_document(tvb, pinfo, offset, section_tree, hf_mongo_msg_sections_section_body);
+      /* If section_len is bogus (e.g., negative), dissect_bson_document sets
+       * an expert info and can return a different value than read above.
+       */
       break;
     case KIND_DOCUMENT_SEQUENCE: {
       gint32 dsi_length;
@@ -840,6 +843,9 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
       proto_tree *documents_tree;
 
       proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      /* This is redundant with the lengths in the documents, we don't use this
+       * size at all. We could still report an expert info if it's bogus.
+       */
       offset += 4;
       to_read -= 4;
 
