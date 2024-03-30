@@ -6030,7 +6030,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_reserved, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
             local_offset = offset + 10;
             if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
-                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_ospf, tvb, local_offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_ospf, tvb, local_offset, 4, ENC_BIG_ENDIAN);
                 local_offset += 4;
             } else {
                 /* FF: most common case is IS-IS, so if it is not OSPF we go that way */

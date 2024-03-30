@@ -2913,7 +2913,7 @@ dissect_rsvp_session(packet_info *pinfo, proto_item *ti, proto_tree *rsvp_object
                             hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
                             tvb, offset2+6, 2, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_extended_tunnel, tvb, offset2+8, 16, ENC_NA);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_extended_tunnel_ipv6, tvb, offset2+8, 16, ENC_NA);
         hidden_item = proto_tree_add_item(rsvp_object_tree,
                                    hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID_IPV6],
                                    tvb, offset2+8, 16, ENC_NA);

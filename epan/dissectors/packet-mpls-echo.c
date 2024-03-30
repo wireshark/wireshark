@@ -234,7 +234,7 @@ static int hf_mpls_echo_tlv_echo_jitter;
 static int hf_mpls_echo_tlv_responder_indent_type;
 static int hf_mpls_echo_tlv_responder_indent_len;
 static int hf_mpls_echo_tlv_responder_indent_ipv4;
-/* static int hf_mpls_echo_tlv_responder_indent_ipv6; */
+static int hf_mpls_echo_tlv_responder_indent_ipv6;
 static int hf_mpls_echo_tlv_bfd;
 
 static gint ett_mpls_echo;
@@ -1743,8 +1743,8 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
             hidden_item = proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_len,
                                               tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             proto_item_set_hidden(hidden_item);
-            proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
-                                tvb, offset + 8, 16, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv6,
+                                tvb, offset + 8, 16, ENC_NA);
             break;
         }
         break;
@@ -2755,12 +2755,10 @@ proto_register_mpls_echo(void)
           { "Target IPv4 Address", "mpls_echo.tlv.resp_id.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv4 Address", HFILL}
         },
-#if 0
         { &hf_mpls_echo_tlv_responder_indent_ipv6,
           { "Target IPv6 Address", "mpls_echo.tlv.resp_id.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv6 Address", HFILL}
         },
-#endif
         { &hf_mpls_echo_tlv_echo_jitter,
           { "Echo Jitter time", "mpls_echo.tlv.echo_jitter",
             FT_UINT32, BASE_DEC, NULL, 0x0, "MPLS ECHO Jitter time", HFILL}
