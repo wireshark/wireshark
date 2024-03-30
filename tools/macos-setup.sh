@@ -62,6 +62,14 @@ fi
 # XXX: tar, since macOS 10.9, can uncompress xz'ed tarballs,
 # so perhaps we could get rid of this now?
 #
+# DO NOT UPDATE THIS TO A COMPROMISED VERSION; see
+#
+#    https://www.openwall.com/lists/oss-security/2024/03/29/4
+#
+#    https://access.redhat.com/security/cve/CVE-2024-3094
+#
+#    https://nvd.nist.gov/vuln/detail/CVE-2024-3094
+#
 XZ_VERSION=5.2.5
 
 #
