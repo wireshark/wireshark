@@ -629,6 +629,9 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     bool visible = graphIsEnabled(row);
     bool retap = !iog->visible() && visible;
+    // XXX - Do we really need to retap every time we make the graph
+    // visible from invisible? If we have tapped before and nothing
+    // has changed, we might be able to get away with only a recalc.
     QString data_str;
 
     iog->setName(uat_model_->data(uat_model_->index(row, colName)).toString());
@@ -1852,13 +1855,23 @@ void IOGraph::setFilter(const QString &filter)
         }
     }
 
-    error_string = set_tap_dfilter(this, full_filter.toUtf8().constData());
-    if (error_string) {
-        config_err_ = error_string->str;
-        g_string_free(error_string, TRUE);
-        return;
-    } else {
-        /* If we changed the tap filter, we need to retap. */
+    if (full_filter_.compare(full_filter)) {
+        error_string = set_tap_dfilter(this, full_filter.toUtf8().constData());
+        if (error_string) {
+            config_err_ = error_string->str;
+            g_string_free(error_string, TRUE);
+            return;
+        }
+
+        filter_ = filter;
+        full_filter_ = full_filter;
+        /* If we changed the tap filter the graph is visible, we need to
+         * retap. (If it's not visible, we'll retap when it becomes
+         * visible, see syncGraphSettings.) Note that setting the tap
+         * dfilter will mark the tap as needing a redraw, which will
+         * cause a recalculation (via tapDraw) via the (fairly long)
+         * main application timer.
+         */
         /* XXX - When changing from an advanced graph to one that doesn't
          * use the field, we don't actually need to retap if filter and
          * full_filter produce the same results. (We do have to retap
@@ -1870,11 +1883,9 @@ void IOGraph::setFilter(const QString &filter)
          * we could test the simple case where filter and vu_field are
          * the same string.
          */
-        if (full_filter_.compare(full_filter) && visible_) {
+        if (visible_) {
             emit requestRetap();
         }
-        filter_ = filter;
-        full_filter_ = full_filter;
     }
 }
 
@@ -1899,7 +1910,14 @@ void IOGraph::setVisible(bool visible)
         bars_->setVisible(visible_);
     }
     if (old_visibility != visible_) {
-        emit requestReplot();
+        // XXX - If the number of enabled graphs changed to or from 1, we
+        // need to recalculate to possibly change the rescaling. (This is
+        // why QCP recommends doing scaling in the axis ticker instead.)
+        // If we can't determined number of enabled graphs here, always
+        // request a recalculation instead of a replot. (At least until we
+        // change the scaling to be done in the ticker.)
+        //emit requestReplot();
+        emit requestRecalc();
     }
 }
 
