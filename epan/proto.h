@@ -1065,8 +1065,8 @@ static inline void proto_item_set_url(proto_item *ti) {
 }
 #define PROTO_ITEM_SET_URL(ti) proto_item_set_url((ti))
 
-typedef void (*proto_tree_foreach_func)(proto_node *, gpointer);
-typedef gboolean (*proto_tree_traverse_func)(proto_node *, gpointer);
+typedef void (*proto_tree_foreach_func)(proto_node *, void *);
+typedef bool (*proto_tree_traverse_func)(proto_node *, void *);
 
 WS_DLL_PUBLIC void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);

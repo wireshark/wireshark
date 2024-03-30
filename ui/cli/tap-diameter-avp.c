@@ -75,8 +75,8 @@ tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func, gpointe
 	return FALSE;
 }
 
-static gboolean
-diam_tree_to_csv(proto_node *node, gpointer data)
+static bool
+diam_tree_to_csv(proto_node *node, void * data)
 {
 	char		  *val_str = NULL;
 	char		  *val_tmp = NULL;
@@ -86,13 +86,13 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 
 	if (!node) {
 		fprintf(stderr, "traverse end: empty node. node='%p' data='%p'\n", (void *)node, (void *)data);
-		return FALSE;
+		return false;
 	}
 	fi = node->finfo;
 	hfi = fi ? fi->hfinfo : NULL;
 	if (!hfi) {
 		fprintf(stderr, "traverse end: hfi not found. node='%p'\n", (void *)node);
-		return FALSE;
+		return false;
 	}
 	ftype = fvalue_type_ftenum(fi->value);
 	if (ftype != FT_NONE && ftype != FT_PROTOCOL) {
@@ -109,7 +109,7 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 		printf("%s='%s' ", hfi->name, val_str);
 		g_free(val_str);
 	}
-	return FALSE;
+	return false;
 }
 
 static tap_packet_status
