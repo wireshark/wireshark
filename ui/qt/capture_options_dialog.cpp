@@ -794,7 +794,7 @@ void CaptureOptionsDialog::updateInterfaces()
     gint          buffer;
 #endif
     gint          snaplen;
-    gboolean      hassnap, pmode;
+    bool          hassnap, pmode;
     QList<QTreeWidgetItem *> selected_interfaces;
 
     disconnect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
@@ -1204,7 +1204,7 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
                 QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
                 QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
                 device = getDeviceByName(device_name);
-                if (!device || device->pmode == -1) {
+                if (!device || !device->pmode) {
                     continue;
                 }
                 pmode_list << QString("%1(%2)").arg(device->name).arg(device->pmode);

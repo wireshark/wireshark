@@ -164,8 +164,8 @@ typedef struct interface_tag {
     gchar          *cfilter;
     GList          *links;
     gint            active_dlt;
-    gboolean        pmode;
-    gboolean        has_snaplen;
+    bool            pmode;
+    bool            has_snaplen;
     int             snaplen;
     gboolean        local;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE

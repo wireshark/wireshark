@@ -31,7 +31,7 @@ extern "C" {
  * @return The device description (must be g_free'd later) or NULL
  * if not found.
  */
-char *capture_dev_user_descr_find(const gchar *if_name);
+char *capture_dev_user_descr_find(const char *if_name);
 
 /**
  * Find user-specified link-layer header type that matches interface
@@ -41,7 +41,7 @@ char *capture_dev_user_descr_find(const gchar *if_name);
  *
  * @return The link-layer header type (a DLT_) or -1 if not found.
  */
-gint capture_dev_user_linktype_find(const gchar *if_name);
+int capture_dev_user_linktype_find(const char *if_name);
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 /**
@@ -52,7 +52,7 @@ gint capture_dev_user_linktype_find(const gchar *if_name);
  *
  * @return The buffer size or -1 if not found.
  */
-gint capture_dev_user_buffersize_find(const gchar *if_name);
+int capture_dev_user_buffersize_find(const char *if_name);
 #endif
 
 /**
@@ -60,28 +60,28 @@ gint capture_dev_user_buffersize_find(const gchar *if_name);
  * name, if any.
  *
  * @param if_name The name of the interface.
- * @param hassnap Pointer to a variable to be set to TRUE if the
- * interface should be given a snap length or FALSE if it shouldn't
+ * @param hassnap Pointer to a variable to be set to true if the
+ * interface should be given a snap length or false if it shouldn't
  * be given a snap length.
  * @param snaplen Pointer to a variable to be set to the snap length
  * if the interface should be given a snap length or the maximum
  * snap length if it shouldn't be given a snap length.
  *
- * @return TRUE if found or FALSE if not found.
+ * @return true if found or false if not found.
  */
-gboolean capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snaplen);
+bool capture_dev_user_snaplen_find(const char *if_name, bool *hassnap, int *snaplen);
 
 /**
  * Find user-specified promiscuous mode that matches interface
  * name, if any.
  *
  * @param if_name The name of the interface.
- * @param pmode Pointer to a variable to be set to TRUE if promiscuous
- * mode should be used and FALSE if it shouldn't be used.
+ * @param pmode Pointer to a variable to be set to true if promiscuous
+ * mode should be used and false if it shouldn't be used.
  *
- * @return TRUE if found or FALSE if not found.
+ * @return true if found or false if not found.
  */
-gboolean capture_dev_user_pmode_find(const gchar *if_name, gboolean *pmode);
+bool capture_dev_user_pmode_find(const char *if_name, bool *pmode);
 
 /**
  * Find user-specified capture filter that matches interface
@@ -93,7 +93,7 @@ gboolean capture_dev_user_pmode_find(const gchar *if_name, gboolean *pmode);
  *
  * @return The capture filter (must be g_free'd later) or NULL if not found.
  */
-gchar* capture_dev_user_cfilter_find(const gchar *if_name);
+char* capture_dev_user_cfilter_find(const char *if_name);
 
 /** Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
@@ -114,7 +114,7 @@ char *get_interface_descriptive_name(const capture_options *capture_opts, const 
  *
  * @return A list of if_info_t structs (use free_capture_combo_list() later).
  */
-GList *build_capture_combo_list(GList *if_list, gboolean do_hide);
+GList *build_capture_combo_list(GList *if_list, bool do_hide);
 
 /** Free the GList from build_capture_combo_list().
  *
@@ -156,7 +156,7 @@ extern void set_active_dlt(interface_t *device, int global_default_dlt);
 #define IFLIST_QUOTE_IF_DESCRIPTION 0x00000001
 #define IFLIST_SHOW_FILTER          0x00000002
 
-extern GString *get_iface_list_string(capture_options *capture_opts, guint32 style);
+extern GString *get_iface_list_string(capture_options *capture_opts, uint32_t style);
 
 #ifdef __cplusplus
 }

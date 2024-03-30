@@ -33,10 +33,10 @@
  * the property.
  */
 static char *
-capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
+capture_dev_get_if_property(const char *pref, const char *if_name)
 {
-    gchar **if_tokens;
-    gchar *property = NULL;
+    char **if_tokens;
+    char *property = NULL;
     int i;
 
     if (if_name == NULL || strlen(if_name) < 1) {
@@ -55,7 +55,7 @@ capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
      */
     if_tokens = g_strsplit(pref, ",", -1);
     for (i = 0; if_tokens[i] != NULL; i++) {
-        gchar *opening_parenp, *closing_parenp;
+        char *opening_parenp, *closing_parenp;
 
         /*
          * Separate this item into name and property.
@@ -91,11 +91,11 @@ capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
  * Find a property that should be an integral value, and return the
  * value or, if it's not found or not a valid integral value, -1.
  */
-static gint
-capture_dev_get_if_int_property(const gchar *pref, const gchar *if_name)
+static int
+capture_dev_get_if_int_property(const char *pref, const char *if_name)
 {
-    gchar *property_string;
-    gint property;
+    char *property_string;
+    int property;
 
     property_string = capture_dev_get_if_property(pref, if_name);
     if (property_string == NULL) {
@@ -117,7 +117,7 @@ capture_dev_get_if_int_property(const gchar *pref, const gchar *if_name)
  * name, if any.
  */
 char *
-capture_dev_user_descr_find(const gchar *if_name)
+capture_dev_user_descr_find(const char *if_name)
 {
     char *descr = capture_dev_get_if_property(prefs.capture_devices_descr, if_name);
     if (descr == NULL && g_strcmp0(if_name, "-") == 0) {
@@ -132,35 +132,35 @@ capture_dev_user_descr_find(const gchar *if_name)
     return descr;
 }
 
-gint
-capture_dev_user_linktype_find(const gchar *if_name)
+int
+capture_dev_user_linktype_find(const char *if_name)
 {
     return capture_dev_get_if_int_property(prefs.capture_devices_linktypes, if_name);
 }
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-gint
-capture_dev_user_buffersize_find(const gchar *if_name)
+int
+capture_dev_user_buffersize_find(const char *if_name)
 {
     return capture_dev_get_if_int_property(prefs.capture_devices_buffersize, if_name);
 }
 #endif
 
-gboolean
-capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snaplen)
+bool
+capture_dev_user_snaplen_find(const char *if_name, bool *hassnap, int *snaplen)
 {
-    gboolean found = FALSE;
-    gchar **if_tokens;
+    bool found = false;
+    char **if_tokens;
     int i;
 
     if (if_name == NULL || strlen(if_name) < 1) {
-        return FALSE;
+        return false;
     }
 
     if ((prefs.capture_devices_snaplen == NULL) ||
             (*prefs.capture_devices_snaplen == '\0')) {
         /* There are no snap lengths defined */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -170,9 +170,9 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
      */
     if_tokens = g_strsplit(prefs.capture_devices_snaplen, ",", -1);
     for (i = 0; if_tokens[i] != NULL; i++) {
-        gchar *colonp;
-        const gchar *next;
-        gint value;
+        char *colonp;
+        const char *next;
+        int value;
 
         /*
          * This one's a bit ugly.
@@ -197,8 +197,8 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
             /* OK, this matches. */
             if (*(colonp + 1) == '0') {
                 /* {hassnap} is false, so just set the snaplen to WTAP_MAX_PACKET_SIZE_STANDARD. */
-                found = TRUE;
-                *hassnap = FALSE;
+                found = true;
+                *hassnap = false;
                 *snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
             } else if (*(colonp + 1) == '1') {
                 /* {hassnap} is true, so extract {snaplen} */
@@ -211,8 +211,8 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
                     /* Syntax error or range error. Give up. */
                     break;
                 }
-                found = TRUE;
-                *hassnap = TRUE;
+                found = true;
+                *hassnap = true;
                 *snaplen = value;
             } else {
                 /* Bad {hassnap}. Give up. */
@@ -226,22 +226,22 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
     return found;
 }
 
-gboolean
-capture_dev_user_pmode_find(const gchar *if_name, gboolean *pmode)
+bool
+capture_dev_user_pmode_find(const char *if_name, bool *pmode)
 {
     int value;
 
     value = capture_dev_get_if_int_property(prefs.capture_devices_pmode, if_name);
     if (value == -1) {
         /* Not found or bad. */
-        return FALSE;
+        return false;
     }
     *pmode = (value != 0);
-    return TRUE;
+    return true;
 }
 
-gchar*
-capture_dev_user_cfilter_find(const gchar *if_name)
+char*
+capture_dev_user_cfilter_find(const char *if_name)
 {
     return capture_dev_get_if_property(prefs.capture_devices_filter, if_name);
 }
@@ -314,13 +314,13 @@ get_interface_descriptive_name(const capture_options *capture_opts, const char *
 }
 
 GList *
-build_capture_combo_list(GList *if_list, gboolean do_hide)
+build_capture_combo_list(GList *if_list, bool do_hide)
 {
     GList *combo_list;
     GList *if_entry;
     if_info_t *if_info;
     char *if_string;
-    gchar *descr;
+    char *descr;
 
     combo_list = NULL;
     if (if_list != NULL) {
@@ -364,7 +364,7 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
 }
 
 static void
-free_if_string(gpointer data, gpointer user_data _U_)
+free_if_string(void *data, void *user_data _U_)
 {
     g_free(data);
 }
@@ -471,7 +471,7 @@ void
 set_active_dlt(interface_t *device, int global_default_dlt)
 {
     GList    *list;
-    gboolean  found_active_dlt;
+    bool      found_active_dlt;
     link_row *link;
 
     /*
@@ -491,11 +491,11 @@ set_active_dlt(interface_t *device, int global_default_dlt)
      * If not, set it to -1, so we'll fall back on the first supported
      * link-layer header type.
      */
-    found_active_dlt = FALSE;
+    found_active_dlt = false;
     for (list = device->links; list != NULL; list = g_list_next(list)) {
         link = (link_row *)(list->data);
         if (link->dlt != -1 && link->dlt == device->active_dlt) {
-            found_active_dlt = TRUE;
+            found_active_dlt = true;
             break;
         }
     }
@@ -515,10 +515,10 @@ set_active_dlt(interface_t *device, int global_default_dlt)
 }
 
 GString *
-get_iface_list_string(capture_options *capture_opts, guint32 style)
+get_iface_list_string(capture_options *capture_opts, uint32_t style)
 {
     GString *iface_list_string = g_string_new("");
-    guint i;
+    unsigned i;
 
     /*
      * If we have a descriptive name for the interface, show that,
