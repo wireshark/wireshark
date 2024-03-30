@@ -21,9 +21,9 @@ typedef struct _funnel_menu_t {
     char *name;
     register_stat_group_t group;
     funnel_menu_callback callback;
-    gpointer callback_data;
+    void *callback_data;
     funnel_menu_callback_data_free callback_data_free;
-    gboolean retap;
+    bool retap;
     struct _funnel_menu_t* next;
 } funnel_menu_t;
 
@@ -41,7 +41,7 @@ static const funnel_ops_t* ops = NULL;
 static funnel_menu_t* registered_menus = NULL;
 static funnel_menu_t* added_menus = NULL;
 static funnel_menu_t* removed_menus = NULL;
-static gboolean menus_registered = FALSE;
+static bool menus_registered = false;
 
 /**
  * Represents a single packet menu entry and callback
@@ -53,9 +53,9 @@ typedef struct _funnel_packet_menu_t {
                                                packet menu to be displayed */
     funnel_packet_menu_callback callback; /**< Lua function to be called on
                                                menu item selection. */
-    gpointer callback_data;               /**< Lua state for the callback
+    void *callback_data;                  /**< Lua state for the callback
                                                function */
-    gboolean retap;                       /**< Whether or not to rescan the
+    bool retap;                           /**< Whether or not to rescan the
                                                capture file's packets */
     struct _funnel_packet_menu_t* next;   /**< Pointer to the next
                                                _funnel_packet_menu_t for the
@@ -71,9 +71,9 @@ static funnel_packet_menu_t* registered_packet_menus = NULL;
 static GSList *registered_console_menus = NULL;
 
 /*
- * TRUE if the packet menus were modified since the last registration
+ * true if the packet menus were modified since the last registration
  */
-static gboolean packet_menus_modified = FALSE;
+static bool packet_menus_modified = false;
 static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list);
 
 const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }
@@ -136,9 +136,9 @@ static void funnel_clear_menu (funnel_menu_t** menu_list)
 void funnel_register_menu(const char *name,
                           register_stat_group_t group,
                           funnel_menu_callback callback,
-                          gpointer callback_data,
+                          void *callback_data,
                           funnel_menu_callback_data_free callback_data_free,
-                          gboolean retap)
+                          bool retap)
 {
     funnel_menu_t* m = g_new(funnel_menu_t, 1);
     m->name = g_strdup(name);
@@ -167,7 +167,7 @@ void funnel_deregister_menus(funnel_menu_callback callback)
 
     // Clear and free memory of packet menus
     funnel_clear_packet_menu(&registered_packet_menus);
-    packet_menus_modified = TRUE;
+    packet_menus_modified = true;
 }
 
 void funnel_register_all_menus(funnel_registration_cb_t r_cb)
@@ -176,7 +176,7 @@ void funnel_register_all_menus(funnel_registration_cb_t r_cb)
     for (c = registered_menus; c; c = c->next) {
         r_cb(c->name,c->group,c->callback,c->callback_data,c->retap);
     }
-    menus_registered = TRUE;
+    menus_registered = true;
 }
 
 void funnel_reload_menus(funnel_deregistration_cb_t d_cb,
@@ -223,8 +223,8 @@ static void funnel_insert_packet_menu (funnel_packet_menu_t** menu_list, funnel_
 void funnel_register_packet_menu(const char *name,
                                  const char *required_fields,
                                  funnel_packet_menu_callback callback,
-                                 gpointer callback_data,
-                                 gboolean retap)
+                                 void *callback_data,
+                                 bool retap)
 {
     funnel_packet_menu_t* m = g_new0(funnel_packet_menu_t, 1);
     m->name = g_strdup(name);
@@ -235,7 +235,7 @@ void funnel_register_packet_menu(const char *name,
     m->next = NULL;
 
     funnel_insert_packet_menu(&registered_packet_menus, m);
-    packet_menus_modified = TRUE;
+    packet_menus_modified = true;
 }
 
 /**
@@ -274,15 +274,15 @@ void funnel_register_all_packet_menus(funnel_registration_packet_cb_t r_cb)
     for (c = registered_packet_menus; c; c = c->next) {
         r_cb(c->name,c->required_fields,c->callback,c->callback_data,c->retap);
     }
-    packet_menus_modified = FALSE;
+    packet_menus_modified = false;
 }
 
 /**
  * Returns whether the packet menus have been modified since they were last registered
  *
- * @return TRUE if the packet menus were modified since the last registration
+ * @return true if the packet menus were modified since the last registration
  */
-gboolean funnel_packet_menus_modified(void)
+bool funnel_packet_menus_modified(void)
 {
     return packet_menus_modified;
 }
@@ -301,7 +301,7 @@ void funnel_register_console_menu(const char *name,
                                 funnel_console_eval_cb_t eval_cb,
                                 funnel_console_open_cb_t open_cb,
                                 funnel_console_close_cb_t close_cb,
-                                gpointer callback_data,
+                                void *callback_data,
                                 funnel_console_data_free_cb_t free_data)
 {
     funnel_console_menu_t* m = g_new0(funnel_console_menu_t, 1);

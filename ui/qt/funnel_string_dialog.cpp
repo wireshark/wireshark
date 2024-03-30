@@ -81,7 +81,7 @@ void FunnelStringDialog::on_buttonBox_accepted()
     }
     g_ptr_array_add(returns, NULL);
 
-    gchar **user_input = (gchar **)g_ptr_array_free(returns, FALSE);
+    char **user_input = (char **)g_ptr_array_free(returns, false);
     dialog_cb_(user_input, dialog_cb_data_);
 }
 

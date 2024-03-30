@@ -895,7 +895,7 @@ typedef struct _wslua_bt_cb_t {
     int wslua_tw_ref;
 } wslua_bt_cb_t;
 
-static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
+static bool wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
     wslua_bt_cb_t* cbd = (wslua_bt_cb_t *)data;
     lua_State* L = cbd->L;
     (void) ws_tw; /* ws_tw is unused since we need wslua_tw_ref and it is stored in cbd */

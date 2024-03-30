@@ -25,13 +25,13 @@ typedef struct _funnel_text_window_t funnel_text_window_t ;
 
 typedef void (*text_win_close_cb_t)(void*);
 
-typedef void (*funnel_dlg_cb_t)(gchar** user_input, void* data);
+typedef void (*funnel_dlg_cb_t)(char** user_input, void* data);
 typedef void (*funnel_dlg_cb_data_free_t)(void* data);
 
-typedef gboolean (*funnel_bt_cb_t)(funnel_text_window_t* tw, void* data);
+typedef bool (*funnel_bt_cb_t)(funnel_text_window_t* tw, void* data);
 
-typedef void (* funnel_menu_callback)(gpointer);
-typedef void (* funnel_menu_callback_data_free)(gpointer);
+typedef void (* funnel_menu_callback)(void *);
+typedef void (* funnel_menu_callback_data_free)(void *);
 
 typedef struct _funnel_bt_t {
 	funnel_text_window_t* tw;
@@ -52,14 +52,14 @@ typedef struct _funnel_ops_t {
     void (*clear_text)(funnel_text_window_t*  win);
     const char* (*get_text)(funnel_text_window_t*  win);
     void (*set_close_cb)(funnel_text_window_t*  win, text_win_close_cb_t cb, void* data);
-    void (*set_editable)(funnel_text_window_t*  win, gboolean editable);
+    void (*set_editable)(funnel_text_window_t*  win, bool editable);
     void (*destroy_text_window)(funnel_text_window_t*  win);
     void (*add_button)(funnel_text_window_t*  win, funnel_bt_t* cb, const char* label);
 
     void (*new_dialog)(funnel_ops_id_t *ops_id,
-                    const gchar* title,
-                    const gchar** field_names,
-                    const gchar** field_values,
+                    const char* title,
+                    const char** field_names,
+                    const char** field_values,
                     funnel_dlg_cb_t dlg_cb,
                     void* data,
                     funnel_dlg_cb_data_free_t dlg_cb_data_free);
@@ -69,21 +69,21 @@ typedef struct _funnel_ops_t {
     void (*retap_packets)(funnel_ops_id_t *ops_id);
     void (*copy_to_clipboard)(GString *str);
 
-    const gchar * (*get_filter)(funnel_ops_id_t *ops_id);
+    const char * (*get_filter)(funnel_ops_id_t *ops_id);
     void (*set_filter)(funnel_ops_id_t *ops_id, const char* filter);
-    gchar * (*get_color_filter_slot)(guint8 filt_nr);
-    void (*set_color_filter_slot)(guint8 filt_nr, const gchar* filter);
-    gboolean (*open_file)(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char** error);
+    char * (*get_color_filter_slot)(uint8_t filt_nr);
+    void (*set_color_filter_slot)(uint8_t filt_nr, const char* filter);
+    bool (*open_file)(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char** error);
     void (*reload_packets)(funnel_ops_id_t *ops_id);
     void (*redissect_packets)(funnel_ops_id_t *ops_id);
     void (*reload_lua_plugins)(funnel_ops_id_t *ops_id);
     void (*apply_filter)(funnel_ops_id_t *ops_id);
 
-    gboolean (*browser_open_url)(const gchar *url);
-    void (*browser_open_data_file)(const gchar *filename);
+    bool (*browser_open_url)(const char *url);
+    void (*browser_open_data_file)(const char *filename);
 
-    struct progdlg* (*new_progress_window)(funnel_ops_id_t *ops_id, const gchar* label, const gchar* task, bool terminate_is_stop, bool *stop_flag);
-    void (*update_progress)(struct progdlg*, float pr, const gchar* task);
+    struct progdlg* (*new_progress_window)(funnel_ops_id_t *ops_id, const char* label, const char* task, bool terminate_is_stop, bool *stop_flag);
+    void (*update_progress)(struct progdlg*, float pr, const char* task);
     void (*destroy_progress_window)(struct progdlg*);
 } funnel_ops_t;
 
@@ -93,16 +93,16 @@ WS_DLL_PUBLIC void funnel_set_funnel_ops(const funnel_ops_t*);
 WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  register_stat_group_t group,
                                  funnel_menu_callback callback,
-                                 gpointer callback_data,
+                                 void *callback_data,
                                  funnel_menu_callback_data_free callback_data_free,
-                                 gboolean retap);
-void funnel_deregister_menus(void (*callback)(gpointer));
+                                 bool retap);
+void funnel_deregister_menus(void (*callback)(void *));
 
 typedef void (*funnel_registration_cb_t)(const char *name,
                                          register_stat_group_t group,
                                          funnel_menu_callback callback,
-                                         gpointer callback_data,
-                                         gboolean retap);
+                                         void *callback_data,
+                                         bool retap);
 typedef void (*funnel_deregistration_cb_t)(funnel_menu_callback callback);
 
 WS_DLL_PUBLIC void funnel_register_all_menus(funnel_registration_cb_t r_cb);
@@ -113,7 +113,7 @@ WS_DLL_PUBLIC void funnel_cleanup(void);
 /**
  * Signature of function that can be called from a custom packet menu entry
  */
-typedef void (* funnel_packet_menu_callback)(gpointer, GPtrArray*);
+typedef void (* funnel_packet_menu_callback)(void *, GPtrArray*);
 
 /**
  * Signature of callback function to register packet menu entries
@@ -121,8 +121,8 @@ typedef void (* funnel_packet_menu_callback)(gpointer, GPtrArray*);
 typedef void (*funnel_registration_packet_cb_t)(const char *name,
                                          const char *required_fields,
                                          funnel_packet_menu_callback callback,
-                                         gpointer callback_data,
-                                         gboolean retap);
+                                         void *callback_data,
+                                         bool retap);
 
 /**
  * Entry point for Wireshark GUI to obtain all registered packet menus
@@ -143,15 +143,15 @@ WS_DLL_PUBLIC void funnel_register_all_packet_menus(funnel_registration_packet_c
 WS_DLL_PUBLIC void funnel_register_packet_menu(const char *name,
                                  const char *required_fields,
                                  funnel_packet_menu_callback callback,
-                                 gpointer callback_data,
-                                 gboolean retap);
+                                 void *callback_data,
+                                 bool retap);
 
 /**
  * Returns whether the packet menus have been modified since they were last registered
  *
- * @return TRUE if the packet menus were modified since the last registration
+ * @return true if the packet menus were modified since the last registration
  */
-WS_DLL_PUBLIC gboolean funnel_packet_menus_modified(void);
+WS_DLL_PUBLIC bool funnel_packet_menus_modified(void);
 
 /*
  * The functions below allow registering a funnel "console". A console is just a GUI

@@ -44,7 +44,7 @@ public:
     void clearText();
     const char *getText();
     void setCloseCallback(text_win_close_cb_t close_cb, void* close_cb_data);
-    void setTextEditable(gboolean editable);
+    void setTextEditable(bool editable);
     void addButton(funnel_bt_t *button_cb, QString label);
 
 private slots:
@@ -66,7 +66,7 @@ void text_window_prepend(funnel_text_window_t* ftw, const char* text);
 void text_window_clear(funnel_text_window_t *ftw);
 const char *text_window_get_text(funnel_text_window_t* ftw);
 void text_window_set_close_cb(funnel_text_window_t *ftw, text_win_close_cb_t close_cb, void* close_cb_data);
-void text_window_set_editable(funnel_text_window_t* ftw, gboolean editable);
+void text_window_set_editable(funnel_text_window_t* ftw, bool editable);
 void text_window_destroy(funnel_text_window_t* ftw);
 void text_window_add_button(funnel_text_window_t* ftw, funnel_bt_t* funnel_button, const char* label);
 }

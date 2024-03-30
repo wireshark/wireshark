@@ -113,7 +113,7 @@ void FunnelTextDialog::setCloseCallback(text_win_close_cb_t close_cb, void *clos
     close_cb_data_ = close_cb_data;
 }
 
-void FunnelTextDialog::setTextEditable(gboolean editable)
+void FunnelTextDialog::setTextEditable(bool editable)
 {
     ui->textEdit->setReadOnly(!editable);
 }
@@ -214,7 +214,7 @@ void text_window_set_close_cb(funnel_text_window_t *ftw, text_win_close_cb_t clo
     }
 }
 
-void text_window_set_editable(funnel_text_window_t *ftw, gboolean editable)
+void text_window_set_editable(funnel_text_window_t *ftw, bool editable)
 {
     if (ftw) {
         ftw->funnel_text_dialog->setTextEditable(editable);
