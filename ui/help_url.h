@@ -118,7 +118,7 @@ typedef enum {
  * @return A static URL or NULL. A non-NULL return value must be freed
  * with g_free().
  */
-gchar *user_guide_url(const gchar *page);
+char *user_guide_url(const char *page);
 
 /** Given a topic action return its URL. If the attempt succeeds NULL
  *  will be returned.
@@ -127,7 +127,7 @@ gchar *user_guide_url(const gchar *page);
  * @return A static URL or NULL. A non-NULL return value must be freed
  * with g_free().
  */
-gchar *topic_action_url(topic_action_e action);
+char *topic_action_url(topic_action_e action);
 
 /** Open a specific topic (create a "Help" dialog box or open a webpage).
  *

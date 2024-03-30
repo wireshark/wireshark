@@ -35,7 +35,7 @@ public:
     explicit FunnelStatistics(QObject *parent, CaptureFile &cf);
     ~FunnelStatistics();
     void retapPackets();
-    struct progdlg *progressDialogNew(const gchar *task_title, const gchar *item_title, gboolean terminate_is_stop, gboolean *stop_flag);
+    struct progdlg *progressDialogNew(const gchar *task_title, const gchar *item_title, bool terminate_is_stop, bool *stop_flag);
     const char *displayFilter();
     void emitSetDisplayFilter(const QString filter);
     void reloadPackets();

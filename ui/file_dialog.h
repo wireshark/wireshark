@@ -34,11 +34,11 @@ typedef enum {
 } export_type_e;
 
 typedef struct {
-    gboolean have_times;  /* TRUE if we have start and stop times */
+    bool have_times;  /* true if we have start and stop times */
     double start_time;    /* seconds, with nsec resolution */
     double stop_time;     /* seconds, with nsec resolution */
-    guint32 records;      /* total number of records */
-    guint32 data_records; /* number of data records */
+    uint32_t records;      /* total number of records */
+    uint32_t data_records; /* number of data records */
 } ws_file_preview_stats;
 
 typedef enum {
@@ -49,7 +49,7 @@ typedef enum {
 
 extern ws_file_preview_stats_status
 get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
-                      int *err, gchar **err_info);
+                      int *err, char **err_info);
 
 #ifdef __cplusplus
 }

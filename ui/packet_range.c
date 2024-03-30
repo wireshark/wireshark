@@ -28,7 +28,7 @@ depended_frames_add(GHashTable* depended_table, frame_data_sequence *frames, fra
 {
     if (g_hash_table_add(depended_table, GUINT_TO_POINTER(frame->num)) && frame->dependent_frames) {
         GHashTableIter iter;
-        gpointer key;
+        void *key;
         frame_data *depended_fd;
         g_hash_table_iter_init(&iter, frame->dependent_frames);
         while (g_hash_table_iter_next(&iter, &key, NULL)) {
@@ -40,11 +40,11 @@ depended_frames_add(GHashTable* depended_table, frame_data_sequence *frames, fra
 
 /* (re-)calculate the packet counts (except the user specified range) */
 static void packet_range_calc(packet_range_t *range) {
-    guint32       framenum;
-    guint32       mark_low;
-    guint32       mark_high;
-    guint32       displayed_mark_low;
-    guint32       displayed_mark_high;
+    uint32_t      framenum;
+    uint32_t      mark_low;
+    uint32_t      mark_high;
+    uint32_t      displayed_mark_low;
+    uint32_t      displayed_mark_high;
     frame_data    *packet;
 
 
@@ -177,7 +177,7 @@ static void packet_range_calc(packet_range_t *range) {
 
 /* (re-)calculate the user specified packet range counts */
 static void packet_range_calc_user(packet_range_t *range) {
-    guint32       framenum;
+    uint32_t      framenum;
     frame_data    *packet;
 
     range->user_range_cnt                   = 0;
@@ -232,7 +232,7 @@ static void packet_range_calc_user(packet_range_t *range) {
 }
 
 static void packet_range_calc_selection(packet_range_t *range) {
-    guint32       framenum;
+    uint32_t      framenum;
     frame_data    *packet;
 
     range->selection_range_cnt                   = 0;
@@ -320,9 +320,9 @@ convert_ret_t packet_range_check(packet_range_t *range) {
 void packet_range_process_init(packet_range_t *range) {
     /* Check that, if an explicit range was selected, it's valid. */
     /* "enumeration" values */
-    range->marked_range_active    = FALSE;
+    range->marked_range_active    = false;
 
-    if (range->process_filtered == FALSE) {
+    if (range->process_filtered == false) {
         range->marked_range_left = range->mark_range_cnt;
     } else {
         range->marked_range_left = range->displayed_mark_range_cnt;
@@ -333,7 +333,7 @@ void packet_range_process_init(packet_range_t *range) {
 }
 
 /* do we have to process all packets? */
-gboolean packet_range_process_all(packet_range_t *range) {
+bool packet_range_process_all(packet_range_t *range) {
     return range->process == range_process_all && !range->process_filtered && !range->remove_ignored;
 }
 
@@ -343,7 +343,7 @@ packet_range_process_packet_include_depends(packet_range_t *range, frame_data *f
     switch(range->process) {
     case(range_process_all):
         if (range->process_filtered) {
-            if ((fdata->passed_dfilter || fdata->dependent_of_displayed) == FALSE) {
+            if ((fdata->passed_dfilter || fdata->dependent_of_displayed) == false) {
                 return range_process_next;
             }
         }
@@ -422,12 +422,12 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
     case(range_process_all):
         break;
     case(range_process_selected):
-        if (value_is_in_range(range->selection_range, fdata->num) == FALSE) {
+        if (value_is_in_range(range->selection_range, fdata->num) == false) {
           return range_process_next;
         }
         break;
     case(range_process_marked):
-        if (fdata->marked == FALSE) {
+        if (fdata->marked == false) {
           return range_process_next;
         }
         break;
@@ -435,20 +435,20 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         if (range->marked_range_left == 0) {
           return range_processing_finished;
         }
-        if (fdata->marked == TRUE) {
-          range->marked_range_active = TRUE;
+        if (fdata->marked == true) {
+          range->marked_range_active = true;
         }
-        if (range->marked_range_active == FALSE ) {
+        if (range->marked_range_active == false ) {
           return range_process_next;
         }
         if (!range->process_filtered ||
-          (range->process_filtered && fdata->passed_dfilter == TRUE))
+          (range->process_filtered && fdata->passed_dfilter == true))
         {
           range->marked_range_left--;
         }
         break;
     case(range_process_user_range):
-        if (value_is_in_range(range->user_range, fdata->num) == FALSE) {
+        if (value_is_in_range(range->user_range, fdata->num) == false) {
           return range_process_next;
         }
         break;
@@ -460,7 +460,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
      * Try next (if we're including dependent packets we called the
      * other function above).
      */
-    if ((range->process_filtered && fdata->passed_dfilter == FALSE)) {
+    if ((range->process_filtered && fdata->passed_dfilter == false)) {
         return range_process_next;
     }
 
@@ -476,7 +476,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
  * the Save/Print-As widget.
  */
 
-void packet_range_convert_str(packet_range_t *range, const gchar *es)
+void packet_range_convert_str(packet_range_t *range, const char *es)
 {
     range_t *new_range;
     convert_ret_t ret;

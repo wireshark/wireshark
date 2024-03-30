@@ -157,7 +157,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
     process_node(ptree_node, ps->stats_tree, ps);
 }
 
-    static gboolean
+    static bool
 process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
                wtap_rec *rec, Buffer *buf, ph_stats_t* ps)
 {
@@ -166,12 +166,12 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
 
     /* Load the record from the capture file */
     if (!cf_read_record(cf, frame, rec, buf))
-        return FALSE;	/* failure */
+        return false;	/* failure */
 
     /* Dissect the record   tree  not visible */
-    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
+    epan_dissect_init(&edt, cf->epan, true, false);
     /* Don't fake protocols. We need them for the protocol hierarchy */
-    epan_dissect_fake_protocols(&edt, FALSE);
+    epan_dissect_fake_protocols(&edt, false);
     epan_dissect_run(&edt, cf->cd_t, rec,
                      frame_tvbuff_new_buffer(&cf->provider, frame, buf),
                      frame, cinfo);
@@ -191,21 +191,21 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
     /* Free our memory. */
     epan_dissect_cleanup(&edt);
 
-    return TRUE;	/* success */
+    return true;	/* success */
 }
 
     ph_stats_t*
 ph_stats_new(capture_file *cf)
 {
     ph_stats_t	*ps;
-    guint32	framenum;
+    uint32_t	framenum;
     frame_data	*frame;
     progdlg_t	*progbar = NULL;
     int		count;
     wtap_rec	rec;
     Buffer	buf;
     float	progbar_val;
-    gchar	status_str[100];
+    char	status_str[100];
     int		progbar_nextstep;
     int		progbar_quantum;
 
@@ -215,9 +215,9 @@ ph_stats_new(capture_file *cf)
         ws_warning("Failing to compute protocol hierarchy stats on \"%s\" since a read is in progress", cf->filename);
         return NULL;
     }
-    cf->read_lock = TRUE;
+    cf->read_lock = true;
 
-    cf->stop_flag = FALSE;
+    cf->stop_flag = false;
 
     pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
 
@@ -255,7 +255,7 @@ ph_stats_new(capture_file *cf)
             progbar = delayed_create_progress_dlg(
                     cf->window, "Computing",
                     "protocol hierarchy statistics",
-                    TRUE, &cf->stop_flag, progbar_val);
+                    true, &cf->stop_flag, progbar_val);
 
         /* Update the progress bar, but do it only N_PROGBAR_UPDATES
            times; when we update it, we have to run the GTK+ main
@@ -269,7 +269,7 @@ ph_stats_new(capture_file *cf)
              */
             ws_assert(cf->count > 0);
 
-            progbar_val = (gfloat) count / cf->count;
+            progbar_val = (float) count / cf->count;
 
             if (progbar != NULL) {
                 snprintf(status_str, sizeof(status_str),
@@ -315,7 +315,7 @@ ph_stats_new(capture_file *cf)
                  * just abort rather than popping up
                  * the statistics window.
                  */
-                cf->stop_flag = TRUE;
+                cf->stop_flag = true;
                 break;
             }
 
@@ -344,17 +344,17 @@ ph_stats_new(capture_file *cf)
     }
 
     ws_assert(cf->read_lock);
-    cf->read_lock = FALSE;
+    cf->read_lock = false;
 
     return ps;
 }
 
     static gboolean
-stat_node_free(GNode *node, gpointer data _U_)
+stat_node_free(GNode *node, void *data _U_)
 {
     ph_stats_node_t	*stats = (ph_stats_node_t *)node->data;
     g_free(stats);
-    return FALSE;
+    return false;
 }
 
     void

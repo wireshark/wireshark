@@ -45,7 +45,7 @@ show_tap_registration_error(GString *error_string)
 /* scan for RTP streams */
 void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const char *fstring)
 {
-    gboolean was_registered;
+    bool was_registered;
 
     if (!tapinfo || !cap_file) {
         return;
@@ -66,12 +66,12 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const 
 
 /****************************************************************************/
 /* save rtp dump of stream_fwd */
-gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const gchar *filename)
+bool rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const char *filename)
 {
-    gboolean was_registered;
+    bool was_registered;
 
     if (!tapinfo) {
-        return FALSE;
+        return false;
     }
 
     was_registered = tapinfo->is_registered;
@@ -79,15 +79,15 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
     /* open file for saving */
     tapinfo->save_file = ws_fopen(filename, "wb");
     if (tapinfo->save_file==NULL) {
-        open_failure_alert_box(filename, errno, TRUE);
-        return FALSE;
+        open_failure_alert_box(filename, errno, true);
+        return false;
     }
 
     rtp_write_header(stream, tapinfo->save_file);
     if (ferror(tapinfo->save_file)) {
         write_failure_alert_box(filename, errno);
         fclose(tapinfo->save_file);
-        return FALSE;
+        return false;
     }
 
     if (!tapinfo->is_registered)
@@ -104,21 +104,21 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
     if (ferror(tapinfo->save_file)) {
         write_failure_alert_box(filename, errno);
         fclose(tapinfo->save_file);
-        return FALSE;
+        return false;
     }
 
     if (fclose(tapinfo->save_file) == EOF) {
         write_failure_alert_box(filename, errno);
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /****************************************************************************/
 /* mark packets in stream_fwd or stream_rev */
 void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream_fwd, rtpstream_info_t* stream_rev)
 {
-    gboolean was_registered;
+    bool was_registered;
 
     if (!tapinfo) {
         return;

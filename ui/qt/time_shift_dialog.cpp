@@ -175,7 +175,7 @@ void TimeShiftDialog::on_shiftAllTimeLineEdit_textChanged(const QString &sa_text
 {
     int h, m;
     long double s;
-    gboolean neg;
+    bool neg;
     const gchar *err_str;
 
     syntax_err_.clear();

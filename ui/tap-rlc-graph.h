@@ -24,25 +24,25 @@ extern "C" {
 
 struct rlc_segment {
     struct rlc_segment *next;
-    guint32         num;            /* framenum */
+    uint32_t        num;            /* framenum */
     time_t          rel_secs;
-    guint32         rel_usecs;
+    uint32_t        rel_usecs;
 
-    gboolean        isControlPDU;
-    guint32         SN;
-    guint16         isResegmented;
-    guint32         ACKNo;
-    guint16         noOfNACKs;
-    guint32         NACKs[MAX_NACKs];
-    guint16         pduLength;
+    bool            isControlPDU;
+    uint32_t        SN;
+    uint16_t        isResegmented;
+    uint32_t        ACKNo;
+    uint16_t        noOfNACKs;
+    uint32_t        NACKs[MAX_NACKs];
+    uint16_t        pduLength;
 
-    guint8          rat;
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId;
-    guint8          rlcMode;
-    guint8          direction;
-    guint16         sequenceNumberLength;
+    uint8_t         rat;
+    uint16_t        ueid;
+    uint16_t        channelType;
+    uint16_t        channelId;
+    uint8_t         rlcMode;
+    uint8_t         direction;
+    uint16_t        sequenceNumberLength;
 };
 
 /* A collection of channels that may be found in one frame.  Used when working out
@@ -59,28 +59,28 @@ struct rlc_graph {
     struct rlc_segment *last_segment;
 
     /* These are filled in with the channel/direction this graph is showing */
-    gboolean        channelSet;
+    bool            channelSet;
 
     uint8_t         rat;
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId;
-    guint8          rlcMode;
-    guint8          direction;
+    uint16_t        ueid;
+    uint16_t        channelType;
+    uint16_t        channelId;
+    uint8_t         rlcMode;
+    uint8_t         direction;
 };
 
-gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *tg, gboolean stream_known,
+bool rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *tg, bool stream_known,
                                     char **err_string);
 void rlc_graph_segment_list_free(struct rlc_graph * );
 
 
 
-gboolean compare_rlc_headers(guint8 rat1, guint8 rat2,
-                             guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                             guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                             gboolean isControlFrame);
+bool compare_rlc_headers(uint8_t rat1, uint8_t rat2,
+                             uint16_t ueid1, uint16_t channelType1, uint16_t channelId1, uint8_t rlcMode1, uint8_t direction1,
+                             uint16_t ueid2, uint16_t channelType2, uint16_t channelId2, uint8_t rlcMode2, uint8_t direction2,
+                             bool isControlFrame);
 rlc_3gpp_tap_info *select_rlc_lte_session(capture_file *cf, struct rlc_segment *hdrs,
-                                         gchar **err_msg);
+                                         char **err_msg);
 
 
 #ifdef __cplusplus

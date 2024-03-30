@@ -32,8 +32,8 @@
 #include "tap-rtp-analysis.h"
 
 typedef struct _key_value {
-    guint32  key;
-    guint32  value;
+    uint32_t key;
+    uint32_t value;
 } key_value;
 
 
@@ -72,8 +72,8 @@ static const key_value clock_map[] = {
 
 #define NUM_CLOCK_VALUES (sizeof clock_map / sizeof clock_map[0])
 
-static guint32
-get_clock_rate(guint32 key)
+static uint32_t
+get_clock_rate(uint32_t key)
 {
     size_t i;
 
@@ -85,8 +85,8 @@ get_clock_rate(guint32 key)
 }
 
 typedef struct _mimetype_and_clock {
-    const gchar   *pt_mime_name_str;
-    guint32 value;
+    const char    *pt_mime_name_str;
+    uint32_t value;
 } mimetype_and_clock;
 /* RTP sampling clock rates for
   "In addition to the RTP payload formats (encodings) listed in the RTP
@@ -141,8 +141,8 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 
 #define NUM_DYN_CLOCK_VALUES (sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
 
-static guint32
-get_dyn_pt_clock_rate(const gchar *payload_type_str)
+static uint32_t
+get_dyn_pt_clock_rate(const char *payload_type_str)
 {
     int i;
 
@@ -156,7 +156,7 @@ get_dyn_pt_clock_rate(const gchar *payload_type_str)
     return 0;
 }
 
-#define TIMESTAMP_DIFFERENCE(v1,v2) ((gint64)v2-(gint64)v1)
+#define TIMESTAMP_DIFFERENCE(v1,v2) ((int64_t)v2-(int64_t)v1)
 
 /****************************************************************************/
 void
@@ -172,8 +172,8 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     double arrivaltime;
     double expected_time;
     double absskew;
-    guint32 clock_rate;
-    gboolean in_time_sequence;
+    uint32_t clock_rate;
+    bool in_time_sequence;
 
     /* Store the current time */
     current_time = nstime_to_msec(&pinfo->rel_ts);
@@ -220,7 +220,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
             statinfo->flags |= STAT_FLAG_MARKER;
         }
         statinfo->first_packet_num = pinfo->num;
-        statinfo->first_packet = FALSE;
+        statinfo->first_packet = false;
         return;
     }
 
@@ -248,10 +248,10 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      */
     if (statinfo->seq_timestamp <= rtpinfo->info_extended_timestamp) {
         // Normal timestamp sequence
-        in_time_sequence = TRUE;
+        in_time_sequence = true;
     } else {
         // New packet is not in sequence (is in past)
-        in_time_sequence = FALSE;
+        in_time_sequence = false;
         statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
     }
 
@@ -260,9 +260,9 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      */
     if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) &&
         in_time_sequence &&
-        (statinfo->under == FALSE)) {
+        (statinfo->under == false)) {
         statinfo->seq_cycles++;
-        statinfo->under = TRUE;
+        statinfo->under = true;
     }
     /* what if the start seq nr was 0? Then the above condition will never
      * be true, so we add another condition. XXX The problem would arise
@@ -270,15 +270,15 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      */
     else if ((rtpinfo->info_seq_num == 0) && (statinfo->stop_seq_nr == 65535) &&
              in_time_sequence &&
-             (statinfo->under == FALSE)) {
+             (statinfo->under == false)) {
         statinfo->seq_cycles++;
-        statinfo->under = TRUE;
+        statinfo->under = true;
     }
     /* the whole round is over, so reset the flag */
     else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) &&
              in_time_sequence &&
-             (statinfo->under != FALSE)) {
-        statinfo->under = FALSE;
+             (statinfo->under != false)) {
+        statinfo->under = false;
     }
 
     /* Since it is difficult to count lost, duplicate or late packets separately,
@@ -363,7 +363,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      * XXX: Do we really need to exclude those? The underlying problem in
      * #16330 was not allowing the time difference to be negative.
      */
-    if ( in_time_sequence || TRUE ) {
+    if ( in_time_sequence || true ) {
         /* XXX: We try to handle clock rate changes, but if the clock rate
          * changed during a dropped packet (or if we go backwards because
          * a packet is reordered), it won't be quite right.

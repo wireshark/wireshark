@@ -38,9 +38,9 @@ typedef enum {
 } io_graph_item_unit_t;
 
 typedef struct _io_graph_item_t {
-    guint32  frames;            /* always calculated, will hold number of frames*/
-    guint64  bytes;             /* always calculated, will hold number of bytes*/
-    guint64  fields;
+    uint32_t frames;            /* always calculated, will hold number of frames*/
+    uint64_t bytes;             /* always calculated, will hold number of bytes*/
+    uint64_t fields;
     /* We use a double for totals because of overflow. For min and max,
      * unsigned 64 bit integers larger than 2^53 cannot all be represented
      * in a double, and this is useful for determining the frame with the
@@ -75,9 +75,9 @@ typedef struct _io_graph_item_t {
  * @param count [in] The number of items in the array.
  */
 static inline void
-reset_io_graph_items(io_graph_item_t *items, gsize count, int hf_index _U_) {
+reset_io_graph_items(io_graph_item_t *items, size_t count, int hf_index _U_) {
     io_graph_item_t *item;
-    gsize i;
+    size_t i;
 
     for (i = 0; i < count; i++) {
         item = &items[i];
@@ -201,10 +201,10 @@ double get_io_graph_item(const io_graph_item_t *items, io_graph_item_unit_t val_
  * @param hf_index [in] Header field index for advanced statistics.
  * @param item_unit [in] The type of unit to calculate. From IOG_ITEM_UNITS.
  * @param interval [in] Timing interval in ms.
- * @return TRUE if the update was successful, otherwise FALSE.
+ * @return true if the update was successful, otherwise false.
  */
-static inline gboolean
-update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_dissect_t *edt, int hf_index, int item_unit, guint32 interval) {
+static inline bool
+update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_dissect_t *edt, int hf_index, int item_unit, uint32_t interval) {
     io_graph_item_t *item = &items[idx];
 
     /* Set the first and last frame num in current interval matching the target field+filter  */
@@ -215,18 +215,18 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
 
     if (edt && hf_index >= 0) {
         GPtrArray *gp;
-        guint i;
+        unsigned i;
 
         gp = proto_get_finfo_ptr_array(edt->tree, hf_index);
         if (!gp) {
-            return FALSE;
+            return false;
         }
 
         /* Update the appropriate counters. If fields == 0, this is the first seen
          *  value so set any min/max values accordingly. */
         for (i=0; i < gp->len; i++) {
-            gint64 new_int64;
-            guint64 new_uint64;
+            int64_t new_int64;
+            uint64_t new_uint64;
             float new_float;
             double new_double;
             const nstime_t *new_time;
@@ -246,7 +246,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     item->uint_min = new_uint64;
                     item->min_frame_in_invl = pinfo->num;
                 }
-                item->double_tot += (gdouble)new_uint64;
+                item->double_tot += (double)new_uint64;
                 item->fields++;
                 break;
             case FT_INT8:
@@ -262,7 +262,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     item->int_min = new_int64;
                     item->min_frame_in_invl = pinfo->num;
                 }
-                item->double_tot += (gdouble)new_int64;
+                item->double_tot += (double)new_int64;
                 item->fields++;
                 break;
             case FT_UINT40:
@@ -278,7 +278,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     item->uint_min = new_uint64;
                     item->min_frame_in_invl = pinfo->num;
                 }
-                item->double_tot += (gdouble)new_uint64;
+                item->double_tot += (double)new_uint64;
                 item->fields++;
                 break;
             case FT_INT40:
@@ -294,11 +294,11 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                     item->int_min = new_int64;
                     item->min_frame_in_invl = pinfo->num;
                 }
-                item->double_tot += (gdouble)new_int64;
+                item->double_tot += (double)new_int64;
                 item->fields++;
                 break;
             case FT_FLOAT:
-                new_float = (gfloat)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
+                new_float = (float)fvalue_get_floating(((field_info *)gp->pdata[i])->value);
                 if ((new_float > item->double_max) || (item->fields == 0)) {
                     item->double_max = new_float;
                     item->max_frame_in_invl = pinfo->num;
@@ -329,7 +329,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 switch (item_unit) {
                 case IOG_ITEM_UNIT_CALC_LOAD:
                 {
-                    guint64 t, pt; /* time in us */
+                    uint64_t t, pt; /* time in us */
                     int j;
                     /*
                      * Add the time this call spanned each interval according to
@@ -370,8 +370,8 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                         }
                         j--;
                         t -= pt;
-                        if (t > (guint64) interval * 1000) {
-                            pt = (guint64) interval * 1000;
+                        if (t > (uint64_t) interval * 1000) {
+                            pt = (uint64_t) interval * 1000;
                         } else {
                             pt = t;
                         }
@@ -419,7 +419,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
     item->frames++;
     item->bytes += pinfo->fd->pkt_len;
 
-    return TRUE;
+    return true;
 }
 
 

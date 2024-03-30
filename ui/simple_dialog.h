@@ -95,12 +95,12 @@ typedef enum {
  * get rid of primary_start and primary_end and reduce the amount of
  * gymnastics we have to do in the Qt UI.
  */
-extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
-    const gchar *msg_format, ...)
+extern void *simple_dialog(ESD_TYPE_E type, int btn_mask,
+    const char *msg_format, ...)
     G_GNUC_PRINTF(3, 4);
 
-extern gpointer simple_dialog_async(ESD_TYPE_E type, gint btn_mask,
-    const gchar *msg_format, ...)
+extern void *simple_dialog_async(ESD_TYPE_E type, int btn_mask,
+    const char *msg_format, ...)
     G_GNUC_PRINTF(3, 4);
 
 /** Surround the primary dialog message text by

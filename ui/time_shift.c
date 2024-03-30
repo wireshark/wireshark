@@ -115,9 +115,9 @@ calcNT3(nstime_t *OT1, nstime_t *OT3, nstime_t *NT1, nstime_t *NT3,
     nstime_add(NT3, NT1);
 }
 
-const gchar *
-time_string_parse(const gchar *time_text, int *year, int *month, int *day, gboolean *negative, int *hour, int *minute, long double *second) {
-    const gchar *pts = time_text;
+const char *
+time_string_parse(const char *time_text, int *year, int *month, int *day, bool *negative, int *hour, int *minute, long double *second) {
+    const char *pts = time_text;
 
     if (!time_text || !hour || !minute || !second)
         return "Unable to convert time.";
@@ -181,9 +181,9 @@ time_string_parse(const gchar *time_text, int *year, int *month, int *day, gbool
          */
 
         /* check for minus sign */
-        *negative = FALSE;
+        *negative = false;
         if (pts[0] == '-') {
-            *negative = TRUE;
+            *negative = true;
             pts++;
         }
 
@@ -213,14 +213,14 @@ time_string_parse(const gchar *time_text, int *year, int *month, int *day, gbool
     return NULL;
 }
 
-static const gchar *
-time_string_to_nstime(const gchar *time_text, nstime_t *packettime, nstime_t *nstime)
+static const char *
+time_string_to_nstime(const char *time_text, nstime_t *packettime, nstime_t *nstime)
 {
     int         h, m, Y, M, D;
     long double f;
     struct tm   tm, *tmptm;
     time_t      tt;
-    const gchar *err_str;
+    const char *err_str;
 
     if ((err_str = time_string_parse(time_text, &Y, &M, &D, NULL, &h, &m, &f)) != NULL)
         return err_str;
@@ -253,17 +253,17 @@ time_string_to_nstime(const gchar *time_text, nstime_t *packettime, nstime_t *ns
     return NULL;
 }
 
-const gchar *
-time_shift_all(capture_file *cf, const gchar *offset_text)
+const char *
+time_shift_all(capture_file *cf, const char *offset_text)
 {
     nstime_t    offset;
     long double offset_float = 0;
-    guint32     i;
+    uint32_t    i;
     frame_data  *fd;
-    gboolean    neg;
+    bool        neg;
     int         h, m;
     long double f;
-    const gchar *err_str;
+    const char *err_str;
 
     if (!cf || !offset_text)
         return "Nothing to work with.";
@@ -289,19 +289,19 @@ time_shift_all(capture_file *cf, const gchar *offset_text)
             continue;   /* Shouldn't happen */
         modify_time_perform(fd, neg ? SHIFT_NEG : SHIFT_POS, &offset, SHIFT_KEEPOFFSET);
     }
-    cf->unsaved_changes = TRUE;
+    cf->unsaved_changes = true;
     packet_list_queue_draw();
 
     return NULL;
 }
 
-const gchar *
-time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
+const char *
+time_shift_settime(capture_file *cf, unsigned packet_num, const char *time_text)
 {
     nstime_t    set_time, diff_time, packet_time;
     frame_data  *fd, *packetfd;
-    guint32     i;
-    const gchar *err_str;
+    uint32_t    i;
+    const char *err_str;
 
     if (!cf || !time_text)
         return "Nothing to work with.";
@@ -335,19 +335,19 @@ time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
         modify_time_perform(fd, SHIFT_POS, &diff_time, SHIFT_SETTOZERO);
     }
 
-    cf->unsaved_changes = TRUE;
+    cf->unsaved_changes = true;
     packet_list_queue_draw();
     return NULL;
 }
 
-const gchar *
-time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text, guint packet2_num, const gchar *time2_text)
+const char *
+time_shift_adjtime(capture_file *cf, unsigned packet1_num, const char *time1_text, unsigned packet2_num, const char *time2_text)
 {
     nstime_t    nt1, nt2, ot1, ot2, nt3;
     nstime_t    dnt, dot, d3t;
     frame_data  *fd, *packet1fd, *packet2fd;
-    guint32     i;
-    const gchar *err_str;
+    uint32_t    i;
+    const char *err_str;
 
     if (!cf || !time1_text || !time2_text)
         return "Nothing to work with.";
@@ -419,15 +419,15 @@ time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text,
         modify_time_perform(fd, SHIFT_POS, &d3t, SHIFT_SETTOZERO);
     }
 
-    cf->unsaved_changes = TRUE;
+    cf->unsaved_changes = true;
     packet_list_queue_draw();
     return NULL;
 }
 
-const gchar *
+const char *
 time_shift_undo(capture_file *cf)
 {
-    guint32     i;
+    uint32_t    i;
     frame_data  *fd;
     nstime_t    nulltime;
 

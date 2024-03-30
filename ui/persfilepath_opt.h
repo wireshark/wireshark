@@ -22,7 +22,7 @@ extern "C" {
  * process command line option that affects the paths of the directories
  * used for personal files (configuration, saved captures)
  */
-extern gboolean persfilepath_opt(int opt, const char *optstr);
+extern bool persfilepath_opt(int opt, const char *optstr);
 
 #ifdef __cplusplus
 }

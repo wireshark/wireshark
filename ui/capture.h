@@ -39,14 +39,14 @@ typedef enum {
     capture_cb_capture_failed
 } capture_cbs;
 
-typedef void (*capture_callback_t) (gint event, capture_session *cap_session,
-                                    gpointer user_data);
+typedef void (*capture_callback_t) (int event, capture_session *cap_session,
+                                    void *user_data);
 
 extern void
-capture_callback_add(capture_callback_t func, gpointer user_data);
+capture_callback_add(capture_callback_t func, void *user_data);
 
 extern void
-capture_callback_remove(capture_callback_t func, gpointer user_data);
+capture_callback_remove(capture_callback_t func, void *user_data);
 
 /**
  * Initialize a capture session.
@@ -66,9 +66,9 @@ capture_input_init(capture_session *cap_session, capture_file *cf);
  * @param cap_session the handle for the capture session
  * @param cap_data a struct with capture info data
  * @param update_cb update screen
- * @return TRUE if the capture starts successfully, FALSE otherwise.
+ * @return true if the capture starts successfully, false otherwise.
  */
-extern gboolean
+extern bool
 capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
               capture_session *cap_session, info_data_t* cap_data,
               void(*update_cb)(void));
@@ -104,7 +104,7 @@ extern WS_RETNONNULL if_stat_cache_t * capture_interface_stat_start(capture_opti
  * Fetch capture statistics, similar to pcap_stats().
  */
 struct pcap_stat; /* Stub in case we don't or haven't yet included pcap.h */
-extern gboolean capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps);
+extern bool capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps);
 
 /**
  * Stop gathering capture statistics.

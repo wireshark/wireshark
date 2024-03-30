@@ -106,14 +106,14 @@ void
 summary_fill_in(capture_file *cf, summary_tally *st)
 {
     frame_data    *first_frame, *cur_frame;
-    guint32        framenum;
+    uint32_t       framenum;
     iface_summary_info iface;
-    guint i;
+    unsigned i;
     wtapng_iface_descriptions_t* idb_info;
     wtap_block_t wtapng_if_descr;
     wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
     wtap_block_t if_stats;
-    guint64 isb_ifdrop;
+    uint64_t isb_ifdrop;
     char* if_string;
     if_filter_opt_t if_filter;
 
@@ -164,7 +164,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     st->drops = cf->drops;
     st->dfilter = cf->dfilter;
 
-    st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_summary_info));
+    st->ifaces  = g_array_new(false, false, sizeof(iface_summary_info));
     idb_info = wtap_file_get_idb_info(cf->provider.wth);
     for (i = 0; i < idb_info->interface_data->len; i++) {
         wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
@@ -189,7 +189,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
         } else {
             iface.descr = NULL;
         }
-        iface.drops_known = FALSE;
+        iface.drops_known = false;
         iface.drops = 0;
         iface.snap = wtapng_if_descr_mand->snap_len;
         iface.encap_type = wtapng_if_descr_mand->wtap_encap;
@@ -198,7 +198,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
             /* dumpcap only writes one ISB, only handle that for now */
             if_stats = g_array_index(wtapng_if_descr_mand->interface_statistics, wtap_block_t, 0);
             if (wtap_block_get_uint64_option_value(if_stats, OPT_ISB_IFDROP, &isb_ifdrop) == WTAP_OPTTYPE_SUCCESS) {
-                iface.drops_known = TRUE;
+                iface.drops_known = true;
                 iface.drops = isb_ifdrop;
             }
             /* XXX: this doesn't get used, and might need to be g_strdup'ed when it does */
@@ -240,7 +240,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
 {
     iface_summary_info iface;
     interface_t *device;
-    guint i;
+    unsigned i;
 
     if (st->ifaces->len == 0) {
         /*

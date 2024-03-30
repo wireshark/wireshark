@@ -28,7 +28,7 @@ extern "C" {
 */
 #define DECODE_AS_ARG_TEMPLATE "<layer_type>==<selector>,<decode_as_protocol>"
 
-gboolean decode_as_command_option(const gchar *cl_param);
+bool decode_as_command_option(const char *cl_param);
 
 #ifdef __cplusplus
 }

@@ -25,12 +25,12 @@ int
 ssl_session_key_count(void)
 {
     int count = 0;
-    ssl_master_key_map_t *mk_map = tls_get_master_key_map(FALSE);
+    ssl_master_key_map_t *mk_map = tls_get_master_key_map(false);
     if (!mk_map || !mk_map->used_crandom)
         return count;
 
     GHashTableIter iter;
-    gpointer key;
+    void *key;
 
     g_hash_table_iter_init(&iter, mk_map->used_crandom);
     while (g_hash_table_iter_next(&iter, &key, NULL)) {
@@ -57,9 +57,9 @@ ssl_session_key_count(void)
 }
 
 static void
-tls_export_client_randoms_func(gpointer key, gpointer value, gpointer user_data, const char* label)
+tls_export_client_randoms_func(void *key, void *value, void *user_data, const char* label)
 {
-    guint i;
+    unsigned i;
     StringInfo *client_random = (StringInfo *)key;
     StringInfo *master_secret = (StringInfo *)value;
     GString *keylist = (GString *)user_data;
@@ -79,8 +79,8 @@ tls_export_client_randoms_func(gpointer key, gpointer value, gpointer user_data,
     g_string_append_c(keylist, '\n');
 }
 
-gchar*
-ssl_export_sessions(gsize *length)
+char*
+ssl_export_sessions(size_t *length)
 {
     /* Output format is:
      * "CLIENT_RANDOM zzzz yyyy\n"
@@ -100,53 +100,53 @@ ssl_export_sessions(gsize *length)
      * The TLS 1.3 values are obtained from an existing key log, but exporting
      * them is useful in order to filter actually used secrets or add a DSB.
      */
-    ssl_master_key_map_t *mk_map = tls_get_master_key_map(FALSE);
+    ssl_master_key_map_t *mk_map = tls_get_master_key_map(false);
 
     if (!mk_map) {
         *length = 0;
         return g_strdup("");
     }
 
-    gsize len = 177 * (gsize)ssl_session_key_count();
+    size_t len = 177 * (size_t)ssl_session_key_count();
     GString *keylist = g_string_sized_new(len);
 
     GHashTableIter iter;
-    gpointer key, value;
+    void *key, *value;
 
     g_hash_table_iter_init(&iter, mk_map->used_crandom);
     while (g_hash_table_iter_next(&iter, &key, NULL)) {
         if ((value = g_hash_table_lookup(mk_map->crandom, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "CLIENT_RANDOM ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "CLIENT_RANDOM ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_client_early, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "CLIENT_EARLY_TRAFFIC_SECRET ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "CLIENT_EARLY_TRAFFIC_SECRET ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_client_handshake, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "CLIENT_HANDSHAKE_TRAFFIC_SECRET ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "CLIENT_HANDSHAKE_TRAFFIC_SECRET ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_server_handshake, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "SERVER_HANDSHAKE_TRAFFIC_SECRET ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "SERVER_HANDSHAKE_TRAFFIC_SECRET ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_server_appdata, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "SERVER_TRAFFIC_SECRET_0 ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "SERVER_TRAFFIC_SECRET_0 ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_client_appdata, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "CLIENT_TRAFFIC_SECRET_0 ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "CLIENT_TRAFFIC_SECRET_0 ");
         }
 #if 0
         /* We don't use the EARLY_EXPORT_SECRET or EXPORTER_SECRET now so don't
            export, but we may in the future. */
         if ((value = g_hash_table_lookup(mk_map->tls13_early_exporter, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "EARLY_EXPORTER_SECRET ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "EARLY_EXPORTER_SECRET ");
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_exporter, key))) {
-            tls_export_client_randoms_func(key, value, (gpointer)keylist, "EXPORTER_SECRET ");
+            tls_export_client_randoms_func(key, value, (void *)keylist, "EXPORTER_SECRET ");
         }
 #endif
     }
 
     *length = keylist->len;
-    return g_string_free(keylist, FALSE);
+    return g_string_free(keylist, false);
 }
 
 void
@@ -162,12 +162,12 @@ tls_export_dsb(capture_file *cf)
 
     dsb->secrets_type = SECRETS_TYPE_TLS;
     dsb->secrets_data = g_memdup2(secrets, secrets_len);
-    dsb->secrets_len = (guint)secrets_len;
+    dsb->secrets_len = (unsigned)secrets_len;
 
     /* XXX - support replacing the DSB of the same type instead of adding? */
     wtap_file_add_decryption_secrets(cf->provider.wth, block);
     /* Mark the file as having unsaved changes */
-    cf->unsaved_changes = TRUE;
+    cf->unsaved_changes = true;
 
     return;
 }

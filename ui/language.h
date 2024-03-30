@@ -12,6 +12,8 @@
 #ifndef __LANGUAGE_H__
 #define __LANGUAGE_H__
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -20,8 +22,8 @@ extern "C" {
 
 extern char *language;
 
-extern void  read_language_prefs(void);
-extern int   write_language_prefs(void);
+extern void read_language_prefs(void);
+extern bool write_language_prefs(void);
 
 #ifdef __cplusplus
 }

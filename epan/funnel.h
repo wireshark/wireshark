@@ -82,7 +82,7 @@ typedef struct _funnel_ops_t {
     gboolean (*browser_open_url)(const gchar *url);
     void (*browser_open_data_file)(const gchar *filename);
 
-    struct progdlg* (*new_progress_window)(funnel_ops_id_t *ops_id, const gchar* label, const gchar* task, gboolean terminate_is_stop, gboolean *stop_flag);
+    struct progdlg* (*new_progress_window)(funnel_ops_id_t *ops_id, const gchar* label, const gchar* task, bool terminate_is_stop, bool *stop_flag);
     void (*update_progress)(struct progdlg*, float pr, const gchar* task);
     void (*destroy_progress_window)(struct progdlg*);
 } funnel_ops_t;

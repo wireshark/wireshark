@@ -35,7 +35,7 @@ extern void vwarning_alert_box(const char *msg_format, va_list ap);
  * to be a string giving further information for some WTAP_ERR_ values..
  */
 extern void cfile_open_failure_alert_box(const char *filename, int err,
-                                         gchar *err_info);
+                                         char *err_info);
 
 /*
  * Alert box for a failed attempt to open a capture file for writing.
@@ -46,7 +46,7 @@ extern void cfile_open_failure_alert_box(const char *filename, int err,
  * and subtype of file being opened.
  */
 extern void cfile_dump_open_failure_alert_box(const char *filename, int err,
-                                              gchar *err_info,
+                                              char *err_info,
                                               int file_type_subtype);
 
 /*
@@ -56,7 +56,7 @@ extern void cfile_dump_open_failure_alert_box(const char *filename, int err,
  * some WTAP_ERR_ values.
  */
 extern void cfile_read_failure_alert_box(const char *filename, int err,
-                                         gchar *err_info);
+                                         char *err_info);
 
 /*
  * Alert box for a failed attempt to write to a capture file.
@@ -71,8 +71,8 @@ extern void cfile_read_failure_alert_box(const char *filename, int err,
  */
 extern void cfile_write_failure_alert_box(const char *in_filename,
                                           const char *out_filename,
-                                          int err, gchar *err_info,
-                                          guint32 framenum,
+                                          int err, char *err_info,
+                                          uint32_t framenum,
                                           int file_type_subtype);
 
 /*
@@ -100,12 +100,12 @@ extern void cfile_write_failure_alert_box(const char *in_filename,
  * so we have to check for write errors here.
  */
 extern void cfile_close_failure_alert_box(const char *filename, int err,
-                                          gchar *err_info);
+                                          char *err_info);
 
 /*
  * Alert box for a failed attempt to open or create a file.
- * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if
- * the file is being opened for writing and FALSE if it's being opened
+ * "err" is assumed to be a UNIX-style errno; "for_writing" is true if
+ * the file is being opened for writing and false if it's being opened
  * for reading.
  */
 extern void open_failure_alert_box(const char *filename, int err,

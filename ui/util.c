@@ -80,8 +80,8 @@ get_args_as_string(int argc, char **argv, int optindex)
 
 /* Compute the difference between two seconds/microseconds time stamps. */
 void
-compute_timestamp_diff(gint *diffsec, gint *diffusec,
-    guint32 sec1, guint32 usec1, guint32 sec2, guint32 usec2)
+compute_timestamp_diff(int *diffsec, int *diffusec,
+    uint32_t sec1, uint32_t usec1, uint32_t sec2, uint32_t usec2)
 {
   if (sec1 == sec2) {
     /* The seconds part of the first time is the same as the seconds
@@ -124,8 +124,8 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
 
 /* Remove any %<interface_name> from an IP address. */
 static char *sanitize_filter_ip(char *hostname) {
-    gchar *end;
-    gchar *ret;
+    char *end;
+    char *ret;
 
     ret = g_strdup(hostname);
     if (!ret)
@@ -148,9 +148,9 @@ static char *sanitize_filter_ip(char *hostname) {
    SESSIONNAME (terminal server): <remote name>
  */
 
-const gchar *get_conn_cfilter(void) {
+const char *get_conn_cfilter(void) {
     static GString *filter_str = NULL;
-    gchar *env, **tokens;
+    char *env, **tokens;
     char *lastp, *lastc, *p;
     char *pprotocol = NULL;
     char *phostname = NULL;
@@ -331,10 +331,10 @@ const gchar *get_conn_cfilter(void) {
     return filter_str->str;
 }
 
-gboolean display_is_remote(void)
+bool display_is_remote(void)
 {
-    static gboolean remote_display_checked;
-    static gboolean is_remote;
+    static bool remote_display_checked;
+    static bool is_remote;
 
     if (!remote_display_checked) {
         is_remote = (strlen(get_conn_cfilter()) > 0);
@@ -355,7 +355,7 @@ void
 set_last_open_dir(const char *dirname)
 {
     size_t len;
-    gchar *new_last_open_dir;
+    char *new_last_open_dir;
 
     if (dirname && dirname[0]) {
         len = strlen(dirname);

@@ -304,7 +304,7 @@ struct _wslua_progdlg {
     struct progdlg* pw;
     char* title;
     char* task;
-    gboolean stopped;
+    bool stopped;
 };
 
 typedef struct { const char* name; tap_extractor_t extractor; } tappable_t;

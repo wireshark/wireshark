@@ -10,6 +10,7 @@
 #ifndef __IFACE_TOOLBAR_H__
 #define __IFACE_TOOLBAR_H__
 
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,42 +34,42 @@ typedef enum {
 
 typedef struct _iface_toolbar_value {
     int num;
-    gchar *value;
-    gchar *display;
-    gboolean is_default;
+    char *value;
+    char *display;
+    bool is_default;
 } iface_toolbar_value;
 
 typedef struct _iface_toolbar_control {
     int num;
     iface_toolbar_ctrl_type ctrl_type;
     iface_toolbar_ctrl_role ctrl_role;
-    gchar *display;
-    gchar *validation;
-    gboolean is_required;
-    gchar *tooltip;
-    gchar *placeholder;
+    char *display;
+    char *validation;
+    bool is_required;
+    char *tooltip;
+    char *placeholder;
     union {
-        gboolean boolean;
-        gchar *string;
+        bool boolean;
+        char *string;
     } default_value;
     GList *values;
 } iface_toolbar_control;
 
 typedef struct _iface_toolbar {
-    gchar *menu_title;
-    gchar *help;
+    char *menu_title;
+    char *help;
     GList *ifnames;
     GList *controls;
 } iface_toolbar;
 
 typedef void (*iface_toolbar_add_cb_t)(const iface_toolbar *);
-typedef void (*iface_toolbar_remove_cb_t)(const gchar *);
+typedef void (*iface_toolbar_remove_cb_t)(const char *);
 
 void iface_toolbar_add(const iface_toolbar *toolbar);
 
-void iface_toolbar_remove(const gchar *menu_title);
+void iface_toolbar_remove(const char *menu_title);
 
-gboolean iface_toolbar_use(void);
+bool iface_toolbar_use(void);
 
 void iface_toolbar_register_cb(iface_toolbar_add_cb_t, iface_toolbar_remove_cb_t);
 

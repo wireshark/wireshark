@@ -73,27 +73,27 @@ typedef struct
     struct {
         FILE *import_text_FILE;
         enum offset_type offset_type;
-        gboolean has_direction;
-        gboolean identify_ascii;
+        bool has_direction;
+        bool identify_ascii;
     } hexdump;
     struct {
         GMappedFile* import_text_GMappedFile;
         /* const */ GRegex* format;
         enum data_encoding encoding;
-        /* const */ gchar* in_indication;
-        /* const */ gchar* out_indication;
+        /* const */ char* in_indication;
+        /* const */ char* out_indication;
     } regex;
     const char* timestamp_format;
 
     /* Import info */
     /* Wiretap encapsulation type; see wiretap/wtap.h for details */
-    guint encapsulation;
+    unsigned encapsulation;
     wtap_dumper* wdh;
 
     /* Dummy header info (if encapsulation == 1) */
     enum dummy_header_type dummy_header_type;
-    guint pid;
-    gboolean ipv6;
+    unsigned pid;
+    bool ipv6;
     union {
         ws_in4_addr ipv4;
         ws_in6_addr ipv6;
@@ -102,18 +102,18 @@ typedef struct
         ws_in4_addr ipv4;
         ws_in6_addr ipv6;
     } ip_dest_addr;
-    guint protocol;
-    guint src_port;
-    guint dst_port;
-    guint tag;
-    guint ppi;
-    /* const */ gchar* payload;
+    unsigned protocol;
+    unsigned src_port;
+    unsigned dst_port;
+    unsigned tag;
+    unsigned ppi;
+    /* const */ char* payload;
 
-    guint max_frame_length;
+    unsigned max_frame_length;
 
     /* Output info */
-    guint num_packets_read;
-    guint num_packets_written;
+    unsigned num_packets_read;
+    unsigned num_packets_written;
 } text_import_info_t;
 
 int text_import(text_import_info_t * const info);

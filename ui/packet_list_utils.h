@@ -22,9 +22,9 @@ extern "C" {
  * @param [in] col The column number.
  * @param [in] cf The capture file containing the packet data.
  *
- * @return TRUE if the column should be right justified, FALSE otherwise.
+ * @return true if the column should be right justified, false otherwise.
  */
-gboolean right_justify_column (gint col, capture_file *cf);
+bool right_justify_column (int col, capture_file *cf);
 
 /**
  * Check to see if a column's data should be resolved.
@@ -32,9 +32,9 @@ gboolean right_justify_column (gint col, capture_file *cf);
  * @param [in] col The column number.
  * @param [in] cf The capture file containing the packet data.
  *
- * @return TRUE if resolution is required, FALSE otherwise.
+ * @return true if resolution is required, false otherwise.
  */
-gboolean resolve_column (gint col, capture_file *cf);
+bool resolve_column (int col, capture_file *cf);
 
 /**
  * @brief The following methods have to be implemented by any class that
@@ -51,11 +51,11 @@ extern void packet_list_clear(void);
 extern void packet_list_freeze(void);
 extern void packet_list_recreate_visible_rows(void);
 extern void packet_list_thaw(void);
-extern guint packet_list_append(column_info *cinfo, frame_data *fdata);
+extern unsigned packet_list_append(column_info *cinfo, frame_data *fdata);
 extern void packet_list_queue_draw(void);
-extern gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
-extern gboolean packet_list_select_finfo(field_info *fi);
-extern gboolean packet_list_multi_select_active(void);
+extern bool packet_list_select_row_from_data(frame_data *fdata_needle);
+extern bool packet_list_select_finfo(field_info *fi);
+extern bool packet_list_multi_select_active(void);
 
 #ifdef __cplusplus
 }

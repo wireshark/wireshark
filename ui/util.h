@@ -24,8 +24,8 @@ char *get_args_as_string(int argc, char **argv, int optindex);
 /* Compute the difference between two seconds/microseconds time stamps.
  * Beware: we're using nanosecond resolution now and function is currently unused
  */
-void compute_timestamp_diff(gint *diffsec, gint *diffusec,
-                            guint32 sec1, guint32 usec1, guint32 sec2, guint32 usec2);
+void compute_timestamp_diff(int *diffsec, int *diffusec,
+                            uint32_t sec1, uint32_t usec1, uint32_t sec2, uint32_t usec2);
 
 /* Try to figure out if we're remotely connected, e.g. via ssh or
     Terminal Server, and create a capture filter that matches aspects of the
@@ -40,9 +40,9 @@ void compute_timestamp_diff(gint *diffsec, gint *diffusec,
 const char *get_conn_cfilter(void);
 
 /** Check if we're running on a remote connection.
- * @return TRUE if we're running remotely, FALSE if local.
+ * @return true if we're running remotely, false if local.
  */
-gboolean display_is_remote(void);
+bool display_is_remote(void);
 
 /** Get the latest directory in which a file has been opened.
  *

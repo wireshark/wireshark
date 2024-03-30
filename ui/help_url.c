@@ -27,8 +27,8 @@
 /*
  * Open the help dialog and show a specific HTML help page.
  */
-gchar *
-user_guide_url(const gchar *page) {
+char *
+user_guide_url(const char *page) {
     GString *url = g_string_new("");
 
 #if defined(_WIN32)
@@ -42,7 +42,7 @@ user_guide_url(const gchar *page) {
     if (g_file_test(ug_dir->str, G_FILE_TEST_IS_DIR)) {
         g_string_printf(url, "file:///%s/%s", ug_dir->str, page);
     }
-    g_string_free(ug_dir, TRUE);
+    g_string_free(ug_dir, true);
 #else
     char *path = g_build_filename(get_doc_dir(), "wsug_html_chunked", page, NULL);
     if (g_file_test(path, G_FILE_TEST_IS_REGULAR)) {
@@ -58,13 +58,13 @@ user_guide_url(const gchar *page) {
     if (url->len == 0) {
         g_string_printf(url, WS_DOCS_URL "wsug_html_chunked/%s", page);
     }
-    return g_string_free(url, FALSE);
+    return g_string_free(url, false);
 }
 
-gchar *
+char *
 topic_action_url(topic_action_e action)
 {
-    gchar *url;
+    char *url;
 
     switch(action) {
     /* pages online at www.wireshark.org */

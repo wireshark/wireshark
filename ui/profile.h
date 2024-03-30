@@ -33,9 +33,9 @@ typedef struct {
     char     *name;             /* profile name */
     char     *reference;        /* profile reference */
     int       status;
-    gboolean  is_global;
-    gboolean  from_global;
-    gboolean  is_import;
+    bool      is_global;
+    bool      from_global;
+    bool      is_import;
 } profile_def;
 
 /** @file
@@ -59,7 +59,7 @@ void init_profile_list(void);
  * @return A pointer to the new profile list
  */
 GList *add_to_profile_list(const char *name, const char *parent, int status,
-                           gboolean is_global, gboolean from_global, gboolean is_import);
+                           bool is_global, bool from_global, bool is_import);
 
 /** Refresh the current (non-edited) profile list.
  */
@@ -69,7 +69,7 @@ void copy_profile_list(void);
  *
  * @param edit_list Remove edited entries
  */
-void empty_profile_list(gboolean edit_list);
+void empty_profile_list(bool edit_list);
 
 /** Remove an entry from the profile list.
  *
@@ -93,7 +93,7 @@ GList * edited_profile_list(void);
  * @return NULL if the operation was successful or an error message otherwise.
  * The error message must be freed by the caller.
  */
-gchar *apply_profile_changes(void);
+char *apply_profile_changes(void);
 
 /** Given a profile name, return the name of its parent profile.
  *
@@ -101,21 +101,21 @@ gchar *apply_profile_changes(void);
  *
  * @return Parent profile name
  */
-const gchar *get_profile_parent (const gchar *profilename);
+const char *get_profile_parent (const char *profilename);
 
 /** Check the validity of a profile name.
  *
  * @param name Profile name
  * @return NULL if the name is valid or an error message otherwise.
  */
-gchar *profile_name_is_valid(const gchar *name);
+char *profile_name_is_valid(const char *name);
 
 /** Remove the current profile.
  *
- * @return TRUE if the current profile exists and was successfully deleted
- * or FALSE otherwise.
+ * @return true if the current profile exists and was successfully deleted
+ * or false otherwise.
  */
-gboolean delete_current_profile(void);
+bool delete_current_profile(void);
 
 #ifdef __cplusplus
 }

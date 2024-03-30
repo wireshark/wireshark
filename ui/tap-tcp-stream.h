@@ -29,27 +29,27 @@ typedef enum tcp_graph_type_ {
 
 struct segment {
     struct segment *next;
-    guint32 num;
-    guint32 rel_secs;
-    guint32 rel_usecs;
+    uint32_t num;
+    uint32_t rel_secs;
+    uint32_t rel_usecs;
     /* Currently unused.
     time_t abs_secs;
-    guint32 abs_usecs;
+    uint32_t abs_usecs;
     */
 
-    guint32 th_seq;
-    guint32 th_ack;
-    guint16 th_flags;
-    guint32 th_win;   /* make it 32 bits so we can handle some scaling */
-    guint32 th_seglen;
-    guint16 th_sport;
-    guint16 th_dport;
+    uint32_t th_seq;
+    uint32_t th_ack;
+    uint16_t th_flags;
+    uint32_t th_win;   /* make it 32 bits so we can handle some scaling */
+    uint32_t th_seglen;
+    uint16_t th_sport;
+    uint16_t th_dport;
     address ip_src;
     address ip_dst;
 
-    guint8  num_sack_ranges;
-    guint32 sack_left_edge[MAX_TCP_SACK_RANGES];
-    guint32 sack_right_edge[MAX_TCP_SACK_RANGES];
+    uint8_t num_sack_ranges;
+    uint32_t sack_left_edge[MAX_TCP_SACK_RANGES];
+    uint32_t sack_right_edge[MAX_TCP_SACK_RANGES];
 };
 
 struct tcp_graph {
@@ -57,10 +57,10 @@ struct tcp_graph {
 
     /* The stream this graph will show */
     address          src_address;
-    guint16          src_port;
+    uint16_t         src_port;
     address          dst_address;
-    guint16          dst_port;
-    guint32          stream;
+    uint16_t         dst_port;
+    uint32_t         stream;
     /* Should this be a map or tree instead? */
     struct segment  *segments;
 };
@@ -81,12 +81,12 @@ void graph_segment_list_free(struct tcp_graph * );
 #define COMPARE_CURR_DIR    0
 #define COMPARE_ANY_DIR     1
 
-int compare_headers(address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, const address *saddr2, const address *daddr2, guint16 sport2, guint16 dport2, int dir);
+int compare_headers(address *saddr1, address *daddr1, uint16_t sport1, uint16_t dport1, const address *saddr2, const address *daddr2, uint16_t sport2, uint16_t dport2, int dir);
 
 int get_num_dsegs(struct tcp_graph * );
 int get_num_acks(struct tcp_graph *, int * );
 
-guint32 select_tcpip_session(capture_file *);
+uint32_t select_tcpip_session(capture_file *);
 
 /* This is used by rtt module only */
 struct rtt_unack {
@@ -103,21 +103,21 @@ void rtt_delete_unack_from_list(struct rtt_unack ** , struct rtt_unack * );
 void rtt_destroy_unack_list(struct rtt_unack ** );
 
 static inline int
-tcp_seq_before(guint32 s1, guint32 s2) {
-    return (gint32)(s1 - s2) < 0;
+tcp_seq_before(uint32_t s1, uint32_t s2) {
+    return (int32_t)(s1 - s2) < 0;
 }
 
 static inline int
-tcp_seq_eq_or_after(guint32 s1, guint32 s2) {
+tcp_seq_eq_or_after(uint32_t s1, uint32_t s2) {
     return !tcp_seq_before(s1, s2);
 }
 
 static inline int
-tcp_seq_after(guint32 s1, guint32 s2) {
-    return (gint32)(s1 - s2) > 0;
+tcp_seq_after(uint32_t s1, uint32_t s2) {
+    return (int32_t)(s1 - s2) > 0;
 }
 
-static inline int tcp_seq_before_or_eq(guint32 s1, guint32 s2) {
+static inline int tcp_seq_before_or_eq(uint32_t s1, uint32_t s2) {
     return !tcp_seq_after(s1, s2);
 }
 

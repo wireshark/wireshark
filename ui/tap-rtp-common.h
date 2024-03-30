@@ -39,22 +39,22 @@ typedef enum {
 
 typedef struct _tap_rtp_save_info_t {
     FILE *fp;
-    guint32 count;
+    uint32_t count;
     tap_rtp_error_type_t error_type;
-    gboolean saved;
+    bool saved;
 } tap_rtp_save_info_t;
 
 typedef struct _rtpstream_info_calc {
-    gchar *src_addr_str;
-    guint16 src_port;
-    gchar *dst_addr_str;
-    guint16 dst_port;
-    guint32 ssrc;
-    gchar *all_payload_type_names; /* Name of codec derived from fixed or dynamic codec names */
-    guint32 packet_count;
-    guint32 total_nr;
-    guint32 packet_expected; /* Count of expected packets, derived from length of RTP stream */
-    gint32 lost_num;
+    char *src_addr_str;
+    uint16_t src_port;
+    char *dst_addr_str;
+    uint16_t dst_port;
+    uint32_t ssrc;
+    char *all_payload_type_names; /* Name of codec derived from fixed or dynamic codec names */
+    uint32_t packet_count;
+    uint32_t total_nr;
+    uint32_t packet_expected; /* Count of expected packets, derived from length of RTP stream */
+    int32_t lost_num;
     double lost_perc;
     double max_delta;
     double min_delta;
@@ -63,15 +63,15 @@ typedef struct _rtpstream_info_calc {
     double max_jitter;
     double max_skew;
     double mean_jitter;
-    gboolean problem; /* Indication that RTP stream contains something unusual -GUI should indicate it somehow */
+    bool problem; /* Indication that RTP stream contains something unusual -GUI should indicate it somehow */
     double clock_drift_ms;
     double freq_drift_hz;
     double freq_drift_perc;
     double duration_ms;
-    guint32 sequence_err;
+    uint32_t sequence_err;
     double start_time_ms; /**< Unit is ms */
-    guint32 first_packet_num;
-    guint32 last_packet_num;
+    uint32_t first_packet_num;
+    uint32_t last_packet_num;
 } rtpstream_info_calc_t;
 
 /**
@@ -89,21 +89,21 @@ void rtpstream_info_free_all(rtpstream_info_t* info);
  *
  * @return -1,0,1
  */
-gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb);
+int rtpstream_info_cmp(gconstpointer aa, gconstpointer bb);
 
 /**
 * Compares the endpoints of two RTP streams.
 *
-* @return TRUE if the
+* @return true if the
 */
-gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
+bool rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
 
 /**
  * Checks if payload_type is used in rtpstream.
  *
- * @returns TRUE if is used
+ * @returns true if is used
  */
-gboolean rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const guint8 payload_type);
+bool rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const uint8_t payload_type);
 
 /****************************************************************************/
 /* INTERFACE */
@@ -155,7 +155,7 @@ void rtpstream_info_analyse_process(rtpstream_info_t *stream_info, const packet_
 /**
  * Get hash key for rtpstream_info_t
  */
-guint rtpstream_to_hash(gconstpointer key);
+unsigned rtpstream_to_hash(gconstpointer key);
 
 /**
  * Insert new_stream_info into multihash
@@ -170,7 +170,7 @@ rtpstream_info_t *rtpstream_info_multihash_lookup(GHashTable *multihash, rtpstre
 /**
  * GHFunc () for destroying GList in multihash
  */
-void rtpstream_info_multihash_destroy_value(gpointer key, gpointer value, gpointer user_data);
+void rtpstream_info_multihash_destroy_value(void *key, void *value, void *user_data);
 
 #ifdef __cplusplus
 }

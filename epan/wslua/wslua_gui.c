@@ -535,7 +535,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /*
     pd->stopped = FALSE;
 
     if (ops->new_progress_window) {
-        pd->pw = ops->new_progress_window(ops->ops_id, pd->title, pd->task, TRUE, &(pd->stopped));
+        pd->pw = ops->new_progress_window(ops->ops_id, pd->title, pd->task, true, &(pd->stopped));
     } else {
         g_free (pd);
         WSLUA_ERROR(ProgDlg_new, "GUI not available");

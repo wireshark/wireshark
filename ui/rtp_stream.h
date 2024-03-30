@@ -40,31 +40,31 @@ extern "C" {
 typedef struct _rtpstream_info {
     rtpstream_id_t  id;
 
-    guint8          first_payload_type; /**< Numeric payload type */
-    const gchar    *first_payload_type_name; /**< Payload type name */
-    const gchar    *payload_type_names[256]; /**< Seen payload type names. Array index is payload type (byte), filled only during TAP_ANALYSE */
-    gchar          *all_payload_type_names; /**< All seen payload names for a stream in one string */
+    uint8_t         first_payload_type; /**< Numeric payload type */
+    const char     *first_payload_type_name; /**< Payload type name */
+    const char     *payload_type_names[256]; /**< Seen payload type names. Array index is payload type (byte), filled only during TAP_ANALYSE */
+    char           *all_payload_type_names; /**< All seen payload names for a stream in one string */
 
-    gboolean        is_srtp;
-    guint32         packet_count;
-    gboolean        end_stream; /**< Used to track streams across payload types */
+    bool            is_srtp;
+    uint32_t        packet_count;
+    bool            end_stream; /**< Used to track streams across payload types */
     int             rtp_event;
 
     int             call_num; /**< Used to match call_num in voip_calls_info_t */
-    guint32         setup_frame_number; /**< frame number of setup message */
+    uint32_t        setup_frame_number; /**< frame number of setup message */
     /* Start and stop packets needed for .num and .abs_ts */
     frame_data     *start_fd;
     frame_data     *stop_fd;
     nstime_t        start_rel_time;     /**< relative start time from pinfo */
     nstime_t        stop_rel_time;      /**< relative stop time from pinfo */
     nstime_t        start_abs_time;     /**< abs start time from pinfo */
-    guint16         vlan_id;
-    gboolean        tag_vlan_error;
-    gboolean        tag_diffserv_error;
+    uint16_t        vlan_id;
+    bool            tag_vlan_error;
+    bool            tag_diffserv_error;
 
     tap_rtp_stat_t  rtp_stats;  /**< here goes the RTP statistics info */
-    gboolean        problem;    /**< if the streams had wrong sequence numbers or wrong timestamps */
-    const gchar    *ed137_info; /** pointer to static text, no freeing is required */
+    bool            problem;    /**< if the streams had wrong sequence numbers or wrong timestamps */
+    const char     *ed137_info; /** pointer to static text, no freeing is required */
 } rtpstream_info_t;
 
 /** tapping modes */
@@ -100,8 +100,8 @@ struct _rtpstream_tapinfo {
     rtpstream_info_t  *filter_stream_fwd; /**< used as filter in some tap modes */
     rtpstream_info_t  *filter_stream_rev; /**< used as filter in some tap modes */
     FILE              *save_file;
-    gboolean           is_registered; /**< if the tap listener is currently registered or not */
-    gboolean           apply_display_filter; /**< if apply display filter during analyse */
+    bool               is_registered; /**< if the tap listener is currently registered or not */
+    bool               apply_display_filter; /**< if apply display filter during analyse */
 };
 
 #if 0
@@ -129,7 +129,7 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const 
 * Saves an RTP stream as raw data stream with timestamp information for later RTP playback.
 * (redissects all packets)
 */
-gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const gchar *filename);
+bool rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const char *filename);
 
 /**
 * Marks all packets belonging to either of stream_fwd or stream_rev.

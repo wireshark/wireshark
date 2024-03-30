@@ -32,16 +32,16 @@ struct _rtp_info;
 /** Defines an rtp stream identification */
 typedef struct _rtpstream_id {
     address         src_addr;
-    guint16         src_port;
+    uint16_t        src_port;
     address         dst_addr;
-    guint16         dst_port;
-    guint32         ssrc;
+    uint16_t        dst_port;
+    uint32_t        ssrc;
 } rtpstream_id_t;
 
 /**
  * Get hash of rtpstream_id
  */
-guint rtpstream_id_to_hash(const rtpstream_id_t *id);
+unsigned rtpstream_id_to_hash(const rtpstream_id_t *id);
 
 /**
  * Copy rtpstream_id_t structure
@@ -51,13 +51,13 @@ void rtpstream_id_copy(const rtpstream_id_t *src, rtpstream_id_t *dest);
 /**
  * Deep copy addresses and ports from pinfo
  */
-void rtpstream_id_copy_pinfo(const packet_info *pinfo, rtpstream_id_t *dest, gboolean swap_src_dst);
+void rtpstream_id_copy_pinfo(const packet_info *pinfo, rtpstream_id_t *dest, bool swap_src_dst);
 
 /**
  * Shallow copy addresses and ports from pinfo
  * Do not call rtpstream_id_free if you use this function.
  */
-void rtpstream_id_copy_pinfo_shallow(const packet_info *pinfo, rtpstream_id_t *dest, gboolean swap_src_dst);
+void rtpstream_id_copy_pinfo_shallow(const packet_info *pinfo, rtpstream_id_t *dest, bool swap_src_dst);
 
 /**
  * Free memory allocated for id
@@ -73,26 +73,26 @@ void rtpstream_id_free(rtpstream_id_t *id);
  */
 #define RTPSTREAM_ID_EQUAL_NONE		0x0000
 #define RTPSTREAM_ID_EQUAL_SSRC		0x0001
-gboolean rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2, guint flags);
+bool rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2, unsigned flags);
 
 /**
  * Check if rtpstream_id_t is equal to pinfo
  * - compare src_addr, dest_addr, src_port, dest_port with pinfo
  * - if swap_src_dst is true, compare src to dst and vice versa
  */
-gboolean rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *pinfo, bool swap_src_dst);
+bool rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *pinfo, bool swap_src_dst);
 
 /**
  * Check if rtpstream_id_t is equal to pinfo and rtp_info
  * - compare src_addr, dest_addr, src_port, dest_port with pinfo
  * - compare ssrc with rtp_info
  */
-gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packet_info *pinfo, const struct _rtp_info *rtp_info);
+bool rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packet_info *pinfo, const struct _rtp_info *rtp_info);
 
 /**
  * Get hash of rtpstream_id extracted from packet_info and _rtp_info
  */
-guint pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *rtp_info);
+unsigned pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *rtp_info);
 
 #ifdef __cplusplus
 }

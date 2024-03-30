@@ -29,9 +29,9 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)tapdata;
     wtap_rec rec;
     int err;
-    gchar *err_info;
+    char *err_info;
     int buffer_len;
-    guint8 *packet_buf;
+    uint8_t *packet_buf;
     tap_packet_status status = TAP_PACKET_DONT_REDRAW; /* no GUI, nothing to redraw */
 
     /*
@@ -41,7 +41,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 
     memset(&rec, 0, sizeof rec);
     buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
-    packet_buf = (guint8 *)g_malloc(buffer_len);
+    packet_buf = (uint8_t *)g_malloc(buffer_len);
 
     if(exp_pdu_data->tlv_buffer_len > 0){
         memcpy(packet_buf, exp_pdu_data->tlv_buffer, exp_pdu_data->tlv_buffer_len);
@@ -63,7 +63,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
      * copying it here does not hurt. (Can invalidation really happen?) */
     if (pinfo->fd->has_modified_block) {
         rec.block = epan_get_modified_block(edt->session, pinfo->fd);
-        rec.block_was_modified = TRUE;
+        rec.block_was_modified = true;
     } else {
         rec.block = pinfo->rec->block;
     }
@@ -81,18 +81,18 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     return status;
 }
 
-gboolean
+bool
 exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
              int file_type_subtype, int fd, const char *comment,
-             int *err, gchar **err_info)
+             int *err, char **err_info)
 {
     /* pcapng defs */
     wtap_block_t                 shb_hdr;
     wtap_block_t                 int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
     GString                     *os_info_str;
-    gsize                        opt_len;
-    gchar                       *opt_str;
+    size_t                       opt_len;
+    char                        *opt_str;
 
     /*
      * If the file format supports a section block, and the section
@@ -116,7 +116,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
          * create this section.
          */
         opt_len = os_info_str->len;
-        opt_str = g_string_free(os_info_str, FALSE);
+        opt_str = g_string_free(os_info_str, false);
         if (opt_str) {
             wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, opt_str, opt_len);
             g_free(opt_str);
@@ -128,7 +128,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
         wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s",
                                             get_appname_and_version());
 
-        exp_pdu_tap_data->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        exp_pdu_tap_data->shb_hdrs = g_array_new(false, false, sizeof(wtap_block_t));
         g_array_append_val(exp_pdu_tap_data->shb_hdrs, shb_hdr);
     } else {
         exp_pdu_tap_data->shb_hdrs = NULL;
@@ -141,7 +141,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
     if (wtap_file_type_subtype_supports_block(file_type_subtype,
                                               WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
         exp_pdu_tap_data->idb_inf = g_new(wtapng_iface_descriptions_t,1);
-        exp_pdu_tap_data->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        exp_pdu_tap_data->idb_inf->interface_data = g_array_new(false, false, sizeof(wtap_block_t));
 
         /* create the fake interface data */
         int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
@@ -172,17 +172,17 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
                 WTAP_UNCOMPRESSED, &params, err, err_info);
     }
     if (exp_pdu_tap_data->wdh == NULL)
-        return FALSE;
+        return false;
 
     exp_pdu_tap_data->pathname = pathname;
     exp_pdu_tap_data->framenum = 0; /* No frames written yet */
-    return TRUE;
+    return true;
 }
 
-gboolean
-exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, gchar **err_info)
+bool
+exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, char **err_info)
 {
-    gboolean status;
+    bool status;
 
     status = wtap_dump_close(exp_pdu_tap_data->wdh, NULL, err, err_info);
 
@@ -200,12 +200,12 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
     GString        *error_string;
 
     /* Make sure tap is suitable for exported PDUs */
-    gboolean found = FALSE;
+    bool found = false;
     for (GSList *export_pdu_tap_name_list = get_export_pdu_tap_list();
          export_pdu_tap_name_list != NULL;
          export_pdu_tap_name_list = g_slist_next(export_pdu_tap_name_list)) {
         if (strcmp((const char*)(export_pdu_tap_name_list->data), tap_name) == 0) {
-            found = TRUE;
+            found = true;
             break;
         }
     }
@@ -224,7 +224,7 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
                                          NULL,
                                          NULL);
     if (error_string != NULL)
-        return g_string_free(error_string, FALSE);
+        return g_string_free(error_string, false);
 
     exp_pdu_tap_data->pkt_encap = export_pdu_tap_get_encap(tap_name);
 

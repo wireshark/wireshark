@@ -30,11 +30,11 @@ extern "C" {
 /** Current Capture info. */
 typedef struct _capture_info {
     /* handle */
-    gpointer        ui;             /**< user interface handle */
+    void *          ui;             /**< user interface handle */
 
     /* capture info */
     packet_counts   *counts;        /**< protocol specific counters */
-    gint            new_packets;    /**< packets since last update */
+    int             new_packets;    /**< packets since last update */
 } capture_info;
 
 typedef struct _info_data {

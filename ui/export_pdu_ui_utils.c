@@ -30,16 +30,16 @@
 #include "export_pdu_ui_utils.h"
 
 void
-do_export_pdu(const char *filter, const gchar *temp_dir, const gchar *tap_name)
+do_export_pdu(const char *filter, const char *temp_dir, const char *tap_name)
 {
     exp_pdu_t exp_pdu_tap_data;
     char *error;
     int   import_file_fd;
     int   file_type_subtype;
     char *capfile_name = NULL, *comment;
-    gboolean status;
+    bool status;
     int   err;
-    gchar *err_info;
+    char *err_info;
 
     error = exp_pdu_pre_open(tap_name, filter, &exp_pdu_tap_data);
     if (error) {
@@ -85,13 +85,13 @@ do_export_pdu(const char *filter, const gchar *temp_dir, const gchar *tap_name)
     }
 
     /* XXX: should this use the open_routine type in the cfile instead of WTAP_TYPE_AUTO? */
-    if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
+    if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, true /* temporary file */, &err) != CF_OK) {
         /* cf_open() has put up a dialog box for the error */
         g_free(capfile_name);
         return;
     }
 
-    switch (cf_read(&cfile, /*reloading=*/FALSE)) {
+    switch (cf_read(&cfile, /*reloading=*/false)) {
     case CF_READ_OK:
     case CF_READ_ERROR:
         /* Just because we got an error, that doesn't mean we were unable

@@ -23,18 +23,18 @@ extern "C" {
 
 typedef struct {
     header_field_info	*hfinfo;
-    guint		num_pkts_total;
-    guint		num_pdus_total;
-    guint		num_pkts_last;
-    guint		num_bytes_total;
-    guint		num_bytes_last;
-    guint		last_pkt;
+    unsigned		num_pkts_total;
+    unsigned		num_pdus_total;
+    unsigned		num_pkts_last;
+    unsigned		num_bytes_total;
+    unsigned		num_bytes_last;
+    unsigned		last_pkt;
 } ph_stats_node_t;
 
 
 typedef struct {
-    guint	tot_packets;
-    guint	tot_bytes;
+    unsigned	tot_packets;
+    unsigned	tot_bytes;
     GNode	*stats_tree;
     double	first_time;	/* seconds (msec resolution) of first packet */
     double	last_time;	/* seconds (msec resolution) of last packet  */

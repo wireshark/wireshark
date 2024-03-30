@@ -58,7 +58,7 @@ static void funnel_statistics_reload_lua_plugins(funnel_ops_id_t *ops_id);
 static void funnel_statistics_apply_filter(funnel_ops_id_t *ops_id);
 static gboolean browser_open_url(const gchar *url);
 static void browser_open_data_file(const gchar *filename);
-static struct progdlg *progress_window_new(funnel_ops_id_t *ops_id, const gchar* title, const gchar* task, gboolean terminate_is_stop, gboolean *stop_flag);
+static struct progdlg *progress_window_new(funnel_ops_id_t *ops_id, const gchar* title, const gchar* task, bool terminate_is_stop, bool *stop_flag);
 static void progress_window_update(struct progdlg *progress_dialog, float percentage, const gchar* status);
 static void progress_window_destroy(struct progdlg *progress_dialog);
 }
@@ -313,7 +313,7 @@ void FunnelStatistics::retapPackets()
     capture_file_.retapPackets();
 }
 
-struct progdlg *FunnelStatistics::progressDialogNew(const gchar *task_title, const gchar *item_title, gboolean terminate_is_stop, gboolean *stop_flag)
+struct progdlg *FunnelStatistics::progressDialogNew(const gchar *task_title, const gchar *item_title, bool terminate_is_stop, bool *stop_flag)
 {
     return create_progress_dlg(parent(), task_title, item_title, terminate_is_stop, stop_flag);
 }
@@ -466,7 +466,7 @@ void browser_open_data_file(const gchar *filename) {
     QDesktopServices::openUrl(QUrl::fromLocalFile(filename));
 }
 
-struct progdlg *progress_window_new(funnel_ops_id_t *ops_id, const gchar* task_title, const gchar* item_title, gboolean terminate_is_stop, gboolean *stop_flag) {
+struct progdlg *progress_window_new(funnel_ops_id_t *ops_id, const gchar* task_title, const gchar* item_title, bool terminate_is_stop, bool *stop_flag) {
     if (!ops_id || !ops_id->funnel_statistics) return nullptr;
 
     return ops_id->funnel_statistics->progressDialogNew(task_title, item_title, terminate_is_stop, stop_flag);

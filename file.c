@@ -1378,7 +1378,7 @@ typedef struct _callback_data_t {
     gint64           f_len;
     progdlg_t       *progbar;
     GTimer          *prog_timer;
-    gboolean         stop_flag;
+    bool             stop_flag;
 } callback_data_t;
 
 

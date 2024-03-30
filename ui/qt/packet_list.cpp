@@ -105,7 +105,7 @@ const int overlay_update_interval_ = 100; // 250; // Milliseconds.
  * packet list corresponding to that frame.  If there is no such
  * row, return FALSE, otherwise return TRUE.
  */
-gboolean
+bool
 packet_list_select_row_from_data(frame_data *fdata_needle)
 {
     if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
@@ -146,7 +146,7 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
  * selected frame (the function above), because we found a match in the
  * same frame as the currently selected one.
  */
-gboolean
+bool
 packet_list_select_finfo(field_info *fi)
 {
     if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
@@ -203,7 +203,7 @@ packet_list_recent_write_all(FILE *rf) {
     gbl_cur_packet_list->writeRecent(rf);
 }
 
-gboolean
+bool
 packet_list_multi_select_active(void)
 {
     if (gbl_cur_packet_list) {

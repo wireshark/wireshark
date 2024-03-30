@@ -22,7 +22,7 @@ extern "C" {
 
 extern tap_reg_t const tap_reg_listener[];
 
-extern const gulong tap_reg_listener_count;
+extern const unsigned long tap_reg_listener_count;
 
 #ifdef __cplusplus
 }

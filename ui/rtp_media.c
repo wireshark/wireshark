@@ -36,9 +36,9 @@ typedef struct _rtp_decoder_t {
  */
 
 size_t
-decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, int payload_rate, int payload_channels, wmem_map_t *payload_fmtp_map, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
+decode_rtp_packet_payload(uint8_t payload_type, const char *payload_type_str, int payload_rate, int payload_channels, wmem_map_t *payload_fmtp_map, uint8_t *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, unsigned *channels_ptr, unsigned *sample_rate_ptr)
 {
-    const gchar *p;
+    const char *p;
     rtp_decoder_t *decoder;
     SAMPLE *tmp_buff = NULL;
     size_t tmp_buff_len;
@@ -96,9 +96,9 @@ decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, in
  */
 
 size_t
-decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
+decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash, unsigned *channels_ptr, unsigned *sample_rate_ptr)
 {
-    guint8  payload_type;
+    uint8_t payload_type;
 
     if ((rp->payload_data == NULL) || (rp->info->info_payload_len == 0) ) {
         return 0;
@@ -111,7 +111,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 
 /****************************************************************************/
 static void
-rtp_decoder_value_destroy(gpointer dec_arg)
+rtp_decoder_value_destroy(void *dec_arg)
 {
     rtp_decoder_t *dec = (rtp_decoder_t *)dec_arg;
 

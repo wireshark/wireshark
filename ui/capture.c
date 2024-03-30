@@ -62,7 +62,7 @@ struct if_stat_cache_s {
 /* this callback mechanism should possibly be replaced by the g_signal_...() stuff (if I only would know how :-) */
 typedef struct {
     capture_callback_t cb_fct;
-    gpointer user_data;
+    void *user_data;
 } capture_callback_data_t;
 
 static GList *capture_callbacks = NULL;
@@ -85,7 +85,7 @@ capture_callback_invoke(int event, capture_session *cap_session)
 
 
 void
-capture_callback_add(capture_callback_t func, gpointer user_data)
+capture_callback_add(capture_callback_t func, void *user_data)
 {
     capture_callback_data_t *cb;
 
@@ -97,7 +97,7 @@ capture_callback_add(capture_callback_t func, gpointer user_data)
 }
 
 void
-capture_callback_remove(capture_callback_t func, gpointer user_data)
+capture_callback_remove(capture_callback_t func, void *user_data)
 {
     capture_callback_data_t *cb;
     GList *cb_item = capture_callbacks;
@@ -118,9 +118,9 @@ capture_callback_remove(capture_callback_t func, gpointer user_data)
 /**
  * Start a capture.
  *
- * @return TRUE if the capture starts successfully, FALSE otherwise.
+ * @return true if the capture starts successfully, false otherwise.
  */
-gboolean
+bool
 capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
               capture_session *cap_session, info_data_t* cap_data,
               void(*update_cb)(void))
@@ -132,7 +132,7 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
     ws_message("Capture Start ...");
     source = get_iface_list_string(capture_opts, IFLIST_SHOW_FILTER);
     cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
-    g_string_free(source, TRUE);
+    g_string_free(source, true);
     /* try to start the capture child process */
     if (!sync_pipe_start(capture_opts, capture_comments, cap_session,
                          cap_data, update_cb)) {
@@ -144,7 +144,7 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
 
         ws_message("Capture Start failed.");
         cap_session->state = CAPTURE_STOPPED;
-        return FALSE;
+        return false;
     }
 
     // Do we need data structures for ignoring duplicate frames?
@@ -182,7 +182,7 @@ capture_start(capture_options *capture_opts, GPtrArray *capture_comments,
         capture_info_ui_create(&cap_data->ui, cap_session);
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -195,7 +195,7 @@ capture_stop(capture_session *cap_session)
 
     if (!extcap_session_stop(cap_session)) {
         extcap_request_stop(cap_session);
-        cap_session->capture_opts->stop_after_extcaps = TRUE;
+        cap_session->capture_opts->stop_after_extcaps = true;
     } else {
         /* stop the capture child gracefully */
         sync_pipe_stop(cap_session);
@@ -213,9 +213,9 @@ capture_kill_child(capture_session *cap_session)
 }
 
 /* We've succeeded in doing a (non real-time) capture; try to read it into a new capture file */
-static gboolean
-capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
-                       gboolean drops_known, guint32 drops)
+static bool
+capture_input_read_all(capture_session *cap_session, bool is_tempfile,
+                       bool drops_known, uint32_t drops)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     int err;
@@ -223,7 +223,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
     /* Capture succeeded; attempt to open the capture file. */
     if (cf_open((capture_file *)cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err) != CF_OK) {
         /* We're not doing a capture any more, so we don't have a save file. */
-        return FALSE;
+        return false;
     }
 
     /* Set the read filter to NULL. */
@@ -249,7 +249,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
        thus not have to set them here - "cf_read()" will get them from
        the file and use them. */
     if (drops_known) {
-        cf_set_drops_known((capture_file *)cap_session->cf, TRUE);
+        cf_set_drops_known((capture_file *)cap_session->cf, true);
 
         /* XXX - on some systems, libpcap doesn't bother filling in
            "ps_ifdrop" - it doesn't even set it to zero - so we don't
@@ -263,7 +263,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
     }
 
     /* read in the packet data */
-    switch (cf_read((capture_file *)cap_session->cf, /*reloading=*/FALSE)) {
+    switch (cf_read((capture_file *)cap_session->cf, /*reloading=*/false)) {
 
         case CF_READ_OK:
         case CF_READ_ERROR:
@@ -276,7 +276,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
             /* User wants to quit program. Exit by leaving the main loop,
                so that any quit functions we registered get called. */
             exit_application(0);
-            return FALSE;
+            return false;
     }
 
     /* if we didn't capture even a single packet, close the file again */
@@ -300,11 +300,11 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
                 (cf_is_tempfile((capture_file *)cap_session->cf)) ? "temporary " : "");
         cf_close((capture_file *)cap_session->cf);
     }
-    return TRUE;
+    return true;
 }
 
 static const char *
-cf_open_error_message(int err, gchar *err_info)
+cf_open_error_message(int err, char *err_info)
 {
     const char *errmsg;
     static char errmsg_errno[1024 + 1];
@@ -384,19 +384,19 @@ cf_open_error_message(int err, gchar *err_info)
         }
     }
     else
-        errmsg = file_open_error_message(err, FALSE);
+        errmsg = file_open_error_message(err, false);
     return errmsg;
 }
 
 /* capture child tells us we have a new (or the first) capture file */
 static bool
-capture_input_new_file(capture_session *cap_session, gchar *new_file)
+capture_input_new_file(capture_session *cap_session, char *new_file)
 {
     capture_options *capture_opts = cap_session->capture_opts;
-    gboolean is_tempfile;
+    bool is_tempfile;
     int  err;
-    gchar *err_info;
-    gchar *err_msg;
+    char *err_info;
+    char *err_msg;
 
     if(cap_session->state == CAPTURE_PREPARING) {
         ws_message("Capture started");
@@ -412,7 +412,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
         if (((capture_file*)cap_session->cf)->state == FILE_READ_PENDING) {
             capture_callback_invoke(capture_cb_capture_fixed_finished, cap_session);
         } else if (((capture_file*)cap_session->cf)->state != FILE_CLOSED) {
-            cap_session->session_will_restart = TRUE;
+            cap_session->session_will_restart = true;
             capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
             cf_finish_tail((capture_file *)cap_session->cf,
                            &cap_session->rec, &cap_session->buf, &err,
@@ -420,12 +420,12 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
             cf_close((capture_file *)cap_session->cf);
         }
         g_free(capture_opts->save_file);
-        is_tempfile = FALSE;
-        cf_set_tempfile((capture_file *)cap_session->cf, FALSE);
+        is_tempfile = false;
+        cf_set_tempfile((capture_file *)cap_session->cf, false);
     } else {
         /* we didn't have a save_file before; must be a tempfile */
-        is_tempfile = TRUE;
-        cf_set_tempfile((capture_file *)cap_session->cf, TRUE);
+        is_tempfile = true;
+        cf_set_tempfile((capture_file *)cap_session->cf, true);
     }
 
     /* save the new filename */
@@ -442,7 +442,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
                    for debugging purposes. */
                 g_free(capture_opts->save_file);
                 capture_opts->save_file = NULL;
-                return FALSE;
+                return false;
         }
     } else {
         capture_callback_invoke(capture_cb_capture_prepared, cap_session);
@@ -453,13 +453,13 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
             wtap_close(cap_session->wtap);
         }
 
-        cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+        cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, false);
         if (!cap_session->wtap) {
             err_msg = ws_strdup_printf(cf_open_error_message(err, err_info),
                                       new_file);
             ws_warning("capture_input_new_file: %d (%s)", err, err_msg);
             g_free(err_msg);
-            return FALSE;
+            return false;
         }
     }
 
@@ -470,11 +470,11 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
     }
     cap_session->state = CAPTURE_RUNNING;
 
-    return TRUE;
+    return true;
 }
 
 static void
-capture_info_packet(info_data_t* cap_info, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
+capture_info_packet(info_data_t* cap_info, int wtap_linktype, const unsigned char *pd, uint32_t caplen, union wtap_pseudo_header *pseudo_header)
 {
     capture_packet_info_t cpinfo;
 
@@ -491,8 +491,8 @@ static void
 capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
 {
     int err;
-    gchar *err_info;
-    gint64 data_offset;
+    char *err_info;
+    int64_t data_offset;
     wtap_rec rec;
     Buffer buf;
     union wtap_pseudo_header *pseudo_header;
@@ -590,7 +590,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
 /* Capture child told us how many dropped packets it counted.
  */
 static void
-capture_input_drops(capture_session *cap_session, guint32 dropped, const char* interface_name)
+capture_input_drops(capture_session *cap_session, uint32_t dropped, const char* interface_name)
 {
     if (interface_name != NULL) {
         ws_info("%u packet%s dropped from %s", dropped, plurality(dropped, "", "s"), interface_name);
@@ -600,7 +600,7 @@ capture_input_drops(capture_session *cap_session, guint32 dropped, const char* i
 
     ws_assert(cap_session->state == CAPTURE_RUNNING);
 
-    cf_set_drops_known((capture_file *)cap_session->cf, TRUE);
+    cf_set_drops_known((capture_file *)cap_session->cf, true);
     cf_set_drops((capture_file *)cap_session->cf, dropped);
 }
 
@@ -615,8 +615,8 @@ static void
 capture_input_error(capture_session *cap_session _U_, char *error_msg,
                     char *secondary_error_msg)
 {
-    gchar *safe_error_msg;
-    gchar *safe_secondary_error_msg;
+    char *safe_error_msg;
+    char *safe_secondary_error_msg;
 
     /* The primary message might be an empty string, e.g. when the error was
      * from extcap. (The extcap stderr is gathered when the session closes
@@ -650,14 +650,14 @@ capture_input_error(capture_session *cap_session _U_, char *error_msg,
    capture filter when starting/running the capture.
  */
 static void
-capture_input_cfilter_error(capture_session *cap_session, guint i,
+capture_input_cfilter_error(capture_session *cap_session, unsigned i,
                             const char *error_message)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     dfilter_t *rfcode = NULL;
-    gchar *safe_cfilter;
-    gchar *safe_descr;
-    gchar *safe_cfilter_error_msg;
+    char *safe_cfilter;
+    char *safe_descr;
+    char *safe_cfilter_error_msg;
     interface_options *interface_opts;
 
     ws_message("Capture filter error message from child: \"%s\"", error_message);
@@ -702,7 +702,7 @@ capture_input_cfilter_error(capture_session *cap_session, guint i,
 
 /* capture child closed its side of the pipe, do the required cleanup */
 static void
-capture_input_closed(capture_session *cap_session, gchar *msg)
+capture_input_closed(capture_session *cap_session, char *msg)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     int  err;
@@ -738,7 +738,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
         }
         ws_warning("%s", msg);
         simple_dialog(dlg_type, ESD_BTN_OK, "%s", gui_msg->str);
-        g_string_free(gui_msg, TRUE);
+        g_string_free(gui_msg, true);
         g_strfreev(msg_lines);
     }
 
@@ -774,7 +774,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
             /* Tell the GUI we are not doing a capture any more.
                Must be done after the cf_finish_tail(), so file lengths are
                correctly displayed */
-            cap_session->session_will_restart = FALSE;
+            cap_session->session_will_restart = false;
             capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
 
             /* Finish the capture. */
@@ -842,7 +842,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
     /* does the user wants to restart the current capture? */
     if(capture_opts->restart) {
-        capture_opts->restart = FALSE;
+        capture_opts->restart = false;
 
         /* If we have a ring buffer, the original save file has been overwritten
            with the "ring filename".  Restore it before starting again */
@@ -885,10 +885,10 @@ capture_stat_start(capture_options *capture_opts)
 {
     int stat_fd;
     ws_process_id fork_child;
-    gchar *msg;
+    char *msg;
     if_stat_cache_t *sc = g_new0(if_stat_cache_t, 1);
     if_stat_cache_item_t *sc_item;
-    guint i;
+    unsigned i;
     interface_t *device;
 
     sc->stat_fd = -1;
@@ -939,7 +939,7 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
 {
     int stat_fd;
     ws_process_id fork_child;
-    gchar *msg;
+    char *msg;
     if_stat_cache_t *sc = g_new0(if_stat_cache_t, 1);
     if_stat_cache_item_t *sc_item;
     char *data = NULL;
@@ -1025,8 +1025,8 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
 static void
 capture_stat_cache_update(if_stat_cache_t *sc)
 {
-    gchar stat_line[MAX_STAT_LINE_LEN] = "";
-    gchar **stat_parts;
+    char stat_line[MAX_STAT_LINE_LEN] = "";
+    char **stat_parts;
     GList *sc_entry;
     if_stat_cache_item_t *sc_item;
 
@@ -1053,14 +1053,14 @@ capture_stat_cache_update(if_stat_cache_t *sc)
     }
 }
 
-gboolean
+bool
 capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps)
 {
     GList *sc_entry;
     if_stat_cache_item_t *sc_item;
 
     if (!sc || sc->fork_child == WS_INVALID_PID || !ifname || !ps) {
-        return FALSE;
+        return false;
     }
 
     capture_stat_cache_update(sc);
@@ -1068,10 +1068,10 @@ capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps)
         sc_item = (if_stat_cache_item_t *)sc_entry->data;
         if (strcmp(sc_item->name, ifname) == 0) {
             memcpy(ps, &sc_item->ps, sizeof(struct pcap_stat));
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 void
@@ -1080,7 +1080,7 @@ capture_stat_stop(if_stat_cache_t *sc)
     GList *sc_entry;
     if_stat_cache_item_t *sc_item;
     int ret;
-    gchar *msg;
+    char *msg;
 
     if (!sc) {
         return;

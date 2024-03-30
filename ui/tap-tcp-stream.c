@@ -64,7 +64,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         struct segment *segment = g_new(struct segment, 1);
         segment->next      = NULL;
         segment->num       = pinfo->num;
-        segment->rel_secs  = (guint32)pinfo->rel_ts.secs;
+        segment->rel_secs  = (uint32_t)pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
         /* Currently unused
         segment->abs_secs  = pinfo->abs_ts.secs;
@@ -120,7 +120,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         exit(1);   /* XXX: fix this */
     }
     cf_retap_packets(cf);
@@ -145,7 +145,7 @@ graph_segment_list_free(struct tcp_graph *tg)
 }
 
 int
-compare_headers(address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, const address *saddr2, const address *daddr2, guint16 sport2, guint16 dport2, int dir)
+compare_headers(address *saddr1, address *daddr1, uint16_t sport1, uint16_t dport1, const address *saddr2, const address *daddr2, uint16_t sport2, uint16_t dport2, int dir)
 {
     int dir1, dir2;
 
@@ -212,7 +212,7 @@ static tap_packet_status
 tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     int       n;
-    gboolean  is_unique = TRUE;
+    bool      is_unique = true;
     th_t     *th        = (th_t *)pct;
     const struct tcpheader *header = (const struct tcpheader *)vip;
 
@@ -225,7 +225,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
                             &header->ip_src, &header->ip_dst,
                             header->th_sport, stored->th_dport,
                             COMPARE_CURR_DIR)) {
-            is_unique = FALSE;
+            is_unique = false;
             break;
         }
     }
@@ -249,31 +249,31 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
  * then present the user with a dialog where the user can select WHICH tcp
  * session to graph.
  */
-guint32
+uint32_t
 select_tcpip_session(capture_file *cf)
 {
     frame_data     *fdata;
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
-    guint32         th_stream;
+    uint32_t        th_stream;
     df_error_t     *df_err;
     GString        *error_string;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
     if (!cf) {
-        return G_MAXUINT32;
+        return UINT32_MAX;
     }
 
     /* no real filter yet */
     if (!dfilter_compile("tcp", &sfcode, &df_err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", df_err->msg);
         df_error_free(&df_err);
-        return G_MAXUINT32;
+        return UINT32_MAX;
     }
 
     /* dissect the current record */
     if (!cf_read_current_record(cf)) {
-        return G_MAXUINT32;    /* error reading the record */
+        return UINT32_MAX;    /* error reading the record */
     }
 
     fdata = cf->current_frame;
@@ -282,11 +282,11 @@ select_tcpip_session(capture_file *cf)
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         exit(1);
     }
 
-    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
+    epan_dissect_init(&edt, cf->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
                                frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
@@ -302,7 +302,7 @@ select_tcpip_session(capture_file *cf)
          * to determine whether to enable any of our menu items. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Selected packet isn't a TCP segment or is truncated");
-        return G_MAXUINT32;
+        return UINT32_MAX;
     }
     /* XXX fix this later, we should show a dialog allowing the user
        to select which session he wants here
@@ -312,7 +312,7 @@ select_tcpip_session(capture_file *cf)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "The selected packet has more than one TCP unique conversation "
                       "in it.");
-        return G_MAXUINT32;
+        return UINT32_MAX;
     }
 
     /* For now, still always choose the first/only one */
@@ -334,10 +334,10 @@ int rtt_is_retrans(struct rtt_unack *list, unsigned int seqno)
     for (u=list; u; u=u->next) {
         if (tcp_seq_eq_or_after(seqno, u->seqno) &&
             tcp_seq_before(seqno, u->end_seqno)) {
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 struct rtt_unack *

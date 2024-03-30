@@ -22,14 +22,14 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 
-/* Return TRUE if the 2 sets of parameters refer to the same channel. */
-gboolean compare_rlc_headers(guint8 rat1, guint8 rat2,
-                             guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                             guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                             gboolean frameIsControl)
+/* Return true if the 2 sets of parameters refer to the same channel. */
+bool compare_rlc_headers(uint8_t rat1, uint8_t rat2,
+                             uint16_t ueid1, uint16_t channelType1, uint16_t channelId1, uint8_t rlcMode1, uint8_t direction1,
+                             uint16_t ueid2, uint16_t channelType2, uint16_t channelId2, uint8_t rlcMode2, uint8_t direction2,
+                             bool frameIsControl)
 {
     if (rat1 != rat2) {
-        return FALSE;
+        return false;
     }
 
     /* Same direction, data - OK. */
@@ -49,7 +49,7 @@ gboolean compare_rlc_headers(guint8 rat1, guint8 rat2,
                     (channelId1 == channelId2));
         }
         else {
-            return FALSE;
+            return false;
         }
     }
 }
@@ -60,7 +60,7 @@ static tap_packet_status
 tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     int       n;
-    gboolean  is_unique = TRUE;
+    bool      is_unique = true;
     th_t     *th        = (th_t *)pct;
     const rlc_3gpp_tap_info *header = (const rlc_3gpp_tap_info*)vip;
 
@@ -72,7 +72,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
                                 stored->ueid, stored->channelType, stored->channelId, stored->rlcMode, stored->direction,
                                 header->ueid, header->channelType, header->channelId, header->rlcMode, header->direction,
                                 header->isControlPDU)) {
-            is_unique = FALSE;
+            is_unique = false;
             break;
         }
     }
@@ -100,7 +100,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
  * depending upon which GUI toolkit is being used. */
 rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
                                           struct rlc_segment *hdrs,
-                                          gchar **err_msg)
+                                          char **err_msg)
 {
     frame_data     *fdata;
     epan_dissect_t  edt;
@@ -133,12 +133,12 @@ rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
     if (error_string){
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
                 error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         dfilter_free(sfcode);
         exit(1);   /* XXX: fix this */
     }
 
-    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
+    epan_dissect_init(&edt, cf->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
                                frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
@@ -195,7 +195,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
         struct rlc_segment *segment = g_new(struct rlc_segment, 1);
         segment->next = NULL;
         segment->num = pinfo->num;
-        segment->rel_secs = (guint32) pinfo->rel_ts.secs;
+        segment->rel_secs = (uint32_t) pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
 
         segment->rat = rlchdr->rat;
@@ -223,7 +223,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
         }
         else {
             /* Status PDU */
-            gint n;
+            int n;
             segment->ACKNo = rlchdr->ACKNo;
             segment->noOfNACKs = rlchdr->noOfNACKs;
             for (n=0; (n < rlchdr->noOfNACKs) && (n < MAX_NACKs); n++) {
@@ -249,7 +249,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
 
 /* If don't have a channel, try to get one from current frame, then read all frames looking for data
  * for that channel. */
-gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gboolean stream_known,
+bool rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, bool stream_known,
                                     char **err_string)
 {
     struct rlc_segment current;
@@ -257,16 +257,16 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
 
     if (!cf || !g) {
         /* Really shouldn't happen */
-        return FALSE;
+        return false;
     }
 
     if (!stream_known) {
         struct rlc_3gpp_tap_info *header = select_rlc_lte_session(cf, &current, err_string);
         if (!header) {
             /* Didn't have a channel, and current frame didn't provide one */
-            return FALSE;
+            return false;
         }
-        g->channelSet = TRUE;
+        g->channelSet = true;
 
         g->rat = header->rat;
         g->ueid = header->ueid;
@@ -290,7 +290,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register rlc_graph tap: %s\n",
                 error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         exit(1);   /* XXX: fix this */
     }
     cf_retap_packets(cf);
@@ -298,10 +298,10 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
 
     if (g->last_segment == NULL) {
         *err_string = g_strdup("No packets found");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Free and zero the segments list of an rlc_graph struct */

@@ -37,15 +37,15 @@ typedef struct progdlg progdlg_t;
  *   the main window.
  * @param task_title The task to do, e.g. "Loading"
  * @param item_title The item to do, e.g. "capture.cap"
- * @param terminate_is_stop TRUE if the operation can't be cancelled, just
+ * @param terminate_is_stop true if the operation can't be cancelled, just
  *   stopped (i.e., it has a "Stop" button and clicking it doesn't undo
- *   anything already done), FALSE if it can
+ *   anything already done), false if it can
  * @param stop_flag A pointer to a Boolean variable that will be
- *   set to TRUE if the user hits that button
+ *   set to true if the user hits that button
  * @return The newly created progress dialog
  */
-progdlg_t *create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
-    gboolean terminate_is_stop, gboolean *stop_flag);
+progdlg_t *create_progress_dlg(void *top_level_window, const char *task_title, const char *item_title,
+    bool terminate_is_stop, bool *stop_flag);
 
 /**
  * Create a progress dialog, but only if it's not likely to disappear
@@ -55,16 +55,16 @@ progdlg_t *create_progress_dlg(gpointer top_level_window, const gchar *task_titl
  *   May be NULL.
  * @param task_title The task to do, e.g. "Loading"
  * @param item_title The item to do, e.g. "capture.cap"
- * @param terminate_is_stop TRUE if the operation can't be cancelled, just
+ * @param terminate_is_stop true if the operation can't be cancelled, just
  *   stopped (i.e., it has a "Stop" button and clicking it doesn't undo
- *   anything already done), FALSE if it can
+ *   anything already done), false if it can
  * @param stop_flag A pointer to a Boolean variable that will be
- *   set to TRUE if the user hits that button
+ *   set to true if the user hits that button
  * @param progress The current progress (0..1)
  * @return The newly created progress dialog
  */
-progdlg_t *delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
-    gboolean terminate_is_stop, gboolean *stop_flag, gfloat progress);
+progdlg_t *delayed_create_progress_dlg(void *top_level_window, const char *task_title, const char *item_title,
+    bool terminate_is_stop, bool *stop_flag, float progress);
 
 /**
  * Update the progress information of the progress dialog box.
@@ -73,7 +73,7 @@ progdlg_t *delayed_create_progress_dlg(gpointer top_level_window, const gchar *t
  * @param percentage The current percentage value (0..1)
  * @param status the New status string to show, e.g. "3000KB of 6000KB"
  */
-void update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status);
+void update_progress_dlg(progdlg_t *dlg, float percentage, const char *status);
 
 /**
  * Destroy or hide the progress bar.

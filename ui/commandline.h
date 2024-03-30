@@ -18,7 +18,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-extern void commandline_print_usage(gboolean for_help_option);
+extern void commandline_print_usage(bool for_help_option);
 
 extern void commandline_early_options(int argc, char *argv[]);
 
@@ -26,10 +26,10 @@ extern void commandline_early_options(int argc, char *argv[]);
 typedef struct commandline_param_info
 {
 #ifdef HAVE_LIBPCAP
-    gboolean list_link_layer_types;
-    gboolean list_timestamp_types;
-    gboolean start_capture;
-    gboolean quit_after_cap;
+    bool list_link_layer_types;
+    bool list_timestamp_types;
+    bool start_capture;
+    bool quit_after_cap;
 
     /*
      * We currently don't support this as a way to add file comments
@@ -40,19 +40,19 @@ typedef struct commandline_param_info
 #endif
     e_prefs *prefs_p;
     search_direction jump_backwards;
-    guint32 go_to_packet;
-    gchar* jfilter;
-    gchar* cf_name;
-    gchar* rfilter;
-    gchar* dfilter;
-    gboolean full_screen;
+    uint32_t go_to_packet;
+    char* jfilter;
+    char* cf_name;
+    char* rfilter;
+    char* dfilter;
+    bool full_screen;
     GSList *user_opts;
 
 } commandline_param_info_t;
 
-extern void commandline_override_prefs(int argc, char *argv[], gboolean opt_reset);
+extern void commandline_override_prefs(int argc, char *argv[], bool opt_reset);
 
-extern void commandline_other_options(int argc, char *argv[], gboolean opt_reset);
+extern void commandline_other_options(int argc, char *argv[], bool opt_reset);
 
 extern void commandline_options_drop(const char *module_name, const char *pref_name);
 

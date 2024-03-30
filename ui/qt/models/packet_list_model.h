@@ -113,7 +113,7 @@ private:
     static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
     static double parseNumericColumn(const QString &val, bool *ok);
 
-    static gboolean stop_flag_;
+    static bool stop_flag_;
     static ProgressFrame *progress_frame_;
     static double exp_comps_;
     static double comps_;

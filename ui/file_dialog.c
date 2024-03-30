@@ -24,26 +24,26 @@
 
 ws_file_preview_stats_status
 get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
-                      int *err, gchar **err_info)
+                      int *err, char **err_info)
 {
-    gint64       data_offset;
+    int64_t      data_offset;
     wtap_rec     rec;
     Buffer       buf;
-    guint32      records;
-    guint32      data_records;
+    uint32_t     records;
+    uint32_t     data_records;
     double       start_time;
     double       stop_time;
-    gboolean     have_times;
-    gboolean     timed_out;
+    bool         have_times;
+    bool         timed_out;
     time_t       time_preview, time_current;
     double       cur_time;
 
-    have_times = FALSE;
+    have_times = false;
     start_time = 0;
     stop_time = 0;
     records = 0;
     data_records = 0;
-    timed_out = FALSE;
+    timed_out = false;
     time(&time_preview);
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
@@ -53,7 +53,7 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
             if (!have_times) {
                 start_time = cur_time;
                 stop_time = cur_time;
-                have_times = TRUE;
+                have_times = true;
             }
             if (cur_time < start_time) {
                 start_time = cur_time;
@@ -79,7 +79,7 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
             /* do we have a timeout? */
             time(&time_current);
             if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
-                timed_out = TRUE;
+                timed_out = true;
                 break;
             }
         }

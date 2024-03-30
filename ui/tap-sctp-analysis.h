@@ -139,116 +139,116 @@ extern "C" {
 #define MAX_SCTP_CHUNK_TYPE 256
 
 typedef struct _tsn {
-	guint32	 frame_number;
-	guint32	 secs;		/* Absolute seconds */
-	guint32	 usecs;
+	uint32_t	 frame_number;
+	uint32_t	 secs;		/* Absolute seconds */
+	uint32_t	 usecs;
 	address	 src;
 	address	 dst;
-	guint32	 first_tsn;
+	uint32_t	 first_tsn;
 	GList	*tsns;
 } tsn_t;
 
 typedef struct _sctp_tmp_info {
-	guint16 assoc_id;
-	guint16 direction;
+	uint16_t assoc_id;
+	uint16_t direction;
 	address src;
 	address dst;
-	guint16 port1;
-	guint16 port2;
-	guint32 verification_tag1;
-	guint32 verification_tag2;
-	guint32 initiate_tag;
-	guint32 n_tvbs;
+	uint16_t port1;
+	uint16_t port2;
+	uint32_t verification_tag1;
+	uint32_t verification_tag2;
+	uint32_t initiate_tag;
+	uint32_t n_tvbs;
 } sctp_tmp_info_t;
 
 typedef struct _sctp_init_collision {
-	guint32 init_vtag;		/* initiate tag of the INIT chunk */
-	guint32 initack_vtag;		/* initiate tag of the INIT-ACK chunk */
-	guint32 init_min_tsn;		/* initial tsn of the INIT chunk */
-	guint32 initack_min_tsn;	/* initial tsn of the INIT-ACK chunk */
+	uint32_t init_vtag;		/* initiate tag of the INIT chunk */
+	uint32_t initack_vtag;		/* initiate tag of the INIT-ACK chunk */
+	uint32_t init_min_tsn;		/* initial tsn of the INIT chunk */
+	uint32_t initack_min_tsn;	/* initial tsn of the INIT-ACK chunk */
 	bool    init:1;
 	bool    initack:1;
 } sctp_init_collision_t;
 
 struct tsn_sort{
-	guint32 tsnumber;
-	guint32 secs;
-	guint32 usecs;
-	guint32 offset;
-	guint32 length;
-	guint32 framenumber;
+	uint32_t tsnumber;
+	uint32_t secs;
+	uint32_t usecs;
+	uint32_t offset;
+	uint32_t length;
+	uint32_t framenumber;
 };
 
 typedef struct _sctp_addr_chunk {
-	guint32	 direction;
+	uint32_t	 direction;
 	address addr;
 	/* The array is initialized to MAX_SCTP_CHUNK_TYPE
 	 * so that there is no memory overwrite
 	 * when accessed using sctp chunk type as index.
 	 */
-	guint32	 addr_count[MAX_SCTP_CHUNK_TYPE];
+	uint32_t	 addr_count[MAX_SCTP_CHUNK_TYPE];
 } sctp_addr_chunk;
 
 typedef struct _sctp_assoc_info {
-	guint16	   assoc_id;
+	uint16_t	   assoc_id;
 	address	   src;
 	address	   dst;
-	guint16	   port1;
-	guint16	   port2;
-	guint32	   verification_tag1;
-	guint32	   verification_tag2;
-	guint32	   initiate_tag;
-	guint32	   n_tvbs;
+	uint16_t   port1;
+	uint16_t   port2;
+	uint32_t   verification_tag1;
+	uint32_t   verification_tag2;
+	uint32_t   initiate_tag;
+	uint32_t   n_tvbs;
 	GList	  *addr1;
 	GList	  *addr2;
-	guint16	   instream1;
-	guint16	   outstream1;
-	guint16	   instream2;
-	guint16	   outstream2;
-	guint32	   n_adler32_calculated;
-	guint32	   n_adler32_correct;
-	guint32	   n_crc32c_calculated;
-	guint32	   n_crc32c_correct;
-	gchar	   checksum_type[8];
-	guint32	   n_checksum_errors;
-	guint32	   n_bundling_errors;
-	guint32	   n_padding_errors;
-	guint32	   n_length_errors;
-	guint32	   n_value_errors;
-	guint32	   n_data_chunks;
-	guint32	   n_forward_chunks;
-	guint32	   n_forward_chunks_ep1;
-	guint32	   n_forward_chunks_ep2;
-	guint32	   n_data_bytes;
-	guint32	   n_packets;
-	guint32	   n_data_chunks_ep1;
-	guint32	   n_data_bytes_ep1;
-	guint32	   n_data_chunks_ep2;
-	guint32	   n_data_bytes_ep2;
-	guint32	   n_sack_chunks_ep1;
-	guint32	   n_sack_chunks_ep2;
-	guint32	   n_array_tsn1;
-	guint32	   n_array_tsn2;
-	guint32	   max_window1;
-	guint32	   max_window2;
-	guint32	   arwnd1;
-	guint32	   arwnd2;
+	uint16_t   instream1;
+	uint16_t   outstream1;
+	uint16_t   instream2;
+	uint16_t   outstream2;
+	uint32_t   n_adler32_calculated;
+	uint32_t   n_adler32_correct;
+	uint32_t   n_crc32c_calculated;
+	uint32_t   n_crc32c_correct;
+	char	   checksum_type[8];
+	uint32_t   n_checksum_errors;
+	uint32_t   n_bundling_errors;
+	uint32_t   n_padding_errors;
+	uint32_t   n_length_errors;
+	uint32_t   n_value_errors;
+	uint32_t   n_data_chunks;
+	uint32_t   n_forward_chunks;
+	uint32_t   n_forward_chunks_ep1;
+	uint32_t   n_forward_chunks_ep2;
+	uint32_t   n_data_bytes;
+	uint32_t   n_packets;
+	uint32_t   n_data_chunks_ep1;
+	uint32_t   n_data_bytes_ep1;
+	uint32_t   n_data_chunks_ep2;
+	uint32_t   n_data_bytes_ep2;
+	uint32_t   n_sack_chunks_ep1;
+	uint32_t   n_sack_chunks_ep2;
+	uint32_t   n_array_tsn1;
+	uint32_t   n_array_tsn2;
+	uint32_t   max_window1;
+	uint32_t   max_window2;
+	uint32_t   arwnd1;
+	uint32_t   arwnd2;
 	bool       init:1;
 	bool       initack:1;
 	bool       firstdata:1;
 	bool       init_collision:1;
-	guint16	   initack_dir;
-	guint16	   direction;
-	guint32	   min_secs;
-	guint32	   min_usecs;
-	guint32	   max_secs;
-	guint32	   max_usecs;
-	guint32	   min_tsn1;
-	guint32	   min_tsn2;
-	guint32	   max_tsn1;
-	guint32	   max_tsn2;
-	guint32	   max_bytes1;
-	guint32	   max_bytes2;
+	uint16_t   initack_dir;
+	uint16_t   direction;
+	uint32_t   min_secs;
+	uint32_t   min_usecs;
+	uint32_t   max_secs;
+	uint32_t   max_usecs;
+	uint32_t   min_tsn1;
+	uint32_t   min_tsn2;
+	uint32_t   max_tsn1;
+	uint32_t   max_tsn2;
+	uint32_t   max_bytes1;
+	uint32_t   max_bytes2;
 	sctp_init_collision_t *dir1;
 	sctp_init_collision_t *dir2;
 	GSList	  *min_max;
@@ -261,29 +261,29 @@ typedef struct _sctp_assoc_info {
 	GPtrArray *sort_tsn2;
 	GPtrArray *sort_sack2;
 	GList	  *sack2;
-	gboolean   check_address;
+	bool       check_address;
 	GList*	   error_info_list;
 	/* The array is initialized to MAX_SCTP_CHUNK_TYPE
 	 * so that there is no memory overwrite
 	 * when accessed using sctp chunk type as index.
 	 */
-	guint32	   chunk_count[MAX_SCTP_CHUNK_TYPE];
-	guint32	   ep1_chunk_count[MAX_SCTP_CHUNK_TYPE];
-	guint32	   ep2_chunk_count[MAX_SCTP_CHUNK_TYPE];
-	GList *addr_chunk_count;
+	uint32_t   chunk_count[MAX_SCTP_CHUNK_TYPE];
+	uint32_t   ep1_chunk_count[MAX_SCTP_CHUNK_TYPE];
+	uint32_t   ep2_chunk_count[MAX_SCTP_CHUNK_TYPE];
+	GList     *addr_chunk_count;
 } sctp_assoc_info_t;
 
 typedef struct _sctp_error_info {
-	guint32	     frame_number;
-	gchar	     chunk_info[200];
-	const gchar *info_text;
+	uint32_t     frame_number;
+	char	     chunk_info[200];
+	const char  *info_text;
 } sctp_error_info_t;
 
 
 typedef struct _sctp_allassocs_info {
-	guint32	  sum_tvbs;
+	uint32_t  sum_tvbs;
 	GList	 *assoc_info_list;
-	gboolean  is_registered;
+	bool      is_registered;
 	GList	 *children;
 } sctp_allassocs_info_t;
 
@@ -297,7 +297,7 @@ void sctp_stat_scan(void);
 
 void remove_tap_listener_sctp_stat(void);
 
-const sctp_assoc_info_t* get_sctp_assoc_info(guint16 assoc_id);
+const sctp_assoc_info_t* get_sctp_assoc_info(uint16_t assoc_id);
 const sctp_assoc_info_t* get_selected_assoc(void);
 
 #ifdef __cplusplus

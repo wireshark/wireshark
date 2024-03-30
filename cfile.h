@@ -71,7 +71,7 @@ typedef struct _capture_file {
     gchar                      *source;               /* Temp file source, e.g. "Pipe from elsewhere" */
     gboolean                    is_tempfile;          /* Is capture file a temporary file? */
     gboolean                    unsaved_changes;      /* Does the capture file have changes that have not been saved? */
-    gboolean                    stop_flag;            /* Stop current processing (loading, searching, etc.) */
+    bool                        stop_flag;            /* Stop current processing (loading, searching, etc.) */
 
     gint64                      f_datalen;            /* Size of capture file data (uncompressed) */
     guint16                     cd_t;                 /* File type of capture file */

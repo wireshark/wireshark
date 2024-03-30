@@ -35,27 +35,27 @@ extern "C" {
 /* structure that holds the information about the forward and reversed direction */
 typedef struct _bw_history_item {
     double time;
-    guint32 bytes;
+    uint32_t bytes;
 } bw_history_item;
 
 #define BUFF_BW 300
 
 typedef struct _tap_rtp_stat_t {
-    gboolean        first_packet; /**< do not use in code that is called after rtppacket_analyse */
+    bool            first_packet; /**< do not use in code that is called after rtppacket_analyse */
                                /* use (flags & STAT_FLAG_FIRST) instead */
     /* all of the following fields will be initialized after
      * rtppacket_analyse has been called
      */
-    guint32         flags;      /* see STAT_FLAG-defines below */
-    guint16         seq_num;
+    uint32_t        flags;      /* see STAT_FLAG-defines below */
+    uint16_t        seq_num;
     uint64_t        timestamp;     /* The generated "extended" timestamp */
     uint64_t        seq_timestamp; /* The last in-sequence extended timestamp */
     double          bandwidth;
     bw_history_item bw_history[BUFF_BW];
-    guint16         bw_start_index;
-    guint16         bw_index;
-    guint32         total_bytes;
-    guint32         clock_rate;
+    uint16_t        bw_start_index;
+    uint16_t        bw_index;
+    uint32_t        total_bytes;
+    uint32_t        clock_rate;
     double          delta;
     double          jitter;
     double          diff;
@@ -75,21 +75,21 @@ typedef struct _tap_rtp_stat_t {
     double          max_jitter;
     double          max_skew;
     double          mean_jitter;
-    guint32         max_nr;
-    guint16         start_seq_nr;
-    guint16         stop_seq_nr;
-    guint32         total_nr;
-    guint32         sequence;
-    gboolean        under;
-    gint            seq_cycles;
-    guint16         pt;
+    uint32_t        max_nr;
+    uint16_t        start_seq_nr;
+    uint16_t        stop_seq_nr;
+    uint32_t        total_nr;
+    uint32_t        sequence;
+    bool            under;
+    int             seq_cycles;
+    uint16_t        pt;
     int             reg_pt;
-    guint32         first_packet_num;
-    guint           last_payload_len;
+    uint32_t        first_packet_num;
+    unsigned        last_payload_len;
 } tap_rtp_stat_t;
 
 typedef struct _tap_rtp_save_data_t {
-    guint32 timestamp;
+    uint32_t timestamp;
     unsigned int payload_type;
     size_t payload_len;
 } tap_rtp_save_data_t;

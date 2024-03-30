@@ -16,12 +16,12 @@
 #define TAP_CREDENTIALS_PLACEHOLDER "n.a."
 
 typedef struct tap_credential {
-    guint num;
-    guint username_num;
-    guint password_hf_id;
-    gchar* username;
-    const gchar* proto;
-    gchar* info;
+    unsigned num;
+    unsigned username_num;
+    unsigned password_hf_id;
+    char* username;
+    const char* proto;
+    char* info;
 } tap_credential_t;
 
 #endif

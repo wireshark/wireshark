@@ -30,7 +30,7 @@ char *language = NULL;
 
 /* set one user's recent common file key/value pair */
 static prefs_set_pref_e
-read_language_pref(gchar *key, const gchar *value,
+read_language_pref(char *key, const char *value,
                    void *private_data _U_, gboolean return_range_errors _U_)
 {
     if (strcmp(key, LANGUAGE_PREF_LANGUAGE) == 0) {
@@ -61,7 +61,7 @@ read_language_prefs(void)
     char       *rf_path;
     FILE       *rf;
 
-    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, FALSE);
+    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false);
 
     if ((rf = ws_fopen(rf_path, "r")) != NULL) {
         read_prefs_file(rf_path, rf, read_language_pref, NULL);
@@ -72,7 +72,7 @@ read_language_prefs(void)
     g_free(rf_path);
 }
 
-gboolean
+bool
 write_language_prefs(void)
 {
     char        *pf_dir_path;
@@ -92,16 +92,16 @@ write_language_prefs(void)
         "Can't create directory\n\"%s\"\nfor language file: %s.", pf_dir_path,
         g_strerror(errno));
         g_free(pf_dir_path);
-        return FALSE;
+        return false;
     }
 
-    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, FALSE);
+    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false);
     if ((rf = ws_fopen(rf_path, "w")) == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "Can't open recent file\n\"%s\": %s.", rf_path,
         g_strerror(errno));
         g_free(rf_path);
-        return FALSE;
+        return false;
     }
     g_free(rf_path);
 
@@ -115,5 +115,5 @@ write_language_prefs(void)
 
     fclose(rf);
 
-    return TRUE;
+    return true;
 }

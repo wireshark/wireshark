@@ -36,25 +36,25 @@ extern "C" {
 /* structure that holds the information about the forward and reversed direction */
 typedef struct _iax2_bw_history_item {
     double time;
-    guint32 bytes;
+    uint32_t bytes;
 } iax2_bw_history_item;
 
 #define BUFF_BW 300
 
 typedef struct _tap_iax2_stat_t {
-    gboolean first_packet;     /* do not use in code that is called after iax2_packet_analyse */
+    bool first_packet;     /* do not use in code that is called after iax2_packet_analyse */
     /* use (flags & STAT_FLAG_FIRST) instead */
     /* all of the following fields will be initialized after
        iax2_packet_analyse has been called */
-    guint32 flags;             /* see STAT_FLAG-defines below */
-    guint16 seq_num;
-    guint32 timestamp;
-    guint32 delta_timestamp;
+    uint32_t flags;             /* see STAT_FLAG-defines below */
+    uint16_t seq_num;
+    uint32_t timestamp;
+    uint32_t delta_timestamp;
     double bandwidth;
     iax2_bw_history_item bw_history[BUFF_BW];
-    guint16 bw_start_index;
-    guint16 bw_index;
-    guint32 total_bytes;
+    uint16_t bw_start_index;
+    uint16_t bw_index;
+    uint32_t total_bytes;
     double delta;
     double jitter;
     double diff;
@@ -63,14 +63,14 @@ typedef struct _tap_iax2_stat_t {
     double max_delta;
     double max_jitter;
     double mean_jitter;
-    guint32 max_nr;
-    guint16 start_seq_nr;
-    guint16 stop_seq_nr;
-    guint32 total_nr;
-    guint32 sequence;
-    gboolean under; /* Unused? */
-    gint cycles; /* Unused? */
-    guint16 pt;
+    uint32_t max_nr;
+    uint16_t start_seq_nr;
+    uint16_t stop_seq_nr;
+    uint32_t total_nr;
+    uint32_t sequence;
+    bool under; /* Unused? */
+    int cycles; /* Unused? */
+    uint16_t pt;
     int reg_pt;
 } tap_iax2_stat_t;
 

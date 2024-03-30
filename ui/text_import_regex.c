@@ -33,8 +33,8 @@ int text_import_regex(const text_import_info_t* info) {
     // IO
     GMappedFile* file = g_mapped_file_ref(info->regex.import_text_GMappedFile);
     GError* gerror = NULL;
-    gsize f_size = g_mapped_file_get_length(file);
-    guchar* f_content = g_mapped_file_get_contents(file);
+    size_t f_size = g_mapped_file_get_length(file);
+    unsigned char* f_content = g_mapped_file_get_contents(file);
     { /* zero terminate the file */
         if (f_content[f_size -  1] != '\n') {
             fprintf(stderr, "Error: file did not end on \\n\n");
@@ -45,10 +45,10 @@ int text_import_regex(const text_import_info_t* info) {
     }
 
     // Regex result dissecting
-    gboolean re_time, re_dir, re_seqno;
+    bool re_time, re_dir, re_seqno;
     GMatchInfo* match;
-    gint field_start;
-    gint field_end;
+    int field_start;
+    int field_end;
     { /* analyze regex */
         re_time = g_regex_get_string_number(info->regex.format, "time") >= 0;
         re_dir = g_regex_get_string_number(info->regex.format, "dir") >= 0;

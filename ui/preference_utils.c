@@ -124,10 +124,10 @@ prefs_store_ext(const char * module_name, const char *pref_name, const char *pre
     return 0;
 }
 
-gboolean
+bool
 prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
 {
-    gboolean pref_changed = FALSE;
+    bool pref_changed = false;
     GList * keys = NULL;
 
     if ( !prefs_is_registered_protocol(module))
@@ -139,13 +139,13 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
 
     for ( GList * key = keys; key != NULL; key = g_list_next(key) )
     {
-        gchar * pref_name = (gchar *)key->data;
-        gchar * pref_value = (gchar *) g_hash_table_lookup(pref_values, key->data);
+        char * pref_name = (char *)key->data;
+        char * pref_value = (char *) g_hash_table_lookup(pref_values, key->data);
 
         if ( pref_name && pref_value )
         {
             if ( prefs_store_ext_helper(module, pref_name, pref_value) )
-                pref_changed = TRUE;
+                pref_changed = true;
         }
     }
     g_list_free(keys);
@@ -157,15 +157,15 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
         prefs_to_capture_opts();
     }
 
-    return TRUE;
+    return true;
 }
 
-gint
-column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields, gint position)
+int
+column_prefs_add_custom(int fmt, const char *title, const char *custom_fields, int position)
 {
     GList *clp;
     fmt_data *cfmt, *last_cfmt;
-    gint colnr;
+    int colnr;
 
     cfmt = g_new(fmt_data, 1);
     /*
@@ -177,12 +177,12 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
     cfmt->fmt = fmt;
     cfmt->custom_fields = g_strdup(custom_fields);
     cfmt->custom_occurrence = 0;
-    cfmt->resolved = TRUE;
+    cfmt->resolved = true;
 
     colnr = g_list_length(prefs.col_list);
 
     if (custom_fields) {
-        cfmt->visible = TRUE;
+        cfmt->visible = true;
         clp = g_list_last(prefs.col_list);
         last_cfmt = (fmt_data *) clp->data;
         if (position > 0 && position <= colnr) {
@@ -197,7 +197,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
             prefs.col_list = g_list_append(prefs.col_list, cfmt);
         }
     } else {
-        cfmt->visible = FALSE;  /* Will be set to TRUE in visible_toggled() when added to list */
+        cfmt->visible = false;  /* Will be set to true in visible_toggled() when added to list */
         prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
     recent_insert_column(colnr);
@@ -205,14 +205,14 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
     return colnr;
 }
 
-gint
-column_prefs_has_custom(const gchar *custom_field)
+int
+column_prefs_has_custom(const char *custom_field)
 {
     GList *clp;
     fmt_data *cfmt;
-    gint colnr = -1;
+    int colnr = -1;
 
-    for (gint i = 0; i < prefs.num_cols; i++) {
+    for (int i = 0; i < prefs.num_cols; i++) {
         clp = g_list_nth(prefs.col_list, i);
         if (clp == NULL) /* Sanity check, invalid column requested */
             continue;
@@ -227,10 +227,10 @@ column_prefs_has_custom(const gchar *custom_field)
     return colnr;
 }
 
-gboolean
-column_prefs_custom_resolve(const gchar* custom_field)
+bool
+column_prefs_custom_resolve(const char* custom_field)
 {
-    gchar **fields;
+    char **fields;
     header_field_info *hfi;
     bool resolve = false;
 
@@ -238,14 +238,14 @@ column_prefs_custom_resolve(const gchar* custom_field)
                                   (GRegexCompileFlags) (G_REGEX_RAW),
                                   0);
 
-    for (guint i = 0; i < g_strv_length(fields); i++) {
+    for (unsigned i = 0; i < g_strv_length(fields); i++) {
         if (fields[i] && *fields[i]) {
             hfi = proto_registrar_get_byname(fields[i]);
             if (hfi && ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_IPv4) || (hfi->type == FT_IPv6) || (hfi->type == FT_FCWWN) || (hfi->type == FT_BOOLEAN) ||
                     ((hfi->strings != NULL) &&
                      (FT_IS_INT(hfi->type) || FT_IS_UINT(hfi->type)))))
                 {
-                    resolve = TRUE;
+                    resolve = true;
                     break;
                 }
         }
@@ -273,7 +273,7 @@ column_prefs_remove_link(GList *col_link)
 }
 
 void
-column_prefs_remove_nth(gint col)
+column_prefs_remove_nth(int col)
 {
     column_prefs_remove_link(g_list_nth(prefs.col_list, col));
     recent_remove_column(col);
@@ -291,7 +291,7 @@ void save_migrated_uat(const char *uat_name, gboolean *old_pref)
 
     // Ensure that any old preferences are removed after successful migration.
     if (*old_pref) {
-        *old_pref = FALSE;
+        *old_pref = false;
         prefs_main_write();
     }
 }

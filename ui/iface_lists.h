@@ -45,7 +45,7 @@ extern void scan_local_interfaces_filtered(GList * allowed_types, void (*update_
 /*
  * Hide the interfaces
  */
-extern void hide_interface(gchar* new_hide);
+extern void hide_interface(char* new_hide);
 
 /*
  * Update the global interface list from preferences.

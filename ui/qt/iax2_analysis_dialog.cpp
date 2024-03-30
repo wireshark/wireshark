@@ -898,7 +898,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     QFile      save_file(file_path);
     gint16     sample;
     guint8     pd[4];
-    gboolean   stop_flag = FALSE;
+    bool       stop_flag = false;
     qint64     nchars;
 
     save_file.open(QIODevice::WriteOnly);

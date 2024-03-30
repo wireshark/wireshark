@@ -57,7 +57,7 @@ const char *firewall_product_rule_hint(size_t product_idx);
 const char *firewall_product_comment_prefix(size_t product_idx);
 
 /* Syntax function prototypes */
-typedef void (*syntax_func)(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
+typedef void (*syntax_func)(GString *rtxt, char *addr, uint32_t port, port_type ptype, bool inbound, bool deny);
 
 /** MAC filter function
  * @param product_idx Product index.
@@ -86,9 +86,9 @@ syntax_func firewall_product_ipv4_port_func(size_t product_idx);
 /** Product inbound support
  * Given an index, return the product's ability to support inbound rules.
  * @param product_idx Product index.
- * @return TRUE or FALSE.
+ * @return true or false.
  */
-gboolean firewall_product_does_inbound(size_t product_idx);
+bool firewall_product_does_inbound(size_t product_idx);
 
 #ifdef __cplusplus
 }

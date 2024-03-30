@@ -15,16 +15,16 @@
 
 #include <epan/column.h>
 
-gboolean
-right_justify_column (gint col, capture_file *cf)
+bool
+right_justify_column (int col, capture_file *cf)
 {
     header_field_info *hfi;
-    gboolean right_justify = FALSE;
-    guint num_fields, ii;
+    bool right_justify = false;
+    unsigned num_fields, ii;
     col_custom_t *col_custom;
-    guint right_justify_count = 0;
+    unsigned right_justify_count = 0;
 
-    if (!cf) return FALSE;
+    if (!cf) return false;
 
     switch (cf->cinfo.columns[col].col_fmt) {
 
@@ -38,7 +38,7 @@ right_justify_column (gint col, capture_file *cf)
         case COL_DEF_SRC_PORT:
         case COL_DELTA_TIME:
         case COL_DELTA_TIME_DIS:
-            right_justify = TRUE;
+            right_justify = true;
             break;
 
         case COL_CUSTOM:
@@ -49,7 +49,7 @@ right_justify_column (gint col, capture_file *cf)
                     /* XXX - If there were some way to check the compiled dfilter's
                      * expected return type, we could use that.
                      */
-                    return FALSE;
+                    return false;
                 }
                 hfi = proto_registrar_get_nth(col_custom->field_id);
 
@@ -69,7 +69,7 @@ right_justify_column (gint col, capture_file *cf)
 
             if ((num_fields > 0) && (right_justify_count == num_fields)) {
                 /* All custom fields must meet the right-justify criteria */
-                right_justify = TRUE;
+                right_justify = true;
             }
             break;
 
@@ -80,15 +80,15 @@ right_justify_column (gint col, capture_file *cf)
     return right_justify;
 }
 
-gboolean
-resolve_column (gint col, capture_file *cf)
+bool
+resolve_column (int col, capture_file *cf)
 {
     header_field_info *hfi;
-    gboolean resolve = FALSE;
-    guint num_fields, ii;
+    bool resolve = false;
+    unsigned num_fields, ii;
     col_custom_t *col_custom;
 
-    if (!cf) return FALSE;
+    if (!cf) return false;
 
     switch (cf->cinfo.columns[col].col_fmt) {
 
@@ -116,7 +116,7 @@ resolve_column (gint col, capture_file *cf)
                     ((hfi->strings != NULL) &&
                      (FT_IS_INT(hfi->type) || FT_IS_UINT(hfi->type))))
                 {
-                    resolve = TRUE;
+                    resolve = true;
                     break;
                 }
             }

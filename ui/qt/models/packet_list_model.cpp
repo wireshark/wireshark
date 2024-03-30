@@ -488,7 +488,7 @@ int PacketListModel::sort_column_is_numeric_;
 int PacketListModel::text_sort_column_;
 Qt::SortOrder PacketListModel::sort_order_;
 capture_file *PacketListModel::sort_cap_file_;
-gboolean PacketListModel::stop_flag_;
+bool PacketListModel::stop_flag_;
 ProgressFrame *PacketListModel::progress_frame_;
 double PacketListModel::comps_;
 double PacketListModel::exp_comps_;

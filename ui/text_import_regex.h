@@ -25,13 +25,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
-void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encoding);
+void parse_data(unsigned char* start_field, unsigned char* end_field, enum data_encoding encoding);
 
-void parse_dir(const guchar* start_field, const guchar* end_field, const gchar* in_indicator, const gchar* out_indicator);
+void parse_dir(const unsigned char* start_field, const unsigned char* end_field, const char* in_indicator, const char* out_indicator);
 
-void parse_time(const guchar* start_field, const guchar* end_field, const gchar* _format);
+void parse_time(const unsigned char* start_field, const unsigned char* end_field, const char* _format);
 
-void parse_seqno(const guchar* start_field, const guchar* end_field);
+void parse_seqno(const unsigned char* start_field, const unsigned char* end_field);
 
 void flush_packet(void);
 

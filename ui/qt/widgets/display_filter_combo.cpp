@@ -173,7 +173,7 @@ void DisplayFilterCombo::updateMaxCount()
     setMaxCount(prefs.gui_recent_df_entries_max);
 }
 
-extern "C" gboolean dfilter_combo_add_recent(const gchar *filter) {
+extern "C" bool dfilter_combo_add_recent(const gchar *filter) {
     if (!cur_display_filter_combo)
         return FALSE;
 

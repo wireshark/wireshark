@@ -141,7 +141,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     double     value = 0;          /* FIXME: loss of precision, visible on the graph for small values */
     int        adv_type;
     const io_graph_item_t *item;
-    guint32    interval;
+    uint32_t   interval;
 
     item = &items_[idx];
 

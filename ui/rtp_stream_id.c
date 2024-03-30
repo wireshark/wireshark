@@ -38,7 +38,7 @@ void rtpstream_id_copy(const rtpstream_id_t *src, rtpstream_id_t *dest)
 
 /****************************************************************************/
 /* deep copy of id from packet_info */
-void rtpstream_id_copy_pinfo(const packet_info *pinfo, rtpstream_id_t *dest, gboolean swap_src_dst)
+void rtpstream_id_copy_pinfo(const packet_info *pinfo, rtpstream_id_t *dest, bool swap_src_dst)
 {
 	if (!swap_src_dst)
 	{
@@ -58,7 +58,7 @@ void rtpstream_id_copy_pinfo(const packet_info *pinfo, rtpstream_id_t *dest, gbo
 
 /****************************************************************************/
 /* shallow copy from packet_info to id */
-void rtpstream_id_copy_pinfo_shallow(const packet_info *pinfo, rtpstream_id_t *dest, gboolean swap_src_dst)
+void rtpstream_id_copy_pinfo_shallow(const packet_info *pinfo, rtpstream_id_t *dest, bool swap_src_dst)
 {
 	if (!swap_src_dst)
 	{
@@ -86,9 +86,9 @@ void rtpstream_id_free(rtpstream_id_t *id)
 
 /****************************************************************************/
 /* convert rtpstream_id_t to hash */
-guint rtpstream_id_to_hash(const rtpstream_id_t *id)
+unsigned rtpstream_id_to_hash(const rtpstream_id_t *id)
 {
-	guint hash = 0;
+	unsigned hash = 0;
 
 	if (!id) { return 0; }
 	/* XOR of: */
@@ -106,30 +106,30 @@ guint rtpstream_id_to_hash(const rtpstream_id_t *id)
 
 /****************************************************************************/
 /* compare two ids by flags */
-gboolean rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2, guint flags)
+bool rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2, unsigned flags)
 {
 	if (addresses_equal(&(id1->src_addr), &(id2->src_addr))
 		&& id1->src_port == id2->src_port
 		&& addresses_equal(&(id1->dst_addr), &(id2->dst_addr))
 		&& id1->dst_port == id2->dst_port)
 	{
-		gboolean equal = TRUE;
+		bool equal = true;
 
 		if ((flags & RTPSTREAM_ID_EQUAL_SSRC)
 			&& id1->ssrc != id2->ssrc)
 		{
-			equal = FALSE;
+			equal = false;
 		}
 
 		return equal;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /****************************************************************************/
 /* compare an rtpstream id address and ports with pinfo */
-gboolean rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *pinfo, bool swap_src_dst)
+bool rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *pinfo, bool swap_src_dst)
 {
         if (!swap_src_dst) {
                 if (addresses_equal(&(id->src_addr), &(pinfo->src))
@@ -137,7 +137,7 @@ gboolean rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *p
                         && addresses_equal(&(id->dst_addr), &(pinfo->dst))
                         && id->dst_port == pinfo->destport)
                 {
-                        return TRUE;
+                        return true;
                 }
         } else {
                 if (addresses_equal(&(id->src_addr), &(pinfo->dst))
@@ -145,15 +145,15 @@ gboolean rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *p
                         && addresses_equal(&(id->dst_addr), &(pinfo->src))
                         && id->dst_port == pinfo->srcport)
                 {
-                        return TRUE;
+                        return true;
                 }
         }
 
-	return FALSE;
+	return false;
 }
 /****************************************************************************/
 /* compare two ids, one in pinfo */
-gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packet_info *pinfo, const struct _rtp_info *rtp_info)
+bool rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packet_info *pinfo, const struct _rtp_info *rtp_info)
 {
 	if (addresses_equal(&(id->src_addr), &(pinfo->src))
 		&& id->src_port == pinfo->srcport
@@ -161,17 +161,17 @@ gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packe
 		&& id->dst_port == pinfo->destport
                 && id->ssrc == rtp_info->info_sync_src)
 	{
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /****************************************************************************/
 /* convert packet_info and _rtp_info to hash */
-guint pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *rtp_info)
+unsigned pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *rtp_info)
 {
-	guint hash = 0;
+	unsigned hash = 0;
 
 	if (!pinfo || !rtp_info) { return 0; }
 	/* XOR of: */

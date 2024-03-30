@@ -82,7 +82,7 @@ iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         statinfo->jitter = 0;
         statinfo->diff = 0;
         statinfo->flags |= STAT_FLAG_FIRST;
-        statinfo->first_packet = FALSE;
+        statinfo->first_packet = false;
     }
     /* is it a regular packet? */
     if (!(statinfo->flags & STAT_FLAG_FIRST)

@@ -23,7 +23,7 @@ extern "C" {
 
 /** If autoscroll in live captures is active or not
  */
-extern gboolean auto_scroll_live;
+extern bool auto_scroll_live;
 
 /** Fill in capture options with values from the preferences
  */
@@ -57,7 +57,7 @@ extern unsigned int prefs_store_ext(const char * module, const char * key, const
  *
  * @return true if the value has been stored successfully
  */
-extern gboolean prefs_store_ext_multiple(const char * module, GHashTable * pref_values);
+extern bool prefs_store_ext_multiple(const char * module, GHashTable * pref_values);
 
 /** Add a custom column.
  *
@@ -68,9 +68,9 @@ extern gboolean prefs_store_ext_multiple(const char * module, GHashTable * pref_
  *
  * @return The index of the inserted column
  */
-gint column_prefs_add_custom(gint fmt, const gchar *title,
-                             const gchar *custom_field,
-                             gint position);
+int column_prefs_add_custom(int fmt, const char *title,
+                             const char *custom_field,
+                             int position);
 
 /** Check if a custom column exists.
  *
@@ -78,7 +78,7 @@ gint column_prefs_add_custom(gint fmt, const gchar *title,
  *
  * @return The index of the column if existing, -1 if not existing
  */
-gint column_prefs_has_custom(const gchar *custom_field);
+int column_prefs_has_custom(const char *custom_field);
 
 /** Check if a custom column's data can be displayed differently
  * resolved or unresolved, e.g. it has a field with a value string.
@@ -89,11 +89,11 @@ gint column_prefs_has_custom(const gchar *custom_field);
  *
  * @param custom_field column custom field
  *
- * @return TRUE if a custom column with the field description
+ * @return true if a custom column with the field description
  * would support being displayed differently resolved or unresolved,
- * FALSE otherwise.
+ * false otherwise.
  */
-gboolean column_prefs_custom_resolve(const gchar *custom_field);
+bool column_prefs_custom_resolve(const char *custom_field);
 
 /** Remove a column.
  *
@@ -105,7 +105,7 @@ void column_prefs_remove_link(GList* col_link);
  *
  * @param col Column number
  */
-void column_prefs_remove_nth(gint col);
+void column_prefs_remove_nth(int col);
 
 /** Save the UAT and complete migration of old preferences by writing the main
  * preferences file (if necessary).

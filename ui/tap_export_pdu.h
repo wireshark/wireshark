@@ -22,7 +22,7 @@ typedef struct _exp_pdu_t {
     wtap_dumper* wdh;
     GArray* shb_hdrs;
     wtapng_iface_descriptions_t* idb_inf;
-    guint32      framenum;
+    uint32_t     framenum;
 } exp_pdu_t;
 
 /**
@@ -45,13 +45,13 @@ char *exp_pdu_pre_open(const char *tap_name, const char *filter,
 * @param[out] err Will be set to an error code on failure.
 * @param[out] err_info for some errors, a string giving more details of
 * the error
-* @return TRUE on success or FALSE on failure.
+* @return true on success or false on failure.
 */
-gboolean exp_pdu_open(exp_pdu_t *data, char *pathname, int file_type_subtype,
-    int fd, const char *comment, int *err, gchar **err_info);
+bool exp_pdu_open(exp_pdu_t *data, char *pathname, int file_type_subtype,
+    int fd, const char *comment, int *err, char **err_info);
 
 /* Stops the PDUs export. */
-gboolean exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, gchar **err_info);
+bool exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, char **err_info);
 
 #ifdef __cplusplus
 }

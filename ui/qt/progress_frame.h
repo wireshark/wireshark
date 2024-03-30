@@ -50,13 +50,13 @@ public:
     void captureFileClosing();
 
 public slots:
-    struct progdlg *showProgress(const QString &title, bool animate, bool terminate_is_stop, gboolean *stop_flag, int value = 0);
-    struct progdlg *showBusy(bool animate, bool terminate_is_stop, gboolean *stop_flag);
+    struct progdlg *showProgress(const QString &title, bool animate, bool terminate_is_stop, bool *stop_flag, int value = 0);
+    struct progdlg *showBusy(bool animate, bool terminate_is_stop, bool *stop_flag);
     void setValue(int value);
     void hide();
 
 signals:
-    void showRequested(bool animate, bool terminate_is_stop, gboolean *stop_flag);
+    void showRequested(bool animate, bool terminate_is_stop, bool *stop_flag);
     void valueChanged(int value);
     void maximumValueChanged(int value);
     void setHidden();
