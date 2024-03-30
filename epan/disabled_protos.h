@@ -31,7 +31,7 @@ enabled_protos_unsaved_changes(void);
  * On success (found the protocol), return TRUE.
  * On failure (didn't find the protocol), return FALSE.
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 proto_disable_proto_by_name(const char *name);
 
 /*
@@ -39,7 +39,7 @@ proto_disable_proto_by_name(const char *name);
  * On success (found the protocol), return TRUE.
  * On failure (didn't find the protocol), return FALSE.
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 proto_enable_proto_by_name(const char *name);
 
 /*
@@ -47,7 +47,7 @@ proto_enable_proto_by_name(const char *name);
  * On success (found the protocol), return TRUE.
  * On failure (didn't find the protocol), return FALSE.
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 proto_enable_heuristic_by_name(const char *name);
 
 /*
@@ -55,7 +55,7 @@ proto_enable_heuristic_by_name(const char *name);
  * On success (found the protocol), return TRUE.
  * On failure (didn't find the protocol), return FALSE.
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC bool
 proto_disable_heuristic_by_name(const char *name);
 
 /*

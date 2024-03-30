@@ -476,7 +476,7 @@ read_protos_list(char **gpath_return, int *gopen_errno_return,
 /*
  * Disable a particular protocol by name
  */
-gboolean
+bool
 proto_disable_proto_by_name(const char *name)
 {
   protocol_t *protocol;
@@ -515,7 +515,7 @@ static gboolean disable_proto_list_check(protocol_t  *protocol)
  * Enabling dissectors (that are disabled by default)
  ************************************************************************/
 
-gboolean
+bool
 proto_enable_proto_by_name(const char *name)
 {
   protocol_t *protocol;
@@ -908,13 +908,13 @@ proto_set_heuristic_by_name(const char *name, gboolean enable)
   }
 }
 
-gboolean
+bool
 proto_enable_heuristic_by_name(const char *name)
 {
   return proto_set_heuristic_by_name(name, TRUE);
 }
 
-gboolean
+bool
 proto_disable_heuristic_by_name(const char *name)
 {
   return proto_set_heuristic_by_name(name, FALSE);
