@@ -34,7 +34,7 @@
 #include <windows.h>
 #endif
 
-/** Maps guint32 secrets_type -> secrets_block_callback_t. */
+/** Maps uint32_t secrets_type -> secrets_block_callback_t. */
 static GHashTable *secrets_callbacks;
 
 #ifdef HAVE_LIBGNUTLS
@@ -48,7 +48,7 @@ typedef struct {
 
 static uat_t *rsa_privkeys_uat;
 static rsa_privkey_record_t *uat_rsa_privkeys;
-static guint uat_num_rsa_privkeys;
+static unsigned uat_num_rsa_privkeys;
 
 static void register_rsa_uats(void);
 #endif  /* HAVE_LIBGNUTLS */
@@ -63,7 +63,7 @@ typedef struct {
 
 static uat_t *pkcs11_libs_uat;
 static pkcs11_lib_record_t *uat_pkcs11_libs;
-static guint uat_num_pkcs11_libs;
+static unsigned uat_num_pkcs11_libs;
 #endif  /* HAVE_GNUTLS_PKCS11 */
 
 void
@@ -92,13 +92,13 @@ secrets_cleanup(void)
 }
 
 void
-secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb)
+secrets_register_type(uint32_t secrets_type, secrets_block_callback_t cb)
 {
-    g_hash_table_insert(secrets_callbacks, GUINT_TO_POINTER(secrets_type), (gpointer)cb);
+    g_hash_table_insert(secrets_callbacks, GUINT_TO_POINTER(secrets_type), (void *)cb);
 }
 
 void
-secrets_wtap_callback(guint32 secrets_type, const void *secrets, guint size)
+secrets_wtap_callback(uint32_t secrets_type, const void *secrets, unsigned size)
 {
     secrets_block_callback_t cb = (secrets_block_callback_t)g_hash_table_lookup(
             secrets_callbacks, GUINT_TO_POINTER(secrets_type));
@@ -108,11 +108,11 @@ secrets_wtap_callback(guint32 secrets_type, const void *secrets, guint size)
 }
 
 #ifdef HAVE_LIBGNUTLS
-static guint
+static unsigned
 key_id_hash(gconstpointer key)
 {
     const cert_key_id_t *key_id = (const cert_key_id_t *)key;
-    const guint32 *dw = (const guint32 *)key_id->key_id;
+    const uint32_t *dw = (const uint32_t *)key_id->key_id;
 
     /* The public key' SHA-1 hash (which maps to a private key) has a uniform
      * distribution, hence simply xor'ing them should be sufficient. */
@@ -138,7 +138,7 @@ static void
 rsa_privkey_add(const cert_key_id_t *key_id, gnutls_privkey_t pkey)
 {
     void *ht_key = g_memdup2(key_id->key_id, sizeof(cert_key_id_t));
-    const guint32 *dw = (const guint32 *)key_id->key_id;
+    const uint32_t *dw = (const uint32_t *)key_id->key_id;
     g_hash_table_insert(rsa_privkeys, ht_key, pkey);
     ws_debug("Adding RSA private, Key ID %08x%08x%08x%08x%08x", g_htonl(dw[0]),
             g_htonl(dw[1]), g_htonl(dw[2]), g_htonl(dw[3]), g_htonl(dw[4]));
@@ -203,8 +203,8 @@ get_pkcs11_token_uris(void)
     return tokens;
 }
 
-static gboolean
-verify_pkcs11_token(const char *token_uri, const char *pin, gboolean *pin_needed, char **error)
+static bool
+verify_pkcs11_token(const char *token_uri, const char *pin, bool *pin_needed, char **error)
 {
     gnutls_pkcs11_obj_t *list = NULL;
     unsigned int nlist = 0;
@@ -236,9 +236,9 @@ verify_pkcs11_token(const char *token_uri, const char *pin, gboolean *pin_needed
         if (error) {
             *error = g_strdup(gnutls_strerror(ret));
         }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /**
@@ -253,7 +253,7 @@ pkcs11_load_keys_from_token(const char *token_uri, const char *pin, char **err)
     int ret;
     /* An empty/NULL PIN means that none is necessary. */
     char *fixed_pin = pin && pin[0] ? g_strdup(pin) : NULL;
-    gboolean pin_in_use = FALSE;
+    bool pin_in_use = false;
 
     /* Set PIN via a global callback since import_url can prompt for one. */
     gnutls_pkcs11_set_pin_function(set_pin_callback, fixed_pin);
@@ -331,7 +331,7 @@ pkcs11_load_keys_from_token(const char *token_uri, const char *pin, char **err)
         /* Remember the private key. */
         rsa_privkey_add(&key_id, privkey);
         privkey = NULL;
-        pin_in_use = TRUE;
+        pin_in_use = true;
 
 cont:
         gnutls_privkey_deinit(privkey);
@@ -361,7 +361,7 @@ uat_pkcs11_libs_load_all(void)
     int ret;
     GString *err = NULL;
 
-    for (guint i = 0; i < uat_num_pkcs11_libs; i++) {
+    for (unsigned i = 0; i < uat_num_pkcs11_libs; i++) {
         const pkcs11_lib_record_t *rec = &uat_pkcs11_libs[i];
         const char *libname = rec->library_path;
 #ifdef _MSC_VER
@@ -388,7 +388,7 @@ uat_pkcs11_libs_load_all(void)
     }
     if (err) {
         report_failure("%s", err->str);
-        g_string_free(err, TRUE);
+        g_string_free(err, true);
     }
 }
 
@@ -433,7 +433,7 @@ uat_rsa_privkey_free_str_cb(void *record)
 }
 
 static void
-load_rsa_keyfile(const char *filename, const char *password, gboolean save_key, char **err)
+load_rsa_keyfile(const char *filename, const char *password, bool save_key, char **err)
 {
     gnutls_x509_privkey_t x509_priv_key;
     gnutls_privkey_t privkey = NULL;
@@ -496,7 +496,7 @@ uat_rsa_privkeys_post_update(void)
 #endif  /* HAVE_GNUTLS_PKCS11 */
     GString *errors = NULL;
 
-    for (guint i = 0; i < uat_num_rsa_privkeys; i++) {
+    for (unsigned i = 0; i < uat_num_rsa_privkeys; i++) {
         const rsa_privkey_record_t *rec = &uat_rsa_privkeys[i];
         const char *token_uri = rec->uri;
         char *err = NULL;
@@ -506,7 +506,7 @@ uat_rsa_privkeys_post_update(void)
             pkcs11_load_keys_from_token(token_uri, rec->password, &err);
 #endif  /* HAVE_GNUTLS_PKCS11 */
         } else {
-            load_rsa_keyfile(token_uri, rec->password, TRUE, &err);
+            load_rsa_keyfile(token_uri, rec->password, true, &err);
         }
         if (err) {
             if (!errors) {
@@ -519,7 +519,7 @@ uat_rsa_privkeys_post_update(void)
     }
     if (errors) {
         report_failure("%s", errors->str);
-        g_string_free(errors, TRUE);
+        g_string_free(errors, true);
     }
 }
 
@@ -533,11 +533,11 @@ secrets_get_available_keys(void)
     return keys;
 }
 
-gboolean
-secrets_verify_key(const char *uri, const char *password, gboolean *need_password, char **error)
+bool
+secrets_verify_key(const char *uri, const char *password, bool *need_password, char **error)
 {
     if (need_password) {
-        *need_password = FALSE;
+        *need_password = false;
     }
     if (error) {
         *error = NULL;
@@ -550,11 +550,11 @@ secrets_verify_key(const char *uri, const char *password, gboolean *need_passwor
         if (error) {
             *error = g_strdup("PKCS #11 support is not available in this build");
         }
-        return FALSE;
+        return false;
 #endif
     } else if (g_file_test(uri, G_FILE_TEST_IS_REGULAR)) {
-        gchar *err = NULL;
-        load_rsa_keyfile(uri, password, FALSE, &err);
+        char *err = NULL;
+        load_rsa_keyfile(uri, password, false, &err);
         if (need_password) {
             // Assume that failure to load the key is due to password errors.
             // This might not be correct, but fixing this needs more changes.
@@ -566,14 +566,14 @@ secrets_verify_key(const char *uri, const char *password, gboolean *need_passwor
             } else {
                 g_free(err);
             }
-            return FALSE;
+            return false;
         }
-        return TRUE;
+        return true;
     } else {
         if (error) {
             *error = g_strdup("Unsupported key URI or path");
         }
-        return FALSE;
+        return false;
     }
 }
 
@@ -593,7 +593,7 @@ register_rsa_uats(void)
     pkcs11_libs_uat = uat_new("PKCS #11 Provider Libraries",
             sizeof(pkcs11_lib_record_t),
             "pkcs11_libs",                  /* filename */
-            FALSE,                          /* from_profile */
+            false,                          /* from_profile */
             &uat_pkcs11_libs,               /* data_ptr */
             &uat_num_pkcs11_libs,           /* numitems_ptr */
             0,                              /* does not directly affect dissection */
@@ -614,7 +614,7 @@ register_rsa_uats(void)
     rsa_privkeys_uat = uat_new("RSA Private Keys",
             sizeof(rsa_privkey_record_t),
             "rsa_keys",                     /* filename */
-            FALSE,                          /* from_profile */
+            false,                          /* from_profile */
             &uat_rsa_privkeys,              /* data_ptr */
             &uat_num_rsa_privkeys,          /* numitems_ptr */
             0,                              /* does not directly affect dissection */
@@ -628,10 +628,10 @@ register_rsa_uats(void)
 }
 
 int
-secrets_rsa_decrypt(const cert_key_id_t *key_id, const guint8 *encr, int encr_len, guint8 **out, int *out_len)
+secrets_rsa_decrypt(const cert_key_id_t *key_id, const uint8_t *encr, int encr_len, uint8_t **out, int *out_len)
 {
-    gboolean ret;
-    gnutls_datum_t ciphertext = { (guchar *)encr, encr_len };
+    bool ret;
+    gnutls_datum_t ciphertext = { (unsigned char *)encr, encr_len };
     gnutls_datum_t plain = { 0 };
 
     gnutls_privkey_t pkey = (gnutls_privkey_t)g_hash_table_lookup(rsa_privkeys, key_id->key_id);
@@ -641,7 +641,7 @@ secrets_rsa_decrypt(const cert_key_id_t *key_id, const guint8 *encr, int encr_le
 
     ret = gnutls_privkey_decrypt_data(pkey, 0, &ciphertext, &plain);
     if (ret == 0) {
-        *out = (guint8 *)g_memdup2(plain.data, plain.size);
+        *out = (uint8_t *)g_memdup2(plain.data, plain.size);
         *out_len = plain.size;
         gnutls_free(plain.data);
     }

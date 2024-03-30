@@ -12,6 +12,9 @@
 #ifndef __SECRETS_H__
 #define __SECRETS_H__
 
+#include <inttypes.h>
+#include <stdbool.h>
+
 #include <glib.h>
 #include "ws_symbol_export.h"
 
@@ -53,7 +56,7 @@ enum secrets_scope {
 #ifdef HAVE_LIBGNUTLS
 /** Identifier for a RSA public key (a SHA-1 hash). */
 struct cert_key_id {
-    guint8 key_id[20];
+    uint8_t key_id[20];
 };
 typedef struct cert_key_id cert_key_id_t;
 #endif  /* HAVE_LIBGNUTLS */
@@ -63,12 +66,12 @@ typedef struct cert_key_id cert_key_id_t;
  * Callback for the wiretap secrets provider (wtap_new_secrets_callback_t).
  */
 WS_DLL_PUBLIC void
-secrets_wtap_callback(guint32 secrets_type, const void *secrets, guint size);
+secrets_wtap_callback(uint32_t secrets_type, const void *secrets, unsigned size);
 
 /**
  * Receives a new block of secrets from an external source (wiretap or files).
  */
-typedef void (*secrets_block_callback_t)(const void *secrets, guint size);
+typedef void (*secrets_block_callback_t)(const void *secrets, unsigned size);
 
 /**
  * Registers a consumer for pcapng Decryption Secrets Block (DSB). Only one
@@ -78,7 +81,7 @@ typedef void (*secrets_block_callback_t)(const void *secrets, guint size);
  * @param cb Callback to be invoked for new secrets.
  */
 WS_DLL_PUBLIC void
-secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb);
+secrets_register_type(uint32_t secrets_type, secrets_block_callback_t cb);
 
 #ifdef HAVE_LIBGNUTLS
 /**
@@ -95,12 +98,12 @@ secrets_get_available_keys(void);
  *
  * @param uri A value from secrets_get_available_keys() or a file path.
  * @param password A token PIN or key file password, may be NULL.
- * @param need_password Set to TRUE if a password may be required. Nullable.
+ * @param need_password Set to true if a password may be required. Nullable.
  * @param error The error string on failure, clean up with g_free. Nullable.
- * @return TRUE if the key was valid, FALSE otherwise.
+ * @return true if the key was valid, false otherwise.
  */
-WS_DLL_PUBLIC gboolean
-secrets_verify_key(const char *uri, const char *password, gboolean *need_password, char **error);
+WS_DLL_PUBLIC bool
+secrets_verify_key(const char *uri, const char *password, bool *need_password, char **error);
 
 /** Returns a new hash table, mapping cert_key_id_t -> gnutls_privkey_t. */
 GHashTable *privkey_hash_table_new(void);
@@ -118,7 +121,7 @@ GHashTable *privkey_hash_table_new(void);
  * error code otherwise.
  */
 WS_DLL_PUBLIC int
-secrets_rsa_decrypt(const cert_key_id_t *key_id, const guint8 *encr, int encr_len, guint8 **out, int *out_len);
+secrets_rsa_decrypt(const cert_key_id_t *key_id, const uint8_t *encr, int encr_len, uint8_t **out, int *out_len);
 #endif  /* HAVE_LIBGNUTLS */
 
 #ifdef __cplusplus

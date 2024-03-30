@@ -63,10 +63,10 @@ RsaKeysFrame::~RsaKeysFrame()
     delete ui;
 }
 
-gboolean RsaKeysFrame::verifyKey(const char *uri, const char *password, gboolean *need_password, QString &error)
+bool RsaKeysFrame::verifyKey(const char *uri, const char *password, bool *need_password, QString &error)
 {
     char *error_c = NULL;
-    gboolean key_ok = secrets_verify_key(qPrintable(uri), qPrintable(password), need_password, &error_c);
+    bool key_ok = secrets_verify_key(qPrintable(uri), qPrintable(password), need_password, &error_c);
     error = error_c ? error_c : "";
     g_free(error_c);
     return key_ok;
@@ -120,7 +120,7 @@ void RsaKeysFrame::on_addItemButton_clicked()
     }
 
     // Validate the token, is a PIN needed?
-    gboolean key_ok = false, needs_pin = true;
+    bool key_ok = false, needs_pin = true;
     QString error;
     if (!item.startsWith("pkcs11:")) {
         // For keys other than pkcs11, try to verify the key without password.
@@ -168,7 +168,7 @@ void RsaKeysFrame::on_addFileButton_clicked()
     // Try to load the key as unencrypted key file. If any errors occur, assume
     // an encrypted key file and prompt for a password.
     QString password, error;
-    gboolean key_ok = secrets_verify_key(qPrintable(file), NULL, NULL, NULL);
+    bool key_ok = secrets_verify_key(qPrintable(file), NULL, NULL, NULL);
     while (!key_ok) {
         QString msg;
         if (!error.isEmpty()) {

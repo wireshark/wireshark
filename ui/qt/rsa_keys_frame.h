@@ -40,7 +40,7 @@ private:
     UatModel *rsa_keys_model_;
     UatModel *pkcs11_libs_model_;
 
-    gboolean verifyKey(const char *uri, const char *password, gboolean *need_password, QString &error);
+    bool verifyKey(const char *uri, const char *password, bool *need_password, QString &error);
     void addKey(const QString &uri, const QString &password);
 
 private slots:
