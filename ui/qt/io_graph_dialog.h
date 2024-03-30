@@ -63,29 +63,29 @@ public:
 
     explicit IOGraph(QCustomPlot *parent);
     ~IOGraph();
-    const QString configError() { return config_err_; }
-    const QString name() { return name_; }
+    QString configError() const { return config_err_; }
+    QString name() const { return name_; }
     void setName(const QString &name);
-    const QString filter() { return filter_; }
+    QString filter() const { return filter_; }
     void setFilter(const QString &filter);
     void applyCurrentColor();
-    bool visible() { return visible_; }
+    bool visible() const { return visible_; }
     void setVisible(bool visible);
-    QRgb color();
+    QRgb color() const;
     void setColor(const QRgb color);
     void setPlotStyle(int style);
-    const QString valueUnitLabel();
+    QString valueUnitLabel() const;
     void setValueUnits(int val_units);
-    const QString valueUnitField() { return vu_field_; }
+    QString valueUnitField() const { return vu_field_; }
     void setValueUnitField(const QString &vu_field);
-    unsigned int movingAveragePeriod() { return moving_avg_period_; }
+    unsigned int movingAveragePeriod() const { return moving_avg_period_; }
     void setInterval(int interval);
     bool addToLegend();
     bool removeFromLegend();
-    QCPGraph *graph() { return graph_; }
-    QCPBars *bars() { return bars_; }
-    double startOffset();
-    int packetFromTime(double ts);
+    QCPGraph *graph() const { return graph_; }
+    QCPBars *bars() const { return bars_; }
+    double startOffset() const;
+    int packetFromTime(double ts) const;
     bool hasItemToShow(int idx, double value) const;
     double getItemValue(int idx, const capture_file *cap_file) const;
     int maxInterval () const { return cur_idx_; }

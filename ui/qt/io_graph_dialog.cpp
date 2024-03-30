@@ -1914,7 +1914,7 @@ void IOGraph::setName(const QString &name)
     }
 }
 
-QRgb IOGraph::color()
+QRgb IOGraph::color() const
 {
     return color_.color().rgb();
 }
@@ -2027,7 +2027,7 @@ void IOGraph::setPlotStyle(int style)
     applyCurrentColor();
 }
 
-const QString IOGraph::valueUnitLabel()
+QString IOGraph::valueUnitLabel() const
 {
     return val_to_str_const(val_units_, y_axis_vs, "Unknown");
 }
@@ -2098,7 +2098,7 @@ bool IOGraph::removeFromLegend()
     return false;
 }
 
-double IOGraph::startOffset()
+double IOGraph::startOffset() const
 {
     if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker()) && graph_->data()->size() > 0) {
         return graph_->data()->at(0)->key;
@@ -2109,7 +2109,7 @@ double IOGraph::startOffset()
     return 0.0;
 }
 
-int IOGraph::packetFromTime(double ts)
+int IOGraph::packetFromTime(double ts) const
 {
     int idx = ts * SCALE_F / interval_;
     if (idx >= 0 && idx <= cur_idx_) {
