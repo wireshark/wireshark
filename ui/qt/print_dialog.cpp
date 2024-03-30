@@ -32,32 +32,32 @@ extern "C" {
 // Page element callbacks
 
 
-static gboolean
-print_preamble_pd(print_stream_t *self, gchar *, const char *)
+static bool
+print_preamble_pd(print_stream_t *self, char *, const char *)
 {
-    if (!self) return FALSE;
+    if (!self) return false;
     PrintDialog *print_dlg = static_cast<PrintDialog *>(self->data);
-    if (!print_dlg) return FALSE;
+    if (!print_dlg) return false;
 
     return print_dlg->printHeader();
 }
 
-static gboolean
+static bool
 print_line_pd(print_stream_t *self, int indent, const char *line)
 {
-    if (!self) return FALSE;
+    if (!self) return false;
     PrintDialog *print_dlg = static_cast<PrintDialog *>(self->data);
-    if (!print_dlg) return FALSE;
+    if (!print_dlg) return false;
 
     return print_dlg->printLine(indent, line);
 }
 
-static gboolean
+static bool
 new_page_pd(print_stream_t *self)
 {
-    if (!self) return FALSE;
+    if (!self) return false;
     PrintDialog *print_dlg = static_cast<PrintDialog *>(self->data);
-    if (!print_dlg) return FALSE;
+    if (!print_dlg) return false;
 
     return print_dlg->printHeader();
 }
@@ -73,7 +73,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     print_bt_(new QPushButton(tr("&Print…"))),
     cap_file_(cf),
     page_pos_(0),
-    in_preview_(FALSE)
+    in_preview_(false)
 {
     Q_ASSERT(cf);
 
@@ -97,7 +97,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     /* Init the export range */
     packet_range_init(&print_args_.range, cap_file_);
     /* Default to displayed packets */
-    print_args_.range.process_filtered = TRUE;
+    print_args_.range.process_filtered = true;
 
     stream_ops_.print_preamble = print_preamble_pd;
     stream_ops_.print_line     = print_line_pd;
@@ -107,7 +107,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     stream_.ops = &stream_ops_;
     print_args_.stream = &stream_;
 
-    gchar *display_basename = g_filename_display_basename(cap_file_->filename);
+    char *display_basename = g_filename_display_basename(cap_file_->filename);
     printer_.setDocName(display_basename);
     g_free(display_basename);
 
@@ -136,9 +136,9 @@ PrintDialog::~PrintDialog()
     delete pd_ui_;
 }
 
-gboolean PrintDialog::printHeader()
+bool PrintDialog::printHeader()
 {
-    if (!cap_file_ || !cap_file_->filename || !cur_printer_ || !cur_painter_) return FALSE;
+    if (!cap_file_ || !cap_file_->filename || !cur_printer_ || !cur_painter_) return false;
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     int page_top = cur_printer_->pageLayout().paintRectPixels(cur_printer_->resolution()).top();
 #else
@@ -149,7 +149,7 @@ gboolean PrintDialog::printHeader()
         if (in_preview_) {
             // When generating a preview, only generate the first page;
             // if we're past the first page, stop the printing process.
-            return FALSE;
+            return false;
         }
         // Second and subsequent pages only
         cur_printer_->newPage();
@@ -166,15 +166,15 @@ gboolean PrintDialog::printHeader()
     }
     page_pos_ += cur_painter_->fontMetrics().height();
     cur_painter_->setFont(packet_font_);
-    return TRUE;
+    return true;
 }
 
-gboolean PrintDialog::printLine(int indent, const char *line)
+bool PrintDialog::printLine(int indent, const char *line)
 {
     QRect out_rect, page_rect;
     QString out_line;
 
-    if (!line || !cur_printer_ || !cur_painter_) return FALSE;
+    if (!line || !cur_printer_ || !cur_painter_) return false;
 
     /* Prepare the tabs for printing, depending on tree level */
     out_line.fill(' ', indent * 4);
@@ -196,13 +196,13 @@ gboolean PrintDialog::printLine(int indent, const char *line)
         if (in_preview_) {
             // When generating a preview, only generate the first page;
             // if we're past the first page, stop the printing process.
-            return FALSE;
+            return false;
         }
         if (*line == '\0') {
             // This is an empty line, so it's a separator; no need to
             // waste space printing it at the top of a page, as the
             // page break suffices as a separator.
-            return TRUE;
+            return true;
         }
         printHeader();
     }
@@ -210,7 +210,7 @@ gboolean PrintDialog::printLine(int indent, const char *line)
     out_rect.translate(0, page_pos_);
     cur_painter_->drawText(out_rect, Qt::TextWordWrap, out_line);
     page_pos_ += out_rect.height();
-    return TRUE;
+    return true;
 }
 
 // Protected
@@ -287,7 +287,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
     // Don't show a progress bar if we're previewing; if it takes a
     // significant amount of time to generate a preview of the first
     // page, We Have A Real Problem
-    cf_print_packets(cap_file_, &print_args_, in_preview ? FALSE : TRUE);
+    cf_print_packets(cap_file_, &print_args_, in_preview ? false : true);
     cur_printer_ = NULL;
     cur_painter_ = NULL;
     painter.end();

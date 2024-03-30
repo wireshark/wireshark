@@ -46,9 +46,9 @@ typedef enum {
 } color_type_t;
 
 typedef struct {
-    gboolean     to_file;
+    bool         to_file;
     FILE        *fh;
-    gboolean     isatty;
+    bool         isatty;
     const char  *to_codeset;
     color_type_t color_type;
 #ifdef _WIN32
@@ -208,7 +208,7 @@ do_color_eol_24bit_escape(print_stream_t *self)
 }
 
 static FILE *
-open_print_dest(gboolean to_file, const char *dest)
+open_print_dest(bool to_file, const char *dest)
 {
     FILE *fh;
 
@@ -221,8 +221,8 @@ open_print_dest(gboolean to_file, const char *dest)
     return fh;
 }
 
-static gboolean
-close_print_dest(gboolean to_file, FILE *fh)
+static bool
+close_print_dest(bool to_file, FILE *fh)
 {
     /* Close the file or command */
     if (to_file)
@@ -232,19 +232,19 @@ close_print_dest(gboolean to_file, FILE *fh)
 }
 
 /* Some formats need stuff at the beginning of the output */
-gboolean
-print_preamble(print_stream_t *self, gchar *filename, const char *version_string)
+bool
+print_preamble(print_stream_t *self, char *filename, const char *version_string)
 {
-    return self->ops->print_preamble ? (self->ops->print_preamble)(self, filename, version_string) : TRUE;
+    return self->ops->print_preamble ? (self->ops->print_preamble)(self, filename, version_string) : true;
 }
 
-gboolean
+bool
 print_line(print_stream_t *self, int indent, const char *line)
 {
     return (self->ops->print_line)(self, indent, line);
 }
 
-gboolean
+bool
 print_line_color(print_stream_t *self, int indent, const char *line, const color_t *fg, const color_t *bg)
 {
     if (self->ops->print_line_color)
@@ -254,42 +254,42 @@ print_line_color(print_stream_t *self, int indent, const char *line, const color
 }
 
 /* Insert bookmark */
-gboolean
-print_bookmark(print_stream_t *self, const gchar *name, const gchar *title)
+bool
+print_bookmark(print_stream_t *self, const char *name, const char *title)
 {
-    return self->ops->print_bookmark ? (self->ops->print_bookmark)(self, name, title) : TRUE;
+    return self->ops->print_bookmark ? (self->ops->print_bookmark)(self, name, title) : true;
 }
 
-gboolean
+bool
 new_page(print_stream_t *self)
 {
-    return self->ops->new_page ? (self->ops->new_page)(self) : TRUE;
+    return self->ops->new_page ? (self->ops->new_page)(self) : true;
 }
 
 /* Some formats need stuff at the end of the output */
-gboolean
+bool
 print_finale(print_stream_t *self)
 {
-    return self->ops->print_finale ? (self->ops->print_finale)(self) : TRUE;
+    return self->ops->print_finale ? (self->ops->print_finale)(self) : true;
 }
 
-gboolean
+bool
 destroy_print_stream(print_stream_t *self)
 {
-    return (self && self->ops && self->ops->destroy) ? (self->ops->destroy)(self) : TRUE;
+    return (self && self->ops && self->ops->destroy) ? (self->ops->destroy)(self) : true;
 }
 
 #define MAX_INDENT    160
 
-/* returns TRUE if the print succeeded, FALSE if there was an error */
-static gboolean
+/* returns true if the print succeeded, false if there was an error */
+static bool
 print_line_color_text(print_stream_t *self, int indent, const char *line, const color_t *fg, const color_t *bg)
 {
     static char spaces[MAX_INDENT];
     size_t ret;
     output_text *output = (output_text *)self->data;
     unsigned int num_spaces;
-    gboolean emit_color = output->isatty && (fg != NULL || bg != NULL);
+    bool emit_color = output->isatty && (fg != NULL || bg != NULL);
 
     /* should be space, if NUL -> initialize */
     if (!spaces[0])
@@ -310,7 +310,7 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
         case COLOR_24BIT_ESCAPE:
             set_color_24bit_escape(output->fh, fg, bg);
             if (ferror(output->fh))
-                return FALSE;
+                return false;
             break;
         }
     }
@@ -327,7 +327,7 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
              * most efficient way to do this. However, this has the side
              * effect of scrubbing invalid output.
              */
-            gchar *tty_out;
+            char *tty_out;
 
             tty_out = g_convert_with_fallback(line, -1, output->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
 
@@ -379,13 +379,13 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
     return !ferror(output->fh);
 }
 
-static gboolean
+static bool
 print_line_text(print_stream_t *self, int indent, const char *line)
 {
     return print_line_color_text(self, indent, line, NULL, NULL);
 }
 
-static gboolean
+static bool
 new_page_text(print_stream_t *self)
 {
     output_text *output = (output_text *)self->data;
@@ -394,11 +394,11 @@ new_page_text(print_stream_t *self)
     return !ferror(output->fh);
 }
 
-static gboolean
+static bool
 destroy_text(print_stream_t *self)
 {
     output_text *output = (output_text *)self->data;
-    gboolean     ret;
+    bool         ret;
 
     switch (output->color_type) {
 
@@ -445,7 +445,7 @@ static const print_stream_ops_t print_text_ops = {
 };
 
 static print_stream_t *
-print_stream_text_alloc(gboolean to_file, FILE *fh)
+print_stream_text_alloc(bool to_file, FILE *fh)
 {
     print_stream_t *stream;
     output_text    *output;
@@ -472,7 +472,7 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
          * The console-specific API GetConsoleScreenBufferInfo() succeeded,
          * so we'll assume this is a console.
          */
-        output->isatty = TRUE;
+        output->isatty = true;
         output->csb_attrs = csb_info.wAttributes;
 
         /*
@@ -579,7 +579,7 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
          * treat that as meaning "not a console and everything else
          * as being an error that we should report.
          */
-        output->isatty = FALSE;
+        output->isatty = false;
 
         /*
          * This is not used if we're not on a console, as we're not doing
@@ -599,8 +599,8 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
      */
     output->isatty = isatty(ws_fileno(fh));
     if (output->isatty) {
-        const gchar *charset;
-        gboolean is_utf8;
+        const char *charset;
+        bool is_utf8;
 
         /* Is there a more reliable way to do this? */
         is_utf8 = g_get_charset(&charset);
@@ -672,7 +672,7 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
 }
 
 print_stream_t *
-print_stream_text_new(gboolean to_file, const char *dest)
+print_stream_text_new(bool to_file, const char *dest)
 {
     FILE *fh;
 
@@ -686,11 +686,11 @@ print_stream_text_new(gboolean to_file, const char *dest)
 print_stream_t *
 print_stream_text_stdio_new(FILE *fh)
 {
-    return print_stream_text_alloc(TRUE, fh);
+    return print_stream_text_alloc(true, fh);
 }
 
 typedef struct {
-    gboolean  to_file;
+    bool      to_file;
     FILE     *fh;
 } output_ps;
 
@@ -728,8 +728,8 @@ void ps_clean_string(char *out, const char *in, int outbuf_size)
     }
 }
 
-static gboolean
-print_preamble_ps(print_stream_t *self, gchar *filename, const char *version_string)
+static bool
+print_preamble_ps(print_stream_t *self, char *filename, const char *version_string)
 {
     output_ps *output = (output_ps *)self->data;
     char       psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
@@ -743,7 +743,7 @@ print_preamble_ps(print_stream_t *self, gchar *filename, const char *version_str
     return !ferror(output->fh);
 }
 
-static gboolean
+static bool
 print_line_ps(print_stream_t *self, int indent, const char *line)
 {
     output_ps *output = (output_ps *)self->data;
@@ -754,8 +754,8 @@ print_line_ps(print_stream_t *self, int indent, const char *line)
     return !ferror(output->fh);
 }
 
-static gboolean
-print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
+static bool
+print_bookmark_ps(print_stream_t *self, const char *name, const char *title)
 {
     output_ps *output = (output_ps *)self->data;
     char       psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
@@ -784,7 +784,7 @@ print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
     return !ferror(output->fh);
 }
 
-static gboolean
+static bool
 new_page_ps(print_stream_t *self)
 {
     output_ps *output = (output_ps *)self->data;
@@ -793,7 +793,7 @@ new_page_ps(print_stream_t *self)
     return !ferror(output->fh);
 }
 
-static gboolean
+static bool
 print_finale_ps(print_stream_t *self)
 {
     output_ps *output = (output_ps *)self->data;
@@ -802,11 +802,11 @@ print_finale_ps(print_stream_t *self)
     return !ferror(output->fh);
 }
 
-static gboolean
+static bool
 destroy_ps(print_stream_t *self)
 {
     output_ps *output = (output_ps *)self->data;
-    gboolean   ret;
+    bool       ret;
 
     ret = close_print_dest(output->to_file, output->fh);
     g_free(output);
@@ -825,7 +825,7 @@ static const print_stream_ops_t print_ps_ops = {
 };
 
 static print_stream_t *
-print_stream_ps_alloc(gboolean to_file, FILE *fh)
+print_stream_ps_alloc(bool to_file, FILE *fh)
 {
     print_stream_t *stream;
     output_ps      *output;
@@ -842,7 +842,7 @@ print_stream_ps_alloc(gboolean to_file, FILE *fh)
 }
 
 print_stream_t *
-print_stream_ps_new(gboolean to_file, const char *dest)
+print_stream_ps_new(bool to_file, const char *dest)
 {
     FILE *fh;
 
@@ -856,7 +856,7 @@ print_stream_ps_new(gboolean to_file, const char *dest)
 print_stream_t *
 print_stream_ps_stdio_new(FILE *fh)
 {
-    return print_stream_ps_alloc(TRUE, fh);
+    return print_stream_ps_alloc(true, fh);
 }
 
 /*
