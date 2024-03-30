@@ -109,7 +109,7 @@ extern void cfile_close_failure_alert_box(const char *filename, int err,
  * for reading.
  */
 extern void open_failure_alert_box(const char *filename, int err,
-                                   gboolean for_writing);
+                                   bool for_writing);
 
 /*
  * Alert box for a failed attempt to read a file.

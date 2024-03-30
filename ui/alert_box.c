@@ -548,7 +548,7 @@ cfile_close_failure_alert_box(const char *filename, int err, gchar *err_info)
  * typical Wireshark user is, but....
  */
 void
-open_failure_alert_box(const char *filename, int err, gboolean for_writing)
+open_failure_alert_box(const char *filename, int err, bool for_writing)
 {
     gchar *display_basename;
 

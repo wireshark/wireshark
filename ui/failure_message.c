@@ -34,11 +34,11 @@ failure_message(const char *msg_format, va_list ap)
  * Error message for a failed attempt to open or create a file
  * other than a capture file.
  * "filename" is the name of the file being opened; "err" is assumed
- * to be a UNIX-style errno; "for_writing" is TRUE if we're opening
- * the file for writing and FALSE if we're opening it for reading.
+ * to be a UNIX-style errno; "for_writing" is true if we're opening
+ * the file for writing and false if we're opening it for reading.
  */
 void
-open_failure_message(const char *filename, int err, gboolean for_writing)
+open_failure_message(const char *filename, int err, bool for_writing)
 {
     cmdarg_err(file_open_error_message(err, for_writing), filename);
 }
@@ -106,7 +106,7 @@ output_file_description(const char *fname)
  * to be a string giving further information for some WTAP_ERR_ values.
  */
 void
-cfile_open_failure_message(const char *filename, int err, gchar *err_info)
+cfile_open_failure_message(const char *filename, int err, char *err_info)
 {
     if (err < 0) {
         /*
@@ -195,7 +195,7 @@ cfile_open_failure_message(const char *filename, int err, gchar *err_info)
         }
         g_free(file_description);
     } else
-        cmdarg_err(file_open_error_message(err, FALSE), filename);
+        cmdarg_err(file_open_error_message(err, false), filename);
 }
 
 /*
@@ -207,7 +207,7 @@ cfile_open_failure_message(const char *filename, int err, gchar *err_info)
  * and subtype of file being opened.
  */
 void
-cfile_dump_open_failure_message(const char *filename, int err, gchar *err_info,
+cfile_dump_open_failure_message(const char *filename, int err, char *err_info,
                                 int file_type_subtype)
 {
     if (err < 0) {
@@ -275,7 +275,7 @@ cfile_dump_open_failure_message(const char *filename, int err, gchar *err_info,
         }
         g_free(file_description);
     } else
-        cmdarg_err(file_open_error_message(err, TRUE), filename);
+        cmdarg_err(file_open_error_message(err, true), filename);
 }
 
 /*
@@ -285,7 +285,7 @@ cfile_dump_open_failure_message(const char *filename, int err, gchar *err_info,
  * to be a string giving further information for some WTAP_ERR_ values.
  */
 void
-cfile_read_failure_message(const char *filename, int err, gchar *err_info)
+cfile_read_failure_message(const char *filename, int err, char *err_info)
 {
     char *file_string;
 
@@ -359,8 +359,8 @@ cfile_read_failure_message(const char *filename, int err, gchar *err_info)
  */
 void
 cfile_write_failure_message(const char *in_filename, const char *out_filename,
-                            int err, gchar *err_info,
-                            guint32 framenum, int file_type_subtype)
+                            int err, char *err_info,
+                            uint32_t framenum, int file_type_subtype)
 {
     char *in_file_string;
     char *in_frame_string;
@@ -499,7 +499,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
  * so we have to check for write errors here.
  */
 void
-cfile_close_failure_message(const char *filename, int err, gchar *err_info)
+cfile_close_failure_message(const char *filename, int err, char *err_info)
 {
     char *file_string;
 

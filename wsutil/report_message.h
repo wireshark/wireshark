@@ -32,7 +32,7 @@ extern "C" {
 struct report_message_routines {
 	void (*vreport_failure)(const char *, va_list);
 	void (*vreport_warning)(const char *, va_list);
-	void (*report_open_failure)(const char *, int, gboolean);
+	void (*report_open_failure)(const char *, int, bool);
 	void (*report_read_failure)(const char *, int);
 	void (*report_write_failure)(const char *, int);
 	void (*report_cfile_open_failure)(const char *, int, char *);
