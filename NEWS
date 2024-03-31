@@ -1,4 +1,4 @@
-Wireshark 4.2.4 Release Notes
+Wireshark 4.2.5 Release Notes
 
  What is Wireshark?
 
@@ -16,7 +16,7 @@ Wireshark 4.2.4 Release Notes
   Bug Fixes
 
    If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will
-   need to download and install[2] Wireshark 4.2.4 or later by hand.
+   need to download and install[2] Wireshark 4.2.5 or later by hand.
 
    The following bugs have been fixed:
 
@@ -32,21 +32,27 @@ Wireshark 4.2.4 Release Notes
 
   New and Updated Capture File Support
 
-   pcap and pcapng
+   There is no new or updated capture file support in this release.
+
+  Updated File Format Decoding Support
+
+   There is no updated file format support in this release.
 
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  4.2.4. You can find release notes for prior versions at the following
+  4.2.5. You can find release notes for prior versions at the following
   locations:
 
-    • Wireshark 4.2.3[3]
+    • Wireshark 4.2.4[3]
 
-    • Wireshark 4.2.2[4]
+    • Wireshark 4.2.3[4]
 
-    • Wireshark 4.2.1[5]
+    • Wireshark 4.2.2[5]
 
-    • Wireshark 4.2.0[6]
+    • Wireshark 4.2.1[6]
+
+    • Wireshark 4.2.0[7]
 
  Getting Wireshark
 
@@ -58,7 +64,7 @@ Wireshark 4.2.4 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[7] on the Wireshark web site.
+   be found on the download page[8] on the Wireshark web site.
 
  File Locations
 
@@ -73,37 +79,38 @@ Wireshark 4.2.4 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[8] and on the
+  Community support is available on Wireshark’s Q&A site[9] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[9].
+  for all of Wireshark’s mailing lists can be found on the web site[10].
 
-  Bugs and feature requests can be reported on the issue tracker[10].
+  Bugs and feature requests can be reported on the issue tracker[11].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[11].
+  SharkFest[12].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[12].
+  at wiresharkfoundation.org[13].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[13].
+  A complete FAQ is available on the Wireshark web site[14].
 
  References
 
    1. https://wiresharkfoundation.org
    2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html
-   4. https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html
-   5. https://www.wireshark.org/docs/relnotes/wireshark-4.2.1.html
-   6. https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html
-   7. https://www.wireshark.org/download.html
-   8. https://ask.wireshark.org/
-   9. https://www.wireshark.org/lists/
-  10. https://gitlab.com/wireshark/wireshark/-/issues
-  11. https://sharkfest.wireshark.org
-  12. https://wiresharkfoundation.org
-  13. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/docs/relnotes/wireshark-4.2.4.html
+   4. https://www.wireshark.org/docs/relnotes/wireshark-4.2.3.html
+   5. https://www.wireshark.org/docs/relnotes/wireshark-4.2.2.html
+   6. https://www.wireshark.org/docs/relnotes/wireshark-4.2.1.html
+   7. https://www.wireshark.org/docs/relnotes/wireshark-4.2.0.html
+   8. https://www.wireshark.org/download.html
+   9. https://ask.wireshark.org/
+  10. https://www.wireshark.org/lists/
+  11. https://gitlab.com/wireshark/wireshark/-/issues
+  12. https://sharkfest.wireshark.org
+  13. https://wiresharkfoundation.org
+  14. https://www.wireshark.org/faq.html
