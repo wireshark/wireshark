@@ -25,13 +25,13 @@
 
 void register_tap_listener_hosts(void);
 
-static gboolean dump_v4 = FALSE;
-static gboolean dump_v6 = FALSE;
+static bool dump_v4 = false;
+static bool dump_v6 = false;
 
 #define TAP_NAME "hosts"
 
 static void
-ipv4_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_data _U_)
+ipv4_hash_table_print_resolved(void *key _U_, void *value, void *user_data _U_)
 {
 	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
@@ -43,7 +43,7 @@ ipv4_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_d
 }
 
 static void
-ipv6_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_data _U_)
+ipv6_hash_table_print_resolved(void *key _U_, void *value, void *user_data _U_)
 {
 	hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
@@ -88,25 +88,25 @@ static void
 hosts_init(const char *opt_arg, void *userdata _U_)
 {
 	GString *error_string;
-	gchar **tokens;
-	gint opt_count;
+	char **tokens;
+	int opt_count;
 
-	dump_v4 = FALSE;
-	dump_v6 = FALSE;
+	dump_v4 = false;
+	dump_v6 = false;
 
 	if (strcmp(TAP_NAME, opt_arg) == 0) {
 		/* No arguments; dump everything */
-		dump_v4 = TRUE;
-		dump_v6 = TRUE;
+		dump_v4 = true;
+		dump_v6 = true;
 	} else {
 		tokens = g_strsplit(opt_arg, ",", 0);
 		opt_count = 0;
 		while (tokens[opt_count]) {
 			if ((strcmp("ipv4", tokens[opt_count]) == 0) ||
 				(strcmp("ip", tokens[opt_count]) == 0)) {
-				dump_v4 = TRUE;
+				dump_v4 = true;
 			} else if (strcmp("ipv6", tokens[opt_count]) == 0) {
-				dump_v6 = TRUE;
+				dump_v6 = true;
 			} else if (opt_count > 0) {
 				cmdarg_err("invalid \"-z " TAP_NAME "[,ip|ipv4|ipv6]\" argument");
 				exit(1);
@@ -122,7 +122,7 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 		/* error, we failed to attach to the tap. clean up */
 		cmdarg_err("Couldn't register " TAP_NAME " tap: %s",
 			error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }

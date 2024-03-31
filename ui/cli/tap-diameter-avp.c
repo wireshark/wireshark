@@ -45,34 +45,34 @@ void register_tap_listener_diameteravp(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _diameteravp_t {
-	guint32  frame;
-	guint32  diammsg_toprocess;
-	guint32  cmd_code;
-	guint32  req_count;
-	guint32  ans_count;
-	guint32  paired_ans_count;
-	gchar   *filter;
+	uint32_t frame;
+	uint32_t diammsg_toprocess;
+	uint32_t cmd_code;
+	uint32_t req_count;
+	uint32_t ans_count;
+	uint32_t paired_ans_count;
+	char    *filter;
 } diameteravp_t;
 
 /* Copied from proto.c */
-static gboolean
-tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func, gpointer data)
+static bool
+tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func, void *data)
 {
 	proto_node *pnode = tree;
 	proto_node *child;
 	proto_node *current;
 
 	if (func(pnode, data))
-		return TRUE;
+		return true;
 
 	child = pnode->first_child;
 	while (child != NULL) {
 		current = child;
 		child = current->next;
 		if (tree_traverse_pre_order((proto_tree *)current, func, data))
-			return TRUE;
+			return true;
 	}
-	return FALSE;
+	return false;
 }
 
 static bool
@@ -117,11 +117,11 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 {
 	tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 	double resp_time = 0.;
-	gboolean is_request = TRUE;
-	guint32 cmd_code = 0;
-	guint32 req_frame = 0;
-	guint32 ans_frame = 0;
-	guint32 diam_child_node = 0;
+	bool is_request = true;
+	uint32_t cmd_code = 0;
+	uint32_t req_frame = 0;
+	uint32_t ans_frame = 0;
+	uint32_t diam_child_node = 0;
 	proto_node *current = NULL;
 	proto_node *node = NULL;
 	header_field_info *hfi = NULL;
@@ -206,10 +206,10 @@ static void
 diameteravp_init(const char *opt_arg, void *userdata _U_)
 {
 	diameteravp_t  *ds;
-	gchar	       *field	     = NULL;
-	gchar	      **tokens;
-	guint		opt_count    = 0;
-	guint		opt_idx	     = 0;
+	char	       *field	     = NULL;
+	char	      **tokens;
+	unsigned		opt_count    = 0;
+	unsigned		opt_idx	     = 0;
 	GString	       *filter	     = NULL;
 	GString	       *error_string = NULL;
 
@@ -254,7 +254,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		g_string_append(filter, field);
 	}
 	g_strfreev(tokens);
-	ds->filter = g_string_free(filter, FALSE);
+	ds->filter = g_string_free(filter, false);
 
 	error_string = register_tap_listener("diameter", ds, ds->filter, 0, NULL, diameteravp_packet, diameteravp_draw, NULL);
 	if (error_string) {
@@ -263,7 +263,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 
 		cmdarg_err("Couldn't register diam,csv tap: %s",
 				error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }

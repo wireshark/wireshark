@@ -44,7 +44,7 @@ static void rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo);
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =
         { NULL, rtpstreams_stat_draw_cb, NULL,
-          NULL, 0, NULL, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE, FALSE
+          NULL, 0, NULL, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, false, false
         };
 
 static void

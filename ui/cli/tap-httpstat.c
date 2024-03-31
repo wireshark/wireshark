@@ -39,16 +39,16 @@ typedef struct _http_stats_t {
  * for example it can be { 3, 404, "Not Found" ,...}
  * which means we captured 3 reply http/1.1 404 Not Found */
 typedef struct _http_response_code_t {
-	guint32 	 packets;		/* 3 */
-	guint	 	 response_code;		/* 404 */
-	const gchar	*name;			/* Not Found */
+	uint32_t 	 packets;		/* 3 */
+	unsigned	 	 response_code;		/* 404 */
+	const char	*name;			/* Not Found */
 	httpstat_t	*sp;
 } http_response_code_t;
 
 /* used to keep track of the stats for a specific request string */
 typedef struct _http_request_methode_t {
-	gchar		*response;	/* eg. : GET */
-	guint32		 packets;
+	char		*response;	/* eg. : GET */
+	uint32_t		 packets;
 	httpstat_t	*sp;
 } http_request_methode_t;
 
@@ -74,7 +74,7 @@ http_init_hash(httpstat_t *sp)
 }
 
 static void
-http_draw_hash_requests(gchar *key _U_, http_request_methode_t *data, gchar *format)
+http_draw_hash_requests(char *key _U_, http_request_methode_t *data, char *format)
 {
 	if (data->packets == 0)
 		return;
@@ -82,7 +82,7 @@ http_draw_hash_requests(gchar *key _U_, http_request_methode_t *data, gchar *for
 }
 
 static void
-http_draw_hash_responses(gint * key _U_, http_response_code_t *data, char *format)
+http_draw_hash_responses(int * key _U_, http_response_code_t *data, char *format)
 {
 	if (data == NULL) {
 		ws_warning("No data available, key=%d\n", *key);
@@ -98,19 +98,19 @@ http_draw_hash_responses(gint * key _U_, http_response_code_t *data, char *forma
 /* NOT USED at this moment */
 /*
 static void
-http_free_hash(gpointer key, gpointer value, gpointer user_data _U_)
+http_free_hash(void *key, void *value, void *user_data _U_)
 {
 	g_free(key);
 	g_free(value);
 }
 */
 static void
-http_reset_hash_responses(gchar *key _U_, http_response_code_t *data, gpointer ptr _U_)
+http_reset_hash_responses(char *key _U_, http_response_code_t *data, void *ptr _U_)
 {
 	data->packets = 0;
 }
 static void
-http_reset_hash_requests(gchar *key _U_, http_request_methode_t *data, gpointer ptr _U_)
+http_reset_hash_requests(char *key _U_, http_request_methode_t *data, void *ptr _U_)
 {
 	data->packets = 0;
 }
@@ -146,7 +146,7 @@ httpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	/* Request or reply packets ? */
 	if (value->response_code != 0) {
 		http_response_code_t *sc;
-		guint key = value->response_code;
+		unsigned key = value->response_code;
 
 		sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
@@ -217,10 +217,10 @@ httpstat_draw(void *psp)
 
 	printf("* HTTP Response Status Codes                Packets\n");
 	g_hash_table_foreach(sp->hash_responses, (GHFunc)http_draw_hash_responses,
-			     (gpointer)"  %3d %-35s %9d\n");
+			     (void *)"  %3d %-35s %9d\n");
 	printf("* HTTP Request Methods                      Packets\n");
 	g_hash_table_foreach(sp->hash_requests,  (GHFunc)http_draw_hash_requests,
-			     (gpointer)"  %-39s %9d \n");
+			     (void *)"  %-39s %9d \n");
 	printf("===================================================================\n");
 }
 
@@ -261,7 +261,7 @@ httpstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(sp);
 		cmdarg_err("Couldn't register http,stat tap: %s",
 			 error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 

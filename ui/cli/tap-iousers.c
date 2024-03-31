@@ -32,10 +32,10 @@ iousers_draw(void *arg)
 	conv_hash_t *hash = (conv_hash_t*)arg;
 	io_users_t *iu = (io_users_t *)hash->user_data;
 	conv_item_t *iui;
-	guint64 last_frames, max_frames;
+	uint64_t last_frames, max_frames;
 	struct tm * tm_time;
-	guint i;
-	gboolean display_ports = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? TRUE : FALSE;
+	unsigned i;
+	bool display_ports = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? true : false;
 
 	printf("================================================================================\n");
 	printf("%s Conversations\n", iu->type);
@@ -78,7 +78,7 @@ iousers_draw(void *arg)
 	do {
 		last_frames = 0;
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
-			guint64 tot_frames;
+			uint64_t tot_frames;
 
 			iui = &g_array_index(iu->hash.conv_array, conv_item_t, i);
 			tot_frames = iui->rx_frames + iui->tx_frames;
@@ -89,7 +89,7 @@ iousers_draw(void *arg)
 		}
 
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
-			guint64 tot_frames;
+			uint64_t tot_frames;
 			char *src_addr, *dst_addr;
 
 			iui = &g_array_index(iu->hash.conv_array, conv_item_t, i);
@@ -103,12 +103,12 @@ iousers_draw(void *arg)
 				total_bytes = format_size(iui->tx_bytes + iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
 
 				/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
-				src_addr = get_conversation_address(NULL, &iui->src_address, TRUE);
-				dst_addr = get_conversation_address(NULL, &iui->dst_address, TRUE);
+				src_addr = get_conversation_address(NULL, &iui->src_address, true);
+				dst_addr = get_conversation_address(NULL, &iui->dst_address, true);
 				if (display_ports) {
 					char *src, *dst, *src_port, *dst_port;
-					src_port = get_conversation_port(NULL, iui->src_port, iui->ctype, TRUE);
-					dst_port = get_conversation_port(NULL, iui->dst_port, iui->ctype, TRUE);
+					src_port = get_conversation_port(NULL, iui->src_port, iui->ctype, true);
+					dst_port = get_conversation_port(NULL, iui->dst_port, iui->ctype, true);
 					src = wmem_strconcat(NULL, src_addr, ":", src_port, NULL);
 					dst = wmem_strconcat(NULL, dst_addr, ":", dst_port, NULL);
 					printf("%-26s <-> %-26s  %6" PRIu64 " %-9s"
@@ -247,7 +247,7 @@ void init_iousers(struct register_ct *ct, const char *filter)
 		g_free(iu);
 		cmdarg_err("Couldn't register conversations tap: %s",
 		    error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 

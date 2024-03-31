@@ -18,7 +18,7 @@ extern "C" {
 
 /* store the chosen calls in a bit-array */
 #define VOIP_CONV_BITS          (sizeof(int) * 8)
-#define VOIP_CONV_NUM           ((1<<(sizeof(guint16) * 8))/VOIP_CONV_BITS)
+#define VOIP_CONV_NUM           ((1<<(sizeof(uint16_t) * 8))/VOIP_CONV_BITS)
 #define VOIP_CONV_MAX           (VOIP_CONV_BITS * VOIP_CONV_NUM)
 
 extern voip_calls_tapinfo_t tapinfo_;

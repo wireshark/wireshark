@@ -64,7 +64,7 @@ static void credentials_draw(void *p _U_)
     printf("===================================================================\n");
     printf("%-10s %-16s %-16s %-16s\n", "Packet", "Protocol", "Username", "Info");
     printf("------     --------         --------         --------\n");
-    for (guint i = 0; i < wmem_array_get_count(credentials); i++) {
+    for (unsigned i = 0; i < wmem_array_get_count(credentials); i++) {
         tap_credential_t* auth = (tap_credential_t*)wmem_array_index(credentials, i);
         printf("%-10u %-16s %-16s %-16s\n", auth->num, auth->proto, auth->username, auth->info ? auth->info : "");
     }
@@ -81,7 +81,7 @@ static void credentials_init(const char *opt_arg _U_, void *userdata _U_)
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
         cmdarg_err("Couldn't register credentials tap: %s", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         exit(1);
     }
 

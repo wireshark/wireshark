@@ -36,10 +36,10 @@ void register_tap_listener_icmpstat(void);
 typedef struct _icmpstat_t {
     char *filter;
     GSList *rt_list;
-    guint num_rqsts;
-    guint num_resps;
-    guint min_frame;
-    guint max_frame;
+    unsigned num_rqsts;
+    unsigned num_resps;
+    unsigned min_frame;
+    unsigned max_frame;
     double min_msecs;
     double max_msecs;
     double tot_msecs;
@@ -64,11 +64,11 @@ icmpstat_reset(void *tapdata)
 
     g_slist_free(icmpstat->rt_list);
     memset(icmpstat, 0, sizeof(icmpstat_t));
-    icmpstat->min_msecs = 1.0 * G_MAXUINT;
+    icmpstat->min_msecs = 1.0 * UINT_MAX;
 }
 
 
-static gint compare_doubles(gconstpointer a, gconstpointer b)
+static int compare_doubles(gconstpointer a, gconstpointer b)
 {
     double ad, bd;
 
@@ -237,7 +237,7 @@ icmpstat_draw(void *tapdata)
             100.0 * lost / icmpstat->num_rqsts);
         printf("Minimum   Maximum   Mean      Median    SDeviation     Min Frame Max Frame\n");
         printf("%-10.3f%-10.3f%-10.3f%-10.3f%-10.3f     %-10u%-10u\n",
-            icmpstat->min_msecs >= G_MAXUINT ? 0.0 : icmpstat->min_msecs,
+            icmpstat->min_msecs >= UINT_MAX ? 0.0 : icmpstat->min_msecs,
             icmpstat->max_msecs, mean, med, sdev,
             icmpstat->min_frame, icmpstat->max_frame);
     } else {
@@ -271,7 +271,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
         exit(1);
     }
     memset(icmpstat, 0, sizeof(icmpstat_t));
-    icmpstat->min_msecs = 1.0 * G_MAXUINT;
+    icmpstat->min_msecs = 1.0 * UINT_MAX;
 
     icmpstat->filter = g_strdup(filter);
 
@@ -294,7 +294,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
         g_free(icmpstat);
 
         cmdarg_err("Couldn't register icmp,srt tap: %s", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         exit(1);
     }
 }

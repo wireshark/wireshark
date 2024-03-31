@@ -23,8 +23,8 @@ typedef struct _phs_t {
 	char *filter;
 	int protocol;
 	const char *proto_name;
-	guint32 frames;
-	guint64 bytes;
+	uint32_t frames;
+	uint64_t bytes;
 } phs_t;
 
 extern phs_t * new_phs_t(phs_t *parent, const char *filter);

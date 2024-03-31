@@ -33,13 +33,13 @@ void register_tap_listener_sipstat(void);
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _sip_stats_t {
 	char	    *filter;
-	guint32	     packets;	 /* number of sip packets, including continuations */
-	guint32	     resent_packets;
-	guint32	     average_setup_time;
-	guint32	     max_setup_time;
-	guint32	     min_setup_time;
-	guint32	     no_of_completed_calls;
-	guint64	     total_setup_time;
+	uint32_t	     packets;	 /* number of sip packets, including continuations */
+	uint32_t	     resent_packets;
+	uint32_t	     average_setup_time;
+	uint32_t	     max_setup_time;
+	uint32_t	     min_setup_time;
+	uint32_t	     no_of_completed_calls;
+	uint64_t	     total_setup_time;
 	GHashTable  *hash_responses;
 	GHashTable  *hash_requests;
 } sipstat_t;
@@ -48,16 +48,16 @@ typedef struct _sip_stats_t {
  * for example it can be { 3, 404, "Not Found" ,...}
  * which means we captured 3 reply sip/1.1 404 Not Found */
 typedef struct _sip_response_code_t {
-	guint32	     packets;       /* 3 */
-	guint	     response_code; /* 404 */
-	const gchar *name;	    /* Not Found */
+	uint32_t	     packets;       /* 3 */
+	unsigned	     response_code; /* 404 */
+	const char *name;	    /* Not Found */
 	sipstat_t   *sp;
 } sip_response_code_t;
 
 /* used to keep track of the stats for a specific request string */
 typedef struct _sip_request_method_t {
-	gchar	    *response;	/* eg. : INVITE */
-	guint32	     packets;
+	char	    *response;	/* eg. : INVITE */
+	uint32_t	     packets;
 	sipstat_t   *sp;
 } sip_request_method_t;
 
@@ -74,7 +74,7 @@ sip_init_hash(sipstat_t *sp)
 	/* Add all response codes */
 	for (i=0; sip_response_code_vals[i].strptr; i++)
 	{
-		gint *key = g_new (gint, 1);
+		int *key = g_new (int, 1);
 		sip_response_code_t *sc = g_new (sip_response_code_t, 1);
 		*key = sip_response_code_vals[i].value;
 		sc->packets = 0;
@@ -89,7 +89,7 @@ sip_init_hash(sipstat_t *sp)
 }
 
 static void
-sip_draw_hash_requests( gchar *key _U_, sip_request_method_t *data, gchar *format)
+sip_draw_hash_requests( char *key _U_, sip_request_method_t *data, char *format)
 {
 	if (data->packets == 0)
 		return;
@@ -97,7 +97,7 @@ sip_draw_hash_requests( gchar *key _U_, sip_request_method_t *data, gchar *forma
 }
 
 static void
-sip_draw_hash_responses( gint *key _U_ , sip_response_code_t *data, char *format)
+sip_draw_hash_responses( int *key _U_ , sip_response_code_t *data, char *format)
 {
 	if (data == NULL) {
 		ws_warning("C'est quoi ce borderl key=%d\n", *key);
@@ -111,7 +111,7 @@ sip_draw_hash_responses( gint *key _U_ , sip_response_code_t *data, char *format
 /* NOT USED at this moment */
 /*
 static void
-sip_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
+sip_free_hash( void *key, void *value, void *user_data _U_ )
 {
 	g_free(key);
 	g_free(value);
@@ -119,12 +119,12 @@ sip_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
 */
 
 static void
-sip_reset_hash_responses(gchar *key _U_ , sip_response_code_t *data, gpointer ptr _U_ )
+sip_reset_hash_responses(char *key _U_ , sip_response_code_t *data, void *ptr _U_ )
 {
 	data->packets = 0;
 }
 static void
-sip_reset_hash_requests(gchar *key _U_ , sip_request_method_t *data, gpointer ptr _U_ )
+sip_reset_hash_requests(char *key _U_ , sip_request_method_t *data, void *ptr _U_ )
 {
 	data->packets = 0;
 }
@@ -176,7 +176,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 				sp->min_setup_time = value->setup_time;
 			}
 			/* Calculate average */
-			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls);
+			sp->average_setup_time = (uint32_t)(sp->total_setup_time / sp->no_of_completed_calls);
 		}
 	}
 
@@ -191,7 +191,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 	if (value->response_code != 0)
 	{
 		/* Responses */
-		guint key;
+		unsigned key;
 		sip_response_code_t *sc;
 
 		/* Look up response code in hash table */
@@ -291,10 +291,10 @@ sipstat_draw(void *psp  )
 	printf("\nNumber of resent SIP messages: %u\n", sp->resent_packets);
 	printf(	"\n* SIP Status Codes in reply packets\n");
 	g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_draw_hash_responses,
-		(gpointer)"  SIP %3d %-15s : %5d Packets\n");
+		(void *)"  SIP %3d %-15s : %5d Packets\n");
 	printf("\n* List of SIP Request methods\n");
 	g_hash_table_foreach(sp->hash_requests,  (GHFunc)sip_draw_hash_requests,
-		(gpointer)"  %-15s : %5d Packets\n");
+		(void *)"  %-15s : %5d Packets\n");
 	printf(	"\n* Average setup time %u ms\n Min %u ms\n Max %u ms\n", sp->average_setup_time, sp->min_setup_time, sp->max_setup_time);
 	printf("===================================================================\n");
 }
@@ -332,7 +332,7 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(sp);
 		cmdarg_err("Couldn't register sip,stat tap: %s",
 			 error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 

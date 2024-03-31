@@ -30,11 +30,11 @@ simple_draw(void *arg)
 	stat_data_t* stat_data = (stat_data_t*)arg;
 	table_stat_t* stats = (table_stat_t*)stat_data->user_data;
 	size_t i;
-	guint table_index, element, field_index;
+	unsigned table_index, element, field_index;
 	stat_tap_table_item* field;
 	stat_tap_table* table;
 	stat_tap_table_item_type* field_data;
-	gchar fmt_string[250];
+	char fmt_string[250];
 
 	/* printing results */
 	printf("\n");
@@ -115,7 +115,7 @@ init_stat_table(stat_tap_table_ui *stat_tap, const char *filter)
 	if (error_string) {
 /*		free_rtd_table(&ui->rtd.stat_table); */
 		cmdarg_err("Couldn't register tap: %s", error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }
@@ -152,7 +152,7 @@ register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 	ui_info.params = stat_tap->params;
 
 	register_stat_tap_ui(&ui_info, stat_tap);
-	return FALSE;
+	return false;
 }
 
 /*

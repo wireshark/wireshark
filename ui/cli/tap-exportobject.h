@@ -17,7 +17,7 @@ extern "C" {
 void eo_list_object_types(void);
 
 /* will be called by main each time a --export-objects option is found */
-gboolean eo_tap_opt_add(const char *ws_optarg);
+bool eo_tap_opt_add(const char *ws_optarg);
 
 void start_exportobjects(void);
 

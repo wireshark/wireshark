@@ -45,7 +45,7 @@ enum {
 };
 
 
-static const gchar *ue_titles[] = { "RAT", " RNTI", "  Type", "UEId",
+static const char *ue_titles[] = { "RAT", " RNTI", "  Type", "UEId",
                                     "UL Frames", "UL Bytes", "UL Mb/sec", " UL Pad %", "UL ReTX",
                                     "DL Frames", "DL Bytes", "DL Mb/sec", " DL Pad %", "DL CRC Fail", "DL ReTX"};
 
@@ -54,30 +54,30 @@ static const gchar *ue_titles[] = { "RAT", " RNTI", "  Type", "UEId",
 typedef struct mac_lte_nr_row_data {
     /* Key for matching this row */
     uint8_t  rat;
-    guint16  rnti;
-    guint8   rnti_type;
-    guint16  ueid;
+    uint16_t rnti;
+    uint8_t  rnti_type;
+    uint16_t ueid;
 
-    gboolean is_predefined_data;
+    bool is_predefined_data;
 
-    guint32  UL_frames;
-    guint32  UL_raw_bytes;   /* all bytes */
-    guint32  UL_total_bytes; /* payload */
+    uint32_t UL_frames;
+    uint32_t UL_raw_bytes;   /* all bytes */
+    uint32_t UL_total_bytes; /* payload */
     nstime_t UL_time_start;
     nstime_t UL_time_stop;
-    guint32  UL_padding_bytes;
-    guint32  UL_CRC_errors;
-    guint32  UL_retx_frames;
+    uint32_t UL_padding_bytes;
+    uint32_t UL_CRC_errors;
+    uint32_t UL_retx_frames;
 
-    guint32  DL_frames;
-    guint32  DL_raw_bytes;   /* all bytes */
-    guint32  DL_total_bytes;
+    uint32_t DL_frames;
+    uint32_t DL_raw_bytes;   /* all bytes */
+    uint32_t DL_total_bytes;
     nstime_t DL_time_start;
     nstime_t DL_time_stop;
-    guint32  DL_padding_bytes;
+    uint32_t DL_padding_bytes;
 
-    guint32  DL_CRC_failures;
-    guint32  DL_retx_frames;
+    uint32_t DL_CRC_failures;
+    uint32_t DL_retx_frames;
 
 } mac_lte_nr_row_data;
 
@@ -91,18 +91,18 @@ typedef struct mac_lte_ep {
 
 /* Common channel stats (i.e. independent of UEs) */
 typedef struct mac_lte_common_stats {
-    guint32 all_frames;
-    guint32 mib_frames;
-    guint32 sib_frames;
-    guint32 sib_bytes;
-    guint32 pch_frames;
-    guint32 pch_bytes;
-    guint32 pch_paging_ids;
-    guint32 rar_frames;
-    guint32 rar_entries;
+    uint32_t all_frames;
+    uint32_t mib_frames;
+    uint32_t sib_frames;
+    uint32_t sib_bytes;
+    uint32_t pch_frames;
+    uint32_t pch_bytes;
+    uint32_t pch_paging_ids;
+    uint32_t rar_frames;
+    uint32_t rar_entries;
 
-    guint16  max_ul_ues_in_tti;
-    guint16  max_dl_ues_in_tti;
+    uint16_t max_ul_ues_in_tti;
+    uint16_t max_dl_ues_in_tti;
 } mac_lte_common_stats;
 
 
@@ -112,10 +112,10 @@ typedef struct mac_lte_nr_stat_t {
     mac_lte_common_stats common_stats;
 
     /* Keep track of unique rntis & ueids. N.B. only used for counting number of UEs - not for lookup */
-    guint8 used_ueids[65535];
-    guint8 used_rntis[65535];
-    guint16 number_of_ueids;
-    guint16 number_of_rntis;
+    uint8_t used_ueids[65535];
+    uint8_t used_rntis[65535];
+    uint16_t number_of_ueids;
+    uint16_t number_of_rntis;
 
     /* List of UE entries */
     mac_lte_ep_t  *ep_list;
@@ -187,7 +187,7 @@ static mac_lte_ep_t *alloc_mac_lte_ep(const struct mac_3gpp_tap_info *si, packet
 
 
 /* Update counts of unique rntis & ueids */
-static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_nr_stat_t *hs)
+static void update_ueid_rnti_counts(uint16_t rnti, uint16_t ueid, mac_lte_nr_stat_t *hs)
 {
     if (hs->number_of_ueids == 65535 || hs->number_of_rntis == 65535) {
         /* Arrays are already full! */
@@ -195,11 +195,11 @@ static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_nr_stat_
     }
 
     if (!hs->used_ueids[ueid]) {
-        hs->used_ueids[ueid] = TRUE;
+        hs->used_ueids[ueid] = true;
         hs->number_of_ueids++;
     }
     if (!hs->used_rntis[rnti]) {
-        hs->used_rntis[rnti] = TRUE;
+        hs->used_rntis[rnti] = true;
         hs->number_of_rntis++;
     }
 }
@@ -385,7 +385,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 /* Calculate and return a bandwidth figure, in Mbs */
-static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
+static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, uint32_t bytes)
 {
     /* Can only calculate bandwidth if have time delta */
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
@@ -410,8 +410,8 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
 static void
 mac_lte_stat_draw(void *phs)
 {
-    gint i;
-    guint16 number_of_ues = 0;
+    int i;
+    uint16_t number_of_ues = 0;
 
     /* Deref the struct */
     mac_lte_nr_stat_t *hs = (mac_lte_nr_stat_t*)phs;
@@ -511,7 +511,7 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          mac_lte_stat_draw,
                                          NULL);
     if (error_string) {
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         g_free(hs);
         exit(1);
     }

@@ -42,16 +42,16 @@ typedef struct _rtsp_stats_t {
  * for example it can be { 3, 404, "Not Found" ,...}
  * which means we captured 3 reply rtsp/1.1 404 Not Found */
 typedef struct _rtsp_response_code_t {
-	guint32 	 packets;		/* 3 */
-	guint	 	 response_code;	/* 404 */
-	const gchar	*name;			/* Not Found */
+	uint32_t 	 packets;		/* 3 */
+	unsigned	 	 response_code;	/* 404 */
+	const char	*name;			/* Not Found */
 	rtspstat_t	*sp;
 } rtsp_response_code_t;
 
 /* used to keep track of the stats for a specific request string */
 typedef struct _rtsp_request_methode_t {
-	gchar		*response;	/* eg. : SETUP */
-	guint32		 packets;
+	char		*response;	/* eg. : SETUP */
+	uint32_t		 packets;
 	rtspstat_t	*sp;
 } rtsp_request_methode_t;
 
@@ -76,7 +76,7 @@ rtsp_init_hash( rtspstat_t *sp)
 	sp->hash_requests = g_hash_table_new( g_str_hash, g_str_equal);
 }
 static void
-rtsp_draw_hash_requests( gchar *key _U_ , rtsp_request_methode_t *data, gchar * format)
+rtsp_draw_hash_requests( char *key _U_ , rtsp_request_methode_t *data, char * format)
 {
 	if (data->packets == 0)
 		return;
@@ -84,7 +84,7 @@ rtsp_draw_hash_requests( gchar *key _U_ , rtsp_request_methode_t *data, gchar * 
 }
 
 static void
-rtsp_draw_hash_responses( gpointer* key _U_ , rtsp_response_code_t *data, char * format)
+rtsp_draw_hash_responses( void ** key _U_ , rtsp_response_code_t *data, char * format)
 {
 	if (data == NULL) {
 		ws_warning("No data available, key=%d\n", GPOINTER_TO_INT(key));
@@ -101,19 +101,19 @@ rtsp_draw_hash_responses( gpointer* key _U_ , rtsp_response_code_t *data, char *
 /* NOT USED at this moment */
 /*
 static void
-rtsp_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
+rtsp_free_hash( void *key, void *value, void *user_data _U_ )
 {
 	g_free(key);
 	g_free(value);
 }
 */
 static void
-rtsp_reset_hash_responses(gchar *key _U_ , rtsp_response_code_t *data, gpointer ptr _U_ )
+rtsp_reset_hash_responses(char *key _U_ , rtsp_response_code_t *data, void *ptr _U_ )
 {
 	data->packets = 0;
 }
 static void
-rtsp_reset_hash_requests(gchar *key _U_ , rtsp_request_methode_t *data, gpointer ptr _U_ )
+rtsp_reset_hash_requests(char *key _U_ , rtsp_request_methode_t *data, void *ptr _U_ )
 {
 	data->packets = 0;
 }
@@ -143,7 +143,7 @@ rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 				sp->hash_responses,
 				GINT_TO_POINTER(value->response_code));
 		if (sc == NULL) {
-			gint key;
+			int key;
 			/* non standard status code ; we classify it as others
 			 * in the relevant category (Informational,Success,Redirection,Client Error,Server Error)
 			 */
@@ -209,10 +209,10 @@ rtspstat_draw(void *psp  )
 
 	printf("* RTSP Response Status Codes                Packets\n");
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)rtsp_draw_hash_responses,
-		(gpointer)"  %3d %-35s %9d\n");
+		(void *)"  %3d %-35s %9d\n");
 	printf("* RTSP Request Methods                      Packets\n");
 	g_hash_table_foreach( sp->hash_requests,  (GHFunc)rtsp_draw_hash_requests,
-		(gpointer)"  %-39s %9d\n");
+		(void *)"  %-39s %9d\n");
 	printf("===================================================================\n");
 }
 
@@ -253,7 +253,7 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(sp);
 		cmdarg_err("Couldn't register rtsp,stat tap: %s",
 				error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 

@@ -21,11 +21,11 @@
 #include <ui/simple_dialog.h>
 #include "ws_attributes.h"
 
-gpointer
+void *
 simple_dialog(
   ESD_TYPE_E    type _U_,
-  gint          btn_mask _U_,
-  const gchar * msg_format,
+  int           btn_mask _U_,
+  const char * msg_format,
   ...
   )
 {

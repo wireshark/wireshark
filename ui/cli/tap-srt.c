@@ -29,11 +29,11 @@ typedef struct _srt_t {
 } srt_t;
 
 static void
-draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer, const char *subfilter)
+draw_srt_table_data(srt_stat_table *rst, bool draw_footer, const char *subfilter)
 {
 	int i;
-	guint64 td;
-	guint64 sum;
+	uint64_t td;
+	uint64_t sum;
 
 	if (rst->num_procs > 0) {
 		if (rst->filter_string != NULL && subfilter != NULL) {
@@ -56,7 +56,7 @@ draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer, const char *subfi
 		   depending uon the platform.  After casting tot.secs to 64 bits, it
 		   would take a capture with a duration of over 136 *years* to
 		   overflow the secs portion of td. */
-		td = ((guint64)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
+		td = ((uint64_t)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
 		sum = (td + 500) / 1000;
 		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
 
@@ -77,11 +77,11 @@ draw_srt_table_data(srt_stat_table *rst, gboolean draw_footer, const char *subfi
 static void
 srt_draw(void *arg)
 {
-	guint i = 0;
+	unsigned i = 0;
 	srt_data_t* data = (srt_data_t*)arg;
 	srt_t *ui = (srt_t *)data->user_data;
 	srt_stat_table *srt_table;
-	gboolean need_newline = FALSE;
+	bool need_newline = false;
 
 	printf("\n");
 	printf("===================================================================\n");
@@ -90,7 +90,7 @@ srt_draw(void *arg)
 	srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 	draw_srt_table_data(srt_table, data->srt_array->len == 1, ui->filter);
 	if (srt_table->num_procs > 0) {
-		need_newline = TRUE;
+		need_newline = true;
 	}
 
 	for (i = 1; i < data->srt_array->len; i++)
@@ -98,12 +98,12 @@ srt_draw(void *arg)
 		if (need_newline)
 		{
 			printf("\n");
-			need_newline = FALSE;
+			need_newline = false;
 		}
 		srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 		draw_srt_table_data(srt_table, i == data->srt_array->len-1, ui->filter);
 		if (srt_table->num_procs > 0) {
-			need_newline = TRUE;
+			need_newline = true;
 		}
 	}
 }
@@ -127,7 +127,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 		free_srt_table(srt, global_srt_array);
 		g_free(ui);
 		cmdarg_err("Couldn't register srt tap: %s", error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }
@@ -142,7 +142,7 @@ dissector_srt_init(const char *opt_arg, void* userdata)
 	srt_table_get_filter(srt, opt_arg, &filter, &err);
 	if (err != NULL)
 	{
-		gchar* cmd_str = srt_table_get_tap_string(srt);
+		char* cmd_str = srt_table_get_tap_string(srt);
 		cmdarg_err("invalid \"-z %s,%s\" argument", cmd_str, err);
 		g_free(cmd_str);
 		g_free(err);
@@ -150,7 +150,7 @@ dissector_srt_init(const char *opt_arg, void* userdata)
 	}
 
 	/* Need to create the SRT array now */
-	global_srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
+	global_srt_array = g_array_new(false, true, sizeof(srt_stat_table*));
 
 	srt_table_dissector_init(srt, global_srt_array);
 	init_srt_tables(srt, filter);
@@ -163,12 +163,12 @@ register_srt_tables(const void *key _U_, void *value, void *userdata _U_)
 	register_srt_t *srt = (register_srt_t*)value;
 	const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
 	stat_tap_ui ui_info;
-	gchar *cli_string;
+	char *cli_string;
 
 	/* XXX - CAMEL dissector hasn't been converted over due seemingly different tap packet
 	   handling functions.  So let the existing TShark CAMEL tap keep its registration */
 	if (strcmp(short_name, "CAMEL") == 0)
-		return FALSE;
+		return false;
 
 	cli_string = srt_table_get_tap_string(srt);
 	ui_info.group = REGISTER_STAT_GROUP_RESPONSE_TIME;
@@ -179,7 +179,7 @@ register_srt_tables(const void *key _U_, void *value, void *userdata _U_)
 	ui_info.params = NULL;
 	register_stat_tap_ui(&ui_info, srt);
 	g_free(cli_string);
-	return FALSE;
+	return false;
 }
 
 /*

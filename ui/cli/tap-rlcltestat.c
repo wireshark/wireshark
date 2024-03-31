@@ -43,7 +43,7 @@ enum {
     NUM_UE_COLUMNS
 };
 
-static const gchar *ue_titles[] = { "RAT", " UEId",
+static const char *ue_titles[] = { "RAT", " UEId",
                                     "UL Frames", "UL Bytes", "   UL Mbs", "UL ACKs", "UL NACKs", "UL Missed",
                                     "DL Frames", "DL Bytes", "   DL Mbs", "DL ACKs", "DL NACKs", "DL Missed"};
 
@@ -51,35 +51,35 @@ static const gchar *ue_titles[] = { "RAT", " UEId",
 typedef struct rlc_lte_row_data {
     /* Key for matching this row */
     uint8_t  rat;
-    guint16  ueid;
+    uint16_t ueid;
 
-    gboolean is_predefined_data;
+    bool is_predefined_data;
 
-    guint32  UL_frames;
-    guint32  UL_total_bytes;
+    uint32_t UL_frames;
+    uint32_t UL_total_bytes;
     nstime_t UL_time_start;
     nstime_t UL_time_stop;
-    guint32  UL_total_acks;
-    guint32  UL_total_nacks;
-    guint32  UL_total_missing;
+    uint32_t UL_total_acks;
+    uint32_t UL_total_nacks;
+    uint32_t UL_total_missing;
 
-    guint32  DL_frames;
-    guint32  DL_total_bytes;
+    uint32_t DL_frames;
+    uint32_t DL_total_bytes;
     nstime_t DL_time_start;
     nstime_t DL_time_stop;
-    guint32  DL_total_acks;
-    guint32  DL_total_nacks;
-    guint32  DL_total_missing;
+    uint32_t DL_total_acks;
+    uint32_t DL_total_nacks;
+    uint32_t DL_total_missing;
 
 } rlc_lte_row_data;
 
 
 /* Common channel stats (i.e. independent of UEs) */
 typedef struct rlc_lte_common_stats {
-    guint32 bcch_frames;
-    guint32 bcch_bytes;
-    guint32 pcch_frames;
-    guint32 pcch_bytes;
+    uint32_t bcch_frames;
+    uint32_t bcch_bytes;
+    uint32_t pcch_frames;
+    uint32_t pcch_bytes;
 } rlc_lte_common_stats;
 
 
@@ -93,7 +93,7 @@ typedef struct rlc_lte_ep {
 /* Top-level struct for RLC LTE statistics */
 typedef struct rlc_lte_stat_t {
     rlc_lte_ep_t  *ep_list;
-    guint32       total_frames;
+    uint32_t      total_frames;
 
     /* Common stats */
     rlc_lte_common_stats common_stats;
@@ -276,7 +276,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 /* Calculate and return a bandwidth figure, in Mbs */
-static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
+static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, uint32_t bytes)
 {
     /* Can only calculate bandwidth if have time delta */
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
@@ -301,8 +301,8 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
 static void
 rlc_lte_stat_draw(void *phs)
 {
-    guint16 number_of_ues = 0;
-    gint i;
+    uint16_t number_of_ues = 0;
+    int i;
 
     /* Look up the statistics struct */
     rlc_lte_stat_t *hs = (rlc_lte_stat_t *)phs;
@@ -391,7 +391,7 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          rlc_lte_stat_draw,
                                          NULL);
     if (error_string) {
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         g_free(hs);
         exit(1);
     }

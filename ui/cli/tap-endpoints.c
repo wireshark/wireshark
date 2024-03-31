@@ -33,9 +33,9 @@ endpoints_draw(void *arg)
 	conv_hash_t *hash = (conv_hash_t*)arg;
 	endpoints_t *iu = (endpoints_t *)hash->user_data;
 	endpoint_item_t *endpoint;
-	guint64 last_frames, max_frames;
-	guint i;
-	gboolean display_port = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? TRUE : FALSE;
+	uint64_t last_frames, max_frames;
+	unsigned i;
+	bool display_port = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? true : false;
 
 	printf("================================================================================\n");
 	printf("%s Endpoints\n", iu->type);
@@ -48,7 +48,7 @@ endpoints_draw(void *arg)
 	do {
 		last_frames = 0;
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
-			guint64 tot_frames;
+			uint64_t tot_frames;
 
 			endpoint = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
 			tot_frames = endpoint->rx_frames + endpoint->tx_frames;
@@ -59,18 +59,18 @@ endpoints_draw(void *arg)
 		}
 
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
-			guint64 tot_frames;
-			gchar *conversation_str, *port_str;
+			uint64_t tot_frames;
+			char *conversation_str, *port_str;
 
 			endpoint = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
 			tot_frames = endpoint->rx_frames + endpoint->tx_frames;
 
 			if (tot_frames == last_frames) {
 				/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
-				conversation_str = get_conversation_address(NULL, &endpoint->myaddress, TRUE);
+				conversation_str = get_conversation_address(NULL, &endpoint->myaddress, true);
 				if (display_port) {
 					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
-					port_str = get_endpoint_port(NULL, endpoint, TRUE);
+					port_str = get_endpoint_port(NULL, endpoint, true);
 					printf("%-20s      %5s     %6" PRIu64 "     %9" PRIu64
 					       "     %6" PRIu64 "       %9" PRIu64 "      %6"
 					       PRIu64 "       %9" PRIu64 "   \n",
@@ -114,7 +114,7 @@ void init_endpoints(struct register_ct *ct, const char *filter)
 		g_free(iu);
 		cmdarg_err("Couldn't register endpoint tap: %s",
 		    error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 

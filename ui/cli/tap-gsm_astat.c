@@ -125,7 +125,7 @@ gsm_a_stat_draw(
     void                *tapdata)
 {
     gsm_a_stat_t        *stat_p = (gsm_a_stat_t *)tapdata;
-    guint8              i;
+    uint8_t             i;
 
 
     printf("\n");
@@ -324,7 +324,7 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
     if (err_p != NULL)
     {
         g_free(stat_p);
-        g_string_free(err_p, TRUE);
+        g_string_free(err_p, true);
 
         exit(1);
     }

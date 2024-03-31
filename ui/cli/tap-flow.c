@@ -46,16 +46,16 @@ flow_draw(void *arg)
     sequence_analysis_info_free(flow_info);
 }
 
-static gboolean flow_arg_strncmp(const char **opt_argp, const char *strp)
+static bool flow_arg_strncmp(const char **opt_argp, const char *strp)
 {
     size_t len = strlen(strp);
 
     if (strncmp(*opt_argp, strp, len) == 0)
     {
         *opt_argp += len;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 static void
@@ -100,7 +100,7 @@ flow_init(const char *opt_argp, void *userdata)
     {
         sequence_analysis_list_free(flow_info);
         sequence_analysis_info_free(flow_info);
-        g_string_free(errp, TRUE);
+        g_string_free(errp, true);
         flow_exit("Error registering tap listener.");
     }
 }
@@ -111,10 +111,10 @@ flow_register(const void *key _U_, void *value, void *userdata _U_)
     register_analysis_t* analysis = (register_analysis_t*)value;
     stat_tap_ui flow_ui;
     GString *cmd_str = g_string_new(STR_FLOW);
-    gchar *cli_string;
+    char *cli_string;
 
     g_string_append(cmd_str, sequence_analysis_get_name(analysis));
-    cli_string = g_string_free(cmd_str, FALSE);
+    cli_string = g_string_free(cmd_str, false);
 
     flow_ui.group = REGISTER_STAT_GROUP_GENERIC;
     flow_ui.title = NULL;   /* construct this from the protocol info? */
@@ -124,7 +124,7 @@ flow_register(const void *key _U_, void *value, void *userdata _U_)
     flow_ui.params = NULL;
     register_stat_tap_ui(&flow_ui, analysis);
     g_free(cli_string);
-    return FALSE;
+    return false;
 }
 
 void

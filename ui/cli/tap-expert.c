@@ -39,10 +39,10 @@ static severity_level_t lowest_report_level = comment_level;
 
 typedef struct expert_entry
 {
-    guint32      group;
+    uint32_t     group;
     int          frequency;
-    const gchar *protocol;
-    gchar       *summary;
+    const char *protocol;
+    char        *summary;
 } expert_entry;
 
 
@@ -57,7 +57,7 @@ typedef struct expert_tapdata_t {
 static void
 expert_stat_reset(void *tapdata)
 {
-    gint              n;
+    int               n;
     expert_tapdata_t *etd = (expert_tapdata_t *)tapdata;
 
     /* Free & reallocate chunk of strings */
@@ -80,7 +80,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
     severity_level_t     severity_level;
     expert_entry         tmp_entry;
     expert_entry        *entry;
-    guint                n;
+    unsigned             n;
 
     switch (ei->severity) {
         case PI_COMMENT:
@@ -133,12 +133,12 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
 }
 
 /* Output for all of the items of one severity */
-static void draw_items_for_severity(GArray *items, const gchar *label)
+static void draw_items_for_severity(GArray *items, const char *label)
 {
-    guint         n;
+    unsigned      n;
     expert_entry *ei;
     int           total = 0;
-    gchar        *tmp_str;
+    char         *tmp_str;
 
     /* Don't print title if no items */
     if (items->len == 0) {
@@ -188,7 +188,7 @@ static void
 expert_tapdata_free(expert_tapdata_t* hs)
 {
     for (int n = 0; n < max_level; n++) {
-        g_array_free(hs->ei_array[n], TRUE);
+        g_array_free(hs->ei_array[n], true);
     }
     g_string_chunk_free(hs->text);
     g_free(hs);
@@ -249,7 +249,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
 
     /* Allocate GArray for each severity level */
     for (n=0; n < max_level; n++) {
-        hs->ei_array[n] = g_array_sized_new(FALSE, FALSE, sizeof(expert_entry), 1000);
+        hs->ei_array[n] = g_array_sized_new(false, false, sizeof(expert_entry), 1000);
     }
 
     /**********************************************/
@@ -264,7 +264,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
                                          (tap_finish_cb)expert_tapdata_free);
     if (error_string) {
         printf("Expert tap error (%s)!\n", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         expert_tapdata_free(hs);
         exit(1);
     }

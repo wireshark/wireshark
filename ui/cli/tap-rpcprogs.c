@@ -35,8 +35,8 @@ void register_tap_listener_rpcprogs(void);
 /* used to keep track of statistics for a specific program/version */
 typedef struct _rpc_program_t {
 	struct _rpc_program_t *next;
-	guint32 program;
-	guint32 version;
+	uint32_t program;
+	uint32_t version;
 	int num;
 	nstime_t min;
 	nstime_t max;
@@ -167,7 +167,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 static void
 rpcprogs_draw(void *dummy _U_)
 {
-	guint64 td;
+	uint64_t td;
 	rpc_program_t *rp;
 	char str[64];
 
@@ -181,7 +181,7 @@ rpcprogs_draw(void *dummy _U_)
 			continue;
 		}
 		/* Scale the average SRT in units of 1us and round to the nearest us. */
-		td = ((guint64)(rp->tot.secs)) * NANOSECS_PER_SEC + rp->tot.nsecs;
+		td = ((uint64_t)(rp->tot.secs)) * NANOSECS_PER_SEC + rp->tot.nsecs;
 		td = ((td / rp->num) + 500) / 1000;
 
 		snprintf(str, sizeof(str), "%s(%d)", rpc_prog_name(rp->program), rp->program);
@@ -212,7 +212,7 @@ rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 	if (error_string) {
 		cmdarg_err("Couldn't register rpc,programs tap: %s",
 			error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }

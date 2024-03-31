@@ -33,35 +33,35 @@ void register_tap_listener_wspstat(void);
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {
-	const gchar 	*type;
-	guint32		 packets;
+	const char 	*type;
+	uint32_t		 packets;
 } wsp_pdu_t;
 /* used to keep track of SRT statistics */
 typedef struct _wsp_status_code_t {
-	const gchar	*name;
-	guint32		 packets;
+	const char	*name;
+	uint32_t		 packets;
 } wsp_status_code_t;
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _wsp_stats_t {
 	char 		*filter;
 	wsp_pdu_t 	*pdu_stats;
-	guint32	num_pdus;
+	uint32_t	num_pdus;
 	GHashTable	*hash;
 } wspstat_t;
 
 static void
-wsp_reset_hash(gchar *key _U_ , wsp_status_code_t *data, gpointer ptr _U_)
+wsp_reset_hash(char *key _U_ , wsp_status_code_t *data, void *ptr _U_)
 {
 	data->packets = 0;
 }
 static void
-wsp_print_statuscode(gpointer key, wsp_status_code_t *data, char *format)
+wsp_print_statuscode(void *key, wsp_status_code_t *data, char *format)
 {
 	if (data && (data->packets != 0))
 		printf(format, GPOINTER_TO_INT(key), data->packets , data->name);
 }
 static void
-wsp_free_hash_table( gpointer key, gpointer value, gpointer user_data _U_ )
+wsp_free_hash_table( void *key, void *value, void *user_data _U_ )
 {
 	g_free(key);
 	g_free(value);
@@ -70,7 +70,7 @@ static void
 wspstat_reset(void *psp)
 {
 	wspstat_t *sp = (wspstat_t *)psp;
-	guint32 i;
+	uint32_t i;
 
 	for (i=1; i<=sp->num_pdus; i++)
 	{
@@ -91,8 +91,8 @@ wspstat_reset(void *psp)
  * ALL packets and not just the ones we are collecting stats for.
  *
  */
-static gint
-pdut2index(gint pdut)
+static int
+pdut2index(int pdut)
 {
 	if (pdut <= 0x09)
 		return pdut;
@@ -105,8 +105,8 @@ pdut2index(gint pdut)
 	}
 	return 0;
 }
-static gint
-index2pdut(gint pdut)
+static int
+index2pdut(int pdut)
 {
 	if (pdut <= 0x09)
 		return pdut;
@@ -121,7 +121,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 {
 	wspstat_t *sp = (wspstat_t *)psp;
 	const wsp_info_value_t *value = (const wsp_info_value_t *)pri;
-	gint idx = pdut2index(value->pdut);
+	int idx = pdut2index(value->pdut);
 	tap_packet_status retour = TAP_PACKET_DONT_REDRAW;
 
 	if (value->status_code != 0) {
@@ -168,7 +168,7 @@ static void
 wspstat_draw(void *psp)
 {
 	wspstat_t *sp = (wspstat_t *)psp;
-	guint32 i;
+	uint32_t i;
 
 	printf("\n");
 	printf("===================================================================\n");
@@ -176,7 +176,7 @@ wspstat_draw(void *psp)
 	printf("%-23s %9s || %-23s %9s\n", "PDU Type", "Packets", "PDU Type", "Packets");
 	for (i=1; i <= ((sp->num_pdus+1)/2); i++)
 	{
-		guint32 ii = i+sp->num_pdus/2;
+		uint32_t ii = i+sp->num_pdus/2;
 		printf("%-23s %9u", sp->pdu_stats[i ].type, sp->pdu_stats[i ].packets);
 		printf(" || ");
 		if (ii< (sp->num_pdus) )
@@ -187,7 +187,7 @@ wspstat_draw(void *psp)
 	printf("\nStatus code in reply packets\n");
 	printf(		"Status Code    Packets  Description\n");
 	g_hash_table_foreach( sp->hash, (GHFunc) wsp_print_statuscode,
-			(gpointer)"       0x%02X  %9d  %s\n" ) ;
+			(void *)"       0x%02X  %9d  %s\n" ) ;
 	printf("===================================================================\n");
 }
 
@@ -203,7 +203,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 {
 	wspstat_t          *sp;
 	const char         *filter = NULL;
-	guint32             i;
+	uint32_t            i;
 	GString	           *error_string;
 	wsp_status_code_t  *sc;
 	const value_string *wsp_vals_status_p;
@@ -220,9 +220,9 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(&wsp_vals_status_ext);
 	for (i=0; wsp_vals_status_p[i].strptr; i++ )
 	{
-		gint *key;
+		int *key;
 		sc = g_new(wsp_status_code_t, 1);
-		key = g_new(gint, 1);
+		key = g_new(int, 1);
 		sc->packets = 0;
 		sc->name = wsp_vals_status_p[i].strptr;
 		*key = wsp_vals_status_p[i].value;
@@ -259,7 +259,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(sp);
 		cmdarg_err("Couldn't register wsp,stat tap: %s",
 				error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }

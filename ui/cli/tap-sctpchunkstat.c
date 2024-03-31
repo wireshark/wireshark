@@ -32,16 +32,16 @@ typedef struct sctp_ep {
 	struct sctp_ep *next;
 	address src;
 	address dst;
-	guint16 sport;
-	guint16 dport;
-	guint32 chunk_count[256];
+	uint16_t sport;
+	uint16_t dport;
+	uint32_t chunk_count[256];
 } sctp_ep_t;
 
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _sctpstat_t {
 	char	  *filter;
-	guint32    number_of_packets;
+	uint32_t   number_of_packets;
 	sctp_ep_t *ep_list;
 } sctpstat_t;
 
@@ -54,7 +54,7 @@ sctpstat_reset(void *phs)
 	sctpstat_t *sctp_stat = (sctpstat_t *)phs;
 	sctp_ep_t  *list      = (sctp_ep_t *)sctp_stat->ep_list;
 	sctp_ep_t  *tmp	      = NULL;
-	guint16	    chunk_type;
+	uint16_t	    chunk_type;
 
 	if (!list)
 		return;
@@ -71,7 +71,7 @@ static sctp_ep_t *
 alloc_sctp_ep(const struct _sctp_info *si)
 {
 	sctp_ep_t *ep;
-	guint16 chunk_type;
+	uint16_t chunk_type;
 
 	if (!si)
 		return NULL;
@@ -99,8 +99,8 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	sctpstat_t *hs = (sctpstat_t *)phs;
 	sctp_ep_t *tmp = NULL, *te = NULL;
 	const struct _sctp_info *si = (const struct _sctp_info *)phi;
-	guint32 tvb_number;
-	guint8  chunk_type;
+	uint32_t tvb_number;
+	uint8_t chunk_type;
 
 	if (!hs)
 		return (TAP_PACKET_DONT_REDRAW);
@@ -209,7 +209,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 
 		cmdarg_err("Couldn't register sctp,stat tap: %s",
 			error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		exit(1);
 	}
 }

@@ -36,7 +36,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 {
 	pci_t *rs = (pci_t *)prs;
 	GPtrArray *gp;
-	guint i;
+	unsigned i;
 	char *str;
 
 	/*
@@ -113,7 +113,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 		/* error, we failed to attach to the tap. complain and clean up */
 		cmdarg_err("Couldn't register proto,colinfo tap: %s",
 		    error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		g_free(rs->filter);
 		g_free(rs);
 

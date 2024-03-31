@@ -32,7 +32,7 @@ struct _tree_pres {
 };
 
 struct _tree_cfg_pres {
-	gchar *init_string;
+	char *init_string;
 };
 
 static void
@@ -45,7 +45,7 @@ draw_stats_tree(void *psp)
 				    stats_tree_is_default_sort_DESC(st));
 
 	printf("%s", s->str);
-	g_string_free(s, TRUE);
+	g_string_free(s, true);
 }
 
 static void
@@ -103,7 +103,7 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 }
 
 static void
-register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
+register_stats_tree_tap (void *k _U_, void *v, void *p _U_)
 {
 	stats_tree_cfg *cfg = (stats_tree_cfg *)v;
 	stat_tap_ui ui_info;

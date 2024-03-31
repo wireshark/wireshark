@@ -37,7 +37,7 @@ void register_tap_listener_camelsrt(void);
 /* used to keep track of the statistics for an entire program interface */
 struct camelsrt_t {
   char *filter;
-  guint32 count[NB_CAMELSRT_CATEGORY];
+  uint32_t count[NB_CAMELSRT_CATEGORY];
   timestat_t stats[NB_CAMELSRT_CATEGORY];
   nstime_t delta_time[NB_CAMELSRT_CATEGORY][NUM_RAS_STATS];
 };
@@ -82,14 +82,14 @@ static tap_packet_status camelsrt_packet(void *phs,
 static void camelsrt_draw(void *phs)
 {
   struct camelsrt_t *hs = (struct camelsrt_t *)phs;
-  guint j, z;
-  guint32 li;
+  unsigned j, z;
+  uint32_t li;
   int somme, iteration = 0;
   timestat_t *rtd_temp;
   double x, delay, delay_max, delay_min, delta;
   double criteria[NB_CRITERIA] = { 5.0, 10.0, 75.0, 90.0, 95.0, 99.0, 99.90 };
   double delay_criteria[NB_CRITERIA];
-  gchar* tmp_str;
+  char* tmp_str;
 
   printf("\n");
   printf("Camel Service Response Time (SRT) Statistics:\n");
@@ -225,7 +225,7 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
     g_free(p_camelsrt);
 
     cmdarg_err("Couldn't register camel,srt tap: %s", error_string->str);
-    g_string_free(error_string, TRUE);
+    g_string_free(error_string, true);
     exit(1);
   }
 
@@ -235,8 +235,8 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
    * Whereas, with wireshark, it is not possible to have the correct display, if the stats are
    * not saved along the analyze
    */
-  gtcap_StatSRT = TRUE;
-  gcamel_StatSRT = TRUE;
+  gtcap_StatSRT = true;
+  gcamel_StatSRT = true;
 }
 
 static stat_tap_ui camelsrt_ui = {
