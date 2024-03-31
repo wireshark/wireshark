@@ -1794,7 +1794,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint8          sspkey[NTLMSSP_KEY_LEN];    /* exported session key */
   guint8          clientkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for client */
   guint8          serverkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for server*/
-  guint8          encryptedsessionkey[NTLMSSP_KEY_LEN];
+  guint8          encryptedsessionkey[NTLMSSP_KEY_LEN] = {0};
   ntlmssp_blob    sessionblob;
   gboolean        unicode_strings      = FALSE;
   ntlmssp_info   *conv_ntlmssp_info;
@@ -2081,6 +2081,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (sessionblob.length > NTLMSSP_KEY_LEN) {
     expert_add_info_format(pinfo, NULL, &ei_ntlmssp_blob_len_too_long, "Session blob length too long: %u", sessionblob.length);
   } else if (sessionblob.length != 0) {
+    /* XXX - Is it a problem if sessionblob.length < NTLMSSP_KEY_LEN ? */
     memcpy(encryptedsessionkey, sessionblob.contents, sessionblob.length);
     /* Try to attach to an existing conversation if not then it's useless to try to do so
      * because we are missing important information (ie. server challenge)
