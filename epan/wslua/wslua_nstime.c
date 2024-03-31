@@ -64,10 +64,10 @@ WSLUA_METHOD NSTime_tonumber(lua_State* L) {
 
 WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
     NSTime nstime = checkNSTime(L,1);
-    gchar *str;
+    char *str;
     long secs = (long)nstime->secs;
-    gint nsecs = nstime->nsecs;
-    gboolean negative_zero = FALSE;
+    int nsecs = nstime->nsecs;
+    bool negative_zero = false;
 
     /* Time is defined as sec + nsec/10^9, both parts can be negative.
      * Translate this into the more familiar sec.nsec notation instead. */
@@ -133,10 +133,10 @@ WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime. 
 WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (nstime_cmp(time1, time2) == 0)
-        result = TRUE;
+        result = true;
 
     lua_pushboolean(L,result);
 
@@ -146,10 +146,10 @@ WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes. */
 WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (nstime_cmp(time1, time2) <= 0)
-        result = TRUE;
+        result = true;
 
     lua_pushboolean(L,result);
 
@@ -159,10 +159,10 @@ WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes. */
 WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (nstime_cmp(time1, time2) < 0)
-        result = TRUE;
+        result = true;
 
     lua_pushboolean(L,result);
 

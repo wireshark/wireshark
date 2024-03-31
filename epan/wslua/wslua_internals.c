@@ -49,15 +49,15 @@ WSLUA_API int wslua__concat(lua_State* L) {
    note that normal lua_toboolean returns 1 for any Lua value different from false and
    nil; otherwise it returns 0. So a string would give a 0, as would a number of 1.
    This function errors if the arg is a string, and sets the boolean to 1 for any
-   number other than 0. Like toboolean, this returns FALSE if the arg was missing. */
-WSLUA_API gboolean wslua_toboolean(lua_State* L, int n) {
-    gboolean val = FALSE;
+   number other than 0. Like toboolean, this returns false if the arg was missing. */
+WSLUA_API bool wslua_toboolean(lua_State* L, int n) {
+    bool val = false;
 
     if ( lua_isboolean(L,n) ||  lua_isnil(L,n)  || lua_gettop(L) < n ) {
         val = lua_toboolean(L,n);
     } else if ( lua_type(L,n) == LUA_TNUMBER ) {
         int num = (int)luaL_checkinteger(L,n);
-        val = num != 0 ? TRUE : FALSE;
+        val = num != 0 ? true : false;
     } else {
         luaL_argerror(L,n,"must be a boolean or number");
     }
@@ -66,7 +66,7 @@ WSLUA_API gboolean wslua_toboolean(lua_State* L, int n) {
 }
 
 /* like luaL_checkinteger, except for booleans - this does not coerce other types */
-WSLUA_API gboolean wslua_checkboolean(lua_State* L, int n) {
+WSLUA_API bool wslua_checkboolean(lua_State* L, int n) {
 
     if (!lua_isboolean(L,n) ) {
         luaL_argerror(L,n,"must be a boolean");
@@ -75,8 +75,8 @@ WSLUA_API gboolean wslua_checkboolean(lua_State* L, int n) {
     return lua_toboolean(L,n);
 }
 
-WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
-    gboolean val = FALSE;
+WSLUA_API bool wslua_optbool(lua_State* L, int n, bool def) {
+    bool val = false;
 
     if ( lua_isboolean(L,n) ) {
         val = lua_toboolean(L,n);
@@ -185,9 +185,9 @@ WSLUA_API void wslua_print_stack(char* s, lua_State* L) {
 /* C-code function equivalent of the typeof() function we created in Lua.
  * The Lua one is for Lua scripts to use, this one is for C-code to use.
  */
-const gchar* wslua_typeof_unknown = "UNKNOWN";
-const gchar* wslua_typeof(lua_State *L, int idx) {
-    const gchar *classname = wslua_typeof_unknown;
+const char* wslua_typeof_unknown = "UNKNOWN";
+const char* wslua_typeof(lua_State *L, int idx) {
+    const char *classname = wslua_typeof_unknown;
     /* we'll try getting the class name for error reporting*/
     if (luaL_getmetafield(L, idx, WSLUA_TYPEOF_FIELD)) {
         classname = luaL_optstring(L, -1, wslua_typeof_unknown);
@@ -205,12 +205,12 @@ const gchar* wslua_typeof(lua_State *L, int idx) {
  * location idx. If it does not get a table, it pops whatever it got
  * and returns false.
  */
-gboolean wslua_get_table(lua_State *L, int idx, const gchar *name) {
-    gboolean result = TRUE;
+bool wslua_get_table(lua_State *L, int idx, const char *name) {
+    bool result = true;
     lua_rawgetfield(L, idx, name);
     if (!lua_istable(L,-1)) {
         lua_pop(L,1);
-        result = FALSE;
+        result = false;
     }
     return result;
 }
@@ -219,12 +219,12 @@ gboolean wslua_get_table(lua_State *L, int idx, const gchar *name) {
  * location idx. If it does not get a field, it pops whatever it got
  * and returns false.
  */
-gboolean wslua_get_field(lua_State *L, int idx, const gchar *name) {
-    gboolean result = TRUE;
+bool wslua_get_field(lua_State *L, int idx, const char *name) {
+    bool result = true;
     lua_rawgetfield(L, idx, name);
     if (lua_isnil(L,-1)) {
         lua_pop(L,1);
-        result = FALSE;
+        result = false;
     }
     return result;
 }
@@ -251,7 +251,7 @@ static int wslua_classmeta_index(lua_State *L) {
  * Getters are invoked with the table as parameter. Setters are invoked with the
  * table and the value as parameter.
  */
-static int wslua_instancemeta_index_impl(lua_State *L, gboolean is_getter)
+static int wslua_instancemeta_index_impl(lua_State *L, bool is_getter)
 {
     const char *fieldname = luaL_checkstring(L, 2);
     const int attr_idx = lua_upvalueindex(2);
@@ -298,18 +298,18 @@ static int wslua_instancemeta_index_impl(lua_State *L, gboolean is_getter)
 
 static int wslua_instancemeta_index(lua_State *L)
 {
-    return wslua_instancemeta_index_impl(L, TRUE);
+    return wslua_instancemeta_index_impl(L, true);
 }
 
 static int wslua_instancemeta_newindex(lua_State *L)
 {
-    return wslua_instancemeta_index_impl(L, FALSE);
+    return wslua_instancemeta_index_impl(L, false);
 }
 
 /* Pushes a hex string of the binary data argument. */
-int wslua_bin2hex(lua_State* L, const guint8* data, const guint len, const gboolean lowercase, const gchar* sep) {
+int wslua_bin2hex(lua_State* L, const uint8_t* data, const unsigned len, const bool lowercase, const char* sep) {
     luaL_Buffer b;
-    guint i = 0;
+    unsigned i = 0;
     static const char byte_to_str_upper[256][3] = {
         "00","01","02","03","04","05","06","07","08","09","0A","0B","0C","0D","0E","0F",
         "10","11","12","13","14","15","16","17","18","19","1A","1B","1C","1D","1E","1F",
@@ -347,7 +347,7 @@ int wslua_bin2hex(lua_State* L, const guint8* data, const guint len, const gbool
         "f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"
     };
     const char (*byte_to_str)[3] = byte_to_str_upper;
-    const guint last = len - 1;
+    const unsigned last = len - 1;
 
     if (lowercase) byte_to_str = byte_to_str_lower;
 
@@ -364,13 +364,13 @@ int wslua_bin2hex(lua_State* L, const guint8* data, const guint len, const gbool
 }
 
 /* Pushes a binary string of the hex-ascii data argument. */
-int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* sep) {
+int wslua_hex2bin(lua_State* L, const char* data, const unsigned len, const char* sep) {
     luaL_Buffer b;
-    guint i = 0;
-    guint seplen = 0;
-    gint8 c, d;
+    unsigned i = 0;
+    unsigned seplen = 0;
+    int8_t c, d;
 
-    static const gint8 str_to_nibble[256] = {
+    static const int8_t str_to_nibble[256] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -389,12 +389,12 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
     };
 
-    if (sep) seplen = (guint) strlen(sep);
+    if (sep) seplen = (unsigned) strlen(sep);
 
     luaL_buffinit(L, &b);
 
     for (i = 0; i < len;) {
-        c = str_to_nibble[(guchar)data[i]];
+        c = str_to_nibble[(unsigned char)data[i]];
         if (c < 0) {
             if (seplen && strncmp(&data[i], sep, seplen) == 0) {
                 i += seplen;
@@ -403,7 +403,7 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
                 break;
             }
         }
-        d = str_to_nibble[(guchar)data[++i]];
+        d = str_to_nibble[(unsigned char)data[++i]];
         if (d < 0) break;
         luaL_addchar(&b, (c * 16) + d);
         i++;
@@ -420,7 +420,7 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
  * Additionally, a sanity check is performed to detect colliding getters/setters
  * and method names.
  */
-static void wslua_push_attributes(lua_State *L, const wslua_attribute_table *t, gboolean is_getter, int methods_idx)
+static void wslua_push_attributes(lua_State *L, const wslua_attribute_table *t, bool is_getter, int methods_idx)
 {
     if (!t) {
         /* No property accessors? Nothing to do. */
@@ -482,7 +482,7 @@ void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
 
     /* Prepare __index method on metatable. */
     lua_pushstring(L, cls_def->name);                       /* upval 1: class name */
-    wslua_push_attributes(L, cls_def->attrs, TRUE, -2);     /* upval 2: getters table */
+    wslua_push_attributes(L, cls_def->attrs, true, -2);     /* upval 2: getters table */
 #ifdef WSLUA_WITH_INTROSPECTION
     lua_pushvalue(L, -1);
     lua_rawsetfield(L, -5, "__getters"); /* set (transition) property on mt, remove later! */
@@ -494,7 +494,7 @@ void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
 
     /* Prepare __newindex method on metatable. */
     lua_pushstring(L, cls_def->name);                       /* upval 1: class name */
-    wslua_push_attributes(L, cls_def->attrs, FALSE, -2);    /* upval 2: setters table */
+    wslua_push_attributes(L, cls_def->attrs, false, -2);    /* upval 2: setters table */
 #ifdef WSLUA_WITH_INTROSPECTION
     lua_pushvalue(L, -1);
     lua_rawsetfield(L, -5, "__setters"); /* set (transition) property on mt, remove later! */

@@ -113,7 +113,7 @@ WSLUA_CONSTRUCTOR Dir_remove(lua_State* L) {
 static int delete_directory(const char *directory) {
     WS_DIR *dir;
     WS_DIRENT *file;
-    gchar *filename;
+    char *filename;
     int ret = 0;
 
     /* delete all contents of directory */
@@ -236,8 +236,8 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
     */
 
     Dir dir = checkDir(L,1);
-    const gchar* file;
-    const gchar* filename;
+    const char* file;
+    const char* filename;
     const char* ext;
 
     if (!dir->dir) {
@@ -291,7 +291,7 @@ WSLUA_CONSTRUCTOR Dir_personal_config_path(lua_State* L) {
     */
 #define WSLUA_OPTARG_Dir_personal_config_path_FILENAME 1 /* A filename. */
     const char *fname = luaL_optstring(L, WSLUA_OPTARG_Dir_personal_config_path_FILENAME,"");
-    char* filename = get_persconffile_path(fname,FALSE);
+    char* filename = get_persconffile_path(fname,false);
 
     lua_pushstring(L,filename);
     g_free(filename);

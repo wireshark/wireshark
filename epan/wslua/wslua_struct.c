@@ -169,12 +169,12 @@ typedef unsigned STRUCT_INT Uinttype;
 
 /* dummy structure to get padding/alignment requirements */
 struct cD {
-  gchar c;
-  gdouble d;
+  char c;
+  double d;
 };
 
 
-#define PADDING         (sizeof(struct cD) - sizeof(gdouble))
+#define PADDING         (sizeof(struct cD) - sizeof(double))
 #define MAXALIGN        (PADDING > sizeof(int) ? PADDING : sizeof(int))
 
 
@@ -185,18 +185,18 @@ struct cD {
 /* trick to determine native endianness of system */
 static union {
   int dummy;
-  gchar endian;
+  char endian;
 } const native = {1};
 
 /* settings info */
 typedef struct Header {
   int endian;
   int align;
-  gboolean noassign;
+  bool noassign;
 } Header;
 
 /* For options that take a number argument, gets the number  */
-static int getnum (lua_State *L, const gchar **fmt, int df) {
+static int getnum (lua_State *L, const char **fmt, int df) {
   if (!g_ascii_isdigit(**fmt))  /* no number? */
     return df;  /* return default value */
   else {
@@ -211,19 +211,19 @@ static int getnum (lua_State *L, const gchar **fmt, int df) {
 }
 
 
-#define defaultoptions(h)    ((h)->endian = native.endian, (h)->align = 1, (h)->noassign = FALSE)
+#define defaultoptions(h)    ((h)->endian = native.endian, (h)->align = 1, (h)->noassign = false)
 
 
 /* gets size (number of bytes) for a given type */
-static size_t optsize (lua_State *L, gchar opt, const gchar **fmt) {
+static size_t optsize (lua_State *L, char opt, const char **fmt) {
   switch (opt) {
-    case 'B': case 'b': return sizeof(gchar);
+    case 'B': case 'b': return sizeof(char);
     case 'H': case 'h': return sizeof(gshort);
-    case 'L': case 'l': return sizeof(glong);
-    case 'E': case 'e': return sizeof(gint64);
+    case 'L': case 'l': return sizeof(long);
+    case 'E': case 'e': return sizeof(int64_t);
     case 'T': return sizeof(size_t);
-    case 'f': return sizeof(gfloat);
-    case 'd': return sizeof(gdouble);
+    case 'f': return sizeof(float);
+    case 'd': return sizeof(double);
     case 'x': return getnum(L, fmt, 1);
     case 'X': return getnum(L, fmt, MAXALIGN);
     case 'c': return getnum(L, fmt, 1);
@@ -240,7 +240,7 @@ static size_t optsize (lua_State *L, gchar opt, const gchar **fmt) {
     case '!': case '=':
               return 0;  /* these cases do not have a size */
     default: {
-      const gchar *msg = lua_pushfstring(L, "invalid format option [%c]", opt);
+      const char *msg = lua_pushfstring(L, "invalid format option [%c]", opt);
       return luaL_argerror(L, 1, msg);
     }
   }
@@ -262,14 +262,14 @@ static int gettoalign (size_t len, Header *h, int opt, size_t size) {
 /*
 ** options to control endianness and alignment settings
 */
-static void controloptions (lua_State *L, int opt, const gchar **fmt,
+static void controloptions (lua_State *L, int opt, const char **fmt,
                             Header *h) {
   switch (opt) {
     case ' ': return;  /* ignore white spaces */
     case '>': h->endian = BIG; return;
     case '<': h->endian = LITTLE; return;
-    case '(': h->noassign = TRUE; return;
-    case ')': h->noassign = FALSE; return;
+    case '(': h->noassign = true; return;
+    case ')': h->noassign = false; return;
     case '!': {
       int a = getnum(L, fmt, MAXALIGN);
       if (!isp2(a))
@@ -289,12 +289,12 @@ static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
                         int size) {
   lua_Number n = luaL_checknumber(L, arg);
   /* this one's not system dependent size - it's a long long */
-  gint64 value;
-  gchar buff[MAXINTSIZE];
+  int64_t value;
+  char buff[MAXINTSIZE];
   if (n < 0)
-    value = (guint64)(gint64)n;
+    value = (uint64_t)(int64_t)n;
   else
-    value = (guint64)n;
+    value = (uint64_t)n;
   if (endian == LITTLE) {
     int i;
     for (i = 0; i < size; i++) {
@@ -315,11 +315,11 @@ static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
 /* corrects endianness - usually done by other functions themselves, but is
  * used for float/doubles, since on some platforms they're endian'ed as well
  */
-static void correctbytes (gchar *b, int size, int endian) {
+static void correctbytes (char *b, int size, int endian) {
   if (endian != native.endian) {
     int i = 0;
     while (i < --size) {
-      gchar temp = b[i];
+      char temp = b[i];
       b[i++] = b[size];
       b[size] = temp;
     }
@@ -370,20 +370,20 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
         break;
       }
       case 'f': {
-        gfloat f = (gfloat)luaL_checknumber(L, arg++);
-        correctbytes((gchar *)&f, (int)size, h.endian);
-        luaL_addlstring(&b, (gchar *)&f, size);
+        float f = (float)luaL_checknumber(L, arg++);
+        correctbytes((char *)&f, (int)size, h.endian);
+        luaL_addlstring(&b, (char *)&f, size);
         break;
       }
       case 'd': {
-        gdouble d = luaL_checknumber(L, arg++);
-        correctbytes((gchar *)&d, (int)size, h.endian);
-        luaL_addlstring(&b, (gchar *)&d, size);
+        double d = luaL_checknumber(L, arg++);
+        correctbytes((char *)&d, (int)size, h.endian);
+        luaL_addlstring(&b, (char *)&d, size);
         break;
       }
       case 'c': case 's': {
         size_t l;
-        const gchar *s = luaL_checklstring(L, arg++, &l);
+        const char *s = luaL_checklstring(L, arg++, &l);
         if (size == 0) size = l;
         luaL_argcheck(L, l >= (size_t)size, arg, "string too short");
         luaL_addlstring(&b, s, size);
@@ -412,20 +412,20 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
  * given endianness and size. If the integer type is signed, this makes
  * the Lua number be +/- correctly as well.
  */
-static lua_Integer getinteger (const gchar *buff, int endian,
+static lua_Integer getinteger (const char *buff, int endian,
                         int issigned, int size) {
   Uinttype l = 0;
   int i;
   if (endian == BIG) {
     for (i = 0; i < size; i++) {
       l <<= 8;
-      l |= (Uinttype)(guchar)buff[i];
+      l |= (Uinttype)(unsigned char)buff[i];
     }
   }
   else {
     for (i = size - 1; i >= 0; i--) {
       l <<= 8;
-      l |= (Uinttype)(guchar)buff[i];
+      l |= (Uinttype)(unsigned char)buff[i];
     }
   }
   if (!issigned)
@@ -488,16 +488,16 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
         break;
       }
       case 'f': {
-        gfloat f;
+        float f;
         memcpy(&f, data+pos, size);
-        correctbytes((gchar *)&f, sizeof(f), h.endian);
+        correctbytes((char *)&f, sizeof(f), h.endian);
         lua_pushnumber(L, f);
         break;
       }
       case 'd': {
-        gdouble d;
+        double d;
         memcpy(&d, data+pos, size);
-        correctbytes((gchar *)&d, sizeof(d), h.endian);
+        correctbytes((char *)&d, sizeof(d), h.endian);
         lua_pushnumber(L, d);
         break;
       }
@@ -514,7 +514,7 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
         break;
       }
       case 's': {
-        const gchar *e = (const char *)memchr(data+pos, '\0', ld - pos);
+        const char *e = (const char *)memchr(data+pos, '\0', ld - pos);
         if (e == NULL)
           luaL_error(L, "unfinished string in data");
         size = (e - (data+pos)) + 1;
@@ -539,7 +539,7 @@ WSLUA_CONSTRUCTOR Struct_size (lua_State *L) {
   /* Returns the length of a binary string that would be consumed/handled by the given format string. */
 #define WSLUA_ARG_Struct_size_FORMAT 1 /* The format string */
   Header h;
-  const gchar *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_size_FORMAT);
+  const char *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_size_FORMAT);
   size_t pos = 0;
   defaultoptions(&h);
   while (*fmt) {
@@ -566,7 +566,7 @@ WSLUA_CONSTRUCTOR Struct_values (lua_State *L) {
      arguments Struct.pack() expects, not including the format string argument. */
 #define WSLUA_ARG_Struct_values_FORMAT 1 /* The format string */
   Header h;
-  const gchar *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_values_FORMAT);
+  const char *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_values_FORMAT);
   size_t vals = 0;
   defaultoptions(&h);
   while (*fmt) {
@@ -600,19 +600,19 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
 #define WSLUA_ARG_Struct_tohex_BYTESTRING 1 /* A Lua string consisting of binary bytes */
 #define WSLUA_OPTARG_Struct_tohex_LOWERCASE 2 /* True to use lower-case hex characters (default=false). */
 #define WSLUA_OPTARG_Struct_tohex_SEPARATOR 3 /* A string separator to insert between hex bytes (default=nil). */
-  const gchar* s = NULL;
+  const char* s = NULL;
   size_t len = 0;
-  gboolean lowercase = FALSE;
-  const gchar* sep = NULL;
+  bool lowercase = false;
+  const char* sep = NULL;
 
   /* luaL_checklstring coerces the argument to a string, and that's ok for tohex,
      just not fromhex. In fact, we should accept/coerce a Int64/UInt64 here too someday. */
   s = luaL_checklstring(L, WSLUA_ARG_Struct_tohex_BYTESTRING, &len);
 
-  lowercase = wslua_optbool(L,WSLUA_OPTARG_Struct_tohex_LOWERCASE,FALSE);
+  lowercase = wslua_optbool(L,WSLUA_OPTARG_Struct_tohex_LOWERCASE,false);
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_tohex_SEPARATOR,NULL);
 
-  wslua_bin2hex(L, s, (guint)len, lowercase, sep);
+  wslua_bin2hex(L, s, (unsigned)len, lowercase, sep);
   WSLUA_RETURN(1); /* The Lua hex-ascii string */
 }
 
@@ -620,16 +620,16 @@ WSLUA_CONSTRUCTOR Struct_fromhex (lua_State *L) {
   /* Converts the passed-in hex-ascii string to a binary string. */
 #define WSLUA_ARG_Struct_fromhex_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
 #define WSLUA_OPTARG_Struct_fromhex_SEPARATOR 2 /* A string separator between hex bytes/words (default none). */
-  const gchar* s = NULL;
+  const char* s = NULL;
   size_t len = 0;
-  const gchar* sep = NULL;
+  const char* sep = NULL;
 
   /* luaL_checklstring coerces the argument to a string, and we don't want to do that */
   s = wslua_checklstring_only(L, WSLUA_ARG_Struct_fromhex_HEXBYTES, &len);
 
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_fromhex_SEPARATOR,NULL);
 
-  wslua_hex2bin(L, s, (guint)len, sep);
+  wslua_hex2bin(L, s, (unsigned)len, sep);
   WSLUA_RETURN(1); /* The Lua binary string */
 }
 

@@ -19,7 +19,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 WS_DLL_PUBLIC int wslua_count_plugins(void);
-WS_DLL_PUBLIC void wslua_reload_plugins (register_cb cb, gpointer client_data);
+WS_DLL_PUBLIC void wslua_reload_plugins (register_cb cb, void *client_data);
 
 WS_DLL_PUBLIC void wslua_plugins_get_descriptions(plugin_description_callback callback, void *user_data);
 WS_DLL_PUBLIC void wslua_plugins_dump_all(void);

@@ -83,9 +83,9 @@ either expressed or implied, of the FreeBSD Project.
 #define LUATYPE64_STRING_SIZE 21  /* string to hold 18446744073709551615 */
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define IS_LITTLE_ENDIAN TRUE
+#define IS_LITTLE_ENDIAN true
 #else
-#define IS_LITTLE_ENDIAN FALSE
+#define IS_LITTLE_ENDIAN false
 #endif
 
 WSLUA_CLASS_DEFINE_BASE(Int64,NOP,0);
@@ -95,10 +95,10 @@ WSLUA_CLASS_DEFINE_BASE(Int64,NOP,0);
     Note the caveats <<lua_module_Int64,listed above>>.
     */
 
-/* A checkInt64 but that also auto-converts numbers, strings, and UINT64 to a gint64 */
-static gint64 getInt64(lua_State *L, int i)
+/* A checkInt64 but that also auto-converts numbers, strings, and UINT64 to a int64_t */
+static int64_t getInt64(lua_State *L, int i)
 {
-    gchar *end = NULL;
+    char *end = NULL;
     (void) end;
     switch (lua_type(L,i))
     {
@@ -118,25 +118,25 @@ static gint64 getInt64(lua_State *L, int i)
 
 
 /* Encodes Int64 userdata into Lua string struct with given endianness */
-void Int64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian) {
-    gint64 value = checkInt64(L,idx);
-    gint8 buff[sizeof(gint64)];
+void Int64_pack(lua_State* L, luaL_Buffer *b, int idx, bool asLittleEndian) {
+    int64_t value = checkInt64(L,idx);
+    int8_t buff[sizeof(int64_t)];
 
     if (asLittleEndian) {
-        guint i;
-        for (i = 0; i < sizeof(gint64); i++) {
+        unsigned i;
+        for (i = 0; i < sizeof(int64_t); i++) {
             buff[i] = (value & 0xff);
             value >>= 8;
         }
     }
     else {
-        gint i;
-        for (i = sizeof(gint64) - 1; i >= 0; i--) {
+        int i;
+        for (i = sizeof(int64_t) - 1; i >= 0; i--) {
             buff[i] = (value & 0xff);
             value >>= 8;
         }
     }
-    luaL_addlstring(b, (char*)buff, sizeof(gint64));
+    luaL_addlstring(b, (char*)buff, sizeof(int64_t));
 }
 
 WSLUA_METHOD Int64_encode(lua_State* L) {
@@ -147,7 +147,7 @@ WSLUA_METHOD Int64_encode(lua_State* L) {
                                               if false then big-endian; if missing or `nil`,
                                               native host endian. */
     luaL_Buffer b;
-    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
+    bool asLittleEndian = IS_LITTLE_ENDIAN;
 
     if (lua_gettop(L) >= WSLUA_OPTARG_Int64_encode_ENDIAN) {
         if (lua_type(L,WSLUA_OPTARG_Int64_encode_ENDIAN) == LUA_TBOOLEAN)
@@ -163,20 +163,20 @@ WSLUA_METHOD Int64_encode(lua_State* L) {
 }
 
 /* Decodes from string buffer struct into Int64 userdata, with given endianness */
-int Int64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian) {
-    gint64 value = 0;
-    gint i;
+int Int64_unpack(lua_State* L, const char *buff, bool asLittleEndian) {
+    int64_t value = 0;
+    int i;
 
     if (asLittleEndian) {
-        for (i = sizeof(gint64) - 1; i >= 0; i--) {
+        for (i = sizeof(int64_t) - 1; i >= 0; i--) {
             value <<= 8;
-            value |= (gint64)(guchar)buff[i];
+            value |= (int64_t)(unsigned char)buff[i];
         }
     }
     else {
-        for (i = 0; i < (gint) sizeof(gint64); i++) {
+        for (i = 0; i < (int) sizeof(int64_t); i++) {
             value <<= 8;
-            value |= (gint64)(guchar)buff[i];
+            value |= (int64_t)(unsigned char)buff[i];
         }
     }
 
@@ -192,16 +192,16 @@ WSLUA_CONSTRUCTOR Int64_decode(lua_State* L) {
 #define WSLUA_OPTARG_Int64_decode_ENDIAN 2 /* If set to true then little-endian is used,
                                               if false then big-endian; if missing or `nil`, native
                                               host endian. */
-    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
+    bool asLittleEndian = IS_LITTLE_ENDIAN;
     size_t len = 0;
-    const gchar *s = luaL_checklstring(L, WSLUA_ARG_Int64_decode_STRING, &len);
+    const char *s = luaL_checklstring(L, WSLUA_ARG_Int64_decode_STRING, &len);
 
     if (lua_gettop(L) >= WSLUA_OPTARG_Int64_decode_ENDIAN) {
         if (lua_type(L,WSLUA_OPTARG_Int64_decode_ENDIAN) == LUA_TBOOLEAN)
             asLittleEndian = lua_toboolean(L,WSLUA_OPTARG_Int64_decode_ENDIAN);
     }
 
-    if (len == sizeof(gint64)) {
+    if (len == sizeof(int64_t)) {
         Int64_unpack(L, s, asLittleEndian);
     } else {
         lua_pushnil(L);
@@ -220,7 +220,7 @@ WSLUA_CONSTRUCTOR Int64_new(lua_State* L) {
                                               a number, then the first will be treated as a
                                               lower 32 bits, and this is the high-order 32
                                               bit number. */
-    gint64 value = 0;
+    int64_t value = 0;
 
     if (lua_gettop(L) >= 1) {
         switch(lua_type(L, WSLUA_OPTARG_Int64_new_VALUE)) {
@@ -228,9 +228,9 @@ WSLUA_CONSTRUCTOR Int64_new(lua_State* L) {
                 value = wslua_togint64(L, WSLUA_OPTARG_Int64_new_VALUE);
                 if (lua_gettop(L) == 2 &&
                     lua_type(L, WSLUA_OPTARG_Int64_new_HIGHVALUE) == LUA_TNUMBER) {
-                    gint64 h = wslua_togint64(L, WSLUA_OPTARG_Int64_new_HIGHVALUE);
-                    value &= G_GUINT64_CONSTANT(0x00000000FFFFFFFF);
-                    h <<= 32; h &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
+                    int64_t h = wslua_togint64(L, WSLUA_OPTARG_Int64_new_HIGHVALUE);
+                    value &= UINT64_C(0x00000000FFFFFFFF);
+                    h <<= 32; h &= UINT64_C(0xFFFFFFFF00000000);
                     value += h;
                 }
                 break;
@@ -261,7 +261,7 @@ WSLUA_CONSTRUCTOR Int64_max(lua_State* L) {
     /* Creates an <<lua_class_Int64,`Int64`>> of the maximum possible positive value. In other words, this should return an Int64 object of the number 9,223,372,036,854,775,807.
        @since 1.11.3
      */
-    pushInt64(L, G_MAXINT64);
+    pushInt64(L, INT64_MAX);
     WSLUA_RETURN(1); /* The new <<lua_class_Int64,`Int64`>> object of the maximum value. */
 }
 
@@ -269,7 +269,7 @@ WSLUA_CONSTRUCTOR Int64_min(lua_State* L) {
     /* Creates an <<lua_class_Int64,`Int64`>> of the minimum possible negative value. In other words, this should return an Int64 object of the number -9,223,372,036,854,775,808.
        @since 1.11.3
      */
-    pushInt64(L, G_MININT64);
+    pushInt64(L, INT64_MIN);
     WSLUA_RETURN(1); /* The new <<lua_class_Int64,`Int64`>> object of the minimum value. */
 }
 
@@ -287,16 +287,16 @@ WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_Int64_fromhex_HEX 1 /* The hex-ASCII Lua string. */
-    guint64 result = 0;
+    uint64_t result = 0;
     size_t len = 0;
-    const gchar *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
+    const char *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
 
     if (len > 0) {
         if (sscanf(s, "%" SCNx64, &result) != 1) {
             return luaL_error(L, "Error decoding the passed-in hex string");
         }
     }
-    pushInt64(L,(gint64)result);
+    pushInt64(L,(int64_t)result);
     WSLUA_RETURN(1); /* The new <<lua_class_Int64,`Int64`>> object. */
 }
 
@@ -306,10 +306,10 @@ WSLUA_METHOD Int64_tohex(lua_State* L) {
      */
 #define WSLUA_OPTARG_Int64_tohex_NUMBYTES 2 /* The number of hex chars/nibbles to generate.
                                              A negative value generates uppercase. Default is 16. */
-    gint64 b = getInt64(L,1);
+    int64_t b = getInt64(L,1);
     lua_Integer n = luaL_optinteger(L, WSLUA_OPTARG_Int64_tohex_NUMBYTES, 16);
-    const gchar *hexdigits = "0123456789abcdef";
-    gchar buf[16];
+    const char *hexdigits = "0123456789abcdef";
+    char buf[16];
     lua_Integer i;
     if (n < 0) { n = -n; hexdigits = "0123456789ABCDEF"; }
     if (n > 16) n = 16;
@@ -323,13 +323,13 @@ WSLUA_METHOD Int64_higher(lua_State* L) {
        will return a negative Lua number.
        @since 1.11.3
      */
-    gint64 num = getInt64(L,1);
-    gint64 b = num;
+    int64_t num = getInt64(L,1);
+    int64_t b = num;
     lua_Number n = 0;
     if (b < 0) b = -b; /* masking/shifting negative int64 isn't working on some platforms */
-    b &= G_GUINT64_CONSTANT(0x7FFFFFFF00000000);
+    b &= UINT64_C(0x7FFFFFFF00000000);
     b >>= 32;
-    n = (lua_Number)(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF));
+    n = (lua_Number)(uint32_t)(b & UINT64_C(0x00000000FFFFFFFFF));
     if (num < 0) n = -n;
     lua_pushnumber(L,n);
     WSLUA_RETURN(1); /* The Lua number. */
@@ -339,16 +339,16 @@ WSLUA_METHOD Int64_lower(lua_State* L) {
     /* Returns a Lua number of the lower 32 bits of the <<lua_class_Int64,`Int64`>> value. This will always be positive.
        @since 1.11.3
      */
-    gint64 b = getInt64(L,1);
+    int64_t b = getInt64(L,1);
     if (b < 0) b = -b; /* masking/shifting negative int64 isn't working on some platforms */
-    lua_pushnumber(L,(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF)));
+    lua_pushnumber(L,(uint32_t)(b & UINT64_C(0x00000000FFFFFFFFF)));
     WSLUA_RETURN(1); /* The Lua number. */
 }
 
 WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
     /* Converts the <<lua_class_Int64,`Int64`>> into a string of decimal digits. */
-    gint64 num = getInt64(L,1);
-    gchar s[LUATYPE64_STRING_SIZE];
+    int64_t num = getInt64(L,1);
+    char s[LUATYPE64_STRING_SIZE];
     if (snprintf(s, LUATYPE64_STRING_SIZE, "%" PRId64, num) < 0) {
         return luaL_error(L, "Error writing Int64 to a string");
     }
@@ -425,11 +425,11 @@ WSLUA_METAMETHOD Int64__pow(lua_State* L) {
        one. This may truncate the value.
        @since 1.11.3
      */
-    gint64 num1 = getInt64(L,1);
-    gint64 num2 = getInt64(L,2);
-    gint64 result;
+    int64_t num1 = getInt64(L,1);
+    int64_t num2 = getInt64(L,2);
+    int64_t result;
     if (num1 == 2) {
-        result = (num2 >= 8 * (gint64) sizeof(gint64)) ? 0 : ((gint64)1 << num2);
+        result = (num2 >= 8 * (int64_t) sizeof(int64_t)) ? 0 : ((int64_t)1 << num2);
     }
     else {
         for (result = 1; num2 > 0; num2 >>= 1) {
@@ -477,7 +477,7 @@ WSLUA_METHOD Int64_bnot(lua_State* L) {
 }
 
 #define WSLUA_BIT_OP_FUNC(obj,op) \
-    gint32 i; \
+    int32_t i; \
     obj num = get##obj(L,1); \
     for (i = lua_gettop(L); i > 1; i--) { \
         num op get##obj(L,i); \
@@ -515,9 +515,9 @@ WSLUA_METHOD Int64_lshift(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_Int64_lshift_NUMBITS 2 /* The number of bits to left-shift by. */
-    guint64 b = (guint64) getInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_Int64_lshift_NUMBITS);
-    pushInt64(L,(gint64)(b << n));
+    uint64_t b = (uint64_t) getInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_lshift_NUMBITS);
+    pushInt64(L,(int64_t)(b << n));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
 
@@ -527,9 +527,9 @@ WSLUA_METHOD Int64_rshift(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_Int64_rshift_NUMBITS 2 /* The number of bits to right-shift by. */
-    guint64 b = (guint64) getInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_Int64_rshift_NUMBITS);
-    pushInt64(L,(gint64)(b >> n));
+    uint64_t b = (uint64_t) getInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_rshift_NUMBITS);
+    pushInt64(L,(int64_t)(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
 
@@ -539,8 +539,8 @@ WSLUA_METHOD Int64_arshift(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_Int64_arshift_NUMBITS 2 /* The number of bits to right-shift by. */
-    gint64 b = getInt64(L,1);
-    gint32 n = wslua_checkgint32(L,WSLUA_ARG_Int64_arshift_NUMBITS);
+    int64_t b = getInt64(L,1);
+    int32_t n = wslua_checkgint32(L,WSLUA_ARG_Int64_arshift_NUMBITS);
     pushInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -551,9 +551,9 @@ WSLUA_METHOD Int64_rol(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_Int64_rol_NUMBITS 2 /* The number of bits to roll left by. */
-    guint64 b = (guint64) getInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_Int64_rol_NUMBITS);
-    pushInt64(L,(gint64)((b << n) | (b >> (64-n))));
+    uint64_t b = (uint64_t) getInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_rol_NUMBITS);
+    pushInt64(L,(int64_t)((b << n) | (b >> (64-n))));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
 
@@ -563,9 +563,9 @@ WSLUA_METHOD Int64_ror(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_Int64_ror_NUMBITS 2 /* The number of bits to roll right by. */
-    guint64 b = (guint64) getInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_Int64_ror_NUMBITS);
-    pushInt64(L,(gint64)((b << (64-n)) | (b >> n)));
+    uint64_t b = (uint64_t) getInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_ror_NUMBITS);
+    pushInt64(L,(int64_t)((b << (64-n)) | (b >> n)));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
 
@@ -574,15 +574,15 @@ WSLUA_METHOD Int64_bswap(lua_State* L) {
        64-bit numbers to big-endian 64 bit numbers or vice versa.
        @since 1.11.3
      */
-    guint64 b = (guint64) getInt64(L,1);
-    guint64 result = 0;
+    uint64_t b = (uint64_t) getInt64(L,1);
+    uint64_t result = 0;
     size_t i;
-    for (i = 0; i < sizeof(gint64); i++) {
+    for (i = 0; i < sizeof(int64_t); i++) {
         result <<= 8;
-        result |= (b & G_GUINT64_CONSTANT(0x00000000000000FF));
+        result |= (b & UINT64_C(0x00000000000000FF));
         b >>= 8;
     }
-    pushInt64(L,(gint64)result);
+    pushInt64(L,(int64_t)result);
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
 
@@ -646,10 +646,10 @@ WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,0);
     Note the caveats <<lua_module_Int64,listed above>>.
     */
 
-/* A checkUInt64 but that also auto-converts numbers, strings, and <<lua_class_Int64,`Int64`>> to a guint64. */
-guint64 getUInt64(lua_State *L, int i)
+/* A checkUInt64 but that also auto-converts numbers, strings, and <<lua_class_Int64,`Int64`>> to a uint64_t. */
+uint64_t getUInt64(lua_State *L, int i)
 {
-    gchar *end = NULL;
+    char *end = NULL;
     (void) end;
     switch (lua_type(L,i))
     {
@@ -668,25 +668,25 @@ guint64 getUInt64(lua_State *L, int i)
 }
 
 /* Encodes <<lua_class_UInt64,`UInt64`>> userdata into Lua string struct with given endianness */
-void UInt64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian) {
-    guint64 value = checkUInt64(L,idx);
-    gint8 buff[sizeof(guint64)];
+void UInt64_pack(lua_State* L, luaL_Buffer *b, int idx, bool asLittleEndian) {
+    uint64_t value = checkUInt64(L,idx);
+    int8_t buff[sizeof(uint64_t)];
 
     if (asLittleEndian) {
-        guint i;
-        for (i = 0; i < sizeof(guint64); i++) {
+        unsigned i;
+        for (i = 0; i < sizeof(uint64_t); i++) {
             buff[i] = (value & 0xff);
             value >>= 8;
         }
     }
     else {
-        gint i;
-        for (i = sizeof(guint64) - 1; i >= 0; i--) {
+        int i;
+        for (i = sizeof(uint64_t) - 1; i >= 0; i--) {
             buff[i] = (value & 0xff);
             value >>= 8;
         }
     }
-    luaL_addlstring(b, (char*)buff, sizeof(guint64));
+    luaL_addlstring(b, (char*)buff, sizeof(uint64_t));
 }
 
 WSLUA_METHOD UInt64_encode(lua_State* L) {
@@ -697,7 +697,7 @@ WSLUA_METHOD UInt64_encode(lua_State* L) {
                                                if false then big-endian; if missing or `nil`,
                                                native host endian. */
     luaL_Buffer b;
-    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
+    bool asLittleEndian = IS_LITTLE_ENDIAN;
 
     if (lua_gettop(L) >= 2) {
         if (lua_type(L,2) == LUA_TBOOLEAN)
@@ -713,20 +713,20 @@ WSLUA_METHOD UInt64_encode(lua_State* L) {
 }
 
 /* Decodes from string buffer struct into <<lua_class_UInt64,`UInt64`>> userdata, with given endianness. */
-int UInt64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian) {
-    guint64 value = 0;
-    gint i;
+int UInt64_unpack(lua_State* L, const char *buff, bool asLittleEndian) {
+    uint64_t value = 0;
+    int i;
 
     if (asLittleEndian) {
-        for (i = sizeof(guint64) - 1; i >= 0; i--) {
+        for (i = sizeof(uint64_t) - 1; i >= 0; i--) {
             value <<= 8;
-            value |= (guint64)(guchar)buff[i];
+            value |= (uint64_t)(unsigned char)buff[i];
         }
     }
     else {
-        for (i = 0; i < (gint) sizeof(guint64); i++) {
+        for (i = 0; i < (int) sizeof(uint64_t); i++) {
             value <<= 8;
-            value |= (guint64)(guchar)buff[i];
+            value |= (uint64_t)(unsigned char)buff[i];
         }
     }
 
@@ -742,16 +742,16 @@ WSLUA_CONSTRUCTOR UInt64_decode(lua_State* L) {
 #define WSLUA_OPTARG_UInt64_decode_ENDIAN 2 /* If set to true then little-endian is used,
                                                if false then big-endian; if missing or `nil`,
                                                native host endian. */
-    gboolean asLittleEndian = IS_LITTLE_ENDIAN;
+    bool asLittleEndian = IS_LITTLE_ENDIAN;
     size_t len = 0;
-    const gchar *s = luaL_checklstring(L, WSLUA_ARG_UInt64_decode_STRING, &len);
+    const char *s = luaL_checklstring(L, WSLUA_ARG_UInt64_decode_STRING, &len);
 
     if (lua_gettop(L) >= WSLUA_OPTARG_UInt64_decode_ENDIAN) {
         if (lua_type(L,WSLUA_OPTARG_UInt64_decode_ENDIAN) == LUA_TBOOLEAN)
             asLittleEndian = lua_toboolean(L,WSLUA_OPTARG_UInt64_decode_ENDIAN);
     }
 
-    if (len == sizeof(guint64)) {
+    if (len == sizeof(uint64_t)) {
         UInt64_unpack(L, s, asLittleEndian);
     } else {
         lua_pushnil(L);
@@ -770,7 +770,7 @@ WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) {
                                                a number, then the first will be treated as a
                                                lower 32 bits, and this is the high-order
                                                32-bit number. */
-    guint64 value = 0;
+    uint64_t value = 0;
 
     if (lua_gettop(L) >= 1) {
         switch(lua_type(L, WSLUA_OPTARG_UInt64_new_VALUE)) {
@@ -778,9 +778,9 @@ WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) {
                 value = wslua_toguint64(L, WSLUA_OPTARG_UInt64_new_VALUE);
                  if (lua_gettop(L) == 2 &&
                      lua_type(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE) == LUA_TNUMBER) {
-                    guint64 h = wslua_toguint64(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE);
-                    value &= G_GUINT64_CONSTANT(0x00000000FFFFFFFF);
-                    h <<= 32; h &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
+                    uint64_t h = wslua_toguint64(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE);
+                    value &= UINT64_C(0x00000000FFFFFFFF);
+                    h <<= 32; h &= UINT64_C(0xFFFFFFFF00000000);
                     value += h;
                 }
                break;
@@ -811,7 +811,7 @@ WSLUA_CONSTRUCTOR UInt64_max(lua_State* L) {
     /* Creates a <<lua_class_UInt64,`UInt64`>> of the maximum possible value. In other words, this should return an UInt64 object of the number 18,446,744,073,709,551,615.
        @since 1.11.3
      */
-    pushUInt64(L,G_MAXUINT64);
+    pushUInt64(L,UINT64_MAX);
     WSLUA_RETURN(1); /* The maximum value. */
 }
 
@@ -833,9 +833,9 @@ WSLUA_METHOD UInt64_tonumber(lua_State* L) {
 
 WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
     /* Converts the <<lua_class_UInt64,`UInt64`>> into a string. */
-    guint64 num = getUInt64(L,1);
-    gchar s[LUATYPE64_STRING_SIZE];
-    if (snprintf(s, LUATYPE64_STRING_SIZE, "%" PRIu64,(guint64)num) < 0) {
+    uint64_t num = getUInt64(L,1);
+    char s[LUATYPE64_STRING_SIZE];
+    if (snprintf(s, LUATYPE64_STRING_SIZE, "%" PRIu64,(uint64_t)num) < 0) {
         return luaL_error(L, "Error writing UInt64 to a string");
     }
     lua_pushstring(L,s);
@@ -847,9 +847,9 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_fromhex_HEX 1 /* The hex-ASCII Lua string. */
-    guint64 result = 0;
+    uint64_t result = 0;
     size_t len = 0;
-    const gchar *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
+    const char *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
 
     if (len > 0) {
         if (sscanf(s, "%" SCNx64, &result) != 1) {
@@ -866,10 +866,10 @@ WSLUA_METHOD UInt64_tohex(lua_State* L) {
      */
 #define WSLUA_OPTARG_UInt64_tohex_NUMBYTES 2 /* The number of hex-chars/nibbles to generate.
                                               Negative means uppercase Default is 16. */
-    guint64 b = getUInt64(L,1);
+    uint64_t b = getUInt64(L,1);
     lua_Integer n = luaL_optinteger(L, WSLUA_OPTARG_UInt64_tohex_NUMBYTES, 16);
-    const gchar *hexdigits = "0123456789abcdef";
-    gchar buf[16];
+    const char *hexdigits = "0123456789abcdef";
+    char buf[16];
     lua_Integer i;
     if (n < 0) { n = -n; hexdigits = "0123456789ABCDEF"; }
     if (n > 16) n = 16;
@@ -880,20 +880,20 @@ WSLUA_METHOD UInt64_tohex(lua_State* L) {
 
 WSLUA_METHOD UInt64_higher(lua_State* L) {
     /* Returns a Lua number of the higher 32 bits of the <<lua_class_UInt64,`UInt64`>> value. */
-    guint64 num = getUInt64(L,1);
-    guint64 b = num;
+    uint64_t num = getUInt64(L,1);
+    uint64_t b = num;
     lua_Number n = 0;
-    b &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
+    b &= UINT64_C(0xFFFFFFFF00000000);
     b >>= 32;
-    n = (lua_Number)(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF));
+    n = (lua_Number)(uint32_t)(b & UINT64_C(0x00000000FFFFFFFFF));
     lua_pushnumber(L,n);
     WSLUA_RETURN(1); /* The Lua number. */
 }
 
 WSLUA_METHOD UInt64_lower(lua_State* L) {
     /* Returns a Lua number of the lower 32 bits of the <<lua_class_UInt64,`UInt64`>> value. */
-    guint64 b = getUInt64(L,1);
-    lua_pushnumber(L,(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF)));
+    uint64_t b = getUInt64(L,1);
+    lua_pushnumber(L,(uint32_t)(b & UINT64_C(0x00000000FFFFFFFFF)));
     WSLUA_RETURN(1); /* The Lua number. */
 }
 
@@ -959,11 +959,11 @@ WSLUA_METAMETHOD UInt64__pow(lua_State* L) {
        returning a new one. This may truncate the value.
        @since 1.11.3
      */
-    guint64 num1 = getUInt64(L,1);
-    guint64 num2 = getUInt64(L,2);
-    guint64 result;
+    uint64_t num1 = getUInt64(L,1);
+    uint64_t num2 = getUInt64(L,2);
+    uint64_t result;
     if (num1 == 2) {
-        result = (num2 >= 8 * (guint64) sizeof(guint64)) ? 0 : ((guint64)1 << num2);
+        result = (num2 >= 8 * (uint64_t) sizeof(uint64_t)) ? 0 : ((uint64_t)1 << num2);
     }
     else {
         for (result = 1; num2 > 0; num2 >>= 1) {
@@ -1034,8 +1034,8 @@ WSLUA_METHOD UInt64_lshift(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_lshift_NUMBITS 2 /* The number of bits to left-shift by. */
-    guint64 b = getUInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_UInt64_lshift_NUMBITS);
+    uint64_t b = getUInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_lshift_NUMBITS);
     pushUInt64(L,(b << n));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1046,8 +1046,8 @@ WSLUA_METHOD UInt64_rshift(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_rshift_NUMBITS 2 /* The number of bits to right-shift by. */
-    guint64 b = getUInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_UInt64_rshift_NUMBITS);
+    uint64_t b = getUInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_rshift_NUMBITS);
     pushUInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1058,8 +1058,8 @@ WSLUA_METHOD UInt64_arshift(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_arshift_NUMBITS 2 /* The number of bits to right-shift by. */
-    guint64 b = getUInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_UInt64_arshift_NUMBITS);
+    uint64_t b = getUInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_arshift_NUMBITS);
     pushUInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1070,8 +1070,8 @@ WSLUA_METHOD UInt64_rol(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_rol_NUMBITS 2 /* The number of bits to roll left by. */
-    guint64 b = getUInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_UInt64_rol_NUMBITS);
+    uint64_t b = getUInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_rol_NUMBITS);
     pushUInt64(L,((b << n) | (b >> (64-n))));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1082,8 +1082,8 @@ WSLUA_METHOD UInt64_ror(lua_State* L) {
        @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_ror_NUMBITS 2 /* The number of bits to roll right by. */
-    guint64 b = getUInt64(L,1);
-    guint32 n = wslua_checkguint32(L,WSLUA_ARG_UInt64_ror_NUMBITS);
+    uint64_t b = getUInt64(L,1);
+    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_ror_NUMBITS);
     pushUInt64(L,((b << (64-n)) | (b >> n)));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1093,12 +1093,12 @@ WSLUA_METHOD UInt64_bswap(lua_State* L) {
        64-bit numbers to big-endian 64 bit numbers or vice versa.
        @since 1.11.3
      */
-    guint64 b = getUInt64(L,1);
-    guint64 result = 0;
+    uint64_t b = getUInt64(L,1);
+    uint64_t result = 0;
     size_t i;
-    for (i = 0; i < sizeof(guint64); i++) {
+    for (i = 0; i < sizeof(uint64_t); i++) {
         result <<= 8;
-        result |= (b & G_GUINT64_CONSTANT(0x00000000000000FF));
+        result |= (b & UINT64_C(0x00000000000000FF));
         b >>= 8;
     }
     pushUInt64(L,result);

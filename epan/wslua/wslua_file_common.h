@@ -50,12 +50,12 @@ extern int set_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh);
 extern void remove_wdh_priv(lua_State* L, wtap_dumper *wdh);
 
 /* implemented in other c files than wslua_file_common.c */
-extern CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time);
+extern CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const bool first_time);
 extern CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh);
 extern File* push_File(lua_State* L, FILE_T ft);
 extern File* push_Wdh(lua_State* L, wtap_dumper *wdh);
 extern FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec, Buffer* buf);
-extern FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const guint8 *pd);
+extern FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const uint8_t *pd);
 
 
 /*

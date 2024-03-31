@@ -27,11 +27,11 @@ WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"));
  */
 
 static int tap_packet_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
-    static gchar* last_error = NULL;
+    const char* error =  lua_tostring(L,1);
+    static char* last_error = NULL;
     static int repeated = 0;
     static int next = 2;
-    gchar* where =  (lua_pinfo) ?
+    char* where =  (lua_pinfo) ?
         wmem_strdup_printf(NULL, "Lua: on packet %i Error during execution of Listener packet callback",lua_pinfo->num) :
         wmem_strdup_printf(NULL, "Lua: Error during execution of Listener packet callback") ;
 
@@ -124,7 +124,7 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
 }
 
 static int tap_reset_cb_error_handler(lua_State* L) {
-    const gchar* error = lua_tostring(L,1);
+    const char* error = lua_tostring(L,1);
     report_failure("Lua: Error during execution of Listener reset callback:\n %s",error);
     return 0;
 }
@@ -156,14 +156,14 @@ static void lua_tap_reset(void *tapdata) {
 }
 
 static int tap_draw_cb_error_handler(lua_State* L) {
-    const gchar* error = lua_tostring(L,1);
+    const char* error = lua_tostring(L,1);
     report_failure("Lua: Error during execution of Listener draw callback:\n %s",error);
     return 0;
 }
 
 static void lua_tap_draw(void *tapdata) {
     Listener tap = (Listener)tapdata;
-    const gchar* error;
+    const char* error;
 
     if (tap->draw_ref == LUA_NOREF) return;
 
@@ -195,8 +195,8 @@ static GPtrArray *listeners = NULL;
 
 static void deregister_Listener (lua_State* L _U_, Listener tap) {
     if (tap->all_fields) {
-        epan_set_always_visible(FALSE);
-        tap->all_fields = FALSE;
+        epan_set_always_visible(false);
+        tap->all_fields = false;
     }
 
     remove_tap_listener(tap);
@@ -220,9 +220,9 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     The default is `false`.
     Note: This impacts performance. */
 
-    const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
-    const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
-    const gboolean all_fields = wslua_optbool(L, WSLUA_OPTARG_Listener_new_ALLFIELDS, FALSE);
+    const char* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
+    const char* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
+    const bool all_fields = wslua_optbool(L, WSLUA_OPTARG_Listener_new_ALLFIELDS, false);
     Listener tap;
     GString* error;
 
@@ -252,12 +252,12 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         g_free(tap);
         /* WSLUA_ERROR(new_tap,"tap registration error"); */
         lua_pushfstring(L,"Error while registering tap:\n%s",error->str);
-        g_string_free(error,TRUE);
+        g_string_free(error,true);
         return luaL_error(L,lua_tostring(L,-1));
     }
 
     if (all_fields) {
-        epan_set_always_visible(TRUE);
+        epan_set_always_visible(true);
     }
 
     g_ptr_array_add(listeners, tap);
@@ -267,7 +267,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
 }
 
 /* Allow dissector key names to be sorted alphabetically */
-static gint
+static int
 compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
   return strcmp((const char*)dissector_a, (const char*)dissector_b);
@@ -414,7 +414,7 @@ int Listener_register(lua_State* L) {
     return 0;
 }
 
-static void deregister_tap_listener (gpointer data, gpointer userdata) {
+static void deregister_tap_listener (void *data, void *userdata) {
     lua_State *L = (lua_State *) userdata;
     Listener tap = (Listener) data;
     deregister_Listener(L, tap);
@@ -422,7 +422,7 @@ static void deregister_tap_listener (gpointer data, gpointer userdata) {
 
 int wslua_deregister_listeners(lua_State* L) {
     g_ptr_array_foreach(listeners, deregister_tap_listener, L);
-    g_ptr_array_free(listeners, TRUE);
+    g_ptr_array_free(listeners, true);
     listeners = NULL;
 
     return 0;

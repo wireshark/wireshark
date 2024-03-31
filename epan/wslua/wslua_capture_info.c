@@ -37,7 +37,7 @@ WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_OR_EXPIRED("CaptureInfo"));
     @since 1.11.3
  */
 
-CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time) {
+CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const bool first_time) {
     CaptureInfo f;
 
     if (!wth) {
@@ -48,7 +48,7 @@ CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time
     f = (CaptureInfo) g_malloc0(sizeof(struct _wslua_captureinfo));
     f->wth = wth;
     f->wdh = NULL;
-    f->expired = FALSE;
+    f->expired = false;
 
     if (first_time) {
         /* XXX: need to do this? */
@@ -102,7 +102,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wth->file_tsprec,
     Setting it to `0` means unknown.
  */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,snapshot_length,wth->snapshot_length);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_length,guint);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_length,unsigned);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_comment RW A string comment for the whole capture file,
     or nil if there is no `comment`. */
@@ -147,7 +147,7 @@ static int CaptureInfo_set_hosts(lua_State* L) {
     const char *name = NULL;
     size_t addr_len = 0;
     size_t name_len = 0;
-    guint32 v4_addr = 0;
+    uint32_t v4_addr = 0;
     ws_in6_addr v6_addr = { {0} };
 
     if (!wth->add_new_ipv4 || !wth->add_new_ipv6) {
@@ -190,7 +190,7 @@ static int CaptureInfo_set_hosts(lua_State* L) {
             }
             name = luaL_checklstring(L,-1,&name_len);
 
-            wth->add_new_ipv4(v4_addr, name, FALSE);
+            wth->add_new_ipv4(v4_addr, name, false);
 
             /* removes 'value'; keeps 'key' for next iteration */
             lua_pop(L, 1);
@@ -233,7 +233,7 @@ static int CaptureInfo_set_hosts(lua_State* L) {
             }
             name = luaL_checklstring(L,-1,&name_len);
 
-            wth->add_new_ipv6((const void *)(&v6_addr), name, FALSE);
+            wth->add_new_ipv6((const void *)(&v6_addr), name, false);
 
             /* removes 'value'; keeps 'key' for next iteration */
             lua_pop(L, 1);
@@ -324,7 +324,7 @@ CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {
     f = (CaptureInfoConst) g_malloc0(sizeof(struct _wslua_captureinfo));
     f->wth = NULL;
     f->wdh = wdh;
-    f->expired = FALSE;
+    f->expired = false;
     return pushCaptureInfoConst(L,f);
 }
 

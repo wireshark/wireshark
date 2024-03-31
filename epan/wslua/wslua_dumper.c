@@ -85,7 +85,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->eth.fcs_len = (gint)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
+    ph->wph->eth.fcs_len = (int)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
 
     pushPseudoHeader(L,ph);
 
@@ -107,13 +107,13 @@ WSLUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ATM;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->atm.aal = (guint8)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
-    ph->wph->atm.vpi = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
-    ph->wph->atm.vci = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
-    ph->wph->atm.channel = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
-    ph->wph->atm.cells = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CELLS,1);
-    ph->wph->atm.aal5t_u2u = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
-    ph->wph->atm.aal5t_len = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
+    ph->wph->atm.aal = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
+    ph->wph->atm.vpi = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
+    ph->wph->atm.vci = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
+    ph->wph->atm.channel = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
+    ph->wph->atm.cells = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CELLS,1);
+    ph->wph->atm.aal5t_u2u = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
+    ph->wph->atm.aal5t_len = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
 
     pushPseudoHeader(L,ph);
     WSLUA_RETURN(1);
@@ -128,9 +128,9 @@ WSLUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->mtp2.sent = (guint8)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
-    ph->wph->mtp2.annex_a_used = (guint8)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
-    ph->wph->mtp2.link_number = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
+    ph->wph->mtp2.sent = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
+    ph->wph->mtp2.annex_a_used = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
+    ph->wph->mtp2.link_number = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
 
     pushPseudoHeader(L,ph);
     WSLUA_RETURN(1); /* The MTP2 pseudoheader */
@@ -214,7 +214,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,wtap_pcap_file_type_subtype());
     int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
-    gchar *err_info = NULL;
+    char *err_info = NULL;
     const char* filename = cross_plat_fname(fname);
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
@@ -293,7 +293,7 @@ WSLUA_METHOD Dumper_close(lua_State* L) {
     /* Closes a dumper. */
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
-    gchar *err_info;
+    char *err_info;
 
     if (! *dp) {
         WSLUA_ERROR(Dumper_close,"Cannot operate on a closed dumper");
@@ -351,7 +351,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     wtap_rec rec;
     double ts;
     int err;
-    gchar *err_info;
+    char *err_info;
 
     if (!d) return 0;
 
@@ -418,7 +418,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,wtap_pcap_file_type_subtype());
     int encap;
     int err = 0;
-    gchar *err_info = NULL;
+    char *err_info = NULL;
     const char* filename = cross_plat_fname(fname);
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
@@ -506,11 +506,11 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
      */
     Dumper d = checkDumper(L,1);
     wtap_rec rec;
-    const guchar* data;
+    const unsigned char* data;
     tvbuff_t* tvb;
     struct data_source *data_src;
     int err = 0;
-    gchar *err_info;
+    char *err_info;
 
     if (!d) return 0;
 
@@ -546,12 +546,12 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
      */
     if (lua_pinfo->fd->has_modified_block) {
         rec.block = epan_get_modified_block(lua_pinfo->epan, lua_pinfo->fd);
-        rec.block_was_modified = TRUE;
+        rec.block_was_modified = true;
     } else {
         rec.block = lua_pinfo->rec->block;
     }
 
-    data = (const guchar *)tvb_memdup(lua_pinfo->pool,tvb,0,rec.rec_header.packet_header.caplen);
+    data = (const unsigned char *)tvb_memdup(lua_pinfo->pool,tvb,0,rec.rec_header.packet_header.caplen);
 
     if (! wtap_dump(d, &rec, data, &err, &err_info)) {
         switch (err) {
@@ -576,7 +576,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 static int Dumper__gc(lua_State* L) {
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
-    gchar *err_info;
+    char *err_info;
 
     /* If we are Garbage Collected it means the Dumper is no longer usable. Close it */
 

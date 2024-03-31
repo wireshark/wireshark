@@ -33,15 +33,15 @@
 static GPtrArray* outstanding_Pinfo = NULL;
 static GPtrArray* outstanding_PrivateTable = NULL;
 
-CLEAR_OUTSTANDING(Pinfo,expired, TRUE)
-CLEAR_OUTSTANDING(PrivateTable,expired, TRUE)
+CLEAR_OUTSTANDING(Pinfo,expired, true)
+CLEAR_OUTSTANDING(PrivateTable,expired, true)
 
 Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
     Pinfo pinfo = NULL;
     if (ws_pinfo) {
         pinfo = (Pinfo)g_malloc(sizeof(struct _wslua_pinfo));
         pinfo->ws_pinfo = ws_pinfo;
-        pinfo->expired = FALSE;
+        pinfo->expired = false;
         g_ptr_array_add(outstanding_Pinfo,pinfo);
     }
     return pushPinfo(L,pinfo);
@@ -65,7 +65,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
     keys = g_hash_table_get_keys (priv->table);
     key = g_list_first (keys);
     while (key) {
-        key_string = g_string_append (key_string, (const gchar *)key->data);
+        key_string = g_string_append (key_string, (const char *)key->data);
         key = g_list_next (key);
         if (key) {
             key_string = g_string_append_c (key_string, ',');
@@ -74,7 +74,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
 
     lua_pushstring(L,key_string->str);
 
-    g_string_free (key_string, TRUE);
+    g_string_free (key_string, true);
     g_list_free (keys);
 
     WSLUA_RETURN(1); /* A string with all keys in the table, mostly for debugging. */
@@ -83,10 +83,10 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
 static int PrivateTable__index(lua_State* L) {
     /* Gets the text of a specific entry. */
     PrivateTable priv = checkPrivateTable(L,1);
-    const gchar* name = luaL_checkstring(L,2);
-    const gchar* string;
+    const char* name = luaL_checkstring(L,2);
+    const char* string;
 
-    string = (const gchar *)(g_hash_table_lookup (priv->table, name));
+    string = (const char *)(g_hash_table_lookup (priv->table, name));
 
     if (string) {
         lua_pushstring(L, string);
@@ -100,8 +100,8 @@ static int PrivateTable__index(lua_State* L) {
 static int PrivateTable__newindex(lua_State* L) {
     /* Sets the text of a specific entry. */
     PrivateTable priv = checkPrivateTable(L,1);
-    const gchar* name = luaL_checkstring(L,2);
-    const gchar* string = NULL;
+    const char* name = luaL_checkstring(L,2);
+    const char* string = NULL;
 
     if (lua_isstring(L,3)) {
         /* This also catches numbers, which is converted to string */
@@ -115,7 +115,7 @@ static int PrivateTable__newindex(lua_State* L) {
     }
 
     if (string) {
-      g_hash_table_replace (priv->table, (gpointer) g_strdup(name), (gpointer) g_strdup(string));
+      g_hash_table_replace (priv->table, (void *) g_strdup(name), (void *) g_strdup(string));
     } else {
       g_hash_table_remove (priv->table, (gconstpointer) name);
     }
@@ -130,7 +130,7 @@ static int PrivateTable__gc(lua_State* L) {
     if (!priv) return 0;
 
     if (!priv->expired) {
-        priv->expired = TRUE;
+        priv->expired = true;
     } else {
         if (priv->is_allocated) {
             g_hash_table_destroy (priv->table);
@@ -201,7 +201,7 @@ lua_nstime_to_sec(const nstime_t *nstime)
 }
 
 static double
-lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, guint32 prev_num)
+lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, uint32_t prev_num)
 {
     nstime_t del;
 
@@ -239,11 +239,11 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,curr_proto,ws_pinfo->current_proto);
 
 /* WSLUA_ATTRIBUTE Pinfo_can_desegment RW Set if this segment could be desegmented. */
 PINFO_NUMBER_GETTER(can_desegment);
-PINFO_NUMBER_SETTER(can_desegment,guint16);
+PINFO_NUMBER_SETTER(can_desegment,uint16_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU. */
 PINFO_NUMBER_GETTER(desegment_len);
-PINFO_NUMBER_SETTER(desegment_len,guint32);
+PINFO_NUMBER_SETTER(desegment_len,uint32_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called. */
 PINFO_NUMBER_GETTER(desegment_offset);
@@ -264,15 +264,15 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,match_string,ws_pinfo->match_string);
 
 /* WSLUA_ATTRIBUTE Pinfo_port_type RW Type of Port of .src_port and .dst_port. */
 PINFO_NAMED_NUMBER_GETTER(port_type,ptype);
-PINFO_NAMED_NUMBER_SETTER(port_type,ptype,guint8);
+PINFO_NAMED_NUMBER_SETTER(port_type,ptype,uint8_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_src_port RW Source Port of this Packet. */
 PINFO_NAMED_NUMBER_GETTER(src_port,srcport);
-PINFO_NAMED_NUMBER_SETTER(src_port,srcport,guint32);
+PINFO_NAMED_NUMBER_SETTER(src_port,srcport,uint32_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_dst_port RW Destination Port of this Packet. */
 PINFO_NAMED_NUMBER_GETTER(dst_port,destport);
-PINFO_NAMED_NUMBER_SETTER(dst_port,destport,guint32);
+PINFO_NAMED_NUMBER_SETTER(dst_port,destport,uint32_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_dl_src RW Data Link Source Address of this Packet. */
 PINFO_ADDRESS_GETTER(dl_src);
@@ -320,11 +320,11 @@ static int Pinfo_get_match(lua_State *L) {
 static int Pinfo_get_columns(lua_State *L) {
     Columns cols = NULL;
     Pinfo pinfo = checkPinfo(L,1);
-    const gchar* colname = luaL_optstring(L,2,NULL);
+    const char* colname = luaL_optstring(L,2,NULL);
 
     cols = (Columns)g_malloc(sizeof(struct _wslua_cols));
     cols->cinfo = pinfo->ws_pinfo->cinfo;
-    cols->expired = FALSE;
+    cols->expired = false;
 
     if (!colname) {
         Push_Columns(L,cols);
@@ -341,18 +341,18 @@ static int Pinfo_get_columns(lua_State *L) {
 static int Pinfo_get_private(lua_State *L) {
     PrivateTable priv = NULL;
     Pinfo pinfo = checkPinfo(L,1);
-    const gchar* privname = luaL_optstring(L,2,NULL);
-    gboolean is_allocated = FALSE;
+    const char* privname = luaL_optstring(L,2,NULL);
+    bool is_allocated = false;
 
     if (!pinfo->ws_pinfo->private_table) {
         pinfo->ws_pinfo->private_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-        is_allocated = TRUE;
+        is_allocated = true;
     }
 
     priv = (PrivateTable)g_malloc(sizeof(struct _wslua_private_table));
     priv->table = pinfo->ws_pinfo->private_table;
     priv->is_allocated = is_allocated;
-    priv->expired = FALSE;
+    priv->expired = false;
 
     if (!privname) {
         PUSH_PRIVATE_TABLE(L,priv);
@@ -421,7 +421,7 @@ static int Pinfo__gc(lua_State* L) {
     if (!pinfo) return 0;
 
     if (!pinfo->expired)
-        pinfo->expired = TRUE;
+        pinfo->expired = true;
     else
         g_free(pinfo);
 

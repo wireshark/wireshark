@@ -79,7 +79,7 @@ static void free_Tvb(Tvb tvb) {
     if (!tvb) return;
 
     if (!tvb->expired) {
-        tvb->expired = TRUE;
+        tvb->expired = true;
     } else {
         if (tvb->need_free)
             tvb_free(tvb->ws_tvb);
@@ -98,8 +98,8 @@ void clear_outstanding_Tvb(void) {
 Tvb* push_Tvb(lua_State* L, tvbuff_t* ws_tvb) {
     Tvb tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = ws_tvb;
-    tvb->expired = FALSE;
-    tvb->need_free = FALSE;
+    tvb->expired = false;
+    tvb->need_free = false;
     g_ptr_array_add(outstanding_Tvb,tvb);
     return pushTvb(L,tvb);
 }
@@ -194,7 +194,7 @@ WSLUA_METHOD Tvb_bytes(lua_State* L) {
             luaL_error(L,"out of bounds");
             return 0;
         }
-    } else if ( (guint)(len + offset) > tvb_captured_length(tvb->ws_tvb)) {
+    } else if ( (unsigned)(len + offset) > tvb_captured_length(tvb->ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
         return 0;
     }
@@ -256,7 +256,7 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
         return 0;
     }
 
-    if ((guint)offset > tvb_captured_length(tvb->ws_tvb)) {
+    if ((unsigned)offset > tvb_captured_length(tvb->ws_tvb)) {
         WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
         return 0;
     }
@@ -265,11 +265,11 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
         len = tvb_captured_length_remaining(tvb->ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
-            return FALSE;
+            return false;
         }
-    } else if ( (guint)(len + offset) > tvb_captured_length(tvb->ws_tvb)) {
+    } else if ( (unsigned)(len + offset) > tvb_captured_length(tvb->ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
-        return FALSE;
+        return false;
     }
 
     lua_pushlstring(L, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
@@ -291,8 +291,8 @@ WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
     /* it is not an error if their ds_tvb are different... they're just not equal */
     if (len_l == len_r)
     {
-        const gchar* lp = tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
-        const gchar* rp = tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
+        const char* lp = tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
+        const char* rp = tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
         int i = 0;
 
         for (; i < len_l; ++i) {
@@ -350,7 +350,7 @@ static void free_TvbRange(TvbRange tvbr) {
     if (!(tvbr && tvbr->tvb)) return;
 
     if (!tvbr->tvb->expired) {
-        tvbr->tvb->expired = TRUE;
+        tvbr->tvb->expired = true;
     } else {
         free_Tvb(tvbr->tvb);
         g_free(tvbr);
@@ -365,39 +365,39 @@ void clear_outstanding_TvbRange(void) {
 }
 
 
-gboolean push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
+bool push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
     TvbRange tvbr;
 
     if (!ws_tvb) {
         luaL_error(L,"expired tvb");
-        return FALSE;
+        return false;
     }
 
     if (len == -1) {
         len = tvb_captured_length_remaining(ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
-            return FALSE;
+            return false;
         }
     } else if (len < -1) {
         luaL_error(L, "negative length in tvb range");
-        return FALSE;
-    } else if ( (guint)(len + offset) > tvb_captured_length(ws_tvb)) {
+        return false;
+    } else if ( (unsigned)(len + offset) > tvb_captured_length(ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
-        return FALSE;
+        return false;
     }
 
     tvbr = (TvbRange)g_malloc(sizeof(struct _wslua_tvbrange));
     tvbr->tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvbr->tvb->ws_tvb = ws_tvb;
-    tvbr->tvb->expired = FALSE;
-    tvbr->tvb->need_free = FALSE;
+    tvbr->tvb->expired = false;
+    tvbr->tvb->need_free = false;
     tvbr->offset = offset;
     tvbr->len = len;
 
     PUSH_TVBRANGE(L,tvbr);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -415,8 +415,8 @@ WSLUA_METHOD TvbRange_tvb(lua_State *L) {
 
     if (tvb_offset_exists(tvbr->tvb->ws_tvb,  tvbr->offset + tvbr->len -1 )) {
         tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
-        tvb->expired = FALSE;
-        tvb->need_free = FALSE;
+        tvb->expired = false;
+        tvb->need_free = false;
         tvb->ws_tvb = tvb_new_subset_length(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
         return push_wsluaTvb(L, tvb);
     } else {
@@ -474,7 +474,7 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
     switch (tvbr->len) {
         case 1:
             /* XXX unsigned anyway */
-            lua_pushinteger(L,(lua_Integer)(guint)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,(lua_Integer)(unsigned)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             lua_pushinteger(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -803,7 +803,7 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
     }
 
     addr = g_new(address,1);
-    alloc_address_tvb(NULL,addr,AT_IPv4,sizeof(guint32),tvbr->tvb->ws_tvb,tvbr->offset);
+    alloc_address_tvb(NULL,addr,AT_IPv4,sizeof(uint32_t),tvbr->tvb->ws_tvb,tvbr->offset);
     pushAddress(L,addr);
 
     WSLUA_RETURN(1); /* The IPv4 <<lua_class_Address,`Address`>> object. */
@@ -813,7 +813,7 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     /* Get an Little Endian IPv4 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
-    guint32 ip_addr;
+    uint32_t ip_addr;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -885,7 +885,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_nstime_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     NSTime nstime;
-    const guint encoding = (guint) luaL_optinteger(L, WSLUA_OPTARG_TvbRange_nstime_ENCODING, 0);
+    const unsigned encoding = (unsigned) luaL_optinteger(L, WSLUA_OPTARG_TvbRange_nstime_ENCODING, 0);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -916,7 +916,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
         lua_pushinteger(L, tvbr->len);
     }
     else {
-        gint endoff = 0;
+        int endoff = 0;
         nstime_t *retval = tvb_get_string_time(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
                                                encoding, nstime, &endoff);
         if (!retval || endoff == 0) {
@@ -968,7 +968,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
     /* Obtain a string from a <<lua_class_TvbRange,`TvbRange`>>. */
 #define WSLUA_OPTARG_TvbRange_string_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
+    unsigned encoding = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
     char * str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
@@ -977,17 +977,17 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
         return 0;
     }
 
-    str = (gchar*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding);
+    str = (char*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding);
     lua_pushlstring(L, str, strlen(str));
     wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
 
-static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
+static int TvbRange_ustring_any(lua_State* L, bool little_endian) {
     /* Obtain a UTF-16 encoded string from a <<lua_class_TvbRange,`TvbRange`>>. */
     TvbRange tvbr = checkTvbRange(L,1);
-    gchar * str;
+    char * str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -995,7 +995,7 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    str = (gchar*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN));
+    str = (char*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN));
     lua_pushlstring(L, str, strlen(str));
     wmem_free(NULL, str);
 
@@ -1004,22 +1004,22 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
 
 WSLUA_METHOD TvbRange_ustring(lua_State* L) {
     /* Obtain a Big Endian (network order) UTF-16 encoded string from a <<lua_class_TvbRange,`TvbRange`>>. */
-    WSLUA_RETURN(TvbRange_ustring_any(L, FALSE)); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
+    WSLUA_RETURN(TvbRange_ustring_any(L, false)); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
 
 WSLUA_METHOD TvbRange_le_ustring(lua_State* L) {
     /* Obtain a Little Endian UTF-16 encoded string from a <<lua_class_TvbRange,`TvbRange`>>. */
-    WSLUA_RETURN(TvbRange_ustring_any(L, TRUE)); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
+    WSLUA_RETURN(TvbRange_ustring_any(L, true)); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
 }
 
 WSLUA_METHOD TvbRange_stringz(lua_State* L) {
     /* Obtain a zero terminated string from a <<lua_class_TvbRange,`TvbRange`>>. */
 #define WSLUA_OPTARG_TvbRange_stringz_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
-    gint offset;
+    unsigned encoding = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
+    int offset;
     gunichar2 uchar;
-    gchar *str;
+    char *str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1051,7 +1051,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
         break;
     }
 
-    str = (gchar*)tvb_get_stringz_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,NULL,encoding);
+    str = (char*)tvb_get_stringz_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,NULL,encoding);
     lua_pushstring(L, str);
     wmem_free(NULL, str);
 
@@ -1067,8 +1067,8 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
     */
 #define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
-    gint offset;
+    unsigned encoding = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
+    int offset;
     gunichar2 uchar;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
@@ -1107,13 +1107,13 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
 }
 
 
-static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
+static int TvbRange_ustringz_any(lua_State* L, bool little_endian) {
     /* Obtain a zero terminated string from a TvbRange */
-    gint count;
+    int count;
     TvbRange tvbr = checkTvbRange(L,1);
-    gint offset;
+    int offset;
     gunichar2 uchar;
-    gchar *str;
+    char *str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1132,7 +1132,7 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
       offset += 2;
     } while (uchar != 0);
 
-    str = (gchar*)tvb_get_stringz_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,&count,
+    str = (char*)tvb_get_stringz_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,&count,
                                 (little_endian ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_UTF_16|ENC_BIG_ENDIAN));
     lua_pushstring(L, str);
     lua_pushinteger(L,count);
@@ -1143,12 +1143,12 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
 
 WSLUA_METHOD TvbRange_ustringz(lua_State* L) {
     /* Obtain a Big Endian (network order) UTF-16 encoded zero terminated string from a <<lua_class_TvbRange,`TvbRange`>>. */
-    WSLUA_RETURN(TvbRange_ustringz_any(L, FALSE)); /* Two return values: the zero terminated string, and the length. */
+    WSLUA_RETURN(TvbRange_ustringz_any(L, false)); /* Two return values: the zero terminated string, and the length. */
 }
 
 WSLUA_METHOD TvbRange_le_ustringz(lua_State* L) {
     /* Obtain a Little Endian UTF-16 encoded zero terminated string from a TvbRange */
-    WSLUA_RETURN(TvbRange_ustringz_any(L, TRUE)); /* Two return values: the zero terminated string, and the length. */
+    WSLUA_RETURN(TvbRange_ustringz_any(L, true)); /* Two return values: the zero terminated string, and the length. */
 }
 
 WSLUA_METHOD TvbRange_bytes(lua_State* L) {
@@ -1173,8 +1173,8 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_bytes_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     GByteArray* ba;
-    guint8* raw;
-    const guint encoding = (guint)luaL_optinteger(L, WSLUA_OPTARG_TvbRange_bytes_ENCODING, 0);
+    uint8_t* raw;
+    const unsigned encoding = (unsigned)luaL_optinteger(L, WSLUA_OPTARG_TvbRange_bytes_ENCODING, 0);
 
 
     if ( !(tvbr && tvbr->tvb)) return 0;
@@ -1185,7 +1185,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 
     if (encoding == 0) {
         ba = g_byte_array_new();
-        raw = (guint8 *)tvb_memdup(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+        raw = (uint8_t *)tvb_memdup(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
         g_byte_array_append(ba,raw,tvbr->len);
         wmem_free(NULL, raw);
         pushByteArray(L,ba);
@@ -1195,14 +1195,14 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
         WSLUA_OPTARG_ERROR(TvbRange_nstime, ENCODING, "invalid encoding value");
     }
     else {
-        gint endoff = 0;
+        int endoff = 0;
         GByteArray* retval;
 
         ba = g_byte_array_new();
         retval = tvb_get_string_bytes(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
                                                   encoding, ba, &endoff);
         if (!retval || endoff == 0) {
-            g_byte_array_free(ba, TRUE);
+            g_byte_array_free(ba, true);
             /* push nil nstime and offset */
             lua_pushnil(L);
             lua_pushnil(L);
@@ -1237,16 +1237,16 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
     }
 
     if (len <= 8) {
-        lua_pushinteger(L,(lua_Integer)(guint)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
+        lua_pushinteger(L,(lua_Integer)(unsigned)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
         return 1;
     } else if (len <= 16) {
-        lua_pushinteger(L,tvb_get_bits16(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        lua_pushinteger(L,tvb_get_bits16(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, false));
         return 1;
     } else if (len <= 32) {
-        lua_pushinteger(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        lua_pushinteger(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, false));
         return 1;
     } else if (len <= 64) {
-        pushUInt64(L,tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        pushUInt64(L,tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, false));
         WSLUA_RETURN(1); /* The bitfield value */
     } else {
         luaL_error(L,"TvbRange:bitfield() does not handle %d bits",len);
@@ -1289,7 +1289,7 @@ WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
 #define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
 #ifdef HAVE_ZLIB
-    const gchar* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_NAME,"Uncompressed");
+    const char* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_NAME,"Uncompressed");
     tvbuff_t *uncompr_tvb;
 #endif
 
@@ -1382,10 +1382,10 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
     }
     if (len < 0) {
         luaL_error(L,"out of bounds");
-        return FALSE;
+        return false;
     } else if ( (len + offset) > tvbr->len) {
         luaL_error(L,"Range is out of bounds");
-        return FALSE;
+        return false;
     }
 
     lua_pushlstring(L, tvb_get_ptr(tvbr->tvb->ws_tvb, tvbr->offset+offset, len), len);
@@ -1406,8 +1406,8 @@ WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
         tvb_l->len <= tvb_captured_length_remaining(tvb_l->tvb->ws_tvb, tvb_l->offset) &&
         tvb_r->len <= tvb_captured_length_remaining(tvb_r->tvb->ws_tvb, tvb_r->offset))
     {
-        const gchar* lp = tvb_get_ptr(tvb_l->tvb->ws_tvb, tvb_l->offset, tvb_l->len);
-        const gchar* rp = tvb_get_ptr(tvb_r->tvb->ws_tvb, tvb_r->offset, tvb_r->len);
+        const char* lp = tvb_get_ptr(tvb_l->tvb->ws_tvb, tvb_l->offset, tvb_l->len);
+        const char* rp = tvb_get_ptr(tvb_r->tvb->ws_tvb, tvb_r->offset, tvb_r->len);
         int i = 0;
 
         for (; i < tvb_r->len; ++i) {

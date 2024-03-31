@@ -40,7 +40,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_description(lua_State* LS) {
         /* Too big. */
         lua_pushnil(LS);
     } else {
-        const gchar* str = wtap_file_type_subtype_description((int)filetype);
+        const char* str = wtap_file_type_subtype_description((int)filetype);
         if (str == NULL)
             lua_pushnil(LS);
         else
@@ -63,7 +63,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_name(lua_State* LS) {
         /* Too big. */
         lua_pushnil(LS);
     } else {
-        const gchar* str = wtap_file_type_subtype_name((int)filetype);
+        const char* str = wtap_file_type_subtype_name((int)filetype);
         if (str == NULL)
             lua_pushnil(LS);
         else
@@ -135,7 +135,7 @@ extern void wslua_init_wtap_filetypes(lua_State* LS) {
      * so none of the entries will be in a sequence.
      */
     lua_createtable(LS,0,table->len);
-    for (guint i = 0; i < table->len; i++) {
+    for (unsigned i = 0; i < table->len; i++) {
         struct backwards_compatibiliity_lua_name *entry;
 
         entry = &g_array_index(table,

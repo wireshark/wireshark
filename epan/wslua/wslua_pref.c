@@ -29,9 +29,9 @@ static range_t* get_range(lua_State *L, int idx_r, int idx_m);
 static enum_val_t* get_enum(lua_State *L, int idx)
 {
     double seq;
-    const gchar *str1, *str2;
+    const char *str1, *str2;
     enum_val_t *ret, last = {NULL, NULL, -1};
-    GArray* es = g_array_new(TRUE,TRUE,sizeof(enum_val_t));
+    GArray* es = g_array_new(true,true,sizeof(enum_val_t));
 
     luaL_checktype(L, idx, LUA_TTABLE);
     lua_pushnil(L);  /* first key */
@@ -44,7 +44,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
         lua_next(L, -2);
         if (! lua_isstring(L,-1)) {
             luaL_argerror(L,idx,"First value of an enum table must be string");
-            g_array_free(es,TRUE);
+            g_array_free(es,true);
             return NULL;
         }
         str1 = lua_tostring(L, -1);
@@ -53,7 +53,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
         lua_next(L, -2);
         if (! lua_isstring(L,-1)) {
             luaL_argerror(L,idx,"Second value of an enum table must be string");
-            g_array_free(es,TRUE);
+            g_array_free(es,true);
             return NULL;
         }
         str2 = lua_tostring(L, -1);
@@ -62,14 +62,14 @@ static enum_val_t* get_enum(lua_State *L, int idx)
         lua_next(L, -2);
         if (! lua_isnumber(L,-1)) {
             luaL_argerror(L,idx,"Third value of an enum table must be an integer");
-            g_array_free(es,TRUE);
+            g_array_free(es,true);
             return NULL;
         }
         seq = lua_tonumber(L, -1);
 
         e.name = g_strdup(str1);
         e.description = g_strdup(str2);
-        e.value = (guint32)seq;
+        e.value = (uint32_t)seq;
 
         g_array_append_val(es,e);
 
@@ -78,14 +78,14 @@ static enum_val_t* get_enum(lua_State *L, int idx)
 
     g_array_append_val(es,last);
 
-    ret = (enum_val_t*)(void*)g_array_free(es, FALSE);
+    ret = (enum_val_t*)(void*)g_array_free(es, false);
 
     return ret;
 }
 
 static int new_pref(lua_State* L, pref_type_t type) {
-    const gchar* label = luaL_optstring(L,1,NULL);
-    const gchar* descr = luaL_optstring(L,3,"");
+    const char* label = luaL_optstring(L,1,NULL);
+    const char* descr = luaL_optstring(L,3,"");
 
     Pref pref = g_new0(wslua_pref_t, 1);
     pref->label = g_strdup(label);
@@ -95,17 +95,17 @@ static int new_pref(lua_State* L, pref_type_t type) {
 
     switch(type) {
         case PREF_BOOL: {
-            gboolean def = wslua_toboolean(L,2);
+            bool def = wslua_toboolean(L,2);
             pref->value.b = def;
             break;
         }
         case PREF_UINT: {
-            guint32 def = wslua_optgint32(L,2,0);
+            uint32_t def = wslua_optgint32(L,2,0);
             pref->value.u = def;
             break;
         }
         case PREF_STRING: {
-            gchar* def = g_strdup(luaL_optstring(L,2,""));
+            char* def = g_strdup(luaL_optstring(L,2,""));
             /*
              * prefs_register_string_preference() assumes that the
              * variable for the preference points to a static
@@ -132,9 +132,9 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_ENUM: {
-            guint32 def = wslua_optgint32(L,2,0);
+            uint32_t def = wslua_optgint32(L,2,0);
             enum_val_t *enum_val = get_enum(L,4);
-            gboolean radio = wslua_toboolean(L,5);
+            bool radio = wslua_toboolean(L,5);
             pref->value.e = def;
             pref->info.enum_info.enumvals = enum_val;
             pref->info.enum_info.radio_buttons = radio;
@@ -142,7 +142,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
         }
         case PREF_RANGE: {
             range_t *range = get_range(L,2,4);
-            guint32 max = wslua_optgint32(L,4,0);
+            uint32_t max = wslua_optgint32(L,4,0);
             pref->value.r = range;
             pref->info.max_value = max;
             break;
@@ -267,7 +267,7 @@ WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
 static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 {
     static range_t *ret = NULL;
-    const gchar *pattern = luaL_checkstring(L, idx_r);
+    const char *pattern = luaL_checkstring(L, idx_r);
 
     switch (range_convert_str(wmem_epan_scope(), &ret, pattern, wslua_togint32(L, idx_m))) {
         case CVT_NO_ERROR:
@@ -358,10 +358,10 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 #define WSLUA_ARG_Prefs__newindex_PREF 3 /* A valid but still unassigned Pref object. */
 
     Pref prefs_p = checkPrefs(L,1);
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__newindex_NAME);
+    const char* name = luaL_checkstring(L,WSLUA_ARG_Prefs__newindex_NAME);
     Pref pref = checkPref(L,WSLUA_ARG_Prefs__newindex_PREF);
     Pref p;
-    const gchar *c;
+    const char *c;
 
     if (! prefs_p ) return 0;
 
@@ -500,7 +500,7 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
 #define WSLUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference. */
 
     Pref prefs_p = checkPrefs(L,1);
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__index_NAME);
+    const char* name = luaL_checkstring(L,WSLUA_ARG_Prefs__index_NAME);
 
     if (! prefs_p ) return 0;
 

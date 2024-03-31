@@ -61,7 +61,7 @@ static const wslua_ft_types_t ftenums[] = {
     {NULL, FT_NONE}
 };
 
-static enum ftenum get_ftenum(const gchar* type) {
+static enum ftenum get_ftenum(const char* type) {
     const wslua_ft_types_t* ts;
     for (ts = ftenums; ts->str; ts++) {
         if ( g_str_equal(ts->str,type) ) {
@@ -71,7 +71,7 @@ static enum ftenum get_ftenum(const gchar* type) {
     return FT_NONE;
 }
 
-static const gchar* ftenum_to_string(enum ftenum ft) {
+static const char* ftenum_to_string(enum ftenum ft) {
     const wslua_ft_types_t* ts;
     for (ts = ftenums; ts->str; ts++) {
         if ( ts->id == ft ) {
@@ -82,7 +82,7 @@ static const gchar* ftenum_to_string(enum ftenum ft) {
 }
 
 struct field_display_string_t {
-    const gchar* str;
+    const char* str;
     unsigned base;
 };
 
@@ -119,7 +119,7 @@ static const struct field_display_string_t base_displays[] = {
     {NULL,0}
 };
 
-static const gchar* base_to_string(unsigned base) {
+static const char* base_to_string(unsigned base) {
     const struct field_display_string_t* b;
     for (b=base_displays;b->str;b++) {
         if ( base == b->base)
@@ -128,7 +128,7 @@ static const gchar* base_to_string(unsigned base) {
     return NULL;
 }
 
-static unsigned string_to_base(const gchar* str) {
+static unsigned string_to_base(const char* str) {
     const struct field_display_string_t* b;
     for (b=base_displays;b->str;b++) {
         if ( g_str_equal(str,b->str))
@@ -141,10 +141,10 @@ static void cleanup_range_string(GArray *rs) {
     range_string *rs32 = (range_string *)(void *)(rs->data);
 
     while (rs32->strptr) {
-        g_free((gchar *)rs32->strptr);
+        g_free((char *)rs32->strptr);
         rs32++;
     }
-    g_array_free(rs, TRUE);
+    g_array_free(rs, true);
 }
 
 static range_string * range_string_from_table(lua_State* L, int idx) {
@@ -159,10 +159,10 @@ static range_string * range_string_from_table(lua_State* L, int idx) {
     }
 
     /*
-     * The first parameter set to TRUE means give us a zero-filled
+     * The first parameter set to true means give us a zero-filled
      * terminal entry.
      */
-    rs = g_array_new(TRUE,TRUE,sizeof(range_string));
+    rs = g_array_new(true,true,sizeof(range_string));
 
     lua_pushnil(L);
 
@@ -236,7 +236,7 @@ static range_string * range_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    rs32 = (range_string*)(void*)g_array_free(rs, FALSE);
+    rs32 = (range_string*)(void*)g_array_free(rs, false);
 
     return rs32;
 }
@@ -253,10 +253,10 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
     }
 
     /*
-     * The first parameter set to TRUE means give us a zero-filled
+     * The first parameter set to true means give us a zero-filled
      * terminal entry.
      */
-    vs = g_array_new(TRUE,TRUE,sizeof(value_string));
+    vs = g_array_new(true,true,sizeof(value_string));
 
     lua_pushnil(L);
 
@@ -266,10 +266,10 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         if (! lua_isnumber(L,-2)) {
             vs32 = (value_string *)(void *)vs->data;
             while (vs32->strptr) {
-                g_free((gchar *)vs32->strptr);
+                g_free((char *)vs32->strptr);
                 vs32++;
             }
-            g_array_free(vs,TRUE);
+            g_array_free(vs,true);
             luaL_argerror(L,idx,"All keys of a table used as value_string must be integers");
             return NULL;
         }
@@ -277,10 +277,10 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         if (! lua_isstring(L,-1)) {
             vs32 = (value_string *)(void *)vs->data;
             while (vs32->strptr) {
-                g_free((gchar *)vs32->strptr);
+                g_free((char *)vs32->strptr);
                 vs32++;
             }
-            g_array_free(vs,TRUE);
+            g_array_free(vs,true);
             luaL_argerror(L,idx,"All values of a table used as value_string must be strings");
             return NULL;
         }
@@ -293,7 +293,7 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    vs32 = (value_string*)(void*)g_array_free(vs, FALSE);
+    vs32 = (value_string*)(void*)g_array_free(vs, false);
 
     return vs32;
 }
@@ -310,10 +310,10 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
     }
 
     /*
-     * The first parameter set to TRUE means give us a zero-filled
+     * The first parameter set to true means give us a zero-filled
      * terminal entry.
      */
-    vs = g_array_new(TRUE,TRUE,sizeof(val64_string));
+    vs = g_array_new(true,true,sizeof(val64_string));
 
     lua_pushnil(L);
 
@@ -323,10 +323,10 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         if (! lua_isnumber(L,-2)) {
             vs64 = (val64_string *)(void *)vs->data;
             while (vs64->strptr) {
-                g_free((gchar *)vs64->strptr);
+                g_free((char *)vs64->strptr);
                 vs64++;
             }
-            g_array_free(vs,TRUE);
+            g_array_free(vs,true);
             luaL_argerror(L,idx,"All keys of a table used as value string must be integers");
             return NULL;
         }
@@ -334,10 +334,10 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         if (! lua_isstring(L,-1)) {
             vs64 = (val64_string *)(void *)vs->data;
             while (vs64->strptr) {
-                g_free((gchar *)vs64->strptr);
+                g_free((char *)vs64->strptr);
                 vs64++;
             }
-            g_array_free(vs,TRUE);
+            g_array_free(vs,true);
             luaL_argerror(L,idx,"All values of a table used as value string must be strings");
             return NULL;
         }
@@ -350,15 +350,15 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    vs64 = (val64_string*)(void*)g_array_free(vs, FALSE);
+    vs64 = (val64_string*)(void*)g_array_free(vs, false);
 
     return vs64;
 }
 
 static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
     true_false_string* tfs;
-    gchar *true_string;
-    gchar *false_string;
+    char *true_string;
+    char *false_string;
 
     if (lua_isnil(L,idx)) {
         return NULL;
@@ -415,12 +415,12 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
     return tfs;
 }
 
-static guint64 get_mask(lua_State* L, int idx, guint64 default_value) {
-    guint64 mask = default_value;
+static uint64_t get_mask(lua_State* L, int idx, uint64_t default_value) {
+    uint64_t mask = default_value;
 
     switch(lua_type(L, idx)) {
         case LUA_TNUMBER:
-            mask = (guint64)wslua_optguint32(L, idx, (lua_Number)default_value);
+            mask = (uint64_t)wslua_optguint32(L, idx, (lua_Number)default_value);
             break;
         case LUA_TSTRING:
         case LUA_TUSERDATA:
@@ -471,11 +471,11 @@ static unit_name_string* unit_name_string_from_table(lua_State* L, int idx) {
         /* Arrays in Lua start with index number 1 */
         switch (lua_tointeger(L,-2)) {
         case 1:
-            g_free((gchar *)units->singular);
+            g_free((char *)units->singular);
             units->singular = g_strdup(lua_tostring(L,-1));
             break;
         case 2:
-            g_free((gchar *)units->plural);
+            g_free((char *)units->plural);
             units->plural = g_strdup(lua_tostring(L,-1));
             break;
         default:
@@ -499,8 +499,8 @@ static unit_name_string* unit_name_string_from_table(lua_State* L, int idx) {
     return units;
 }
 
-static const gchar* check_field_name(lua_State* L, const int abbr_idx, const enum ftenum type) {
-    const gchar* abbr = luaL_checkstring(L,abbr_idx);
+static const char* check_field_name(lua_State* L, const int abbr_idx, const enum ftenum type) {
+    const char* abbr = luaL_checkstring(L,abbr_idx);
     const header_field_info* hfinfo = NULL;
 
     if (!abbr[0]) {
@@ -552,8 +552,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
 
     ProtoField f;
     int nargs = lua_gettop(L);
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_ProtoField_new_NAME);
-    const gchar* abbr = NULL;
+    const char* name = luaL_checkstring(L,WSLUA_ARG_ProtoField_new_NAME);
+    const char* abbr = NULL;
     enum ftenum type;
     enum ft_framenum_type framenum_type = FT_FRAMENUM_NONE;
     range_string *rs32 = NULL;
@@ -562,10 +562,10 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     true_false_string *tfs = NULL;
     unit_name_string *uns = NULL;
     unsigned base;
-    guint64 mask = get_mask(L,WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
-    const gchar *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
-    gboolean base_unit_string = FALSE;
-    gboolean base_range_string = FALSE;
+    uint64_t mask = get_mask(L,WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
+    const char *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
+    bool base_unit_string = false;
+    bool base_range_string = false;
 
     if (!name[0]) {
         WSLUA_ARG_ERROR(ProtoField_new,NAME,"cannot be an empty string");
@@ -624,11 +624,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_INT32:
     case FT_INT64:
         if (base & BASE_UNIT_STRING) {
-            base_unit_string = TRUE;
+            base_unit_string = true;
             base &= ~BASE_UNIT_STRING;
         }
         if (base & BASE_RANGE_STRING) {
-            base_range_string = TRUE;
+            base_range_string = true;
             base &= ~BASE_RANGE_STRING;
         }
         if (base_unit_string && base_range_string) {
@@ -719,7 +719,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_FLOAT:
     case FT_DOUBLE:
         if (base & BASE_UNIT_STRING) {
-            base_unit_string = TRUE;
+            base_unit_string = true;
             base &= ~BASE_UNIT_STRING;
         }
         if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING) {
@@ -820,8 +820,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
 
 static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = check_field_name(L,1,type);
-    const gchar* name = luaL_optstring(L,2,abbr);
+    const char* abbr = check_field_name(L,1,type);
+    const char* name = luaL_optstring(L,2,abbr);
     unsigned default_base = (type == FT_FRAMENUM) ? BASE_NONE : ((type == FT_CHAR) ? BASE_OCT : BASE_DEC);
     unsigned base = (unsigned)luaL_optinteger(L, 3, default_base);
     enum ft_framenum_type framenum_type = FT_FRAMENUM_NONE;
@@ -829,10 +829,10 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     range_string* rs32 = NULL;
     val64_string* vs64 = NULL;
     unit_name_string* uns = NULL;
-    guint64 mask = get_mask(L,5,0);
-    const gchar* blob = luaL_optstring(L,6,NULL);
-    gboolean base_unit_string = FALSE;
-    gboolean base_range_string = FALSE;
+    uint64_t mask = get_mask(L,5,0);
+    const char* blob = luaL_optstring(L,6,NULL);
+    bool base_unit_string = false;
+    bool base_range_string = false;
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -845,7 +845,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     }
 
     if (base & BASE_UNIT_STRING) {
-        base_unit_string = TRUE;
+        base_unit_string = true;
         base &= ~BASE_UNIT_STRING;
         if (base == BASE_NONE) {
             base = BASE_DEC;
@@ -853,7 +853,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     }
 
     if (base & BASE_RANGE_STRING) {
-        base_range_string = TRUE;
+        base_range_string = true;
         base &= ~BASE_RANGE_STRING;
         if (type != FT_CHAR && base == BASE_NONE) {
             base = BASE_DEC;
@@ -1078,12 +1078,12 @@ PROTOFIELD_INTEGER(framenum,FT_FRAMENUM)
 
 static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = check_field_name(L,1,type);
-    const gchar* name = luaL_optstring(L,2,abbr);
+    const char* abbr = check_field_name(L,1,type);
+    const char* name = luaL_optstring(L,2,abbr);
     unsigned base = (unsigned)luaL_optinteger(L, 3, BASE_NONE);
     true_false_string* tfs = NULL;
-    guint64 mask = get_mask(L,5,0);
-    const gchar* blob = luaL_optstring(L,6,NULL);
+    uint64_t mask = get_mask(L,5,0);
+    const char* blob = luaL_optstring(L,6,NULL);
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -1141,10 +1141,10 @@ PROTOFIELD_BOOL(bool,FT_BOOLEAN)
 
 static int ProtoField_time(lua_State* L,enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = check_field_name(L,1,type);
-    const gchar* name = luaL_optstring(L,2,abbr);
+    const char* abbr = check_field_name(L,1,type);
+    const char* name = luaL_optstring(L,2,abbr);
     unsigned base = (unsigned)luaL_optinteger(L,3,ABSOLUTE_TIME_LOCAL);
-    const gchar* blob = luaL_optstring(L,4,NULL);
+    const char* blob = luaL_optstring(L,4,NULL);
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -1198,10 +1198,10 @@ PROTOFIELD_TIME(absolute_time,FT_ABSOLUTE_TIME)
 
 static int ProtoField_floating(lua_State* L,enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = check_field_name(L,1,type);
-    const gchar* name = luaL_optstring(L,2,abbr);
+    const char* abbr = check_field_name(L,1,type);
+    const char* name = luaL_optstring(L,2,abbr);
     unit_name_string* uns = NULL;
-    const gchar* blob;
+    const char* blob;
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -1261,10 +1261,10 @@ PROTOFIELD_FLOATING(double,FT_DOUBLE)
 
 static int ProtoField_other_display(lua_State* L,enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = check_field_name(L,1,type);
-    const gchar* name = luaL_optstring(L,2,abbr);
+    const char* abbr = check_field_name(L,1,type);
+    const char* name = luaL_optstring(L,2,abbr);
     unsigned base = BASE_NONE;
-    const gchar* blob;
+    const char* blob;
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -1348,9 +1348,9 @@ PROTOFIELD_OTHER_DISPLAY(ubytes,FT_UINT_BYTES)
 
 static int ProtoField_other(lua_State* L,enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = check_field_name(L,1,type);
-    const gchar* name = luaL_optstring(L,2,abbr);
-    const gchar* blob = luaL_optstring(L,3,NULL);
+    const char* abbr = check_field_name(L,1,type);
+    const char* name = luaL_optstring(L,2,abbr);
+    const char* blob = luaL_optstring(L,3,NULL);
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -1455,7 +1455,7 @@ PROTOFIELD_OTHER(eui64,FT_EUI64)
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.16" PRIu64 "x %s",
+    char* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.16" PRIu64 "x %s",
                                          f->hfid,f->name,f->abbrev,
                                          ftenum_to_string(f->type),
                                          base_to_string(f->base),

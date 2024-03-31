@@ -31,8 +31,8 @@ WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = (Address)g_malloc(sizeof(address));
-    guint32 ip_addr;
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Address_ip_HOSTNAME);
+    uint32_t ip_addr;
+    const char* name = luaL_checkstring(L,WSLUA_ARG_Address_ip_HOSTNAME);
 
     if (! get_host_ipaddr(name, &ip_addr)) {
         ip_addr = 0;
@@ -49,7 +49,7 @@ WSLUA_CONSTRUCTOR Address_ipv6(lua_State* L) {
 #define WSLUA_ARG_Address_ipv6_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = (Address)g_malloc(sizeof(address));
     ws_in6_addr ip_addr;
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Address_ipv6_HOSTNAME);
+    const char* name = luaL_checkstring(L,WSLUA_ARG_Address_ipv6_HOSTNAME);
 
     if (!get_host_ipaddr6(name, &ip_addr)) {
         memset(&ip_addr, 0, sizeof(ip_addr));
@@ -65,8 +65,8 @@ WSLUA_CONSTRUCTOR Address_ether(lua_State *L) {
 
 #define WSLUA_ARG_Address_ether_ETH 1 /* The Ethernet address. */
     Address addr = (Address)g_malloc(sizeof(address));
-    const gchar *name = luaL_checkstring(L, WSLUA_ARG_Address_ether_ETH);
-    guint8 eth_buf[6];
+    const char *name = luaL_checkstring(L, WSLUA_ARG_Address_ether_ETH);
+    uint8_t eth_buf[6];
 
     if(!str_to_eth(name, eth_buf))
         memset(eth_buf, 0, sizeof(eth_buf));
@@ -191,7 +191,7 @@ WSLUA_METHODS Address_methods[] = {
 
 WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
-    gchar *str = address_to_display(NULL, addr);
+    char *str = address_to_display(NULL, addr);
 
     lua_pushstring(L, str);
 
@@ -215,10 +215,10 @@ static int Address__gc(lua_State* L) {
 WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses. */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (addresses_equal(addr1, addr2))
-        result = TRUE;
+        result = true;
 
     lua_pushboolean(L,result);
 
@@ -228,10 +228,10 @@ WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses. */
 WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses. */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (cmp_address(addr1, addr2) <= 0)
-        result = TRUE;
+        result = true;
 
     lua_pushboolean(L,result);
 
@@ -241,10 +241,10 @@ WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses. */
 WSLUA_METAMETHOD Address__lt(lua_State* L) { /* Compares two Addresses. */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (cmp_address(addr1, addr2) < 0)
-        result = TRUE;
+        result = true;
 
     lua_pushboolean(L,result);
 

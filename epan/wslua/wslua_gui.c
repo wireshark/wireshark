@@ -26,7 +26,7 @@ struct _lua_menu_data {
 };
 
 static int menu_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
+    const char* error =  lua_tostring(L,1);
     report_failure("Lua: Error during execution of Menu callback:\n %s",error);
     return 0;
 }
@@ -36,7 +36,7 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks if we're running insi
     WSLUA_RETURN(1); /* Boolean `true` if a GUI is available, `false` if it isn't. */
 }
 
-static void lua_menu_callback(gpointer data) {
+static void lua_menu_callback(void *data) {
     struct _lua_menu_data* md = (struct _lua_menu_data *)data;
     lua_State* L = md->L;
 
@@ -101,9 +101,9 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     * MENU_STAT_UNSORTED, superseded by MENU_PACKET_STAT_UNSORTED
  */
 
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
+    const char* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
-    gboolean retap = FALSE;
+    bool retap = false;
     register_stat_group_t group = (register_stat_group_t)wslua_optguint(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
     if ( group > REGISTER_TOOLS_GROUP_UNSORTED) {
@@ -144,7 +144,7 @@ void wslua_deregister_menus(void) {
  * @return Always returns 0
  */
 static int packet_menu_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
+    const char* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Packet Menu Callback:\n %s",error);
     return 0;
 }
@@ -156,7 +156,7 @@ static int packet_menu_cb_error_handler(lua_State* L) {
  * @param data Lua menu data
  * @param finfo_array packet data
  */
-static void lua_custom_packet_menu_callback(gpointer data, GPtrArray *finfo_array) {
+static void lua_custom_packet_menu_callback(void *data, GPtrArray *finfo_array) {
     // _lua_menu_data is State + the integer index of a callback.
     struct _lua_menu_data* md = (struct _lua_menu_data *)data;
     lua_State* L = md->L;
@@ -167,7 +167,7 @@ static void lua_custom_packet_menu_callback(gpointer data, GPtrArray *finfo_arra
 
     // Push the packet data as arguments to the Lua callback:
     int items_found = 0;
-    for (guint i = 0; i < finfo_array->len; i ++) {
+    for (unsigned i = 0; i < finfo_array->len; i ++) {
         field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
         push_FieldInfo(L, fi);
         items_found++;
@@ -198,11 +198,11 @@ WSLUA_FUNCTION wslua_register_packet_menu(lua_State* L) { /*  Register a menu it
 #define WSLUA_ARG_register_packet_menu_ACTION 2 /* The function to be called when the menu item is invoked. The function must take a variable number of arguments and return nothing. The arguments will be FieldInfo objects, one for each field present in the selected packet. */
 #define WSLUA_OPTARG_register_packet_menu_REQUIRED_FIELDS 3 /* A comma-separated list of packet fields (e.g., http.host,dns.qry.name) which all must be present for the menu to be displayed. If omitted, the packet menu will be displayed for all packets. */
 
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_packet_menu_NAME);
-    const gchar* required_fields = luaL_optstring(L,WSLUA_OPTARG_register_packet_menu_REQUIRED_FIELDS,"");
+    const char* name = luaL_checkstring(L,WSLUA_ARG_register_packet_menu_NAME);
+    const char* required_fields = luaL_optstring(L,WSLUA_OPTARG_register_packet_menu_REQUIRED_FIELDS,"");
 
     struct _lua_menu_data* md;
-    gboolean retap = FALSE;
+    bool retap = false;
 
     if (!lua_isfunction(L,WSLUA_ARG_register_packet_menu_ACTION)) {
         WSLUA_ARG_ERROR(register_packet_menu,ACTION,"Must be a function");
@@ -230,15 +230,15 @@ struct _dlg_cb_data {
 };
 
 static int dlg_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
+    const char* error =  lua_tostring(L,1);
     report_failure("Lua: Error during execution of Dialog callback:\n %s",error);
     return 0;
 }
 
-static void lua_dialog_cb(gchar** user_input, void* data) {
+static void lua_dialog_cb(char** user_input, void* data) {
     struct _dlg_cb_data* dcbd = (struct _dlg_cb_data *)data;
     int i = 0;
-    gchar* input;
+    char* input;
     lua_State* L = dcbd->L;
 
     lua_settop(L,0);
@@ -279,7 +279,7 @@ struct _close_cb_data {
 
 
 static int text_win_close_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
+    const char* error =  lua_tostring(L,1);
     report_failure("Lua: Error during execution of TextWindow close callback:\n %s",error);
     return 0;
 }
@@ -315,7 +315,7 @@ static void text_win_close_cb(void* data) {
         g_free(cbd->wslua_tw);
         g_free(cbd);
     } else {
-        cbd->wslua_tw->expired = TRUE;
+        cbd->wslua_tw->expired = true;
     }
 
 }
@@ -354,7 +354,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /*
 /* WSLUA_MOREARGS new_dialog Strings to be used as labels of the dialog's fields. Each string creates a new labeled field. The first field is required.
 Instead of a string it is possible to provide tables with fields 'name' and 'value' of type string. Then the created dialog's field will be labeled with the content of name and prefilled with the content of value.*/
 
-    const gchar* title;
+    const char* title;
     int top = lua_gettop(L);
     int i;
     GPtrArray* field_names;
@@ -402,10 +402,10 @@ Instead of a string it is possible to provide tables with fields 'name' and 'val
     {
         if (lua_isstring(L, i))
         {
-            gchar* field_name = g_strdup(luaL_checkstring(L, i));
-            gchar* field_value = g_strdup("");
-            g_ptr_array_add(field_names, (gpointer)field_name);
-            g_ptr_array_add(field_values, (gpointer)field_value);
+            char* field_name = g_strdup(luaL_checkstring(L, i));
+            char* field_value = g_strdup("");
+            g_ptr_array_add(field_names, (void *)field_name);
+            g_ptr_array_add(field_values, (void *)field_value);
         }
         else if (lua_istable(L, i))
         {
@@ -416,27 +416,27 @@ Instead of a string it is possible to provide tables with fields 'name' and 'val
             {
                 lua_pop(L, 2);
 
-                g_ptr_array_free(field_names, TRUE);
-                g_ptr_array_free(field_values, TRUE);
+                g_ptr_array_free(field_names, true);
+                g_ptr_array_free(field_values, true);
                 g_free(dcbd);
                 WSLUA_ERROR(new_dialog, "All fields must be strings or a table with a string field 'name'.");
                 return 0;
             }
 
-            gchar* field_name = g_strdup(luaL_checkstring(L, -2));
-            gchar* field_value = lua_isstring(L, -1) ?
+            char* field_name = g_strdup(luaL_checkstring(L, -2));
+            char* field_value = lua_isstring(L, -1) ?
                 g_strdup(luaL_checkstring(L, -1)) :
                 g_strdup("");
 
-            g_ptr_array_add(field_names, (gpointer)field_name);
-            g_ptr_array_add(field_values, (gpointer)field_value);
+            g_ptr_array_add(field_names, (void *)field_name);
+            g_ptr_array_add(field_values, (void *)field_value);
 
             lua_pop(L, 2);
         }
         else
         {
-            g_ptr_array_free(field_names, TRUE);
-            g_ptr_array_free(field_values, TRUE);
+            g_ptr_array_free(field_names, true);
+            g_ptr_array_free(field_values, true);
             g_free(dcbd);
             WSLUA_ERROR(new_dialog, "All fields must be strings or a table with a string field 'name'.");
             return 0;
@@ -446,10 +446,10 @@ Instead of a string it is possible to provide tables with fields 'name' and 'val
     g_ptr_array_add(field_names, NULL);
     g_ptr_array_add(field_values, NULL);
 
-    ops->new_dialog(ops->ops_id, title, (const gchar**)(field_names->pdata), (const gchar**)(field_values->pdata), lua_dialog_cb, dcbd, g_free);
+    ops->new_dialog(ops->ops_id, title, (const char**)(field_names->pdata), (const char**)(field_values->pdata), lua_dialog_cb, dcbd, g_free);
 
-    g_ptr_array_free(field_names, TRUE);
-    g_ptr_array_free(field_values, TRUE);
+    g_ptr_array_free(field_names, true);
+    g_ptr_array_free(field_values, true);
 
     WSLUA_RETURN(0);
 }
@@ -532,7 +532,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /*
     ProgDlg pd = (ProgDlg)g_malloc(sizeof(struct _wslua_progdlg));
     pd->title = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TITLE,"Progress"));
     pd->task = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TASK,""));
-    pd->stopped = FALSE;
+    pd->stopped = false;
 
     if (ops->new_progress_window) {
         pd->pw = ops->new_progress_window(ops->ops_id, pd->title, pd->task, true, &(pd->stopped));
@@ -552,7 +552,7 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Sets the progress dialog's progre
 #define WSLUA_OPTARG_ProgDlg_update_TASK 3  /* Task name. Currently ignored. Defaults to empty string (""). */
     ProgDlg pd = checkProgDlg(L,1);
     double pr = lua_tonumber(L,WSLUA_ARG_ProgDlg_update_PROGRESS);
-    const gchar* task = luaL_optstring(L,WSLUA_OPTARG_ProgDlg_update_TASK,"");
+    const char* task = luaL_optstring(L,WSLUA_OPTARG_ProgDlg_update_TASK,"");
 
     if (!ops->update_progress) {
         WSLUA_ERROR(ProgDlg_update,"GUI not available");
@@ -699,7 +699,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
 */
 #define WSLUA_OPTARG_TextWindow_new_TITLE 1 /* Title of the new window. Optional. Defaults to "Untitled Window". */
 
-    const gchar* title;
+    const char* title;
     TextWindow tw = NULL;
     struct _close_cb_data* default_cbd;
 
@@ -710,7 +710,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
 
     title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE, "Untitled Window");
     tw = g_new(struct _wslua_tw, 1);
-    tw->expired = FALSE;
+    tw->expired = false;
     tw->ws_tw = ops->new_text_window(ops->ops_id, title);
 
     default_cbd = g_new(struct _close_cb_data, 1);
@@ -765,7 +765,7 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text to be displayed. */
 #define WSLUA_ARG_TextWindow_set_TEXT 2 /* The text to be displayed. */
 
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
+    const char* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
 
     if (!ops->set_text) {
         WSLUA_ERROR(TextWindow_set,"GUI not available");
@@ -781,7 +781,7 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text to be displayed. */
 WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text to the current window contents. */
 #define WSLUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended. */
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
+    const char* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
 
     if (!ops->append_text) {
         WSLUA_ERROR(TextWindow_append,"GUI not available");
@@ -797,7 +797,7 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text to the current wi
 WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text to the current window contents. */
 #define WSLUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be prepended. */
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
+    const char* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
 
     if (!ops->prepend_text) {
         WSLUA_ERROR(TextWindow_prepend,"GUI not available");
@@ -826,7 +826,7 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all of the text in the w
 
 WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window. */
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text;
+    const char* text;
 
     if (!ops->get_text) {
         WSLUA_ERROR(TextWindow_get_text,"GUI not available");
@@ -861,7 +861,7 @@ static int TextWindow__gc(lua_State* L) {
         return 0;
 
     if (!tw->expired) {
-        tw->expired = TRUE;
+        tw->expired = true;
         if (ops->destroy_text_window) {
             ops->destroy_text_window(tw->ws_tw);
         }
@@ -877,7 +877,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this text window ed
 #define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* `true` to make the text editable, `false` otherwise. Defaults to `true`. */
 
     TextWindow tw = checkTextWindow(L,1);
-    gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
+    bool editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,true);
 
     if (!ops->set_editable) {
         WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
@@ -922,7 +922,7 @@ static bool wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
             break;
     }
 
-    return TRUE;
+    return true;
 }
 
 WSLUA_METHOD TextWindow_add_button(lua_State* L) {
@@ -930,7 +930,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 #define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The button label. */
 #define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The Lua function to be called when the button is pressed. */
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
+    const char* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
 
     funnel_bt_t* fbt;
     wslua_bt_cb_t* cbd;
@@ -1023,7 +1023,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
 
     ops->copy_to_clipboard(gstr);
 
-    g_string_free(gstr,TRUE);
+    g_string_free(gstr,true);
 
     return 0;
 }
@@ -1042,7 +1042,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
     }
 
     if (! ops->open_file(ops->ops_id, fname, filter, &error) ) {
-        lua_pushboolean(L,FALSE);
+        lua_pushboolean(L,false);
 
         if (error) {
             lua_pushstring(L,error);
@@ -1052,7 +1052,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
 
         return 2;
     } else {
-        lua_pushboolean(L,TRUE);
+        lua_pushboolean(L,true);
         return 1;
     }
 }
@@ -1108,8 +1108,8 @@ WSLUA_FUNCTION wslua_get_color_filter_slot(lua_State* L) { /*
     |10 |e0e0e0 |{set:cellbgcolor:#e0e0e0} gray
     |===
     */
-    guint8 row = (guint8)luaL_checkinteger(L, WSLUA_ARG_get_color_filter_slot_ROW);
-    gchar* filter_str = NULL;
+    uint8_t row = (uint8_t)luaL_checkinteger(L, WSLUA_ARG_get_color_filter_slot_ROW);
+    char* filter_str = NULL;
 
     if (!ops->get_color_filter_slot) {
         WSLUA_ERROR(get_color_filter_slot, "GUI not available");
@@ -1165,8 +1165,8 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
     */
 #define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* The https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilters[display filter] for selecting packets to be colorized
 . */
-    guint8 row = (guint8)luaL_checkinteger(L,WSLUA_ARG_set_color_filter_slot_ROW);
-    const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
+    uint8_t row = (uint8_t)luaL_checkinteger(L,WSLUA_ARG_set_color_filter_slot_ROW);
+    const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
 
     if (!ops->set_color_filter_slot) {
         WSLUA_ERROR(set_color_filter_slot, "GUI not available");

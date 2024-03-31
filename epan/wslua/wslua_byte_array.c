@@ -46,29 +46,29 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) {
                                                   or if the boolean value `true` is used, then the first argument
                                                   is treated as raw binary data */
     GByteArray* ba = g_byte_array_new();
-    const gchar* s;
+    const char* s;
     size_t len = 0;
-    const gchar* sep = " ";
-    gboolean ishex = TRUE;
+    const char* sep = " ";
+    bool ishex = true;
 
     if (lua_gettop(L) >= 1) {
         s = luaL_checklstring(L,WSLUA_OPTARG_ByteArray_new_HEXBYTES,&len);
 
         if (lua_gettop(L) >= 2) {
             if (lua_type(L,2) == LUA_TBOOLEAN && lua_toboolean(L,2)) {
-                ishex = FALSE;
+                ishex = false;
             } else {
                 sep = luaL_optstring(L,WSLUA_OPTARG_ByteArray_new_SEPARATOR," ");
             }
         }
 
         if (ishex) {
-            wslua_hex2bin(L, s, (guint)len, sep);   /* this pushes a new string on top of stack */
+            wslua_hex2bin(L, s, (unsigned)len, sep);   /* this pushes a new string on top of stack */
             s = luaL_checklstring(L, -1, &len);     /* get the new binary string */
-            g_byte_array_append(ba,s,(guint)len);   /* copy it into ByteArray */
+            g_byte_array_append(ba,s,(unsigned)len);   /* copy it into ByteArray */
             lua_pop(L,1);                           /* pop the newly created string */
         } else {
-            g_byte_array_append(ba,s,(guint)len);
+            g_byte_array_append(ba,s,(unsigned)len);
         }
     }
 
@@ -83,7 +83,7 @@ static int ByteArray__gc(lua_State* L) {
 
     if (!ba) return 0;
 
-    g_byte_array_free(ba,TRUE);
+    g_byte_array_free(ba,true);
     return 0;
 }
 
@@ -113,11 +113,11 @@ WSLUA_METAMETHOD ByteArray__eq(lua_State* L) {
 #define WSLUA_ARG_ByteArray__eq_SECOND 2 /* Second array. */
     ByteArray ba1 = checkByteArray(L,WSLUA_ARG_ByteArray__eq_FIRST);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__eq_SECOND);
-    gboolean result = FALSE;
+    bool result = false;
 
     if (ba1->len == ba2->len) {
         if (memcmp(ba1->data, ba2->data, ba1->len) == 0)
-            result = TRUE;
+            result = true;
     }
 
     lua_pushboolean(L,result);
@@ -153,17 +153,17 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
 
     ByteArray ba = checkByteArray(L,1);
     int siz = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_size_SIZE);
-    guint8* padding;
+    uint8_t* padding;
 
     if (siz < 0) {
         WSLUA_ERROR(ByteArray_set_size,"ByteArray size must be non-negative");
         return 0;
     }
 
-    if (ba->len >= (guint)siz) { /* truncate */
+    if (ba->len >= (unsigned)siz) { /* truncate */
         g_byte_array_set_size(ba,siz);
     } else { /* fill */
-        padding = (guint8 *)g_malloc0(sizeof(guint8)*(siz - ba->len));
+        padding = (uint8_t *)g_malloc0(sizeof(uint8_t)*(siz - ba->len));
         g_byte_array_append(ba,padding,siz - ba->len);
         g_free(padding);
     }
@@ -183,7 +183,7 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
         return 0;
     }
 
-    if (idx < 0 || (guint)idx >= ba->len) {
+    if (idx < 0 || (unsigned)idx >= ba->len) {
             luaL_argerror(L,2,"index out of range");
             return 0;
     }
@@ -193,7 +193,7 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
         return 0;
     }
 
-    ba->data[idx] = (guint8)v;
+    ba->data[idx] = (uint8_t)v;
 
     return 0;
 }
@@ -210,7 +210,7 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
         return 0;
     }
 
-    if (idx < 0 || (guint)idx >= ba->len) {
+    if (idx < 0 || (unsigned)idx >= ba->len) {
         luaL_argerror(L,2,"index out of range");
         return 0;
     }
@@ -230,7 +230,7 @@ WSLUA_METHOD ByteArray_le_int(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_int_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_int_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_le_int_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -244,15 +244,15 @@ WSLUA_METHOD ByteArray_le_int(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    gint32 value = (gint8)ba->data[offset + len - 1];
+    int32_t value = (int8_t)ba->data[offset + len - 1];
     for (int i = len - 2; i >= 0; i--) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     lua_pushinteger(L, value);
@@ -271,7 +271,7 @@ WSLUA_METHOD ByteArray_le_int64(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_int64_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_int64_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_le_int64_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -285,15 +285,15 @@ WSLUA_METHOD ByteArray_le_int64(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    gint64 value = (gint8)ba->data[offset + len - 1];
+    int64_t value = (int8_t)ba->data[offset + len - 1];
     for (int i = len - 2; i >= 0; i--) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     pushInt64(L, value);
@@ -312,7 +312,7 @@ WSLUA_METHOD ByteArray_le_uint(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_uint_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_uint_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_le_uint_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -326,15 +326,15 @@ WSLUA_METHOD ByteArray_le_uint(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    guint32 value = (guint8)ba->data[offset + len - 1];
+    uint32_t value = (uint8_t)ba->data[offset + len - 1];
     for (int i = len - 2; i >= 0; i--) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     lua_pushinteger(L, value);
@@ -353,7 +353,7 @@ WSLUA_METHOD ByteArray_le_uint64(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_uint64_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_le_uint64_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_le_uint64_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -367,15 +367,15 @@ WSLUA_METHOD ByteArray_le_uint64(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    guint64 value = (guint8)ba->data[offset + len - 1];
+    uint64_t value = (uint8_t)ba->data[offset + len - 1];
     for (int i = len - 2; i >= 0; i--) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     pushUInt64(L, value);
@@ -394,7 +394,7 @@ WSLUA_METHOD ByteArray_int(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_int_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_int_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_int_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -408,15 +408,15 @@ WSLUA_METHOD ByteArray_int(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    gint32 value = (gint8)ba->data[offset];
+    int32_t value = (int8_t)ba->data[offset];
     for (int i = 1; i < len; i++) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     lua_pushinteger(L, value);
@@ -435,7 +435,7 @@ WSLUA_METHOD ByteArray_int64(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_int64_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_int64_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_int64_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -449,15 +449,15 @@ WSLUA_METHOD ByteArray_int64(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    gint64 value = (gint8)ba->data[offset];
+    int64_t value = (int8_t)ba->data[offset];
     for (int i = 1; i < len; i++) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     pushInt64(L, value);
@@ -476,7 +476,7 @@ WSLUA_METHOD ByteArray_uint(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_uint_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_uint_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_uint_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -490,15 +490,15 @@ WSLUA_METHOD ByteArray_uint(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    guint32 value = (guint8)ba->data[offset];
+    uint32_t value = (uint8_t)ba->data[offset];
     for (int i = 1; i < len; i++) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     lua_pushinteger(L, value);
@@ -517,7 +517,7 @@ WSLUA_METHOD ByteArray_uint64(lua_State* L) {
     int offset = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_uint64_OFFSET, 0);
     int len = (int)luaL_optinteger(L, WSLUA_OPTARG_ByteArray_uint64_LENGTH, -1);
 
-    if (offset < 0 || (guint)offset >= ba->len) {
+    if (offset < 0 || (unsigned)offset >= ba->len) {
         luaL_argerror(L, WSLUA_OPTARG_ByteArray_uint64_OFFSET, "offset out of bounds");
         return 0;
     }
@@ -531,15 +531,15 @@ WSLUA_METHOD ByteArray_uint64(lua_State* L) {
         return 0;
     }
 
-    if ((guint)(offset + len) > ba->len) {
+    if ((unsigned)(offset + len) > ba->len) {
         luaL_error(L, "range out of bounds");
         return 0;
     }
 
-    guint64 value = (guint8)ba->data[offset];
+    uint64_t value = (uint8_t)ba->data[offset];
     for (int i = 1; i < len; i++) {
         value <<= 8;
-        value |= (guint8)ba->data[offset + i];
+        value |= (uint8_t)ba->data[offset + i];
     }
 
     pushUInt64(L, value);
@@ -585,8 +585,8 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
      */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
-    gchar *data;
-    gsize len = ba->len;
+    char *data;
+    size_t len = ba->len;
 
     if ((len % 4) != 0) {
         len += 4 - (len % 4);
@@ -594,7 +594,7 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
 
     ba2 = g_byte_array_new();
     if (ba->len > 1) {
-        data = (gchar*)g_malloc(len + 1);
+        data = (char*)g_malloc(len + 1);
         memcpy(data, ba->data, ba->len);
         if (len > ba->len) {
             memcpy(data + ba->len, "====", len - ba->len);
@@ -618,7 +618,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
 #define WSLUA_OPTARG_ByteArray_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_ByteArray_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     ByteArray ba = checkByteArray(L,1);
-    guint offset = (guint) luaL_optinteger(L,WSLUA_OPTARG_ByteArray_raw_OFFSET,0);
+    unsigned offset = (unsigned) luaL_optinteger(L,WSLUA_OPTARG_ByteArray_raw_OFFSET,0);
     int len;
 
     if (!ba) return 0;
@@ -628,7 +628,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
     }
 
     len = (int) luaL_optinteger(L,WSLUA_OPTARG_ByteArray_raw_LENGTH, ba->len - offset);
-    if ((len < 0) || ((guint)len > (ba->len - offset)))
+    if ((len < 0) || ((unsigned)len > (ba->len - offset)))
         len = ba->len - offset;
 
     lua_pushlstring(L, &(ba->data[offset]), len);
@@ -644,12 +644,12 @@ WSLUA_METHOD ByteArray_tohex(lua_State* L) {
 #define WSLUA_OPTARG_ByteArray_tohex_LOWERCASE 2 /* True to use lower-case hex characters (default=false). */
 #define WSLUA_OPTARG_ByteArray_tohex_SEPARATOR 3 /* A string separator to insert between hex bytes (default=nil). */
     ByteArray ba = checkByteArray(L,1);
-    gboolean lowercase = FALSE;
-    const gchar* sep = NULL;
+    bool lowercase = false;
+    const char* sep = NULL;
 
     if (!ba) return 0;
 
-    lowercase = wslua_optbool(L,WSLUA_OPTARG_ByteArray_tohex_LOWERCASE,FALSE);
+    lowercase = wslua_optbool(L,WSLUA_OPTARG_ByteArray_tohex_LOWERCASE,false);
     sep = luaL_optstring(L,WSLUA_OPTARG_ByteArray_tohex_SEPARATOR,NULL);
 
     wslua_bin2hex(L, ba->data, ba->len, lowercase, sep);
@@ -664,7 +664,7 @@ WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
 
     if (!ba) return 0;
 
-    wslua_bin2hex(L, ba->data, ba->len, FALSE, NULL);
+    wslua_bin2hex(L, ba->data, ba->len, false, NULL);
 
     WSLUA_RETURN(1); /* A hex-ascii string representation of the <<lua_class_ByteArray,`ByteArray`>>. */
 }
@@ -690,8 +690,8 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
     */
 #define WSLUA_ARG_ByteArray_tvb_NAME 2 /* The name to be given to the new data source. */
     ByteArray ba = checkByteArray(L,1);
-    const gchar* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Unnamed") ;
-    guint8* data;
+    const char* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Unnamed") ;
+    uint8_t* data;
     Tvb tvb;
 
     if (!lua_tvb) {
@@ -699,12 +699,12 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
         return 0;
     }
 
-    data = (guint8 *)g_memdup2(ba->data, ba->len);
+    data = (uint8_t *)g_memdup2(ba->data, ba->len);
 
     tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = tvb_new_child_real_data(lua_tvb, data, ba->len,ba->len);
-    tvb->expired = FALSE;
-    tvb->need_free = FALSE;
+    tvb->expired = false;
+    tvb->need_free = false;
     tvb_set_free_cb(tvb->ws_tvb, g_free);
 
     add_new_data_source(lua_pinfo, tvb->ws_tvb, name);

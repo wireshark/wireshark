@@ -36,12 +36,12 @@ static GPtrArray* outstanding_FieldInfo = NULL;
 FieldInfo* push_FieldInfo(lua_State* L, field_info* f) {
     FieldInfo fi = (FieldInfo) g_malloc(sizeof(struct _wslua_field_info));
     fi->ws_fi = f;
-    fi->expired = FALSE;
+    fi->expired = false;
     g_ptr_array_add(outstanding_FieldInfo,fi);
     return pushFieldInfo(L,fi);
 }
 
-CLEAR_OUTSTANDING(FieldInfo,expired,TRUE)
+CLEAR_OUTSTANDING(FieldInfo,expired,true)
 
 /* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field. */
 WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
@@ -151,7 +151,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_STRING:
         case FT_STRINGZ:
         case FT_STRINGZPAD: {
-                gchar* repr = fvalue_to_string_repr(NULL, fi->ws_fi->value, FTREPR_DISPLAY, BASE_NONE);
+                char* repr = fvalue_to_string_repr(NULL, fi->ws_fi->value, FTREPR_DISPLAY, BASE_NONE);
                 if (repr)
                 {
                     lua_pushstring(L, repr);
@@ -179,7 +179,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             {
                 ByteArray ba = g_byte_array_new();
                 g_byte_array_append(ba, fvalue_get_bytes_data(fi->ws_fi->value),
-                                    (guint)fvalue_length2(fi->ws_fi->value));
+                                    (unsigned)fvalue_length2(fi->ws_fi->value));
                 pushByteArray(L,ba);
                 return 1;
             }
@@ -187,9 +187,9 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             {
                 ByteArray ba = g_byte_array_new();
                 tvbuff_t* tvb = fvalue_get_protocol(fi->ws_fi->value);
-                guint8* raw;
+                uint8_t* raw;
                 if (tvb != NULL) {
-                    raw = (guint8 *)tvb_memdup(NULL, tvb, 0, tvb_captured_length(tvb));
+                    raw = (uint8_t *)tvb_memdup(NULL, tvb, 0, tvb_captured_length(tvb));
                     g_byte_array_append(ba, raw, tvb_captured_length(tvb));
                     wmem_free(NULL, raw);
                 }
@@ -210,7 +210,7 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     /* The string representation of the field. */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    gchar* repr = NULL;
+    char* repr = NULL;
 
     if (fi->ws_fi->hfinfo->type == FT_PROTOCOL) {
         repr = fvalue_to_string_repr(NULL, fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE);
@@ -235,9 +235,9 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
 static int FieldInfo_get_display(lua_State* L) {
     /* The display string of this field as seen in GUI. */
     FieldInfo fi = checkFieldInfo(L,1);
-    gchar         label_str[ITEM_LABEL_LENGTH+1];
-    gchar        *label_ptr;
-    gchar        *value_ptr;
+    char          label_str[ITEM_LABEL_LENGTH+1];
+    char         *label_ptr;
+    char         *value_ptr;
 
     if (!fi->ws_fi->rep) {
         label_ptr = label_str;
@@ -433,7 +433,7 @@ static int FieldInfo__gc(lua_State* L) {
     if (!fi) return 0;
 
     if (!fi->expired)
-        fi->expired = TRUE;
+        fi->expired = true;
     else
         /* do NOT free fi->ws_fi */
         g_free(fi);
@@ -490,7 +490,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
     */
     GPtrArray* found;
     int items_found = 0;
-    guint i;
+    unsigned i;
 
     if (! lua_tree || ! lua_tree->tree ) {
         WSLUA_ERROR(wslua_all_field_infos,"Cannot be called outside a listener or dissector");
@@ -505,7 +505,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
             items_found++;
         }
 
-        g_ptr_array_free(found,TRUE);
+        g_ptr_array_free(found,true);
     }
 
     return items_found;
@@ -537,7 +537,7 @@ void wslua_prime_dfilter(epan_dissect_t *edt) {
 }
 
 /* Check if we have any registered field extractors. */
-gboolean wslua_has_field_extractors(void) {
+bool wslua_has_field_extractors(void) {
     return (wslua_dfilter && dfilter_has_interesting_fields(wslua_dfilter));
 }
 
@@ -552,10 +552,10 @@ gboolean wslua_has_field_extractors(void) {
  * after the fields are primed.
  */
 
-static gboolean fake_tap = FALSE;
+static bool fake_tap = false;
 void lua_prime_all_fields(proto_tree* tree _U_) {
     GString* fake_tap_filter = g_string_new("frame");
-    guint i;
+    unsigned i;
     df_error_t *df_err;
 
     for(i=0; i < wanted_fields->len; i++) {
@@ -568,10 +568,10 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
         }
 
         g_string_append_printf(fake_tap_filter, " || %s", f->hfi->abbrev);
-        fake_tap = TRUE;
+        fake_tap = true;
     }
 
-    g_ptr_array_free(wanted_fields,TRUE);
+    g_ptr_array_free(wanted_fields,true);
     wanted_fields = NULL;
 
     if (fake_tap && fake_tap_filter->len > strlen("frame")) {
@@ -584,13 +584,13 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
 
         if (error) {
             report_failure("while registering lua_fake_tap:\n%s",error->str);
-            g_string_free(error,TRUE);
+            g_string_free(error,true);
         } else if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter, &df_err)) {
             report_failure("while compiling dfilter \"%s\" for wslua: %s", fake_tap_filter->str, df_err->msg);
             df_error_free(&df_err);
         }
     }
-    g_string_free(fake_tap_filter, TRUE);
+    g_string_free(fake_tap_filter, true);
 }
 
 WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
@@ -598,7 +598,7 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
        Create a Field extractor.
        */
 #define WSLUA_ARG_Field_new_FIELDNAME 1 /* The filter name of the field (e.g. ip.addr) */
-    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Field_new_FIELDNAME);
+    const char* name = luaL_checkstring(L,WSLUA_ARG_Field_new_FIELDNAME);
     Field f;
 
     if (!proto_registrar_get_byname(name) && !wslua_is_field_available(L, name)) {
@@ -733,7 +733,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
 
     while (in) {
         GPtrArray* found = proto_get_finfo_ptr_array(lua_tree->tree, in->id);
-        guint i;
+        unsigned i;
         if (found) {
             for (i=0; i<found->len; i++) {
                 push_FieldInfo(L, (field_info *) g_ptr_array_index(found,i));
@@ -812,7 +812,7 @@ int wslua_deregister_fields(lua_State* L _U_) {
 
     if (fake_tap) {
         remove_tap_listener(&fake_tap);
-        fake_tap = FALSE;
+        fake_tap = false;
     }
 
     return 0;

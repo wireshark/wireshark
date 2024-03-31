@@ -62,8 +62,8 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
                                                 or `expert.severity.ERROR`. */
 
     ProtoExpert pe    = NULL;
-    const gchar* abbr = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_ABBR);
-    const gchar* text = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_TEXT);
+    const char* abbr = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_ABBR);
+    const char* text = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_TEXT);
     int group         = (int)luaL_checkinteger(L, WSLUA_ARG_ProtoExpert_new_GROUP);
     int severity      = (int)luaL_checkinteger(L, WSLUA_ARG_ProtoExpert_new_SEVERITY);
 
@@ -167,8 +167,8 @@ static int ProtoExpert__gc(lua_State* L) {
         return 0;
     }
 
-    g_free((gchar *)pe->abbrev);
-    g_free((gchar *)pe->text);
+    g_free((char *)pe->abbrev);
+    g_free((char *)pe->text);
     g_free(pe);
 
     return 0;

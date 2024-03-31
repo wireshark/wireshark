@@ -45,7 +45,7 @@ FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec, Buffer* buf) {
     FrameInfo f = (FrameInfo) g_malloc0(sizeof(struct _wslua_phdr));
     f->rec = rec;
     f->buf = buf;
-    f->expired = FALSE;
+    f->expired = false;
     return pushFrameInfo(L,f);
 }
 
@@ -73,9 +73,9 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
 #define WSLUA_ARG_FrameInfo_read_data_LENGTH 3 /* The number of bytes to read from the file at the current cursor position. */
     FrameInfo fi = checkFrameInfo(L,1);
     File fh = checkFile(L,WSLUA_ARG_FrameInfo_read_data_FILE);
-    guint32 len = wslua_checkguint32(L, WSLUA_ARG_FrameInfo_read_data_LENGTH);
+    uint32_t len = wslua_checkguint32(L, WSLUA_ARG_FrameInfo_read_data_LENGTH);
     int err = 0;
-    gchar *err_info = NULL;
+    char *err_info = NULL;
 
     if (!fi->buf || !fh->file) {
         luaL_error(L, "FrameInfo read_data() got null buffer or file pointer internally");
@@ -83,7 +83,7 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
     }
 
     if (!wtap_read_packet_bytes(fh->file, fi->buf, len, &err, &err_info)) {
-        lua_pushboolean(L, FALSE);
+        lua_pushboolean(L, false);
         if (err_info) {
             lua_pushstring(L, err_info);
             g_free(err_info); /* is this right? */
@@ -93,7 +93,7 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
         return 3;
     }
 
-    lua_pushboolean(L, TRUE);
+    lua_pushboolean(L, true);
 
     WSLUA_RETURN(1); /* True if succeeded, else returns false along with the error number and string error description. */
 }
@@ -109,10 +109,10 @@ static int FrameInfo__gc(lua_State* L) {
 static int FrameInfo_get_comment (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 #define FRAMEINFO_COMMENTS_TABLE 2
-    gchar *comment = NULL;
+    char *comment = NULL;
     wtap_block_t block = NULL;
-    guint i = 0;
-    guint n_comments = 0;
+    unsigned i = 0;
+    unsigned n_comments = 0;
 
     block = fi->rec->block;
     // XXX - how to get the user-edited block, if any?
@@ -139,10 +139,10 @@ static int FrameInfo_set_comment (lua_State* L) {
 #define FRAMEINFO_COMMENTS_NEWTABLE 2
 #define FRAMEINFO_COMMENTS_NEWCOMMENT 2
     size_t len = 0;
-    gchar *comment = NULL;
+    char *comment = NULL;
     wtap_block_t block = NULL;
-    guint i = 0;
-    guint n_comments = 0;
+    unsigned i = 0;
+    unsigned n_comments = 0;
 
     if(fi->rec->block != NULL) {
         block = fi->rec->block;
@@ -162,7 +162,7 @@ static int FrameInfo_set_comment (lua_State* L) {
     if (lua_istable(L, FRAMEINFO_COMMENTS_NEWTABLE)) {
         for (lua_pushnil(L); lua_next(L, FRAMEINFO_COMMENTS_NEWTABLE); ) {
             if (lua_isstring(L,-1)) {
-                comment = (gchar *)luaL_checklstring(L,-1,&len);
+                comment = (char *)luaL_checklstring(L,-1,&len);
                 wtap_block_add_string_option(block, OPT_COMMENT, comment, len);
             } else if (! lua_isnil(L,-1) ) {
                 return luaL_error(L,"only strings should be in the table");
@@ -171,7 +171,7 @@ static int FrameInfo_set_comment (lua_State* L) {
         }
     }
     else if (lua_isstring(L, FRAMEINFO_COMMENTS_NEWCOMMENT)) {
-        comment = (gchar *)luaL_checklstring(L,FRAMEINFO_COMMENTS_NEWCOMMENT,&len);
+        comment = (char *)luaL_checklstring(L,FRAMEINFO_COMMENTS_NEWCOMMENT,&len);
         wtap_block_add_string_option(block, OPT_COMMENT, comment, len);
     }
     else {
@@ -233,13 +233,13 @@ static int FrameInfo_set_data (lua_State* L) {
 
    if (lua_isstring(L,2)) {
         size_t len = 0;
-        const gchar* s = luaL_checklstring(L,2,&len);
+        const char* s = luaL_checklstring(L,2,&len);
 
         /* Make sure we have enough room for the packet */
         ws_buffer_assure_space(fi->buf, len);
         memcpy(ws_buffer_start_ptr(fi->buf), s, len);
-        fi->rec->rec_header.packet_header.caplen = (guint32) len;
-        fi->rec->rec_header.packet_header.len = (guint32) len;
+        fi->rec->rec_header.packet_header.caplen = (uint32_t) len;
+        fi->rec->rec_header.packet_header.len = (uint32_t) len;
     }
     else
         luaL_error(L, "FrameInfo's attribute 'data' must be a Lua string");
@@ -261,23 +261,23 @@ static int FrameInfo_get_data (lua_State* L) {
 
     See `wtap_rec_types` for values. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,rec_type,rec->rec_type);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,rec_type,rec->rec_type,guint);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,rec_type,rec->rec_type,unsigned);
 
 /* WSLUA_ATTRIBUTE FrameInfo_flags RW The presence flags of the packet frame.
 
     See `wtap_presence_flags` for bit values. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,flags,rec->presence_flags);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,flags,rec->presence_flags,guint32);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,flags,rec->presence_flags,uint32_t);
 
 /* WSLUA_ATTRIBUTE FrameInfo_captured_length RW The captured packet length,
     and thus the length of the buffer passed to the `FrameInfo.data` field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen,guint32);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen,uint32_t);
 
 /* WSLUA_ATTRIBUTE FrameInfo_original_length RW The on-the-wire packet length,
     which may be longer than the `captured_length`. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,original_length,rec->rec_header.packet_header.len);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,rec->rec_header.packet_header.len,guint32);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,rec->rec_header.packet_header.len,uint32_t);
 
 /* WSLUA_ATTRIBUTE FrameInfo_encap RW The packet encapsulation type for the frame/packet,
     if the file supports per-packet types. See `wtap_encaps` for possible
@@ -325,11 +325,11 @@ WSLUA_CLASS_DEFINE(FrameInfoConst,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
     @since 1.11.3
  */
 
-FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const guint8 *pd) {
+FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const uint8_t *pd) {
     FrameInfoConst f = (FrameInfoConst) g_malloc(sizeof(struct _wslua_const_phdr));
     f->rec = rec;
     f->pd = pd;
-    f->expired = FALSE;
+    f->expired = false;
     return pushFrameInfoConst(L,f);
 }
 
@@ -357,7 +357,7 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
 #define WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH 3 /* The number of bytes to write to the file at the current cursor position, or all if not supplied. */
     FrameInfoConst fi = checkFrameInfoConst(L,1);
     File fh = checkFile(L,WSLUA_ARG_FrameInfoConst_write_data_FILE);
-    guint32 len = wslua_optguint32(L, WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH, fi->rec ? fi->rec->rec_header.packet_header.caplen:0);
+    uint32_t len = wslua_optguint32(L, WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH, fi->rec ? fi->rec->rec_header.packet_header.caplen:0);
     int err = 0;
 
     if (!fi->pd || !fi->rec || !fh->wdh) {
@@ -369,13 +369,13 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
         len = fi->rec->rec_header.packet_header.caplen;
 
     if (!wtap_dump_file_write(fh->wdh, fi->pd, (size_t)(len), &err)) {
-        lua_pushboolean(L, FALSE);
+        lua_pushboolean(L, false);
         lua_pushfstring(L, "FrameInfoConst write_data() error: %s", g_strerror(err));
         lua_pushinteger(L, err);
         return 3;
     }
 
-    lua_pushboolean(L, TRUE);
+    lua_pushboolean(L, true);
 
     WSLUA_RETURN(1); /* True if succeeded, else returns false along with the error number and string error description. */
 }
@@ -392,10 +392,10 @@ static int FrameInfoConst__gc(lua_State* L) {
 static int FrameInfoConst_get_comment (lua_State* L) {
     FrameInfoConst fi = checkFrameInfoConst(L,1);
 #define FRAMEINFOCONST_COMMENTS_TABLE 2
-    gchar *comment = NULL;
+    char *comment = NULL;
     wtap_block_t block = NULL;
-    guint i = 0;
-    guint n_comments = 0;
+    unsigned i = 0;
+    unsigned n_comments = 0;
 
     block = fi->rec->block;
     // XXX - how to get the user-edited block, if any?
