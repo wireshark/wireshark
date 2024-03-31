@@ -1382,6 +1382,7 @@ void IOGraphDialog::modelDataChanged(const QModelIndex &index)
     {
     case colYAxis:
     case colSMAPeriod:
+    case colYAxisFactor:
         recalc = true;
     }
 
