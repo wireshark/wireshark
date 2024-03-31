@@ -145,8 +145,8 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 
     effect_ = new QGraphicsOpacityEffect(this);
     animation_ = new QPropertyAnimation(effect_, "opacity", this);
-    connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
-            this, SLOT(show(bool,bool,gboolean*)));
+    connect(this, SIGNAL(showRequested(bool,bool,bool*)),
+            this, SLOT(show(bool,bool,bool*)));
     hide();
 }
 
@@ -205,8 +205,8 @@ void ProgressFrame::addToButtonBox(QDialogButtonBox *button_box, QObject *main_w
 
     int one_em = progress_frame->fontMetrics().height();
     progress_frame->setMaximumWidth(one_em * 8);
-    connect(main_progress_frame, SIGNAL(showRequested(bool,bool,gboolean*)),
-            progress_frame, SLOT(show(bool,bool,gboolean*)));
+    connect(main_progress_frame, SIGNAL(showRequested(bool,bool,bool*)),
+            progress_frame, SLOT(show(bool,bool,bool*)));
     connect(main_progress_frame, SIGNAL(maximumValueChanged(int)),
             progress_frame, SLOT(setMaximumValue(int)));
     connect(main_progress_frame, SIGNAL(valueChanged(int)),
@@ -222,12 +222,12 @@ void ProgressFrame::captureFileClosing()
 {
     // Hide any paired ProgressFrames and disconnect from them.
     emit setHidden();
-    disconnect(SIGNAL(showRequested(bool,bool,gboolean*)));
+    disconnect(SIGNAL(showRequested(bool,bool,bool*)));
     disconnect(SIGNAL(maximumValueChanged(int)));
     disconnect(SIGNAL(valueChanged(int)));
 
-    connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
-            this, SLOT(show(bool,bool,gboolean*)));
+    connect(this, SIGNAL(showRequested(bool,bool,bool*)),
+            this, SLOT(show(bool,bool,bool*)));
 }
 
 void ProgressFrame::setValue(int value)
@@ -277,7 +277,7 @@ void ProgressFrame::on_stopButton_clicked()
 
 const int show_delay_ = 150; // ms
 
-void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag)
+void ProgressFrame::show(bool animate, bool terminate_is_stop, bool *stop_flag)
 {
     terminate_is_stop_ = terminate_is_stop;
     stop_flag_ = stop_flag;

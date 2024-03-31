@@ -72,7 +72,7 @@ private:
     QString message_;
     QString status_;
     bool terminate_is_stop_;
-    gboolean *stop_flag_;
+    bool *stop_flag_;
     int show_timer_;
     QGraphicsOpacityEffect *effect_;
     QPropertyAnimation *animation_;
@@ -84,7 +84,7 @@ private:
 private slots:
     void on_stopButton_clicked();
 
-    void show(bool animate, bool terminate_is_stop, gboolean *stop_flag);
+    void show(bool animate, bool terminate_is_stop, bool *stop_flag);
     void setMaximumValue(int value);
 };
 
