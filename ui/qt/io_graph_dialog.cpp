@@ -1945,6 +1945,8 @@ void IOGraph::setColor(const QRgb color)
 
 void IOGraph::setPlotStyle(int style)
 {
+    bool recalc = false;
+
     // Switch plottable if needed
     switch (style) {
     case psBar:
@@ -1959,6 +1961,7 @@ void IOGraph::setPlotStyle(int style)
             }
             parent_->removeGraph(graph_);
             graph_ = NULL;
+            recalc = true;
         }
         break;
     default:
@@ -1966,6 +1969,7 @@ void IOGraph::setPlotStyle(int style)
             graph_ = parent_->addGraph(parent_->xAxis, parent_->yAxis);
             parent_->removePlottable(bars_);
             bars_ = NULL;
+            recalc = true;
         }
         break;
     }
@@ -2043,6 +2047,11 @@ void IOGraph::setPlotStyle(int style)
 
     setName(name_);
     applyCurrentColor();
+
+    if (recalc) {
+        // switching the plottable requires recalculation to add the data
+        emit requestRecalc();
+    }
 }
 
 QString IOGraph::valueUnitLabel() const
