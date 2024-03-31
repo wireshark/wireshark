@@ -41,8 +41,8 @@ public:
 
 private:
     ProtoNode *root_node_;
-    static bool foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr);
-    static bool foreachFindField(ProtoNode *node, gpointer find_finfo_ptr);
+    static bool foreachFindHfid(ProtoNode *node, void *find_hfid_ptr);
+    static bool foreachFindField(ProtoNode *node, void *find_finfo_ptr);
 };
 
 #endif // PROTO_TREE_MODEL_H

@@ -370,7 +370,7 @@ void InterfaceTreeModel::interfaceListChanged()
 QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
 {
 #ifdef HAVE_LIBPCAP
-    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx)
+    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (unsigned) idx)
         return QVariant();
 
     interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
@@ -434,7 +434,7 @@ void InterfaceTreeModel::stopStatistic()
 void InterfaceTreeModel::updateStatistic(unsigned int idx)
 {
 #ifdef HAVE_LIBPCAP
-    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx)
+    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (unsigned) idx)
         return;
 
     interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
@@ -540,12 +540,12 @@ bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
         {
             if (! device->selected)
                 selectionHasChanged = true;
-            device->selected = TRUE;
+            device->selected = true;
             global_capture_opts.num_selected++;
         } else {
             if (device->selected)
                 selectionHasChanged = true;
-            device->selected = FALSE;
+            device->selected = false;
         }
     }
 #else

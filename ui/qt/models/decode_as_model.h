@@ -13,7 +13,6 @@
 #define DECODE_AS_MODEL_H
 
 #include <config.h>
-#include <glib.h>
 
 #include <QAbstractItemModel>
 #include <QList>
@@ -31,8 +30,8 @@ public:
     DecodeAsItem(const decode_as_t *entry, gconstpointer selector = NULL);
     virtual ~DecodeAsItem();
 
-    const gchar* tableName() const { return tableName_; }
-    const gchar* tableUIName() const { return tableUIName_; }
+    const char* tableName() const { return tableName_; }
+    const char* tableUIName() const { return tableUIName_; }
     uint selectorUint() const { return selectorUint_; }
     QString selectorString() const { return selectorString_; }
     decode_dcerpc_bind_values_t* selectorDCERPC() const { return selectorDCERPC_; }
@@ -48,8 +47,8 @@ public:
 private:
     void init(const char *table_name, gconstpointer selector = NULL);
 
-    const gchar* tableName_;
-    const gchar* tableUIName_;
+    const char* tableName_;
+    const char* tableUIName_;
 
     //save our sanity and not have to worry about memory management
     //between (lack of) persistent data in GUI and underlying data
@@ -95,25 +94,25 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
     void clearAll();
     bool copyRow(int dst_row, int src_row);
-    bool copyFromProfile(QString filename, const gchar **err);
+    bool copyFromProfile(QString filename, const char **err);
 
-    static QString entryString(const gchar *table_name, gconstpointer value);
+    static QString entryString(const char *table_name, gconstpointer value);
 
     void applyChanges();
 
 protected:
-    static void buildChangedList(const gchar *table_name, ftenum_t selector_type,
-                          gpointer key, gpointer value, gpointer user_data);
-    static void buildDceRpcChangedList(gpointer data, gpointer user_data);
-    static void gatherChangedEntries(const gchar *table_name, ftenum_t selector_type,
-                          gpointer key, gpointer value, gpointer user_data);
-    static prefs_set_pref_e readDecodeAsEntry(gchar *key, const gchar *value,
+    static void buildChangedList(const char *table_name, ftenum_t selector_type,
+                          void *key, void *value, void *user_data);
+    static void buildDceRpcChangedList(void *data, void *user_data);
+    static void gatherChangedEntries(const char *table_name, ftenum_t selector_type,
+                          void *key, void *value, void *user_data);
+    static prefs_set_pref_e readDecodeAsEntry(char *key, const char *value,
                           void *user_data, bool);
 
 private:
     capture_file *cap_file_;
     QList<DecodeAsItem *> decode_as_items_;
-    QList<QPair<const char *, guint32> > changed_uint_entries_;
+    QList<QPair<const char *, uint32_t> > changed_uint_entries_;
     QList<QPair<const char *, const char *> > changed_string_entries_;
 };
 

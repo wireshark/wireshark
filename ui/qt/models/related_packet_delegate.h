@@ -26,7 +26,7 @@ class RelatedPacketDelegate : public QStyledItemDelegate
 public:
     RelatedPacketDelegate(QWidget *parent = 0);
     void clear();
-    void setCurrentFrame(guint32 current_frame);
+    void setCurrentFrame(uint32_t current_frame);
     void setConversation(struct conversation *conv);
 
 public slots:
@@ -41,7 +41,7 @@ protected:
 private:
     QHash<int, ft_framenum_type_t> related_frames_;
     struct conversation *conv_;
-    guint32 current_frame_;
+    uint32_t current_frame_;
 
     void drawArrow(QPainter *painter, const QPoint tail, const QPoint head, int head_size) const;
     void drawChevrons(QPainter *painter, const QPoint tail, const QPoint head, int head_size) const;

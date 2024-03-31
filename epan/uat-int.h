@@ -16,6 +16,8 @@
 #ifndef __UAT_INT_H__
 #define __UAT_INT_H__
 
+#include <glib.h>
+
 #include "uat.h"
 #include "ws_symbol_export.h"
 

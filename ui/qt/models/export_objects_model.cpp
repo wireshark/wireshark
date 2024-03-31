@@ -176,7 +176,7 @@ void ExportObjectModel::saveAllEntries(QString path)
         if (entry == NULL)
             continue;
 
-        guint count = 0;
+        unsigned count = 0;
         QString filename;
 
         do {
@@ -196,7 +196,7 @@ void ExportObjectModel::saveAllEntries(QString path)
                     EXPORT_OBJECT_MAXFILELEN, count);
             }
             filename = QString::fromUtf8(safe_filename->str);
-            g_string_free(safe_filename, TRUE);
+            g_string_free(safe_filename, true);
         } while (save_dir.exists(filename) && ++count < prefs.gui_max_export_objects);
         write_file_binary_mode(qUtf8Printable(save_dir.filePath(filename)),
                                entry->payload_data, entry->payload_len);

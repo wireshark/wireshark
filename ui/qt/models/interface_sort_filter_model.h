@@ -16,8 +16,6 @@
 
 #include <ui/qt/models/interface_tree_model.h>
 
-#include <glib.h>
-
 #include <QSortFilterProxyModel>
 
 class InterfaceSortFilterModel : public QSortFilterProxyModel

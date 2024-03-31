@@ -66,7 +66,7 @@ void AdvancedPrefDelegate::setEditorData(QWidget *editor, const QModelIndex &ind
         return;
     }
 
-    Q_ASSERT(FALSE);
+    Q_ASSERT(false);
 }
 
 void AdvancedPrefDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
@@ -81,5 +81,5 @@ void AdvancedPrefDelegate::setModelData(QWidget *editor, QAbstractItemModel *mod
         return;
     }
 
-    Q_ASSERT(FALSE);
+    Q_ASSERT(false);
 }

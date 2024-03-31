@@ -72,7 +72,7 @@ ColoringRuleItem& ColoringRuleItem::operator=(ColoringRuleItem& rhs)
 
 // Callback for color_filters_clone.
 void
-color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
+color_filter_add_cb(color_filter_t *colorf, void *user_data)
 {
     ColoringRulesModel *model = (ColoringRulesModel*)user_data;
 
@@ -149,7 +149,7 @@ void ColoringRulesModel::addColor(bool disabled, QString filter, QColor foregrou
 bool ColoringRulesModel::importColors(QString filename, QString& err)
 {
     bool success = true;
-    gchar* err_msg = NULL;
+    char* err_msg = NULL;
     if (!color_filters_import(filename.toUtf8().constData(), this, &err_msg, color_filter_add_cb)) {
         err = gchar_free_to_qstring(err_msg);
         success = false;
@@ -162,8 +162,8 @@ bool ColoringRulesModel::exportColors(QString filename, QString& err)
 {
     GSList *cfl = createColorFilterList();
     bool success = true;
-    gchar* err_msg = NULL;
-    if (!color_filters_export(filename.toUtf8().constData(), cfl, FALSE, &err_msg)) {
+    char* err_msg = NULL;
+    if (!color_filters_export(filename.toUtf8().constData(), cfl, false, &err_msg)) {
         err = gchar_free_to_qstring(err_msg);
         success = false;
     }
@@ -176,7 +176,7 @@ bool ColoringRulesModel::writeColors(QString& err)
 {
     GSList *cfl = createColorFilterList();
     bool success = true;
-    gchar* err_msg = NULL;
+    char* err_msg = NULL;
     if (!color_filters_apply(conversation_colors_, cfl, &err_msg)) {
         err = gchar_free_to_qstring(err_msg);
         success = false;

@@ -7,8 +7,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h>
-
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
@@ -116,14 +114,14 @@ bool ATapDataModel::enableTap()
     GString * errorString = register_tap_listener(tap().toUtf8().constData(), hash(), _filter.toUtf8().constData(),
         TL_IGNORE_DISPLAY_FILTER, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
-        g_string_free(errorString, TRUE);
+        g_string_free(errorString, true);
         _disableTap = true;
         emit tapListenerChanged(false);
         return false;
     }
 
     if (errorString)
-        g_string_free(errorString, TRUE);
+        g_string_free(errorString, true);
 
     emit tapListenerChanged(true);
 
@@ -297,7 +295,7 @@ void ATapDataModel::setFilter(QString filter)
     }
 
     if (errorString)
-        g_string_free(errorString, TRUE);
+        g_string_free(errorString, true);
 }
 
 QString ATapDataModel::filter() const

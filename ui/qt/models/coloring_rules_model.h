@@ -14,7 +14,6 @@
 
 #include <config.h>
 
-#include <glib.h>
 #include <epan/color_filters.h>
 
 #include <ui/qt/models/tree_model_helpers.h>

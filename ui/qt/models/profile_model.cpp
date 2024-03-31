@@ -11,7 +11,6 @@
 
 #include <errno.h>
 
-#include "glib.h"
 #include "ui/profile.h"
 #include "ui/recent.h"
 #include "wsutil/filesystem.h"
@@ -492,7 +491,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
     {
     case PROF_STAT_DEFAULT:
         if (!reset_default_)
-            return gchar_free_to_qstring(get_persconffile_path("", FALSE));
+            return gchar_free_to_qstring(get_persconffile_path("", false));
         else
             return tr("Resetting to default");
     case PROF_STAT_EXISTS:
@@ -537,7 +536,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 QString appendix;
 
                 /* A global profile is neither deleted or removed, only system provided is allowed as appendix */
-                if (profile_exists(prof->reference, TRUE) && prof->from_global)
+                if (profile_exists(prof->reference, true) && prof->from_global)
                     appendix = tr("system provided");
                 /* A default model as reference can neither be deleted or renamed, so skip if the reference was one */
                 else  if (! index.data(ProfileModel::DATA_IS_DEFAULT).toBool())
@@ -722,7 +721,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
         cnt++;
     }
 
-    add_to_profile_list(newName.toUtf8().constData(), newName.toUtf8().constData(), PROF_STAT_NEW, FALSE, FALSE, FALSE);
+    add_to_profile_list(newName.toUtf8().constData(), newName.toUtf8().constData(), PROF_STAT_NEW, false, false, false);
     loadProfiles();
 
     return index(findByName(newName), COL_NAME);
@@ -794,7 +793,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
         new_status = PROF_STAT_NEW;
 
     /* add element */
-    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), new_status, FALSE, prof->from_global ? prof->from_global : prof->is_global, FALSE);
+    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), new_status, false, prof->from_global ? prof->from_global : prof->is_global, false);
 
     /* reload profile list in model */
     loadProfiles();
@@ -1163,7 +1162,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
             if (success)
             {
                 count++;
-                add_to_profile_list(fentry.fileName().toUtf8().constData(), fentry.fileName().toUtf8().constData(), PROF_STAT_NEW, FALSE, FALSE, TRUE);
+                add_to_profile_list(fentry.fileName().toUtf8().constData(), fentry.fileName().toUtf8().constData(), PROF_STAT_NEW, false, false, true);
             }
             else if (! wasEmpty && QFile::exists(profilePath))
             {

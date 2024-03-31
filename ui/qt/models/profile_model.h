@@ -11,7 +11,6 @@
 #define PROFILE_MODEL_H
 
 #include "config.h"
-#include "glib.h"
 
 #include <ui/profile.h>
 

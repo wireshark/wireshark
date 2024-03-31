@@ -189,7 +189,7 @@ struct find_hfid_ {
 };
 
 // NOLINTNEXTLINE(misc-no-recursion)
-bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr)
+bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, void *find_hfid_ptr)
 {
     struct find_hfid_ *find_hfid = (struct find_hfid_ *) find_hfid_ptr;
     if (PNODE_FINFO(node->protoNode()) && PNODE_FINFO(node->protoNode())->hfinfo->id == find_hfid->hfid) {
@@ -224,7 +224,7 @@ struct find_field_info_ {
 };
 
 // NOLINTNEXTLINE(misc-no-recursion)
-bool ProtoTreeModel::foreachFindField(ProtoNode *node, gpointer find_finfo_ptr)
+bool ProtoTreeModel::foreachFindField(ProtoNode *node, void *find_finfo_ptr)
 {
     struct find_field_info_ *find_finfo = (struct find_field_info_ *) find_finfo_ptr;
     if (PNODE_FINFO(node->protoNode()) == find_finfo->fi) {

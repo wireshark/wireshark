@@ -43,7 +43,7 @@ public:
     bool applyValue();
 
 protected:
-    virtual void applyValuePrivate(gboolean value) = 0;
+    virtual void applyValuePrivate(bool value) = 0;
 
     QString name_;
     QString description_;

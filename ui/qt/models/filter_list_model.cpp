@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h>
-
 #include <wsutil/filesystem.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -66,7 +64,7 @@ void FilterListModel::reload()
     }
 
     /* Try personal config file first */
-    QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, TRUE));
+    QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, true));
     if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         fileName = gchar_free_to_qstring(get_datafile_path(cfile));
     if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))

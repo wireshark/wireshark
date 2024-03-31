@@ -15,7 +15,6 @@
 #define UAT_MODEL_H
 
 #include <config.h>
-#include <glib.h>
 
 #include <QAbstractItemModel>
 #include <QList>

@@ -31,7 +31,7 @@ public:
     virtual ~ProtocolTreeItem() {}
 
 protected:
-    virtual void applyValuePrivate(gboolean value)
+    virtual void applyValuePrivate(bool value)
     {
         if (! proto_can_toggle_protocol(proto_get_id(proto_))) {
             return;
@@ -56,7 +56,7 @@ public:
     virtual ~HeuristicTreeItem() {}
 
 protected:
-    virtual void applyValuePrivate(gboolean value)
+    virtual void applyValuePrivate(bool value)
     {
         heuristic_table_->enabled = value;
     }
@@ -270,7 +270,7 @@ bool EnabledProtocolsModel::setData(const QModelIndex &index, const QVariant &va
     return true;
 }
 
-static void addHeuristicItem(gpointer data, gpointer user_data)
+static void addHeuristicItem(void *data, void *user_data)
 {
     heur_dtbl_entry_t* heur = (heur_dtbl_entry_t*)data;
     ProtocolTreeItem* protocol_item = (ProtocolTreeItem*)user_data;

@@ -46,11 +46,11 @@ void DecodeAsDelegate::cachePacketProtocols()
     if (cap_file_ && cap_file_->edt) {
 
         wmem_list_frame_t * protos = wmem_list_head(cap_file_->edt->pi.layers);
-        guint8 curr_layer_num = 1;
+        uint8_t curr_layer_num = 1;
 
         while (protos != NULL) {
             int proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-            const gchar * proto_name = proto_get_protocol_filter_name(proto_id);
+            const char * proto_name = proto_get_protocol_filter_name(proto_id);
             for (GList *cur = decode_as_list; cur; cur = cur->next) {
                 decode_as_t *entry = (decode_as_t *) cur->data;
                 if (g_strcmp0(proto_name, entry->name) == 0) {
@@ -95,7 +95,7 @@ void DecodeAsDelegate::collectDAProtocols(QSet<QString>& all_protocols, QList<QS
 //correspond to using a combo box
 bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
 {
-    const gchar *proto_name = NULL;
+    const char *proto_name = NULL;
 
     foreach(packet_proto_data_t proto, packet_proto_list_)
     {
@@ -117,7 +117,7 @@ bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
     return false;
 }
 
-void DecodeAsDelegate::decodeAddProtocol(const gchar *, const gchar *proto_name, gpointer value, gpointer user_data)
+void DecodeAsDelegate::decodeAddProtocol(const char *, const char *proto_name, void *value, void *user_data)
 {
     QList<dissector_info_t*>* proto_list = (QList<dissector_info_t*>*)user_data;
 
@@ -178,10 +178,10 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
     case DecodeAsModel::colSelector:
         {
         QComboBox *cb_editor = NULL;
-        const gchar *proto_name = NULL;
+        const char *proto_name = NULL;
         bool edt_present = cap_file_ && cap_file_->edt;
-        gint8 curr_layer_num_saved = edt_present ? cap_file_->edt->pi.curr_layer_num : 0;
-        QList<guint8> proto_layers;
+        int8_t curr_layer_num_saved = edt_present ? cap_file_->edt->pi.curr_layer_num : 0;
+        QList<uint8_t> proto_layers;
 
         foreach(packet_proto_data_t proto, packet_proto_list_)
         {
@@ -212,7 +212,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                         cb_editor->addItem(current_value);
 
                     //get the value(s) from the packet
-                    foreach(guint8 current_layer, proto_layers) {
+                    foreach(uint8_t current_layer, proto_layers) {
                         cap_file_->edt->pi.curr_layer_num = current_layer;
                         for (uint ni = 0; ni < entry->num_items; ni++) {
                             if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries

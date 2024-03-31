@@ -12,6 +12,9 @@
 #ifndef __FILESET_H__
 #define __FILESET_H__
 
+#include <inttypes.h>
+#include <time.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -21,8 +24,8 @@ typedef struct _fileset_entry {
     char     *name;          /* File name without path (g_strdup'ed) */
     time_t   ctime;          /* create time */
     time_t   mtime;          /* last modified time */
-    gint64   size;           /* size of file in bytes */
-    gboolean current;        /* is this the currently loaded file? */
+    int64_t  size;           /* size of file in bytes */
+    bool     current;        /* is this the currently loaded file? */
 } fileset_entry;
 
 typedef enum {

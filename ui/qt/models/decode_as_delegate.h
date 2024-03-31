@@ -13,7 +13,6 @@
 #define DECODE_AS_DELEGATE_H
 
 #include <config.h>
-#include <glib.h>
 
 #include "cfile.h"
 
@@ -23,9 +22,9 @@
 #include <ui/qt/models/decode_as_model.h>
 
 typedef struct _packet_proto_data_t {
-    const gchar* proto_name;
-    const gchar* table_ui_name;
-    guint8       curr_layer_num;
+    const char* proto_name;
+    const char* table_ui_name;
+    uint8_t     curr_layer_num;
 } packet_proto_data_t;
 
 class DecodeAsDelegate : public QStyledItemDelegate
@@ -51,7 +50,7 @@ private:
     void cachePacketProtocols();
     bool isSelectorCombo(DecodeAsItem* item) const;
 
-    static void decodeAddProtocol(const gchar *table_name, const gchar *proto_name, gpointer value, gpointer user_data);
+    static void decodeAddProtocol(const char *table_name, const char *proto_name, void *value, void *user_data);
 
     capture_file *cap_file_;
     QList<packet_proto_data_t> packet_proto_list_;

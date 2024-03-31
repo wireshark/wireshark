@@ -32,7 +32,7 @@ QWidget* ColoringRulesDelegate::createEditor(QWidget *parent, const QStyleOption
         return new DisplayFilterEdit(parent);
 
     default:
-        Q_ASSERT(FALSE);
+        Q_ASSERT(false);
         return 0;
     }
 

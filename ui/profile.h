@@ -13,6 +13,8 @@
 #ifndef __PROFILE_H__
 #define __PROFILE_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

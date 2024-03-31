@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <fileset.h>
 
 #include <QAbstractItemModel>

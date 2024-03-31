@@ -11,7 +11,6 @@
 #define VOIP_CALLS_INFO_MODEL_H
 
 #include <config.h>
-#include <glib.h>
 
 #include "ui/voip_calls.h"
 #include <ui/qt/utils/variant_pointer.h>

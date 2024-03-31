@@ -24,7 +24,7 @@
 
 #include <QStringList>
 
-QCache<guint32, QStringList> PacketListRecord::col_text_cache_(500);
+QCache<uint32_t, QStringList> PacketListRecord::col_text_cache_(500);
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::rows_color_ver_ = 1;
 
@@ -112,7 +112,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
     // packet_list_store.c:packet_list_dissect_and_cache_record
     epan_dissect_t edt;
     column_info *cinfo = NULL;
-    gboolean create_proto_tree;
+    bool create_proto_tree;
     wtap_rec rec; /* Record metadata */
     Buffer buf;   /* Record data */
 
@@ -144,7 +144,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
          * error message.
          */
         if (dissect_columns) {
-            col_fill_in_error(cinfo, fdata_, FALSE, FALSE /* fill_fd_columns */);
+            col_fill_in_error(cinfo, fdata_, false, false /* fill_fd_columns */);
 
             cacheColumnStrings(cinfo);
         }
@@ -175,7 +175,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
 
     epan_dissect_init(&edt, cap_file->epan,
                       create_proto_tree,
-                      FALSE /* proto_tree_visible */);
+                      false /* proto_tree_visible */);
 
     /* Re-color when the coloring rules are changed via the UI. */
     if (dissect_color) {
@@ -195,7 +195,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
 
     if (dissect_columns) {
         /* "Stringify" non frame_data vals */
-        epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);
+        epan_dissect_fill_in_columns(&edt, false, false /* fill_fd_columns */);
         cacheColumnStrings(cinfo);
     }
 
@@ -214,7 +214,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
 
 void PacketListRecord::cacheColumnStrings(column_info *cinfo)
 {
-    // packet_list_store.c:packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gint col, column_info *cinfo)
+    // packet_list_store.c:packet_list_change_record(PacketList *packet_list, PacketListRecord *record, int col, column_info *cinfo)
     if (!cinfo) {
         return;
     }
@@ -230,7 +230,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         QString col_str;
         int text_col = cinfo_column_.value(column, -1);
         if (text_col < 0) {
-            col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
+            col_fill_in_frame_data(fdata_, cinfo, column, false);
         }
 
         col_str = QString(get_column_text(cinfo, column));

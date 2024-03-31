@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "cfile.h"
 
 #include <epan/column.h>
@@ -60,7 +58,7 @@ public:
 
 private:
     /** The column text for some columns */
-    static QCache<guint32, QStringList> col_text_cache_;
+    static QCache<uint32_t, QStringList> col_text_cache_;
 
     frame_data *fdata_;
     int lines_;

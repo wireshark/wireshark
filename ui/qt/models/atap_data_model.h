@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include "glib.h"
-
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>

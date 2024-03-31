@@ -14,8 +14,6 @@
 
 #include <stdio.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #include <QAbstractItemModel>
@@ -46,7 +44,7 @@ public:
                       const QModelIndex & = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &) const;
     int packetNumberToRow(int packet_num) const;
-    guint recreateVisibleRows();
+    unsigned recreateVisibleRows();
     void clear();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -54,7 +52,7 @@ public:
     QVariant data(const QModelIndex &d_index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    gint appendPacket(frame_data *fdata);
+    int appendPacket(frame_data *fdata);
     frame_data *getRowFdata(QModelIndex idx) const;
     frame_data *getRowFdata(int row) const;
     void ensureRowColorized(int row);
@@ -69,13 +67,13 @@ public:
     void resetColumns();
     void resetColorized();
     void toggleFrameMark(const QModelIndexList &indeces);
-    void setDisplayedFrameMark(gboolean set);
+    void setDisplayedFrameMark(bool set);
     void toggleFrameIgnore(const QModelIndexList &indeces);
-    void setDisplayedFrameIgnore(gboolean set);
+    void setDisplayedFrameIgnore(bool set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();
     void addFrameComment(const QModelIndexList &indices, const QByteArray &comment);
-    void setFrameComment(const QModelIndex &index, const QByteArray &comment, guint c_number);
+    void setFrameComment(const QModelIndex &index, const QByteArray &comment, unsigned c_number);
     void deleteFrameComments(const QModelIndexList &indices);
     void deleteAllFrameComments();
 

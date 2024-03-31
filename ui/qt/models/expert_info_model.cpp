@@ -118,7 +118,7 @@ ExpertPacketItem* ExpertInfoModel::createRootItem()
 {
     static const char* rootName = "ROOT";
 DIAG_OFF_CAST_AWAY_CONST
-    static expert_info_t root_expert = { 0, -1, -1, -1, rootName, (gchar*)rootName, NULL };
+    static expert_info_t root_expert = { 0, -1, -1, -1, rootName, (char*)rootName, NULL };
 DIAG_ON_CAST_AWAY_CONST
 
     return new ExpertPacketItem(root_expert, NULL, NULL);
@@ -355,8 +355,8 @@ int ExpertInfoModel::columnCount(const QModelIndex&) const
 
 void ExpertInfoModel::addExpertInfo(const struct expert_info_s& expert_info)
 {
-    QString groupKey = ExpertPacketItem::groupKey(FALSE, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
-    QString summaryKey = ExpertPacketItem::groupKey(TRUE, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
+    QString groupKey = ExpertPacketItem::groupKey(false, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
+    QString summaryKey = ExpertPacketItem::groupKey(true, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
 
     ExpertPacketItem* expert_root = root_->child(groupKey);
     if (expert_root == NULL) {

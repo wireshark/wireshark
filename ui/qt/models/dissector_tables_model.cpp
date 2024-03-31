@@ -179,7 +179,7 @@ QVariant DissectorTablesModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-static void gatherProtocolDecodes(const char *, ftenum_t selector_type, gpointer key, gpointer value, gpointer item_ptr)
+static void gatherProtocolDecodes(const char *, ftenum_t selector_type, void *key, void *value, void *item_ptr)
 {
     DissectorTablesItem* pdl_ptr = (DissectorTablesItem*)item_ptr;
     if (pdl_ptr == NULL)
@@ -225,7 +225,7 @@ struct tables_root
     DissectorTablesItem* string_table;
 };
 
-static void gatherTableNames(const char *short_name, const char *table_name, gpointer model_ptr)
+static void gatherTableNames(const char *short_name, const char *table_name, void *model_ptr)
 {
     struct tables_root* tables = (struct tables_root*)model_ptr;
     if (model_ptr == NULL)
@@ -262,7 +262,7 @@ static void gatherTableNames(const char *short_name, const char *table_name, gpo
     dissector_table_foreach(short_name, gatherProtocolDecodes, dt_ti);
 }
 
-static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl_entry, gpointer list_ptr)
+static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl_entry, void *list_ptr)
 {
     DissectorTablesItem* hdl_ptr = (DissectorTablesItem*)list_ptr;
     if (hdl_ptr == NULL)
@@ -279,7 +279,7 @@ static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl
     }
 }
 
-static void gatherHeurTableNames(const char *table_name, heur_dissector_list *list, gpointer heur_tables)
+static void gatherHeurTableNames(const char *table_name, heur_dissector_list *list, void *heur_tables)
 {
     DissectorTablesItem* table = (DissectorTablesItem*)heur_tables;
     if (table == NULL)

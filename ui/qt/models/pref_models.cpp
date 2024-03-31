@@ -26,7 +26,7 @@
 static GHashTable * pref_ptr_to_pref_ = NULL;
 pref_t *prefFromPrefPtr(void *pref_ptr)
 {
-    return (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, (gpointer) pref_ptr);
+    return (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, (void *) pref_ptr);
 }
 
 static void prefInsertPrefPtr(void * pref_ptr, pref_t * pref)
@@ -34,8 +34,8 @@ static void prefInsertPrefPtr(void * pref_ptr, pref_t * pref)
     if (! pref_ptr_to_pref_)
         pref_ptr_to_pref_ = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
-    gpointer key = (gpointer) pref_ptr;
-    gpointer val = (gpointer) pref;
+    void *key = (void *) pref_ptr;
+    void *val = (void *) pref;
 
     /* Already existing entries will be ignored */
     if ((void *)g_hash_table_lookup(pref_ptr_to_pref_, key) == NULL)
@@ -232,8 +232,8 @@ QVariant PrefsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-static guint
-fill_prefs(module_t *module, gpointer root_ptr)
+static unsigned
+fill_prefs(module_t *module, void *root_ptr)
 {
     PrefsItem* root_item = static_cast<PrefsItem*>(root_ptr);
 
@@ -275,7 +275,7 @@ fill_prefs(module_t *module, gpointer root_ptr)
 
 void PrefsModel::populate()
 {
-    prefs_modules_foreach_submodules(NULL, fill_prefs, (gpointer)root_);
+    prefs_modules_foreach_submodules(NULL, fill_prefs, (void *)root_);
 
     //Add the "specially handled" preferences
     PrefsItem *appearance_item, *appearance_subitem, *special_item;
@@ -473,7 +473,7 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
         case PREF_UINT:
             {
             bool ok;
-            guint new_val = value.toString().toUInt(&ok, prefs_get_uint_base(item->getPref()));
+            unsigned new_val = value.toString().toUInt(&ok, prefs_get_uint_base(item->getPref()));
 
             if (ok)
                 prefs_set_uint_value(item->getPref(), new_val, pref_stashed);

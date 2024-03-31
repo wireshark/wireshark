@@ -166,7 +166,7 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
 
 /* test if both files could be in the same file set */
 /* (fname2 must already be in correct shape) */
-static gboolean
+static bool
 fileset_is_file_in_set(const char *fname1, const char *fname2)
 {
     char        *pfx1;
@@ -175,18 +175,18 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
     char        *sfx2;
     fileset_match_t match1;
     fileset_match_t match2;
-    gboolean    ret = FALSE;
+    bool        ret = false;
 
     match1 = fileset_filename_match_pattern(fname1, &pfx1, &sfx1, NULL);
     if (match1 == FILESET_NO_MATCH) {
-        return FALSE;
+        return false;
     }
 
     match2 = fileset_filename_match_pattern(fname2, &pfx2, &sfx2, NULL);
     /* just to be sure ... */
     ws_assert(match2 != FILESET_NO_MATCH);
     if (match1 == match2 && g_strcmp0(pfx1, pfx2) == 0 && g_strcmp0(sfx1, sfx2) == 0) {
-        ret = TRUE;
+        ret = true;
     }
 
     g_free(pfx1);
@@ -198,7 +198,7 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
 }
 
 /* GCompareFunc helper for g_list_find_custom() */
-static gint
+static int
 fileset_find_by_path(gconstpointer a, gconstpointer b)
 {
     const fileset_entry *entry;
@@ -244,7 +244,7 @@ fileset_update_file(const char *path)
 
 /* we know this file is part of the set, so add it */
 static fileset_entry *
-fileset_add_file(const char *dirname, const char *fname, gboolean current)
+fileset_add_file(const char *dirname, const char *fname, bool current)
 {
     int fh, result;
     ws_statb64 buf;
@@ -284,7 +284,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
 
 /* compare two list entries by creation date/time (through filename) */
-static gint
+static int
 fileset_sort_compare(gconstpointer a, gconstpointer b)
 {
     const fileset_entry *entry_a = (const fileset_entry *)a;
@@ -318,7 +318,7 @@ fileset_add_dir(const char *fname, void *window)
     WS_DIRENT     *file;            /* current file */
     const char    *name;
     GString       *dirname;
-    gchar         *fname_dup;
+    char          *fname_dup;
 
 
     /* get (convert) directory name, but don't touch the given string */
@@ -345,11 +345,11 @@ fileset_add_dir(const char *fname, void *window)
         } /* if */
     } else {
         /* no, this is a "standalone file", just add this one */
-        fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);
+        fileset_add_file(dirname->str, get_basename(fname), true /* current */);
         /* don't add the file to the dialog here, this will be done in fileset_update_dlg() below */
     }
 
-    g_string_free(dirname, TRUE /* free_segment */);
+    g_string_free(dirname, true /* free_segment */);
 
     /* sort entries by creation time */
     set.entries = g_list_sort(set.entries, fileset_sort_compare);
@@ -431,13 +431,13 @@ fileset_get_previous(void)
 
 
 /* delete a single entry */
-static void fileset_entry_delete(gpointer data, gpointer user_data _U_)
+static void fileset_entry_delete(void *data, void *user_data _U_)
 {
     fileset_entry *entry = (fileset_entry *)data;
 
-    g_free( (gpointer) entry->fullname);
+    g_free( (void *) entry->fullname);
     entry->fullname = NULL;
-    g_free( (gpointer) entry->name);
+    g_free( (void *) entry->name);
     entry->name = NULL;
     g_free(entry);
 }
@@ -455,7 +455,7 @@ void fileset_delete(void)
 
     /* free the rest */
     if(set.dirname) {
-        g_free( (gpointer) set.dirname);
+        g_free( (void *) set.dirname);
         set.dirname = NULL;
     }
 }
