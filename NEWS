@@ -1,4 +1,4 @@
- Wireshark 3.6.22 Release Notes
+ Wireshark 3.6.23 Release Notes
 
  What is Wireshark?
 
@@ -7,14 +7,11 @@
 
  What’s New
 
-  This is the last release branch with support for 32-bit Windows.
+  This is expected to be the final release of the 3.6 branch.
+
+  This is also the final release with support for 32-bit Windows.
   Updates will no longer be available after May 22, 2024 for that
   platform. Issue 17779[1]
-
-  If you’re running Wireshark on macOS and upgraded to macOS 13 from an
-  earlier version, you might have to open and run the “Uninstall
-  ChmodBPF” package, then open and run “Install ChmodBPF” in order to
-  reset the ChmodBPF Launch Daemon. Issue 18734[2].
 
   Bug Fixes
 
@@ -34,15 +31,17 @@
 
    There is no new or updated capture file support in this release.
 
-  New File Format Decoding Support
+  Updated File Format Decoding Support
 
-   There is no new or updated file format support in this release.
+   There is no updated file format support in this release.
 
  Prior Versions
 
   This document only describes the changes introduced in Wireshark
-  3.6.22. You can find release notes for prior versions at the following
+  3.6.23. You can find release notes for prior versions at the following
   locations:
+
+    • Wireshark 3.6.22[2]
 
     • Wireshark 3.6.21[3]
 
@@ -132,8 +131,8 @@
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/docs/relnotes/wireshark-3.6.20.html
+   2. https://www.wireshark.org/docs/relnotes/wireshark-3.6.22.html
+   3. https://www.wireshark.org/docs/relnotes/wireshark-3.6.21.html
    4. https://www.wireshark.org/docs/relnotes/wireshark-3.6.20.html
    5. https://www.wireshark.org/docs/relnotes/wireshark-3.6.19.html
    6. https://www.wireshark.org/docs/relnotes/wireshark-3.6.18.html
