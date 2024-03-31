@@ -159,9 +159,9 @@ WSLUA_METHOD Tvb_len(lua_State* L) {
 WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
     /* Obtain the reported (not captured) length of packet data to end of a <<lua_class_Tvb,`Tvb`>> or 0 if the
        offset is beyond the end of the <<lua_class_Tvb,`Tvb`>>. */
-#define Tvb_reported_length_remaining_OFFSET 2 /* offset */
+#define WSLUA_OPTARG_Tvb_reported_length_remaining_OFFSET 2 /* offset */
     Tvb tvb = checkTvb(L,1);
-    int offset = (int) luaL_optinteger(L, Tvb_reported_length_remaining_OFFSET, 0);
+    int offset = (int) luaL_optinteger(L, WSLUA_OPTARG_Tvb_reported_length_remaining_OFFSET, 0);
 
     lua_pushinteger(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
     WSLUA_RETURN(1); /* The captured length of the <<lua_class_Tvb,`Tvb`>>. */
