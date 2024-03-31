@@ -1894,7 +1894,15 @@ void IOGraph::applyCurrentColor()
     if (graph_) {
         graph_->setPen(QPen(color_, graph_line_width_));
     } else if (bars_) {
-        bars_->setPen(QPen(QBrush(ColorUtils::graphColor(0)), graph_line_width_)); // ...or omit it altogether?
+        bars_->setPen(QPen(color_.color().darker(110), graph_line_width_));
+        // ...or omit it altogether?
+        // bars_->setPen(QPen(color_);
+        // XXX - We should do something like
+        // bars_->setPen(QPen(ColorUtils::alphaBlend(color_, palette().windowText(), 0.65));
+        // to get a darker outline in light mode and a lighter outline in dark
+        // mode, but we don't yet respect dark mode in IOGraph (or anything
+        // that uses QCustomPlot) - see link below for how to set QCP colors:
+        // https://www.qcustomplot.com/index.php/demos/barchartdemo
         bars_->setBrush(color_);
     }
 }
