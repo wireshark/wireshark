@@ -1312,7 +1312,7 @@
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Pokaż lub ukryj interfejsy, dodaj komentarze i zarządzaj rurami oraz zdalnymi interfejsami.</translation>
+        <translation>Pokaż lub ukryj interfejsy, dodaj komentarze i zarządzaj potokami oraz zdalnymi interfejsami.</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
@@ -5080,7 +5080,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Potok</translation>
     </message>
     <message>
         <source>STDIN</source>
@@ -5208,7 +5208,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka lokalnego potoku</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -6883,19 +6883,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj lub usuń rurę z listy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj lub usuń potok z listy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Pipes</source>
-        <translation>Rury</translation>
+        <translation>Potoki</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj nową rurę używając domyślnych ustawień.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj nowy potok używając domyślnych ustawień.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usuń wybraną rurę z listy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usuń wybrany potok z listy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Interfaces</source>
@@ -6923,7 +6923,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>This version of Wireshark does not save pipe settings.</source>
-        <translation>Ta wersja Wiresharka nie obsługuje ustawień rur.</translation>
+        <translation>Ta wersja programu Wireshark nie obsługuje ustawień potoków.</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save remote settings.</source>
@@ -6935,7 +6935,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>New Pipe</source>
-        <translation>Nowa rura</translation>
+        <translation>Nowy potok</translation>
     </message>
 </context>
 <context>
@@ -7534,7 +7534,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz potok</translation>
     </message>
 </context>
 <context>
