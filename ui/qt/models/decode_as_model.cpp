@@ -499,7 +499,7 @@ bool DecodeAsModel::copyRow(int dst_row, int src_row)
     return true;
 }
 
-prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(gchar *key, const gchar *value, void *private_data, gboolean)
+prefs_set_pref_e DecodeAsModel::readDecodeAsEntry(gchar *key, const gchar *value, void *private_data, bool)
 {
     DecodeAsModel *model = (DecodeAsModel*)private_data;
     if (model == NULL)

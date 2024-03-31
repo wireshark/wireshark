@@ -188,7 +188,7 @@ static GSList *dissector_reset_list = NULL;
 static prefs_set_pref_e
 read_set_decode_as_entries(gchar *key, const gchar *value,
                            void *user_data,
-                           gboolean return_range_errors _U_)
+                           bool return_range_errors _U_)
 {
     gchar *values[4] = {NULL, NULL, NULL, NULL};
     gchar delimiter[4] = {',', ',', ',','\0'};

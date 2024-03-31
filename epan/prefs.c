@@ -66,7 +66,7 @@ static module_t *prefs_register_module_or_subtree(module_t *parent,
     void (*apply_cb)(void), gboolean use_gui);
 static void prefs_register_modules(void);
 static module_t *prefs_find_module_alias(const char *name);
-static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
+static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, bool);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
 static gboolean prefs_is_column_visible(const gchar *cols_hidden, int col);
@@ -5813,11 +5813,11 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
 
 static prefs_set_pref_e
 set_pref(gchar *pref_name, const gchar *value, void *private_data,
-         gboolean return_range_errors)
+         bool return_range_errors)
 {
     guint    cval;
     guint    uval;
-    gboolean bval;
+    bool     bval;
     gint     enum_val;
     gchar    *dotp, *last_dotp;
     static gchar *filter_label = NULL;

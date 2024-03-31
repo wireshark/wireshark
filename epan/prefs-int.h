@@ -119,7 +119,7 @@ struct pref_custom_cbs {
  * @return an indication of whether it succeeded or failed
  * in some fashion.
  */
-typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, void *private_data, gboolean return_range_errors);
+typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, void *private_data, bool return_range_errors);
 
 WS_DLL_PUBLIC
 const char* prefs_get_description(pref_t *pref);

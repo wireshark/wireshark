@@ -1227,7 +1227,7 @@ write_profile_recent(void)
 static prefs_set_pref_e
 read_set_recent_common_pair_static(char *key, const char *value,
                                    void *private_data _U_,
-                                   gboolean return_range_errors _U_)
+                                   bool return_range_errors _U_)
 {
     long num;
     char *p;
@@ -1303,7 +1303,7 @@ read_set_recent_common_pair_static(char *key, const char *value,
 static prefs_set_pref_e
 read_set_recent_pair_static(char *key, const char *value,
                             void *private_data _U_,
-                            gboolean return_range_errors _U_)
+                            bool return_range_errors _U_)
 {
     long num;
     int32_t num_int32;
@@ -1481,7 +1481,7 @@ read_set_recent_pair_static(char *key, const char *value,
 static prefs_set_pref_e
 read_set_recent_pair_dynamic(char *key, const char *value,
                              void *private_data _U_,
-                             gboolean return_range_errors _U_)
+                             bool return_range_errors _U_)
 {
     if (!g_utf8_validate(value, -1, NULL)) {
         return PREFS_SET_SYNTAX_ERR;

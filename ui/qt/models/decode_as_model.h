@@ -108,7 +108,7 @@ protected:
     static void gatherChangedEntries(const gchar *table_name, ftenum_t selector_type,
                           gpointer key, gpointer value, gpointer user_data);
     static prefs_set_pref_e readDecodeAsEntry(gchar *key, const gchar *value,
-                          void *user_data, gboolean return_range_errors);
+                          void *user_data, bool);
 
 private:
     capture_file *cap_file_;

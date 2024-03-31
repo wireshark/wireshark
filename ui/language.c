@@ -31,7 +31,7 @@ char *language = NULL;
 /* set one user's recent common file key/value pair */
 static prefs_set_pref_e
 read_language_pref(char *key, const char *value,
-                   void *private_data _U_, gboolean return_range_errors _U_)
+                   void *private_data _U_, bool return_range_errors _U_)
 {
     if (strcmp(key, LANGUAGE_PREF_LANGUAGE) == 0) {
         g_free(language);
