@@ -9,28 +9,26 @@
  *
  * Routines for ATN upper layer
  * protocol packet disassembly
-
+ *
  * ATN upper layers are embedded within OSI Layer 4 (COTP).
  *
  * ATN upper layers contain:
  * Session Layer (NUL protocol option)
  * Presentation Layer (NUL protocol option)
  * ATN upper Layer/Application (ACSE PDU or PDV-list PDU)
-
+ *
  * ATN applications protocols (i.e. CM or CPDLC) are contained within
  * ACSE user-information or PDV presentation data.
-
+ *
  * details see:
- * http://en.wikipedia.org/wiki/CPDLC
- * http://members.optusnet.com.au/~cjr/introduction.htm
-
+ * https://en.wikipedia.org/wiki/CPDLC
+ * https://members.optusnet.com.au/~cjr/introduction.htm
+ *
  * standards:
- * http://legacy.icao.int/anb/panels/acp/repository.cfm
-
- * note:
- * We are dealing with ATN/ULCS aka ICAO Doc 9705 Ed2 here
+ * We are dealing with ATN/ULCS aka ICAO Doc 9705 Second Edition here
  * (don't think there is an ULCS equivalent for "FANS-1/A ").
-
+ * https://www.icao.int/safety/acp/repository/_%20Doc9705_ed2_1999.pdf
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -3,18 +3,15 @@
  * Copyright 2013
  *
  * Routines for ATN Cpdlcc protocol packet disassembly
-
+ *
  * details see:
- * http://en.wikipedia.org/wiki/CPDLC
- * http://members.optusnet.com.au/~cjr/introduction.htm
-
+ * https://en.wikipedia.org/wiki/CPDLC
+ * https://members.optusnet.com.au/~cjr/introduction.htm
+ *
  * standards:
- * http://legacy.icao.int/anb/panels/acp/repository.cfm
-
- * note:
- * We are dealing with ATN/CPDLC aka ICAO Doc 9705 Ed2 here
+ * We are dealing with ATN/CPDLC aka ICAO Doc 9705 Second Edition here
  * (CPDLC may also be transmitted via ACARS/AOA aka "FANS-1/A ").
-
+ * https://www.icao.int/safety/acp/repository/_%20Doc9705_ed2_1999.pdf
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
