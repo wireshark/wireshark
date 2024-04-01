@@ -6300,9 +6300,9 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data,
         case PREF_BOOL:
             /* XXX - give an error if it's neither "true" nor "false"? */
             if (g_ascii_strcasecmp(value, "true") == 0)
-                bval = TRUE;
+                bval = true;
             else
-                bval = FALSE;
+                bval = false;
             if (*pref->varp.boolp != bval) {
                 containing_module->prefs_changed_flags |= prefs_get_effect_flags(pref);
                 *pref->varp.boolp = bval;
@@ -6819,7 +6819,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     }
 
     case PREF_BOOL:
-        return g_strdup((*(gboolean *) valp) ? "TRUE" : "FALSE");
+        return g_strdup((*(bool *) valp) ? "TRUE" : "FALSE");
 
     case PREF_ENUM:
     case PREF_PROTO_TCP_SNDAMB_ENUM:
