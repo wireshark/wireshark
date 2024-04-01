@@ -105,7 +105,7 @@
 #define OSI_OPT_RFD_MASK                0xf0
 #define OSI_OPT_RFD_SUB_MASK            0x0f
 
-extern gboolean clnp_decode_atn_options; /* as defined in packet-clnp.c */
+extern bool clnp_decode_atn_options; /* as defined in packet-clnp.c */
 extern int hf_clnp_atntt; /* as defined in packet-clnp.c */
 extern int hf_clnp_atnsc; /* as defined in packet-clnp.c */
 

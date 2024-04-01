@@ -76,10 +76,6 @@ static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation
 
 #define MAX_SSN 254
 
-extern gboolean gtcap_PersistentSRT;
-extern guint gtcap_RepetitionTimeout;
-extern guint gtcap_LostTimeout;
-
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
    because else this data are erased during TAP dissector call */
