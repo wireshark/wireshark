@@ -126,7 +126,7 @@ void CaptureFilterCombo::rebuildFilterList()
     QString cur_filter = currentText();
     clear();
     for (GList *li = g_list_first(cfilter_list); li != NULL; li = gxx_list_next(li)) {
-        addItem(gxx_list_data(const gchar *, li));
+        addItem(gxx_list_data(const char *, li));
     }
     lineEdit()->setText(cur_filter);
     lineEdit()->blockSignals(false);

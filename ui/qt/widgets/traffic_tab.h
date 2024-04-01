@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/widgets/traffic_tree.h>

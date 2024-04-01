@@ -204,7 +204,7 @@ void TrafficTreeHeaderView::columnTriggered(bool checked)
     for (int col = 0; col < tree->dataModel()->columnCount(); col++) {
         if (proxy->columnVisible(col)) {
             visible << col;
-            gchar *nr = qstring_strdup(QString::number(col));
+            char *nr = qstring_strdup(QString::number(col));
             *_recentColumnList = g_list_append(*_recentColumnList, nr);
         }
     }

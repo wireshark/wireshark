@@ -11,7 +11,6 @@
 #define COPY_FROM_PROFILE_BUTTON_H
 
 #include <config.h>
-#include <glib.h>
 
 #include <QMenu>
 #include <QPushButton>

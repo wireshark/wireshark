@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "epan/register.h"
 
 #include <QWidget>

@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <ui/recent.h>
 
 #include <ui/qt/models/atap_data_model.h>

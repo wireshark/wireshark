@@ -21,8 +21,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "file.h"
 
 #include "ui/ws_ui_util.h"
@@ -75,21 +73,21 @@ protected:
     static void tap_timeline_reset(void* tapdata);
     static tap_packet_status tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt, const void *data, tap_flags_t flags);
 
-    struct wlan_radio* get_wlan_radio(guint32 packet_num);
+    struct wlan_radio* get_wlan_radio(uint32_t packet_num);
 
     void clip_tsf();
-    int position(guint64 tsf, float ratio);
-    int find_packet_tsf(guint64 tsf);
+    int position(uint64_t tsf, float ratio);
+    int find_packet_tsf(uint64_t tsf);
     void doToolTip(struct wlan_radio *wr, QPoint pos, int x);
     void zoom(double x_fraction);
     double zoom_level;
     qreal start_x, last_x;
     PacketList *packet_list;
-    guint find_packet(qreal x);
+    unsigned find_packet(qreal x);
     float rgb[TIMELINE_HEIGHT][3];
 
-    guint64 start_tsf;
-    guint64 end_tsf;
+    uint64_t start_tsf;
+    uint64_t end_tsf;
     int first_packet; /* first packet displayed */
     struct wlan_radio *first, *last;
     capture_file *capfile;

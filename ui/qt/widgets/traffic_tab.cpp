@@ -530,7 +530,7 @@ TrafficTab::writeGeoIPMapFile(QFile * fp, bool json_only, TrafficDataFilterProxy
 
         if (!maxmind_db_has_coords(result)) {
             // result could be NULL if the caller did not trigger a lookup
-            // before. result->found could be FALSE if no MMDB entry exists.
+            // before. result->found could be false if no MMDB entry exists.
             continue;
         }
 

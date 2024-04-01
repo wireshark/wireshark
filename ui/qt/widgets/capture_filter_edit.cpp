@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/proto.h>
 
 #include "capture_opts.h"
@@ -308,7 +306,7 @@ QPair<const QString, bool> CaptureFilterEdit::getSelectedFilter()
 #ifdef HAVE_LIBPCAP
     int selected_devices = 0;
 
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (device->selected) {
             selected_devices++;

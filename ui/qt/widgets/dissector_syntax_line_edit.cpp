@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #include <wsutil/utf8_entities.h>

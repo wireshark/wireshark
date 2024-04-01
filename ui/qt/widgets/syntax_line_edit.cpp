@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
@@ -212,7 +210,7 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
             * We're being lazy and only printing the first warning.
             * Would it be better to print all of them?
             */
-            syntax_error_message_  = QString(static_cast<gchar *>(warn->data));
+            syntax_error_message_  = QString(static_cast<char *>(warn->data));
         } else if (dfp != NULL && (depr = dfilter_deprecated_tokens(dfp)) != NULL) {
             // You keep using that word. I do not think it means what you think it means.
             // Possible alternatives: ::Troubled, or ::Problematic maybe?
@@ -222,7 +220,7 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
              * Would it be better to print all of them?
              */
             QString token((const char *)g_ptr_array_index(depr, 0));
-            gchar *token_str = qstring_strdup(token.section('.', 0, 0));
+            char *token_str = qstring_strdup(token.section('.', 0, 0));
             header_field_info *hfi = proto_registrar_get_byalias(token_str);
             if (hfi)
                 syntax_error_message_ = tr("\"%1\" is deprecated in favour of \"%2\". "
@@ -279,11 +277,11 @@ void SyntaxLineEdit::checkCustomColumn(QString fields)
     // without all of its integration into the main app, but not every user
     // of FieldFilterEdit wants that, so perhaps we eventually should have
     // another class.
-    gchar **splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
+    char **splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
                 fields.toUtf8().constData(), (GRegexCompileFlags) G_REGEX_RAW,
                 (GRegexMatchFlags) 0);
 
-    for (guint i = 0; i < g_strv_length(splitted_fields); i++) {
+    for (unsigned i = 0; i < g_strv_length(splitted_fields); i++) {
         if (splitted_fields[i] && *splitted_fields[i]) {
             if (proto_check_field_name(splitted_fields[i]) != 0) {
                 setSyntaxState(SyntaxLineEdit::Invalid);

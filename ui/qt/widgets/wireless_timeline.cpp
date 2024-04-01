@@ -75,7 +75,7 @@ static void reset_rgb(float rgb[TIMELINE_HEIGHT][3])
         rgb[i][0] = rgb[i][1] = rgb[i][2] = 1.0;
 }
 
-static void render_pixels(QPainter &p, gint x, gint width, float rgb[TIMELINE_HEIGHT][3], float ratio)
+static void render_pixels(QPainter &p, int x, int width, float rgb[TIMELINE_HEIGHT][3], float ratio)
 {
     int previous = 0, i;
     for (i = 1; i <= TIMELINE_HEIGHT; i++) {
@@ -92,7 +92,7 @@ static void render_pixels(QPainter &p, gint x, gint width, float rgb[TIMELINE_HE
     reset_rgb(rgb);
 }
 
-static void render_rectangle(QPainter &p, gint x, gint width, guint height, int dfilter, float r, float g, float b, float ratio)
+static void render_rectangle(QPainter &p, int x, int width, unsigned height, int dfilter, float r, float g, float b, float ratio)
 {
     p.fillRect(QRectF(x/ratio, TIMELINE_HEIGHT/2-height, width/ratio, dfilter ? height * 2 : height), pcolor(r,g,b));
 }
@@ -157,25 +157,25 @@ void WirelessTimeline::mouseReleaseEvent(QMouseEvent *event)
         return;
 
     /* this was a click */
-    guint num = find_packet(localPos.x());
+    unsigned num = find_packet(localPos.x());
     if (num == 0)
         return;
 
-    cf_goto_frame(&cfile, num, FALSE);
+    cf_goto_frame(&cfile, num, false);
 }
 
 
 void WirelessTimeline::clip_tsf()
 {
     // did we go past the start of the file?
-    if (((gint64) start_tsf) < ((gint64) first->start_tsf)) {
+    if (((int64_t) start_tsf) < ((int64_t) first->start_tsf)) {
         // align the start of the file at the left edge
-        guint64 shift = first->start_tsf - start_tsf;
+        uint64_t shift = first->start_tsf - start_tsf;
         start_tsf += shift;
         end_tsf += shift;
     }
     if (end_tsf > last->end_tsf) {
-        guint64 shift = end_tsf - last->end_tsf;
+        uint64_t shift = end_tsf - last->end_tsf;
         start_tsf -= shift;
         end_tsf -= shift;
     }
@@ -190,32 +190,32 @@ void WirelessTimeline::selectedFrameChanged(QList<int>)
     if (cfile.current_frame) {
         struct wlan_radio *wr = get_wlan_radio(cfile.current_frame->num);
 
-        guint left_margin = 0.9 * start_tsf + 0.1 * end_tsf;
-        guint right_margin = 0.1 * start_tsf + 0.9 * end_tsf;
-        guint64 half_window = (end_tsf - start_tsf)/2;
+        unsigned left_margin = 0.9 * start_tsf + 0.1 * end_tsf;
+        unsigned right_margin = 0.1 * start_tsf + 0.9 * end_tsf;
+        uint64_t half_window = (end_tsf - start_tsf)/2;
 
         if (wr) {
             // are we to the left of the left margin?
             if (wr->start_tsf < left_margin) {
                 // scroll the left edge back to the left margin
-                guint64 offset = left_margin - wr->start_tsf;
+                uint64_t offset = left_margin - wr->start_tsf;
                 if (offset < half_window) {
                     // small movement; keep packet to margin
                     start_tsf -= offset;
                     end_tsf -= offset;
                 } else {
                     // large movement; move packet to center of window
-                    guint64 center = (wr->start_tsf + wr->end_tsf)/2;
+                    uint64_t center = (wr->start_tsf + wr->end_tsf)/2;
                     start_tsf = center - half_window;
                     end_tsf = center + half_window;
                 }
             } else if (wr->end_tsf > right_margin) {
-                guint64 offset = wr->end_tsf - right_margin;
+                uint64_t offset = wr->end_tsf - right_margin;
                 if (offset < half_window) {
                     start_tsf += offset;
                     end_tsf += offset;
                 } else {
-                    guint64 center = (wr->start_tsf + wr->end_tsf)/2;
+                    uint64_t center = (wr->start_tsf + wr->end_tsf)/2;
                     start_tsf = center - half_window;
                     end_tsf = center + half_window;
                 }
@@ -230,10 +230,10 @@ void WirelessTimeline::selectedFrameChanged(QList<int>)
 
 /* given an x position find which packet that corresponds to.
  * if it's inter frame space the subsequent packet is returned */
-guint
+unsigned
 WirelessTimeline::find_packet(qreal x_position)
 {
-    guint64 x_time = start_tsf + (x_position/width() * (end_tsf - start_tsf));
+    uint64_t x_time = start_tsf + (x_position/width() * (end_tsf - start_tsf));
 
     return find_packet_tsf(x_time);
 }
@@ -263,7 +263,7 @@ void WirelessTimeline::captureFileReadFinished()
      */
     /* TODO: update GUI to handle captures with occasional frames missing TSF data */
     /* TODO: indicate error message to the user */
-    for (guint32 n = 1; n < cfile.count; n++) {
+    for (uint32_t n = 1; n < cfile.count; n++) {
         struct wlan_radio *w = get_wlan_radio(n);
         if (w->start_tsf == 0 || w->end_tsf == 0) {
             QString err = tr("Packet number %1 does not include TSF timestamp, not showing timeline.").arg(n);
@@ -300,7 +300,7 @@ void WirelessTimeline::appInitialized()
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);
     if (error_string) {
         report_failure("Wireless Timeline - tap registration failed: %s", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
     }
 }
 
@@ -311,11 +311,11 @@ void WirelessTimeline::resizeEvent(QResizeEvent*)
 
 
 // Calculate the x position on the GUI from the timestamp
-int WirelessTimeline::position(guint64 tsf, float ratio)
+int WirelessTimeline::position(uint64_t tsf, float ratio)
 {
     int position = -100;
 
-    if (tsf != G_MAXUINT64) {
+    if (tsf != UINT64_MAX) {
         position = ((double) tsf - start_tsf)*width()*ratio/(end_tsf-start_tsf);
     }
     return position;
@@ -374,11 +374,11 @@ tap_packet_status WirelessTimeline::tap_timeline_packet(void *tapdata, packet_in
     const struct wlan_radio *wlan_radio_info = (const struct wlan_radio *)data;
 
     /* Save the radio information in our own (GUI) hashtable */
-    g_hash_table_insert(timeline->radio_packet_list, GUINT_TO_POINTER(pinfo->num), (gpointer)wlan_radio_info);
+    g_hash_table_insert(timeline->radio_packet_list, GUINT_TO_POINTER(pinfo->num), (void *)wlan_radio_info);
     return TAP_PACKET_DONT_REDRAW;
 }
 
-struct wlan_radio* WirelessTimeline::get_wlan_radio(guint32 packet_num)
+struct wlan_radio* WirelessTimeline::get_wlan_radio(uint32_t packet_num)
 {
     return (struct wlan_radio*)g_hash_table_lookup(radio_packet_list, GUINT_TO_POINTER(packet_num));
 }
@@ -398,7 +398,7 @@ bool WirelessTimeline::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        guint packet = find_packet(helpEvent->pos().x());
+        unsigned packet = find_packet(helpEvent->pos().x());
         if (packet) {
             doToolTip(get_wlan_radio(packet), helpEvent->globalPos(), helpEvent->x());
         } else {
@@ -448,16 +448,16 @@ void WirelessTimeline::bgColorizationProgress(int first, int last)
 void WirelessTimeline::zoom(double x_fraction)
 {
     /* adjust the zoom around the selected packet */
-    guint64 file_range = last->end_tsf - first->start_tsf;
-    guint64 center = start_tsf + x_fraction * (end_tsf - start_tsf);
-    guint64 span = pow(file_range, 1.0 - zoom_level / TIMELINE_MAX_ZOOM);
+    uint64_t file_range = last->end_tsf - first->start_tsf;
+    uint64_t center = start_tsf + x_fraction * (end_tsf - start_tsf);
+    uint64_t span = pow(file_range, 1.0 - zoom_level / TIMELINE_MAX_ZOOM);
     start_tsf = center - span * x_fraction;
     end_tsf = center + span * (1.0 - x_fraction);
     clip_tsf();
     update();
 }
 
-int WirelessTimeline::find_packet_tsf(guint64 tsf)
+int WirelessTimeline::find_packet_tsf(uint64_t tsf)
 {
     if (cfile.count < 1)
         return 0;
@@ -465,11 +465,11 @@ int WirelessTimeline::find_packet_tsf(guint64 tsf)
     if (cfile.count < 2)
         return 1;
 
-    guint32 min_count = 1;
-    guint32 max_count = cfile.count-1;
+    uint32_t min_count = 1;
+    uint32_t max_count = cfile.count-1;
 
-    guint64 min_tsf = get_wlan_radio(min_count)->end_tsf;
-    guint64 max_tsf = get_wlan_radio(max_count)->end_tsf;
+    uint64_t min_tsf = get_wlan_radio(min_count)->end_tsf;
+    uint64_t max_tsf = get_wlan_radio(max_count)->end_tsf;
 
     for (;;) {
         if (tsf >= max_tsf)
@@ -478,11 +478,11 @@ int WirelessTimeline::find_packet_tsf(guint64 tsf)
         if (tsf < min_tsf)
             return min_count;
 
-        guint32 middle = (min_count + max_count)/2;
+        uint32_t middle = (min_count + max_count)/2;
         if (middle == min_count)
             return middle+1;
 
-        guint64 middle_tsf = get_wlan_radio(middle)->end_tsf;
+        uint64_t middle_tsf = get_wlan_radio(middle)->end_tsf;
 
         if (tsf >= middle_tsf) {
             min_count = middle;
@@ -546,9 +546,9 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
 
         if (ri == NULL) continue;
 
-        gint8 rssi = ri->aggregate ? ri->aggregate->rssi : ri->rssi;
-        guint height = (rssi+100)/2;
-        gint end_nav;
+        int8_t rssi = ri->aggregate ? ri->aggregate->rssi : ri->rssi;
+        unsigned height = (rssi+100)/2;
+        int end_nav;
 
         /* leave a margin above the packets so the selected packet can be seen */
         if (height > TIMELINE_HEIGHT/2-6)
@@ -563,7 +563,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
         if (ri->start_tsf == 0 || ri->end_tsf == 0)
             continue;
 
-        x = ((gint64) (ri->start_tsf - start_tsf))*zoom;
+        x = ((int64_t) (ri->start_tsf - start_tsf))*zoom;
         /* is there a previous anti-aliased pixel to output */
         if (last_x >= 0 && ((int) x) != last_x) {
             /* write it out now */
@@ -602,7 +602,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
         /* record NAV field at higher magnifications */
         end_nav = x + width + ri->nav*zoom;
         if (zoom >= 0.01 && ri->nav && end_nav > 0) {
-            gint y = 2*(packet % (TIMELINE_HEIGHT/2));
+            int y = 2*(packet % (TIMELINE_HEIGHT/2));
             qs.addLine(QLineF((x+width)/ratio, y, end_nav/ratio, y), QPen(pcolor(red,green,blue)));
         }
 

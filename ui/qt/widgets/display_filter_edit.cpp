@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/dfilter/dfilter.h>
 #include <epan/dfilter/dfunctions.h>
 
@@ -587,12 +585,12 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
                 void *field_cookie;
                 const QByteArray fw_ba = field_word.toUtf8(); // or toLatin1 or toStdString?
                 const char *fw_utf8 = fw_ba.constData();
-                gsize fw_len = (gsize) strlen(fw_utf8);
+                size_t fw_len = (size_t) strlen(fw_utf8);
                 for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
                     if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
 
                     if (!g_ascii_strncasecmp(fw_utf8, hfinfo->abbrev, fw_len)) {
-                        if ((gsize) strlen(hfinfo->abbrev) != fw_len) field_list << hfinfo->abbrev;
+                        if ((size_t) strlen(hfinfo->abbrev) != fw_len) field_list << hfinfo->abbrev;
                     }
                 }
             }
@@ -600,7 +598,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
 
         // Add display filter functions to the completion list
         GPtrArray *func_list = df_func_name_list();
-        for (guint i = 0; i < func_list->len; i++) {
+        for (unsigned i = 0; i < func_list->len; i++) {
             field_list << QString::fromUtf8(static_cast<const char *>(func_list->pdata[i])).append("(");
         }
         g_ptr_array_unref(func_list);

@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <QTreeView>
 #include <QAbstractListModel>
 #include <QMap>

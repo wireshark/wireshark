@@ -181,7 +181,7 @@ WiresharkMimeData * FilterExpressionToolBar::createMimeData(QString name, int po
 
 void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int newPos)
 {
-    gchar* err = NULL;
+    char* err = NULL;
     if (oldPos == newPos)
         return;
 
@@ -237,7 +237,7 @@ void FilterExpressionToolBar::onFilterDropped(QString description, QString filte
         return;
 
     filter_expression_new(qUtf8Printable(description),
-            qUtf8Printable(filter), qUtf8Printable(description), TRUE);
+            qUtf8Printable(filter), qUtf8Printable(description), true);
 
     save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
     filterExpressionsChanged();
@@ -407,7 +407,7 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
     struct filter_expression_data* data = (filter_expression_data*)user_data;
 
     if (!fe->enabled)
-        return FALSE;
+        return false;
 
     QString label = QString(fe->label);
 
@@ -449,7 +449,7 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
 
     connect(dfb_action, &QAction::triggered, data->toolbar, &FilterExpressionToolBar::filterClicked);
     data->actions_added = true;
-    return FALSE;
+    return false;
 }
 
 void FilterExpressionToolBar::filterClicked()

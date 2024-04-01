@@ -9,8 +9,6 @@
 
 #include <ui/qt/widgets/drag_drop_toolbar.h>
 
-#include <glib.h>
-
 #include <QMenu>
 
 #ifndef FILTER_EXPRESSION_TOOLBAR_H

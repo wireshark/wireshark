@@ -152,7 +152,7 @@ int FollowStreamText::textPosToPacket(int text_pos) const
 {
     int pkt = 0;
     if (text_pos >= 0) {
-        QMap<int, guint32>::const_iterator it = text_pos_to_packet_.upperBound(text_pos);
+        QMap<int, uint32_t>::const_iterator it = text_pos_to_packet_.upperBound(text_pos);
         if (it != text_pos_to_packet_.end()) {
             pkt = it.value();
         }

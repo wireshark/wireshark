@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/dfilter/dfilter.h>
 
 #include <wsutil/filter_files.h>
@@ -160,12 +158,12 @@ void FieldFilterEdit::buildCompletionList(const QString &field_word, const QStri
             void *field_cookie;
             const QByteArray fw_ba = field_word.toUtf8(); // or toLatin1 or toStdString?
             const char *fw_utf8 = fw_ba.constData();
-            gsize fw_len = (gsize) strlen(fw_utf8);
+            size_t fw_len = (size_t) strlen(fw_utf8);
             for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
                 if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
 
                 if (!g_ascii_strncasecmp(fw_utf8, hfinfo->abbrev, fw_len)) {
-                    if ((gsize) strlen(hfinfo->abbrev) != fw_len) field_list << hfinfo->abbrev;
+                    if ((size_t) strlen(hfinfo->abbrev) != fw_len) field_list << hfinfo->abbrev;
                 }
             }
         }

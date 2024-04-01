@@ -9,8 +9,6 @@
 
 #include "rtp_audio_graph.h"
 
-#include <glib.h>
-
 #include <epan/prefs.h>
 #include <ui/qt/utils/color_utils.h>
 

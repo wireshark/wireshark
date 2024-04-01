@@ -173,9 +173,9 @@ void DisplayFilterCombo::updateMaxCount()
     setMaxCount(prefs.gui_recent_df_entries_max);
 }
 
-extern "C" bool dfilter_combo_add_recent(const gchar *filter) {
+extern "C" bool dfilter_combo_add_recent(const char *filter) {
     if (!cur_display_filter_combo)
-        return FALSE;
+        return false;
 
     // Adding an item to a QComboBox also sets its lineEdit. In our case
     // that means we might trigger a temporary status message so we block
@@ -185,5 +185,5 @@ extern "C" bool dfilter_combo_add_recent(const gchar *filter) {
     cur_display_filter_combo->addItem(filter, QVariant(QDateTime::currentMSecsSinceEpoch()));
     cur_display_filter_combo->clearEditText();
     cur_display_filter_combo->lineEdit()->blockSignals(block_state);
-    return TRUE;
+    return true;
 }

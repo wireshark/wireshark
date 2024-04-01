@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/conversation_table.h>
 
 #include <ui/qt/widgets/traffic_types_list.h>
@@ -48,12 +46,12 @@ static bool iterateProtocols(const void *key, void *value, void *userdata)
     QList<TrafficTypesRowData> * protocols = (QList<TrafficTypesRowData> *)userdata;
 
     register_ct_t* ct = (register_ct_t*)value;
-    const QString title = (const gchar*)key;
+    const QString title = (const char*)key;
     int proto_id = get_conversation_proto_id(ct);
     TrafficTypesRowData entry(proto_id, title);
     protocols->append(entry);
 
-    return FALSE;
+    return false;
 }
 
 TrafficTypesModel::TrafficTypesModel(GList ** recentList, QObject *parent) :
