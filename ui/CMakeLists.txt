@@ -78,6 +78,7 @@ target_link_libraries(ui
 	PRIVATE
 		wsutil
 		wiretap
+		${M_LIBRARIES}
 )
 
 target_include_directories(ui
