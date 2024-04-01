@@ -673,6 +673,7 @@ WSLUA_METHOD TreeItem_add(lua_State *L) {
     which is invalid for this function).  If the first argument is a non-<<lua_class_ProtoField,`ProtoField`>> and a non-<<lua_class_Proto,`Proto`>> then this argument can
     be either a <<lua_class_TvbRange,`TvbRange`>> or a label, and the value is not in use.
 
+    [discrete]
     ====== Example
 
     [source,lua]
