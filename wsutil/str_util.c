@@ -550,6 +550,9 @@ format_units(wmem_allocator_t *allocator, double size,
         case FORMAT_SIZE_UNIT_PACKETS_S:
             wmem_strbuf_append(human_str, is_small ? "packets/s" : "packets/s");
             break;
+        case FORMAT_SIZE_UNIT_FIELDS:
+            wmem_strbuf_append(human_str, is_small ? "fields" : "fields");
+            break;
         case FORMAT_SIZE_UNIT_SECONDS:
             wmem_strbuf_append(human_str, is_small ? "seconds" : "s");
             break;
@@ -639,6 +642,12 @@ format_size_wmem(wmem_allocator_t *allocator, int64_t size,
         case FORMAT_SIZE_UNIT_PACKETS_S:
             wmem_strbuf_append(human_str, is_small ? " packets/s" : "packets/s");
             break;
+        case FORMAT_SIZE_UNIT_FIELDS:
+            wmem_strbuf_append(human_str, is_small ? " fields" : "fields");
+            break;
+        /* These aren't that practical to use with integers, but
+         * perhaps better than asserting.
+         */
         case FORMAT_SIZE_UNIT_SECONDS:
             wmem_strbuf_append(human_str, is_small ? " seconds" : "s");
             break;

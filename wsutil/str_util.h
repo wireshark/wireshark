@@ -230,13 +230,11 @@ int ws_xton(char ch);
 
 typedef enum {
     FORMAT_SIZE_UNIT_NONE,          /**< No unit will be appended. You must supply your own. */
-    /* Note: This does not append a trailing space if there is no prefix.
-     * If you intend to append the unit (instead of listing it in a legend
-     * header somewhere else), you should test whether there is a prefix
-     * (g_ascii_isdigit() on the last character almost surely works, though not
-     * if the size was infinite or NaN) and append a space before the unit
-     * if not (and optionally use a different form for the unit, as with
-     * certain types below.)
+    /* XXX - This does not append a trailing space if there is no prefix.
+     * That's good if you intend to list the unit somewhere else, e.g. in a
+     * legend, header, or other column, but doesn't work well if intending
+     * to append your own unit. You can test whether there's a prefix or
+     * not with g_ascii_isdigit() (plus special handling for inf and NaN).
      */
     FORMAT_SIZE_UNIT_BYTES,         /**< "bytes" for un-prefixed sizes, "B" otherwise. */
     FORMAT_SIZE_UNIT_BITS,          /**< "bits" for un-prefixed sizes, "b" otherwise. */
@@ -244,6 +242,8 @@ typedef enum {
     FORMAT_SIZE_UNIT_BYTES_S,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
     FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" */
     FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" */
+    FORMAT_SIZE_UNIT_FIELDS,        /**< "fields" */
+    /* These next two aren't really for format_size (which takes an int) */
     FORMAT_SIZE_UNIT_SECONDS,       /**< "seconds" for un-prefixed sizes, "s" otherwise. */
     FORMAT_SIZE_UNIT_ERLANGS,       /**< "erlangs" for un-prefixed sizes, "E" otherwise. */
 } format_size_units_e;

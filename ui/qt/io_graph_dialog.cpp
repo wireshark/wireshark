@@ -27,6 +27,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include <ui/qt/widgets/qcp_string_legend_item.h>
+#include <ui/qt/widgets/qcp_axis_ticker_si.h>
 #include "progress_frame.h"
 #include "main_application.h"
 
@@ -576,7 +577,7 @@ void IOGraphDialog::createIOGraph(int currentRow)
     ioGraphs_.append(new IOGraph(ui->ioPlot));
     IOGraph* iog = ioGraphs_[currentRow];
 
-    connect(this, SIGNAL(recalcGraphData(capture_file *, bool)), iog, SLOT(recalcGraphData(capture_file *, bool)));
+    connect(this, SIGNAL(recalcGraphData(capture_file *)), iog, SLOT(recalcGraphData(capture_file *)));
     connect(this, SIGNAL(reloadValueUnitFields()), iog, SLOT(reloadValueUnitField()));
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
             iog, SLOT(captureEvent(CaptureEvent)));
@@ -960,6 +961,7 @@ void IOGraphDialog::getGraphInfo()
 void IOGraphDialog::updateLegend()
 {
     QCustomPlot *iop = ui->ioPlot;
+    QSet<format_size_units_e> format_units_set;
     QSet<QString> vu_label_set;
     QString intervalText = ui->intervalComboBox->itemText(ui->intervalComboBox->currentIndex());
 
@@ -972,10 +974,8 @@ void IOGraphDialog::updateLegend()
             IOGraph *iog = ioGraphs_.value(row, Q_NULLPTR);
             if (graphIsEnabled(row) && iog) {
                 QString label(iog->valueUnitLabel());
-                if (!iog->scaledValueUnit().isEmpty()) {
-                    label += " (" + iog->scaledValueUnit() + ")";
-                }
                 vu_label_set.insert(label);
+                format_units_set.insert(iog->formatUnits());
             }
         }
     }
@@ -984,6 +984,28 @@ void IOGraphDialog::updateLegend()
     if (vu_label_set.size() < 1) {
         iop->legend->layer()->replot();
         return;
+    }
+
+    format_size_units_e format_units = FORMAT_SIZE_UNIT_NONE;
+    if (format_units_set.size() == 1) {
+        format_units = format_units_set.values()[0];
+    }
+
+    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(iop->yAxis->ticker());
+    if (format_units != FORMAT_SIZE_UNIT_NONE) {
+        if (si_ticker) {
+            si_ticker->setUnit(format_units);
+        } else {
+            iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(format_units, QString(), ui->logCheckBox->isChecked())));
+        }
+    } else {
+        if (si_ticker) {
+            if (ui->logCheckBox->isChecked()) {
+                iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
+            } else {
+                iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
+            }
+       }
     }
 
     // All the same. Use the Y Axis label.
@@ -1217,18 +1239,8 @@ void IOGraphDialog::updateStatistics()
         if (need_recalc_ && !file_closed_ && prefs.gui_io_graph_automatic_update) {
             need_recalc_ = false;
             need_replot_ = true;
-            int enabled_graphs = 0;
 
-            if (uat_model_ != NULL) {
-                for (int row = 0; row < uat_model_->rowCount(); row++) {
-                    if (graphIsEnabled(row)) {
-                        ++enabled_graphs;
-                    }
-                }
-            }
-            // With multiple visible graphs, disable Y scaling to avoid
-            // multiple, distinct units.
-            emit recalcGraphData(cap_file_.capFile(), enabled_graphs == 1);
+            emit recalcGraphData(cap_file_.capFile());
             if (!tracer_->graph()) {
                 if (base_graph_ && base_graph_->data()->size() > 0) {
                     tracer_->setGraph(base_graph_);
@@ -1525,13 +1537,21 @@ void IOGraphDialog::on_zoomRadioButton_toggled(bool checked)
 void IOGraphDialog::on_logCheckBox_toggled(bool checked)
 {
     QCustomPlot *iop = ui->ioPlot;
+    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(iop->yAxis->ticker());
+    if (si_ticker != nullptr) {
+        si_ticker->setLog(checked);
+    }
 
     if (checked) {
         iop->yAxis->setScaleType(QCPAxis::stLogarithmic);
-        iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
+        if (si_ticker == nullptr) {
+            iop->yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
+        }
     } else {
         iop->yAxis->setScaleType(QCPAxis::stLinear);
-        iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
+        if (si_ticker == nullptr) {
+            iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
+        }
     }
     iop->replot();
 }
@@ -2195,7 +2215,7 @@ void IOGraph::clearAllData()
     start_time_ = 0.0;
 }
 
-void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
+void IOGraph::recalcGraphData(capture_file *cap_file)
 {
     /* Moving average variables */
     unsigned int mavg_in_average_count = 0, mavg_left = 0;
@@ -2278,71 +2298,41 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
 //        qDebug() << "=rgd i" << i << ts << val;
     }
 
-    // attempt to rescale time values to specific units if this
-    // is the only enabled graph
-    if (enable_scaling && visible_) {
-        calculateScaledValueUnit();
-    } else {
-        scaled_value_unit_.clear();
-    }
-
     emit requestReplot();
 }
 
-void IOGraph::calculateScaledValueUnit()
+format_size_units_e IOGraph::formatUnits() const
 {
-    // Reset unit and recalculate if needed.
-    scaled_value_unit_.clear();
-
-    // If there is no field, scaling is not possible.
-    if (hf_index_ < 0) {
-        return;
-    }
-
     switch (val_units_) {
+    case IOG_ITEM_UNIT_PACKETS:
+    case IOG_ITEM_UNIT_CALC_FRAMES:
+        return FORMAT_SIZE_UNIT_PACKETS;
+    case IOG_ITEM_UNIT_BYTES:
+        return FORMAT_SIZE_UNIT_BYTES;
+    case IOG_ITEM_UNIT_BITS:
+        return FORMAT_SIZE_UNIT_BITS;
+    case IOG_ITEM_UNIT_CALC_LOAD:
+        return FORMAT_SIZE_UNIT_ERLANGS;
+        break;
+    case IOG_ITEM_UNIT_CALC_FIELDS:
+        return FORMAT_SIZE_UNIT_FIELDS;
+        break;
     case IOG_ITEM_UNIT_CALC_SUM:
     case IOG_ITEM_UNIT_CALC_MAX:
     case IOG_ITEM_UNIT_CALC_MIN:
     case IOG_ITEM_UNIT_CALC_AVERAGE:
         // Unit is not yet known, continue detecting it.
-        break;
+        if (hf_index_ > 0) {
+            if (proto_registrar_get_ftype(hf_index_) == FT_RELATIVE_TIME) {
+                return FORMAT_SIZE_UNIT_SECONDS;
+            }
+            // Could we look if it's BASE_UNIT_STRING and use that?
+            // One complication is that prefixes shouldn't be combined,
+            // and some unit strings are already prefixed units.
+        }
+        return FORMAT_SIZE_UNIT_NONE;
     default:
-        // Unit is Packets, Bytes, Bits, etc.
-        return;
-    }
-
-    if (proto_registrar_get_ftype(hf_index_) == FT_RELATIVE_TIME) {
-        // find maximum absolute value and scale accordingly
-        double maxValue = 0;
-        if (graph_) {
-            maxValue = maxValueFromGraphData(*graph_->data());
-        } else if (bars_) {
-            maxValue = maxValueFromGraphData(*bars_->data());
-        }
-        // If the maximum value is zero, then either we have no data or
-        // everything is zero, do not scale the unit in this case.
-        if (maxValue == 0) {
-            return;
-        }
-
-        // XXX GTK+ always uses "ms" for log scale, should we do that too?
-        int value_multiplier;
-        if (maxValue >= 1.0) {
-            scaled_value_unit_ = "s";
-            value_multiplier = 1;
-        } else if (maxValue >= 0.001) {
-            scaled_value_unit_ = "ms";
-            value_multiplier = 1000;
-        } else {
-            scaled_value_unit_ = "us";
-            value_multiplier = 1000000;
-        }
-
-        if (graph_) {
-            scaleGraphData(*graph_->data(), value_multiplier);
-        } else if (bars_) {
-            scaleGraphData(*bars_->data(), value_multiplier);
-        }
+        return FORMAT_SIZE_UNIT_NONE;
     }
 }
 

@@ -23,6 +23,8 @@
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 
+#include <wsutil/str_util.h>
+
 #include <QIcon>
 #include <QMenu>
 #include <QTextStream>
@@ -75,6 +77,7 @@ public:
     void setColor(const QRgb color);
     void setPlotStyle(int style);
     QString valueUnitLabel() const;
+    format_size_units_e formatUnits() const;
     void setValueUnits(int val_units);
     QString valueUnitField() const { return vu_field_; }
     void setValueUnitField(const QString &vu_field);
@@ -89,7 +92,6 @@ public:
     bool hasItemToShow(int idx, double value) const;
     double getItemValue(int idx, const capture_file *cap_file) const;
     int maxInterval () const { return cur_idx_; }
-    QString scaledValueUnit() const { return scaled_value_unit_; }
 
     void clearAllData();
 
@@ -97,7 +99,7 @@ public:
     unsigned int y_axis_factor_;
 
 public slots:
-    void recalcGraphData(capture_file *cap_file, bool enable_scaling);
+    void recalcGraphData(capture_file *cap_file);
     void captureEvent(CaptureEvent e);
     void reloadValueUnitField();
 
@@ -112,7 +114,6 @@ private:
     static tap_packet_status tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags);
     static void tapDraw(void *iog_ptr);
 
-    void calculateScaledValueUnit();
     template<class DataMap> double maxValueFromGraphData(const DataMap &map);
     template<class DataMap> void scaleGraphData(DataMap &map, int scalar);
 
@@ -131,7 +132,6 @@ private:
     int hf_index_;
     int interval_;
     double start_time_;
-    QString scaled_value_unit_;
 
     // Cached data. We should be able to change the Y axis without retapping as
     // much as is feasible.
@@ -172,7 +172,7 @@ protected:
 
 signals:
     void goToPacket(int packet_num);
-    void recalcGraphData(capture_file *cap_file, bool enable_scaling);
+    void recalcGraphData(capture_file *cap_file);
     void intervalChanged(int interval);
     void reloadValueUnitFields();
 

@@ -146,6 +146,9 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     item = &items_[idx];
 
     // Basic units
+    // XXX - Should we divide these counted values by the interval
+    // so that they measure rates (as done with LOAD)? That might be
+    // more meaningful and consistent.
     switch (val_units_) {
     case IOG_ITEM_UNIT_PACKETS:
         return item->frames;
