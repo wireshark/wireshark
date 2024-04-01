@@ -1165,7 +1165,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	guint16 mitel_eth_len, payload_len;
 	guint8 prim_type, layer, mt_item_length;
 	int offset = 0;
-	gboolean ip_encapsulated;
+	bool ip_encapsulated;
 	tvbuff_t *payload_tvb = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MI-DECToE");
@@ -1178,9 +1178,9 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	 * field with not yet really known content and a two byte length field. This is not in place / consumed
 	 * by the upper layer dissector if this protocol is used in OMM<>RFP communication. So the data parameter
 	 * is used to get information from the dect-mitel-rfp dissector whether it was IP encapsulated or not.
-     */
+	 */
 	if(data) {
-		ip_encapsulated = *( ( gboolean* )data );
+		ip_encapsulated = *( ( bool* )data );
 	} else {
 		ip_encapsulated = false;
 	}
