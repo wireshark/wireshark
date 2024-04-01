@@ -142,8 +142,11 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         unsigned length = 0;
         enum Qt::CheckState state = Qt::Unchecked;
         field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
-        if ((g_strcmp0(str, "true") == 0) ||
-            (g_strcmp0(str, "Enabled") == 0))
+        // "Enabled" is for backwards compatibility with pre-UAT IO Graphs:
+        // (Commit 5b3e3ee58748ac1fd9201d2d3facbed1b9b1e800)
+        if (str &&
+           ((g_ascii_strcasecmp(str, "true") == 0) ||
+            (g_strcmp0(str, "Enabled") == 0)))
             state = Qt::Checked;
 
         g_free(str);

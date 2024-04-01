@@ -152,13 +152,14 @@ static const char *iog_uat_defaults_[] = {
 
 extern "C" {
 
-//Allow the enable/disable field to be a checkbox, but for backwards compatibility,
-//the strings have to be "Enabled"/"Disabled", not "TRUE"/"FALSE"
+//Allow the enable/disable field to be a checkbox, but for backwards
+//compatibility with pre-2.6 versions, the strings are "Enabled"/"Disabled",
+//not "TRUE"/"FALSE". (Pre-4.4 versions require "TRUE" to be all-caps.)
 #define UAT_BOOL_ENABLE_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
     char* tmp_str = g_strndup(buf,len); \
-    if ((g_strcmp0(tmp_str, "Enabled") == 0) || \
-        (g_strcmp0(tmp_str, "TRUE") == 0)) \
+    if (tmp_str && ((g_strcmp0(tmp_str, "Enabled") == 0) || \
+        (g_ascii_strcasecmp(tmp_str, "true") == 0))) \
         ((rec_t*)rec)->field_name = 1; \
     else \
         ((rec_t*)rec)->field_name = 0; \
@@ -171,10 +172,11 @@ static bool uat_fld_chk_enable(void* u1 _U_, const char* strptr, guint len, cons
 {
     char* str = g_strndup(strptr,len);
 
-    if ((g_strcmp0(str, "Enabled") == 0) ||
+    if (str &&
+       ((g_strcmp0(str, "Enabled") == 0) ||
         (g_strcmp0(str, "Disabled") == 0) ||
-        (g_strcmp0(str, "TRUE") == 0) ||    //just for UAT functionality
-        (g_strcmp0(str, "FALSE") == 0)) {
+        (g_ascii_strcasecmp(str, "TRUE") == 0) ||  //just for UAT functionality
+        (g_ascii_strcasecmp(str, "FALSE") == 0))) {
         *err = NULL;
         g_free(str);
         return TRUE;
