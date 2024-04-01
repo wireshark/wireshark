@@ -609,7 +609,7 @@ dissect_tcpros_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	dissect_tcpros(tvb, pinfo, tree, data);
 
-	return (TRUE);
+	return TRUE;
 }
 
 

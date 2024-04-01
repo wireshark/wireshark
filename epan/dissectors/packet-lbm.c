@@ -123,12 +123,12 @@ gboolean lbm_channel_is_transport(guint64 channel)
         case LBM_CHANNEL_TRANSPORT_LBTIPC:
         case LBM_CHANNEL_TRANSPORT_LBTRDMA:
         case LBM_CHANNEL_TRANSPORT_LBTSMX:
-            return (TRUE);
+            return TRUE;
             break;
         default:
             break;
     }
-    return (FALSE);
+    return FALSE;
 }
 
 guint8 lbm_channel_type(guint64 channel)
@@ -163,27 +163,27 @@ gboolean lbm_channel_is_unknown_transport_source_lbttcp(guint64 channel)
 {
     if (channel == LBM_CHANNEL_UNKNOWN_TRANSPORT_SOURCE_LBTTCP)
     {
-        return (TRUE);
+        return TRUE;
     }
-    return (FALSE);
+    return FALSE;
 }
 
 gboolean lbm_channel_is_unknown_transport_client_lbttcp(guint64 channel)
 {
     if (channel == LBM_CHANNEL_UNKNOWN_TRANSPORT_CLIENT_LBTTCP)
     {
-        return (TRUE);
+        return TRUE;
     }
-    return (FALSE);
+    return FALSE;
 }
 
 gboolean lbm_channel_is_unknown_stream_tcp(guint64 channel)
 {
     if (channel == LBM_CHANNEL_UNKNOWN_STREAM_TCP)
     {
-        return (TRUE);
+        return TRUE;
     }
-    return (FALSE);
+    return FALSE;
 }
 
 gboolean lbm_channel_is_known(guint64 channel)

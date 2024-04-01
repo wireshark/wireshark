@@ -155,7 +155,7 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
     *read_pipe_handle = read_pipe;
     *write_pipe_handle = write_pipe;
     g_free(wname);
-    return(true);
+    return true;
 }
 #endif
 

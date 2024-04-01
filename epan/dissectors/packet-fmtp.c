@@ -131,19 +131,19 @@ dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      * Check that packet looks like FMTP before going further
      */
     /* VERSION must currently be 0x02 */
-    if (tvb_get_guint8(tvb, 0) != 0x02) return (FALSE);
+    if (tvb_get_guint8(tvb, 0) != 0x02) return FALSE;
     /* RESERVED must currently be 0x00 */
-    if (tvb_get_guint8(tvb, 1) != 0x00) return (FALSE);
+    if (tvb_get_guint8(tvb, 1) != 0x00) return FALSE;
     length = tvb_get_ntohs(tvb, 2);
     /* LENGTH must currently not exceed 5 (header) + 10240 (data) */
-    if ((length > FMTP_MAX_LEN) || (length < FMTP_HEADER_LEN)) return (FALSE);
+    if ((length > FMTP_MAX_LEN) || (length < FMTP_HEADER_LEN)) return FALSE;
     /* TYP must currently be in range 0x01-0x04 */
     if ((tvb_get_guint8(tvb, 4) < 0x01) || (tvb_get_guint8(tvb, 4) > 0x04))
-        return (FALSE);
+        return FALSE;
 
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FMTP_HEADER_LEN,
                      get_fmtp_message_len, dissect_fmtp_message, data);
-    return (TRUE);
+    return TRUE;
 }
 
 void

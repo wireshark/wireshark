@@ -267,7 +267,7 @@ value_is_in_range(const range_t *range, guint32 val)
             return TRUE;
       }
    }
-   return(FALSE);
+   return FALSE;
 }
 
 /* This function returns TRUE if val has successfully been added to
@@ -304,7 +304,7 @@ range_add_value(wmem_allocator_t *scope, range_t **range, guint32 val)
       (*range)->ranges[i].low = (*range)->ranges[i].high = val;
       return TRUE;
    }
-   return(FALSE);
+   return FALSE;
 }
 
 /* This function returns TRUE if val has successfully been removed from
@@ -360,7 +360,7 @@ range_remove_value(wmem_allocator_t *scope, range_t **range, guint32 val)
       }
       return TRUE;
    }
-   return(FALSE);
+   return FALSE;
 }
 
 /* This function returns TRUE if the two given range_t's are equal.

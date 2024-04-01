@@ -2596,9 +2596,9 @@ static gboolean is_padded(tvbuff_t *tvb, gint captured_len, gint first_pad_offse
     for (offset = first_pad_offset; offset < captured_len; offset++) {
         val = tvb_get_guint8(tvb, offset);
         if (val != 0x00)
-            return (FALSE);
+            return FALSE;
     }
-    return (TRUE);
+    return TRUE;
 }
 
 #define MIN_PADDED_ALLOWED_CHARS 4
@@ -2622,16 +2622,16 @@ static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 /* This is a padded AT Command */
                 tvb_no_padding = tvb_new_subset_length(tvb, 0, allwd_chars_len);
                 dissect_at(tvb_no_padding, pinfo, tree, data);
-                return (TRUE);
+                return TRUE;
             }
         }
         else if(allwd_chars_len == len) {
             /* This is an (unpadded) AT Command */
             dissect_at(tvb, pinfo, tree, data);
-            return (TRUE);
+            return TRUE;
         }
     }
-    return (FALSE);
+    return FALSE;
 }
 
 void

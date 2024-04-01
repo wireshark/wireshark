@@ -381,7 +381,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else if (offset == -2) {
             /* We need more data to desegment */
-            return (TRUE);
+            return TRUE;
         }
 
         start = offset;
@@ -401,7 +401,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = frame_len - bytes_remaining;
-                return (TRUE);
+                return TRUE;
             }
         }
 
@@ -498,7 +498,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         bytes_remaining -= frame_len;
     }
 
-    return (TRUE);
+    return TRUE;
 }
 
 /* This is called for those sessions where we have explicitly said

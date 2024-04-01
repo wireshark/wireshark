@@ -10629,14 +10629,14 @@ gboolean lbmc_test_lbmc_header(tvbuff_t * tvb, int offset)
 
     if (tvb_reported_length_remaining(tvb, offset) < (O_LBMC_HDR_T_MSGLEN + L_LBMC_HDR_T_MSGLEN))
     {
-        return (FALSE);
+        return FALSE;
     }
     ver_type = tvb_get_guint8(tvb, offset + O_LBMC_HDR_T_VER_TYPE);
     version = LBMC_HDR_VER(ver_type);
     type = LBMC_HDR_TYPE(ver_type);
     if (version != LBMC_VERSION)
     {
-        return (FALSE);
+        return FALSE;
     }
     switch (type)
     {
@@ -10647,7 +10647,7 @@ gboolean lbmc_test_lbmc_header(tvbuff_t * tvb, int offset)
         case LBMC_TYPE_RETRANS:
             break;
         default:
-            return (FALSE);
+            return FALSE;
     }
     next_header = tvb_get_guint8(tvb, offset + O_LBMC_HDR_T_NEXT_HDR);
     switch (next_header)
@@ -10738,14 +10738,14 @@ gboolean lbmc_test_lbmc_header(tvbuff_t * tvb, int offset)
         case LBMC_NHDR_EXTOPT:
             break;
         default:
-            return (FALSE);
+            return FALSE;
     }
     msglen = tvb_get_ntohs(tvb, offset + O_LBMC_HDR_T_MSGLEN);
     if (msglen == 0)
     {
-        return (FALSE);
+        return FALSE;
     }
-    return (TRUE);
+    return TRUE;
 }
 
 int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, guint64 channel)

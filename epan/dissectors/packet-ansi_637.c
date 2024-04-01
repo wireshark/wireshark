@@ -2301,7 +2301,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (NULL == str)
     {
-        return(FALSE);
+        return FALSE;
     }
 
     ett_param_idx = ett_ansi_637_tele_param[idx];
@@ -2353,7 +2353,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     *offset = curr_offset;
 
-    return(TRUE);
+    return TRUE;
 }
 
 static void
@@ -2503,7 +2503,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if (NULL == str)
     {
-        return(FALSE);
+        return FALSE;
     }
 
     ett_param_idx = ett_ansi_637_trans_param[idx];
@@ -2548,7 +2548,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     *offset = curr_offset;
 
-    return(TRUE);
+    return TRUE;
 }
 
 

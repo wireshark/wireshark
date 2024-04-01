@@ -192,7 +192,7 @@ dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, prot
 
   /* dissect the message */
   dissect_fgp_message(message_tvb, pinfo, fgp_tree);
-  return(TRUE);
+  return TRUE;
 }
 
 

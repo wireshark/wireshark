@@ -1597,8 +1597,8 @@ static gboolean
 check_length(packet_info *pinfo, proto_tree *tree, guint32 expected, guint32 real, const char *name_string){
 	if (expected != real){
 		expert_add_info_format(pinfo, tree, &ei_sapdiag_item_length_invalid, "Item %s length is invalid", name_string);
-		return (FALSE);
-	} else return (TRUE);
+		return FALSE;
+	} else return TRUE;
 }
 
 
@@ -2736,9 +2736,9 @@ check_sapdiag_dp(tvbuff_t *tvb, guint32 offset)
 	/* Since there's no SAP Diag mode 0xff, if the first byte is a 0xFF the
 	 * packet probably holds an initialization DP Header */
 	if ((tvb_reported_length_remaining(tvb, offset) >= 200 + 8) && tvb_get_guint8(tvb, offset) == 0xFF){
-		return (TRUE);
+		return TRUE;
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 static int
@@ -2748,9 +2748,9 @@ check_sapdiag_compression(tvbuff_t *tvb, guint32 offset)
 	if ((tvb_reported_length_remaining(tvb, offset) >= 8) &&
 		((tvb_get_guint8(tvb, offset+4) == 0x11) || (tvb_get_guint8(tvb, offset+4) == 0x12)) &&
 		(tvb_get_guint16(tvb, offset+5, ENC_LITTLE_ENDIAN) == 0x9d1f)){
-		return (TRUE);
+		return TRUE;
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 static void

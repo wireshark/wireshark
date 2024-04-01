@@ -4214,7 +4214,7 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     get_http2_session(pinfo, conversation);
     dissect_http2(tvb, pinfo, tree, data);
 
-    return (TRUE);
+    return TRUE;
 }
 
 static gboolean

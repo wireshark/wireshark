@@ -267,14 +267,14 @@ check_epmd(tvbuff_t *tvb) {
      * doesn't bring very much.
      */
     if (tvb_captured_length(tvb) < 3)
-        return (FALSE);
+        return FALSE;
 
     type = tvb_get_guint8(tvb, 0);
     switch (type) {
         case EPMD_ALIVE_OK_RESP:
         case EPMD_ALIVE2_RESP:
         case EPMD_PORT2_RESP:
-            return (TRUE);
+            return TRUE;
         default:
             break;
     }
@@ -286,12 +286,12 @@ check_epmd(tvbuff_t *tvb) {
         case EPMD_PORT_REQ:
         case EPMD_PORT2_REQ:
         case EPMD_NAMES_REQ:
-            return (TRUE);
+            return TRUE;
         default:
             break;
     }
 
-    return (FALSE);
+    return FALSE;
 }
 
 static int

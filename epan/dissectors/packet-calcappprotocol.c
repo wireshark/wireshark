@@ -127,7 +127,7 @@ dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
   };
   /* dissect the message */
   dissect_calcappprotocol_message(message_tvb, pinfo, calcappprotocol_tree);
-  return(TRUE);
+  return TRUE;
 }
 
 

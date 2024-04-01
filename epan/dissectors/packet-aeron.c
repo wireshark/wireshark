@@ -651,19 +651,19 @@ static gboolean aeron_is_address_multicast(const address * addr)
         case AT_IPv4:
             if (addr_data && ((addr_data[0] & 0xf0) == 0xe0))
             {
-                return (TRUE);
+                return TRUE;
             }
             break;
         case AT_IPv6:
             if (addr_data && (addr_data[0] == 0xff))
             {
-                return (TRUE);
+                return TRUE;
             }
             break;
         default:
             break;
     }
-    return (FALSE);
+    return FALSE;
 }
 
 static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo)
@@ -2009,7 +2009,7 @@ static bool aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void 
     if (msg->complete)
     {
         /* This message is complete, no need to check for orphans */
-        return (FALSE);
+        return FALSE;
     }
     /* Scan through the orphan fragments */
     while (TRUE)
@@ -2037,7 +2037,7 @@ static bool aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void 
         }
         frag_found = FALSE;
     }
-    return (FALSE);
+    return FALSE;
 }
 
 static void aeron_msg_process_orphan_fragments(aeron_term_t * term)
@@ -3006,13 +3006,13 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     length_remaining = tvb_captured_length_remaining(tvb, 0);
     if (length_remaining < HDR_LENGTH_MIN)
     {
-        return (FALSE);
+        return FALSE;
     }
     /* We know we have at least HDR_LENGTH_MIN (12) bytes captured */
     ver = tvb_get_guint8(tvb, O_AERON_BASIC_VERSION);
     if (ver != 0)
     {
-        return (FALSE);
+        return FALSE;
     }
     packet_type = tvb_get_letohs(tvb, O_AERON_BASIC_TYPE);
     switch (packet_type)
@@ -3027,14 +3027,14 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         case HDR_TYPE_EXT:
             break;
         default:
-            return (FALSE);
+            return FALSE;
     }
     length = (gint) (tvb_get_letohl(tvb, O_AERON_BASIC_FRAME_LENGTH) & 0x7fffffff);
     if (!((packet_type == HDR_TYPE_DATA) && (length == 0)))
     {
         if (length < HDR_LENGTH_MIN)
         {
-            return (FALSE);
+            return FALSE;
         }
     }
     if (packet_type == HDR_TYPE_PAD)
@@ -3043,22 +3043,22 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         guint32 term_offset = tvb_get_letohl(tvb, O_AERON_PAD_TERM_OFFSET);
         if (term_offset == 0)
         {
-            return (FALSE);
+            return FALSE;
         }
     }
     else
     {
         if (length > length_remaining)
         {
-            return (FALSE);
+            return FALSE;
         }
     }
     rc = dissect_aeron(tvb, pinfo, tree, user_data);
     if (rc == 0)
     {
-        return (FALSE);
+        return FALSE;
     }
-    return (TRUE);
+    return TRUE;
 }
 
 /* Register all the bits needed with the filtering engine */

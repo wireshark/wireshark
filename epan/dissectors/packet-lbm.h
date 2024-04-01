@@ -110,9 +110,9 @@ typedef guint64 lbm_uint64_t;
         if (!ws_inet_pton4(strptr, &addr)) \
         { \
             *err = g_strdup("invalid address"); \
-            return (FALSE); \
+            return FALSE; \
         } \
-        return (TRUE); \
+        return TRUE; \
     } \
     static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) \
     { \
@@ -148,14 +148,14 @@ typedef guint64 lbm_uint64_t;
         if (!ws_inet_pton4(strptr, &addr)) \
         { \
             *err = g_strdup("invalid address"); \
-            return (FALSE); \
+            return FALSE; \
         } \
         if (!IN_MULTICAST(g_ntohl(addr)) && (g_ntohl(addr) != 0)) \
         { \
             *err = g_strdup("invalid multicast address"); \
-            return (FALSE); \
+            return FALSE; \
         } \
-        return (TRUE); \
+        return TRUE; \
     } \
     static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) \
     { \

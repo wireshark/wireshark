@@ -1091,7 +1091,7 @@ static bool dissect_lbtru_sqn_frame_list_callback(const void *key _U_, void * fr
         }
         proto_item_set_generated(transport_item);
     }
-    return (FALSE);
+    return FALSE;
 }
 
 static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
@@ -1652,12 +1652,12 @@ static gboolean test_lbtru_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     /* Must be a UDP packet. */
     if (pinfo->ptype != PT_UDP)
     {
-        return (FALSE);
+        return FALSE;
     }
     /* Destination address must be IPV4 and 4 bytes in length. */
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4))
     {
-        return (FALSE);
+        return FALSE;
     }
 
     if (lbtru_use_tag)
@@ -1689,10 +1689,10 @@ static gboolean test_lbtru_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     if (valid_packet)
     {
         dissect_lbtru(tvb, pinfo, tree, user_data);
-        return (TRUE);
+        return TRUE;
     }
     /* Not one of ours. */
-    return (FALSE);
+    return FALSE;
 }
 
 /* Register all the bits needed with the filtering engine */

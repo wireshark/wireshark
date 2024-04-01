@@ -270,7 +270,7 @@ add_selection(char *sel, guint* max_selection)
     if (max_selected >= MAX_SELECTIONS) {
         /* Let the user know we stopped selecting */
         fprintf(stderr, "Out of room for packet selections.\n");
-        return(FALSE);
+        return FALSE;
     }
 
     if (verbose)
@@ -311,7 +311,7 @@ add_selection(char *sel, guint* max_selection)
     }
 
     max_selected++;
-    return(TRUE);
+    return TRUE;
 }
 
 /* Was the packet selected? */

@@ -689,7 +689,7 @@ static gboolean lbmsrs_match_packet(packet_info * pinfo, const lbmsrs_tag_entry_
 {
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4) ||
         (pinfo->src.type != AT_IPv4) || (pinfo->src.len != 4))
-        return (FALSE);
+        return FALSE;
 
     guint32 dest_addr_h = pntoh32(pinfo->dst.data);
     guint32 src_addr_h = pntoh32(pinfo->src.data);
@@ -705,7 +705,7 @@ static gboolean lbmsrs_match_packet(packet_info * pinfo, const lbmsrs_tag_entry_
     {
         if ((entry->tcp_port == pinfo->destport) || (entry->tcp_port == pinfo->srcport))
         {
-            return (TRUE);
+            return TRUE;
         }
     }
     /*if only IP is specified*/
@@ -713,7 +713,7 @@ static gboolean lbmsrs_match_packet(packet_info * pinfo, const lbmsrs_tag_entry_
     {
         if ((ip_address_val_h == dest_addr_h) || (ip_address_val_h == src_addr_h))
         {
-            return (TRUE);
+            return TRUE;
         }
     }
     /*if both IP and port is specified*/
@@ -722,11 +722,11 @@ static gboolean lbmsrs_match_packet(packet_info * pinfo, const lbmsrs_tag_entry_
         if (((ip_address_val_h == dest_addr_h) && (entry->tcp_port == pinfo->destport))
             || ((ip_address_val_h == src_addr_h) && (entry->tcp_port == pinfo->srcport)))
         {
-            return (TRUE);
+            return TRUE;
         }
     }
 
-    return (FALSE);
+    return FALSE;
 }
 
 static char * lbmsrs_tag_find(packet_info * pinfo)
@@ -2617,7 +2617,7 @@ static gboolean test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     /* Must be a TCP packet. */
     if (pinfo->ptype != PT_TCP)
     {
-        return (FALSE);
+        return FALSE;
     }
 
     if (lbmsrs_use_tag)
@@ -2648,10 +2648,10 @@ static gboolean test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     if (valid_packet)
     {
         dissect_lbmsrs_real(tvb, pinfo, tree, user_data);
-        return (TRUE);
+        return TRUE;
     }
 
-    return (FALSE);
+    return FALSE;
 
 }
 

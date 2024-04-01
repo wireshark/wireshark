@@ -157,7 +157,7 @@ dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
   };
   /* dissect the message */
   dissect_pingpongprotocol_message(message_tvb, pinfo, pingpongprotocol_tree);
-  return(TRUE);
+  return TRUE;
 }
 
 

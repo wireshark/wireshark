@@ -2770,7 +2770,7 @@ dissect_ocp1_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     dissect_ocp1_tcp(tvb, pinfo, tree, data);
 
-    return (TRUE);
+    return TRUE;
 }
 
 static gboolean
@@ -2781,7 +2781,7 @@ dissect_ocp1_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     dissect_ocp1(tvb, pinfo, tree, data);
 
-    return (TRUE);
+    return TRUE;
 }
 
 void

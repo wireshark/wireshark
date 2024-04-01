@@ -217,7 +217,7 @@ dissect_li5g_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return FALSE;
     /* only 4 types supported*/
     if(tvb_get_ntohs(tvb, 2) < 1 || tvb_get_ntohs(tvb, 2) > 4)
-        return (FALSE);
+        return FALSE;
 
     /* TLS can hold it, no need to find the disect every time */
     *(tlsinfo->app_handle) = li5g_handle;

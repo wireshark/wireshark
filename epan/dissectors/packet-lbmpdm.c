@@ -1152,11 +1152,11 @@ gboolean lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int *
 
     if (!tvb_bytes_exist(tvb, offset, L_LBMPDM_MSG_HDR_T))
     {
-        return (FALSE);
+        return FALSE;
     }
     if (!check_lbmpdm_encoding(tvb, offset, encoding))
     {
-        return (FALSE);
+        return FALSE;
     }
     next_header = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR);
     switch (next_header)
@@ -1167,16 +1167,16 @@ gboolean lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int *
         case PDM_HDR_TYPE_EOM:
             break;
         default:
-            return (FALSE);
+            return FALSE;
             break;
     }
     len = tvb_get_guint32(tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, *encoding);
     if (len > G_MAXINT)
     {
-        return (FALSE);
+        return FALSE;
     }
     *length = (int)len;
-    return (TRUE);
+    return TRUE;
 }
 
 int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, guint64 channel)

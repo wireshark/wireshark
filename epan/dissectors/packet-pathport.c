@@ -618,7 +618,7 @@ dissect_pathport_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         return FALSE;
 
     dissect_pathport_common(tvb, pinfo, tree);
-    return (TRUE);
+    return TRUE;
 }
 
 /* Register the protocol with Wireshark.

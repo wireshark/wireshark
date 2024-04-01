@@ -302,7 +302,7 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, guint16 u16FrameID)
     {
         if (u16SFCRC16 != crc)
         {
-            return(FALSE);
+            return FALSE;
         }
     }
     /* end of first CRC check */
@@ -368,7 +368,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     /* possible FrameID ranges for DFP */
     if ((u16FrameID < 0x0100) || (u16FrameID > 0x3FFF))
-        return (FALSE);
+        return FALSE;
     if (IsDFP_Frame(tvb, pinfo, u16FrameID)) {
         /* can't check this CRC, as the checked data bytes are not available */
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
@@ -522,7 +522,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         dissect_pn_user_data_bytes(tvb, offset, pinfo, sub_tree, tvb_captured_length_remaining(tvb, offset), FRAG_DATA);
         if ((guint)tvb_captured_length_remaining(tvb, offset) < (guint)(u8FragDataLength *8)) {
             proto_item_append_text(status_item, ": FragDataLength out of Framerange -> discarding!");
-            return (TRUE);
+            return TRUE;
         }
         /* defragmentation starts here */
         if (pnio_desegment)

@@ -612,22 +612,22 @@ is_sbus_pdu(tvbuff_t *tvb)
        }
        /* First four byte indicate the length which must be at least 12 bytes*/
        if (tvb_get_ntohl(tvb, 0) < 12) {
-              return (FALSE);
+              return FALSE;
        }
        /* Fifth byte indicates protocol version which can be 0 or 1*/
        if (tvb_get_guint8(tvb, 4) > 0x01) {
-              return (FALSE);
+              return FALSE;
        }
        /* Sixth byte indicates protocol type and must be 0*/
        if ( tvb_get_guint8(tvb, 5) > 0x01 ) {
-              return (FALSE);
+              return FALSE;
        }
        /* Seventh and eighth bytes indicate the packet sequence number and can
           be 0 to 65565 (--> check does not make sense)*/
        /* Ninth byte the "attributes character" and must be either 0, 1 or 2
           (request, response or ACK/NAK)*/
        if (tvb_get_guint8(tvb, 8) > 0x02 ) {
-              return (FALSE);
+              return FALSE;
        }
        return TRUE;
 }
