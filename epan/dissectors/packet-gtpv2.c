@@ -826,6 +826,9 @@ static int hf_gtpv2_node_number_len;
 static int hf_gtpv2_additional_rrm_policy_index;
 
 static int hf_gtpv2_group_id;
+
+static int hf_gtpv2_ie_up_security_policy_up_ip_policy;
+static int hf_gtpv2_ie_up_security_policy_spare;
 static int hf_gtpv2_nf_instance_id_nf_instance_id;
 static int hf_gtpv2_nf_timer_in_seconds_timer_value;
 
@@ -8579,10 +8582,22 @@ dissect_gtpv2_ie_pscell_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
 }
 
 /* 218 UP Security Policy / 8.149 */
+static const value_string gtpv2_up_ip_policy_vals[] = {
+    {0, "User Plane Integrity protection with EPS is not needed"},
+    {1, "User Plane Integrity protection with EPS is preferred"},
+    {2, "User Plane Integrity protection with EPS is required"},
+    {3, "Spare"},
+    {0, NULL}
+};
+
 static void
 dissect_gtpv2_ie_up_security_policy(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    proto_tree_add_item(tree, hf_gtpv2_ie_up_security_policy_spare, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ie_up_security_policy_up_ip_policy, tvb, 0, 1, ENC_BIG_ENDIAN);
+    if (length > 2) {
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 1, length - 2);
+    }
 }
 
 /* 219 Alternative IMSI / 8.150 */
@@ -12626,6 +12641,16 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_group_id,
       { "Group ID", "gtpv2.group_id",
           FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ie_up_security_policy_up_ip_policy,
+          { "UP IP Policy", "gtpv2.ie_up_security_policy.up_ip_policy",
+          FT_UINT8, BASE_DEC, VALS(gtpv2_up_ip_policy_vals), 0x3,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ie_up_security_policy_spare,
+          { "Spare", "gtpv2.up_security_policy.spare",
+          FT_UINT8, BASE_DEC, NULL, 0xFC,
           NULL, HFILL }
       },
       { &hf_gtpv2_nf_instance_id_nf_instance_id,
