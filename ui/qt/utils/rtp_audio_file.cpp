@@ -124,7 +124,7 @@ void RtpAudioFile::frameUpdateSampleCounters(qint64 written_bytes)
     sample_pos_ += written_bytes;
 }
 
-qint64 RtpAudioFile::frameWriteFrame(guint32 frame_num, qint64 real_pos, qint64 sample_pos, qint64 len, rtp_frame_type type)
+qint64 RtpAudioFile::frameWriteFrame(uint32_t frame_num, qint64 real_pos, qint64 sample_pos, qint64 len, rtp_frame_type type)
 {
     rtp_frame_info frame_info;
 
@@ -137,7 +137,7 @@ qint64 RtpAudioFile::frameWriteFrame(guint32 frame_num, qint64 real_pos, qint64 
     return sample_file_frame_->write((char *)&frame_info, sizeof(frame_info));
 }
 
-void RtpAudioFile::frameWriteSilence(guint32 frame_num, qint64 samples)
+void RtpAudioFile::frameWriteSilence(uint32_t frame_num, qint64 samples)
 {
     if (samples < 1) return;
 
@@ -147,9 +147,9 @@ void RtpAudioFile::frameWriteSilence(guint32 frame_num, qint64 samples)
     frameUpdateRealCounters(silence_bytes);
 }
 
-qint64 RtpAudioFile::frameWriteSamples(guint32 frame_num, const char *data, qint64 max_size)
+qint64 RtpAudioFile::frameWriteSamples(uint32_t frame_num, const char *data, qint64 max_size)
 {
-    gint64 written;
+    int64_t written;
 
     written = sample_file_->write(data, max_size);
 
@@ -175,10 +175,10 @@ void RtpAudioFile::setFrameReadStage(qint64 prepend_samples)
     }
 }
 
-bool RtpAudioFile::readFrameSamples(gint32 *read_buff_bytes, SAMPLE **read_buff, spx_uint32_t *read_len, guint32 *frame_num, rtp_frame_type *type)
+bool RtpAudioFile::readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff, spx_uint32_t *read_len, uint32_t *frame_num, rtp_frame_type *type)
 {
     rtp_frame_info frame_info;
-    guint64 read_bytes = 0;
+    uint64_t read_bytes = 0;
 
     if (!sample_file_frame_->read((char *)&frame_info, sizeof(frame_info))) {
         // Can't read frame, some error occurred

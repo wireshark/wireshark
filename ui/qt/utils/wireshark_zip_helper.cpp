@@ -14,8 +14,6 @@
 #ifdef HAVE_MINIZIP
 #include "config.h"
 
-#include "glib.h"
-
 #include <iosfwd>
 #include <iostream>
 #include <zlib.h>  // For Z_DEFLATED, etc.

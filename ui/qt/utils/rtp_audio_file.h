@@ -33,7 +33,7 @@ typedef struct {
     qint64  real_pos;
     qint64  sample_pos;
     qint64  len;
-    guint32 frame_num;
+    uint32_t frame_num;
     rtp_frame_type type;
 } rtp_frame_info;
 
@@ -46,12 +46,12 @@ public:
 
     // Functions for writing Frames
     void setFrameWriteStage();
-    void frameWriteSilence(guint32 frame_num, qint64 samples);
-    qint64 frameWriteSamples(guint32 frame_num, const char *data, qint64 max_size);
+    void frameWriteSilence(uint32_t frame_num, qint64 samples);
+    qint64 frameWriteSamples(uint32_t frame_num, const char *data, qint64 max_size);
 
     // Functions for reading Frames
     void setFrameReadStage(qint64 prepend_samples);
-    bool readFrameSamples(gint32 *read_buff_bytes, SAMPLE **read_buff, spx_uint32_t *read_len, guint32 *frame_num, rtp_frame_type *type);
+    bool readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff, spx_uint32_t *read_len, uint32_t *frame_num, rtp_frame_type *type);
 
     // Functions for reading data during play
     void setDataReadStage();
@@ -80,7 +80,7 @@ private:
     rtp_frame_info cur_frame_;
 
     // Functions for writing Frames
-    qint64 frameWriteFrame(guint32 frame_num, qint64 real_pos, qint64 sample_pos, qint64 len, rtp_frame_type type);
+    qint64 frameWriteFrame(uint32_t frame_num, qint64 real_pos, qint64 sample_pos, qint64 len, rtp_frame_type type);
     void frameUpdateRealCounters(qint64 written_bytes);
     void frameUpdateSampleCounters(qint64 written_bytes);
 

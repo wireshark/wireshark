@@ -64,7 +64,7 @@ qint64 AudioRoutingFilter::readData(char *data, qint64 maxSize)
         return input_->read(data, maxSize);
     } else {
         // For stereo
-        gint64 silence = 0;
+        int64_t silence = 0;
 
         // Read half of data
         qint64 readBytes = input_->read(data, maxSize/SAMPLE_BYTES);

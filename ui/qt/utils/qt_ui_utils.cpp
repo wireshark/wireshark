@@ -50,15 +50,15 @@
  * to .toUtf8().constData().
  */
 
-gchar *qstring_strdup(QString q_string) {
+char *qstring_strdup(QString q_string) {
     return g_strdup(qUtf8Printable(q_string));
 }
 
-QString gchar_free_to_qstring(gchar *glib_string) {
+QString gchar_free_to_qstring(char *glib_string) {
     return QString(gchar_free_to_qbytearray(glib_string));
 }
 
-QByteArray gchar_free_to_qbytearray(gchar *glib_string)
+QByteArray gchar_free_to_qbytearray(char *glib_string)
 {
     QByteArray qt_bytearray(glib_string);
     g_free(glib_string);
@@ -68,14 +68,14 @@ QByteArray gchar_free_to_qbytearray(gchar *glib_string)
 QByteArray gstring_free_to_qbytearray(GString *glib_gstring)
 {
     QByteArray qt_ba(glib_gstring->str);
-    g_string_free(glib_gstring, TRUE);
+    g_string_free(glib_gstring, true);
     return qt_ba;
 }
 
 QByteArray gbytearray_free_to_qbytearray(GByteArray *glib_array)
 {
     QByteArray qt_ba(reinterpret_cast<char *>(glib_array->data), glib_array->len);
-    g_byte_array_free(glib_array, TRUE);
+    g_byte_array_free(glib_array, true);
     return qt_ba;
 }
 
@@ -106,7 +106,7 @@ const QString address_to_qstring(const _address *address, bool enclose)
     QString address_qstr = QString();
     if (address) {
         if (enclose && address->type == AT_IPv6) address_qstr += "[";
-        gchar *address_gchar_p = address_to_str(NULL, address);
+        char *address_gchar_p = address_to_str(NULL, address);
         address_qstr += address_gchar_p;
         wmem_free(NULL, address_gchar_p);
         if (enclose && address->type == AT_IPv6) address_qstr += "]";
@@ -118,27 +118,27 @@ const QString address_to_display_qstring(const _address *address)
 {
     QString address_qstr = QString();
     if (address) {
-        gchar *address_gchar_p = address_to_display(NULL, address);
+        char *address_gchar_p = address_to_display(NULL, address);
         address_qstr = address_gchar_p;
         wmem_free(NULL, address_gchar_p);
     }
     return address_qstr;
 }
 
-const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt)
+const QString val_to_qstring(const uint32_t val, const value_string *vs, const char *fmt)
 {
     QString val_qstr;
-    gchar* gchar_p = val_to_str_wmem(NULL, val, vs, fmt);
+    char* gchar_p = val_to_str_wmem(NULL, val, vs, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
 
     return val_qstr;
 }
 
-const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
+const QString val_ext_to_qstring(const uint32_t val, value_string_ext *vse, const char *fmt)
 {
     QString val_qstr;
-    gchar* gchar_p = val_to_str_ext_wmem(NULL, val, vse, fmt);
+    char* gchar_p = val_to_str_ext_wmem(NULL, val, vse, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
 
@@ -160,7 +160,7 @@ const QString bits_s_to_qstring(const double bits_s)
                 format_size(bits_s, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
 }
 
-const QString file_size_to_qstring(const gint64 size)
+const QString file_size_to_qstring(const int64_t size)
 {
     return gchar_free_to_qstring(
                 format_size(size, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));

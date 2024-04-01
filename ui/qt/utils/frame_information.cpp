@@ -48,13 +48,13 @@ void FrameInformation::loadFrameTree()
     edt_ = g_new0(epan_dissect_t, 1);
 
     /* proto tree, visible. We need a proto tree if there's custom columns */
-    epan_dissect_init(edt_, cap_file_->capFile()->epan, TRUE, TRUE);
+    epan_dissect_init(edt_, cap_file_->capFile()->epan, true, true);
     col_custom_prime_edt(edt_, &(cap_file_->capFile()->cinfo));
 
     epan_dissect_run(edt_, cap_file_->capFile()->cd_t, &rec_,
                      frame_tvbuff_new_buffer(&cap_file_->capFile()->provider, fi_, &buf_),
                      fi_, &(cap_file_->capFile()->cinfo));
-    epan_dissect_fill_in_columns(edt_, TRUE, TRUE);
+    epan_dissect_fill_in_columns(edt_, true, true);
 }
 
 FrameInformation::~FrameInformation()
