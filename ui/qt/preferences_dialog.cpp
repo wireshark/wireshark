@@ -34,7 +34,7 @@ extern "C" {
 static guint
 module_prefs_unstash(module_t *module, gpointer data)
 {
-    gboolean *must_redissect_p = static_cast<gboolean *>(data);
+    unsigned int *must_redissect_p = static_cast<unsigned int *>(data);
     pref_unstash_data_t unstashed_data;
 
     unstashed_data.handle_decode_as = TRUE;
