@@ -1829,8 +1829,8 @@ IOGraph::~IOGraph() {
 }
 
 // Construct a full filter string from the display filter and value unit / Y axis.
-// Check for errors and sets config_err_ if any are found.
-void IOGraph::setFilter(const QString &filter)
+// Check for errors and sets config_err_ and returns false if any are found.
+bool IOGraph::setFilter(const QString &filter)
 {
     GString *error_string;
     QString full_filter(filter.trimmed());
@@ -1848,7 +1848,7 @@ void IOGraph::setFilter(const QString &filter)
             config_err_ = QString::fromUtf8(df_err->msg);
             df_error_free(&df_err);
             filter_ = full_filter;
-            return;
+            return false;
         }
     }
 
@@ -1857,7 +1857,7 @@ void IOGraph::setFilter(const QString &filter)
     if (error_string) {
         config_err_ = error_string->str;
         g_string_free(error_string, true);
-        return;
+        return false;
     }
 
     // Make sure vu_field_ survives edt tree pruning by adding it to our filter
@@ -1875,7 +1875,7 @@ void IOGraph::setFilter(const QString &filter)
         if (error_string) {
             config_err_ = error_string->str;
             g_string_free(error_string, true);
-            return;
+            return false;
         }
 
         filter_ = filter;
@@ -1902,6 +1902,7 @@ void IOGraph::setFilter(const QString &filter)
             emit requestRetap();
         }
     }
+    return true;
 }
 
 void IOGraph::applyCurrentColor()
@@ -2091,17 +2092,21 @@ void IOGraph::setValueUnits(int val_units)
         if (old_val_units != val_units) {
             // If val_units changed, switching between a type that doesn't
             // use the vu_field/hfi/edt to one of the advanced graphs that
-            // does requires a retap. setFilter will handle that.
-            // XXX - If we are switching between LOAD and one of the
-            // other advanced graphs, we also need to retap because
-            // LOAD doesn't fill in the io_graph_item_t the same way.
-            // We don't do that currently.
-            setFilter(filter_); // Check config & prime vu field
-            if (val_units < IOG_ITEM_UNIT_CALC_SUM) {
-                // XXX - Is this necessary? Won't modelDataChanged()
-                // always be called for colYAxis and that schedule
-                // a recalculation?
-                emit requestRecalc();
+            // does requires a retap. setFilter will handle that, because
+            // the full filter strings will be different.
+            if (setFilter(filter_)) { // Check config & prime vu field
+                if (val_units == IOG_ITEM_UNIT_CALC_LOAD ||
+                    old_val_units == IOG_ITEM_UNIT_CALC_LOAD) {
+                    // LOAD graphs fill in the io_graph_item_t differently
+                    // than other advanced graphs, so we have to retap even
+                    // if the filter is the same. (update_io_graph_item could
+                    // instead calculate and store LOAD information for any
+                    // advanced graph type, but the tradeoff might not be
+                    // worth it.)
+                    if (visible_) {
+                        emit requestRetap();
+                    }
+                }
             }
         }
     }

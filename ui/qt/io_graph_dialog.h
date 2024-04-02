@@ -65,7 +65,7 @@ public:
     QString name() const { return name_; }
     void setName(const QString &name);
     QString filter() const { return filter_; }
-    void setFilter(const QString &filter);
+    bool setFilter(const QString &filter);
     void applyCurrentColor();
     bool visible() const { return visible_; }
     void setVisible(bool visible);
