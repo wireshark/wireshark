@@ -615,6 +615,11 @@ static int hf_smb2_cchunk_xfer_len;
 static int hf_smb2_cchunk_chunks_written;
 static int hf_smb2_cchunk_bytes_written;
 static int hf_smb2_cchunk_total_written;
+
+static int hf_smb2_dupext_src_offset;
+static int hf_smb2_dupext_dst_offset;
+static int hf_smb2_dupext_byte_count;
+
 static int hf_smb2_reparse_data_buffer;
 static int hf_smb2_reparse_tag;
 static int hf_smb2_reparse_guid;
@@ -2355,6 +2360,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
 	{0x00098208, "FSCTL_FILE_LEVEL_TRIM"},
 	{0x00098268, "FSCTL_OFFLOAD_WRITE"},			      /* dissector implemented */
+	{0x00098344, "FSCTL_DUPLICATE_EXTENTS_TO_FILE"},	      /* dissector implemented */
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
 	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},	      /* dissector implemented */
 	{0x00110018, "FSCTL_PIPE_WAIT"},			      /* dissector implemented */
@@ -8998,6 +9004,32 @@ dissect_smb2_FSCTL_GET_NTFS_VOLUME_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	proto_tree_add_item(tree, hf_smb2_ioctl_get_ntfs_volume_data_mft_zone_end, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 }
 
+static void
+dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean data_in, void *data)
+{
+	/*
+	 * Note: si is NULL for some callers from packet-smb.c
+	 */
+	smb2_info_t *si = (smb2_info_t *)data;
+
+	/* Output is simpler - handle that first. */
+	if (!data_in) {
+		return;
+	}
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+
+	proto_tree_add_item(tree, hf_smb2_dupext_src_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_dupext_dst_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_smb2_dupext_byte_count, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+}
+
 void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, uint32_t ioctl_function, bool data_in, void *private_data _U_)
 {
@@ -9105,6 +9137,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x00090440:
 		dissect_smb2_FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00098344: /* FSCTL_DUPLICATE_EXTENTS_TO_FILE */
+		dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvb, pinfo, tree, 0, data_in, private_data);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_captured_length(tvb), ENC_NA);
@@ -15560,6 +15595,20 @@ proto_register_smb2(void)
 			{ "Total Bytes Written", "smb2.fsctl.cchunk.total_written", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
+
+		{ &hf_smb2_dupext_src_offset,
+			{ "Source File Offset", "smb2.fsctl.dupext.src_offset", FT_UINT64, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_dupext_dst_offset,
+			{ "Target File Offset", "smb2.fsctl.dupext.dst_offset", FT_UINT64, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_dupext_byte_count,
+			{ "Byte Count", "smb2.fsctl.dupext.byte_count", FT_UINT64, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_reparse_tag,
 			{ "Reparse Tag", "smb2.reparse_tag", FT_UINT32, BASE_HEX,
 			VALS(reparse_tag_vals), 0x0, NULL, HFILL }
