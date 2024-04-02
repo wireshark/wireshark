@@ -300,9 +300,9 @@ https://dev-libs.wireshark.org/windows/packages/[].
 === Lua (Optional)
 
 The Lua library is used to add scripting support to Wireshark.
-Only Lua versions 5.1 and 5.2 are supported; the API has
-https://gitlab.com/wireshark/wireshark/-/issues/10881[not
-been updated to work with versions 5.3 and later.]
+Wireshark 4.2.x and earlier support Lua versions 5.1 and 5.2.
+Recent versions of Wireshark have added support for Lua 5.3 and 5.4
+as well.
 
 [#ChLibsUnixLua]
 
@@ -318,7 +318,7 @@ https://www.lua.org/download.html[].
 [discrete]
 ==== Windows
 
-We provide copies of the official packages at
+We provide packages for Windows, patched for UTF-8 support, at
 https://dev-libs.wireshark.org/windows/packages/[].
 
 [#ChLibsMaxMindDB]
