@@ -143,16 +143,16 @@ ATTRIBUTE	Huawei-Acct-IPv6-Output-Gigawords	149	integer
 ATTRIBUTE	Huawei-DHCPv6-Option37			150	string
 ATTRIBUTE	Huawei-DHCPv6-Option38			151	string
 ATTRIBUTE	Huawei-User-Mac				153	string
-ATTRIBUTE	Huawei-DNS-Server-IPv6-address		154	ipv6prefix # manual says ipv6addr with length 18?!
+ATTRIBUTE	Huawei-DNS-Server-IPv6-address		154	ipv6prefix
 ATTRIBUTE	Huawei-DHCPv4-Option121			155	string
 ATTRIBUTE	Huawei-DHCPv4-Option43			156	string
 ATTRIBUTE	Huawei-Framed-Pool-Group		157	string
-ATTRIBUTE	Huawei-Framed-IPv6-Address		158	ipv6prefix # manual says 18 byte string?
+ATTRIBUTE	Huawei-Framed-IPv6-Address		158	ipv6prefix
 ATTRIBUTE	Huawei-Acct-Update-Address		159	integer
 ATTRIBUTE	Huawei-NAT-Policy-Name			160	string
-ATTRIBUTE	Huawei-NAT-Public-Address		161	string
-ATTRIBUTE	Huawei-NAT-Start-Port			162	string
-ATTRIBUTE	Huawei-NAT-End-Port			163	string
+ATTRIBUTE	Huawei-NAT-Public-Address		161	ipaddr
+ATTRIBUTE	Huawei-NAT-Start-Port			162	integer
+ATTRIBUTE	Huawei-NAT-End-Port			163	integer
 ATTRIBUTE	Huawei-NAT-Port-Forwarding		164	string
 ATTRIBUTE	Huawei-NAT-Port-Range-Update		165	integer
 ATTRIBUTE	Huawei-DS-Lite-Tunnel-Name		166	string
@@ -175,8 +175,9 @@ VALUE	Huawei-Auth-Type		Administrative		7
 VALUE	Huawei-Auth-Type		Tunnel			8
 VALUE	Huawei-Auth-Type		MIP			9
 VALUE	Huawei-Auth-Type		None			10
+VALUE	Huawei-Auth-Type		MAC			11
 
-ATTRIBUTE	Huawei-Acct-Terminate-Subcause		181	string
+ATTRIBUTE	Huawei-Acct-Terminate-Subcause		181	integer
 ATTRIBUTE	Huawei-Down-QOS-Profile-Name		182	string
 ATTRIBUTE	Huawei-Port-Mirror			183	integer
 
@@ -187,12 +188,13 @@ VALUE	Huawei-Port-Mirror		Enable			3
 
 ATTRIBUTE	Huawei-Account-Info			184	string
 ATTRIBUTE	Huawei-Service-Info			185	string
-ATTRIBUTE	Huawei-DHCP-Option			187	octets
+ATTRIBUTE	Huawei-DHCP-Option			187	string
 ATTRIBUTE	Huawei-AVpair				188	string
+ATTRIBUTE	Huawei-DHCPv6-Option		189	string
 ATTRIBUTE	Huawei-Delegated-IPv6-Prefix-Pool	191	string
-ATTRIBUTE	Huawei-IPv6-Prefix-Lease		192	octets
-ATTRIBUTE	Huawei-IPv6-Address-Lease		193	octets
-ATTRIBUTE	Huawei-IPv6-Policy-Route		194	ipv6prefix # manual says string?
+ATTRIBUTE	Huawei-IPv6-Prefix-Lease		192	string
+ATTRIBUTE	Huawei-IPv6-Address-Lease		193	string
+ATTRIBUTE	Huawei-IPv6-Policy-Route		194	ipv6prefix
 ATTRIBUTE	Huawei-MNG-IPv6				196	integer
 
 VALUE	Huawei-MNG-IPv6			Unsupported		0
@@ -224,6 +226,8 @@ ATTRIBUTE	Huawei-Application-Scene		221	octets
 ATTRIBUTE	Huawei-MS-Maximum-MAC-Study-Number	222	octets # ether??
 ATTRIBUTE	Huawei-GGSN-Vendor			232	string
 ATTRIBUTE	Huawei-GGSN-Version			233	string
+ATTRIBUTE	Huawei-USR-GRP-NAME			251	string
+ATTRIBUTE	Huawei-USER-SRVC_TYPE		252	string
 ATTRIBUTE	Huawei-Web-URL				253	string
 ATTRIBUTE	Huawei-Version				254	string
 ATTRIBUTE	Huawei-Product-ID			255	string
