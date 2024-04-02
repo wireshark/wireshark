@@ -534,7 +534,7 @@ void ShowPacketBytesDialog::symbolizeBuffer(QByteArray &ba)
     ba.replace((char)0x7f, symbol); // DEL
 }
 
-QByteArray ShowPacketBytesDialog::decodeQuotedPrintable(const guint8 *bytes, int length)
+QByteArray ShowPacketBytesDialog::decodeQuotedPrintable(const uint8_t *bytes, int length)
 {
     QByteArray ba;
 
@@ -562,7 +562,7 @@ QByteArray ShowPacketBytesDialog::decodeQuotedPrintable(const guint8 *bytes, int
 void ShowPacketBytesDialog::rot13(QByteArray &ba)
 {
     for (int i = 0; i < ba.length(); i++) {
-        gchar upper = g_ascii_toupper(ba[i]);
+        char upper = g_ascii_toupper(ba[i]);
         if (upper >= 'A' && upper <= 'M') ba[i] = ba[i] + 13;
         else if (upper >= 'N' && upper <= 'Z') ba[i] = ba[i] - 13;
     }
@@ -572,8 +572,8 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 {
     int start = finfo_->start + start_;
     int length = end_ - start_ + 1;
-    const guint8 *bytes;
-    gsize new_length = 0;
+    const uint8_t *bytes;
+    size_t new_length = 0;
 
     if (!finfo_->ds_tvb)
         return;
@@ -620,7 +620,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 #if GLIB_CHECK_VERSION(2, 66, 0)
         GBytes *ba = g_uri_unescape_bytes((const char*)bytes, length, NULL, NULL);
         if (ba != NULL) {
-            gsize size;
+            size_t size;
             const char* data = (const char *)g_bytes_unref_to_data(ba, &size);
             field_bytes_ = QByteArray(data, (int)size);
         }
@@ -629,7 +629,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
         if (uri_to_bytes((const char*)bytes, ba, length)) {
             field_bytes_ = QByteArray((const char *)ba->data, ba->len);
         }
-        g_byte_array_free(ba, TRUE);
+        g_byte_array_free(ba, true);
 #endif
         break;
     }
@@ -659,7 +659,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 
 void ShowPacketBytesDialog::updatePacketBytes(void)
 {
-    static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+    static const char hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
     ui->tePacketBytes->clear();
     ui->tePacketBytes->setCurrentFont(mainApp->monospaceFont());
@@ -690,7 +690,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         QString text("char packet_bytes[] = {\n");
 
         while (pos < len) {
-            gchar hexbuf[256];
+            char hexbuf[256];
             char *cur = hexbuf;
             int i;
 
@@ -727,7 +727,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         QString text("let packet_bytes: [u8; _] = [\n");
 
         while (pos < len) {
-            gchar hexbuf[256];
+            char hexbuf[256];
             char *cur = hexbuf;
             int i;
 
@@ -775,7 +775,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case SHOW_EBCDIC:
     {
         QByteArray ba(field_bytes_);
-        EBCDIC_to_ASCII((guint8*)ba.data(), static_cast<int>(ba.length()));
+        EBCDIC_to_ASCII((uint8_t*)ba.data(), static_cast<int>(ba.length()));
         sanitizeBuffer(ba, false);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(ba);

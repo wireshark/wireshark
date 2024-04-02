@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "cfile.h"
 
 #include "epan/packet.h"
@@ -110,7 +108,7 @@ private:
     SequenceDiagram *seq_diagram_;
     SequenceInfo *info_;
     int num_items_;
-    guint32 packet_num_;
+    uint32_t packet_num_;
     double one_em_;
     int sequence_w_;
     QPushButton *reset_button_;

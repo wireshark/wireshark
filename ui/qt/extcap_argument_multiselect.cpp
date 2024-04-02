@@ -212,7 +212,7 @@ QString ExtArgMultiSelect::defaultValue()
 
 bool ExtArgMultiSelect::isSetDefaultValueSupported()
 {
-    return TRUE;
+    return true;
 }
 
 void ExtArgMultiSelect::setDefaultValue()

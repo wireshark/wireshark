@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "wireshark_dialog.h"
 #include "cfile.h"
 #include "packet_list.h"

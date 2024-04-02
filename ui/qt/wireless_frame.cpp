@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <capture/capture_session.h>
 #include <capture/capture_sync.h>
 
@@ -130,7 +128,7 @@ void WirelessFrame::updateInterfaceList()
     ws80211_free_interfaces(interfaces_);
     interfaces_ = ws80211_find_interfaces();
     const QString old_iface = ui->interfaceComboBox->currentText();
-    guint iface_count = 0;
+    unsigned iface_count = 0;
     bool list_changed = false;
 
     // Don't interfere with user activity.
@@ -149,7 +147,7 @@ void WirelessFrame::updateInterfaceList()
     if ((int) iface_count != ui->interfaceComboBox->count()) {
         list_changed = true;
     } else {
-        for (guint i = 0; i < iface_count; i++) {
+        for (unsigned i = 0; i < iface_count; i++) {
             struct ws80211_interface *iface = g_array_index(interfaces_, struct ws80211_interface *, i);
             if (ui->interfaceComboBox->itemText(i).compare(iface->ifname) != 0) {
                 list_changed = true;
@@ -160,7 +158,7 @@ void WirelessFrame::updateInterfaceList()
 
     if (list_changed) {
         ui->interfaceComboBox->clear();
-        for (guint i = 0; i < iface_count; i++) {
+        for (unsigned i = 0; i < iface_count; i++) {
             struct ws80211_interface *iface = g_array_index(interfaces_, struct ws80211_interface *, i);
             ui->interfaceComboBox->addItem(iface->ifname);
             if (old_iface.compare(iface->ifname) == 0) {
@@ -227,7 +225,7 @@ void WirelessFrame::getInterfaceInfo()
         return;
     }
 
-    for (guint i = 0; i < interfaces_->len; i++) {
+    for (unsigned i = 0; i < interfaces_->len; i++) {
         struct ws80211_interface *iface = g_array_index(interfaces_, struct ws80211_interface *, i);
         if (cur_iface.compare(iface->ifname) == 0) {
             struct ws80211_iface_info iface_info;
@@ -235,8 +233,8 @@ void WirelessFrame::getInterfaceInfo()
 
             ws80211_get_iface_info(iface->ifname, &iface_info);
 
-            for (guint j = 0; j < iface->frequencies->len; j++) {
-                guint32 frequency = g_array_index(iface->frequencies, guint32, j);
+            for (unsigned j = 0; j < iface->frequencies->len; j++) {
+                uint32_t frequency = g_array_index(iface->frequencies, uint32_t, j);
                 double ghz = frequency / 1000.0;
                 QString chan_str = QString("%1 " UTF8_MIDDLE_DOT " %2%3")
                         .arg(ieee80211_mhz_to_chan(frequency))
@@ -305,9 +303,9 @@ void WirelessFrame::setInterfaceInfo()
     int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
     int bandwidth = getBandwidthFromChanType(chan_type);
     int center_freq = getCenterFrequency(frequency, bandwidth);
-    const gchar *chan_type_s = ws80211_chan_type_to_str(chan_type);
-    gchar *center_freq_s = NULL;
-    gchar *data, *primary_msg, *secondary_msg;
+    const char *chan_type_s = ws80211_chan_type_to_str(chan_type);
+    char *center_freq_s = NULL;
+    char *data, *primary_msg, *secondary_msg;
     int ret;
 
     if (frequency < 0 || chan_type < 0) return;

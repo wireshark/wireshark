@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "epan/color_filters.h"
 #include "file.h"
 

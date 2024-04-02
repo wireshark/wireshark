@@ -67,13 +67,13 @@ void SCTPGraphDialog::drawNRSACKGraph(const sctp_assoc_info_t* selected_assoc)
 {
     tsn_t *sack = Q_NULLPTR;
     GList *list = Q_NULLPTR, *tlist = Q_NULLPTR;
-    guint16 gap_start=0, gap_end=0, i, numberOf_gaps, numberOf_nr_gaps;
-    guint8 type;
-    guint32 tsnumber, j = 0, min_tsn, rel = 0;
+    uint16_t gap_start=0, gap_end=0, i, numberOf_gaps, numberOf_nr_gaps;
+    uint8_t type;
+    uint32_t tsnumber, j = 0, min_tsn, rel = 0;
     struct nr_sack_chunk_header *nr_sack_header = Q_NULLPTR;
     struct gaps *nr_gap = Q_NULLPTR;
     /* This holds the sum of gap acks and nr gap acks */
-    guint16 total_gaps = 0;
+    uint16_t total_gaps = 0;
 
     if (direction == 1) {
         list = g_list_last(selected_assoc->sack1);
@@ -133,14 +133,14 @@ void SCTPGraphDialog::drawNRSACKGraph(const sctp_assoc_info_t* selected_assoc)
 void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
 {
     GList *listSACK = Q_NULLPTR, *tlist = Q_NULLPTR;
-    guint16 gap_start=0, gap_end=0, nr, dup_nr;
+    uint16_t gap_start=0, gap_end=0, nr, dup_nr;
     struct sack_chunk_header *sack_header = Q_NULLPTR;
     struct gaps *gap = Q_NULLPTR;
     tsn_t *tsn = Q_NULLPTR;
-    guint8 type;
-    guint32 tsnumber=0, rel = 0;
-    guint32 minTSN;
-    guint32 *dup_list = Q_NULLPTR;
+    uint8_t type;
+    uint32_t tsnumber=0, rel = 0;
+    uint32_t minTSN;
+    uint32_t *dup_list = Q_NULLPTR;
     int i, j;
 
     if (direction == 1) {
@@ -262,8 +262,8 @@ void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
 {
     GList *listTSN = Q_NULLPTR,*tlist = Q_NULLPTR;
     tsn_t *tsn = Q_NULLPTR;
-    guint8 type;
-    guint32 tsnumber=0, rel = 0, minTSN;
+    uint8_t type;
+    uint32_t tsnumber=0, rel = 0, minTSN;
 
     if (direction == 1) {
         listTSN = g_list_last(selected_assoc->tsn1);
@@ -321,7 +321,7 @@ void SCTPGraphDialog::drawGraph(const sctp_assoc_info_t* selected_assoc)
         if (!selected_assoc) return;
     }
 
-    guint32 maxTSN, minTSN;
+    uint32_t maxTSN, minTSN;
 
     if (direction == 1) {
         maxTSN = selected_assoc->max_tsn1;
@@ -467,7 +467,7 @@ void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseE
         }
     }
     if (cap_file_ && frame_num > 0) {
-        cf_goto_frame(cap_file_, frame_num, FALSE);
+        cf_goto_frame(cap_file_, frame_num, false);
     }
     ui->hintLabel->setText(QString(tr("<small><i>%1: %2 Time: %3 secs </i></small>"))
                            .arg(plottable->name())

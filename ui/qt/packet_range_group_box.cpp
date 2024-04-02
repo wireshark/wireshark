@@ -396,7 +396,7 @@ void PacketRangeGroupBox::on_rangeButton_toggled(bool checked)
 void PacketRangeGroupBox::on_capturedButton_toggled(bool checked)
 {
     if (checked) {
-        if (range_) range_->process_filtered = FALSE;
+        if (range_) range_->process_filtered = false;
         updateCounts();
     }
 }
@@ -404,21 +404,21 @@ void PacketRangeGroupBox::on_capturedButton_toggled(bool checked)
 void PacketRangeGroupBox::on_displayedButton_toggled(bool checked)
 {
     if (checked) {
-        if (range_) range_->process_filtered = TRUE;
+        if (range_) range_->process_filtered = true;
         updateCounts();
     }
 }
 
 void PacketRangeGroupBox::on_ignoredCheckBox_toggled(bool checked)
 {
-    if (range_) range_->remove_ignored = checked ? TRUE : FALSE;
+    if (range_) range_->remove_ignored = checked ? true : false;
     updateCounts();
 }
 
 void PacketRangeGroupBox::on_dependedCheckBox_toggled(bool checked)
 {
     if (range_) {
-        range_->include_dependents = checked ? TRUE : FALSE;
+        range_->include_dependents = checked ? true : false;
         updateCounts();
     }
 }

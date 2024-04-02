@@ -90,8 +90,8 @@ simple_dialog_format_message(const char *msg)
     return g_strdup(msg);
 }
 
-gpointer
-simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
+void *
+simple_dialog(ESD_TYPE_E type, int btn_mask, const char *msg_format, ...)
 {
     va_list ap;
 
@@ -103,8 +103,8 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
     return NULL;
 }
 
-gpointer
-simple_dialog_async(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
+void *
+simple_dialog_async(ESD_TYPE_E type, int btn_mask, const char *msg_format, ...)
 {
     va_list ap;
 
@@ -202,7 +202,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     check_box_(0),
     message_box_(0)
 {
-    gchar *vmessage;
+    char *vmessage;
     QString message;
 
     vmessage = ws_strdup_vprintf(msg_format, ap);

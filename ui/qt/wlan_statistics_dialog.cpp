@@ -222,7 +222,7 @@ public:
         } else if (wlan_hdr->stats.ssid_len == 1 && wlan_hdr->stats.ssid[0] == 0) {
             ssid_text = QObject::tr("<Hidden>");
         } else {
-            gchar *str = format_text(NULL, (const char *)wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
+            char *str = format_text(NULL, (const char *)wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
             ssid_text = str;
             wmem_free(NULL, str);
         }
@@ -293,7 +293,7 @@ public:
         }
 
         if (update_ssid) {
-            gchar* str;
+            char* str;
             ssid_ = QByteArray::fromRawData((const char *)wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
             str = format_text(NULL, (const char *)wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
             setText(col_ssid_, str);
@@ -571,7 +571,7 @@ tap_packet_status WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info
     const wlan_hdr_t *wlan_hdr  = (const wlan_hdr_t *)wlan_hdr_ptr;
     if (!ws_dlg || !wlan_hdr) return TAP_PACKET_DONT_REDRAW;
 
-    guint16 frame_type = wlan_hdr->type & 0xff0;
+    uint16_t frame_type = wlan_hdr->type & 0xff0;
     if (!((frame_type == 0x0) || (frame_type == 0x20) || (frame_type == 0x30))
         || ((frame_type == 0x20) && DATA_FRAME_IS_NULL(wlan_hdr->type))) {
         /* Not a management or non null data or extension frame; let's skip it */

@@ -146,7 +146,7 @@ void CaptureInfoModel::updateInfo()
     if (!cap_info_) return;
 
     GHashTableIter iter;
-    gpointer key, value;
+    void *key, *value;
 
     samples_++;
     other_points_.append(cap_info_->counts->other - last_other_);

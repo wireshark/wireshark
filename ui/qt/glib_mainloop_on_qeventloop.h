@@ -11,7 +11,6 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
-#include <glib.h>
 
 class GLibPoller : public QThread
 {
@@ -26,9 +25,9 @@ protected:
     QMutex mutex_;
     QWaitCondition dispatched_;
     GMainContext *ctx_;
-    gint priority_;
+    int priority_;
     GPollFD *fds_;
-    gint allocated_fds_, nfds_;
+    int allocated_fds_, nfds_;
 
 signals:
     void polled(void);

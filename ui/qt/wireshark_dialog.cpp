@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "cfile.h"
 
 #include <epan/packet.h>
@@ -95,14 +93,14 @@ void WiresharkDialog::updateWidgets()
     setWindowSubtitle(subtitle_);
 }
 
-bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, guint flags, tap_reset_cb tap_reset, tap_packet_cb tap_packet, tap_draw_cb tap_draw)
+bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, unsigned flags, tap_reset_cb tap_reset, tap_packet_cb tap_packet, tap_draw_cb tap_draw)
 {
     GString *error_string = register_tap_listener(tap_name, tap_data, filter, flags,
                                                   tap_reset, tap_packet, tap_draw, NULL);
     if (error_string) {
         QMessageBox::warning(this, tr("Failed to attach to tap \"%1\"").arg(tap_name),
                              error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         return false;
     }
 

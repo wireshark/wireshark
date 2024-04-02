@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <file.h>
 
 #include <epan/dissectors/packet-sctp.h>
@@ -44,7 +42,7 @@ public:
 
     void fillTabs(const _sctp_assoc_info* selected_assoc);
     static const _sctp_assoc_info* findAssocForPacket(capture_file* cf);
-    static const _sctp_assoc_info* findAssoc(QWidget *parent, guint16 assoc_id);
+    static const _sctp_assoc_info* findAssoc(QWidget *parent, uint16_t assoc_id);
 
 public slots:
     void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
@@ -63,7 +61,7 @@ private slots:
 
 private:
     Ui::SCTPAssocAnalyseDialog *ui;
-    guint16 selected_assoc_id;
+    uint16_t selected_assoc_id;
     capture_file *cap_file_;
     void openGraphDialog(int direction);
     void openGraphByteDialog(int direction);

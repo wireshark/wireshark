@@ -8,7 +8,6 @@
  */
 
 #include "config.h"
-#include <glib.h>
 
 #include "accordion_frame.h"
 

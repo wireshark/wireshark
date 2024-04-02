@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/decode_as.h>
@@ -267,13 +265,13 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
         pref_unstash_data_t unstashed_data;
 
         unstashed_data.module = module_;
-        unstashed_data.handle_decode_as = TRUE;
+        unstashed_data.handle_decode_as = true;
 
         pref_unstash(pref_, &unstashed_data);
         prefs_apply(module_);
         prefs_main_write();
 
-        gchar* err = NULL;
+        char* err = NULL;
         if (save_decode_as_entries(&err) < 0)
         {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);

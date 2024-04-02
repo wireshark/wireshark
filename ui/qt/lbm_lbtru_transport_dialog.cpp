@@ -87,7 +87,7 @@ namespace
     static const double OneGigabit = OneMegabit * OneKilobit;
 }
 
-static QString format_rate(const nstime_t & elapsed, guint64 bytes)
+static QString format_rate(const nstime_t & elapsed, uint64_t bytes)
 {
     QString result;
     double elapsed_sec;
@@ -161,15 +161,15 @@ static QString format_rate(const nstime_t & elapsed, guint64 bytes)
 class LBMLBTRUFrameEntry : public QTreeWidgetItem
 {
     public:
-        LBMLBTRUFrameEntry(guint32 frame);
+        LBMLBTRUFrameEntry(uint32_t frame);
         virtual ~LBMLBTRUFrameEntry(void) { }
-        guint32 getFrame(void) { return (m_frame); }
+        uint32_t getFrame(void) { return (m_frame); }
 
     private:
-        guint32 m_frame;
+        uint32_t m_frame;
 };
 
-LBMLBTRUFrameEntry::LBMLBTRUFrameEntry(guint32 frame) :
+LBMLBTRUFrameEntry::LBMLBTRUFrameEntry(uint32_t frame) :
     QTreeWidgetItem(),
     m_frame(frame)
 {
@@ -178,25 +178,25 @@ LBMLBTRUFrameEntry::LBMLBTRUFrameEntry(guint32 frame) :
     setText(Detail_Frame_Column, QString("%1").arg(m_frame));
 }
 
-typedef QMap<guint32, LBMLBTRUFrameEntry *> LBMLBTRUFrameMap;
-typedef QMap<guint32, LBMLBTRUFrameEntry *>::iterator LBMLBTRUFrameMapIterator;
+typedef QMap<uint32_t, LBMLBTRUFrameEntry *> LBMLBTRUFrameMap;
+typedef QMap<uint32_t, LBMLBTRUFrameEntry *>::iterator LBMLBTRUFrameMapIterator;
 
 // An SQN (SeQuence Number) entry
 class LBMLBTRUSQNEntry : public QTreeWidgetItem
 {
     public:
-        LBMLBTRUSQNEntry(guint32 sqn);
+        LBMLBTRUSQNEntry(uint32_t sqn);
         virtual ~LBMLBTRUSQNEntry(void);
-        void processFrame(guint32 frame);
+        void processFrame(uint32_t frame);
 
     private:
         LBMLBTRUSQNEntry(void);
-        guint32 m_sqn;
-        guint32 m_count;
+        uint32_t m_sqn;
+        uint32_t m_count;
         LBMLBTRUFrameMap m_frames;
 };
 
-LBMLBTRUSQNEntry::LBMLBTRUSQNEntry(guint32 sqn) :
+LBMLBTRUSQNEntry::LBMLBTRUSQNEntry(uint32_t sqn) :
     QTreeWidgetItem(),
     m_sqn(sqn),
     m_count(0),
@@ -218,7 +218,7 @@ LBMLBTRUSQNEntry::~LBMLBTRUSQNEntry(void)
     m_frames.clear();
 }
 
-void LBMLBTRUSQNEntry::processFrame(guint32 frame)
+void LBMLBTRUSQNEntry::processFrame(uint32_t frame)
 {
     LBMLBTRUFrameMapIterator it;
 
@@ -239,18 +239,18 @@ void LBMLBTRUSQNEntry::processFrame(guint32 frame)
 class LBMLBTRUNCFReasonEntry : public QTreeWidgetItem
 {
     public:
-        LBMLBTRUNCFReasonEntry(guint8 reason);
+        LBMLBTRUNCFReasonEntry(uint8_t reason);
         virtual ~LBMLBTRUNCFReasonEntry(void);
-        void processFrame(guint32 frame);
+        void processFrame(uint32_t frame);
 
     private:
         LBMLBTRUNCFReasonEntry(void);
-        guint8 m_reason;
-        guint32 m_count;
+        uint8_t m_reason;
+        uint32_t m_count;
         LBMLBTRUFrameMap m_frames;
 };
 
-LBMLBTRUNCFReasonEntry::LBMLBTRUNCFReasonEntry(guint8 reason) :
+LBMLBTRUNCFReasonEntry::LBMLBTRUNCFReasonEntry(uint8_t reason) :
     QTreeWidgetItem(),
     m_reason(reason),
     m_count(0),
@@ -288,7 +288,7 @@ LBMLBTRUNCFReasonEntry::~LBMLBTRUNCFReasonEntry(void)
     m_frames.clear();
 }
 
-void LBMLBTRUNCFReasonEntry::processFrame(guint32 frame)
+void LBMLBTRUNCFReasonEntry::processFrame(uint32_t frame)
 {
     LBMLBTRUFrameMapIterator it;
 
@@ -305,25 +305,25 @@ void LBMLBTRUNCFReasonEntry::processFrame(guint32 frame)
     setTextAlignment(Detail_Count_Column, Qt::AlignRight);
 }
 
-typedef QMap<guint8, LBMLBTRUNCFReasonEntry *> LBMLBTRUNCFReasonMap;
-typedef QMap<guint8, LBMLBTRUNCFReasonEntry *>::iterator LBMLBTRUNCFReasonMapIterator;
+typedef QMap<uint8_t, LBMLBTRUNCFReasonEntry *> LBMLBTRUNCFReasonMap;
+typedef QMap<uint8_t, LBMLBTRUNCFReasonEntry *>::iterator LBMLBTRUNCFReasonMapIterator;
 
 // An NCF SQN entry
 class LBMLBTRUNCFSQNEntry : public QTreeWidgetItem
 {
     public:
-        LBMLBTRUNCFSQNEntry(guint32 sqn);
+        LBMLBTRUNCFSQNEntry(uint32_t sqn);
         virtual ~LBMLBTRUNCFSQNEntry(void);
-        void processFrame(guint8 reason, guint32 frame);
+        void processFrame(uint8_t reason, uint32_t frame);
 
     private:
         LBMLBTRUNCFSQNEntry(void);
-        guint32 m_sqn;
-        guint32 m_count;
+        uint32_t m_sqn;
+        uint32_t m_count;
         LBMLBTRUNCFReasonMap m_reasons;
 };
 
-LBMLBTRUNCFSQNEntry::LBMLBTRUNCFSQNEntry(guint32 sqn) :
+LBMLBTRUNCFSQNEntry::LBMLBTRUNCFSQNEntry(uint32_t sqn) :
     QTreeWidgetItem(),
     m_sqn(sqn),
     m_count(0),
@@ -345,7 +345,7 @@ LBMLBTRUNCFSQNEntry::~LBMLBTRUNCFSQNEntry(void)
     m_reasons.clear();
 }
 
-void LBMLBTRUNCFSQNEntry::processFrame(guint8 reason, guint32 frame)
+void LBMLBTRUNCFSQNEntry::processFrame(uint8_t reason, uint32_t frame)
 {
     LBMLBTRUNCFReasonMapIterator it;
     LBMLBTRUNCFReasonEntry * entry = NULL;
@@ -372,19 +372,19 @@ void LBMLBTRUNCFSQNEntry::processFrame(guint8 reason, guint32 frame)
 class LBMLBTRURSTReasonEntry : public QTreeWidgetItem
 {
     public:
-        LBMLBTRURSTReasonEntry(guint32 reason);
+        LBMLBTRURSTReasonEntry(uint32_t reason);
         virtual ~LBMLBTRURSTReasonEntry(void);
-        void processFrame(guint32 frame);
+        void processFrame(uint32_t frame);
 
     private:
         LBMLBTRURSTReasonEntry(void);
-        guint32 m_reason;
+        uint32_t m_reason;
         QString m_reason_string;
-        guint32 m_count;
+        uint32_t m_count;
         LBMLBTRUFrameMap m_frames;
 };
 
-LBMLBTRURSTReasonEntry::LBMLBTRURSTReasonEntry(guint32 reason) :
+LBMLBTRURSTReasonEntry::LBMLBTRURSTReasonEntry(uint32_t reason) :
     QTreeWidgetItem(),
     m_reason(reason),
     m_reason_string(),
@@ -416,7 +416,7 @@ LBMLBTRURSTReasonEntry::~LBMLBTRURSTReasonEntry(void)
     m_frames.clear();
 }
 
-void LBMLBTRURSTReasonEntry::processFrame(guint32 frame)
+void LBMLBTRURSTReasonEntry::processFrame(uint32_t frame)
 {
     LBMLBTRUFrameMapIterator it;
 
@@ -437,19 +437,19 @@ void LBMLBTRURSTReasonEntry::processFrame(guint32 frame)
 class LBMLBTRUCREQRequestEntry : public QTreeWidgetItem
 {
     public:
-        LBMLBTRUCREQRequestEntry(guint32 request);
+        LBMLBTRUCREQRequestEntry(uint32_t request);
         virtual ~LBMLBTRUCREQRequestEntry(void);
-        void processFrame(guint32 frame);
+        void processFrame(uint32_t frame);
 
     private:
         LBMLBTRUCREQRequestEntry(void);
-        guint32 m_request;
+        uint32_t m_request;
         QString m_request_string;
-        guint32 m_count;
+        uint32_t m_count;
         LBMLBTRUFrameMap m_frames;
 };
 
-LBMLBTRUCREQRequestEntry::LBMLBTRUCREQRequestEntry(guint32 request) :
+LBMLBTRUCREQRequestEntry::LBMLBTRUCREQRequestEntry(uint32_t request) :
     QTreeWidgetItem(),
     m_request(request),
     m_request_string(),
@@ -481,7 +481,7 @@ LBMLBTRUCREQRequestEntry::~LBMLBTRUCREQRequestEntry(void)
     m_frames.clear();
 }
 
-void LBMLBTRUCREQRequestEntry::processFrame(guint32 frame)
+void LBMLBTRUCREQRequestEntry::processFrame(uint32_t frame)
 {
     LBMLBTRUFrameMapIterator it;
 
@@ -498,14 +498,14 @@ void LBMLBTRUCREQRequestEntry::processFrame(guint32 frame)
     setTextAlignment(Detail_Count_Column, Qt::AlignRight);
 }
 
-typedef QMap<guint32, LBMLBTRUSQNEntry *> LBMLBTRUSQNMap;
-typedef QMap<guint32, LBMLBTRUSQNEntry *>::iterator LBMLBTRUSQNMapIterator;
-typedef QMap<guint32, LBMLBTRUNCFSQNEntry *> LBMLBTRUNCFSQNMap;
-typedef QMap<guint32, LBMLBTRUNCFSQNEntry *>::iterator LBMLBTRUNCFSQNMapIterator;
-typedef QMap<guint32, LBMLBTRURSTReasonEntry *> LBMLBTRURSTReasonMap;
-typedef QMap<guint32, LBMLBTRURSTReasonEntry *>::iterator LBMLBTRURSTReasonMapIterator;
-typedef QMap<guint32, LBMLBTRUCREQRequestEntry *> LBMLBTRUCREQRequestMap;
-typedef QMap<guint32, LBMLBTRUCREQRequestEntry *>::iterator LBMLBTRUCREQRequestMapIterator;
+typedef QMap<uint32_t, LBMLBTRUSQNEntry *> LBMLBTRUSQNMap;
+typedef QMap<uint32_t, LBMLBTRUSQNEntry *>::iterator LBMLBTRUSQNMapIterator;
+typedef QMap<uint32_t, LBMLBTRUNCFSQNEntry *> LBMLBTRUNCFSQNMap;
+typedef QMap<uint32_t, LBMLBTRUNCFSQNEntry *>::iterator LBMLBTRUNCFSQNMapIterator;
+typedef QMap<uint32_t, LBMLBTRURSTReasonEntry *> LBMLBTRURSTReasonMap;
+typedef QMap<uint32_t, LBMLBTRURSTReasonEntry *>::iterator LBMLBTRURSTReasonMapIterator;
+typedef QMap<uint32_t, LBMLBTRUCREQRequestEntry *> LBMLBTRUCREQRequestMap;
+typedef QMap<uint32_t, LBMLBTRUCREQRequestEntry *>::iterator LBMLBTRUCREQRequestMapIterator;
 
 // A source transport entry
 class LBMLBTRUSourceTransportEntry : public QTreeWidgetItem
@@ -522,17 +522,17 @@ class LBMLBTRUSourceTransportEntry : public QTreeWidgetItem
 
     private:
         void fillItem(void);
-        guint64 m_data_frames;
-        guint64 m_data_bytes;
-        guint64 m_rx_data_frames;
-        guint64 m_rx_data_bytes;
-        guint64 m_ncf_frames;
-        guint64 m_ncf_count;
-        guint64 m_ncf_bytes;
-        guint64 m_sm_frames;
-        guint64 m_sm_bytes;
-        guint64 m_rst_frames;
-        guint64 m_rst_bytes;
+        uint64_t m_data_frames;
+        uint64_t m_data_bytes;
+        uint64_t m_rx_data_frames;
+        uint64_t m_rx_data_bytes;
+        uint64_t m_ncf_frames;
+        uint64_t m_ncf_count;
+        uint64_t m_ncf_bytes;
+        uint64_t m_sm_frames;
+        uint64_t m_sm_bytes;
+        uint64_t m_rst_frames;
+        uint64_t m_rst_bytes;
         nstime_t m_first_frame_timestamp;
         bool m_first_frame_timestamp_valid;
         nstime_t m_last_frame_timestamp;
@@ -664,13 +664,13 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
     }
     else if (tap_info->type == LBTRU_PACKET_TYPE_NCF)
     {
-        guint16 idx;
+        uint16_t idx;
         LBMLBTRUNCFSQNMapIterator it;
         LBMLBTRUNCFSQNEntry * sqn = NULL;
 
         m_ncf_frames++;
         m_ncf_bytes += pinfo->fd->pkt_len;
-        m_ncf_count += (guint64)tap_info->num_sqns;
+        m_ncf_count += (uint64_t)tap_info->num_sqns;
         for (idx = 0; idx < tap_info->num_sqns; idx++)
         {
             it = m_ncf_sqns.find(tap_info->sqns[idx]);
@@ -801,17 +801,17 @@ class LBMLBTRUSourceEntry : public QTreeWidgetItem
         void fillItem(void);
         QString m_address;
         QString m_transport;
-        guint64 m_data_frames;
-        guint64 m_data_bytes;
-        guint64 m_rx_data_frames;
-        guint64 m_rx_data_bytes;
-        guint64 m_ncf_frames;
-        guint64 m_ncf_count;
-        guint64 m_ncf_bytes;
-        guint64 m_sm_frames;
-        guint64 m_sm_bytes;
-        guint64 m_rst_frames;
-        guint64 m_rst_bytes;
+        uint64_t m_data_frames;
+        uint64_t m_data_bytes;
+        uint64_t m_rx_data_frames;
+        uint64_t m_rx_data_bytes;
+        uint64_t m_ncf_frames;
+        uint64_t m_ncf_count;
+        uint64_t m_ncf_bytes;
+        uint64_t m_sm_frames;
+        uint64_t m_sm_bytes;
+        uint64_t m_rst_frames;
+        uint64_t m_rst_bytes;
         nstime_t m_first_frame_timestamp;
         bool m_first_frame_timestamp_valid;
         nstime_t m_last_frame_timestamp;
@@ -988,13 +988,13 @@ class LBMLBTRUReceiverTransportEntry : public QTreeWidgetItem
     private:
         void fillItem(void);
         QString m_transport;
-        guint64 m_nak_frames;
-        guint64 m_nak_count;
-        guint64 m_nak_bytes;
-        guint64 m_ack_frames;
-        guint64 m_ack_bytes;
-        guint64 m_creq_frames;
-        guint64 m_creq_bytes;
+        uint64_t m_nak_frames;
+        uint64_t m_nak_count;
+        uint64_t m_nak_bytes;
+        uint64_t m_ack_frames;
+        uint64_t m_ack_bytes;
+        uint64_t m_creq_frames;
+        uint64_t m_creq_bytes;
         nstime_t m_first_frame_timestamp;
         bool m_first_frame_timestamp_valid;
         nstime_t m_last_frame_timestamp;
@@ -1070,7 +1070,7 @@ void LBMLBTRUReceiverTransportEntry::processPacket(const packet_info * pinfo, co
     {
         case LBTRU_PACKET_TYPE_NAK:
             {
-                guint16 idx;
+                uint16_t idx;
                 LBMLBTRUSQNEntry * sqn = NULL;
                 LBMLBTRUSQNMapIterator it;
 
@@ -1194,13 +1194,13 @@ class LBMLBTRUReceiverEntry : public QTreeWidgetItem
         void fillItem(void);
         QString m_address;
         QString m_transport;
-        guint64 m_nak_frames;
-        guint64 m_nak_count;
-        guint64 m_nak_bytes;
-        guint64 m_ack_frames;
-        guint64 m_ack_bytes;
-        guint64 m_creq_frames;
-        guint64 m_creq_bytes;
+        uint64_t m_nak_frames;
+        uint64_t m_nak_count;
+        uint64_t m_nak_bytes;
+        uint64_t m_ack_frames;
+        uint64_t m_ack_bytes;
+        uint64_t m_creq_frames;
+        uint64_t m_creq_bytes;
         nstime_t m_first_frame_timestamp;
         bool m_first_frame_timestamp_valid;
         nstime_t m_last_frame_timestamp;
@@ -1717,7 +1717,7 @@ void LBMLBTRUTransportDialog::fillTree(void)
     {
         QMessageBox::critical(this, tr("LBT-RU Statistics failed to attach to tap"),
             error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         reject();
     }
 

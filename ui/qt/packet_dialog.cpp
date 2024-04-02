@@ -64,13 +64,13 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     }
 
     /* proto tree, visible. We need a proto tree if there are custom columns */
-    epan_dissect_init(&edt_, cap_file_.capFile()->epan, TRUE, TRUE);
+    epan_dissect_init(&edt_, cap_file_.capFile()->epan, true, true);
     col_custom_prime_edt(&edt_, &(cap_file_.capFile()->cinfo));
 
     epan_dissect_run(&edt_, cap_file_.capFile()->cd_t, &rec_,
                      frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &buf_),
                      fdata, &(cap_file_.capFile()->cinfo));
-    epan_dissect_fill_in_columns(&edt_, TRUE, TRUE);
+    epan_dissect_fill_in_columns(&edt_, true, true);
 
     proto_tree_ = new ProtoTree(ui->packetSplitter, &edt_);
     // Do not call proto_tree_->setCaptureFile, ProtoTree only needs the
@@ -251,7 +251,7 @@ void PacketDialog::viewVisibilityStateChanged(int state)
     byte_view_tab_->setVisible(state == Qt::Checked);
     ui->layoutComboBox->setEnabled(state == Qt::Checked);
 
-    prefs.gui_packet_details_show_byteview = (state == Qt::Checked ? TRUE : FALSE);
+    prefs.gui_packet_details_show_byteview = (state == Qt::Checked ? true : false);
     prefs_main_write();
 }
 

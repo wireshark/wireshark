@@ -128,7 +128,7 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
     rtp_packet_t *rtp_packet = g_new0(rtp_packet_t, 1);
     rtp_packet->info = (struct _rtp_info *) g_memdup2(rtp_info, sizeof(struct _rtp_info));
     if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
-        rtp_packet->payload_data = (guint8 *) g_memdup2(&(rtp_info->info_data[rtp_info->info_payload_offset]),
+        rtp_packet->payload_data = (uint8_t *) g_memdup2(&(rtp_info->info_data[rtp_info->info_payload_offset]),
           rtp_info->info_payload_len);
     }
 
@@ -258,21 +258,21 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
 {
     // XXX This is more messy than it should be.
 
-    gint32 resample_buff_bytes = 0x1000;
+    int32_t resample_buff_bytes = 0x1000;
     SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_bytes);
     char *write_buff = NULL;
     qint64 write_bytes = 0;
     unsigned int channels = 0;
     unsigned int sample_rate = 0;
-    guint32 last_sequence = 0;
-    guint32 last_sequence_w = 0;  // Last sequence number we wrote data
+    uint32_t last_sequence = 0;
+    uint32_t last_sequence_w = 0;  // Last sequence number we wrote data
 
     double rtp_time_prev = 0.0;
     double arrive_time_prev = 0.0;
     double pack_period = 0.0;
     double start_time = 0.0;
     double start_rtp_time = 0.0;
-    guint64 start_timestamp = 0;
+    uint64_t start_timestamp = 0;
 
     size_t decoded_bytes_prev = 0;
     unsigned int audio_resampler_input_rate = 0;
@@ -430,7 +430,7 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             // Buffer is in SAMPLEs
             spx_uint32_t in_len = (spx_uint32_t) (write_bytes / SAMPLE_BYTES);
             // Output is audio_out_rate_/sample_rate bigger than input
-            spx_uint32_t out_len = (spx_uint32_t) ((guint64)in_len * audio_out_rate_ / sample_rate);
+            spx_uint32_t out_len = (spx_uint32_t) ((uint64_t)in_len * audio_out_rate_ / sample_rate);
             resample_buff = resizeBufferIfNeeded(resample_buff, &resample_buff_bytes, out_len * SAMPLE_BYTES);
 
             if (audio_resampler &&
@@ -472,13 +472,13 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
 void RtpAudioStream::decodeVisual()
 {
     spx_uint32_t read_len = 0;
-    gint32 read_buff_bytes = VISUAL_BUFF_BYTES;
+    int32_t read_buff_bytes = VISUAL_BUFF_BYTES;
     SAMPLE *read_buff = (SAMPLE *) g_malloc(read_buff_bytes);
-    gint32 resample_buff_bytes = VISUAL_BUFF_BYTES;
+    int32_t resample_buff_bytes = VISUAL_BUFF_BYTES;
     SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_bytes);
     unsigned int sample_no = 0;
     spx_uint32_t out_len;
-    guint32 frame_num;
+    uint32_t frame_num;
     rtp_frame_type type;
 
     speex_resampler_set_rate(visual_resampler_, audio_out_rate_, visual_sample_rate_);
@@ -486,7 +486,7 @@ void RtpAudioStream::decodeVisual()
     // Loop over every frame record
     // readFrameSamples() maintains size of buffer for us
     while (audio_file_->readFrameSamples(&read_buff_bytes, &read_buff, &read_len, &frame_num, &type)) {
-        out_len = (spx_uint32_t)(((guint64)read_len * visual_sample_rate_ ) / audio_out_rate_);
+        out_len = (spx_uint32_t)(((uint64_t)read_len * visual_sample_rate_ ) / audio_out_rate_);
 
         if (type == RTP_FRAME_AUDIO) {
             // We resample only audio samples
@@ -538,14 +538,14 @@ const QVector<double> RtpAudioStream::visualTimestamps(bool relative)
 
 // Scale the height of the waveform to global scale (max_sample_val_used_)
 // and adjust its Y offset so that they overlap slightly (stack_offset_).
-static const double stack_offset_ = G_MAXINT16 / 3;
+static const double stack_offset_ = INT16_MAX / 3;
 const QVector<double> RtpAudioStream::visualSamples(int y_offset)
 {
     QVector<double> adj_samples;
     double scaled_offset = y_offset * stack_offset_;
     for (int i = 0; i < visual_samples_.size(); i++) {
         if (SAMPLE_NaN != visual_samples_[i]) {
-            adj_samples.append(((double)visual_samples_[i] * G_MAXINT16 / max_sample_val_used_) + scaled_offset);
+            adj_samples.append(((double)visual_samples_[i] * INT16_MAX / max_sample_val_used_) + scaled_offset);
         } else {
             // Convert to break in graph line
             adj_samples.append(qQNaN());
@@ -701,8 +701,8 @@ const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
 
 QString RtpAudioStream::getIDAsQString()
 {
-    gchar *src_addr_str = address_to_display(NULL, &id_.src_addr);
-    gchar *dst_addr_str = address_to_display(NULL, &id_.dst_addr);
+    char *src_addr_str = address_to_display(NULL, &id_.src_addr);
+    char *dst_addr_str = address_to_display(NULL, &id_.dst_addr);
     QString str = QString("%1:%2 - %3:%4 %5")
         .arg(src_addr_str)
         .arg(id_.src_port)
@@ -905,7 +905,7 @@ void RtpAudioStream::delayedStopStream()
     audio_output_->stop();
 }
 
-SAMPLE *RtpAudioStream::resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, qint64 requested_size)
+SAMPLE *RtpAudioStream::resizeBufferIfNeeded(SAMPLE *buff, int32_t *buff_bytes, qint64 requested_size)
 {
     if (requested_size > *buff_bytes) {
         while ((requested_size > *buff_bytes))

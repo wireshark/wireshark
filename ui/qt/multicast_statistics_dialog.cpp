@@ -153,9 +153,9 @@ public:
 
 private:
     address src_addr_;
-    guint16 src_port_;
+    uint16_t src_port_;
     address dst_addr_;
-    guint16 dst_port_;
+    uint16_t dst_port_;
     unsigned num_packets_;
     double avg_pps_;
     double avg_bw_;
@@ -252,7 +252,7 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                         "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         exit(1);
     }
 
@@ -414,7 +414,7 @@ void MulticastStatisticsDialog::updateMulticastParameters()
 
     param = burst_measurement_interval_le_->text().toUInt(&ok);
     if (ok && param > 0 && param <= 1000) {
-        mcast_stream_burstint = (guint16) param;
+        mcast_stream_burstint = (uint16_t) param;
     }
 
     param = burst_alarm_threshold_le_->text().toInt(&ok);
@@ -456,7 +456,7 @@ void MulticastStatisticsDialog::fillTree()
 
 void MulticastStatisticsDialog::rescan()
 {
-    gboolean was_registered = tapinfo_->is_registered;
+    bool was_registered = tapinfo_->is_registered;
     if (!tapinfo_->is_registered)
         register_tap_listener_mcast_stream(tapinfo_);
 

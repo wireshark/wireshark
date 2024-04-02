@@ -72,7 +72,7 @@ void CapturePreferencesFrame::updateWidgets()
     }
     ui->defaultInterfaceComboBox->clear();
     if ((global_capture_opts.all_ifaces->len == 0) &&
-        (prefs_get_bool_value(pref_no_interface_load_, pref_stashed) == FALSE)) {
+        (prefs_get_bool_value(pref_no_interface_load_, pref_stashed) == false)) {
         /*
          * No interfaces - try refreshing the local interfaces, to
          * see whether any have showed up (or privileges have changed
@@ -80,7 +80,7 @@ void CapturePreferencesFrame::updateWidgets()
          */
         mainApp->refreshLocalInterfaces();
     }
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
         /* Continue if capture device is hidden */

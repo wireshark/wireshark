@@ -74,9 +74,9 @@ public:
     bool contextMenuActive();
     QString getFilterFromRowAndColumn(QModelIndex idx);
     void resetColorized();
-    QString getPacketComment(guint c_number);
+    QString getPacketComment(unsigned c_number);
     void addPacketComment(QString new_comment);
-    void setPacketComment(guint c_number, QString new_comment);
+    void setPacketComment(unsigned c_number, QString new_comment);
     QString allPacketComments();
     void deleteCommentsFromPackets();
     void deleteAllPacketComments();
@@ -149,7 +149,7 @@ private:
     bool in_history_;
     GPtrArray *finfo_array; // Packet data from the last selected packet entry
 
-    void setFrameReftime(gboolean set, frame_data *fdata);
+    void setFrameReftime(bool set, frame_data *fdata);
     void setColumnVisibility();
     int sizeHintForColumn(int column) const override;
     void setRecentColumnWidth(int column);

@@ -9,8 +9,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <extcap_options_dialog.h>
 #include <ui_extcap_options_dialog.h>
 
@@ -80,7 +78,7 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bo
     interface_t *device;
     ExtcapOptionsDialog * resultDialog = NULL;
     bool dev_found = false;
-    guint if_idx;
+    unsigned if_idx;
 
     if (dev_name.length() == 0)
         return NULL;
@@ -221,7 +219,7 @@ void ExtcapOptionsDialog::loadArguments()
         extcapArguments << optional;
 
     /* argument items are now owned by ExtcapArgument. Only free the lists */
-    extcap_free_if_configuration(arguments, FALSE);
+    extcap_free_if_configuration(arguments, false);
 }
 
 void ExtcapOptionsDialog::updateWidgets()
@@ -448,8 +446,8 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
                 continue;
         }
 
-        gchar * call_string = qstring_strdup(call);
-        gchar * value_string = NULL;
+        char * call_string = qstring_strdup(call);
+        char * value_string = NULL;
         if (value.length() > 0)
             value_string = qstring_strdup(value);
 
@@ -622,7 +620,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool in
 
         if ((key.length() > 0) && (includeEmptyValues || isBoolflag || value.length() > 0) )
         {
-            gchar * val = qstring_strdup(value);
+            char * val = qstring_strdup(value);
 
             g_hash_table_insert(entries, qstring_strdup(key), val);
         }
@@ -682,7 +680,7 @@ ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentN
             QString call = QString().fromUtf8(v->call);
 
             ExtcapValue element = ExtcapValue(display, call,
-                            v->enabled == (gboolean)TRUE, v->is_default == (gboolean)TRUE);
+                            v->enabled == true, v->is_default == true);
 
 #if 0
             /* TODO: Disabled due to wrong parent handling. It leads to an infinite loop for now. To implement this properly, other things

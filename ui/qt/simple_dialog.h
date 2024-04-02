@@ -14,8 +14,6 @@
 
 #include <stdio.h>
 
-#include <glib.h>
-
 #include "ui/simple_dialog.h"
 
 #include <QPair>

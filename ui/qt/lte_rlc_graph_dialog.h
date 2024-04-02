@@ -33,8 +33,8 @@ public:
     explicit LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool channelKnown);
     ~LteRlcGraphDialog();
 
-    void setChannelInfo(uint8_t rat, guint16 ueid, guint8 rlcMode,
-                        guint16 channelType, guint16 channelId, guint8 direction,
+    void setChannelInfo(uint8_t rat, uint16_t ueid, uint8_t rlcMode,
+                        uint16_t channelType, uint16_t channelId, uint8_t direction,
                         bool maybe_empty=false);
 
 signals:
@@ -63,7 +63,7 @@ private:
     QCPGraph *acks_graph_;
     QCPGraph *nacks_graph_;
     QCPItemTracer *tracer_;
-    guint32 packet_num_;
+    uint32_t packet_num_;
 
     void completeGraph(bool may_be_empty=false);
 

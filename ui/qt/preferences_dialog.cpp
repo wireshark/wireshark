@@ -31,13 +31,13 @@
 extern "C" {
 // Callbacks prefs routines
 
-static guint
-module_prefs_unstash(module_t *module, gpointer data)
+static unsigned
+module_prefs_unstash(module_t *module, void *data)
 {
     unsigned int *must_redissect_p = static_cast<unsigned int *>(data);
     pref_unstash_data_t unstashed_data;
 
-    unstashed_data.handle_decode_as = TRUE;
+    unstashed_data.handle_decode_as = true;
 
     module->prefs_changed_flags = 0;        /* assume none of them changed */
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
@@ -61,8 +61,8 @@ module_prefs_unstash(module_t *module, gpointer data)
     return 0;     /* Keep unstashing. */
 }
 
-static guint
-module_prefs_clean_stash(module_t *module, gpointer)
+static unsigned
+module_prefs_clean_stash(module_t *module, void *)
 {
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
         pref_t *pref = gxx_list_data(pref_t *, pref_l);
@@ -233,7 +233,7 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &text
      * the countdown.
      */
     searchLineEditText = text;
-    guint gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
+    unsigned gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
     searchLineEditTimer->start(gui_debounce_timer);
 }
 
@@ -247,12 +247,12 @@ void PreferencesDialog::on_showChangedValuesCheckBox_toggled(bool checked)
 
 void PreferencesDialog::on_buttonBox_accepted()
 {
-    gchar* err = NULL;
+    char* err = NULL;
     unsigned int redissect_flags = 0;
 
     // XXX - We should validate preferences as the user changes them, not here.
     // XXX - We're also too enthusiastic about setting must_redissect.
-    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer)&redissect_flags);
+    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (void *)&redissect_flags);
 
     extcap_register_preferences();
 

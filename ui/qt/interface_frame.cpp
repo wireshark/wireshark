@@ -551,7 +551,7 @@ void InterfaceFrame::showContextMenu(QPoint pos)
 void InterfaceFrame::on_warningLabel_linkActivated(const QString &link)
 {
     if (link.compare(no_capture_link) == 0) {
-        recent.sys_warn_if_no_capture = FALSE;
+        recent.sys_warn_if_no_capture = false;
         resetInterfaceTreeDisplay();
     } else {
         QDesktopServices::openUrl(QUrl(link));

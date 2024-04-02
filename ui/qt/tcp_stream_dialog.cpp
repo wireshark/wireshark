@@ -133,8 +133,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     ui->streamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
 
-    guint32 th_stream = select_tcpip_session(cap_file_);
-    if (th_stream == G_MAXUINT32) {
+    uint32_t th_stream = select_tcpip_session(cap_file_);
+    if (th_stream == UINT32_MAX) {
         done(QDialog::Rejected);
         return;
     }
@@ -564,8 +564,8 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
     ts_offset_ = 0;
     seq_offset_ = 0;
     bool first = true;
-    guint64 bytes_fwd = 0;
-    guint64 bytes_rev = 0;
+    uint64_t bytes_fwd = 0;
+    uint64_t bytes_rev = 0;
     int pkts_fwd = 0;
     int pkts_rev = 0;
 
@@ -920,7 +920,7 @@ void TCPStreamDialog::fillTcptrace()
 // I expect this to be _relatively_ small, so using vector to store
 //   them.  If this performs badly, it can be refactored with std::list
 //   or std::map.
-typedef std::pair<guint32, guint32> sack_t;
+typedef std::pair<uint32_t, uint32_t> sack_t;
 typedef std::vector<sack_t> sack_list_t;
 static inline bool compare_sack(const sack_t& s1, const sack_t& s2) {
     return tcp_seq_before(s1.first, s2.first);
@@ -930,8 +930,8 @@ static inline bool compare_sack(const sack_t& s1, const sack_t& s2) {
 //   - removes previously sacked ranges from seglen (and from old_sacks),
 //   - adds newly sacked ranges to seglen (and to old_sacks)
 static void
-goodput_adjust_for_sacks(guint32 *seglen, guint32 last_ack,
-                         sack_list_t& new_sacks, guint8 num_sack_ranges,
+goodput_adjust_for_sacks(uint32_t *seglen, uint32_t last_ack,
+                         sack_list_t& new_sacks, uint8_t num_sack_ranges,
                          sack_list_t& old_sacks) {
 
     // Step 1 - For any old_sacks acked by last_ack,
@@ -1200,8 +1200,8 @@ void TCPStreamDialog::fillThroughput()
     QVector<double> tput_times, gput_times;
     QVector<double> tputs, gputs;
     int oldest_seg = 0, oldest_ack = 0;
-    guint64 seg_sum = 0, ack_sum = 0;
-    guint32 seglen = 0;
+    uint64_t seg_sum = 0, ack_sum = 0;
+    uint32_t seglen = 0;
 
 #ifdef USE_SACKS_IN_GOODPUT_CALC
     // to incorporate SACKED segments into goodput calculation,
@@ -1219,7 +1219,7 @@ void TCPStreamDialog::fillThroughput()
 
     // need first acked sequence number to jump-start
     //    computation of acked bytes per packet
-    guint32 last_ack = 0;
+    uint32_t last_ack = 0;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         // first reverse packet with ACK flag tells us first acked sequence #
         if (!compareHeaders(seg) && (seg->th_flags & TH_ACK)) {
@@ -1248,7 +1248,7 @@ void TCPStreamDialog::fillThroughput()
         QVector<double>& r_Xput_times = is_forward_seg ? tput_times : gput_times;
         QVector<double>& r_Xputs = is_forward_seg ? tputs : gputs;
         int& r_oldest = is_forward_seg ? oldest_seg : oldest_ack;
-        guint64& r_sum = is_forward_seg ? seg_sum : ack_sum;
+        uint64_t& r_sum = is_forward_seg ? seg_sum : ack_sum;
 
         double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
 
@@ -1458,7 +1458,7 @@ void TCPStreamDialog::fillRoundTripTime()
     base_graph_->setLineStyle(QCPGraph::lsLine);
 
     QVector<double> x_vals, rtt;
-    guint32 seq_base = 0;
+    uint32_t seq_base = 0;
     struct rtt_unack *unack_list = NULL, *u = NULL;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (compareHeaders(seg)) {
@@ -1468,7 +1468,7 @@ void TCPStreamDialog::fillRoundTripTime()
     }
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (compareHeaders(seg)) {
-            guint32 seqno = seg->th_seq - seq_base;
+            uint32_t seqno = seg->th_seq - seq_base;
             if (seg->th_seglen && !rtt_is_retrans(unack_list, seqno)) {
                 double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
                 rt_val -= ts_offset_;
@@ -1481,7 +1481,7 @@ void TCPStreamDialog::fillRoundTripTime()
                 rtt_put_unack_on_list(&unack_list, u);
             }
         } else {
-            guint32 ack_no = seg->th_ack - seq_base;
+            uint32_t ack_no = seg->th_ack - seq_base;
             double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
             rt_val -= ts_offset_;
             struct rtt_unack *v;
@@ -1514,8 +1514,8 @@ void TCPStreamDialog::fillRoundTripTime()
                 //   If we link those back into the list between u and v,
                 //   then each subsequent SACK selectively ACKs that range.
                 for (int i = 0; i < seg->num_sack_ranges; ++i) {
-                    guint32 left = seg->sack_left_edge[i] - seq_base;
-                    guint32 right = seg->sack_right_edge[i] - seq_base;
+                    uint32_t left = seg->sack_left_edge[i] - seq_base;
+                    uint32_t right = seg->sack_right_edge[i] - seq_base;
                     u = rtt_selectively_ack_range(x_vals, bySeqNumber, rtt,
                                                   &unack_list, u, v,
                                                   left, right, rt_val);
@@ -1548,7 +1548,7 @@ void TCPStreamDialog::fillWindowScale()
 
     QVector<double> rel_time, win_size;
     QVector<double> cwnd_time, cwnd_size;
-    guint32 last_ack = 0;
+    uint32_t last_ack = 0;
     bool found_first_ack = false;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
@@ -1557,7 +1557,7 @@ void TCPStreamDialog::fillWindowScale()
         //   from packets in the opposite direction
         if (compareHeaders(seg)) {
             // compute bytes_in_flight for cwnd graph
-            guint32 end_seq = seg->th_seq + seg->th_seglen;
+            uint32_t end_seq = seg->th_seq + seg->th_seglen;
             if (found_first_ack &&
                 tcp_seq_eq_or_after(end_seq, last_ack)) {
                 cwnd_time.append(ts - ts_offset_);
@@ -1565,7 +1565,7 @@ void TCPStreamDialog::fillWindowScale()
             }
         } else {
             // packet in opposite direction - has advertised rwin
-            guint16 flags = seg->th_flags;
+            uint16_t flags = seg->th_flags;
 
             if ((flags & (TH_SYN|TH_RST)) == 0) {
                 rel_time.append(ts - ts_offset_);
@@ -2107,7 +2107,7 @@ void TCPStreamDialog::on_actionPreviousStream_triggered()
 void TCPStreamDialog::on_actionSwitchDirection_triggered()
 {
     address tmp_addr;
-    guint16 tmp_port;
+    uint16_t tmp_port;
 
     copy_address(&tmp_addr, &graph_.src_address);
     tmp_port = graph_.src_port;

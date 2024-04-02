@@ -62,7 +62,7 @@ static int info_update_freq_ = 100;
 static QMutex loop_break_mutex;
 
 // Indicates that a Follow Stream is currently running
-static gboolean isReadRunning;
+static bool isReadRunning;
 
 Q_DECLARE_METATYPE(bytes_show_type)
 
@@ -327,7 +327,7 @@ void FollowStreamDialog::saveAs()
 
     QFile file(file_name);
     if (!file.open(QIODevice::WriteOnly)) {
-        open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+        open_failure_alert_box(file_name.toUtf8().constData(), errno, true);
         return;
     }
 
@@ -378,7 +378,7 @@ void FollowStreamDialog::close()
     //     previous_filter if 'Close' (passed in follow() method)
     //     filter_out_filter_ if 'Filter Out This Stream' (built by appending !current_stream to previous_filter)
     //     leave filter alone if window closed. (current stream)
-    emit updateFilter(output_filter_, TRUE);
+    emit updateFilter(output_filter_, true);
 
     WiresharkDialog::close();
 }
@@ -448,7 +448,7 @@ void FollowStreamDialog::streamNumberSpinBoxValueChanged(int stream_num)
     sub_stream_num = ui->subStreamNumberSpinBox->value();
     ui->subStreamNumberSpinBox->blockSignals(false);
 
-    gboolean ok;
+    bool ok;
     if (ui->subStreamNumberSpinBox->isVisible()) {
         /* We need to find a suitable sub stream for the new stream */
         follow_sub_stream_id_func sub_stream_func;
@@ -459,7 +459,7 @@ void FollowStreamDialog::streamNumberSpinBoxValueChanged(int stream_num)
             return;
         }
 
-        guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
+        unsigned sub_stream_num_new = static_cast<unsigned>(sub_stream_num);
         if (sub_stream_num < 0) {
             // Stream ID 0 should always exist as it is used for control messages.
             // XXX: That is only guaranteed for HTTP2. For example, in QUIC,
@@ -471,14 +471,14 @@ void FollowStreamDialog::streamNumberSpinBoxValueChanged(int stream_num)
             // follow? Right now the substream spinbox is left active and
             // the user can change the value to no effect.
             sub_stream_num_new = 0;
-            ok = TRUE;
+            ok = true;
         } else {
-            ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, FALSE, &sub_stream_num_new);
+            ok = sub_stream_func(static_cast<unsigned>(stream_num), sub_stream_num_new, false, &sub_stream_num_new);
             if (!ok) {
-                ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, TRUE, &sub_stream_num_new);
+                ok = sub_stream_func(static_cast<unsigned>(stream_num), sub_stream_num_new, true, &sub_stream_num_new);
             }
         }
-        sub_stream_num = static_cast<gint>(sub_stream_num_new);
+        sub_stream_num = static_cast<int>(sub_stream_num_new);
     } else {
         /* XXX: For HTTP and TLS, we use the TCP stream index, and really should
          * return false if the TCP stream doesn't have HTTP or TLS. (Or we could
@@ -511,20 +511,20 @@ void FollowStreamDialog::subStreamNumberSpinBoxValueChanged(int sub_stream_num)
         return;
     }
 
-    guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
-    gboolean ok;
+    unsigned sub_stream_num_new = static_cast<unsigned>(sub_stream_num);
+    bool ok;
     /* previous_sub_stream_num_ is a hack to track which buttons was pressed without event handling */
     if (sub_stream_num < 0) {
         // Stream ID 0 should always exist as it is used for control messages.
         // XXX: That is only guaranteed for HTTP2, see above.
         sub_stream_num_new = 0;
-        ok = TRUE;
+        ok = true;
     } else if (previous_sub_stream_num_ < sub_stream_num) {
-        ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, FALSE, &sub_stream_num_new);
+        ok = sub_stream_func(static_cast<unsigned>(stream_num), sub_stream_num_new, false, &sub_stream_num_new);
     } else {
-        ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, TRUE, &sub_stream_num_new);
+        ok = sub_stream_func(static_cast<unsigned>(stream_num), sub_stream_num_new, true, &sub_stream_num_new);
     }
-    sub_stream_num = static_cast<gint>(sub_stream_num_new);
+    sub_stream_num = static_cast<int>(sub_stream_num_new);
 
     if (ok) {
         follow(previous_filter_, true, stream_num, sub_stream_num);
@@ -568,7 +568,7 @@ void FollowStreamDialog::readStream()
 
     // interrupt any reading already running
     loop_break_mutex.lock();
-    isReadRunning = FALSE;
+    isReadRunning = false;
     loop_break_mutex.unlock();
 
     double scroll_ratio = 0.0;
@@ -620,7 +620,7 @@ FollowStreamDialog::followStream()
     readStream();
 }
 
-void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num, gboolean colorize)
+void FollowStreamDialog::addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize)
 {
     ui->teStreamContent->addText(std::move(text), is_from_server, packet_num, colorize);
 }
@@ -684,18 +684,18 @@ static inline void sanitize_buffer(QByteArray &buffer, size_t nchars) {
 #endif
         if (buffer.at(i) == '\n' || buffer.at(i) == '\r' || buffer.at(i) == '\t')
             continue;
-        if (! g_ascii_isprint((guchar)buffer.at(i))) {
+        if (! g_ascii_isprint((unsigned char)buffer.at(i))) {
             buffer[i] = '.';
         }
     }
 }
 
-void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
-                                nstime_t abs_ts, guint32 *global_pos)
+void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, bool is_from_server, uint32_t packet_num,
+                                nstime_t abs_ts, uint32_t *global_pos)
 {
-    gchar initbuf[256];
-    guint32 current_pos;
-    static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+    char initbuf[256];
+    uint32_t current_pos;
+    static const char hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
     bool show_delta = false;
 
     if (last_packet_ == 0) {
@@ -722,7 +722,7 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean 
     case SHOW_EBCDIC:
     {
         /* If our native arch is ASCII, call: */
-        EBCDIC_to_ASCII((uint8_t*)buffer.data(), (guint) nchars);
+        EBCDIC_to_ASCII((uint8_t*)buffer.data(), (unsigned) nchars);
         if (show_delta) {
             ui->teStreamContent->addDeltaTime(delta);
         }
@@ -771,9 +771,9 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean 
     case SHOW_HEXDUMP:
         current_pos = 0;
         while (current_pos < nchars) {
-            gchar hexbuf[256];
+            char hexbuf[256];
             int i;
-            gchar *cur = hexbuf, *ascii_start;
+            char *cur = hexbuf, *ascii_start;
 
             /* is_from_server indentation : put 4 spaces at the
              * beginning of the string */
@@ -801,7 +801,7 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean 
             /* Now dump bytes as text */
             for (i = 0; i < 16 && current_pos + i < nchars; i++) {
                 *cur++ =
-                        (g_ascii_isprint((guchar)buffer.at(current_pos + i)) ?
+                        (g_ascii_isprint((unsigned char)buffer.at(current_pos + i)) ?
                             buffer.at(current_pos + i) : '.');
                 if (i == 7) {
                     *cur++ = ' ';
@@ -825,7 +825,7 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, gboolean 
         addText(initbuf, is_from_server, packet_num);
 
         while (current_pos < nchars) {
-            gchar hexbuf[256];
+            char hexbuf[256];
             int i, cur;
 
             cur = 0;
@@ -956,7 +956,7 @@ DIAG_ON(stringop-overread)
     }
 }
 
-bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, guint stream_num, guint sub_stream_num)
+bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, unsigned stream_num, unsigned sub_stream_num)
 {
     QString             follow_filter;
     const char          *hostname0 = NULL, *hostname1 = NULL;
@@ -964,7 +964,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     QString             server_to_client_string;
     QString             client_to_server_string;
     QString             both_directions_string;
-    gboolean            is_follower = FALSE;
+    bool                is_follower = false;
     int                 stream_count;
     follow_stream_count_func stream_count_func = NULL;
 
@@ -1044,9 +1044,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     follow_sub_stream_id_func sub_stream_func;
     sub_stream_func = get_follow_sub_stream_id_func(follower_);
     if (sub_stream_func != NULL) {
-        guint substream_max_id = 0;
-        sub_stream_func(static_cast<guint>(stream_num), G_MAXINT32, TRUE, &substream_max_id);
-        stream_count = static_cast<gint>(substream_max_id);
+        unsigned substream_max_id = 0;
+        sub_stream_func(static_cast<unsigned>(stream_num), INT32_MAX, true, &substream_max_id);
+        stream_count = static_cast<int>(substream_max_id);
         ui->subStreamNumberSpinBox->blockSignals(true);
         ui->subStreamNumberSpinBox->setEnabled(true);
         ui->subStreamNumberSpinBox->setMaximum(stream_count);
@@ -1090,7 +1090,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
      * periodically in a callback, provided that can be done without causing
      * issues with changing the Decode As type.)
      */
-    emit updateFilter(follow_filter, TRUE);
+    emit updateFilter(follow_filter, true);
 
     removeTapListeners();
 
@@ -1164,7 +1164,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     endRetapPackets();
 
     if (prefs.restore_filter_after_following_stream) {
-        emit updateFilter(previous_filter_, TRUE);
+        emit updateFilter(previous_filter_, true);
     }
 
     return true;
@@ -1180,9 +1180,9 @@ void FollowStreamDialog::captureFileClosed()
 
 void FollowStreamDialog::readFollowStream()
 {
-    guint32 global_client_pos = 0, global_server_pos = 0;
-    guint32 *global_pos;
-    gboolean skip;
+    uint32_t global_client_pos = 0, global_server_pos = 0;
+    uint32_t *global_pos;
+    bool skip;
     GList* cur;
     follow_record_t *follow_record;
     QElapsedTimer elapsed_timer;
@@ -1191,23 +1191,23 @@ void FollowStreamDialog::readFollowStream()
     elapsed_timer.start();
 
     loop_break_mutex.lock();
-    isReadRunning = TRUE;
+    isReadRunning = true;
     loop_break_mutex.unlock();
 
     for (cur = g_list_last(follow_info_.payload); cur; cur = g_list_previous(cur)) {
         if (dialogClosed() || !isReadRunning) break;
 
         follow_record = (follow_record_t *)cur->data;
-        skip = FALSE;
+        skip = false;
         if (!follow_record->is_server) {
             global_pos = &global_client_pos;
             if (follow_info_.show_stream == FROM_SERVER) {
-                skip = TRUE;
+                skip = true;
             }
         } else {
             global_pos = &global_server_pos;
             if (follow_info_.show_stream == FROM_CLIENT) {
-                skip = TRUE;
+                skip = true;
             }
         }
 
@@ -1232,7 +1232,7 @@ void FollowStreamDialog::readFollowStream()
     }
 
     loop_break_mutex.lock();
-    isReadRunning = FALSE;
+    isReadRunning = false;
     loop_break_mutex.unlock();
 }
 

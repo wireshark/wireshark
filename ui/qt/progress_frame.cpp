@@ -28,7 +28,7 @@
 // - Don't complain so loudly when the user stops a capture.
 
 progdlg_t *
-create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+create_progress_dlg(void *top_level_window, const char *task_title, const char *item_title,
                                bool terminate_is_stop, bool *stop_flag) {
     ProgressFrame *pf;
     QWidget *main_window;
@@ -57,9 +57,9 @@ create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gc
 }
 
 progdlg_t *
-delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+delayed_create_progress_dlg(void *top_level_window, const char *task_title, const char *item_title,
                             bool terminate_is_stop, bool *stop_flag,
-                            gfloat progress)
+                            float progress)
 {
     progdlg_t *progress_dialog = create_progress_dlg(top_level_window, task_title, item_title, terminate_is_stop, stop_flag);
     update_progress_dlg(progress_dialog, progress, item_title);
@@ -70,7 +70,7 @@ delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, 
  * Update the progress information of the progress bar box.
  */
 void
-update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
+update_progress_dlg(progdlg_t *dlg, float percentage, const char *)
 {
     if (!dlg) return;
 

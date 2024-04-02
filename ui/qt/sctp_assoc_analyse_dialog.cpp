@@ -54,7 +54,7 @@ const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file
     bool           frame_found = false;
 
     fdata = cf->current_frame;
-    if (sctp_stat_get_info()->is_registered == FALSE) {
+    if (sctp_stat_get_info()->is_registered == false) {
         register_tap_listener_sctp_stat();
         /*  (redissect all packets) */
         cf_retap_packets(cf);
@@ -65,11 +65,11 @@ const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file
         assoc = gxx_list_data(const sctp_assoc_info_t*, list);
 
         framelist = g_list_first(assoc->frame_numbers);
-        guint32 fn;
+        uint32_t fn;
         while (framelist) {
             fn = GPOINTER_TO_UINT(framelist->data);
             if (fn == fdata->num) {
-                frame_found = TRUE;
+                frame_found = true;
                 break;
             }
             framelist = gxx_list_next(framelist);
@@ -89,7 +89,7 @@ const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file
     return Q_NULLPTR;
 }
 
-const _sctp_assoc_info* SCTPAssocAnalyseDialog::findAssoc(QWidget *parent, guint16 assoc_id)
+const _sctp_assoc_info* SCTPAssocAnalyseDialog::findAssoc(QWidget *parent, uint16_t assoc_id)
 {
     const sctp_assoc_info_t* result = get_sctp_assoc_info(assoc_id);
     if (result) return result;

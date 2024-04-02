@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/filter_expressions.h>
 
 #include "uat_frame.h"
@@ -95,7 +93,7 @@ void UatFrame::setUat(epan_uat *uat)
             connect(ui->copyFromProfileButton, &CopyFromProfileButton::copyProfile, this, &UatFrame::copyFromProfile);
         }
 
-        QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
+        QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, false));
         if (abs_path.length() > 0) {
             ui->pathLabel->setText(abs_path);
             ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
@@ -124,9 +122,9 @@ void UatFrame::setUat(epan_uat *uat)
 
 void UatFrame::copyFromProfile(QString filename)
 {
-    gchar *err = NULL;
+    char *err = NULL;
     if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
-        uat_->changed = TRUE;
+        uat_->changed = true;
         uat_model_->reloadUat();
     } else {
         report_failure("Error while loading %s: %s", uat_->name, err);

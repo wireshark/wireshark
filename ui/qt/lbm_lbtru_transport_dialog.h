@@ -14,8 +14,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "cfile.h"
 #include <epan/packet_info.h>
 #include <epan/tap.h>

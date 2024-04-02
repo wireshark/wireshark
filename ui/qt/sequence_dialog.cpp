@@ -493,7 +493,7 @@ void SequenceDialog::exportDiagram()
         if (save_ok) {
             mainApp->setLastOpenDirFromFilename(file_name);
         } else {
-            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+            open_failure_alert_box(file_name.toUtf8().constData(), errno, true);
         }
     }
 }
@@ -522,7 +522,7 @@ void SequenceDialog::fillDiagram()
                                        NULL, sequence_analysis_get_packet_func(analysis), NULL, NULL);
             if (error_string) {
                 report_failure("Sequence dialog - tap registration failed: %s", error_string->str);
-                g_string_free(error_string, TRUE);
+                g_string_free(error_string, true);
             }
 
             cf_retap_packets(cap_file_.capFile());
@@ -635,7 +635,7 @@ void SequenceDialog::resetView()
 void SequenceDialog::on_actionGoToPacket_triggered()
 {
     if (!file_closed_ && packet_num_ > 0) {
-        cf_goto_frame(cap_file_.capFile(), packet_num_, FALSE);
+        cf_goto_frame(cap_file_.capFile(), packet_num_, false);
         seq_diagram_->setSelectedPacket(packet_num_);
     }
 }
@@ -686,7 +686,7 @@ void SequenceDialog::goToAdjacentPacket(bool next)
             }
             sp->yAxis->moveRange(range_offset);
         }
-        cf_goto_frame(cap_file_.capFile(), adjacent_packet, FALSE);
+        cf_goto_frame(cap_file_.capFile(), adjacent_packet, false);
         seq_diagram_->setSelectedPacket(adjacent_packet);
     }
 }
@@ -712,9 +712,9 @@ void SequenceDialog::on_addressComboBox_activated(int index)
     if (!info_->sainfo()) return;
 
     if (index == 0) {
-        info_->sainfo()->any_addr = TRUE;
+        info_->sainfo()->any_addr = true;
     } else {
-        info_->sainfo()->any_addr = FALSE;
+        info_->sainfo()->any_addr = false;
     }
     fillDiagram();
 }
@@ -826,7 +826,7 @@ bool SequenceDialog::addFlowSequenceItem(const void* key, void *value, void *use
     /* XXX - Although "voip" isn't a registered name yet, it appears to have special
        handling that will be done outside of registered data */
     if (strcmp(name, "voip") == 0)
-        return FALSE;
+        return false;
 
     item_data->flow->addItem(sequence_analysis_get_ui_name(analysis), VariantPointer<register_analysis_t>::asQVariant(analysis));
 
@@ -835,7 +835,7 @@ bool SequenceDialog::addFlowSequenceItem(const void* key, void *value, void *use
 
     item_data->curr_index++;
 
-    return FALSE;
+    return false;
 }
 
 QVector<rtpstream_id_t *>SequenceDialog::getSelectedRtpIds()

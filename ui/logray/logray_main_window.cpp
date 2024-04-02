@@ -114,9 +114,9 @@ static void plugin_if_mainwindow_preference(GHashTable * data_set)
     const char * pref_value;
 
 DIAG_OFF_CAST_AWAY_CONST
-    if (g_hash_table_lookup_extended(data_set, "pref_module", NULL, (gpointer *)&module_name) &&
-        g_hash_table_lookup_extended(data_set, "pref_key", NULL, (gpointer *)&pref_name) &&
-        g_hash_table_lookup_extended(data_set, "pref_value", NULL, (gpointer *)&pref_value))
+    if (g_hash_table_lookup_extended(data_set, "pref_module", NULL, (void * *)&module_name) &&
+        g_hash_table_lookup_extended(data_set, "pref_key", NULL, (void * *)&pref_name) &&
+        g_hash_table_lookup_extended(data_set, "pref_value", NULL, (void * *)&pref_value))
     {
         unsigned int changed_flags = prefs_store_ext(module_name, pref_name, pref_value);
         if (changed_flags) {
@@ -132,7 +132,7 @@ static void plugin_if_mainwindow_gotoframe(GHashTable * data_set)
     if (!gbl_cur_main_window_ || !data_set)
         return;
 
-    gpointer framenr;
+    void *framenr;
 
     if (g_hash_table_lookup_extended(data_set, "frame_nr", NULL, &framenr)) {
         if (GPOINTER_TO_UINT(framenr) != 0)
@@ -210,7 +210,7 @@ static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
         }
         else {
             ws_info->cf_framenr = 0;
-            ws_info->frame_passed_dfilter = FALSE;
+            ws_info->frame_passed_dfilter = false;
         }
     }
     else
@@ -218,7 +218,7 @@ static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
         /* Initialise the other ws_info structure values */
         ws_info->cf_count = 0;
         ws_info->cf_framenr = 0;
-        ws_info->frame_passed_dfilter = FALSE;
+        ws_info->frame_passed_dfilter = false;
     }
 }
 
@@ -288,7 +288,7 @@ static void mainwindow_add_toolbar(const iface_toolbar *toolbar_entry)
     }
 }
 
-static void mainwindow_remove_toolbar(const gchar *menu_title)
+static void mainwindow_remove_toolbar(const char *menu_title)
 {
     if (gbl_cur_main_window_ && menu_title)
     {
@@ -784,7 +784,7 @@ void LograyMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     menu->menuAction()->setVisible(true);
 }
 
-void LograyMainWindow::removeInterfaceToolbar(const gchar *menu_title)
+void LograyMainWindow::removeInterfaceToolbar(const char *menu_title)
 {
     QMenu *menu = main_ui_->menuInterfaceToolbars;
     QAction *action = NULL;
@@ -992,10 +992,10 @@ void LograyMainWindow::dropEvent(QDropEvent *event)
     if (cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, static_cast<int>(local_files.size()),
                                    in_filenames,
                                    wtap_pcapng_file_type_subtype(),
-                                   FALSE) == CF_OK) {
+                                   false) == CF_OK) {
         /* Merge succeeded; close the currently-open file and try
            to open the merged capture file. */
-        openCaptureFile(tmpname, QString(), WTAP_TYPE_AUTO, TRUE);
+        openCaptureFile(tmpname, QString(), WTAP_TYPE_AUTO, true);
     }
 
     g_free(tmpname);
@@ -1146,7 +1146,7 @@ void LograyMainWindow::mergeCaptureFile()
     if (prefs.gui_ask_unsaved) {
         if (cf_has_unsaved_data(capture_file_.capFile())) {
             QMessageBox msg_dialog;
-            gchar *display_basename;
+            char *display_basename;
             int response;
 
             msg_dialog.setIcon(QMessageBox::Question);
@@ -1216,17 +1216,17 @@ void LograyMainWindow::mergeCaptureFile()
             /* chronological order */
             in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
             in_filenames[1] = qstring_strdup(file_name);
-            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, FALSE);
+            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, false);
         } else if (merge_dlg.mergeType() <= 0) {
             /* prepend file */
             in_filenames[0] = qstring_strdup(file_name);
             in_filenames[1] = g_strdup(capture_file_.capFile()->filename);
-            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, TRUE);
+            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, true);
         } else {
             /* append file */
             in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
             in_filenames[1] = qstring_strdup(file_name);
-            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, TRUE);
+            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, true);
         }
 
         g_free(in_filenames[0]);
@@ -1242,9 +1242,9 @@ void LograyMainWindow::mergeCaptureFile()
 
         /* Try to open the merged capture file. */
         // XXX - Just free rfcode and call
-        // openCaptureFile(tmpname, read_filter, WTAP_TYPE_AUTO, TRUE);
+        // openCaptureFile(tmpname, read_filter, WTAP_TYPE_AUTO, true);
         CaptureFile::globalCapFile()->window = this;
-        if (cf_open(CaptureFile::globalCapFile(), tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
+        if (cf_open(CaptureFile::globalCapFile(), tmpname, WTAP_TYPE_AUTO, true /* temporary file */, &err) != CF_OK) {
             /* We couldn't open it; fail. */
             CaptureFile::globalCapFile()->window = NULL;
             dfilter_free(rfcode);
@@ -1257,7 +1257,7 @@ void LograyMainWindow::mergeCaptureFile()
            previous read filter attached to "cf"). */
         cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
 
-        switch (cf_read(CaptureFile::globalCapFile(), /*reloading=*/FALSE)) {
+        switch (cf_read(CaptureFile::globalCapFile(), /*reloading=*/false)) {
 
         case CF_READ_OK:
         case CF_READ_ERROR:
@@ -1302,7 +1302,7 @@ void LograyMainWindow::importCaptureFile() {
 
 bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     QString file_name;
-    gboolean discard_comments;
+    bool discard_comments;
 
     if (cf->is_tempfile) {
         /* This is a temporary capture file, so saving it means saving
@@ -1312,7 +1312,7 @@ bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
            probably pcapng, which supports comments and, if it's
            not pcapng, let the user decide what they want to do
            if they've added comments. */
-        return saveAsCaptureFile(cf, FALSE, dont_reopen);
+        return saveAsCaptureFile(cf, false, dont_reopen);
     } else {
         if (cf->unsaved_changes) {
             cf_write_status_t status;
@@ -1331,7 +1331,7 @@ bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
             case SAVE:
                 /* The file can be saved in the specified format as is;
                    just drive on and save in the format they selected. */
-                discard_comments = FALSE;
+                discard_comments = false;
                 break;
 
             case SAVE_WITHOUT_COMMENTS:
@@ -1339,7 +1339,7 @@ bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                    but it can be saved without the comments, and the user
                    said "OK, discard the comments", so save it in the
                    format they specified without the comments. */
-                discard_comments = TRUE;
+                discard_comments = true;
                 break;
 
             case SAVE_IN_ANOTHER_FORMAT:
@@ -1347,7 +1347,7 @@ bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                    support comments, and the user said not to delete the
                    comments.  Do a "Save As" so the user can select
                    one of those formats and choose a file name. */
-                return saveAsCaptureFile(cf, TRUE, dont_reopen);
+                return saveAsCaptureFile(cf, true, dont_reopen);
 
             case CANCELLED:
                 /* The user said "forget it".  Just return. */
@@ -1415,8 +1415,8 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
     int file_type;
     wtap_compression_type compression_type;
     cf_write_status_t status;
-    gchar   *dirname;
-    gboolean discard_comments = FALSE;
+    char    *dirname;
+    bool discard_comments = false;
 
     if (!cf) {
         return false;
@@ -1433,7 +1433,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
         case SAVE:
             /* The file can be saved in the specified format as is;
                just drive on and save in the format they selected. */
-            discard_comments = FALSE;
+            discard_comments = false;
             break;
 
         case SAVE_WITHOUT_COMMENTS:
@@ -1441,7 +1441,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
                but it can be saved without the comments, and the user
                said "OK, discard the comments", so save it in the
                format they specified without the comments. */
-            discard_comments = TRUE;
+            discard_comments = true;
             break;
 
         case SAVE_IN_ANOTHER_FORMAT:
@@ -1451,7 +1451,7 @@ bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_com
                formats that don't support comments trimmed from it,
                so run the dialog again, to let the user decide
                whether to save in one of those formats or give up. */
-            must_support_comments = TRUE;
+            must_support_comments = true;
             continue;
 
         case CANCELLED:
@@ -1538,7 +1538,7 @@ void LograyMainWindow::exportSelectedPackets() {
     wtap_compression_type compression_type;
     packet_range_t range;
     cf_write_status_t status;
-    gchar   *dirname;
+    char    *dirname;
     bool discard_comments = false;
 
     if (!capture_file_.capFile())
@@ -1546,8 +1546,8 @@ void LograyMainWindow::exportSelectedPackets() {
 
     /* Init the packet range */
     packet_range_init(&range, capture_file_.capFile());
-    range.process_filtered = TRUE;
-    range.include_dependents = TRUE;
+    range.process_filtered = true;
+    range.include_dependents = true;
 
     QList<int> rows = packet_list_->selectedRows(true);
 
@@ -1567,7 +1567,7 @@ void LograyMainWindow::exportSelectedPackets() {
         case SAVE:
             /* The file can be saved in the specified format as is;
                just drive on and save in the format they selected. */
-            discard_comments = FALSE;
+            discard_comments = false;
             break;
 
         case SAVE_WITHOUT_COMMENTS:
@@ -1575,7 +1575,7 @@ void LograyMainWindow::exportSelectedPackets() {
                but it can be saved without the comments, and the user
                said "OK, discard the comments", so save it in the
                format they specified without the comments. */
-            discard_comments = TRUE;
+            discard_comments = true;
             break;
 
         case SAVE_IN_ANOTHER_FORMAT:
@@ -1603,7 +1603,7 @@ void LograyMainWindow::exportSelectedPackets() {
          */
         if (files_identical(capture_file_.capFile()->filename, qUtf8Printable(file_name))) {
             QMessageBox msg_box;
-            gchar *display_basename = g_filename_display_basename(qUtf8Printable(file_name));
+            char *display_basename = g_filename_display_basename(qUtf8Printable(file_name));
 
             msg_box.setIcon(QMessageBox::Critical);
             msg_box.setText(QString(tr("Unable to export to \"%1\".").arg(display_basename)));
@@ -1715,7 +1715,7 @@ void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_
     QString file_name_lower;
     GSList  *extensions_list;
     const char *compressed_file_extension;
-    gboolean add_extension_for_file_type;
+    bool add_extension_for_file_type;
 
     /* Lower-case the file name, so the extension matching is case-insensitive. */
     file_name_lower = file_name.toLower();
@@ -1724,7 +1724,7 @@ void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_
        include the ones with compression type extensions, as we
        only want to check for the extension for the compression
        type we'll be using. */
-    extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
+    extensions_list = wtap_get_file_extensions_list(file_type, false);
 
     /* Get the extension for the compression type we'll be using;
        NULL is returned if the type isn't supported or compression
@@ -1736,7 +1736,7 @@ void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_
 
         /* This file type has one or more extensions.
            Start out assuming we need to add the default one. */
-        add_extension_for_file_type = TRUE;
+        add_extension_for_file_type = true;
 
         /* OK, see if the file has one of those extensions, followed
            by the appropriate compression type extension if it's to be
@@ -1753,7 +1753,7 @@ void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_
                  * appropriate, so we don't need to add an extension for
                  * the file type or the compression type.
                  */
-                add_extension_for_file_type = FALSE;
+                add_extension_for_file_type = false;
                 break;
             }
         }
@@ -1763,7 +1763,7 @@ void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_
            file type.
 
            Start out assuming we do. */
-        add_extension_for_file_type = TRUE;
+        add_extension_for_file_type = true;
         if (compressed_file_extension != NULL) {
             QString file_suffix = QString(".") + compressed_file_extension;
             if (file_name_lower.endsWith(file_suffix)) {
@@ -1772,7 +1772,7 @@ void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_
                  * so we don't need to add an extension for the compression
                  * type.
                  */
-                add_extension_for_file_type = FALSE;
+                add_extension_for_file_type = false;
             }
         }
     }
@@ -1869,7 +1869,7 @@ bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContex
                 }
             } else {
                 // No capture in progress and not a tempfile, so this is not unsaved packets
-                gchar *display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
+                char *display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
                 question = tr("Do you want to save the changes you've made to the capture file \"%1\"%2?").arg(display_basename, before_what);
                 infotext = tr("Your changes will be lost if you don't save them.");
                 g_free(display_basename);
@@ -2356,7 +2356,7 @@ bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value,
     connect(follow_action, &QAction::triggered, window,
             [window, follow]() { window->openFollowStreamDialog(get_follow_proto_id(follow)); },
             Qt::QueuedConnection);
-    return FALSE;
+    return false;
 }
 
 void LograyMainWindow::initFollowStreamMenus()
@@ -2789,7 +2789,7 @@ void LograyMainWindow::reloadDynamicMenus()
     mainApp->clearRemovedMenuGroupItems();
 }
 
-void LograyMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)
+void LograyMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, int depth)
 {
     QAction * itemAction = Q_NULLPTR;
     ext_menubar_t * item = Q_NULLPTR;

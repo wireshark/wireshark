@@ -144,7 +144,7 @@ void FilterExpressionFrame::on_buttonBox_accepted()
     }
     else
     {
-        filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), TRUE);
+        filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), true);
     }
 
     save_migrated_uat("Display expressions", &prefs.filter_expressions_old);

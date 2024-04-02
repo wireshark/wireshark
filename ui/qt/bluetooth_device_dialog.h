@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "wireshark_dialog.h"
 #include "cfile.h"
 
@@ -32,18 +30,18 @@ typedef struct _bluetooth_device_tapinfo_t {
     tap_reset_cb    tap_reset;
     tap_packet_cb   tap_packet;
     QString         bdAddr;
-    guint32         interface_id;
-    guint32         adapter_id;
-    gboolean        is_local;
+    uint32_t        interface_id;
+    uint32_t        adapter_id;
+    bool            is_local;
     void           *ui;
-    guint          *changes;
+    unsigned       *changes;
 } bluetooth_device_tapinfo_t;
 
 typedef struct _bluetooth_item_data_t {
-        guint32  interface_id;
-        guint32  adapter_id;
-        guint32  frame_number;
-        gint     changes;
+        uint32_t interface_id;
+        uint32_t adapter_id;
+        uint32_t frame_number;
+        int      changes;
 } bluetooth_item_data_t;
 
 namespace Ui {
@@ -55,7 +53,7 @@ class BluetoothDeviceDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, QString bdAddr, QString name, guint32 interface_id, guint32 adapter_id, gboolean is_local);
+    explicit BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, QString bdAddr, QString name, uint32_t interface_id, uint32_t adapter_id, bool is_local);
     ~BluetoothDeviceDialog();
 
 public slots:
@@ -77,11 +75,11 @@ private:
 
     bluetooth_device_tapinfo_t   tapinfo_;
     QMenu        context_menu_;
-    guint        changes_;
+    unsigned     changes_;
 
     static void     tapReset(void *tapinfo_ptr);
     static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data, tap_flags_t flags);
-    static void updateChanges(QTableWidget *tableWidget, QString value, const int row, guint *changes, packet_info *pinfo);
+    static void updateChanges(QTableWidget *tableWidget, QString value, const int row, unsigned *changes, packet_info *pinfo);
     static void saveItemData(QTableWidgetItem *item, bluetooth_device_tap_t *tap_device, packet_info *pinfo);
 
 private slots:

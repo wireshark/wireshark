@@ -55,7 +55,7 @@ private:
     QSet<QString> used_protos_;
 
     // Callback for g_node_children_foreach
-    static void addTreeNode(GNode *node, gpointer data);
+    static void addTreeNode(GNode *node, void *data);
     void updateWidgets();
     QList<QVariant> protoHierRowData(QTreeWidgetItem *item) const;
 };

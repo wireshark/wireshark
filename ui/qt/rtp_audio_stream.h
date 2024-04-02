@@ -14,8 +14,6 @@
 
 #ifdef QT_MULTIMEDIA_LIB
 
-#include <glib.h>
-
 #include <epan/address.h>
 #include <ui/rtp_stream.h>
 #include <ui/qt/utils/rtp_audio_routing.h>
@@ -154,7 +152,7 @@ public:
     void seekPlaying(qint64 samples);
     void setStereoRequired(bool stereo_required) { stereo_required_ = stereo_required; }
     qint16 getMaxSampleValue() { return max_sample_val_; }
-    void setMaxSampleValue(gint16 max_sample_val) { max_sample_val_used_ = max_sample_val; }
+    void setMaxSampleValue(int16_t max_sample_val) { max_sample_val_used_ = max_sample_val; }
     void seekSample(qint64 samples);
     qint64 readSample(SAMPLE *sample);
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
@@ -163,7 +161,7 @@ public:
     double getEndOfSilenceTime() { return (double)getEndOfSilenceSample() / (double)playRate(); }
     qint64 convertTimeToSamples(double time) { return (qint64)(time * playRate()); }
     bool savePayload(QIODevice *file);
-    guint getHash() { return rtpstream_id_to_hash(&(id_)); }
+    unsigned getHash() { return rtpstream_id_to_hash(&(id_)); }
     rtpstream_id_t *getID() { return &(id_); }
     QString getIDAsQString();
     rtpstream_info_t *getStreamInfo() { return &rtpstream_; }
@@ -223,7 +221,7 @@ private:
     quint32 calculateAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate, unsigned int requested_out_rate);
 #endif
     void decodeVisual();
-    SAMPLE *resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, qint64 requested_size);
+    SAMPLE *resizeBufferIfNeeded(SAMPLE *buff, int32_t *buff_bytes, qint64 requested_size);
 
 private slots:
     void outputStateChanged(QAudio::State new_state);

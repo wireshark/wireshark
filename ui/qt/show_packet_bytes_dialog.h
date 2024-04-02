@@ -11,7 +11,6 @@
 #define SHOW_PACKET_BYTES_DIALOG_H
 
 #include <config.h>
-#include <glib.h>
 #include <stdio.h>
 
 #ifdef HAVE_UNISTD_H
@@ -71,7 +70,7 @@ private:
     void updateHintLabel();
     void sanitizeBuffer(QByteArray &ba, bool handle_CR);
     void symbolizeBuffer(QByteArray &ba);
-    QByteArray decodeQuotedPrintable(const guint8 *bytes, int length);
+    QByteArray decodeQuotedPrintable(const uint8_t *bytes, int length);
     void rot13(QByteArray &ba);
     void updateFieldBytes(bool initialization = false);
     void updatePacketBytes();

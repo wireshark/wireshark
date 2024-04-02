@@ -134,7 +134,7 @@ public:
         }
     }
 
-    guint32 frameNum() { return frame_num_; }
+    uint32_t frameNum() { return frame_num_; }
     bool frameStatus() { return ok_; }
 
     QList<QVariant> rowData() {
@@ -174,9 +174,9 @@ public:
         return QTreeWidgetItem::operator <(other);
     }
 private:
-    guint32 frame_num_;
-    guint32 pkt_len_;
-    guint32 flags_;
+    uint32_t frame_num_;
+    uint32_t pkt_len_;
+    uint32_t flags_;
     double delta_;
     double jitter_;
     double bandwidth_;
@@ -289,9 +289,9 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
 #if 0
     /* Only accept Voice or MiniPacket packets */
-    const gchar filter_text[] = "iax2.call && (ip || ipv6)";
+    const char filter_text[] = "iax2.call && (ip || ipv6)";
 #else
-    const gchar filter_text[] = "iax2 && (ip || ipv6)";
+    const char filter_text[] = "iax2 && (ip || ipv6)";
 #endif
     dfilter_t *sfcode;
     df_error_t *df_err;
@@ -318,7 +318,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     epan_dissect_t edt;
 
-    epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
+    epan_dissect_init(&edt, cap_file_.capFile()->epan, true, false);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
                      frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
@@ -337,10 +337,10 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     dfilter_free(sfcode);
 
     /* ok, it is a IAX2 frame, so let's get the ip and port values */
-    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_id_),FALSE);
+    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_id_),false);
 
     /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_id_),TRUE);
+    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_id_),true);
 
     epan_dissect_cleanup(&edt);
 
@@ -652,8 +652,8 @@ void Iax2AnalysisDialog::resetStatistics()
     memset(&fwd_statinfo_, 0, sizeof(fwd_statinfo_));
     memset(&rev_statinfo_, 0, sizeof(rev_statinfo_));
 
-    fwd_statinfo_.first_packet = TRUE;
-    rev_statinfo_.first_packet = TRUE;
+    fwd_statinfo_.first_packet = true;
+    rev_statinfo_.first_packet = true;
     fwd_statinfo_.reg_pt = PT_UNDEFINED;
     rev_statinfo_.reg_pt = PT_UNDEFINED;
 
@@ -703,17 +703,17 @@ void Iax2AnalysisDialog::addPacket(bool forward, packet_info *pinfo, const struc
 }
 
 // iax2_analysis.c:rtp_packet_save_payload
-const guint8 silence_pcmu_ = 0xff;
-const guint8 silence_pcma_ = 0x55;
+const uint8_t silence_pcmu_ = 0xff;
+const uint8_t silence_pcma_ = 0x55;
 void Iax2AnalysisDialog::savePayload(QTemporaryFile *tmpfile, packet_info *pinfo, const struct _iax2_info_t *iax2info)
 {
     /* Is this the first packet we got in this direction? */
 //    if (statinfo->flags & STAT_FLAG_FIRST) {
 //        if (saveinfo->fp == NULL) {
-//            saveinfo->saved = FALSE;
+//            saveinfo->saved = false;
 //            saveinfo->error_type = TAP_RTP_FILE_OPEN_ERROR;
 //        } else {
-//            saveinfo->saved = TRUE;
+//            saveinfo->saved = true;
 //        }
 //    }
 
@@ -896,8 +896,8 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     }
 
     QFile      save_file(file_path);
-    gint16     sample;
-    guint8     pd[4];
+    int16_t    sample;
+    uint8_t    pd[4];
     bool       stop_flag = false;
     qint64     nchars;
 
@@ -1009,16 +1009,16 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
         case dir_both_:
         {
             char f_rawvalue, r_rawvalue;
-            guint32 f_write_silence = 0;
-            guint32 r_write_silence = 0;
+            uint32_t f_write_silence = 0;
+            uint32_t r_write_silence = 0;
             /* since conversation in one way can start later than in the other one,
                  * we have to write some silence information for one channel */
             if (fwd_statinfo_.start_time > rev_statinfo_.start_time) {
-                f_write_silence = (guint32)
+                f_write_silence = (uint32_t)
                         ((fwd_statinfo_.start_time - rev_statinfo_.start_time)
                          * (8000/1000));
             } else if (fwd_statinfo_.start_time < rev_statinfo_.start_time) {
-                r_write_silence = (guint32)
+                r_write_silence = (uint32_t)
                         ((rev_statinfo_.start_time - fwd_statinfo_.start_time)
                          * (8000/1000));
             }

@@ -112,8 +112,8 @@ BluetoothDevicesDialog::~BluetoothDevicesDialog()
 
 void BluetoothDevicesDialog::captureFileClosed()
 {
-    ui->interfaceComboBox->setEnabled(FALSE);
-    ui->showInformationStepsCheckBox->setEnabled(FALSE);
+    ui->interfaceComboBox->setEnabled(false);
+    ui->showInformationStepsCheckBox->setEnabled(false);
 
     WiresharkDialog::captureFileClosed();
 }
@@ -187,11 +187,11 @@ void BluetoothDevicesDialog::on_actionMark_Unmark_Row_triggered()
 {
     QBrush fg;
     QBrush bg;
-    bool   is_marked = TRUE;
+    bool   is_marked = true;
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
         if (ui->tableTreeWidget->currentItem()->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
-            is_marked = FALSE;
+            is_marked = false;
     }
 
     if (is_marked) {
@@ -260,7 +260,7 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
     bluetooth_device_tap_t       *tap_device = static_cast<bluetooth_device_tap_t *>(const_cast<void *>(data));
     QString                       bd_addr;
     QString                       bd_addr_oui;
-    const gchar                  *manuf;
+    const char                   *manuf;
     QTreeWidgetItem              *item = NULL;
 
     if (dialog->file_closed_)
@@ -270,7 +270,7 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
         return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-        gchar       *interface;
+        char        *interface;
         const char  *interface_name;
 
         unsigned     section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;

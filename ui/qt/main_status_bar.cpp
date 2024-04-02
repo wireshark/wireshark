@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "file.h"
 
 #include <epan/expert.h>
@@ -53,7 +51,7 @@ static MainStatusBar *cur_main_status_bar_ = NULL;
  * Push a formatted temporary message onto the statusbar.
  */
 void
-statusbar_push_temporary_msg(const gchar *msg_format, ...)
+statusbar_push_temporary_msg(const char *msg_format, ...)
 {
     va_list ap;
     QString push_msg;
@@ -436,7 +434,7 @@ void MainStatusBar::showCaptureStatistics()
             }
             if (prefs.gui_show_file_load_time && !cap_file_->is_tempfile) {
                 /* Loading an existing file */
-                gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
+                unsigned long computed_elapsed = cf_get_computed_elapsed(cap_file_);
                 packets_str.append(tr(" %1  Load time: %2:%3.%4")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(computed_elapsed/60000, 2, 10, QLatin1Char('0'))

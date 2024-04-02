@@ -47,7 +47,7 @@ bool register_simple_stat_tables(const void *key, void *value, void*) {
                 stu->group,
                 simple_stat_init,
                 SimpleStatisticsDialog::createSimpleStatisticsDialog);
-    return FALSE;
+    return false;
 }
 
 enum {
@@ -188,7 +188,7 @@ void SimpleStatisticsDialog::addMissingRows(struct _stat_data_t *stat_data)
     // the top-level tree item text set to the column labels for that table.
 
     // Add any missing tables and rows.
-    for (guint table_idx = 0; table_idx < stat_data->stat_tap_data->tables->len; table_idx++) {
+    for (unsigned table_idx = 0; table_idx < stat_data->stat_tap_data->tables->len; table_idx++) {
         stat_tap_table* st_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, table_idx);
         QTreeWidgetItem *ti = NULL;
 
@@ -200,7 +200,7 @@ void SimpleStatisticsDialog::addMissingRows(struct _stat_data_t *stat_data)
         } else {
             ti = statsTreeWidget()->topLevelItem(table_idx);
         }
-        for (guint element = ti->childCount(); element < st_table->num_elements; element++) {
+        for (unsigned element = ti->childCount(); element < st_table->num_elements; element++) {
             stat_tap_table_item_type* fields = stat_tap_get_field_data(st_table, element, 0);
             if (stu_->nfields > 0) {
                 SimpleStatisticsTreeWidgetItem *ss_ti = new SimpleStatisticsTreeWidgetItem(ti, st_table->num_fields, fields);

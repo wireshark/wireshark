@@ -174,7 +174,7 @@ void ProtoTree::ctxCopySelectedInfo()
     case ProtoTree::Value:
         {
             epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
-            gchar* field_str = get_node_field_value(finfo.fieldInfo(), edt);
+            char* field_str = get_node_field_value(finfo.fieldInfo(), edt);
             clip.append(field_str);
             g_free(field_str);
         }
@@ -464,7 +464,7 @@ void ProtoTree::setMonospaceFont(const QFont &mono_font)
     update();
 }
 
-void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
+void ProtoTree::foreachTreeNode(proto_node *node, void *proto_tree_ptr)
 {
     ProtoTree *tree_view = static_cast<ProtoTree *>(proto_tree_ptr);
     ProtoTreeModel *model = qobject_cast<ProtoTreeModel *>(tree_view->model());
@@ -577,7 +577,7 @@ void ProtoTree::syncExpanded(const QModelIndex &index) {
      * are thus presumably leaf nodes and cannot be expanded.
      */
     if (finfo.treeType() != -1) {
-        tree_expanded_set(finfo.treeType(), TRUE);
+        tree_expanded_set(finfo.treeType(), true);
     }
 }
 
@@ -590,7 +590,7 @@ void ProtoTree::syncCollapsed(const QModelIndex &index) {
      * are thus presumably leaf nodes and cannot be collapsed.
      */
     if (finfo.treeType() != -1) {
-        tree_expanded_set(finfo.treeType(), FALSE);
+        tree_expanded_set(finfo.treeType(), false);
     }
 }
 
@@ -641,7 +641,7 @@ void ProtoTree::collapseSubtrees()
 void ProtoTree::expandAll()
 {
     for (int i = 0; i < num_tree_types; i++) {
-        tree_expanded_set(i, TRUE);
+        tree_expanded_set(i, true);
     }
     QTreeView::expandAll();
     updateContentWidth();
@@ -650,7 +650,7 @@ void ProtoTree::expandAll()
 void ProtoTree::collapseAll()
 {
     for (int i = 0; i < num_tree_types; i++) {
-        tree_expanded_set(i, FALSE);
+        tree_expanded_set(i, false);
     }
     QTreeView::collapseAll();
     updateContentWidth();

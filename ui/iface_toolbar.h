@@ -12,6 +12,8 @@
 
 #include <stdbool.h>
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

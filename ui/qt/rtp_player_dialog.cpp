@@ -460,7 +460,7 @@ void RtpPlayerDialog::retapPackets()
     error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL, NULL);
     if (error_string) {
         report_failure("RTP Player - tap registration failed: %s", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         unlockUI();
         return;
     }
@@ -538,7 +538,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
     bool legend_inserted_silences = false;
     bool relative_timestamps = !ui->todCheckBox->isChecked();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
-    gint16 total_max_sample_value = 1;
+    int16_t total_max_sample_value = 1;
 
     ui->audioPlot->clearGraphs();
 
@@ -552,7 +552,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
     for (int row = 0; row < row_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        gint16 max_sample_value = audio_stream->getMaxSampleValue();
+        int16_t max_sample_value = audio_stream->getMaxSampleValue();
 
         if (max_sample_value > total_max_sample_value) {
             total_max_sample_value = max_sample_value;
@@ -2301,11 +2301,11 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
 {
     uint8_t pd[4];
     int64_t nchars;
-    gint32  subchunk2Size;
-    gint32  data32;
-    gint16  data16;
+    int32_t subchunk2Size;
+    int32_t data32;
+    int16_t data16;
 
-    subchunk2Size = sizeof(SAMPLE) * channels * (gint32)samples;
+    subchunk2Size = sizeof(SAMPLE) * channels * (int32_t)samples;
 
     /* http://soundfile.sapp.org/doc/WaveFormat/ */
 
@@ -2373,14 +2373,14 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     }
 
     /* WAVE fmt header, BlockAlign */
-    data16 = channels * (gint16)sizeof(SAMPLE);
+    data16 = channels * (int16_t)sizeof(SAMPLE);
     nchars = save_file->write((const char *)&data16, 2);
     if (nchars != 2) {
         return -1;
     }
 
     /* WAVE fmt header, BitsPerSample */
-    data16 = (gint16)sizeof(SAMPLE) * 8;
+    data16 = (int16_t)sizeof(SAMPLE) * 8;
     nchars = save_file->write((const char *)&data16, 2);
     if (nchars != 2) {
         return -1;
@@ -2437,12 +2437,12 @@ bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudio
                 if (swap_bytes) {
                     // same as phton16(), but more clear in compare
                     // to else branch
-                    pd[0] = (guint8)(sample >> 8);
-                    pd[1] = (guint8)(sample >> 0);
+                    pd[0] = (uint8_t)(sample >> 8);
+                    pd[1] = (uint8_t)(sample >> 0);
                 } else {
                     // just copy
-                    pd[1] = (guint8)(sample >> 8);
-                    pd[0] = (guint8)(sample >> 0);
+                    pd[1] = (uint8_t)(sample >> 8);
+                    pd[0] = (uint8_t)(sample >> 0);
                 }
                 read = true;
             } else {

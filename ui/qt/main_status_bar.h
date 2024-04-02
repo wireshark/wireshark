@@ -65,7 +65,7 @@ private:
 
     // Capture statistics
     bool cs_fixed_;
-    guint32 cs_count_;
+    uint32_t cs_count_;
 
     void showCaptureStatistics();
     void setStatusbarForCaptureFile();

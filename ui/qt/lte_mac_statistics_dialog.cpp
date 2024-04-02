@@ -57,7 +57,7 @@ enum {
 
 // Calculate and return a bandwidth figure, in Mbs
 static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time,
-                           guint32 bytes)
+                           uint32_t bytes)
 {
     // Can only calculate bandwidth if have time delta
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
@@ -132,7 +132,7 @@ public:
     }
 
     // Increase value held for lcid by given value.
-    void updateLCID(guint8 lcid, guint value)
+    void updateLCID(uint8_t lcid, unsigned value)
     {
         lcids[lcid] += value;
     }

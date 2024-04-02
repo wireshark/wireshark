@@ -98,7 +98,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     /* Init the export range */
     packet_range_init(&print_args_.range, cap_file_);
     /* Default to displayed packets */
-    print_args_.range.process_filtered = TRUE;
+    print_args_.range.process_filtered = true;
 
     packet_range_group_box_.initRange(&print_args_.range, selRange);
     h_box->addWidget(&packet_range_group_box_);
@@ -158,13 +158,13 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
 
         print_args_.file                = qstring_strdup(file_name);
         print_args_.format              = PR_FMT_TEXT;
-        print_args_.to_file             = TRUE;
+        print_args_.to_file             = true;
         print_args_.cmd                 = NULL;
-        print_args_.print_summary       = TRUE;
-        print_args_.print_col_headings  = TRUE;
+        print_args_.print_summary       = true;
+        print_args_.print_col_headings  = true;
         print_args_.print_dissections   = print_dissections_as_displayed;
-        print_args_.print_hex           = FALSE;
-        print_args_.print_formfeed      = FALSE;
+        print_args_.print_hex           = false;
+        print_args_.print_formfeed      = false;
 
         switch (export_type_) {
         case export_type_text:      /* Text */
@@ -181,12 +181,12 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
             }
             print_args_.print_hex = packet_format_group_box_.bytesEnabled();
             print_args_.hexdump_options = packet_format_group_box_.getHexdumpOptions();
-            print_args_.stream = print_stream_text_new(TRUE, print_args_.file);
+            print_args_.stream = print_stream_text_new(true, print_args_.file);
             if (print_args_.stream == NULL) {
-                open_failure_alert_box(print_args_.file, errno, TRUE);
+                open_failure_alert_box(print_args_.file, errno, true);
                 return;
             }
-            status = cf_print_packets(cap_file_, &print_args_, TRUE);
+            status = cf_print_packets(cap_file_, &print_args_, true);
             break;
         case export_type_csv:       /* CSV */
             status = cf_write_csv_packets(cap_file_, &print_args_);
@@ -211,14 +211,14 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
             case CF_PRINT_OK:
                 break;
             case CF_PRINT_OPEN_ERROR:
-                open_failure_alert_box(print_args_.file, errno, TRUE);
+                open_failure_alert_box(print_args_.file, errno, true);
                 break;
             case CF_PRINT_WRITE_ERROR:
                 write_failure_alert_box(print_args_.file, errno);
                 break;
         }
 
-        gchar *dirname;
+        char *dirname;
         /* Save the directory name for future file dialogs. */
         dirname = get_dirname(print_args_.file);  /* Overwrites file_name data */
         set_last_open_dir(dirname);

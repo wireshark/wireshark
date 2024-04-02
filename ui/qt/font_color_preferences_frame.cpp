@@ -78,7 +78,7 @@ void FontColorPreferencesFrame::showEvent(QShowEvent *)
 
 void FontColorPreferencesFrame::updateWidgets()
 {
-    gint     colorstyle;
+    int      colorstyle;
     QColor   foreground;
     QColor   background1;
     QColor   background2;

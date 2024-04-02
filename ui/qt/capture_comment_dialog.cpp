@@ -83,7 +83,7 @@ char** CaptureCommentTabWidget::getCommentsText()
     for (int index = 0; index < count(); index++) {
         te = qobject_cast<QPlainTextEdit*>(widget(index));
         if (te != nullptr) {
-            gchar *str = qstring_strdup(te->toPlainText());
+            char *str = qstring_strdup(te->toPlainText());
 
             /*
              * Make sure this would fit in a pcapng option.
@@ -94,14 +94,14 @@ char** CaptureCommentTabWidget::getCommentsText()
              */
             if (strlen(str) > 65535) {
                 /* It doesn't fit.  Give up. */
-                g_ptr_array_free(ptr_array, TRUE);
+                g_ptr_array_free(ptr_array, true);
                 return nullptr;
             }
             g_ptr_array_add(ptr_array, str);
         }
     }
     g_ptr_array_add(ptr_array, nullptr);
-    return (char**)g_ptr_array_free(ptr_array, FALSE);
+    return (char**)g_ptr_array_free(ptr_array, false);
 }
 
 void CaptureCommentTabWidget::setTabTitles(int from, int to)

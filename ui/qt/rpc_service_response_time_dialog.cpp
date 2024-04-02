@@ -44,7 +44,7 @@
 
 extern "C" {
 static void
-dce_rpc_add_program(gpointer key_ptr, gpointer value_ptr, gpointer rsrtd_ptr)
+dce_rpc_add_program(void *key_ptr, void *value_ptr, void *rsrtd_ptr)
 {
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
@@ -56,7 +56,7 @@ dce_rpc_add_program(gpointer key_ptr, gpointer value_ptr, gpointer rsrtd_ptr)
 }
 
 static void
-dce_rpc_find_versions(gpointer key_ptr, gpointer, gpointer rsrtd_ptr)
+dce_rpc_find_versions(void *key_ptr, void *, void *rsrtd_ptr)
 {
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
@@ -66,19 +66,19 @@ dce_rpc_find_versions(gpointer key_ptr, gpointer, gpointer rsrtd_ptr)
 }
 
 static void
-onc_rpc_add_program(gpointer prog_ptr, gpointer value_ptr, gpointer rsrtd_ptr)
+onc_rpc_add_program(void *prog_ptr, void *value_ptr, void *rsrtd_ptr)
 {
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
 
-    guint32 program = GPOINTER_TO_UINT(prog_ptr);
+    uint32_t program = GPOINTER_TO_UINT(prog_ptr);
     rpc_prog_info_value *value = (rpc_prog_info_value *) value_ptr;
 
     rsrt_dlg->addOncRpcProgram(program, value);
 }
 
 static void
-onc_rpc_find_versions(const gchar *, ftenum_t , gpointer rpik_ptr, gpointer, gpointer rsrtd_ptr)
+onc_rpc_find_versions(const char *, ftenum_t , void *rpik_ptr, void *, void *rsrtd_ptr)
 {
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
@@ -89,7 +89,7 @@ onc_rpc_find_versions(const gchar *, ftenum_t , gpointer rpik_ptr, gpointer, gpo
 }
 
 static void
-onc_rpc_count_procedures(const gchar *, ftenum_t , gpointer rpik_ptr, gpointer, gpointer rsrtd_ptr)
+onc_rpc_count_procedures(const char *, ftenum_t , void *rpik_ptr, void *, void *rsrtd_ptr)
 {
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
@@ -241,12 +241,12 @@ void RpcServiceResponseTimeDialog::addDceRpcProgramVersion(_guid_key *key)
     std::sort(versions_.begin(), versions_.end());
 }
 
-void RpcServiceResponseTimeDialog::addOncRpcProgram(guint32 program, _rpc_prog_info_value *value)
+void RpcServiceResponseTimeDialog::addOncRpcProgram(uint32_t program, _rpc_prog_info_value *value)
 {
     onc_name_to_program_.insert(value->progname, program);
 }
 
-void RpcServiceResponseTimeDialog::addOncRpcProgramVersion(guint32 program, guint32 version)
+void RpcServiceResponseTimeDialog::addOncRpcProgramVersion(uint32_t program, uint32_t version)
 {
     if (onc_name_to_program_[program_combo_->currentText()] != program) return;
 
@@ -262,7 +262,7 @@ void RpcServiceResponseTimeDialog::addOncRpcProgramVersion(guint32 program, guin
     }
 }
 
-void RpcServiceResponseTimeDialog::updateOncRpcProcedureCount(guint32 program, guint32 version, int procedure)
+void RpcServiceResponseTimeDialog::updateOncRpcProcedureCount(uint32_t program, uint32_t version, int procedure)
 {
     if (onc_name_to_program_[program_combo_->currentText()] != program) return;
     if (version_combo_->itemData(version_combo_->currentIndex()).toUInt() != version) return;
@@ -374,7 +374,7 @@ void RpcServiceResponseTimeDialog::provideParameterData()
 {
     void *tap_data = NULL;
     const QString program_name = program_combo_->currentText();
-    guint32 max_procs = 0;
+    uint32_t max_procs = 0;
 
     switch (dlg_type_) {
     case DceRpc:
@@ -382,7 +382,7 @@ void RpcServiceResponseTimeDialog::provideParameterData()
         if (!dce_name_to_uuid_key_.contains(program_name)) return;
 
         guid_key *dkey = dce_name_to_uuid_key_[program_name];
-        guint16 version = (guint16) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
+        uint16_t version = (uint16_t) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
         dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), version);
         if (!procs) return;
 
@@ -406,7 +406,7 @@ void RpcServiceResponseTimeDialog::provideParameterData()
         rpcstat_tap_data_t *otap_data = g_new0(rpcstat_tap_data_t, 1);
         otap_data->program = onc_name_to_program_[program_name];
         otap_data->prog = rpc_prog_name(otap_data->program);
-        otap_data->version = (guint32) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
+        otap_data->version = (uint32_t) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
 
         onc_rpc_num_procedures_ = -1;
         dissector_table_foreach ("rpc.call", onc_rpc_count_procedures, this);

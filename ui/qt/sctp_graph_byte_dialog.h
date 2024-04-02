@@ -11,7 +11,6 @@
 #define SCTP_GRAPH_BYTE_DIALOG_H
 
 #include <config.h>
-#include <glib.h>
 
 #include "cfile.h"
 
@@ -46,12 +45,12 @@ private slots:
 
 private:
     Ui::SCTPGraphByteDialog *ui;
-    guint16 selected_assoc_id;
+    uint16_t selected_assoc_id;
     capture_file *cap_file_;
     int frame_num;
     int direction;
     QVector<double> xb, yb;
-    QVector<guint32> fb;
+    QVector<uint32_t> fb;
 
     void drawGraph();
     void drawBytesGraph(const _sctp_assoc_info *selected_assoc);

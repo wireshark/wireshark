@@ -17,8 +17,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <epan/address.h>
 
 #include "ui/tap-iax2-analysis.h"
@@ -120,8 +118,8 @@ private:
     void saveCsv(StreamDirection direction);
 
 #if 0
-    guint32 processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar* proto_field, bool *ok);
-    guint32 getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok);
+    uint32_t processNode(proto_node *ptree_node, header_field_info *hfinformation, const char* proto_field, bool *ok);
+    uint32_t getIntFromProtoTree(proto_tree *protocol_tree, const char *proto_name, const char *proto_field, bool *ok);
 #endif
 
     bool eventFilter(QObject*, QEvent* event);

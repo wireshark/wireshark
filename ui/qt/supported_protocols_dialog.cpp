@@ -93,6 +93,6 @@ void SupportedProtocolsDialog::on_searchLineEdit_textChanged(const QString &sear
      * the countdown.
      */
     searchLineEditText = search_re;
-    guint gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
+    unsigned gui_debounce_timer = prefs_get_uint_value("gui", "debounce.timer");
     searchLineEditTimer->start(gui_debounce_timer);
 }

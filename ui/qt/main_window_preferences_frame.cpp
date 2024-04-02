@@ -66,7 +66,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     ui->languageComboBox->setItemIcon(0, language_icon);
 
     QString globalLanguagesPath(QString(get_datafile_dir()) + "/languages/");
-    QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", FALSE)));
+    QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", false)));
 
     QStringList filenames = QDir(":/i18n/").entryList(QStringList("wireshark_*.qm"));
     filenames += QDir(globalLanguagesPath).entryList(QStringList("wireshark_*.qm"));

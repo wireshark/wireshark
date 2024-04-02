@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <glib.h>
+
 #include <QTimer>
 #include "glib_mainloop_on_qeventloop.h"
 
@@ -24,7 +26,7 @@ GLibPoller::~GLibPoller()
 
 void GLibPoller::run()
 {
-    gint timeout;
+    int timeout;
 
     mutex_.lock();
     while (!isInterruptionRequested())

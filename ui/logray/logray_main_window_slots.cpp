@@ -154,14 +154,14 @@ DIAG_ON(frame-larger-than=)
 // Public slots
 //
 
-bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned int type, gboolean is_tempfile)
+bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned int type, bool is_tempfile)
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
     df_error_t *df_err = NULL;
     int err;
-    gboolean name_param;
-    gboolean ret = true;
+    bool name_param;
+    bool ret = true;
 
     // was a file name given as function parameter?
     name_param = !cf_path.isEmpty();
@@ -229,7 +229,7 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
             continue;
         }
 
-        switch (cf_read(CaptureFile::globalCapFile(), /*reloading=*/FALSE)) {
+        switch (cf_read(CaptureFile::globalCapFile(), /*reloading=*/false)) {
         case CF_READ_OK:
         case CF_READ_ERROR:
             /* Just because we got an error, that doesn't mean we were unable
@@ -476,10 +476,10 @@ void LograyMainWindow::captureCapturePrepared(capture_session *session) {
        a capture. */
     bool handle_toolbars = (session->session_will_restart ? false : true);
     setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
-//    set_capture_if_dialog_for_capture_in_progress(TRUE);
+//    set_capture_if_dialog_for_capture_in_progress(true);
 
 //    /* Don't set up main window for a capture file. */
-//    main_set_for_capture_file(FALSE);
+//    main_set_for_capture_file(false);
     showCapture();
 }
 
@@ -631,7 +631,7 @@ void LograyMainWindow::captureEventHandler(CaptureEvent ev)
             thaw();
             break;
         case CaptureEvent::Flushed:
-            draw_tap_listeners(FALSE);
+            draw_tap_listeners(false);
             break;
         default:
             break;
@@ -721,7 +721,7 @@ void LograyMainWindow::captureFileReadStarted(const QString &action) {
 //    tap_param_dlg_update();
 
     /* Set up main window for a capture file. */
-//    main_set_for_capture_file(TRUE);
+//    main_set_for_capture_file(true);
 
     mainApp->popStatus(WiresharkApplication::FileStatus);
     QString msg = QString(tr("%1: %2")).arg(action).arg(capture_file_.fileName());
@@ -804,9 +804,9 @@ void LograyMainWindow::startCapture(QStringList) {
 void LograyMainWindow::startCapture() {
 #ifdef HAVE_LIBPCAP
     interface_options *interface_opts;
-    guint i;
+    unsigned i;
     interface_t *device;
-    gboolean can_start_capture = TRUE;
+    bool can_start_capture = true;
 
     /* did the user ever select a capture interface before? */
     if (global_capture_opts.num_selected == 0) {
@@ -828,7 +828,7 @@ void LograyMainWindow::startCapture() {
                 QString device_name(device->name);
                 emit showExtcapOptions(device_name, false);
                 /* Cancel start of capture */
-                can_start_capture = FALSE;
+                can_start_capture = false;
             }
         }
     }
@@ -887,7 +887,7 @@ void LograyMainWindow::startCapture() {
         if (capture_opts->save_file)
             msgtip += capture_opts->save_file;
         mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
-        g_string_free(interface_names, TRUE);
+        g_string_free(interface_names, true);
 
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
@@ -1082,10 +1082,10 @@ void LograyMainWindow::setEditCommentsMenu()
         const int thisRow = selectedRows().first();
         frame_data * current_frame = frameDataForRow(thisRow);
         wtap_block_t pkt_block = cf_get_packet_block(capture_file_.capFile(), current_frame);
-        guint nComments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+        unsigned nComments = wtap_block_count_option(pkt_block, OPT_COMMENT);
         if (nComments > 0) {
             main_ui_->menuPacketComment->addSeparator();
-            for (guint i = 0; i < nComments; i++) {
+            for (unsigned i = 0; i < nComments; i++) {
                 QString comment = packet_list_->getPacketComment(i);
                 comment = this->commentToMenuText(comment);
                 action = main_ui_->menuPacketComment->addAction(tr("Edit \"%1\"", "edit event comment").arg(comment));
@@ -1094,7 +1094,7 @@ void LograyMainWindow::setEditCommentsMenu()
             }
 
             main_ui_->menuPacketComment->addSeparator();
-            for (guint i = 0; i < nComments; i++) {
+            for (unsigned i = 0; i < nComments; i++) {
                 QString comment = packet_list_->getPacketComment(i);
                 comment = this->commentToMenuText(comment);
                 action = main_ui_->menuPacketComment->addAction(tr("Delete \"%1\"", "delete event comment").arg(comment));
@@ -1181,7 +1181,7 @@ void LograyMainWindow::setMenusForSelectedPacket()
         if (capture_file_.capFile()->edt && ! multi_selection)
         {
             foreach (FollowStreamAction *follow_action, main_ui_->menuFollow->findChildren<FollowStreamAction *>()) {
-                gboolean is_frame = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, follow_action->filterName());
+                bool is_frame = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, follow_action->filterName());
                 follow_action->setEnabled(is_frame);
             }
         }
@@ -1438,7 +1438,7 @@ void LograyMainWindow::checkDisplayFilter()
 
 void LograyMainWindow::fieldsChanged()
 {
-    gchar *err_msg = NULL;
+    char *err_msg = NULL;
     if (!color_filters_reload(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
@@ -1461,7 +1461,7 @@ void LograyMainWindow::reloadLuaPlugins()
     if (mainApp->isReloadingLua())
         return;
 
-    gboolean uses_lua_filehandler = FALSE;
+    bool uses_lua_filehandler = false;
 
     if (capture_file_.capFile()) {
         // Check if the current capture file is opened with a Lua FileHandler
@@ -1548,7 +1548,7 @@ void LograyMainWindow::initViewColorizeMenu()
             << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
             << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
-    guint8 color_num = 1;
+    uint8_t color_num = 1;
 
     foreach(QAction *cc_action, cc_actions) {
         cc_action->setData(color_num);
@@ -1942,7 +1942,7 @@ void LograyMainWindow::copySelectedItems(LograyMainWindow::CopySelected selectio
         break;
     case CopySelectedValue:
         if (finfo_selected && capture_file_.capFile()->edt != 0) {
-            gchar* field_str = get_node_field_value(finfo_selected, capture_file_.capFile()->edt);
+            char* field_str = get_node_field_value(finfo_selected, capture_file_.capFile()->edt);
             clip.append(field_str);
             g_free(field_str);
         }
@@ -2084,7 +2084,7 @@ void LograyMainWindow::editPacketComment()
         return;
 
     QAction *ra = qobject_cast<QAction*>(sender());
-    guint nComment = ra->data().toUInt();
+    unsigned nComment = ra->data().toUInt();
     PacketCommentDialog* pc_dialog;
     pc_dialog = new PacketCommentDialog(true, this, packet_list_->getPacketComment(nComment));
     connect(pc_dialog, &QDialog::finished, std::bind(&LograyMainWindow::editPacketCommentFinished, this, pc_dialog, std::placeholders::_1, nComment));
@@ -2093,7 +2093,7 @@ void LograyMainWindow::editPacketComment()
     pc_dialog->show();
 }
 
-void LograyMainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog _U_, int result _U_, guint nComment)
+void LograyMainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog _U_, int result _U_, unsigned nComment)
 {
     if (result == QDialog::Accepted) {
         packet_list_->setPacketComment(nComment, pc_dialog->text());
@@ -2104,7 +2104,7 @@ void LograyMainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog 
 void LograyMainWindow::deletePacketComment()
 {
     QAction *ra = qobject_cast<QAction*>(sender());
-    guint nComment = ra->data().toUInt();
+    unsigned nComment = ra->data().toUInt();
     packet_list_->setPacketComment(nComment, QString(""));
     updateForUnsavedChanges();
 }
@@ -2230,7 +2230,7 @@ void LograyMainWindow::connectViewMenuActions()
             [this]() { showColoringRulesDialog(); });
 
     connect(main_ui_->actionViewColorizeResetColorization, &QAction::triggered, this, [this]() {
-        gchar *err_msg = NULL;
+        char *err_msg = NULL;
         if (!color_filters_reset_tmp(&err_msg)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
             g_free(err_msg);
@@ -2423,9 +2423,9 @@ void LograyMainWindow::editResolvedName()
 
 void LograyMainWindow::setNameResolution()
 {
-    gbl_resolv_flags.mac_name = main_ui_->actionViewNameResolutionPhysical->isChecked() ? TRUE : FALSE;
-    gbl_resolv_flags.network_name = main_ui_->actionViewNameResolutionNetwork->isChecked() ? TRUE : FALSE;
-    gbl_resolv_flags.transport_name = main_ui_->actionViewNameResolutionTransport->isChecked() ? TRUE : FALSE;
+    gbl_resolv_flags.mac_name = main_ui_->actionViewNameResolutionPhysical->isChecked() ? true : false;
+    gbl_resolv_flags.network_name = main_ui_->actionViewNameResolutionNetwork->isChecked() ? true : false;
+    gbl_resolv_flags.transport_name = main_ui_->actionViewNameResolutionTransport->isChecked() ? true : false;
 
     if (packet_list_) {
         packet_list_->resetColumns();
@@ -2459,8 +2459,8 @@ void LograyMainWindow::colorizeConversation(bool create_rule)
 
     if (capture_file_.capFile() && selectedRows().count() > 0) {
         packet_info *pi = capture_file_.packetInfo();
-        guint8 cc_num = colorize_action->data().toUInt();
-        gchar *filter = conversation_filter_from_log(pi);
+        uint8_t cc_num = colorize_action->data().toUInt();
+        char *filter = conversation_filter_from_log(pi);
         if (filter == NULL) {
             mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
             return;
@@ -2474,8 +2474,8 @@ void LograyMainWindow::colorizeConversation(bool create_rule)
                 this, &LograyMainWindow::filterAction);
             coloring_rules_dialog.exec();
         } else {
-            gchar *err_msg = NULL;
-            if (!color_filters_set_tmp(cc_num, filter, FALSE, &err_msg)) {
+            char *err_msg = NULL;
+            if (!color_filters_set_tmp(cc_num, filter, false, &err_msg)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
                 g_free(err_msg);
             }
@@ -2511,8 +2511,8 @@ void LograyMainWindow::colorizeWithFilter(QByteArray filter, int color_number)
 
     if (color_number > 0) {
         // Assume "Color X"
-        gchar *err_msg = NULL;
-        if (!color_filters_set_tmp(color_number, filter.constData(), FALSE, &err_msg)) {
+        char *err_msg = NULL;
+        if (!color_filters_set_tmp(color_number, filter.constData(), false, &err_msg)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
             g_free(err_msg);
         }
@@ -2535,7 +2535,7 @@ void LograyMainWindow::openPacketDialog(bool from_reference)
 
     /* Find the frame for which we're popping up a dialog */
     if (from_reference) {
-        guint32 framenum = fvalue_get_uinteger(capture_file_.capFile()->finfo_selected->value);
+        uint32_t framenum = fvalue_get_uinteger(capture_file_.capFile()->finfo_selected->value);
         if (framenum == 0)
             return;
 
@@ -2661,9 +2661,9 @@ void LograyMainWindow::connectGoMenuActions()
 }
 
 void LograyMainWindow::goToConversationFrame(bool go_next) {
-    gchar     *filter       = NULL;
+    char      *filter       = NULL;
     dfilter_t *dfcode       = NULL;
-    gboolean   found_packet = FALSE;
+    bool       found_packet = false;
     packet_info *pi = capture_file_.packetInfo();
 
     if (!pi) {
@@ -2717,7 +2717,7 @@ void LograyMainWindow::connectCaptureMenuActions()
     connect(main_ui_->actionCaptureRestart, &QAction::triggered, this, [this]() {
 #ifdef HAVE_LIBPCAP
         QString before_what(tr(" before restarting the capture"));
-        cap_session_.capture_opts->restart = TRUE;
+        cap_session_.capture_opts->restart = true;
         if (!testCaptureFileClose(before_what, Restart)) {
             return;
         }
@@ -2793,13 +2793,13 @@ void LograyMainWindow::startCaptureTriggered()
 //    /*
 //     * There's an options dialog; get the values from it and close it.
 //     */
-//    gboolean success;
+//    bool success;
 
 //    /* Determine if "capture start" while building of the "capture options" window */
 //    /*  is in progress. If so, ignore the "capture start.                          */
 //    /* XXX: Would it be better/cleaner for the "capture options" window code to    */
 //    /*      disable the capture start button temporarily ?                         */
-//    if (cap_open_complete == FALSE) {
+//    if (cap_open_complete == false) {
 //      return;  /* Building options window: ignore "capture start" */
 //    }
 //    success = capture_dlg_prep(cap_open_w);
@@ -2939,7 +2939,7 @@ void LograyMainWindow::applyFieldAsColumn()
 
             if (!get_column_visible(col)) {
                 packet_list_->setColumnHidden(col, false);
-                set_column_visible(col, TRUE);
+                set_column_visible(col, true);
                 prefs_main_write();
             }
         }
@@ -2964,7 +2964,7 @@ void LograyMainWindow::applyConversationFilter()
     }
 }
 
-void LograyMainWindow::openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num, bool use_stream_index) {
+void LograyMainWindow::openFollowStreamDialog(int proto_id, unsigned stream_num, unsigned sub_stream_num, bool use_stream_index) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, proto_id);
     connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
@@ -3034,7 +3034,7 @@ void LograyMainWindow::connectStatisticsMenuActions()
     });
 }
 
-void LograyMainWindow::openStatisticsTreeDialog(const gchar *abbr)
+void LograyMainWindow::openStatisticsTreeDialog(const char *abbr)
 {
     StatsTreeDialog *st_dialog = new StatsTreeDialog(*this, capture_file_, abbr);
 //    connect(st_dialog, SIGNAL(goToPacket(int)),
@@ -3157,8 +3157,8 @@ void LograyMainWindow::showConversationsDialog()
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
     connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
         this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
-        this, SLOT(openFollowStreamDialog(int, guint, guint)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, unsigned, unsigned)),
+        this, SLOT(openFollowStreamDialog(int, unsigned, unsigned)));
     conv_dialog->show();
 }
 
@@ -3186,9 +3186,9 @@ void LograyMainWindow::externalMenuItemTriggered()
             entry = (ext_menubar_t *)v.value<void *>();
 
             if (entry->type == EXT_MENUBAR_ITEM) {
-                entry->callback(EXT_MENUBAR_QT_GUI, (gpointer)((void *)main_ui_), entry->user_data);
+                entry->callback(EXT_MENUBAR_QT_GUI, (void *)((void *)main_ui_), entry->user_data);
             } else {
-                QDesktopServices::openUrl(QUrl(QString((gchar *)entry->user_data)));
+                QDesktopServices::openUrl(QUrl(QString((char *)entry->user_data)));
             }
         }
     }

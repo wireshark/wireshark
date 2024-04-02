@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <file.h>
 
 #include <epan/dissectors/packet-tcp.h>
@@ -91,7 +89,7 @@ private:
     QCPGraph *zero_win_graph_;
     QCPItemTracer *tracer_;
     QRectF axis_bounds_;
-    guint32 packet_num_;
+    uint32_t packet_num_;
     QTransform y_axis_xfrm_;
     bool mouse_drags_;
     QRubberBand *rubber_band_;

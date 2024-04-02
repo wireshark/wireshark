@@ -378,7 +378,7 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
     }
 }
 
-gint VoipCallsDialog::compareCallNums(gconstpointer a, gconstpointer b)
+int VoipCallsDialog::compareCallNums(gconstpointer a, gconstpointer b)
 {
     const voip_calls_info_t *call_a = (const voip_calls_info_t *)a;
     const voip_calls_info_t *call_b = (const voip_calls_info_t *)b;
@@ -459,7 +459,7 @@ void VoipCallsDialog::prepareFilter()
     }
 
     QString filter_str;
-    QSet<guint16> selected_calls;
+    QSet<uint16_t> selected_calls;
     QString frame_numbers;
     QList<int> rows;
 
@@ -505,11 +505,11 @@ void VoipCallsDialog::prepareFilter()
     if (filter_length < max_filter_length) {
         gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
     } else {
-        g_string_free(filter_string_fwd, TRUE);
+        g_string_free(filter_string_fwd, true);
         filter_string_fwd = g_string_new(filter_prepend);
 
         g_string_append_printf(filter_string_fwd, "(");
-        is_first = TRUE;
+        is_first = true;
         /* Build a new filter based on protocol fields */
         lista = g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0);
         while (lista) {
@@ -542,10 +542,10 @@ void VoipCallsDialog::prepareFilter()
                     g_string_append_printf(filter_string_fwd,
                         "((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x)",
                         guid_str,
-                        (guint8) (h323info->q931_crv & 0x00ff),
-                        (guint8)((h323info->q931_crv & 0xff00)>>8),
-                        (guint8) (h323info->q931_crv2 & 0x00ff),
-                        (guint8)((h323info->q931_crv2 & 0xff00)>>8));
+                        (uint8_t) (h323info->q931_crv & 0x00ff),
+                        (uint8_t)((h323info->q931_crv & 0xff00)>>8),
+                        (uint8_t) (h323info->q931_crv2 & 0x00ff),
+                        (uint8_t)((h323info->q931_crv2 & 0xff00)>>8));
                     listb = g_list_first(h323info->h245_list);
 					wmem_free(NULL, guid_str);
                     while (listb) {
@@ -569,7 +569,7 @@ void VoipCallsDialog::prepareFilter()
                         "(frame)");
                     break;
                 }
-                is_first = FALSE;
+                is_first = false;
             }
             lista = gxx_list_next(lista);
         }
@@ -586,7 +586,7 @@ void VoipCallsDialog::showSequence()
 {
     if (file_closed_) return;
 
-    QSet<guint16> selected_calls;
+    QSet<uint16_t> selected_calls;
     foreach (QModelIndex index, ui->callTreeView->selectionModel()->selectedIndexes()) {
         voip_calls_info_t *call_info = VoipCallsInfoModel::indexToCallInfo(index);
         if (!call_info) {
@@ -630,7 +630,7 @@ QVector<rtpstream_id_t *>VoipCallsDialog::getSelectedRtpIds()
             //VOIP_CALLS_DEBUG("checking call %u, start frame %u == stream call %u, start frame %u, setup frame %u",
             //                vci->call_num, vci->start_fd->num,
             //                rsi->call_num, rsi->start_fd->num, rsi->setup_frame_number);
-            if (vci->call_num == static_cast<guint>(rsi->call_num)) {
+            if (vci->call_num == static_cast<unsigned>(rsi->call_num)) {
                 //VOIP_CALLS_DEBUG("adding call number %u", vci->call_num);
                 if (-1 == stream_ids.indexOf(&(rsi->id))) {
                     // Add only new stream

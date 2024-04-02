@@ -11,7 +11,6 @@
 #define SCTP_CHUNK_STATISTICS_DIALOG_H
 
 #include <config.h>
-#include <glib.h>
 
 #include <file.h>
 #include <wsutil/file_util.h>
@@ -62,7 +61,7 @@ signals:
 
 private:
     Ui::SCTPChunkStatisticsDialog *ui;
-    guint16 selected_assoc_id;
+    uint16_t selected_assoc_id;
     capture_file *cap_file_;
     QMenu ctx_menu_;
     QPoint selected_point;

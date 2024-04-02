@@ -12,7 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
 #include "capture_opts.h"
 
 #include <ui/qt/models/interface_tree_cache_model.h>

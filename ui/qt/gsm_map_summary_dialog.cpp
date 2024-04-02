@@ -16,8 +16,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "ui/summary.h"
 
 #include <epan/packet.h>
@@ -376,7 +374,7 @@ register_tap_listener_qt_gsm_map_summary(void)
     if (err_p != NULL)
     {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_p->str);
-        g_string_free(err_p, TRUE);
+        g_string_free(err_p, true);
 
         exit(1);
     }

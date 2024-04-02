@@ -183,7 +183,7 @@ ImportTextDialog::~ImportTextDialog()
 
 void ImportTextDialog::loadSettingsFile()
 {
-    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(get_profile_name(), FALSE)), QString(SETTINGS_FILE));
+    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(get_profile_name(), false)), QString(SETTINGS_FILE));
     QFile loadFile(fileInfo.filePath());
 
     if (!fileInfo.exists() || !fileInfo.isFile()) {
@@ -200,7 +200,7 @@ void ImportTextDialog::loadSettingsFile()
 
 void ImportTextDialog::saveSettingsFile()
 {
-    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(get_profile_name(), FALSE)), QString(SETTINGS_FILE));
+    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(get_profile_name(), false)), QString(SETTINGS_FILE));
     QFile saveFile(fileInfo.filePath());
 
     if (fileInfo.exists() && !fileInfo.isFile()) {
@@ -405,7 +405,7 @@ int ImportTextDialog::exec() {
     char* tmp;
     GError* gerror = NULL;
     int err;
-    gchar *err_info;
+    char *err_info;
     wtap_dump_params params;
     int file_type_subtype;
     QString interface_name;
@@ -425,7 +425,7 @@ int ImportTextDialog::exec() {
     import_info_.import_text_filename = qstring_strdup(ti_ui_->textFileLineEdit->text());
     import_info_.timestamp_format = qstring_strdup(ti_ui_->timestampFormatLineEdit->text());
     if (strlen(import_info_.timestamp_format) == 0) {
-        g_free((gpointer) import_info_.timestamp_format);
+        g_free((void *) import_info_.timestamp_format);
         import_info_.timestamp_format = NULL;
     }
 
@@ -438,7 +438,7 @@ int ImportTextDialog::exec() {
       case TEXT_IMPORT_HEXDUMP:
         import_info_.hexdump.import_text_FILE = ws_fopen(import_info_.import_text_filename, "rb");
         if (!import_info_.hexdump.import_text_FILE) {
-            open_failure_alert_box(import_info_.import_text_filename, errno, FALSE);
+            open_failure_alert_box(import_info_.import_text_filename, errno, false);
             setResult(QDialog::Rejected);
             goto cleanup_mode;
         }
@@ -452,7 +452,7 @@ int ImportTextDialog::exec() {
       case TEXT_IMPORT_REGEX:
         import_info_.regex.import_text_GMappedFile = g_mapped_file_new(import_info_.import_text_filename, true, &gerror);
         if (gerror) {
-            open_failure_alert_box(import_info_.import_text_filename, gerror->code, FALSE);
+            open_failure_alert_box(import_info_.import_text_filename, gerror->code, false);
             g_error_free(gerror);
             setResult(QDialog::Rejected);
             goto cleanup_mode;
@@ -539,7 +539,7 @@ int ImportTextDialog::exec() {
     wtap_free_idb_info(params.idb_inf);
     wtap_dump_params_cleanup(&params);
     g_free(tmp);
-    g_free((gpointer) import_info_.payload);
+    g_free((void *) import_info_.payload);
     switch (import_info_.mode) {
       case TEXT_IMPORT_HEXDUMP:
         fclose(import_info_.hexdump.import_text_FILE);
@@ -547,13 +547,13 @@ int ImportTextDialog::exec() {
       case TEXT_IMPORT_REGEX:
         g_mapped_file_unref(import_info_.regex.import_text_GMappedFile);
         g_regex_unref((GRegex*) import_info_.regex.format);
-        g_free((gpointer) import_info_.regex.in_indication);
-        g_free((gpointer) import_info_.regex.out_indication);
+        g_free((void *) import_info_.regex.in_indication);
+        g_free((void *) import_info_.regex.out_indication);
         break;
     }
   cleanup_mode:
-    g_free((gpointer) import_info_.import_text_filename);
-    g_free((gpointer) import_info_.timestamp_format);
+    g_free((void *) import_info_.import_text_filename);
+    g_free((void *) import_info_.timestamp_format);
     return result();
 }
 
@@ -723,7 +723,7 @@ void ImportTextDialog::on_asciiIdentificationCheckBox_toggled(bool checked)
 
 void ImportTextDialog::on_regexTextEdit_textChanged()
 {
-    gchar* regex_gchar_p = qstring_strdup(ti_ui_->regexTextEdit->toPlainText());
+    char* regex_gchar_p = qstring_strdup(ti_ui_->regexTextEdit->toPlainText());
     GError* gerror = NULL;
     /* TODO: Use GLib's c++ interface or enable C++ int to enum casting
      * because the flags are declared as enum, so we can't pass 0 like
@@ -934,7 +934,7 @@ void ImportTextDialog::on_ipVersionComboBox_currentIndexChanged(int index)
     on_destinationAddressLineEdit_textChanged(ti_ui_->destinationAddressLineEdit->text());
 }
 
-void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr) {
+void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, const QString &num_str, int base, unsigned max_val, bool is_short, unsigned *val_ptr) {
     bool conv_ok;
     SyntaxLineEdit::SyntaxState syntax_state = SyntaxLineEdit::Empty;
 
@@ -948,7 +948,7 @@ void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, con
         if (is_short) {
             *val_ptr = num_str.toUShort(&conv_ok, base);
         } else {
-            *val_ptr = (guint)num_str.toULong(&conv_ok, base);
+            *val_ptr = (unsigned)num_str.toULong(&conv_ok, base);
         }
         if (conv_ok && *val_ptr <= max_val) {
             syntax_state = SyntaxLineEdit::Valid;

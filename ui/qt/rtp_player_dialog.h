@@ -12,7 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <mutex>
 
 #include "ui/rtp_stream.h"
@@ -246,7 +245,7 @@ private:
     QToolButton *analyze_btn_;
     QPushButton *prepare_btn_;
     QPushButton *export_btn_;
-    QMultiHash<guint, RtpAudioStream *> stream_hash_;
+    QMultiHash<unsigned, RtpAudioStream *> stream_hash_;
     bool block_redraw_;
     int lock_ui_;
     bool read_capture_enabled_;

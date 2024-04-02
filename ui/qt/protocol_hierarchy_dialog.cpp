@@ -305,7 +305,7 @@ void ProtocolHierarchyDialog::filterActionTriggered()
     emit filterAction(filter_name, fa->action(), fa->actionType());
 }
 
-void ProtocolHierarchyDialog::addTreeNode(GNode *node, gpointer data)
+void ProtocolHierarchyDialog::addTreeNode(GNode *node, void *data)
 {
     ph_stats_node_t *stats = (ph_stats_node_t *)node->data;
     if (!stats) return;

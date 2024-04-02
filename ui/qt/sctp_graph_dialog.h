@@ -11,7 +11,6 @@
 #define SCTP_GRAPH_DIALOG_H
 
 #include <config.h>
-#include <glib.h>
 
 #include "cfile.h"
 
@@ -27,47 +26,47 @@ class QCustomPlot;
 struct _sctp_assoc_info;
 
 struct chunk_header {
-    guint8  type;
-    guint8  flags;
-    guint16 length;
+    uint8_t type;
+    uint8_t flags;
+    uint16_t length;
 };
 
 struct data_chunk_header {
-    guint8  type;
-    guint8  flags;
-    guint16 length;
-    guint32 tsn;
-    guint16 sid;
-    guint16 ssn;
-    guint32 ppi;
+    uint8_t type;
+    uint8_t flags;
+    uint16_t length;
+    uint32_t tsn;
+    uint16_t sid;
+    uint16_t ssn;
+    uint32_t ppi;
 };
 
 struct gaps {
-    guint16 start;
-    guint16 end;
+    uint16_t start;
+    uint16_t end;
 };
 
 struct sack_chunk_header {
-    guint8  type;
-    guint8  flags;
-    guint16 length;
-    guint32 cum_tsn_ack;
-    guint32 a_rwnd;
-    guint16 nr_of_gaps;
-    guint16 nr_of_dups;
+    uint8_t type;
+    uint8_t flags;
+    uint16_t length;
+    uint32_t cum_tsn_ack;
+    uint32_t a_rwnd;
+    uint16_t nr_of_gaps;
+    uint16_t nr_of_dups;
     struct gaps gaps[1];
 };
 
 struct nr_sack_chunk_header {
-    guint8  type;
-    guint8  flags;
-    guint16 length;
-    guint32 cum_tsn_ack;
-    guint32 a_rwnd;
-    guint16 nr_of_gaps;
-    guint16 nr_of_nr_gaps;
-    guint16 nr_of_dups;
-    guint16 reserved;
+    uint8_t type;
+    uint8_t flags;
+    uint16_t length;
+    uint32_t cum_tsn_ack;
+    uint32_t a_rwnd;
+    uint16_t nr_of_gaps;
+    uint16_t nr_of_nr_gaps;
+    uint16_t nr_of_dups;
+    uint16_t reserved;
     struct gaps gaps[1];
 };
 
@@ -102,12 +101,12 @@ private slots:
 
 private:
     Ui::SCTPGraphDialog *ui;
-    guint16 selected_assoc_id;
+    uint16_t selected_assoc_id;
     capture_file *cap_file_;
     int frame_num;
     int direction;
     QVector<double> xt, yt, xs, ys, xg, yg, xd, yd, xn, yn;
-    QVector<guint32> ft, fs, fg, fd, fn;
+    QVector<uint32_t> ft, fs, fg, fd, fn;
     QVector<QString> typeStrings;
     bool relative;
     int type;

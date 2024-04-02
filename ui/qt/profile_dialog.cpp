@@ -8,7 +8,6 @@
  */
 
 #include "config.h"
-#include <glib.h>
 
 #include "wsutil/filesystem.h"
 #include "wsutil/utf8_entities.h"
@@ -118,7 +117,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 ProfileDialog::~ProfileDialog()
 {
     delete pd_ui_;
-    empty_profile_list (TRUE);
+    empty_profile_list (true);
 }
 
 void ProfileDialog::keyPressEvent(QKeyEvent *evt)
@@ -483,7 +482,7 @@ void ProfileDialog::on_buttonBox_accepted()
         write_profile_recent();
     }
 
-    gchar * err_msg = Q_NULLPTR;
+    char * err_msg = Q_NULLPTR;
     if ((err_msg = apply_profile_changes()) != Q_NULLPTR) {
         QMessageBox::critical(this, tr("Profile Error"),
                               err_msg,
@@ -512,11 +511,11 @@ void ProfileDialog::on_buttonBox_accepted()
 
     if (profileName.length() > 0 && model_->findByName(profileName) >= 0) {
         // The new profile exists, change.
-        mainApp->setConfigurationProfile (profileName.toUtf8().constData(), FALSE);
+        mainApp->setConfigurationProfile (profileName.toUtf8().constData(), false);
     } else if (!model_->activeProfile().isValid()) {
         // The new profile does not exist, and the previous profile has
         // been deleted.  Change to the default profile.
-        mainApp->setConfigurationProfile (Q_NULLPTR, FALSE);
+        mainApp->setConfigurationProfile (Q_NULLPTR, false);
     }
 }
 

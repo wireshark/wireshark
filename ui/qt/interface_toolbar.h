@@ -10,8 +10,6 @@
 #ifndef INTERFACE_TOOLBAR_H
 #define INTERFACE_TOOLBAR_H
 
-#include <glib.h>
-
 #include "ui/iface_toolbar.h"
 #include "funnel_text_dialog.h"
 #include "interface_toolbar_reader.h"

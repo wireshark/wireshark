@@ -57,8 +57,8 @@ extern "C" {
 // Callbacks prefs routines
 
 /* Add a single preference to the QVBoxLayout of a preference page */
-static guint
-pref_show(pref_t *pref, gpointer user_data)
+static unsigned
+pref_show(pref_t *pref, void *user_data)
 {
     prefSearchData * data = static_cast<prefSearchData *>(user_data);
 
@@ -320,7 +320,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
 
     /* Show the preference's description at the top of the page */
     QFont font;
-    font.setBold(TRUE);
+    font.setBold(true);
     QLabel *label = new QLabel(module->description);
     label->setFont(font);
     ui->verticalLayout->addWidget(label);

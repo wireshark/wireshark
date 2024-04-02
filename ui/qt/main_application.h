@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "wsutil/feature_list.h"
 
 #include "epan/register.h"
@@ -124,7 +122,7 @@ public:
     const QFont monospaceFont(bool zoomed = false) const;
     void setMonospaceFont(const char *font_string);
     int monospaceTextSize(const char *str);
-    void setConfigurationProfile(const gchar *profile_name, bool write_recent_file = true);
+    void setConfigurationProfile(const char *profile_name, bool write_recent_file = true);
     void reloadLuaPluginsDelayed();
     bool isInitialized() { return initialized_; }
     void setReloadingLua(bool is_reloading) { is_reloading_lua_ = is_reloading; }
@@ -197,7 +195,7 @@ signals:
     void updateRecentCaptureStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
     void profileChanging();
-    void profileNameChanged(const gchar *profile_name);
+    void profileNameChanged(const char *profile_name);
 
     void freezePacketList(bool changing_profile);
     void columnsChanged(); // XXX This recreates the packet list. We might want to rename it accordingly.

@@ -14,8 +14,6 @@
 
 #include <stdio.h>
 
-#include <glib.h>
-
 #include "ui/text_import.h"
 
 #include <ui/qt/widgets/syntax_line_edit.h>
@@ -44,7 +42,7 @@ private:
     /* regex fields */
     void enableFieldWidgets(bool enable_direction_input = true, bool enable_time_input = true);
 
-    void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
+    void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, unsigned max_val, bool is_short, unsigned *val_ptr);
     void checkAddress(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in4_addr *val_ptr);
     void checkIPv6Address(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in6_addr *val_ptr);
     bool checkDateTimeFormat(const QString &time_format);

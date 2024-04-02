@@ -38,7 +38,7 @@ void LograyApplication::refreshLocalInterfaces()
     cached_if_list_ = NULL;
 
     GList * filter_list = NULL;
-    filter_list = g_list_append(filter_list, GUINT_TO_POINTER((guint) IF_EXTCAP));
+    filter_list = g_list_append(filter_list, GUINT_TO_POINTER((unsigned) IF_EXTCAP));
 
     // We don't need to (re)start the stats (which calls dumpcap) because
     // Logray only uses extcaps now. If that changes, do the below instead.

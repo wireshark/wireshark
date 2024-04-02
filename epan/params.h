@@ -23,7 +23,7 @@
 typedef struct {
 	const char	*name;
 	const char	*description;
-	gint		value;
+	int		value;
 } enum_val_t;
 
 /* -----  Public enum_val_t "Helper" macros ----- */

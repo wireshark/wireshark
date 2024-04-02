@@ -102,9 +102,9 @@ static QByteArray convertMacAddressToByteArray(const QString &bytesString)
 {
     GByteArray *bytes = g_byte_array_new();
 
-    if (!hex_str_to_bytes(qUtf8Printable(bytesString), bytes, FALSE)
+    if (!hex_str_to_bytes(qUtf8Printable(bytesString), bytes, false)
                                 || bytes->len == 0 || bytes->len > 6) {
-        g_byte_array_free(bytes, TRUE);
+        g_byte_array_free(bytes, true);
         return QByteArray();
     }
 

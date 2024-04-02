@@ -71,7 +71,7 @@ void CompiledFilterOutput::compileFilter()
     struct bpf_program fcode;
 
     foreach (InterfaceFilter current, intList_) {
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
             if (current.interface.compare(device->display_name)) {
@@ -95,7 +95,7 @@ void CompiledFilterOutput::compileFilter()
                     }
                     g_mutex_unlock(&pcap_compile_mtx_);
                     compile_results.insert(current.interface, QString(bpf_code_dump->str));
-                    g_string_free(bpf_code_dump, TRUE);
+                    g_string_free(bpf_code_dump, true);
                     ui->interfaceList->addItem(new QListWidgetItem(current.interface));
                     pcap_freecode(&fcode);
                 }

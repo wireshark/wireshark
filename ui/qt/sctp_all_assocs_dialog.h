@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <file.h>
 
 #include <epan/dissectors/packet-sctp.h>
@@ -48,7 +46,7 @@ private slots:
 private:
     Ui::SCTPAllAssocsDialog *ui;
     capture_file *cap_file_;
-    guint16 selected_assoc_id;
+    uint16_t selected_assoc_id;
 
 
 signals:

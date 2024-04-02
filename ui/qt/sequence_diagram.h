@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <epan/address.h>
 
 #include <QObject>
@@ -75,7 +73,7 @@ private:
     QCPAxis *comment_axis_;
     WSCPSeqDataMap *data_;
     struct _seq_analysis_info *sainfo_;
-    guint32 selected_packet_;
+    uint32_t selected_packet_;
     double selected_key_;
 };
 

@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/proto.h>
@@ -154,8 +152,8 @@ private:
 extern "C" {
 // Preference callback
 
-static guint
-add_prefs_menu_item(pref_t *pref, gpointer menu_ptr)
+static unsigned
+add_prefs_menu_item(pref_t *pref, void *menu_ptr)
 {
     ProtocolPreferencesMenu *pp_menu = static_cast<ProtocolPreferencesMenu *>(menu_ptr);
     if (!pp_menu) return 1;

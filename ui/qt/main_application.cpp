@@ -163,7 +163,7 @@ topic_action(topic_action_e action)
  * https://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 extern "C" void
-add_menu_recent_capture_file(const gchar *cf_name, bool force) {
+add_menu_recent_capture_file(const char *cf_name, bool force) {
     QString normalized_cf_name = QString::fromUtf8(cf_name);
     QDir cf_path;
 
@@ -284,7 +284,7 @@ void MainApplication::colorSchemeChanged() {
 
 void MainApplication::updateTaps()
 {
-    draw_tap_listeners(FALSE);
+    draw_tap_listeners(false);
 }
 
 QDir MainApplication::openDialogInitialDir() {
@@ -404,18 +404,18 @@ int MainApplication::monospaceTextSize(const char *str)
     return QFontMetrics(mono_font_).horizontalAdvance(str);
 }
 
-void MainApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent_file)
+void MainApplication::setConfigurationProfile(const char *profile_name, bool write_recent_file)
 {
     char  *rf_path;
     int    rf_open_errno;
-    gchar *err_msg = NULL;
+    char *err_msg = NULL;
 
     bool prev_capture_no_interface_load;
     bool prev_capture_no_extcap;
 
     /* First check if profile exists */
-    if (!profile_exists(profile_name, FALSE)) {
-        if (profile_exists(profile_name, TRUE)) {
+    if (!profile_exists(profile_name, false)) {
+        if (profile_exists(profile_name, true)) {
             char  *pf_dir_path, *pf_dir_path2, *pf_filename;
             /* Copy from global profile */
             if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
@@ -426,7 +426,7 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
                 g_free(pf_dir_path);
             }
 
-            if (copy_persconffile_profile(profile_name, profile_name, TRUE, &pf_filename,
+            if (copy_persconffile_profile(profile_name, profile_name, true, &pf_filename,
                     &pf_dir_path, &pf_dir_path2) == -1) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
@@ -453,7 +453,7 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
 
-    if (write_recent_file && profile_exists(get_profile_name(), FALSE))
+    if (write_recent_file && profile_exists(get_profile_name(), false))
     {
         /* Write recent file for profile we are leaving, if it still exists */
         write_profile_recent();
@@ -1002,7 +1002,7 @@ static void
 iface_mon_event_cb(const char *iface, int added, int up)
 {
     int present = 0;
-    guint ifs, j;
+    unsigned ifs, j;
     interface_t *device;
     interface_options *interface_opts;
 
@@ -1215,9 +1215,9 @@ void MainApplication::loadLanguage(const QString newLanguage)
         switchTranslator(mainApp->translator,
                 QString("wireshark_%1.qm").arg(localeLanguage), QString(get_datafile_dir()) + QString("/languages"));
     if (QFile::exists(QString("%1/wireshark_%3.qm")
-            .arg(gchar_free_to_qstring(get_persconffile_path("languages", FALSE))).arg(localeLanguage)))
+            .arg(gchar_free_to_qstring(get_persconffile_path("languages", false))).arg(localeLanguage)))
         switchTranslator(mainApp->translator,
-                QString("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", FALSE)));
+                QString("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", false)));
     if (QFile::exists(QString("%1/qt_%2.qm")
             .arg(get_datafile_dir()).arg(localeLanguage))) {
         switchTranslator(mainApp->translatorQt,

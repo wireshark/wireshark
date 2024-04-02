@@ -10,8 +10,6 @@
 #ifndef FUNNEL_TEXT_DIALOG_H
 #define FUNNEL_TEXT_DIALOG_H
 
-#include <glib.h>
-
 #include "epan/funnel.h"
 #include "geometry_state_dialog.h"
 

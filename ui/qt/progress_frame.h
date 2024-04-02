@@ -10,8 +10,6 @@
 #ifndef PROGRESS_FRAME_H
 #define PROGRESS_FRAME_H
 
-#include <glib.h>
-
 #include <QFrame>
 
 namespace Ui {

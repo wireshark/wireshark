@@ -11,8 +11,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "epan/conversation_filter.h"
 
 #include <QMenu>

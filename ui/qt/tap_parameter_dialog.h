@@ -18,8 +18,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/stat_groups.h>
 #include <epan/stat_tap_ui.h>
 

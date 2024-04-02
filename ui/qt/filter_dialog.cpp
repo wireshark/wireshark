@@ -9,8 +9,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include <wsutil/filter_files.h>
 #include <wsutil/filesystem.h>
 
@@ -59,7 +57,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     ui->filterTreeView->setAcceptDrops(true);
     ui->filterTreeView->setDropIndicatorShown(true);
 
-    const gchar * filename = NULL;
+    const char * filename = NULL;
     QString newFilterText;
     switch (filter_type) {
         case CaptureFilter:
@@ -95,7 +93,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
 
     connect(ui->filterTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FilterDialog::selectionChanged);
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, TRUE));
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, true));
     if (file_exists(abs_path.toUtf8().constData())) {
         ui->pathLabel->setText(abs_path);
         ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());

@@ -94,7 +94,7 @@ enum
 static interface_t *find_device_by_if_name(const QString &interface_name)
 {
     interface_t *device;
-    guint i;
+    unsigned i;
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!interface_name.compare(device->display_name) && !device->hidden && device->if_info.type != IF_PIPE) {
@@ -268,14 +268,14 @@ void CaptureOptionsDialog::updateGlobalDeviceSelections()
 
     while (*iter) {
         QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
                 if ((*iter)->isSelected()) {
-                    device->selected = TRUE;
+                    device->selected = true;
                     global_capture_opts.num_selected++;
                 } else {
-                    device->selected = FALSE;
+                    device->selected = false;
                 }
                 break;
             }
@@ -296,7 +296,7 @@ void CaptureOptionsDialog::updateFromGlobalDeviceSelections()
 
     while (*iter) {
         QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
                 if ((bool)device->selected != (*iter)->isSelected()) {
@@ -423,15 +423,15 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
     switch(column) {
 
     case col_pmode_:
-        device->pmode = item->checkState(col_pmode_) == Qt::Checked ? TRUE : FALSE;
+        device->pmode = item->checkState(col_pmode_) == Qt::Checked ? true : false;
         ti->updateInterfaceColumns(device);
         break;
 
 #ifdef SHOW_MONITOR_COLUMN
     case col_monitor_:
     {
-        gboolean monitor_mode = FALSE;
-        if (ti->checkState(col_monitor_) == Qt::Checked) monitor_mode = TRUE;
+        bool monitor_mode = false;
+        if (ti->checkState(col_monitor_) == Qt::Checked) monitor_mode = true;
 
         if_capabilities_t *caps;
         char *auth_str = NULL;
@@ -451,7 +451,7 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
         if (caps != Q_NULLPTR) {
 
             for (int i = static_cast<int>(g_list_length(device->links)) - 1; i >= 0; i--) {
-                GList* rem = g_list_nth(device->links, static_cast<guint>(i));
+                GList* rem = g_list_nth(device->links, static_cast<unsigned>(i));
                 device->links = g_list_remove_link(device->links, rem);
                 g_list_free_1(rem);
             }
@@ -478,7 +478,7 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
                     }
                     linkr->name = g_strdup(data_link_info->description);
                 } else {
-                    gchar *str;
+                    char *str;
                     /* XXX - should we just omit them? */
                     str = ws_strdup_printf("%s (not supported)", data_link_info->name);
                     linkr->dlt = -1;
@@ -491,8 +491,8 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
         } else {
             /* We don't know whether this supports monitor mode or not;
                don't ask for monitor mode. */
-            device->monitor_mode_enabled = FALSE;
-            device->monitor_mode_supported = FALSE;
+            device->monitor_mode_enabled = false;
+            device->monitor_mode_supported = false;
         }
 
         ti->updateInterfaceColumns(device);
@@ -791,9 +791,9 @@ void CaptureOptionsDialog::updateInterfaces()
     ui->interfaceTree->clear();
 
 #ifdef SHOW_BUFFER_COLUMN
-    gint          buffer;
+    int           buffer;
 #endif
-    gint          snaplen;
+    int           snaplen;
     bool          hassnap, pmode;
     QList<QTreeWidgetItem *> selected_interfaces;
 
@@ -802,7 +802,7 @@ void CaptureOptionsDialog::updateInterfaces()
     if (global_capture_opts.all_ifaces->len > 0) {
         interface_t *device;
 
-        for (guint device_idx = 0; device_idx < global_capture_opts.all_ifaces->len; device_idx++) {
+        for (unsigned device_idx = 0; device_idx < global_capture_opts.all_ifaces->len; device_idx++) {
             device = &g_array_index(global_capture_opts.all_ifaces, interface_t, device_idx);
 
             /* Continue if capture device is hidden */
@@ -845,11 +845,11 @@ void CaptureOptionsDialog::updateInterfaces()
             if (capture_dev_user_snaplen_find(device->name, &hassnap, &snaplen)) {
                 /* Default snap length set in preferences */
                 device->snaplen = snaplen;
-                device->has_snaplen = snaplen == WTAP_MAX_PACKET_SIZE_STANDARD ? FALSE : hassnap;
+                device->has_snaplen = snaplen == WTAP_MAX_PACKET_SIZE_STANDARD ? false : hassnap;
             } else {
                 /* No preferences set yet, use default values */
                 device->snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
-                device->has_snaplen = FALSE;
+                device->has_snaplen = false;
             }
 
 #ifdef SHOW_BUFFER_COLUMN
@@ -936,7 +936,7 @@ void CaptureOptionsDialog::updateStatistics(void)
     disconnect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
     for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
 
-        for (guint if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
+        for (unsigned if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
             QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
             if (!ti) {
                 continue;
@@ -1320,7 +1320,7 @@ void CaptureOptionsDialog::changeEvent(QEvent* event)
 
 interface_t *CaptureOptionsDialog::getDeviceByName(const QString device_name)
 {
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
             return device;
@@ -1393,9 +1393,9 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
 {
     QWidget *w = NULL;
 #ifdef SHOW_BUFFER_COLUMN
-    gint buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+    int buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
-    guint snap = WTAP_MAX_PACKET_SIZE_STANDARD;
+    unsigned snap = WTAP_MAX_PACKET_SIZE_STANDARD;
     GList *links = NULL;
 
     if (idx.column() > 1 && idx.data().toString().compare(UTF8_EM_DASH)) {

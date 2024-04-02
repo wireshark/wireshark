@@ -20,7 +20,7 @@ class FirewallRulesDialog;
 
 class QAbstractButton;
 
-typedef void (*syntax_func)(GString *rtxt, gchar *addr, guint32 port, port_type ptype, bool inbound, bool deny);
+typedef void (*syntax_func)(GString *rtxt, char *addr, uint32_t port, port_type ptype, bool inbound, bool deny);
 
 class FirewallRulesDialog : public WiresharkDialog
 {
@@ -50,11 +50,11 @@ private:
     address net_src_;
     address net_dst_;
     port_type ptype_;
-    guint32 src_port_;
-    guint32 dst_port_;
+    uint32_t src_port_;
+    uint32_t dst_port_;
 
     void updateWidgets();
-    void addRule(QString description, syntax_func rule_func, address *addr, guint32 port);
+    void addRule(QString description, syntax_func rule_func, address *addr, uint32_t port);
 };
 
 #endif // FIREWALL_RULES_DIALOG_H

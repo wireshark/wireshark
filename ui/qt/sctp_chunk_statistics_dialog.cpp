@@ -62,7 +62,7 @@ SCTPChunkStatisticsDialog::~SCTPChunkStatisticsDialog()
 void SCTPChunkStatisticsDialog::initializeChunkMap()
 {
     struct chunkTypes temp;
-    gchar buf[16];
+    char buf[16];
 
     for (int i = 0; i < 256; i++) {
         temp.id = i;
@@ -94,7 +94,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
         return;
     }
     uat_t *uat = prefs_get_uat_value(pref);
-    gchar* fname = uat_get_actual_filename(uat,TRUE);
+    char* fname = uat_get_actual_filename(uat,true);
     bool init = false;
 
     if (!fname) {
@@ -220,7 +220,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     uat_t *uat = prefs_get_uat_value(pref);
 
-    gchar* fname = uat_get_actual_filename(uat,TRUE);
+    char* fname = uat_get_actual_filename(uat,true);
 
     if (!fname) {
         return;
@@ -228,7 +228,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     fp = ws_fopen(fname,"w");
 
     if (!fp && errno == ENOENT) {
-        gchar *pf_dir_path = NULL;
+        char *pf_dir_path = NULL;
         if (create_persconffile_dir(&pf_dir_path) != 0) {
             g_free (pf_dir_path);
             return;
@@ -251,7 +251,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
         snprintf(str, sizeof str, "\"%d\",\"%s\",\"%s\"\n", tempChunk.id, tempChunk.name, tempChunk.hide==0?"Show":"Hide");
         fputs(str, fp);
         void *rec = g_malloc0(uat->record_size);
-        uat_add_record(uat, rec, TRUE);
+        uat_add_record(uat, rec, true);
         if (uat->free_cb) {
             uat->free_cb(rec);
         }
@@ -287,7 +287,7 @@ void SCTPChunkStatisticsDialog::on_actionHideChunkType_triggered()
 
 void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
 {
-    gchar* err = NULL;
+    char* err = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
     if (!pref) {

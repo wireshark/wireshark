@@ -65,7 +65,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
 
     setWindowTitle(mainApp->windowTitleString(tr("Decode As…")));
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE));
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true));
     if (file_exists(abs_path.toUtf8().constData())) {
         ui->pathLabel->setText(abs_path);
         ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
@@ -137,7 +137,7 @@ void DecodeAsDialog::on_decodeAsTreeView_currentItemChanged(const QModelIndex &c
 
 void DecodeAsDialog::copyFromProfile(QString filename)
 {
-    const gchar *err = NULL;
+    const char *err = NULL;
 
     if (!model_->copyFromProfile(filename, &err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error while loading %s: %s", filename.toUtf8().constData(), err);
@@ -213,7 +213,7 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
         break;
     case QDialogButtonBox::Save:
         {
-        gchar* err = NULL;
+        char* err = NULL;
 
         applyChanges();
         if (save_decode_as_entries(&err) < 0) {

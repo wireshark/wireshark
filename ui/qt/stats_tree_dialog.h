@@ -14,8 +14,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "epan/stats_tree_priv.h"
 
 struct _tree_cfg_pres {

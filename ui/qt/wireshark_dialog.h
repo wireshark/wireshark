@@ -93,7 +93,7 @@ protected:
      * @param tap_draw Draw callback.
      */
     bool registerTapListener(const char *tap_name, void *tap_data,
-                        const char *filter, guint flags,
+                        const char *filter, unsigned flags,
                         tap_reset_cb tap_reset,
                         tap_packet_cb tap_packet,
                         tap_draw_cb tap_draw);

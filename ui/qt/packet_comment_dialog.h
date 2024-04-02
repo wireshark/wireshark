@@ -10,8 +10,6 @@
 #ifndef PACKET_COMMENT_DIALOG_H
 #define PACKET_COMMENT_DIALOG_H
 
-#include <glib.h>
-
 #include "geometry_state_dialog.h"
 
 namespace Ui {

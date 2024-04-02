@@ -50,7 +50,7 @@ bool register_response_time_delay_tables(const void *, void *value, void*)
                 rtd_init,
                 ResponseTimeDelayDialog::createRtdDialog);
     g_free(cfg_abbr);
-    return FALSE;
+    return false;
 }
 
 enum {

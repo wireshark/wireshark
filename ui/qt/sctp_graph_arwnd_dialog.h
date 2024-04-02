@@ -11,7 +11,6 @@
 #define SCTP_GRAPH_ARWND_DIALOG_H
 
 #include <config.h>
-#include <glib.h>
 
 #include "cfile.h"
 
@@ -46,13 +45,13 @@ private slots:
 
 private:
     Ui::SCTPGraphArwndDialog *ui;
-    guint16 selected_assoc_id;
+    uint16_t selected_assoc_id;
     capture_file *cap_file_;
     int frame_num;
     int direction;
-    guint32 startArwnd;
+    uint32_t startArwnd;
     QVector<double> xa, ya;
-    QVector<guint32> fa;
+    QVector<uint32_t> fa;
  //   QVector<QString> typeStrings;
 
     void drawGraph(const _sctp_assoc_info *selected_assoc);

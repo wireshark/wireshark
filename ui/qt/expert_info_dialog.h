@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "filter_action.h"
 #include "wireshark_dialog.h"
 #include <ui/qt/models/expert_info_model.h>

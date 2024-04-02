@@ -45,7 +45,7 @@ public:
     bool hasSelection();
     bool hasUniqueSelection();
     QList<int> selectedRows(bool useFrameNum = false);
-    void insertColumn(QString name, QString abbrev, gint pos = -1);
+    void insertColumn(QString name, QString abbrev, int pos = -1);
     void gotoFrame(int packet_num);
     frame_data* frameDataForRow(int) const;
 

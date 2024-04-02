@@ -12,6 +12,8 @@
 #ifndef __PREFRENCE_UTILS_H__
 #define __PREFRENCE_UTILS_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

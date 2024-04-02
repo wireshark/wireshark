@@ -9,7 +9,6 @@
 
 #include <config.h>
 
-#include <glib.h>
 #include <epan/packet_info.h>
 #include <epan/proto_data.h>
 #include <epan/packet.h>

@@ -19,18 +19,18 @@
 
 // Common channel stats
 typedef struct mac_3gpp_common_stats {
-    guint32 all_frames;
-    guint32 mib_frames;
-    guint32 sib_frames;
-    guint32 sib_bytes;
-    guint32 pch_frames;
-    guint32 pch_bytes;
-    guint32 pch_paging_ids;
-    guint32 rar_frames;
-    guint32 rar_entries;
+    uint32_t all_frames;
+    uint32_t mib_frames;
+    uint32_t sib_frames;
+    uint32_t sib_bytes;
+    uint32_t pch_frames;
+    uint32_t pch_bytes;
+    uint32_t pch_paging_ids;
+    uint32_t rar_frames;
+    uint32_t rar_entries;
 
-    guint16  max_ul_ues_in_tti;
-    guint16  max_dl_ues_in_tti;
+    uint16_t max_ul_ues_in_tti;
+    uint16_t max_dl_ues_in_tti;
 } mac_3gpp_common_stats;
 
 

@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "cfile.h"
 
 #include <ui/qt/widgets/syntax_line_edit.h>

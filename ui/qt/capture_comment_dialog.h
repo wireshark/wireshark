@@ -10,8 +10,6 @@
 #ifndef CAPTURE_COMMENT_DIALOG_H
 #define CAPTURE_COMMENT_DIALOG_H
 
-#include <glib.h>
-
 #include "wireshark_dialog.h"
 
 namespace Ui {

@@ -14,8 +14,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "cfile.h"
 #include "capture_event.h"
 
@@ -117,7 +115,7 @@ public:
     // XXX This shouldn't be needed.
     static capture_file *globalCapFile();
 
-    gpointer window();
+    void *window();
 
 signals:
     void captureEvent(CaptureEvent);
@@ -146,12 +144,12 @@ public slots:
     void setCaptureStopFlag(bool stop_flag = true);
 
 private:
-    static void captureFileCallback(gint event, gpointer data, gpointer user_data);
+    static void captureFileCallback(int event, void *data, void *user_data);
 #ifdef HAVE_LIBPCAP
-    static void captureCallback(gint event, capture_session *cap_session, gpointer user_data);
+    static void captureCallback(int event, capture_session *cap_session, void *user_data);
 #endif
 
-    void captureFileEvent(int event, gpointer data);
+    void captureFileEvent(int event, void *data);
     void captureSessionEvent(int event, capture_session *cap_session);
     const QString &getFileBasename();
 

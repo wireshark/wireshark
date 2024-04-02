@@ -113,8 +113,8 @@ LteRlcGraphDialog::~LteRlcGraphDialog()
 }
 
 // Set the channel information that this graph should show.
-void LteRlcGraphDialog::setChannelInfo(uint8_t rat, guint16 ueid, guint8 rlcMode,
-                                       guint16 channelType, guint16 channelId, guint8 direction,
+void LteRlcGraphDialog::setChannelInfo(uint8_t rat, uint16_t ueid, uint8_t rlcMode,
+                                       uint16_t channelType, uint16_t channelId, uint8_t direction,
                                        bool maybe_empty)
 {
     graph_.rat = rat;
@@ -122,7 +122,7 @@ void LteRlcGraphDialog::setChannelInfo(uint8_t rat, guint16 ueid, guint8 rlcMode
     graph_.rlcMode = rlcMode;
     graph_.channelType = channelType;
     graph_.channelId = channelId;
-    graph_.channelSet = TRUE;
+    graph_.channelSet = true;
     graph_.direction = direction;
 
     completeGraph(maybe_empty);
@@ -273,8 +273,8 @@ void LteRlcGraphDialog::fillGraph()
                     acks_time, acks,
                     nacks_time, nacks;
 
-    guint32 last_ackSN = guint32(-1);  // start with invalid value
-    guint32 maxSN = 0;
+    uint32_t last_ackSN = uint32_t(-1);  // start with invalid value
+    uint32_t maxSN = 0;
 
     // Note the max possible SN
     if (graph_.segments) {

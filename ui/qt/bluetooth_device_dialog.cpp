@@ -95,12 +95,12 @@ bluetooth_devices_tap(void *data)
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
     }
 }
 
 
-BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, QString bdAddr, QString name, guint32 interface_id, guint32 adapter_id, gboolean is_local) :
+BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, QString bdAddr, QString name, uint32_t interface_id, uint32_t adapter_id, bool is_local) :
     WiresharkDialog(parent, cf),
     ui(new Ui::BluetoothDeviceDialog)
 {
@@ -234,7 +234,7 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
 {
     QBrush fg;
     QBrush bg;
-    bool   is_marked = TRUE;
+    bool   is_marked = true;
 
     QTableWidgetItem *current_item = ui->tableWidget->currentItem();
     if (!current_item)
@@ -243,7 +243,7 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
     for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {
         QTableWidgetItem *item = ui->tableWidget->item(current_item->row(), i);
         if (item->background() != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
-            is_marked = FALSE;
+            is_marked = false;
     }
 
     if (is_marked) {
@@ -339,7 +339,7 @@ void BluetoothDeviceDialog::tapReset(void *tapinfo_ptr)
     *tapinfo->changes = 0;
 }
 
-void BluetoothDeviceDialog::updateChanges(QTableWidget *tableWidget, QString value, const int row, guint *changes, packet_info *pinfo)
+void BluetoothDeviceDialog::updateChanges(QTableWidget *tableWidget, QString value, const int row, unsigned *changes, packet_info *pinfo)
 {
     QTableWidgetItem *item = tableWidget->item(row, column_number_value);
     bluetooth_item_data_t *item_data = VariantPointer<bluetooth_item_data_t>::asPtr(item->data(Qt::UserRole));
@@ -379,7 +379,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
     bluetooth_device_tap_t       *tap_device = static_cast<bluetooth_device_tap_t *>(const_cast<void *>(data));
     QString                       bd_addr;
     QString                       bd_addr_oui;
-    const gchar                  *manuf;
+    const char                   *manuf;
     QTableWidget                 *tableWidget;
     QTableWidgetItem             *item;
     QString                       field;

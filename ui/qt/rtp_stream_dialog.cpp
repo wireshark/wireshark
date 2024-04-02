@@ -290,14 +290,14 @@ public:
         return QTreeWidgetItem::operator <(other);
     }
 
-    void setTOD(gboolean tod)
+    void setTOD(bool tod)
     {
       tod_ = tod;
     }
 
 private:
     rtpstream_info_t *stream_info_;
-    gboolean tod_;
+    bool tod_;
 };
 
 
@@ -586,9 +586,9 @@ void RtpStreamDialog::updateStreams()
     // string_list is reverse ordered, so we must add
     // just first "to_insert_count" of streams
     GList *cur_stream = g_list_first(tapinfo_.strinfo_list);
-    guint tap_len = g_list_length(tapinfo_.strinfo_list);
-    guint tree_len = static_cast<guint>(ui->streamTreeWidget->topLevelItemCount());
-    guint to_insert_count = tap_len - tree_len;
+    unsigned tap_len = g_list_length(tapinfo_.strinfo_list);
+    unsigned tree_len = static_cast<unsigned>(ui->streamTreeWidget->topLevelItemCount());
+    unsigned to_insert_count = tap_len - tree_len;
 
     // Add any missing items
     while (cur_stream && cur_stream->data && to_insert_count) {
@@ -797,8 +797,8 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
                                                  save_file, "RTPDump Format (*.rtp)", &extension);
 
         if (file_name.length() > 0) {
-            gchar *dest_file = qstring_strdup(file_name);
-            gboolean save_ok = rtpstream_save(&tapinfo_, cap_file_.capFile(), stream_info, dest_file);
+            char *dest_file = qstring_strdup(file_name);
+            bool save_ok = rtpstream_save(&tapinfo_, cap_file_.capFile(), stream_info, dest_file);
             g_free(dest_file);
             // else error dialog?
             if (save_ok) {

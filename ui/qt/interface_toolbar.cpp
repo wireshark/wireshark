@@ -79,7 +79,7 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
     // Fill inn interfaces list and initialize default interface values
     for (GList *walker = toolbar->ifnames; walker; walker = walker->next)
     {
-        QString ifname((gchar *)walker->data);
+        QString ifname((char *)walker->data);
         interface_[ifname].reader_thread = NULL;
         interface_[ifname].out_fd = -1;
     }
@@ -193,14 +193,14 @@ QWidget *InterfaceToolbar::createCheckbox(iface_toolbar_control *control)
 
 QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
 {
-    QPushButton *button = new QPushButton(QString().fromUtf8((gchar *)control->display));
+    QPushButton *button = new QPushButton(QString().fromUtf8((char *)control->display));
     button->setMaximumHeight(27);
     button->setToolTip(QString().fromUtf8(control->tooltip));
 
     switch (control->ctrl_role)
     {
         case INTERFACE_ROLE_CONTROL:
-            setDefaultValue(control->num, (gchar *)control->display);
+            setDefaultValue(control->num, (char *)control->display);
             connect(button, SIGNAL(clicked()), this, SLOT(onControlButtonClicked()));
             break;
 
@@ -242,13 +242,13 @@ QWidget *InterfaceToolbar::createSelector(iface_toolbar_control *control)
     for (GList *walker = control->values; walker; walker = walker->next)
     {
         iface_toolbar_value *val = (iface_toolbar_value *)walker->data;
-        QString value = QString().fromUtf8((gchar *)val->value);
+        QString value = QString().fromUtf8((char *)val->value);
         if (value.isEmpty())
         {
             // Invalid value
             continue;
         }
-        QString display = QString().fromUtf8((gchar *)val->display);
+        QString display = QString().fromUtf8((char *)val->display);
         QByteArray interface_value;
 
         interface_value.append(value.toUtf8());
@@ -746,7 +746,7 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
     QString first_capturing_ifname;
     bool selected_found = false;
 
-    for (guint i = 0; i < ifaces->len; i++)
+    for (unsigned i = 0; i < ifaces->len; i++)
     {
         interface_options *interface_opts = &g_array_index(ifaces, interface_options, i);
         QString ifname(interface_opts->name);
@@ -774,7 +774,7 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
         // The control out pipe will close when both out_fd and extcap_control_out_h are closed.
         HANDLE duplicate_out_handle = INVALID_HANDLE_VALUE;
         if (!DuplicateHandle(GetCurrentProcess(), interface_opts->extcap_control_out_h,
-                             GetCurrentProcess(), &duplicate_out_handle, 0, TRUE, DUPLICATE_SAME_ACCESS))
+                             GetCurrentProcess(), &duplicate_out_handle, 0, true, DUPLICATE_SAME_ACCESS))
         {
             simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
                                 "Failed to duplicate extcap control out handle: %s\n.",
@@ -962,7 +962,7 @@ void InterfaceToolbar::interfaceListChanged()
     ui->interfacesComboBox->blockSignals(true);
     ui->interfacesComboBox->clear();
 
-    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++)
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++)
     {
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (device->hidden)

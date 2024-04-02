@@ -44,9 +44,9 @@ namespace
 class LBMSubstreamEntry
 {
     public:
-        LBMSubstreamEntry(guint64 channel, guint32 substream_id, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port);
+        LBMSubstreamEntry(uint64_t channel, uint32_t substream_id, const address * source_address, uint16_t source_port, const address * destination_address, uint16_t destination_port);
         ~LBMSubstreamEntry(void);
-        void processPacket(guint32 frame, guint32 bytes);
+        void processPacket(uint32_t frame, uint32_t bytes);
         void setItem(QTreeWidgetItem * item);
         QTreeWidgetItem * getItem(void)
         {
@@ -54,22 +54,22 @@ class LBMSubstreamEntry
         }
 
     private:
-        void fillItem(gboolean update_only = TRUE);
-        guint64 m_channel;
-        guint32 m_substream_id;
+        void fillItem(bool update_only = true);
+        uint64_t m_channel;
+        uint32_t m_substream_id;
         QString m_endpoint_a;
         QString m_endpoint_b;
-        guint32 m_first_frame;
-        guint32 m_flast_frame;
-        guint32 m_messages;
-        guint32 m_bytes;
+        uint32_t m_first_frame;
+        uint32_t m_flast_frame;
+        uint32_t m_messages;
+        uint32_t m_bytes;
         QTreeWidgetItem * m_item;
 };
 
-LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port) :
+LBMSubstreamEntry::LBMSubstreamEntry(uint64_t channel, uint32_t substream_id, const address * source_address, uint16_t source_port, const address * destination_address, uint16_t destination_port) :
     m_channel(channel),
     m_substream_id(substream_id),
-    m_first_frame((guint32)(~0)),
+    m_first_frame((uint32_t)(~0)),
     m_flast_frame(0),
     m_messages(0),
     m_bytes(0),
@@ -87,7 +87,7 @@ LBMSubstreamEntry::~LBMSubstreamEntry(void)
 {
 }
 
-void LBMSubstreamEntry::processPacket(guint32 frame, guint32 bytes)
+void LBMSubstreamEntry::processPacket(uint32_t frame, uint32_t bytes)
 {
     if (m_first_frame > frame)
     {
@@ -105,12 +105,12 @@ void LBMSubstreamEntry::processPacket(guint32 frame, guint32 bytes)
 void LBMSubstreamEntry::setItem(QTreeWidgetItem * item)
 {
     m_item = item;
-    fillItem(FALSE);
+    fillItem(false);
 }
 
-void LBMSubstreamEntry::fillItem(gboolean update_only)
+void LBMSubstreamEntry::fillItem(bool update_only)
 {
-    if (update_only == FALSE)
+    if (update_only == false)
     {
         m_item->setText(Stream_Column, QString("%1.%2").arg(m_channel).arg(m_substream_id));
         m_item->setText(EndpointA_Column, m_endpoint_a);
@@ -122,13 +122,13 @@ void LBMSubstreamEntry::fillItem(gboolean update_only)
     m_item->setText(LastFrame_Column, QString("%1").arg(m_flast_frame));
 }
 
-typedef QMap<guint32, LBMSubstreamEntry *> LBMSubstreamMap;
-typedef QMap<guint32, LBMSubstreamEntry *>::iterator LBMSubstreamMapIterator;
+typedef QMap<uint32_t, LBMSubstreamEntry *> LBMSubstreamMap;
+typedef QMap<uint32_t, LBMSubstreamEntry *>::iterator LBMSubstreamMapIterator;
 
 class LBMStreamEntry
 {
     public:
-        LBMStreamEntry(const packet_info * pinfo, guint64 channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b);
+        LBMStreamEntry(const packet_info * pinfo, uint64_t channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b);
         ~LBMStreamEntry(void);
         void processPacket(const packet_info * pinfo, const lbm_uim_stream_tap_info_t * stream_info);
         void setItem(QTreeWidgetItem * item);
@@ -138,22 +138,22 @@ class LBMStreamEntry
         }
 
     private:
-        void fillItem(gboolean update_only = TRUE);
+        void fillItem(bool update_only = true);
         QString formatEndpoint(const packet_info * pinfo, const lbm_uim_stream_endpoint_t * endpoint);
-        guint64 m_channel;
+        uint64_t m_channel;
         QString m_endpoint_a;
         QString m_endpoint_b;
-        guint32 m_first_frame;
-        guint32 m_flast_frame;
-        guint32 m_messages;
-        guint32 m_bytes;
+        uint32_t m_first_frame;
+        uint32_t m_flast_frame;
+        uint32_t m_messages;
+        uint32_t m_bytes;
         QTreeWidgetItem * m_item;
         LBMSubstreamMap m_substreams;
 };
 
-LBMStreamEntry::LBMStreamEntry(const packet_info * pinfo, guint64 channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b) :
+LBMStreamEntry::LBMStreamEntry(const packet_info * pinfo, uint64_t channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b) :
     m_channel(channel),
-    m_first_frame((guint32)(~0)),
+    m_first_frame((uint32_t)(~0)),
     m_flast_frame(0),
     m_messages(0),
     m_bytes(0),
@@ -228,12 +228,12 @@ void LBMStreamEntry::processPacket(const packet_info * pinfo, const lbm_uim_stre
 void LBMStreamEntry::setItem(QTreeWidgetItem * item)
 {
     m_item = item;
-    fillItem(FALSE);
+    fillItem(false);
 }
 
-void LBMStreamEntry::fillItem(gboolean update_only)
+void LBMStreamEntry::fillItem(bool update_only)
 {
-    if (update_only == FALSE)
+    if (update_only == false)
     {
         m_item->setData(Stream_Column, Qt::DisplayRole, QVariant((qulonglong)m_channel));
         m_item->setText(EndpointA_Column, m_endpoint_a);
@@ -245,8 +245,8 @@ void LBMStreamEntry::fillItem(gboolean update_only)
     m_item->setText(LastFrame_Column, QString("%1").arg(m_flast_frame));
 }
 
-typedef QMap<guint64, LBMStreamEntry *> LBMStreamMap;
-typedef QMap<guint64, LBMStreamEntry *>::iterator LBMStreamMapIterator;
+typedef QMap<uint64_t, LBMStreamEntry *> LBMStreamMap;
+typedef QMap<uint64_t, LBMStreamEntry *>::iterator LBMStreamMapIterator;
 
 class LBMStreamDialogInfo
 {
@@ -377,7 +377,7 @@ void LBMStreamDialog::fillTree(void)
     {
         QMessageBox::critical(this, tr("LBM Stream failed to attach to tap"),
             error_string->str);
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         reject();
     }
 

@@ -61,9 +61,9 @@ void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc
 {
     GList *listTSN = Q_NULLPTR, *tlist = Q_NULLPTR;
     tsn_t *tsn = Q_NULLPTR;
-    guint8 type;
-    guint32 maxBytes;
-    guint64 sumBytes = 0;
+    uint8_t type;
+    uint32_t maxBytes;
+    uint64_t sumBytes = 0;
 
     if (direction == 1) {
         maxBytes = selected_assoc->n_data_bytes_ep1;
@@ -77,7 +77,7 @@ void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc
     while (listTSN) {
         tsn = gxx_list_data(tsn_t*, listTSN);
         tlist = g_list_first(tsn->tsns);
-        guint16 length;
+        uint16_t length;
         while (tlist)
         {
             type = gxx_list_data(struct chunk_header *, tlist)->type;
@@ -164,7 +164,7 @@ void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMo
             }
         }
         if (cap_file_ && frame_num > 0) {
-            cf_goto_frame(cap_file_, frame_num, FALSE);
+            cf_goto_frame(cap_file_, frame_num, false);
         }
 
         ui->hintLabel->setText(QString(tr("<small><i>Graph %1: Received bytes=%2 Time=%3 secs </i></small>"))

@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/column.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>

@@ -11,8 +11,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "file.h"
 
 #include <epan/epan.h>
@@ -103,18 +101,18 @@ const int overlay_update_interval_ = 100; // 250; // Milliseconds.
 /*
  * Given a frame_data structure, scroll to and select the row in the
  * packet list corresponding to that frame.  If there is no such
- * row, return FALSE, otherwise return TRUE.
+ * row, return false, otherwise return true.
  */
 bool
 packet_list_select_row_from_data(frame_data *fdata_needle)
 {
     if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
-        return FALSE;
+        return false;
 
     PacketListModel * model = qobject_cast<PacketListModel *>(gbl_cur_packet_list->model());
 
     if (! model)
-        return FALSE;
+        return false;
 
     model->flushVisibleRows();
     int row = -1;
@@ -133,10 +131,10 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
         gbl_cur_packet_list->selectionModel()->clearSelection();
         gbl_cur_packet_list->selectionModel()->setCurrentIndex(model->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         gbl_cur_packet_list->scrollTo(gbl_cur_packet_list->currentIndex(), PacketList::PositionAtCenter);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*
@@ -150,7 +148,7 @@ bool
 packet_list_select_finfo(field_info *fi)
 {
     if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
-        return FALSE;
+        return false;
 
     if (fi) {
         FieldInformation finfo(fi, gbl_cur_packet_list);
@@ -158,7 +156,7 @@ packet_list_select_finfo(field_info *fi)
     } else {
         emit gbl_cur_packet_list->fieldSelected(0);
     }
-    return TRUE;
+    return true;
 }
 
 void
@@ -209,7 +207,7 @@ packet_list_multi_select_active(void)
     if (gbl_cur_packet_list) {
         return gbl_cur_packet_list->multiSelectActive();
     }
-    return FALSE;
+    return false;
 }
 
 #define MIN_COL_WIDTH_STR "MMMMMM"
@@ -297,7 +295,7 @@ PacketList::~PacketList()
 {
     if (finfo_array)
     {
-        g_ptr_array_free(finfo_array, TRUE);
+        g_ptr_array_free(finfo_array, true);
     }
 }
 
@@ -648,14 +646,14 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     if (finfo_array)
     {
-        g_ptr_array_free(finfo_array, TRUE);
+        g_ptr_array_free(finfo_array, true);
         finfo_array = NULL;
     }
     if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
         finfo_array = proto_all_finfos(cap_file_->edt->tree);
         QList<QString> added_proto_prefs;
 
-        for (guint i = 0; i < finfo_array->len; i++) {
+        for (unsigned i = 0; i < finfo_array->len; i++) {
             field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
             header_field_info *hfinfo =  fi->hfinfo;
 
@@ -1135,7 +1133,7 @@ void PacketList::columnsChanged()
 
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
-    build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
+    build_column_format_array(&cap_file_->cinfo, prefs.num_cols, false);
     create_far_overlay_ = true;
     resetColumns();
     applyRecentColumnWidths();
@@ -1148,7 +1146,7 @@ void PacketList::fieldsChanged(capture_file *cf)
 {
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cf->cinfo);
-    build_column_format_array(&cf->cinfo, prefs.num_cols, FALSE);
+    build_column_format_array(&cf->cinfo, prefs.num_cols, false);
     resetColumns();
 }
 
@@ -1341,8 +1339,8 @@ void PacketList::clear() {
 }
 
 void PacketList::writeRecent(FILE *rf) {
-    gint col, width, col_fmt;
-    gchar xalign;
+    int col, width, col_fmt;
+    char xalign;
 
     fprintf (rf, "%s:\n", RECENT_KEY_COL_WIDTH);
     for (col = 0; col < prefs.num_cols; col++) {
@@ -1399,7 +1397,7 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
             return filter; /* error reading the record */
         }
         /* proto tree, visible. We need a proto tree if there's custom columns */
-        epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), FALSE);
+        epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), false);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
         epan_dissect_run(&edt, cap_file_->cd_t, &rec,
@@ -1412,14 +1410,14 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
             /* We don't need to fill in the custom columns, as we get their
              * filters above.
              */
-            col_fill_in(&edt.pi, TRUE, TRUE);
+            col_fill_in(&edt.pi, true, true);
             if (strlen(cap_file_->cinfo.col_expr.col_expr[column]) != 0 &&
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[column]) != 0) {
-                gboolean is_string_value = FALSE;
+                bool is_string_value = false;
                 header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[column]);
                 if (hfi && hfi->type == FT_STRING) {
                     /* Could be an address type such as usb.src which must be quoted. */
-                    is_string_value = TRUE;
+                    is_string_value = true;
                 }
 
                 if (filter.isEmpty()) {
@@ -1450,7 +1448,7 @@ void PacketList::resetColorized()
     update();
 }
 
-QString PacketList::getPacketComment(guint c_number)
+QString PacketList::getPacketComment(unsigned c_number)
 {
     int row = currentIndex().row();
     const frame_data *fdata;
@@ -1499,7 +1497,7 @@ void PacketList::addPacketComment(QString new_comment)
     }
 }
 
-void PacketList::setPacketComment(guint c_number, QString new_comment)
+void PacketList::setPacketComment(unsigned c_number, QString new_comment)
 {
     QModelIndex curIndex = currentIndex();
 
@@ -1525,7 +1523,7 @@ void PacketList::setPacketComment(guint c_number, QString new_comment)
 
 QString PacketList::allPacketComments()
 {
-    guint32 framenum;
+    uint32_t framenum;
     frame_data *fdata;
     QString buf_str;
 
@@ -1537,8 +1535,8 @@ QString PacketList::allPacketComments()
         wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
 
         if (pkt_block) {
-            guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
-            for (guint i = 0; i < n_comments; i++) {
+            unsigned n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+            for (unsigned i = 0; i < n_comments; i++) {
                 char *comment_text;
                 if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nth_string_option_value(pkt_block, OPT_COMMENT, i, &comment_text)) {
                     buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(comment_text));
@@ -1658,7 +1656,7 @@ void PacketList::goLastPacket(void) {
 
 void PacketList::goToPacket(int packet, int hf_id)
 {
-    if (!cf_goto_frame(cap_file_, packet, FALSE))
+    if (!cf_goto_frame(cap_file_, packet, false))
         return;
 
     // cf_goto_frame only returns true if packet_list_select_row_from_data

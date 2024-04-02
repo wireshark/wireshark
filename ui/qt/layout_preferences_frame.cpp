@@ -358,22 +358,22 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
 
 void LayoutPreferencesFrame::on_packetListSeparatorCheckBox_toggled(bool checked)
 {
-    prefs_set_bool_value(pref_packet_list_separator_, (gboolean) checked, pref_stashed);
+    prefs_set_bool_value(pref_packet_list_separator_, (bool) checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_packetListHeaderShowColumnDefinition_toggled(bool checked)
 {
-    prefs_set_bool_value(pref_packet_header_column_definition_, (gboolean) checked, pref_stashed);
+    prefs_set_bool_value(pref_packet_header_column_definition_, (bool) checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_packetListHoverStyleCheckbox_toggled(bool checked)
 {
-    prefs_set_bool_value(pref_packet_list_hover_style_, (gboolean) checked, pref_stashed);
+    prefs_set_bool_value(pref_packet_list_hover_style_, (bool) checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_packetListAllowSorting_toggled(bool checked)
 {
-    prefs_set_bool_value(pref_packet_list_sorting_, (gboolean) checked, pref_stashed);
+    prefs_set_bool_value(pref_packet_list_sorting_, (bool) checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_packetListCachedRowsLineEdit_textEdited(const QString &new_str)
@@ -387,10 +387,10 @@ void LayoutPreferencesFrame::on_packetListCachedRowsLineEdit_textEdited(const QS
 
 void LayoutPreferencesFrame::on_statusBarShowSelectedPacketCheckBox_toggled(bool checked)
 {
-    prefs_set_bool_value(pref_show_selected_packet_, (gboolean) checked, pref_stashed);
+    prefs_set_bool_value(pref_show_selected_packet_, (bool) checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_statusBarShowFileLoadTimeCheckBox_toggled(bool checked)
 {
-    prefs_set_bool_value(pref_show_file_load_time_, (gboolean) checked, pref_stashed);
+    prefs_set_bool_value(pref_show_file_load_time_, (bool) checked, pref_stashed);
 }

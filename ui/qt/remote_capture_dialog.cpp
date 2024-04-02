@@ -11,7 +11,6 @@
 
 #include "config.h"
 #ifdef HAVE_PCAP_REMOTE
-#include <glib.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include "ui/capture_globals.h"
@@ -67,11 +66,11 @@ void RemoteCaptureDialog::hostChanged(const QString host)
 
 }
 
-static void fillBox(gpointer value, gpointer user_data)
+static void fillBox(void *value, void *user_data)
 {
     QComboBox *cb = (QComboBox *)user_data;
     struct remote_host* rh = (struct remote_host*)value;
-    cb->addItem(QString((gchar*)rh->r_host), VariantPointer<const struct remote_host>::asQVariant(rh));
+    cb->addItem(QString((char*)rh->r_host), VariantPointer<const struct remote_host>::asQVariant(rh));
 }
 
 void RemoteCaptureDialog::fillComboBox()
@@ -90,7 +89,7 @@ void RemoteCaptureDialog::fillComboBox()
 void RemoteCaptureDialog::apply_remote()
 {
     int err;
-    gchar *err_str;
+    char *err_str;
     remote_options global_remote_opts;
 
     QString host = ui->hostCombo->currentText();
@@ -110,9 +109,9 @@ void RemoteCaptureDialog::apply_remote()
     global_remote_opts.remote_host_opts.auth_username = qstring_strdup(user);
     QString pw = ui->pwText->text();
     global_remote_opts.remote_host_opts.auth_password = qstring_strdup(pw);
-    global_remote_opts.remote_host_opts.datatx_udp  = FALSE;
-    global_remote_opts.remote_host_opts.nocap_rpcap = TRUE;
-    global_remote_opts.remote_host_opts.nocap_local = FALSE;
+    global_remote_opts.remote_host_opts.datatx_udp  = false;
+    global_remote_opts.remote_host_opts.nocap_rpcap = true;
+    global_remote_opts.remote_host_opts.nocap_local = false;
 #ifdef HAVE_PCAP_SETSAMPLING
     global_remote_opts.sampling_method = CAPTURE_SAMP_NONE;
     global_remote_opts.sampling_param  = 0;

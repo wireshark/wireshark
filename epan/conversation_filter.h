@@ -12,6 +12,8 @@
 #ifndef __DISSECTOR_FILTERS_H__
 #define __DISSECTOR_FILTERS_H__
 
+#include <glib.h>
+
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

@@ -10,7 +10,6 @@
 #include "config.h"
 
 #ifdef HAVE_LIBPCAP
-#include <glib.h>
 
 #ifdef __MINGW32__
 #include <_bsd_types.h>
@@ -50,8 +49,8 @@ static QMutex pcap_compile_mtx_;
 void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
 {
 #ifdef HAVE_LIBPCAP
-    QSet<gint> active_dlts;
-    QSet<guint> active_extcap;
+    QSet<int> active_dlts;
+    QSet<unsigned> active_extcap;
     struct bpf_program fcode;
     pcap_t *pd;
     int pc_err;
@@ -66,7 +65,7 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
         return;
     }
 
-    for (guint if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
+    for (unsigned if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
         interface_t *device;
 
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
@@ -85,7 +84,7 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
         }
     }
 
-    foreach(gint dlt, active_dlts.values()) {
+    foreach(int dlt, active_dlts.values()) {
         pcap_compile_mtx_.lock();
         pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
         if (pd == NULL)
@@ -119,9 +118,9 @@ void CaptureFilterSyntaxWorker::checkFilter(const QString filter)
     }
     // If it's already invalid, don't bother to check extcap
     if (state != SyntaxLineEdit::Invalid) {
-        foreach(guint extcapif, active_extcap.values()) {
+        foreach(unsigned extcapif, active_extcap.values()) {
             interface_t *device;
-            gchar *error = NULL;
+            char *error = NULL;
 
             device = &g_array_index(global_capture_opts.all_ifaces, interface_t, extcapif);
             extcap_filter_status status = extcap_verify_capture_filter(device->name, filter.toUtf8().constData(), &error);

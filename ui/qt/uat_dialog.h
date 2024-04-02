@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "geometry_state_dialog.h"
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>

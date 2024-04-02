@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "file.h"
 #include "frame_tvbuff.h"
 
@@ -127,13 +125,13 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     // have one in cap_file_->edt->tree as we have a current frame), but
     // this is only a single frame that's previously been dissected so
     // the performance hit is slight anyway.
-    epan_dissect_init(&edt, cap_file_->epan, TRUE, TRUE);
+    epan_dissect_init(&edt, cap_file_->epan, true, true);
     col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
     epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
         frame_tvbuff_new_buffer(&cap_file_->provider, cap_file_->current_frame, &cap_file_->buf),
         cap_file_->current_frame, &cap_file_->cinfo);
-    epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
+    epan_dissect_fill_in_columns(&edt, true, true);
 
     addAddresses(ProtoNode(edt.tree), addresses);
 

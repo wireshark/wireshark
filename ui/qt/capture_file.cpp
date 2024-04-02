@@ -85,9 +85,9 @@ CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     file_state_(QString())
 {
 #ifdef HAVE_LIBPCAP
-    capture_callback_add(captureCallback, (gpointer) this);
+    capture_callback_add(captureCallback, (void *) this);
 #endif
-    cf_callback_add(captureFileCallback, (gpointer) this);
+    cf_callback_add(captureFileCallback, (void *) this);
 }
 
 CaptureFile::~CaptureFile()
@@ -239,7 +239,7 @@ capture_file *CaptureFile::globalCapFile()
     return &cfile;
 }
 
-gpointer CaptureFile::window()
+void *CaptureFile::window()
 {
     if (cap_file_) return cap_file_->window;
     return NULL;
@@ -250,7 +250,7 @@ void CaptureFile::setCaptureStopFlag(bool stop_flag)
     if (cap_file_) cap_file_->stop_flag = stop_flag;
 }
 
-void CaptureFile::captureFileCallback(gint event, gpointer data, gpointer user_data)
+void CaptureFile::captureFileCallback(int event, void *data, void *user_data)
 {
     CaptureFile *capture_file = static_cast<CaptureFile *>(user_data);
     if (!capture_file) return;
@@ -259,7 +259,7 @@ void CaptureFile::captureFileCallback(gint event, gpointer data, gpointer user_d
 }
 
 #ifdef HAVE_LIBPCAP
-void CaptureFile::captureCallback(gint event, capture_session *cap_session, gpointer user_data)
+void CaptureFile::captureCallback(int event, capture_session *cap_session, void *user_data)
 {
     CaptureFile *capture_file = static_cast<CaptureFile *>(user_data);
     if (!capture_file) return;
@@ -268,7 +268,7 @@ void CaptureFile::captureCallback(gint event, capture_session *cap_session, gpoi
 }
 #endif
 
-void CaptureFile::captureFileEvent(int event, gpointer data)
+void CaptureFile::captureFileEvent(int event, void *data)
 {
     switch(event) {
     case(cf_cb_file_opened):

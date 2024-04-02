@@ -63,8 +63,8 @@ void SCTPGraphArwndDialog::drawArwndGraph(const sctp_assoc_info_t *selected_asso
     struct sack_chunk_header *sack_header;
     struct nr_sack_chunk_header *nr_sack_header;
     tsn_t *tsn;
-    guint8 type;
-    guint32 arwnd=0;
+    uint8_t type;
+    uint32_t arwnd=0;
 
     if (direction == 1) {
         listSACK = g_list_last(selected_assoc->sack1);
@@ -161,7 +161,7 @@ void SCTPGraphArwndDialog::graphClicked(QCPAbstractPlottable* plottable, int, QM
             }
         }
         if (cap_file_ && frame_num > 0) {
-            cf_goto_frame(cap_file_, frame_num, FALSE);
+            cf_goto_frame(cap_file_, frame_num, false);
         }
 
         ui->hintLabel->setText(QString(tr("<small><i>Graph %1: a_rwnd=%2 Time=%3 secs </i></small>"))

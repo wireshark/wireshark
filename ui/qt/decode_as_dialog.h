@@ -12,8 +12,6 @@
 
 #include <config.h>
 
-#include <glib.h>
-
 #include "cfile.h"
 #include <ui/qt/models/decode_as_model.h>
 #include <ui/qt/models/decode_as_delegate.h>

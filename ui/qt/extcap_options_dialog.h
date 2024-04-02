@@ -50,7 +50,7 @@ private:
 
     Ui::ExtcapOptionsDialog *ui;
     QString device_name;
-    guint device_idx;
+    unsigned device_idx;
     QIcon defaultValueIcon_;
 
     ExtcapArgumentList extcapArguments;

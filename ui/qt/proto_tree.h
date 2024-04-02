@@ -70,7 +70,7 @@ private:
     epan_dissect_t *edt_;
 
     void saveSelectedField(QModelIndex &index);
-    static void foreachTreeNode(proto_node *node, gpointer proto_tree_ptr);
+    static void foreachTreeNode(proto_node *node, void *proto_tree_ptr);
     void foreachExpand(const QModelIndex &index);
 
 signals:

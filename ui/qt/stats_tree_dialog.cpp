@@ -165,7 +165,7 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
     while (*iter) {
         stat_node *node = VariantPointer<stat_node>::asPtr((*iter)->data(item_col_, Qt::UserRole));
         if (node) {
-            gchar **valstrs = stats_tree_get_values_from_node(node);
+            char **valstrs = stats_tree_get_values_from_node(node);
             for (int count = 0; count<st->num_columns; count++) {
                 (*iter)->setText(count,valstrs[count]);
                 g_free(valstrs[count]);

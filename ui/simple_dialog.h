@@ -13,6 +13,8 @@
 #ifndef __SIMPLE_DIALOG_UI_H__
 #define __SIMPLE_DIALOG_UI_H__
 
+#include <glib.h>
+
 #include <stdbool.h>
 
 #ifdef __cplusplus

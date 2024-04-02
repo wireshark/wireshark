@@ -127,7 +127,7 @@ int SequenceDiagram::adjacentPacket(bool next)
         it = data_->constEnd();
         --it;
         while (it != data_->constBegin()) {
-            guint32 prev_frame = it.value().value->frame_number;
+            uint32_t prev_frame = it.value().value->frame_number;
             --it;
             if (prev_frame == selected_packet_) {
                 adjacent_packet = it.value().value->frame_number;

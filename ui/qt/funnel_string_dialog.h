@@ -10,8 +10,6 @@
 #ifndef FUNNEL_STRING_DIALOG_H
 #define FUNNEL_STRING_DIALOG_H
 
-#include <glib.h>
-
 #include "epan/funnel.h"
 
 #include <QDialog>

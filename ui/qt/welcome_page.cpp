@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/prefs.h>
 
 #include "ui/capture_globals.h"
@@ -198,7 +196,7 @@ void WelcomePage::captureFilterTextEdited(const QString capture_filter)
     if (global_capture_opts.num_selected > 0) {
         interface_t *device;
 
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (!device->selected) {
                 continue;

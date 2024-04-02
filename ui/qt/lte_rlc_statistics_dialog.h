@@ -35,10 +35,10 @@ protected:
 signals:
     void launchRLCGraph(bool channelKnown,
                         uint8_t version,
-                        guint16 ueid,
-                        guint8 rlcMode,
-                        guint16 channelType, guint16 channelId,
-                        guint8 direction);
+                        uint16_t ueid,
+                        uint8_t rlcMode,
+                        uint16_t channelType, uint16_t channelId,
+                        uint8_t direction);
 
 private:
     // Extra controls needed for this dialog.

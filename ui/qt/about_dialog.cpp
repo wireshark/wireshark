@@ -248,7 +248,7 @@ FolderListModel::FolderListModel(QObject * parent):
 
     /* pers conf */
     appendRow(QStringList() << tr("Personal configuration")
-            << gchar_free_to_qstring(get_persconffile_path("", FALSE))
+            << gchar_free_to_qstring(get_persconffile_path("", false))
             << tr("Preferences, profiles, manuf, …"));
 
     /* global conf */

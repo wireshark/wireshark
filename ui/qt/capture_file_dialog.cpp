@@ -89,7 +89,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf) :
 }
 
 check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
-    guint32 comment_types;
+    uint32_t comment_types;
     bool all_comment_types_supported = true;
 
     /* What types of comments do we have? */
@@ -260,15 +260,15 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type, QString &dis
     QString title_str = mainApp->windowTitleString(tr("Open Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter.toUtf8().constData());
-    gboolean wof_status;
+    bool wof_status;
 
     // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
     wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, &type, dfilter);
     file_name = fname->str;
     display_filter = dfilter->str;
 
-    g_string_free(fname, TRUE);
-    g_string_free(dfilter, TRUE);
+    g_string_free(fname, true);
+    g_string_free(dfilter, true);
 
     return (int) wof_status;
 }
@@ -276,12 +276,12 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type, QString &dis
 check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
     QString title_str = mainApp->windowTitleString(tr("Save Capture File As"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
-    gboolean wsf_status;
+    bool wsf_status;
 
     wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
     file_name = fname->str;
 
-    g_string_free(fname, TRUE);
+    g_string_free(fname, true);
 
     if (wsf_status) {
         return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
@@ -293,7 +293,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
 check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
     QString title_str = mainApp->windowTitleString(tr("Export Specified Packets"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
-    gboolean wespf_status;
+    bool wespf_status;
 
     if (selRange.length() > 0)
     {
@@ -303,7 +303,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, range);
     file_name = fname->str;
 
-    g_string_free(fname, TRUE);
+    g_string_free(fname, true);
 
     if (wespf_status) {
         return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
@@ -316,15 +316,15 @@ int CaptureFileDialog::merge(QString &file_name, QString &display_filter) {
     QString title_str = mainApp->windowTitleString(tr("Merge Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter.toUtf8().constData());
-    gboolean wmf_status;
+    bool wmf_status;
 
 
     wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, dfilter, &merge_type_);
     file_name = fname->str;
     display_filter = dfilter->str;
 
-    g_string_free(fname, TRUE);
-    g_string_free(dfilter, TRUE);
+    g_string_free(fname, true);
+    g_string_free(dfilter, true);
 
     return (int) wmf_status;
 }
@@ -399,7 +399,7 @@ QString CaptureFileDialog::fileType(int ft, QStringList &suffixes)
 
     filter = " (";
 
-    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
+    extensions_list = wtap_get_file_extensions_list(ft, true);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
            conventionally used for it, so we'll just use a
@@ -832,9 +832,9 @@ int CaptureFileDialog::merge(QString &file_name, QString &display_filter) {
 
 QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_comments) {
     QStringList filters;
-    guint32 required_comment_types;
+    uint32_t required_comment_types;
     GArray *savable_file_types_subtypes;
-    guint i;
+    unsigned i;
 
     type_hash_.clear();
     type_suffixes_.clear();
@@ -864,7 +864,7 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
             filters << type_name + fileType(ft, type_suffixes_[type_name]);
             type_hash_[type_name] = ft;
         }
-        g_array_free(savable_file_types_subtypes, TRUE);
+        g_array_free(savable_file_types_subtypes, true);
     }
 
     return filters;
@@ -888,7 +888,7 @@ void CaptureFileDialog::preview(const QString & path)
 {
     wtap        *wth;
     int          err;
-    gchar       *err_info;
+    char        *err_info;
     ws_file_preview_stats stats;
     ws_file_preview_stats_status status;
     time_t       ti_time;
@@ -912,7 +912,7 @@ void CaptureFileDialog::preview(const QString & path)
         return;
     }
 
-    wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, TRUE);
+    wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, true);
     if (wth == NULL) {
         if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             preview_format_.setText(tr("unknown file format"));
@@ -931,7 +931,7 @@ void CaptureFileDialog::preview(const QString & path)
     preview_format_.setText(QString::fromUtf8(wtap_file_type_subtype_description(wtap_file_type_subtype(wth))));
 
     // Size
-    gint64 filesize = wtap_file_size(wth, &err);
+    int64_t filesize = wtap_file_size(wth, &err);
     // Finder and Windows Explorer use IEC. What do the various Linux file managers use?
     QString size_str(gchar_free_to_qstring(format_size(filesize, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC)));
 

@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "ui/preference_utils.h"
 
 #include "main_window.h"
@@ -51,7 +49,7 @@ bool MainWindow::hasSelection()
 
 /*
  * As hasSelection() is not looking for one single packet
- * selection, but at least 2, this method returns TRUE in
+ * selection, but at least 2, this method returns true in
  * this specific case.
  */
 bool MainWindow::hasUniqueSelection()
@@ -76,9 +74,9 @@ frame_data* MainWindow::frameDataForRow(int row) const
     return Q_NULLPTR;
 }
 
-void MainWindow::insertColumn(QString name, QString abbrev, gint pos)
+void MainWindow::insertColumn(QString name, QString abbrev, int pos)
 {
-    gint colnr = 0;
+    int colnr = 0;
     if (name.length() > 0 && abbrev.length() > 0)
     {
         colnr = column_prefs_add_custom(COL_CUSTOM, name.toStdString().c_str(), abbrev.toStdString().c_str(), pos);
@@ -177,7 +175,7 @@ bool MainWindow::addPacketMenus(QMenu * ctx_menu, GPtrArray *finfo_array)
 
     // Build a set of fields present for efficient lookups
     QSet<QString> fieldsPresent = QSet<QString>();
-    for (guint fieldInfoIndex = 0; fieldInfoIndex < finfo_array->len; fieldInfoIndex++) {
+    for (unsigned fieldInfoIndex = 0; fieldInfoIndex < finfo_array->len; fieldInfoIndex++) {
         field_info *fi = (field_info *)g_ptr_array_index (finfo_array, fieldInfoIndex);
         fieldsPresent.insert(QString(fi->hfinfo->abbrev));
     }

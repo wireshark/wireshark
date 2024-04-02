@@ -28,7 +28,7 @@ protected:
     void captureFileClosing();
 
 signals:
-    void openFollowStreamDialog(int proto_id, guint stream_num, guint sub_stream_num);
+    void openFollowStreamDialog(int proto_id, unsigned stream_num, unsigned sub_stream_num);
 
 private:
     QPushButton *follow_bt_;

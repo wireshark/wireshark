@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/conversation.h>
 #include <epan/conversation_debug.h>
 
@@ -21,7 +19,7 @@
 #include "main_application.h"
 
 static void
-fill_named_table(gpointer key, gpointer value _U_, gpointer user_data)
+fill_named_table(void *key, void *value _U_, void *user_data)
 {
     const conversation_element_t *elements = static_cast<const conversation_element_t *>(key);
     QString* html_table = static_cast<QString *>(user_data);

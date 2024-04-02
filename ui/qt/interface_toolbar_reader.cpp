@@ -34,7 +34,7 @@ int InterfaceToolbarReader::async_pipe_read(void *data, int nbyte)
     int bytes_read = -1;
 
     overlap.Pointer = 0;
-    overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    overlap.hEvent = CreateEvent(NULL, true, false, NULL);
     if (overlap.hEvent == NULL)
     {
         // CreateEvent failed with error code GetLastError()
@@ -54,7 +54,7 @@ int InterfaceToolbarReader::async_pipe_read(void *data, int nbyte)
         if (WaitForSingleObject(overlap.hEvent, INFINITE) == WAIT_OBJECT_0)
         {
             // The wait operation has completed.
-            success = GetOverlappedResult(control_in_, &overlap, &nof_bytes_read, FALSE);
+            success = GetOverlappedResult(control_in_, &overlap, &nof_bytes_read, false);
 
             if (success && nof_bytes_read != 0)
             {
