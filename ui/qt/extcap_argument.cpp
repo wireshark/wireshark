@@ -106,7 +106,7 @@ QString ExtArgTimestamp::prefValue()
 
 bool ExtArgTimestamp::isSetDefaultValueSupported()
 {
-    return TRUE;
+    return true;
 }
 
 void ExtArgTimestamp::setDefaultValue()
@@ -231,7 +231,7 @@ QString ExtArgSelector::value()
 
 bool ExtArgSelector::isSetDefaultValueSupported()
 {
-    return TRUE;
+    return true;
 }
 
 void ExtArgSelector::setDefaultValue()
@@ -400,7 +400,7 @@ bool ExtArgRadio::isValid()
 
 bool ExtArgRadio::isSetDefaultValueSupported()
 {
-    return TRUE;
+    return true;
 }
 
 void ExtArgRadio::setDefaultValue()
@@ -503,7 +503,7 @@ bool ExtArgBool::defaultBool()
 
     if (_argument)
     {
-        if (extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE)
+        if (extcap_complex_get_bool(_argument->default_complex) == true)
             result = true;
     }
 
@@ -517,7 +517,7 @@ QString ExtArgBool::defaultValue()
 
 bool ExtArgBool::isSetDefaultValueSupported()
 {
-    return TRUE;
+    return true;
 }
 
 void ExtArgBool::setDefaultValue()
@@ -624,7 +624,7 @@ bool ExtArgText::isValid()
 
 bool ExtArgText::isSetDefaultValueSupported()
 {
-    return TRUE;
+    return true;
 }
 
 void ExtArgText::setDefaultValue()
@@ -660,14 +660,14 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
                 val = extcap_complex_get_int(_argument->range_start);
             else if (_argument->arg_type == EXTCAP_ARG_UNSIGNED)
             {
-                guint tmp = extcap_complex_get_uint(_argument->range_start);
-                if (tmp > G_MAXINT)
+                unsigned tmp = extcap_complex_get_uint(_argument->range_start);
+                if (tmp > INT_MAX)
                 {
                     ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Defined value for range_start of %s exceeds valid integer range", _argument->call);
-                    val = G_MAXINT;
+                    val = INT_MAX;
                 }
                 else
-                    val = (gint)tmp;
+                    val = (int)tmp;
             }
 
             textValidator->setBottom(val);
@@ -685,14 +685,14 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
                 val = extcap_complex_get_int(_argument->range_end);
             else if (_argument->arg_type == EXTCAP_ARG_UNSIGNED)
             {
-                guint tmp = extcap_complex_get_uint(_argument->range_end);
-                if (tmp > G_MAXINT)
+                unsigned tmp = extcap_complex_get_uint(_argument->range_end);
+                if (tmp > INT_MAX)
                 {
                     ws_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, "Defined value for range_end of %s exceeds valid integer range", _argument->call);
-                    val = G_MAXINT;
+                    val = INT_MAX;
                 }
                 else
-                    val = (gint)tmp;
+                    val = (int)tmp;
             }
 
             textValidator->setTop(val);
@@ -813,7 +813,7 @@ ExtcapValueList ExtcapArgument::loadValues(QString parent)
             QString call = QString().fromUtf8(v->call);
 
             ExtcapValue element = ExtcapValue(display, call,
-                            v->enabled == (gboolean)TRUE, v->is_default == (gboolean)TRUE);
+                            v->enabled == true, v->is_default == true);
 
             if (!call.isEmpty())
                 element.setChildren(this->loadValues(call));
@@ -914,7 +914,7 @@ QString ExtcapArgument::defaultValue()
 {
     if (_argument != 0 && _argument->default_complex != 0)
     {
-        gchar * str = extcap_get_complex_as_string(_argument->default_complex);
+        char * str = extcap_get_complex_as_string(_argument->default_complex);
         if (str != nullptr)
             return gchar_free_to_qstring(str);
     }
@@ -953,7 +953,7 @@ bool ExtcapArgument::isRequired()
     if (_argument != NULL)
         return _argument->is_required;
 
-    return FALSE;
+    return false;
 }
 
 bool ExtcapArgument::reload()
@@ -969,7 +969,7 @@ bool ExtcapArgument::fileExists()
     if (_argument != NULL)
         return _argument->fileexists;
 
-    return FALSE;
+    return false;
 }
 
 bool ExtcapArgument::isDefault()
@@ -1034,7 +1034,7 @@ void ExtcapArgument::onBoolChanged(bool)
 
 bool ExtcapArgument::isSetDefaultValueSupported()
 {
-    return FALSE;
+    return false;
 }
 
 void ExtcapArgument::setDefaultValue()

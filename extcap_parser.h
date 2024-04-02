@@ -75,7 +75,7 @@ typedef enum {
     EXTCAP_PARAM_ROLE
 } extcap_param_type;
 
-#define ENUM_KEY(s) GUINT_TO_POINTER((guint)s)
+#define ENUM_KEY(s) GUINT_TO_POINTER((unsigned)s)
 
 /* Values for a given sentence; values are all stored as a call
  * and a value string, or a valid range, so we only need to store
@@ -83,39 +83,39 @@ typedef enum {
 typedef struct _extcap_value {
     int arg_num;
 
-    gchar *call;
-    gchar *display;
-    gboolean enabled;
-    gboolean is_default;
-    gchar *parent;
+    char *call;
+    char *display;
+    bool enabled;
+    bool is_default;
+    char *parent;
 } extcap_value;
 
 /* Complex-ish struct for storing complex values */
 typedef struct _extcap_complex {
     extcap_arg_type complex_type;
-    gchar * _val;
+    char * _val;
 } extcap_complex;
 
 /* An argument sentence and accompanying options */
 typedef struct _extcap_arg {
     int arg_num;
 
-    gchar *call;
-    gchar *display;
-    gchar *tooltip;
-    gchar *placeholder;
+    char *call;
+    char *display;
+    char *tooltip;
+    char *placeholder;
 
-    gchar * fileextension;
-    gboolean fileexists;
+    char * fileextension;
+    bool fileexists;
 
-    gboolean is_required;
-    gboolean save;
+    bool is_required;
+    bool save;
 
-    gboolean reload;
+    bool reload;
 
-    gchar * regexp;
+    char * regexp;
 
-    gchar * group;
+    char * group;
 
     extcap_arg_type arg_type;
 
@@ -123,30 +123,30 @@ typedef struct _extcap_arg {
     extcap_complex *range_end;
     extcap_complex *default_complex;
 
-    gchar ** pref_valptr; /**< A copy of the pointer containing the current preference value. */
-    gchar * device_name;
+    char ** pref_valptr; /**< A copy of the pointer containing the current preference value. */
+    char * device_name;
 
     GList * values;
 } extcap_arg;
 
 typedef struct _extcap_interface {
-    gchar * call;
-    gchar * display;
-    gchar * version;
-    gchar * help;
-    gchar * extcap_path;
+    char * call;
+    char * display;
+    char * version;
+    char * help;
+    char * extcap_path;
 
     extcap_sentence_type if_type;
 } extcap_interface;
 
 typedef struct _extcap_dlt {
-    gint number;
-    gchar *name;
-    gchar *display;
+    int number;
+    char *name;
+    char *display;
 } extcap_dlt;
 
 typedef struct _extcap_token_sentence {
-    gchar *sentence;
+    char *sentence;
 
     GHashTable *param_list;
 } extcap_token_sentence;
@@ -157,7 +157,7 @@ extern "C" {
 
 /* Parse a string into a complex type */
 extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
-        const gchar *data);
+        const char *data);
 
 /* Free a complex */
 void extcap_free_complex(extcap_complex *comp);
@@ -169,17 +169,17 @@ void extcap_printf_complex(extcap_complex *comp);
  * Return a string representation of a complex type
  * Caller is responsible for calling g_free on the returned string
  */
-gchar *extcap_get_complex_as_string(extcap_complex *comp);
+char *extcap_get_complex_as_string(extcap_complex *comp);
 
-gint extcap_complex_get_int(extcap_complex *comp);
-guint extcap_complex_get_uint(extcap_complex *comp);
-gint64 extcap_complex_get_long(extcap_complex *comp);
-gdouble extcap_complex_get_double(extcap_complex *comp);
-gboolean extcap_complex_get_bool(extcap_complex *comp);
-gchar *extcap_complex_get_string(extcap_complex *comp);
+int extcap_complex_get_int(extcap_complex *comp);
+unsigned extcap_complex_get_uint(extcap_complex *comp);
+int64_t extcap_complex_get_long(extcap_complex *comp);
+double extcap_complex_get_double(extcap_complex *comp);
+bool extcap_complex_get_bool(extcap_complex *comp);
+char *extcap_complex_get_string(extcap_complex *comp);
 
 /* compares the default value of an element with a given parameter */
-gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test);
+bool extcap_compare_is_default(extcap_arg *element, extcap_complex *test);
 
 
 /* Free a single argument */
@@ -195,16 +195,16 @@ void extcap_free_arg_list(GList *a);
 /** Parser for extcap data */
 
 /* Parse all sentences for args and values */
-GList * extcap_parse_args(gchar *output);
+GList * extcap_parse_args(char *output);
 
 /* Parse all sentences for values */
-GList * extcap_parse_values(gchar *output);
+GList * extcap_parse_values(char *output);
 
 /* Parse all sentences for interfaces */
-GList * extcap_parse_interfaces(gchar *output, GList **control_items);
+GList * extcap_parse_interfaces(char *output, GList **control_items);
 
 /* Parse all sentences for DLTs */
-GList * extcap_parse_dlts(gchar *output);
+GList * extcap_parse_dlts(char *output);
 
 #ifdef __cplusplus
 }
