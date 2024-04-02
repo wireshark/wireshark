@@ -14,6 +14,7 @@ MMSpdu
 #.NO_EMIT
 
 #.TYPE_RENAME
+ObjectName/domain-specific/itemId                   ObjectName_domain_specific_itemid
 
 #.TYPE_ATTR
 TimeOfDay	TYPE = FT_STRING DISPLAY = BASE_NONE
@@ -43,12 +44,13 @@ GetDomainAttributes-Response/state                  getDomainAttributes-Response
 GetProgramInvocationAttributes-Response/state       getProgramInvocationAttributes-Response_state
 ReportSemaphoreEntryStatus-Request/state            reportSemaphoreEntryStatus-Request_state
 AlterEventEnrollment-Response/currentState/state    alterEventEnrollment-Response_currentState_state
+ObjectName/domain-specific/itemId                   objectName-domain-specific-itemId
 
 #.FIELD_ATTR
 ConfirmedServiceRequest/deleteEventCondition        ABBREV=confirmedServiceRequest.deleteEventCondition
 ConfirmedServiceResponse/deleteEventCondition       ABBREV=confirmedServiceResponse.deleteEventCondition
 ConfirmedServiceRequest/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
-ConfirmedServiceResponse/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
+ConfirmedServiceResponse/deleteEventAction          ABBREV=confirmedServiceRequest.deleteEventAction
 ConfirmedServiceRequest/deleteEventEnrollment       ABBREV=confirmedServiceRequest.deleteEventEnrollment
 ConfirmedServiceResponse/deleteEventEnrollment      ABBREV=confirmedServiceResponse.deleteEventEnrollment
 TypeSpecification/bit-string                        ABBREV=typeSpecification_bit-string
@@ -71,131 +73,453 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 
 #.FN_BODY ApplicationReference/ap-title
-	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
+        offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 #.FN_BODY ApplicationReference/ap-invocation-id
-	offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
+        offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 #.FN_BODY ApplicationReference/ae-qualifier
-	offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
+        offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 #.FN_BODY ApplicationReference/ae-invocation-id
-	offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
+        offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 #.FN_BODY MMSpdu VAL_PTR=&branch_taken
-	gint branch_taken;
+        int branch_taken;
+        gint8    ber_class;
+        bool     pc;
+        gint32   tag;
+
+        get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+        mms_priv->mms_pdu_type = tag;
+
 
 %(DEFAULT_BODY)s
 
-	if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-		if (mms_has_private_data(actx))
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s%%s%%s",
-				private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
-		else
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s",
-				mms_MMSpdu_vals[branch_taken].strptr);
-	}
+    if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+            if (mms_has_private_data(actx)){
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s%%s%%s",
+                            private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+            }else{
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s",
+                            mms_MMSpdu_vals[branch_taken].strptr);
+            }
+    }
+
 
 #.FN_BODY TimeOfDay
 
-	guint32 len;
-	guint32 milliseconds;
-	guint16 days;
-	gchar *	ptime;
-	nstime_t ts;
+        uint32_t  len;
+        uint32_t  milliseconds;
+        uint16_t  days;
+        gchar *	ptime;
+        nstime_t ts;
 
-	len = tvb_reported_length_remaining(tvb, offset);
+        len = tvb_reported_length_remaining(tvb, offset);
 
-	if(len == 4)
-	{
-		milliseconds = tvb_get_ntohl(tvb, offset);
-		ptime = signed_time_msecs_to_str(actx->pinfo->pool, milliseconds);
+        if(len == 4)
+        {
+                milliseconds = tvb_get_ntohl(tvb, offset);
+                ptime = signed_time_msecs_to_str(actx->pinfo->pool, milliseconds);
 
-		if(hf_index > 0)
-		{
-			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
-		}
-		return offset;
-	}
+                if(hf_index > 0)
+                {
+                        proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+                }
+                return offset;
+        }
 
-	if(len == 6)
-	{
-		milliseconds = tvb_get_ntohl(tvb, offset);
-		days = tvb_get_ntohs(tvb, offset+4);
+        if(len == 6)
+        {
+                milliseconds = tvb_get_ntohl(tvb, offset);
+                days = tvb_get_ntohs(tvb, offset+4);
 
-		/* 5113 days between 01-01-1970 and 01-01-1984 */
-		/* 86400 seconds in one day */
+                /* 5113 days between 01-01-1970 and 01-01-1984 */
+                /* 86400 seconds in one day */
 
-		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
-		ts.nsecs = (milliseconds %% 1000) * 1000000U;
+                ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
+                ts.nsecs = (milliseconds %% 1000) * 1000000U;
 
-		ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
-		if(hf_index > 0)
-		{
-			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
-		}
+                ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
+                if(hf_index > 0)
+                {
+                        proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+                }
 
-		return offset;
-	}
+                return offset;
+        }
 
-	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding,
-			tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
-	if(hf_index > 0)
-	{
-		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
-	}
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding,
+                        tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
+        if(hf_index > 0)
+        {
+                proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+        }
 
 #.FN_BODY UtcTime
 
-	guint32 len;
-	guint32 seconds;
-	guint32	fraction;
-	guint32 nanoseconds;
-	nstime_t ts;
-	gchar *	ptime;
+        uint32_t  len;
+        uint32_t  seconds;
+        uint32_t  fraction;
+        uint32_t  nanoseconds;
+        nstime_t  ts;
+        gchar *   ptime;
 
-	len = tvb_reported_length_remaining(tvb, offset);
+    static int * const TimeQuality_bits[] = {
+        &hf_mms_iec61850_timequality80,
+        &hf_mms_iec61850_timequality40,
+        &hf_mms_iec61850_timequality20,
+        &hf_mms_iec61850_timequality1F,
+        NULL
+    };
+        len = tvb_reported_length_remaining(tvb, offset);
 
-	if(len != 8)
-	{
-		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding,
-				tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
-		if(hf_index > 0)
-		{
-			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
-		}
-		return offset;
-	}
+        if(len != 8)
+        {
+                /* The octet format shall be (using ASN.1 bstring notation):
+                 *  ‘ssssssssssssssssssssssssssssssssffffffffffffffffffffffffqqqqqqqq’B
+                 *  q stands for TimeQuality, i.e. reserved to represent TimeQuality based upon the referencing standard.
+                 */
+                proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding,
+                                tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
+                if(hf_index > 0)
+                {
+                        proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+                }
+                return offset;
+        }
 
-	seconds = tvb_get_ntohl(tvb, offset);
-	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
-	nanoseconds = (guint32)( ((guint64)fraction * G_GUINT64_CONSTANT(1000000000)) / G_GUINT64_CONSTANT(0x100000000) ) ;
+        seconds = tvb_get_ntohl(tvb, offset);
+        fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
+        nanoseconds = (uint32_t )( ((guint64)fraction * G_GUINT64_CONSTANT(1000000000)) / G_GUINT64_CONSTANT(0x100000000) ) ;
 
-	ts.secs = seconds;
-	ts.nsecs = nanoseconds;
+        ts.secs = seconds;
+        ts.nsecs = nanoseconds;
 
-	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
+        ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
-	if(hf_index > 0)
-	{
-		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
-	}
+        if(hf_index > 0)
+        {
+                proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+                proto_tree_add_bitmask_list(tree, tvb, offset+7, 1, TimeQuality_bits, ENC_BIG_ENDIAN);
+        }
 
 
 #.FN_BODY Unsigned32 VAL_PTR=&val
-	guint32 val;
+        uint32_t  val;
+        conversation_t *conversation;
+        mms_conv_info_t *mms_info;
+        mms_transaction_t *mms_trans;
+
 %(DEFAULT_BODY)s
-	if (hf_index == hf_mms_invokeID)
-		private_data_add_preCinfo(actx, val);
+        if (hf_index == hf_mms_invokeID){
+                mms_actx_private_data_t* mms_priv = (mms_actx_private_data_t*)actx->private_data;
+                mms_priv->invokeid=val;
+                private_data_add_preCinfo(actx, val);
+                conversation = find_or_create_conversation(actx->pinfo);
+
+                mms_info = (mms_conv_info_t *)conversation_get_proto_data(conversation, proto_mms);
+                if (!mms_info) {
+                        /*
+                            * No.  Attach that information to the conversation, and add
+                            * it to the list of information structures.
+                            */
+                        mms_info = wmem_new(wmem_file_scope(), mms_conv_info_t);
+                        mms_info->pdus=wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+
+                        conversation_add_proto_data(conversation, proto_mms, mms_info);
+                }
+                /* Request or response? */
+                bool is_request;
+
+                switch(mms_priv->mms_pdu_type){
+                    case 0:
+                        /* Confirmed-RequestPDU */
+                        is_request = true;
+                        break;
+                    case 1:
+                        /* confirmed-ResponsePDU */
+                        is_request = false;
+                        break;
+                    case 2:
+                        /* Confirmed-ErrorPDU */
+                        is_request = false;
+                        break;
+                    default:
+                        is_request = false;
+                        break;
+                }
+
+                if (!PINFO_FD_VISITED(actx->pinfo)) {
+                        if (is_request==true) {
+                                /* This is a request */
+                                mms_trans=wmem_new(wmem_file_scope(), mms_transaction_t);
+                                mms_trans->req_frame = actx->pinfo->num;
+                                mms_trans->rep_frame = 0;
+                                mms_trans->req_time = actx->pinfo->fd->abs_ts;
+                                wmem_map_insert(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid), (void *)mms_trans);
+                        } else {
+                                mms_trans=(mms_transaction_t *)wmem_map_lookup(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid));
+                                if (mms_trans) {
+                                        mms_trans->rep_frame = actx->pinfo->num;
+                                }
+                        }
+                } else {
+                        mms_trans=(mms_transaction_t *)wmem_map_lookup(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid));
+                }
+                if (!mms_trans) {
+                        /* create a "fake" mms_trans structure */
+                        mms_trans=wmem_new(actx->pinfo->pool, mms_transaction_t);
+                        mms_trans->req_frame = 0;
+                        mms_trans->rep_frame = 0;
+                        mms_trans->req_time = actx->pinfo->fd->abs_ts;
+                }
+                mms_priv->mms_trans = mms_trans;
+
+                /* print state tracking in the tree */
+                if (is_request) {
+                        /* This is a request */
+                        if (mms_trans->rep_frame) {
+                                proto_item *it;
+
+                                it = proto_tree_add_uint(actx->subtree.top_tree, hf_mms_response_in, tvb, 0, 0, mms_trans->rep_frame);
+                                proto_item_set_generated(it);
+                        }
+                } else {
+                        /* This is a reply */
+                        if (mms_trans->req_frame) {
+                                proto_item *it;
+                                nstime_t ns;
+
+                                it = proto_tree_add_uint(actx->subtree.top_tree, hf_mms_response_to, tvb, 0, 0, mms_trans->req_frame);
+                                proto_item_set_generated(it);
+
+                                nstime_delta(&ns, &actx->pinfo->fd->abs_ts, &mms_trans->req_time);
+                                it = proto_tree_add_time(actx->subtree.top_tree, hf_mms_response_time, tvb, 0, 0, &ns);
+                                proto_item_set_generated(it);
+                        }
+                }
+
+        }
 
 #.FN_BODY FloatingPoint
 %(DEFAULT_BODY)s
-	private_data_add_moreCinfo_float(actx, tvb);
+        private_data_add_moreCinfo_float(actx, tvb);
 
-#.FN_BODY Identifier
-	int offset_id = offset;
+#.FN_BODY Identifier VAL_PTR= &parameter_tvb
+        tvbuff_t *parameter_tvb;
+        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+
 %(DEFAULT_BODY)s
-	if ((hf_index == hf_mms_domainId) || (hf_index == hf_mms_itemId)) {
-		if (tvb_get_guint8(tvb, offset_id) == 0x1a)
-			private_data_add_moreCinfo_id(actx,tvb);
-	}
+        if (hf_index == hf_mms_domainId) {
+                private_data_add_moreCinfo_id(actx,tvb);
+        }
+        if (hf_index == hf_mms_objectName_domain_specific_itemId) {
+                private_data_add_moreCinfo_id(actx,tvb);
+                const char *itemid_str = tvb_get_string_enc(actx->pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
+                if(g_str_has_suffix(itemid_str,"$ctlModel")){
+                    mms_priv->mms_trans->itemid = IEC61850_ITEM_ID_CTLMODEL;
+                }else  if(g_str_has_suffix(itemid_str,"$q")){
+                    mms_priv->mms_trans->itemid = IEC61850_ITEM_ID_Q;
+                }
+        }
+
+        if (hf_index == hf_mms_vmd_specific){
+                const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
+                if (strcmp(vmd_specific_str, "RPT") == 0) {
+                        mms_priv->vmd_specific = IEC61850_8_1_RPT;
+                }
+        }
+
+#.FN_BODY InformationReport/listOfAccessResult
+
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    mms_priv->listOfAccessResult_cnt = 0;
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY AccessResult
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+
+    /* If listOfAccessResult_cnt > 2 we are into the optional data.
+     * if data is not present increase count.
+     */
+    bool present;
+    do {
+        mms_priv->listOfAccessResult_cnt+=1;
+        present = TRUE;
+        switch(mms_priv->listOfAccessResult_cnt){
+        case 1: /*RptID*/
+            break;
+        case 2: /* Reported OptFlds */
+            break;
+        case 3: /* SeqNum Shall be present if OptFlds.sequence-number is TRUE */
+            if((mms_priv->reported_optflds & 0x4000) != 0x4000){
+                present = false;
+            }
+            break;
+        case 4: /*TimeOfEntry Shall be present if OptFlds.report-time-stamp is TRUE */
+            if((mms_priv->reported_optflds & 0x2000) != 0x2000){
+                present = false;
+            }
+            break;
+        case 5: /*DatSet Shall be present if OptFlds.data-set-name is TRUE */
+            if((mms_priv->reported_optflds & 0x0800) !=0x0800){
+                present = false;
+            }
+            break;
+        case 6: /*BufOvfl Shall be present if OptFlds.buffer-overflow is TRUE */
+            if((mms_priv->reported_optflds & 0x0200) !=0x0200){
+                present = false;
+            }
+            break;
+        case 7: /*EntryID Shall be present if OptFlds.entryID is TRUE */
+            if((mms_priv->reported_optflds & 0x0100) !=0x0100){
+                present = false;
+            }
+            break;
+        case 8: /*ConfRev Shall be present if OptFlds.conf-rev is TRUE */
+            if((mms_priv->reported_optflds & 0x0080) !=0x0080){
+                present = false;
+            }
+            break;
+        case 9: /*SubSeqNum Shall be present if OptFlds.segmentation is TRUE */
+            if((mms_priv->reported_optflds & 0x0040) !=0x0040){
+                present = false;
+            }
+            break;
+        case 10: /*MoreSegmentsFollow Shall be present if OptFlds.segmentation is TRUE */
+            if((mms_priv->reported_optflds & 0x0040) !=0x0040){
+                present = false;
+            }
+            break;
+        case 11: /*Inclusion-bitstring Shall be present */
+            break;
+        case 12: /*data-reference(s) Shall be present if OptFlds.data-reference is TRUE */
+            if((mms_priv->reported_optflds & 0x0400) !=0x0400){
+                present = false;
+            }
+            break;
+        case 13: /*value(s) See AccessResult for value(s) */
+            break;
+        case 14: /*ReasonCode(s) Shall be present if OptFlds OptFlds.reason-for-inclusion is TRUE */
+            if((mms_priv->reported_optflds & 0x1000) !=0x1000){
+                present = false;
+            }
+            break;
+        default:
+            break;
+        }
+     } while(!present);
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY Data/visible-string
+
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
+        if(mms_priv->listOfAccessResult_cnt == 1){
+                /* IEC 61850-8-1 RptID */
+                hf_index = hf_mms_iec61850_rptid;
+        }else if(mms_priv->listOfAccessResult_cnt == 5){
+                /* IEC 61850-8-1 DatSet */
+                hf_index = hf_mms_iec61850_datset;
+        }
+
+    }
+%(DEFAULT_BODY)s
+
+#.FN_BODY Data/bit-string VAL_PTR= &parameter_tvb
+
+static int* const quality_field_bits_oct1[] = {
+    &hf_mms_iec61850_QualityC0,
+    &hf_mms_iec61850_Quality20,
+    &hf_mms_iec61850_Quality10,
+    &hf_mms_iec61850_Quality8,
+    &hf_mms_iec61850_Quality4,
+    &hf_mms_iec61850_Quality2,
+    &hf_mms_iec61850_Quality1,
+    NULL
+};
+
+static int* const quality_field_bits_oct2[] = {
+    &hf_mms_iec61850_Quality0080,
+    &hf_mms_iec61850_Quality0040,
+    &hf_mms_iec61850_Quality0020,
+    &hf_mms_iec61850_Quality0010,
+    &hf_mms_iec61850_Quality0008,
+    NULL
+};
+    tvbuff_t *parameter_tvb;
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
+        if(mms_priv->listOfAccessResult_cnt == 2){
+                /* IEC 61850-8-1 Reported OptFlds */
+                return dissect_mms_ReportedOptFlds(implicit_tag, tvb, offset, actx, tree, hf_mms_iec61850_reported_optflds);
+        }else{
+            if(mms_priv->listOfAccessResult_cnt == 11){
+                hf_index = hf_mms_iec61850_inclusion_bitstring;
+            }
+        }
+    }else if((mms_priv->mms_trans)&&(mms_priv->mms_trans->itemid == IEC61850_ITEM_ID_Q)){
+        hf_index = hf_mms_iec61850_quality_bitstring;
+    }
+
+%(DEFAULT_BODY)s
+
+if((parameter_tvb)&&(mms_priv->mms_trans)&&(mms_priv->mms_trans->itemid == IEC61850_ITEM_ID_Q)){
+    proto_tree *sub_tree;
+    sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_quality_bitstring);
+    proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, quality_field_bits_oct1, ENC_NA);
+    proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 1, 1, quality_field_bits_oct2, ENC_NA);
+}
+
+#.FN_BODY ReportedOptFlds VAL_PTR= &parameter_tvb
+    tvbuff_t *parameter_tvb;
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+%(DEFAULT_BODY)s
+    mms_priv->reported_optflds = tvb_get_ntohs(parameter_tvb,0);
+
+#.FN_BODY Data/unsigned
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
+        if(mms_priv->listOfAccessResult_cnt == 3){
+                /* IEC 61850-8-1 SeqNum */
+                hf_index = hf_mms_iec61850_seqnum;
+        }else if(mms_priv->listOfAccessResult_cnt == 8){
+                /* IEC 61850-8-1 ConfRev */
+                hf_index = hf_mms_iec61850_confrev;
+        }
+    }
+%(DEFAULT_BODY)s
+
+#.FN_BODY Data/boolean
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
+        if(mms_priv->listOfAccessResult_cnt == 6){
+                /* IEC 61850-8-1 BufOvfl */
+                hf_index = hf_mms_iec61850_bufovfl;
+        }
+    }
+%(DEFAULT_BODY)s
+
+#.FN_BODY Data/binary-time
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
+        if(mms_priv->listOfAccessResult_cnt == 4){
+                /* IEC 61850-8-1 TimeOfEntry */
+                hf_index = hf_mms_iec61850_timeofentry;
+        }
+    }
+%(DEFAULT_BODY)s
+
+#.FN_BODY Data/integer
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+
+    if((mms_priv->mms_trans)&&(mms_priv->mms_trans->itemid == IEC61850_ITEM_ID_CTLMODEL)){
+        hf_index = hf_mms_iec61850_ctlModel;
+    }
+
+%(DEFAULT_BODY)s
+
