@@ -7136,7 +7136,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
 
       compression_plugin_class = tvb_get_guint32(tvb, offset, encoding);
       decompressed_size = tvb_get_guint32(tvb, offset + 4, encoding);
-      /* Get the numer of bytes (elements) in the sequence */
+      /* Get the number of bytes (elements) in the sequence */
       compressed_size = tvb_get_guint32(tvb, offset + 8, encoding);
 
       switch(compression_plugin_class)  {
@@ -14029,7 +14029,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
    * };
    */
 
-  /* All dissection_infos are added to the "dissction_infos" map */
+  /* All dissection_infos are added to the "dissection_infos" map */
 
   /* value */
   g_strlcpy(_builtin_types_dissection_data->dissection_infos.value_dissection_info.member_name, "value", MAX_TOPIC_AND_TYPE_LENGTH);

@@ -10099,7 +10099,7 @@ void proto_register_opa_mad(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
 
-        /* PortNeighrborNode*/
+        /* PortNeighborNode*/
         { &hf_opa_PortInfo_PortNeighborMode_reserved, {
                 "PortNeighborMode Reserved (4 bits)", "opa.portinfo.portneighbormode.reserved",
                 FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
@@ -12084,7 +12084,7 @@ void proto_register_opa_mad(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
 
-        /* Gerneral PA */
+        /* General PA */
         { &hf_opa_ImageID_imageNumber, {
                 "imageNumber", "opa.pa.imageid.imagenumber",
                 FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }

@@ -448,7 +448,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_value, tvb,
 				                    offset+keylen+2, vallen, ENC_ASCII);
 
-				/* Move beyone key and value lines */
+				/* Move beyond key and value lines */
 				offset += keylen+2+vallen+2;
 			}
 		}

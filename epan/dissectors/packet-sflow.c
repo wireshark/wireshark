@@ -379,7 +379,7 @@ static int hf_sflow_245_packet_information_type;
 static int hf_sflow_245_extended_information_type;
 static int hf_sflow_245_vlan_in; /* incoming 802.1Q VLAN ID */
 static int hf_sflow_245_vlan_out; /* outgoing 802.1Q VLAN ID */
-static int hf_sflow_245_pri_in; /* incominging 802.1p priority */
+static int hf_sflow_245_pri_in; /* incoming 802.1p priority */
 static int hf_sflow_245_pri_out; /* outgoing 802.1p priority */
 static int hf_sflow_245_nexthop_v4; /* nexthop address */
 static int hf_sflow_245_nexthop_v6; /* nexthop address */

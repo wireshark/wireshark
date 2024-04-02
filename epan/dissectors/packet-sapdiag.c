@@ -634,7 +634,7 @@ static const value_string sapdiag_item_appl_dynt_vals[] = {
 
 /* SAP Diag Item APPL/APPL4 CONTAINER SID values */
 static const value_string sapdiag_item_appl_container_vals[] = {
-	/* CONTAINTER */
+	/* CONTAINER */
 	{ 0x01, "RESET" },
 	{ 0x02, "DEFAULT" },
 	{ 0x03, "SUBSCREEN" },

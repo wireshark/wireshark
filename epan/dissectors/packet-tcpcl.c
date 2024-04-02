@@ -2401,7 +2401,7 @@ proto_register_tcpcl(void)
         "desegment_transfer",
         "Reassemble the segments of each transfer",
         "Whether the TCPCL dissector should combine the sequential segments "
-        "of a transfer into the full bundle being transfered."
+        "of a transfer into the full bundle being transferred."
         "To use this option, you must also enable "
         "\"Allow subdissectors to reassemble TCP streams\" "
         "in the TCP protocol settings.",

@@ -2110,7 +2110,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      offset += 2;
               }
 
-              /* Calclulate CRC */
+              /* Calculate CRC */
               sbus_crc_calc = 0;
               for (i = 0; i < sbus_eth_len - 2; i++)
                      sbus_crc_calc = crc_calc (sbus_crc_calc, tvb_get_guint8(tvb, i));

@@ -708,7 +708,7 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     // QFileSystemWatcher should allow us to watch for files being
     // removed or renamed.  It uses kqueues and EVFILT_VNODE on FreeBSD,
     // NetBSD, FSEvents on macOS, inotify on Linux if available, and
-    // FindFirstChagneNotification() on Windows.  On all other platforms,
+    // FindFirstChangeNotification() on Windows.  On all other platforms,
     // it just periodically polls, as we're doing now.
     //
     // For unmounts:

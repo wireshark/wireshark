@@ -1089,7 +1089,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
       *hb = NULL;
     }
   } else {
-    /* we found no entry in the table: add one (using reversed ports and src addresss) so that it can be matched later */
+    /* we found no entry in the table: add one (using reversed ports and src addresses) so that it can be matched later */
     *(hb = (sctp_half_assoc_t **)wmem_alloc(wmem_file_scope(), sizeof(void*))) = ha;
     k = make_address_key(pinfo->pool, spt, dpt, &(pinfo->src));
     wmem_tree_insert32_array(dirs_by_ptaddr, k, hb);
@@ -3724,7 +3724,7 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET),
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET));
   }
-  /* handle variable paramters */
+  /* handle variable parameters */
   chunk_length -= INIT_CHUNK_FIXED_PARAMTERS_LENGTH;
   parameters_tvb = tvb_new_subset_length_caplen(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET,
                                   MIN(chunk_length, tvb_captured_length_remaining(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET)),

@@ -575,7 +575,7 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static int
 dissect_opsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	/* We should mimimally grab the header */
+	/* We should minimally grab the header */
 	tcp_dissect_pdus(tvb, pinfo, tree, opsi_desegment, HEADER_LENGTH, get_opsi_pdu_len,
 		dissect_opsi_pdu, data);
 	return tvb_reported_length(tvb);

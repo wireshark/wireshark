@@ -2419,7 +2419,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     }
 
     if (!usb_trans_info->u.get_descriptor.usb_index) {
-        /* list of languanges */
+        /* list of languages */
         while (offset >= old_offset && len > (offset - old_offset)) {
             /* wLANGID */
             proto_tree_add_item(tree, hf_usb_wLANGID, tvb, offset, 2, ENC_LITTLE_ENDIAN);

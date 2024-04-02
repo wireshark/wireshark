@@ -354,6 +354,7 @@ contactless
 contextp
 contiguity
 contiguously
+controlee
 convolutional
 convs
 coord
@@ -515,6 +516,7 @@ diplexer
 directionality
 disambiguate
 disambiguation
+discontinuities
 discriminant
 discriminator
 dissection
@@ -736,6 +738,7 @@ getopt
 getsetinfo
 getter
 getters
+getvfinfo
 gidaddr
 gigabit
 gigamon
@@ -926,6 +929,8 @@ isobus
 isochronous
 issuer
 italia
+italic
+italics
 iterating
 iterative
 iterator
@@ -1268,6 +1273,7 @@ openvpn
 opflags
 oplock
 opnum
+optarg
 optimisation
 optimised
 optimizations
@@ -1416,6 +1422,7 @@ ptvcursor
 ptype
 pubdir
 pubkey
+publickey
 pucch
 pusch
 pwach
@@ -1424,11 +1431,13 @@ pxeclient
 pytest
 qam16
 qam64
+qcustomplot
 qmgmt
 qnet6
 qosinfo
 qpack
 qsearch
+qtbug
 quadlet
 quadrature
 quadro
@@ -1528,6 +1537,7 @@ referrer
 regex
 regexp
 regionid
+reimplement
 reimplemented
 reinitialization
 reinitialize
@@ -1903,6 +1913,7 @@ tobago
 toggled
 toggles
 toggling
+tokenized
 toolbar
 toolongfragment
 toolset
@@ -2094,6 +2105,7 @@ unsecure
 unsegmented
 unsequenced
 unset
+unshifted
 unsilence
 unsnoopables
 unsorted

@@ -287,7 +287,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
 
   offset += 2;
 
-  /*---------------------Dissect Hello Emission Invertal-------------------*/
+  /*---------------------Dissect Hello Emission Inverval-------------------*/
   hTime = getOlsrTime(tvb_get_guint8(tvb, offset));
   proto_tree_add_double_format_value(olsr_tree, hf_olsr_htime, tvb, offset, 1, hTime,
       "%.3f (in seconds)", hTime);

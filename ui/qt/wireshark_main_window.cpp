@@ -2837,7 +2837,7 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
-            // Allow the creation of submenus. Mimics the behavor of
+            // Allow the creation of submenus. Mimics the behavior of
             // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
             // and GtkUIManager.
             //
