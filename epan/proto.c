@@ -8417,11 +8417,11 @@ void proto_heuristic_dissector_foreach(const protocol_t *protocol, GFunc func, g
 }
 
 void
-proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
-			  gboolean *is_tcp, gboolean *is_udp,
-			  gboolean *is_sctp, gboolean *is_tls,
-			  gboolean *is_rtp,
-			  gboolean *is_lte_rlc)
+proto_get_frame_protocols(const wmem_list_t *layers, bool *is_ip,
+			  bool *is_tcp, bool *is_udp,
+			  bool *is_sctp, bool *is_tls,
+			  bool *is_rtp,
+			  bool *is_lte_rlc)
 {
 	wmem_list_frame_t *protos = wmem_list_head(layers);
 	int	    proto_id;
@@ -8437,19 +8437,19 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 
 		if (is_ip && ((!strcmp(proto_name, "ip")) ||
 			      (!strcmp(proto_name, "ipv6")))) {
-			*is_ip = TRUE;
+			*is_ip = true;
 		} else if (is_tcp && !strcmp(proto_name, "tcp")) {
-			*is_tcp = TRUE;
+			*is_tcp = true;
 		} else if (is_udp && !strcmp(proto_name, "udp")) {
-			*is_udp = TRUE;
+			*is_udp = true;
 		} else if (is_sctp && !strcmp(proto_name, "sctp")) {
-			*is_sctp = TRUE;
+			*is_sctp = true;
 		} else if (is_tls && !strcmp(proto_name, "tls")) {
-			*is_tls = TRUE;
+			*is_tls = true;
 		} else if (is_rtp && !strcmp(proto_name, "rtp")) {
-			*is_rtp = TRUE;
+			*is_rtp = true;
 		} else if (is_lte_rlc && (!strcmp(proto_name, "rlc-lte") || !strcmp(proto_name, "rlc-nr"))) {
-			*is_lte_rlc = TRUE;
+			*is_lte_rlc = true;
 		}
 
 		protos = wmem_list_frame_next(protos);

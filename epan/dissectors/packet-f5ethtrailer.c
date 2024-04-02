@@ -422,7 +422,7 @@ ptype_to_ipproto(const port_type ptype)
 static gboolean
 f5_ip_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
-    gboolean is_ip = FALSE;
+    bool is_ip = false;
     gboolean is_f5ethtrailer = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -443,8 +443,8 @@ f5_ip_conv_valid(packet_info *pinfo, void *user_data _U_)
 static gboolean
 f5_tcp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
-    gboolean is_ip  = FALSE;
-    gboolean is_tcp = FALSE;
+    bool is_ip  = false;
+    bool is_tcp = false;
     gboolean is_f5ethtrailer = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, &is_tcp, NULL, NULL, NULL, NULL, NULL);
@@ -465,8 +465,8 @@ f5_tcp_conv_valid(packet_info *pinfo, void *user_data _U_)
 static gboolean
 f5_udp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
-    gboolean is_ip  = FALSE;
-    gboolean is_udp = FALSE;
+    bool is_ip  = false;
+    bool is_udp = false;
     gboolean is_f5ethtrailer = FALSE;
 
     proto_get_frame_protocols(pinfo->layers, &is_ip, NULL, &is_udp, NULL, NULL, NULL, NULL);

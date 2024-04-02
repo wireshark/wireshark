@@ -1186,7 +1186,7 @@ void WiresharkMainWindow::setEditCommentsMenu()
 
 void WiresharkMainWindow::setMenusForSelectedPacket()
 {
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
+    bool is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
              is_quic = FALSE, is_exported_pdu = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the

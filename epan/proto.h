@@ -2790,24 +2790,24 @@ WS_DLL_PUBLIC void proto_heuristic_dissector_foreach(const protocol_t *protocol,
 
 /** Find commonly-used protocols in a layer list.
  * @param layers Protocol layer list
- * @param is_ip Set to TRUE if the layer list contains IPv4 or IPv6, otherwise
+ * @param is_ip Set to true if the layer list contains IPv4 or IPv6, otherwise
  * unchanged. May be NULL.
- * @param is_tcp Set to TRUE if the layer list contains TCP, otherwise
+ * @param is_tcp Set to true if the layer list contains TCP, otherwise
  * unchanged. May be NULL.
- * @param is_udp Set to TRUE if the layer list contains UDP, otherwise
+ * @param is_udp Set to true if the layer list contains UDP, otherwise
  * unchanged. May be NULL.
- * @param is_sctp Set to TRUE if the layer list contains SCTP, otherwise
+ * @param is_sctp Set to true if the layer list contains SCTP, otherwise
  * unchanged. May be NULL.
- * @param is_tls Set to TRUE if the layer list contains SSL/TLS, otherwise
+ * @param is_tls Set to true if the layer list contains SSL/TLS, otherwise
  * unchanged. May be NULL.
- * @param is_rtp Set to TRUE if the layer list contains RTP, otherwise
+ * @param is_rtp Set to true if the layer list contains RTP, otherwise
  * unchanged. May be NULL.
- * @param is_lte_rlc Set to TRUE if the layer list contains LTE RLC, otherwise
+ * @param is_lte_rlc Set to true if the layer list contains LTE RLC, otherwise
  * unchanged. May be NULL.
  */
 WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
-      gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp,
-      gboolean *is_tls, gboolean *is_rtp, gboolean *is_lte_rlc);
+      bool *is_ip, bool *is_tcp, bool *is_udp, bool *is_sctp,
+      bool *is_tls, bool *is_rtp, bool *is_lte_rlc);
 
 /** Check whether a protocol, specified by name, is in a layer list.
  * @param layers Protocol layer list
