@@ -1373,6 +1373,12 @@ void IOGraphDialog::on_graphUat_currentItemChanged(const QModelIndex &current, c
         ui->clearToolButton->setEnabled(true);
         ui->moveUpwardsToolButton->setEnabled(true);
         ui->moveDownwardsToolButton->setEnabled(true);
+        if (graphIsEnabled(current.row())) {
+            // Try to set the tracer to the new current graph.
+            // If it's not enabled, don't try to switch from the
+            // old graph to the one in the first row.
+            getGraphInfo();
+        }
     } else {
         ui->deleteToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
