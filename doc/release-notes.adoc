@@ -232,6 +232,7 @@ MAC NR Framed (mac-nr-framed)
 RF4CE Network Layer (RF4CE)
 RF4CE Profile (RF4CE Profile)
 EGNOS Message Server (EMS) file format
+ZeroMQ Message Transport Protocol (ZMTP)
 --
 
 === Updated Protocol Support
