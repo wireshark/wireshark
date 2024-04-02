@@ -148,41 +148,41 @@ static expert_field ei_cba_acco_connect;
 static int proto_ICBAAccoMgt;
 static gint ett_ICBAAccoMgt;
 static e_guid_t uuid_ICBAAccoMgt = { 0xcba00041, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoMgt = 0;
+static guint16  ver_ICBAAccoMgt;
 
 static int proto_ICBAAccoMgt2;
 static e_guid_t uuid_ICBAAccoMgt2 = { 0xcba00046, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoMgt2 = 0;
+static guint16  ver_ICBAAccoMgt2;
 
 static int proto_ICBAAccoCallback;
 static gint ett_ICBAAccoCallback;
 static gint ett_ICBAAccoCallback_Buffer;
 static gint ett_ICBAAccoCallback_Item;
 static e_guid_t uuid_ICBAAccoCallback = { 0xcba00042, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoCallback = 0;
+static guint16  ver_ICBAAccoCallback;
 
 static int proto_ICBAAccoCallback2;
 static e_guid_t uuid_ICBAAccoCallback2 = { 0xcba00047, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoCallback2 = 0;
+static guint16  ver_ICBAAccoCallback2;
 
 static int proto_ICBAAccoServer;
 static gint ett_ICBAAccoServer;
 static e_guid_t uuid_ICBAAccoServer = { 0xcba00043, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoServer = 0;
+static guint16  ver_ICBAAccoServer;
 
 static int proto_ICBAAccoServer2;
 static e_guid_t uuid_ICBAAccoServer2 = { 0xcba00048, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoServer2 = 0;
+static guint16  ver_ICBAAccoServer2;
 
 static int      proto_ICBAAccoServerSRT;
 static gint     ett_ICBAAccoServerSRT;
 static e_guid_t uuid_ICBAAccoServerSRT  = { 0xcba00045, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoServerSRT   = 0;
+static guint16  ver_ICBAAccoServerSRT;
 
 static int      proto_ICBAAccoSync;
 static gint     ett_ICBAAccoSync;
 static e_guid_t uuid_ICBAAccoSync  = { 0xcba00044, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoSync   = 0;
+static guint16  ver_ICBAAccoSync;
 
 
 

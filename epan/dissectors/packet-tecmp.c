@@ -46,9 +46,9 @@ static int proto_tecmp_payload;
 static dissector_handle_t eth_handle;
 static int proto_vlan;
 
-static bool heuristic_first = false;
+static bool heuristic_first;
 static bool analog_samples_are_signed_int = true;
-static bool show_ethernet_in_tecmp_tree = false;
+static bool show_ethernet_in_tecmp_tree;
 static bool detect_asam_cmp = true;
 static bool detect_asam_cmp_ignore_user_defined = true;
 
@@ -703,24 +703,24 @@ typedef struct _interface_config {
 #define DATAFILE_TECMP_INTERFACE_IDS "TECMP_interface_identifiers"
 #define DATAFILE_TECMP_CONTROL_MSG_IDS "TECMP_control_message_identifiers"
 
-static GHashTable *data_tecmp_devices = NULL;
-static generic_one_id_string_t* tecmp_devices = NULL;
-static guint tecmp_devices_num = 0;
+static GHashTable *data_tecmp_devices;
+static generic_one_id_string_t* tecmp_devices;
+static guint tecmp_devices_num;
 
 UAT_HEX_CB_DEF(tecmp_devices, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(tecmp_devices, name, generic_one_id_string_t)
 
-static GHashTable *data_tecmp_interfaces = NULL;
-static interface_config_t* tecmp_interfaces = NULL;
-static guint tecmp_interfaces_num = 0;
+static GHashTable *data_tecmp_interfaces;
+static interface_config_t* tecmp_interfaces;
+static guint tecmp_interfaces_num;
 
 UAT_HEX_CB_DEF(tecmp_interfaces, id, interface_config_t)
 UAT_CSTRING_CB_DEF(tecmp_interfaces, name, interface_config_t)
 UAT_HEX_CB_DEF(tecmp_interfaces, bus_id, interface_config_t)
 
-static GHashTable *data_tecmp_ctrlmsgids = NULL;
-static generic_one_id_string_t* tecmp_ctrl_msgs = NULL;
-static guint tecmp_ctrl_msg_num = 0;
+static GHashTable *data_tecmp_ctrlmsgids;
+static generic_one_id_string_t* tecmp_ctrl_msgs;
+static guint tecmp_ctrl_msg_num;
 
 UAT_HEX_CB_DEF(tecmp_ctrl_msgs, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(tecmp_ctrl_msgs, name, generic_one_id_string_t)

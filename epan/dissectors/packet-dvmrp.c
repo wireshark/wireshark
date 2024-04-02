@@ -102,7 +102,7 @@ static int ett_route;
 
 static expert_field ei_checksum;
 
-static bool strict_v3 = false;
+static bool strict_v3;
 
 #define DVMRP_TYPE				0x13
 static const value_string dvmrp_type[] = {

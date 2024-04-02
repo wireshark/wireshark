@@ -756,7 +756,7 @@ struct rsvp_request_val {
 /*
  * Initialize the conversation related data structures.
  */
-static wmem_map_t *rsvp_request_hash = NULL;
+static wmem_map_t *rsvp_request_hash;
 
 /*
  * The list of tree types

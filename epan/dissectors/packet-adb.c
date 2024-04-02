@@ -61,8 +61,8 @@ static dissector_handle_t  adb_service_handle;
 static gint proto_tcp;
 static gint proto_usb;
 
-static wmem_tree_t *command_info = NULL;
-static wmem_tree_t *service_info = NULL;
+static wmem_tree_t *command_info;
+static wmem_tree_t *service_info;
 
 typedef struct service_data_t {
     guint32  start_in_frame;

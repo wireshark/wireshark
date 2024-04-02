@@ -609,7 +609,7 @@ typedef struct _fcels_conv_data {
     guint32 opcode;
 } fcels_conv_data_t;
 
-static wmem_map_t *fcels_req_hash = NULL;
+static wmem_map_t *fcels_req_hash;
 
 static dissector_handle_t fcsp_handle;
 

@@ -24,7 +24,7 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/filter_files.h>
 
-static GHashTable *macros_table = NULL;
+static GHashTable *macros_table;
 
 /* #define DUMP_DFILTER_MACRO */
 #ifdef DUMP_DFILTER_MACRO

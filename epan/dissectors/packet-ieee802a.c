@@ -37,7 +37,7 @@ typedef struct {
 	hf_register_info *field_info;
 } oui_info_t;
 
-static GHashTable *oui_info_table = NULL;
+static GHashTable *oui_info_table;
 
 /*
  * Add an entry for a new OUI.

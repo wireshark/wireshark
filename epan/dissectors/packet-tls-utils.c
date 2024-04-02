@@ -2858,7 +2858,7 @@ gint ssl_get_keyex_alg(gint cipher)
     /* }}} */
 }
 
-static wmem_list_t *connection_id_session_list = NULL;
+static wmem_list_t *connection_id_session_list;
 
 void
 ssl_init_cid_list(void) {
@@ -6626,7 +6626,7 @@ ssl_load_keyfile(const gchar *tls_keylog_filename, FILE **keylog_file,
 
 #ifdef SSL_DECRYPT_DEBUG /* {{{ */
 
-static FILE* ssl_debug_file=NULL;
+static FILE* ssl_debug_file;
 
 void
 ssl_set_debug(const gchar* name)

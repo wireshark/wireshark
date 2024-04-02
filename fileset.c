@@ -39,7 +39,7 @@ typedef struct _fileset {
  *
  * XXX This should probably be per-main-window instead of global.
  */
-static fileset set = { NULL, NULL};
+static fileset set;
 
 /*
  * Given a stat structure, get the creation time of the file if available,

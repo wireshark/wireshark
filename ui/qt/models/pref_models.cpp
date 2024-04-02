@@ -23,7 +23,7 @@
 #include <QApplication>
 
 // XXX Should we move this to ui/preference_utils?
-static GHashTable * pref_ptr_to_pref_ = NULL;
+static GHashTable * pref_ptr_to_pref_;
 pref_t *prefFromPrefPtr(void *pref_ptr)
 {
     return (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, (void *) pref_ptr);

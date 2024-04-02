@@ -25,7 +25,7 @@
 
 /* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
  * wmem_init. Should not be set again. */
-static bool do_override = false;
+static bool do_override;
 static wmem_allocator_type_t override_type;
 
 void *

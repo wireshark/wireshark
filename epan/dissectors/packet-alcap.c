@@ -401,13 +401,13 @@ static expert_field ei_alcap_release_cause_not31;
 static expert_field ei_alcap_abnormal_release;
 static expert_field ei_alcap_response;
 
-static dissector_handle_t alcap_handle = NULL;
+static dissector_handle_t alcap_handle;
 
 static bool keep_persistent_info = true;
 
-static wmem_tree_t* legs_by_dsaid = NULL;
-static wmem_tree_t* legs_by_osaid = NULL;
-static wmem_tree_t* legs_by_bearer = NULL;
+static wmem_tree_t* legs_by_dsaid;
+static wmem_tree_t* legs_by_osaid;
+static wmem_tree_t* legs_by_bearer;
 
 static const gchar* dissect_fields_unknown(packet_info* pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
     proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,ENC_NA);

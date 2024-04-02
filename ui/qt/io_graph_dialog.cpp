@@ -148,9 +148,9 @@ static const value_string moving_avg_vs[] = {
     { 0, NULL }
 };
 
-static io_graph_settings_t *iog_settings_ = NULL;
-static unsigned num_io_graphs_ = 0;
-static uat_t *iog_uat_ = NULL;
+static io_graph_settings_t *iog_settings_;
+static unsigned num_io_graphs_;
+static uat_t *iog_uat_;
 
 // y_axis_factor was added in 3.6. Provide backward compatibility.
 static const char *iog_uat_defaults_[] = {

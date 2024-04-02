@@ -72,16 +72,16 @@ static bool rpc_defragment = true;
 /* try to dissect RPC packets for programs that are not known
  * (proprietary ones) by wireshark.
  */
-static bool rpc_dissect_unknown_programs = false;
+static bool rpc_dissect_unknown_programs;
 
 /* try to find RPC fragment start if normal decode fails
  * (good when starting decode of mid-stream capture)
  */
-static bool rpc_find_fragment_start = false;
+static bool rpc_find_fragment_start;
 
 static int rpc_tap;
 
-static dissector_handle_t spnego_krb5_wrap_handle = NULL;
+static dissector_handle_t spnego_krb5_wrap_handle;
 
 static const value_string rpc_msg_type[] = {
 	{ RPC_CALL,		     "Call" },
@@ -310,7 +310,7 @@ static const fragment_items rpc_frag_items = {
 };
 
 /* Hash table with info on RPC program numbers */
-GHashTable *rpc_progs = NULL;
+GHashTable *rpc_progs;
 
 typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 	tvbuff_t *, fragment_head *, int, guint32, gboolean, gboolean);
@@ -321,8 +321,8 @@ static char *rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog,
 	guint32 vers, guint32 proc);
 
 
-static guint32 rpc_program = 0;
-static guint32 rpc_version = 0;
+static guint32 rpc_program;
+static guint32 rpc_version;
 static gint32 rpc_min_proc = -1;
 static gint32 rpc_max_proc = -1;
 
@@ -642,7 +642,7 @@ typedef struct _rpc_conv_info_t {
    a global tree for all contexts should still be unlikely to have collissions
    here.
 */
-wmem_tree_t *authgss_contexts = NULL;
+wmem_tree_t *authgss_contexts;
 
 unsigned int
 rpc_roundup(unsigned int a)
@@ -3076,7 +3076,7 @@ static reassembly_table rpc_fragment_table;
  * so that they don't try to combine fragments from different TCP
  * connections.)
  */
-static wmem_map_t *rpc_reassembly_table = NULL;
+static wmem_map_t *rpc_reassembly_table;
 
 typedef struct _rpc_fragment_key {
 	guint32 conv_id;

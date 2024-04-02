@@ -36,7 +36,7 @@
 #include "conversation_debug.h"
 
 #ifdef DEBUG_CONVERSATION
-int _debug_conversation_indent = 0;
+int _debug_conversation_indent;
 #endif
 
 /*
@@ -86,37 +86,37 @@ static const char *type_names[] = {
 /*
  * Hash table of hash tables for conversations identified by element lists.
  */
-static wmem_map_t *conversation_hashtable_element_list = NULL;
+static wmem_map_t *conversation_hashtable_element_list;
 
 /*
  * Hash table for conversations based on addresses only
  */
-static wmem_map_t *conversation_hashtable_exact_addr = NULL;
+static wmem_map_t *conversation_hashtable_exact_addr;
 
 /*
  * Hash table for conversations with no wildcards.
  */
-static wmem_map_t *conversation_hashtable_exact_addr_port = NULL;
+static wmem_map_t *conversation_hashtable_exact_addr_port;
 
 /*
  * Hash table for conversations with one wildcard address.
  */
-static wmem_map_t *conversation_hashtable_no_addr2 = NULL;
+static wmem_map_t *conversation_hashtable_no_addr2;
 
 /*
  * Hash table for conversations with one wildcard port.
  */
-static wmem_map_t *conversation_hashtable_no_port2 = NULL;
+static wmem_map_t *conversation_hashtable_no_port2;
 
 /*
  * Hash table for conversations with one wildcard address and port.
  */
-static wmem_map_t *conversation_hashtable_no_addr2_or_port2 = NULL;
+static wmem_map_t *conversation_hashtable_no_addr2_or_port2;
 
 /*
  * Hash table for conversations with a single unsigned ID number.
  */
-static wmem_map_t *conversation_hashtable_id = NULL;
+static wmem_map_t *conversation_hashtable_id;
 
 static guint32 new_index;
 

@@ -17,7 +17,7 @@
 
 #include "epan/dissectors/dissectors.h"
 
-static const char *cur_cb_name = NULL;
+static const char *cur_cb_name;
 // We could use g_atomic_pointer_set/get instead of a mutex, but that causes
 // a false positive with Clang and TSAN for GLib < 2.64.0 (Issue #17753):
 // https://gitlab.gnome.org/GNOME/glib/-/issues/1843

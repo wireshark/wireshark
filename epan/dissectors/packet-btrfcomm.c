@@ -115,7 +115,7 @@ static dissector_handle_t btgnss_handle;
 
 static dissector_table_t rfcomm_dlci_dissector_table;
 
-static wmem_tree_t *service_directions = NULL;
+static wmem_tree_t *service_directions;
 
 typedef struct {
     guint32  direction;
@@ -128,10 +128,10 @@ typedef struct {
     dissector_handle_t  payload_proto;
 } uat_rfcomm_channels_t;
 
-static bool                   rfcomm_channels_enabled   = false;
-static uat_t                  *uat_rfcomm_channels      = NULL;
-static uat_rfcomm_channels_t  *rfcomm_channels          = NULL;
-static guint                  num_rfcomm_channels       = 0;
+static bool                   rfcomm_channels_enabled;
+static uat_t                  *uat_rfcomm_channels;
+static uat_rfcomm_channels_t  *rfcomm_channels;
+static guint                  num_rfcomm_channels;
 
 UAT_DEC_CB_DEF(rfcomm_channels, channel, uat_rfcomm_channels_t)
 UAT_DISSECTOR_DEF(rfcomm_channels, payload_proto, payload_proto, payload_proto_name, uat_rfcomm_channels_t)

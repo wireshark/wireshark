@@ -79,7 +79,7 @@ VALUE_STRING_ARRAY(http2_header_repr_type);
 #if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
 static gboolean http2_decompress_body = TRUE;
 #else
-static gboolean http2_decompress_body = FALSE;
+static gboolean http2_decompress_body;
 #endif
 
 /* Try to dissect reassembled http2.data.data according to content-type later */
@@ -301,7 +301,7 @@ decode_as_http2_populate_list(const gchar* table_name _U_, decode_as_add_to_list
 
 #endif /*HAVE_NGHTTP2*/
 
-static GHashTable* streamid_hash = NULL;
+static GHashTable* streamid_hash;
 
 void proto_register_http2(void);
 void proto_reg_handoff_http2(void);
@@ -555,9 +555,9 @@ static const fragment_items http2_body_fragment_items = {
    bytes.  We reduce memory usage by caching header field in this
    wmem_map_t to reuse its memory region when we see the same header
    field next time. */
-static wmem_map_t *http2_hdrcache_map = NULL;
+static wmem_map_t *http2_hdrcache_map;
 /* Header name_length + name + value_length + value */
-static char *http2_header_pstr = NULL;
+static char *http2_header_pstr;
 #endif
 
 #ifdef HAVE_NGHTTP2
@@ -574,11 +574,11 @@ typedef struct _header_field_t {
     gchar* header_desc;
 } header_field_t;
 
-static header_field_t* header_fields = NULL;
-static guint num_header_fields = 0;
-static guint num_header_fields_cleanup = 0;
+static header_field_t* header_fields;
+static guint num_header_fields;
+static guint num_header_fields_cleanup;
 
-static GHashTable* header_fields_hash = NULL;
+static GHashTable* header_fields_hash;
 
 static bool
 header_fields_update_cb(void *r, char **err)
@@ -644,7 +644,7 @@ header_fields_free_cb(void*r)
 
 }
 
-static hf_register_info* hf_uat = NULL;
+static hf_register_info* hf_uat;
 
 static void
 deregister_header_fields(void)
@@ -1057,8 +1057,8 @@ typedef struct {
     gboolean enable; /* enable or disable this rule */
 } http2_fake_header_t;
 
-static http2_fake_header_t* http2_fake_headers = NULL;
-static guint num_http2_fake_headers = 0;
+static http2_fake_header_t* http2_fake_headers;
+static guint num_http2_fake_headers;
 
 static void*
 http2_fake_headers_copy_cb(void* n, const void* o, size_t siz _U_)

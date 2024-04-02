@@ -123,7 +123,7 @@ void proto_reg_handoff_aruba_erm(void);
 void proto_reg_handoff_aruba_erm_radio(void);
 
 #if 0
-static gint  aruba_erm_type         = 0;
+static gint  aruba_erm_type;
 #endif
 
 static int  proto_aruba_erm;

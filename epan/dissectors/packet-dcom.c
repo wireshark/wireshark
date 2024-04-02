@@ -69,7 +69,7 @@ void proto_reg_handoff_dcom (void);
 
 static int proto_dcom;
 
-bool dcom_prefs_display_unmarshalling_details = false;
+bool dcom_prefs_display_unmarshalling_details;
 
 
 static gint ett_dcom_this;
@@ -215,9 +215,9 @@ static const e_guid_t iid_act_prop_in =   { 0x000001A2, 0x0000, 0x0000, { 0xC0, 
 static const e_guid_t iid_act_prop_out =  { 0x000001A3, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 #endif
 
-static GList *dcom_machines   = NULL;
-static GList *dcom_interfaces = NULL;
-static GList *dcom_marshalers = NULL;
+static GList *dcom_machines;
+static GList *dcom_interfaces;
+static GList *dcom_marshalers;
 
 static const value_string dcom_thisthat_flag_vals[] = {
 	{ 0, "INFO_NULL" },

@@ -376,9 +376,9 @@ static const value_string zbee_nwk_commissioning_types[] = {
  * Hash Tables and Lists
  *-------------------------------------
  */
-ieee802154_map_tab_t zbee_nwk_map = { NULL, NULL };
-GHashTable *zbee_table_nwk_keyring = NULL;
-GHashTable *zbee_table_link_keyring = NULL;
+ieee802154_map_tab_t zbee_nwk_map;
+GHashTable *zbee_table_nwk_keyring;
+GHashTable *zbee_table_link_keyring;
 
 static int zbee_nwk_address_to_str(const address* addr, gchar *buf, int buf_len)
 {

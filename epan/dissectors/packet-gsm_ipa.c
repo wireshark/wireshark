@@ -63,8 +63,8 @@ void proto_reg_handoff_gsm_ipa(void);
 
 static dissector_handle_t ipa_tcp_handle;
 static dissector_handle_t ipa_udp_handle;
-static bool global_ipa_in_root = false;
-static bool global_ipa_in_info = false;
+static bool global_ipa_in_root;
+static bool global_ipa_in_info;
 
 /* Initialize the protocol and registered fields */
 static int proto_ipa;

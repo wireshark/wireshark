@@ -33,7 +33,7 @@ static int proto_iso7816_atr;
 static dissector_handle_t iso7816_handle;
 static dissector_handle_t iso7816_atr_handle;
 
-static wmem_tree_t *transactions = NULL;
+static wmem_tree_t *transactions;
 
 static dissector_table_t iso7816_apdu_pld_table;
 

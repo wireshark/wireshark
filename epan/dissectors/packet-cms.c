@@ -309,7 +309,7 @@ static gint ett_cms_CurrentFWConfig;
 static gint ett_cms_HardwareModuleName;
 static gint ett_cms_FirmwarePackageMessageDigest;
 
-static dissector_handle_t cms_handle = NULL;
+static dissector_handle_t cms_handle;
 
 static int dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -318,8 +318,8 @@ struct cms_private_data {
   tvbuff_t *content_tvb;
 };
 
-static proto_tree *top_tree=NULL;
-static proto_tree *cap_tree=NULL;
+static proto_tree *top_tree;
+static proto_tree *cap_tree;
 
 #define HASH_SHA1 "1.3.14.3.2.26"
 

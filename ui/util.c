@@ -343,7 +343,7 @@ bool display_is_remote(void)
 }
 
 // MUST be UTF-8
-static char *last_open_dir = NULL;
+static char *last_open_dir;
 
 const char *
 get_last_open_dir(void)

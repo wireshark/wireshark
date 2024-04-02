@@ -87,12 +87,12 @@ static gint ett_rtpsproc_advanced_frame0;
 static gint ett_rtpsproc_advanced_frame1;
 
 /* Initialize the protocol and registered fields */
-static header_field_info *rtpsproc_hf = NULL;
+static header_field_info *rtpsproc_hf;
 static int hf_rtpsproc_param_id;
 static int hf_rtpsproc_param_length;
 
 /* Used for caching a handle to the RTPS dissector */
-static dissector_handle_t rtps_handle = NULL;
+static dissector_handle_t rtps_handle;
 
 /* ========================================================================== */
 /*                                 Dissector                                  */

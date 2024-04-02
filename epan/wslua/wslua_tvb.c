@@ -62,8 +62,8 @@ WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"));
    ====
 */
 
-static GPtrArray* outstanding_Tvb = NULL;
-static GPtrArray* outstanding_TvbRange = NULL;
+static GPtrArray* outstanding_Tvb;
+static GPtrArray* outstanding_TvbRange;
 
 /* this is used to push Tvbs that were created brand new by wslua code */
 int push_wsluaTvb(lua_State* L, Tvb t) {

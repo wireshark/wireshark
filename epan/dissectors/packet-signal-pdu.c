@@ -72,13 +72,13 @@
 /* ID wireshark identifies the dissector by */
 static int proto_signal_pdu;
 
-static dissector_handle_t signal_pdu_handle_someip          = NULL;
-static dissector_handle_t signal_pdu_handle_can             = NULL;
-static dissector_handle_t signal_pdu_handle_flexray         = NULL;
-static dissector_handle_t signal_pdu_handle_lin             = NULL;
-static dissector_handle_t signal_pdu_handle_pdu_transport   = NULL;
-static dissector_handle_t signal_pdu_handle_ipdum           = NULL;
-static dissector_handle_t signal_pdu_handle_isobus          = NULL;
+static dissector_handle_t signal_pdu_handle_someip;
+static dissector_handle_t signal_pdu_handle_can;
+static dissector_handle_t signal_pdu_handle_flexray;
+static dissector_handle_t signal_pdu_handle_lin;
+static dissector_handle_t signal_pdu_handle_pdu_transport;
+static dissector_handle_t signal_pdu_handle_ipdum;
+static dissector_handle_t signal_pdu_handle_isobus;
 
 static int hf_pdu_name;
 static int hf_payload_unparsed;
@@ -86,7 +86,7 @@ static int hf_payload_unparsed;
 static gint ett_spdu_payload;
 static gint ett_spdu_signal;
 static bool spdu_deserializer_activated                 = true;
-static bool spdu_deserializer_show_hidden               = false;
+static bool spdu_deserializer_show_hidden;
 static bool spdu_deserializer_hide_raw_values           = true;
 
 /*** expert info items ***/
@@ -95,30 +95,30 @@ static expert_field ei_spdu_config_error;
 static expert_field ei_spdu_unaligned_data;
 
 /*** Data Structure for UAT based config ***/
-static GHashTable *data_spdu_messages                       = NULL;
+static GHashTable *data_spdu_messages;
 
-static GHashTable *data_spdu_signal_list                    = NULL;
-static GHashTable *data_spdu_signal_value_names             = NULL;
+static GHashTable *data_spdu_signal_list;
+static GHashTable *data_spdu_signal_value_names;
 
-static GHashTable *data_spdu_someip_mappings                = NULL;
-static GHashTable *data_spdu_can_mappings                   = NULL;
-static GHashTable *data_spdu_flexray_mappings               = NULL;
-static GHashTable *data_spdu_lin_mappings                   = NULL;
-static GHashTable *data_spdu_pdu_transport_mappings         = NULL;
-static GHashTable *data_spdu_ipdum_mappings                 = NULL;
-static GHashTable *data_spdu_dlt_mappings                   = NULL;
-static GHashTable *data_spdu_uds_mappings                   = NULL;
-static GHashTable *data_spdu_isobus_mappings                = NULL;
+static GHashTable *data_spdu_someip_mappings;
+static GHashTable *data_spdu_can_mappings;
+static GHashTable *data_spdu_flexray_mappings;
+static GHashTable *data_spdu_lin_mappings;
+static GHashTable *data_spdu_pdu_transport_mappings;
+static GHashTable *data_spdu_ipdum_mappings;
+static GHashTable *data_spdu_dlt_mappings;
+static GHashTable *data_spdu_uds_mappings;
+static GHashTable *data_spdu_isobus_mappings;
 
-static hf_register_info *dynamic_hf_base_raw                = NULL;
-static hf_register_info *dynamic_hf_agg_sum                 = NULL;
-static hf_register_info *dynamic_hf_agg_avg                 = NULL;
-static hf_register_info *dynamic_hf_agg_int                 = NULL;
-static guint dynamic_hf_number_of_entries                   = 0;
-static guint dynamic_hf_base_raw_number                     = 0;
-static guint dynamic_hf_agg_sum_number                      = 0;
-static guint dynamic_hf_agg_avg_number                      = 0;
-static guint dynamic_hf_agg_int_number                      = 0;
+static hf_register_info *dynamic_hf_base_raw;
+static hf_register_info *dynamic_hf_agg_sum;
+static hf_register_info *dynamic_hf_agg_avg;
+static hf_register_info *dynamic_hf_agg_int;
+static guint dynamic_hf_number_of_entries;
+static guint dynamic_hf_base_raw_number;
+static guint dynamic_hf_agg_sum_number;
+static guint dynamic_hf_agg_avg_number;
+static guint dynamic_hf_agg_int_number;
 
 #define HF_TYPE_BASE                                        0
 #define HF_TYPE_RAW                                         1
@@ -326,41 +326,41 @@ typedef struct _spdu_isobus_mapping {
 typedef spdu_isobus_mapping_t spdu_isobus_mapping_uat_t;
 
 
-static generic_one_id_string_t *spdu_message_ident = NULL;
-static guint spdu_message_ident_num = 0;
+static generic_one_id_string_t *spdu_message_ident;
+static guint spdu_message_ident_num;
 
-static spdu_signal_list_uat_t *spdu_signal_list = NULL;
-static guint spdu_signal_list_num = 0;
+static spdu_signal_list_uat_t *spdu_signal_list;
+static guint spdu_signal_list_num;
 
-static spdu_signal_value_name_uat_t *spdu_signal_value_names = NULL;
-static guint spdu_parameter_value_names_num = 0;
+static spdu_signal_value_name_uat_t *spdu_signal_value_names;
+static guint spdu_parameter_value_names_num;
 
-static spdu_someip_mapping_t *spdu_someip_mapping = NULL;
-static guint spdu_someip_mapping_num = 0;
+static spdu_someip_mapping_t *spdu_someip_mapping;
+static guint spdu_someip_mapping_num;
 
-static spdu_can_mapping_t *spdu_can_mapping = NULL;
-static guint spdu_can_mapping_num = 0;
+static spdu_can_mapping_t *spdu_can_mapping;
+static guint spdu_can_mapping_num;
 
-static spdu_flexray_mapping_t *spdu_flexray_mapping = NULL;
-static guint spdu_flexray_mapping_num = 0;
+static spdu_flexray_mapping_t *spdu_flexray_mapping;
+static guint spdu_flexray_mapping_num;
 
-static spdu_lin_mapping_t *spdu_lin_mapping = NULL;
-static guint spdu_lin_mapping_num = 0;
+static spdu_lin_mapping_t *spdu_lin_mapping;
+static guint spdu_lin_mapping_num;
 
-static spdu_pdu_transport_mapping_t *spdu_pdu_transport_mapping = NULL;
-static guint spdu_pdu_transport_mapping_num = 0;
+static spdu_pdu_transport_mapping_t *spdu_pdu_transport_mapping;
+static guint spdu_pdu_transport_mapping_num;
 
-static spdu_ipdum_mapping_t *spdu_ipdum_mapping = NULL;
-static guint spdu_ipdum_mapping_num = 0;
+static spdu_ipdum_mapping_t *spdu_ipdum_mapping;
+static guint spdu_ipdum_mapping_num;
 
-static spdu_dlt_mapping_t *spdu_dlt_mapping = NULL;
-static guint spdu_dlt_mapping_num = 0;
+static spdu_dlt_mapping_t *spdu_dlt_mapping;
+static guint spdu_dlt_mapping_num;
 
-static spdu_uds_mapping_t *spdu_uds_mapping = NULL;
-static guint spdu_uds_mapping_num = 0;
+static spdu_uds_mapping_t *spdu_uds_mapping;
+static guint spdu_uds_mapping_num;
 
-static spdu_isobus_mapping_t *spdu_isobus_mapping = NULL;
-static guint spdu_isobus_mapping_num = 0;
+static spdu_isobus_mapping_t *spdu_isobus_mapping;
+static guint spdu_isobus_mapping_num;
 
 void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
@@ -2091,7 +2091,7 @@ typedef struct _spdu_aggregation {
     gdouble  sum_time_value_products;
 } spdu_aggregation_t;
 
-static wmem_map_t *spdu_aggregation_data = NULL;
+static wmem_map_t *spdu_aggregation_data;
 
 static spdu_aggregation_t *
 get_or_create_aggregation_data(packet_info *pinfo, gint hf_id_effective) {

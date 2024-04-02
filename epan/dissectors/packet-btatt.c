@@ -2136,10 +2136,10 @@ static expert_field ei_btatt_unexpected_data;
 static expert_field ei_btatt_undecoded;
 static expert_field ei_btatt_invalid_length;
 
-static wmem_tree_t *mtus = NULL;
-static wmem_tree_t *requests = NULL;
-static wmem_tree_t *fragments = NULL;
-static wmem_tree_t *handle_to_uuid = NULL;
+static wmem_tree_t *mtus;
+static wmem_tree_t *requests;
+static wmem_tree_t *fragments;
+static wmem_tree_t *handle_to_uuid;
 
 static dissector_handle_t btatt_handle;
 static dissector_handle_t btgatt_handle;

@@ -32,7 +32,7 @@ struct register_follow {
     follow_sub_stream_id_func sub_stream_id; /* sub-stream id, used for UI */
 };
 
-static wmem_tree_t *registered_followers = NULL;
+static wmem_tree_t *registered_followers;
 
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,

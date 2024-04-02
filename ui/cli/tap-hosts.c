@@ -25,8 +25,8 @@
 
 void register_tap_listener_hosts(void);
 
-static bool dump_v4 = false;
-static bool dump_v6 = false;
+static bool dump_v4;
+static bool dump_v6;
 
 #define TAP_NAME "hosts"
 

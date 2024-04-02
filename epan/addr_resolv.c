@@ -207,21 +207,21 @@ typedef struct _serv_port_custom_key {
     port_type         type;
 } serv_port_custom_key_t;
 
-static wmem_allocator_t *addr_resolv_scope = NULL;
+static wmem_allocator_t *addr_resolv_scope;
 
 // Maps guint -> hashipxnet_t*
-static wmem_map_t *ipxnet_hash_table = NULL;
-static wmem_map_t *ipv4_hash_table = NULL;
-static wmem_map_t *ipv6_hash_table = NULL;
+static wmem_map_t *ipxnet_hash_table;
+static wmem_map_t *ipv4_hash_table;
+static wmem_map_t *ipv6_hash_table;
 // Maps guint -> hashvlan_t*
-static wmem_map_t *vlan_hash_table = NULL;
-static wmem_map_t *ss7pc_hash_table = NULL;
+static wmem_map_t *vlan_hash_table;
+static wmem_map_t *ss7pc_hash_table;
 
 // Maps IP address -> manually set hostname.
-static wmem_map_t *manually_resolved_ipv4_list = NULL;
-static wmem_map_t *manually_resolved_ipv6_list = NULL;
+static wmem_map_t *manually_resolved_ipv4_list;
+static wmem_map_t *manually_resolved_ipv6_list;
 
-static addrinfo_lists_t addrinfo_lists = { NULL, NULL};
+static addrinfo_lists_t addrinfo_lists;
 
 struct cb_serv_data {
     gchar       *service;
@@ -232,24 +232,24 @@ struct cb_serv_data {
 // XXX: Note that hashmanuf_t* only accommodates 24-bit OUIs.
 // We might want to store vendor names from MA-M and MA-S to
 // present in the Resolved Addresses dialog.
-static wmem_map_t *manuf_hashtable = NULL;
+static wmem_map_t *manuf_hashtable;
 // Maps address -> hashwka_t*
-static wmem_map_t *wka_hashtable = NULL;
+static wmem_map_t *wka_hashtable;
 // Maps address -> hashether_t*
-static wmem_map_t *eth_hashtable = NULL;
+static wmem_map_t *eth_hashtable;
 // Maps guint -> serv_port_t*
-static wmem_map_t *serv_port_hashtable = NULL;
-static wmem_map_t *serv_port_custom_hashtable = NULL;
+static wmem_map_t *serv_port_hashtable;
+static wmem_map_t *serv_port_custom_hashtable;
 
 // Maps enterprise-id -> enterprise-desc (only used for user additions)
-static GHashTable *enterprises_hashtable = NULL;
+static GHashTable *enterprises_hashtable;
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
-static gboolean have_subnet_entry = FALSE;
+static gboolean have_subnet_entry;
 
-static gboolean new_resolved_objects = FALSE;
+static gboolean new_resolved_objects;
 
-static GPtrArray* extra_hosts_files = NULL;
+static GPtrArray* extra_hosts_files;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(const guint32 port, gpointer ptr);
@@ -307,7 +307,7 @@ e_addr_resolve gbl_resolv_flags = {
  * "The recommended concurrent query limit is about 32k queries"
  */
 static guint name_resolve_concurrency = 500;
-static gboolean resolve_synchronously = FALSE;
+static gboolean resolve_synchronously;
 
 /*
  *  Global variables (can be changed in GUI sections)
@@ -315,19 +315,19 @@ static gboolean resolve_synchronously = FALSE;
  *  GUI code to change them.
  */
 
-gchar *g_ethers_path    = NULL;     /* global ethers file     */
-gchar *g_pethers_path   = NULL;     /* personal ethers file   */
-gchar *g_wka_path       = NULL;     /* global well-known-addresses file */
-gchar *g_manuf_path     = NULL;     /* global manuf file      */
-gchar *g_pmanuf_path    = NULL;     /* personal manuf file      */
-gchar *g_ipxnets_path   = NULL;     /* global ipxnets file    */
-gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
-gchar *g_services_path  = NULL;     /* global services file   */
-gchar *g_pservices_path = NULL;     /* personal services file */
-gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
-gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
-gchar *g_enterprises_path = NULL;   /* global enterprises file   */
-gchar *g_penterprises_path = NULL;  /* personal enterprises file */
+gchar *g_ethers_path;     /* global ethers file     */
+gchar *g_pethers_path;     /* personal ethers file   */
+gchar *g_wka_path;     /* global well-known-addresses file */
+gchar *g_manuf_path;     /* global manuf file      */
+gchar *g_pmanuf_path;     /* personal manuf file      */
+gchar *g_ipxnets_path;     /* global ipxnets file    */
+gchar *g_pipxnets_path;     /* personal ipxnets file  */
+gchar *g_services_path;     /* global services file   */
+gchar *g_pservices_path;     /* personal services file */
+gchar *g_pvlan_path;     /* personal vlans file    */
+gchar *g_ss7pcs_path;     /* personal ss7pcs file   */
+gchar *g_enterprises_path;   /* global enterprises file   */
+gchar *g_penterprises_path;  /* personal enterprises file */
                                     /* first resolving call   */
 
 /*
@@ -373,13 +373,13 @@ typedef struct _sync_dns_data
 static ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
 static ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
 
-static  gboolean  async_dns_initialized = FALSE;
-static  guint       async_dns_in_flight = 0;
-static  wmem_list_t *async_dns_queue_head = NULL;
+static  gboolean  async_dns_initialized;
+static  guint       async_dns_in_flight;
+static  wmem_list_t *async_dns_queue_head;
 static  GMutex async_dns_queue_mtx;
 
 //UAT for providing a list of DNS servers to C-ARES for name resolution
-bool use_custom_dns_server_list = false;
+bool use_custom_dns_server_list;
 struct dns_server_data {
     char *ipaddr;
     guint32 udp_port;
@@ -390,9 +390,9 @@ UAT_CSTRING_CB_DEF(dnsserverlist_uats, ipaddr, struct dns_server_data)
 UAT_DEC_CB_DEF(dnsserverlist_uats, tcp_port, struct dns_server_data)
 UAT_DEC_CB_DEF(dnsserverlist_uats, udp_port, struct dns_server_data)
 
-static uat_t *dnsserver_uat = NULL;
-static struct dns_server_data  *dnsserverlist_uats = NULL;
-static guint ndnsservers = 0;
+static uat_t *dnsserver_uat;
+static struct dns_server_data  *dnsserverlist_uats;
+static guint ndnsservers;
 
 static void
 dns_server_free_cb(void *data)
@@ -1695,7 +1695,7 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 
 } /* parse_ether_line */
 
-static FILE *eth_p = NULL;
+static FILE *eth_p;
 
 static void
 set_ethent(char *path)
@@ -2350,7 +2350,7 @@ parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
 
 } /* parse_ipxnets_line */
 
-static FILE *ipxnet_p = NULL;
+static FILE *ipxnet_p;
 
 static void
 set_ipxnetent(char *path)
@@ -2510,7 +2510,7 @@ parse_vlan_line(char *line, vlan_t *vlan)
 
 } /* parse_vlan_line */
 
-static FILE *vlan_p = NULL;
+static FILE *vlan_p;
 
 static void
 set_vlanent(char *path)

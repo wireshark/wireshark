@@ -41,7 +41,7 @@ static bool suppress_smi_errors;
 
 #include "oids.h"
 
-static int debuglevel = 0;
+static int debuglevel;
 
 /*
  * From SNMPv2-SMI and X.690
@@ -231,13 +231,13 @@ typedef struct smi_module_t {
 	char* name;
 } smi_module_t;
 
-static smi_module_t* smi_paths = NULL;
-static guint num_smi_paths = 0;
-static uat_t* smi_paths_uat = NULL;
+static smi_module_t* smi_paths;
+static guint num_smi_paths;
+static uat_t* smi_paths_uat;
 
-static smi_module_t* smi_modules = NULL;
-static guint num_smi_modules = 0;
-static uat_t* smi_modules_uat = NULL;
+static smi_module_t* smi_modules;
+static guint num_smi_modules;
+static uat_t* smi_modules_uat;
 
 static GString* smi_errors;
 

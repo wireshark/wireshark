@@ -450,7 +450,7 @@ static expert_field ei_nas_eps_sec_hdr_wrong_pd;
 static expert_field ei_nas_eps_missing_mandatory_elemen;
 
 /* Global variables */
-static bool g_nas_eps_dissect_plain = false;
+static bool g_nas_eps_dissect_plain;
 static bool g_nas_eps_null_decipher = true;
 enum {
     DECODE_USER_DATA_AS_NONE,

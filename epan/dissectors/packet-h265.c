@@ -396,12 +396,12 @@ static expert_field ei_h265_value_to_large;
 
 static dissector_handle_t h265_handle;
 
-static gboolean dependent_slice_segments_enabled_flag = 0;
-static guint num_extra_slice_header_bits = 0;
-static guint log2_min_luma_coding_block_size_minus3 = 0;
-static guint log2_diff_max_min_luma_coding_block_size = 0;
-static guint pic_width_in_luma_samples = 0;
-static guint pic_height_in_luma_samples = 0;
+static gboolean dependent_slice_segments_enabled_flag;
+static guint num_extra_slice_header_bits;
+static guint log2_min_luma_coding_block_size_minus3;
+static guint log2_diff_max_min_luma_coding_block_size;
+static guint pic_width_in_luma_samples;
+static guint pic_height_in_luma_samples;
 
 /* syntax tables in subclause 7.3 is equal to
 * ue(v), me(v), se(v), or te(v).

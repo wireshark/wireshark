@@ -225,7 +225,7 @@ typedef struct {
     ssh_bignum *key_material;
 } ssh_key_map_entry_t;
 
-static GHashTable * ssh_master_key_map = NULL;
+static GHashTable * ssh_master_key_map;
 
 static int proto_ssh;
 
@@ -439,7 +439,7 @@ static expert_field ei_ssh_mac_bad;
 static bool ssh_desegment = true;
 
 static dissector_handle_t ssh_handle;
-static dissector_handle_t sftp_handle=NULL;
+static dissector_handle_t sftp_handle;
 
 static const char   *pref_keylog_file;
 static FILE         *ssh_keylog_file;
@@ -466,7 +466,7 @@ static const fragment_items ssh_segment_items = {
 #define SSH_DECRYPT_DEBUG
 
 #ifdef SSH_DECRYPT_DEBUG
-static const gchar *ssh_debug_file_name     = NULL;
+static const gchar *ssh_debug_file_name;
 #endif
 
 #define TCP_RANGE_SSH  "22"
@@ -4869,7 +4869,7 @@ ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
 
 #ifdef SSH_DECRYPT_DEBUG /* {{{ */
 
-static FILE* ssh_debug_file=NULL;
+static FILE* ssh_debug_file;
 
 static void
 ssh_prefs_apply_cb(void)

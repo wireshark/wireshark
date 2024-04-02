@@ -74,7 +74,7 @@ typedef struct _h225ras_call_info_key {
 
 /* Global Memory Chunks for lists and Global hash tables*/
 
-static wmem_map_t *ras_calls[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+static wmem_map_t *ras_calls[7];
 
 /* functions, needed using ras-request and halfcall matching*/
 static h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_key ,int category);
@@ -92,9 +92,9 @@ static dissector_table_t gef_name_dissector_table;
 static dissector_table_t gef_content_dissector_table;
 
 
-static dissector_handle_t h245_handle=NULL;
-static dissector_handle_t h245dg_handle=NULL;
-static dissector_handle_t h4501_handle=NULL;
+static dissector_handle_t h245_handle;
+static dissector_handle_t h245dg_handle;
+static dissector_handle_t h4501_handle;
 
 static dissector_handle_t nsp_handle;
 static dissector_handle_t tp_handle;
@@ -130,7 +130,7 @@ static guint32 ipv4_address;
 static ws_in6_addr ipv6_address;
 static ws_in6_addr ipv6_address_zeros = {{0}};
 static guint32 ip_port;
-static gboolean contains_faststart = FALSE;
+static gboolean contains_faststart;
 static e_guid_t *call_id_guid;
 
 /* NonStandardParameter */

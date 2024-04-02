@@ -61,10 +61,10 @@ static dissector_handle_t fp_handle;
 extern int proto_sscop;
 extern int proto_fp;
 
-static wmem_tree_t* port_handles = NULL;
-static uat_t* k12_uat = NULL;
-static k12_handles_t* k12_handles = NULL;
-static guint nk12_handles = 0;
+static wmem_tree_t* port_handles;
+static uat_t* k12_uat;
+static k12_handles_t* k12_handles;
+static guint nk12_handles;
 
 static const value_string  k12_port_types[] = {
 	{ K12_PORT_DS1,		"Ds1" },

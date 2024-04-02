@@ -46,7 +46,7 @@ enum _stat_tree_columns {
 };
 
 /* used to contain the registered stat trees */
-static GHashTable *registry = NULL;
+static GHashTable *registry;
 
 /* a text representation of a node
 if buffer is NULL returns a newly allocated string */

@@ -82,7 +82,7 @@ static expert_field ei_unknown_command_or_invalid_parameters;
 static dissector_handle_t  acr122_handle;
 static dissector_handle_t  pn532_handle;
 
-static wmem_tree_t *command_info = NULL;
+static wmem_tree_t *command_info;
 
 typedef struct command_data_t {
     guint32  bus_id;

@@ -457,7 +457,7 @@ static expert_field ei_isakmp_payload_bad_length;
 static expert_field ei_isakmp_bad_fragment_number;
 static expert_field ei_isakmp_notify_data_3gpp_unknown_device_identity;
 
-static dissector_handle_t eap_handle = NULL;
+static dissector_handle_t eap_handle;
 static dissector_handle_t isakmp_handle;
 
 
@@ -1905,11 +1905,11 @@ typedef struct decrypt_data {
 } decrypt_data_t;
 
 /* IKEv1: Lookup from  Initiator-SPI -> decrypt_data_t* */
-static GHashTable *isakmp_hash = NULL;
+static GHashTable *isakmp_hash;
 
-static ikev1_uat_data_key_t* ikev1_uat_data = NULL;
-static uat_t * ikev1_uat = NULL;
-static guint num_ikev1_uat_data = 0;
+static ikev1_uat_data_key_t* ikev1_uat_data;
+static uat_t * ikev1_uat;
+static guint num_ikev1_uat_data;
 
 /* Specifications of encryption algorithms for IKEv2 decryption */
 typedef struct _ikev2_encr_alg_spec {
@@ -2096,12 +2096,12 @@ typedef struct _ikev2_uat_data {
   ikev2_auth_alg_spec_t *auth_spec;
 } ikev2_uat_data_t;
 
-static ikev2_uat_data_t* ikev2_uat_data = NULL;
-static guint num_ikev2_uat_data = 0;
+static ikev2_uat_data_t* ikev2_uat_data;
+static guint num_ikev2_uat_data;
 static uat_t* ikev2_uat;
 
 /* IKEv2: (I-SPI, R-SPI) -> ikev2_uat_data_t* */
-static GHashTable *ikev2_key_hash = NULL;
+static GHashTable *ikev2_key_hash;
 
 #define IKEV2_ENCR_3DES_STR "3DES [RFC2451]"
 static const value_string vs_ikev2_encr_algs[] = {
@@ -2456,7 +2456,7 @@ typedef struct ikev2_fragmentation_state_t {
 } ikev2_fragmentation_state_t;
 
 /* frame_number -> next_payload.  The key will be the frame that completes the original message */
-static GHashTable *defrag_next_payload_hash = NULL;
+static GHashTable *defrag_next_payload_hash;
 
 static void dissect_ikev2_fragmentation(tvbuff_t *, int, proto_tree *, packet_info *, guint32 message_id, guint8 next_payload,
                                         gboolean is_request, void* decr_info);

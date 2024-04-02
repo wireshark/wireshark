@@ -673,7 +673,7 @@ typedef struct {
     guint32  session_start_packet_num;
 } mncp_rhash_value;
 
-static GHashTable *mncp_rhash = NULL;
+static GHashTable *mncp_rhash;
 
 /* Hash Functions */
 static gint

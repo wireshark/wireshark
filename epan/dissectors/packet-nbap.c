@@ -6666,9 +6666,9 @@ static void nbap_reset_private_data(packet_info *pinfo)
 /* Variables for sub elements dissection */
 static  const gchar *ProcedureID;
 /* Trees */
-static wmem_tree_t* edch_flow_port_map = NULL;
-wmem_tree_t *nbap_scrambling_code_crncc_map = NULL;
-wmem_tree_t *nbap_crncc_urnti_map = NULL;
+static wmem_tree_t* edch_flow_port_map;
+wmem_tree_t *nbap_scrambling_code_crncc_map;
+wmem_tree_t *nbap_crncc_urnti_map;
 static wmem_tree_t* com_context_map;
 
 /* This table is used externally from FP, MAC and such, TODO: merge this with

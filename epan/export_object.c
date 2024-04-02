@@ -23,7 +23,7 @@ struct register_eo {
     export_object_gui_reset_cb reset_cb; /* function to parse parameters of optional arguments of tap string */
 };
 
-static wmem_tree_t *registered_eo_tables = NULL;
+static wmem_tree_t *registered_eo_tables;
 
 int
 register_export_object(const int proto_id, tap_packet_cb export_packet_func, export_object_gui_reset_cb reset_cb)

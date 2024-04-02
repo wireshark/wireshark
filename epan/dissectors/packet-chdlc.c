@@ -149,7 +149,7 @@ chdlctype(dissector_handle_t sub_dissector, guint16 chdlc_type,
   }
 }
 
-static gint chdlc_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
+static gint chdlc_fcs_decode; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 
 static int
 dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

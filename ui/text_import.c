@@ -116,15 +116,15 @@
 static text_import_info_t *info_p;
 
 /* Dummy Ethernet header */
-static bool hdr_ethernet = false;
+static bool hdr_ethernet;
 static uint8_t hdr_eth_dest_addr[6] = {0x20, 0x52, 0x45, 0x43, 0x56, 0x00};
 static uint8_t hdr_eth_src_addr[6]  = {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00};
-static uint32_t hdr_ethernet_proto = 0;
+static uint32_t hdr_ethernet_proto;
 
 /* Dummy IP header */
-static bool hdr_ip = false;
-static bool hdr_ipv6 = false;
-static unsigned hdr_ip_proto = 0;
+static bool hdr_ip;
+static bool hdr_ipv6;
+static unsigned hdr_ip_proto;
 
 /* Destination and source addresses for IP header */
 static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
@@ -135,57 +135,57 @@ static ws_in6_addr IPv6_SRC = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x01, 
 static ws_in6_addr IPv6_DST = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}};
 
 /* Dummy UDP header */
-static bool hdr_udp = false;
+static bool hdr_udp;
 
 /* Dummy TCP header */
-static bool hdr_tcp = false;
+static bool hdr_tcp;
 
 /* TCP sequence numbers when has_direction is true */
-static uint32_t tcp_in_seq_num = 0;
-static uint32_t tcp_out_seq_num = 0;
+static uint32_t tcp_in_seq_num;
+static uint32_t tcp_out_seq_num;
 
 /* Dummy SCTP header */
-static bool hdr_sctp = false;
+static bool hdr_sctp;
 
 /* Dummy DATA chunk header */
-static bool hdr_data_chunk = false;
-static uint8_t hdr_data_chunk_type = 0;
-static uint8_t hdr_data_chunk_bits = 0;
-static uint32_t hdr_data_chunk_tsn  = 0;
-static uint16_t hdr_data_chunk_sid  = 0;
-static uint16_t hdr_data_chunk_ssn  = 0;
+static bool hdr_data_chunk;
+static uint8_t hdr_data_chunk_type;
+static uint8_t hdr_data_chunk_bits;
+static uint32_t hdr_data_chunk_tsn;
+static uint16_t hdr_data_chunk_sid;
+static uint16_t hdr_data_chunk_ssn;
 
 /* Dummy ExportPdu header */
-static bool hdr_export_pdu = false;
+static bool hdr_export_pdu;
 
 /* Hex+ASCII text dump identification, to handle an edge case where
  * the ASCII representation contains patterns that look like bytes. */
 static uint8_t* pkt_lnstart;
 
-static bool has_direction = false;
+static bool has_direction;
 static uint32_t direction = PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED;
-static bool has_seqno = false;
-static uint64_t seqno = 0;
+static bool has_seqno;
+static uint64_t seqno;
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
 static uint8_t *packet_buf;
-static uint32_t curr_offset = 0;
-static uint32_t packet_start = 0;
-static bool offset_warned = false;
+static uint32_t curr_offset;
+static uint32_t packet_start;
+static bool offset_warned;
 static import_status_t start_new_packet(bool);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN    2048
 static uint8_t packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
-static int packet_preamble_len = 0;
+static int packet_preamble_len;
 
 /* Time code of packet, derived from packet_preamble */
-static time_t   ts_sec = 0;
-static uint32_t ts_nsec = 0;
-static bool ts_fmt_iso = false;
+static time_t   ts_sec;
+static uint32_t ts_nsec;
+static bool ts_fmt_iso;
 static struct tm timecode_default;
-static bool timecode_warned = false;
+static bool timecode_warned;
 /* The time delta to add to packets without a valid time code.
  * This can be no smaller than the time resolution of the dump
  * file, so the default is 1000 nanoseconds, or 1 microsecond.

@@ -667,8 +667,8 @@ static capture_dissector_handle_t ieee80211_datapad_cap_handle;
 static dissector_table_t vendor_dissector_table;
 
 /* Settings */
-static bool radiotap_bit14_fcs = false;
-static bool radiotap_interpret_high_rates_as_mcs = false;
+static bool radiotap_bit14_fcs;
+static bool radiotap_interpret_high_rates_as_mcs;
 
 #define USE_FCS_BIT        0
 #define ASSUME_FCS_PRESENT 1

@@ -13,7 +13,7 @@
 #include "ui/iface_lists.h"
 #include "ui/ws_ui_util.h"
 
-LograyApplication *lwApp = NULL;
+LograyApplication *lwApp;
 
 LograyApplication::LograyApplication(int &argc, char **argv) :
     MainApplication(argc, argv)

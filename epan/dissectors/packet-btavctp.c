@@ -61,8 +61,8 @@ typedef struct _fragments_t {
     wmem_tree_t  *fragment;
 } fragments_t;
 
-static wmem_tree_t *reassembling = NULL;
-static fragments_t *fragments    = NULL;
+static wmem_tree_t *reassembling;
+static fragments_t *fragments;
 
 static const value_string packet_type_vals[] = {
     { PACKET_TYPE_SINGLE,   "Single" },

@@ -154,7 +154,7 @@ static const fragment_items tftp_frag_items = {
 void proto_reg_handoff_tftp (void);
 
 /* User definable values */
-static range_t *global_tftp_port_range = NULL;
+static range_t *global_tftp_port_range;
 
 /* minimum length is an ACK message of 4 bytes */
 #define MIN_HDR_LEN  4
@@ -208,7 +208,7 @@ static const value_string tftp_error_code_vals[] = {
 static int tftp_eo_tap;
 
 /* Preference setting - defragment fragmented TFTP files */
-static bool tftp_defragment = false;
+static bool tftp_defragment;
 
 /* Used for TFTP Export Object feature */
 typedef struct _tftp_eo_t {

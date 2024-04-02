@@ -83,7 +83,7 @@ static expert_field ei_per_external_type;
 static expert_field ei_per_open_type;
 static expert_field ei_per_open_type_len;
 
-static dissector_table_t per_oid_dissector_table = NULL;
+static dissector_table_t per_oid_dissector_table;
 
 /*
 #define DEBUG_ENTRY(x) \
@@ -97,7 +97,7 @@ printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->num,x,(int)tvb);
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
 */
-static bool display_internal_per_fields = false;
+static bool display_internal_per_fields;
 
 
 

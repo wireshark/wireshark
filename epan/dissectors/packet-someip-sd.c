@@ -175,8 +175,8 @@ static int st_node_ip_src = -1;
 static int st_node_ip_dst = -1;
 
 /*** Preferences ***/
-static range_t *someip_ignore_ports_udp = NULL;
-static range_t *someip_ignore_ports_tcp = NULL;
+static range_t *someip_ignore_ports_udp;
+static range_t *someip_ignore_ports_tcp;
 
 /* SOME/IP-SD Entry Names for TTL>0 */
 static const value_string sd_entry_type_positive[] = {

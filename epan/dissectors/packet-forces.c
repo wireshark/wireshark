@@ -135,9 +135,9 @@ static int hf_forces_unknown_tlv;
 #define TCP_UDP_TML_FOCES_MESSAGE_OFFSET_TCP    2
 
 /*SCTP TML*/
-static guint forces_alternate_sctp_high_prio_channel_port = 0;
-static guint forces_alternate_sctp_med_prio_channel_port  = 0;
-static guint forces_alternate_sctp_low_prio_channel_port  = 0;
+static guint forces_alternate_sctp_high_prio_channel_port;
+static guint forces_alternate_sctp_med_prio_channel_port;
+static guint forces_alternate_sctp_low_prio_channel_port;
 
 /*Initialize the subtree pointers*/
 static gint  ett_forces;

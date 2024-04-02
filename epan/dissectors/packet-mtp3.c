@@ -112,7 +112,7 @@ static gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 #include "packet-mtp3.h"
 
 gint mtp3_standard = ITU_STANDARD;
-bool mtp3_heuristic_standard = false;
+bool mtp3_heuristic_standard;
 
 static gint pref_mtp3_standard;
 
@@ -124,9 +124,9 @@ const value_string mtp3_standard_vals[] = {
   { 0,        NULL }
 };
 
-static bool mtp3_use_ansi_5_bit_sls = false;
-static bool mtp3_use_japan_5_bit_sls = false;
-static bool mtp3_show_itu_priority = false;
+static bool mtp3_use_ansi_5_bit_sls;
+static bool mtp3_use_japan_5_bit_sls;
+static bool mtp3_show_itu_priority;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 
 #define SIO_LENGTH                1

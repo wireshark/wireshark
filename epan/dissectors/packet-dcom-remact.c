@@ -39,7 +39,7 @@ static int hf_remact_authn_hint;
 static int proto_remact;
 static gint ett_remact;
 static e_guid_t uuid_remact = { 0x4d9f4ab8, 0x7d1c, 0x11cf, { 0x86, 0x1e, 0x00, 0x20, 0xaf, 0x6e, 0x7c, 0x57 } };
-static guint16  ver_remact = 0;
+static guint16  ver_remact;
 
 
 static int

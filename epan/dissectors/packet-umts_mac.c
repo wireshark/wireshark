@@ -129,8 +129,8 @@ typedef struct {
     guint8 lchid; /* Logical Channel Identifier. */
     guint ueid; /* User Equipment Identifier. */
 } mac_is_channel;
-static GHashTable * mac_is_sdus = NULL; /* channel -> (frag -> sdu) */
-static GHashTable * mac_is_fragments = NULL; /* channel -> body_parts[] */
+static GHashTable * mac_is_sdus; /* channel -> (frag -> sdu) */
+static GHashTable * mac_is_fragments; /* channel -> body_parts[] */
 static gboolean mac_is_channel_equal(gconstpointer a, gconstpointer b)
 {
     const mac_is_channel *x = (const mac_is_channel *)a, *y = (const mac_is_channel *)b;

@@ -26,7 +26,7 @@ void proto_reg_handoff_openflow(void);
 #define OFP_LEGACY_PORT 6633
 #define OFP_LEGACY2_PORT 6634
 #define OFP_IANA_PORT 6653
-static range_t *g_openflow_ports = NULL;
+static range_t *g_openflow_ports;
 
 static dissector_handle_t openflow_handle;
 static dissector_handle_t openflow_v1_handle;

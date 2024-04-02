@@ -348,7 +348,7 @@ static gint ett_iso8583;
 
 static expert_field ei_iso8583_MALFORMED;
 
-static struct iso_type *data_array = NULL;
+static struct iso_type *data_array;
 
 /* Types definitions */
 #define ASCII_CHARSET 1

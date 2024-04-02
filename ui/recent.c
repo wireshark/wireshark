@@ -253,9 +253,9 @@ write_recent_geom(void *key _U_, void *value, void *rfh)
 
 /* the geometry hashtable for all known window classes,
  * the window name is the key, and the geometry struct is the value */
-static GHashTable *window_geom_hash = NULL;
+static GHashTable *window_geom_hash;
 
-static GHashTable *window_splitter_hash = NULL;
+static GHashTable *window_splitter_hash;
 
 void
 window_geom_free(void *data)
@@ -539,7 +539,7 @@ recent_add_cfilter(const char *ifname, const char *s)
  * (see the similar #16782 for the recent files.)
  */
 static unsigned remote_host_max_recent = 20;
-static GList *remote_host_list = NULL;
+static GList *remote_host_list;
 
 int recent_get_remote_host_list_size(void)
 {

@@ -30,8 +30,8 @@
  * see comment on wslua_tvb.c
  */
 
-static GPtrArray* outstanding_Pinfo = NULL;
-static GPtrArray* outstanding_PrivateTable = NULL;
+static GPtrArray* outstanding_Pinfo;
+static GPtrArray* outstanding_PrivateTable;
 
 CLEAR_OUTSTANDING(Pinfo,expired, true)
 CLEAR_OUTSTANDING(PrivateTable,expired, true)

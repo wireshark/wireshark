@@ -566,7 +566,7 @@ FOO-MESSAGE
 #define PSNAME "FOO"
 #define PFNAME "foo"
 #define FOO_PORT 5001    /* UDP port */
-static dissector_handle_t foo_handle=NULL;
+static dissector_handle_t foo_handle;
 
 void proto_reg_handoff_foo(void);
 void proto_register_foo(void);

@@ -1577,7 +1577,7 @@ static expert_field ei_amqp_invalid_number_of_params;
 static expert_field ei_amqp_size_exceeds_65K;
 static expert_field ei_amqp_array_type_unknown;
 
-static dissector_handle_t amqp_tcp_handle = NULL;
+static dissector_handle_t amqp_tcp_handle;
 
 static amqp_message_decode_t *amqp_message_decodes;
 static guint num_amqp_message_decodes;

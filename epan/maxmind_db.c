@@ -107,7 +107,7 @@ UAT_DIRECTORYNAME_CB_DEF(maxmind_mod, path, maxmind_db_path_t)
 
 static GPtrArray *mmdb_file_arr; // .mmdb files
 
-static gboolean resolve_synchronously = FALSE;
+static gboolean resolve_synchronously;
 
 static void mmdb_resolve_stop(void);
 

@@ -427,7 +427,7 @@ void proto_reg_handoff_dvbci(void);
 /* "don't care" value for min_len_field and len_field (this can't be 0) */
 #define LEN_FIELD_ANY G_MAXUINT32
 
-static GHashTable *apdu_table = NULL;
+static GHashTable *apdu_table;
 
 typedef struct _apdu_info_t {
     guint32 tag;
@@ -839,13 +839,13 @@ static int proto_dvbci;
 
 static dissector_handle_t dvbci_handle;
 
-static const gchar *dvbci_sek = NULL;
-static const gchar *dvbci_siv = NULL;
-static bool dvbci_dissect_lsc_msg = false;
+static const gchar *dvbci_sek;
+static const gchar *dvbci_siv;
+static bool dvbci_dissect_lsc_msg;
 
 /* the output of pref_key_string_to_bin() applied to dvbci_sek and _siv */
-static unsigned char *dvbci_sek_bin = NULL;
-static unsigned char *dvbci_siv_bin = NULL;
+static unsigned char *dvbci_sek_bin;
+static unsigned char *dvbci_siv_bin;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t mpeg_pmt_handle;
@@ -1327,7 +1327,7 @@ static const value_string dvbci_spdu_tag[] = {
     { T_CLOSE_SESSION_RESPONSE,  "Close Session Response" },
     { 0, NULL }
 };
-static GHashTable *spdu_table = NULL;
+static GHashTable *spdu_table;
 static const spdu_info_t spdu_info[] = {
     { T_SESSION_NUMBER,          DIRECTION_ANY, 2 },
     { T_OPEN_SESSION_REQUEST,    DATA_CAM_TO_HOST, 4 },

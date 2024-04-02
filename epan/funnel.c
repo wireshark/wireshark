@@ -37,11 +37,11 @@ typedef struct _console_menu {
 } funnel_console_menu_t;
 
 /* XXX This assumes one main window and one capture file. */
-static const funnel_ops_t* ops = NULL;
-static funnel_menu_t* registered_menus = NULL;
-static funnel_menu_t* added_menus = NULL;
-static funnel_menu_t* removed_menus = NULL;
-static bool menus_registered = false;
+static const funnel_ops_t* ops;
+static funnel_menu_t* registered_menus;
+static funnel_menu_t* added_menus;
+static funnel_menu_t* removed_menus;
+static bool menus_registered;
 
 /**
  * Represents a single packet menu entry and callback
@@ -66,14 +66,14 @@ typedef struct _funnel_packet_menu_t {
 /*
  * List of all registered funnel_packet_menu_t's
  */
-static funnel_packet_menu_t* registered_packet_menus = NULL;
+static funnel_packet_menu_t* registered_packet_menus;
 
-static GSList *registered_console_menus = NULL;
+static GSList *registered_console_menus;
 
 /*
  * true if the packet menus were modified since the last registration
  */
-static bool packet_menus_modified = false;
+static bool packet_menus_modified;
 static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list);
 
 const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }

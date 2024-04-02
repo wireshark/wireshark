@@ -187,7 +187,7 @@ static expert_field ei_ses_bad_parameter_length;
 
 #define PROTO_STRING_CLSES "ISO 9548-1 OSI Connectionless Session Protocol"
 
-static dissector_handle_t pres_handle = NULL;
+static dissector_handle_t pres_handle;
 
 static reassembly_table ses_reassembly_table;
 
@@ -321,8 +321,8 @@ static value_string_ext reason_vals_ext = VALUE_STRING_EXT_INIT(reason_vals);
 static bool ses_desegment = true;
 
 /* RTSE reassembly data */
-static guint ses_pres_ctx_id = 0;
-static gboolean ses_rtse_reassemble = FALSE;
+static guint ses_pres_ctx_id;
+static gboolean ses_rtse_reassemble;
 
 static void
 call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,

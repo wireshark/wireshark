@@ -167,7 +167,7 @@ static const value_string eprt_af_vals[] = {
    It will be used to set the maximum file size for FTP's export
    objects (in megabytes). Use 0 for no limit.
  */
-static guint pref_export_maxsize = 0;
+static guint pref_export_maxsize;
 
 typedef struct _ftp_eo_t {
     gchar    *command;      /* Command this data stream answers (e.g., RETR foo.txt) */
@@ -180,10 +180,10 @@ typedef struct _ftp_eo_t {
    table's row number, so we can append data from later FTP packets
    to the entries.
  */
-GHashTable *command_packet_to_eo_row = NULL;
+GHashTable *command_packet_to_eo_row;
 
 /* Track which row number in the export object table we're up to */
-guint32 eo_row_count = 0;
+guint32 eo_row_count;
 
 /**
  * This is the callback passed to register_export_object()
@@ -363,7 +363,7 @@ static ftp_conversation_t *find_or_create_ftp_conversation(packet_info *pinfo)
 }
 
 /* Keep track of ftp_data_conversation_t*, keyed by the ftp command frame */
-static GHashTable *ftp_command_to_data_hash = NULL;
+static GHashTable *ftp_command_to_data_hash;
 
 
 /* When new data conversation is being created, should:

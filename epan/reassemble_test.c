@@ -44,8 +44,8 @@
 
 #include "exceptions.h"
 
-static int failure = 0;
-static const gboolean debug = FALSE; /* Set to TRUE to dump tables. */
+static int failure;
+static const gboolean debug; /* Set to TRUE to dump tables. */
 
 #define ASSERT(b)           \
     if (!(b)) {             \

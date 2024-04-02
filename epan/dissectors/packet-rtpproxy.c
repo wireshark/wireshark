@@ -276,14 +276,14 @@ static gint ett_rtpproxy_ng_bencode;
 
 /* Default values */
 #define RTPPROXY_PORT "22222"  /* Not IANA registered */
-static range_t* rtpproxy_tcp_range = NULL;
-static range_t* rtpproxy_udp_range = NULL;
+static range_t* rtpproxy_tcp_range;
+static range_t* rtpproxy_udp_range;
 
 static bool rtpproxy_establish_conversation = true;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
 /* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
 static guint rtpproxy_timeout = 1000;
-static nstime_t rtpproxy_timeout_ns = NSTIME_INIT_ZERO;
+static nstime_t rtpproxy_timeout_ns;
 
 void proto_reg_handoff_rtpproxy(void);
 

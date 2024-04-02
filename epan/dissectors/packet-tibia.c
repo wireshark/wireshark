@@ -146,9 +146,9 @@ UAT_CSTRING_CB_DEF(rsakeylist_uats,  password, struct rsakeys_assoc)
 
 static void rsakey_free(void *_rsakey);
 
-static uat_t *rsakeys_uat = NULL;
-static struct rsakeys_assoc  *rsakeylist_uats = NULL;
-static guint nrsakeys = 0;
+static uat_t *rsakeys_uat;
+static struct rsakeys_assoc  *rsakeylist_uats;
+static guint nrsakeys;
 #endif
 
 #define XTEA_KEY_LEN 16
@@ -168,9 +168,9 @@ static bool xteakeys_uat_fld_key_chk_cb(void *, const char *, guint, const void 
 UAT_DEC_CB_DEF(xteakeylist_uats, framenum, struct xteakeys_assoc)
 UAT_CSTRING_CB_DEF(xteakeylist_uats, key, struct xteakeys_assoc)
 
-static uat_t *xteakeys_uat = NULL;
-static struct xteakeys_assoc *xteakeylist_uats = NULL;
-static guint nxteakeys = 0;
+static uat_t *xteakeys_uat;
+static struct xteakeys_assoc *xteakeylist_uats;
+static guint nxteakeys;
 
 #define COND_POISONED     0x00000001
 #define COND_BURNING      0x00000002

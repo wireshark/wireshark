@@ -44,20 +44,20 @@
 #include "ui/failure_message.h"
 #include "wsutil/version_info.h"
 
-static int opt_verbose = 0;
-static int opt_debug_level = 0; /* currently up to 2 */
-static int opt_flex = 0;
-static int opt_lemon = 0;
-static int opt_syntax_tree = 0;
-static int opt_return_vals = 0;
-static int opt_timer = 0;
+static int opt_verbose;
+static int opt_debug_level; /* currently up to 2 */
+static int opt_flex;
+static int opt_lemon;
+static int opt_syntax_tree;
+static int opt_return_vals;
+static int opt_timer;
 static long opt_optimize = 1;
-static int opt_show_types = 0;
-static int opt_dump_refs = 0;
-static int opt_dump_macros = 0;
+static int opt_show_types;
+static int opt_dump_refs;
+static int opt_dump_macros;
 
-static gint64 elapsed_expand = 0;
-static gint64 elapsed_compile = 0;
+static gint64 elapsed_expand;
+static gint64 elapsed_compile;
 
 /*
  * Report an error in command-line arguments.

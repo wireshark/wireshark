@@ -800,7 +800,7 @@ static dissector_handle_t avb1722_can_handle;
 
 static int                      proto_can;
 static int                      proto_canfd;
-static bool                 can_heuristic_first = false;
+static bool                 can_heuristic_first;
 
 /**************************************************************************************************/
 /* ACF LIN Message                                                                                */

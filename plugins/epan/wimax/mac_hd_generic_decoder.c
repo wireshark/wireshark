@@ -47,11 +47,11 @@ extern gint  scheduling_service_type;           /* declared in packet-wmx.c */
 extern address bs_address;			/* declared in packet-wmx.c */
 extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
 
-static dissector_handle_t mac_mgmt_msg_decoder_handle = NULL;
-static dissector_handle_t mac_ip_handle = NULL;
+static dissector_handle_t mac_mgmt_msg_decoder_handle;
+static dissector_handle_t mac_ip_handle;
 
 /* global variables */
-gboolean include_cor2_changes = FALSE;
+gboolean include_cor2_changes;
 
 /* Well-known CIDs */
 guint cid_initial_ranging  = 0x0000;
@@ -95,9 +95,9 @@ static guint extended_type, arq_fb_payload, seq_number;
 
 static guint cid_adjust[MAX_CID];  /* Must not start with 0 */
 static guint cid_vernier[MAX_CID];
-static guint cid_adj_array_size = 0;
-static guint *cid_adj_array = NULL;
-static guint8 *frag_num_array = NULL;
+static guint cid_adj_array_size;
+static guint *cid_adj_array;
+static guint8 *frag_num_array;
 
 static address save_src;
 static address save_dst;

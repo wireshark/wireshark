@@ -45,7 +45,7 @@ static guint32  tid = 1;
 static bool ndps_show_oids=FALSE;
 
 /* Global Attribute for evaluation of Values */
-static const char *global_attribute_name=NULL;
+static const char *global_attribute_name;
 
 static int dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, int);
 
@@ -4025,7 +4025,7 @@ typedef struct {
     guint32             ndps_end_frag;
 } ndps_req_hash_value;
 
-static wmem_map_t *ndps_req_hash = NULL;
+static wmem_map_t *ndps_req_hash;
 
 /* Hash Functions */
 static gint

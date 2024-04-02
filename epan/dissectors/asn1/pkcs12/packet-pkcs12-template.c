@@ -50,11 +50,11 @@ static gint ett_decrypted_pbe;
 static expert_field ei_pkcs12_octet_string_expected;
 
 
-static const char *object_identifier_id = NULL;
-static int iteration_count = 0;
-static tvbuff_t *salt = NULL;
-static const char *password = NULL;
-static bool try_null_password = false;
+static const char *object_identifier_id;
+static int iteration_count;
+static tvbuff_t *salt;
+static const char *password;
+static bool try_null_password;
 
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);

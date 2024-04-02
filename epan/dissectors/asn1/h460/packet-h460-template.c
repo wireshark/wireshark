@@ -38,8 +38,8 @@ static int proto_h460;
 static dissector_handle_t h460_name_handle;
 
 /* Subdissectors */
-static dissector_handle_t q931_ie_handle = NULL;
-static dissector_handle_t h225_ras_handle = NULL;
+static dissector_handle_t q931_ie_handle;
+static dissector_handle_t h225_ras_handle;
 
 #include "packet-h460-fn.c"
 

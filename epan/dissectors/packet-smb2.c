@@ -103,7 +103,7 @@ void proto_reg_handoff_smb2(void);
 #define SMB2_ENCR_HEADER 0xFD
 #define SMB2_COMP_HEADER 0xFC
 
-static wmem_map_t *smb2_sessions = NULL;
+static wmem_map_t *smb2_sessions;
 
 static const char smb_header_label[] = "SMB2 Header";
 static const char smb_transform_header_label[] = "SMB2 Transform Header";
@@ -819,9 +819,9 @@ static expert_field ei_smb2_invalid_signature;
 static int smb2_tap;
 static int smb2_eo_tap;
 
-static dissector_handle_t gssapi_handle  = NULL;
-static dissector_handle_t ntlmssp_handle = NULL;
-static dissector_handle_t rsvd_handle = NULL;
+static dissector_handle_t gssapi_handle;
+static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t rsvd_handle;
 
 static heur_dissector_list_t smb2_pipe_subdissector_list;
 
@@ -1378,8 +1378,8 @@ typedef struct _smb2_seskey_field_t {
 	guint c2skey_len;
 } smb2_seskey_field_t;
 
-static smb2_seskey_field_t *seskey_list = NULL;
-static guint num_seskey_list = 0;
+static smb2_seskey_field_t *seskey_list;
+static guint num_seskey_list;
 
 static const gint8 zeros[NTLMSSP_KEY_LEN] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -6542,7 +6542,7 @@ smb2_pipe_set_file_id(packet_info *pinfo, smb2_info_t *si)
 }
 
 static bool smb2_pipe_reassembly = true;
-static bool smb2_verify_signatures = false;
+static bool smb2_verify_signatures;
 static reassembly_table smb2_pipe_reassembly_table;
 
 static int

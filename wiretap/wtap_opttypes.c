@@ -62,7 +62,7 @@ typedef struct {
 
 /* Debugging reference counting */
 #ifdef DEBUG_COUNT_REFS
-static unsigned block_count = 0;
+static unsigned block_count;
 static uint8_t blocks_active[sizeof(unsigned)/8];
 
 static void rc_set(unsigned refnum)

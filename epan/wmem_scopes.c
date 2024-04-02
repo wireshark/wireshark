@@ -36,9 +36,9 @@
  */
 
 /* TODO: Make these thread-local */
-static wmem_allocator_t *packet_scope = NULL;
-static wmem_allocator_t *file_scope   = NULL;
-static wmem_allocator_t *epan_scope   = NULL;
+static wmem_allocator_t *packet_scope;
+static wmem_allocator_t *file_scope;
+static wmem_allocator_t *epan_scope;
 
 /* Packet Scope */
 

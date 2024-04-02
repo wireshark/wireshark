@@ -56,7 +56,7 @@ static dissector_handle_t usb_dfu_handle;
 static dissector_handle_t usf_dfu_descriptor_handle;
 
 
-static wmem_tree_t *command_info = NULL;
+static wmem_tree_t *command_info;
 
 typedef struct _command_data {
     guint32  bus_id;

@@ -300,8 +300,8 @@ static gint ett_sysdig_parm_lens;
 static gint ett_sysdig_syscall;
 
 /* Initialize the pointer to the child plugin dissector */
-static dissector_handle_t sinsp_dissector_handle = NULL;
-static dissector_handle_t elf_dissector_handle = NULL;
+static dissector_handle_t sinsp_dissector_handle;
+static dissector_handle_t elf_dissector_handle;
 
 #define SYSDIG_EVENT_MIN_LENGTH 8 /* XXX Fix */
 

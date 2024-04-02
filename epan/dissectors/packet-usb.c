@@ -434,9 +434,9 @@ static heur_dissector_list_t heur_bulk_subdissector_list;
 static heur_dissector_list_t heur_control_subdissector_list;
 static heur_dissector_list_t heur_interrupt_subdissector_list;
 
-static wmem_tree_t *device_to_protocol_table = NULL;
-static wmem_tree_t *device_to_product_table  = NULL;
-static wmem_tree_t *usbpcap_setup_data       = NULL;
+static wmem_tree_t *device_to_protocol_table;
+static wmem_tree_t *device_to_product_table;
+static wmem_tree_t *usbpcap_setup_data;
 
 static dissector_table_t device_to_dissector;
 static dissector_table_t protocol_to_dissector;

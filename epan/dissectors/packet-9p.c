@@ -1115,7 +1115,7 @@ static gint ett_9P_lflags;
 static expert_field ei_9P_first_250;
 static expert_field ei_9P_msgtype;
 
-static wmem_map_t *_9p_hashtable = NULL;
+static wmem_map_t *_9p_hashtable;
 
 static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *tree, int offset, int iscreate);
 static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset);

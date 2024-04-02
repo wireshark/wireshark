@@ -58,7 +58,7 @@ static int hf_rudp_cksum;
 static gint ett_rudp;
 static gint ett_rudp_flags;
 
-static dissector_handle_t sm_handle = NULL;
+static dissector_handle_t sm_handle;
 
 static int
 dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)

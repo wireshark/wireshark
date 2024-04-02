@@ -19,9 +19,9 @@
 #include "epan/filter_expressions.h"
 
 /* UAT variables */
-static uat_t            *display_filter_macro_uat = NULL;
-static filter_expression_t *display_filter_macros = NULL;
-static guint             num_display_filter_macros = 0;
+static uat_t            *display_filter_macro_uat;
+static filter_expression_t *display_filter_macros;
+static guint             num_display_filter_macros;
 
 /* Field callbacks. */
 UAT_BOOL_CB_DEF(display_filter_macro_uat, enabled, filter_expression_t)

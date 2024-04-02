@@ -245,7 +245,7 @@ static reassembly_table q931_reassembly_table;
 
 /* Preferences */
 static bool q931_reassembly = true;
-static bool g931_iso_iec_cause = false;
+static bool g931_iso_iec_cause;
 
 static dissector_table_t codeset_dissector_table;
 static dissector_table_t ie_dissector_table;

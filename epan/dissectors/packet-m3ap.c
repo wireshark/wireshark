@@ -39,7 +39,7 @@ void proto_reg_handoff_m3ap(void);
 
 /* M3AP uses port 36444 as recommended by IANA. */
 #define M3AP_PORT 36444
-static dissector_handle_t m3ap_handle=NULL;
+static dissector_handle_t m3ap_handle;
 
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535

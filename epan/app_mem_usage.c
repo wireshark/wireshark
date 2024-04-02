@@ -160,7 +160,7 @@ static guint memory_register_num = 2;
 
 static const ws_mem_usage_t *memory_components[MAX_COMPONENTS];
 
-static guint memory_register_num = 0;
+static guint memory_register_num;
 
 #endif
 

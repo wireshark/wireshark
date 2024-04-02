@@ -30,7 +30,7 @@ static gint ett_bossvr;
 
 
 static e_guid_t uuid_bossvr = { 0x4d37f2dd, 0xed43, 0x0000, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x01 } };
-static guint16  ver_bossvr = 0;
+static guint16  ver_bossvr;
 
 
 static dcerpc_sub_dissector bossvr_dissectors[] = {

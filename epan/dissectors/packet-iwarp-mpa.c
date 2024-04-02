@@ -103,7 +103,7 @@ static expert_field ei_mpa_reject_bit_responder;
 static expert_field ei_mpa_bad_length;
 
 /* handles of our subdissectors */
-static dissector_handle_t ddp_rdmap_handle = NULL;
+static dissector_handle_t ddp_rdmap_handle;
 
 static const value_string mpa_messages[] = {
 		{ MPA_REQUEST_FRAME, "MPA Request Frame" },

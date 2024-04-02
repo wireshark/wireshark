@@ -63,7 +63,7 @@ typedef struct _chandle_data_t {
     wmem_tree_t *start_fragments;  /* indexed by pinfo->num */
 } chandle_data_t;
 
-static wmem_tree_t *chandle_tree = NULL;
+static wmem_tree_t *chandle_tree;
 
 static const value_string iso_pb_flag_vals[] = {
     { 0x00, "First SDU Fragment"},

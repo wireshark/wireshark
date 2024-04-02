@@ -46,7 +46,7 @@ void proto_reg_handoff_dop(void);
 /* Initialize the protocol and registered fields */
 static int proto_dop;
 
-static const char *binding_type = NULL; /* binding_type */
+static const char *binding_type; /* binding_type */
 
 static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data);
 
@@ -320,7 +320,7 @@ static expert_field ei_dop_unsupported_errcode;
 static expert_field ei_dop_unsupported_pdu;
 static expert_field ei_dop_zero_pdu;
 
-static dissector_handle_t dop_handle = NULL;
+static dissector_handle_t dop_handle;
 
 /* Dissector table */
 static dissector_table_t dop_dissector_table;

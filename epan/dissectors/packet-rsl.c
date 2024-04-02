@@ -282,10 +282,10 @@ static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t gsm_a_sacch_handle;
 
 /* Decode things as nanoBTS traces */
-static bool global_rsl_use_nano_bts = false;
+static bool global_rsl_use_nano_bts;
 
 /* Decode Osmocom specific messages and IEs */
-static bool global_rsl_use_osmo_bts = false;
+static bool global_rsl_use_osmo_bts;
 
 /* Decode things in Physical Context Information field. */
 static bool global_rsl_dissect_phy_ctx_inf = true;

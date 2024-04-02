@@ -161,9 +161,9 @@ typedef struct _rsvd_conv_data_t {
         conversation_t *conversation;
 } rsvd_conv_data_t;
 
-static rsvd_conv_data_t *rsvd_conv_data = NULL;
+static rsvd_conv_data_t *rsvd_conv_data;
 
-static proto_tree *top_tree = NULL;
+static proto_tree *top_tree;
 
 static itl_nexus_t *
 get_itl_nexus(packet_info *pinfo)

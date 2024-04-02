@@ -54,7 +54,7 @@ void proto_reg_handoff_gsm_a_rr(void);
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
 
-static guint gsm_a_rr_nri_length = 0;
+static guint gsm_a_rr_nri_length;
 
 #define PADDING_BYTE 0x2B
 

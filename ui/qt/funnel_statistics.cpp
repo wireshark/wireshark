@@ -246,7 +246,7 @@ void FunnelConsoleAction::triggerCallback() {
 
 static QHash<int, QList<FunnelAction *> > funnel_actions_;
 const QString FunnelStatistics::action_name_ = "FunnelStatisticsAction";
-static bool menus_registered = false;
+static bool menus_registered;
 
 struct _funnel_ops_id_t {
     FunnelStatistics *funnel_statistics;

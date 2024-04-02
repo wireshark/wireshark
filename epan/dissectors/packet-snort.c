@@ -119,13 +119,13 @@ static const char *pref_snort_config_filename = "C:\\Snort\\etc\\snort.conf";
 #endif
 
 /* Should rule stats be shown in protocol tree? */
-static bool snort_show_rule_stats = false;
+static bool snort_show_rule_stats;
 
 /* Should alerts be added as expert info? */
-static bool snort_show_alert_expert_info = false;
+static bool snort_show_alert_expert_info;
 
 /* Should we try to attach the alert to the tcp.reassembled_in frame instead of current one? */
-static bool snort_alert_in_reassembled_frame = false;
+static bool snort_alert_in_reassembled_frame;
 
 /* Should Snort ignore checksum errors (as will likely be seen because of check offloading or
  * possibly if trying to capture live in a container)? */
@@ -134,7 +134,7 @@ static bool snort_ignore_checksum_errors = true;
 
 /********************************************************/
 /* Global variable with single parsed snort config      */
-static SnortConfig_t *g_snort_config = NULL;
+static SnortConfig_t *g_snort_config;
 
 
 /******************************************************/

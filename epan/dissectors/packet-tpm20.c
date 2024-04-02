@@ -25,7 +25,7 @@ typedef struct {
 	guint32 num_auths;
 } tpm_entry;
 
-static wmem_tree_t *cmd_tree = NULL;
+static wmem_tree_t *cmd_tree;
 static guint last_command_pnum;
 static bool response_size = TRUE;
 

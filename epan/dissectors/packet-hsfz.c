@@ -91,13 +91,13 @@ typedef struct _udf_one_id_string {
 } udf_one_id_string_t;
 
 /*** Hash Tables for lookup data ***/
-static GHashTable *ht_diag_addr = NULL;
+static GHashTable *ht_diag_addr;
 
-static bool hsfz_check_header = false;
-static bool hsfz_show_uds_in_ack = false;
+static bool hsfz_check_header;
+static bool hsfz_show_uds_in_ack;
 
-static udf_one_id_string_t *udf_diag_addr = NULL;
-static guint udf_diag_addr_num = 0;
+static udf_one_id_string_t *udf_diag_addr;
+static guint udf_diag_addr_num;
 
 static void *
 udf_copy_one_id_string_cb(void* n, const void* o, size_t size _U_) {

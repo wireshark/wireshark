@@ -321,7 +321,7 @@ typedef struct
 } lbmsrs_tag_entry_t;
 
 static lbmsrs_tag_entry_t* lbmsrs_tag_entry;
-static guint lbmsrs_tag_count = 0;
+static guint lbmsrs_tag_count;
 
 UAT_CSTRING_CB_DEF(lbmsrs_tag, name, lbmsrs_tag_entry_t)
 UAT_IPV4_CB_DEF(lbmsrs_tag, ip_address, lbmsrs_tag_entry_t)
@@ -562,9 +562,9 @@ static const guint rsocket_stream_id_field_size = 4;
 static guint32 lbmsrs_source_ip_address;
 static const char* global_lbmsrs_source_ip_address = LBMSRS_DEFAULT_SOURCE_IP;
 static guint32 global_lbmsrs_source_port = LBMSRS_DEFAULT_SOURCE_PORT;
-static bool global_lbmsrs_use_tag = false;
+static bool global_lbmsrs_use_tag;
 static guint32 lbmsrs_source_port = LBMSRS_DEFAULT_SOURCE_PORT;
-static gboolean lbmsrs_use_tag = FALSE;
+static gboolean lbmsrs_use_tag;
 
 
 #define RSOCKET_FRAME_RESERVED 0x00

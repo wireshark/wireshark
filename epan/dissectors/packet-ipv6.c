@@ -711,9 +711,9 @@ struct nat64_prefix_data {
 };
 
 
-static uat_t *nat64_prefix_uat = NULL;
-static struct nat64_prefix_data *nat64_prefix_uats = NULL;
-static guint number_of_nat64_prefix = 0;
+static uat_t *nat64_prefix_uat;
+static struct nat64_prefix_data *nat64_prefix_uats;
+static guint number_of_nat64_prefix;
 
 
 UAT_CSTRING_CB_DEF(nat64_prefix_uats, ipaddr, struct nat64_prefix_data)
@@ -825,19 +825,19 @@ static bool ipv6_summary_in_tree = true;
 static bool ipv6_address_detail = true;
 
 /* Perform strict RFC adherence checking */
-static bool g_ipv6_rpl_srh_strict_rfc_checking = false;
+static bool g_ipv6_rpl_srh_strict_rfc_checking;
 
 /* Use heuristics to determine subdissector */
-static bool try_heuristic_first = false;
+static bool try_heuristic_first;
 
 /* Display IPv6 extension headers under the root tree */
-static bool ipv6_exthdr_under_root = false;
+static bool ipv6_exthdr_under_root;
 
 /* Hide extension header generated field for length */
-static bool ipv6_exthdr_hide_len_oct_field = false;
+static bool ipv6_exthdr_hide_len_oct_field;
 
 /* Assume TSO and correct zero-length IP packets */
-static bool ipv6_tso_supported = false;
+static bool ipv6_tso_supported;
 
 /*
  * defragmentation of IPv6

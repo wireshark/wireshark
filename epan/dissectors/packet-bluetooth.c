@@ -55,17 +55,17 @@ static dissector_table_t bluetooth_table;
 static dissector_table_t hci_vendor_table;
 dissector_table_t        bluetooth_uuid_table;
 
-static wmem_tree_t *chandle_sessions        = NULL;
-static wmem_tree_t *chandle_to_bdaddr       = NULL;
-static wmem_tree_t *chandle_to_mode         = NULL;
-static wmem_tree_t *shandle_to_chandle      = NULL;
-static wmem_tree_t *bdaddr_to_name          = NULL;
-static wmem_tree_t *bdaddr_to_role          = NULL;
-static wmem_tree_t *localhost_name          = NULL;
-static wmem_tree_t *localhost_bdaddr        = NULL;
-static wmem_tree_t *hci_vendors             = NULL;
+static wmem_tree_t *chandle_sessions;
+static wmem_tree_t *chandle_to_bdaddr;
+static wmem_tree_t *chandle_to_mode;
+static wmem_tree_t *shandle_to_chandle;
+static wmem_tree_t *bdaddr_to_name;
+static wmem_tree_t *bdaddr_to_role;
+static wmem_tree_t *localhost_name;
+static wmem_tree_t *localhost_bdaddr;
+static wmem_tree_t *hci_vendors;
 
-wmem_tree_t *bluetooth_uuids = NULL;
+wmem_tree_t *bluetooth_uuids;
 
 static int bluetooth_tap;
 int bluetooth_device_tap;

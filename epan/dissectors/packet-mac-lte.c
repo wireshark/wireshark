@@ -1591,16 +1591,16 @@ static gint global_mac_lte_retx_counter_trigger = 3;
 static bool global_mac_lte_attempt_rrc_decode = true;
 
 /* Whether should attempt to dissect frames failing CRC check */
-static bool global_mac_lte_dissect_crc_failures = false;
+static bool global_mac_lte_dissect_crc_failures;
 
 /* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
 static bool global_mac_lte_attempt_srb_decode = true;
 
 /* Whether should attempt to decode MCH LCID 0 as MCCH */
-static bool global_mac_lte_attempt_mcch_decode = false;
+static bool global_mac_lte_attempt_mcch_decode;
 
 /* Whether should call RLC dissector to decode MTCH LCIDs */
-static bool global_mac_lte_call_rlc_for_mtch = false;
+static bool global_mac_lte_call_rlc_for_mtch;
 
 /* Where to take LCID -> DRB mappings from */
 enum lcid_drb_source {
@@ -1623,17 +1623,17 @@ enum layer_to_show {
 static gint     global_mac_lte_layer_to_show = (gint)ShowRLCLayer;
 
 /* Whether to decode Contention Resolution body as UL CCCH */
-static bool global_mac_lte_decode_cr_body = false;
+static bool global_mac_lte_decode_cr_body;
 
 /* Whether to record config and try to show DRX state for each configured UE */
-static bool global_mac_lte_show_drx = false;
+static bool global_mac_lte_show_drx;
 
 /* Whether to record config and try to show DRX state for each configured UE */
-static bool global_mac_lte_show_BSR_median = false;
+static bool global_mac_lte_show_BSR_median;
 
 
 /* When showing RLC info, count PDUs so can append info column properly */
-static guint8   s_number_of_rlc_pdus_shown = 0;
+static guint8   s_number_of_rlc_pdus_shown;
 
 /***********************************************************************/
 /* How to dissect lcid 3-10 (presume drb logical channels)             */
@@ -1705,8 +1705,8 @@ typedef struct lcid_drb_mapping_t {
 } lcid_drb_mapping_t;
 
 /* Mapping entity */
-static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
-static guint num_lcid_drb_mappings = 0;
+static lcid_drb_mapping_t *lcid_drb_mappings;
+static guint num_lcid_drb_mappings;
 
 UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, guint16, 3, "LCID 3")
 UAT_SIGNED_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
@@ -1729,7 +1729,7 @@ typedef struct ue_dynamic_drb_mappings_t {
     guint8 drb_to_lcid_mappings[32];         /* Also map drbid -> lcid */
 } ue_dynamic_drb_mappings_t;
 
-static GHashTable *mac_lte_ue_channels_hash = NULL;
+static GHashTable *mac_lte_ue_channels_hash;
 
 
 extern int proto_rlc_lte;
@@ -1751,7 +1751,7 @@ typedef struct Msg3Data {
 
 /* This table stores (RNTI -> Msg3Data*).  Will be populated when
    Msg3 frames are first read.  */
-static GHashTable *mac_lte_msg3_hash = NULL;
+static GHashTable *mac_lte_msg3_hash;
 
 typedef enum ContentionResolutionStatus {
     NoMsg3,
@@ -1768,11 +1768,11 @@ typedef struct ContentionResolutionResult {
 
 /* This table stores (CRFrameNum -> CRResult).  It is assigned during the first
    pass and used thereafter */
-static GHashTable *mac_lte_cr_result_hash = NULL;
+static GHashTable *mac_lte_cr_result_hash;
 
 /* This table stores msg3 frame -> CR frame.  It is assigned during the first pass
  * and shown in later passes */
-static GHashTable *mac_lte_msg3_cr_hash = NULL;
+static GHashTable *mac_lte_msg3_cr_hash;
 
 /**************************************************************************/
 
@@ -1803,7 +1803,7 @@ typedef struct DLHarqBuffers {
 
 /* This table stores (RNTI -> DLHARQBuffers*).  Will be populated when
    DL frames are first read.  */
-static GHashTable *mac_lte_dl_harq_hash = NULL;
+static GHashTable *mac_lte_dl_harq_hash;
 
 typedef struct DLHARQResult {
     gboolean    previousSet, nextSet;
@@ -1816,7 +1816,7 @@ typedef struct DLHARQResult {
 
 /* This table stores (FrameNumber -> *DLHARQResult).  It is assigned during the first
    pass and used thereafter */
-static GHashTable *mac_lte_dl_harq_result_hash = NULL;
+static GHashTable *mac_lte_dl_harq_result_hash;
 
 /**************************************************************************/
 
@@ -1832,7 +1832,7 @@ typedef struct ULHarqBuffers {
 
 /* This table stores (RNTI -> ULHarqBuffers*).  Will be populated when
    UL frames are first read.  */
-static GHashTable *mac_lte_ul_harq_hash = NULL;
+static GHashTable *mac_lte_ul_harq_hash;
 
 typedef struct ULHARQResult {
     gboolean    previousSet, nextSet;
@@ -1846,7 +1846,7 @@ typedef struct ULHARQResult {
 /* This table stores (FrameNum -> ULHARQResult).  It is assigned during the first
    pass and used thereafter */
 /* TODO: add ueid/rnti to key... */
-static GHashTable *mac_lte_ul_harq_result_hash = NULL;
+static GHashTable *mac_lte_ul_harq_result_hash;
 
 /**************************************************************************/
 
@@ -1897,7 +1897,7 @@ typedef struct SRState {
 
 /* This table keeps track of the SR state for each UE.
    (RNTI -> SRState) */
-static GHashTable *mac_lte_ue_sr_state = NULL;
+static GHashTable *mac_lte_ue_sr_state;
 
 
 typedef enum SRResultType {
@@ -1921,7 +1921,7 @@ typedef struct SRResult {
 
 /* Entries in this table are created during the first pass
    It maps (SRFrameNum -> SRResult) */
-static GHashTable *mac_lte_sr_request_hash = NULL;
+static GHashTable *mac_lte_sr_request_hash;
 
 /**************************************************************************/
 
@@ -1969,7 +1969,7 @@ typedef struct ue_parameters_t
 
 /* Entries in this table are maintained during the first pass
    It maps (UEId -> ue_parameters_t). */
-static GHashTable *mac_lte_ue_parameters = NULL;
+static GHashTable *mac_lte_ue_parameters;
 
 
 /**************************************************************************/
@@ -1984,7 +1984,7 @@ typedef struct drx_state_key_t {
 
 /* Entries in this table are written during the first pass
    It maps (drx_state_key_t -> drx_state_t), so state at that point may be shown. */
-static GHashTable *mac_lte_drx_frame_result = NULL;
+static GHashTable *mac_lte_drx_frame_result;
 
 static gint mac_lte_framenum_instance_hash_equal(gconstpointer v, gconstpointer v2)
 {
@@ -2535,7 +2535,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 /* Info we might learn from SIB2 to label RAPIDs seen in PRACH and RARs */
-static gboolean s_rapid_ranges_configured = FALSE;
+static gboolean s_rapid_ranges_configured;
 static guint    s_rapid_ranges_groupA;
 static guint    s_rapid_ranges_RA;
 
@@ -4301,7 +4301,7 @@ typedef struct TTIInfoResult_t {
 
 /* This table stores (FrameNumber -> *TTIInfoResult_t).  It is assigned during the first
    pass and used thereafter */
-static GHashTable *mac_lte_tti_info_result_hash = NULL;
+static GHashTable *mac_lte_tti_info_result_hash;
 
 
 /* Work out which UE this is within TTI (within direction). Return answer */

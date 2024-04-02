@@ -121,18 +121,18 @@ void proto_reg_handoff_atn_ulcs(void);
 static heur_dissector_list_t atn_ulcs_heur_subdissector_list;
 
 /* presentation subdissectors i.e. CM, CPDLC */
-static dissector_handle_t atn_cm_handle = NULL;
-static dissector_handle_t atn_cpdlc_handle = NULL;
+static dissector_handle_t atn_cm_handle;
+static dissector_handle_t atn_cpdlc_handle;
 
 static int proto_atn_ulcs;
-static guint32 ulcs_context_value = 0;
+static guint32 ulcs_context_value;
 static const char *object_identifier_id;
 
-static wmem_tree_t *aarq_data_tree = NULL;
-static wmem_tree_t *atn_conversation_tree = NULL;
+static wmem_tree_t *aarq_data_tree;
+static wmem_tree_t *atn_conversation_tree;
 
 
-static proto_tree *root_tree = NULL;
+static proto_tree *root_tree;
 
 /* forward declarations for functions generated from asn1 */
 static int dissect_atn_ulcs_T_externalt_encoding_single_asn1_type(

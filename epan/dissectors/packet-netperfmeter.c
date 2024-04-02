@@ -35,8 +35,8 @@ static int ett_data_flags;
 static int ett_results_flags;
 static int ett_onoffarray;
 
-static guint64 npm_total_msgs     = 0;
-static guint64 npm_total_bytes    = 0;
+static guint64 npm_total_msgs;
+static guint64 npm_total_bytes;
 
 
 #define PPID_NETPERFMETER_CONTROL_LEGACY   0x29097605

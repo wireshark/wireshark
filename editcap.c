@@ -98,9 +98,9 @@ typedef struct _fd_hash_t {
 
 static fd_hash_t fd_hash[MAX_DUP_DEPTH];
 static int       dup_window    = DEFAULT_DUP_DEPTH;
-static int       cur_dup_entry = 0;
+static int       cur_dup_entry;
 
-static guint32   ignored_bytes  = 0;  /* Used with -I */
+static guint32   ignored_bytes;  /* Used with -I */
 
 #define ONE_BILLION 1000000000
 
@@ -133,36 +133,36 @@ typedef struct _chop_t {
 
 
 /* Table of user comments */
-GTree *frames_user_comments = NULL;
-GPtrArray *capture_comments = NULL;
+GTree *frames_user_comments;
+GPtrArray *capture_comments;
 
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
-static guint                  max_selected              = 0;
-static gboolean               keep_em                   = FALSE;
+static guint                  max_selected;
+static gboolean               keep_em;
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 static int                    out_frame_type            = -2; /* Leave frame type alone */
-static gboolean               verbose                   = FALSE; /* Not so verbose         */
-static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
-static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
+static gboolean               verbose; /* Not so verbose         */
+static struct time_adjustment time_adj; /* no adjustment */
+static nstime_t               relative_time_window; /* de-dup time window */
 static double                 err_prob                  = -1.0;
-static nstime_t               starttime                 = NSTIME_INIT_ZERO;
-static gboolean               have_starttime            = FALSE;
-static nstime_t               stoptime                  = NSTIME_INIT_ZERO;
-static gboolean               have_stoptime             = FALSE;
-static gboolean               check_startstop           = FALSE;
-static gboolean               rem_vlan                  = FALSE;
-static gboolean               dup_detect                = FALSE;
-static gboolean               dup_detect_by_time        = FALSE;
-static gboolean               skip_radiotap             = FALSE;
-static gboolean               discard_all_secrets       = FALSE;
-static gboolean               discard_cap_comments      = FALSE;
-static gboolean               set_unused                = FALSE;
-static gboolean               discard_pkt_comments      = FALSE;
+static nstime_t               starttime;
+static gboolean               have_starttime;
+static nstime_t               stoptime;
+static gboolean               have_stoptime;
+static gboolean               check_startstop;
+static gboolean               rem_vlan;
+static gboolean               dup_detect;
+static gboolean               dup_detect_by_time;
+static gboolean               skip_radiotap;
+static gboolean               discard_all_secrets;
+static gboolean               discard_cap_comments;
+static gboolean               set_unused;
+static gboolean               discard_pkt_comments;
 
-static int                    do_strict_time_adjustment = FALSE;
-static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
-static nstime_t               previous_time             = NSTIME_INIT_ZERO; /* previous time */
+static int                    do_strict_time_adjustment;
+static struct time_adjustment strict_time_adj; /* strict time adjustment */
+static nstime_t               previous_time; /* previous time */
 
 static const struct {
     const char *str;

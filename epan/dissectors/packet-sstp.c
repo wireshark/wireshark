@@ -102,7 +102,7 @@ void proto_reg_handoff_sstp(void);
 #define SSTP_ATTRIB_STATUS_UNRECOGNIZED_ATTRIBUTE 0x000002
 #define SSTP_ATTRIB_STATUS_VALUE_NOT_SUPPORTED 0x000004
 
-static dissector_handle_t ppp_hdlc_handle = NULL;
+static dissector_handle_t ppp_hdlc_handle;
 static gint ett_sstp;
 static gint ett_sstp_attribute;
 static gint ett_sstp_version;

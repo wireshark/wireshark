@@ -1270,9 +1270,9 @@ typedef struct {
     const char *obj_id;
 } rnsap_private_data_t;
 
-static dissector_handle_t ranap_handle = NULL;
-static dissector_handle_t rrc_dl_ccch_handle = NULL;
-static dissector_handle_t rrc_ul_ccch_handle = NULL;
+static dissector_handle_t ranap_handle;
+static dissector_handle_t rrc_dl_ccch_handle;
+static dissector_handle_t rrc_ul_ccch_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_rnsap;

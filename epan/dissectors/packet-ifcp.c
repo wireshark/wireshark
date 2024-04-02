@@ -129,8 +129,8 @@ static int ett_ifcp_frame_len;
 
 static bool ifcp_desegment    = true;
 
-static dissector_handle_t ifcp_handle = NULL;
-static dissector_handle_t fc_handle   = NULL;
+static dissector_handle_t ifcp_handle;
+static dissector_handle_t fc_handle;
 
 
 /* This function checks the first 16 bytes of the "header" that it looks sane

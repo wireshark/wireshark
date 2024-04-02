@@ -282,7 +282,7 @@ static const fragment_items mp2t_msg_frag_items = {
  *                            +-> ts_analysis_data
  */
 
-static wmem_map_t *mp2t_stream_hashtable = NULL;
+static wmem_map_t *mp2t_stream_hashtable;
 
 typedef struct {
     const conversation_t* conv;

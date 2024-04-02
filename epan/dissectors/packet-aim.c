@@ -543,7 +543,7 @@ static bool aim_desegment = true;
 
 static dissector_handle_t aim_handle;
 
-static GList *families = NULL;
+static GList *families;
 
 static const aim_subtype
 *aim_get_subtype( guint16 famnum, guint16 subtype )

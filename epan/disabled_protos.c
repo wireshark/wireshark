@@ -49,20 +49,20 @@ typedef struct {
 /*
  * List of disabled protocols
  */
-static GList *global_disabled_protos = NULL;
-static GList *disabled_protos = NULL;
+static GList *global_disabled_protos;
+static GList *disabled_protos;
 /*
  * List of enabled protocols (that are disabled by default)
  */
-static GList *global_enabled_protos = NULL;
-static GList *enabled_protos = NULL;
+static GList *global_enabled_protos;
+static GList *enabled_protos;
 /*
  * List of disabled heuristics
  */
-static GList *global_disabled_heuristics = NULL;
-static GList *disabled_heuristics = NULL;
+static GList *global_disabled_heuristics;
+static GList *disabled_heuristics;
 
-static gboolean unsaved_changes = FALSE;
+static gboolean unsaved_changes;
 
 #define INIT_BUF_SIZE   128
 

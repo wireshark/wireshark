@@ -13,7 +13,7 @@
 
 #include "etw_message.h"
 #include <wsutil/wslog.h>
-ULONGLONG g_num_events = 0;
+ULONGLONG g_num_events;
 
 VOID format_message(WCHAR* lpszMessage, PROPERTY_KEY_VALUE* propArray, DWORD dwPropertyCount, WCHAR* lpszOutBuffer, DWORD dwOutBufferCount)
 {

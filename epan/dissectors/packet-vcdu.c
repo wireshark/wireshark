@@ -164,9 +164,9 @@ typedef struct {
     guint channel;
 } uat_channel_t;
 
-static uat_channel_t *uat_bitchannels  = NULL;
-static uat_t         *vcdu_uat         = NULL;
-static guint          num_channels_uat = 0;
+static uat_channel_t *uat_bitchannels;
+static uat_t         *vcdu_uat;
+static guint          num_channels_uat;
 
 UAT_DEC_CB_DEF(uat_bitchannels, channel, uat_channel_t)
 

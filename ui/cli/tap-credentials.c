@@ -26,7 +26,7 @@
 
 void register_tap_listener_credentials(void);
 
-wmem_array_t* credentials = NULL;
+wmem_array_t* credentials;
 
 static tap_credential_t* tap_credential_clone(tap_credential_t* auth)
 {

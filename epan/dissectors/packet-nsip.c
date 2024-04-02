@@ -222,7 +222,7 @@ static const value_string ip_address_type_vals[] = {
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t nsip_handle;
 
-static gboolean nsip_is_recursive = FALSE;
+static gboolean nsip_is_recursive;
 
 typedef struct {
   guint8        iei;

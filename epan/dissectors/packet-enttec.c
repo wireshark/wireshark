@@ -97,9 +97,9 @@ static int ett_enttec;
  * for enttec
  */
 
-static gint global_disp_chan_val_type = 0;
+static gint global_disp_chan_val_type;
 static gint global_disp_col_count = 16;
-static gint global_disp_chan_nr_type = 0;
+static gint global_disp_chan_nr_type;
 
 static gint
 dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)

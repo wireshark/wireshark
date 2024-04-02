@@ -52,7 +52,7 @@ static expert_field ei_invalid_session;
 static expert_field ei_length_bad;
 
 static dissector_handle_t bthci_acl_handle;
-static dissector_handle_t btl2cap_handle = NULL;
+static dissector_handle_t btl2cap_handle;
 
 static bool acl_reassembly = true;
 
@@ -68,7 +68,7 @@ typedef struct _chandle_data_t {
     wmem_tree_t *start_fragments;  /* indexed by pinfo->num */
 } chandle_data_t;
 
-static wmem_tree_t *chandle_tree = NULL;
+static wmem_tree_t *chandle_tree;
 
 static const value_string role_vals[] = {
     { 0, "Unknown" },
@@ -100,7 +100,7 @@ static const value_string bc_flag_vals[] = {
     { 0, NULL }
 };
 
-static guint32 invalid_session = 0;
+static guint32 invalid_session;
 
 
 void proto_register_bthci_acl(void);

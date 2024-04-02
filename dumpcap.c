@@ -123,14 +123,14 @@ FILE *debug_log;   /* for logging debug messages to  */
 static GAsyncQueue *pcap_queue;
 static gint64 pcap_queue_bytes;
 static gint64 pcap_queue_packets;
-static gint64 pcap_queue_byte_limit = 0;
-static gint64 pcap_queue_packet_limit = 0;
+static gint64 pcap_queue_byte_limit;
+static gint64 pcap_queue_packet_limit;
 
-static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
-static const char *report_capture_filename = NULL; /* capture child file name */
+static gboolean capture_child; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
+static const char *report_capture_filename; /* capture child file name */
 #ifdef _WIN32
-static gchar *sig_pipe_name = NULL;
-static HANDLE sig_pipe_handle = NULL;
+static gchar *sig_pipe_name;
+static HANDLE sig_pipe_handle;
 static gboolean signal_pipe_check_running(void);
 #endif
 static int sync_pipe_fd = 2;
@@ -416,9 +416,9 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
 
 /* capture related options */
 static capture_options global_capture_opts;
-static GPtrArray *capture_comments = NULL;
-static gboolean quiet = FALSE;
-static gboolean use_threads = FALSE;
+static GPtrArray *capture_comments;
+static gboolean quiet;
+static gboolean use_threads;
 static guint64 start_time;
 
 static void capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,

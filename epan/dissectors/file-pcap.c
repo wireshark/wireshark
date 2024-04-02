@@ -50,7 +50,7 @@ static gint ett_pcap_packet;
 static gint ett_pcap_packet_data;
 static gint ett_pcap_timestamp;
 
-static bool pref_dissect_next_layer = false;
+static bool pref_dissect_next_layer;
 
 void proto_register_file_pcap(void);
 void proto_reg_handoff_file_pcap(void);

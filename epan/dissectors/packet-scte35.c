@@ -64,7 +64,7 @@ static const int SCTE35_SI_MIN_LEN = 20;
 static int proto_scte35;
 
 /* Dissector table for scte35.splice_command_type */
-static dissector_table_t scte35_cmd_dissector_table = NULL;
+static dissector_table_t scte35_cmd_dissector_table;
 
 
 /* splice_info_section table */
@@ -133,9 +133,9 @@ static gint hf_identifier;
 static gint hf_private_byte;
 
 /* Dissector table for scte35_private_command.identifier */
-static dissector_table_t private_identifier_table = NULL;
+static dissector_table_t private_identifier_table;
 
-static dissector_handle_t scte35_handle = NULL;
+static dissector_handle_t scte35_handle;
 static dissector_handle_t scte35_time_handle;
 static dissector_handle_t scte35_private_command_handle;
 static dissector_handle_t scte35_si_handle;

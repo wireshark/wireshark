@@ -35,7 +35,7 @@ static e_guid_t uuid_dcerpc_rras = {
 	{ 0xbb, 0xd2, 0x00, 0x00, 0x1a, 0x18, 0x1c, 0xad }
 };
 
-static guint16 ver_dcerpc_rras = 0;
+static guint16 ver_dcerpc_rras;
 
 
 static dcerpc_sub_dissector dcerpc_rras_dissectors[] = {

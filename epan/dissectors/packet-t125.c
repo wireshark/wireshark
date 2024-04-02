@@ -45,7 +45,7 @@ void proto_reg_handoff_t125(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_t125;
-static proto_tree *top_tree = NULL;
+static proto_tree *top_tree;
 static int hf_t125_ConnectMCSPDU_PDU;             /* ConnectMCSPDU */
 static int hf_t125_maxChannelIds;                 /* INTEGER_0_MAX */
 static int hf_t125_maxUserIds;                    /* INTEGER_0_MAX */

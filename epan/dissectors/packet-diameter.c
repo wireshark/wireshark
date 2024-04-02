@@ -380,7 +380,7 @@ compare_avps(const void *a, const void *b)
 	return 0;
 }
 
-static GHashTable* diameterstat_cmd_str_hash = NULL;
+static GHashTable* diameterstat_cmd_str_hash;
 #define DIAMETER_NUM_PROCEDURES     1
 
 static void

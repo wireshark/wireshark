@@ -42,7 +42,7 @@ static int hf_h248_package_3GUP_initdir;
 
 static gint ett_h248_package_3GUP;
 
-static gboolean implicit = FALSE;
+static gboolean implicit;
 
 static const value_string h248_3GUP_properties_vals[] = {
 	{ 0x0000, "threegup (3G User Plane)" },

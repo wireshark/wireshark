@@ -221,7 +221,7 @@ static int global_linktype = -1;
 
 /* Global variables */
 static int linktype = -1;
-static gboolean info_added = FALSE;
+static gboolean info_added;
 
 static const value_string message_type[] = {
   { RPCAP_MSG_ERROR,              "Error"                       },

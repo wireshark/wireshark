@@ -46,7 +46,7 @@ static int hf_tdmop_Reserved;
 static int hf_tdmop_payload;
 static int hf_tdmop_Compression_mask;
 
-static dissector_handle_t lapd_handle    = NULL;
+static dissector_handle_t lapd_handle;
 
 static gint pref_tdmop_d_channel      = 16;
 static guint32 pref_tdmop_mask        = 0xFFFFFFFFUL;

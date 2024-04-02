@@ -332,8 +332,8 @@ static gint ett_zbee_nwk_cmd_comm_clid_list_server;
 static gint ett_zbee_nwk_cmd_comm_clid_list_client;
 
 /* Common. */
-static GSList *zbee_gp_keyring = NULL;
-static guint num_uat_key_records = 0;
+static GSList *zbee_gp_keyring;
+static guint num_uat_key_records;
 
 typedef struct {
     gchar *string;
@@ -346,7 +346,7 @@ static const guint8 empty_key[ZBEE_SEC_CONST_KEYSIZE] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-static uat_key_record_t *gp_uat_key_records = NULL;
+static uat_key_record_t *gp_uat_key_records;
 static uat_t *zbee_gp_sec_key_table_uat;
 
 /* UAT. */

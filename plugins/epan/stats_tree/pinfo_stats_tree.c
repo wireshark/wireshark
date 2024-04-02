@@ -40,9 +40,9 @@ static range_t default_range[10] = {
 	{1, {{2560, 5119}}},
 	{1, {{5120, 0xFFFFFFFF}}}
 };
-static uat_plen_record_t *uat_plen_records = NULL;
-static uat_t *plen_uat = NULL;
-static guint num_plen_uat = 0;
+static uat_plen_record_t *uat_plen_records;
+static uat_t *plen_uat;
+static guint num_plen_uat;
 
 void register_tap_listener_pinfo_stat_tree(void);
 

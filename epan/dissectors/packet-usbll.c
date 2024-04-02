@@ -496,7 +496,7 @@ typedef struct usbll_data {
     struct usbll_data *next;
 } usbll_data_t;
 
-static usbll_data_t *usbll_data_ptr = NULL;
+static usbll_data_t *usbll_data_ptr;
 
 /* Transaction Translator arrays used only during first pass. */
 static usbll_transaction_info_t ***tt_non_periodic;

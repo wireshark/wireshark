@@ -126,12 +126,12 @@ static const enum_val_t cbv_version_vals[] = {
 static gint g_autosar_nm_cbv_version = (gint)autosar_4_1_or_newer;
 
 /* Id and mask of CAN frames to be dissected */
-static guint32 g_autosar_nm_can_id = 0;
+static guint32 g_autosar_nm_can_id;
 static guint32 g_autosar_nm_can_id_mask = 0xffffffff;
 
 /* Relevant PDUs */
-static range_t *g_autosar_nm_pdus = NULL;
-static range_t *g_autosar_nm_ipdum_pdus = NULL;
+static range_t *g_autosar_nm_pdus;
+static range_t *g_autosar_nm_ipdum_pdus;
 
 
 /*******************************

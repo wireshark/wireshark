@@ -159,9 +159,9 @@ UAT_CSTRING_CB_DEF(uat_key_records, zvd_ieee, uat_key_record_t)
 UAT_CSTRING_CB_DEF(uat_key_records, key, uat_key_record_t)
 UAT_CSTRING_CB_DEF(uat_key_records, label, uat_key_record_t)
 
-static GSList           *zbee_pc_keyring = NULL;
-static uat_key_record_t *uat_key_records = NULL;
-static guint             num_uat_key_records = 0;
+static GSList           *zbee_pc_keyring;
+static uat_key_record_t *uat_key_records;
+static guint             num_uat_key_records;
 
 /* Common data */
 static guint8 g_conn_id;

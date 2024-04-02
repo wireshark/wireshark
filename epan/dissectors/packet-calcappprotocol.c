@@ -38,8 +38,8 @@ static int hf_message_jobid;
 static int hf_message_jobsize;
 static int hf_message_completed;
 
-static guint64 calcappprotocol_total_msgs     = 0;
-static guint64 calcappprotocol_total_bytes    = 0;
+static guint64 calcappprotocol_total_msgs;
+static guint64 calcappprotocol_total_bytes;
 
 /* Initialize the subtree pointers */
 static gint ett_calcappprotocol;

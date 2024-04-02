@@ -52,7 +52,7 @@ struct oca_request_hash_val {
     guint16 tree_level;
     guint16 method_index;
 };
-static wmem_map_t *oca_request_hash_map = NULL;
+static wmem_map_t *oca_request_hash_map;
 
 void proto_register_ocp1(void);
 void proto_reg_handoff_ocp1(void);

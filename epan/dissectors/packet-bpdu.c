@@ -186,8 +186,8 @@ static bool bpdu_use_system_id_extensions = true;
 static dissector_handle_t gvrp_handle;
 static dissector_handle_t gmrp_handle;
 
-static dissector_handle_t bpdu_handle = NULL;
-static dissector_handle_t bpdu_cisco_handle = NULL;
+static dissector_handle_t bpdu_handle;
+static dissector_handle_t bpdu_cisco_handle;
 
 static const value_string protocol_id_vals[] = {
   { 0, "Spanning Tree Protocol" },

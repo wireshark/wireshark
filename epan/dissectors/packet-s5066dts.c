@@ -73,7 +73,7 @@ static expert_field ei_s5066dts_eow_hftrp_invalid;
 /* TCP port that will be listened by the application that peer
  * dts layers will be connected through
  */
-static range_t *config_s5066dts_ports = NULL;
+static range_t *config_s5066dts_ports;
 
 static gint hf_s5066dts_sync_word;
 static gint hf_s5066dts_dpdu_type;

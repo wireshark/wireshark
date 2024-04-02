@@ -633,20 +633,20 @@ static guint32 global_lbtru_source_port_low = LBTRU_DEFAULT_SOURCE_PORT_LOW;
 static guint32 global_lbtru_source_port_high = LBTRU_DEFAULT_SOURCE_PORT_HIGH;
 static guint32 global_lbtru_receiver_port_low = LBTRU_DEFAULT_RECEIVER_PORT_LOW;
 static guint32 global_lbtru_receiver_port_high = LBTRU_DEFAULT_RECEIVER_PORT_HIGH;
-static bool global_lbtru_expert_separate_naks = false;
-static bool global_lbtru_expert_separate_ncfs = false;
-static bool global_lbtru_use_tag = false;
-static bool global_lbtru_sequence_analysis = false;
+static bool global_lbtru_expert_separate_naks;
+static bool global_lbtru_expert_separate_ncfs;
+static bool global_lbtru_use_tag;
+static bool global_lbtru_sequence_analysis;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbtru_source_port_low = LBTRU_DEFAULT_SOURCE_PORT_LOW;
 static guint32 lbtru_source_port_high = LBTRU_DEFAULT_SOURCE_PORT_HIGH;
 static guint32 lbtru_receiver_port_low = LBTRU_DEFAULT_RECEIVER_PORT_LOW;
 static guint32 lbtru_receiver_port_high = LBTRU_DEFAULT_RECEIVER_PORT_HIGH;
-static gboolean lbtru_expert_separate_naks = FALSE;
-static gboolean lbtru_expert_separate_ncfs = FALSE;
-static gboolean lbtru_use_tag = FALSE;
-static gboolean lbtru_sequence_analysis = FALSE;
+static gboolean lbtru_expert_separate_naks;
+static gboolean lbtru_expert_separate_ncfs;
+static gboolean lbtru_use_tag;
+static gboolean lbtru_sequence_analysis;
 
 /*----------------------------------------------------------------------------*/
 /* Tag management.                                                            */
@@ -660,8 +660,8 @@ typedef struct
     guint32 receiver_port_high;
 } lbtru_tag_entry_t;
 
-static lbtru_tag_entry_t * lbtru_tag_entry = NULL;
-static guint lbtru_tag_count = 0;
+static lbtru_tag_entry_t * lbtru_tag_entry;
+static guint lbtru_tag_count;
 
 UAT_CSTRING_CB_DEF(lbtru_tag, name, lbtru_tag_entry_t)
 UAT_DEC_CB_DEF(lbtru_tag, source_port_low, lbtru_tag_entry_t)

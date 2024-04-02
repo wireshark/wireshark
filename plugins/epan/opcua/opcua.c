@@ -41,8 +41,8 @@ void proto_register_opcua(void);
 
 extern const value_string g_requesttypes[];
 extern const int g_NumServices;
-static const gchar *g_opcua_debug_file_name = NULL;
-int g_opcua_default_sig_len = 0;
+static const gchar *g_opcua_debug_file_name;
+int g_opcua_default_sig_len;
 
 /* forward reference */
 void proto_reg_handoff_opcua(void);

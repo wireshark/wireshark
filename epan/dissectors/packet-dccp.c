@@ -311,7 +311,7 @@ static heur_dissector_list_t heur_subdissector_list;
 
 /* preferences */
 static bool dccp_summary_in_tree = true;
-static bool try_heuristic_first  = false;
+static bool try_heuristic_first;
 static bool dccp_check_checksum  = true;
 static bool dccp_relative_seq    = true;
 static guint32  dccp_stream_count;

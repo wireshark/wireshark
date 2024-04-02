@@ -220,7 +220,7 @@ static gint ett_opensafety_ssdo_fragment;
 static gint ett_opensafety_ssdo_fragments;
 
 /* Definitions for the openSAFETY ov. UDP transport protocol */
-static dissector_handle_t opensafety_udptransport_handle = NULL;
+static dissector_handle_t opensafety_udptransport_handle;
 
 static int proto_oss_udp_transport;
 
@@ -263,16 +263,16 @@ static const fragment_items oss_frag_items = {
 
 static const char *global_scm_udid = "00:00:00:00:00:00";
 
-static dissector_handle_t data_dissector = NULL;
-static dissector_handle_t opensafety_udpdata_handle = NULL;
-static dissector_handle_t opensafety_mbtcp_handle = NULL;
-static dissector_handle_t opensafety_pnio_handle = NULL;
+static dissector_handle_t data_dissector;
+static dissector_handle_t opensafety_udpdata_handle;
+static dissector_handle_t opensafety_mbtcp_handle;
+static dissector_handle_t opensafety_pnio_handle;
 
-static bool global_display_intergap_data       = false;
+static bool global_display_intergap_data;
 static bool global_scm_udid_autoset            = true;
-static bool global_udp_frame2_first            = false;
-static bool global_siii_udp_frame2_first       = false;
-static bool global_mbtcp_big_endian            = false;
+static bool global_udp_frame2_first;
+static bool global_siii_udp_frame2_first;
+static bool global_mbtcp_big_endian;
 static guint global_network_udp_port           = OPENSAFETY_UDP_PORT;
 static guint global_network_udp_port_sercosiii = OPENSAFETY_UDP_PORT_SIII;
 static bool global_classify_transport          = true;
@@ -280,20 +280,20 @@ static bool global_classify_transport          = true;
 static bool global_enable_udp    = true;
 static bool global_enable_mbtcp  = true;
 
-static bool global_opensafety_debug_verbose = false;
+static bool global_opensafety_debug_verbose;
 
 static const char * global_filter_nodes = "";
 static bool global_show_only_node_in_filter = true;
-static wmem_list_t * global_filter_list = NULL;
+static wmem_list_t * global_filter_list;
 
 static gboolean heuristic_siii_dissection_enabled = TRUE;
 
 static heur_dissector_list_t heur_opensafety_spdo_subdissector_list;
 
-static gboolean bDissector_Called_Once_Before = FALSE;
+static gboolean bDissector_Called_Once_Before;
 /* Using local_scm_udid as read variable for global_scm_udid, to
  * enable automatic detection of scm udid */
-static char *local_scm_udid = NULL;
+static char *local_scm_udid;
 
 static reassembly_table os_reassembly_table;
 

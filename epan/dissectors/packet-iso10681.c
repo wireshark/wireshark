@@ -126,17 +126,17 @@ static gint ett_iso10681_bandwidth_control;
 static expert_field ei_iso10681_message_type_bad;
 
 static int proto_iso10681;
-static dissector_handle_t iso10681_handle_flexray = NULL;
+static dissector_handle_t iso10681_handle_flexray;
 
 static dissector_table_t subdissector_table;
 
-static range_t   *iso10681_flexray_ids = NULL;
+static range_t   *iso10681_flexray_ids;
 static bool       iso10681_spread_over_multiple_cycles = true;
 
 static reassembly_table iso10681_reassembly_table;
-static wmem_map_t *iso10681_frame_table = NULL;
-static wmem_map_t *iso10681_seq_table = NULL;
-static guint32     next_seqnum = 0;
+static wmem_map_t *iso10681_frame_table;
+static wmem_map_t *iso10681_seq_table;
+static guint32     next_seqnum;
 
 
 static int hf_iso10681_fragments;

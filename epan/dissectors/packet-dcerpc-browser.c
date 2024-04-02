@@ -63,7 +63,7 @@ static e_guid_t uuid_dcerpc_browser = {
 	{ 0x98, 0x33, 0x01, 0x28, 0x92, 0x02, 0x01, 0x62 }
 };
 
-static guint16 ver_dcerpc_browser = 0;
+static guint16 ver_dcerpc_browser;
 
 
 /*

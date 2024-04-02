@@ -54,13 +54,13 @@ static expert_field ei_uaudp_tlv_length;
 
 /* pref */
 #define UAUDP_PORT_RANGE "32000,32512" /* Not IANA registered */
-static range_t *ua_udp_range = NULL;
+static range_t *ua_udp_range;
 static address cs_address = ADDRESS_INIT_NONE;
 static ws_in4_addr cs_ipv4;
 static ws_in6_addr cs_ipv6;
 static const char* pref_sys_ip_s = "";
 
-static gboolean use_sys_ip = FALSE;
+static gboolean use_sys_ip;
 
 static const value_string uaudp_opcode_str[] =
 {

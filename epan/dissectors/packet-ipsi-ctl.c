@@ -19,7 +19,7 @@
 void proto_register_ipsictl(void);
 void proto_reg_handoff_ipsictl(void);
 
-static dissector_handle_t ipsictl_handle = NULL;
+static dissector_handle_t ipsictl_handle;
 
 #define IPSICTL_PORT            5010 /* Not IANA registered */
 #define IPSICTL_PDU_MAGIC       0x0300

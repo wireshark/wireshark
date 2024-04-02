@@ -63,7 +63,7 @@ static e_guid_t mbim_net_providerid = { 0xA42FE227, 0xA7BF, 0x4483, {0xA5, 0x02,
         ( ((Count)+(Pow2)-1) & (~(((int)(Pow2))-1)) )
 #define ETW_HEADER_SIZE 0x60
 
-static int etw_counter = 0;
+static int etw_counter;
 
 static int
 dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data _U_)

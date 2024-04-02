@@ -48,20 +48,20 @@
 void proto_register_lte_rrc(void);
 void proto_reg_handoff_lte_rrc(void);
 
-static dissector_handle_t nas_eps_handle = NULL;
-static dissector_handle_t nas_5gs_handle = NULL;
-static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
-static dissector_handle_t rrc_sys_info_cont_handle = NULL;
-static dissector_handle_t gsm_a_dtap_handle = NULL;
-static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
-static dissector_handle_t nr_rrc_reconf_handle = NULL;
+static dissector_handle_t nas_eps_handle;
+static dissector_handle_t nas_5gs_handle;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
+static dissector_handle_t rrc_sys_info_cont_handle;
+static dissector_handle_t gsm_a_dtap_handle;
+static dissector_handle_t gsm_rlcmac_dl_handle;
+static dissector_handle_t nr_rrc_reconf_handle;
 static dissector_handle_t lte_rrc_conn_reconf_handle;
 static dissector_handle_t lte_rrc_dl_ccch_handle;
 
-static wmem_map_t *lte_rrc_etws_cmas_dcs_hash = NULL;
+static wmem_map_t *lte_rrc_etws_cmas_dcs_hash;
 
 /* Keep track of where/how the System Info value has changed */
-static wmem_map_t *lte_rrc_system_info_value_changed_hash = NULL;
+static wmem_map_t *lte_rrc_system_info_value_changed_hash;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
 

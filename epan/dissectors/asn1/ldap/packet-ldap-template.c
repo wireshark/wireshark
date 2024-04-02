@@ -201,13 +201,13 @@ static gint ett_ldap_DirSyncFlagsSubEntry;
 static expert_field ei_ldap_exceeded_filter_length;
 static expert_field ei_ldap_too_many_filter_elements;
 
-static dissector_table_t ldap_name_dissector_table=NULL;
-static const char *object_identifier_id = NULL; /* LDAP OID */
+static dissector_table_t ldap_name_dissector_table;
+static const char *object_identifier_id; /* LDAP OID */
 
-static gboolean do_protocolop = FALSE;
-static gchar    *attr_type = NULL;
-static gboolean is_binary_attr_type = FALSE;
-static gboolean ldap_found_in_frame = FALSE;
+static gboolean do_protocolop;
+static gchar    *attr_type;
+static gboolean is_binary_attr_type;
+static gboolean ldap_found_in_frame;
 
 #define TCP_PORT_RANGE_LDAP             "389,3268" /* 3268 is Windows 2000 Global Catalog */
 #define TCP_PORT_LDAPS                  636
@@ -216,7 +216,7 @@ static gboolean ldap_found_in_frame = FALSE;
 /* desegmentation of LDAP */
 static bool ldap_desegment = true;
 static guint global_ldaps_tcp_port = TCP_PORT_LDAPS;
-static guint ssl_port = 0;
+static guint ssl_port;
 
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
@@ -625,10 +625,10 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
 }
 
 /* This string contains the last LDAPString that was decoded */
-static const char *attributedesc_string=NULL;
+static const char *attributedesc_string;
 
 /* This string contains the last AssertionValue that was decoded */
-static char *ldapvalue_string=NULL;
+static char *ldapvalue_string;
 
 /* if the octet string contain all printable ASCII characters, then
  * display it as a string, othervise just display it in hex.
@@ -734,14 +734,14 @@ finished:
 }
 
 /* This string contains the last Filter item that was decoded */
-static const char *Filter_string=NULL;
-static const char *and_filter_string=NULL;
-static const char *or_filter_string=NULL;
-static const char *substring_value=NULL;
-static const char *substring_item_init=NULL;
-static const char *substring_item_any=NULL;
-static const char *substring_item_final=NULL;
-static const char *matching_rule_string=NULL;
+static const char *Filter_string;
+static const char *and_filter_string;
+static const char *or_filter_string;
+static const char *substring_value;
+static const char *substring_item_init;
+static const char *substring_item_any;
+static const char *substring_item_final;
+static const char *matching_rule_string;
 static gboolean matching_rule_dnattr=FALSE;
 
 #define MAX_FILTER_LEN 4096
@@ -753,8 +753,8 @@ static gint Filter_elements;
 /* Global variables */
 static gint MessageID =-1;
 static gint ProtocolOp = -1;
-static gint result = 0;
-static proto_item *ldm_tree = NULL; /* item to add text to */
+static gint result;
+static proto_item *ldm_tree; /* item to add text to */
 
 static void ldap_do_protocolop(packet_info *pinfo)
 {

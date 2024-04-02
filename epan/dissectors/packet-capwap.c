@@ -29,8 +29,8 @@ static dissector_handle_t capwap_data_handle;
 #define UDP_PORT_CAPWAP_CONTROL 5246
 #define UDP_PORT_CAPWAP_DATA 5247
 
-static range_t *global_capwap_data_udp_ports = NULL;
-static bool global_capwap_draft_8_cisco = false;
+static range_t *global_capwap_data_udp_ports;
+static bool global_capwap_draft_8_cisco;
 static bool global_capwap_reassemble = true;
 static bool global_capwap_swap_frame_control = true;
 

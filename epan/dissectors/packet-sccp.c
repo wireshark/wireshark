@@ -710,9 +710,9 @@ static expert_field ei_sccp_externally_reassembled;
 
 
 static bool sccp_reassemble = true;
-static bool show_key_params = false;
-static bool set_addresses = false;
-static bool dt1_ignore_length = false;
+static bool show_key_params;
+static bool set_addresses;
+static bool dt1_ignore_length;
 
 static int ss7pc_address_type = -1;
 
@@ -781,7 +781,7 @@ static dissector_handle_t bssap_le_handle;
 static dissector_handle_t bssap_plus_handle;
 static dissector_handle_t default_handle;
 
-static const char *default_payload = NULL;
+static const char *default_payload;
 
 static const value_string sccp_users_vals[] = {
   { SCCP_USER_DATA,       "Data"},
@@ -801,17 +801,17 @@ static const value_string sccp_users_vals[] = {
  * Here are the global variables associated with
  * the various user definable characteristics of the dissection
  */
-static guint32  sccp_source_pc_global = 0;
-static bool sccp_show_length      = false;
-static bool trace_sccp            = false;
+static guint32  sccp_source_pc_global;
+static bool sccp_show_length;
+static bool trace_sccp;
 
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_table_t sccp_ssn_dissector_table;
 
-static wmem_tree_t       *assocs        = NULL;
+static wmem_tree_t       *assocs;
 static sccp_assoc_info_t  no_assoc = { 0,0,0,INVALID_SSN,INVALID_SSN,FALSE,FALSE,NULL,NULL,SCCP_PLOAD_NONE,NULL,NULL,NULL, NULL, 0 };
-static guint32            next_assoc_id = 0;
+static guint32            next_assoc_id;
 
 static const value_string assoc_protos[] = {
   { SCCP_PLOAD_BSSAP,   "BSSAP" },

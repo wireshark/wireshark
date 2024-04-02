@@ -84,12 +84,12 @@ struct sharkd_filter_item
     guint8 *filtered; /* can be NULL if all frames are matching for given filter. */
 };
 
-static GHashTable *filter_table = NULL;
+static GHashTable *filter_table;
 
 static int mode;
 static guint32 rpcid;
 
-static json_dumper dumper = {0};
+static json_dumper dumper;
 
 
 static const char *

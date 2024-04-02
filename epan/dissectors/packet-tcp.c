@@ -72,7 +72,7 @@ static inline guint64 KEEP_32MSB_OF_GUINT64(guint64 nb) {
  * packet to the capture program but a checksummed packet got put onto
  * the wire.
  */
-static bool tcp_check_checksum = false;
+static bool tcp_check_checksum;
 
 /*
  * Window scaling values to be used when not known (set as a preference) */
@@ -502,7 +502,7 @@ static bool tcp_no_subdissector_on_error = true;
 
 /* Enable buffering of out-of-order TCP segments before passing it to a
  * subdissector (depends on "tcp_desegment"). */
-static bool tcp_reassemble_out_of_order = false;
+static bool tcp_reassemble_out_of_order;
 
 /*
  * FF: https://www.rfc-editor.org/rfc/rfc6994.html
@@ -524,10 +524,10 @@ static bool tcp_exp_options_rfc6994 = true;
 static bool tcp_fastrt_precedence = true;
 
 /* Process info, currently discovered via IPFIX */
-static bool tcp_display_process_info = false;
+static bool tcp_display_process_info;
 
 /* Read the sequence number as syn cookie */
-static bool read_seq_as_syn_cookie = false;
+static bool read_seq_as_syn_cookie;
 
 /*
  *  TCP option
@@ -749,7 +749,7 @@ static guint32 mptcp_stream_count;
  * Maps an MPTCP token to a mptcp_analysis structure
  * Collisions are not handled
  */
-static wmem_tree_t *mptcp_tokens = NULL;
+static wmem_tree_t *mptcp_tokens;
 
 static int * const tcp_option_mptcp_capable_v0_flags[] = {
   &hf_tcp_option_mptcp_checksum_flag,
@@ -1670,13 +1670,13 @@ static void conversation_completeness_fill(gchar *buf, guint32 value)
 static bool tcp_analyze_seq           = true;
 static bool tcp_relative_seq          = true;
 static bool tcp_track_bytes_in_flight = true;
-static bool tcp_bif_seq_based         = false;
+static bool tcp_bif_seq_based;
 static bool tcp_calculate_ts          = true;
 
 static bool tcp_analyze_mptcp                   = true;
 static bool mptcp_relative_seq                  = true;
-static bool mptcp_analyze_mappings              = false;
-static bool mptcp_intersubflows_retransmission  = false;
+static bool mptcp_analyze_mappings;
+static bool mptcp_intersubflows_retransmission;
 
 
 #define TCP_A_RETRANSMISSION          0x0001
@@ -5810,7 +5810,7 @@ dissect_tcpopt_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /* If set, do not put the TCP timestamp information on the summary line */
-static bool tcp_ignore_timestamps = false;
+static bool tcp_ignore_timestamps;
 
 static int
 dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -7417,7 +7417,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
    This has been separated into a stand alone routine to other protocol
    dissectors can call to it, e.g., SOCKS. */
 
-static bool try_heuristic_first = false;
+static bool try_heuristic_first;
 
 
 /* this function can be called with tcpd==NULL as from the msproxy dissector */

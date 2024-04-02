@@ -417,8 +417,8 @@ static dissector_handle_t lisp_handle;
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 
-static gboolean encapsulated = FALSE;
-static gboolean ddt_originated = FALSE;
+static gboolean encapsulated;
+static gboolean ddt_originated;
 
 static const value_string lisp_typevals[] = {
     { LISP_MAP_REQUEST,     "Map-Request" },

@@ -160,7 +160,7 @@ static dissector_table_t    zbee_zcl_dissector_table;
 static guint16 zcl_cluster_id = -1;
 static guint16 zcl_mfr_code = -1;
 
-static GList *acluster_desc = NULL;
+static GList *acluster_desc;
 
 /********************/
 /* Field Names      */

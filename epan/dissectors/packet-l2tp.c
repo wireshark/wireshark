@@ -1010,7 +1010,7 @@ typedef struct l2tpv3_session {
 
 static const gchar* shared_secret = "";
 
-static GSList *list_heads = NULL;
+static GSList *list_heads;
 
 static void update_shared_key(l2tpv3_tunnel_t *tunnel)
 {

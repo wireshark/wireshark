@@ -171,7 +171,7 @@ wtap_open_return_val aethra_open(wtap *wth, int *err, char **err_info)
 }
 
 #if 0
-static unsigned packet = 0;
+static unsigned packet;
 #endif
 
 /* Read the next packet */

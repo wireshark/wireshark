@@ -273,7 +273,7 @@ typedef struct {
   guint32 sn_upper;
 } uat_esp_sa_record_t;
 
-static uat_esp_sa_record_t *uat_esp_sa_records = NULL;
+static uat_esp_sa_record_t *uat_esp_sa_records;
 
 /* Extra SA records that may be set programmatically */
 /* 'records' array is now allocated on the heap */
@@ -284,8 +284,8 @@ typedef struct extra_esp_sa_records_t {
 } extra_esp_sa_records_t;
 static extra_esp_sa_records_t extra_esp_sa_records;
 
-static uat_t * esp_uat = NULL;
-static guint num_sa_uat = 0;
+static uat_t * esp_uat;
+static guint num_sa_uat;
 
 /*
    Name : static gint compute_ascii_key(gchar **ascii_key, gchar *key)
@@ -548,10 +548,10 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
 /* Preference settings               */
 
 /* Default ESP payload decode to off */
-static bool g_esp_enable_encryption_decode = false;
+static bool g_esp_enable_encryption_decode;
 
 /* Default ESP payload Authentication Checking to off */
-static bool g_esp_enable_authentication_check = false;
+static bool g_esp_enable_authentication_check;
 
 /**************************************************/
 /* Sequence number analysis                       */
@@ -566,12 +566,12 @@ typedef struct
 
 /* The sequence analysis SPI hash table.
    Maps SPI -> spi_status */
-static wmem_map_t *esp_sequence_analysis_hash = NULL;
+static wmem_map_t *esp_sequence_analysis_hash;
 
 /* Results are stored here: framenum -> spi_status */
 /* N.B. only store entries for out-of-order frames, if there is no entry for
    a given frame, it was found to be in-order */
-static wmem_map_t *esp_sequence_analysis_report_hash = NULL;
+static wmem_map_t *esp_sequence_analysis_report_hash;
 
 /* During the first pass, update the SPI state.  If the sequence numbers
    are out of order, add an entry to the report table */
@@ -658,7 +658,7 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
    (only works if payload is NULL encrypted and ESP payload decode is off or payload is NULL encrypted
    and the packet does not match a Security Association).
 */
-static bool g_esp_enable_null_encryption_decode_heuristic = false;
+static bool g_esp_enable_null_encryption_decode_heuristic;
 
 /* Default to doing ESP sequence analysis */
 static bool g_esp_do_sequence_analysis = true;

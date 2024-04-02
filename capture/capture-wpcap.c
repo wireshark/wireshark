@@ -26,7 +26,7 @@
 #include "capture/capture-wpcap.h"
 #include <wsutil/feature_list.h>
 
-bool has_wpcap = false;
+bool has_wpcap;
 
 #ifdef HAVE_LIBPCAP
 

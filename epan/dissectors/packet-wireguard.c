@@ -146,7 +146,7 @@ typedef struct wg_ekey {
  * Maps the public key to the "wg_skey_t" structure.
  * Keys are populated from the UAT and key log file.
  */
-static GHashTable *wg_static_keys = NULL;
+static GHashTable *wg_static_keys;
 
 /*
  * Set of ephemeral keys (for decryption). Maps the public key to the

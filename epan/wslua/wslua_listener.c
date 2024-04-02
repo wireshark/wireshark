@@ -191,7 +191,7 @@ static void lua_tap_draw(void *tapdata) {
 }
 
 /* TODO: we should probably use a Lua table here */
-static GPtrArray *listeners = NULL;
+static GPtrArray *listeners;
 
 static void deregister_Listener (lua_State* L _U_, Listener tap) {
     if (tap->all_fields) {

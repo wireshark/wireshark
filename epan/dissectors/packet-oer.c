@@ -50,7 +50,7 @@ static expert_field ei_oer_undecoded;
 static expert_field ei_oer_open_type;
 
 /* whether the OER helpers should put the internal OER fields into the tree or not. */
-static bool display_internal_oer_fields = false;
+static bool display_internal_oer_fields;
 
 /*
 #define DEBUG_ENTRY(x) \

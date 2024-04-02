@@ -66,7 +66,7 @@ static gint ett_ctdb_key;
 static expert_field ei_ctdb_too_many_nodes;
 
 /* this tree keeps track of caller/reqid for ctdb transactions */
-static wmem_tree_t *ctdb_transactions=NULL;
+static wmem_tree_t *ctdb_transactions;
 typedef struct _ctdb_trans_t {
 	guint32 key_hash;
 	guint32 request_in;
@@ -75,7 +75,7 @@ typedef struct _ctdb_trans_t {
 } ctdb_trans_t;
 
 /* this tree keeps track of CONTROL request/responses */
-static wmem_tree_t *ctdb_controls=NULL;
+static wmem_tree_t *ctdb_controls;
 typedef struct _ctdb_control_t {
 	guint32 opcode;
 	guint32 request_in;

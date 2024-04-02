@@ -81,9 +81,9 @@ static dissector_handle_t tls_handle;
 
 /* Preferences */
 static bool     pref_long_format       = true;
-static bool     pref_tls_auth          = false;
-static bool     pref_tls_auth_override = false;
-static bool     pref_tls_crypt_override = false;
+static bool     pref_tls_auth;
+static bool     pref_tls_auth_override;
+static bool     pref_tls_crypt_override;
 static guint    tls_auth_hmac_size     = 20; /* Default SHA-1 160 Bits */
 
 static const value_string openvpn_message_types[] =

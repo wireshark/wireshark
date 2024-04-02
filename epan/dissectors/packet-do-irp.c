@@ -265,7 +265,7 @@ struct do_irp_request_hash_val {
     guint32 pnum_resp;
     guint32 opcode;
 };
-static wmem_map_t *do_irp_request_hash_map = NULL;
+static wmem_map_t *do_irp_request_hash_map;
 
 #define DO_IRP_OC_RESERVED                0
 #define DO_IRP_OC_RESOLUTION              1

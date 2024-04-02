@@ -220,11 +220,11 @@ static gint ett_homeplug_stc;
 
 static expert_field ei_homeplug_tone_map_not_exist;
 
-static guint8  homeplug_ne     = 0;
-static guint8  homeplug_melen  = 0;
-static guint8  homeplug_metype = 0;
+static guint8  homeplug_ne;
+static guint8  homeplug_melen;
+static guint8  homeplug_metype;
 
-static guint32 homeplug_offset = 0;
+static guint32 homeplug_offset;
 
 
 /* METYPE Values */

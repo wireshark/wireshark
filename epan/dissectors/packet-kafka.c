@@ -701,7 +701,7 @@ static const value_string election_types[] = {
 /* Whether to show the lengths of string and byte fields in the protocol tree.
  * It can be useful to see these, but they do clutter up the display, so disable
  * by default */
-static bool kafka_show_string_bytes_lengths = false;
+static bool kafka_show_string_bytes_lengths;
 
 typedef struct _kafka_query_response_t {
     kafka_api_key_t     api_key;

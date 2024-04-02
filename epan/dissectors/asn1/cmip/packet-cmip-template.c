@@ -50,7 +50,7 @@ static expert_field ei_wrong_spdu_type;
 
 static guint32 opcode;
 
-static dissector_handle_t cmip_handle = NULL;
+static dissector_handle_t cmip_handle;
 
 /* Dissector table */
 static dissector_table_t attribute_id_dissector_table;

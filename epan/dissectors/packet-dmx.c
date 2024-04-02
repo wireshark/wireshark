@@ -105,9 +105,9 @@ static dissector_handle_t dmx_text_handle;
 /*
  * Here are the global variables associated with the preferences for DMX
  */
-static gint global_disp_chan_val_type = 0;
+static gint global_disp_chan_val_type;
 static gint global_disp_col_count     = 16;
-static gint global_disp_chan_nr_type  = 0;
+static gint global_disp_chan_nr_type;
 
 static int
 dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

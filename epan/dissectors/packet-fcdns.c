@@ -314,7 +314,7 @@ typedef struct _fcdns_conv_data {
     guint32 opcode;
 } fcdns_conv_data_t;
 
-static wmem_map_t *fcdns_req_hash = NULL;
+static wmem_map_t *fcdns_req_hash;
 
 /*
  * Hash Functions

@@ -79,13 +79,13 @@
 void proto_register_tls(void);
 
 #ifdef HAVE_LIBGNUTLS
-static ssldecrypt_assoc_t *tlskeylist_uats = NULL;
-static guint ntlsdecrypt = 0;
+static ssldecrypt_assoc_t *tlskeylist_uats;
+static guint ntlsdecrypt;
 #endif
 
 static bool tls_desegment          = true;
 static bool tls_desegment_app_data = true;
-static bool tls_ignore_mac_failed  = false;
+static bool tls_ignore_mac_failed;
 
 
 /*********************************************************************
@@ -245,23 +245,23 @@ ssl_proto_tree_add_segment_data(
 static ssl_master_key_map_t       ssl_master_key_map;
 
 #ifdef HAVE_LIBGNUTLS
-static GHashTable         *ssl_key_hash             = NULL;
-static wmem_stack_t       *key_list_stack            = NULL;
-static uat_t              *ssldecrypt_uat           = NULL;
-static const gchar        *ssl_keys_list            = NULL;
+static GHashTable         *ssl_key_hash;
+static wmem_stack_t       *key_list_stack;
+static uat_t              *ssldecrypt_uat;
+static const gchar        *ssl_keys_list;
 #endif
-static dissector_table_t   ssl_associations         = NULL;
-static dissector_handle_t  tls_handle               = NULL;
-static StringInfo          ssl_compressed_data      = {NULL, 0};
-static StringInfo          ssl_decrypted_data       = {NULL, 0};
-static gint                ssl_decrypted_data_avail = 0;
-static FILE               *ssl_keylog_file          = NULL;
-static ssl_common_options_t ssl_options = { NULL, NULL};
+static dissector_table_t   ssl_associations;
+static dissector_handle_t  tls_handle;
+static StringInfo          ssl_compressed_data;
+static StringInfo          ssl_decrypted_data;
+static gint                ssl_decrypted_data_avail;
+static FILE               *ssl_keylog_file;
+static ssl_common_options_t ssl_options;
 
 /* List of dissectors to call for TLS data */
 static heur_dissector_list_t ssl_heur_subdissector_list;
 
-static const gchar *ssl_debug_file_name     = NULL;
+static const gchar *ssl_debug_file_name;
 
 
 /* Forward declaration we need below */

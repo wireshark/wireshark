@@ -87,8 +87,8 @@ static guint    key_indicator_length          = DEFAULT_KEY_INDICATOR_LENGTH;   
 static bool     key_indicator_per_au_flag     = DEFAULT_KEY_INDICATOR_PER_AU;      /* default key indicator per au */
 static guint    iv_length                     = DEFAULT_IV_LENGTH;                 /* default IV length */
 static guint    delta_iv_length               = DEFAULT_DELTA_IV_LENGTH;           /* default delta IV length */
-static bool     pref_user_mode                = false; /* preference user mode instead of RFC3640 mode? */
-static bool     override_flag                 = false; /* override use of RTP payload type to deduce ISMACryp version */
+static bool     pref_user_mode; /* preference user mode instead of RFC3640 mode? */
+static bool     override_flag; /* override use of RTP payload type to deduce ISMACryp version */
 
 /* */
 
@@ -99,7 +99,7 @@ static guint    cts_delta_length              = DEFAULT_CTS_DELTA_LENGTH;       
 static guint    dts_delta_length              = DEFAULT_DTS_DELTA_LENGTH;          /* default DTS delta  length */
 static gboolean random_access_indication      = DEFAULT_RANDOM_ACCESS_INDICATION;  /* default random access indication */
 static guint    stream_state_indication       = DEFAULT_STREAM_STATE_INDICATION;   /* default stream state indication */
-static gboolean user_mode                     = FALSE; /* selected user mode instead of RFC3640 mode? */
+static gboolean user_mode; /* selected user mode instead of RFC3640 mode? */
 
 /*static const value_string messagetypenames[] = {};	*/
 

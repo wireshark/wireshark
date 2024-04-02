@@ -164,8 +164,8 @@ static gint ett_dec_sess_contents;
 
 static expert_field ei_dec_rt_checksum;
 
-static gint dec_dna_total_bytes_this_segment = 0;
-static gint dec_dna_previous_total = 0;
+static gint dec_dna_total_bytes_this_segment;
+static gint dec_dna_previous_total;
 
 static const value_string rt_msg_type_vals[] = {
     { 0x0   , "Initialization message" },

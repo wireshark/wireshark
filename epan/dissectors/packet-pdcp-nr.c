@@ -158,11 +158,11 @@ typedef struct {
 } uat_ue_keys_record_t;
 
 /* N.B. this is an array/table of the struct above, where ueid is the key */
-static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
+static uat_ue_keys_record_t *uat_ue_keys_records;
 
 /* Entries added by UAT */
-static uat_t * ue_keys_uat = NULL;
-static guint num_ue_keys_uat = 0;
+static uat_t * ue_keys_uat;
+static guint num_ue_keys_uat;
 
 /* Convert an ascii hex character into a digit.  Should only be given valid
    hex ascii characters */
@@ -302,7 +302,7 @@ UAT_CSTRING_CB_DEF(uat_ue_keys_records, upIntegrityKeyString,  uat_ue_keys_recor
 /* Also supporting a hash table with entries from these functions */
 
 /* Table from ueid -> ue_key_entries_t* */
-static wmem_map_t *pdcp_security_key_hash = NULL;
+static wmem_map_t *pdcp_security_key_hash;
 
 typedef enum {
     rrc_cipher,
@@ -562,13 +562,13 @@ static dissector_handle_t nr_rrc_dl_dcch;
 static bool global_pdcp_dissect_user_plane_as_ip = true;
 static bool global_pdcp_dissect_signalling_plane_as_rrc = true;
 static gint     global_pdcp_check_sequence_numbers = TRUE;
-static bool global_pdcp_dissect_rohc = false;
+static bool global_pdcp_dissect_rohc;
 
 /* Preference settings for deciphering and integrity checking. */
 static bool global_pdcp_decipher_signalling = true;
-static bool global_pdcp_decipher_userplane = false;  /* Can be slow, so default to FALSE */
+static bool global_pdcp_decipher_userplane;  /* Can be slow, so default to FALSE */
 static bool global_pdcp_check_integrity = true;
-static bool global_pdcp_ignore_sec = false;          /* Ignore Set Security Algo calls */
+static bool global_pdcp_ignore_sec;          /* Ignore Set Security Algo calls */
 
 /* Use these values where we know the keys but may have missed the algorithm,
    e.g. when handing over and RRCReconfigurationRequest goes to target cell only */
@@ -621,7 +621,7 @@ typedef struct
 
 /* The sequence analysis bearer hash table.
    Maps key -> status */
-static wmem_map_t *pdcp_sequence_analysis_bearer_hash = NULL;
+static wmem_map_t *pdcp_sequence_analysis_bearer_hash;
 
 
 /* Hash table types & functions for frame reports */
@@ -716,7 +716,7 @@ typedef struct
 
 /* The sequence analysis frame report hash table.
    Maps pdcp_result_hash_key* -> pdcp_sequence_report_in_frame* */
-static wmem_map_t *pdcp_nr_sequence_analysis_report_hash = NULL;
+static wmem_map_t *pdcp_nr_sequence_analysis_report_hash;
 
 /* Gather together security settings in order to be able to do deciphering */
 typedef struct pdu_security_settings_t
@@ -1212,7 +1212,7 @@ static void checkBearerSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
 /* Hash table for security state for a UE during first pass.
    Maps UEId -> pdcp_security_info_t*  */
-static wmem_map_t *pdcp_security_hash = NULL;
+static wmem_map_t *pdcp_security_hash;
 
 
 typedef struct  ueid_frame_t {
@@ -1258,7 +1258,7 @@ static guint pdcp_nr_ueid_frame_hash_func(gconstpointer v)
 }
 
 /* Result is ueid_frame_t -> pdcp_security_info_t*  */
-static wmem_map_t *pdcp_security_result_hash = NULL;
+static wmem_map_t *pdcp_security_result_hash;
 
 
 

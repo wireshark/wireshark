@@ -89,7 +89,7 @@
  * open or read failure.
  */
 
-static gboolean stop_after_failure = FALSE;
+static gboolean stop_after_failure;
 
 /*
  * table report variables
@@ -99,7 +99,7 @@ static gboolean long_report        = TRUE;  /* By default generate long report  
 static gchar table_report_header   = TRUE;  /* Generate column header by default     */
 static gchar field_separator       = '\t';  /* Use TAB as field separator by default */
 static gchar quote_char            = '\0';  /* Do NOT quote fields by default        */
-static gboolean machine_readable   = FALSE; /* Display machine-readable numbers      */
+static gboolean machine_readable; /* Display machine-readable numbers      */
 
 /*
  * capinfos has the ability to report on a number of
@@ -129,7 +129,7 @@ static gboolean cap_data_size      = TRUE;  /* Report packet byte size    */
 static gboolean cap_duration       = TRUE;  /* Report capture duration    */
 static gboolean cap_start_time     = TRUE;  /* Report capture start time  */
 static gboolean cap_end_time       = TRUE;  /* Report capture end time    */
-static gboolean time_as_secs       = FALSE; /* Report time values as raw seconds */
+static gboolean time_as_secs; /* Report time values as raw seconds */
 
 static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
 static gboolean cap_data_rate_bit  = TRUE;  /* Report data rate bites/sec */
@@ -151,8 +151,8 @@ static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 static gchar file_sha256[HASH_STR_SIZE];
 static gchar file_sha1[HASH_STR_SIZE];
 
-static char  *hash_buf = NULL;
-static gcry_md_hd_t hd = NULL;
+static char  *hash_buf;
+static gcry_md_hd_t hd;
 
 static guint num_ipv4_addresses;
 static guint num_ipv6_addresses;

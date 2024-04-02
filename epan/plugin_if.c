@@ -24,8 +24,8 @@
 
 #include "plugin_if.h"
 
-static GList * menubar_entries = NULL;
-static GList * menubar_menunames = NULL;
+static GList * menubar_entries;
+static GList * menubar_menunames;
 
 static GHashTable * plugin_if_callback_functions;
 
@@ -188,7 +188,7 @@ extern void ext_menubar_add_separator(ext_menu_t *parent)
 
 /* Implementation of external toolbar handlers */
 
-static GList * toolbar_entries = NULL;
+static GList * toolbar_entries;
 
 extern GList * ext_toolbar_get_entries(void)
 {
@@ -408,7 +408,7 @@ ext_toolbar_find_item(gconstpointer a, gconstpointer b)
     return -1;
 }
 
-static GList * toolbar_updates = NULL;
+static GList * toolbar_updates;
 
 void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, gpointer item_data)
 {

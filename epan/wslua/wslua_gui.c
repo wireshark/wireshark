@@ -18,7 +18,7 @@
 
 /* WSLUA_MODULE Gui GUI Support */
 
-static const funnel_ops_t* ops = NULL;
+static const funnel_ops_t* ops;
 
 struct _lua_menu_data {
     lua_State* L;

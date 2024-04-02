@@ -925,7 +925,7 @@ LocateReplyHeader_t;
  * DATA - complete_request_list
  */
 
-static GList *giop_complete_request_list = NULL;
+static GList *giop_complete_request_list;
 
 struct comp_req_list_entry {
   guint32            fn;        /* frame number */
@@ -954,7 +954,7 @@ struct complete_reply_hash_val {
   guint32 mfn;                  /* matching frame number (request)  */
 };
 
-GHashTable *giop_complete_reply_hash = NULL; /* hash */
+GHashTable *giop_complete_reply_hash; /* hash */
 
 /*
  * DATA - Module Hash stuff to store data from register_giop_user_module
@@ -977,7 +977,7 @@ struct giop_module_val {
   giop_sub_handle_t *subh;      /* handle to sub dissector */
 };
 
-GHashTable *giop_module_hash = NULL; /* hash */
+GHashTable *giop_module_hash; /* hash */
 
 
 /*
@@ -986,7 +986,7 @@ GHashTable *giop_module_hash = NULL; /* hash */
  *
  */
 
-static GSList *giop_sub_list = NULL;
+static GSList *giop_sub_list;
 
 /*
  * DATA - Hash stuff to follow request/reply. This is so if we get a REPLY
@@ -1076,7 +1076,7 @@ struct giop_object_val {
   ior_src_t  src;               /* where did Iget this IOR from */
 };
 
-GHashTable *giop_objkey_hash = NULL; /* hash */
+GHashTable *giop_objkey_hash; /* hash */
 
 /*
  * Data structure attached to a conversation.

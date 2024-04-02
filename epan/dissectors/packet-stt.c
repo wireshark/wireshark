@@ -26,7 +26,7 @@
 #include "packet-ip.h"
 
 static bool pref_reassemble = true;
-static bool pref_check_checksum = false;
+static bool pref_check_checksum;
 
 /* IANA  ref:
  * https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml

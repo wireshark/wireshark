@@ -118,7 +118,7 @@ get_cur_groupname(void) {
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
-static bool init_process_policies_called = false;
+static bool init_process_policies_called;
 
 /*
  * Called when the program starts, to save whatever credential information

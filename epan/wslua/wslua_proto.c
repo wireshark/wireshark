@@ -40,7 +40,7 @@ typedef struct _func_saver {
     int dissect_ref;
 } func_saver_t;
 
-static GPtrArray* outstanding_FuncSavers = NULL;
+static GPtrArray* outstanding_FuncSavers;
 
 void clear_outstanding_FuncSavers(void) {
     while (outstanding_FuncSavers->len) {

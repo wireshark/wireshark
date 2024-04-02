@@ -557,26 +557,26 @@ static guint32 global_mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
 static guint32 global_mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
 static const char * global_mim_incoming_mc_address = MIM_DEFAULT_MC_INCOMING_ADDRESS;
 static const char * global_mim_outgoing_mc_address = MIM_DEFAULT_MC_OUTGOING_ADDRESS;
-static bool global_lbtrm_expert_separate_naks = false;
-static bool global_lbtrm_expert_separate_ncfs = false;
-static bool global_lbtrm_use_tag = false;
-static bool global_lbtrm_sequence_analysis = false;
+static bool global_lbtrm_expert_separate_naks;
+static bool global_lbtrm_expert_separate_ncfs;
+static bool global_lbtrm_use_tag;
+static bool global_lbtrm_sequence_analysis;
 
 /* Local preferences variables (used by the dissector). */
-static guint32 lbtrm_mc_address_low_host = 0;
-static guint32 lbtrm_mc_address_high_host = 0;
+static guint32 lbtrm_mc_address_low_host;
+static guint32 lbtrm_mc_address_high_host;
 static guint32 lbtrm_dest_port_low = LBTRM_DEFAULT_DPORT_LOW;
 static guint32 lbtrm_dest_port_high = LBTRM_DEFAULT_DPORT_HIGH;
 static guint32 lbtrm_src_port_low = LBTRM_DEFAULT_SPORT_LOW;
 static guint32 lbtrm_src_port_high = LBTRM_DEFAULT_SPORT_HIGH;
 static guint32 mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
 static guint32 mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
-static guint32 mim_incoming_mc_address_host = 0;
-static guint32 mim_outgoing_mc_address_host = 0;
-static gboolean lbtrm_expert_separate_naks = FALSE;
-static gboolean lbtrm_expert_separate_ncfs = FALSE;
-static gboolean lbtrm_use_tag = FALSE;
-static gboolean lbtrm_sequence_analysis = FALSE;
+static guint32 mim_incoming_mc_address_host;
+static guint32 mim_outgoing_mc_address_host;
+static gboolean lbtrm_expert_separate_naks;
+static gboolean lbtrm_expert_separate_ncfs;
+static gboolean lbtrm_use_tag;
+static gboolean lbtrm_sequence_analysis;
 
 /*----------------------------------------------------------------------------*/
 /* Tag management.                                                            */
@@ -600,8 +600,8 @@ typedef struct
     guint32 mim_mc_outgoing_address_val_h;
 } lbtrm_tag_entry_t;
 
-static lbtrm_tag_entry_t * lbtrm_tag_entry = NULL;
-static guint lbtrm_tag_count = 0;
+static lbtrm_tag_entry_t * lbtrm_tag_entry;
+static guint lbtrm_tag_count;
 
 UAT_CSTRING_CB_DEF(lbtrm_tag, name, lbtrm_tag_entry_t)
 UAT_IPV4_MC_CB_DEF(lbtrm_tag, mc_address_low, lbtrm_tag_entry_t)

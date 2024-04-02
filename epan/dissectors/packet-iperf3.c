@@ -75,9 +75,9 @@ static int hf_iperf3_cookie;
 static int ett_iperf3;
 static int ett_time;
 
-static dissector_handle_t iperf3_handle_tcp = NULL;
-static dissector_handle_t iperf3_handle_udp = NULL;
-static dissector_handle_t json_handle = NULL;
+static dissector_handle_t iperf3_handle_tcp;
+static dissector_handle_t iperf3_handle_udp;
+static dissector_handle_t json_handle;
 
 static const value_string iperf3_state_vals[] = {
     { TEST_START,       "TEST_START" },
@@ -127,7 +127,7 @@ static udp_conversation_data *udp_set_conversation_data(packet_info *);
 
 
 /* protocol preferences */
-static bool iperf3_pref_64bit_seq_no = false;
+static bool iperf3_pref_64bit_seq_no;
 static bool iperf3_pref_detect_udp_order = true;
 /* expert info */
 static expert_field ei_udp_out_of_order;
@@ -159,7 +159,7 @@ DEFINE_CONTROL_PREFACE(UDP) /* invoke as col_info_preface_UDP(pinfo) */
 
 // Collection of cookies used to differentiate between control and data connections.
 // See dissect_iperf3_tcp() for details.
-static wmem_map_t *cookiejar = NULL;
+static wmem_map_t *cookiejar;
 
 static int
 dissect_iperf3_control_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)

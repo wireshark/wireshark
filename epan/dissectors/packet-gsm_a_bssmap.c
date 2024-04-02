@@ -796,7 +796,7 @@ static gint ett_dlci;
 static gint ett_codec_lst;
 static gint ett_bss_to_bss_info;
 
-static dissector_handle_t gsm_bsslap_handle = NULL;
+static dissector_handle_t gsm_bsslap_handle;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;

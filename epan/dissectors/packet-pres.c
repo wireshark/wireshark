@@ -50,8 +50,8 @@ static int proto_pres;
 static int proto_clpres;
 
 /*      pointers for acse dissector  */
-proto_tree *global_tree  = NULL;
-packet_info *global_pinfo = NULL;
+proto_tree *global_tree;
+packet_info *global_pinfo;
 
 static const char *abstract_syntax_name_oid;
 static guint32 presentation_context_identifier;
@@ -62,7 +62,7 @@ typedef struct _pres_ctx_oid_t {
 	char *oid;
 	guint32 idx;
 } pres_ctx_oid_t;
-static wmem_map_t *pres_ctx_oid_table = NULL;
+static wmem_map_t *pres_ctx_oid_table;
 
 typedef struct _pres_user_t {
    guint ctx_id;

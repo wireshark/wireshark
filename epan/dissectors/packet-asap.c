@@ -89,8 +89,8 @@ static gint ett_asap_parameter;
 static gint ett_asap_cause;
 static gint ett_asap_flags;
 
-static guint64 asap_total_msgs = 0;
-static guint64 asap_total_bytes = 0;
+static guint64 asap_total_msgs;
+static guint64 asap_total_bytes;
 
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *);

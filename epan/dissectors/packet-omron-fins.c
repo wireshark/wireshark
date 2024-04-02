@@ -60,7 +60,7 @@ static gint ett_omron_netw_nodes_cyclic_err_ctrs;
 static gint ett_omron_data_link_status_tree;
 
 #if 0
-static bool gPREF_HEX = false;
+static bool gPREF_HEX;
 #endif
 
 /* TCP Header fields */

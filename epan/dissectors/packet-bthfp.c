@@ -179,7 +179,7 @@ static gint ett_bthfp_xapl_accessory_info;
 
 static dissector_handle_t bthfp_handle;
 
-static wmem_tree_t *fragments = NULL;
+static wmem_tree_t *fragments;
 
 #define ROLE_UNKNOWN  0
 #define ROLE_AG       1

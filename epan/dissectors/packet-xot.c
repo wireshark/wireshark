@@ -92,7 +92,7 @@ static dissector_handle_t x25_handle;
 /* desegmentation of X.25 over multiple TCP */
 static bool xot_desegment = true;
 /* desegmentation of X.25 packet sequences */
-static bool x25_desegment = false;
+static bool x25_desegment;
 
 static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                              int offset, void *data _U_)

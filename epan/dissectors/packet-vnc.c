@@ -936,7 +936,7 @@ static expert_field ei_vnc_reassemble;
  * (5900+N is commonly used in the case of multiple servers, analogous to
  * X11.) */
 
-static range_t *vnc_tcp_range = NULL;
+static range_t *vnc_tcp_range;
 static dissector_handle_t vnc_handle;
 static dissector_handle_t tls_handle;
 

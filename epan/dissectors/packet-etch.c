@@ -124,13 +124,13 @@ static dissector_handle_t etch_handle;
  */
 
 static const char       *gbl_keytab_folder = "";
-static char             *gbl_current_keytab_folder = NULL;
+static char             *gbl_current_keytab_folder;
 
 static int               gbl_pdu_counter;
 static guint32           gbl_old_frame_num;
 
-static wmem_strbuf_t    *gbl_symbol_buffer = NULL;
-static gboolean          gbl_have_symbol   = FALSE;
+static wmem_strbuf_t    *gbl_symbol_buffer;
+static gboolean          gbl_have_symbol;
 
 /***************************************************************************/
 /* Methods */
@@ -154,8 +154,8 @@ static int read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree
  *     value_string_ext from the array for use by try_val_to_str_ext & friends.
  *  (Code based upon code in packet-diameter.c)
  */
-static GArray                 *gbl_symbols_array  = NULL;
-static value_string_ext *gbl_symbols_vs_ext = NULL;
+static GArray                 *gbl_symbols_array;
+static value_string_ext *gbl_symbols_vs_ext;
 
 static void
 gbl_symbols_new(void)

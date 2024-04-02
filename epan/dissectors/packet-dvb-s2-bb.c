@@ -124,8 +124,8 @@ static const enum_val_t dvb_s2_modeadapt_enum[] = {
     {NULL, NULL, -1}
 };
 
-static bool dvb_s2_full_dissection = false;
-static bool dvb_s2_df_dissection = false;
+static bool dvb_s2_full_dissection;
+static bool dvb_s2_df_dissection;
 static gint dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
 static bool dvb_s2_try_all_modeadapt = true;
 
@@ -990,7 +990,7 @@ typedef struct {
     guint32 isi;
 } virtual_stream_key;
 
-static wmem_map_t *virtual_stream_hashtable = NULL;
+static wmem_map_t *virtual_stream_hashtable;
 static guint virtual_stream_count = 1;
 
 /* Hash functions */

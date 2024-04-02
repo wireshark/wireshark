@@ -26,7 +26,7 @@
 
 /* XXX - We might want to switch this to a UAT */
 
-static const char* prev_display_dissector_name = NULL;
+static const char* prev_display_dissector_name;
 
 /*
 * For a dissector table, print on the stream described by output,

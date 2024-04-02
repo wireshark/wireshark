@@ -686,9 +686,9 @@ static expert_field ei_dcerpc_cn_rts_command;
 static expert_field ei_dcerpc_not_implemented;
 
 static const guint8 TRAILER_SIGNATURE[] = {0x8a, 0xe3, 0x13, 0x71, 0x02, 0xf4, 0x36, 0x71};
-static tvbuff_t *tvb_trailer_signature = NULL;
+static tvbuff_t *tvb_trailer_signature;
 
-static GSList *decode_dcerpc_bindings = NULL;
+static GSList *decode_dcerpc_bindings;
 /*
  * To keep track of ctx_id mappings.
  *
@@ -696,7 +696,7 @@ static GSList *decode_dcerpc_bindings = NULL;
  * Note that we always specify a SMB FID. For non-SMB transports this
  * value is 0.
  */
-static wmem_map_t *dcerpc_binds = NULL;
+static wmem_map_t *dcerpc_binds;
 
 typedef struct _dcerpc_bind_key {
     conversation_t *conv;
@@ -710,7 +710,7 @@ typedef struct _dcerpc_bind_value {
     e_guid_t transport;
 } dcerpc_bind_value;
 
-static wmem_map_t *dcerpc_auths = NULL;
+static wmem_map_t *dcerpc_auths;
 
 typedef struct _dcerpc_auth_context {
     conversation_t *conv;
@@ -1344,7 +1344,7 @@ typedef struct _dcerpc_dissector_data
 static dissector_table_t    uuid_dissector_table;
 
 /* the registered subdissectors */
-GHashTable *dcerpc_uuids = NULL;
+GHashTable *dcerpc_uuids;
 
 static gint
 dcerpc_uuid_equal(gconstpointer k1, gconstpointer k2)
@@ -1872,8 +1872,8 @@ dcerpc_auth_context_hash(gconstpointer k)
  * To keep track of callid mappings.  Should really use some generic
  * conversation support instead.
  */
-static wmem_map_t *dcerpc_cn_calls = NULL;
-static wmem_map_t *dcerpc_dg_calls = NULL;
+static wmem_map_t *dcerpc_cn_calls;
+static wmem_map_t *dcerpc_dg_calls;
 
 typedef struct _dcerpc_cn_call_key {
     conversation_t *conv;
@@ -1942,7 +1942,7 @@ dcerpc_dg_call_hash(gconstpointer k)
    XXX - why not just use the same keys as are used for calls?
 */
 
-static wmem_map_t *dcerpc_matched = NULL;
+static wmem_map_t *dcerpc_matched;
 
 typedef struct _dcerpc_matched_key {
     guint32 frame;
@@ -2950,14 +2950,14 @@ dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * Instead of re-calculating the size every time, use the stored value unless this
  * flag is set which means: re-read the size of the list
  */
-static gboolean must_check_size = FALSE;
+static gboolean must_check_size;
 /*
  * List of pointers encountered so far in the current level. Points to an
  * element of list_ndr_pointer_list.
  */
-static GSList *ndr_pointer_list = NULL;
+static GSList *ndr_pointer_list;
 
-static GHashTable *ndr_pointer_hash = NULL;
+static GHashTable *ndr_pointer_hash;
 /*
  * List of pointer list, in order to avoid huge performance penalty
  * when dealing with list bigger than 100 elements due to the way we
@@ -2965,7 +2965,7 @@ static GHashTable *ndr_pointer_hash = NULL;
  * We instead maintain a stack of pointer list
  * To make it easier to manage we just use a list to materialize the stack
  */
-static GSList *list_ndr_pointer_list = NULL;
+static GSList *list_ndr_pointer_list;
 
 /* Boolean controlling whether pointers are top-level or embedded */
 static gboolean pointers_are_top_level = TRUE;

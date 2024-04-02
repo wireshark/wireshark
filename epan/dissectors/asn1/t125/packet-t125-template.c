@@ -40,7 +40,7 @@ void proto_reg_handoff_t125(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_t125;
-static proto_tree *top_tree = NULL;
+static proto_tree *top_tree;
 #include "packet-t125-hf.c"
 
 /* Initialize the subtree pointers */

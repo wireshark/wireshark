@@ -206,7 +206,7 @@ static dissector_table_t        map_prop_err_opcode_table; /* proprietary operat
 static range_t *global_ssn_range;
 #define APPLICATON_CONTEXT_FROM_TRACE 0
 static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
-static bool pref_ericsson_proprietary_ext = false;
+static bool pref_ericsson_proprietary_ext;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -215,8 +215,8 @@ static int application_context_version;
 static guint ProtocolId;
 static guint AccessNetworkProtocolId;
 static int gsm_map_tap;
-static guint8 gsmmap_pdu_type = 0;
-static guint8 gsm_map_pdu_size = 0;
+static guint8 gsmmap_pdu_type;
+static guint8 gsm_map_pdu_size;
 
 #define SMS_ENCODING_NOT_SET    0
 #define SMS_ENCODING_7BIT       1

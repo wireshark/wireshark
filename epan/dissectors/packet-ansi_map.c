@@ -107,7 +107,7 @@ static range_t *global_ssn_range;
 #define ANSI_MAP_TID_SOURCE_AND_DEST 2
 static gint ansi_map_response_matching_type = ANSI_MAP_TID_AND_SOURCE;
 
-static dissector_handle_t ansi_map_handle=NULL;
+static dissector_handle_t ansi_map_handle;
 
 /* Initialize the protocol and registered fields */
 static int ansi_map_tap;
@@ -1132,7 +1132,7 @@ static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
-static tvbuff_t *SMS_BearerData_tvb = NULL;
+static tvbuff_t *SMS_BearerData_tvb;
 static gint32    ansi_map_sms_tele_id = -1;
 static gboolean is683_ota;
 static gboolean is801_pld;
@@ -1150,7 +1150,7 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 
 
 /* Transaction table */
-static wmem_multimap_t *TransactionId_table=NULL;
+static wmem_multimap_t *TransactionId_table;
 
 /* Store Invoke information needed for the corresponding reply */
 static void

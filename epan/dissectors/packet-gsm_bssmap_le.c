@@ -259,7 +259,7 @@ static expert_field ei_gsm_a_bssmap_le_not_decoded_yet;
 static expert_field ei_gsm_a_bssmap_le_extraneous_data;
 static expert_field ei_gsm_a_bssmap_le_missing_mandatory_element;
 
-static dissector_handle_t gsm_bsslap_handle = NULL;
+static dissector_handle_t gsm_bsslap_handle;
 static dissector_handle_t bssmap_le_handle;
 
 static proto_tree *g_tree;

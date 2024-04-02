@@ -165,16 +165,16 @@ static dissector_handle_t sigcomp_tcp_handle;
 #define SIGCOMP_TCP_PORT_RANGE "5555,6666" /* Not IANA registered */
 
 /* Default preference whether to display the bytecode in UDVM operands or not */
-static bool display_udvm_bytecode = false;
+static bool display_udvm_bytecode;
 /* Default preference whether to dissect the UDVM code or not */
 /* WARNING: Setting this to true might result in the entire dissector being
    disabled by default or removed completely. */
-static bool dissect_udvm_code = false;
-static bool display_raw_txt = false;
+static bool dissect_udvm_code;
+static bool display_raw_txt;
 /* Default preference whether to decompress the message or not */
 /* WARNING: Setting this to true might result in the entire dissector being
    disabled by default or removed completely. */
-static bool decompress = false;
+static bool decompress;
 /* Default preference whether to print debug info at execution of UDVM
  * 0 = No printout
  * 1 = details level 1
@@ -182,7 +182,7 @@ static bool decompress = false;
  * 3 = details level 3
  * 4 = details level 4
  */
-static gint udvm_print_detail_level = 0;
+static gint udvm_print_detail_level;
 
 /* Value strings */
 static const value_string length_encoding_vals[] = {
@@ -897,7 +897,7 @@ static const guint8 presence_static_dictionary_for_sigcomp[PRESENCE_STATE_LENGTH
    /* -0D90, */  0x09, 0x0b, 0x2a
 };
 
-static GHashTable *state_buffer_table=NULL;
+static GHashTable *state_buffer_table;
 
 
 static void

@@ -457,7 +457,7 @@ static dissector_handle_t  dlr_handle;
 
 static bool enip_desegment  = true;
 static bool enip_OTrun_idle = true;
-static bool enip_TOrun_idle = false;
+static bool enip_TOrun_idle;
 
 static int proto_dlr;
 
@@ -810,7 +810,7 @@ static void enip_prompt(packet_info *pinfo _U_, gchar* result)
    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
 }
 
-static wmem_map_t *enip_request_hashtable = NULL;
+static wmem_map_t *enip_request_hashtable;
 
 /* Return codes of function classifying packets as query/response */
 enum enip_packet_type {ENIP_REQUEST_PACKET, ENIP_RESPONSE_PACKET, ENIP_CANNOT_CLASSIFY};
@@ -1109,7 +1109,7 @@ static gchar* cip_connection_conv_filter(packet_info *pinfo, void *user_data)
  */
 
 // Key: (triad, connection IDs), Value: cip_conn_info_t
-static wmem_map_t *enip_conn_hashtable = NULL;
+static wmem_map_t *enip_conn_hashtable;
 static guint32 enip_unique_connid;
 
 static gboolean

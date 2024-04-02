@@ -99,7 +99,7 @@ static const enum_val_t pref_hsp_role[] = {
 };
 
 /* Vendor preference for deciphering opcodes */
-static int pref_vendor = 0;
+static int pref_vendor;
 
 
 static const value_string ptp_opcode_names[] = {

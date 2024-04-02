@@ -1016,13 +1016,13 @@ typedef struct nfs_fhandle_data {
 
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
-bool nfs_fhandle_reqrep_matching = false;
-static wmem_tree_t *nfs_fhandle_frame_table = NULL;
+bool nfs_fhandle_reqrep_matching;
+static wmem_tree_t *nfs_fhandle_frame_table;
 
 
 /* file name snooping */
-bool nfs_file_name_snooping = false;
-static bool nfs_file_name_full_snooping = false;
+bool nfs_file_name_snooping;
+static bool nfs_file_name_full_snooping;
 typedef struct nfs_name_snoop {
 	int	       fh_length;
 	unsigned char *fh;
@@ -1041,12 +1041,12 @@ typedef struct nfs_name_snoop_key {
 	const unsigned char *fh;
 } nfs_name_snoop_key_t;
 
-static GHashTable *nfs_name_snoop_unmatched = NULL;
+static GHashTable *nfs_name_snoop_unmatched;
 
-static GHashTable *nfs_name_snoop_matched = NULL;
+static GHashTable *nfs_name_snoop_matched;
 
-static wmem_tree_t *nfs_name_snoop_known = NULL;
-static wmem_tree_t *nfs_file_handles = NULL;
+static wmem_tree_t *nfs_name_snoop_known;
+static wmem_tree_t *nfs_file_handles;
 
 static bool nfs_display_v4_tag = true;
 static bool display_major_nfs4_ops = true;

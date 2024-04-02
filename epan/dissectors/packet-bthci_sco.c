@@ -35,7 +35,7 @@ static int hf_bthci_sco_stream_number;
 /* Initialize the subtree pointers */
 static gint ett_bthci_sco;
 
-wmem_tree_t *bthci_sco_stream_numbers = NULL;
+wmem_tree_t *bthci_sco_stream_numbers;
 
 static dissector_handle_t bthci_sco_handle;
 

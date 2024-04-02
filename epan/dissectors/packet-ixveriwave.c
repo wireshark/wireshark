@@ -41,7 +41,7 @@ typedef struct ifg_info {
     guint64 current_start_time;
 } ifg_info;
 
-static frame_end_data previous_frame_data = {0,0};
+static frame_end_data previous_frame_data;
 
 /* static int ieee80211_mhz2ieee(int freq, int flags); */
 

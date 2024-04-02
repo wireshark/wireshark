@@ -104,7 +104,7 @@ static dissector_handle_t udpcp_handle;
 void proto_reg_handoff_udpcp (void);
 
 /* User definable values */
-static range_t *global_udpcp_port_range = NULL;
+static range_t *global_udpcp_port_range;
 
 #define DATA_FORMAT 0x01
 #define ACK_FORMAT  0x02
@@ -134,7 +134,7 @@ typedef struct {
 
 
 /* Framenum -> expected_sequence_number */
-static wmem_tree_t *sequence_number_result_table = NULL;
+static wmem_tree_t *sequence_number_result_table;
 
 
 /* Reassembly table. */

@@ -160,8 +160,8 @@ typedef struct ata_info_t {
   nstime_t req_time;
   guint8 cmd;
 } ata_info_t;
-static wmem_map_t *ata_cmd_unmatched = NULL;
-static wmem_map_t *ata_cmd_matched = NULL;
+static wmem_map_t *ata_cmd_unmatched;
+static wmem_map_t *ata_cmd_matched;
 
 static guint
 ata_cmd_hash_matched(gconstpointer k)

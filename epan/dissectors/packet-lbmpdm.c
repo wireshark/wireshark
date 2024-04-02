@@ -293,7 +293,7 @@ typedef struct
 #define LBMPDM_DEFINITION_KEY_ELEMENT_VERS_MAJOR 3
 #define LBMPDM_DEFINITION_KEY_ELEMENT_VERS_MINOR 4
 
-static wmem_tree_t * lbmpdm_definition_table = NULL;
+static wmem_tree_t * lbmpdm_definition_table;
 
 /*----------------------------------------------------------------------------*/
 /* Handles of all types.                                                      */

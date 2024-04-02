@@ -45,9 +45,9 @@
 #include <wsutil/ws_assert.h>
 
 static gint proto_malformed;
-static dissector_handle_t frame_handle = NULL;
-static dissector_handle_t file_handle = NULL;
-static dissector_handle_t data_handle = NULL;
+static dissector_handle_t frame_handle;
+static dissector_handle_t file_handle;
+static dissector_handle_t data_handle;
 
 /**
  * A data source.
@@ -97,17 +97,17 @@ struct dissector_table {
 /*
  * Dissector tables. const char * -> dissector_table *
  */
-static GHashTable *dissector_tables = NULL;
+static GHashTable *dissector_tables;
 
 /*
  * Dissector table aliases. const char * -> const char *
  */
-static GHashTable *dissector_table_aliases = NULL;
+static GHashTable *dissector_table_aliases;
 
 /*
  * List of registered dissectors.
  */
-static GHashTable *registered_dissectors = NULL;
+static GHashTable *registered_dissectors;
 
 /*
  * A dissector dependency list.
@@ -117,7 +117,7 @@ struct depend_dissector_list {
 };
 
 /* Maps char *dissector_name to depend_dissector_list_t */
-static GHashTable *depend_dissector_lists = NULL;
+static GHashTable *depend_dissector_lists;
 
 /* Allow protocols to register a "cleanup" routine to be
  * run after the initial sequential run through the packets.
@@ -137,7 +137,7 @@ typedef struct {
 /*
  * Array of all postdissectors.
  */
-static GArray *postdissectors = NULL;
+static GArray *postdissectors;
 
 /*
  * i-th element of that array.
@@ -163,10 +163,10 @@ struct heur_dissector_list {
 	GSList		*dissectors;
 };
 
-static GHashTable *heur_dissector_lists = NULL;
+static GHashTable *heur_dissector_lists;
 
 /* Name hashtables for fast detection of duplicate names */
-static GHashTable* heuristic_short_names  = NULL;
+static GHashTable* heuristic_short_names;
 
 static void
 destroy_heuristic_dissector_entry(gpointer data)
@@ -245,7 +245,7 @@ packet_cache_proto_handles(void)
  *
  * See register_init_routine().
  */
-static GSList *init_routines = NULL;
+static GSList *init_routines;
 
 /**
  * List of "cleanup" routines, which are called after closing a capture
@@ -255,7 +255,7 @@ static GSList *init_routines = NULL;
  *
  * See register_cleanup_routine().
  */
-static GSList *cleanup_routines = NULL;
+static GSList *cleanup_routines;
 
 /*
  * List of "shutdown" routines, which are called once, just before
@@ -263,7 +263,7 @@ static GSList *cleanup_routines = NULL;
  *
  * See register_shutdown_routine().
  */
-static GSList *shutdown_routines = NULL;
+static GSList *shutdown_routines;
 
 typedef void (*void_func_t)(void);
 

@@ -32,7 +32,7 @@ void proto_register_lix2(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_lix2;
-static dissector_handle_t lix2_handle = NULL;
+static dissector_handle_t lix2_handle;
 
 
 static int hf_lix2_XIRIPayload_PDU;               /* XIRIPayload */

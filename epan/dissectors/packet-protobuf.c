@@ -105,7 +105,7 @@ static void protobuf_reinit(int target);
 static int proto_protobuf;
 static int proto_protobuf_json_mapping;
 
-static gboolean protobuf_dissector_called = FALSE;
+static gboolean protobuf_dissector_called;
 
 /* information get from *.proto files */
 static int hf_protobuf_message_name;
@@ -150,16 +150,16 @@ static int ett_protobuf_packed_repeated;
 static int ett_protobuf_json;
 
 /* preferences */
-static bool try_dissect_as_string = false;
-static bool show_all_possible_field_types = false;
-static bool dissect_bytes_as_string = false;
-static gboolean old_dissect_bytes_as_string = false;
-static bool show_details = false;
-static bool pbf_as_hf = false; /* dissect protobuf fields as header fields of wireshark */
-static bool preload_protos = false;
+static bool try_dissect_as_string;
+static bool show_all_possible_field_types;
+static bool dissect_bytes_as_string;
+static gboolean old_dissect_bytes_as_string;
+static bool show_details;
+static bool pbf_as_hf; /* dissect protobuf fields as header fields of wireshark */
+static bool preload_protos;
 /* Show protobuf as JSON similar to https://developers.google.com/protocol-buffers/docs/proto3#json */
-static bool display_json_mapping = false;
-static bool use_utc_fmt = false;
+static bool display_json_mapping;
+static bool use_utc_fmt;
 static const char* default_message_type = "";
 
 
@@ -174,10 +174,10 @@ typedef ENUM_VAL_T_ENUM(add_default_value_policy_vals) add_default_value_policy_
 static gint add_default_value = (gint) ADD_DEFAULT_VALUE_NONE;
 
 /* dynamic wireshark header fields for protobuf fields */
-static hf_register_info *dynamic_hf = NULL;
-static guint dynamic_hf_size = 0;
+static hf_register_info *dynamic_hf;
+static guint dynamic_hf_size;
 /* the key is full name of protobuf fields, the value is header field id */
-static GHashTable *pbf_hf_hash = NULL;
+static GHashTable *pbf_hf_hash;
 
 /* Protobuf field value subdissector table list.
  * Only valid for the value of PROTOBUF_TYPE_BYTES or PROTOBUF_TYPE_STRING fields.
@@ -193,7 +193,7 @@ typedef struct {
     guint64 value;
 } protobuf_varint_tvb_info_t;
 
-static PbwDescriptorPool* pbw_pool = NULL;
+static PbwDescriptorPool* pbw_pool;
 
 /* protobuf source files search paths */
 typedef struct {
@@ -201,8 +201,8 @@ typedef struct {
     gboolean load_all; /* load all *.proto files in this directory and its sub directories */
 } protobuf_search_path_t;
 
-static protobuf_search_path_t* protobuf_search_paths = NULL;
-static guint num_protobuf_search_paths = 0;
+static protobuf_search_path_t* protobuf_search_paths;
+static guint num_protobuf_search_paths;
 
 int proto_http;
 
@@ -240,8 +240,8 @@ typedef struct {
     gchar    *message_type; /* protobuf message type of data on these udp ports */
 } protobuf_udp_message_type_t;
 
-static protobuf_udp_message_type_t* protobuf_udp_message_types = NULL;
-static guint num_protobuf_udp_message_types = 0;
+static protobuf_udp_message_type_t* protobuf_udp_message_types;
+static guint num_protobuf_udp_message_types;
 
 static void *
 protobuf_udp_message_types_copy_cb(void* n, const void* o, size_t siz _U_)
@@ -289,7 +289,7 @@ protobuf_udp_message_types_free_cb(void*r)
 UAT_RANGE_CB_DEF(protobuf_udp_message_types, udp_port_range, protobuf_udp_message_type_t)
 UAT_CSTRING_CB_DEF(protobuf_udp_message_types, message_type, protobuf_udp_message_type_t)
 
-static GSList* old_udp_port_ranges = NULL;
+static GSList* old_udp_port_ranges;
 
 
 
@@ -299,8 +299,8 @@ typedef struct {
     gchar    *message_type; /* associated protobuf message type */
 } protobuf_uri_mapping_t;
 
-static protobuf_uri_mapping_t* protobuf_uri_message_types = NULL;
-static guint num_protobuf_uri_message_types = 0;
+static protobuf_uri_mapping_t* protobuf_uri_message_types;
+static guint num_protobuf_uri_message_types;
 
 static void *
 protobuf_uri_message_type_copy_cb(void* n, const void* o, size_t siz _U_)
@@ -1856,7 +1856,7 @@ load_all_files_in_dir(PbwDescriptorPool* pool, const gchar* dir_path, unsigned d
 
 /* There might be a lot of errors to be found during parsing .proto files.
    We buffer the errors first, and print them in one list finally. */
-static wmem_strbuf_t* err_msg_buf = NULL;
+static wmem_strbuf_t* err_msg_buf;
 #define MIN_ERR_STR_BUF_SIZE 512
 #define MAX_ERR_STR_BUF_SIZE 1024
 

@@ -67,7 +67,7 @@ static expert_field ei_ansi_tcap_dissector_not_implemented;
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
 
-static struct tcaphash_context_t * gp_tcap_context=NULL;
+static struct tcaphash_context_t * gp_tcap_context;
 
 /* Note the high bit should be masked off when registering in this table (0x7fff)*/
 static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation Codes */
@@ -83,7 +83,7 @@ static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation
 int tcapsrt_global_current=0;
 struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
 
-static dissector_table_t ber_oid_dissector_table=NULL;
+static dissector_table_t ber_oid_dissector_table;
 static const char * cur_oid;
 static const char * tcapext_oid;
 
@@ -130,7 +130,7 @@ struct ansi_tcap_invokedata_t {
     gint32 OperationCode_national;
 };
 
-static wmem_multimap_t *TransactionId_table=NULL;
+static wmem_multimap_t *TransactionId_table;
 
 /* Store Invoke information needed for the corresponding reply */
 static void

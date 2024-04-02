@@ -242,8 +242,8 @@ static bool spdy_assemble_entity_bodies = true;
 static bool spdy_decompress_body = true;
 static bool spdy_decompress_headers = true;
 #else
-static bool spdy_decompress_body = false;
-static bool spdy_decompress_headers = false;
+static bool spdy_decompress_body;
+static bool spdy_decompress_headers;
 #endif
 
 #ifdef HAVE_ZLIB

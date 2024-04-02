@@ -192,9 +192,9 @@ typedef struct _mka_ckn_info {
   gchar *name;
 } mka_ckn_info_t;
 
-static mka_ckn_info_t *mka_ckn_uat_data = NULL;
-static guint num_mka_ckn_uat_data = 0;
-static GHashTable *ht_mka_ckn = NULL;
+static mka_ckn_info_t *mka_ckn_uat_data;
+static guint num_mka_ckn_uat_data;
+static GHashTable *ht_mka_ckn;
 
 UAT_BUFFER_CB_DEF(mka_ckn_uat_data, ckn, mka_ckn_info_t, key.ckn, key.ckn_len)
 UAT_CSTRING_CB_DEF(mka_ckn_uat_data, name, mka_ckn_info_t)

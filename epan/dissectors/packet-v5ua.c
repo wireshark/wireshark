@@ -40,7 +40,7 @@ void proto_reg_handoff_v5ua(void);
 
 static dissector_handle_t v5ua_handle;
 
-static int paddingl = 0;
+static int paddingl;
 static int dlci_efa = -1;
 
 /* Initialize the protocol and registered fields */

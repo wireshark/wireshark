@@ -38,7 +38,7 @@
  * instead.
  */
 
-static GPtrArray* all_uats = NULL;
+static GPtrArray* all_uats;
 
 uat_t* uat_new(const char* name,
                size_t size,

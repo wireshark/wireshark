@@ -26,7 +26,7 @@ void proto_reg_handoff_evs(void);
 
 static dissector_handle_t evs_handle;
 
-static bool evs_hf_only = false;
+static bool evs_hf_only;
 
 /* Initialize the protocol and registered fields */
 static int proto_evs;

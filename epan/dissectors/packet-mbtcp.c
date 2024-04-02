@@ -174,15 +174,15 @@ static dissector_table_t   modbus_dissector_table;
 
 /* Globals for Modbus/TCP Preferences */
 static bool mbtcp_desegment = true;
-static range_t *global_mbus_tcp_ports = NULL; /* Port 502, by default */
-static range_t *global_mbus_udp_ports = NULL; /* Port 502, by default */
-static range_t *global_mbus_tls_ports = NULL; /* Port 802, by default */
+static range_t *global_mbus_tcp_ports; /* Port 502, by default */
+static range_t *global_mbus_udp_ports; /* Port 502, by default */
+static range_t *global_mbus_tls_ports; /* Port 802, by default */
 
 /* Globals for Modbus RTU over TCP Preferences */
 static bool mbrtu_desegment = true;
 static range_t *global_mbus_tcp_rtu_ports = PORT_MBRTU; /* 0, by default     */
 static range_t *global_mbus_udp_rtu_ports = PORT_MBRTU; /* 0, by default     */
-static bool mbrtu_crc = false;
+static bool mbrtu_crc;
 
 /* Globals for Modbus Preferences */
 static gint global_mbus_register_format = MODBUS_PREF_REGISTER_FORMAT_UINT16;

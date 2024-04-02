@@ -530,9 +530,9 @@ ht_lookup_name(GHashTable* ht, unsigned int identifier) {
  */
 #define DATAFILE_DOIP_DIAG_ADDRESSES "DoIP_diagnostic_addresses"
 
-static GHashTable *data_doip_diag_addresses = NULL;
-static generic_one_id_string_t* doip_diag_addresses = NULL;
-static guint doip_diag_address_count = 0;
+static GHashTable *data_doip_diag_addresses;
+static generic_one_id_string_t* doip_diag_addresses;
+static guint doip_diag_address_count;
 
 UAT_HEX_CB_DEF(doip_diag_addresses, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(doip_diag_addresses, name, generic_one_id_string_t)
@@ -580,9 +580,9 @@ doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, int hfindex_n
  */
 #define DATAFILE_DOIP_PAYLOAD_TYPES "DoIP_payload_types"
 
-static GHashTable *data_doip_payload_types = NULL;
-static generic_one_id_string_t* doip_payload_types = NULL;
-static guint doip_payload_type_count = 0;
+static GHashTable *data_doip_payload_types;
+static generic_one_id_string_t* doip_payload_types;
+static guint doip_payload_type_count;
 
 UAT_HEX_CB_DEF(doip_payload_types, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(doip_payload_types, name, generic_one_id_string_t)

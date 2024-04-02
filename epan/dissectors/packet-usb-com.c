@@ -139,7 +139,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 
 static expert_field ei_unexpected_controlling_iface;
 
-static wmem_tree_t* controlling_ifaces = NULL;
+static wmem_tree_t* controlling_ifaces;
 
 typedef struct _controlling_iface {
     guint16 interfaceClass;

@@ -64,7 +64,7 @@ static bool use_pre_corrigendum_asn1_specification = true;
 /* instead of as T.38. This may result in that some T.38 UPTL       */
 /* packets with sequence number values higher than 32767 may be     */
 /* shown as RTP packets.                                            */
-static bool dissect_possible_rtpv2_packets_as_rtp = false;
+static bool dissect_possible_rtpv2_packets_as_rtp;
 
 
 /* Reassembly of T.38 PDUs over TPKT over TCP */
@@ -160,7 +160,7 @@ static gint ett_data_fragments;
 static expert_field ei_t38_malformed;
 
 static gboolean primary_part = TRUE;
-static guint32 seq_number = 0;
+static guint32 seq_number;
 
 /* Tables for reassembly of Data fragments. */
 static reassembly_table data_reassembly_table;
@@ -194,11 +194,11 @@ typedef struct _fragment_key {
 	guint32	id;
 } fragment_key;
 
-static conversation_t *p_conv= NULL;
-static t38_conv *p_t38_conv = NULL;
-static t38_conv *p_t38_packet_conv = NULL;
-static t38_conv_info *p_t38_conv_info = NULL;
-static t38_conv_info *p_t38_packet_conv_info = NULL;
+static conversation_t *p_conv;
+static t38_conv *p_t38_conv;
+static t38_conv *p_t38_packet_conv;
+static t38_conv_info *p_t38_conv_info;
+static t38_conv_info *p_t38_packet_conv_info;
 
 /* RTP Version is the first 2 bits of the first octet in the UDP payload*/
 #define RTP_VERSION(octet)	((octet) >> 6)
@@ -214,7 +214,7 @@ static bool global_t38_show_setup_info = true;
 #define MAX_T38_MESSAGES_IN_PACKET 4
 static t38_packet_info t38_info_arr[MAX_T38_MESSAGES_IN_PACKET];
 static int t38_info_current=0;
-static t38_packet_info *t38_info=NULL;
+static t38_packet_info *t38_info;
 
 
 /* Set up an T38 conversation */

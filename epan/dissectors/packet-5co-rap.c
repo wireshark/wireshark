@@ -138,7 +138,7 @@ typedef struct
 
 /* Conversation hash table (conversation-id -> FCOSConvDevices*) */
 /* TODO: could just have FCOSConvDevices* as conversation data type? */
-static GHashTable *fiveco_types_models_hash = NULL;
+static GHashTable *fiveco_types_models_hash;
 
 enum FCOERegistersType {
     REGISTER,

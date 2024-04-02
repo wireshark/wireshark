@@ -374,8 +374,8 @@ ws_memrchr(const void *_haystack, int ch, size_t n)
 #define FORMAT_SIZE_UNIT_MASK 0x00ff
 #define FORMAT_SIZE_PFX_MASK 0xff00
 
-static const char *thousands_grouping_fmt = NULL;
-static const char *thousands_grouping_fmt_flt = NULL;
+static const char *thousands_grouping_fmt;
+static const char *thousands_grouping_fmt_flt;
 
 DIAG_OFF(format)
 static void test_printf_thousands_grouping(void) {

@@ -170,15 +170,15 @@ static dissector_handle_t eth_handle;
 /*
  *  global_netflow_ports : holds the configured range of ports for netflow
  */
-static range_t *global_netflow_ports = NULL;
+static range_t *global_netflow_ports;
 /*
  *  global_ipfix_ports : holds the configured range of ports for IPFIX
  */
-static range_t *global_ipfix_ports = NULL;
+static range_t *global_ipfix_ports;
 
 static bool netflow_preference_desegment = true;
 
-static bool netflow_preference_tcpflags_1byte_cwr = false;
+static bool netflow_preference_tcpflags_1byte_cwr;
 
 /*
  * Flowset (template) ID's
@@ -332,7 +332,7 @@ typedef struct _v9_v10_tmplt {
 
 /* Map from (converstion+obs-domain-id+flowset-id) -> v9_v10_tmplt_entry_t*    */
 /* Confusingly, for key, fill in only relevant parts of v9_v10_tmplt_entry_t... */
-wmem_map_t *v9_v10_tmplt_table = NULL;
+wmem_map_t *v9_v10_tmplt_table;
 
 
 static const value_string v9_v10_template_types[] = {

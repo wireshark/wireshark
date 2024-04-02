@@ -46,7 +46,7 @@
 void proto_register_h245(void);
 void proto_reg_handoff_h245(void);
 
-static dissector_handle_t rtcp_handle=NULL;
+static dissector_handle_t rtcp_handle;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t gef_name_dissector_table;
@@ -55,8 +55,8 @@ static dissector_handle_t h245_handle;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
-static dissector_handle_t h263_handle = NULL;
-static dissector_handle_t amr_handle = NULL;
+static dissector_handle_t h263_handle;
+static dissector_handle_t amr_handle;
 
 static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type;
@@ -69,8 +69,8 @@ static int hf_h245_debug_dissector_try_string;
 h245_packet_info *h245_pi=NULL;
 
 static bool h245_reassembly = true;
-static bool h245_shorttypes = false;
-static bool info_col_fmt_prepend = false;
+static bool h245_shorttypes;
+static bool info_col_fmt_prepend;
 
 #include "packet-h245-val.h"
 
@@ -196,7 +196,7 @@ static const value_string h245_AudioCapability_short_vals[] = {
 
 /* To put the codec type only in COL_INFO when
    an OLC is read */
-const char* codec_type = NULL;
+const char* codec_type;
 static guint32 rfc_number;
 
 typedef struct _unicast_addr_t {
@@ -221,10 +221,10 @@ typedef struct _olc_info_t {
   channel_info_t rev_lc;
 } olc_info_t;
 
-static wmem_map_t* h245_pending_olc_reqs = NULL;
-static gboolean fast_start = FALSE;
-static olc_info_t *upcoming_olc = NULL;
-static channel_info_t *upcoming_channel = NULL;
+static wmem_map_t* h245_pending_olc_reqs;
+static gboolean fast_start;
+static olc_info_t *upcoming_olc;
+static channel_info_t *upcoming_channel;
 
 /* NonStandardParameter */
 static const char *nsiOID;
@@ -256,7 +256,7 @@ static const value_string h245_h239subMessageIdentifier_vals[] = {
 
 
 /* h223 multiplex codes */
-static h223_set_mc_handle_t h223_set_mc_handle = NULL;
+static h223_set_mc_handle_t h223_set_mc_handle;
 h223_mux_element *h223_me=NULL;
 guint8 h223_mc=0;
 void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle )
@@ -270,7 +270,7 @@ typedef struct {
 	h223_lc_params *rev_channel_params;
 } h223_pending_olc;
 
-static wmem_map_t*          h223_pending_olc_reqs[] = { NULL, NULL };
+static wmem_map_t*          h223_pending_olc_reqs[2];
 static dissector_handle_t   h245_lc_dissector;
 static guint16              h245_lc_temp;
 static guint16              h223_fw_lc_num;
@@ -278,7 +278,7 @@ static guint16              h223_rev_lc_num;
 static h223_lc_params      *h223_lc_params_temp;
 static h223_lc_params      *h223_fw_lc_params;
 static h223_lc_params      *h223_rev_lc_params;
-static h223_add_lc_handle_t h223_add_lc_handle = NULL;
+static h223_add_lc_handle_t h223_add_lc_handle;
 
 static void h223_lc_init( void )
 {

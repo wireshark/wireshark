@@ -189,7 +189,7 @@ static dissector_handle_t thread_mc_handle;
 #define UDP_PORT_MLE_RANGE    "19788" /* IANA registered */
 
 /* boolean value set if the MIC must be ok before payload is dissected */
-static bool mle_mic_ok = false;
+static bool mle_mic_ok;
 
 static wmem_tree_t* mle_key_hash_handlers;
 

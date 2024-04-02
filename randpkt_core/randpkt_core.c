@@ -28,7 +28,7 @@
 #define INVALID_LEN 1
 #define WRITE_ERROR 2
 
-GRand *pkt_rand = NULL;
+GRand *pkt_rand;
 
 /* Types of produceable packets */
 enum {

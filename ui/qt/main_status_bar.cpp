@@ -45,7 +45,7 @@ Q_DECLARE_METATYPE(ProfileDialog::ProfileAction)
 
 // If we ever add support for multiple windows this will need to be replaced.
 // See also: main_window.cpp
-static MainStatusBar *cur_main_status_bar_ = NULL;
+static MainStatusBar *cur_main_status_bar_;
 
 /*
  * Push a formatted temporary message onto the statusbar.

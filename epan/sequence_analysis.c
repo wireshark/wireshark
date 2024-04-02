@@ -32,7 +32,7 @@ struct register_analysis {
     tap_packet_cb analysis_func;    /* function to be called for new incoming packets for sequence analysis */
 };
 
-static wmem_tree_t *registered_seq_analysis = NULL;
+static wmem_tree_t *registered_seq_analysis;
 
 void
 register_seq_analysis(const char* name, const char* ui_name, const int proto_id, const char* tap_listener, guint tap_flags, tap_packet_cb tap_func)

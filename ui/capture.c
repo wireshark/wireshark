@@ -65,7 +65,7 @@ typedef struct {
     void *user_data;
 } capture_callback_data_t;
 
-static GList *capture_callbacks = NULL;
+static GList *capture_callbacks;
 
 static void
 capture_callback_invoke(int event, capture_session *cap_session)

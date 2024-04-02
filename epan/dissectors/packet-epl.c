@@ -470,8 +470,8 @@ typedef struct {
 	guint32 frame;
 } duplication_data;
 
-static guint32 ct = 0;
-static guint32 count = 0;
+static guint32 ct;
+static guint32 count;
 
 typedef struct _epl_sdo_reassembly
 {
@@ -596,9 +596,9 @@ struct device_profile_uat_assoc {
 	guint product_code;
 };
 
-static uat_t *device_profile_uat = NULL;
-static struct device_profile_uat_assoc *device_profile_list_uats = NULL;
-static guint ndevice_profile_uat = 0;
+static uat_t *device_profile_uat;
+static struct device_profile_uat_assoc *device_profile_list_uats;
+static guint ndevice_profile_uat;
 
 static void *device_profile_uat_copy_cb(void *, const void *, size_t);
 static void device_profile_uat_free_cb(void *);
@@ -634,9 +634,9 @@ struct nodeid_profile_uat_assoc {
 	char *id_str;
 };
 
-static uat_t *nodeid_profile_uat = NULL;
-static struct nodeid_profile_uat_assoc *nodeid_profile_list_uats = NULL;
-static guint nnodeid_profile_uat = 0;
+static uat_t *nodeid_profile_uat;
+static struct nodeid_profile_uat_assoc *nodeid_profile_list_uats;
+static guint nnodeid_profile_uat;
 
 
 static void nodeid_profile_list_uats_nodeid_set_cb(void *, const char *, unsigned, const void*, const void*);
@@ -1821,8 +1821,8 @@ static expert_field ei_real_length_differs;
 static dissector_handle_t epl_handle;
 static dissector_handle_t epl_udp_handle;
 
-static bool show_cmd_layer_for_duplicated = false;
-static bool show_pdo_meta_info = false;
+static bool show_cmd_layer_for_duplicated;
+static bool show_pdo_meta_info;
 static bool use_xdc_mappings = true;
 static bool interpret_untyped_as_le = true;
 static bool use_sdo_mappings = true;
@@ -1830,7 +1830,7 @@ static bool use_sdo_mappings = true;
 static gint ett_epl_asnd_sdo_data_reassembled;
 
 static reassembly_table epl_reassembly_table;
-static GHashTable *epl_duplication_table = NULL;
+static GHashTable *epl_duplication_table;
 
 const struct
 epl_datatype *epl_type_to_hf(const char *name)
@@ -1864,7 +1864,7 @@ epl_address_equal(gconstpointer a, gconstpointer b)
  * if we have dangling pointers. Courtesy of Peter Wu.
  */
 
-guint current_convo_generation = 0; /* FIXME remove */
+guint current_convo_generation; /* FIXME remove */
 static wmem_allocator_t *pdo_mapping_scope;
 static struct object_mapping *
 get_object_mappings(wmem_array_t *arr, guint *len)
@@ -1919,7 +1919,7 @@ add_object_mapping(wmem_array_t *arr, struct object_mapping *mapping)
 
 static wmem_map_t *epl_profiles_by_device, *epl_profiles_by_nodeid, *epl_profiles_by_address;
 static struct profile *epl_default_profile;
-static const char *epl_default_profile_path = NULL, *epl_default_profile_path_last = NULL;
+static const char *epl_default_profile_path = NULL, *epl_default_profile_path_last;
 
 static bool
 profile_del_cb(wmem_allocator_t *pool _U_, wmem_cb_event_t event _U_, void *_profile)
@@ -2473,7 +2473,7 @@ cleanup_dissector(void)
 }
 
 /* preference whether or not display the SoC flags in info column */
-bool show_soc_flags = false;
+bool show_soc_flags;
 
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/

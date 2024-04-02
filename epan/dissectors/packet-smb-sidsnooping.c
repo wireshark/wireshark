@@ -35,14 +35,14 @@ static int hf_samr_acct_name;
 static int hf_samr_level;
 
 
-GHashTable *sid_name_table = NULL;
+GHashTable *sid_name_table;
 
 
-static GHashTable *ctx_handle_table = NULL;
+static GHashTable *ctx_handle_table;
 
 
-static gboolean lsa_policy_information_tap_installed = FALSE;
-static gboolean samr_query_dispinfo_tap_installed = FALSE;
+static gboolean lsa_policy_information_tap_installed;
+static gboolean samr_query_dispinfo_tap_installed;
 
 
 const char *

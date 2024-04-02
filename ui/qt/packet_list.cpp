@@ -93,7 +93,7 @@
 // If we ever add the ability to open multiple capture files we might be
 // able to use something like QMap<capture_file *, PacketList *> to match
 // capture files against packet lists and models.
-static PacketList *gbl_cur_packet_list = NULL;
+static PacketList *gbl_cur_packet_list;
 
 const int max_comments_to_fetch_ = 20000000; // Arbitrary
 const int overlay_update_interval_ = 100; // 250; // Milliseconds.

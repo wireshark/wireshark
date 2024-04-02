@@ -87,8 +87,8 @@ void proto_reg_handoff_fw1(void);
 
 /* Place FW1 summary in proto tree */
 static bool fw1_summary_in_tree = true;
-static bool fw1_with_uuid = false;
-static bool fw1_iflist_with_chain = false;
+static bool fw1_with_uuid;
+static bool fw1_iflist_with_chain;
 
 static dissector_handle_t ethertype_handle;
 

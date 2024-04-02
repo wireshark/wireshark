@@ -89,13 +89,13 @@ static bool tcpcl_decode_bundle = true;
 static reassembly_table xfer_reassembly_table;
 
 /// Dissector handles
-static dissector_handle_t tcpcl_handle = NULL;
-static dissector_handle_t tls_handle = NULL;
-static dissector_handle_t bundle_handle = NULL;
+static dissector_handle_t tcpcl_handle;
+static dissector_handle_t tls_handle;
+static dissector_handle_t bundle_handle;
 
 /// Extension sub-dissectors
-static dissector_table_t sess_ext_dissectors = NULL;
-static dissector_table_t xfer_ext_dissectors = NULL;
+static dissector_table_t sess_ext_dissectors;
+static dissector_table_t xfer_ext_dissectors;
 
 static const value_string v3_message_type_vals[] = {
     {((TCPCLV3_DATA_SEGMENT>>4)  & 0x0F), "DATA_SEGMENT"},

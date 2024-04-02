@@ -50,7 +50,7 @@ static expert_field ei_gprscdr_not_dissected;
 static expert_field ei_gprscdr_choice_not_found;
 
 /* Global variables */
-static const char *obj_id = NULL;
+static const char *obj_id;
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},

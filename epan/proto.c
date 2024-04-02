@@ -404,7 +404,7 @@ struct _protocol {
 };
 
 /* List of all protocols */
-static GList *protocols = NULL;
+static GList *protocols;
 
 /* Structure stored for deregistered g_slice */
 struct g_slice_data {
@@ -413,12 +413,12 @@ struct g_slice_data {
 };
 
 /* Deregistered fields */
-static GPtrArray *deregistered_fields = NULL;
-static GPtrArray *deregistered_data = NULL;
-static GPtrArray *deregistered_slice = NULL;
+static GPtrArray *deregistered_fields;
+static GPtrArray *deregistered_data;
+static GPtrArray *deregistered_slice;
 
 /* indexed by prefix, contains initializers */
-static GHashTable* prefixes = NULL;
+static GHashTable* prefixes;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
@@ -457,17 +457,17 @@ typedef struct _gpa_hfinfo_t {
 static gpa_hfinfo_t gpa_hfinfo;
 
 /* Hash table of abbreviations and IDs */
-static GHashTable *gpa_name_map = NULL;
+static GHashTable *gpa_name_map;
 static header_field_info *same_name_hfinfo;
 
 /* Hash table protocol aliases. const char * -> const char * */
-static GHashTable *gpa_protocol_aliases = NULL;
+static GHashTable *gpa_protocol_aliases;
 
 /*
  * We're called repeatedly with the same field name when sorting a column.
  * Cache our last gpa_name_map hit for faster lookups.
  */
-static char *last_field_name = NULL;
+static char *last_field_name;
 static header_field_info *last_hfinfo;
 
 static void save_same_name_hfinfo(gpointer data)
@@ -484,9 +484,9 @@ static guint32 *tree_is_expanded;
 int		num_tree_types = 1;
 
 /* Name hashtables for fast detection of duplicate names */
-static GHashTable* proto_names        = NULL;
-static GHashTable* proto_short_names  = NULL;
-static GHashTable* proto_filter_names = NULL;
+static GHashTable* proto_names;
+static GHashTable* proto_short_names;
+static GHashTable* proto_filter_names;
 
 static const char *reserved_filter_names[] = {
 	/* Display filter keywords. */
@@ -518,7 +518,7 @@ static const char *reserved_filter_names[] = {
 	NULL
 };
 
-static GHashTable *proto_reserved_filter_names = NULL;
+static GHashTable *proto_reserved_filter_names;
 
 static gint
 proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
@@ -529,7 +529,7 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	return g_ascii_strcasecmp(p1->short_name, p2->short_name);
 }
 
-static GSList *dissector_plugins = NULL;
+static GSList *dissector_plugins;
 
 #ifdef HAVE_PLUGINS
 void

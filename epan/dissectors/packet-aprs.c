@@ -153,7 +153,7 @@ static int hf_aprs_shelter_data;
 static int hf_aprs_space_weather;
 
 
-static bool gPREF_APRS_LAX = false;
+static bool gPREF_APRS_LAX;
 
 static gint ett_aprs;
 static gint ett_aprs_msg;

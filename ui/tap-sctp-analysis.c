@@ -35,7 +35,7 @@
 #define ADDRESS_BACKWARD_ADD_BACKWARD_VTAG 9
 #define ASSOC_NOT_FOUND                    10
 
-static sctp_allassocs_info_t sctp_tapinfo_struct = {0, NULL, false, NULL};
+static sctp_allassocs_info_t sctp_tapinfo_struct;
 
 static void
 free_first(void *data, void *user_data _U_)

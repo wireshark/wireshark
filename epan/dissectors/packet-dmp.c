@@ -492,8 +492,8 @@ typedef struct _dmp_id_val {
   guint32  ack_resend_count;           /* Acknowledgement resend counter */
 } dmp_id_val;
 
-static wmem_map_t *dmp_id_hash_table = NULL;
-static wmem_map_t *dmp_long_id_hash_table = NULL;
+static wmem_map_t *dmp_id_hash_table;
+static wmem_map_t *dmp_long_id_hash_table;
 
 /* Global values used in several functions */
 static struct dmp_data {
@@ -523,9 +523,9 @@ static struct dmp_data {
 
 /* User definable values */
 static gint     dmp_nat_decode = NAT_DECODE_DMP;
-static gint     dmp_local_nation = 0;
+static gint     dmp_local_nation;
 static bool use_seq_ack_analysis = true;
-static bool dmp_align = false;
+static bool dmp_align;
 
 typedef struct _dmp_security_class_t {
   guint nation;

@@ -244,10 +244,10 @@ static const value_string type_object_kind [] = {
   { 0, NULL }
 };
 
-static wmem_map_t * dissection_infos = NULL;
-static wmem_map_t * builtin_dissection_infos = NULL;
-static wmem_map_t * union_member_mappings = NULL;
-static wmem_map_t * mutable_member_mappings = NULL;
+static wmem_map_t * dissection_infos;
+static wmem_map_t * builtin_dissection_infos;
+static wmem_map_t * union_member_mappings;
+static wmem_map_t * mutable_member_mappings;
 
 /***************************************************************************/
 /* Preferences                                                             */
@@ -256,11 +256,11 @@ static guint rtps_max_batch_samples_dissected = 16;
 static guint rtps_max_data_type_elements = DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE;
 static guint rtps_max_array_data_type_elements = DISSECTION_INFO_ARRAY_MAX_ELEMENTS_DEFAULT_VALUE;
 static bool enable_topic_info = true;
-static bool enable_rtps_reassembly = false;
-static bool enable_user_data_dissection = false;
+static bool enable_rtps_reassembly;
+static bool enable_user_data_dissection;
 static bool enable_max_array_data_type_elements = true;
 static bool enable_max_data_type_elements = true;
-static bool enable_rtps_crc_check = false;
+static bool enable_rtps_crc_check;
 static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/
@@ -2740,7 +2740,7 @@ typedef struct _coherent_set_track {
 } coherent_set_track;
 
 static coherent_set_track coherent_set_tracking;
-static wmem_map_t * registry = NULL;
+static wmem_map_t * registry;
 static reassembly_table rtps_reassembly_table;
 static wmem_map_t *discovered_participants_domain_ids;
 

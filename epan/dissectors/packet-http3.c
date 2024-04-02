@@ -496,7 +496,7 @@ static http3_file_local_ctx *http3_get_file_local_ctx(void);
  * It is allocated with file scoped memory, and then either placed in the
  * cache map or, if it matches something already in the cache map, the
  * memory is reallocated for the next header encountered. */
-static char *http3_header_pstr = NULL;
+static char *http3_header_pstr;
 #endif
 
 /**
@@ -653,7 +653,7 @@ http3_initialize_qpack_decoders(http3_session_info_t *http3_session)
     }
 }
 
-static GHashTable *header_fields_hash = NULL;
+static GHashTable *header_fields_hash;
 
 static const char *
 cid_to_string(const quic_cid_t *cid, wmem_allocator_t *scope)
@@ -2693,7 +2693,7 @@ proto_reg_handoff_http3(void)
 /**
  * Implementation of helper functions.
  */
-static http3_file_local_ctx *g_http3_file_local_ctx = NULL;
+static http3_file_local_ctx *g_http3_file_local_ctx;
 
 static guint
 http3_conn_info_hash(gconstpointer key)

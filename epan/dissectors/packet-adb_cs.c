@@ -37,7 +37,7 @@ static expert_field ei_incomplete_message;
 static dissector_handle_t  adb_cs_handle;
 static dissector_handle_t  adb_service_handle;
 
-static wmem_tree_t *client_requests = NULL;
+static wmem_tree_t *client_requests;
 
 static guint server_port = 5037;
 

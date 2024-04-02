@@ -167,7 +167,7 @@ static expert_field ei_message_discarded;
 static expert_field ei_ack_length;
 static expert_field ei_analysis_retrans_no;
 
-static dissector_handle_t p_mul_handle = NULL;
+static dissector_handle_t p_mul_handle;
 
 typedef struct _p_mul_id_key {
   guint32 id;
@@ -197,7 +197,7 @@ typedef struct _p_mul_ack_data {
 } p_mul_ack_data;
 
 /* Hash table with current data for seq/ack analysis */
-static wmem_map_t *p_mul_id_hash_table = NULL;
+static wmem_map_t *p_mul_id_hash_table;
 
 /* User definable values to use for dissection */
 static bool p_mul_reassemble = true;
@@ -207,7 +207,7 @@ static bool use_seq_ack_analysis = true;
 
 static reassembly_table p_mul_reassembly_table;
 
-static guint32 message_id_offset = 0;
+static guint32 message_id_offset;
 
 static const fragment_items p_mul_frag_items = {
   /* Fragment subtrees */

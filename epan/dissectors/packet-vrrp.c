@@ -47,7 +47,7 @@ static gint hf_vrrp_ip6;
 static gint hf_vrrp_auth_string;
 static gint hf_vrrp_md5_auth_data;
 
-static bool g_vrrp_v3_checksum_as_in_v2 = false;
+static bool g_vrrp_v3_checksum_as_in_v2;
 
 static expert_field ei_vrrp_checksum;
 

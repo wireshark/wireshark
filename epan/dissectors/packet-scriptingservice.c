@@ -39,8 +39,8 @@ static int hf_message_info;
 static int hf_message_hash;
 static int hf_environment_u_bit;
 
-static guint64 ssprotocol_total_msgs  = 0;
-static guint64 ssprotocol_total_bytes = 0;
+static guint64 ssprotocol_total_msgs;
+static guint64 ssprotocol_total_bytes;
 
 /* Initialize the subtree pointers */
 static gint ett_ssprotocol;

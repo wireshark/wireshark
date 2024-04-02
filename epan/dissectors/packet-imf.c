@@ -284,7 +284,7 @@ static struct imf_field imf_fields[] = {
   {NULL, NULL, NULL, FALSE},
 };
 
-static wmem_map_t *imf_field_table=NULL;
+static wmem_map_t *imf_field_table;
 
 #define FORMAT_UNSTRUCTURED  0
 #define FORMAT_MAILBOX       1

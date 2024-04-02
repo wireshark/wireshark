@@ -536,7 +536,7 @@ static const enum_val_t ngap_lte_container_vals[] = {
 };
 
 /* Global variables */
-static range_t *gbl_ngapSctpRange = NULL;
+static range_t *gbl_ngapSctpRange;
 static bool ngap_dissect_container = true;
 static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
 static gint ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
@@ -551,7 +551,7 @@ static dissector_table_t ngap_proc_sout_dissector_table;
 static dissector_table_t ngap_proc_uout_dissector_table;
 static dissector_table_t ngap_n2_ie_type_dissector_table;
 
-static proto_tree *top_tree = NULL;
+static proto_tree *top_tree;
 
 static void set_message_label(asn1_ctx_t *actx, int type)
 {

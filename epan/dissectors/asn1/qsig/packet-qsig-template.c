@@ -311,10 +311,10 @@ static expert_field ei_qsig_unsupported_error_type;
 /* Preferences */
 
 /* Subdissectors */
-static dissector_handle_t q931_ie_handle = NULL;
+static dissector_handle_t q931_ie_handle;
 
 /* Global variables */
-static const char *extension_oid = NULL;
+static const char *extension_oid;
 
 /* Dissector tables */
 static dissector_table_t extension_dissector_table;

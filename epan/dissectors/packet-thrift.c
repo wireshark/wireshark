@@ -72,10 +72,10 @@ void proto_reg_handoff_thrift(void);
 static dissector_handle_t thrift_handle;
 static dissector_handle_t thrift_http_handle;
 static bool framed_desegment = true;
-static guint thrift_tls_port = 0;
+static guint thrift_tls_port;
 
-static bool show_internal_thrift_fields = false;
-static bool try_generic_if_sub_dissector_fails = false;
+static bool show_internal_thrift_fields;
+static bool try_generic_if_sub_dissector_fails;
 static guint nested_type_depth = 25;
 
 static dissector_table_t thrift_method_name_dissector_table;
@@ -110,7 +110,7 @@ static const int TBP_THRIFT_LINEAR_LEN = 5; /* Elements type + number of element
  * - T_I8
  * - T_DOUBLE (endianness is inverted, though)
  */
-static const int TCP_THRIFT_DELTA_NOT_SET = 0;
+static const int TCP_THRIFT_DELTA_NOT_SET;
 static const int TCP_THRIFT_LENGTH_LARGER = 0xf;
 static const int TCP_THRIFT_MAP_TYPES_LEN = 1;      /* High nibble = key type, low nibble = value type. */
 static const int TCP_THRIFT_NIBBLE_SHIFT = 4;

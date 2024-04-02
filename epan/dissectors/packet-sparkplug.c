@@ -37,7 +37,7 @@ static gint ett_sparkplugb;
 static gint ett_sparkplugb_namespace;
 
 /* The handle to the protobuf dissector */
-dissector_handle_t protobuf_handle = NULL;
+dissector_handle_t protobuf_handle;
 
 /* The hf items */
 static int hf_sparkplugb_namespace;

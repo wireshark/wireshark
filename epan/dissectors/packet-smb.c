@@ -897,7 +897,7 @@ static const fragment_items smb_frag_items = {
 	"segments"
 };
 
-static proto_tree *top_tree_global = NULL;     /* ugly */
+static proto_tree *top_tree_global;     /* ugly */
 
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu, smb_info_t *si);
 
@@ -1022,7 +1022,7 @@ typedef struct _active_file {
 } active_file ;
 
 /* This is the GSList that will contain all the files that we are tracking */
-static GSList    *GSL_active_files = NULL;
+static GSList    *GSL_active_files;
 
 /* We define a free chunk in a file as an start offset and end offset
 	Consider a free chunk as a "hole" in a file that we are capturing */
@@ -1477,8 +1477,8 @@ smb_eo_cleanup(void)
 	offset += len;			\
 	*bcp -= len;
 
-bool sid_display_hex = false;
-bool sid_name_snooping = false;
+bool sid_display_hex;
+bool sid_name_snooping;
 
 /* ExportObject preferences variable */
 bool eosmb_take_name_as_fid = false ;
@@ -1712,7 +1712,7 @@ smb_saved_info_hash_matched(gconstpointer k)
 	return key->frame + key->pid_mid;
 }
 
-static GSList *conv_tables = NULL;
+static GSList *conv_tables;
 
 static gint
 smb_find_unicode_null_offset(tvbuff_t *tvb, gint offset, const gint maxlength, const guint16 needle, const guint encoding)

@@ -122,9 +122,9 @@ UAT_CSTRING_CB_DEF(uat_key_records, string, uat_key_record_t)
 UAT_VS_DEF(uat_key_records, byte_order, uat_key_record_t, guint8, 0, "Normal")
 UAT_CSTRING_CB_DEF(uat_key_records, label, uat_key_record_t)
 
-static GSList           *zbee_pc_keyring = NULL;
-static uat_key_record_t *uat_key_records = NULL;
-static guint             num_uat_key_records = 0;
+static GSList           *zbee_pc_keyring;
+static uat_key_record_t *uat_key_records;
+static guint             num_uat_key_records;
 
 static void* uat_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_key_record_t* new_key = (uat_key_record_t *)n;

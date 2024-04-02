@@ -136,7 +136,7 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t eth_maybefcs_handle;
 static dissector_handle_t ip_handle;
 
-static bool dissect_lanesscop = false;
+static bool dissect_lanesscop;
 
 static dissector_table_t atm_type_aal2_table;
 static dissector_table_t atm_type_aal5_table;

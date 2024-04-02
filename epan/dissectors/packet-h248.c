@@ -592,10 +592,10 @@ const value_string gcp_term_types[] = {
     { 0, NULL }
 };
 
-static wmem_tree_t* gcp_msgs = NULL;
-static wmem_tree_t* gcp_trxs = NULL;
-static wmem_tree_t* gcp_ctxs_by_trx = NULL;
-static wmem_tree_t* gcp_ctxs = NULL;
+static wmem_tree_t* gcp_msgs;
+static wmem_tree_t* gcp_trxs;
+static wmem_tree_t* gcp_ctxs_by_trx;
+static wmem_tree_t* gcp_ctxs;
 
 gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
     gcp_msg_t* m;
@@ -1292,7 +1292,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
 /* END Gateway Control Protocol -- Context Tracking */
 
 #define H248_PORT 2945
-static bool keep_persistent_data = false;
+static bool keep_persistent_data;
 static bool h248_desegment = true;
 
 
@@ -1880,9 +1880,9 @@ static const value_string wildcard_levels[] = {
     { 0, NULL }
 };
 
-static h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+static h248_curr_info_t curr_info;
 static guint32 error_code;
-static guint32 h248_version = 0; /* h248v1 support */
+static guint32 h248_version; /* h248v1 support */
 static gcp_wildcard_t wild_term;
 static guint8 wild_card = 0xFF; /* place to store wildcardField */
 
@@ -1950,7 +1950,7 @@ static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_uint_it
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
 static const h248_package_t *find_package_id(guint16 pkgid);
-static wmem_tree_t* packages = NULL;
+static wmem_tree_t* packages;
 
 extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u1 _U_, void* u2 _U_) {
     tvbuff_t *new_tvb = NULL;

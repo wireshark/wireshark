@@ -59,7 +59,7 @@ tap_packet_cb get_hostlist_packet_func(register_ct_t* ct)
     return get_endpoint_packet_func(ct);
 }
 
-static wmem_tree_t *registered_ct_tables = NULL;
+static wmem_tree_t *registered_ct_tables;
 
 void
 dissector_conversation_init(const char *opt_arg, void* userdata)

@@ -161,7 +161,7 @@ static expert_field ei_unhandled_field_type;
 static expert_field ei_nonbinary_field;
 static expert_field ei_undecoded_field;
 
-static dissector_handle_t sje_handle = NULL;
+static dissector_handle_t sje_handle;
 
 #define MAX_DATA_SIZE 262144 // WTAP_MAX_PACKET_SIZE_STANDARD. Increase if needed.
 

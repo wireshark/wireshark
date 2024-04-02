@@ -164,9 +164,9 @@ void proto_reg_handoff_dlt_storage_header(void);
 static int proto_dlt;
 static int proto_dlt_storage_header;
 
-static dissector_handle_t dlt_handle_udp = NULL;
-static dissector_handle_t dlt_handle_tcp = NULL;
-static dissector_handle_t dlt_handle_storage = NULL;
+static dissector_handle_t dlt_handle_udp;
+static dissector_handle_t dlt_handle_tcp;
+static dissector_handle_t dlt_handle_storage;
 
 /* Subdissectors */
 static heur_dissector_list_t heur_subdissector_list;

@@ -221,7 +221,7 @@ static expert_field ei_disp_unsupported_errcode;
 static expert_field ei_disp_unsupported_pdu;
 static expert_field ei_disp_zero_pdu;
 
-static dissector_handle_t disp_handle = NULL;
+static dissector_handle_t disp_handle;
 
 /*--- Cyclic dependencies ---*/
 

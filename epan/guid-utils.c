@@ -25,7 +25,7 @@
 #include <strsafe.h>
 #endif
 
-static wmem_tree_t *guid_to_name_tree = NULL;
+static wmem_tree_t *guid_to_name_tree;
 
 
 #ifdef _WIN32

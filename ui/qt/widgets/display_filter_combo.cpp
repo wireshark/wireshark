@@ -26,7 +26,7 @@
 #include "main_application.h"
 
 // If we ever add support for multiple windows this will need to be replaced.
-static DisplayFilterCombo *cur_display_filter_combo = NULL;
+static DisplayFilterCombo *cur_display_filter_combo;
 
 DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     QComboBox(parent)

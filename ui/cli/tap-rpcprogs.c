@@ -43,8 +43,8 @@ typedef struct _rpc_program_t {
 	nstime_t tot;
 } rpc_program_t;
 
-static rpc_program_t *prog_list = NULL;
-static int already_enabled = 0;
+static rpc_program_t *prog_list;
+static int already_enabled;
 
 static tap_packet_status
 rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)

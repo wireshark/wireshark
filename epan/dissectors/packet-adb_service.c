@@ -66,11 +66,11 @@ static gint ett_data;
 static dissector_handle_t  adb_service_handle;
 static dissector_handle_t  logcat_handle;
 
-static bool pref_dissect_more_detail_framebuffer = false;
+static bool pref_dissect_more_detail_framebuffer;
 
-static wmem_tree_t *fragments = NULL;
-static wmem_tree_t *framebuffer_infos = NULL;
-static wmem_tree_t *continuation_infos = NULL;
+static wmem_tree_t *fragments;
+static wmem_tree_t *framebuffer_infos;
+static wmem_tree_t *continuation_infos;
 
 typedef struct _framebuffer_data_t {
     guint32 data_in;

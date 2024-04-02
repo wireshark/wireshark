@@ -70,7 +70,7 @@ static gint ett_dispatch_params;
 static gint ett_dispatch_excepinfo;
 
 static e_guid_t uuid_dispatch = { 0x00020400, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
-static guint16  ver_dispatch = 0;
+static guint16  ver_dispatch;
 static gint ett_dispatch;
 static int proto_dispatch;
 

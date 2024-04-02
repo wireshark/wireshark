@@ -54,7 +54,7 @@ static int camel_tap;
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode=0;
-static guint32 camel_ver = 0;
+static guint32 camel_ver;
 
 /* When several Camel components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -165,11 +165,11 @@ static dissector_handle_t  camel_v4_handle;
 
 static guint8 PDPTypeOrganization;
 static guint8 PDPTypeNumber;
-const char *camel_obj_id = NULL;
-gboolean is_ExtensionField =FALSE;
+const char *camel_obj_id;
+gboolean is_ExtensionField;
 
 /* Global hash tables*/
-static wmem_map_t *srt_calls = NULL;
+static wmem_map_t *srt_calls;
 static guint32 camelsrt_global_SessionId=1;
 
 static int camel_opcode_type;
@@ -1053,8 +1053,8 @@ camelsrt_razinfo(void)
 }
 
 
-static guint8 camel_pdu_type = 0;
-static guint8 camel_pdu_size = 0;
+static guint8 camel_pdu_type;
+static guint8 camel_pdu_size;
 
 
 static int

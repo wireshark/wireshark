@@ -65,7 +65,7 @@ static gint ett_tacacs;
 static bool tacplus_preference_desegment = true;
 
 static const char *tacplus_opt_key;
-static GSList *tacplus_keys = NULL;
+static GSList *tacplus_keys;
 
 #define ADDR_INVLD "invalid"
 

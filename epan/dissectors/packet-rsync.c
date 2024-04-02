@@ -78,7 +78,7 @@ static dissector_handle_t rsync_handle;
 
 #define TCP_PORT_RSYNC  873
 
-static range_t *glb_rsync_tcp_range = NULL;
+static range_t *glb_rsync_tcp_range;
 
 #define VERSION_LEN     4           /* 2 digits for main version; '.'; 1 digit for sub version */
 

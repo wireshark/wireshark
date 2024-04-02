@@ -134,8 +134,8 @@ static bool catapult_dct2000_try_ipprim_heuristic = true;
 static bool catapult_dct2000_try_sctpprim_heuristic = true;
 static bool catapult_dct2000_dissect_lte_rrc = true;
 static bool catapult_dct2000_dissect_mac_lte_oob_messages = true;
-static bool catapult_dct2000_dissect_old_protocol_names = false;
-static bool catapult_dct2000_use_protocol_name_as_dissector_name = false;
+static bool catapult_dct2000_dissect_old_protocol_names;
+static bool catapult_dct2000_use_protocol_name_as_dissector_name;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000;

@@ -127,7 +127,7 @@ static gint ett_rtpsvt_monitoring_sn;
 static gint ett_rtpsvt_frame;
 
 /* Initialize the protocol and registered fields */
-static header_field_info *rtpsvt_hf = NULL;
+static header_field_info *rtpsvt_hf;
 static gint hf_rtpsvt_version;
 static gint hf_rtpsvt_version_major;
 static gint hf_rtpsvt_version_minor;

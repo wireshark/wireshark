@@ -261,8 +261,8 @@ static dissector_handle_t btavrcp_handle;
 
 #define STATUS_OK  0x04
 
-static wmem_tree_t *reassembling  = NULL;
-static wmem_tree_t *timing        = NULL;
+static wmem_tree_t *reassembling;
+static wmem_tree_t *timing;
        wmem_tree_t *btavrcp_song_positions = NULL;
 
 typedef struct _avrcp_proto_data_t {

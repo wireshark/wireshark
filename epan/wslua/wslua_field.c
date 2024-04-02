@@ -31,7 +31,7 @@ WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"));
    or `Field()` before-hand, or it can be called on new fields created by Lua from a `ProtoField`.
  */
 
-static GPtrArray* outstanding_FieldInfo = NULL;
+static GPtrArray* outstanding_FieldInfo;
 
 FieldInfo* push_FieldInfo(lua_State* L, field_info* f) {
     FieldInfo fi = (FieldInfo) g_malloc(sizeof(struct _wslua_field_info));
@@ -520,8 +520,8 @@ WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"));
  */
 
 /* Array of Field (struct _wslua_header_field_info*) pointers.*/
-static GPtrArray* wanted_fields = NULL;
-static dfilter_t* wslua_dfilter = NULL;
+static GPtrArray* wanted_fields;
+static dfilter_t* wslua_dfilter;
 
 /* We use a fake dfilter for Lua field extractors, so that
  * epan_dissect_run() will populate the fields.  This won't happen
@@ -552,7 +552,7 @@ bool wslua_has_field_extractors(void) {
  * after the fields are primed.
  */
 
-static bool fake_tap = false;
+static bool fake_tap;
 void lua_prime_all_fields(proto_tree* tree _U_) {
     GString* fake_tap_filter = g_string_new("frame");
     unsigned i;

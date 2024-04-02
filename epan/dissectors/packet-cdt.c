@@ -43,10 +43,10 @@
 void proto_register_cdt(void);
 void proto_reg_handoff_cdt(void);
 
-static proto_tree *top_tree = NULL;
-static proto_item *cdt_item = NULL;
+static proto_tree *top_tree;
+static proto_item *cdt_item;
 
-static guint32 content_type = 0;
+static guint32 content_type;
 
 /* Initialize the protocol and registered fields */
 static int proto_cdt;

@@ -66,8 +66,8 @@ static int proto_sdp;
 static int proto_sprt;
 
 static const char* UNKNOWN_ENCODING = "Unknown";
-static wmem_tree_t *sdp_transport_reqs = NULL;
-static wmem_tree_t *sdp_transport_rsps = NULL;
+static wmem_tree_t *sdp_transport_reqs;
+static wmem_tree_t *sdp_transport_rsps;
 
 /* preference globals */
 static bool global_sdp_establish_conversation = true;

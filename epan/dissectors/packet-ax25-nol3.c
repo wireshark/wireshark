@@ -55,8 +55,8 @@ static int hf_dx_report;
 /* static int hf_text; */
 
 /* Global preferences */
-static bool gPREF_APRS     = false;
-static bool gPREF_DX       = false;
+static bool gPREF_APRS;
+static bool gPREF_DX;
 
 /* Initialize the subtree pointers */
 static gint ett_ax25_nol3;

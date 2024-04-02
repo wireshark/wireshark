@@ -47,10 +47,10 @@ static int hf_epmd_creation;
 
 static gint ett_epmd;
 
-static dissector_handle_t epmd_handle = NULL;
+static dissector_handle_t epmd_handle;
 
 /* Other dissectors */
-static dissector_handle_t edp_handle = NULL;
+static dissector_handle_t edp_handle;
 
 #define EPMD_PORT 4369
 

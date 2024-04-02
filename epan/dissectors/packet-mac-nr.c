@@ -437,8 +437,8 @@ typedef struct lcid_drb_mapping_t {
 } lcid_drb_mapping_t;
 
 /* Mapping entity */
-static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
-static guint num_lcid_drb_mappings = 0;
+static lcid_drb_mapping_t *lcid_drb_mappings;
+static guint num_lcid_drb_mappings;
 
 UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, guint8, 3, "LCID 3")
 UAT_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
@@ -463,13 +463,13 @@ typedef struct ue_dynamic_drb_mappings_t {
     guint8 drb_to_lcid_mappings[33];         /* Also map drbid (1-32) -> lcid */
 } ue_dynamic_drb_mappings_t;
 
-static GHashTable *mac_nr_ue_bearers_hash = NULL;
+static GHashTable *mac_nr_ue_bearers_hash;
 
 
 
 
 /* When showing RLC info, count PDUs so can append info column properly */
-static guint8   s_number_of_rlc_pdus_shown = 0;
+static guint8   s_number_of_rlc_pdus_shown;
 
 
 extern int proto_rlc_nr;

@@ -37,7 +37,7 @@
 void proto_register_ipdc(void);
 void proto_reg_handoff_ipdc(void);
 
-static dissector_handle_t ipdc_tcp_handle = NULL;
+static dissector_handle_t ipdc_tcp_handle;
 
 #define	TCP_PORT_IPDC	6668 /* Not IANA registered */
 #define	TRANS_ID_SIZE_IPDC	4

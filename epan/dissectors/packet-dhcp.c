@@ -1015,7 +1015,7 @@ static const value_string o43pxeclient_boot_menu_types[] = {
 	{  0, NULL },
 };
 
-static bool novell_string = false;
+static bool novell_string;
 
 static gint dhcp_uuid_endian = ENC_LITTLE_ENDIAN;
 
@@ -1715,10 +1715,10 @@ typedef struct {
 
 } uat_dhcp_record_t;
 
-static uat_dhcp_record_t *uat_dhcp_records = NULL;
-static uat_t *dhcp_uat = NULL;
-static guint num_dhcp_records_uat = 0;
-static wmem_list_t *saved_uat_opts = NULL; /* List of previous options from UAT to "free" from dissection */
+static uat_dhcp_record_t *uat_dhcp_records;
+static uat_t *dhcp_uat;
+static guint num_dhcp_records_uat;
+static wmem_list_t *saved_uat_opts; /* List of previous options from UAT to "free" from dissection */
 
 static void* uat_dhcp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 	uat_dhcp_record_t* new_record = (uat_dhcp_record_t *)n;

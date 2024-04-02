@@ -130,8 +130,8 @@ static dissector_handle_t gssapi_handle;
  * as raw text, may cause problems with images sound etc
  * TODO improve to check for different content types ?
  */
-static bool display_unknown_body_as_text = false;
-static bool remove_base64_encoding = false;
+static bool display_unknown_body_as_text;
+static bool remove_base64_encoding;
 #ifdef HAVE_ZLIB
 static bool uncompress_data = true;
 #endif

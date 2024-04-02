@@ -131,7 +131,7 @@ static int hf_linx_tcp_rlnh_msg_reserved;
 static int hf_linx_tcp_payload;
 
 
-static int rlnh_version = 0;
+static int rlnh_version;
 
 static gint ett_linx;
 static gint ett_linx_multicore;

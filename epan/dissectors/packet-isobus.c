@@ -239,7 +239,7 @@ struct address_reassemble_table {
     guint32 identifierCounter;
 };
 
-static wmem_map_t *addressIdentifierTable = NULL;
+static wmem_map_t *addressIdentifierTable;
 
 static struct reassemble_identifier * findIdentifierFor(wmem_list_t *reassembleIdentifierTable, guint32 frameIndex) {
     wmem_list_frame_t *currentItem = wmem_list_head(reassembleIdentifierTable);

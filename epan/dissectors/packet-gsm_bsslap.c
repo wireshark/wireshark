@@ -21,7 +21,7 @@
 void proto_reg_handoff_gsm_bsslap(void);
 void proto_register_gsm_bsslap(void);
 
-static dissector_handle_t bsslap_rrlp_handle = NULL;
+static dissector_handle_t bsslap_rrlp_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_gsm_bsslap;

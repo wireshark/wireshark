@@ -37,7 +37,7 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                         proto_tree *tree, tvbuff_t *tvb, int offset);
 
 /* cid -> rohc_cid_context_t* */
-static GHashTable *rohc_cid_hash = NULL;
+static GHashTable *rohc_cid_hash;
 
 /* Initialize the protocol and registered fields */
 static int proto_rohc;

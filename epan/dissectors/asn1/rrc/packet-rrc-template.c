@@ -52,9 +52,9 @@ extern int proto_fp;       /*Handler to FP*/
 extern int proto_umts_mac; /*Handler to MAC*/
 extern int proto_umts_rlc; /*Handler to RLC*/
 
-GTree * hsdsch_muxed_flows = NULL;
-GTree * rrc_ciph_info_tree = NULL;
-wmem_tree_t* rrc_global_urnti_crnti_map = NULL;
+GTree * hsdsch_muxed_flows;
+GTree * rrc_ciph_info_tree;
+wmem_tree_t* rrc_global_urnti_crnti_map;
 static int msg_type _U_;
 static bool rrc_nas_in_root_tree;
 
@@ -289,16 +289,16 @@ static void private_data_set_curr_sib_type(asn1_ctx_t *actx, guint32 curr_sib_ty
 /*****************************************************************************/
 
 static dissector_handle_t gsm_a_dtap_handle;
-static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
-static dissector_handle_t rrc_pcch_handle=NULL;
-static dissector_handle_t rrc_ul_ccch_handle=NULL;
-static dissector_handle_t rrc_dl_ccch_handle=NULL;
-static dissector_handle_t rrc_ul_dcch_handle=NULL;
-static dissector_handle_t rrc_dl_dcch_handle=NULL;
-static dissector_handle_t rrc_bcch_fach_handle=NULL;
-static dissector_handle_t lte_rrc_ue_eutra_cap_handle=NULL;
-static dissector_handle_t lte_rrc_dl_dcch_handle=NULL;
-static dissector_handle_t gsm_rlcmac_dl_handle=NULL;
+static dissector_handle_t rrc_ue_radio_access_cap_info_handle;
+static dissector_handle_t rrc_pcch_handle;
+static dissector_handle_t rrc_ul_ccch_handle;
+static dissector_handle_t rrc_dl_ccch_handle;
+static dissector_handle_t rrc_ul_dcch_handle;
+static dissector_handle_t rrc_dl_dcch_handle;
+static dissector_handle_t rrc_bcch_fach_handle;
+static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
+static dissector_handle_t lte_rrc_dl_dcch_handle;
+static dissector_handle_t gsm_rlcmac_dl_handle;
 
 /* Forward declarations */
 void proto_register_rrc(void);

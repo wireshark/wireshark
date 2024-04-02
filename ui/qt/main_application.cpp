@@ -112,7 +112,7 @@
 #pragma warning(pop)
 #endif
 
-MainApplication *mainApp = NULL;
+MainApplication *mainApp;
 
 // XXX - Copied from ui/gtk/file_dlg.c
 

@@ -35,7 +35,7 @@ int proto_expert;
 static int proto_malformed;
 
 static int expert_tap;
-static int highest_severity   =  0;
+static int highest_severity;
 
 static int ett_expert;
 static int ett_subexpert;
@@ -59,10 +59,10 @@ typedef struct _gpa_expertinfo_t {
 static gpa_expertinfo_t gpa_expertinfo;
 
 /* Hash table of abbreviations and IDs */
-static GHashTable *gpa_name_map = NULL;
+static GHashTable *gpa_name_map;
 
 /* Deregistered expert infos */
-static GPtrArray *deregistered_expertinfos = NULL;
+static GPtrArray *deregistered_expertinfos;
 
 const value_string expert_group_vals[] = {
 	{ PI_CHECKSUM,          "Checksum" },
@@ -114,10 +114,10 @@ typedef struct
 	guint32  severity;
 } expert_level_entry_t;
 
-static expert_level_entry_t *uat_expert_entries = NULL;
-static guint expert_level_entry_count = 0;
+static expert_level_entry_t *uat_expert_entries;
+static guint expert_level_entry_count;
 /* Array of field names currently in UAT */
-static GArray *uat_saved_fields = NULL;
+static GArray *uat_saved_fields;
 
 UAT_CSTRING_CB_DEF(uat_expert_entries, field, expert_level_entry_t)
 UAT_VS_DEF(uat_expert_entries, severity, expert_level_entry_t, guint32, PI_ERROR, "Error")

@@ -249,7 +249,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_AddPosSupport = 142
 } ProtocolIE_ID_enum;
 
-static dissector_handle_t pcap_handle = NULL;
+static dissector_handle_t pcap_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_pcap;

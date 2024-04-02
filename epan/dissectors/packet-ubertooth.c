@@ -324,7 +324,7 @@ static expert_field ei_unexpected_data;
 static dissector_handle_t ubertooth_handle;
 static dissector_handle_t bluetooth_ubertooth_handle;
 
-static wmem_tree_t *command_info = NULL;
+static wmem_tree_t *command_info;
 
 typedef struct _command_data {
     guint32  bus_id;

@@ -295,8 +295,8 @@ static const char *immediate_str = "Immediate";
 static const char *bundle_str = "#bundle";
 
 /* Initialize the protocol and registered fields */
-static dissector_handle_t osc_udp_handle = NULL;
-static dissector_handle_t osc_tcp_handle = NULL;
+static dissector_handle_t osc_udp_handle;
+static dissector_handle_t osc_tcp_handle;
 
 static int proto_osc;
 

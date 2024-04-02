@@ -47,7 +47,7 @@ static int proto_lmp;
 
 #define UDP_PORT_LMP_DEFAULT 701
 
-static bool lmp_checksum_config = false;
+static bool lmp_checksum_config;
 
 static dissector_handle_t lmp_handle;
 

@@ -41,7 +41,7 @@
 #define DPAUXMON_VERSION_MINOR "1"
 #define DPAUXMON_VERSION_RELEASE "0"
 
-FILE* pcap_fp = NULL;
+FILE* pcap_fp;
 
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,

@@ -273,13 +273,13 @@ static bool global_dcm_export_header = true;
 static guint    global_dcm_export_minsize = 4096;           /* Filter small objects in export */
 
 static bool global_dcm_seq_subtree = true;
-static bool global_dcm_tag_subtree = false;             /* Only useful for debugging */
+static bool global_dcm_tag_subtree;             /* Only useful for debugging */
 static bool global_dcm_cmd_details = true;              /* Show details in header and info column */
 static bool global_dcm_reassemble = true;               /* Merge fragmented PDVs */
 
-static wmem_map_t *dcm_tag_table = NULL;
-static wmem_map_t *dcm_uid_table = NULL;
-static wmem_map_t *dcm_status_table = NULL;
+static wmem_map_t *dcm_tag_table;
+static wmem_map_t *dcm_uid_table;
+static wmem_map_t *dcm_status_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_dcm;

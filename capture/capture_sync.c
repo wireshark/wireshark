@@ -115,7 +115,7 @@ static void pipe_convert_header(const unsigned char *header, int header_len, cha
 static ssize_t pipe_read_block(GIOChannel *pipe_io, char *indicator, int len, char *msg,
                            char **err_msg);
 
-static void (*fetch_dumpcap_pid)(ws_process_id) = NULL;
+static void (*fetch_dumpcap_pid)(ws_process_id);
 
 void
 capture_session_init(capture_session *cap_session, capture_file *cf,

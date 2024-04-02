@@ -673,7 +673,7 @@ static const value_string ppp_direction_vals[] = {
 };
 
 /* options */
-static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
+static gint ppp_fcs_decode; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 #define NO_FCS 0
 #define FCS_16 1
 #define FCS_32 2
@@ -691,7 +691,7 @@ const enum_val_t fcs_options[] = {
  * ID, we can use it
  */
 
-static guint pppmux_def_prot_id = 0;
+static guint pppmux_def_prot_id;
 
 /* PPP definitions */
 
@@ -5702,7 +5702,7 @@ dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 /* PPP Multilink Protcol (RFC 1990) and
  * the Multiclass Extension to Multi-Link PPP (RFC 2686)
  */
-static bool mp_short_seqno = false; /* Default to long sequence numbers */
+static bool mp_short_seqno; /* Default to long sequence numbers */
 static guint mp_max_fragments = 6;
 /* Maximum fragments to try to reassemble. This affects performance and
  * memory use significantly. */

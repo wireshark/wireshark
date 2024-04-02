@@ -156,7 +156,7 @@ static gint ett_x509af_AttributeCertificateAssertion;
 static gint ett_x509af_AssertionSubject;
 static gint ett_x509af_SET_OF_AttributeType;
 static gint ett_x509af_DSS_Params;
-static const char *algorithm_id = NULL;
+static const char *algorithm_id;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 

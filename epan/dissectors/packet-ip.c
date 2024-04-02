@@ -67,16 +67,16 @@ static bool ip_defragment = true;
 static bool ip_summary_in_tree = true;
 
 /* Perform IP checksum */
-static bool ip_check_checksum = false;
+static bool ip_check_checksum;
 
 /* Assume TSO and correct zero-length IP packets */
 static bool ip_tso_supported = true;
 
 /* Use heuristics to determine subdissector */
-static bool try_heuristic_first = false;
+static bool try_heuristic_first;
 
 /* Interpret the reserved flag as security flag (RFC 3514) */
-static bool ip_security_flag = false;
+static bool ip_security_flag;
 
 static int proto_ip;
 

@@ -181,7 +181,7 @@ struct usb_hid_global_state {
     unsigned int usage_page;
 };
 
-static wmem_tree_t *report_descriptors = NULL;
+static wmem_tree_t *report_descriptors;
 
 
 /* local items */

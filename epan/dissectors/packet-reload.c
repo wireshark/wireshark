@@ -670,7 +670,7 @@ static const gint *reload_dmflag_items[] = {
   &hf_reload_dmflag_battery_status,
 };
 
-static uat_t *reloadkindids_uat = NULL;
+static uat_t *reloadkindids_uat;
 
 typedef struct _Kind {
   gchar *name;
@@ -701,9 +701,9 @@ static kind_t predefined_kinds[] = {
 };
 
 
-static kind_t * kindidlist_uats = NULL;
+static kind_t * kindidlist_uats;
 
-static guint nreloadkinds = 0;
+static guint nreloadkinds;
 
 static kind_t * getKindFromId(guint32 id) {
   guint i;

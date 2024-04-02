@@ -27,8 +27,8 @@ static int hf_rfc7468_preeb_label;
 static int hf_rfc7468_ber_data;
 static int hf_rfc7468_posteb_label;
 
-static dissector_handle_t rfc7468_handle = NULL;
-static dissector_handle_t ber_handle = NULL;
+static dissector_handle_t rfc7468_handle;
+static dissector_handle_t ber_handle;
 
 static dissector_table_t rfc7468_label_table;
 

@@ -17,10 +17,10 @@
 #endif
 
 #ifdef HAVE_PLUGINS
-static plugins_t *libwscodecs_plugins = NULL;
+static plugins_t *libwscodecs_plugins;
 #endif
 
-static GSList *codecs_plugins = NULL;
+static GSList *codecs_plugins;
 
 #ifdef HAVE_PLUGINS
 void
@@ -83,7 +83,7 @@ struct codec_handle {
 /*
  * List of registered codecs.
  */
-static GHashTable *registered_codecs = NULL;
+static GHashTable *registered_codecs;
 
 
 /* Find a registered codec by name. */

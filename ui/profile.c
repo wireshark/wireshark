@@ -29,8 +29,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_assert.h>
 
-static GList *current_profiles = NULL;
-static GList *edited_profiles = NULL;
+static GList *current_profiles;
+static GList *edited_profiles;
 
 #define PROF_OPERATION_NEW  1
 #define PROF_OPERATION_EDIT 2

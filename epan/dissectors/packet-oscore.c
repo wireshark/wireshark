@@ -66,9 +66,9 @@ static expert_field ei_oscore_info_fetch_failed;
 static gint ett_oscore;
 
 /* UAT variables */
-static uat_t            *oscore_context_uat = NULL;
-static oscore_context_t *oscore_contexts = NULL;
-static guint            num_oscore_contexts = 0;
+static uat_t            *oscore_context_uat;
+static oscore_context_t *oscore_contexts;
+static guint            num_oscore_contexts;
 
 /* Enumeration for COSE algorithms used by OSCORE */
 static const value_string oscore_context_alg_vals[] = {

@@ -153,7 +153,7 @@ typedef struct _fcseq_conv_data {
     guint32 seq_cnt;
 } fcseq_conv_data_t;
 
-static wmem_map_t *fcseq_req_hash = NULL;
+static wmem_map_t *fcseq_req_hash;
 
 /*
  * Hash Functions

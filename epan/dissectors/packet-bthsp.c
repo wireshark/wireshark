@@ -52,7 +52,7 @@ static gint ett_bthsp_parameters;
 
 static dissector_handle_t bthsp_handle;
 
-static wmem_tree_t *fragments = NULL;
+static wmem_tree_t *fragments;
 
 #define ROLE_UNKNOWN  0
 #define ROLE_AG       1

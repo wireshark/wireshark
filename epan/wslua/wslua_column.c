@@ -22,8 +22,8 @@
 /* WSLUA_CONTINUE_MODULE Pinfo */
 
 
-static GPtrArray* outstanding_Column = NULL;
-static GPtrArray* outstanding_Columns = NULL;
+static GPtrArray* outstanding_Column;
+static GPtrArray* outstanding_Columns;
 
 CLEAR_OUTSTANDING(Column,expired, true)
 CLEAR_OUTSTANDING(Columns,expired, true)

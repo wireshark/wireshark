@@ -389,7 +389,7 @@ static dissector_handle_t acdr_mii_dissector_handle;
 static dissector_handle_t acdr_rtp_dissector_handle;
 static dissector_handle_t acdr_xml_dissector_handle;
 static dissector_handle_t rtp_dissector_handle;
-static dissector_handle_t udp_stun_dissector_handle = NULL;
+static dissector_handle_t udp_stun_dissector_handle;
 static dissector_handle_t rtp_events_handle;
 static dissector_handle_t rtp_rfc2198_handle;
 static dissector_handle_t amr_handle;

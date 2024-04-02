@@ -78,10 +78,10 @@ static gint ett_iua_parameter;
 
 /* stores the current SAPI value */
 static guint8 sapi_val;
-static gboolean sapi_val_assigned   = FALSE;
+static gboolean sapi_val_assigned;
 
 /* option setable via preferences, default is plain RFC 3057 */
-static bool support_IG          = false;
+static bool support_IG;
 
 static dissector_handle_t q931_handle;
 static dissector_handle_t x25_handle;

@@ -1270,7 +1270,7 @@ static expert_field ei_pfcp_ie_encoding_error;
 
 static int pfcp_tap = -1;
 
-static bool g_pfcp_session = false;
+static bool g_pfcp_session;
 static guint32 pfcp_session_count;
 
 typedef struct pfcp_rule_ids {
@@ -1993,7 +1993,7 @@ typedef struct pfcp_session_conv_info_t {
     GHashTable             *matched;
 } pfcp_session_conv_info_t;
 
-static pfcp_session_conv_info_t *pfcp_session_info_items = NULL;
+static pfcp_session_conv_info_t *pfcp_session_info_items;
 
 /* Data structure attached to a conversation,
 *  to keep track of request/response-pairs
@@ -2004,7 +2004,7 @@ typedef struct pfcp_conv_info_t {
     wmem_map_t             *matched;
 } pfcp_conv_info_t;
 
-static pfcp_conv_info_t *pfcp_info_items = NULL;
+static pfcp_conv_info_t *pfcp_info_items;
 
 /* structure used to track responses to requests using sequence number */
 typedef struct pfcp_msg_hash_entry {
@@ -2050,7 +2050,7 @@ pfcp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     return key1->seq_nr == key2->seq_nr;
 }
 
-static GHashTable *pfcp_stat_msg_idx_hash = NULL;
+static GHashTable *pfcp_stat_msg_idx_hash;
 
 static void
 pfcp_stat_init(struct register_srt* srt _U_, GArray*srt_array)

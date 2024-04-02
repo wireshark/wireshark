@@ -770,7 +770,7 @@ static expert_field ei_gsm_a_format_not_supported;
 static expert_field ei_gsm_a_mobile_identity_type;
 static expert_field ei_gsm_a_ie_length_too_short;
 
-sccp_assoc_info_t* sccp_assoc = NULL;
+sccp_assoc_info_t* sccp_assoc;
 
 #define NUM_GSM_COMMON_ELEM (sizeof(gsm_common_elem_strings)/sizeof(value_string))
 gint ett_gsm_common_elem[NUM_GSM_COMMON_ELEM];

@@ -289,7 +289,7 @@ static value_string_ext gsm_sms_coding_group_bits_vals_ext = VALUE_STRING_EXT_IN
 static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
 static reassembly_table g_sm_reassembly_table;
-static wmem_multimap_t *g_sm_fragment_params_table = NULL;
+static wmem_multimap_t *g_sm_fragment_params_table;
 static gint ett_gsm_sms_ud_fragment;
 static gint ett_gsm_sms_ud_fragments;
  /*

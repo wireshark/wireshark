@@ -2216,7 +2216,7 @@ static int skinny_tap;
 /* skinny protocol tap info */
 #define MAX_SKINNY_MESSAGES_IN_PACKET 10
 static skinny_info_t pi_arr[MAX_SKINNY_MESSAGES_IN_PACKET];
-static int pi_current = 0;
+static int pi_current;
 static skinny_info_t *si;
 
 dissector_handle_t skinny_handle;

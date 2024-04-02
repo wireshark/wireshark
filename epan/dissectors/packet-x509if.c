@@ -270,21 +270,21 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ResultAttribute;
 static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString;
 
-static proto_tree *top_of_dn = NULL;
-static proto_tree *top_of_rdn = NULL;
+static proto_tree *top_of_dn;
+static proto_tree *top_of_rdn;
 
-static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet */
-static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
-static gboolean doing_attr = FALSE;
+static gboolean rdn_one_value; /* have we seen one value in an RDN yet */
+static gboolean dn_one_rdn; /* have we seen one RDN in a DN yet */
+static gboolean doing_attr;
 
-static wmem_strbuf_t *last_dn_buf = NULL;
-static wmem_strbuf_t *last_rdn_buf = NULL;
+static wmem_strbuf_t *last_dn_buf;
+static wmem_strbuf_t *last_rdn_buf;
 
 static int ava_hf_index;
 #define MAX_FMT_VALS   32
 static value_string fmt_vals[MAX_FMT_VALS];
 #define MAX_AVA_STR_LEN   64
-static char *last_ava = NULL;
+static char *last_ava;
 
 static void
 x509if_frame_end(void)

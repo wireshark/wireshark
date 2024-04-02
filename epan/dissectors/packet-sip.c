@@ -833,10 +833,10 @@ static guint sip_tls_port = TLS_PORT_SIP;
 
 /* global_sip_raw_text determines whether we are going to display       */
 /* the raw text of the SIP message, much like the MEGACO dissector does.    */
-static bool global_sip_raw_text = false;
+static bool global_sip_raw_text;
 /* global_sip_raw_text_without_crlf determines whether we are going to display  */
 /* the raw text of the SIP message with or without the '\r\n'.          */
-static bool global_sip_raw_text_without_crlf = false;
+static bool global_sip_raw_text_without_crlf;
 /* global_sip_raw_text_body_default_encoding determines what charset we are going to display the body */
 static gint global_sip_raw_text_body_default_encoding = IANA_CS_UTF_8;
 /* strict_sip_version determines whether the SIP dissector enforces
@@ -861,10 +861,10 @@ static bool sip_desegment_body = true;
 static bool sip_retrans_the_same_sport = true;
 
 /* whether we hold off tracking RTP conversations until an SDP answer is received */
-static bool sip_delay_sdp_changes = false;
+static bool sip_delay_sdp_changes;
 
 /* Hide the generated Call IDs or not */
-static bool sip_hide_generatd_call_ids = false;
+static bool sip_hide_generatd_call_ids;
 
 /* Extension header subdissectors */
 static dissector_table_t ext_hdr_subdissector_table;
@@ -1000,7 +1000,7 @@ UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_desc, header_field_t)
 
 /* SIP authorization parameters */
-static bool global_sip_validate_authorization = false;
+static bool global_sip_validate_authorization;
 
 typedef struct _authorization_user_t {
     gchar* username;
@@ -1008,8 +1008,8 @@ typedef struct _authorization_user_t {
     gchar* password;
 } authorization_user_t;
 
-static authorization_user_t* sip_authorization_users = NULL;
-static guint sip_authorization_num_users = 0;
+static authorization_user_t* sip_authorization_users;
+static guint sip_authorization_num_users;
 
 static bool
 authorization_users_update_cb(void *r, char **err)
@@ -1165,8 +1165,8 @@ static sip_info_value_t *stat_info;
  * maybe Via count as extra key to limit view to one hop)
  ****************************************************************************/
 
-static GHashTable *sip_hash = NULL;           /* Hash table */
-static GHashTable *sip_headers_hash = NULL;     /* Hash table */
+static GHashTable *sip_hash;           /* Hash table */
+static GHashTable *sip_headers_hash;     /* Hash table */
 
 /* Types for hash table keys and values */
 #define MAX_CALL_ID_SIZE 128

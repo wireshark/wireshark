@@ -1271,7 +1271,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, cons
     return TAP_PACKET_DONT_REDRAW;
 }
 
-int g_cmd_line_index = 0;
+int g_cmd_line_index;
 
 /*
  * field must be persistent - we don't g_strdup() it below

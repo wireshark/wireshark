@@ -926,9 +926,9 @@ value_string_ext ansi_tsb58_srvc_cat_vals_ext = VALUE_STRING_EXT_INIT(ansi_tsb58
 static int proto_a_bsmap;
 static int proto_a_dtap;
 
-const ext_value_string_t *ansi_a_bsmap_strings = NULL;
-const ext_value_string_t *ansi_a_dtap_strings = NULL;
-const ext_value_string_t *ansi_a_elem_1_strings = NULL;
+const ext_value_string_t *ansi_a_bsmap_strings;
+const ext_value_string_t *ansi_a_dtap_strings;
+const ext_value_string_t *ansi_a_elem_1_strings;
 
 static int ansi_a_tap;
 

@@ -510,7 +510,7 @@ typedef struct {
 	pol_value *list;		 /* List of policy handle entries */
 } pol_hash_value;
 
-static wmem_map_t *pol_hash = NULL;
+static wmem_map_t *pol_hash;
 
 /* Hash function */
 

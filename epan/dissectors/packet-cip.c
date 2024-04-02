@@ -6850,7 +6850,7 @@ typedef struct cip_gaa_val {
    wmem_list_t *attributes;
 } cip_gaa_val_t;
 
-static wmem_map_t *cip_gaa_hashtable = NULL;
+static wmem_map_t *cip_gaa_hashtable;
 
 static guint
 cip_gaa_hash (gconstpointer v)

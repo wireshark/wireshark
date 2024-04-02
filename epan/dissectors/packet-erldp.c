@@ -260,7 +260,7 @@ static gint ett_etf_fragments;
 static gboolean erldp_desegment = TRUE;
 
 /* Dissectors */
-static dissector_handle_t erldp_handle = NULL;
+static dissector_handle_t erldp_handle;
 
 /* Defragmentation */
 static const fragment_items etf_frag_items = {

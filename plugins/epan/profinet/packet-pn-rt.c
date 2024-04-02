@@ -451,7 +451,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 /* Register PNIO defrag table init routine.      */
 
 static reassembly_table pdu_reassembly_table;
-static GHashTable *reassembled_frag_table = NULL;
+static GHashTable *reassembled_frag_table;
 
 static dissector_table_t ethertype_subdissector_table;
 

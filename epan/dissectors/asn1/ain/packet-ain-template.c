@@ -74,8 +74,8 @@ static expert_field ei_ain_unknown_returnResultData;
 static expert_field ei_ain_unknown_returnErrorData;
 
 /* Global variables */
-static guint32 opcode = 0;
-static guint32 errorCode = 0;
+static guint32 opcode;
+static guint32 errorCode;
 //static const char *obj_id = NULL;
 
 static int ain_opcode_type;

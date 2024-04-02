@@ -121,10 +121,10 @@ typedef struct _interface_config {
 
 #define DATAFILE_LIN_INTERFACE_MAPPING "LIN_interface_mapping"
 
-static GHashTable *data_lin_interfaces_by_id = NULL;
-static GHashTable *data_lin_interfaces_by_name = NULL;
-static interface_config_t* interface_configs = NULL;
-static guint interface_config_num = 0;
+static GHashTable *data_lin_interfaces_by_id;
+static GHashTable *data_lin_interfaces_by_name;
+static interface_config_t* interface_configs;
+static guint interface_config_num;
 
 UAT_HEX_CB_DEF(interface_configs, interface_id, interface_config_t)
 UAT_CSTRING_CB_DEF(interface_configs, interface_name, interface_config_t)
@@ -291,9 +291,9 @@ typedef struct _sender_receiver_config {
 
 #define DATAFILE_LIN_SENDER_RECEIVER "LIN_senders_receivers"
 
-static GHashTable *data_sender_receiver = NULL;
-static sender_receiver_config_t* sender_receiver_configs = NULL;
-static guint sender_receiver_config_num = 0;
+static GHashTable *data_sender_receiver;
+static sender_receiver_config_t* sender_receiver_configs;
+static guint sender_receiver_config_num;
 
 UAT_HEX_CB_DEF(sender_receiver_configs, bus_id, sender_receiver_config_t)
 UAT_HEX_CB_DEF(sender_receiver_configs, lin_id, sender_receiver_config_t)

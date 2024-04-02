@@ -160,12 +160,12 @@ typedef struct
 } FCOSConvRequestVal;
 
 /* Conversation hash tables */
-static wmem_map_t *FiveCo_requests_hash = NULL;
+static wmem_map_t *FiveCo_requests_hash;
 
 /* Internal unique ID (used to match answer with question
    since some software set always 0 as packet ID in protocol header)
 */
-static guint64 g_unInternalID = 0;
+static guint64 g_unInternalID;
 
 /* Register definition structure (used to detect known registers when it is possible) */
 typedef struct

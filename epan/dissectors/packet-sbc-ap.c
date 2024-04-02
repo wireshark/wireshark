@@ -41,7 +41,7 @@ void proto_reg_handoff_sbc_ap(void);
  * The registered payload protocol identifier for SBc-AP is 24.
  */
 #define SBC_AP_PORT 29168
-static dissector_handle_t sbc_ap_handle=NULL;
+static dissector_handle_t sbc_ap_handle;
 
 
 #define maxNrOfErrors                  256

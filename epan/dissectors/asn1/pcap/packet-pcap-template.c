@@ -42,7 +42,7 @@ void proto_reg_handoff_pcap(void);
 
 #include "packet-pcap-val.h"
 
-static dissector_handle_t pcap_handle = NULL;
+static dissector_handle_t pcap_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_pcap;

@@ -40,31 +40,31 @@ static int proto_cose;
 static int proto_cose_params;
 
 /// Dissect opaque CBOR data
-static dissector_handle_t handle_cbor = NULL;
+static dissector_handle_t handle_cbor;
 /// Dissector handles
-static dissector_handle_t handle_cose_msg_hdr = NULL;
-static dissector_handle_t handle_cose_msg_tagged = NULL;
-static dissector_handle_t handle_cose_sign = NULL;
-static dissector_handle_t handle_cose_sign_media_type = NULL;
-static dissector_handle_t handle_cose_sign1 = NULL;
-static dissector_handle_t handle_cose_sign1_media_type = NULL;
-static dissector_handle_t handle_cose_encrypt = NULL;
-static dissector_handle_t handle_cose_encrypt_media_type = NULL;
-static dissector_handle_t handle_cose_encrypt0 = NULL;
-static dissector_handle_t handle_cose_encrypt0_media_type = NULL;
-static dissector_handle_t handle_cose_mac = NULL;
-static dissector_handle_t handle_cose_mac_media_type = NULL;
-static dissector_handle_t handle_cose_mac0 = NULL;
-static dissector_handle_t handle_cose_mac0_media_type = NULL;
-static dissector_handle_t handle_cose_key = NULL;
-static dissector_handle_t handle_cose_key_set = NULL;
+static dissector_handle_t handle_cose_msg_hdr;
+static dissector_handle_t handle_cose_msg_tagged;
+static dissector_handle_t handle_cose_sign;
+static dissector_handle_t handle_cose_sign_media_type;
+static dissector_handle_t handle_cose_sign1;
+static dissector_handle_t handle_cose_sign1_media_type;
+static dissector_handle_t handle_cose_encrypt;
+static dissector_handle_t handle_cose_encrypt_media_type;
+static dissector_handle_t handle_cose_encrypt0;
+static dissector_handle_t handle_cose_encrypt0_media_type;
+static dissector_handle_t handle_cose_mac;
+static dissector_handle_t handle_cose_mac_media_type;
+static dissector_handle_t handle_cose_mac0;
+static dissector_handle_t handle_cose_mac0_media_type;
+static dissector_handle_t handle_cose_key;
+static dissector_handle_t handle_cose_key_set;
 
 /// Dissect opaque data
-static dissector_table_t table_media = NULL;
+static dissector_table_t table_media;
 /// Dissect extension items
-static dissector_table_t table_cose_msg_tag = NULL;
-static dissector_table_t table_header = NULL;
-static dissector_table_t table_keyparam = NULL;
+static dissector_table_t table_cose_msg_tag;
+static dissector_table_t table_header;
+static dissector_table_t table_keyparam;
 
 static const val64_string alg_vals[] = {
     {-65535, "RS1"},

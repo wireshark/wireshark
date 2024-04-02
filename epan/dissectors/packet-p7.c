@@ -38,7 +38,7 @@
 void proto_register_p7(void);
 void proto_reg_handoff_p7(void);
 
-static int seqno = 0;
+static int seqno;
 
 /* Initialize the protocol and registered fields */
 static int proto_p7;

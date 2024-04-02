@@ -132,9 +132,9 @@ static dissector_handle_t ftdi_ft_handle;
 
 static reassembly_table ftdi_reassembly_table;
 
-static wmem_tree_t *request_info = NULL;
-static wmem_tree_t *bitmode_info = NULL;
-static wmem_tree_t *desegment_info = NULL;
+static wmem_tree_t *request_info;
+static wmem_tree_t *bitmode_info;
+static wmem_tree_t *desegment_info;
 
 typedef struct _request_data {
     guint32  bus_id;

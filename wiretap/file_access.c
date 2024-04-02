@@ -181,9 +181,9 @@ static const struct file_extension_info file_type_extensions_base[] = {
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
 
-static const struct file_extension_info* file_type_extensions = NULL;
+static const struct file_extension_info* file_type_extensions;
 
-static GArray* file_type_extensions_arr = NULL;
+static GArray* file_type_extensions_arr;
 
 /* initialize the extensions array if it has not been initialized yet */
 static void
@@ -434,13 +434,13 @@ static const struct open_info open_info_base[] = {
  */
 #define N_OPEN_INFO_ROUTINES  ((sizeof open_info_base / sizeof open_info_base[0]))
 
-static GArray *open_info_arr = NULL;
+static GArray *open_info_arr;
 
 /* this always points to the top of the created array */
-struct open_info *open_routines = NULL;
+struct open_info *open_routines;
 
 /* this points to the first OPEN_INFO_HEURISTIC type in the array */
-static unsigned heuristic_open_routine_idx = 0;
+static unsigned heuristic_open_routine_idx;
 
 static void
 set_heuristic_routine(void)

@@ -57,13 +57,13 @@ static const value_string ahs_type_vals[] = {
     {0, NULL}
 };
 
-static dissector_handle_t iscsi_handle=NULL;
+static dissector_handle_t iscsi_handle;
 
 static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT13;
 
 static bool iscsi_desegment = true;
 
-static bool demand_good_f_bit = false;
+static bool demand_good_f_bit;
 static bool enable_bogosity_filter = true;
 static guint32 bogus_pdu_data_length_threshold = 256 * 1024;
 

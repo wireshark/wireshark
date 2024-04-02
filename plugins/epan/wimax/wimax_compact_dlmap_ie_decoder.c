@@ -32,14 +32,14 @@ extern gint proto_wimax;
 #define CID_TYPE_RCID3       3
 
 /* Global Variables */
-guint cid_type = 0;
-guint band_amc_subchannel_type = 0;
+guint cid_type;
+guint band_amc_subchannel_type;
 guint max_logical_bands = 12;
-guint num_of_broadcast_symbols = 0;
-guint num_of_dl_band_amc_symbols = 0;
-guint num_of_ul_band_amc_symbols = 0;
+guint num_of_broadcast_symbols;
+guint num_of_dl_band_amc_symbols;
+guint num_of_ul_band_amc_symbols;
 /* from switch HARQ mode extension IE */
-guint harq_mode = 0;
+guint harq_mode;
 
 /* forward reference */
 static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset);

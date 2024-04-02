@@ -1215,7 +1215,7 @@ static int * const bitmask_oap_1_cmdcontrol_flags[] = {
 
 static expert_field ei_oap_no_session;
 
-static GHashTable *oap_1_alias_to_binding = NULL;
+static GHashTable *oap_1_alias_to_binding;
 
 #define OAP_1_RESPONSE                    (0x80)
 #define OAP_1_CMD_ACTIVATE                28
@@ -2103,9 +2103,9 @@ static expert_field ei_security_13_out_of_range;
  * partial information is known, and must support looking up in both directions
  * based on what is known from a particular PDU.
  */
-static GHashTable *node_key_to_sid_id = NULL;
-static GHashTable *sid_buffer_to_sid_id = NULL;
-static GHashTable *sid_id_to_sid_buffer = NULL;
+static GHashTable *node_key_to_sid_id;
+static GHashTable *sid_buffer_to_sid_id;
+static GHashTable *sid_id_to_sid_buffer;
 
 typedef struct _node_key_to_sid_id_key
 {
@@ -2222,7 +2222,7 @@ static void dpp_reset_sid_support(void)
  * The hash is used to look up common operation information each time an operation
  * is seen in any packet.
  */
-static GHashTable *dpp_opid_to_packet_data = NULL;
+static GHashTable *dpp_opid_to_packet_data;
 
 static guint dpp_opid_hash_fn(gconstpointer opid)
 {
@@ -2257,7 +2257,7 @@ static void dpp_reset_opid_support(void)
 /**
  * NON-SECURE SESSION LOOKUP SUPPORT
  */
-static GHashTable *dof_ns_session_lookup = NULL;
+static GHashTable *dof_ns_session_lookup;
 
 /**
  * NON-SECURE DPS SESSION
@@ -3223,8 +3223,8 @@ static int dof_dissect_dnp_length(tvbuff_t *tvb, packet_info *pinfo, guint8 vers
  * mode templates, security keys, and secrets to be configured.
  */
 
-static bool decrypt_all_packets = false;
-static bool track_operations = false;
+static bool decrypt_all_packets;
+static bool track_operations;
 static guint track_operations_window = 5;
 static guint32 next_dof_frame = 1;
 
@@ -3235,8 +3235,8 @@ typedef struct _secmode_field_t {
     gchar *kek;
 } secmode_field_t;
 
-static secmode_field_t *secmode_list = NULL;
-static guint num_secmode_list = 0;
+static secmode_field_t *secmode_list;
+static guint num_secmode_list;
 
 /* Structure for security keys. */
 typedef struct _seckey_field_t {
@@ -3331,12 +3331,12 @@ static dof_security_data global_security;
 static guint8 count_hex_bytes(gchar *str);
 
 /* Global DPS data structures for security keys. */
-static seckey_field_t *seckey_list = NULL;
-static guint num_seckey_list = 0;
+static seckey_field_t *seckey_list;
+static guint num_seckey_list;
 
 /* Global DPS data structures for identity secrets. */
-static identsecret_field_t *identsecret_list = NULL;
-static guint num_identsecret_list = 0;
+static identsecret_field_t *identsecret_list;
+static guint num_identsecret_list;
 
 
 /* Callbacks for Configuration security templates. */
@@ -3528,7 +3528,7 @@ static void init_addr_port_tables(void);
  * transport address. This requires a hash lookup from address/port to ID.
  */
 
-static GHashTable *addr_port_to_id = NULL;
+static GHashTable *addr_port_to_id;
 
 typedef struct _addr_port_key
 {

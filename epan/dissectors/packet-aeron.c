@@ -40,10 +40,10 @@ static heur_dissector_list_t aeron_heuristic_subdissector_list;
 /* Preferences.                                                               */
 /*----------------------------------------------------------------------------*/
 
-static bool aeron_sequence_analysis = false;
-static bool aeron_stream_analysis = false;
-static bool aeron_reassemble_fragments = false;
-static bool aeron_use_heuristic_subdissectors = false;
+static bool aeron_sequence_analysis;
+static bool aeron_stream_analysis;
+static bool aeron_reassemble_fragments;
+static bool aeron_use_heuristic_subdissectors;
 
 /*----------------------------------------------------------------------------*/
 /* Aeron position routines.                                                   */
@@ -137,7 +137,7 @@ static gboolean aeron_pos_add_length(aeron_pos_t * pos, guint32 length, guint32 
 /*----------------------------------------------------------------------------*/
 /* Aeron frame information management.                                        */
 /*----------------------------------------------------------------------------*/
-static wmem_tree_t * aeron_frame_info_tree = NULL;
+static wmem_tree_t * aeron_frame_info_tree;
 
 struct aeron_frame_info_t_stct;
 typedef struct aeron_frame_info_t_stct aeron_frame_info_t;

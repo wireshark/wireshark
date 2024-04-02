@@ -123,10 +123,10 @@ static int ett_json;
 
 static int container_io_tap;
 
-static bool pref_show_internal = false;
+static bool pref_show_internal;
 
 static dissector_table_t ptype_dissector_table;
-static dissector_handle_t json_handle = NULL;
+static dissector_handle_t json_handle;
 
 static int fd_follow_tap;
 
@@ -138,14 +138,14 @@ const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx);
 /*
  * Array of plugin bridges
  */
-bridge_info* bridges = NULL;
-guint nbridges = 0;
-guint n_conv_fields = 0;
+bridge_info* bridges;
+guint nbridges;
+guint n_conv_fields;
 
 /*
  * sinsp extractor span
  */
-sinsp_span_t *sinsp_span = NULL;
+sinsp_span_t *sinsp_span;
 
 /*
  * Fields

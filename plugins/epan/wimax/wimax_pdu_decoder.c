@@ -25,10 +25,10 @@ extern gint proto_wimax;
 
 void proto_reg_handoff_wimax_pdu(void);
 
-static dissector_handle_t mac_generic_decoder_handle = NULL;
-static dissector_handle_t mac_header_type1_handle = NULL;
-static dissector_handle_t mac_header_type2_handle = NULL;
-static dissector_handle_t wimax_harq_map_handle = NULL;
+static dissector_handle_t mac_generic_decoder_handle;
+static dissector_handle_t mac_header_type1_handle;
+static dissector_handle_t mac_header_type2_handle;
+static dissector_handle_t wimax_harq_map_handle;
 
 #define WIMAX_PDU_PADDING_MASK           0xFF
 #define WIMAX_INVALID_PDU_MASK           0xF0

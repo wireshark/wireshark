@@ -42,12 +42,12 @@ void proto_reg_handoff_hdfs(void);
 
 
 #if 0
-static const int START = 0;
+static const int START;
 static const int AUTHENTICATION = 1;
 static const int DATA = 2;
 #endif
 
-static range_t *tcp_ports = NULL;
+static range_t *tcp_ports;
 
 static int proto_hdfs;
 static int hf_hdfs_pdu_type;

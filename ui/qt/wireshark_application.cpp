@@ -9,7 +9,7 @@
 
 #include "wireshark_application.h"
 
-WiresharkApplication *wsApp = NULL;
+WiresharkApplication *wsApp;
 
 WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     MainApplication(argc, argv)

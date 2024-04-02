@@ -82,11 +82,11 @@ static gint find_val_for_string(const char *needle, const enum_val_t *haystack, 
 #define PF_NAME         "preferences"
 #define OLD_GPF_NAME    "wireshark.conf" /* old name for global preferences file */
 
-static gboolean prefs_initialized = FALSE;
-static gchar *gpf_path = NULL;
-static gchar *cols_hidden_list = NULL;
-static gchar *cols_hidden_fmt_list = NULL;
-static gboolean gui_theme_is_dark = FALSE;
+static gboolean prefs_initialized;
+static gchar *gpf_path;
+static gchar *cols_hidden_list;
+static gchar *cols_hidden_fmt_list;
+static gboolean gui_theme_is_dark;
 
 /*
  * XXX - variables to allow us to attempt to interpret the first
@@ -283,18 +283,18 @@ guint32 prefs_get_max_value(pref_t *pref)
 /*
  * List of all modules with preference settings.
  */
-static wmem_tree_t *prefs_modules = NULL;
+static wmem_tree_t *prefs_modules;
 
 /*
  * List of all modules that should show up at the top level of the
  * tree in the preference dialog box.
  */
-static wmem_tree_t *prefs_top_level_modules = NULL;
+static wmem_tree_t *prefs_top_level_modules;
 
 /*
  * List of aliases for modules.
  */
-static wmem_tree_t *prefs_module_aliases = NULL;
+static wmem_tree_t *prefs_module_aliases;
 
 /** Sets up memory used by proto routines. Called at program startup */
 void
@@ -607,7 +607,7 @@ prefs_register_module_alias(const char *name, module_t *module)
 /*
  * Register that a protocol has preferences.
  */
-module_t *protocols_module = NULL;
+module_t *protocols_module;
 
 module_t *
 prefs_register_protocol(int id, void (*apply_cb)(void))
@@ -749,7 +749,7 @@ prefs_register_protocol_obsolete(int id)
  *
  * "description" is a longer human-readable description of the tap.
  */
-module_t *stats_module = NULL;
+module_t *stats_module;
 
 module_t *
 prefs_register_stat(const char *name, const char *title,
@@ -781,7 +781,7 @@ prefs_register_stat(const char *name, const char *title,
  *
  * "description" is a longer human-readable description of the codec.
  */
-module_t *codecs_module = NULL;
+module_t *codecs_module;
 
 module_t *
 prefs_register_codec(const char *name, const char *title,
@@ -2505,7 +2505,7 @@ static void custom_pref_no_cb(pref_t* pref _U_) {}
 #define PRS_COL_HIDDEN                   "column.hide"
 #define PRS_COL_FMT                      "column.format"
 #define PRS_COL_NUM                      "column.number"
-static module_t *gui_column_module = NULL;
+static module_t *gui_column_module;
 
 static prefs_set_pref_e
 column_hidden_set_cb(pref_t* pref, const gchar* value, unsigned int* changed_flags)
@@ -3165,9 +3165,9 @@ colorized_frame_to_str_cb(pref_t* pref _U_, gboolean default_val _U_)
 /*
  * Register all non-dissector modules' preferences.
  */
-static module_t *gui_module = NULL;
-static module_t *gui_color_module = NULL;
-static module_t *nameres_module = NULL;
+static module_t *gui_module;
+static module_t *gui_color_module;
+static module_t *nameres_module;
 
 static void
 prefs_register_modules(void)

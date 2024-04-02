@@ -32,7 +32,7 @@
 #define DFILTER_TOKEN_ID_OFFSET	1
 
 /* Holds the singular instance of our Lemon parser object */
-static void*	ParserObj = NULL;
+static void*	ParserObj;
 
 df_loc_t loc_empty = {-1, 0};
 

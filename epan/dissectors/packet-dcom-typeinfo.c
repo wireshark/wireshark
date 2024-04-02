@@ -174,7 +174,7 @@ static int hf_typeinfo_wMinorVerNum;
 static gint ett_typeinfo_names;
 
 static e_guid_t uuid_typeinfo = {0x00020401, 0x0000, 0x0000, {0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
-static guint16 ver_typeinfo = 0;
+static guint16 ver_typeinfo;
 static gint ett_typeinfo;
 static int proto_typeinfo;
 

@@ -26,7 +26,7 @@
 #define LANGUAGE_FILE_NAME      "language"
 #define LANGUAGE_PREF_LANGUAGE  "language"
 
-char *language = NULL;
+char *language;
 
 /* set one user's recent common file key/value pair */
 static prefs_set_pref_e

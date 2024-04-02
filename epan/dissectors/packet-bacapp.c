@@ -6828,8 +6828,8 @@ static gint32 propertyIdentifier = -1;
 static gint32 propertyArrayIndex = -1;
 static guint32 object_type = 4096;
 
-static guint8 bacapp_flags = 0;
-static guint8 bacapp_seq = 0;
+static guint8 bacapp_flags;
+static guint8 bacapp_seq;
 
 /* Defined to allow vendor identifier registration of private transfer dissectors */
 static dissector_table_t bacapp_dissector_table;

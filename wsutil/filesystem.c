@@ -73,18 +73,18 @@ enum configuration_namespace_e configuration_namespace = CONFIGURATION_NAMESPACE
 #define CONFIGURATION_NAMESPACE_LOWER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "wireshark" : "logray")
 #define CONFIGURATION_ENVIRONMENT_VARIABLE(suffix) (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "WIRESHARK_" suffix : "LOGRAY_" suffix)
 
-char *persconffile_dir = NULL;
-char *datafile_dir = NULL;
-char *persdatafile_dir = NULL;
-char *persconfprofile = NULL;
-char *doc_dir = NULL;
+char *persconffile_dir;
+char *datafile_dir;
+char *persdatafile_dir;
+char *persconfprofile;
+char *doc_dir;
 
 /* Directory from which the executable came. */
-static char *progfile_dir = NULL;
-static char *install_prefix = NULL;
+static char *progfile_dir;
+static char *install_prefix;
 
-static bool do_store_persconffiles = false;
-static GHashTable *profile_files = NULL;
+static bool do_store_persconffiles;
+static GHashTable *profile_files;
 
 /*
  * Given a pathname, return a pointer to the last pathname separator
@@ -293,7 +293,7 @@ static char *appbundle_dir;
  * true if we're running from the build directory and we aren't running
  * with special privileges.
  */
-static bool running_in_build_directory_flag = false;
+static bool running_in_build_directory_flag;
 
 /*
  * Set our configuration namespace. This will be used for top-level
@@ -1153,9 +1153,9 @@ get_doc_dir(void)
  *    otherwise, we use the PLUGIN_DIR value supplied by the
  *    configure script.
  */
-static char *plugin_dir = NULL;
-static char *plugin_pers_dir = NULL;
-static char *extcap_pers_dir = NULL;
+static char *plugin_dir;
+static char *plugin_pers_dir;
+static char *extcap_pers_dir;
 
 static void
 init_plugin_dir(void)
@@ -1267,7 +1267,7 @@ get_plugins_pers_dir(void)
  *
  *    otherwise, we use the EXTCAP_DIR value supplied by CMake.
  */
-static char *extcap_dir = NULL;
+static char *extcap_dir;
 
 static void
 init_extcap_dir(void)

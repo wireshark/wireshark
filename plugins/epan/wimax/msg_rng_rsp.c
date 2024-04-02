@@ -27,9 +27,9 @@ void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void);
 extern gboolean include_cor2_changes;
 
 
-static dissector_handle_t rng_rsp_handle = NULL;
-static dissector_handle_t sbc_rsp_handle = NULL;
-static dissector_handle_t reg_rsp_handle = NULL;
+static dissector_handle_t rng_rsp_handle;
+static dissector_handle_t sbc_rsp_handle;
+static dissector_handle_t reg_rsp_handle;
 
 static gint proto_mac_mgmt_msg_rng_rsp_decoder;
 static gint ett_mac_mgmt_msg_rng_rsp_decoder;

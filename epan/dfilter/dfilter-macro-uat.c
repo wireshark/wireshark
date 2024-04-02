@@ -20,7 +20,7 @@
  * new "dmacros" configuration file. It should be removed eventually.
  */
 
-static dfilter_macro_t* macros = NULL;
+static dfilter_macro_t* macros;
 static unsigned num_macros;
 
 static void macro_uat_free(void* r) {

@@ -38,7 +38,7 @@ static int proto_ecmp;
 static int proto_modbus;
 
 /* These are the handles of our subdissectors */
-static dissector_handle_t modbus_handle = NULL;
+static dissector_handle_t modbus_handle;
 
 /*smallest size of a packet, number of bytes*/
 static const gint ecmp_min_packet_size  = 6;
@@ -70,7 +70,7 @@ static const gint ecmp_min_packet_size  = 6;
 #define ECMP_COMMAND_MODBUSPDU		0x74
 
 /* cyclic display formats */
-static const guint8 cyclic_display_byte_format = 0;
+static const guint8 cyclic_display_byte_format;
 static const guint8 cyclic_display_word_format = 1;
 static const guint8 cyclic_display_long_format = 2;
 

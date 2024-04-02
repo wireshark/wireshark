@@ -23,7 +23,7 @@
 
 /* Variables for our preferences */
 static bool preference_info_show_username = true;
-static bool preference_info_show_command = false;
+static bool preference_info_show_command;
 
 void proto_register_exec(void);
 void proto_reg_handoff_exec(void);

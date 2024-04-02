@@ -139,7 +139,7 @@ static bool slsk_desegment = true;
 #ifdef HAVE_ZLIB
 static bool slsk_decompress = true;
 #else
-static bool slsk_decompress = false;
+static bool slsk_decompress;
 #endif
 
 static const value_string slsk_tcp_msgs[] = {

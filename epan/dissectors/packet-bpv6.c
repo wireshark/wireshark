@@ -68,9 +68,9 @@ static gint64
 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 
 static int proto_bundle;
-static dissector_handle_t bundle_handle = NULL;
-static dissector_handle_t bpv6_handle = NULL;
-static dissector_handle_t bpv7_handle = NULL;
+static dissector_handle_t bundle_handle;
+static dissector_handle_t bpv6_handle;
+static dissector_handle_t bpv7_handle;
 
 static int hf_bundle_pdu_version;
 

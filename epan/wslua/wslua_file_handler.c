@@ -52,7 +52,7 @@ static GSList *registered_file_handlers;
 /* During file routines, we cannot allow the FileHandler to get deregistered, since
    that would change the GArray's in file_access.c and hilarity would ensue. So we
    set this to true right before pcall(), and back to false afterwards */
-static bool in_routine = false;
+static bool in_routine;
 
 static void
 report_error(int *err, char **err_info, const char *fmt, ...)

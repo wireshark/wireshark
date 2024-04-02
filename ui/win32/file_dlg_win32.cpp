@@ -92,7 +92,7 @@ typedef DPI_AWARENESS_CONTEXT (WINAPI *SetThreadDpiAwarenessContextProc)(DPI_AWA
 
 static GetThreadDpiAwarenessContextProc GetThreadDpiAwarenessContextP;
 static SetThreadDpiAwarenessContextProc SetThreadDpiAwarenessContextP;
-static bool got_proc_addresses = false;
+static bool got_proc_addresses;
 
 DIAG_OFF(cast-function-type)
 static bool get_proc_addresses(void) {
@@ -156,8 +156,8 @@ static print_args_t    print_args;
  *       should arguably be modal to the window for the file
  *       being opened/saved/etc.).
  */
-static HWND  g_sf_hwnd = NULL;
-static char *g_dfilter_str = NULL;
+static HWND  g_sf_hwnd;
+static char *g_dfilter_str;
 static unsigned int g_format_type = WTAP_TYPE_AUTO;
 
 /*

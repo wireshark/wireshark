@@ -46,20 +46,20 @@ extern int proto_fp;
 static bool global_rlc_perform_reassemby = true;
 
 /* Preference to expect RLC headers without payloads */
-static bool global_rlc_headers_expected = false;
+static bool global_rlc_headers_expected;
 
 /* Preference to expect ONLY ciphered data */
-static bool global_rlc_ciphered = false;
+static bool global_rlc_ciphered;
 
 /* Preference to ignore ciphering state reported from RRC */
 /* This is important for captures with deciphered traffic AND the original security RRC messages present*/
-static bool global_ignore_rrc_ciphering_indication = false;
+static bool global_ignore_rrc_ciphering_indication;
 
 /* Preference to try deciphering */
-static bool global_rlc_try_decipher = false;
+static bool global_rlc_try_decipher;
 
 #ifdef HAVE_UMTS_KASUMI
-static const char *global_rlc_kasumi_key = NULL;
+static const char *global_rlc_kasumi_key;
 #endif
 
 /* LI size preference */
@@ -228,11 +228,11 @@ static const value_string rlc_sufi_vals[] = {
 };
 
 /* reassembly related data */
-static GHashTable *fragment_table    = NULL; /* table of not yet assembled fragments */
-static GHashTable *endpoints = NULL; /* List of SDU-endpoints */
-static GHashTable *reassembled_table = NULL; /* maps fragment -> complete sdu */
-static GHashTable *sequence_table    = NULL; /* channel -> seq */
-static GHashTable *duplicate_table = NULL; /* duplicates */
+static GHashTable *fragment_table; /* table of not yet assembled fragments */
+static GHashTable *endpoints; /* List of SDU-endpoints */
+static GHashTable *reassembled_table; /* maps fragment -> complete sdu */
+static GHashTable *sequence_table; /* channel -> seq */
+static GHashTable *duplicate_table; /* duplicates */
 
 /* identify an RLC channel, using one of two options:
  *  - via Radio Bearer ID and unique UE ID
@@ -306,7 +306,7 @@ typedef struct umts_kat_key{    /*Stores 128-bits KASUMI key*/
 /*Counter used as input for confidentiality algorithm*/
 static guint32 ps_counter[31][2] ;
 static gboolean counter_init[31][2];
-static guint32 max_counter = 0;
+static guint32 max_counter;
 static GTree  * counter_map;    /*Saves the countervalues at first pass through, since they will be update*/
 
 /* hashtable functions for fragment table

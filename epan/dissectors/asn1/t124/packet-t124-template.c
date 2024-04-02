@@ -35,7 +35,7 @@ void proto_reg_handoff_t124(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_t124;
-static proto_tree *top_tree = NULL;
+static proto_tree *top_tree;
 
 #include "packet-t124-hf.c"
 
@@ -49,8 +49,8 @@ static int hf_t124_DomainMCSPDU_PDU;
 
 static guint32 channelId = -1;
 
-static dissector_table_t t124_ns_dissector_table=NULL;
-static dissector_table_t t124_sd_dissector_table=NULL;
+static dissector_table_t t124_ns_dissector_table;
+static dissector_table_t t124_sd_dissector_table;
 
 #include "packet-t124-ett.c"
 

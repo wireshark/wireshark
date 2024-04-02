@@ -74,87 +74,87 @@ static e_guid_t uuid_coclass_CBAPhysicalDevice = { 0xcba00000, 0x6c97, 0x11d1, {
 static int proto_ICBAPhysicalDevice;
 static gint ett_ICBAPhysicalDevice;
 static e_guid_t uuid_ICBAPhysicalDevice = { 0xcba00001, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAPhysicalDevice = 0;
+static guint16  ver_ICBAPhysicalDevice;
 
 static int proto_ICBAPhysicalDevice2;
 static e_guid_t uuid_ICBAPhysicalDevice2 = { 0xcba00006, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAPhysicalDevice2 = 0;
+static guint16  ver_ICBAPhysicalDevice2;
 
 static int proto_ICBABrowse;
 static gint ett_ICBABrowse;
 static e_guid_t uuid_ICBABrowse = { 0xcba00002, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBABrowse = 0;
+static guint16  ver_ICBABrowse;
 
 static int proto_ICBABrowse2;
 static e_guid_t uuid_ICBABrowse2 = { 0xcba00007, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBABrowse2 = 0;
+static guint16  ver_ICBABrowse2;
 
 static int proto_ICBAPhysicalDevicePC;
 static gint ett_ICBAPhysicalDevicePC;
 static e_guid_t uuid_ICBAPhysicalDevicePC = { 0xcba00003, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAPhysicalDevicePC = 0;
+static guint16  ver_ICBAPhysicalDevicePC;
 
 static int proto_ICBAPhysicalDevicePCEvent;
 static gint ett_ICBAPhysicalDevicePCEvent;
 static e_guid_t uuid_ICBAPhysicalDevicePCEvent = { 0xcba00004, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAPhysicalDevicePCEvent = 0;
+static guint16  ver_ICBAPhysicalDevicePCEvent;
 
 static int proto_ICBAPersist;
 static gint ett_ICBAPersist;
 static e_guid_t uuid_ICBAPersist = { 0xcba00005, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAPersist = 0;
+static guint16  ver_ICBAPersist;
 
 static int proto_ICBAPersist2;
 static e_guid_t uuid_ICBAPersist2 = { 0xcba00008, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAPersist2 = 0;
+static guint16  ver_ICBAPersist2;
 
 static int proto_ICBALogicalDevice;
 static gint ett_ICBALogicalDevice;
 static e_guid_t uuid_ICBALogicalDevice = { 0xcba00011, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBALogicalDevice = 0;
+static guint16  ver_ICBALogicalDevice;
 
 static int proto_ICBALogicalDevice2;
 static e_guid_t uuid_ICBALogicalDevice2 = { 0xcba00017, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBALogicalDevice2 = 0;
+static guint16  ver_ICBALogicalDevice2;
 
 static int proto_ICBAState;
 static gint ett_ICBAState;
 static e_guid_t uuid_ICBAState = { 0xcba00012, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAState = 0;
+static guint16  ver_ICBAState;
 
 static int proto_ICBAStateEvent;
 static gint ett_ICBAStateEvent;
 static e_guid_t uuid_ICBAStateEvent = { 0xcba00013, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAStateEvent = 0;
+static guint16  ver_ICBAStateEvent;
 
 static int proto_ICBATime;
 static gint ett_ICBATime;
 static e_guid_t uuid_ICBATime = { 0xcba00014, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBATime = 0;
+static guint16  ver_ICBATime;
 
 static int proto_ICBAGroupError;
 static gint ett_ICBAGroupError;
 static e_guid_t uuid_ICBAGroupError = { 0xcba00015, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAGroupError = 0;
+static guint16  ver_ICBAGroupError;
 
 static int proto_ICBAGroupErrorEvent;
 static gint ett_ICBAGroupErrorEvent;
 static e_guid_t uuid_ICBAGroupErrorEvent = { 0xcba00016, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAGroupErrorEvent = 0;
+static guint16  ver_ICBAGroupErrorEvent;
 
 static int proto_ICBARTAuto;
 static gint ett_ICBARTAuto;
 static e_guid_t uuid_ICBARTAuto = { 0xcba00051, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBARTAuto = 0;
+static guint16  ver_ICBARTAuto;
 
 static int proto_ICBARTAuto2;
 static e_guid_t uuid_ICBARTAuto2 = { 0xcba00052, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBARTAuto2 = 0;
+static guint16  ver_ICBARTAuto2;
 
 static int proto_ICBASystemProperties;
 static gint ett_ICBASystemProperties;
 static e_guid_t uuid_ICBASystemProperties = { 0xcba00062, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBASystemProperties = 0;
+static guint16  ver_ICBASystemProperties;
 
 
 static gint ett_PBAddress;

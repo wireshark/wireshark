@@ -36,10 +36,10 @@ void proto_reg_handoff_bpsec(void);
 static int proto_bpsec;
 
 /// Dissect opaque CBOR data
-static dissector_handle_t handle_cbor = NULL;
+static dissector_handle_t handle_cbor;
 /// Extension sub-dissectors
-static dissector_table_t param_dissectors = NULL;
-static dissector_table_t result_dissectors = NULL;
+static dissector_table_t param_dissectors;
+static dissector_table_t result_dissectors;
 
 static const val64_string shavar_vals[] = {
     {5, "HMAC 256/256"},

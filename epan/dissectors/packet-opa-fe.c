@@ -42,9 +42,9 @@ static gint hf_opa_fe_Reserved64;
 static dissector_handle_t opa_fe_handle;
 static dissector_handle_t opa_mad_handle;
 
-static range_t *global_fe_ssl_range = NULL;
+static range_t *global_fe_ssl_range;
 
-static range_t *fe_ssl_range = NULL;
+static range_t *fe_ssl_range;
 
 static guint get_opa_fe_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {

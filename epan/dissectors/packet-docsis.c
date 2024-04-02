@@ -53,7 +53,7 @@ void proto_reg_handoff_docsis(void);
 
 /* Assume all packets have an FCS */
 static bool docsis_check_fcs = true;
-static bool docsis_dissect_encrypted_frames = false;
+static bool docsis_dissect_encrypted_frames;
 
 #define DOCSIS_MIN_HEADER_LEN   6
 

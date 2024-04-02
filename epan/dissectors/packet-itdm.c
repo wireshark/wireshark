@@ -56,7 +56,7 @@ static dissector_handle_t itdm_handle;
 
 /* ZZZZ some magic number.. */
 static guint gbl_ItdmMPLSLabel = 0x99887;
-static guint gbl_ItdmCTLFlowNo = 0;
+static guint gbl_ItdmCTLFlowNo;
 
 /* I-TDM 125usec mode commands for data flows */
 #define ITDM_CMD_NEW_CHAN     1

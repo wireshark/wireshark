@@ -74,7 +74,7 @@ static dissector_table_t s5066sis_dissector_table;
 /* Enable desegmentation of S5066 over TCP */
 static bool s5066_desegment = true;
 /* Dissect old 'edition 1' of STANAG 5066 (It lacks the 'version' field.) */
-static bool s5066_edition_one = false;
+static bool s5066_edition_one;
 /* This port is registered with IANA */
 #define S5066_PORT 5066
 /* Size of header outside 'size' field */

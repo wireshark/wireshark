@@ -111,7 +111,7 @@ static gint ett_gsm_r_uus1_alert_controller;
 
 
 /* Preferences */
-static bool q931_u2u  = false;
+static bool q931_u2u;
 static bool gsm_a_u2u = true;
 
 

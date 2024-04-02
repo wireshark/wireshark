@@ -29,7 +29,7 @@ typedef struct _stat_cmd_arg {
     void* userdata;
 } stat_cmd_arg;
 
-static wmem_list_t *stat_cmd_arg_list=NULL;
+static wmem_list_t *stat_cmd_arg_list;
 
 /* structure to keep track of what stats have been specified on the
    command line.
@@ -38,7 +38,7 @@ typedef struct {
     stat_cmd_arg *sca;
     char *arg;
 } stat_requested;
-static GSList *stats_requested = NULL;
+static GSList *stats_requested;
 
 /* **********************************************************************
  * Function called from stat to register the stat's command-line argument
@@ -141,7 +141,7 @@ start_requested_stats(void)
     }
 }
 
-static wmem_tree_t *registered_stat_tables = NULL;
+static wmem_tree_t *registered_stat_tables;
 
 void register_stat_tap_table_ui(stat_tap_table_ui *ui)
 {

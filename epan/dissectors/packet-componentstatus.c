@@ -52,8 +52,8 @@ static int hf_message_sender_id_group;
 static int hf_message_sender_id_object;
 static int hf_message_sender_timestamp;
 
-static guint64 componentstatusprotocol_total_msgs     = 0;
-static guint64 componentstatusprotocol_total_bytes    = 0;
+static guint64 componentstatusprotocol_total_msgs;
+static guint64 componentstatusprotocol_total_bytes;
 
 
 #define COMPONENTSTATUS_REPORT 0x01

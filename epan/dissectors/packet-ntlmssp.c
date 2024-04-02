@@ -78,7 +78,7 @@ static const value_string ntlmssp_message_types[] = {
   (ek->fd_num == -1 && ek->keytype == 23 && ek->keylength == NTLMSSP_KEY_LEN)
 
 static const unsigned char gbl_zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-static GHashTable* hash_packet = NULL;
+static GHashTable* hash_packet;
 
 /*
  * NTLMSSP negotiation flags
@@ -288,7 +288,7 @@ static expert_field ei_ntlmssp_sessionkey;
 static dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 
 /* Configuration variables */
-static const char *ntlmssp_option_nt_password = NULL;
+static const char *ntlmssp_option_nt_password;
 
 #define NTLMSSP_CONV_INFO_KEY 0
 /* Used in the conversation function */

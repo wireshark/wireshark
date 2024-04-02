@@ -61,8 +61,8 @@ void proto_register_dtls(void);
 
 #ifdef HAVE_LIBGNUTLS
 /* DTLS User Access Table */
-static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
-static guint ndtlsdecrypt = 0;
+static ssldecrypt_assoc_t *dtlskeylist_uats;
+static guint ndtlsdecrypt;
 #endif
 
 /* we need to remember the top tree so that subdissectors we call are created
@@ -186,20 +186,20 @@ static expert_field ei_dtls_cid_invalid_enc_content;
 #endif
 
 #ifdef HAVE_LIBGNUTLS
-static GHashTable      *dtls_key_hash   = NULL;
-static wmem_stack_t    *key_list_stack  = NULL;
-static uat_t           *dtlsdecrypt_uat = NULL;
-static const gchar     *dtls_keys_list  = NULL;
+static GHashTable      *dtls_key_hash;
+static wmem_stack_t    *key_list_stack;
+static uat_t           *dtlsdecrypt_uat;
+static const gchar     *dtls_keys_list;
 #endif
 static reassembly_table    dtls_reassembly_table;
-static dissector_table_t   dtls_associations         = NULL;
-static dissector_handle_t  dtls_handle               = NULL;
-static StringInfo          dtls_compressed_data      = {NULL, 0};
-static StringInfo          dtls_decrypted_data       = {NULL, 0};
-static gint                dtls_decrypted_data_avail = 0;
+static dissector_table_t   dtls_associations;
+static dissector_handle_t  dtls_handle;
+static StringInfo          dtls_compressed_data;
+static StringInfo          dtls_decrypted_data;
+static gint                dtls_decrypted_data_avail;
 
-static ssl_common_options_t dtls_options = { NULL, NULL};
-static const gchar *dtls_debug_file_name = NULL;
+static ssl_common_options_t dtls_options;
+static const gchar *dtls_debug_file_name;
 
 static guint32 dtls_default_client_cid_length;
 static guint32 dtls_default_server_cid_length;

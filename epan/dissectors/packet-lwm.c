@@ -84,7 +84,7 @@ void proto_register_lwm(void);
 void proto_reg_handoff_lwm(void);
 
 /* User string with the decryption key. */
-static const gchar *lwmes_key_str = NULL;
+static const gchar *lwmes_key_str;
 static gboolean     lwmes_key_valid;
 static guint8       lwmes_key[16];
 

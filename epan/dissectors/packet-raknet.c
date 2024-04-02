@@ -48,11 +48,11 @@ static gint ett_raknet_system_message;
 /*
  * Dissectors
  */
-static dissector_handle_t raknet_handle = NULL;
-static dissector_table_t raknet_offline_message_dissectors = NULL;
-static dissector_table_t raknet_system_message_dissectors = NULL;
-static dissector_table_t raknet_port_dissectors = NULL;
-static heur_dissector_list_t raknet_heur_subdissectors = NULL;
+static dissector_handle_t raknet_handle;
+static dissector_table_t raknet_offline_message_dissectors;
+static dissector_table_t raknet_system_message_dissectors;
+static dissector_table_t raknet_port_dissectors;
+static heur_dissector_list_t raknet_heur_subdissectors;
 
 /*
  * Expert fields

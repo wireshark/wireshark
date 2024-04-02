@@ -61,7 +61,7 @@ static dissector_handle_t PROTOABBREV_handle;
 static dissector_handle_t PROTOABBREV_tls_handle;
 
 /* Global sample preference ("controls" display of numbers) */
-static bool pref_hex = false;
+static bool pref_hex;
 /* Global sample port preference - real port preferences should generally
  * default to "" (for a range) or 0 (for a single uint) unless there is an
  * IANA-registered (or equivalent) port for your protocol. */

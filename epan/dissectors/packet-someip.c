@@ -127,11 +127,11 @@
 
 /* ID wireshark identifies the dissector by */
 static int proto_someip;
-static module_t *someip_module = NULL;
+static module_t *someip_module;
 
-static dissector_handle_t someip_handle_udp = NULL;
-static dissector_handle_t someip_handle_tcp = NULL;
-static dissector_handle_t dtls_handle = NULL;
+static dissector_handle_t someip_handle_udp;
+static dissector_handle_t someip_handle_tcp;
+static dissector_handle_t dtls_handle;
 
 /* header field */
 static int hf_someip_messageid;
@@ -165,7 +165,7 @@ static gint ett_someip_msgtype;
 static gint ett_someip_tp;
 
 /* dissector handling */
-static dissector_table_t someip_dissector_table = NULL;
+static dissector_table_t someip_dissector_table;
 
 /* message reassembly for SOME/IP-TP */
 static int hf_someip_tp_fragments;
@@ -198,14 +198,14 @@ static int hf_payload_wtlv_tag_res;
 static int hf_payload_wtlv_tag_wire_type;
 static int hf_payload_wtlv_tag_data_id;
 
-static hf_register_info* dynamic_hf_param                               = NULL;
-static guint dynamic_hf_param_size                                      = 0;
-static hf_register_info* dynamic_hf_array                               = NULL;
-static guint dynamic_hf_array_size                                      = 0;
-static hf_register_info* dynamic_hf_struct                              = NULL;
-static guint dynamic_hf_struct_size                                     = 0;
-static hf_register_info* dynamic_hf_union                               = NULL;
-static guint dynamic_hf_union_size                                      = 0;
+static hf_register_info* dynamic_hf_param;
+static guint dynamic_hf_param_size;
+static hf_register_info* dynamic_hf_array;
+static guint dynamic_hf_array_size;
+static hf_register_info* dynamic_hf_struct;
+static guint dynamic_hf_struct_size;
+static hf_register_info* dynamic_hf_union;
+static guint dynamic_hf_union_size;
 
 static gint ett_someip_tp_fragment;
 static gint ett_someip_tp_fragments;
@@ -237,8 +237,8 @@ static const fragment_items someip_tp_frag_items = {
 
 static bool someip_tp_reassemble = true;
 static bool someip_deserializer_activated = true;
-static bool someip_deserializer_wtlv_default = false;
-static bool someip_detect_dtls = false;
+static bool someip_deserializer_wtlv_default;
+static bool someip_detect_dtls;
 
 /* SOME/IP Message Types */
 static const value_string someip_msg_type[] = {
@@ -284,19 +284,19 @@ static expert_field ei_someip_payload_static_array_min_not_max;
 static expert_field ei_someip_payload_dyn_array_not_within_limit;
 
 /*** Data Structure for mapping IDs to Names (Services, Methods, ...) ***/
-static GHashTable *data_someip_services                                 = NULL;
-static GHashTable *data_someip_methods                                  = NULL;
-static GHashTable *data_someip_eventgroups                              = NULL;
-static GHashTable *data_someip_clients                                  = NULL;
+static GHashTable *data_someip_services;
+static GHashTable *data_someip_methods;
+static GHashTable *data_someip_eventgroups;
+static GHashTable *data_someip_clients;
 
-static GHashTable *data_someip_parameter_list                           = NULL;
-static GHashTable *data_someip_parameter_base_type_list                 = NULL;
-static GHashTable *data_someip_parameter_strings                        = NULL;
-static GHashTable *data_someip_parameter_typedefs                       = NULL;
-static GHashTable *data_someip_parameter_arrays                         = NULL;
-static GHashTable *data_someip_parameter_structs                        = NULL;
-static GHashTable *data_someip_parameter_unions                         = NULL;
-static GHashTable *data_someip_parameter_enums                          = NULL;
+static GHashTable *data_someip_parameter_list;
+static GHashTable *data_someip_parameter_base_type_list;
+static GHashTable *data_someip_parameter_strings;
+static GHashTable *data_someip_parameter_typedefs;
+static GHashTable *data_someip_parameter_arrays;
+static GHashTable *data_someip_parameter_structs;
+static GHashTable *data_someip_parameter_unions;
+static GHashTable *data_someip_parameter_enums;
 
 /*** Taps ***/
 static int tap_someip_messages = -1;
@@ -571,41 +571,41 @@ typedef struct _generic_two_id_string {
     gchar  *name;
 } generic_two_id_string_t;
 
-static generic_one_id_string_t *someip_service_ident = NULL;
-static guint someip_service_ident_num = 0;
+static generic_one_id_string_t *someip_service_ident;
+static guint someip_service_ident_num;
 
-static generic_two_id_string_t *someip_method_ident = NULL;
-static guint someip_method_ident_num = 0;
+static generic_two_id_string_t *someip_method_ident;
+static guint someip_method_ident_num;
 
-static generic_two_id_string_t *someip_eventgroup_ident = NULL;
-static guint someip_eventgroup_ident_num = 0;
+static generic_two_id_string_t *someip_eventgroup_ident;
+static guint someip_eventgroup_ident_num;
 
-static generic_two_id_string_t *someip_client_ident = NULL;
-static guint someip_client_ident_num = 0;
+static generic_two_id_string_t *someip_client_ident;
+static guint someip_client_ident_num;
 
-static someip_parameter_list_uat_t *someip_parameter_list = NULL;
-static guint someip_parameter_list_num = 0;
+static someip_parameter_list_uat_t *someip_parameter_list;
+static guint someip_parameter_list_num;
 
-static someip_parameter_string_uat_t *someip_parameter_strings = NULL;
-static guint someip_parameter_strings_num = 0;
+static someip_parameter_string_uat_t *someip_parameter_strings;
+static guint someip_parameter_strings_num;
 
-static someip_parameter_typedef_uat_t *someip_parameter_typedefs = NULL;
-static guint someip_parameter_typedefs_num = 0;
+static someip_parameter_typedef_uat_t *someip_parameter_typedefs;
+static guint someip_parameter_typedefs_num;
 
-static someip_parameter_array_uat_t *someip_parameter_arrays = NULL;
-static guint someip_parameter_arrays_num = 0;
+static someip_parameter_array_uat_t *someip_parameter_arrays;
+static guint someip_parameter_arrays_num;
 
-static someip_parameter_struct_uat_t *someip_parameter_structs = NULL;
-static guint someip_parameter_structs_num = 0;
+static someip_parameter_struct_uat_t *someip_parameter_structs;
+static guint someip_parameter_structs_num;
 
-static someip_parameter_union_uat_t *someip_parameter_unions = NULL;
-static guint someip_parameter_unions_num = 0;
+static someip_parameter_union_uat_t *someip_parameter_unions;
+static guint someip_parameter_unions_num;
 
-static someip_parameter_enum_uat_t *someip_parameter_enums = NULL;
-static guint someip_parameter_enums_num = 0;
+static someip_parameter_enum_uat_t *someip_parameter_enums;
+static guint someip_parameter_enums_num;
 
-static someip_parameter_base_type_list_uat_t *someip_parameter_base_type_list = NULL;
-static guint someip_parameter_base_type_list_num = 0;
+static someip_parameter_base_type_list_uat_t *someip_parameter_base_type_list;
+static guint someip_parameter_base_type_list_num;
 
 void proto_register_someip(void);
 void proto_reg_handoff_someip(void);

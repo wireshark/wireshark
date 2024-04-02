@@ -27,8 +27,8 @@
 #include <wsutil/ws_assert.h>
 
 static int proto_cols;
-static hf_register_info *hf_cols = NULL;
-static unsigned int hf_cols_cleanup = 0;
+static hf_register_info *hf_cols;
+static unsigned int hf_cols_cleanup;
 
 /* Given a format number (as defined in column-utils.h), returns its equivalent
    string */

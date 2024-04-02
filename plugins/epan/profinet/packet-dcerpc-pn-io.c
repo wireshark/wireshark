@@ -1032,8 +1032,8 @@ static guint16  ver_pn_io_implicitar = 1;
 bool           pnio_ps_selection = true;
 static const char *pnio_ps_networkpath = "";
 
-wmem_list_t       *aruuid_frame_setup_list = NULL;
-static wmem_map_t *pnio_time_aware_frame_map = NULL;
+wmem_list_t       *aruuid_frame_setup_list;
+static wmem_map_t *pnio_time_aware_frame_map;
 
 
 /* Allow heuristic dissection */

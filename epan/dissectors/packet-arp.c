@@ -104,20 +104,20 @@ static capture_dissector_handle_t arp_cap_handle;
 #define NO_STORM 2
 
 /* Preference settings */
-static bool global_arp_detect_request_storm = false;
+static bool global_arp_detect_request_storm;
 static guint32  global_arp_detect_request_storm_packets = 30;
 static guint32  global_arp_detect_request_storm_period = 100;
 
 static bool global_arp_detect_duplicate_ip_addresses = true;
 static bool global_arp_register_network_address_binding = true;
 
-static guint32  arp_request_count = 0;
+static guint32  arp_request_count;
 static nstime_t time_at_start_of_count;
 
 
 /* Map of (IP address -> MAC address) to detect duplicate IP addresses
    Key is unsigned32 */
-static wmem_map_t *address_hash_table = NULL;
+static wmem_map_t *address_hash_table;
 
 typedef struct address_hash_value {
   guint8    mac[6];
@@ -126,7 +126,7 @@ typedef struct address_hash_value {
 } address_hash_value;
 
 /* Map of ((frame Num, IP address) -> MAC address) */
-static wmem_map_t *duplicate_result_hash_table = NULL;
+static wmem_map_t *duplicate_result_hash_table;
 
 typedef struct duplicate_result_key {
   guint32 frame_number;

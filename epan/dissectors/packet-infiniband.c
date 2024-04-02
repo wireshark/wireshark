@@ -1705,7 +1705,7 @@ typedef struct {
 
 /* holds a table of connection contexts being negotiated by CM. the key is a obtained
    using add_address_to_hash64(initiator address, TransactionID) */
-static GHashTable *CM_context_table = NULL;
+static GHashTable *CM_context_table;
 
 /* heuristics sub-dissectors list for dissecting the data payload of IB packets */
 static heur_dissector_list_t heur_dissectors_payload;

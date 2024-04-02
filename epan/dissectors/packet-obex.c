@@ -392,9 +392,9 @@ static gint ett_obex_session_parameters;
 static gint ett_obex_application_parameters;
 static gint ett_obex_authentication_parameters;
 
-static wmem_tree_t *obex_path = NULL;
-static wmem_tree_t *obex_profile = NULL;
-static wmem_tree_t *obex_last_opcode = NULL;
+static wmem_tree_t *obex_path;
+static wmem_tree_t *obex_profile;
+static wmem_tree_t *obex_last_opcode;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t xml_handle;

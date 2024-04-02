@@ -73,7 +73,7 @@ static gint ett_do_bitfield_single;
 static expert_field ei_do_invalid_message_id;
 static expert_field ei_do_invalid_message_length;
 
-static dissector_handle_t do_handle = NULL;
+static dissector_handle_t do_handle;
 
 #define DO_PORT (7680)
 

@@ -121,9 +121,9 @@ typedef struct {
 
 } uat_devicenet_record_t;
 
-static uat_devicenet_record_t *uat_devicenet_records = NULL;
-static uat_t *devicenet_uat = NULL;
-static guint num_devicenet_records_uat = 0;
+static uat_devicenet_record_t *uat_devicenet_records;
+static uat_t *devicenet_uat;
+static guint num_devicenet_records_uat;
 
 static bool uat_devicenet_record_update_cb(void* r, char** err) {
     uat_devicenet_record_t* rec = (uat_devicenet_record_t *)r;

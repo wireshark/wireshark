@@ -81,7 +81,7 @@ static dissector_handle_t pcombinary_handle;
 #define PCOM_ASCII 101
 #define PCOM_BINARY 102
 
-static range_t *global_pcomtcp_tcp_ports = NULL; /* Port 20256, by default */
+static range_t *global_pcomtcp_tcp_ports; /* Port 20256, by default */
 
 /* Translate pcomp_protocol to string */
 static const value_string pcomp_protocol_vals[] = {

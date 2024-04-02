@@ -102,22 +102,22 @@
 #include <signal.h>
 #endif
 
-static GSList *epan_plugin_register_all_procotols = NULL;
-static GSList *epan_plugin_register_all_handoffs = NULL;
+static GSList *epan_plugin_register_all_procotols;
+static GSList *epan_plugin_register_all_handoffs;
 
-static wmem_allocator_t *pinfo_pool_cache = NULL;
+static wmem_allocator_t *pinfo_pool_cache;
 
 /* Global variables holding the content of the corresponding environment variable
  * to save fetching it repeatedly.
  */
-gboolean wireshark_abort_on_dissector_bug = FALSE;
-gboolean wireshark_abort_on_too_many_items = FALSE;
+gboolean wireshark_abort_on_dissector_bug;
+gboolean wireshark_abort_on_too_many_items;
 
 /* Used for bookkeeping, includes all libwireshark plugin types (dissector, tap, epan). */
-static plugins_t *libwireshark_plugins = NULL;
+static plugins_t *libwireshark_plugins;
 
 /* "epan_plugins" are a specific type of libwireshark plugin (the name isn't the best for clarity). */
-static GSList *epan_plugins = NULL;
+static GSList *epan_plugins;
 
 const gchar*
 epan_get_version(void) {
@@ -534,7 +534,7 @@ epan_conversation_init(void)
  * This is > 0 if a Lua script wanted to see all fields all the time.
  * This is ref-counted, so clearing it won't override other taps/scripts wanting it.
  */
-static gint always_visible_refcount = 0;
+static gint always_visible_refcount;
 
 void
 epan_set_always_visible(gboolean force)

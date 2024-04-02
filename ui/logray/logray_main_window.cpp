@@ -92,7 +92,7 @@ DIAG_ON(frame-larger-than=)
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
-static LograyMainWindow *gbl_cur_main_window_ = NULL;
+static LograyMainWindow *gbl_cur_main_window_;
 
 static void plugin_if_mainwindow_apply_filter(GHashTable * data_set)
 {

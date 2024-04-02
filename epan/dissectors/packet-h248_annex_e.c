@@ -29,8 +29,8 @@ void proto_register_h248_annex_e(void);
 */
 static int proto_h248_annex_E;
 
-static gboolean h248_e_implicit = FALSE;
-static gboolean implicit = FALSE;
+static gboolean h248_e_implicit;
+static gboolean implicit;
 
 /* H.248.1 E.1  Generic Package */
 static int hf_h248_pkg_generic;

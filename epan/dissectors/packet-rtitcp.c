@@ -170,7 +170,7 @@ static gint ett_rtitcp_message;
 static gint ett_rtitcp_attributes_list;
 static gint ett_rtitcp_attribute;
 
-static header_field_info *hfi_rtitcp                = NULL;
+static header_field_info *hfi_rtitcp;
 static heur_dissector_list_t heur_subdissector_list;
 
 static const value_string ctrl_message_types_vals[] = {

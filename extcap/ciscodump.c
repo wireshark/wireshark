@@ -110,7 +110,7 @@ enum {
 static char prompt_str[SSH_READ_BLOCK_SIZE + 1];
 static int32_t prompt_len = -1;
 CISCO_SW_TYPE global_sw_type = CISCO_UNKNOWN;
-static bool send_output_quit = false;	/* IOS XE 17: send quit during output */
+static bool send_output_quit;	/* IOS XE 17: send quit during output */
 
 static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,

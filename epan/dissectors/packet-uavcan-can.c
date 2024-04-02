@@ -73,7 +73,7 @@ static int hf_uavcan_transfer_id;
 
 static int uavcan_address_type = -1;
 
-static wmem_tree_t *fragment_info_table = NULL;
+static wmem_tree_t *fragment_info_table;
 
 static reassembly_table uavcan_reassembly_table;
 
@@ -107,7 +107,7 @@ typedef struct _fragment_info_t
     guint32 seq_id;
 } fragment_info_t;
 
-guint32 uavcan_seq_id = 0;
+guint32 uavcan_seq_id;
 
 static const fragment_items uavcan_frag_items = {
     /* Fragment subtrees */

@@ -47,8 +47,8 @@
 void proto_register_gsm_rlcmac(void);
 void proto_reg_handoff_gsm_rlcmac(void);
 
-static dissector_handle_t lte_rrc_dl_dcch_handle = NULL;
-static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
+static dissector_handle_t lte_rrc_dl_dcch_handle;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
 
 /* private typedefs */
 typedef struct

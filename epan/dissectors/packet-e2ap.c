@@ -1705,7 +1705,7 @@ static const value_string mtype_names[] = {
     { 0,  NULL }
 };
 
-static proto_tree *top_tree = NULL;
+static proto_tree *top_tree;
 
 static void set_message_label(asn1_ctx_t *actx, int type)
 {

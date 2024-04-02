@@ -764,7 +764,7 @@ dissect_goose_GOOSEpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static dissector_handle_t goose_handle = NULL;
+static dissector_handle_t goose_handle;
 
 
 #define OSI_SPDU_TUNNELED 0xA0 /* Tunneled */

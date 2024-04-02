@@ -553,7 +553,7 @@ typedef struct {
 } sbus_request_val;
 
 /* The hash structure (for conversations)*/
-static wmem_map_t *sbus_request_hash = NULL;
+static wmem_map_t *sbus_request_hash;
 
 static guint crc_calc (guint crc, guint val)
 {

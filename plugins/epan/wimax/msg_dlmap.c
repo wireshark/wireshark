@@ -56,16 +56,16 @@ static dissector_handle_t dlmap_handle;
 	nib += nibs; \
 	} while(0)
 
-gint harq = 0; /* 1 if HARQ enabled (TODO) */
-gint fusc = 0; /* 1 if current zone permutation is FUSC or optional FUSC (TODO) */
-gint tusc = 0; /* 1 if current zone permutation is AMC, TUSC1 or TUSC2 (TODO) */
-gint ir_type = 0; /* reduced AAS map (TODO) */
-gint RCID_Type = 0;
-gint N_layer = 0;
-gint STC_Zone_Dedicated_Pilots = 0;
-gint STC_Zone_Matrix = 0;
-gint INC_CID = 0;
-gint sub_dl_ul_map = 0;
+gint harq; /* 1 if HARQ enabled (TODO) */
+gint fusc; /* 1 if current zone permutation is FUSC or optional FUSC (TODO) */
+gint tusc; /* 1 if current zone permutation is AMC, TUSC1 or TUSC2 (TODO) */
+gint ir_type; /* reduced AAS map (TODO) */
+gint RCID_Type;
+gint N_layer;
+gint STC_Zone_Dedicated_Pilots;
+gint STC_Zone_Matrix;
+gint INC_CID;
+gint sub_dl_ul_map;
 
 static gint proto_mac_mgmt_msg_dlmap_decoder;
 

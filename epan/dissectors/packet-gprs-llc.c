@@ -116,7 +116,7 @@ static expert_field ei_llcgprs_no_info_field;
 static dissector_handle_t sndcp_xid_handle;
 static dissector_handle_t gprs_llc_handle;
 
-static bool ignore_cipher_bit = false;
+static bool ignore_cipher_bit;
 
 static dissector_table_t llcgprs_subdissector_table;
 

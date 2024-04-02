@@ -209,7 +209,7 @@ static expert_field ei_acse_dissector_not_available;
 static expert_field ei_acse_malformed;
 static expert_field ei_acse_invalid_oid;
 
-static dissector_handle_t acse_handle = NULL;
+static dissector_handle_t acse_handle;
 
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
@@ -222,7 +222,7 @@ typedef struct _acse_ctx_oid_t {
 	guint32 ctx_id;
 	char *oid;
 } acse_ctx_oid_t;
-static wmem_map_t *acse_ctx_oid_table = NULL;
+static wmem_map_t *acse_ctx_oid_table;
 
 static guint
 acse_ctx_oid_hash(gconstpointer k)

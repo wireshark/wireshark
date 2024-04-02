@@ -173,7 +173,7 @@ int PseudoHeader_register(lua_State* L) {
 
 WSLUA_CLASS_DEFINE(Dumper,FAIL_ON_NULL("Dumper already closed"));
 
-static GHashTable* dumper_encaps = NULL;
+static GHashTable* dumper_encaps;
 #define DUMPER_ENCAP(d) GPOINTER_TO_INT(g_hash_table_lookup(dumper_encaps,d))
 
 static const char* cross_plat_fname(const char* fname) {

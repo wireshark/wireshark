@@ -22,11 +22,11 @@ void rf4ce_print_arr(const gchar *str, guint8 *ptr, guint16 len);
 #define RF4CE_PRINT_ARR(s, p, l)
 #endif /* RF4CE_DEBUG_EN */
 
-static keypair_context_t keypair_context = {0};
-static key_exchange_context_t key_exchange_context = {0};
-static addr_entry_t addr_table[RF4CE_ADDR_TABLE_SIZE] = {0};
-static nwk_key_entry_t nwk_key_storage[RF4CE_NWK_KEY_STORAGE_SIZE] = {0};
-static vendor_secret_entry_t vendor_secret_storage[RF4CE_VENDOR_SECRET_STORAGE_SIZE] = {0};
+static keypair_context_t keypair_context;
+static key_exchange_context_t key_exchange_context;
+static addr_entry_t addr_table[RF4CE_ADDR_TABLE_SIZE];
+static nwk_key_entry_t nwk_key_storage[RF4CE_NWK_KEY_STORAGE_SIZE];
+static vendor_secret_entry_t vendor_secret_storage[RF4CE_VENDOR_SECRET_STORAGE_SIZE];
 
 static void keypair_context_calc_key(guint8 *nwk_key);
 static nwk_key_entry_t *nwk_key_storage_get_entry_by_key(guint8 *nwk_key, gboolean key_from_gui);

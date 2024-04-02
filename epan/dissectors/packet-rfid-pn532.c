@@ -205,7 +205,7 @@ static int hf_pn532_andet_en;
 static expert_field ei_unknown_data;
 static expert_field ei_unexpected_data;
 
-static wmem_tree_t *command_info = NULL;
+static wmem_tree_t *command_info;
 
 static dissector_handle_t pn532_handle;
 

@@ -242,7 +242,7 @@ typedef struct {
   guint8  value;        /* command for asp, bitmap for atp */
 } asp_request_val;
 
-static wmem_map_t *asp_request_hash = NULL;
+static wmem_map_t *asp_request_hash;
 
 /* Hash Functions */
 static gint  asp_equal (gconstpointer v, gconstpointer v2)
@@ -265,7 +265,7 @@ static guint asp_hash  (gconstpointer v)
 }
 
 /* ------------------------------------ */
-static wmem_map_t *atp_request_hash = NULL;
+static wmem_map_t *atp_request_hash;
 
 
 /* ------------------------------------ */

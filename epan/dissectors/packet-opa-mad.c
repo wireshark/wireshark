@@ -2696,14 +2696,14 @@ static dissector_table_t ethertype_dissector_table;
 
 static reassembly_table opa_mad_rmpp_reassembly_table;
 
-static bool pref_parse_on_mad_status_error = false;
+static bool pref_parse_on_mad_status_error;
 static bool pref_attempt_rmpp_defragment = true;
 
-static range_t *global_mad_vendor_class = NULL;
-static range_t *global_mad_vendor_rmpp_class = NULL;
-static range_t *global_mad_application_class = NULL;
-static range_t *global_mad_reserved_class = NULL;
-static range_t *global_mad_opa_class = NULL;
+static range_t *global_mad_vendor_class;
+static range_t *global_mad_vendor_rmpp_class;
+static range_t *global_mad_application_class;
+static range_t *global_mad_reserved_class;
+static range_t *global_mad_opa_class;
 
 static gint parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
 {

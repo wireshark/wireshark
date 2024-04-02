@@ -16,7 +16,7 @@
 #include <wsutil/wslog.h>
 
 #define SMALL_BUFFER_SIZE (2 * 1024) /* Everyone still uses 1500 byte frames, right? */
-static GPtrArray *small_buffers = NULL; /* Guaranteed to be at least SMALL_BUFFER_SIZE */
+static GPtrArray *small_buffers; /* Guaranteed to be at least SMALL_BUFFER_SIZE */
 /* XXX - Add medium and large buffers? */
 
 /* Initializes a buffer with a certain amount of allocated space */

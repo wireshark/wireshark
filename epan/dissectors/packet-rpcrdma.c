@@ -242,19 +242,19 @@ enum {
  * an extra argument to differentiate between InfiniBand and iWarp.
  * Reassembly is only supported for InfiniBand packets.
  */
-static struct infinibandinfo *gp_infiniband_info = NULL;
+static struct infinibandinfo *gp_infiniband_info;
 
 /* Global variable set for every iWarp packet */
-static rdmap_info_t *gp_rdmap_info = NULL;
+static rdmap_info_t *gp_rdmap_info;
 
 /* Call process_reassembled_data just once per frame */
-static gboolean g_needs_reassembly = FALSE;
+static gboolean g_needs_reassembly;
 
 /* Array of offsets for reduced data in write chunks */
-static wmem_array_t *gp_rdma_write_offsets = NULL;
+static wmem_array_t *gp_rdma_write_offsets;
 
 /* Signal upper layer(s) the current frame's data has been reduced by DDP */
-static gboolean g_rpcrdma_reduced = FALSE;
+static gboolean g_rpcrdma_reduced;
 
 /*
  * Signal upper layer(s) the current frame's data has been reduced by DDP

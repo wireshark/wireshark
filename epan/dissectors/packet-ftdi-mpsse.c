@@ -119,8 +119,8 @@ static dissector_handle_t ftdi_mpsse_handle;
  * levels, tx_command_info tree is being used. It contains pointers to the same list as rx_command_info but
  * allows TX dissection to obtain the relevant command_data_t entry without traversing the list.
  */
-static wmem_tree_t *rx_command_info = NULL;
-static wmem_tree_t *tx_command_info = NULL;
+static wmem_tree_t *rx_command_info;
+static wmem_tree_t *tx_command_info;
 
 typedef struct _command_data command_data_t;
 

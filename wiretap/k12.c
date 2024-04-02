@@ -46,10 +46,10 @@ void register_k12(void);
 #include <stdarg.h>
 #include <wsutil/file_util.h>
 
-FILE* dbg_out = NULL;
-char* env_file = NULL;
+FILE* dbg_out;
+char* env_file;
 
-static unsigned int debug_level = 0;
+static unsigned int debug_level;
 
 void k12_fprintf(const char* fmt, ...) {
     va_list ap;

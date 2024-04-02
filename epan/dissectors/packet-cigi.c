@@ -3805,8 +3805,8 @@ static const char *global_ig_ip;
 static gint ett_cigi;
 
 /* The version of cigi to use */
-static gint cigi_version = 0;
-static gint cigi_minor_version = 0;
+static gint cigi_version;
+static gint cigi_minor_version;
 
 /* The byte order of cigi to use; our default is big-endian */
 static gint cigi_byte_order = ENC_BIG_ENDIAN;

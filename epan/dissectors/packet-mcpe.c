@@ -43,8 +43,8 @@ static gint ett_mcpe_string;
 /*
  * Dissectors
  */
-static dissector_handle_t mcpe_handle = NULL;
-static dissector_table_t mcpe_packet_dissectors = NULL;
+static dissector_handle_t mcpe_handle;
+static dissector_table_t mcpe_packet_dissectors;
 
 /*
  * Expert fields

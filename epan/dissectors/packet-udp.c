@@ -92,19 +92,19 @@ static expert_field ei_udp_length_bad_zero;
 static bool udp_summary_in_tree = true;
 
 /* Check UDP checksums */
-static bool udp_check_checksum = false;
+static bool udp_check_checksum;
 
 /* Ignore zero-value UDP checksums over IPv6 */
-static bool udp_ignore_ipv6_zero_checksum = false;
+static bool udp_ignore_ipv6_zero_checksum;
 
 /* Collect IPFIX process flow information */
-static bool udp_process_info = false;
+static bool udp_process_info;
 
 /* Ignore an invalid checksum coverage field for UDP-Lite */
 static bool udplite_ignore_checksum_coverage = true;
 
 /* Check UDP-Lite checksums */
-static bool udplite_check_checksum = false;
+static bool udplite_check_checksum;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -114,7 +114,7 @@ static guint32 udp_stream_count;
 /* separated into a stand alone routine so other protocol dissectors */
 /* can call to it, ie. socks */
 
-static bool try_heuristic_first = false;
+static bool try_heuristic_first;
 
 static bool udp_calculate_ts = true;
 static bool udplite_calculate_ts = true;

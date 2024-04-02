@@ -98,8 +98,8 @@ static gint ett_enrp_parameter;
 static gint ett_enrp_cause;
 static gint ett_enrp_flags;
 
-static guint64 enrp_total_msgs = 0;
-static guint64 enrp_total_bytes = 0;
+static guint64 enrp_total_msgs;
+static guint64 enrp_total_bytes;
 
 static expert_field ei_enrp_max_recursion_depth_reached;
 static expert_field ei_enrp_invalid_length;

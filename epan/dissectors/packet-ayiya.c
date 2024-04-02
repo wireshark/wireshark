@@ -35,7 +35,7 @@ static int hf_signature;
 
 static gint ett_ayiya;
 
-static dissector_handle_t ayiya_handle = NULL;
+static dissector_handle_t ayiya_handle;
 
 static const value_string identity_types[] = {
     { 0x0, "None" },

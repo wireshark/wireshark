@@ -35,11 +35,11 @@ void proto_reg_handoff_ros(void);
 /* Initialize the protocol and registered fields */
 static int proto_ros;
 
-static proto_tree *top_tree=NULL;
+static proto_tree *top_tree;
 static guint32 opcode;
 static guint32 invokeid;
 
-static  dissector_handle_t ros_handle = NULL;
+static  dissector_handle_t ros_handle;
 
 typedef struct ros_conv_info_t {
   wmem_map_t *unmatched; /* unmatched operations */
@@ -111,9 +111,9 @@ static gint ett_ros_Code;
 static expert_field ei_ros_dissector_oid_not_implemented;
 static expert_field ei_ros_unknown_ros_pdu;
 
-static dissector_table_t ros_oid_dissector_table=NULL;
+static dissector_table_t ros_oid_dissector_table;
 
-static wmem_map_t *protocol_table=NULL;
+static wmem_map_t *protocol_table;
 
 void
 register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_rtse)

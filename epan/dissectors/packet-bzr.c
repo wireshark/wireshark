@@ -37,7 +37,7 @@ static gint hf_bzr_packet_protocol_version;
 static gint hf_bzr_packet_kind;
 
 static dissector_handle_t bencode_handle;
-static dissector_handle_t bzr_handle = NULL;
+static dissector_handle_t bzr_handle;
 
 #define REQUEST_VERSION_TWO   "bzr request 2\n"
 #define RESPONSE_VERSION_TWO  "bzr response 2\n"

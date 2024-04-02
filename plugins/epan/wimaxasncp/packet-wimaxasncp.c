@@ -70,8 +70,8 @@ static int hf_wimaxasncp_tlv_value_bitflags32;
 /* static int hf_wimaxasncp_tlv_value_vendor_id; */
 
 /* Preferences */
-static bool show_transaction_id_d_bit      = false;
-static bool debug_enabled                  = false;
+static bool show_transaction_id_d_bit;
+static bool debug_enabled;
 
 /* Default WiMAX ASN control protocol port */
 #define WIMAXASNCP_DEF_UDP_PORT     2231
@@ -116,7 +116,7 @@ typedef struct {
     wmem_array_t* ett;
 } wimaxasncp_build_dict_t;
 
-static wimaxasncp_dict_t *wimaxasncp_dict = NULL;
+static wimaxasncp_dict_t *wimaxasncp_dict;
 
 wimaxasncp_build_dict_t wimaxasncp_build_dict;
 

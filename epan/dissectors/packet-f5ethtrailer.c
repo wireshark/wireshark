@@ -329,12 +329,12 @@ static gint hf_fi_session;
 /* Wireshark preference to show RST cause in info column */
 static bool rstcause_in_info = true;
 /** Wireshark preference to look at all trailer bytes for f5ethtrailer */
-static bool pref_walk_trailer = false;
+static bool pref_walk_trailer;
 /* Wireshark preference to enable/disable the population of other dissectors'
  * fields.*/
-static bool pref_pop_other_fields = false;
+static bool pref_pop_other_fields;
 /** Wireshark preference to perform analysis */
-static bool pref_perform_analysis = false;
+static bool pref_perform_analysis;
 /** Wireshark preference to generate keylog entries from f5ethtrailer TLS data */
 static bool pref_generate_keylog = true;
 /** Identifiers for taps (when enabled), only the address is important, the
@@ -907,12 +907,12 @@ static const char info_format_full_in_noslot[]  = "IN  tmm%-2u: ";
 static const char info_format_full_out_noslot[] = "OUT tmm%-2u: ";
 
 /* Variables used in f5eth_set_info_col functions initialized to defaults */
-static char *info_format_in_only    = NULL; /**< In format in use with in/out only */
-static char *info_format_out_only   = NULL; /**< Out format in use with in/out only */
-static char *info_format_in_noslot  = NULL; /**< In format in use without slot */
-static char *info_format_out_noslot = NULL; /**< Out format in use without slot */
-static char *info_format_in_slot    = NULL; /**< In format in use with slot */
-static char *info_format_out_slot   = NULL; /**< Out format in use with slot */
+static char *info_format_in_only; /**< In format in use with in/out only */
+static char *info_format_out_only; /**< Out format in use with in/out only */
+static char *info_format_in_noslot; /**< In format in use without slot */
+static char *info_format_out_noslot; /**< Out format in use without slot */
+static char *info_format_in_slot; /**< In format in use with slot */
+static char *info_format_out_slot; /**< Out format in use with slot */
 
 /** Info column display format preference types:
   * These correspond to bit flags
@@ -941,13 +941,13 @@ static const enum_val_t f5eth_display_strings[] = {
 static f5eth_info_type_t pref_info_type = full;
 
 /** Preference for the brief in/out characters */
-static const char *pref_brief_inout_chars = NULL;
+static const char *pref_brief_inout_chars;
 
 /** Function pointer prototype for info column set functions */
 typedef void (*f5eth_set_col_info_func)(packet_info *, guint, guint, guint);
 
 /** Preference for setting platform regex for which platforms to display slot information for. */
-static const char *pref_slots_regex = NULL;
+static const char *pref_slots_regex;
 /** Whether or not to display slot information, set based on platform and regex preference. */
 static gboolean display_slot = TRUE;
 

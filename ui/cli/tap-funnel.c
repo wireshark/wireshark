@@ -29,7 +29,7 @@ struct _funnel_text_window_t {
     GString *text;
 };
 
-static GPtrArray *text_windows = NULL;
+static GPtrArray *text_windows;
 
 static funnel_text_window_t *new_text_window(funnel_ops_id_t *ops_id _U_, const char *title) {
     funnel_text_window_t *tw = g_new(funnel_text_window_t, 1);
@@ -125,7 +125,7 @@ void funnel_dump_all_text_windows(void) {
 
 #if 0
 
-GHashTable *menus = NULL;
+GHashTable *menus;
 typedef struct _menu_cb_t {
     void (*callback)(void *);
     void *callback_data;

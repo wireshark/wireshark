@@ -152,7 +152,7 @@ void proto_register_geonw(void);
 /*
  * Variables
  */
-static wmem_map_t *geonw_hashtable = NULL;
+static wmem_map_t *geonw_hashtable;
 
 static int proto_geonw;
 static int proto_btpa;

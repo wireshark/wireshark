@@ -71,7 +71,7 @@ static gint ett_quake2_game_clc_cmd_move_moves;
 
 
 #define PORT_MASTER 27910 /* Not IANA registered */
-static range_t *gbl_quake2ServerPorts = NULL;
+static range_t *gbl_quake2ServerPorts;
 
 
 static void

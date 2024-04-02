@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <wsutil/ws_assert.h>
 
-GList *decode_as_list = NULL;
+GList *decode_as_list;
 
 void register_decode_as(decode_as_t* reg)
 {
@@ -180,7 +180,7 @@ gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gcon
 /*
  * A list of dissectors that need to be reset.
  */
-static GSList *dissector_reset_list = NULL;
+static GSList *dissector_reset_list;
 
 /*
  * A callback function to parse each "decode as" entry in the file and apply the change

@@ -29,9 +29,9 @@
 bool nds_defragment  = true;
 bool nds_echo_eid    = true;
 bool ncp_echo_err    = true;
-bool ncp_echo_conn   = false;
+bool ncp_echo_conn;
 bool ncp_echo_server = true;
-bool ncp_echo_file   = false;
+bool ncp_echo_file;
 bool ncp_newstyle    = true;
 
 extern dissector_handle_t nds_data_handle;
@@ -2039,8 +2039,8 @@ typedef struct {
     char                    object_name[256];
 } ncp_req_eid_hash_value;
 
-static wmem_map_t *ncp_req_hash = NULL;
-static wmem_map_t *ncp_req_eid_hash = NULL;
+static wmem_map_t *ncp_req_hash;
+static wmem_map_t *ncp_req_eid_hash;
 
 static uint32_t check_offset_addition(uint32_t offset, uint32_t value, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
@@ -7080,7 +7080,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, uint32_t nw_connection, uint8_t se
     }
 }
 
-static bool ncp2222_dfilters_compiled = false;
+static bool ncp2222_dfilters_compiled;
 
 static void
 ncp2222_compile_dfilters(void)

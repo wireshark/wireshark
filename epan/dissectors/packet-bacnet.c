@@ -303,7 +303,7 @@ static gint ett_bacnet_control;
 static gint ett_bacnet_wrapper_control;
 static gint ett_bacnet_update_control;
 
-static dissector_handle_t bacnet_handle = NULL;
+static dissector_handle_t bacnet_handle;
 
 static int * const control_flags[] = {
 	&hf_bacnet_control_net,

@@ -33,7 +33,7 @@ void proto_reg_handoff_beep(void);
 
 static dissector_handle_t beep_handle;
 
-static range_t *global_beep_tcp_ports = NULL;
+static range_t *global_beep_tcp_ports;
 static bool global_beep_strict_term = true;
 
 static int proto_beep;
@@ -147,7 +147,7 @@ struct beep_request_val {
   int c_mime_hdr, s_mime_hdr;
 };
 
-static wmem_map_t *beep_request_hash = NULL;
+static wmem_map_t *beep_request_hash;
 
 /* Hash Functions */
 static gint

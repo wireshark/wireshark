@@ -188,7 +188,7 @@ static const value_string type_vals[] = {
 /*
  * Hash table for translating OUIs to an oui_info_t.
  */
-static wmem_map_t *oui_info_table = NULL;
+static wmem_map_t *oui_info_table;
 
 /*
  * Decode the SAP value as a bitfield into a string, skipping the GI/CR bit.

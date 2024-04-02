@@ -106,7 +106,7 @@ static expert_field ei_tpncp_unknown_data;
 static gint ett_tpncp;
 static gint ett_tpncp_body;
 
-static bool global_tpncp_load_db = false;
+static bool global_tpncp_load_db;
 
 static dissector_handle_t tpncp_handle;
 static dissector_handle_t tpncp_tcp_handle;
@@ -119,11 +119,11 @@ static value_string tpncp_events_id_vals[MAX_TPNCP_DB_SIZE];
 static value_string tpncp_enums_id_vals[MAX_ENUMS_NUM][MAX_ENUM_ENTRIES];
 static gchar *tpncp_enums_name_vals[MAX_ENUMS_NUM];
 
-static gint hf_size = 0;
-static gint hf_allocated = 0;
-static hf_register_info *hf = NULL;
+static gint hf_size;
+static gint hf_allocated;
+static hf_register_info *hf;
 
-static gboolean db_initialized = FALSE;
+static gboolean db_initialized;
 
 /*---------------------------------------------------------------------------*/
 

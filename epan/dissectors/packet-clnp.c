@@ -181,7 +181,7 @@ static reassembly_table clnp_reassembly_table;
 
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
-static bool always_decode_transport = false;
+static bool always_decode_transport;
 static bool clnp_reassemble = true;
 
 /* function definitions */

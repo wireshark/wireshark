@@ -48,7 +48,7 @@ static gint ett_flags;
 
 static expert_field ei_unknown_data;
 
-static wmem_tree_t *adapter_to_disconnect_in_frame = NULL;
+static wmem_tree_t *adapter_to_disconnect_in_frame;
 
 static dissector_handle_t hci_mon_handle;
 static dissector_handle_t bthci_cmd_handle;

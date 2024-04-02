@@ -978,7 +978,7 @@ static const value_string solaredge_data_devicetypes[] = {
 };
 
 static gcry_cipher_hd_t cipher_hd_system;
-static const gchar *global_system_encryption_key = NULL;
+static const gchar *global_system_encryption_key;
 
 static
 guint16 calculate_crc(t_solaredge_packet_header *header, const guint8 *data, gint length)

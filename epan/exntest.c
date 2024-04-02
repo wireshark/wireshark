@@ -12,7 +12,7 @@
 #include <glib.h>
 #include "exceptions.h"
 
-gboolean failed = FALSE;
+gboolean failed;
 
 static void
 finally_called_uncaught_exception(volatile unsigned int* called)

@@ -35,7 +35,7 @@ static expert_field ei_mpeg_sect_crc;
 
 static dissector_table_t mpeg_sect_tid_dissector_table;
 
-static bool mpeg_sect_check_crc = false;
+static bool mpeg_sect_check_crc;
 
 /* minimum length of the entire section ==
    bytes from table_id to section_length == 3 bytes */

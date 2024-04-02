@@ -25,9 +25,9 @@
 #include <wsutil/ws_assert.h>
 
 
-static GHashTable *registered_functions = NULL;
+static GHashTable *registered_functions;
 
-static GPtrArray *registered_names = NULL;
+static GPtrArray *registered_names;
 
 /* Convert an FT_STRING using a callback function */
 static bool

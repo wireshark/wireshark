@@ -2020,7 +2020,7 @@ typedef struct ptp_clock_info {
     wmem_map_t *frames;
 } ptp_clock_info_t;
 
-static wmem_map_t *ptp_clocks = NULL;
+static wmem_map_t *ptp_clocks;
 
 /*
  * PTP major ver    4 bit

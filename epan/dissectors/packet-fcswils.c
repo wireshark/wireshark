@@ -434,7 +434,7 @@ typedef struct _fcswils_conv_data {
     guint32 opcode;
 } fcswils_conv_data_t;
 
-static wmem_map_t *fcswils_req_hash = NULL;
+static wmem_map_t *fcswils_req_hash;
 
 /* list of commands for each commandset */
 typedef void (*fcswils_dissector_t)(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint8 isreq);

@@ -49,7 +49,7 @@ static gint ett_vendor_id_encoding_decoder;
 static gint ett_ul_service_flow_decoder;
 static gint ett_dl_service_flow_decoder;
 
-static dissector_handle_t eap_handle = NULL;
+static dissector_handle_t eap_handle;
 
 const unit_name_string wimax_units_byte_bytes = { " byte", " bytes" };
 const unit_name_string wimax_units_bit_sec = { "bits/s", NULL };
@@ -68,7 +68,7 @@ const unit_name_string wimax_units_ps = { "PS", NULL };
    one has been seen.
    */
 static guint scheduling_service_type = -1;
-gint seen_a_service_type = 0;
+gint seen_a_service_type;
 
 /* The following two functions set and access the variables above */
 guint get_service_type( void )

@@ -59,7 +59,7 @@ const char pwc_longname_pw_satop[] = "SAToP";
 static const char shortname[] = "SAToP";
 
 /* Preferences */
-static bool pref_has_rtp_header       = false;
+static bool pref_has_rtp_header;
 static bool pref_heuristic_rtp_header = true;
 
 

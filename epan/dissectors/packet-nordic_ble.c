@@ -294,8 +294,8 @@ typedef struct {
 } nordic_ble_context_t;
 
 /* next dissector */
-static dissector_handle_t btle_dissector_handle = NULL;
-static dissector_handle_t debug_handle = NULL;
+static dissector_handle_t btle_dissector_handle;
+static dissector_handle_t debug_handle;
 
 static gint
 dissect_lengths(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context)

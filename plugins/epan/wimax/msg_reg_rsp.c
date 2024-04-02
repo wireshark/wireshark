@@ -32,7 +32,7 @@ static dissector_handle_t reg_rsp_handle;
 
 extern gboolean include_cor2_changes;
 
-static dissector_handle_t dsc_rsp_handle = NULL;
+static dissector_handle_t dsc_rsp_handle;
 
 static gint proto_mac_mgmt_msg_reg_rsp_decoder;
 static gint ett_mac_mgmt_msg_reg_rsp_decoder;

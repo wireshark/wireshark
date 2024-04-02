@@ -266,7 +266,7 @@ static guint32 global_lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
 static guint32 global_lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
 static guint32 global_lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
 static guint32 global_lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
-static bool global_lbttcp_use_tag = false;
+static bool global_lbttcp_use_tag;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbttcp_source_port_low = LBTTCP_DEFAULT_SOURCE_PORT_LOW;
@@ -275,7 +275,7 @@ static guint32 lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
 static guint32 lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
 static guint32 lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
 static guint32 lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
-static gboolean lbttcp_use_tag = FALSE;
+static gboolean lbttcp_use_tag;
 
 /* Tag definitions. */
 typedef struct
@@ -289,8 +289,8 @@ typedef struct
     guint32 store_port_high;
 } lbttcp_tag_entry_t;
 
-static lbttcp_tag_entry_t * lbttcp_tag_entry = NULL;
-static guint lbttcp_tag_count  = 0;
+static lbttcp_tag_entry_t * lbttcp_tag_entry;
+static guint lbttcp_tag_count;
 
 UAT_CSTRING_CB_DEF(lbttcp_tag, name, lbttcp_tag_entry_t)
 UAT_DEC_CB_DEF(lbttcp_tag, source_port_low, lbttcp_tag_entry_t)

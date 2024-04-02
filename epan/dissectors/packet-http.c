@@ -295,11 +295,11 @@ static bool http_check_ascii_headers = false;
 #define SCTP_DEFAULT_RANGE "80"
 #define TLS_DEFAULT_RANGE "443"
 
-static range_t *global_http_tls_range = NULL;
+static range_t *global_http_tls_range;
 
-static range_t *http_tcp_range = NULL;
-static range_t *http_sctp_range = NULL;
-static range_t *http_tls_range = NULL;
+static range_t *http_tcp_range;
+static range_t *http_sctp_range;
+static range_t *http_tls_range;
 
 typedef void (*ReqRespDissector)(packet_info*, tvbuff_t*, proto_tree*, int, const guchar*,
 				 const guchar*, http_conv_t *, http_req_res_t *);
@@ -788,11 +788,11 @@ static int st_node_requests_by_referer = -1;
 static const gchar *st_str_request_sequences = "HTTP Request Sequences";
 
 /* Mapping of URIs to the most-recently seen node id */
-static wmem_map_t* refstats_uri_to_node_id_hash = NULL;
+static wmem_map_t* refstats_uri_to_node_id_hash;
 /* Mapping of node ids to the node's URI ('name' value) */
-static wmem_map_t* refstats_node_id_to_uri_hash = NULL;
+static wmem_map_t* refstats_node_id_to_uri_hash;
 /* Mapping of node ids to the parent node id */
-static wmem_map_t* refstats_node_id_to_parent_node_id_hash = NULL;
+static wmem_map_t* refstats_node_id_to_parent_node_id_hash;
 
 
 /* HTTP/Request Sequences stats init function */

@@ -466,7 +466,7 @@ typedef struct {
 	guint32             num;
 } spx_rexmit_info;
 
-static wmem_map_t *spx_hash = NULL;
+static wmem_map_t *spx_hash;
 
 /* Hash Functions */
 static gint

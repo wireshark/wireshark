@@ -1395,7 +1395,7 @@ void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
 
 /* Used to detect multiple MA Packets in a single TCP packet */
 /* Not used for MA Packets in SNAP Packets */
-static gint mausb_num_pdus = 0;
+static gint mausb_num_pdus;
 
 
 /* dissect fields common to all MAUSB packet types */

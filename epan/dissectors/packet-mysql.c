@@ -955,7 +955,7 @@ static int proto_mysql;
 
 /* dissector configuration */
 static bool mysql_desegment = true;
-static bool mysql_showquery = false;
+static bool mysql_showquery;
 
 /* expand-the-tree flags */
 static gint ett_mysql;

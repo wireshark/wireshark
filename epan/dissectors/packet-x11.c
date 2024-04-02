@@ -52,7 +52,7 @@
 void proto_register_x11(void);
 void proto_reg_handoff_x11(void);
 
-static dissector_handle_t x11_handle = NULL;
+static dissector_handle_t x11_handle;
 
 #define cVALS(x) (const value_string*)(x)
 

@@ -257,8 +257,8 @@ static gint ett_data;
 static tvbparse_wanted_t *want;
 static tvbparse_wanted_t *want_trailing;
 
-static dissector_handle_t iperf2_handle_tcp = NULL;
-static dissector_handle_t iperf2_handle_udp = NULL;
+static dissector_handle_t iperf2_handle_tcp;
+static dissector_handle_t iperf2_handle_udp;
 
 typedef struct {
     bool first_packet_processed;

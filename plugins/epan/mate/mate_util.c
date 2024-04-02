@@ -222,24 +222,24 @@ typedef union _any_avp_type {
 } any_avp_type;
 
 
-static SCS_collection* avp_strings = NULL;
+static SCS_collection* avp_strings;
 
 #ifdef _AVP_DEBUGGING
-static FILE* dbg_fp = NULL;
+static FILE* dbg_fp;
 
-static int dbg_level = 0;
+static int dbg_level;
 static int* dbg = &dbg_level;
 
-static int dbg_avp_level = 0;
+static int dbg_avp_level;
 static int* dbg_avp = &dbg_avp_level;
 
-static int dbg_avp_op_level = 0;
+static int dbg_avp_op_level;
 static int* dbg_avp_op = &dbg_avp_op_level;
 
-static int dbg_avpl_level = 0;
+static int dbg_avpl_level;
 static int* dbg_avpl = &dbg_avpl_level;
 
-static int dbg_avpl_op_level = 0;
+static int dbg_avpl_op_level;
 static int* dbg_avpl_op = &dbg_avpl_op_level;
 
 /**

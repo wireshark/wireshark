@@ -23,8 +23,8 @@
 static int proto_pldm;
 static int ett_pldm;
 
-static wmem_map_t* pldmTypeMap = NULL;
-static wmem_allocator_t *addr_resolv_scope = NULL;
+static wmem_map_t* pldmTypeMap;
+static wmem_allocator_t *addr_resolv_scope;
 
 static int hf_pldm_msg_direction;
 static int hf_pldm_instance_id;

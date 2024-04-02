@@ -277,8 +277,8 @@ static guint global_mgcp_gateway_tcp_port   = TCP_PORT_MGCP_GATEWAY;
 static guint global_mgcp_gateway_udp_port   = UDP_PORT_MGCP_GATEWAY;
 static guint global_mgcp_callagent_tcp_port = TCP_PORT_MGCP_CALLAGENT;
 static guint global_mgcp_callagent_udp_port = UDP_PORT_MGCP_CALLAGENT;
-static bool global_mgcp_raw_text      = false;
-static bool global_mgcp_message_count = false;
+static bool global_mgcp_raw_text;
+static bool global_mgcp_message_count;
 
 /* Some basic utility functions that are specific to this dissector */
 static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name);

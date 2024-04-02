@@ -64,8 +64,8 @@ static int proto_user_encap;
 
 static expert_field ei_user_encap_not_handled;
 
-static user_encap_t* encaps = NULL;
-static guint num_encaps = 0;
+static user_encap_t* encaps;
+static guint num_encaps;
 static uat_t* encaps_uat;
 
 static gint exported_pdu_tap = -1;

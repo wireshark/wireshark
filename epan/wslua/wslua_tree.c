@@ -23,7 +23,7 @@
 
 static int wslua_ett = -1;
 
-static GPtrArray* outstanding_TreeItem = NULL;
+static GPtrArray* outstanding_TreeItem;
 
 
 /* pushing a TreeItem with a NULL item or subtree is completely valid for this function */

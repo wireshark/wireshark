@@ -86,7 +86,7 @@ static gint ett_brdwlk_error;
 
 static gint proto_brdwlk;
 
-static guint16 packet_count = 0;
+static guint16 packet_count;
 static gboolean first_pkt = TRUE;                /* start of capture */
 
 static dissector_handle_t fc_dissector_handle;

@@ -103,9 +103,9 @@ static dissector_handle_t nrup_handle;
 #define GTP_TPDU_AS_CUSTOM 5
 
 static bool g_gtp_over_tcp = true;
-bool g_gtp_session = false;
+bool g_gtp_session;
 
-static guint pref_pair_matching_max_interval_ms = 0; /* Default: disable */
+static guint pref_pair_matching_max_interval_ms; /* Default: disable */
 
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
@@ -692,7 +692,7 @@ typedef struct {
 } uat_pdcp_lte_keys_record_t;
 
 /* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
-static uat_pdcp_lte_keys_record_t *uat_pdcp_lte_keys_records = NULL;
+static uat_pdcp_lte_keys_record_t *uat_pdcp_lte_keys_records;
 
 static bool pdcp_lte_update_cb(void *r, char **err)
 {
@@ -784,7 +784,7 @@ typedef struct {
 } uat_pdcp_nr_keys_record_t;
 
 /* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
-static uat_pdcp_nr_keys_record_t *uat_pdcp_nr_keys_records = NULL;
+static uat_pdcp_nr_keys_record_t *uat_pdcp_nr_keys_records;
 
 static bool pdcp_nr_update_cb(void *r, char **err) {
     uat_pdcp_nr_keys_record_t* rec = (uat_pdcp_nr_keys_record_t *)r;
@@ -923,8 +923,8 @@ static const value_string vs_rohc_profile[] = {
 };
 
 /* Entries added by UAT */
-static uat_t * pdcp_nr_keys_uat = NULL;
-static guint num_pdcp_nr_keys_uat = 0;
+static uat_t * pdcp_nr_keys_uat;
+static guint num_pdcp_nr_keys_uat;
 
 /* Default values for a TEID entry */
 UAT_CSTRING_CB_DEF(pdcp_nr_users, ip_addr_str, uat_pdcp_nr_keys_record_t)
@@ -956,8 +956,8 @@ static uat_pdcp_nr_keys_record_t* look_up_pdcp_nr_keys_record(packet_info *pinfo
 }
 
 /* Entries added by UAT */
-static uat_t * pdcp_lte_keys_uat = NULL;
-static guint num_pdcp_lte_keys_uat = 0;
+static uat_t * pdcp_lte_keys_uat;
+static guint num_pdcp_lte_keys_uat;
 
 /* Default values for a TEID entry */
 UAT_CSTRING_CB_DEF(pdcp_lte_users, ip_addr_str, uat_pdcp_lte_keys_record_t)
@@ -988,7 +988,7 @@ static uat_pdcp_lte_keys_record_t* look_up_pdcp_lte_keys_record(packet_info *pin
 
 /* --- END PDCP NR DECODE ADDITIONS --- */
 
-static bool g_gtp_etsi_order = false;
+static bool g_gtp_etsi_order;
 
 static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU_HEUR;
 static const enum_val_t gtp_decode_tpdu_as[] = {
@@ -2453,7 +2453,7 @@ static const value_string gtp_ext_hdr_pdu_ses_cont_pdu_type_vals[] = {
 #define MM_PROTO_SESSION_MGMT           0x0A
 #define MM_PROTO_NON_CALL_RELATED       0x0B
 
-static GHashTable *gtpstat_msg_idx_hash = NULL;
+static GHashTable *gtpstat_msg_idx_hash;
 
 static void
 gtpstat_init(struct register_srt* srt _U_, GArray* srt_array)
@@ -2986,7 +2986,7 @@ static const gtp_opt_t gtpopt[] = {
 #define NUM_GTP_IES 255
 static gint ett_gtp_ies[NUM_GTP_IES];
 
-static guint8 gtp_version = 0;
+static guint8 gtp_version;
 
 #define BCD2CHAR(d)         ((d) | 0x30)
 
@@ -4233,7 +4233,7 @@ typedef struct gtp_conv_info_t {
     wmem_map_t             *matched;
 } gtp_conv_info_t;
 
-static gtp_conv_info_t *gtp_info_items = NULL;
+static gtp_conv_info_t *gtp_info_items;
 
 static guint
 gtp_sn_hash(gconstpointer k)

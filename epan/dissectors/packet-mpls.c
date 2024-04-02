@@ -95,7 +95,7 @@ static dissector_handle_t mpls_pwcw_handle;
 static dissector_handle_t mpls_mcc_handle;
 
 /* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
-static bool mpls_bos_flowlabel = false;
+static bool mpls_bos_flowlabel;
 
 static int hf_mpls_label;
 static int hf_mpls_label_special;

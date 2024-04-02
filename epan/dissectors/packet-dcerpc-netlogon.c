@@ -90,7 +90,7 @@ static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,cons
 #define NETLOGON_FLAG_2               0x2
 #define NETLOGON_FLAG_1               0x1
 
-static wmem_map_t *netlogon_auths=NULL;
+static wmem_map_t *netlogon_auths;
 #if 0
 static wmem_map_t *schannel_auths;
 #endif

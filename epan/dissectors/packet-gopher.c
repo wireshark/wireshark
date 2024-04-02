@@ -65,7 +65,7 @@ static const value_string item_types[] = {
 
 #define TCP_DEFAULT_RANGE "70"
 
-static range_t *gopher_tcp_range = NULL;
+static range_t *gopher_tcp_range;
 
 /* Returns TRUE if the packet is from a client */
 static gboolean

@@ -1745,12 +1745,12 @@ static expert_field ei_r3_unknown_command_value;
 static expert_field ei_r3_response_hasdata_octet_3;
 static expert_field ei_r3_cmd_downloadfirmwaretimeout;
 
-static dissector_handle_t r3_handle = NULL;
+static dissector_handle_t r3_handle;
 
 /*
  *  Indicates next command to be processed as a manufacturing command
  */
-static gint mfgCommandFlag = FALSE;
+static gint mfgCommandFlag;
 
 /*
  *  Some enums that don't exist in public.h and should

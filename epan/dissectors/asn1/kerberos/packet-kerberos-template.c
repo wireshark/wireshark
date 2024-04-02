@@ -354,7 +354,7 @@ static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
 static expert_field ei_krb_gssapi_dlglen;
 
-static dissector_handle_t krb4_handle=NULL;
+static dissector_handle_t krb4_handle;
 
 /* Global variables */
 static guint32 gbl_keytype;
@@ -460,7 +460,7 @@ static int dissect_kerberos_defer_PA_FX_FAST_REQUEST(bool implicit_tag _U_, tvbu
 #ifdef HAVE_KERBEROS
 
 /* Decrypt Kerberos blobs */
-bool krb_decrypt = false;
+bool krb_decrypt;
 
 /* keytab filename */
 static const char *keytab_filename = "";
@@ -491,10 +491,10 @@ read_keytab_file_from_preferences(void)
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 enc_key_t *enc_key_list=NULL;
-static guint kerberos_longterm_ids = 0;
-wmem_map_t *kerberos_longterm_keys = NULL;
-static wmem_map_t *kerberos_all_keys = NULL;
-static wmem_map_t *kerberos_app_session_keys = NULL;
+static guint kerberos_longterm_ids;
+wmem_map_t *kerberos_longterm_keys;
+static wmem_map_t *kerberos_all_keys;
+static wmem_map_t *kerberos_app_session_keys;
 
 static bool
 enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
@@ -2751,7 +2751,7 @@ typedef struct _service_key_t {
 	guint8 *contents;
 	char    origin[KRB_MAX_ORIG_LEN+1];
 } service_key_t;
-GSList *service_key_list = NULL;
+GSList *service_key_list;
 
 
 static void

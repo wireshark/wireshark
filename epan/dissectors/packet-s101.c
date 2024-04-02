@@ -64,7 +64,7 @@ static int hf_S101_eof;
 static int hf_S101_error;
 
 static dissector_handle_t S101_handle;
-static dissector_handle_t glow_handle = NULL;
+static dissector_handle_t glow_handle;
 static reassembly_table s101_data_reassembly_table;
 
 typedef struct _s101_fragment_t {
@@ -149,7 +149,7 @@ static guint32 get_fragment_pdu_id(packet_info *pinfo) {
     return id;
 }
 
-static wmem_map_t* s101_fragment_info_hash = NULL;
+static wmem_map_t* s101_fragment_info_hash;
 
 static s101_fragment_t* new_fragment_info(packet_info *pinfo) {
     s101_fragment_t* fi = wmem_new(wmem_file_scope(), s101_fragment_t);

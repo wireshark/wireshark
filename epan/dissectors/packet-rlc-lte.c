@@ -66,11 +66,11 @@ static const enum_val_t pdcp_drb_col_vals[] = {
 static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_SN_signalled;
 
 static bool global_rlc_lte_call_rrc_for_ccch = true;
-static bool global_rlc_lte_call_rrc_for_mcch = false;
-static bool global_rlc_lte_call_ip_for_mtch = false;
+static bool global_rlc_lte_call_rrc_for_mcch;
+static bool global_rlc_lte_call_ip_for_mtch;
 
 /* Preference to expect RLC headers without payloads */
-static bool global_rlc_lte_headers_expected = false;
+static bool global_rlc_lte_headers_expected;
 
 /* Re-assembly of segments */
 static bool global_rlc_lte_reassembly = true;
@@ -359,7 +359,7 @@ static const value_string header_only_vals[] =
 /**********************************************************************************/
 /* These are for keeping track of UM/AM extension headers, and the lengths found  */
 /* in them                                                                        */
-static guint8  s_number_of_extensions = 0;
+static guint8  s_number_of_extensions;
 #define MAX_RLC_SDUS 192
 static guint16 s_lengths[MAX_RLC_SDUS];
 
@@ -419,7 +419,7 @@ typedef struct
 } channel_sequence_analysis_status;
 
 /* The sequence analysis channel hash table */
-static wmem_map_t *sequence_analysis_channel_hash = NULL;
+static wmem_map_t *sequence_analysis_channel_hash;
 
 
 /* Types for sequence analysis frame report hash table                  */
@@ -450,7 +450,7 @@ typedef struct
 
 
 /* The sequence analysis frame report hash table instance itself   */
-static wmem_map_t *sequence_analysis_report_hash = NULL;
+static wmem_map_t *sequence_analysis_report_hash;
 
 
 static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
@@ -461,7 +461,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
 
 /* The reassembly result hash table */
-static wmem_map_t *reassembly_report_hash = NULL;
+static wmem_map_t *reassembly_report_hash;
 
 
 /* Create a new struct for reassembly */
@@ -625,7 +625,7 @@ typedef struct
     guint32         frameNum;
 } channel_repeated_nack_status;
 
-static wmem_map_t *repeated_nack_channel_hash = NULL;
+static wmem_map_t *repeated_nack_channel_hash;
 
 typedef struct {
     guint16         noOfNACKsRepeated;
@@ -633,7 +633,7 @@ typedef struct {
     guint32         previousFrameNum;
 } channel_repeated_nack_report;
 
-static wmem_map_t *repeated_nack_report_hash = NULL;
+static wmem_map_t *repeated_nack_report_hash;
 
 
 

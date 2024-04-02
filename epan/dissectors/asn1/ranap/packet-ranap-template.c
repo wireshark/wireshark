@@ -54,10 +54,10 @@ void proto_reg_handoff_ranap(void);
 static int proto_ranap;
 
 /* initialise sub-dissector handles */
-static dissector_handle_t rrc_s_to_trnc_handle = NULL;
-static dissector_handle_t rrc_t_to_srnc_handle = NULL;
-static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
-static dissector_handle_t bssgp_handle = NULL;
+static dissector_handle_t rrc_s_to_trnc_handle;
+static dissector_handle_t rrc_t_to_srnc_handle;
+static dissector_handle_t rrc_ho_to_utran_cmd;
+static dissector_handle_t bssgp_handle;
 
 static int hf_ranap_transportLayerAddress_ipv4;
 static int hf_ranap_transportLayerAddress_ipv6;
@@ -136,7 +136,7 @@ static void private_data_set_binding_id_port(asn1_ctx_t *actx, guint16 binding_i
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
-static bool glbl_dissect_container = false;
+static bool glbl_dissect_container;
 
 static dissector_handle_t ranap_handle;
 
@@ -163,7 +163,7 @@ static dissector_handle_t ranap_handle;
 #define SOUT (2U<<16)
 #define SPECIAL (4U<<16)
 
-int pdu_type = 0; /* 0 means wildcard */
+int pdu_type; /* 0 means wildcard */
 
 /* Dissector tables */
 static dissector_table_t ranap_ies_dissector_table;

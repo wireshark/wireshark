@@ -104,7 +104,7 @@ static int ett_expert_inf_sim;
 
 #include "packet-goose-fn.c"
 
-static dissector_handle_t goose_handle = NULL;
+static dissector_handle_t goose_handle;
 
 
 #define OSI_SPDU_TUNNELED 0xA0 /* Tunneled */

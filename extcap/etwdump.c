@@ -52,7 +52,7 @@ static struct ws_option longopts[] = {
     { 0, 0, 0, 0 }
 };
 
-int g_include_undecidable_event = false;
+int g_include_undecidable_event;
 
 void SignalHandler(_U_ int signal)
 {

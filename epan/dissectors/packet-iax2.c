@@ -624,11 +624,11 @@ typedef struct {
 } iax_circuit_key;
 
 /* tables */
-static GHashTable *iax_fid_table       = NULL;
+static GHashTable *iax_fid_table;
 static reassembly_table iax_reassembly_table;
 
-static GHashTable *iax_circuit_hashtab = NULL;
-static guint circuitcount = 0;
+static GHashTable *iax_circuit_hashtab;
+static guint circuitcount;
 
 /* the number of keys and values to reserve space for in each memory chunk.
    We assume we won't be tracking many calls at once so this is quite low.

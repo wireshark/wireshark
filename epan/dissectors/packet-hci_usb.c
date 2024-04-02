@@ -44,7 +44,7 @@ static int hf_msg_fragment_count;
 static int hf_msg_reassembled_in;
 static int hf_msg_reassembled_length;
 
-static wmem_tree_t *fragment_info_table = NULL;
+static wmem_tree_t *fragment_info_table;
 
 static reassembly_table hci_usb_reassembly_table;
 

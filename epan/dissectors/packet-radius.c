@@ -107,7 +107,7 @@ typedef struct _radius_info_t
 */
 #define DEFAULT_RADIUS_PORT_RANGE "1645,1646,1700,1812,1813,3799"
 
-static radius_dictionary_t *dict = NULL;
+static radius_dictionary_t *dict;
 
 static int proto_radius;
 
@@ -205,9 +205,9 @@ static dissector_handle_t radius_handle;
 
 
 static const gchar *shared_secret = "";
-static bool validate_authenticator = false;
-static bool show_length = false;
-static bool disable_extended_attributes = false;
+static bool validate_authenticator;
+static bool show_length;
+static bool disable_extended_attributes;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 

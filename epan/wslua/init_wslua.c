@@ -42,12 +42,12 @@ typedef struct _wslua_plugin {
     struct _wslua_plugin *next;
 } wslua_plugin;
 
-static wslua_plugin *wslua_plugin_list = NULL;
+static wslua_plugin *wslua_plugin_list;
 
-static lua_State* L = NULL;
+static lua_State* L;
 
-static void (*wslua_gui_print_func_ptr)(const char *, void *) = NULL;
-static void *wslua_gui_print_data_ptr = NULL;
+static void (*wslua_gui_print_func_ptr)(const char *, void *);
+static void *wslua_gui_print_data_ptr;
 static int wslua_lua_print_func_ref = LUA_NOREF;
 
 /* XXX: global variables? Really?? Yuck. These could be done differently,
@@ -502,7 +502,7 @@ static int init_error_handler(lua_State* LS) {
 }
 
 
-static bool init_routine_initialized = false;
+static bool init_routine_initialized;
 static void wslua_init_routine(void) {
 
     if ( ! init_routine_initialized ) {
@@ -952,8 +952,8 @@ wslua_plugins_dump_all(void)
     wslua_plugins_get_descriptions(print_wslua_plugin_description, NULL);
 }
 
-static ei_register_info* ws_lua_ei = NULL;
-static int ws_lua_ei_len = 0;
+static ei_register_info* ws_lua_ei;
+static int ws_lua_ei_len;
 
 expert_field*
 wslua_get_expert_field(const int group, const int severity)

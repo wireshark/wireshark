@@ -568,10 +568,10 @@ static expert_field ei_length_bad;
 
 static dissector_handle_t btsdp_handle;
 
-static wmem_tree_t *tid_requests           = NULL;
-static wmem_tree_t *continuation_states    = NULL;
-static wmem_tree_t *record_handle_services = NULL;
-static wmem_tree_t *service_infos          = NULL;
+static wmem_tree_t *tid_requests;
+static wmem_tree_t *continuation_states;
+static wmem_tree_t *record_handle_services;
+static wmem_tree_t *service_infos;
 
 typedef struct _tid_request_t {
     guint32        interface_id;

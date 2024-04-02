@@ -742,7 +742,7 @@ rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload) {
    single registered callback walk this GHashTable and destroy each member as well as this
    GHashTable.
  */
-static GHashTable *rtp_dyn_payloads = NULL;
+static GHashTable *rtp_dyn_payloads;
 
 static gboolean
 fmtp_free(gpointer key, gpointer value, gpointer user_data)

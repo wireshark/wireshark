@@ -1157,7 +1157,7 @@ int ws80211_set_fcs_validation(const char *name, enum ws80211_fcs_validation fcs
 	return ret_val;
 }
 
-static char *airpcap_conf_path = NULL;
+static char *airpcap_conf_path;
 const char *ws80211_get_helper_path(void)
 {
 	HKEY h_key = NULL;

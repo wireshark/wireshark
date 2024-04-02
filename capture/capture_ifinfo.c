@@ -31,7 +31,7 @@
 #include <wsutil/wsjson.h>
 
 #ifdef HAVE_PCAP_REMOTE
-static GList *remote_interface_list = NULL;
+static GList *remote_interface_list;
 
 GList * append_remote_list(GList *iflist)
 {

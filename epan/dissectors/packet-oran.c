@@ -291,8 +291,8 @@ static guint pref_sample_bit_width_downlink = 14;
 
 static gint pref_iqCompressionUplink = COMP_BLOCK_FP;
 static gint pref_iqCompressionDownlink = COMP_BLOCK_FP;
-static bool pref_includeUdCompHeaderUplink = false;
-static bool pref_includeUdCompHeaderDownlink = false;
+static bool pref_includeUdCompHeaderUplink;
+static bool pref_includeUdCompHeaderDownlink;
 
 static guint pref_data_plane_section_total_rbs = 273;
 static guint pref_num_weights_per_bundle = 32;
@@ -817,7 +817,7 @@ typedef struct {
 } flow_state_t;
 
 /* Table maintained on first pass from eAxC (guint16) -> flow_state_t* */
-static wmem_tree_t *flow_states_table = NULL;
+static wmem_tree_t *flow_states_table;
 
 
 

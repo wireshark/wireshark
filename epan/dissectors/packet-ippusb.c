@@ -43,7 +43,7 @@
 
 static const guint8 CHUNKED_END[] = { 0x30, 0x0d, 0x0a, 0x0d, 0x0a };
 static const guint8 RETURN_NEWLINE[] = { 0x0d, 0x0a };
-static tvbuff_t *return_newline_tvb = NULL;
+static tvbuff_t *return_newline_tvb;
 
 void proto_register_ippusb(void);
 void proto_reg_handoff_ippusb(void);

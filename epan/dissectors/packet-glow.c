@@ -27,7 +27,7 @@
 
 void proto_register_glow(void);
 
-static dissector_handle_t glow_handle=NULL;
+static dissector_handle_t glow_handle;
 static int proto_glow;
 
 static int hf_glow_Root_PDU;                      /* Root */

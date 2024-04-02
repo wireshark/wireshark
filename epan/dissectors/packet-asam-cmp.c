@@ -32,8 +32,8 @@ static int proto_asam_cmp;
 
 static dissector_handle_t eth_handle;
 
-static bool heuristic_first = false;
-static bool old_11bit_canid_encoding = false;
+static bool heuristic_first;
+static bool old_11bit_canid_encoding;
 
 static dissector_table_t lin_subdissector_table;
 
@@ -723,9 +723,9 @@ typedef struct _interface_config {
 /* Devices */
 #define DATAFILE_ASAM_CMP_DEVICES_IDS "ASAM_CMP_devices"
 
-static GHashTable *data_asam_cmp_devices = NULL;
-static generic_one_id_string_t *asam_cmp_devices = NULL;
-static guint asam_cmp_devices_num = 0;
+static GHashTable *data_asam_cmp_devices;
+static generic_one_id_string_t *asam_cmp_devices;
+static guint asam_cmp_devices_num;
 
 UAT_HEX_CB_DEF(asam_cmp_devices, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(asam_cmp_devices, name, generic_one_id_string_t)
@@ -733,9 +733,9 @@ UAT_CSTRING_CB_DEF(asam_cmp_devices, name, generic_one_id_string_t)
 /* Interfaces */
 #define DATAFILE_ASAM_CMP_IFACE_IDS "ASAM_CMP_interfaces"
 
-static GHashTable *data_asam_cmp_interfaces = NULL;
-static interface_config_t *asam_cmp_interfaces = NULL;
-static guint asam_cmp_interface_num = 0;
+static GHashTable *data_asam_cmp_interfaces;
+static interface_config_t *asam_cmp_interfaces;
+static guint asam_cmp_interface_num;
 
 UAT_HEX_CB_DEF(asam_cmp_interfaces, id, interface_config_t)
 UAT_CSTRING_CB_DEF(asam_cmp_interfaces, name, interface_config_t)

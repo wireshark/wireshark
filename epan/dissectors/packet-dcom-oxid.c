@@ -44,7 +44,7 @@ static int hf_oxid_ds_array;
 static gint ett_oxid;
 
 static e_guid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
-static guint16  ver_oxid = 0;
+static guint16  ver_oxid;
 
 
 static int

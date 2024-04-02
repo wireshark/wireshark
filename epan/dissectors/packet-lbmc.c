@@ -114,7 +114,7 @@ struct lbm_dstream_entry_t_stct
 #define LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_DST_PORT      3
 #define LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_LBM_STREAM_ID 4
 
-static wmem_tree_t * instance_stream_table = NULL;
+static wmem_tree_t * instance_stream_table;
 
 /* Domain stream variables */
 #define LBM_DSTREAM_STREAM_KEY_ELEMENT_COUNT    6
@@ -132,7 +132,7 @@ static wmem_tree_t * instance_stream_table = NULL;
 #define LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_DST_PORT      3
 #define LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_LBM_STREAM_ID 4
 
-static wmem_tree_t * domain_stream_table = NULL;
+static wmem_tree_t * domain_stream_table;
 
 static void lbm_stream_init(void)
 {
@@ -4549,8 +4549,8 @@ static const true_false_string lbmc_umq_r_flag =
 /*----------------------------------------------------------------------------*/
 
 static bool lbmc_use_heuristic_subdissectors = true;
-static bool lbmc_reassemble_fragments = false;
-static bool lbmc_dissect_lbmpdm = false;
+static bool lbmc_reassemble_fragments;
+static bool lbmc_dissect_lbmpdm;
 static heur_dissector_list_t lbmc_heuristic_subdissector_list;
 
 /*----------------------------------------------------------------------------*/
@@ -6200,7 +6200,7 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 #define LBMC_MESSAGE_KEY_ELEMENT_PORT         3
 #define LBMC_MESSAGE_KEY_ELEMENT_FIRST_SQN    4
 
-static wmem_tree_t * lbmc_message_table = NULL;
+static wmem_tree_t * lbmc_message_table;
 
 typedef struct
 {

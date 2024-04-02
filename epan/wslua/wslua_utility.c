@@ -28,10 +28,10 @@ WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets the Wireshark version a
 }
 
 
-static char *current_plugin_version = NULL;
-static char *current_plugin_description = NULL;
-static char *current_plugin_repository = NULL;
-static char *current_plugin_spdx_id = NULL;
+static char *current_plugin_version;
+static char *current_plugin_description;
+static char *current_plugin_repository;
+static char *current_plugin_spdx_id;
 
 const char* get_current_plugin_version(void) {
     return current_plugin_version ? current_plugin_version : "";

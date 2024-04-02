@@ -48,8 +48,8 @@ UAT_CSTRING_CB_DEF(uat_security_records, sec_str, uat_security_record_t)
 UAT_VS_DEF(uat_security_records, type, uat_security_record_t, guint8, 0, "NWK Key")
 UAT_CSTRING_CB_DEF(uat_security_records, label, uat_security_record_t)
 
-static uat_security_record_t *uat_security_records = NULL;
-static guint num_uat_security_records = 0;
+static uat_security_record_t *uat_security_records;
+static guint num_uat_security_records;
 
 static gint ett_rf4ce_nwk;
 static gint ett_rf4ce_nwk_payload;

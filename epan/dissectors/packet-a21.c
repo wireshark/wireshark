@@ -24,8 +24,8 @@ void proto_register_a21(void);
 void proto_reg_handoff_a21(void);
 
 #define A21_PORT 23272
-static dissector_handle_t a21_handle = NULL;
-static dissector_handle_t gcsna_handle = NULL;
+static dissector_handle_t a21_handle;
+static dissector_handle_t gcsna_handle;
 
 static int proto_a21;
 

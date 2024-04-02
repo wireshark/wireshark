@@ -30,7 +30,7 @@ void proto_register_q1950(void);
 #define PFNAME "h248q1950"
 
 static int proto_q1950;
-static bool implicit = FALSE;
+static bool implicit;
 
 /* A.3 Bearer characteristics package */
 static int hf_h248_pkg_BCP;
@@ -269,7 +269,7 @@ static h248_package_t h248_pkg_GB = {
 
 
 /* A.7 Bearer control tunnelling package */
-static dissector_handle_t bctp_dissector = NULL;
+static dissector_handle_t bctp_dissector;
 
 static int hf_h248_pkg_bt;
 static int hf_h248_pkg_bt_tind;

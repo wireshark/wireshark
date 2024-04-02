@@ -812,7 +812,7 @@ static gint ett_homeplug_av_st_iotecha_bss_entry;
 /* End of ST/IoTecha specific subtrees */
 
 /* Saving vendor specific subtree */
-static proto_tree *ti_vendor = 0;
+static proto_tree *ti_vendor;
 
 #define HOMEPLUG_AV_MMHDR_LEN                   3 /* MM version (1) + MM type (2) */
 

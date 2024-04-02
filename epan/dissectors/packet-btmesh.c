@@ -611,8 +611,8 @@ static dissector_table_t btmesh_model_vendor_dissector_table;
  * UAT for BT Mesh
  *-------------------------------------
  */
-static uat_t *btmesh_uat = NULL;
-static guint num_btmesh_uat = 0;
+static uat_t *btmesh_uat;
+static guint num_btmesh_uat;
 
 /* UAT Network, Application and IVIndex entry structure. */
 typedef struct {
@@ -633,10 +633,10 @@ typedef struct {
     guint32 net_key_iv_index_hash; /* Used to identify net key / IV index pair */
 } uat_btmesh_record_t;
 
-static uat_btmesh_record_t *uat_btmesh_records = NULL;
+static uat_btmesh_record_t *uat_btmesh_records;
 
-static uat_t *btmesh_dev_key_uat = NULL;
-static guint num_btmesh_dev_key_uat = 0;
+static uat_t *btmesh_dev_key_uat;
+static guint num_btmesh_dev_key_uat;
 
 /* UAT Device Key entry structure. */
 typedef struct {
@@ -649,10 +649,10 @@ typedef struct {
     guint8 valid; /* this counter must be equal to BTMESH_DEVICE_KEY_ENTRY_VALID make UAT entry valid */
 } uat_btmesh_dev_key_record_t;
 
-static uat_btmesh_dev_key_record_t *uat_btmesh_dev_key_records = NULL;
+static uat_btmesh_dev_key_record_t *uat_btmesh_dev_key_records;
 
-static uat_t * btmesh_label_uuid_uat = NULL;
-static guint num_btmesh_label_uuid_uat = 0;
+static uat_t * btmesh_label_uuid_uat;
+static guint num_btmesh_label_uuid_uat;
 
 /* UAT Label UUID entry structure. */
 typedef struct {
@@ -663,7 +663,7 @@ typedef struct {
     guint8 valid; /* this counter must be equal to BTMESH_LABEL_UUID_ENTRY_VALID make UAT entry valid */
 } uat_btmesh_label_uuid_record_t;
 
-static uat_btmesh_label_uuid_record_t *uat_btmesh_label_uuid_records = NULL;
+static uat_btmesh_label_uuid_record_t *uat_btmesh_label_uuid_records;
 
 typedef struct {
     guint16 property_id;

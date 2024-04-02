@@ -119,7 +119,7 @@ void reset_srt_table(GArray* srt_array)
     }
 }
 
-static wmem_tree_t *registered_srt_tables = NULL;
+static wmem_tree_t *registered_srt_tables;
 
 register_srt_t* get_srt_table_by_name(const char* name)
 {

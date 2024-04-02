@@ -21,7 +21,7 @@
 void proto_register_isobus_vt(void);
 void proto_reg_handoff_isobus_vt(void);
 
-static guint8 current_vt_version = 0;
+static guint8 current_vt_version;
 
 /* Initialize the protocol and registered fields */
 static int proto_vt;

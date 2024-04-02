@@ -46,13 +46,13 @@
 void proto_register_nr_rrc(void);
 void proto_reg_handoff_nr_rrc(void);
 
-static dissector_handle_t nas_5gs_handle = NULL;
-static dissector_handle_t lte_rrc_conn_reconf_handle = NULL;
-static dissector_handle_t lte_rrc_conn_reconf_compl_handle = NULL;
-static dissector_handle_t lte_rrc_ul_dcch_handle = NULL;
-static dissector_handle_t lte_rrc_dl_dcch_handle = NULL;
+static dissector_handle_t nas_5gs_handle;
+static dissector_handle_t lte_rrc_conn_reconf_handle;
+static dissector_handle_t lte_rrc_conn_reconf_compl_handle;
+static dissector_handle_t lte_rrc_ul_dcch_handle;
+static dissector_handle_t lte_rrc_dl_dcch_handle;
 
-static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
+static wmem_map_t *nr_rrc_etws_cmas_dcs_hash;
 
 static reassembly_table nr_rrc_sib7_reassembly_table;
 static reassembly_table nr_rrc_sib8_reassembly_table;

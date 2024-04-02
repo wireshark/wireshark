@@ -102,52 +102,52 @@
 /*--- Options --------------------------------------------------------------------*/
 
 /* Be quiet */
-static gboolean quiet = FALSE;
+static gboolean quiet;
 
 /* Dummy Ethernet header */
-static gboolean hdr_ethernet = FALSE;
+static gboolean hdr_ethernet;
 #if 0
 /* XXX: Maybe add custom Ethernet Address options? */
 static guint8 hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
 static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
 #endif
-static guint32 hdr_ethernet_proto = 0;
+static guint32 hdr_ethernet_proto;
 
 /* Dummy IP header */
-static gboolean hdr_ip = FALSE;
-static gboolean hdr_ipv6 = FALSE;
-static gboolean have_hdr_ip_proto = FALSE;
-static guint8 hdr_ip_proto = 0;
+static gboolean hdr_ip;
+static gboolean hdr_ipv6;
+static gboolean have_hdr_ip_proto;
+static guint8 hdr_ip_proto;
 
 /* Destination and source addresses for IP header */
-static guint32 hdr_ip_dest_addr = 0;
-static guint32 hdr_ip_src_addr = 0;
+static guint32 hdr_ip_dest_addr;
+static guint32 hdr_ip_src_addr;
 static ws_in6_addr hdr_ipv6_dest_addr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 static ws_in6_addr hdr_ipv6_src_addr  = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 /* Dummy UDP header */
-static gboolean hdr_udp = FALSE;
-static guint32 hdr_dest_port = 0;
-static guint32 hdr_src_port  = 0;
+static gboolean hdr_udp;
+static guint32 hdr_dest_port;
+static guint32 hdr_src_port;
 
 /* Dummy TCP header */
-static gboolean hdr_tcp = FALSE;
+static gboolean hdr_tcp;
 
 /* Dummy SCTP header */
-static gboolean hdr_sctp = FALSE;
-static guint32 hdr_sctp_src  = 0;
-static guint32 hdr_sctp_dest = 0;
-static guint32 hdr_sctp_tag  = 0;
+static gboolean hdr_sctp;
+static guint32 hdr_sctp_src;
+static guint32 hdr_sctp_dest;
+static guint32 hdr_sctp_tag;
 
 /* Dummy DATA chunk header */
-static gboolean hdr_data_chunk = FALSE;
-static guint32 hdr_data_chunk_tsn  = 0;
-static guint16 hdr_data_chunk_sid  = 0;
-static guint16 hdr_data_chunk_ssn  = 0;
-static guint32 hdr_data_chunk_ppid = 0;
+static gboolean hdr_data_chunk;
+static guint32 hdr_data_chunk_tsn;
+static guint16 hdr_data_chunk_sid;
+static guint16 hdr_data_chunk_ssn;
+static guint32 hdr_data_chunk_ppid;
 
 /* Export PDU */
-static gboolean hdr_export_pdu = FALSE;
+static gboolean hdr_export_pdu;
 
 /*--- Local data -----------------------------------------------------------------*/
 
@@ -155,11 +155,11 @@ static gboolean hdr_export_pdu = FALSE;
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 
 /* Time code of packet, derived from packet_preamble */
-static int      ts_fmt_iso = 0;
+static int      ts_fmt_iso;
 
 /* Input file */
 static char *input_filename;
-static FILE       *input_file  = NULL;
+static FILE       *input_file;
 /* Output file */
 static char *output_filename;
 

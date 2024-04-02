@@ -36,7 +36,7 @@ void proto_reg_handoff_ieee1609dot2(void);
 
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2;
-dissector_handle_t proto_ieee1609dot2_handle = NULL;
+dissector_handle_t proto_ieee1609dot2_handle;
 #include "packet-ieee1609dot2-hf.c"
 
 /* Initialize the subtree pointers */

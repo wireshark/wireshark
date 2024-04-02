@@ -106,7 +106,7 @@ typedef struct _msg_info_t {
     guint16 len;  /* number of bytes following initial msg_id field */
 } msg_info_t;
 
-static wmem_map_t *msg_table = NULL;
+static wmem_map_t *msg_table;
 
 static const msg_info_t msg_info[] = {
     { ID_AKE_INIT,               8 },

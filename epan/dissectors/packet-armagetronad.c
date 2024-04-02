@@ -28,7 +28,7 @@ static int hf_armagetronad_msg_subtree;
 static gint ett_armagetronad;
 static gint ett_message;
 
-static dissector_handle_t armagetronad_handle = NULL;
+static dissector_handle_t armagetronad_handle;
 
 #define ARMAGETRONAD_UDP_PORT_RANGE "4533-4534" /* 4533 is not IANA registered, 4534 is */
 

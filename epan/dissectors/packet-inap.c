@@ -1009,8 +1009,8 @@ static dissector_handle_t	inap_handle;
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode=0;
-static const char *obj_id = NULL;
-static gboolean is_ExtensionField =FALSE;
+static const char *obj_id;
+static gboolean is_ExtensionField;
 
 static int inap_opcode_type;
 #define INAP_OPCODE_INVOKE        1
@@ -9362,8 +9362,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 
-static guint8 inap_pdu_type = 0;
-static guint8 inap_pdu_size = 0;
+static guint8 inap_pdu_type;
+static guint8 inap_pdu_size;
 
 
 static int

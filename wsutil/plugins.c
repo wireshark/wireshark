@@ -37,7 +37,7 @@ typedef struct _plugin {
 #define TYPE_DIR_WIRETAP    "wiretap"
 #define TYPE_DIR_CODECS     "codecs"
 
-static GSList *plugins_module_list = NULL;
+static GSList *plugins_module_list;
 
 
 static inline const char *

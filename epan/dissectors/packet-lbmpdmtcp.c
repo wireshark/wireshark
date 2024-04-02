@@ -109,12 +109,12 @@ static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint
 /* Global preferences variables (altered by the preferences dialog). */
 static guint32 global_lbmpdm_tcp_port_low   = LBMPDM_TCP_DEFAULT_PORT_LOW;
 static guint32 global_lbmpdm_tcp_port_high  = LBMPDM_TCP_DEFAULT_PORT_HIGH;
-static bool global_lbmpdm_tcp_use_tag   = false;
+static bool global_lbmpdm_tcp_use_tag;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbmpdm_tcp_port_low  = LBMPDM_TCP_DEFAULT_PORT_LOW;
 static guint32 lbmpdm_tcp_port_high = LBMPDM_TCP_DEFAULT_PORT_HIGH;
-static gboolean lbmpdm_tcp_use_tag  = FALSE;
+static gboolean lbmpdm_tcp_use_tag;
 
 /* Tag definitions. */
 typedef struct
@@ -124,8 +124,8 @@ typedef struct
     guint32 port_high;
 } lbmpdm_tcp_tag_entry_t;
 
-static lbmpdm_tcp_tag_entry_t * lbmpdm_tcp_tag_entry = NULL;
-static guint lbmpdm_tcp_tag_count  = 0;
+static lbmpdm_tcp_tag_entry_t * lbmpdm_tcp_tag_entry;
+static guint lbmpdm_tcp_tag_count;
 
 UAT_CSTRING_CB_DEF(lbmpdm_tcp_tag, name, lbmpdm_tcp_tag_entry_t)
 UAT_DEC_CB_DEF(lbmpdm_tcp_tag, port_low, lbmpdm_tcp_tag_entry_t)

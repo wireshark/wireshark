@@ -59,10 +59,10 @@ static gint global_rlc_nr_call_pdcp_for_dl_drb = (gint)PDCP_drb_off;
 static bool global_rlc_nr_call_rrc_for_ccch = true;
 
 /* Preference to expect RLC headers without payloads */
-static bool global_rlc_nr_headers_expected = false;
+static bool global_rlc_nr_headers_expected;
 
 /* Attempt reassembly. */
-static bool global_rlc_nr_reassemble_um_pdus = false;
+static bool global_rlc_nr_reassemble_um_pdus;
 static bool global_rlc_nr_reassemble_am_pdus = true;
 
 /* Tree storing UE related parameters (ueid, drbid) -> pdcp_bearer_parameters */

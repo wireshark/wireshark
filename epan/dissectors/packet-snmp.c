@@ -152,10 +152,10 @@ static snmp_usm_decoder_t priv_protos[] = {
 	snmp_usm_priv_aes256
 };
 
-static snmp_ue_assoc_t* ueas = NULL;
-static guint num_ueas = 0;
-static snmp_ue_assoc_t* localized_ues = NULL;
-static snmp_ue_assoc_t* unlocalized_ues = NULL;
+static snmp_ue_assoc_t* ueas;
+static guint num_ueas;
+static snmp_ue_assoc_t* localized_ues;
+static snmp_ue_assoc_t* unlocalized_ues;
 /****/
 
 /* Variables used for handling enterprise specific trap types */
@@ -164,14 +164,14 @@ typedef struct _snmp_st_assoc_t {
 	guint trap;
 	char *desc;
 } snmp_st_assoc_t;
-static guint num_specific_traps = 0;
-static snmp_st_assoc_t *specific_traps = NULL;
-static const char *enterprise_oid = NULL;
-static guint generic_trap = 0;
-static guint32 snmp_version = 0;
+static guint num_specific_traps;
+static snmp_st_assoc_t *specific_traps;
+static const char *enterprise_oid;
+static guint generic_trap;
+static guint32 snmp_version;
 static guint32 RequestID = -1;
 
-static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
+static snmp_usm_params_t usm_p;
 
 #define TH_AUTH   0x01
 #define TH_CRYPT  0x02

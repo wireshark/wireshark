@@ -99,7 +99,7 @@ typedef struct marc_directory_entry {
     guint32 starting_character;
 } marc_directory_entry;
 
-static dissector_handle_t z3950_handle=NULL;
+static dissector_handle_t z3950_handle;
 
 void proto_reg_handoff_z3950(void);
 void proto_register_z3950(void);

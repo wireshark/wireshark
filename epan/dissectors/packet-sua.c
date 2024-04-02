@@ -389,7 +389,7 @@ typedef struct _sua_assoc_info_t {
     gboolean has_fw_key;
 } sua_assoc_info_t;
 
-static wmem_tree_t* assocs = NULL;
+static wmem_tree_t* assocs;
 static sua_assoc_info_t* assoc;
 static sua_assoc_info_t no_sua_assoc = {
     0,      /* assoc_id */
@@ -548,7 +548,7 @@ typedef enum {
 } Version_Type;
 
 static gint version = SUA_RFC;
-static bool set_addresses = false;
+static bool set_addresses;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);

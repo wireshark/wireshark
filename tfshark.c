@@ -82,7 +82,7 @@ static frame_data ref_frame;
 static frame_data prev_dis_frame;
 static frame_data prev_cap_frame;
 
-static gboolean prefs_loaded = FALSE;
+static gboolean prefs_loaded;
 
 static gboolean perform_two_pass_analysis;
 
@@ -103,12 +103,12 @@ static gint print_summary = -1;    /* TRUE if we're to print packet summary info
 static gboolean print_details;     /* TRUE if we're to print packet details information */
 static gboolean print_hex;         /* TRUE if we're to print hex/ascci information */
 static gboolean line_buffered;
-static gboolean really_quiet = FALSE;
+static gboolean really_quiet;
 
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
 
-static output_fields_t* output_fields  = NULL;
+static output_fields_t* output_fields;
 
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
@@ -125,7 +125,7 @@ static gboolean write_finale(void);
 static void tfshark_cmdarg_err(const char *msg_format, va_list ap);
 static void tfshark_cmdarg_err_cont(const char *msg_format, va_list ap);
 
-static GHashTable *output_only_tables = NULL;
+static GHashTable *output_only_tables;
 
 #if 0
 struct string_elem {

@@ -44,7 +44,7 @@ typedef struct
     guint64 channel;
 } lbtipc_transport_t;
 
-static wmem_tree_t * lbtipc_transport_table = NULL;
+static wmem_tree_t * lbtipc_transport_table;
 
 #define LBTIPC_KEY_ELEMENT_COUNT 3
 #define LBTIPC_KEY_ELEMENT_HOST_ID 0
@@ -117,7 +117,7 @@ typedef struct
     guint64 channel;
 } lbtsmx_transport_t;
 
-static wmem_tree_t * lbtsmx_transport_table = NULL;
+static wmem_tree_t * lbtsmx_transport_table;
 
 #define LBTSMX_KEY_ELEMENT_COUNT 3
 #define LBTSMX_KEY_ELEMENT_HOST_ID 0
@@ -190,7 +190,7 @@ typedef struct
     guint64 channel;
 } lbtrdma_transport_t;
 
-static wmem_tree_t * lbtrdma_transport_table = NULL;
+static wmem_tree_t * lbtrdma_transport_table;
 
 #define LBTRDMA_KEY_ELEMENT_COUNT          3
 #define LBTRDMA_KEY_ELEMENT_SOURCE_ADDRESS 0
@@ -1890,18 +1890,18 @@ static guint32 global_lbmr_uc_port_high = LBMR_DEFAULT_UC_PORT_HIGH;
 static guint32 global_lbmr_uc_port_low = LBMR_DEFAULT_UC_PORT_LOW;
 static guint32 global_lbmr_uc_dest_port = LBMR_DEFAULT_UC_DEST_PORT;
 static const char * global_lbmr_uc_address = LBMR_DEFAULT_UC_ADDRESS;
-static bool global_lbmr_use_tag = false;
+static bool global_lbmr_use_tag;
 
 /* Local preferences variables (used by the dissector). */
 static guint32 lbmr_mc_incoming_udp_port = LBMR_DEFAULT_MC_INCOMING_UDP_PORT;
 static guint32 lbmr_mc_outgoing_udp_port = LBMR_DEFAULT_MC_OUTGOING_UDP_PORT;
-static guint32 lbmr_mc_incoming_address_host = 0;
-static guint32 lbmr_mc_outgoing_address_host = 0;
+static guint32 lbmr_mc_incoming_address_host;
+static guint32 lbmr_mc_outgoing_address_host;
 static guint32 lbmr_uc_port_high = LBMR_DEFAULT_UC_PORT_HIGH;
 static guint32 lbmr_uc_port_low = LBMR_DEFAULT_UC_PORT_LOW;
 static guint32 lbmr_uc_dest_port = LBMR_DEFAULT_UC_DEST_PORT;
-static guint32 lbmr_uc_address_host = 0;
-static gboolean lbmr_use_tag = FALSE;
+static guint32 lbmr_uc_address_host;
+static gboolean lbmr_use_tag;
 
 typedef struct
 {
@@ -1919,8 +1919,8 @@ typedef struct
     guint32 uc_address_val_h;
 } lbmr_tag_entry_t;
 
-static lbmr_tag_entry_t * lbmr_tag_entry = NULL;
-static guint lbmr_tag_count = 0;
+static lbmr_tag_entry_t * lbmr_tag_entry;
+static guint lbmr_tag_count;
 
 UAT_CSTRING_CB_DEF(lbmr_tag, name, lbmr_tag_entry_t)
 UAT_DEC_CB_DEF(lbmr_tag, mc_outgoing_udp_port, lbmr_tag_entry_t)

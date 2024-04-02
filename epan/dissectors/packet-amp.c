@@ -114,7 +114,7 @@ static gint ett_amp_ari_flags;
 static int hf_amp_reserved;
 static int hf_amp_acl;
 static int hf_amp_nack;
-static int hf_amp_ack = 0;
+static int hf_amp_ack;
 static int hf_amp_opcode;
 static int hf_amp_rx_name;
 

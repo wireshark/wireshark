@@ -90,8 +90,8 @@ static int hf_bscvlc_connect_uuid;
 static dissector_table_t bvlc_dissector_table;
 static dissector_table_t bscvlc_dissector_table;
 static dissector_table_t bvlc_ipv6_dissector_table;
-static dissector_handle_t bvlc_handle = NULL;
-static dissector_handle_t bscvlc_handle = NULL;
+static dissector_handle_t bvlc_handle;
+static dissector_handle_t bscvlc_handle;
 
 static const value_string bvlc_function_names[] = {
 	{ 0x00, "BVLC-Result" },

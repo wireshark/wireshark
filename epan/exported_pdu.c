@@ -21,8 +21,8 @@
 
 #include <wsutil/pint.h>
 
-static GSList *export_pdu_tap_name_list = NULL;
-static wmem_map_t *export_pdu_encap_table = NULL;
+static GSList *export_pdu_tap_name_list;
+static wmem_map_t *export_pdu_encap_table;
 
 static int exp_pdu_data_ip_size(const address* addr)
 {

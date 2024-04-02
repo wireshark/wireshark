@@ -47,9 +47,9 @@
 #define ZVT_APDU_MIN_LEN 3
 
 
-static GHashTable *apdu_table = NULL, *bitmap_table = NULL, *tlv_table = NULL;
+static GHashTable *apdu_table = NULL, *bitmap_table = NULL, *tlv_table;
 
-static wmem_tree_t *transactions = NULL;
+static wmem_tree_t *transactions;
 
 typedef struct _zvt_transaction_t {
     guint32 rqst_frame;

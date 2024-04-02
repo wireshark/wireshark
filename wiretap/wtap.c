@@ -27,12 +27,12 @@
 #endif
 
 #ifdef HAVE_PLUGINS
-static plugins_t *libwiretap_plugins = NULL;
+static plugins_t *libwiretap_plugins;
 #endif
 
 #define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
 
-static GSList *wtap_plugins = NULL;
+static GSList *wtap_plugins;
 
 #ifdef HAVE_PLUGINS
 void
@@ -1306,7 +1306,7 @@ static struct encap_type_info encap_table_base[] = {
 
 WS_DLL_LOCAL
 int wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
-static GArray* encap_table_arr = NULL;
+static GArray* encap_table_arr;
 
 #define encap_table_entry(encap)	\
 	g_array_index(encap_table_arr, struct encap_type_info, encap)

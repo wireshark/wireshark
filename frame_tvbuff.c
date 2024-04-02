@@ -53,7 +53,7 @@ frame_read(struct tvb_frame *frame_tvb, wtap_rec *rec, Buffer *buf)
     return ok;
 }
 
-static GPtrArray *buffer_cache = NULL;
+static GPtrArray *buffer_cache;
 
 static void
 frame_cache(struct tvb_frame *frame_tvb)

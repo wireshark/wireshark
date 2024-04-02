@@ -36,10 +36,10 @@ static int proto_ipdu_multiplexer;
 #define IPDUM_NAME "AUTOSAR I-PduM"
 
 /* dissector handles - incoming messages */
-static dissector_handle_t ipdum_handle_can              = NULL;
-static dissector_handle_t ipdum_handle_flexray          = NULL;
-static dissector_handle_t ipdum_handle_lin              = NULL;
-static dissector_handle_t ipdum_handle_pdu_transport    = NULL;
+static dissector_handle_t ipdum_handle_can;
+static dissector_handle_t ipdum_handle_flexray;
+static dissector_handle_t ipdum_handle_lin;
+static dissector_handle_t ipdum_handle_pdu_transport;
 
 /* subdissectors - outgoing messages */
 static dissector_table_t subdissector_table;
@@ -121,25 +121,25 @@ typedef struct _ipdum_pdu_transport_mapping {
 } ipdum_pdu_transport_mapping_t;
 typedef ipdum_pdu_transport_mapping_t ipdum_pdu_transport_mapping_uat_t;
 
-static ipdum_message_list_uat_t *ipdum_message_list = NULL;
-static guint ipdum_message_list_num = 0;
-static GHashTable *data_ipdum_messages = NULL;
+static ipdum_message_list_uat_t *ipdum_message_list;
+static guint ipdum_message_list_num;
+static GHashTable *data_ipdum_messages;
 
-static ipdum_can_mapping_t *ipdum_can_mapping = NULL;
-static guint ipdum_can_mapping_num = 0;
-static GHashTable *data_ipdum_can_mappings = NULL;
+static ipdum_can_mapping_t *ipdum_can_mapping;
+static guint ipdum_can_mapping_num;
+static GHashTable *data_ipdum_can_mappings;
 
-static ipdum_flexray_mapping_t *ipdum_flexray_mapping = NULL;
-static guint ipdum_flexray_mapping_num = 0;
-static GHashTable *data_ipdum_flexray_mappings = NULL;
+static ipdum_flexray_mapping_t *ipdum_flexray_mapping;
+static guint ipdum_flexray_mapping_num;
+static GHashTable *data_ipdum_flexray_mappings;
 
-static ipdum_lin_mapping_t *ipdum_lin_mapping = NULL;
-static guint ipdum_lin_mapping_num = 0;
-static GHashTable *data_ipdum_lin_mappings = NULL;
+static ipdum_lin_mapping_t *ipdum_lin_mapping;
+static guint ipdum_lin_mapping_num;
+static GHashTable *data_ipdum_lin_mappings;
 
-static ipdum_pdu_transport_mapping_t *ipdum_pdu_transport_mapping = NULL;
-static guint ipdum_pdu_transport_mapping_num = 0;
-static GHashTable *data_ipdum_pdu_transport_mappings = NULL;
+static ipdum_pdu_transport_mapping_t *ipdum_pdu_transport_mapping;
+static guint ipdum_pdu_transport_mapping_num;
+static GHashTable *data_ipdum_pdu_transport_mappings;
 
 
 /* UAT Callbacks and Helpers */

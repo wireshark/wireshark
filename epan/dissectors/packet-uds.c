@@ -1270,9 +1270,9 @@ simple_free(gpointer data) {
 
 
 /* Routine IDs */
-static generic_addr_id_string_t *uds_uat_routine_ids = NULL;
-static guint uds_uat_routine_id_num = 0;
-static GHashTable *uds_ht_routine_ids = NULL;
+static generic_addr_id_string_t *uds_uat_routine_ids;
+static guint uds_uat_routine_id_num;
+static GHashTable *uds_ht_routine_ids;
 
 UAT_HEX_CB_DEF(uds_uat_routine_ids, address, generic_addr_id_string_t)
 UAT_HEX_CB_DEF(uds_uat_routine_ids, id, generic_addr_id_string_t)
@@ -1319,9 +1319,9 @@ infocol_append_routine_name(packet_info *pinfo, guint32 addr, guint16 routine_id
 
 
 /* Data IDs */
-static generic_addr_id_string_t *uds_uat_data_ids = NULL;
-static guint uds_uat_data_id_num = 0;
-static GHashTable *uds_ht_data_ids = NULL;
+static generic_addr_id_string_t *uds_uat_data_ids;
+static guint uds_uat_data_id_num;
+static GHashTable *uds_ht_data_ids;
 
 UAT_HEX_CB_DEF(uds_uat_data_ids, address, generic_addr_id_string_t)
 UAT_HEX_CB_DEF(uds_uat_data_ids, id, generic_addr_id_string_t)
@@ -1368,9 +1368,9 @@ infocol_append_data_name(packet_info *pinfo, guint32 addr, guint16 data_identifi
 
 
 /* DTC IDs */
-static generic_addr_id_string_t *uds_uat_dtc_ids = NULL;
-static guint uds_uat_dtc_id_num = 0;
-static GHashTable *uds_ht_dtc_ids = NULL;
+static generic_addr_id_string_t *uds_uat_dtc_ids;
+static guint uds_uat_dtc_id_num;
+static GHashTable *uds_ht_dtc_ids;
 
 UAT_HEX_CB_DEF(uds_uat_dtc_ids, address, generic_addr_id_string_t)
 UAT_HEX_CB_DEF(uds_uat_dtc_ids, id, generic_addr_id_string_t)
@@ -1409,9 +1409,9 @@ protoitem_append_dtc_name(proto_item *ti, guint32 addr, guint32 dtc_id) {
 
 
 /* Addresses */
-static address_string_t *uds_uat_addresses = NULL;
-static guint uds_uat_addresses_num = 0;
-static GHashTable *uds_ht_addresses = NULL;
+static address_string_t *uds_uat_addresses;
+static guint uds_uat_addresses_num;
+static GHashTable *uds_ht_addresses;
 
 UAT_HEX_CB_DEF(uds_uat_addresses, address, address_string_t)
 UAT_CSTRING_CB_DEF(uds_uat_addresses, name, address_string_t)

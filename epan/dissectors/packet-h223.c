@@ -166,7 +166,7 @@ typedef struct {
     guint32 vc;                 /* child circuit */
 } circuit_chain_key;
 
-static wmem_map_t *circuit_chain_hashtable = NULL;
+static wmem_map_t *circuit_chain_hashtable;
 static guint circuit_chain_count = 1;
 
 /* Hash Functions */

@@ -91,7 +91,7 @@ typedef struct {
   nstime_t req_time;
 } imap_request_info_t;
 
-static wmem_map_t *imap_requests = NULL;
+static wmem_map_t *imap_requests;
 
 static gint
 imap_request_equal(gconstpointer v, gconstpointer w)

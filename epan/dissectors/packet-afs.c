@@ -32,7 +32,7 @@
 void proto_register_afs(void);
 
 /* Defragment (reassemble) fragmented AFS traffic */
-static bool afs_defragment = false;
+static bool afs_defragment;
 
 #define AFS_PORT_FS     7000
 #define AFS_PORT_CB     7001
@@ -1411,7 +1411,7 @@ struct afs_request_val {
 	nstime_t req_time;
 };
 
-static wmem_map_t *afs_request_hash = NULL;
+static wmem_map_t *afs_request_hash;
 static reassembly_table afs_reassembly_table;
 
 /*

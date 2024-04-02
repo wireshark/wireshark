@@ -124,12 +124,12 @@ static expert_field ei_iuup_time_align;
 static expert_field ei_iuup_procedure_indicator;
 static expert_field ei_iuup_pdu_type;
 
-static wmem_map_t* circuits = NULL;
+static wmem_map_t* circuits;
 
 static dissector_handle_t iuup_handle;
 
-static bool dissect_fields = false;
-static bool two_byte_pseudoheader = false;
+static bool dissect_fields;
+static bool two_byte_pseudoheader;
 
 #define PDUTYPE_DATA_WITH_CRC 0
 #define PDUTYPE_DATA_NO_CRC 1

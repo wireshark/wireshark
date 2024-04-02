@@ -29,7 +29,7 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_gdt;
-static dissector_handle_t gdt_handle = NULL;
+static dissector_handle_t gdt_handle;
 
 #include "packet-gdt-hf.c"
 

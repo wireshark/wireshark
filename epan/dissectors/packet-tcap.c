@@ -128,11 +128,11 @@ gint ett_tcap_stat;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
-static dissector_handle_t requested_subdissector_handle = NULL;
+static dissector_handle_t requested_subdissector_handle;
 
 static int ss7pc_address_type = -1;
 
-static struct tcaphash_context_t * gp_tcap_context=NULL;
+static struct tcaphash_context_t * gp_tcap_context;
 
 static gint ett_tcap_ExternalPDU_U;
 static gint ett_tcap_TCMessage;
@@ -188,20 +188,20 @@ gboolean gtcap_DisplaySRT=FALSE;
 gboolean gtcap_StatSRT=FALSE;
 
 /* Global hash tables*/
-static wmem_map_t *tcaphash_context = NULL;
-static wmem_map_t *tcaphash_begin = NULL;
-static wmem_map_t *tcaphash_cont = NULL;
-static wmem_map_t *tcaphash_end = NULL;
-static wmem_map_t *tcaphash_ansi = NULL;
+static wmem_map_t *tcaphash_context;
+static wmem_map_t *tcaphash_begin;
+static wmem_map_t *tcaphash_cont;
+static wmem_map_t *tcaphash_end;
+static wmem_map_t *tcaphash_ansi;
 
 static guint32 tcapsrt_global_SessionId=1;
 
-static dissector_handle_t tcap_handle = NULL;
+static dissector_handle_t tcap_handle;
 static dissector_table_t ber_oid_dissector_table;
 static const char * cur_oid;
 static const char * tcapext_oid;
-static proto_tree * tcap_top_tree=NULL;
-static proto_tree * tcap_stat_tree=NULL;
+static proto_tree * tcap_top_tree;
+static proto_tree * tcap_stat_tree;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ansi_tcap_handle;
@@ -209,8 +209,8 @@ static dissector_handle_t ansi_tcap_handle;
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static bool dissect_tcap_ITU_ComponentPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
-static dissector_table_t ansi_sub_dissectors = NULL;
-static dissector_table_t itu_sub_dissectors = NULL;
+static dissector_table_t ansi_sub_dissectors;
+static dissector_table_t itu_sub_dissectors;
 
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
   dissector_add_uint("ansi_tcap.ssn",ssn,dissector);

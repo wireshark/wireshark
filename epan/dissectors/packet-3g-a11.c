@@ -42,7 +42,7 @@
 void proto_register_a11(void);
 void proto_reg_handoff_a11(void);
 
-static int registration_request_msg =0;
+static int registration_request_msg;
 
 /* Initialize the protocol and registered fields */
 static int proto_a11;
@@ -213,7 +213,7 @@ static expert_field ei_a11_bcmcs_too_short;
 static expert_field ei_a11_entry_data_not_dissected;
 static expert_field ei_a11_session_data_not_dissected;
 
-static dissector_handle_t a11_handle = NULL;
+static dissector_handle_t a11_handle;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699 /* Not IANA registered */

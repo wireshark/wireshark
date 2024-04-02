@@ -27,14 +27,14 @@
  * Set to true if the DLL was successfully loaded AND all functions
  * are present.
  */
-static bool AirpcapLoaded = false;
+static bool AirpcapLoaded;
 
 #ifdef _WIN32
 /*
  * We load dynamically the dag library in order link it only when
  * it's present on the system
  */
-static void * AirpcapLib = NULL;
+static void * AirpcapLib;
 
 static AirpcapGetLastErrorHandler g_PAirpcapGetLastError;
 static AirpcapSetKernelBufferHandler g_PAirpcapSetKernelBuffer;
@@ -77,13 +77,13 @@ static AirpcapGetDeviceChannelExHandler g_PAirpcapGetDeviceChannelEx;
 static AirpcapGetDeviceSupportedChannelsHandler g_PAirpcapGetDeviceSupportedChannels;
 
 /* Airpcap interface list */
-GList *g_airpcap_if_list = NULL;
+GList *g_airpcap_if_list;
 
 /* Airpcap current selected interface */
-airpcap_if_info_t *airpcap_if_selected = NULL;
+airpcap_if_info_t *airpcap_if_selected;
 
 /* Airpcap current active interface */
-airpcap_if_info_t *airpcap_if_active = NULL;
+airpcap_if_info_t *airpcap_if_active;
 
 Dot11Channel *pSupportedChannels;
 unsigned numSupportedChannels;

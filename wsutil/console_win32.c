@@ -26,7 +26,7 @@
 
 static bool has_console;  /* true if app has console */
 static bool console_wait; /* "Press any key..." */
-static bool stdin_capture = false; /* Don't grab stdin & stdout if true */
+static bool stdin_capture; /* Don't grab stdin & stdout if true */
 
 /*
  * Check whether a given standard handle needs to be redirected.

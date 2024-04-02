@@ -1149,7 +1149,7 @@ typedef struct {
 	guint16	tid;
 } afp_request_key;
 
-static wmem_map_t *afp_request_hash = NULL;
+static wmem_map_t *afp_request_hash;
 
 static guint Vol;      /* volume */
 static guint Did;      /* parent directory ID */

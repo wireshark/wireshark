@@ -115,7 +115,7 @@ static const unit_name_string units_10_ms = { " times 10 milliseconds", NULL };
  * This is based on looking at BEACONs, or perhaps from the radiotap header
  * if we get one.
  */
-static wmem_map_t *sta_prop_hash = NULL;
+static wmem_map_t *sta_prop_hash;
 
 /*
  * Not sure that they can be both, so are bit values wanted?
@@ -154,13 +154,13 @@ static bool wlan_defragment = true;
 static bool wlan_subdissector = true;
 
 /* Check for the presence of the 802.11 FCS */
-static bool wlan_check_fcs = false;
+static bool wlan_check_fcs;
 
 /* Check the FCS checksum */
-static bool wlan_check_checksum = false;
+static bool wlan_check_checksum;
 
 /* Ignore vendor-specific HT elements */
-static bool wlan_ignore_draft_ht = false;
+static bool wlan_ignore_draft_ht;
 
 /* Ignore the Protection bit; assume packet is decrypted */
 #define WLAN_IGNORE_PROT_NO     0
@@ -169,18 +169,18 @@ static bool wlan_ignore_draft_ht = false;
 static gint wlan_ignore_prot = WLAN_IGNORE_PROT_NO;
 
 /* The Key MIC len has been set by the user */
-static bool wlan_key_mic_len_enable = false;
-static guint wlan_key_mic_len = 0;
+static bool wlan_key_mic_len_enable;
+static guint wlan_key_mic_len;
 
 /* Counter incremented on each (re)association
  * This value will be assiged to each packet's pinfo->srcport/pinfo->destport
  * as a way to uniquely make a one to one mapping between conversations and
  * associations
  */
-static guint32 association_counter = 0;
+static guint32 association_counter;
 
 /* Treat all Wi-Fi frames as being S1G frames where it is important */
-static bool treat_as_s1g = false;
+static bool treat_as_s1g;
 
 /* Table for reassembly of fragments. */
 static reassembly_table wlan_reassembly_table;
@@ -192,9 +192,9 @@ static struct _wlan_stats wlan_stats;
  * UAT for WEP decoder
  *-------------------------------------
  */
-static uat_wep_key_record_t *uat_wep_key_records = NULL;
-static uat_t                *wep_uat             = NULL;
-static guint                 num_wepkeys_uat     = 0;
+static uat_wep_key_record_t *uat_wep_key_records;
+static uat_t                *wep_uat;
+static guint                 num_wepkeys_uat;
 
 static void *
 uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_)
@@ -3688,7 +3688,7 @@ static const value_string fils_discovery_capability_fils_minimum_rate_he[] = {
 static int proto_wlan;
 static int proto_centrino;
 static int proto_aggregate;
-static gboolean ieee80211_tvb_invalid = FALSE;
+static gboolean ieee80211_tvb_invalid;
 
 /* ************************************************************************* */
 /*                Header field info values for FC-field                      */
@@ -3779,8 +3779,8 @@ typedef struct retransmit_key {
   guint   fnum;
 } retransmit_key;
 
-static GHashTable *fc_analyse_retransmit_table = NULL;
-static GHashTable *fc_first_frame_table = NULL;
+static GHashTable *fc_analyse_retransmit_table;
+static GHashTable *fc_first_frame_table;
 
 static int hf_ieee80211_fc_analysis_retransmission;
 static int hf_ieee80211_fc_analysis_retransmission_frame;
@@ -8740,7 +8740,7 @@ static int wlan_bssid_address_type = -1;
 static int wlan_ra_ta_address_type = -1;
 static int wlan_aid_address_type = -1;
 
-static int beacon_padding = 0; /* beacon padding bug */
+static int beacon_padding; /* beacon padding bug */
 
 /*
  * Check if we have an S1G STA
@@ -8852,7 +8852,7 @@ static const val64_string number_of_taps_values[] = {
   {0, NULL}
 };
 
-DOT11DECRYPT_CONTEXT dot11decrypt_ctx = { 0 };
+DOT11DECRYPT_CONTEXT dot11decrypt_ctx;
 
 #define PSMP_STA_INFO_BROADCAST 0
 #define PSMP_STA_INFO_MULTICAST 1
@@ -9052,7 +9052,7 @@ partial_tsf_custom(gchar *result, guint32 value)
 /*
  * We use this is displaying the ru allocation region.
  */
-static guint8 global_he_trigger_bw = 0;
+static guint8 global_he_trigger_bw;
 
 static void
 he_ru_allocation_base_custom(gchar *result, guint32 ru_allocation)
@@ -23880,7 +23880,7 @@ static const value_string s1g_raw_control_raw_type[] = {
   { 0, NULL }
 };
 
-static guint8 global_s1g_raw_type = 0;
+static guint8 global_s1g_raw_type;
 
 static void
 s1g_raw_type_options_custom(gchar *result, guint8 raw_type)
@@ -24424,7 +24424,7 @@ static const true_false_string relay_direction_tfs = {
   "Sent by a non-AP STA"
 };
 
-static guint relay_function_field = 0;
+static guint relay_function_field;
 
 static void
 enable_relay_function_custom(gchar *result, guint8 enable_relay_function)

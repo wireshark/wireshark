@@ -2867,7 +2867,7 @@ dissect_pvfs2_response(tvbuff_t *tvb, proto_tree *tree, int offset,
 	return offset;
 }
 
-static wmem_map_t *pvfs2_io_tracking_value_table = NULL;
+static wmem_map_t *pvfs2_io_tracking_value_table;
 
 typedef struct pvfs2_io_tracking_key
 {

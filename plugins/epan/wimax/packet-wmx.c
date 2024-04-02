@@ -29,8 +29,8 @@ void proto_reg_handoff_wimax(void);
 
 /* Global variables */
 gint	proto_wimax;
-gint8	arq_enabled = 0;
-gint	scheduling_service_type = 0;
+gint8	arq_enabled;
+gint	scheduling_service_type;
 gint	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
 extern	guint global_cid_max_basic;
 extern	bool include_cor2_changes;

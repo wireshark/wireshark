@@ -338,9 +338,9 @@ static heur_dissector_list_t cltp_heur_subdissector_list;
  * Reassembly of COTP.
  */
 static reassembly_table cotp_reassembly_table;
-static guint16    cotp_dst_ref = 0;
-static gboolean   cotp_frame_reset = FALSE;
-static gboolean   cotp_last_fragment = FALSE;
+static guint16    cotp_dst_ref;
+static gboolean   cotp_frame_reset;
+static gboolean   cotp_last_fragment;
 
 #define TSAP_DISPLAY_AUTO   0
 #define TSAP_DISPLAY_STRING 1
@@ -349,7 +349,7 @@ static gboolean   cotp_last_fragment = FALSE;
 /* options */
 static bool cotp_reassemble = true;
 static gint32   tsap_display = TSAP_DISPLAY_AUTO;
-static bool cotp_decode_atn = false;
+static bool cotp_decode_atn;
 
 static const enum_val_t tsap_display_options[] = {
   {"auto", "As strings if printable", TSAP_DISPLAY_AUTO},

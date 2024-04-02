@@ -4362,7 +4362,7 @@ void proto_register_wassp(void);
 void proto_reg_handoff_wassp(void);
 static int dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
-static int g_wassp_ver = 0;
+static int g_wassp_ver;
 static reassembly_table  wassp_reassembled_table;
 static void wassp_defragment_init(void)
 {

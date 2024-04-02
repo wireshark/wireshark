@@ -162,7 +162,7 @@ static const fragment_items mtp2_frag_items = {
 static reassembly_table mtp2_reassembly_table;
 
 /* variables needed for property registration to wireshark menu */
-static bool reverse_bit_order_mtp2 = false;
+static bool reverse_bit_order_mtp2;
 
 static expert_field ei_mtp2_checksum_error;
 static expert_field ei_mtp2_li_bad;
@@ -170,15 +170,15 @@ static expert_field ei_mtp2_li_bad;
 /* Initialize the subtree pointers */
 static gint ett_mtp2;
 
-static bool use_extended_sequence_numbers_default = false;
-static bool capture_contains_fcs_crc_default = false;
+static bool use_extended_sequence_numbers_default;
+static bool capture_contains_fcs_crc_default;
 
 /* sequence number of the actual packet to be reassembled
  * this is needed because the reassemble handler uses a key based on the
  * source and destination IP addresses
  * therefore if there are multiple streams between 2 IP end-points
  * the reassemble sequence numbers can conflict if they are based on conversations */
-static guint32    mtp2_absolute_reass_seq_num = 0;
+static guint32    mtp2_absolute_reass_seq_num;
 
 #define BSN_BIB_LENGTH          1
 #define FSN_FIB_LENGTH          1

@@ -1024,12 +1024,12 @@ static int
 dissect_thread_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /* Preferences */
-static bool thread_use_pan_id_in_key = false;
-static const gchar *thread_seq_ctr_str = NULL;
+static bool thread_use_pan_id_in_key;
+static const gchar *thread_seq_ctr_str;
 static bool thread_auto_acq_seq_ctr = true;
 
 
-static gboolean thread_seq_ctr_acqd = FALSE;
+static gboolean thread_seq_ctr_acqd;
 static guint8 thread_seq_ctr_bytes[4];
 static const guint8 thread_well_known_key[IEEE802154_CIPHER_SIZE] =
 { 0x78, 0x58, 0x16, 0x86, 0xfd, 0xb4, 0x58, 0x0f, 0xb0, 0x92, 0x54, 0x6a, 0xec, 0xbd, 0x15, 0x66 };

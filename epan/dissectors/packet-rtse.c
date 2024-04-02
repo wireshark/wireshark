@@ -44,7 +44,7 @@ static int proto_rtse;
 static gboolean open_request=FALSE;
 static guint32 app_proto=0;
 
-static proto_tree *top_tree=NULL;
+static proto_tree *top_tree;
 
 /* Preferences */
 static bool rtse_reassemble = true;
@@ -89,8 +89,8 @@ static expert_field ei_rtse_dissector_oid_not_implemented;
 static expert_field ei_rtse_unknown_rtse_pdu;
 static expert_field ei_rtse_abstract_syntax;
 
-static dissector_table_t rtse_oid_dissector_table=NULL;
-static dissector_handle_t rtse_handle = NULL;
+static dissector_table_t rtse_oid_dissector_table;
+static dissector_handle_t rtse_handle;
 static gint ett_rtse_unknown;
 
 static reassembly_table rtse_reassembly_table;

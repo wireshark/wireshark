@@ -37,7 +37,7 @@ static expert_field ei_ros_undecoded;
 /* Preferences */
 
 /* Subdissectors */
-static dissector_handle_t data_handle = NULL;
+static dissector_handle_t data_handle;
 
 /* Global variables */
 static rose_ctx_t *rose_ctx_tmp;

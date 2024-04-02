@@ -3213,8 +3213,8 @@ static expert_field ei_isup_opt_par_length_err;
 
 static dissector_handle_t bicc_handle;
 
-static dissector_handle_t sdp_handle = NULL;
-static dissector_handle_t q931_ie_handle = NULL;
+static dissector_handle_t sdp_handle;
+static dissector_handle_t q931_ie_handle;
 
 /* Declarations to desegment APM Messages */
 static bool isup_apm_desegment = true;
@@ -3245,9 +3245,9 @@ static const fragment_items isup_apm_msg_frag_items = {
 static reassembly_table isup_apm_msg_reassembly_table;
 
 /* Info for the tap that must be passed between procedures */
-static gchar *tap_called_number  = NULL;
-static gchar *tap_calling_number = NULL;
-static guint8 tap_cause_value = 0;
+static gchar *tap_called_number;
+static gchar *tap_calling_number;
+static guint8 tap_cause_value;
 
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character

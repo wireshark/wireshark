@@ -394,7 +394,7 @@ WS_DLL_PUBLIC_DEF const value_string chunk_type_values[] = {
 static bool show_port_numbers           = true;
 static gint sctp_checksum               = SCTP_CHECKSUM_NONE;
 static bool enable_tsn_analysis         = true;
-static bool enable_association_indexing = false;
+static bool enable_association_indexing;
 static bool enable_ulp_dissection       = true;
 static bool use_reassembly              = true;
 static bool show_always_control_chunks  = true;
@@ -413,8 +413,8 @@ typedef struct _type_field_t {
   guint type_enable;
 } type_field_t;
 
-static type_field_t* type_fields = NULL;
-static guint num_type_fields = 0;
+static type_field_t* type_fields;
+static guint num_type_fields;
 
 typedef struct _assoc_info_t {
   guint16 assoc_index;
@@ -432,9 +432,9 @@ typedef struct _infodata_t {
   guint16 direction;
 } infodata_t;
 
-static wmem_map_t *assoc_info_half_map = NULL;
-static wmem_map_t *assoc_info_map = NULL;
-static guint num_assocs = 0;
+static wmem_map_t *assoc_info_half_map;
+static wmem_map_t *assoc_info_map;
+static guint num_assocs;
 
 UAT_CSTRING_CB_DEF(type_fields, type_name, type_field_t)
 UAT_VS_DEF(type_fields, type_enable, type_field_t, guint, 0, "Show")
@@ -2528,7 +2528,7 @@ dissect_error_causes(tvbuff_t *causes_tvb, packet_info *pinfo, proto_tree *tree)
  * Code to actually dissect the packets
 */
 
-static bool try_heuristic_first = false;
+static bool try_heuristic_first;
 
 static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint32 ppi)
@@ -2672,7 +2672,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 #define SCTP_DATA_CHUNK_I_BIT 0x08
 
 /* table to hold fragmented SCTP messages */
-static GHashTable *frag_table = NULL;
+static GHashTable *frag_table;
 
 
 typedef struct _frag_key {

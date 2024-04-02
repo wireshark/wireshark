@@ -41,8 +41,8 @@ static int hf_pong_messageno;
 static int hf_pong_replyno;
 static int hf_pong_data;
 
-static guint64 pingpongprotocol_total_msgs  = 0;
-static guint64 pingpongprotocol_total_bytes = 0;
+static guint64 pingpongprotocol_total_msgs;
+static guint64 pingpongprotocol_total_bytes;
 
 /* Dissectors for messages. This is specific to PingPongProtocol */
 #define MESSAGE_TYPE_LENGTH    1

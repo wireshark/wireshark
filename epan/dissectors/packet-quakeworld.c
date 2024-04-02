@@ -143,7 +143,7 @@ skipwhite:
 
 
 #define			MAX_ARGS 80
-static	int		cmd_argc = 0;
+static	int		cmd_argc;
 static	const char	*cmd_argv[MAX_ARGS];
 static	const char	*cmd_null_string = "";
 static	int		cmd_argv_start[MAX_ARGS];
@@ -312,7 +312,7 @@ static const value_string names_direction[] = {
 
 /* I took this name and value directly out of the QW source. */
 #define PORT_MASTER 27500 /* Not IANA registered */
-static range_t *gbl_quakeworldServerPorts = NULL;
+static range_t *gbl_quakeworldServerPorts;
 
 /* out of band message id bytes (taken out of quakeworldsource/client/protocol.h */
 

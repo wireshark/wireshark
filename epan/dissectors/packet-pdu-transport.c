@@ -43,10 +43,10 @@ void proto_register_pdu_transport(void);
 void proto_reg_handoff_pdu_transport(void);
 
 static int proto_pdu_transport;
-static dissector_handle_t pdu_transport_handle_udp = NULL;
-static dissector_handle_t pdu_transport_handle_tcp = NULL;
+static dissector_handle_t pdu_transport_handle_udp;
+static dissector_handle_t pdu_transport_handle_tcp;
 
-static dissector_table_t subdissector_table = NULL;
+static dissector_table_t subdissector_table;
 
 #define PDU_TRANSPORT_NAME "PDU Transport"
 #define PDU_TRANSPORT_HDR_LEN 8
@@ -144,9 +144,9 @@ ht_lookup_name(GHashTable *ht, unsigned int identifier) {
 /*** UAT pdu_transport_CM_IDs ***/
 #define DATAFILE_PDU_IDS                "PDU_Transport_identifiers"
 
-static GHashTable *data_pdu_transport_pdus = NULL;
-static generic_one_id_string_t *pdu_transport_pdus = NULL;
-static guint pdu_transport_pdus_num = 0;
+static GHashTable *data_pdu_transport_pdus;
+static generic_one_id_string_t *pdu_transport_pdus;
+static guint pdu_transport_pdus_num;
 
 UAT_HEX_CB_DEF(pdu_transport_pdus, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(pdu_transport_pdus, name, generic_one_id_string_t)

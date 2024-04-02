@@ -389,7 +389,7 @@ static expert_field ei_sml_cosemvalue_invalid;
 
 /*options*/
 static bool sml_reassemble = true;
-static bool sml_crc_enabled = false;
+static bool sml_crc_enabled;
 
 /*get number of length octets and calculate how many data octets, it's like BER but not the same! */
 static void get_length(tvbuff_t *tvb, guint *offset, guint *data, guint *length){

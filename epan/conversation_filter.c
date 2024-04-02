@@ -17,10 +17,10 @@
 #include "conversation_filter.h"
 
 
-GList *packet_conv_filter_list = NULL;
-GList *log_conv_filter_list = NULL;
+GList *packet_conv_filter_list;
+GList *log_conv_filter_list;
 
-static GSList *conversation_proto_names = NULL;
+static GSList *conversation_proto_names;
 
 void conversation_filters_init(void)
 {

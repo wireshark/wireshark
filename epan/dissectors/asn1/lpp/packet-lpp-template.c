@@ -46,7 +46,7 @@ static int hf_lpp_bdsSvHealth_r12_b2i;
 static int hf_lpp_bdsSvHealth_r12_nav;
 static int hf_lpp_AssistanceDataSIBelement_r15_PDU;
 
-static dissector_handle_t lppe_handle = NULL;
+static dissector_handle_t lppe_handle;
 
 static guint32 lpp_epdu_id = -1;
 

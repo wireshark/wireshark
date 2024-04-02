@@ -1016,7 +1016,7 @@ static heur_dissector_list_t mq_heur_subdissector_list;
 static bool mq_desegment = true;
 static bool mq_reassembly = true;
 
-static gboolean mq_in_reassembly = FALSE;
+static gboolean mq_in_reassembly;
 
 static reassembly_table mq_reassembly_table;
 

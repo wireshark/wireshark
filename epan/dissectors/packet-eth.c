@@ -47,19 +47,19 @@ void proto_reg_handoff_eth(void);
 #define PADDING_ANY         2
 
 static gint eth_padding = PADDING_ZEROS;
-static guint eth_trailer_length = 0;
+static guint eth_trailer_length;
 /* By default, try to autodetect FCS */
 static gint eth_fcs = -1;
-static bool eth_check_fcs = false;
+static bool eth_check_fcs;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
-static bool eth_interpret_as_fw1_monitor = false;
+static bool eth_interpret_as_fw1_monitor;
 /* When capturing on a Cisco FEX some frames start with an extra destination mac */
-static bool eth_deduplicate_dmac = false;
+static bool eth_deduplicate_dmac;
 /* Preference settings defining conditions for which the CCSDS dissector is called */
-static bool ccsds_heuristic_length = false;
-static bool ccsds_heuristic_version = false;
-static bool ccsds_heuristic_header = false;
-static bool ccsds_heuristic_bit = false;
+static bool ccsds_heuristic_length;
+static bool ccsds_heuristic_version;
+static bool ccsds_heuristic_header;
+static bool ccsds_heuristic_bit;
 
 /* protocols and header fields */
 static int proto_eth;

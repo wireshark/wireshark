@@ -188,13 +188,13 @@ typedef enum {
 static bool ieee802154_fcs_ok = true;
 
 /* boolean value set to enable ack tracking */
-static bool ieee802154_ack_tracking = false;
+static bool ieee802154_ack_tracking;
 
 /* boolean value set to enable 802.15.4e dissection compatibility */
-static bool ieee802154e_compatibility = false;
+static bool ieee802154e_compatibility;
 
 /* TSCH ASN for nonce in decryption */
-static guint64 ieee802154_tsch_asn = 0;
+static guint64 ieee802154_tsch_asn;
 
 static const char  *ieee802154_user    = "User";
 
@@ -223,9 +223,9 @@ typedef struct {
 } static_addr_t;
 
 /* UAT variables */
-static uat_t         *static_addr_uat  = NULL;
-static static_addr_t *static_addrs     = NULL;
-static guint          num_static_addrs = 0;
+static uat_t         *static_addr_uat;
+static static_addr_t *static_addrs;
+static guint          num_static_addrs;
 
 static void*
 addr_uat_copy_cb(void *dest, const void *source, size_t len _U_)
@@ -281,9 +281,9 @@ UAT_BUFFER_CB_DEF(addr_uat, eui64, static_addr_t, eui64, eui64_len)
  */
 
 /* UAT variables */
-static uat_t            *ieee802154_key_uat = NULL;
-static ieee802154_key_t *ieee802154_keys = NULL;
-static guint             num_ieee802154_keys = 0;
+static uat_t            *ieee802154_key_uat;
+static ieee802154_key_t *ieee802154_keys;
+static guint             num_ieee802154_keys;
 
 static void ieee802154_key_post_update_cb(void)
 {

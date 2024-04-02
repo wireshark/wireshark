@@ -247,7 +247,7 @@ lbm_transport_sqn_t * lbm_transport_sqn_add(wmem_tree_t * list, lbm_transport_fr
 /*----------------------------------------------------------------------------*/
 /* Topic interface.                                                           */
 /*----------------------------------------------------------------------------*/
-static wmem_tree_t * lbm_topic_table = NULL;
+static wmem_tree_t * lbm_topic_table;
 
 #define LBM_TOPIC_KEY_ELEMENT_COUNT 3
 #define LBM_TOPIC_KEY_ELEMENT_CHANNEL_HIGH 0

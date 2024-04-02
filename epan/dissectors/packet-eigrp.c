@@ -537,8 +537,8 @@ static expert_field ei_eigrp_prefixlen;
 static expert_field ei_eigrp_tlv_trunc;
 
 /* some extra handle that might be needed */
-static dissector_handle_t ipxsap_handle = NULL;
-static dissector_table_t media_type_table = NULL;
+static dissector_handle_t ipxsap_handle;
+static dissector_table_t media_type_table;
 
 static const value_string eigrp_opcode2string[] = {
     { EIGRP_OPC_UPDATE,         "Update" },

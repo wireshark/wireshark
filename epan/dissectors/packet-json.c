@@ -81,9 +81,9 @@ static gint ett_json_object_raw;
 static gint ett_json_member_raw;
 
 /* Preferences */
-static bool json_compact = false;
+static bool json_compact;
 
-static bool json_raw = false;
+static bool json_raw;
 
 /* Determine whether to hide the tree of original form or root item of compact or raw form
  * based on the enabled status of compact_form and raw_form preferences.
@@ -92,13 +92,13 @@ static bool json_raw = false;
  * compact_form or raw_form is TRUE, then hide the root item of compact or raw form and put
  * the content of compact or raw form under the tree item of JSON protocol directly.
  */
-static bool auto_hide = false;
+static bool auto_hide;
 
-static bool ignore_leading_bytes = false;
+static bool ignore_leading_bytes;
 
-static bool hide_extended_path_based_filtering = false;
+static bool hide_extended_path_based_filtering;
 
-static bool unescape_strings = false;
+static bool unescape_strings;
 
 static tvbparse_wanted_t* want;
 static tvbparse_wanted_t* want_ignore;

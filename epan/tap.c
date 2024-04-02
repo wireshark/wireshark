@@ -34,7 +34,7 @@ typedef struct _tap_dissector_t {
 	struct _tap_dissector_t *next;
 	char *name;
 } tap_dissector_t;
-static tap_dissector_t *tap_dissector_list=NULL;
+static tap_dissector_t *tap_dissector_list;
 
 /*
  * This is the list of free and used packets queued for a tap.
@@ -93,9 +93,9 @@ typedef struct _tap_listener_t {
 	tap_finish_cb finish;
 } tap_listener_t;
 
-static tap_listener_t *tap_listener_queue=NULL;
+static tap_listener_t *tap_listener_queue;
 
-static GSList *tap_plugins = NULL;
+static GSList *tap_plugins;
 
 #ifdef HAVE_PLUGINS
 void

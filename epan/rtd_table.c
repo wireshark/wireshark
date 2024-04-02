@@ -54,7 +54,7 @@ const value_string* get_rtd_value_string(register_rtd_t* rtd)
     return rtd->vs_type;
 }
 
-static wmem_tree_t *registered_rtd_tables = NULL;
+static wmem_tree_t *registered_rtd_tables;
 
 void
 register_rtd_table(const int proto_id, const char* tap_listener, guint num_tables, guint num_timestats, const value_string* vs_type,

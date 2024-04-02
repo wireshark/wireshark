@@ -80,13 +80,13 @@
 #ifdef HAVE_ZLIB
 static gboolean grpc_decompress_body = TRUE;
 #else
-static gboolean grpc_decompress_body = FALSE;
+static gboolean grpc_decompress_body;
 #endif
 
 /* detect json automatically */
 static bool grpc_detect_json_automatically = true;
 /* whether embed GRPC messages under HTTP2 (or other) protocol tree items */
-static bool grpc_embedded_under_http2 = false;
+static bool grpc_embedded_under_http2;
 
 void proto_register_grpc(void);
 void proto_reg_handoff_grpc(void);

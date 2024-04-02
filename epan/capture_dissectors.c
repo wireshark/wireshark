@@ -38,9 +38,9 @@ typedef struct capture_dissector_count
     guint32 count;
 } capture_dissector_count_t;
 
-static GHashTable *registered_dissectors = NULL;
+static GHashTable *registered_dissectors;
 
-static GHashTable *capture_dissector_tables = NULL;
+static GHashTable *capture_dissector_tables;
 
 static void
 destroy_capture_dissector_table(void *data)

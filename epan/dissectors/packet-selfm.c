@@ -333,8 +333,8 @@ static dissector_handle_t selfm_handle;
 /* Globals for SEL Protocol Preferences */
 static bool selfm_desegment = true;
 static bool selfm_telnet_clean = true;
-static bool selfm_crc16 = false;             /* Default CRC16 validation to false */
-static const char *selfm_ser_list = NULL;
+static bool selfm_crc16;             /* Default CRC16 validation to false */
+static const char *selfm_ser_list;
 
 /***************************************************************************************/
 /* Fast Meter Message structs */

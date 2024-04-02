@@ -65,7 +65,7 @@ typedef struct {
 
 typedef int (*complex_dissector_t)(proto_tree *tree, tvbuff_t *tvb, int offset);
 
-static bool vrt_use_ettus_uhd_header_format = false;
+static bool vrt_use_ettus_uhd_header_format;
 
 static int proto_vrt;
 

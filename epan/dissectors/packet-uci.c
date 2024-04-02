@@ -184,7 +184,7 @@ static bool gPREF_TCP_DESEGMENT = true;
 static guint gPREF_TCP_PORT = 7000;
 
 static int proto_uci;
-static dissector_handle_t handle_uci = NULL;
+static dissector_handle_t handle_uci;
 
 static int hf_uci_message_type;
 static int hf_uci_packet_boundary_flag;

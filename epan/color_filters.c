@@ -41,12 +41,12 @@
 static int read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb);
 
 /* the currently active filters */
-static GSList *color_filter_list = NULL;
+static GSList *color_filter_list;
 
 /* keep "old" deleted filters in this list until
  * the dissection no longer needs them (e.g. file is closed) */
-static GSList *color_filter_deleted_list = NULL;
-static GSList *color_filter_valid_list   = NULL;
+static GSList *color_filter_deleted_list;
+static GSList *color_filter_valid_list;
 
 /* Color Filters can en-/disabled. */
 static bool filters_enabled = true;
@@ -54,7 +54,7 @@ static bool filters_enabled = true;
 /* Remember if there are temporary coloring filters set to
  * add sensitivity to the "Reset Coloring 1-10" menu item
  */
-static bool tmp_colors_set = false;
+static bool tmp_colors_set;
 
 /* Create a new filter */
 color_filter_t *

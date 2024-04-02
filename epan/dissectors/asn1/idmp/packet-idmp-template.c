@@ -40,11 +40,11 @@ void register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int p
 static bool           idmp_desegment       = true;
 #define IDMP_TCP_PORT     1102 /* made up for now - not IANA registered */
 static bool           idmp_reassemble      = true;
-static dissector_handle_t idmp_handle          = NULL;
+static dissector_handle_t idmp_handle;
 
-static proto_tree *top_tree         = NULL;
-static const char *protocolID       = NULL;
-static const char *saved_protocolID = NULL;
+static proto_tree *top_tree;
+static const char *protocolID;
+static const char *saved_protocolID;
 static guint32     opcode           = -1;
 
 /* Initialize the protocol and registered fields */

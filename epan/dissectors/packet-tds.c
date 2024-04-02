@@ -1457,7 +1457,7 @@ static const enum_val_t tds_endian_type_options[] = {
 };
 
 /* TCP port preferences for TDS decode */
-static range_t *tds_tcp_ports = NULL;
+static range_t *tds_tcp_ports;
 
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {

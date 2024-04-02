@@ -298,10 +298,10 @@ static const value_string service_removed_reasons[] = {
 /* Dissector state variables */
 static guint16 xmcp_msg_type_method = XMCP_METHOD_ILLEGAL;
 static guint16 xmcp_msg_type_class = XMCP_CLASS_RESERVED;
-static gboolean xmcp_msg_is_keepalive = FALSE;
+static gboolean xmcp_msg_is_keepalive;
 static gint16 xmcp_service_protocol = -1;
 static gint32 xmcp_service_port = -1;
-static proto_item *xmcp_it_service_port = NULL;
+static proto_item *xmcp_it_service_port;
 
 static guint
 get_xmcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,

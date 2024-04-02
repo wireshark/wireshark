@@ -184,7 +184,7 @@ static const fragment_items zbee_aps_frag_items = {
     "APS Message fragments"
 };
 
-static GHashTable *zbee_table_aps_extended_counters = NULL;
+static GHashTable *zbee_table_aps_extended_counters;
 
 /********************/
 /* Field Names      */

@@ -152,10 +152,10 @@ static frame_data prev_dis_frame;
 static frame_data prev_cap_frame;
 
 static gboolean perform_two_pass_analysis;
-static guint32 epan_auto_reset_count = 0;
-static gboolean epan_auto_reset = FALSE;
+static guint32 epan_auto_reset_count;
+static gboolean epan_auto_reset;
 
-static guint32 selected_frame_number = 0;
+static guint32 selected_frame_number;
 
 /*
  * The way the packet decode is to be written.
@@ -178,21 +178,21 @@ static gboolean print_summary;     /* TRUE if we're to print packet summary info
 static gboolean print_details;     /* TRUE if we're to print packet details information */
 static gboolean print_hex;         /* TRUE if we're to print hex/ascii information */
 static gboolean line_buffered;
-static gboolean quiet = FALSE;
-static gboolean really_quiet = FALSE;
+static gboolean quiet;
+static gboolean really_quiet;
 static gchar* delimiter_char = " ";
-static gboolean dissect_color = FALSE;
+static gboolean dissect_color;
 static guint hexdump_source_option = HEXDUMP_SOURCE_MULTI; /* Default - Enable legacy multi-source mode */
 static guint hexdump_ascii_option = HEXDUMP_ASCII_INCLUDE; /* Default - Enable legacy undelimited ASCII dump */
 
 static print_format_e print_format = PR_FMT_TEXT;
-static print_stream_t *print_stream = NULL;
+static print_stream_t *print_stream;
 
 static char *output_file_name;
 
-static output_fields_t* output_fields  = NULL;
+static output_fields_t* output_fields;
 
-static gboolean no_duplicate_keys = FALSE;
+static gboolean no_duplicate_keys;
 static proto_node_children_grouper_func node_children_grouper = proto_node_group_children_by_unique;
 
 static json_dumper jdumper;
@@ -201,9 +201,9 @@ static json_dumper jdumper;
 static const char *separator = "";
 
 /* Per-file comments to be added to the output file. */
-static GPtrArray *capture_comments = NULL;
+static GPtrArray *capture_comments;
 
-static gboolean prefs_loaded = FALSE;
+static gboolean prefs_loaded;
 
 #ifdef HAVE_LIBPCAP
 /*
@@ -265,9 +265,9 @@ static gboolean write_finale(void);
 static void tshark_cmdarg_err(const char *msg_format, va_list ap);
 static void tshark_cmdarg_err_cont(const char *msg_format, va_list ap);
 
-static GHashTable *output_only_tables = NULL;
+static GHashTable *output_only_tables;
 
-static gboolean opt_print_timers = FALSE;
+static gboolean opt_print_timers;
 struct elapsed_pass_s {
     gint64 dissect;
     gint64 dfilter_read;
@@ -905,7 +905,7 @@ warn_about_capture_filter(const char *rfilter)
 #endif
 
 #ifdef HAVE_LIBPCAP
-static GList *cached_if_list = NULL;
+static GList *cached_if_list;
 
 static GList *
 capture_opts_get_interface_list(int *err, char **err_str)
@@ -2774,8 +2774,8 @@ clean_exit:
     return exit_status;
 }
 
-gboolean loop_running = FALSE;
-guint32 packet_count = 0;
+gboolean loop_running;
+guint32 packet_count;
 
 static epan_t *
 tshark_epan_new(capture_file *cf)
@@ -3373,7 +3373,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
  * Set if reading a file was interrupted by a CTRL_ event on Windows or
  * a signal on UN*X.
  */
-static gboolean read_interrupted = FALSE;
+static gboolean read_interrupted;
 
 #ifdef _WIN32
 static BOOL WINAPI

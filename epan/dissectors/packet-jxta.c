@@ -45,7 +45,7 @@ static const gchar JXTA_WELCOME_MSG_SIG[] = { 'J', 'X', 'T', 'A', 'H', 'E', 'L',
 static const gchar* JXTA_WELCOME_MSG_VERSION_1_1 = "1.1";
 static const gchar* JXTA_WELCOME_MSG_VERSION_3_0 = "3.0";
 
-static const int JXTA_MSG_VERSION_1 = 0;
+static const int JXTA_MSG_VERSION_1;
 static const int JXTA_MSG_VERSION_2 = 1;
 
 static const int JXTAMSG1_ELMFLAG_TYPE = 1 << 0;
@@ -62,10 +62,10 @@ static int proto_jxta;
 static int proto_message_jxta;
 static int jxta_tap;
 
-static dissector_table_t media_type_dissector_table = NULL;
-static dissector_handle_t media_handle = NULL;
-static dissector_handle_t stream_jxta_handle = NULL;
-static dissector_handle_t tls_handle = NULL;
+static dissector_table_t media_type_dissector_table;
+static dissector_handle_t media_handle;
+static dissector_handle_t stream_jxta_handle;
+static dissector_handle_t tls_handle;
 
 static int hf_uri_addr;
 static int hf_uri_src;

@@ -37,7 +37,7 @@ typedef struct _gogkey {
 } gogkey;
 
 
-static mate_runtime_data* rd = NULL;
+static mate_runtime_data* rd;
 
 static int zero = 5;
 
@@ -45,7 +45,7 @@ static int* dbg = &zero;
 static int* dbg_pdu = &zero;
 static int* dbg_gop = &zero;
 static int* dbg_gog = &zero;
-static FILE* dbg_facility = NULL;
+static FILE* dbg_facility;
 
 static gboolean destroy_mate_pdus(gpointer k _U_, gpointer v, gpointer p _U_) {
 	mate_pdu* pdu = (mate_pdu*) v;

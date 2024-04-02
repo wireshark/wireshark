@@ -79,9 +79,9 @@ static gint ett_nlm_lock;
  * stuff to match MSG and RES packets for async NLM
  */
 
-static bool nlm_match_msgres = false;
-static wmem_map_t *nlm_msg_res_unmatched = NULL;
-static wmem_map_t *nlm_msg_res_matched = NULL;
+static bool nlm_match_msgres;
+static wmem_map_t *nlm_msg_res_unmatched;
+static wmem_map_t *nlm_msg_res_matched;
 
 /* XXX 	when matching the packets we should really check the conversation (only address
 	NOT ports) and command type as well. I am lazy and thinks the cookie itself is

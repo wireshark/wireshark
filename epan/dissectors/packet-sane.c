@@ -49,7 +49,7 @@
 #define SANE_MODULE_NAME "sane"
 #define SANE_PORT "6566"
 
-static range_t *sane_server_ports = NULL;
+static range_t *sane_server_ports;
 
 static dissector_handle_t sane_handle;
 

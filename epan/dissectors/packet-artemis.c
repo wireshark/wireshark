@@ -34,7 +34,7 @@ static gint ett_artemis;
 static expert_field ei_artemis_len_short;
 
 
-static dissector_handle_t artemis_tcp_handle = NULL;
+static dissector_handle_t artemis_tcp_handle;
 
 void proto_register_artemis(void);
 void proto_reg_handoff_artemis(void);

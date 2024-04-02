@@ -43,7 +43,7 @@ static const char *const proto_name_bp_admin = "BPv7 Admin";
 /// Protocol preferences and defaults
 static bool bp_compute_crc = true;
 static bool bp_reassemble_payload = true;
-static bool bp_payload_try_heur = false;
+static bool bp_payload_try_heur;
 
 /// Protocol handles
 static int proto_bp;
@@ -52,20 +52,20 @@ static int proto_blocktype;
 static int proto_bp_admin;
 static int proto_admintype;
 /// Protocol-level data
-static bp_history_t *bp_history = NULL;
+static bp_history_t *bp_history;
 
-static dissector_handle_t handle_admin = NULL;
+static dissector_handle_t handle_admin;
 /// Dissect opaque CBOR data
-static dissector_handle_t handle_cbor = NULL;
-static dissector_handle_t handle_cborseq = NULL;
+static dissector_handle_t handle_cbor;
+static dissector_handle_t handle_cborseq;
 /// Extension sub-dissectors
-static dissector_table_t block_dissectors = NULL;
-static dissector_table_t payload_dissectors_dtn_wkssp = NULL;
-static dissector_table_t payload_dissectors_dtn_serv = NULL;
-static dissector_table_t payload_dissectors_ipn_serv = NULL;
-static dissector_table_t admin_dissectors = NULL;
+static dissector_table_t block_dissectors;
+static dissector_table_t payload_dissectors_dtn_wkssp;
+static dissector_table_t payload_dissectors_dtn_serv;
+static dissector_table_t payload_dissectors_ipn_serv;
+static dissector_table_t admin_dissectors;
 /// BTSD heuristic
-static heur_dissector_list_t btsd_heur = NULL;
+static heur_dissector_list_t btsd_heur;
 
 /// Fragment reassembly
 static reassembly_table bp_reassembly_table;

@@ -46,14 +46,14 @@ static dissector_handle_t logcat_text_long_handle;
 
 static gint exported_pdu_tap = -1;
 
-static GRegex *special_regex = NULL;
-static GRegex *brief_regex = NULL;
-static GRegex *tag_regex = NULL;
-static GRegex *time_regex = NULL;
-static GRegex *process_regex = NULL;
-static GRegex *thread_regex = NULL;
-static GRegex *threadtime_regex = NULL;
-static GRegex *long_regex = NULL;
+static GRegex *special_regex;
+static GRegex *brief_regex;
+static GRegex *tag_regex;
+static GRegex *time_regex;
+static GRegex *process_regex;
+static GRegex *thread_regex;
+static GRegex *threadtime_regex;
+static GRegex *long_regex;
 
 static const gchar dissector_name[] = "Logcat Text";
 

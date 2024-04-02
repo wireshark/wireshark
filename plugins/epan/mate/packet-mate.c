@@ -24,7 +24,7 @@
 void proto_register_mate(void);
 void proto_reg_handoff_mate(void);
 
-static mate_config* mc = NULL;
+static mate_config* mc;
 
 static int proto_mate;
 
@@ -37,14 +37,14 @@ static int hf_mate_gop_key;
 static expert_field ei_mate_undefined_attribute;
 
 static const gchar* pref_mate_config_filename = "";
-static const gchar* current_mate_config_filename = NULL;
+static const gchar* current_mate_config_filename;
 
 #ifdef _AVP_DEBUGGING
-static int pref_avp_debug_general = 0;
-static int pref_avp_debug_avp = 0;
-static int pref_avp_debug_avp_op = 0;
-static int pref_avp_debug_avpl = 0;
-static int pref_avp_debug_avpl_op = 0;
+static int pref_avp_debug_general;
+static int pref_avp_debug_avp;
+static int pref_avp_debug_avp_op;
+static int pref_avp_debug_avpl;
+static int pref_avp_debug_avpl_op;
 #endif
 
 static dissector_handle_t mate_handle;

@@ -93,7 +93,7 @@ static wmem_map_t *detected_tcp_svc;  /* this array is used to track services de
 
 static wmem_map_t *dcerpc_req_pkt_type;  /* used to indicate if a DCE-RPC pkt_type is a request */
 
-static wmem_map_t *dcerpc_streams = NULL;  /* used to record TCP stream numbers that are carrying DCE-RPC data */
+static wmem_map_t *dcerpc_streams;  /* used to record TCP stream numbers that are carrying DCE-RPC data */
 
 /*
 This array contains calls and returns that have no TRUE context_id
@@ -106,7 +106,7 @@ static wmem_map_t *dcerpc_context_zero;
 /*
     The rrpd_list holds information about all of the APDU Request-Response Pairs seen in the trace.
  */
-static wmem_list_t *rrpd_list = NULL;
+static wmem_list_t *rrpd_list;
 
 /*
     output_rrpd is a hash of pointers to RRPDs on the rrpd_list.  The index is the frame number.  This hash is
@@ -122,7 +122,7 @@ static wmem_map_t *output_rrpd;
     TCP Reassembly enabled.  Once we receive a header packet for an APDU we migrate the entry from this array to the
     main rrpd_list.
  */
-static wmem_list_t *temp_rsp_rrpd_list = NULL;  /* Reuse these for speed and efficient memory use - issue a warning if we run out */
+static wmem_list_t *temp_rsp_rrpd_list;  /* Reuse these for speed and efficient memory use - issue a warning if we run out */
 
 /* Optimisation data - the following is used for various optimisation measures */
 static int highest_tcp_stream_no;

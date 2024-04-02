@@ -127,7 +127,7 @@ static expert_field ei_mp4_box_too_large;
 static expert_field ei_mp4_too_many_rec_lvls;
 static expert_field ei_mp4_mvhd_next_tid_unknown;
 
-static guint32 mvhd_timescale = 0;
+static guint32 mvhd_timescale;
 
 /* a box must at least have a 32bit len field and a 32bit type */
 #define MIN_BOX_SIZE 8

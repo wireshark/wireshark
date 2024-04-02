@@ -467,7 +467,7 @@ static dissector_handle_t h245_handle;
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_otp_handle;
 
-static bool keep_persistent_data = false;
+static bool keep_persistent_data;
 
 /*
  * dissect_megaco_text over TCP, there will be a TPKT header there

@@ -128,12 +128,12 @@ static const value_string iso15765_flow_status_types[] = {
 
 static gint addressing = NORMAL_ADDRESSING;
 static gint flexray_addressing = ONE_BYTE_ADDRESSING;
-static guint flexray_segment_size_limit = 0;
+static guint flexray_segment_size_limit;
 static guint window = 8;
-static range_t *configured_can_ids= NULL;
-static range_t *configured_ext_can_ids = NULL;
+static range_t *configured_can_ids;
+static range_t *configured_ext_can_ids;
 static bool register_lin_diag_frames = true;
-static range_t *configured_ipdum_pdu_ids = NULL;
+static range_t *configured_ipdum_pdu_ids;
 static gint ipdum_addressing = ZERO_BYTE_ADDRESSING;
 
 /* Encoding */
@@ -181,16 +181,16 @@ static gint ett_iso15765;
 static expert_field ei_iso15765_message_type_bad;
 
 static int proto_iso15765;
-static dissector_handle_t iso15765_handle_can = NULL;
-static dissector_handle_t iso15765_handle_lin = NULL;
-static dissector_handle_t iso15765_handle_flexray = NULL;
-static dissector_handle_t iso15765_handle_ipdum = NULL;
-static dissector_handle_t iso15765_handle_pdu_transport = NULL;
+static dissector_handle_t iso15765_handle_can;
+static dissector_handle_t iso15765_handle_lin;
+static dissector_handle_t iso15765_handle_flexray;
+static dissector_handle_t iso15765_handle_ipdum;
+static dissector_handle_t iso15765_handle_pdu_transport;
 
 static dissector_table_t subdissector_table;
 
 static reassembly_table iso15765_reassembly_table;
-static wmem_map_t *iso15765_frame_table = NULL;
+static wmem_map_t *iso15765_frame_table;
 
 static int hf_iso15765_fragments;
 static int hf_iso15765_fragment;
@@ -238,8 +238,8 @@ typedef struct config_can_addr_mapping {
     guint32  ecu_addr_mask;
 } config_can_addr_mapping_t;
 
-static config_can_addr_mapping_t *config_can_addr_mappings = NULL;
-static guint config_can_addr_mappings_num = 0;
+static config_can_addr_mapping_t *config_can_addr_mappings;
+static guint config_can_addr_mappings_num;
 #define DATAFILE_CAN_ADDR_MAPPING "ISO15765_can_id_mappings"
 
 UAT_BOOL_CB_DEF(config_can_addr_mappings, extended_address, config_can_addr_mapping_t)
@@ -391,8 +391,8 @@ typedef struct config_pdu_tranport_config {
     guint32 ecu_address_fixed;
 } config_pdu_transport_config_t;
 
-static config_pdu_transport_config_t *config_pdu_transport_config_items = NULL;
-static guint config_pdu_transport_config_items_num = 0;
+static config_pdu_transport_config_t *config_pdu_transport_config_items;
+static guint config_pdu_transport_config_items_num;
 #define DATAFILE_PDU_TRANSPORT_CONFIG "ISO15765_pdu_transport_config"
 
 UAT_HEX_CB_DEF(config_pdu_transport_config_items, pdu_id, config_pdu_transport_config_t)

@@ -132,12 +132,12 @@ static gint ett_c15ch_second_level_sub3;
 static gint ett_c15ch_second_level_sub4;
 static int proto_c15ch_second_level;
 
-static dissector_handle_t c15ch_hbeat_handle   = NULL;
-static dissector_handle_t c15ch_handle         = NULL;
+static dissector_handle_t c15ch_hbeat_handle;
+static dissector_handle_t c15ch_handle;
 
-static dissector_handle_t general_sccp_handle  = NULL;
-static dissector_handle_t general_isup_handle  = NULL;
-static dissector_handle_t general_q931_handle  = NULL;
+static dissector_handle_t general_sccp_handle;
+static dissector_handle_t general_isup_handle;
+static dissector_handle_t general_q931_handle;
 /* ama */
 
 /* Fields */
@@ -3011,7 +3011,7 @@ static const value_string c15inc_gwe_task_types[] = {
 };
 
 #if 0
-static const guint8 INVALID_TASK_TYPE_VAL = 0;
+static const guint8 INVALID_TASK_TYPE_VAL;
 #endif
 
 static const value_string c15inc_gwe_bc_fiat_types[] = {

@@ -26,7 +26,7 @@ void proto_register_flexray(void);
 
 static dissector_handle_t flexray_handle;
 
-static bool prefvar_try_heuristic_first = false;
+static bool prefvar_try_heuristic_first;
 
 static dissector_table_t subdissector_table;
 static dissector_table_t flexrayid_subdissector_table;
@@ -110,9 +110,9 @@ typedef struct _sender_receiver_config {
 
 #define DATAFILE_FR_SENDER_RECEIVER "FR_senders_receivers"
 
-static GHashTable *data_sender_receiver = NULL;
-static sender_receiver_config_t *sender_receiver_configs = NULL;
-static guint sender_receiver_config_num = 0;
+static GHashTable *data_sender_receiver;
+static sender_receiver_config_t *sender_receiver_configs;
+static guint sender_receiver_config_num;
 
 UAT_HEX_CB_DEF(sender_receiver_configs, bus_id, sender_receiver_config_t)
 UAT_HEX_CB_DEF(sender_receiver_configs, channel, sender_receiver_config_t)

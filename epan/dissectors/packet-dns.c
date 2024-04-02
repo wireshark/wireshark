@@ -82,12 +82,12 @@ static bool dns_qr_statistics_enabled = true;
 
 // knob to turn on-off the display of query record name (at runtime)
 // qrn = Query-Record-Name
-static bool dns_qr_qrn_statistics_enabled = false;
+static bool dns_qr_qrn_statistics_enabled;
 
 // knob to turn on-off the display of query-record-name for answers, authorities
 // and additionals with zero values (at runtime)
 // aud = Answers-aUthorities-aDdtionals; zv = Zero-Value
-static bool dns_qr_qrn_aud_zv_statistics_enabled = false;
+static bool dns_qr_qrn_aud_zv_statistics_enabled;
 
 // support for above knobs
 static pref_t* perf_qr_enable_statistics;
@@ -191,9 +191,9 @@ static gboolean dns_qr_rt_d_statistics_enabled = TRUE;       // d = aDditional
 static guint dns_qr_r_ra_ttls[TTL_MAXIMUM_ELEMENTS]; // ra = Answer array
 static guint dns_qr_r_ru_ttls[TTL_MAXIMUM_ELEMENTS]; // ru = aUthority array
 static guint dns_qr_r_rd_ttls[TTL_MAXIMUM_ELEMENTS]; // rd = aDditional array
-static guint dns_qr_r_ra_ttl_index = 0; // ra = Answer index
-static guint dns_qr_r_ru_ttl_index = 0; // ru = aUthority index
-static guint dns_qr_r_rd_ttl_index = 0; // rd = aDditional index
+static guint dns_qr_r_ra_ttl_index; // ra = Answer index
+static guint dns_qr_r_ru_ttl_index; // ru = aUthority index
+static guint dns_qr_r_rd_ttl_index; // rd = aDditional index
 
 // pointers that point and index into context arrays, i.e., points to answer
 // array when processing an answer, points to authority array when processing an
@@ -664,7 +664,7 @@ static expert_field ei_dns_retransmit_response;
 static expert_field ei_dns_extraneous_data;
 static expert_field ei_dns_response_missing;
 
-static dissector_table_t dns_tsig_dissector_table=NULL;
+static dissector_table_t dns_tsig_dissector_table;
 
 static dissector_handle_t dns_handle;
 static dissector_handle_t mdns_udp_handle;
@@ -675,7 +675,7 @@ static dissector_handle_t doq_handle;
 /* desegmentation of DNS over TCP */
 static bool dns_desegment = true;
 
-static bool dns_qname_stats = false;
+static bool dns_qname_stats;
 
 /* Maximum number of elapsed seconds between messages with the same
  * transaction ID to be considered as a retransmission

@@ -605,7 +605,7 @@ static int ett_u3v_device_info_descriptor_speed_support;
 static int ett_u3v_device_info_descriptor_gencp_version;
 static int ett_u3v_device_info_descriptor_u3v_version;
 
-static dissector_handle_t u3v_handle = NULL;
+static dissector_handle_t u3v_handle;
 
 static const value_string command_names[] =
 {

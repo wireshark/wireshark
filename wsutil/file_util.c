@@ -60,9 +60,9 @@
 #include "file_util.h"
 #include "ws_attributes.h"
 
-static char *program_path = NULL;
-static char *system_path = NULL;
-static char *npcap_path = NULL;
+static char *program_path;
+static char *system_path;
+static char *npcap_path;
 
 /**
  * g_open:
@@ -630,8 +630,8 @@ load_wpcap_module(void)
  */
 #define WIRESHARK_IS_RUNNING_UUID "9CA78EEA-EA4D-4490-9240-FC01FCEF464B"
 
-static HANDLE local_running_mutex = NULL;
-static HANDLE global_running_mutex = NULL;
+static HANDLE local_running_mutex;
+static HANDLE global_running_mutex;
 
 void create_app_running_mutex(void) {
     SECURITY_DESCRIPTOR sec_descriptor;

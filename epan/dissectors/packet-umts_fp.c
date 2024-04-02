@@ -240,7 +240,7 @@ static dissector_handle_t fp_handle;
 static dissector_handle_t fp_aal2_handle;
 
 
-static proto_tree *top_level_tree = NULL;
+static proto_tree *top_level_tree;
 
 /* Variables used for preferences */
 static bool preferences_call_mac_dissectors = true;

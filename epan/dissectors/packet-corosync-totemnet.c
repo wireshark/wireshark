@@ -45,8 +45,8 @@ static int hf_corosync_totemnet_security_crypto_type;
 static int hf_corosync_totemnet_security_crypto_key;
 
 /* configurable parameters */
-static gchar*  corosync_totemnet_private_keys      = NULL;
-static gchar** corosync_totemnet_private_keys_list = NULL;
+static gchar*  corosync_totemnet_private_keys;
+static gchar** corosync_totemnet_private_keys_list;
 
 /* Initialize the subtree pointers */
 static gint ett_corosync_totemnet_security_header;

@@ -211,7 +211,7 @@ static int * const hfx_pcapng_option_data_packet_darwin_flags[] = {
     NULL
 };
 
-static bool pref_dissect_next_layer = false;
+static bool pref_dissect_next_layer;
 
 static const value_string block_type_vals[] = {
     { BLOCK_TYPE_IDB,                       "Interface Description Block" },
@@ -254,7 +254,7 @@ static const value_string block_type_vals[] = {
 
 
 /* blockId-> local_block_callback_info_t* */
-static GHashTable *s_local_block_callback_table = NULL;
+static GHashTable *s_local_block_callback_table;
 
 #define OPTION_CODE_CUSTOM_OPTIONS \
     { 2988,  "Custom Option UTF-8 string which can be copied" }, \

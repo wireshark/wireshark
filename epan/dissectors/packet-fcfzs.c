@@ -71,7 +71,7 @@ typedef struct _fcfzs_conv_data {
     guint32 opcode;
 } fcfzs_conv_data_t;
 
-static wmem_map_t *fcfzs_req_hash = NULL;
+static wmem_map_t *fcfzs_req_hash;
 
 /*
  * Hash Functions

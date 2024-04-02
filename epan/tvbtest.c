@@ -22,7 +22,7 @@
 
 #include <ws_diag_control.h>
 
-gboolean failed = FALSE;
+gboolean failed;
 
 typedef struct {
 	struct {

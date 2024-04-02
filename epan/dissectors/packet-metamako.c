@@ -39,7 +39,7 @@ static bool metamako_check_fcs = true;
 static gint metamako_fcs_len = -1; /* By default, try to autodetect the FCS. */
 /* Heuristic Options */
 static gint metamako_trailer_present = -1; /* By default, try to autodetect the trailer. */
-static range_t* metamako_trailer_secs_bounds = NULL;
+static range_t* metamako_trailer_secs_bounds;
 static guint metamako_trailer_days_diff_limit = TRAILER_DAYS_DIFF_LIMIT_DFLT;
 
 /* Protocols and Header Fields */

@@ -52,10 +52,10 @@ static gint ett_uasip_tlv;
 static expert_field ei_uasip_tlv_length;
 
 static guint8      proxy_ipaddr[4];
-static const char *pref_proxy_ipaddr_s = NULL;
+static const char *pref_proxy_ipaddr_s;
 
-static gboolean use_proxy_ipaddr = FALSE;
-static bool noesip_enabled   = false;
+static gboolean use_proxy_ipaddr;
+static bool noesip_enabled;
 
 static dissector_handle_t uasip_handle;
 

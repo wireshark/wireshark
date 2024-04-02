@@ -53,7 +53,7 @@ static gint ett_btsnoop_frame;
 static gint ett_btsnoop_payload;
 static gint ett_btsnoop_flags;
 
-static bool pref_dissect_next_layer = false;
+static bool pref_dissect_next_layer;
 
 extern value_string_ext hci_mon_opcode_vals_ext;
 

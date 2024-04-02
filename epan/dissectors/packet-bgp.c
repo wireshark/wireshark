@@ -3146,7 +3146,7 @@ static expert_field ei_bgp_mup_nlri_addr_len_err;
 /* desegmentation */
 static bool bgp_desegment = true;
 
-static gint bgp_asn_len = 0;
+static gint bgp_asn_len;
 
 /* FF: BGP-LS is just a collector of IGP link state information. Some
    fields are encoded "as-is" from the IGP, hence in order to dissect

@@ -189,7 +189,7 @@ static int tipc_address_type = -1;
 /* protocol preferences */
 static bool tipc_defragment = true;
 static bool dissect_tipc_data = true;
-static bool try_heuristic_first = false;
+static bool try_heuristic_first;
 #define V2_AS_ALL  0x1
 #define V2_AS_1_6  0x2
 #define V2_AS_1_7  0x4

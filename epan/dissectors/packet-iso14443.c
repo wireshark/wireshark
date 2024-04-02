@@ -80,7 +80,7 @@ typedef enum _iso14443_cmd_t {
     CMD_TYPE_UNKNOWN
 } iso14443_cmd_t;
 
-static wmem_tree_t *transactions = NULL;
+static wmem_tree_t *transactions;
 
 typedef struct _iso14443_transaction_t {
     guint32 rqst_frame;

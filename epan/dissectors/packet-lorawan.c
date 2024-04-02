@@ -369,10 +369,10 @@ typedef struct _session_keys_t {
 	GByteArray	*appskey;
 } session_key_t;
 
-static root_key_t *root_keys = NULL;
-static session_key_t *session_keys = NULL;
-static guint root_num_keys = 0;
-static guint session_num_keys = 0;
+static root_key_t *root_keys;
+static session_key_t *session_keys;
+static guint root_num_keys;
+static guint session_num_keys;
 
 static void
 byte_array_reverse(GByteArray *arr)

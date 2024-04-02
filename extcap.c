@@ -64,23 +64,23 @@
  * and is being used for printing information about all extcap interfaces found,
  * as well as storing all sub-interfaces
  */
-static GHashTable * _loaded_interfaces = NULL;
+static GHashTable * _loaded_interfaces;
 
 /* Internal container, which maps each ifname to the tool providing it, for faster
  * lookup. The key and string value are owned by this table.
  */
-static GHashTable * _tool_for_ifname = NULL;
+static GHashTable * _tool_for_ifname;
 
 /* internal container, for all the extcap executables that have been found
  * and that provides a toolbar with controls to be added to a Interface Toolbar
  */
-static GHashTable *_toolbars = NULL;
+static GHashTable *_toolbars;
 
 /* internal container, to map preference names to pointers that hold preference
  * values. These ensure that preferences can survive extcap if garbage
  * collection, and does not lead to dangling pointers in the prefs subsystem.
  */
-static GHashTable *_extcap_prefs_dynamic_vals = NULL;
+static GHashTable *_extcap_prefs_dynamic_vals;
 
 typedef struct _extcap_callback_info_t
 {

@@ -1320,7 +1320,7 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define PREF_DECODE_SRVCC_P2C_TRANS_CONT_TARGET_UTRAN  1
 static gint pref_decode_srvcc_p2c_trans_cont = PREF_DECODE_SRVCC_P2C_TRANS_CONT_NO;
 
-static guint pref_pair_matching_max_interval_ms = 0; /* Default: disable */
+static guint pref_pair_matching_max_interval_ms; /* Default: disable */
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
@@ -1579,7 +1579,7 @@ gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     return key1->seq_nr == key2->seq_nr;
 }
 
-static GHashTable *gtpv2_stat_msg_idx_hash = NULL;
+static GHashTable *gtpv2_stat_msg_idx_hash;
 
 static void
 gtpv2_stat_init(struct register_srt* srt _U_, GArray*srt_array)

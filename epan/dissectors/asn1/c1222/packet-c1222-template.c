@@ -66,8 +66,8 @@
 
 void proto_register_c1222(void);
 
-static dissector_handle_t c1222_handle=NULL;
-static dissector_handle_t c1222_udp_handle=NULL;
+static dissector_handle_t c1222_handle;
+static dissector_handle_t c1222_udp_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_c1222;
@@ -142,43 +142,43 @@ static int ett_c1222_crypto;
 static int ett_c1222_cmd;
 
 /* these pointers are for the header elements that may be needed to verify the crypto */
-static guint8 *aSO_context = NULL;
-static guint8 *called_AP_title = NULL;
-static guint8 *called_AP_invocation_id = NULL;
-static guint8 *calling_AE_qualifier = NULL;
-static guint8 *calling_AP_invocation_id = NULL;
-static guint8 *mechanism_name = NULL;
-static guint8 *calling_authentication_value = NULL;
-static guint8 *user_information = NULL;
-static guint8 *calling_AP_title = NULL;
-static guint8 *key_id_element = NULL;
-static guint8 *iv_element = NULL;
+static guint8 *aSO_context;
+static guint8 *called_AP_title;
+static guint8 *called_AP_invocation_id;
+static guint8 *calling_AE_qualifier;
+static guint8 *calling_AP_invocation_id;
+static guint8 *mechanism_name;
+static guint8 *calling_authentication_value;
+static guint8 *user_information;
+static guint8 *calling_AP_title;
+static guint8 *key_id_element;
+static guint8 *iv_element;
 
 /* these are the related lengths */
-static guint32 aSO_context_len = 0;
-static guint32 called_AP_title_len = 0;
-static guint32 called_AP_invocation_id_len = 0;
-static guint32 calling_AE_qualifier_len = 0;
-static guint32 calling_AP_invocation_id_len = 0;
-static guint32 mechanism_name_len = 0;
-static guint32 calling_authentication_value_len = 0;
-static guint32 user_information_len = 0;
-static guint32 calling_AP_title_len = 0;
-static guint32 key_id_element_len = 0;
-static guint32 iv_element_len = 0;
+static guint32 aSO_context_len;
+static guint32 called_AP_title_len;
+static guint32 called_AP_invocation_id_len;
+static guint32 calling_AE_qualifier_len;
+static guint32 calling_AP_invocation_id_len;
+static guint32 mechanism_name_len;
+static guint32 calling_authentication_value_len;
+static guint32 user_information_len;
+static guint32 calling_AP_title_len;
+static guint32 key_id_element_len;
+static guint32 iv_element_len;
 
 /* these are the related allocation sizes (which might be different from the lengths) */
-static guint32 aSO_context_allocated = 0;
-static guint32 called_AP_title_allocated = 0;
-static guint32 called_AP_invocation_id_allocated = 0;
-static guint32 calling_AE_qualifier_allocated = 0;
-static guint32 calling_AP_invocation_id_allocated = 0;
-static guint32 mechanism_name_allocated = 0;
-static guint32 calling_authentication_value_allocated = 0;
-static guint32 user_information_allocated = 0;
-static guint32 calling_AP_title_allocated = 0;
-static guint32 key_id_element_allocated = 0;
-static guint32 iv_element_allocated = 0;
+static guint32 aSO_context_allocated;
+static guint32 called_AP_title_allocated;
+static guint32 called_AP_invocation_id_allocated;
+static guint32 calling_AE_qualifier_allocated;
+static guint32 calling_AP_invocation_id_allocated;
+static guint32 mechanism_name_allocated;
+static guint32 calling_authentication_value_allocated;
+static guint32 user_information_allocated;
+static guint32 calling_AP_title_allocated;
+static guint32 key_id_element_allocated;
+static guint32 iv_element_allocated;
 
 #include "packet-c1222-ett.c"
 
@@ -195,10 +195,10 @@ static expert_field ei_c1222_mac_missing;
 /* Preferences */
 static bool c1222_desegment = true;
 static bool c1222_decrypt = true;
-static bool c1222_big_endian = false;
-static const gchar *c1222_baseoid_str = NULL;
-static guint8 *c1222_baseoid = NULL;
-static guint c1222_baseoid_len = 0;
+static bool c1222_big_endian;
+static const gchar *c1222_baseoid_str;
+static guint8 *c1222_baseoid;
+static guint c1222_baseoid_len;
 
 /*------------------------------
  * Data Structures
@@ -304,8 +304,8 @@ typedef struct _c1222_uat_data {
 UAT_HEX_CB_DEF(c1222_users, keynum, c1222_uat_data_t)
 UAT_BUFFER_CB_DEF(c1222_users, key, c1222_uat_data_t, key, keylen)
 
-static c1222_uat_data_t *c1222_uat_data = NULL;
-static guint num_c1222_uat_data = 0;
+static c1222_uat_data_t *c1222_uat_data;
+static guint num_c1222_uat_data;
 static uat_t *c1222_uat;
 
 /* these macros ares used to populate fields needed to verify crypto */

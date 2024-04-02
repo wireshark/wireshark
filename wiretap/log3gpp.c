@@ -47,7 +47,7 @@ typedef struct {
 int first_packet_offset;
 char firstline[MAX_FIRST_LINE_LENGTH];
 char secondline[MAX_TIMESTAMP_LINE_LENGTH];
-int secondline_length = 0;
+int secondline_length;
 
 /***********************************************************/
 /* Transient data used for parsing                         */

@@ -49,8 +49,8 @@ static int hf_parameter_c2imag;
 static int hf_parameter_n;
 static int hf_buffer;
 
-static guint64 fgp_total_msgs     = 0;
-static guint64 fgp_total_bytes    = 0;
+static guint64 fgp_total_msgs;
+static guint64 fgp_total_bytes;
 
 /* Initialize the subtree pointers */
 static gint ett_fractalgeneratorprotocol;

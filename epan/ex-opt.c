@@ -17,7 +17,7 @@
 #include <glib.h>
 #include "ex-opt.h"
 
-static GHashTable* ex_opts = NULL;
+static GHashTable* ex_opts;
 
 gboolean ex_opt_add(const gchar* ws_optarg) {
     gchar** splitted;

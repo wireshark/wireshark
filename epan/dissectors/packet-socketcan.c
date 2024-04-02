@@ -97,8 +97,8 @@ static int proto_can;
 static int proto_canfd;
 static int proto_canxl;
 
-static bool byte_swap = false;
-static bool heuristic_first = false;
+static bool byte_swap;
+static bool heuristic_first;
 
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;
@@ -116,10 +116,10 @@ static heur_dtbl_entry_t *heur_dtbl_entry;
 #define CANXL_LEN_OFFSET   6
 #define CANXL_DATA_OFFSET  12
 
-static dissector_table_t can_id_dissector_table = NULL;
-static dissector_table_t can_extended_id_dissector_table = NULL;
-static dissector_table_t subdissector_table = NULL;
-static dissector_table_t canxl_sdu_type_dissector_table = NULL;
+static dissector_table_t can_id_dissector_table;
+static dissector_table_t can_extended_id_dissector_table;
+static dissector_table_t subdissector_table;
+static dissector_table_t canxl_sdu_type_dissector_table;
 static dissector_handle_t socketcan_classic_handle;
 static dissector_handle_t socketcan_fd_handle;
 static dissector_handle_t socketcan_xl_handle;
@@ -196,10 +196,10 @@ typedef struct _interface_config {
 
 #define DATAFILE_CAN_INTERFACE_MAPPING "CAN_interface_mapping"
 
-static GHashTable *data_can_interfaces_by_id = NULL;
-static GHashTable *data_can_interfaces_by_name = NULL;
-static interface_config_t *interface_configs = NULL;
-static guint interface_config_num = 0;
+static GHashTable *data_can_interfaces_by_id;
+static GHashTable *data_can_interfaces_by_name;
+static interface_config_t *interface_configs;
+static guint interface_config_num;
 
 UAT_HEX_CB_DEF(interface_configs, interface_id, interface_config_t)
 UAT_CSTRING_CB_DEF(interface_configs, interface_name, interface_config_t)
@@ -366,9 +366,9 @@ typedef struct _sender_receiver_config {
 
 #define DATAFILE_CAN_SENDER_RECEIVER "CAN_senders_receivers"
 
-static GHashTable *data_sender_receiver = NULL;
-static sender_receiver_config_t *sender_receiver_configs = NULL;
-static guint sender_receiver_config_num = 0;
+static GHashTable *data_sender_receiver;
+static sender_receiver_config_t *sender_receiver_configs;
+static guint sender_receiver_config_num;
 
 UAT_HEX_CB_DEF(sender_receiver_configs, bus_id, sender_receiver_config_t)
 UAT_HEX_CB_DEF(sender_receiver_configs, can_id, sender_receiver_config_t)

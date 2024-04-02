@@ -544,7 +544,7 @@ static const fragment_items lowpan_frag_items = {
 };
 
 static reassembly_table lowpan_reassembly_table;
-static GHashTable *lowpan_context_table = NULL;
+static GHashTable *lowpan_context_table;
 
 /* Link-Local prefix used by 6LoWPAN (FF80::/10) */
 static const guint8 lowpan_llprefix[8] = {
@@ -574,8 +574,8 @@ static lowpan_context_data  lowpan_context_default;
 static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_MAX];
 
 /* Preferences */
-static bool rfc4944_short_address_format = false;
-static bool iid_has_universal_local_bit = false;
+static bool rfc4944_short_address_format;
+static bool iid_has_universal_local_bit;
 static bool ipv6_summary_in_tree = true;
 
 /* Helper macro to convert a bit offset/length into a byte count. */
