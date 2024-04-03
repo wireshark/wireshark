@@ -69,6 +69,8 @@ public:
     void applyCurrentColor();
     bool visible() const { return visible_; }
     void setVisible(bool visible);
+    bool needRetap() const { return need_retap_; }
+    void setNeedRetap(bool retap);
     QRgb color() const;
     void setColor(const QRgb color);
     void setPlotStyle(int style);
@@ -118,6 +120,7 @@ private:
     QString config_err_;
     QString name_;
     bool visible_;
+    bool need_retap_;
     QCPGraph *graph_;
     QCPBars *bars_;
     QString filter_;

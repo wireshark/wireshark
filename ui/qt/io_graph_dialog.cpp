@@ -585,9 +585,7 @@ void IOGraphDialog::createIOGraph(int currentRow)
     connect(iog, SIGNAL(requestReplot()), this, SLOT(scheduleReplot()));
 
     syncGraphSettings(currentRow);
-    if (iog->visible()) {
-        scheduleRetap();
-    }
+    iog->setNeedRetap(true);
 }
 
 void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
@@ -636,10 +634,6 @@ void IOGraphDialog::syncGraphSettings(int row)
         return;
 
     bool visible = graphIsEnabled(row);
-    bool retap = !iog->visible() && visible;
-    // XXX - Do we really need to retap every time we make the graph
-    // visible from invisible? If we have tapped before and nothing
-    // has changed, we might be able to get away with only a recalc.
     QString data_str;
 
     iog->setName(uat_model_->data(uat_model_->index(row, colName)).toString());
@@ -664,7 +658,6 @@ void IOGraphDialog::syncGraphSettings(int row)
     if (!iog->configError().isEmpty()) {
         hint_err_ = iog->configError();
         visible = false;
-        retap = false;
     } else {
         hint_err_.clear();
     }
@@ -676,11 +669,7 @@ void IOGraphDialog::syncGraphSettings(int row)
     updateLegend();
 
     if (visible) {
-        if (retap) {
-            scheduleRetap();
-        } else {
-            scheduleReplot();
-        }
+        scheduleReplot();
     }
 }
 
@@ -1328,6 +1317,8 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
                 iog->setInterval(interval);
                 if (iog->visible()) {
                     need_retap = true;
+                } else {
+                    iog->setNeedRetap(true);
                 }
             }
         }
@@ -1881,11 +1872,10 @@ bool IOGraph::setFilter(const QString &filter)
         filter_ = filter;
         full_filter_ = full_filter;
         /* If we changed the tap filter the graph is visible, we need to
-         * retap. (If it's not visible, we'll retap when it becomes
-         * visible, see syncGraphSettings.) Note that setting the tap
-         * dfilter will mark the tap as needing a redraw, which will
-         * cause a recalculation (via tapDraw) via the (fairly long)
-         * main application timer.
+         * retap.
+         * Note that setting the tap dfilter will mark the tap as needing a
+         * redraw, which will cause a recalculation (via tapDraw) via the
+         * (fairly long) main application timer.
          */
         /* XXX - When changing from an advanced graph to one that doesn't
          * use the field, we don't actually need to retap if filter and
@@ -1898,9 +1888,7 @@ bool IOGraph::setFilter(const QString &filter)
          * we could test the simple case where filter and vu_field are
          * the same string.
          */
-        if (visible_) {
-            emit requestRetap();
-        }
+        setNeedRetap(true);
     }
     return true;
 }
@@ -1934,14 +1922,28 @@ void IOGraph::setVisible(bool visible)
         bars_->setVisible(visible_);
     }
     if (old_visibility != visible_) {
-        // XXX - If the number of enabled graphs changed to or from 1, we
-        // need to recalculate to possibly change the rescaling. (This is
-        // why QCP recommends doing scaling in the axis ticker instead.)
-        // If we can't determined number of enabled graphs here, always
-        // request a recalculation instead of a replot. (At least until we
-        // change the scaling to be done in the ticker.)
-        //emit requestReplot();
-        emit requestRecalc();
+        if (visible_ && need_retap_) {
+            need_retap_ = false;
+            emit requestRetap();
+        } else {
+            // XXX - If the number of enabled graphs changed to or from 1, we
+            // need to recalculate to possibly change the rescaling. (This is
+            // why QCP recommends doing scaling in the axis ticker instead.)
+            // If we can't determine the number of enabled graphs here, always
+            // request a recalculation instead of a replot. (At least until we
+            // change the scaling to be done in the ticker.)
+            //emit requestReplot();
+            emit requestRecalc();
+        }
+    }
+}
+
+void IOGraph::setNeedRetap(bool retap)
+{
+    if (visible_ && retap) {
+        emit requestRetap();
+    } else {
+        need_retap_ = retap;
     }
 }
 
@@ -2103,9 +2105,7 @@ void IOGraph::setValueUnits(int val_units)
                     // instead calculate and store LOAD information for any
                     // advanced graph type, but the tradeoff might not be
                     // worth it.)
-                    if (visible_) {
-                        emit requestRetap();
-                    }
+                    setNeedRetap(true);
                 }
             }
         }
@@ -2467,6 +2467,21 @@ tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dis
     /* some sanity checks */
     if ((idx < 0) || (idx >= max_io_items_)) {
         iog->cur_idx_ = (int)iog->items_.size() - 1;
+        return TAP_PACKET_DONT_REDRAW;
+    }
+
+    /* If the graph isn't visible, don't do the work or redraw, but mark
+     * the graph in need of a retap if it is ever enabled. The alternative
+     * is to do the work, but clear pending retaps when the taps are reset
+     * (which indicates something else triggered a retap.) The tradeoff would
+     * be more calculation and memory usage when a graph is disabled in
+     * exchange for fewer scenarios that involve retaps when toggling the
+     * enabled/disabled taps.
+     */
+    if (!iog->visible()) {
+        if (idx > iog->cur_idx_) {
+            iog->need_retap_ = true;
+        }
         return TAP_PACKET_DONT_REDRAW;
     }
 
