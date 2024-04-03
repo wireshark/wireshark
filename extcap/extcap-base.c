@@ -276,7 +276,7 @@ static int extcap_iface_listall(extcap_parameters * extcap, uint8_t list_ifs)
 uint8_t extcap_base_handle_interface(extcap_parameters * extcap)
 {
     /* A fifo must be provided for capture */
-    if (extcap->capture && (extcap->fifo == NULL || strlen(extcap->fifo) <= 0)) {
+    if (extcap->capture && (extcap->fifo == NULL || strlen(extcap->fifo) == 0)) {
         extcap->capture = 0;
         ws_error("Extcap Error: No FIFO pipe provided");
         return 0;
