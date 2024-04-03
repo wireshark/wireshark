@@ -393,25 +393,21 @@ _try_val_to_str_index(const guint32 val, value_string_ext *vse)
     return NULL;
 }
 
-/* log(n)-time matching algorithm for sorted extended value strings */
+/* Value comparator for sorted extended value strings */
+static int
+val_to_str_compar(const void *v_needle, const void *v_item)
+{
+    guint32 needle = *(const guint32 *)v_needle;
+    guint32 value = ((const value_string *)v_item)->value;
+    return needle > value ? 1 : (needle < value ? -1 : 0);
+}
+
+/* log(n)-time matching for sorted extended value strings */
 static const value_string *
 _try_val_to_str_bsearch(const guint32 val, value_string_ext *vse)
 {
-    guint low, i, max;
-    guint32 item;
-
-    for (low = 0, max = vse->_vs_num_entries; low < max; ) {
-        i = (low + max) / 2;
-        item = vse->_vs_p[i].value;
-
-        if (val < item)
-            max = i;
-        else if (val > item)
-            low = i + 1;
-        else
-            return &(vse->_vs_p[i]);
-    }
-    return NULL;
+    return bsearch(&val, vse->_vs_p, vse->_vs_num_entries,
+                   sizeof vse->_vs_p[0], val_to_str_compar);
 }
 
 /* Initializes an extended value string. Behaves like a match function to
@@ -428,11 +424,11 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
     const guint         vs_num_entries = vse->_vs_num_entries;
 
     /* The matching algorithm used:
-     * VS_SEARCH   - slow sequential search (as in a normal value string)
-     * VS_BIN_TREE - log(n)-time binary search, the values must be sorted
-     * VS_INDEX    - constant-time index lookup, the values must be contiguous
+     * VS_LIN_SEARCH - slow linear search (as in a normal value string)
+     * VS_BIN_SEARCH - log(n)-time binary search, the values must be sorted
+     * VS_INDEX      - constant-time index lookup, the values must be contiguous
      */
-    enum { VS_SEARCH, VS_BIN_TREE, VS_INDEX } type = VS_INDEX;
+    enum { VS_LIN_SEARCH, VS_BIN_SEARCH, VS_INDEX } type = VS_INDEX;
 
     /* Note: The value_string 'value' is *unsigned*, but we do a little magic
      * to help with value strings that have negative values.
@@ -467,22 +463,22 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
     for (i = 0; i < vs_num_entries; i++) {
         DISSECTOR_ASSERT(vs_p[i].strptr != NULL);
         if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
-            type = VS_BIN_TREE;
+            type = VS_BIN_SEARCH;
         }
         /* XXX: Should check for dups ?? */
-        if (type == VS_BIN_TREE) {
+        if (type == VS_BIN_SEARCH) {
             if (prev_value > vs_p[i].value) {
                 ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < previous entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
-                type = VS_SEARCH;
+                type = VS_LIN_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
                 ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < first entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
-                type = VS_SEARCH;
+                type = VS_LIN_SEARCH;
                 break;
             }
         }
@@ -491,10 +487,10 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
     }
 
     switch (type) {
-        case VS_SEARCH:
+        case VS_LIN_SEARCH:
             vse->_vs_match2 = _try_val_to_str_linear;
             break;
-        case VS_BIN_TREE:
+        case VS_BIN_SEARCH:
             vse->_vs_match2 = _try_val_to_str_bsearch;
             break;
         case VS_INDEX:
@@ -678,25 +674,21 @@ _try_val64_to_str_index(const guint64 val, val64_string_ext *vse)
     return NULL;
 }
 
-/* log(n)-time matching algorithm for sorted extended value strings */
+/* Value comparator for sorted extended value strings */
+static int
+val64_to_str_compar(const void *v_needle, const void *v_item)
+{
+    guint64 needle = *(const guint64 *)v_needle;
+    guint64 value = ((const val64_string *)v_item)->value;
+    return needle > value ? 1 : (needle < value ? -1 : 0);
+}
+
+/* log(n)-time matching for sorted extended value strings */
 static const val64_string *
 _try_val64_to_str_bsearch(const guint64 val, val64_string_ext *vse)
 {
-    guint low, i, max;
-    guint64 item;
-
-    for (low = 0, max = vse->_vs_num_entries; low < max; ) {
-        i = (low + max) / 2;
-        item = vse->_vs_p[i].value;
-
-        if (val < item)
-            max = i;
-        else if (val > item)
-            low = i + 1;
-        else
-            return &(vse->_vs_p[i]);
-    }
-    return NULL;
+    return bsearch(&val, vse->_vs_p, vse->_vs_num_entries,
+                   sizeof vse->_vs_p[0], val64_to_str_compar);
 }
 
 /* Initializes an extended value string. Behaves like a match function to
@@ -713,11 +705,11 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
     const guint         vs_num_entries = vse->_vs_num_entries;
 
     /* The matching algorithm used:
-     * VS_SEARCH   - slow sequential search (as in a normal value string)
-     * VS_BIN_TREE - log(n)-time binary search, the values must be sorted
-     * VS_INDEX    - constant-time index lookup, the values must be contiguous
+     * VS_LIN_SEARCH - slow linear search (as in a normal value string)
+     * VS_BIN_SEARCH - log(n)-time binary search, the values must be sorted
+     * VS_INDEX      - constant-time index lookup, the values must be contiguous
      */
-    enum { VS_SEARCH, VS_BIN_TREE, VS_INDEX } type = VS_INDEX;
+    enum { VS_LIN_SEARCH, VS_BIN_SEARCH, VS_INDEX } type = VS_INDEX;
 
     /* Note: The val64_string 'value' is *unsigned*, but we do a little magic
      * to help with value strings that have negative values.
@@ -752,22 +744,22 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
     for (i = 0; i < vs_num_entries; i++) {
         DISSECTOR_ASSERT(vs_p[i].strptr != NULL);
         if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
-            type = VS_BIN_TREE;
+            type = VS_BIN_SEARCH;
         }
         /* XXX: Should check for dups ?? */
-        if (type == VS_BIN_TREE) {
+        if (type == VS_BIN_SEARCH) {
             if (prev_value > vs_p[i].value) {
                 ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %" PRIu64 " [%#" PRIx64 "] < previous entry, value %" PRIu64 " [%#" PRIx64 "]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
-                type = VS_SEARCH;
+                type = VS_LIN_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
                 ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %" PRIu64 " [%#" PRIx64 "] < first entry, value %" PRIu64 " [%#" PRIx64 "]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
-                type = VS_SEARCH;
+                type = VS_LIN_SEARCH;
                 break;
             }
         }
@@ -776,10 +768,10 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
     }
 
     switch (type) {
-        case VS_SEARCH:
+        case VS_LIN_SEARCH:
             vse->_vs_match2 = _try_val64_to_str_linear;
             break;
-        case VS_BIN_TREE:
+        case VS_BIN_SEARCH:
             vse->_vs_match2 = _try_val64_to_str_bsearch;
             break;
         case VS_INDEX:
