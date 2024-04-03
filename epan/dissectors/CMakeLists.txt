@@ -80,6 +80,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-ulcs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-cm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-cpdlc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-sl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-c1222.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-camel.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cbrs-oids.c

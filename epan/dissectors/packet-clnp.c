@@ -53,8 +53,6 @@ static int hf_clnp_dest_length;
 static int hf_clnp_dest;
 static int hf_clnp_src_length;
 static int hf_clnp_src;
-       int hf_clnp_atntt; /* as referenced in packet-osi-options.c */
-       int hf_clnp_atnsc; /* as referenced in packet-osi-options.c */
 static int hf_clnp_segments;
 static int hf_clnp_segment;
 static int hf_clnp_segment_overlap;
@@ -185,7 +183,6 @@ static reassembly_table clnp_reassembly_table;
 static guint tp_nsap_selector = NSEL_TP;
 static bool always_decode_transport = false;
 static bool clnp_reassemble = true;
-bool clnp_decode_atn_options = false;
 
 /* function definitions */
 
@@ -627,12 +624,6 @@ proto_register_clnp(void)
         { &hf_clnp_src,
             { "SA", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-        { &hf_clnp_atntt,
-            { "ATN traffic type", "clnp.atn.tt",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_clnp_atnsc,
-            { "ATN security classification", "clnp.atn.sc",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
         { &hf_clnp_segment_overlap,
             { "Segment overlap", "clnp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "Segment overlaps with other segments", HFILL }},
@@ -715,10 +706,8 @@ proto_register_clnp(void)
             "Reassemble segmented CLNP datagrams",
             "Whether segmented CLNP datagrams should be reassembled",
             &clnp_reassemble);
-    prefs_register_bool_preference(clnp_module, "decode_atn_options",
-            "Decode ATN security label",
-            "Whether ATN security label should be decoded",
-            &clnp_decode_atn_options);
+    /* XXX - catch this and tweak the decode_as settings? */
+    prefs_register_obsolete_preference(clnp_module, "decode_atn_options");
 }
 
 void
