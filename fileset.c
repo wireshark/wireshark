@@ -75,7 +75,7 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
         GError *gerr = NULL;
         regex = g_regex_new(pattern,
                         (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED),
-                        G_REGEX_MATCH_ANCHORED, NULL);
+                        G_REGEX_MATCH_ANCHORED, &gerr);
         if (gerr) {
                 ws_warning("failed to compile regex: %s", gerr->message);
                 g_error_free(gerr);
@@ -88,7 +88,7 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
         GError *gerr = NULL;
         regex2 = g_regex_new(pattern2,
                         (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED),
-                        G_REGEX_MATCH_ANCHORED, NULL);
+                        G_REGEX_MATCH_ANCHORED, &gerr);
         if (gerr) {
                 ws_warning("failed to compile regex: %s", gerr->message);
                 g_error_free(gerr);
