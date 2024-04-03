@@ -222,7 +222,7 @@ print_usage (FILE *output)
             "                         https://www.tcpdump.org/linktypes.html for a list of\n"
             "                         numbers.\n"
             "                         Example: -l 7 for ARCNet packets.\n"
-            "  -m <max-packet>        max packet length in output; default is %d\n"
+            "  -m <max-packet>        max packet length in output; default is %u\n"
             "  -N <intf-name>         assign name to the interface in the pcapng file.\n"
             "\n"
             "Prepend dummy header:\n"
