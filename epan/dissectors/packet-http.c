@@ -146,7 +146,10 @@ static gint ett_http_encoded_entity;
 static gint ett_http_header_item;
 static gint ett_http_http2_settings_item;
 
+<<<<<<< HEAD
+=======
 // static expert_field ei_http_chat;
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 static expert_field ei_http_te_and_length;
 static expert_field ei_http_te_unknown;
 static expert_field ei_http_subdissector_failed;
@@ -252,25 +255,25 @@ UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
  * desegmentation of HTTP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean http_desegment_headers = TRUE;
+static bool http_desegment_headers = TRUE;
 
 /*
  * desegmentation of HTTP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static gboolean http_desegment_body = TRUE;
+static bool http_desegment_body = TRUE;
 
 /*
  * De-chunking of content-encoding: chunk entity bodies.
  */
-static gboolean http_dechunk_body = TRUE;
+static bool http_dechunk_body = TRUE;
 
 /*
  * Decompression of zlib or brotli encoded entities.
  */
 #if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
-static gboolean http_decompress_body = TRUE;
+static bool http_decompress_body = TRUE;
 #endif
 
 /*
@@ -3296,7 +3299,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	char *p;
 	guchar *up;
 	proto_item *hdr_item, *it;
-	int i;
+	int f;
 	int* hf_id;
 	tap_credential_t* auth;
 	http_req_res_t  *curr_req_res = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, HTTP_PROTO_DATA_REQRES);
@@ -3530,8 +3533,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			}
 			eh_ptr->content_type = wmem_strdup(scope, value);
 
-			for (i = 0; i < value_len; i++) {
-				c = value[i];
+			for (f = 0; f < value_len; f++) {
+				c = value[f];
 				if (c == ';' || g_ascii_isspace(c)) {
 					/*
 					 * End of subtype - either
@@ -3546,25 +3549,25 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				 * Map the character to lower case;
 				 * content types are case-insensitive.
 				 */
-				eh_ptr->content_type[i] = g_ascii_tolower(eh_ptr->content_type[i]);
+				eh_ptr->content_type[f] = g_ascii_tolower(eh_ptr->content_type[f]);
 			}
-			eh_ptr->content_type[i] = '\0';
+			eh_ptr->content_type[f] = '\0';
 			/*
 			 * Now find the start of the optional parameters;
 			 * skip the optional white space and the semicolon
 			 * if this has not been done before.
 			 */
-			i++;
-			while (i < value_len) {
-				c = eh_ptr->content_type[i];
+			f++;
+			while (f < value_len) {
+				c = eh_ptr->content_type[f];
 				if (c == ';' || g_ascii_isspace(c))
 					/* Skip till start of parameters */
-					i++;
+					f++;
 				else
 					break;
 			}
-			if (i < value_len)
-				eh_ptr->content_type_parameters = eh_ptr->content_type + i;
+			if (f < value_len)
+				eh_ptr->content_type_parameters = eh_ptr->content_type + f;
 			else
 				eh_ptr->content_type_parameters = NULL;
 			break;
@@ -3637,27 +3640,27 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				int part_len;
 
 				cookie_tree = proto_item_add_subtree(hdr_item, ett_http_header_item);
-				for (i = 0; i < value_len; ) {
+				for (f = 0; f < value_len; ) {
 					/* skip whitespace and ';' (terminates at '\0' or earlier) */
-					c = value[i];
+					c = value[f];
 					while (c == ';' || g_ascii_isspace(c))
-						c = value[++i];
+						c = value[++f];
 
-					if (i >= value_len)
+					if (f >= value_len)
 						break;
 
 					/* find "cookie=foo " in "cookie=foo ; bar" */
-					part = value + i;
-					part_end = (char *)memchr(part, ';', value_len - i);
+					part = value + f;
+					part_end = (char *)memchr(part, ';', value_len - f);
 					if (part_end)
 						part_len =(int)(part_end - part);
 					else
-						part_len = value_len - i;
+						part_len = value_len - f;
 
 					/* finally add cookie to tree */
 					proto_tree_add_item(cookie_tree, hf_http_cookie_pair,
-						tvb, value_offset + i, part_len, ENC_NA|ENC_ASCII);
-					i += part_len;
+						tvb, value_offset + f, part_len, ENC_NA|ENC_ASCII);
+					f += part_len;
 				}
 			}
 			break;
@@ -3730,7 +3733,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 */
 			guint8  *first_range_num_str = NULL;
 			unsigned long first_range_num = 0;
+<<<<<<< HEAD
+=======
 			request_trans_t *req_trans = NULL;
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 
 			/* Get the first range number */
 			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
@@ -3742,12 +3748,30 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				first_range_num = strtoul(first_range_num_str, NULL ,10);
 			}
 			if (first_range_num == 0) {
+<<<<<<< HEAD
 				/* The first number of the range is missing or '0'. So we'll
 				* use the second number in the range instead."
 				*/
 				char *str = wmem_strdup(wmem_file_scope(), value);
 				str += 8;
 				first_range_num = strtoul(str, NULL ,10);
+=======
+				/* The first number of the range is missing or '0'. Get a hash
+				*  of the entire range field and set first_range_num to it."
+				*/
+				unsigned long hash = 5381;
+				int i;
+				char *str = wmem_strdup(wmem_file_scope(), value);
+
+				/* Isolate the range itself */
+				str += 6;
+
+				if (*str) {
+					while (i = *str++)
+						hash = ((hash << 5) + hash) + i;
+					first_range_num = hash;
+				}
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
@@ -3773,8 +3797,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			*  GET is the only method that employs ranges. */
 			if (!pinfo->fd->visited) {
 				guint8  *first_crange_num_str = NULL;
+<<<<<<< HEAD
+				unsigned long first_crange_num = 0;
+=======
 				guint8  *no_filesize = NULL;
 				guint32 first_crange_num = 0;
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 				guint   pos;
 				request_trans_t *req_trans;
 				match_trans_t *match_trans = NULL;
@@ -3782,11 +3810,15 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				GSList *iter = NULL;
 
 				/* Get the first content range number  */
+				first_crange_num_str = wmem_alloc(scope, 100);
 				first_crange_num_str = g_strdup(value);
 
 				/* Eliminate the trailing "/12345" file size string */
 				first_crange_num_str = strtok(value_bytes, "/");
+<<<<<<< HEAD
+=======
 				no_filesize = wmem_strdup(wmem_file_scope(), first_crange_num_str);
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 				first_crange_num_str = strtok(value_bytes, "-");
 				first_crange_num_str = strtok(value_bytes, " ");
 
@@ -3795,13 +3827,28 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
 				}
 				if (first_crange_num == 0) {
-
+<<<<<<< HEAD
 					/* The first number of the range is missing or '0'. So we'll
 					* use the second number in the range instead."
 					*/
 					char *str = wmem_strdup(wmem_file_scope(), value);
 					str += 8;
 					first_crange_num = strtoul(str, NULL ,10);
+=======
+					/* The first number of the range is missing or '0'. Get a hash
+					*  of the entire range field and set it to first_range_num_str.
+					*/
+					unsigned long hash = 5381;
+					int j;
+					guint8 *str = wmem_strdup(wmem_file_scope(), no_filesize);
+
+					str += 6;
+					if (*str) {
+						while (j = *str++)
+							hash = ((hash << 5) + hash) + j;
+						first_crange_num = hash;
+					}
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 				}
 
 				/* Get the position of the matching request if any in the reqs_table.
@@ -3842,7 +3889,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 						top_of_list = conv_data->req_list;
 						pos++;
+<<<<<<< HEAD
+						for (guint q = 0; q < pos; q++) {
+=======
 						for (guint i = 0; i < pos; i++) {
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 							next = top_of_list->next;
 							top_of_list = g_slist_delete_link(top_of_list, top_of_list);
 							top_of_list = next;
@@ -4680,7 +4731,10 @@ proto_register_http(void)
 	};
 
 	static ei_register_info ei[] = {
+<<<<<<< HEAD
+=======
 		//{ &ei_http_chat, { "http.chat", PI_SEQUENCE, PI_CHAT, "Formatted text", EXPFILL }},
+>>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 		{ &ei_http_te_and_length, { "http.te_and_length", PI_MALFORMED, PI_WARN, "The Content-Length and Transfer-Encoding header must not be set together", EXPFILL }},
 		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
