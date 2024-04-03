@@ -3903,7 +3903,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                 if ((transport_len != L_LBMR_TIR_TCP_T) && (transport_len != L_LBMR_TIR_TCP_WITH_SID_T))
                 {
                     expert_add_info_format(pinfo, transport_len_item, &ei_lbmr_analysis_length_incorrect, "Wrong transport length for LBMR TIR TCP info");
-                    return (0);
+                    return 0;
                 }
                 if (transport_len == L_LBMR_TIR_TCP_WITH_SID_T)
                 {
@@ -3971,7 +3971,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                 if ((transport_len != L_LBMR_TIR_LBTRU_T) && (transport_len != L_LBMR_TIR_LBTRU_WITH_SID_T))
                 {
                     expert_add_info_format(pinfo, transport_len_item, &ei_lbmr_analysis_length_incorrect, "Wrong transport length for LBMR TIR LBTRU info");
-                    return (0);
+                    return 0;
                 }
                 if (transport_len == L_LBMR_TIR_LBTRU_WITH_SID_T)
                 {
@@ -4009,7 +4009,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                 if (transport_len != L_LBMR_TIR_LBTIPC_T)
                 {
                     expert_add_info_format(pinfo, transport_len_item, &ei_lbmr_analysis_length_incorrect, "Wrong transport length for LBMR TIR LBTIPC info");
-                    return (0);
+                    return 0;
                 }
                 host_id = tvb_get_ntohl(tvb, offset + O_LBMR_TIR_LBTIPC_T_HOST_ID);
                 session_id = tvb_get_ntohl(tvb, offset + O_LBMR_TIR_LBTIPC_T_SESSION_ID);
@@ -4037,7 +4037,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                 if (transport_len != L_LBMR_TIR_LBTRDMA_T)
                 {
                     expert_add_info_format(pinfo, transport_len_item, &ei_lbmr_analysis_length_incorrect, "Wrong transport length for LBMR TIR LBTRDMA info");
-                    return (0);
+                    return 0;
                 }
                 set_address_tvb(&source_addr, AT_IPv4, L_LBMR_TIR_LBTRDMA_T_IP, tvb, offset + O_LBMR_TIR_LBTRDMA_T_IP);
                 session_id = tvb_get_ntohl(tvb, offset + O_LBMR_TIR_LBTRDMA_T_SESSION_ID);

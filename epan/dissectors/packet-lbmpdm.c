@@ -1199,7 +1199,7 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
 
     if (!lbmpdm_verify_payload(tvb, offset, &encoding, &raw_msglen))
     {
-        return (0);
+        return 0;
     }
     msglen = (int)raw_msglen;
 

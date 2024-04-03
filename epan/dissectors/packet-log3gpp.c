@@ -452,7 +452,7 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     /* Store info in packet */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0, p_rlc_lte_info);
 
-    return (1);
+    return 1;
 }
 
 /* In the optional string, PDCP info should be set as follow (M = mandatory, O = optional):
@@ -526,7 +526,7 @@ lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, pa
     /* Store info in packet */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_lte_info);
 
-    return (1);
+    return 1;
 }
 
 

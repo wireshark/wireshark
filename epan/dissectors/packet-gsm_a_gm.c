@@ -690,7 +690,7 @@ de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	proto_tree_add_item(tree, hf_gsm_a_gm_res_of_attach, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -710,7 +710,7 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_attach, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -735,7 +735,7 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_ciph_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -756,7 +756,7 @@ de_gmm_integ_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_integ_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -774,7 +774,7 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	proto_tree_add_item(tree, hf_gsm_a_gm_tmsi_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -1021,7 +1021,7 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -1038,7 +1038,7 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -1100,7 +1100,7 @@ de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_identity, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -1124,7 +1124,7 @@ de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_imeisv_req, tvb, bit_offset + 1, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -3610,7 +3610,7 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_tree_add_item(tree, hf_gsm_a_gm_update_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -3623,7 +3623,7 @@ de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, (offset << 3) + 4, 4, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -3636,7 +3636,7 @@ de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -3663,7 +3663,7 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	/*bit_offset  +=  3;*/
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -4088,7 +4088,7 @@ de_gmm_up_integ_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	proto_tree_add_item(tree, hf_gsm_a_gm_up_integ_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /* [14] 10.5.5.35 DCN-ID */
@@ -4122,7 +4122,7 @@ de_gmm_non_3gpp_nw_prov_pol(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 	proto_tree_add_item(tree, hf_gsm_a_gm_n3en_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -4234,7 +4234,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -5842,7 +5842,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 				offset, 1, oct, "%s (%u)", str, oct);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -5864,7 +5864,7 @@ de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 				offset, 1, oct, "%s (%u)", str, oct);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 /*
  * [7] 10.5.6.7
@@ -5937,7 +5937,7 @@ de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 	proto_tree_add_item(tree, hf_gsm_a_sm_llc_sapi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -5955,7 +5955,7 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	proto_tree_add_item(tree, hf_gsm_a_sm_tdi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -6475,7 +6475,7 @@ de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 		offset, 1, oct, "%s (%u)", str, oct);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*
@@ -6497,7 +6497,7 @@ de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	proto_tree_add_item(tree, hf_gsm_a_sm_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
-	return (1);
+	return 1;
 }
 
 /*

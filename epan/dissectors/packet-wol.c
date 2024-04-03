@@ -90,7 +90,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /* Check that there's enough data */
     len = tvb_reported_length(tvb);
     if ( len < 102 )    /* wol's smallest packet size is 102 */
-        return (0);
+        return 0;
 
     /* Get some values from the packet header, probably using tvb_get_*() */
 
@@ -100,7 +100,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * unless we need to change it later, just compare the 1st 6 bytes. */
     qword = tvb_get_ntoh48(tvb,0);
     if(qword != G_GUINT64_CONSTANT(0xffffffffffff))
-        return (0);
+        return 0;
 
     /* So far so good.  Now get the next 6 bytes, which we'll assume is the
      * target's MAC address, and do 15 memory chunk comparisons, since if this
@@ -108,7 +108,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     mac = (guint8 *)tvb_memdup(pinfo->pool, tvb, 6, 6);
     for ( offset = 12; offset < 102; offset += 6 )
         if ( tvb_memeql(tvb, offset, mac, 6) != 0 )
-            return (0);
+            return 0;
 
     /* OK, we're going to assume it's a MagicPacket.  If there's a password,
      * grab it now, and in case there's any extra bytes after the only 3 valid

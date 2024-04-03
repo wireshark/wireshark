@@ -800,7 +800,7 @@ dissect_sapms_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	client_length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (client_length_remaining < 0){
 		expert_add_info(pinfo, tree, &ei_sapms_client_invalid_offset);
-		return (0);
+		return 0;
 	}
 	if (client_length_remaining < client_length){
 		expert_add_info_format(pinfo, tree, &ei_sapms_client_invalid_length, "Invalid client length (expected=%d, actual=%d)", client_length, client_length_remaining);

@@ -70,7 +70,7 @@ static int aeron_pos_compare(const aeron_pos_t * pos1, const aeron_pos_t * pos2)
     {
         if (pos1->term_offset == pos2->term_offset)
         {
-            return (0);
+            return 0;
         }
         else
         {

@@ -1150,7 +1150,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
         default:
                 break;
         }
-        return (0);
+        return 0;
 }
 
 void

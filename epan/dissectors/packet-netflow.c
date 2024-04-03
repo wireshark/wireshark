@@ -4959,7 +4959,7 @@ dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, i
     ver = hdrinfo_p->vspec;
 
     if ((ver != 9) && (ver != 10))
-        return (0);
+        return 0;
 
     flowset_id = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
@@ -5048,7 +5048,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
                                      length, plurality(length, "", "s"));
     }
 
-    return (0);
+    return 0;
 }
 
 #define GOT_LOCAL_ADDR  (1 << 0)

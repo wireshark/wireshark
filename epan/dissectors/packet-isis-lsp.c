@@ -1760,7 +1760,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
                                                 NULL, "IPv6 TE Router ID (t=%u, l=%u)",
                                                 subtype, sublen);
         proto_tree_add_item(rt_tree, hf_isis_lsp_clv_ipv6_te_router_id, tvb, offset, 16, ENC_NA);
-        return (0);
+        return 0;
 
     case TRILL_VERSION:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,

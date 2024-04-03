@@ -3790,7 +3790,7 @@ find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offReply = find_rpc_over_tcp_reply_start(tvb, offset);
 	if (offReply < 0) {
 		/* could search for request, but not needed (or testable) thus far */
-		return (0);    /* claim no RPC */
+		return 0;    /* claim no RPC */
 	}
 
 	len = dissect_rpc_fragment(tvb, offReply,
@@ -3801,7 +3801,7 @@ find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* misses are reported as-is */
 	if (len == 0)
 	{
-		return (0);
+		return 0;
 	}
 
 	/* returning a non-zero length, correct it to reflect the extra offset

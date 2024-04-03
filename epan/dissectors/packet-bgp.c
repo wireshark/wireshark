@@ -4296,7 +4296,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
         if((indx == offset)&&(label_entry==0||label_entry==0x800000)) {
             wmem_strbuf_append(stack_strbuf, "0 (withdrawn)");
-            return (1);
+            return 1;
         }
 
         wmem_strbuf_append_printf(stack_strbuf, "%u%s", label_entry >> 4,
@@ -4330,7 +4330,7 @@ decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
         if((indx == offset)&&(label_entry==0||label_entry==0x800000)) {
             proto_item_append_text(labels_item, " (withdrawn)");
             proto_item_append_text(label_item, " (withdrawn)");
-            return (1);
+            return 1;
         }
 
         proto_item_append_text(labels_item, "%u%s", label_entry >> 4,

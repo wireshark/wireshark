@@ -388,7 +388,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	if (ret_item != NULL)
 		*ret_item = pi;
 
-	return (0);
+	return 0;
 } /* int dissect_collectd_string */
 
 static int
@@ -507,7 +507,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 		proto_tree_add_item (pt, type_hf, tvb, offset + 4, 8, ENC_BIG_ENDIAN);
 	}
 
-	return (0);
+	return 0;
 } /* int dissect_collectd_integer */
 
 static void
@@ -715,7 +715,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	collectd_proto_tree_add_assembled_metric (tvb, offset + 6, length - 6,
 			vdispatch, pt);
 
-	return (0);
+	return 0;
 } /* void dissect_collectd_part_values */
 
 static int
@@ -779,7 +779,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item (pt, hf_collectd_data_sighash, tvb, offset + 4, 32, ENC_NA);
 	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 36, length - 36, ENC_ASCII);
 
-	return (0);
+	return 0;
 } /* int dissect_collectd_signature */
 
 static int
@@ -866,7 +866,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 			     offset + (22 + username_length),
 			     length - (22 + username_length), ENC_NA);
 
-	return (0);
+	return 0;
 } /* int dissect_collectd_encrypted */
 
 static int
@@ -884,7 +884,7 @@ stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, cons
 		if (strcmp (new_value, entry->string) == 0)
 		{
 			entry->count++;
-			return (0);
+			return 0;
 		}
 
 	entry = (string_counter_t *)wmem_alloc0 (scope, sizeof (*entry));
@@ -894,7 +894,7 @@ stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, cons
 
 	*ret_list = entry;
 
-	return (0);
+	return 0;
 }
 
 static int

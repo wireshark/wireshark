@@ -825,7 +825,7 @@ de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_item(tree, hf_gsm_a_dtap_sres, tvb, offset, 4, ENC_NA);
 
     /* no length check possible */
-    return (4);
+    return 4;
 }
 
 /*
@@ -1007,7 +1007,7 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 
     /* no length check possible */
 
-    return (1);
+    return 1;
 }
 
 /*
@@ -1307,7 +1307,7 @@ de_mm_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     proto_tree_add_item(subtree, hf_gsm_a_dtap_mm_timer_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gsm_a_dtap_mm_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return (1);
+    return 1;
 }
 
  /*
@@ -2194,7 +2194,7 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     /* no length check possible */
 
-    return (1);
+    return 1;
 }
 
 /*
@@ -2858,7 +2858,7 @@ de_recall_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3), 5, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_dtap_recall_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return (1);
+    return 1;
 }
 
 /*

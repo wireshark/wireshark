@@ -300,7 +300,7 @@ dissect_epmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti;
 
     if (!check_epmd(tvb))
-        return (0);
+        return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
