@@ -452,9 +452,9 @@ raknet_dissect_open_connection_reply_2(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     proto_tree *sub_tree;
     gint offset;
+    raknet_session_state_t* state;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
-    gboolean use_encryption;
 
     proto_tree_add_item(sub_tree, hf_raknet_offline_message_data_id, tvb, offset,
                         16, ENC_NA);
@@ -471,13 +471,14 @@ raknet_dissect_open_connection_reply_2(tvbuff_t *tvb, packet_info *pinfo, proto_
                         2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
+    state = raknet_get_session_state(pinfo);
+    state->use_encryption = tvb_get_guint8(tvb, offset) ? TRUE : FALSE;
 
     proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb, offset,
                         1, ENC_NA);
     offset += 1;
 
-    if (use_encryption) {
+    if (state->use_encryption) {
         proto_tree_add_item(sub_tree, hf_raknet_server_answer, tvb, offset,
                             128, ENC_NA);
         offset += 128;
