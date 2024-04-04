@@ -1883,9 +1883,9 @@ void proto_reg_handoff_zb_direct(void)
 
         /* 7.7.2.3. Zigbee Direct Commissioning Service characteristics */
         { "7072377d-0001-421c-b163-491c27333a61", dissect_zb_direct_formation },
-        { "7072377d-0002-421c-b163-491c27333a61", dissect_zb_direct_leave },
-        { "7072377d-0003-421c-b163-491c27333a61", dissect_zb_direct_join },
-        { "7072377d-0004-421c-b163-491c27333a61", dissect_zb_direct_permit_join },
+        { "7072377d-0002-421c-b163-491c27333a61", dissect_zb_direct_join },
+        { "7072377d-0003-421c-b163-491c27333a61", dissect_zb_direct_permit_join },
+        { "7072377d-0004-421c-b163-491c27333a61", dissect_zb_direct_leave },
         { "7072377d-0005-421c-b163-491c27333a61", dissect_zb_direct_status },
         { "7072377d-0006-421c-b163-491c27333a61", dissect_zb_direct_manage_joiners },
         { "7072377d-0007-421c-b163-491c27333a61", dissect_zb_direct_identify },
