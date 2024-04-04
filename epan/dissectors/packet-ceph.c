@@ -1736,8 +1736,8 @@ gboolean c_warn_size(proto_tree *tree,
  *	   then zero if the version is too new.	 Otherwise return zero.
  */
 static
-gshort c_warn_ver(proto_item *ti,
-		  gint act, gint min, gint max, c_pkt_data *data)
+int c_warn_ver(proto_item *ti,
+	       gint act, gint min, gint max, c_pkt_data *data)
 {
 	DISSECTOR_ASSERT_CMPINT(min, <=, max);
 
@@ -2274,6 +2274,7 @@ guint c_dissect_encoded(proto_tree *tree, c_encoded *enc,
 	enc->version = tvb_get_guint8(tvb, off);
 	ti = proto_tree_add_item(tree, hf_encoded_ver,
 				 tvb, off++, 1, ENC_LITTLE_ENDIAN);
+	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti, enc->version, minver, maxver, data);
 	enc->compat = tvb_get_guint8(tvb, off);
 	proto_tree_add_item(tree, hf_encoded_compat,
@@ -2406,6 +2407,7 @@ guint c_dissect_pg(proto_tree *root, gint hf,
 
 	ver = tvb_get_guint8(tvb, off);
 	ti2 = proto_tree_add_item(tree, hf_pgid_ver, tvb, off, 1, ENC_LITTLE_ENDIAN);
+	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti2, ver, 1, 1, data);
 	off += 1;
 
@@ -2480,6 +2482,7 @@ guint c_dissect_path(proto_tree *root, gint hf,
 
 	v = tvb_get_guint8(tvb, off);
 	ti2 = proto_tree_add_item(tree, hf_path_ver, tvb, off, 1, ENC_LITTLE_ENDIAN);
+	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti2, v, 1, 1, data);
 	off += 1;
 
@@ -3143,6 +3146,7 @@ guint c_dissect_osdinfo(proto_tree *root, int hf,
 	ver = tvb_get_guint8(tvb, off);
 	ti2 = proto_tree_add_item(tree, hf_osdinfo_ver,
 				  tvb, off, 1, ENC_LITTLE_ENDIAN);
+	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti2, ver, 1, 1, data);
 	off += 1;
 
@@ -4524,6 +4528,7 @@ guint c_dissect_msg_auth(proto_tree *root,
 		subtree = proto_item_add_subtree(ti2, ett_msg_auth_supportedproto);
 
 		ver = tvb_get_guint8(tvb, off);
+		/* XXX - should we quit if this doesn't return 0? */
 		c_warn_ver(ti2, ver, 1, 1, data);
 		proto_tree_add_item(tree, hf_msg_auth_supportedproto_ver,
 				    tvb, off, 1, ENC_LITTLE_ENDIAN);
