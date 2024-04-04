@@ -23,7 +23,6 @@
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-07 (and also draft-04/05)
- * https://tools.ietf.org/html/draft-deconinck-quic-multipath-06
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
  * https://tools.ietf.org/html/draft-ietf-quic-multipath-05 (and also draft-04)
 
@@ -187,24 +186,6 @@ static int hf_quic_crypto_reassembled_in;
 static int hf_quic_crypto_fragments;
 static int hf_quic_crypto_fragment;
 static int hf_quic_crypto_fragment_count;
-
-static int hf_quic_mp_add_address_first_byte;
-static int hf_quic_mp_add_address_reserved;
-static int hf_quic_mp_add_address_port_present;
-static int hf_quic_mp_add_address_ip_version;
-static int hf_quic_mp_add_address_id;
-static int hf_quic_mp_add_address_sq_number;
-static int hf_quic_mp_add_address_interface_type;
-static int hf_quic_mp_add_address_ip_address;
-static int hf_quic_mp_add_address_ip_address_v6;
-static int hf_quic_mp_add_address_port;
-static int hf_quic_mp_uniflow_id;
-static int hf_quic_mp_receiving_uniflows;
-static int hf_quic_mp_active_sending_uniflows;
-static int hf_quic_mp_add_local_address_id;
-static int hf_quic_mp_uniflow_info_section;
-static int hf_quic_mp_receiving_uniflow_info_section;
-static int hf_quic_mp_active_sending_uniflows_info_section;
 
 /* multipath*/
 static int hf_quic_mp_nci_path_identifier;
@@ -695,13 +676,6 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_CONNECTION_CLOSE_APP     0x1d
 #define FT_HANDSHAKE_DONE           0x1e
 #define FT_DATAGRAM                 0x30
-#define FT_MP_NEW_CONNECTION_ID_OLD 0x40
-#define FT_MP_RETIRE_CONNECTION_ID_OLD 0x41
-#define FT_MP_ACK                   0x42
-#define FT_MP_ACK_ECN               0x43
-#define FT_ADD_ADDRESS              0x44
-#define FT_REMOVE_ADDRESS           0x45
-#define FT_UNIFLOWS                 0x46
 #define FT_DATAGRAM_LENGTH          0x31
 #define FT_IMMEDIATE_ACK_DRAFT05    0xac /* ack-frequency-draft-05 */
 #define FT_ACK_FREQUENCY            0xaf
@@ -746,12 +720,6 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1e, 0x1e,   "HANDSHAKE_DONE" },
     { 0x1f, 0x1f,   "IMMEDIATE_ACK" },
     { 0x30, 0x31,   "DATAGRAM" },
-    { 0x40, 0x40,   "MP_NEW_CONNECTION_ID" },
-    { 0x41, 0x41,   "MP_RETIRE_CONNECTION_ID" },
-    { 0x42, 0x43,   "MP_ACK" },
-    { 0x44, 0x44,   "ADD_ADDRESS" },
-    { 0x45, 0x45,   "REMOVE_ADDRESS" },
-    { 0x46, 0x46,   "UNIFLOWS" },
     { 0xac, 0xac,   "IMMEDIATE_ACK (draft05)" }, /* ack-frequency-draft-05 */
     { 0xaf, 0xaf,   "ACK_FREQUENCY" },
     { 0x02f5, 0x02f5, "TIME_STAMP" },
@@ -2315,9 +2283,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_ACK_MP:
         case FT_ACK_MP_ECN:
         case FT_ACK_MP_DRAFT04:
-        case FT_ACK_MP_ECN_DRAFT04:
-        case FT_MP_ACK:
-        case FT_MP_ACK_ECN:{
+        case FT_ACK_MP_ECN_DRAFT04:{
             guint64 ack_range_count;
             gint32 lenvar;
 
@@ -2327,16 +2293,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 break;
                 case FT_ACK_ECN:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_ECN");
-                break;
-                case FT_MP_ACK:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-                    offset += lenvar;
-                break;
-                case FT_MP_ACK_ECN:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-                    offset += lenvar;
                 break;
                 case FT_ACK_MP:
                 case FT_ACK_MP_DRAFT04:
@@ -2378,7 +2334,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             /* ECN Counts. */
-            if (frame_type == FT_ACK_ECN || frame_type == FT_MP_ACK_ECN || frame_type == FT_ACK_MP_ECN || frame_type == FT_ACK_MP_ECN_DRAFT04 ) {
+            if (frame_type == FT_ACK_ECN || frame_type == FT_ACK_MP_ECN || frame_type == FT_ACK_MP_ECN_DRAFT04 ) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
@@ -2606,7 +2562,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_NEW_CONNECTION_ID:
-        case FT_MP_NEW_CONNECTION_ID_OLD:
         case FT_MP_NEW_CONNECTION_ID:{
             gint32 len_sequence;
             gint32 len_retire_prior_to;
@@ -2618,11 +2573,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             switch(frame_type){
                 case FT_NEW_CONNECTION_ID:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
-                 break;
-                case FT_MP_NEW_CONNECTION_ID_OLD:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_NCI");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-                    offset += lenvar;
                  break;
                 case FT_MP_NEW_CONNECTION_ID:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_NCI");
@@ -2665,7 +2615,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_RETIRE_CONNECTION_ID:
-        case FT_MP_RETIRE_CONNECTION_ID_OLD:
         case FT_MP_RETIRE_CONNECTION_ID:{
             gint32 len_sequence;
             gint32 lenvar;
@@ -2673,11 +2622,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             switch(frame_type){
                 case FT_RETIRE_CONNECTION_ID:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", RC");
-                break;
-                case FT_MP_RETIRE_CONNECTION_ID_OLD:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_RC");
-                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-                    offset += lenvar;
                 break;
                 case FT_MP_RETIRE_CONNECTION_ID:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_RC");
@@ -2803,125 +2747,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ts, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
-        }
-        break;
-        case FT_ADD_ADDRESS:{
-            gint32 length;
-            guint64 config_bits;
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", ADD_ADDRESS");
-
-            static int * const config_fields[] = {
-                &hf_quic_mp_add_address_reserved,
-                &hf_quic_mp_add_address_port_present,
-                &hf_quic_mp_add_address_ip_version,
-                NULL
-            };
-
-            proto_tree_add_bitmask_ret_uint64(ft_tree, tvb, offset, hf_quic_mp_add_address_first_byte, ett_quic, config_fields, ENC_BIG_ENDIAN, &config_bits);
-            offset += 1;
-
-            proto_tree_add_item(ft_tree, hf_quic_mp_add_address_id, tvb, offset, 1, ENC_NA);
-            offset += 1;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_add_address_sq_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
-            offset += (guint32)length;
-
-            proto_tree_add_item(ft_tree, hf_quic_mp_add_address_interface_type, tvb, offset, 1, ENC_NA);
-            offset += 1;
-
-            if ((config_bits & 0x06) == 0x06) {
-                ws_in6_addr addr;
-                tvb_get_ipv6(tvb, offset, &addr);
-                proto_tree_add_ipv6(ft_tree, hf_quic_mp_add_address_ip_address_v6, tvb, offset, 16, &addr);
-                offset += 16;
-            } else {
-                guint32 ip_config = tvb_get_ipv4(tvb, offset);
-                proto_tree_add_ipv4(ft_tree, hf_quic_mp_add_address_ip_address, tvb, offset, 4, ip_config);
-                offset += 4;
-            }
-
-            if ((config_bits & 0x10 ) == 0x10) {
-                proto_tree_add_item(ft_tree, hf_quic_mp_add_address_port, tvb, offset, 2, ENC_NA);
-                offset += 2;
-            }
-        }
-        break;
-        case FT_REMOVE_ADDRESS:{
-            gint32 length;
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", REMOVE_ADDRESS");
-
-            proto_tree_add_item(ft_tree, hf_quic_mp_add_address_id, tvb, offset, 1, ENC_NA);
-            offset += 1;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_add_address_sq_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
-            offset += (guint32)length;
-        }
-        break;
-        case FT_UNIFLOWS:{
-            gint32 length;
-            gint32 len_receiving_uniflows;
-            gint32 len_active_sending_uniflows;
-            gint32 len_uniflow_id;
-
-            guint64 ret_receiving_uniflows;
-            guint64 ret_active_sending_uniflows;
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", UNIFLOWS");
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_add_address_sq_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
-            offset += (guint32)length;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_receiving_uniflows, tvb, offset, -1, ENC_VARINT_QUIC, &ret_receiving_uniflows, &len_receiving_uniflows);
-            offset += (guint32)len_receiving_uniflows;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_active_sending_uniflows, tvb, offset, -1, ENC_VARINT_QUIC, &ret_active_sending_uniflows, &len_active_sending_uniflows);
-            offset += (guint32)len_active_sending_uniflows;
-
-            proto_item *receiving_uniflows_ft;
-            proto_tree *receiving_uniflows_tree;
-
-            receiving_uniflows_ft = proto_tree_add_item(ft_tree, hf_quic_mp_receiving_uniflow_info_section , tvb, offset, 1, ENC_NA);
-            receiving_uniflows_tree = proto_item_add_subtree(receiving_uniflows_ft, ett_quic_ft);
-
-            for (guint64 i = 0; i < ret_receiving_uniflows; i++) {
-                proto_item *item_ft;
-                proto_tree *item_tree;
-
-                item_ft = proto_tree_add_item(receiving_uniflows_tree, hf_quic_mp_uniflow_info_section, tvb, offset, 1, ENC_NA);
-                item_tree = proto_item_add_subtree(item_ft, ett_quic_ft);
-
-                len_uniflow_id = 0;
-
-                proto_tree_add_item_ret_varint(item_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_uniflow_id);
-                offset += (guint32)len_uniflow_id;
-
-                proto_tree_add_item(item_tree, hf_quic_mp_add_local_address_id , tvb, offset, 1, ENC_NA);
-                offset += 1;
-            }
-
-            proto_item *active_sending_uniflows_ft;
-            proto_tree *active_sending_uniflows_tree;
-
-            active_sending_uniflows_ft = proto_tree_add_item(ft_tree, hf_quic_mp_active_sending_uniflows_info_section, tvb, offset, 1, ENC_NA);
-            active_sending_uniflows_tree = proto_item_add_subtree(active_sending_uniflows_ft, ett_quic_ft);
-
-            for (guint64 i = 0; i < ret_active_sending_uniflows; i++) {
-                proto_item *item_ft;
-                proto_tree *item_tree;
-
-                item_ft = proto_tree_add_item(active_sending_uniflows_tree, hf_quic_mp_uniflow_info_section, tvb, offset, 1, ENC_NA);
-                item_tree = proto_item_add_subtree(item_ft, ett_quic_ft);
-
-                len_uniflow_id = 0;
-
-                proto_tree_add_item_ret_varint(item_tree, hf_quic_mp_uniflow_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_uniflow_id);
-                offset += (guint32)len_uniflow_id;
-
-                proto_tree_add_item(item_tree, hf_quic_mp_add_local_address_id , tvb, offset, 1, ENC_NA);
-                offset += 1;
-            }
         }
         break;
         case FT_PATH_STATUS_DRAFT04:
@@ -5188,91 +5013,6 @@ proto_register_quic(void)
           { "Spin Bit", "quic.spin_bit",
             FT_BOOLEAN, 8, NULL, 0x20,
             "Latency Spin Bit", HFILL }
-        },
-        { &hf_quic_mp_add_address_first_byte,
-          { "Config", "quic.mp_first_byte",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            NULL, HFILL }
-        },
-        { &hf_quic_mp_add_address_reserved,
-          { "Reserved", "quic.mp_reserved_bit",
-            FT_UINT8, BASE_DEC, NULL, 0xE0,
-            NULL, HFILL }
-        },
-        { &hf_quic_mp_add_address_port_present,
-          { "Port presence", "quic.port_presence_bit",
-            FT_BOOLEAN, 8, NULL, 0x10,
-            "Must be 1", HFILL }
-        },
-        { &hf_quic_mp_add_address_ip_version,
-          { "IP Version", "quic.ip_version",
-            FT_UINT8, BASE_DEC, NULL, 0x0f,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_add_address_id,
-          { "Address ID", "quic.mp_address_id",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_add_address_sq_number,
-          { "Sequence Number", "quic.mp_sequence_number",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_add_address_interface_type,
-          { "Interface Type", "quic.mp_interface_type",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_add_address_ip_address,
-          { "IP Address", "quic.mp_ip_address",
-            FT_IPv4, BASE_NONE,
-            NULL, 0x0, NULL, HFILL }
-        },
-       { &hf_quic_mp_add_address_ip_address_v6,
-          { "IP Address", "quic.mp_ip_address_v6",
-            FT_IPv6, BASE_NONE,
-            NULL, 0x0, NULL, HFILL }
-        },
-        { &hf_quic_mp_add_address_port,
-          { "Port", "quic.mp_port",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_uniflow_id,
-          { "Uniflow ID", "quic.mp_uniflow_id",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_receiving_uniflows,
-          { "Receiving uniflows", "quic.mp_receiving_uniflows",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_active_sending_uniflows,
-          { "Active sending uniflows", "quic.mp_act_send_uf",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_receiving_uniflow_info_section,
-          { "Receiving uniflows", "quic.mp_receiving_uniflows_section",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_active_sending_uniflows_info_section,
-          { "Active sending uniflows", "quic.mp_act_send_uf_section",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_uniflow_info_section,
-          { "Uniflow Info Section", "quic.mp_uniflow_info_section",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-       { &hf_quic_mp_add_local_address_id ,
-          { "Local address id", "quic.mp_add_local_address_id",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
         },
 
         /* multipath */
