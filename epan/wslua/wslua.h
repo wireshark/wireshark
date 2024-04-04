@@ -114,6 +114,7 @@ typedef struct _wslua_field_t {
     enum ftenum type;
     unsigned base;
     const void* vs;
+    int valuestring_ref;
     uint64_t mask;
 } wslua_field_t;
 
