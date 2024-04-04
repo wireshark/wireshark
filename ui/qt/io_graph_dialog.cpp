@@ -2451,15 +2451,16 @@ tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dis
         return TAP_PACKET_DONT_REDRAW;
     }
 
-    int idx = get_io_graph_index(pinfo, iog->interval_);
+    int64_t tmp_idx = get_io_graph_index(pinfo, iog->interval_);
     bool recalc = false;
 
     /* some sanity checks */
-    if ((idx < 0) || (idx >= max_io_items_)) {
+    if ((tmp_idx < 0) || (tmp_idx >= max_io_items_)) {
         iog->cur_idx_ = (int)iog->items_.size() - 1;
         return TAP_PACKET_DONT_REDRAW;
     }
 
+    int idx = (int)tmp_idx;
     /* If the graph isn't visible, don't do the work or redraw, but mark
      * the graph in need of a retap if it is ever enabled. The alternative
      * is to do the work, but clear pending retaps when the taps are reset

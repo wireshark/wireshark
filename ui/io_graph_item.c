@@ -17,7 +17,7 @@
 
 #include "ui/io_graph_item.h"
 
-int get_io_graph_index(packet_info *pinfo, int interval) {
+int64_t get_io_graph_index(packet_info *pinfo, int interval) {
     nstime_t time_delta;
 
     /*
@@ -31,16 +31,7 @@ int get_io_graph_index(packet_info *pinfo, int interval) {
     if (time_delta.secs<0) {
         return -1;
     }
-    /* XXX - The IOGraph ignores indices over a certain value (or negative),
-     * but in a sufficiently large file this can overflow and so, after a
-     * large gap of ignored values, values can be added to earlier intervals.
-     * That doesn't matter too much for current values but it could matter
-     * if we changed this to allow smaller intervals (with an interval of 1 s
-     * it takes ~49.71 days to overflow, but 1 μs only takes about 72 minutes.)
-     *
-     * To be safe we could just make this a 64 bit value.
-     */
-    return (int) ((time_delta.secs*INT64_C(1000) + time_delta.nsecs/1000000) / interval);
+    return ((time_delta.secs*INT64_C(1000) + time_delta.nsecs/1000000) / interval);
 }
 
 GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_unit_t item_unit)

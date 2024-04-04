@@ -4356,9 +4356,11 @@ sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const vo
     int idx;
     gboolean update_succeeded;
 
-    idx = get_io_graph_index(pinfo, graph->interval);
-    if (idx < 0 || idx >= SHARKD_IOGRAPH_MAX_ITEMS)
+    int64_t tmp_idx = get_io_graph_index(pinfo, graph->interval);
+    if (tmp_idx < 0 || tmp_idx >= SHARKD_IOGRAPH_MAX_ITEMS)
         return TAP_PACKET_DONT_REDRAW;
+
+    idx = (int)tmp_idx;
 
     if (idx + 1 > graph->num_items)
     {
