@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.6.0 (2023-09)
+-- 3GPP TS 36.423 V17.7.0 (2024-03)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -614,5 +614,14 @@ id-SCGreconfigNotification													ProtocolIE-ID ::= 438
 id-MIMOPRBusageInformation													ProtocolIE-ID ::= 439
 id-SensorMeasurementConfiguration											ProtocolIE-ID ::= 440
 id-AdditionalListofForwardingGTPTunnelEndpoint								ProtocolIE-ID ::= 441
+--WS extension
+id-Unknown-442																ProtocolIE-ID ::= 442
+id-Unknown-443																ProtocolIE-ID ::= 443
+id-Unknown-444																ProtocolIE-ID ::= 444
+id-Unknown-445																ProtocolIE-ID ::= 445
+id-Unknown-446																ProtocolIE-ID ::= 446
+id-Unknown-447																ProtocolIE-ID ::= 447
+id-Unknown-448																ProtocolIE-ID ::= 448
+id-IABAuthorized															ProtocolIE-ID ::= 449
 
 END

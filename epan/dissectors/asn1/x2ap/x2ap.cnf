@@ -183,7 +183,10 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       &hf_x2ap_rAT_RestrictionInformation_MEO,
       &hf_x2ap_rAT_RestrictionInformation_GEO,
       &hf_x2ap_rAT_RestrictionInformation_OTHERSAT,
-      &hf_x2ap_rAT_RestrictionInformation_Reserved,
+      &hf_x2ap_rAT_RestrictionInformation_NR_LEO,
+      &hf_x2ap_rAT_RestrictionInformation_NR_MEO,
+      &hf_x2ap_rAT_RestrictionInformation_NR_GEO,
+      &hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_rAT_RestrictionInformation);
@@ -1654,6 +1657,7 @@ id-SCGreconfigNotification					ProtocolIE-ID
 id-MIMOPRBusageInformation					ProtocolIE-ID
 id-SensorMeasurementConfiguration				ProtocolIE-ID
 id-AdditionalListofForwardingGTPTunnelEndpoint			ProtocolIE-ID
+id-IABAuthorized						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1956,6 +1960,7 @@ CPCinformation-CONF						N x2ap.ies id-CPCinformation-CONF
 CPCinformation-NOTIFY						N x2ap.ies id-CPCinformation-NOTIFY
 CPCupdate-MOD							N x2ap.ies id-CPCupdate-MOD
 SCGreconfigNotification						N x2ap.ies id-SCGreconfigNotification
+IABAuthorized							N x2ap.ies id-IABAuthorized
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports

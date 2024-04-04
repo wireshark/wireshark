@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.6.0 (2023-09)
+-- 3GPP TS 36.423 V17.7.0 (2024-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -1694,6 +1694,13 @@ HWLoadIndicator-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 
 IABNodeIndication ::= ENUMERATED {true,...}
+
+IABAuthorized ::= ENUMERATED {
+	authorized,
+	not-authorized,
+	...
+}
+
 
 IMSvoiceEPSfallbackfrom5G ::= ENUMERATED {
 	true,

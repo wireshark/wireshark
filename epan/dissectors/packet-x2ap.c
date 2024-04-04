@@ -8,7 +8,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2023, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2024, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V17.6.0 (2023-09)
+ * 3GPP TS 36.423 V17.7.0 (2024-03)
  */
 
 #include "config.h"
@@ -631,7 +631,15 @@ typedef enum _ProtocolIE_ID_enum {
   id_SCGreconfigNotification = 438,
   id_MIMOPRBusageInformation = 439,
   id_SensorMeasurementConfiguration = 440,
-  id_AdditionalListofForwardingGTPTunnelEndpoint = 441
+  id_AdditionalListofForwardingGTPTunnelEndpoint = 441,
+  id_Unknown_442 = 442,
+  id_Unknown_443 = 443,
+  id_Unknown_444 = 444,
+  id_Unknown_445 = 445,
+  id_Unknown_446 = 446,
+  id_Unknown_447 = 447,
+  id_Unknown_448 = 448,
+  id_IABAuthorized = 449
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -712,7 +720,10 @@ static int hf_x2ap_rAT_RestrictionInformation_LEO;
 static int hf_x2ap_rAT_RestrictionInformation_MEO;
 static int hf_x2ap_rAT_RestrictionInformation_GEO;
 static int hf_x2ap_rAT_RestrictionInformation_OTHERSAT;
-static int hf_x2ap_rAT_RestrictionInformation_Reserved;
+static int hf_x2ap_rAT_RestrictionInformation_NR_LEO;
+static int hf_x2ap_rAT_RestrictionInformation_NR_MEO;
+static int hf_x2ap_rAT_RestrictionInformation_NR_GEO;
+static int hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT;
 static int hf_x2ap_ABSInformation_PDU;            /* ABSInformation */
 static int hf_x2ap_ABS_Status_PDU;                /* ABS_Status */
 static int hf_x2ap_ActivationID_PDU;              /* ActivationID */
@@ -800,6 +811,7 @@ static int hf_x2ap_GUMMEI_PDU;                    /* GUMMEI */
 static int hf_x2ap_HandoverReportType_PDU;        /* HandoverReportType */
 static int hf_x2ap_HandoverRestrictionList_PDU;   /* HandoverRestrictionList */
 static int hf_x2ap_IABNodeIndication_PDU;         /* IABNodeIndication */
+static int hf_x2ap_IABAuthorized_PDU;             /* IABAuthorized */
 static int hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU;  /* IMSvoiceEPSfallbackfrom5G */
 static int hf_x2ap_IntendedTDD_DL_ULConfiguration_NR_PDU;  /* IntendedTDD_DL_ULConfiguration_NR */
 static int hf_x2ap_InterfaceInstanceIndication_PDU;  /* InterfaceInstanceIndication */
@@ -3377,6 +3389,14 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_MIMOPRBusageInformation, "id-MIMOPRBusageInformation" },
   { id_SensorMeasurementConfiguration, "id-SensorMeasurementConfiguration" },
   { id_AdditionalListofForwardingGTPTunnelEndpoint, "id-AdditionalListofForwardingGTPTunnelEndpoint" },
+  { id_Unknown_442, "id-Unknown-442" },
+  { id_Unknown_443, "id-Unknown-443" },
+  { id_Unknown_444, "id-Unknown-444" },
+  { id_Unknown_445, "id-Unknown-445" },
+  { id_Unknown_446, "id-Unknown-446" },
+  { id_Unknown_447, "id-Unknown-447" },
+  { id_Unknown_448, "id-Unknown-448" },
+  { id_IABAuthorized, "id-IABAuthorized" },
   { 0, NULL }
 };
 
@@ -8763,6 +8783,22 @@ dissect_x2ap_IABNodeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const value_string x2ap_IABAuthorized_vals[] = {
+  {   0, "authorized" },
+  {   1, "not-authorized" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_IABAuthorized(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const value_string x2ap_IMSvoiceEPSfallbackfrom5G_vals[] = {
   {   0, "true" },
   { 0, NULL }
@@ -11726,7 +11762,10 @@ dissect_x2ap_T_rAT_RestrictionInformation(tvbuff_t *tvb _U_, int offset _U_, asn
       &hf_x2ap_rAT_RestrictionInformation_MEO,
       &hf_x2ap_rAT_RestrictionInformation_GEO,
       &hf_x2ap_rAT_RestrictionInformation_OTHERSAT,
-      &hf_x2ap_rAT_RestrictionInformation_Reserved,
+      &hf_x2ap_rAT_RestrictionInformation_NR_LEO,
+      &hf_x2ap_rAT_RestrictionInformation_NR_MEO,
+      &hf_x2ap_rAT_RestrictionInformation_NR_GEO,
+      &hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_rAT_RestrictionInformation);
@@ -20038,6 +20077,14 @@ static int dissect_IABNodeIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_IABAuthorized_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_IABAuthorized(tvb, offset, &asn1_ctx, tree, hf_x2ap_IABAuthorized_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_IMSvoiceEPSfallbackfrom5G_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -23518,9 +23565,21 @@ void proto_register_x2ap(void) {
       { "OTHERSAT", "x2ap.rAT_RestrictionInformation.OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
         NULL, HFILL }},
-    { &hf_x2ap_rAT_RestrictionInformation_Reserved,
-      { "Reserved", "x2ap.rAT_RestrictionInformation.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x0f,
+    { &hf_x2ap_rAT_RestrictionInformation_NR_LEO,
+      { "NR-LEO", "x2ap.rAT_RestrictionInformation.NR_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_NR_MEO,
+      { "NR-MEO", "x2ap.rAT_RestrictionInformation.NR_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_NR_GEO,
+      { "NR-GEO", "x2ap.rAT_RestrictionInformation.NR_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT,
+      { "NR-OTHERSAT", "x2ap.rAT_RestrictionInformation.NR_OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
         NULL, HFILL }},
     { &hf_x2ap_ABSInformation_PDU,
       { "ABSInformation", "x2ap.ABSInformation",
@@ -23869,6 +23928,10 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_IABNodeIndication_PDU,
       { "IABNodeIndication", "x2ap.IABNodeIndication",
         FT_UINT32, BASE_DEC, VALS(x2ap_IABNodeIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_x2ap_IABAuthorized_PDU,
+      { "IABAuthorized", "x2ap.IABAuthorized",
+        FT_UINT32, BASE_DEC, VALS(x2ap_IABAuthorized_vals), 0,
         NULL, HFILL }},
     { &hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU,
       { "IMSvoiceEPSfallbackfrom5G", "x2ap.IMSvoiceEPSfallbackfrom5G",
@@ -29677,6 +29740,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_CPCinformation_NOTIFY, create_dissector_handle(dissect_CPCinformation_NOTIFY_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CPCupdate_MOD, create_dissector_handle(dissect_CPCupdate_MOD_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_SCGreconfigNotification, create_dissector_handle(dissect_SCGreconfigNotification_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_IABAuthorized, create_dissector_handle(dissect_IABAuthorized_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_Number_of_Antennaports, create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_CompositeAvailableCapacityGroup, create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_PRACH_Configuration, create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));

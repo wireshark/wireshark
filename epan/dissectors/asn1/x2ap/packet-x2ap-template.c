@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2023, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2024, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V17.6.0 (2023-09)
+ * 3GPP TS 36.423 V17.7.0 (2024-03)
  */
 
 #include "config.h"
@@ -130,7 +130,10 @@ static int hf_x2ap_rAT_RestrictionInformation_LEO;
 static int hf_x2ap_rAT_RestrictionInformation_MEO;
 static int hf_x2ap_rAT_RestrictionInformation_GEO;
 static int hf_x2ap_rAT_RestrictionInformation_OTHERSAT;
-static int hf_x2ap_rAT_RestrictionInformation_Reserved;
+static int hf_x2ap_rAT_RestrictionInformation_NR_LEO;
+static int hf_x2ap_rAT_RestrictionInformation_NR_MEO;
+static int hf_x2ap_rAT_RestrictionInformation_NR_GEO;
+static int hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT;
 #include "packet-x2ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -664,9 +667,21 @@ void proto_register_x2ap(void) {
       { "OTHERSAT", "x2ap.rAT_RestrictionInformation.OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
         NULL, HFILL }},
-    { &hf_x2ap_rAT_RestrictionInformation_Reserved,
-      { "Reserved", "x2ap.rAT_RestrictionInformation.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x0f,
+    { &hf_x2ap_rAT_RestrictionInformation_NR_LEO,
+      { "NR-LEO", "x2ap.rAT_RestrictionInformation.NR_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_NR_MEO,
+      { "NR-MEO", "x2ap.rAT_RestrictionInformation.NR_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_NR_GEO,
+      { "NR-GEO", "x2ap.rAT_RestrictionInformation.NR_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT,
+      { "NR-OTHERSAT", "x2ap.rAT_RestrictionInformation.NR_OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
         NULL, HFILL }},
 #include "packet-x2ap-hfarr.c"
   };

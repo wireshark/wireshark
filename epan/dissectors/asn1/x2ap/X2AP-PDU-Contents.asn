@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.6.0 (2023-09)
+-- 3GPP TS 36.423 V17.7.0 (2024-03)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -262,7 +262,8 @@ IMPORTS
 	SecurityResult,
 	TraceCollectionEntityIPAddress,
 	SCGreconfigNotification,
-	AdditionalListofForwardingGTPTunnelEndpoint
+	AdditionalListofForwardingGTPTunnelEndpoint,
+	IABAuthorized
 
 
 
@@ -645,6 +646,7 @@ FROM X2AP-Containers
 	id-SecurityResult,
 	id-SCGreconfigNotification,
 	id-AdditionalListofForwardingGTPTunnelEndpoint,
+	id-IABAuthorized,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -2711,7 +2713,8 @@ SgNBAdditionRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-PSCellChangeHistory				CRITICALITY ignore	TYPE PSCellChangeHistory								PRESENCE optional}|
 	{ ID id-CHOinformation-AddReq					CRITICALITY reject	TYPE CHOinformation-AddReq						PRESENCE optional}|
 	{ ID id-SCGActivationRequest					CRITICALITY ignore	TYPE SCGActivationRequest							PRESENCE optional}|
-	{ ID id-CPAinformation-REQ						CRITICALITY reject	TYPE CPAinformation-REQ								PRESENCE optional},
+	{ ID id-CPAinformation-REQ						CRITICALITY reject	TYPE CPAinformation-REQ								PRESENCE optional}|
+	{ ID id-IABAuthorized						CRITICALITY ignore	TYPE IABAuthorized									PRESENCE optional},
 	...
 }
 
@@ -2972,7 +2975,8 @@ SgNBModificationRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-CHOinformation-ModReq					CRITICALITY ignore	TYPE CHOinformation-ModReq							PRESENCE optional}|
 	{ ID id-SCGActivationRequest					CRITICALITY ignore	TYPE SCGActivationRequest								PRESENCE optional}|
 	{ ID id-CPAinformation-MOD						CRITICALITY ignore	TYPE CPAinformation-MOD									PRESENCE optional}|
-	{ ID id-CPCupdate-MOD							CRITICALITY ignore	TYPE CPCupdate-MOD										PRESENCE optional},
+	{ ID id-CPCupdate-MOD							CRITICALITY ignore	TYPE CPCupdate-MOD										PRESENCE optional}|
+	{ ID id-IABAuthorized						CRITICALITY ignore	TYPE IABAuthorized									PRESENCE optional},
 	...
 }
 
