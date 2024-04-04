@@ -351,7 +351,7 @@ tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const gint offset)
 }
 
 /* Add a zero length item which indicates an expected but missing field */
-proto_item *
+static proto_item *
 proto_tree_add_missing_field(proto_tree *tree, packet_info *pinfo, int hf, tvbuff_t *tvb,
                              const gint offset)
 {
