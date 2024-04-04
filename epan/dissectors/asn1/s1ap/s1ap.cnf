@@ -722,7 +722,10 @@ Hysteresis DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Hysteresis_fmt)
       &hf_s1ap_rAT_RestrictionInformation_MEO,
       &hf_s1ap_rAT_RestrictionInformation_GEO,
       &hf_s1ap_rAT_RestrictionInformation_OTHERSAT,
-      &hf_s1ap_rAT_RestrictionInformation_Reserved,
+      &hf_s1ap_rAT_RestrictionInformation_NR_LEO,
+      &hf_s1ap_rAT_RestrictionInformation_NR_MEO,
+      &hf_s1ap_rAT_RestrictionInformation_NR_GEO,
+      &hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_rAT_RestrictionInformation);

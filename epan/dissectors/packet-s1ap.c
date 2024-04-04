@@ -15,7 +15,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V17.5.0 (2023-06)
+ * References: 3GPP TS 36.413 V17.6.0 (2024-03)
  */
 
 #include "config.h"
@@ -627,7 +627,10 @@ static int hf_s1ap_rAT_RestrictionInformation_LEO;
 static int hf_s1ap_rAT_RestrictionInformation_MEO;
 static int hf_s1ap_rAT_RestrictionInformation_GEO;
 static int hf_s1ap_rAT_RestrictionInformation_OTHERSAT;
-static int hf_s1ap_rAT_RestrictionInformation_Reserved;
+static int hf_s1ap_rAT_RestrictionInformation_NR_LEO;
+static int hf_s1ap_rAT_RestrictionInformation_NR_MEO;
+static int hf_s1ap_rAT_RestrictionInformation_NR_GEO;
+static int hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT;
 static int hf_s1ap_Additional_GUTI_PDU;           /* Additional_GUTI */
 static int hf_s1ap_AdditionalRRMPriorityIndex_PDU;  /* AdditionalRRMPriorityIndex */
 static int hf_s1ap_AerialUEsubscriptionInformation_PDU;  /* AerialUEsubscriptionInformation */
@@ -9621,7 +9624,10 @@ dissect_s1ap_T_rAT_RestrictionInformation(tvbuff_t *tvb _U_, int offset _U_, asn
       &hf_s1ap_rAT_RestrictionInformation_MEO,
       &hf_s1ap_rAT_RestrictionInformation_GEO,
       &hf_s1ap_rAT_RestrictionInformation_OTHERSAT,
-      &hf_s1ap_rAT_RestrictionInformation_Reserved,
+      &hf_s1ap_rAT_RestrictionInformation_NR_LEO,
+      &hf_s1ap_rAT_RestrictionInformation_NR_MEO,
+      &hf_s1ap_rAT_RestrictionInformation_NR_GEO,
+      &hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_rAT_RestrictionInformation);
@@ -18874,9 +18880,21 @@ void proto_register_s1ap(void) {
       { "OTHERSAT", "s1ap.rAT_RestrictionInformation.OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
         NULL, HFILL }},
-    { &hf_s1ap_rAT_RestrictionInformation_Reserved,
-      { "Reserved", "s1ap.rAT_RestrictionInformation.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x0f,
+    { &hf_s1ap_rAT_RestrictionInformation_NR_LEO,
+      { "NR-LEO", "s1ap.rAT_RestrictionInformation.NR_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_NR_MEO,
+      { "NR-MEO", "s1ap.rAT_RestrictionInformation.NR_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_NR_GEO,
+      { "NR-GEO", "s1ap.rAT_RestrictionInformation.NR_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT,
+      { "NR-OTHERSAT", "s1ap.rAT_RestrictionInformation.NR_OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
         NULL, HFILL }},
     { &hf_s1ap_Additional_GUTI_PDU,
       { "Additional-GUTI", "s1ap.Additional_GUTI_element",
