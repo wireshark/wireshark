@@ -231,7 +231,7 @@ WS_DLL_PUBLIC guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
  *
  *
  * As the fixed type could be any size, I will not try to fit it into our
- * simple types like gdouble or glong etc. I will just create a string buffer holding
+ * simple types like double or long etc. I will just create a string buffer holding
  * a  representation (after scale is applied), and with a decimal point or zero padding
  * inserted at the right place if necessary. The string is null terminated
  *
@@ -297,18 +297,11 @@ WS_DLL_PUBLIC gint32 get_CDR_long(tvbuff_t *tvb, int *offset,
  * have been processed.
  */
 
-#ifdef G_HAVE_GLONG_DOUBLE
-
-WS_DLL_PUBLIC glong_double get_CDR_long_double(tvbuff_t *tvb, int *offset,
-    gboolean stream_is_big_endian, int boundary);
-#else
-
 /* FIX -- Cast long double to gdouble until I figure this out -- FS*/
 
 WS_DLL_PUBLIC gdouble get_CDR_long_double(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
-#endif
 
 
 /* Copy an 8 octet sequence from the tvbuff

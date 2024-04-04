@@ -3212,7 +3212,7 @@ guint32 get_CDR_enum(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, 
  *
  *
  * As the fixed type could be any size, I will not try to fit it into our
- * simple types like gdouble or glong etc. I will just create a string buffer holding
+ * simple types like double or long etc. I will just create a string buffer holding
  * a  representation (after scale is applied), and with a decimal point or zero padding
  * inserted at the right place if necessary. The string is null terminated
  *

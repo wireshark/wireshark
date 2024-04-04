@@ -218,7 +218,7 @@ static int getnum (lua_State *L, const char **fmt, int df) {
 static size_t optsize (lua_State *L, char opt, const char **fmt) {
   switch (opt) {
     case 'B': case 'b': return sizeof(char);
-    case 'H': case 'h': return sizeof(gshort);
+    case 'H': case 'h': return sizeof(short);
     case 'L': case 'l': return sizeof(long);
     case 'E': case 'e': return sizeof(int64_t);
     case 'T': return sizeof(size_t);

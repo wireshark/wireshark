@@ -24,7 +24,9 @@ type_map = {
     'guchar': 'unsigned char',
     'gint': 'int',
     'guint': 'unsigned', # Matches README.developer
-    'glong': 'long',
+    # Our remaining glong instances probably shouldn't be converted, e.g.
+    # sequence_analysis.c:350
+    # 'glong': 'long',
     'gulong': 'unsigned long',
     'gint8': 'int8_t',
     'gint16': 'int16_t',

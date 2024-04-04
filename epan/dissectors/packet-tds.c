@@ -2536,7 +2536,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 guint64 value = 0;
                 gdouble dblvalue;
                 guint days = 0;
-                gshort timeoffset = 0;
+                int16_t timeoffset = 0;
                 guint64 secs;
                 nstime_t tv;
                 proto_item *timeitem = NULL;

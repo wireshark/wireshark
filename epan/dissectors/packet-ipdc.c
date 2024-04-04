@@ -722,15 +722,15 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	guint len;
 	guint i;
 	guint status;
-	gshort tag;
+	uint8_t tag;
 	guint32 tmp_tag;
 
-	gshort nr = tvb_get_guint8(tvb,0);
-	gshort ns = tvb_get_guint8(tvb,1);
+	uint8_t nr = tvb_get_guint8(tvb,0);
+	uint8_t ns = tvb_get_guint8(tvb,1);
 	guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0,NULL);
 	/* payload_len will be at least 4 bytes... */
 
-	gshort trans_id_size;
+	int trans_id_size;
 	guint32 trans_id;
 	guint16 message_code;
 	guint16 offset;
