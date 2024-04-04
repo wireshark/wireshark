@@ -54,13 +54,45 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
         // Beginning quote
         clipboard_text += QString("\"");
         for (int i = 0; i < printData.length(); i++) {
-            /* ASCII printable */
-            int ch = printData[i];
-            if (ch >= 32 && ch <= 126) {
-                clipboard_text += QChar(ch);
-            }
-            else {
-                clipboard_text += QString("\\x%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
+            // backslash and double quote are printable but
+            // must be escaped in a C string.
+            char ch = printData[i];
+            switch (ch) {
+            case '\"':
+                clipboard_text += QString("\\\"");
+                break;
+            case '\\':
+                clipboard_text += QString("\\\\");
+                break;
+            case '\a':
+                clipboard_text += QString("\\a");
+                break;
+            case '\b':
+                clipboard_text += QString("\\b");
+                break;
+            case '\f':
+                clipboard_text += QString("\\f");
+                break;
+            case '\n':
+                clipboard_text += QString("\\n");
+                break;
+            case '\r':
+                clipboard_text += QString("\\r");
+                break;
+            case '\t':
+                clipboard_text += QString("\\t");
+                break;
+            case '\v':
+                clipboard_text += QString("\\v");
+                break;
+            default:
+                // ASCII printable
+                if (ch >= 32 && ch <= 126) {
+                    clipboard_text += QChar(ch);
+                }
+                else {
+                    clipboard_text += QString("\\%1").arg((uint8_t) printData[i], 3, 8, QChar('0'));
+                }
             }
         }
         // End quote
@@ -73,6 +105,8 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
     case DP_PrintableText:
         for (int i = 0; i < printData.length(); i++) {
             QChar ch(printData[i]);
+            // This interprets ch as Latin-1. We might want to use ASCII
+            // printable only.
             if (ch.isSpace() || ch.isPrint()) {
                 clipboard_text += ch;
             }
