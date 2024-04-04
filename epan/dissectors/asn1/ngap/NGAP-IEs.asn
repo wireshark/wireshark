@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.7.0 (2023-12)
+-- 3GPP TS 38.413 V17.8.0 (2024-03)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -1825,7 +1825,7 @@ Extended-RANNodeName-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 ExtendedRATRestrictionInformation ::= SEQUENCE {
-	primaryRATRestriction		BIT STRING (SIZE(8, ...)),
+	primaryRATRestriction		BIT STRING (SIZE(8, ..., 16)),
 	secondaryRATRestriction		BIT STRING (SIZE(8, ...)),
 	iE-Extensions		ProtocolExtensionContainer { {ExtendedRATRestrictionInformation-ExtIEs} }	OPTIONAL,
 	...

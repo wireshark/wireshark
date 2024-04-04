@@ -1111,11 +1111,20 @@ ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacke
       &hf_ngap_primaryRATRestriction_nR_MEO,
       &hf_ngap_primaryRATRestriction_nR_GEO,
       &hf_ngap_primaryRATRestriction_nR_OTHERSAT,
+      &hf_ngap_primaryRATRestriction_e_UTRA_LEO,
+      NULL
+    };
+    static int * const fields2[] = {
+      &hf_ngap_primaryRATRestriction_e_UTRA_MEO,
+      &hf_ngap_primaryRATRestriction_e_UTRA_GEO,
+      &hf_ngap_primaryRATRestriction_e_UTRA_OTHERSAT,
       &hf_ngap_primaryRATRestriction_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_primaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+    if (tvb_reported_length(parameter_tvb) >= 2)
+        proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields2, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY ExtendedRATRestrictionInformation/secondaryRATRestriction VAL_PTR=&parameter_tvb

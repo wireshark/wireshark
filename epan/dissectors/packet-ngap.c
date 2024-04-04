@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v17.7.0 (2023-12)
+ * References: 3GPP TS 38.413 v17.8.0 (2024-03)
  */
 
 #include "config.h"
@@ -661,6 +661,10 @@ static int hf_ngap_primaryRATRestriction_nR_LEO;
 static int hf_ngap_primaryRATRestriction_nR_MEO;
 static int hf_ngap_primaryRATRestriction_nR_GEO;
 static int hf_ngap_primaryRATRestriction_nR_OTHERSAT;
+static int hf_ngap_primaryRATRestriction_e_UTRA_LEO;
+static int hf_ngap_primaryRATRestriction_e_UTRA_MEO;
+static int hf_ngap_primaryRATRestriction_e_UTRA_GEO;
+static int hf_ngap_primaryRATRestriction_e_UTRA_OTHERSAT;
 static int hf_ngap_primaryRATRestriction_reserved;
 static int hf_ngap_secondaryRATRestriction_e_UTRA;
 static int hf_ngap_secondaryRATRestriction_nR;
@@ -9502,11 +9506,20 @@ dissect_ngap_T_primaryRATRestriction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
       &hf_ngap_primaryRATRestriction_nR_MEO,
       &hf_ngap_primaryRATRestriction_nR_GEO,
       &hf_ngap_primaryRATRestriction_nR_OTHERSAT,
+      &hf_ngap_primaryRATRestriction_e_UTRA_LEO,
+      NULL
+    };
+    static int * const fields2[] = {
+      &hf_ngap_primaryRATRestriction_e_UTRA_MEO,
+      &hf_ngap_primaryRATRestriction_e_UTRA_GEO,
+      &hf_ngap_primaryRATRestriction_e_UTRA_OTHERSAT,
       &hf_ngap_primaryRATRestriction_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_primaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+    if (tvb_reported_length(parameter_tvb) >= 2)
+        proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields2, ENC_BIG_ENDIAN);
   }
 
 
@@ -28010,9 +28023,25 @@ void proto_register_ngap(void) {
       { "nR-OTHERSAT", "ngap.primaryRATRestriction.nR_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
         NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_e_UTRA_LEO,
+      { "e-UTRA-LEO", "ngap.primaryRATRestriction.e_UTRA_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_e_UTRA_MEO,
+      { "e-UTRA-MEO", "ngap.primaryRATRestriction.e_UTRA_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_e_UTRA_GEO,
+      { "e-UTRA-GEO", "ngap.primaryRATRestriction.e_UTRA_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_e_UTRA_OTHERSAT,
+      { "e-UTRA-OTHERSAT", "ngap.primaryRATRestriction.e_UTRA_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
     { &hf_ngap_primaryRATRestriction_reserved,
       { "reserved", "ngap.primaryRATRestriction.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x01,
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }},
     { &hf_ngap_secondaryRATRestriction_e_UTRA,
       { "e-UTRA", "ngap.secondaryRATRestriction.e_UTRA",
