@@ -1579,6 +1579,64 @@ find_message_type_by_udp_port(packet_info *pinfo)
     return NULL;
 }
 
+static bool
+// NOLINTNEXTLINE(misc-no-recursion)
+uri_matches_pattern(const char *request_uri, const char *uri_pattern, int depth)
+{
+    /* Arbitrary recursion depth limit.. */
+    if (depth > 32) {
+        return false;
+    }
+
+    /* Exact match */
+    if (strcmp(request_uri, uri_pattern)==0) {
+        return true;
+    }
+
+    /* Match if both strings now empty */
+    if (strlen(uri_pattern)==0 && strlen(request_uri)==0) {
+        return true;
+    }
+
+    /* Fail if remaining, unmatched pattern but reached end of uri */
+    if (strlen(uri_pattern)>0 && strlen(request_uri)==0) {
+        return false;
+    }
+
+    /* If remainder of pattern is just '*', it matches */
+    if (strlen(uri_pattern)==1 && uri_pattern[0] == '*') {
+        return true;
+    }
+
+    /* If next uri_pattern char is not '*', needs to match exactly */
+    if (strlen(uri_pattern) && uri_pattern[0] != '*') {
+
+        /* Skip identical characters */
+        int n;
+        for (n=0; strlen(request_uri+n) && strlen(request_uri+n) && uri_pattern[n] != '*'; n++) {
+            if (request_uri[n] == uri_pattern[n]) {
+                continue;
+            }
+            else {
+                /* Fail if non-wildcarded comparison fails */
+                return false;
+            }
+        }
+
+        /* Recursively call n characters along */
+        return uri_matches_pattern(request_uri+n, uri_pattern+n, depth+1);
+    }
+
+    if (strlen(uri_pattern) && uri_pattern[0] == '*') {
+        /* We are at a '*'. Test with/without moving past it now */
+        return (uri_matches_pattern(request_uri+1, uri_pattern,   depth+1) ||
+                uri_matches_pattern(request_uri+1, uri_pattern+1, depth+1));
+    }
+
+    return false;
+}
+
+
 static int
 dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1722,7 +1780,7 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (curr) {
             if (curr->request_uri) {
                 for (guint n=0; n < num_protobuf_uri_message_types; n++) {
-                    if (strcmp(curr->request_uri, protobuf_uri_message_types[n].uri) == 0) {
+                    if (uri_matches_pattern(curr->request_uri, protobuf_uri_message_types[n].uri, 1 /* depth */)) {
                         if (strlen(protobuf_uri_message_types[n].message_type)) {
                             /* Lookup message type for matching URI */
                             message_desc = pbw_DescriptorPool_FindMessageTypeByName(pbw_pool,
@@ -2414,7 +2472,7 @@ proto_register_protobuf(void)
     );
 
     prefs_register_uat_preference(protobuf_module, "uri_message_types", "Protobuf URI message types",
-        "Specify the Protobuf message type of data on certain URIs.",
+        "Specify the Protobuf message type of data on certain URIs. N.B., URI may contain '*'",
         protobuf_uri_message_types_uat);
 
 
