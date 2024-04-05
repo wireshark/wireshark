@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.7.0 (2023-12)
+-- 3GPP TS 36.331 V17.8.0 (2024-03)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -403,7 +403,12 @@ RRCConnectionReconfiguration-NB-r13-IEs ::= SEQUENCE {
 	radioResourceConfigDedicated-r13	RadioResourceConfigDedicated-NB-r13	OPTIONAL,	-- Need ON
 	fullConfig-r13						ENUMERATED {true}					OPTIONAL,	-- Cond Reestab
 	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}	OPTIONAL
+	nonCriticalExtension				RRCConnectionReconfiguration-NB-v16f0-IEs	OPTIONAL
+}
+
+RRCConnectionReconfiguration-NB-v16f0-IEs ::=		SEQUENCE {
+	obtainLocationNB-r16				ENUMERATED {setup}					OPTIONAL,	-- Need OR
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
 
@@ -676,6 +681,11 @@ RRCConnectionResume-NB-r13-IEs ::=		SEQUENCE {
 
 RRCConnectionResume-NB-v1610-IEs ::=	SEQUENCE {
 	fullConfig-r16							ENUMERATED {true}		OPTIONAL,	-- Cond 5GC
+	nonCriticalExtension					RRCConnectionResume-NB-v16f0-IEs	OPTIONAL
+}
+
+RRCConnectionResume-NB-v16f0-IEs ::=	SEQUENCE {
+	obtainLocationNB-r16					ENUMERATED {setup}		OPTIONAL,	-- Need OR
 	nonCriticalExtension					SEQUENCE {}				OPTIONAL
 }
 
@@ -2759,10 +2769,17 @@ UE-Capability-NB-v1610-IEs ::=		SEQUENCE {
 
 UE-Capability-NB-v16x0-IEs ::=	SEQUENCE {
 -- Following field is only to be used for late REL-16 extensions
-	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING	(CONTAINING UE-EUTRA-Capability-v16f0-IEs)				OPTIONAL,
 	nonCriticalExtension				UE-Capability-NB-v1700-IEs		OPTIONAL
 }
 
+-- Late non-critical extensions
+UE-EUTRA-Capability-v16f0-IEs ::=	SEQUENCE {
+	son-Parameters-v16f0				SON-Parameters-NB-v16f0,
+	nonCriticalExtension				SEQUENCE	{}					OPTIONAL
+}
+
+-- Regular non-critical extensions
 UE-Capability-NB-v1700-IEs ::=	SEQUENCE {
 	coverageBasedPaging-r17			ENUMERATED {supported}			OPTIONAL,
 	phyLayerParameters-v1700			PhyLayerParameters-NB-v1700,
@@ -2932,6 +2949,10 @@ SupportedBand-NB-v1710	::=		SEQUENCE {
 SON-Parameters-NB-r16 ::=			SEQUENCE {
 	anr-Report-r16						ENUMERATED {supported}		OPTIONAL,
 	rach-Report-r16						ENUMERATED {supported}		OPTIONAL
+}
+
+SON-Parameters-NB-v16f0 ::=		SEQUENCE {
+	locationInfo-r16					ENUMERATED {supported}				OPTIONAL
 }
 
 
