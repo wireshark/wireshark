@@ -3943,7 +3943,7 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     http_conv_t *conv_data, gboolean end_of_stream, const guint32 *seq)
 {
 	int		offset = 0;
-	int		len;
+	int		len = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* Switch protocol if the data starts after response headers. */
