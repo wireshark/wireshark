@@ -1043,7 +1043,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_close);
 
 /* WSLUA_ATTRIBUTE FileHandler_type RO The internal file type.  This is automatically set with a new
     number when the FileHandler is registered. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FileHandler,type,file_type);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FileHandler,type,file_type);
 
 /* WSLUA_ATTRIBUTE FileHandler_extensions RW One or more semicolon-separated file extensions that this file type usually uses.
 

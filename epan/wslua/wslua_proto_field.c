@@ -1477,7 +1477,7 @@ PROTOFIELD_OTHER(systemid,FT_SYSTEM_ID)
 PROTOFIELD_OTHER(eui64,FT_EUI64)
 
 /* WSLUA_ATTRIBUTE ProtoField_type RO The type of the field. */
-WSLUA_ATTRIBUTE_NUMBER_GETTER(ProtoField,type);
+WSLUA_ATTRIBUTE_INTEGER_GETTER(ProtoField,type);
 
 /* WSLUA_ATTRIBUTE ProtoField_abbr RO The abbreviated name of the field. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(ProtoField,abbr,abbrev);
@@ -1486,7 +1486,7 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(ProtoField,abbr,abbrev);
 WSLUA_ATTRIBUTE_STRING_GETTER(ProtoField,name);
 
 /* WSLUA_ATTRIBUTE ProtoField_type RO The base of the field. */
-WSLUA_ATTRIBUTE_NUMBER_GETTER(ProtoField,base);
+WSLUA_ATTRIBUTE_INTEGER_GETTER(ProtoField,base);
 
 /* WSLUA_ATTRIBUTE ProtoField_type RO The valuestring of the field. */
 WSLUA_METAMETHOD ProtoField_get_valuestring(lua_State* L) {
@@ -1500,7 +1500,7 @@ WSLUA_METAMETHOD ProtoField_get_valuestring(lua_State* L) {
 }
 
 /* WSLUA_ATTRIBUTE ProtoField_type RO The mask of the field. */
-WSLUA_ATTRIBUTE_NUMBER_GETTER(ProtoField,mask);
+WSLUA_ATTRIBUTE_INTEGER_GETTER(ProtoField,mask);
 
 /* WSLUA_ATTRIBUTE ProtoField_desc RO The description of this field. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(ProtoField,desc,blob);

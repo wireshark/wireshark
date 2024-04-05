@@ -260,30 +260,30 @@ static int FrameInfo_get_data (lua_State* L) {
 /* WSLUA_ATTRIBUTE FrameInfo_rec_type RW The record type of the packet frame
 
     See `wtap_rec_types` for values. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,rec_type,rec->rec_type);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,rec_type,rec->rec_type,unsigned);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfo,rec_type,rec->rec_type);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(FrameInfo,rec_type,rec->rec_type,unsigned);
 
 /* WSLUA_ATTRIBUTE FrameInfo_flags RW The presence flags of the packet frame.
 
     See `wtap_presence_flags` for bit values. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,flags,rec->presence_flags);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,flags,rec->presence_flags,uint32_t);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfo,flags,rec->presence_flags);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(FrameInfo,flags,rec->presence_flags,uint32_t);
 
 /* WSLUA_ATTRIBUTE FrameInfo_captured_length RW The captured packet length,
     and thus the length of the buffer passed to the `FrameInfo.data` field. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen,uint32_t);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(FrameInfo,captured_length,rec->rec_header.packet_header.caplen,uint32_t);
 
 /* WSLUA_ATTRIBUTE FrameInfo_original_length RW The on-the-wire packet length,
     which may be longer than the `captured_length`. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,original_length,rec->rec_header.packet_header.len);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,rec->rec_header.packet_header.len,uint32_t);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfo,original_length,rec->rec_header.packet_header.len);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(FrameInfo,original_length,rec->rec_header.packet_header.len,uint32_t);
 
 /* WSLUA_ATTRIBUTE FrameInfo_encap RW The packet encapsulation type for the frame/packet,
     if the file supports per-packet types. See `wtap_encaps` for possible
     packet encapsulation types to use as the value for this field. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap,int);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap,int);
 
 /* This table is ultimately registered as a sub-table of the class' metatable,
  * and if __index/__newindex is invoked then it calls the appropriate function
@@ -444,21 +444,21 @@ static int FrameInfoConst_get_data (lua_State* L) {
 }
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_rec_type RO The record type of the packet frame - see `wtap_presence_flags` for values. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,rec_type,rec->rec_type);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfoConst,rec_type,rec->rec_type);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_flags RO The presence flags of the packet frame - see `wtap_presence_flags` for bits. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,flags,rec->presence_flags);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfoConst,flags,rec->presence_flags);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_captured_length RO The captured packet length, and thus the length of the buffer in the FrameInfoConst.data field. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,captured_length,rec->rec_header.packet_header.caplen);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfoConst,captured_length,rec->rec_header.packet_header.caplen);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_original_length RO The on-the-wire packet length, which may be longer than the `captured_length`. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,original_length,rec->rec_header.packet_header.len);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfoConst,original_length,rec->rec_header.packet_header.len);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_encap RO The packet encapsulation type, if the file supports per-packet types.
 
       See `wtap_encaps` for possible packet encapsulation types to use as the value for this field. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,encap,rec->rec_header.packet_header.pkt_encap);
+WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(FrameInfoConst,encap,rec->rec_header.packet_header.pkt_encap);
 
 WSLUA_ATTRIBUTES FrameInfoConst_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(FrameInfoConst,rec_type),

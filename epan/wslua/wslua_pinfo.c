@@ -182,17 +182,17 @@ static int Pinfo__tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1
 #define PINFO_NAMED_BOOLEAN_SETTER(name,member) \
     WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(Pinfo,name,ws_pinfo->member)
 
-#define PINFO_NUMBER_GETTER(name) \
-    WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(Pinfo,name,ws_pinfo->name)
+#define PINFO_INTEGER_GETTER(name) \
+    WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(Pinfo,name,ws_pinfo->name)
 
-#define PINFO_NAMED_NUMBER_GETTER(name,member) \
-    WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(Pinfo,name,ws_pinfo->member)
+#define PINFO_NAMED_INTEGER_GETTER(name,member) \
+    WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(Pinfo,name,ws_pinfo->member)
 
 #define PINFO_NUMBER_SETTER(name,cast) \
-    WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(Pinfo,name,ws_pinfo->name,cast)
+    WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(Pinfo,name,ws_pinfo->name,cast)
 
-#define PINFO_NAMED_NUMBER_SETTER(name,member,cast) \
-    WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(Pinfo,name,ws_pinfo->member,cast)
+#define PINFO_NAMED_INTEGER_SETTER(name,member,cast) \
+    WSLUA_ATTRIBUTE_NAMED_INTEGER_SETTER(Pinfo,name,ws_pinfo->member,cast)
 
 static double
 lua_nstime_to_sec(const nstime_t *nstime)
@@ -214,13 +214,13 @@ lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, uint32_t prev_n
 PINFO_NAMED_BOOLEAN_GETTER(visited,fd->visited);
 
 /* WSLUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file. */
-PINFO_NAMED_NUMBER_GETTER(number,num);
+PINFO_NAMED_INTEGER_GETTER(number,num);
 
 /* WSLUA_ATTRIBUTE Pinfo_len  RO The length of the frame. */
-PINFO_NAMED_NUMBER_GETTER(len,fd->pkt_len);
+PINFO_NAMED_INTEGER_GETTER(len,fd->pkt_len);
 
 /* WSLUA_ATTRIBUTE Pinfo_caplen RO The captured length of the frame. */
-PINFO_NAMED_NUMBER_GETTER(caplen,fd->cap_len);
+PINFO_NAMED_INTEGER_GETTER(caplen,fd->cap_len);
 
 /* WSLUA_ATTRIBUTE Pinfo_abs_ts RO When the packet was captured. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,abs_ts,lua_nstime_to_sec(&obj->ws_pinfo->abs_ts));
@@ -238,15 +238,15 @@ WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_dis_ts,lua_delta_nstime_to_sec(o
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,curr_proto,ws_pinfo->current_proto);
 
 /* WSLUA_ATTRIBUTE Pinfo_can_desegment RW Set if this segment could be desegmented. */
-PINFO_NUMBER_GETTER(can_desegment);
+PINFO_INTEGER_GETTER(can_desegment);
 PINFO_NUMBER_SETTER(can_desegment,uint16_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU. */
-PINFO_NUMBER_GETTER(desegment_len);
+PINFO_INTEGER_GETTER(desegment_len);
 PINFO_NUMBER_SETTER(desegment_len,uint32_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called. */
-PINFO_NUMBER_GETTER(desegment_offset);
+PINFO_INTEGER_GETTER(desegment_offset);
 PINFO_NUMBER_SETTER(desegment_offset,int);
 
 /* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment. */
@@ -257,22 +257,22 @@ PINFO_NAMED_BOOLEAN_GETTER(in_error_pkt,flags.in_error_pkt);
 PINFO_NAMED_BOOLEAN_SETTER(in_error_pkt,flags.in_error_pkt);
 
 /* WSLUA_ATTRIBUTE Pinfo_match_uint RO Matched uint for calling subdissector from table. */
-PINFO_NUMBER_GETTER(match_uint);
+PINFO_INTEGER_GETTER(match_uint);
 
 /* WSLUA_ATTRIBUTE Pinfo_match_string RO Matched string for calling subdissector from table. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,match_string,ws_pinfo->match_string);
 
 /* WSLUA_ATTRIBUTE Pinfo_port_type RW Type of Port of .src_port and .dst_port. */
-PINFO_NAMED_NUMBER_GETTER(port_type,ptype);
-PINFO_NAMED_NUMBER_SETTER(port_type,ptype,uint8_t);
+PINFO_NAMED_INTEGER_GETTER(port_type,ptype);
+PINFO_NAMED_INTEGER_SETTER(port_type,ptype,uint8_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_src_port RW Source Port of this Packet. */
-PINFO_NAMED_NUMBER_GETTER(src_port,srcport);
-PINFO_NAMED_NUMBER_SETTER(src_port,srcport,uint32_t);
+PINFO_NAMED_INTEGER_GETTER(src_port,srcport);
+PINFO_NAMED_INTEGER_SETTER(src_port,srcport,uint32_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_dst_port RW Destination Port of this Packet. */
-PINFO_NAMED_NUMBER_GETTER(dst_port,destport);
-PINFO_NAMED_NUMBER_SETTER(dst_port,destport,uint32_t);
+PINFO_NAMED_INTEGER_GETTER(dst_port,destport);
+PINFO_NAMED_INTEGER_SETTER(dst_port,destport,uint32_t);
 
 /* WSLUA_ATTRIBUTE Pinfo_dl_src RW Data Link Source Address of this Packet. */
 PINFO_ADDRESS_GETTER(dl_src);
@@ -299,7 +299,7 @@ PINFO_ADDRESS_GETTER(dst);
 PINFO_ADDRESS_SETTER(dst);
 
 /* WSLUA_ATTRIBUTE Pinfo_p2p_dir RW Direction of this Packet. (incoming / outgoing) */
-PINFO_NUMBER_GETTER(p2p_dir);
+PINFO_INTEGER_GETTER(p2p_dir);
 PINFO_NUMBER_SETTER(p2p_dir,int);
 
 /* WSLUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching. */

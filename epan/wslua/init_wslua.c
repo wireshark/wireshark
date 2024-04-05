@@ -1619,12 +1619,12 @@ void wslua_init(register_cb cb, void *client_data) {
 
     /* special constant used by PDU reassembly handling */
     /* see dissect_lua() for notes */
-    WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
+    WSLUA_REG_GLOBAL_INTEGER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
 
     /* the possible values for Pinfo's p2p_dir attribute */
-    WSLUA_REG_GLOBAL_NUMBER(L,"P2P_DIR_UNKNOWN",-1);
-    WSLUA_REG_GLOBAL_NUMBER(L,"P2P_DIR_SENT",0);
-    WSLUA_REG_GLOBAL_NUMBER(L,"P2P_DIR_RECV",1);
+    WSLUA_REG_GLOBAL_INTEGER(L,"P2P_DIR_UNKNOWN",-1);
+    WSLUA_REG_GLOBAL_INTEGER(L,"P2P_DIR_SENT",0);
+    WSLUA_REG_GLOBAL_INTEGER(L,"P2P_DIR_RECV",1);
 
     wslua_add_introspection();
 
