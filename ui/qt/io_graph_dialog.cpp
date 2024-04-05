@@ -1675,7 +1675,7 @@ void IOGraphDialog::on_actionToggleTimeOrigin_triggered()
 
 void IOGraphDialog::on_actionCrosshairs_triggered()
 {
-
+    toggleTracerStyle();
 }
 
 void IOGraphDialog::on_buttonBox_helpRequested()
