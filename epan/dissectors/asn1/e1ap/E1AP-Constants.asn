@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.7.0 (2023-12)
+-- 3GPP TS 37.483 V17.8.0 (2024-03)
 -- **************************************************************
 --
 -- Constant definitions
@@ -103,6 +103,7 @@ maxnoofMBSAreaSessionIDs					INTEGER ::= 256
 maxnoofSharedNG-UTerminations				INTEGER ::= 8
 maxnoofMRBs									INTEGER ::= 32
 maxnoofMBSSessionIDs						INTEGER ::= 512
+maxnoofDUs									INTEGER ::= 512
 
 
 -- **************************************************************
@@ -305,7 +306,27 @@ id-Secondary-PDU-Session-Data-Forwarding-Information			ProtocolIE-ID ::= 190
 id-MBSSessionResourceNotification								ProtocolIE-ID ::= 191
 id-MCBearerContextInactivityTimer								ProtocolIE-ID ::= 192
 id-MCBearerContextStatusChange									ProtocolIE-ID ::= 193
-
+-- WS extension
+id-Unknown-194													ProtocolIE-ID ::= 194
+id-Unknown-195													ProtocolIE-ID ::= 195
+id-Unknown-196													ProtocolIE-ID ::= 196
+id-Unknown-197													ProtocolIE-ID ::= 197
+id-Unknown-198													ProtocolIE-ID ::= 198
+id-Unknown-199													ProtocolIE-ID ::= 199
+id-Unknown-200													ProtocolIE-ID ::= 200
+id-Unknown-201													ProtocolIE-ID ::= 201
+id-Unknown-202													ProtocolIE-ID ::= 202
+id-Unknown-203													ProtocolIE-ID ::= 203
+id-Unknown-204													ProtocolIE-ID ::= 204
+id-Unknown-205													ProtocolIE-ID ::= 205
+id-Unknown-206													ProtocolIE-ID ::= 206
+id-Unknown-207													ProtocolIE-ID ::= 207
+id-F1U-TNL-InfoToAdd-List										ProtocolIE-ID ::= 208
+id-F1U-TNL-InfoAdded-List										ProtocolIE-ID ::= 209
+id-F1U-TNL-InfoToAddOrModify-List								ProtocolIE-ID ::= 210
+id-F1U-TNL-InfoAddedOrModified-List								ProtocolIE-ID ::= 211
+id-F1U-TNL-InfoToRelease-List									ProtocolIE-ID ::= 212
+id-BroadcastF1U-ContextReferenceE1								ProtocolIE-ID ::= 213
 
 
 END

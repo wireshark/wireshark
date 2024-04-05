@@ -355,6 +355,12 @@ id-Secondary-PDU-Session-Data-Forwarding-Information ProtocolIE-ID
 id-MBSSessionResourceNotification                    ProtocolIE-ID
 id-MCBearerContextInactivityTimer                    ProtocolIE-ID
 id-MCBearerContextStatusChange                       ProtocolIE-ID
+id-F1U-TNL-InfoToAdd-List                            ProtocolIE-ID
+id-F1U-TNL-InfoAdded-List                            ProtocolIE-ID
+id-F1U-TNL-InfoToAddOrModify-List                    ProtocolIE-ID
+id-F1U-TNL-InfoAddedOrModified-List                  ProtocolIE-ID
+id-F1U-TNL-InfoToRelease-List                        ProtocolIE-ID
+id-BroadcastF1U-ContextReferenceE1                   ProtocolIE-ID
 
 
 #.END
@@ -558,6 +564,11 @@ MBSAreaSessionID                             N e1ap.extension id-MBSAreaSessionI
 Data-Forwarding-Information                  N e1ap.extension id-Secondary-PDU-Session-Data-Forwarding-Information
 Inactivity-Timer                             N e1ap.extension id-MCBearerContextInactivityTimer
 MCBearerContextStatusChange                  N e1ap.extension id-MCBearerContextStatusChange
+F1U-TNL-InfoToAdd-List                       N e1ap.extension id-F1U-TNL-InfoToAdd-List
+F1U-TNL-InfoAdded-List                       N e1ap.extension id-F1U-TNL-InfoAdded-List
+F1U-TNL-InfoToAddOrModify-List               N e1ap.extension id-F1U-TNL-InfoToAddOrModify-List
+F1U-TNL-InfoAddedOrModified-List             N e1ap.extension id-F1U-TNL-InfoAddedOrModified-List
+F1U-TNL-InfoToRelease-List                   N e1ap.extension id-F1U-TNL-InfoToRelease-List
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset

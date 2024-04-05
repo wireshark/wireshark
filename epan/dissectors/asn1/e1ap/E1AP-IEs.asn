@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.7.0 (2023-12)
+-- 3GPP TS 37.483 V17.8.0 (2024-03)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -81,6 +81,12 @@ IMPORTS
 	id-MBSSessionResourceNotification,
 	id-MCBearerContextInactivityTimer,
 	id-MCBearerContextStatusChange,
+	id-F1U-TNL-InfoToAdd-List,
+	id-F1U-TNL-InfoAdded-List,
+	id-F1U-TNL-InfoToAddOrModify-List,
+	id-F1U-TNL-InfoAddedOrModified-List,
+	id-F1U-TNL-InfoToRelease-List,
+	id-BroadcastF1U-ContextReferenceE1,
 	maxnoofMBSAreaSessionIDs,
 	maxnoofSharedNG-UTerminations,
 	maxnoofMRBs,
@@ -105,7 +111,8 @@ IMPORTS
 	maxnoofDataForwardingTunneltoE-UTRAN,
 	maxnoofExtNRCGI,
 	maxnoofECGI,
-	maxnoofSMBRValues
+	maxnoofSMBRValues,
+	maxnoofDUs
 
 FROM E1AP-Constants
 
@@ -215,6 +222,7 @@ BCMRBSetupConfiguration-Item ::= SEQUENCE {
 }
 
 BCMRBSetupConfiguration-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-F1U-TNL-InfoToAdd-List	CRITICALITY ignore	EXTENSION F1U-TNL-InfoToAdd-List	PRESENCE optional},
 	...
 }
 
@@ -255,6 +263,7 @@ BCMRBSetupResponseList-Item ::= SEQUENCE {
 }
 
 BCMRBSetupResponseList-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-F1U-TNL-InfoAdded-List	CRITICALITY ignore	EXTENSION F1U-TNL-InfoAdded-List	PRESENCE optional},
 	...
 }
 
@@ -310,6 +319,8 @@ BCMRBModifyConfiguration-Item ::= SEQUENCE {
 }
 
 BCMRBModifyConfiguration-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-F1U-TNL-InfoToAddOrModify-List	CRITICALITY ignore	EXTENSION F1U-TNL-InfoToAddOrModify-List	PRESENCE optional}|
+	{ID id-F1U-TNL-InfoToRelease-List		CRITICALITY ignore	EXTENSION F1U-TNL-InfoToRelease-List			PRESENCE optional},
 	...
 }
 
@@ -353,9 +364,11 @@ BCMRBSetupModifyResponseList-Item ::= SEQUENCE {
 }
 
 BCMRBSetupModifyResponseList-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-F1U-TNL-InfoAddedOrModified-List	CRITICALITY ignore	EXTENSION F1U-TNL-InfoAddedOrModified-List	PRESENCE optional},
 	...
 }
 
+BroadcastF1U-ContextReferenceE1 ::= OCTET STRING (SIZE(4))
 
 -- BCBearerContextToModifyRequired
 
@@ -1429,6 +1442,70 @@ FirstDLCount ::= SEQUENCE {
 FirstDLCount-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+F1U-TNL-InfoAdded-List ::= SEQUENCE (SIZE(1..maxnoofDUs)) OF F1U-TNL-InfoAdded-Item
+
+F1U-TNL-InfoAdded-Item ::= SEQUENCE {
+	broadcastF1U-ContextReferenceE1				BroadcastF1U-ContextReferenceE1,
+	bcBearerContextF1U-TNLInfoatCU				BCBearerContextF1U-TNLInfoatCU,
+	iE-Extensions		ProtocolExtensionContainer { {F1U-TNL-InfoAdded-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+F1U-TNL-InfoAdded-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+F1U-TNL-InfoToAdd-List ::= SEQUENCE (SIZE(1..maxnoofDUs)) OF F1U-TNL-InfoToAdd-Item
+
+F1U-TNL-InfoToAdd-Item ::= SEQUENCE {
+	broadcastF1U-ContextReferenceE1				BroadcastF1U-ContextReferenceE1,
+	iE-Extensions		ProtocolExtensionContainer { {F1U-TNL-InfoToAdd-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+F1U-TNL-InfoToAdd-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+F1U-TNL-InfoAddedOrModified-List ::= SEQUENCE (SIZE(1..maxnoofDUs)) OF F1U-TNL-InfoAddedOrModified-Item
+
+F1U-TNL-InfoAddedOrModified-Item ::= SEQUENCE {
+	broadcastF1U-ContextReferenceE1				BroadcastF1U-ContextReferenceE1,
+	bcBearerContextF1U-TNLInfoatCU				BCBearerContextF1U-TNLInfoatCU					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {F1U-TNL-InfoAddedOrModified-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+F1U-TNL-InfoAddedOrModified-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+F1U-TNL-InfoToAddOrModify-List ::= SEQUENCE (SIZE(1..maxnoofDUs)) OF F1U-TNL-InfoToAddOrModify-Item
+
+F1U-TNL-InfoToAddOrModify-Item ::= SEQUENCE {
+	broadcastF1U-ContextReferenceE1				BroadcastF1U-ContextReferenceE1,
+	bcBearerContextF1U-TNLInfoatDU				BCBearerContextF1U-TNLInfoatDU					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {F1U-TNL-InfoToAddOrModify-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+F1U-TNL-InfoToAddOrModify-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+F1U-TNL-InfoToRelease-List ::= SEQUENCE (SIZE(1..maxnoofDUs)) OF F1U-TNL-InfoToRelease-Item
+
+F1U-TNL-InfoToRelease-Item ::= SEQUENCE {
+	broadcastF1U-ContextReferenceE1				BroadcastF1U-ContextReferenceE1,
+	iE-Extensions		ProtocolExtensionContainer { {F1U-TNL-InfoToRelease-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+F1U-TNL-InfoToRelease-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 -- G
 
