@@ -843,7 +843,7 @@ wslua_dissect_tcp_get_pdu_len(packet_info *pinfo, tvbuff_t *tvb,
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) {
                 /* we got the pdu_len */
-                pdu_len = wslua_togint(L, -1);
+                pdu_len = wslua_toint(L, -1);
                 lua_pop(L, 1);
             } else {
                 THROW_LUA_ERROR("Lua Error dissect_tcp_pdus: get_len_func did not return a Lua number of the PDU length");
@@ -882,7 +882,7 @@ wslua_dissect_tcp_dissector(tvbuff_t *tvb, packet_info *pinfo,
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) {
                 /* we got the consumed bytes or the missing bytes as a negative number */
-                consumed_bytes = wslua_togint(L, -1);
+                consumed_bytes = wslua_toint(L, -1);
                 lua_pop(L, 1);
             }
         }

@@ -73,7 +73,7 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
 #define WSLUA_ARG_FrameInfo_read_data_LENGTH 3 /* The number of bytes to read from the file at the current cursor position. */
     FrameInfo fi = checkFrameInfo(L,1);
     File fh = checkFile(L,WSLUA_ARG_FrameInfo_read_data_FILE);
-    uint32_t len = wslua_checkguint32(L, WSLUA_ARG_FrameInfo_read_data_LENGTH);
+    uint32_t len = wslua_checkuint32(L, WSLUA_ARG_FrameInfo_read_data_LENGTH);
     int err = 0;
     char *err_info = NULL;
 
@@ -357,7 +357,7 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
 #define WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH 3 /* The number of bytes to write to the file at the current cursor position, or all if not supplied. */
     FrameInfoConst fi = checkFrameInfoConst(L,1);
     File fh = checkFile(L,WSLUA_ARG_FrameInfoConst_write_data_FILE);
-    uint32_t len = wslua_optguint32(L, WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH, fi->rec ? fi->rec->rec_header.packet_header.caplen:0);
+    uint32_t len = wslua_optuint32(L, WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH, fi->rec ? fi->rec->rec_header.packet_header.caplen:0);
     int err = 0;
 
     if (!fi->pd || !fi->rec || !fh->wdh) {

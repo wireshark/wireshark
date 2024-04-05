@@ -270,7 +270,7 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec, Buffer *b
              * succeed without advancing data offset. Should it fail instead?
              */
             if (lua_type(L, -1) == LUA_TNUMBER) {
-                *offset = wslua_togint64(L, -1);
+                *offset = wslua_toint64(L, -1);
                 retval = 1;
                 break;
             }
@@ -1215,7 +1215,7 @@ WSLUA_ATTRIBUTE_SET(FileHandler,supported_comment_types, { \
     struct supported_option_type *supported_options; \
     if (!lua_isnumber(L,-1) ) \
         return luaL_error(L, "FileHandler's attribute`supported_comment_types' must be a number"); \
-    supported_comment_types = wslua_toguint(L,-1); \
+    supported_comment_types = wslua_touint(L,-1); \
     /* \
      * Update support for comments in the relevant block types; the entries \
      * for comments in those types should be there. \

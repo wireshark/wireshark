@@ -100,7 +100,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_UINT: {
-            uint32_t def = wslua_optgint32(L,2,0);
+            uint32_t def = wslua_optint32(L,2,0);
             pref->value.u = def;
             break;
         }
@@ -132,7 +132,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_ENUM: {
-            uint32_t def = wslua_optgint32(L,2,0);
+            uint32_t def = wslua_optint32(L,2,0);
             enum_val_t *enum_val = get_enum(L,4);
             bool radio = wslua_toboolean(L,5);
             pref->value.e = def;
@@ -142,7 +142,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
         }
         case PREF_RANGE: {
             range_t *range = get_range(L,2,4);
-            uint32_t max = wslua_optgint32(L,4,0);
+            uint32_t max = wslua_optint32(L,4,0);
             pref->value.r = range;
             pref->info.max_value = max;
             break;
@@ -269,7 +269,7 @@ static range_t* get_range(lua_State *L, int idx_r, int idx_m)
     static range_t *ret = NULL;
     const char *pattern = luaL_checkstring(L, idx_r);
 
-    switch (range_convert_str(wmem_epan_scope(), &ret, pattern, wslua_togint32(L, idx_m))) {
+    switch (range_convert_str(wmem_epan_scope(), &ret, pattern, wslua_toint32(L, idx_m))) {
         case CVT_NO_ERROR:
           break;
         case CVT_SYNTAX_ERROR:

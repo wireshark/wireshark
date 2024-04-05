@@ -103,7 +103,7 @@ static int64_t getInt64(lua_State *L, int i)
     switch (lua_type(L,i))
     {
         case LUA_TNUMBER:
-            return wslua_checkgint64(L,i);
+            return wslua_checkint64(L,i);
         case LUA_TSTRING:
             return g_ascii_strtoll(luaL_checkstring(L,i),&end,10);
         case LUA_TUSERDATA:
@@ -225,10 +225,10 @@ WSLUA_CONSTRUCTOR Int64_new(lua_State* L) {
     if (lua_gettop(L) >= 1) {
         switch(lua_type(L, WSLUA_OPTARG_Int64_new_VALUE)) {
             case LUA_TNUMBER:
-                value = wslua_togint64(L, WSLUA_OPTARG_Int64_new_VALUE);
+                value = wslua_toint64(L, WSLUA_OPTARG_Int64_new_VALUE);
                 if (lua_gettop(L) == 2 &&
                     lua_type(L, WSLUA_OPTARG_Int64_new_HIGHVALUE) == LUA_TNUMBER) {
-                    int64_t h = wslua_togint64(L, WSLUA_OPTARG_Int64_new_HIGHVALUE);
+                    int64_t h = wslua_toint64(L, WSLUA_OPTARG_Int64_new_HIGHVALUE);
                     value &= UINT64_C(0x00000000FFFFFFFF);
                     h <<= 32; h &= UINT64_C(0xFFFFFFFF00000000);
                     value += h;
@@ -516,7 +516,7 @@ WSLUA_METHOD Int64_lshift(lua_State* L) {
      */
 #define WSLUA_ARG_Int64_lshift_NUMBITS 2 /* The number of bits to left-shift by. */
     uint64_t b = (uint64_t) getInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_lshift_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_Int64_lshift_NUMBITS);
     pushInt64(L,(int64_t)(b << n));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -528,7 +528,7 @@ WSLUA_METHOD Int64_rshift(lua_State* L) {
      */
 #define WSLUA_ARG_Int64_rshift_NUMBITS 2 /* The number of bits to right-shift by. */
     uint64_t b = (uint64_t) getInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_rshift_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_Int64_rshift_NUMBITS);
     pushInt64(L,(int64_t)(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -540,7 +540,7 @@ WSLUA_METHOD Int64_arshift(lua_State* L) {
      */
 #define WSLUA_ARG_Int64_arshift_NUMBITS 2 /* The number of bits to right-shift by. */
     int64_t b = getInt64(L,1);
-    int32_t n = wslua_checkgint32(L,WSLUA_ARG_Int64_arshift_NUMBITS);
+    int32_t n = wslua_checkint32(L,WSLUA_ARG_Int64_arshift_NUMBITS);
     pushInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -552,7 +552,7 @@ WSLUA_METHOD Int64_rol(lua_State* L) {
      */
 #define WSLUA_ARG_Int64_rol_NUMBITS 2 /* The number of bits to roll left by. */
     uint64_t b = (uint64_t) getInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_rol_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_Int64_rol_NUMBITS);
     pushInt64(L,(int64_t)((b << n) | (b >> (64-n))));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -564,7 +564,7 @@ WSLUA_METHOD Int64_ror(lua_State* L) {
      */
 #define WSLUA_ARG_Int64_ror_NUMBITS 2 /* The number of bits to roll right by. */
     uint64_t b = (uint64_t) getInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_Int64_ror_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_Int64_ror_NUMBITS);
     pushInt64(L,(int64_t)((b << (64-n)) | (b >> n)));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -654,7 +654,7 @@ uint64_t getUInt64(lua_State *L, int i)
     switch (lua_type(L,i))
     {
         case LUA_TNUMBER:
-            return wslua_checkguint64(L,i);
+            return wslua_checkuint64(L,i);
         case LUA_TSTRING:
             return g_ascii_strtoull(luaL_checkstring(L,i), &end, 0);
         case LUA_TUSERDATA:
@@ -775,10 +775,10 @@ WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) {
     if (lua_gettop(L) >= 1) {
         switch(lua_type(L, WSLUA_OPTARG_UInt64_new_VALUE)) {
             case LUA_TNUMBER:
-                value = wslua_toguint64(L, WSLUA_OPTARG_UInt64_new_VALUE);
+                value = wslua_touint64(L, WSLUA_OPTARG_UInt64_new_VALUE);
                  if (lua_gettop(L) == 2 &&
                      lua_type(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE) == LUA_TNUMBER) {
-                    uint64_t h = wslua_toguint64(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE);
+                    uint64_t h = wslua_touint64(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE);
                     value &= UINT64_C(0x00000000FFFFFFFF);
                     h <<= 32; h &= UINT64_C(0xFFFFFFFF00000000);
                     value += h;
@@ -1035,7 +1035,7 @@ WSLUA_METHOD UInt64_lshift(lua_State* L) {
      */
 #define WSLUA_ARG_UInt64_lshift_NUMBITS 2 /* The number of bits to left-shift by. */
     uint64_t b = getUInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_lshift_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_UInt64_lshift_NUMBITS);
     pushUInt64(L,(b << n));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1047,7 +1047,7 @@ WSLUA_METHOD UInt64_rshift(lua_State* L) {
      */
 #define WSLUA_ARG_UInt64_rshift_NUMBITS 2 /* The number of bits to right-shift by. */
     uint64_t b = getUInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_rshift_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_UInt64_rshift_NUMBITS);
     pushUInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1059,7 +1059,7 @@ WSLUA_METHOD UInt64_arshift(lua_State* L) {
      */
 #define WSLUA_ARG_UInt64_arshift_NUMBITS 2 /* The number of bits to right-shift by. */
     uint64_t b = getUInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_arshift_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_UInt64_arshift_NUMBITS);
     pushUInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1071,7 +1071,7 @@ WSLUA_METHOD UInt64_rol(lua_State* L) {
      */
 #define WSLUA_ARG_UInt64_rol_NUMBITS 2 /* The number of bits to roll left by. */
     uint64_t b = getUInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_rol_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_UInt64_rol_NUMBITS);
     pushUInt64(L,((b << n) | (b >> (64-n))));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1083,7 +1083,7 @@ WSLUA_METHOD UInt64_ror(lua_State* L) {
      */
 #define WSLUA_ARG_UInt64_ror_NUMBITS 2 /* The number of bits to roll right by. */
     uint64_t b = getUInt64(L,1);
-    uint32_t n = wslua_checkguint32(L,WSLUA_ARG_UInt64_ror_NUMBITS);
+    uint32_t n = wslua_checkuint32(L,WSLUA_ARG_UInt64_ror_NUMBITS);
     pushUInt64(L,((b << (64-n)) | (b >> n)));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }

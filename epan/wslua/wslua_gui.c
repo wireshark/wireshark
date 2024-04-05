@@ -104,7 +104,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     const char* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
     bool retap = false;
-    register_stat_group_t group = (register_stat_group_t)wslua_optguint(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
+    register_stat_group_t group = (register_stat_group_t)wslua_optuint(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
     if ( group > REGISTER_TOOLS_GROUP_UNSORTED) {
         WSLUA_OPTARG_ERROR(register_menu,GROUP,"Must be a defined MENU_*");

@@ -342,7 +342,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) {
                 /* we got the consumed bytes or the missing bytes as a negative number */
-                consumed_bytes = wslua_togint(L, -1);
+                consumed_bytes = wslua_toint(L, -1);
                 lua_pop(L, 1);
             }
         }

@@ -204,9 +204,9 @@ static range_string * range_string_from_table(lua_State* L, int idx) {
                     return NULL;
                 }
                 if (key_count == 1) /* We incremented it above */
-                    r.value_min = wslua_toguint64(L, -1);
+                    r.value_min = wslua_touint64(L, -1);
                 else
-                    r.value_max = wslua_toguint64(L, -1);
+                    r.value_max = wslua_touint64(L, -1);
                 break;
 
             case 3:
@@ -285,7 +285,7 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
             return NULL;
         }
 
-        v.value = wslua_toguint32(L,-2);
+        v.value = wslua_touint32(L,-2);
         v.strptr = g_strdup(lua_tostring(L,-1));
 
         g_array_append_val(vs,v);
@@ -342,7 +342,7 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
             return NULL;
         }
 
-        v.value = wslua_toguint64(L, -2);
+        v.value = wslua_touint64(L, -2);
         v.strptr = g_strdup(lua_tostring(L,-1));
 
         g_array_append_val(vs,v);
@@ -420,7 +420,7 @@ static uint64_t get_mask(lua_State* L, int idx, uint64_t default_value) {
 
     switch(lua_type(L, idx)) {
         case LUA_TNUMBER:
-            mask = (uint64_t)wslua_optguint32(L, idx, (lua_Number)default_value);
+            mask = (uint64_t)wslua_optuint32(L, idx, (lua_Number)default_value);
             break;
         case LUA_TSTRING:
         case LUA_TUSERDATA:
