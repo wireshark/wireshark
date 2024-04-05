@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V17.7.0 (2023-12)
+ * References: 3GPP TS 38.473 V17.8.0 (2024-03)
  */
 
 #include "config.h"
@@ -19121,9 +19121,9 @@ dissect_f1ap_INTEGER_0_180(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t PRSAngleItem_sequence[] = {
   { &hf_f1ap_nR_PRS_Azimuth , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_INTEGER_0_359 },
-  { &hf_f1ap_nR_PRS_Azimuth_fine, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_INTEGER_0_9 },
-  { &hf_f1ap_nR_PRS_Elevation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_INTEGER_0_180 },
-  { &hf_f1ap_nR_PRS_Elevation_fine, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_INTEGER_0_9 },
+  { &hf_f1ap_nR_PRS_Azimuth_fine, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_INTEGER_0_9 },
+  { &hf_f1ap_nR_PRS_Elevation, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_INTEGER_0_180 },
+  { &hf_f1ap_nR_PRS_Elevation_fine, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_INTEGER_0_9 },
   { &hf_f1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -19514,6 +19514,7 @@ static const value_string f1ap_T_bandwidth_vals[] = {
   {   2, "mHz-40" },
   {   3, "mHz-60" },
   {   4, "mHz-80" },
+  {   5, "mHz-100" },
   { 0, NULL }
 };
 
@@ -19521,7 +19522,7 @@ static const value_string f1ap_T_bandwidth_vals[] = {
 static int
 dissect_f1ap_T_bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -22200,7 +22201,7 @@ dissect_f1ap_StartTimeAndDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t RequestedDLPRSResourceSet_Item_sequence[] = {
-  { &hf_f1ap_pRSbandwidth   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_INTEGER_1_63 },
+  { &hf_f1ap_pRSbandwidth   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_INTEGER_1_63 },
   { &hf_f1ap_combSize_01    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_combSize_01 },
   { &hf_f1ap_resourceSetPeriodicity_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_resourceSetPeriodicity_01 },
   { &hf_f1ap_resourceRepetitionFactor_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_resourceRepetitionFactor_01 },
@@ -38235,7 +38236,7 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_BitRate_PDU,
       { "BitRate", "f1ap.BitRate",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_f1ap_BearerTypeChange_PDU,
       { "BearerTypeChange", "f1ap.BearerTypeChange",
@@ -41531,11 +41532,11 @@ void proto_register_f1ap(void) {
         "QoSParaSetIndex", HFILL }},
     { &hf_f1ap_guaranteedFlowBitRateDL,
       { "guaranteedFlowBitRateDL", "f1ap.guaranteedFlowBitRateDL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_guaranteedFlowBitRateUL,
       { "guaranteedFlowBitRateUL", "f1ap.guaranteedFlowBitRateUL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_packetDelayBudget,
       { "packetDelayBudget", "f1ap.packetDelayBudget",
@@ -42699,35 +42700,35 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_e_RAB_MaximumBitrateDL,
       { "e-RAB-MaximumBitrateDL", "f1ap.e_RAB_MaximumBitrateDL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_e_RAB_MaximumBitrateUL,
       { "e-RAB-MaximumBitrateUL", "f1ap.e_RAB_MaximumBitrateUL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_e_RAB_GuaranteedBitrateDL,
       { "e-RAB-GuaranteedBitrateDL", "f1ap.e_RAB_GuaranteedBitrateDL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_e_RAB_GuaranteedBitrateUL,
       { "e-RAB-GuaranteedBitrateUL", "f1ap.e_RAB_GuaranteedBitrateUL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_maxFlowBitRateDownlink,
       { "maxFlowBitRateDownlink", "f1ap.maxFlowBitRateDownlink",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_maxFlowBitRateUplink,
       { "maxFlowBitRateUplink", "f1ap.maxFlowBitRateUplink",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_guaranteedFlowBitRateDownlink,
       { "guaranteedFlowBitRateDownlink", "f1ap.guaranteedFlowBitRateDownlink",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_guaranteedFlowBitRateUplink,
       { "guaranteedFlowBitRateUplink", "f1ap.guaranteedFlowBitRateUplink",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_maxPacketLossRateDownlink,
       { "maxPacketLossRateDownlink", "f1ap.maxPacketLossRateDownlink",
@@ -42823,7 +42824,7 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_uESliceMaximumBitRateUL,
       { "uESliceMaximumBitRateUL", "f1ap.uESliceMaximumBitRateUL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_rxTxTimeDiff,
       { "rxTxTimeDiff", "f1ap.rxTxTimeDiff",
@@ -43235,7 +43236,7 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_uELTESidelinkAggregateMaximumBitrate,
       { "uELTESidelinkAggregateMaximumBitrate", "f1ap.uELTESidelinkAggregateMaximumBitrate",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_vehicleUE,
       { "vehicleUE", "f1ap.vehicleUE",
@@ -43759,7 +43760,7 @@ void proto_register_f1ap(void) {
         "INTEGER_0_13_", HFILL }},
     { &hf_f1ap_uENRSidelinkAggregateMaximumBitrate,
       { "uENRSidelinkAggregateMaximumBitrate", "f1ap.uENRSidelinkAggregateMaximumBitrate",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_onDemandPRSRequestAllowed,
       { "onDemandPRSRequestAllowed", "f1ap.onDemandPRSRequestAllowed",
@@ -43879,11 +43880,11 @@ void proto_register_f1ap(void) {
         "PC5FlowBitRates", HFILL }},
     { &hf_f1ap_guaranteedFlowBitRate,
       { "guaranteedFlowBitRate", "f1ap.guaranteedFlowBitRate",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_maximumFlowBitRate,
       { "maximumFlowBitRate", "f1ap.maximumFlowBitRate",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BitRate", HFILL }},
     { &hf_f1ap_pC5RLCChannelQoS,
       { "pC5RLCChannelQoS", "f1ap.pC5RLCChannelQoS_element",

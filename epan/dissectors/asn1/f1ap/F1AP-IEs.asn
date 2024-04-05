@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.7.0 (2023-12)
+-- 3GPP TS 38.473 V17.8.0 (2024-03)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -4460,7 +4460,7 @@ NR-U-Channel-Info-List ::= SEQUENCE (SIZE (1..maxnoofNR-UChannelIDs)) OF NR-U-Ch
 NR-U-Channel-Info-Item ::= SEQUENCE {
 	nr-U-channel-ID			INTEGER(1.. maxnoofNR-UChannelIDs,...),
 	nR-ARFCN				INTEGER (0..maxNRARFCN),
-	bandwidth				ENUMERATED{mHz-10,mHz-20,mHz-40, mHz-60, mHz-80,...},
+	bandwidth				ENUMERATED{mHz-10,mHz-20,mHz-40, mHz-60, mHz-80,...,mHz-100},
 	iE-Extensions			ProtocolExtensionContainer { { NR-U-Channel-Info-List-ExtIEs } }		OPTIONAL,
 	...
 }
@@ -5229,9 +5229,9 @@ PRSAngleList ::= SEQUENCE (SIZE(1.. maxnoofPRS-ResourcesPerSet)) OF PRSAngleItem
 
 PRSAngleItem ::= SEQUENCE {
 	nR-PRS-Azimuth			INTEGER (0..359),
-	nR-PRS-Azimuth-fine		INTEGER (0..9),
-	nR-PRS-Elevation		INTEGER (0..180),
-	nR-PRS-Elevation-fine	INTEGER (0..9),
+	nR-PRS-Azimuth-fine		INTEGER (0..9) OPTIONAL,
+	nR-PRS-Elevation		INTEGER (0..180) OPTIONAL,
+	nR-PRS-Elevation-fine	INTEGER (0..9) OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { { PRSAngleItem-ItemExtIEs } }	OPTIONAL
 }
 
@@ -5461,7 +5461,7 @@ RequestedDLPRSTransmissionCharacteristics-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 RequestedDLPRSResourceSet-List ::= SEQUENCE (SIZE (1..maxnoofPRSresourceSets)) OF RequestedDLPRSResourceSet-Item
 
 RequestedDLPRSResourceSet-Item ::= SEQUENCE {
-	pRSbandwidth					INTEGER(1..63),
+	pRSbandwidth					INTEGER(1..63) OPTIONAL,
 	combSize						ENUMERATED{n2, n4, n6, n12, ...}		OPTIONAL,
 	resourceSetPeriodicity			ENUMERATED{n4,n5,n8,n10,n16,n20,n32,n40,n64,n80,n160,n320,n640,n1280,n2560,n5120,n10240,n20480,n40960, n81920,..., n128, n256, n512}	OPTIONAL,
 	resourceRepetitionFactor		ENUMERATED{rf1,rf2,rf4,rf6,rf8,rf16,rf32,...}		OPTIONAL,
@@ -6785,7 +6785,7 @@ SpatialInformationPos-ExtIEs F1AP-PROTOCOL-IES ::= {
 
 SpectrumSharingGroupID ::= INTEGER (1..maxCellineNB)
 
-SRBID ::= INTEGER (0..3, ...)
+SRBID ::= INTEGER (0..3, ..., 4)
 
 SRBs-FailedToBeSetup-Item	::= SEQUENCE {
 	sRBID		SRBID	,
