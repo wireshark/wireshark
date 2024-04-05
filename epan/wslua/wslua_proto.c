@@ -70,9 +70,9 @@ static int protocols_table_ref = LUA_NOREF;
 
 WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`Proto`>> object. */
 #define WSLUA_ARG_Proto_new_NAME 1 /* The name of the protocol. */
-#define WSLUA_ARG_Proto_new_DESC 2 /* A Long Text description of the protocol (usually lowercase). */
+#define WSLUA_ARG_Proto_new_DESCRIPTION 2 /* A Long Text description of the protocol (usually lowercase). */
     const char* name = luaL_checkstring(L,WSLUA_ARG_Proto_new_NAME);
-    const char* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESC);
+    const char* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESCRIPTION);
     Proto proto;
     char *loname, *hiname;
 
@@ -83,12 +83,12 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`
     }
 
     if (!desc[0]) {
-        WSLUA_ARG_ERROR(Proto_new,DESC,"must not be an empty string");
+        WSLUA_ARG_ERROR(Proto_new,DESCRIPTION,"must not be an empty string");
         return 0;
     }
 
     if (proto_name_already_registered(desc)) {
-        WSLUA_ARG_ERROR(Proto_new,DESC,"there cannot be two protocols with the same description");
+        WSLUA_ARG_ERROR(Proto_new,DESCRIPTION,"there cannot be two protocols with the same description");
         return 0;
     }
 
@@ -150,7 +150,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`
 
 WSLUA_METAMETHOD Proto__call(lua_State* L) { /* Creates a <<lua_class_Proto,`Proto`>> object. */
 #define WSLUA_ARG_Proto__call_NAME 1 /* The name of the protocol. */
-#define WSLUA_ARG_Proto__call_DESC 2 /* A Long Text description of the protocol (usually lowercase). */
+#define WSLUA_ARG_Proto__call_DESCRIPTION 2 /* A Long Text description of the protocol (usually lowercase). */
     lua_remove(L,1); /* remove the table */
     WSLUA_RETURN(Proto_new(L)); /* The new <<lua_class_Proto,`Proto`>> object. */
 }

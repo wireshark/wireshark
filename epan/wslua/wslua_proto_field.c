@@ -548,7 +548,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
                                               `base.HEX_DEC`, `base.UNIT_STRING` or
                                               `base.RANGE_STRING`. */
 #define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used. */
-#define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field. */
+#define WSLUA_OPTARG_ProtoField_new_DESCRIPTION 7 /* The description of the field. */
 
     ProtoField f;
     int nargs = lua_gettop(L);
@@ -563,7 +563,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     unit_name_string *uns = NULL;
     unsigned base;
     uint64_t mask = get_mask(L,WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
-    const char *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
+    const char *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCRIPTION,NULL);
     bool base_unit_string = false;
     bool base_range_string = false;
 
@@ -973,7 +973,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_char_BASE One of `base.NONE`, `base.HEX`, `base.OCT` or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_char_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_char_MASK Integer mask of this field. */
-/* WSLUA_OPTARG_ProtoField_char_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_char_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint8 Creates a <<lua_class_ProtoField,`ProtoField`>> of an unsigned 8-bit integer (i.e., a byte). */
@@ -982,7 +982,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint8_BASE One of `base.DEC`, `base.HEX` or `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING` or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint8_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint8_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_uint8_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_uint8_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint16 Creates a <<lua_class_ProtoField,`ProtoField`>> of an unsigned 16-bit integer. */
@@ -991,7 +991,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint16_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING` or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint16_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint16_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_uint16_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_uint16_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint24 Creates a <<lua_class_ProtoField,`ProtoField`>> of an unsigned 24-bit integer. */
@@ -1000,7 +1000,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint24_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint24_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint24_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_uint24_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_uint24_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint32 Creates a <<lua_class_ProtoField,`ProtoField`>> of an unsigned 32-bit integer. */
@@ -1009,7 +1009,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint32_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint32_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint32_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_uint32_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_uint32_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint64 Creates a <<lua_class_ProtoField,`ProtoField`>> of an unsigned 64-bit integer. */
@@ -1018,7 +1018,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_uint64_BASE One of `base.DEC`, `base.HEX`, `base.OCT`, `base.DEC_HEX`, `base.HEX_DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint64_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing the unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_uint64_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_uint64_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_uint64_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int8 Creates a <<lua_class_ProtoField,`ProtoField`>> of a signed 8-bit integer (i.e., a byte). */
@@ -1027,7 +1027,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int8_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int8_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int8_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_int8_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_int8_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int16 Creates a <<lua_class_ProtoField,`ProtoField`>> of a signed 16-bit integer. */
@@ -1036,7 +1036,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int16_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int16_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int16_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_int16_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_int16_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int24 Creates a <<lua_class_ProtoField,`ProtoField`>> of a signed 24-bit integer. */
@@ -1045,7 +1045,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int24_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int24_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int24_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_int24_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_int24_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int32 Creates a <<lua_class_ProtoField,`ProtoField`>> of a signed 32-bit integer. */
@@ -1054,7 +1054,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int32_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int32_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int32_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_int32_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_int32_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int64 Creates a <<lua_class_ProtoField,`ProtoField`>> of a signed 64-bit integer. */
@@ -1063,7 +1063,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_int64_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int64_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_ProtoField_int64_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_int64_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_int64_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_framenum Creates a <<lua_class_ProtoField,`ProtoField`>> for a frame number (for hyperlinks between frames). */
@@ -1072,7 +1072,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_framenum_BASE Only `base.NONE` is supported for framenum. */
 /* WSLUA_OPTARG_ProtoField_framenum_FRAMETYPE One of `frametype.NONE`, `frametype.REQUEST`, `frametype.RESPONSE`, `frametype.ACK` or `frametype.DUP_ACK`. */
 /* WSLUA_OPTARG_ProtoField_framenum_MASK Integer, String or UInt64 mask of this field, which must be 0 for framenum. */
-/* WSLUA_OPTARG_ProtoField_framenum_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_framenum_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 PROTOFIELD_INTEGER(char,FT_CHAR)
@@ -1152,7 +1152,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_bool_DISPLAY How wide the parent bitfield is (`base.NONE` is used for NULL-value). */
 /* WSLUA_OPTARG_ProtoField_bool_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_ProtoField_bool_MASK Integer, String or UInt64 mask of this field. */
-/* WSLUA_OPTARG_ProtoField_bool_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_bool_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 PROTOFIELD_BOOL(bool,FT_BOOLEAN)
@@ -1203,13 +1203,13 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
 /* WSLUA_ARG_ProtoField_absolute_time_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_absolute_time_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_absolute_time_BASE One of `base.LOCAL`, `base.UTC` or `base.DOY_UTC`. */
-/* WSLUA_OPTARG_ProtoField_absolute_time_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_absolute_time_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_relative_time Creates a <<lua_class_ProtoField,`ProtoField`>> of a time_t structure value. */
 /* WSLUA_ARG_ProtoField_relative_time_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_relative_time_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_relative_time_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_relative_time_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 
@@ -1268,14 +1268,14 @@ static int ProtoField_floating(lua_State* L,enum ftenum type) {
 /* WSLUA_ARG_ProtoField_float_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_float_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_float_VALUESTRING A table containing unit name for the values. */
-/* WSLUA_OPTARG_ProtoField_float_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_float_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_double Creates a <<lua_class_ProtoField,`ProtoField`>> of a double-precision floating point (8 bytes). */
 /* WSLUA_ARG_ProtoField_double_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_double_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_double_VALUESTRING A table containing unit name for the values. */
-/* WSLUA_OPTARG_ProtoField_double_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_double_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 PROTOFIELD_FLOATING(float,FT_FLOAT)
@@ -1339,28 +1339,28 @@ static int ProtoField_other_display(lua_State* L,enum ftenum type) {
 /* WSLUA_ARG_ProtoField_string_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_string_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_string_DISPLAY One of `base.ASCII` or `base.UNICODE`. */
-/* WSLUA_OPTARG_ProtoField_string_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_string_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_stringz Creates a <<lua_class_ProtoField,`ProtoField`>> of a zero-terminated string value. */
 /* WSLUA_ARG_ProtoField_stringz_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_stringz_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_stringz_DISPLAY One of `base.ASCII` or `base.UNICODE`. */
-/* WSLUA_OPTARG_ProtoField_stringz_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_stringz_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_bytes Creates a <<lua_class_ProtoField,`ProtoField`>> for an arbitrary number of bytes. */
 /* WSLUA_ARG_ProtoField_bytes_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_bytes_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_bytes_DISPLAY One of `base.NONE`, `base.DOT`, `base.DASH`, `base.COLON` or `base.SPACE`. */
-/* WSLUA_OPTARG_ProtoField_bytes_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_bytes_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ubytes Creates a <<lua_class_ProtoField,`ProtoField`>> for an arbitrary number of unsigned bytes. */
 /* WSLUA_ARG_ProtoField_ubytes_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_ubytes_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_ubytes_DISPLAY One of `base.NONE`, `base.DOT`, `base.DASH`, `base.COLON` or `base.SPACE`. */
-/* WSLUA_OPTARG_ProtoField_ubytes_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_ubytes_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 
@@ -1406,61 +1406,64 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_none Creates a <<lua_class_ProtoField,`ProtoField`>> of an unstructured type. */
 /* WSLUA_ARG_ProtoField_none_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_none_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_none_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_none_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ipv4 Creates a <<lua_class_ProtoField,`ProtoField`>> of an IPv4 address (4 bytes). */
 /* WSLUA_ARG_ProtoField_ipv4_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_ipv4_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_ipv4_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_ipv4_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ipv6 Creates a <<lua_class_ProtoField,`ProtoField`>> of an IPv6 address (16 bytes). */
 /* WSLUA_ARG_ProtoField_ipv6_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_ipv6_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_ipv6_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_ipv6_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ether Creates a <<lua_class_ProtoField,`ProtoField`>> of an Ethernet address (6 bytes). */
 /* WSLUA_ARG_ProtoField_ether_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_ether_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_ether_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_ether_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_guid Creates a <<lua_class_ProtoField,`ProtoField`>> for a Globally Unique IDentifier (GUID). */
 /* WSLUA_ARG_ProtoField_guid_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_guid_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_guid_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_guid_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_oid Creates a <<lua_class_ProtoField,`ProtoField`>> for an ASN.1 Organizational IDentified (OID). */
 /* WSLUA_ARG_ProtoField_oid_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_oid_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_oid_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_oid_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
-/* _WSLUA_CONSTRUCTOR_ ProtoField_protocol Creates a <<lua_class_ProtoField,`ProtoField`>> for a sub-protocol. Since 1.99.9. */
+/* _WSLUA_CONSTRUCTOR_ ProtoField_protocol Creates a <<lua_class_ProtoField,`ProtoField`>> for a sub-protocol.
+
+    @since 1.99.9
+*/
 /* WSLUA_ARG_ProtoField_protocol_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_protocol_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_protocol_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_protocol_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_rel_oid Creates a <<lua_class_ProtoField,`ProtoField`>> for an ASN.1 Relative-OID. */
 /* WSLUA_ARG_ProtoField_rel_oid_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_rel_oid_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_rel_oid_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_rel_oid_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_systemid Creates a <<lua_class_ProtoField,`ProtoField`>> for an OSI System ID. */
 /* WSLUA_ARG_ProtoField_systemid_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_systemid_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_systemid_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_systemid_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_eui64 Creates a <<lua_class_ProtoField,`ProtoField`>> for an EUI64. */
 /* WSLUA_ARG_ProtoField_eui64_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_eui64_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_eui64_DESC Description of the field. */
+/* WSLUA_OPTARG_ProtoField_eui64_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
 PROTOFIELD_OTHER(none,FT_NONE)
@@ -1476,19 +1479,34 @@ PROTOFIELD_OTHER(rel_oid,FT_REL_OID)
 PROTOFIELD_OTHER(systemid,FT_SYSTEM_ID)
 PROTOFIELD_OTHER(eui64,FT_EUI64)
 
-/* WSLUA_ATTRIBUTE ProtoField_type RO The type of the field. */
+/* WSLUA_ATTRIBUTE ProtoField_type RO The type of the field.
+
+   @since 4.3.0
+*/
 WSLUA_ATTRIBUTE_INTEGER_GETTER(ProtoField,type);
 
-/* WSLUA_ATTRIBUTE ProtoField_abbr RO The abbreviated name of the field. */
+/* WSLUA_ATTRIBUTE ProtoField_abbr RO The abbreviated name of the field.
+
+   @since 4.3.0
+*/
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(ProtoField,abbr,abbrev);
 
-/* WSLUA_ATTRIBUTE ProtoField_name RO The actual name of the field. */
+/* WSLUA_ATTRIBUTE ProtoField_name RO The actual name of the field.
+
+   @since 4.3.0
+*/
 WSLUA_ATTRIBUTE_STRING_GETTER(ProtoField,name);
 
-/* WSLUA_ATTRIBUTE ProtoField_type RO The base of the field. */
+/* WSLUA_ATTRIBUTE ProtoField_base RO The base of the field.
+
+   @since 4.3.0
+*/
 WSLUA_ATTRIBUTE_INTEGER_GETTER(ProtoField,base);
 
-/* WSLUA_ATTRIBUTE ProtoField_type RO The valuestring of the field. */
+/* WSLUA_ATTRIBUTE ProtoField_valuestring RO The valuestring of the field.
+
+   @since 4.3.0
+*/
 WSLUA_METAMETHOD ProtoField_get_valuestring(lua_State* L) {
     ProtoField f = checkProtoField(L,1);
     if (f->valuestring_ref != LUA_NOREF) {
@@ -1499,11 +1517,17 @@ WSLUA_METAMETHOD ProtoField_get_valuestring(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE ProtoField_type RO The mask of the field. */
+/* WSLUA_ATTRIBUTE ProtoField_mask RO The mask of the field.
+
+   @since 4.3.0
+*/
 WSLUA_ATTRIBUTE_INTEGER_GETTER(ProtoField,mask);
 
-/* WSLUA_ATTRIBUTE ProtoField_desc RO The description of this field. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(ProtoField,desc,blob);
+/* WSLUA_ATTRIBUTE ProtoField_description RO The description of this field.
+
+   @since 4.3.0
+*/
+WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(ProtoField,description,blob);
 
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
@@ -1593,7 +1617,7 @@ WSLUA_ATTRIBUTES ProtoField_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(ProtoField,base),
     WSLUA_ATTRIBUTE_ROREG(ProtoField,valuestring),
     WSLUA_ATTRIBUTE_ROREG(ProtoField,mask),
-    WSLUA_ATTRIBUTE_ROREG(ProtoField,desc),
+    WSLUA_ATTRIBUTE_ROREG(ProtoField,description),
     { NULL, NULL, NULL }
 };
 

@@ -177,7 +177,7 @@ WSLUA_CONSTRUCTOR Pref_bool(lua_State* L) {
 #define WSLUA_ARG_Pref_bool_LABEL 1 /* The Label (text in the right side of the
                                        preference input) for this preference. */
 #define WSLUA_ARG_Pref_bool_DEFAULT 2 /* The default value for this preference. */
-#define WSLUA_ARG_Pref_bool_DESCR 3 /* A description of this preference. */
+#define WSLUA_ARG_Pref_bool_DESCRIPTION 3 /* A description of this preference. */
     return new_pref(L,PREF_BOOL);
 }
 
@@ -186,7 +186,7 @@ WSLUA_CONSTRUCTOR Pref_uint(lua_State* L) {
 #define WSLUA_ARG_Pref_uint_LABEL 1 /* The Label (text in the right side of the
                                        preference input) for this preference. */
 #define WSLUA_ARG_Pref_uint_DEFAULT 2 /* The default value for this preference. */
-#define WSLUA_ARG_Pref_uint_DESCR 3 /* A description of what this preference is. */
+#define WSLUA_ARG_Pref_uint_DESCRIPTION 3 /* A description of what this preference is. */
     return new_pref(L,PREF_UINT);
 }
 
@@ -195,7 +195,7 @@ WSLUA_CONSTRUCTOR Pref_string(lua_State* L) {
 #define WSLUA_ARG_Pref_string_LABEL 1 /* The Label (text in the right side of the
                                          preference input) for this preference. */
 #define WSLUA_ARG_Pref_string_DEFAULT 2 /* The default value for this preference. */
-#define WSLUA_ARG_Pref_string_DESCR 3 /* A description of what this preference is. */
+#define WSLUA_ARG_Pref_string_DESCRIPTION 3 /* A description of what this preference is. */
     return new_pref(L,PREF_STRING);
 }
 
@@ -240,7 +240,7 @@ WSLUA_CONSTRUCTOR Pref_enum(lua_State* L) {
 #define WSLUA_ARG_Pref_enum_LABEL 1 /* The Label (text in the right side of the
                                        preference input) for this preference. */
 #define WSLUA_ARG_Pref_enum_DEFAULT 2 /* The default value for this preference. */
-#define WSLUA_ARG_Pref_enum_DESCR 3 /* A description of what this preference is. */
+#define WSLUA_ARG_Pref_enum_DESCRIPTION 3 /* A description of what this preference is. */
 #define WSLUA_ARG_Pref_enum_ENUM 4 /* An enum Lua table. */
 #define WSLUA_ARG_Pref_enum_RADIO 5 /* Radio button (true) or Combobox (false). */
     return new_pref(L,PREF_ENUM);
@@ -252,7 +252,7 @@ WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
                                         input) for this preference. */
 #define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference, e.g., "53",
                                           "10-30", or "10-30,53,55,100-120". */
-#define WSLUA_ARG_Pref_range_DESCR 3 /* A description of what this preference is. */
+#define WSLUA_ARG_Pref_range_DESCRIPTION 3 /* A description of what this preference is. */
 #define WSLUA_ARG_Pref_range_MAX 4 /* The maximum value. */
     return new_pref(L,PREF_RANGE);
 }
@@ -260,7 +260,7 @@ WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
 WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
     /* Creates a static text string to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table. */
 #define WSLUA_ARG_Pref_statictext_LABEL 1 /* The static text. */
-#define WSLUA_ARG_Pref_statictext_DESCR 2 /* The static text description. */
+#define WSLUA_ARG_Pref_statictext_DESCRIPTION 2 /* The static text description. */
     return new_pref(L,PREF_STATIC_TEXT);
 }
 

@@ -147,7 +147,10 @@ WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestam
 }
 
 WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
-    /* Get a preference value. @since 3.5.0 */
+    /* Get a preference value.
+
+       @since 3.5.0
+    */
 #define WSLUA_ARG_get_preference_PREFERENCE 1 /* The name of the preference. */
     const char* preference = luaL_checkstring(L,WSLUA_ARG_get_preference_PREFERENCE);
 
@@ -227,7 +230,10 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
 }
 
 WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
-    /* Set a preference value. @since 3.5.0 */
+    /* Set a preference value.
+
+       @since 3.5.0
+    */
 #define WSLUA_ARG_set_preference_PREFERENCE 1 /* The name of the preference. */
 #define WSLUA_ARG_set_preference_VALUE 2 /* The preference value to set. */
     const char* preference = luaL_checkstring(L,WSLUA_ARG_set_preference_PREFERENCE);
@@ -315,7 +321,10 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
 }
 
 WSLUA_FUNCTION wslua_reset_preference(lua_State *L) {
-    /* Reset a preference to default value. @since 3.5.0 */
+    /* Reset a preference to default value.
+
+       @since 3.5.0
+    */
 #define WSLUA_ARG_reset_preference_PREFERENCE 1 /* The name of the preference. */
     const char* preference = luaL_checkstring(L,WSLUA_ARG_reset_preference_PREFERENCE);
 
@@ -345,7 +354,10 @@ WSLUA_FUNCTION wslua_reset_preference(lua_State *L) {
 }
 
 WSLUA_FUNCTION wslua_apply_preferences(lua_State *L) {
-    /* Write preferences to file and apply changes. @since 3.5.0 */
+    /* Write preferences to file and apply changes.
+
+       @since 3.5.0
+    */
     char *pf_path = NULL;
     int err = write_prefs(&pf_path);
 

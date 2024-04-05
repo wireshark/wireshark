@@ -55,6 +55,7 @@ WSLUA_METAMETHOD NSTime__call(lua_State* L) { /* Creates a NSTime object. */
 
 WSLUA_METHOD NSTime_tonumber(lua_State* L) {
         /* Returns a Lua number of the `NSTime` representing seconds from epoch
+
            @since 2.4.0
          */
         NSTime nstime = checkNSTime(L,1);
