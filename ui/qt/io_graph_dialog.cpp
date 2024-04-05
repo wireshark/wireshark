@@ -893,7 +893,7 @@ void IOGraphDialog::toggleTracerStyle(bool force_default)
 IOGraph *IOGraphDialog::currentActiveGraph() const
 {
     QModelIndex index = ui->graphUat->currentIndex();
-    if (index.isValid()) {
+    if (index.isValid() && graphIsEnabled(index.row())) {
         return ioGraphs_.value(index.row(), NULL);
     }
 
