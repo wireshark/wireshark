@@ -237,7 +237,10 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 }
 
 WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
-    /* Creates a new heuristic `DissectorTable` for your dissector's use. Returns true iff table was created successfully. */
+    /* Creates a new heuristic `DissectorTable` for your dissector's use. Returns true if table was created successfully.
+
+       @since 4.2.0
+     */
 #define WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME 1 /* The short name of the table. Use lower-case alphanumeric, dot, and/or underscores. */
 #define WSLUA_OPTARG_DissectorTable_heuristic_new_UINAME 2 /* The name of the table in the user interface.
                                                     Defaults to the name given in `tablename`, but can be any string. */
