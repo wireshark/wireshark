@@ -2110,7 +2110,7 @@ static const value_string PropSet195_IDS[] = {
 	{0,NULL}
 };
 
-static struct GuidPropertySet GuidPropertySet[] = {
+static const struct GuidPropertySet GuidPropertySet[] = {
 	{	{0xa9bd1526, 0x6a80, 0x11d0, {0x8c, 0x9d, 0x00, 0x20, 0xaf, 0x1d, 0x74, 0x0e}},
 		"DBPROPSET_FSCIFRMWRK_EXT", "File system content index framework",
 		DBPROPSET_FSCIFRMWRK_EXT_IDS
@@ -2939,7 +2939,7 @@ static const value_string version_vals[] = {
 	{0, NULL}
 };
 
-static struct GuidPropertySet *GuidPropertySet_find_guid(const e_guid_t *guid)
+static const struct GuidPropertySet *GuidPropertySet_find_guid(const e_guid_t *guid)
 {
 	unsigned i;
 	for (i=0; i<array_length(GuidPropertySet); i++) {
@@ -2952,7 +2952,7 @@ static struct GuidPropertySet *GuidPropertySet_find_guid(const e_guid_t *guid)
 
 static void get_name_from_fullpropspec(struct CFullPropSpec *v, char *out, int bufsize)
 {
-	struct GuidPropertySet *pset = GuidPropertySet_find_guid(&v->guid);
+	const struct GuidPropertySet *pset = GuidPropertySet_find_guid(&v->guid);
 	const char *id_str, *guid_str;
 	char *dest = out;
 	id_str = pset ? try_val_to_str(v->u.propid, pset->id_map) : NULL;
@@ -3144,7 +3144,7 @@ static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int of
 static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *text);
 
 /* 2.2.1.31 CDbProp */
-static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct GuidPropertySet *propset, const char *fmt, ...);
+static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const struct GuidPropertySet *propset, const char *fmt, ...);
 
 /* 2.2.1.32 CDbPropSet */
 static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
@@ -3363,7 +3363,7 @@ static int parse_PRSPEC_Kind(tvbuff_t *tvb, int offset, proto_tree *tree, enum P
 
 static int parse_CFullPropSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CFullPropSpec *v, const char *fmt, ...)
 {
-	struct GuidPropertySet *pset;
+	const struct GuidPropertySet *pset;
 	const char *id_str, *guid_str, *txt;
 
 	proto_item *item;
@@ -4368,7 +4368,7 @@ static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, pr
 	return offset;
 }
 
-static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct GuidPropertySet *propset, const char *fmt, ...)
+static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const struct GuidPropertySet *propset, const char *fmt, ...)
 {
 	static const value_string EMPTY_VS[] = {{0, NULL}};
 	const value_string *vs = (propset && propset->id_map) ? propset->id_map : EMPTY_VS;
@@ -4414,7 +4414,7 @@ static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 {
 	int i, num;
 	e_guid_t guid;
-	struct GuidPropertySet *pset;
+	const struct GuidPropertySet *pset;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
