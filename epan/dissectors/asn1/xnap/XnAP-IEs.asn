@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.7.0 (2023-12)
+-- 3GPP TS 38.423 V17.8.0 (2024-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2103,7 +2103,7 @@ ExplicitFormat-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 
 ExtendedRATRestrictionInformation ::= SEQUENCE {
-	primaryRATRestriction		BIT STRING (SIZE(8, ...)),
+	primaryRATRestriction		BIT STRING (SIZE(8, ..., 16)),
 	secondaryRATRestriction		BIT STRING (SIZE(8, ...)),
 	iE-Extensions		ProtocolExtensionContainer { {ExtendedRATRestrictionInformation-ExtIEs} }	OPTIONAL,
 	...
@@ -4138,7 +4138,7 @@ NR-U-ChannelInfo-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 
-Bandwidth ::= ENUMERATED{mhz10, mhz20, mhz40, mhz60, mhz80, ...}
+Bandwidth ::= ENUMERATED{mhz10, mhz20, mhz40, mhz60, mhz80, ..., mhz100}
 
 
 NRCyclicPrefix ::= ENUMERATED {normal, extended, ...}

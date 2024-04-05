@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V17.7.0 (2023-12)
+ * 3GPP TS 38.423 V17.8.0 (2024-03)
  */
 
 #include "config.h"
@@ -60,6 +60,10 @@ static int hf_xnap_primaryRATRestriction_nR_LEO;
 static int hf_xnap_primaryRATRestriction_nR_MEO;
 static int hf_xnap_primaryRATRestriction_nR_GEO;
 static int hf_xnap_primaryRATRestriction_nR_OTHERSAT;
+static int hf_xnap_primaryRATRestriction_e_UTRA_LEO;
+static int hf_xnap_primaryRATRestriction_e_UTRA_MEO;
+static int hf_xnap_primaryRATRestriction_e_UTRA_GEO;
+static int hf_xnap_primaryRATRestriction_e_UTRA_OTHERSAT;
 static int hf_xnap_primaryRATRestriction_reserved;
 static int hf_xnap_secondaryRATRestriction_e_UTRA;
 static int hf_xnap_secondaryRATRestriction_nR;
@@ -394,12 +398,28 @@ void proto_register_xnap(void) {
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
         NULL, HFILL }},
     { &hf_xnap_primaryRATRestriction_nR_OTHERSAT,
-      { "nR-unlicensed", "xnap.primaryRATRestriction.nR_unlicensed",
+      { "nR-unlicensed", "xnap.primaryRATRestriction.nR_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_LEO,
+      { "e-UTRA-LEO", "xnap.primaryRATRestriction.e_UTRA_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_MEO,
+      { "e-UTRA-MEO", "xnap.primaryRATRestriction.e_UTRA_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_GEO,
+      { "e-UTRA-GEO", "xnap.primaryRATRestriction.e_UTRA_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_OTHERSAT,
+      { "e-UTRA-unlicensed", "xnap.primaryRATRestriction.e_UTRA_OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }},
     { &hf_xnap_primaryRATRestriction_reserved,
       { "reserved", "xnap.primaryRATRestriction.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x01,
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }},
     { &hf_xnap_secondaryRATRestriction_e_UTRA,
       { "e-UTRA", "xnap.secondaryRATRestriction.e_UTRA",

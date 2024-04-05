@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.7.0 (2023-12)
+-- 3GPP TS 38.423 V17.8.0 (2024-03)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -585,7 +585,8 @@ HandoverRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-TimeSynchronizationAssistanceInformation	CRITICALITY ignore	TYPE TimeSynchronizationAssistanceInformation		PRESENCE optional }|
 	{ ID id-QMCConfigInfo								CRITICALITY ignore	TYPE QMCConfigInfo											PRESENCE optional }|
 	{ ID id-FiveGProSeAuthorized						CRITICALITY ignore	TYPE FiveGProSeAuthorized								PRESENCE optional }|
-	{ ID id-FiveGProSePC5QoSParameters					CRITICALITY ignore	TYPE FiveGProSePC5QoSParameters						PRESENCE optional },
+	{ ID id-FiveGProSePC5QoSParameters					CRITICALITY ignore	TYPE FiveGProSePC5QoSParameters						PRESENCE optional }|
+	{ ID id-IABAuthorizationStatus						CRITICALITY ignore	TYPE IABAuthorizationStatus								PRESENCE optional },
 	...
 }
 
@@ -1025,7 +1026,8 @@ SNodeAdditionRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-SCGActivationRequest				CRITICALITY ignore		TYPE SCGActivationRequest							PRESENCE optional }|
 	{ ID id-CPAInformationRequest				CRITICALITY reject		TYPE CPAInformationRequest						PRESENCE optional }|
 	{ ID id-S-NG-RANnodeUE-Slice-MBR			CRITICALITY reject		TYPE UESliceMaximumBitRateList					PRESENCE optional }|
-	{ ID id-F1-terminatingIAB-donorIndicator	CRITICALITY reject		TYPE F1-terminatingIAB-donorIndicator			PRESENCE optional },
+	{ ID id-F1-terminatingIAB-donorIndicator	CRITICALITY reject		TYPE F1-terminatingIAB-donorIndicator			PRESENCE optional }|
+	{ ID id-IABAuthorizationStatus				CRITICALITY ignore		TYPE IABAuthorizationStatus						PRESENCE optional },
 	...
 }
 
@@ -1237,7 +1239,8 @@ SNodeModificationRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-CPAInformationModReq					CRITICALITY ignore		TYPE CPAInformationModReq							PRESENCE optional }|
 	{ ID id-CPCInformationUpdate					CRITICALITY ignore		TYPE CPCInformationUpdate							PRESENCE optional }|
 	{ ID id-S-NG-RANnodeUE-Slice-MBR				CRITICALITY ignore		TYPE UESliceMaximumBitRateList						PRESENCE optional }|
-	{ ID id-ManagementBasedMDTPLMNModificationList	CRITICALITY	ignore		TYPE MDTPLMNModificationList						PRESENCE optional },
+	{ ID id-ManagementBasedMDTPLMNModificationList	CRITICALITY	ignore		TYPE MDTPLMNModificationList						PRESENCE optional }|
+	{ ID id-IABAuthorizationStatus					CRITICALITY ignore	TYPE IABAuthorizationStatus							PRESENCE optional },
 	...
 }
 
@@ -1406,6 +1409,7 @@ PDUSessionNotAdmitted-SNModResponse ::= SEQUENCE {
 }
 
 PDUSessionNotAdmitted-SNModResponse-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PDUSessionResourcesNotAdmitted-List		CRITICALITY ignore		EXTENSION PDUSessionResourcesNotAdmitted-List	PRESENCE optional },
 	...
 }
 

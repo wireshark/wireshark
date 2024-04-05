@@ -607,11 +607,20 @@ BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
       &hf_xnap_primaryRATRestriction_nR_MEO,
       &hf_xnap_primaryRATRestriction_nR_GEO,
       &hf_xnap_primaryRATRestriction_nR_OTHERSAT,
+      &hf_xnap_primaryRATRestriction_e_UTRA_LEO,
+      NULL
+    };
+    static int * const fields2[] = {
+      &hf_xnap_primaryRATRestriction_e_UTRA_MEO,
+      &hf_xnap_primaryRATRestriction_e_UTRA_GEO,
+      &hf_xnap_primaryRATRestriction_e_UTRA_OTHERSAT,
       &hf_xnap_primaryRATRestriction_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_primaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+    if (tvb_reported_length(parameter_tvb) >= 2)
+      proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields2, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY ExtendedRATRestrictionInformation/secondaryRATRestriction VAL_PTR=&parameter_tvb
@@ -1916,6 +1925,7 @@ CoverageModificationCause                                        N xnap.extensio
 AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated N xnap.extension id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated
 ExcessPacketDelayThresholdConfiguration                          N xnap.extension id-ExcessPacketDelayThresholdConfiguration
 QoSFlowMappingIndication                                         N xnap.extension id-QosFlowMappingIndication
+PDUSessionResourcesNotAdmitted-List                              N xnap.extension id-PDUSessionResourcesNotAdmitted-List
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

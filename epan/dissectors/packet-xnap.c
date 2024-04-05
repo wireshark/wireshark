@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V17.7.0 (2023-12)
+ * 3GPP TS 38.423 V17.8.0 (2024-03)
  */
 
 #include "config.h"
@@ -616,6 +616,10 @@ static int hf_xnap_primaryRATRestriction_nR_LEO;
 static int hf_xnap_primaryRATRestriction_nR_MEO;
 static int hf_xnap_primaryRATRestriction_nR_GEO;
 static int hf_xnap_primaryRATRestriction_nR_OTHERSAT;
+static int hf_xnap_primaryRATRestriction_e_UTRA_LEO;
+static int hf_xnap_primaryRATRestriction_e_UTRA_MEO;
+static int hf_xnap_primaryRATRestriction_e_UTRA_GEO;
+static int hf_xnap_primaryRATRestriction_e_UTRA_OTHERSAT;
 static int hf_xnap_primaryRATRestriction_reserved;
 static int hf_xnap_secondaryRATRestriction_e_UTRA;
 static int hf_xnap_secondaryRATRestriction_nR;
@@ -11029,11 +11033,20 @@ dissect_xnap_T_primaryRATRestriction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
       &hf_xnap_primaryRATRestriction_nR_MEO,
       &hf_xnap_primaryRATRestriction_nR_GEO,
       &hf_xnap_primaryRATRestriction_nR_OTHERSAT,
+      &hf_xnap_primaryRATRestriction_e_UTRA_LEO,
+      NULL
+    };
+    static int * const fields2[] = {
+      &hf_xnap_primaryRATRestriction_e_UTRA_MEO,
+      &hf_xnap_primaryRATRestriction_e_UTRA_GEO,
+      &hf_xnap_primaryRATRestriction_e_UTRA_OTHERSAT,
       &hf_xnap_primaryRATRestriction_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_primaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+    if (tvb_reported_length(parameter_tvb) >= 2)
+      proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields2, ENC_BIG_ENDIAN);
   }
 
 
@@ -16286,6 +16299,7 @@ static const value_string xnap_Bandwidth_vals[] = {
   {   2, "mhz40" },
   {   3, "mhz60" },
   {   4, "mhz80" },
+  {   5, "mhz100" },
   { 0, NULL }
 };
 
@@ -16293,7 +16307,7 @@ static const value_string xnap_Bandwidth_vals[] = {
 static int
 dissect_xnap_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -28363,12 +28377,28 @@ void proto_register_xnap(void) {
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
         NULL, HFILL }},
     { &hf_xnap_primaryRATRestriction_nR_OTHERSAT,
-      { "nR-unlicensed", "xnap.primaryRATRestriction.nR_unlicensed",
+      { "nR-unlicensed", "xnap.primaryRATRestriction.nR_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_LEO,
+      { "e-UTRA-LEO", "xnap.primaryRATRestriction.e_UTRA_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_MEO,
+      { "e-UTRA-MEO", "xnap.primaryRATRestriction.e_UTRA_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_GEO,
+      { "e-UTRA-GEO", "xnap.primaryRATRestriction.e_UTRA_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_e_UTRA_OTHERSAT,
+      { "e-UTRA-unlicensed", "xnap.primaryRATRestriction.e_UTRA_OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }},
     { &hf_xnap_primaryRATRestriction_reserved,
       { "reserved", "xnap.primaryRATRestriction.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x01,
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }},
     { &hf_xnap_secondaryRATRestriction_e_UTRA,
       { "e-UTRA", "xnap.secondaryRATRestriction.e_UTRA",
@@ -36543,6 +36573,7 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.extension", id_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated, create_dissector_handle(dissect_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_ExcessPacketDelayThresholdConfiguration, create_dissector_handle(dissect_ExcessPacketDelayThresholdConfiguration_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_QosFlowMappingIndication, create_dissector_handle(dissect_QoSFlowMappingIndication_PDU, proto_xnap));
+  dissector_add_uint("xnap.extension", id_PDUSessionResourcesNotAdmitted_List, create_dissector_handle(dissect_PDUSessionResourcesNotAdmitted_List_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_xnap));
