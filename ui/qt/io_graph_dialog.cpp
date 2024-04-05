@@ -1209,18 +1209,19 @@ void IOGraphDialog::mouseReleased(QMouseEvent *event)
 void IOGraphDialog::resetAxes()
 {
     QCustomPlot *iop = ui->ioPlot;
-    QCPRange x_range = iop->xAxis->scaleType() == QCPAxis::stLogarithmic ?
-                iop->xAxis->range().sanitizedForLogScale() : iop->xAxis->range();
-
     double pixel_pad = 10.0; // per side
 
     iop->rescaleAxes(true);
 
+    QCPRange x_range = iop->xAxis->scaleType() == QCPAxis::stLogarithmic ?
+                iop->xAxis->range().sanitizedForLogScale() : iop->xAxis->range();
     double axis_pixels = iop->xAxis->axisRect()->width();
     iop->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
 
+    QCPRange y_range = iop->yAxis->scaleType() == QCPAxis::stLogarithmic ?
+                iop->yAxis->range().sanitizedForLogScale() : iop->yAxis->range();
     axis_pixels = iop->yAxis->axisRect()->height();
-    iop->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, iop->yAxis->range().center());
+    iop->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, y_range.center());
 
     auto_axes_ = true;
     iop->replot();
