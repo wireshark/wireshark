@@ -88,6 +88,16 @@ public:
     // Emitting app signals (PacketDissectionChanged in particular) from
     // dialogs on macOS can be problematic. Dialogs should call queueAppSignal
     // instead.
+    // On macOS, nested event loops (e.g., calling a dialog with exec())
+    // that call processEvents (e.g., from PacketDissectionChanged, or
+    // anything with a ProgressFrame) caused issues off and on from 5.3.0
+    // until 5.7.1/5.8.0. It appears to be solved after some false starts:
+    // https://bugreports.qt.io/browse/QTBUG-53947
+    // https://bugreports.qt.io/browse/QTBUG-56746
+    // We also try to avoid exec / additional event loops as much as possible:
+    // e.g., commit f67eccedd9836e6ced1f57ae9889f57a5400a3d7
+    // (note it can show up in unexpected places, e.g. static functions like
+    // WiresharkFileDialog::getOpenFileName())
     void queueAppSignal(AppSignal signal) { app_signals_ << signal; }
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
