@@ -23,10 +23,11 @@ class TestDfilterSyntax:
         dfilter = "9p or http"
         checkDFilterCount(dfilter, 1)
 
-    def test_exists_4(self, checkDFilterCount):
+    # The HTTP dissector no longer has a expert Chat
+        # def test_exists_4(self, checkDFilterCount):
         # Protocol with dot
-        dfilter = "_ws.expert"
-        checkDFilterCount(dfilter, 1)
+        # dfilter = "_ws.expert"
+        # checkDFilterCount(dfilter, 1)
 
     def test_exists_5(self, checkDFilterSucceed):
         # Protocol field name with leading digit and minus
