@@ -276,9 +276,6 @@ main(int argc, char *argv[])
     }
     DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
 
-    wtap_dump_params_init(&params, wth);
-
-
     /* Allocate the array of frame pointers. */
     frames = g_ptr_array_new();
 
@@ -314,7 +311,10 @@ main(int argc, char *argv[])
 
     printf("%u frames, %u out of order\n", frames->len, wrong_order_count);
 
+    wtap_dump_params_init(&params, wth);
+
     /* Sort the frames */
+    /* XXX - Does this handle multiple SHBs correctly? */
     if (wrong_order_count > 0) {
         g_ptr_array_sort(frames, frames_compare);
     }
