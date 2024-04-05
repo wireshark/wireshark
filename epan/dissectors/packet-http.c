@@ -146,10 +146,6 @@ static gint ett_http_encoded_entity;
 static gint ett_http_header_item;
 static gint ett_http_http2_settings_item;
 
-<<<<<<< HEAD
-=======
-// static expert_field ei_http_chat;
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 static expert_field ei_http_te_and_length;
 static expert_field ei_http_te_unknown;
 static expert_field ei_http_subdissector_failed;
@@ -521,9 +517,6 @@ static int st_node_reqs = -1;
 static int st_node_reqs_by_srv_addr = -1;
 static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
-
-static gboolean req_has_range = FALSE;
-static gboolean resp_has_range = FALSE;
 
 /* Parse HTTP path sub components RFC3986 Ch 3.3, 3.4 */
 void
@@ -3733,10 +3726,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 */
 			guint8  *first_range_num_str = NULL;
 			unsigned long first_range_num = 0;
-<<<<<<< HEAD
-=======
-			request_trans_t *req_trans = NULL;
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 
 			/* Get the first range number */
 			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
@@ -3748,30 +3737,13 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				first_range_num = strtoul(first_range_num_str, NULL ,10);
 			}
 			if (first_range_num == 0) {
-<<<<<<< HEAD
 				/* The first number of the range is missing or '0'. So we'll
 				* use the second number in the range instead."
 				*/
 				char *str = wmem_strdup(wmem_file_scope(), value);
 				str += 8;
 				first_range_num = strtoul(str, NULL ,10);
-=======
-				/* The first number of the range is missing or '0'. Get a hash
-				*  of the entire range field and set first_range_num to it."
-				*/
-				unsigned long hash = 5381;
-				int i;
-				char *str = wmem_strdup(wmem_file_scope(), value);
 
-				/* Isolate the range itself */
-				str += 6;
-
-				if (*str) {
-					while (i = *str++)
-						hash = ((hash << 5) + hash) + i;
-					first_range_num = hash;
-				}
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
@@ -3797,12 +3769,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			*  GET is the only method that employs ranges. */
 			if (!pinfo->fd->visited) {
 				guint8  *first_crange_num_str = NULL;
-<<<<<<< HEAD
 				unsigned long first_crange_num = 0;
-=======
-				guint8  *no_filesize = NULL;
-				guint32 first_crange_num = 0;
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 				guint   pos;
 				request_trans_t *req_trans;
 				match_trans_t *match_trans = NULL;
@@ -3815,10 +3782,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 				/* Eliminate the trailing "/12345" file size string */
 				first_crange_num_str = strtok(value_bytes, "/");
-<<<<<<< HEAD
-=======
-				no_filesize = wmem_strdup(wmem_file_scope(), first_crange_num_str);
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 				first_crange_num_str = strtok(value_bytes, "-");
 				first_crange_num_str = strtok(value_bytes, " ");
 
@@ -3827,28 +3790,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
 				}
 				if (first_crange_num == 0) {
-<<<<<<< HEAD
 					/* The first number of the range is missing or '0'. So we'll
 					* use the second number in the range instead."
 					*/
 					char *str = wmem_strdup(wmem_file_scope(), value);
 					str += 8;
 					first_crange_num = strtoul(str, NULL ,10);
-=======
-					/* The first number of the range is missing or '0'. Get a hash
-					*  of the entire range field and set it to first_range_num_str.
-					*/
-					unsigned long hash = 5381;
-					int j;
-					guint8 *str = wmem_strdup(wmem_file_scope(), no_filesize);
-
-					str += 6;
-					if (*str) {
-						while (j = *str++)
-							hash = ((hash << 5) + hash) + j;
-						first_crange_num = hash;
-					}
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 				}
 
 				/* Get the position of the matching request if any in the reqs_table.
@@ -3889,11 +3836,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 						top_of_list = conv_data->req_list;
 						pos++;
-<<<<<<< HEAD
 						for (guint q = 0; q < pos; q++) {
-=======
-						for (guint i = 0; i < pos; i++) {
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 							next = top_of_list->next;
 							top_of_list = g_slist_delete_link(top_of_list, top_of_list);
 							top_of_list = next;
@@ -4731,10 +4674,6 @@ proto_register_http(void)
 	};
 
 	static ei_register_info ei[] = {
-<<<<<<< HEAD
-=======
-		//{ &ei_http_chat, { "http.chat", PI_SEQUENCE, PI_CHAT, "Formatted text", EXPFILL }},
->>>>>>> 768bb6afd8 (HTTP: Incorrect request/response matching)
 		{ &ei_http_te_and_length, { "http.te_and_length", PI_MALFORMED, PI_WARN, "The Content-Length and Transfer-Encoding header must not be set together", EXPFILL }},
 		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
