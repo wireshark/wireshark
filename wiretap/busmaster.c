@@ -40,7 +40,7 @@ void register_busmaster(void);
 /*
  * See
  *
- *    http://rbei-etas.github.io/busmaster/
+ *    https://rbei-etas.github.io/busmaster/
  *
  * for the BUSMASTER software.
  */
