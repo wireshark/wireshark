@@ -2173,13 +2173,20 @@ bool IOGraph::removeFromLegend()
     return false;
 }
 
+// This returns what graph key offset corresponds with relative time 0.0,
+// i.e. when absolute times are used the difference between abs_ts and
+// rel_ts of the first tapped packet. Generally the same for all graphs
+// that are displayed and have some data, unless they're on the opposite
+// sides of time references.
+// XXX - If the graph spans a time reference, it's not clear how we want
+// to switch from relative to absolute times.
 double IOGraph::startOffset() const
 {
-    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker()) && graph_->data()->size() > 0) {
-        return graph_->data()->at(0)->key;
+    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
+        return start_time_;
     }
-    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker()) && bars_->data()->size() > 0) {
-        return bars_->data()->at(0)->key;
+    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
+        return start_time_;
     }
     return 0.0;
 }
