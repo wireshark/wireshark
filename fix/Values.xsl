@@ -24,7 +24,7 @@ typedef struct _fix_field {
 </xsl:template>
 
 <!--
-translate(@description,$uppercase,$smallcase)  
+translate(@description,$uppercase,$smallcase)
 -->
 
 <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'" />
@@ -59,7 +59,7 @@ translate(@description,$uppercase,$smallcase)
 <xsl:template match="fix/messages">
     static const string_string messages_val[] = {<xsl:for-each select="message">
         { "<xsl:value-of select="@msgtype"/>", "<xsl:value-of select="@name"/>" },</xsl:for-each>
-        { "", NULL }
+        { 0, NULL }
     };
 </xsl:template>
 

@@ -7327,7 +7327,7 @@
   <field number='393' name='TotNoRelatedSym' type='INT' />
   <field number='394' name='BidType' type='INT'>
    <value enum='1' description='NON_DISCLOSED_STYLE' />
-   <value enum='2' description='DISCLOSED_SYTLE' />
+   <value enum='2' description='DISCLOSED_STYLE' />
    <value enum='3' description='NO_BIDDING_PROCESS' />
   </field>
   <field number='395' name='NumTickets' type='INT' />
@@ -7508,7 +7508,7 @@
    <value enum='12' description='EXECUTING_TRADER' />
    <value enum='13' description='ORDER_ORIGINATION_FIRM' />
    <value enum='14' description='GIVEUP_CLEARING_FIRM' />
-   <value enum='15' description='CORRESPONDANT_CLEARING_FIRM' />
+   <value enum='15' description='CORRESPONDENT_CLEARING_FIRM' />
    <value enum='16' description='EXECUTING_SYSTEM' />
    <value enum='17' description='CONTRA_FIRM' />
    <value enum='18' description='CONTRA_CLEARING_FIRM' />

@@ -3578,7 +3578,7 @@
       <value enum="12" description="EXECUTING_TRADER" />
       <value enum="13" description="ORDER_ORIGINATION_FIRM" />
       <value enum="14" description="GIVEUP_CLEARING_FIRM" />
-      <value enum="15" description="CORRESPONDANT_CLEARING_FIRM" />
+      <value enum="15" description="CORRESPONDENT_CLEARING_FIRM" />
       <value enum="16" description="EXECUTING_SYSTEM" />
       <value enum="17" description="CONTRA_FIRM" />
       <value enum="18" description="CONTRA_CLEARING_FIRM" />
