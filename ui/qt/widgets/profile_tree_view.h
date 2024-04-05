@@ -15,16 +15,6 @@
 #include <QTreeView>
 #include <QItemDelegate>
 
-class ProfileUrlLinkDelegate : public UrlLinkDelegate
-{
-    Q_OBJECT
-
-public:
-    explicit ProfileUrlLinkDelegate(QObject *parent = Q_NULLPTR);
-
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-};
-
 class ProfileTreeEditDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -61,7 +51,6 @@ protected:
     // QAbstractItemView interface
 protected slots:
     virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    virtual void itemClicked(const QModelIndex &index);
 
 private:
     ProfileTreeEditDelegate *delegate_;

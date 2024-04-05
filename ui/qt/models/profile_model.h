@@ -69,7 +69,6 @@ public:
         DATA_IS_SELECTED,
         DATA_PATH,
         DATA_PATH_IS_NOT_DESCRIPTION,
-        DATA_INDEX_VALUE_IS_URL
     } data_values_;
 
     // QAbstractItemModel interface

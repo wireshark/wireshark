@@ -640,10 +640,6 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
         }
     case ProfileModel::DATA_PATH:
         return dataPath(index);
-    case ProfileModel::DATA_INDEX_VALUE_IS_URL:
-        if (index.column() <= ProfileModel::COL_TYPE)
-            return QVariant::fromValue(false);
-        return QVariant::fromValue(true);
     case ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION:
         if (prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY
              || (prof->status == PROF_STAT_DEFAULT && reset_default_)
