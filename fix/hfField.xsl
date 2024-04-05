@@ -29,7 +29,7 @@ static hf_register_info hf_FIX[] = {
 <xsl:template match="fields">
 <xsl:for-each select="field">
     <xsl:sort select="@number" data-type="number"/>
-        { &amp;fix_fields[<xsl:value-of select="position( ) -1" />].hf_id,
+        { &amp;fix_hf[<xsl:value-of select="position( ) -1" />],
             { "<xsl:value-of select="@name"/> (<xsl:value-of select="@number"/>)", "fix.<xsl:value-of select="@name"/>",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }

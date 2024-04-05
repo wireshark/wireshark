@@ -14,7 +14,6 @@ Syntax: xsltproc Values.xsl FIX44.xml
 
 typedef struct _fix_field {
     int      tag;         /* FIX tag */
-    int      hf_id;
     int      type;        /* */
     const void *table;
 } fix_field;

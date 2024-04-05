@@ -293,11 +293,13 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         value = tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset, tag->value_len, ENC_ASCII);
         ivalue_valid = ws_strtoi32(value, NULL, &ivalue);
         if (field) {
+            int hf = fix_hf[field - fix_fields];
+
             if (field->table) {
                 if (tree) {
                     switch (field->type) {
                     case 1: /* strings */
-                        proto_tree_add_string_format_value(fix_tree, field->hf_id, tvb, field_offset, tag->field_len, value,
+                        proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len, value,
                             "%s (%s)", value, str_to_str(value, (const string_string *)field->table, "unknown %s"));
                         if (tag_value == 35) {
                             /* Make message type part of the Info column */
@@ -307,15 +309,15 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                         }
                         break;
                     case 2: /* char */
-                        proto_tree_add_string_format_value(fix_tree, field->hf_id, tvb, field_offset, tag->field_len, value,
+                        proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len, value,
                             "%s (%s)", value, val_to_str(*value, (const value_string *)field->table, "unknown %d"));
                         break;
                     default:
                         if (ivalue_valid)
-                            proto_tree_add_string_format_value(fix_tree, field->hf_id, tvb, field_offset, tag->field_len, value,
+                            proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len, value,
                                 "%s (%s)", value, val_to_str(ivalue, (const value_string *)field->table, "unknown %d"));
                         else {
-                            pi = proto_tree_add_string(fix_tree, field->hf_id, tvb, field_offset, tag->field_len, value);
+                            pi = proto_tree_add_string(fix_tree, hf, tvb, field_offset, tag->field_len, value);
                             expert_add_info_format(pinfo, pi, &ei_fix_field_invalid, "Invalid string %s for fix field tag %i", value, field->tag);
                         }
                         break;
@@ -340,11 +342,11 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     }
                     sum_ok = (ivalue == sum);
                     if (sum_ok) {
-                        item = proto_tree_add_string_format_value(fix_tree, field->hf_id, tvb, field_offset, tag->field_len,
+                        item = proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len,
                                 value, "%s [correct]", value);
                     }
                     else {
-                        item = proto_tree_add_string_format_value(fix_tree, field->hf_id, tvb, field_offset, tag->field_len,
+                        item = proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len,
                                 value, "%s [incorrect should be %d]", value, sum);
                     }
                     checksum_tree = proto_item_add_subtree(item, ett_checksum);
@@ -357,7 +359,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 }
                 break;
               default:
-                proto_tree_add_string(fix_tree, field->hf_id, tvb, field_offset, tag->field_len, value);
+                proto_tree_add_string(fix_tree, hf, tvb, field_offset, tag->field_len, value);
                 break;
               }
             }

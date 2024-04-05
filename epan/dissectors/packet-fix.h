@@ -6,7 +6,6 @@
 
 typedef struct _fix_field {
     int      tag;         /* FIX tag */
-    int      hf_id;
     int      type;        /* */
     const void *table;
 } fix_field;
@@ -4934,9668 +4933,9669 @@ typedef struct _fix_field {
     };
 
 
-static fix_field fix_fields[] = {
+static const fix_field fix_fields[] = {
 
-        { 1, -1, 0, NULL }, /* Account */
-        { 2, -1, 0, NULL }, /* AdvId */
-        { 3, -1, 0, NULL }, /* AdvRefID */
-        { 4, -1, 2, AdvSide_val },
-        { 5, -1, 1, AdvTransType_val },
-        { 6, -1, 0, NULL }, /* AvgPx */
-        { 7, -1, 0, NULL }, /* BeginSeqNo */
-        { 8, -1, 0, NULL }, /* BeginString */
-        { 9, -1, 0, NULL }, /* BodyLength */
-        { 10, -1, 0, NULL }, /* CheckSum */
-        { 11, -1, 0, NULL }, /* ClOrdID */
-        { 12, -1, 0, NULL }, /* Commission */
-        { 13, -1, 2, CommType_val },
-        { 14, -1, 0, NULL }, /* CumQty */
-        { 15, -1, 0, NULL }, /* Currency */
-        { 16, -1, 0, NULL }, /* EndSeqNo */
-        { 17, -1, 0, NULL }, /* ExecID */
-        { 18, -1, 2, ExecInst_val },
-        { 19, -1, 0, NULL }, /* ExecRefID */
-        { 20, -1, 2, ExecTransType_val },
-        { 21, -1, 2, HandlInst_val },
-        { 22, -1, 1, SecurityIDSource_val },
-        { 23, -1, 0, NULL }, /* IOIID */
-        { 24, -1, 0, NULL }, /* IOIOthSvc */
-        { 25, -1, 2, IOIQltyInd_val },
-        { 26, -1, 0, NULL }, /* IOIRefID */
-        { 27, -1, 1, IOIQty_val },
-        { 28, -1, 2, IOITransType_val },
-        { 29, -1, 2, LastCapacity_val },
-        { 30, -1, 0, NULL }, /* LastMkt */
-        { 31, -1, 0, NULL }, /* LastPx */
-        { 32, -1, 0, NULL }, /* LastQty */
-        { 33, -1, 0, NULL }, /* NoLinesOfText */
-        { 34, -1, 0, NULL }, /* MsgSeqNum */
-        { 35, -1, 1, MsgType_val },
-        { 36, -1, 0, NULL }, /* NewSeqNo */
-        { 37, -1, 0, NULL }, /* OrderID */
-        { 38, -1, 0, NULL }, /* OrderQty */
-        { 39, -1, 2, OrdStatus_val },
-        { 40, -1, 2, OrdType_val },
-        { 41, -1, 0, NULL }, /* OrigClOrdID */
-        { 42, -1, 0, NULL }, /* OrigTime */
-        { 43, -1, 2, PossDupFlag_val },
-        { 44, -1, 0, NULL }, /* Price */
-        { 45, -1, 0, NULL }, /* RefSeqNum */
-        { 46, -1, 0, NULL }, /* RelatdSym */
-        { 47, -1, 2, Rule80A_val },
-        { 48, -1, 0, NULL }, /* SecurityID */
-        { 49, -1, 0, NULL }, /* SenderCompID */
-        { 50, -1, 0, NULL }, /* SenderSubID */
-        { 51, -1, 0, NULL }, /* SendingDate */
-        { 52, -1, 0, NULL }, /* SendingTime */
-        { 53, -1, 0, NULL }, /* Quantity */
-        { 54, -1, 2, Side_val },
-        { 55, -1, 0, NULL }, /* Symbol */
-        { 56, -1, 0, NULL }, /* TargetCompID */
-        { 57, -1, 0, NULL }, /* TargetSubID */
-        { 58, -1, 0, NULL }, /* Text */
-        { 59, -1, 2, TimeInForce_val },
-        { 60, -1, 0, NULL }, /* TransactTime */
-        { 61, -1, 2, Urgency_val },
-        { 62, -1, 0, NULL }, /* ValidUntilTime */
-        { 63, -1, 1, SettlType_val },
-        { 64, -1, 0, NULL }, /* SettlDate */
-        { 65, -1, 1, SymbolSfx_val },
-        { 66, -1, 0, NULL }, /* ListID */
-        { 67, -1, 0, NULL }, /* ListSeqNo */
-        { 68, -1, 0, NULL }, /* TotNoOrders */
-        { 69, -1, 0, NULL }, /* ListExecInst */
-        { 70, -1, 0, NULL }, /* AllocID */
-        { 71, -1, 2, AllocTransType_val },
-        { 72, -1, 0, NULL }, /* RefAllocID */
-        { 73, -1, 0, NULL }, /* NoOrders */
-        { 74, -1, 0, NULL }, /* AvgPxPrecision */
-        { 75, -1, 0, NULL }, /* TradeDate */
-        { 76, -1, 0, NULL }, /* ExecBroker */
-        { 77, -1, 2, PositionEffect_val },
-        { 78, -1, 0, NULL }, /* NoAllocs */
-        { 79, -1, 0, NULL }, /* AllocAccount */
-        { 80, -1, 0, NULL }, /* AllocQty */
-        { 81, -1, 2, ProcessCode_val },
-        { 82, -1, 0, NULL }, /* NoRpts */
-        { 83, -1, 0, NULL }, /* RptSeq */
-        { 84, -1, 0, NULL }, /* CxlQty */
-        { 85, -1, 0, NULL }, /* NoDlvyInst */
-        { 86, -1, 0, NULL }, /* DlvyInst */
-        { 87, -1, 0, AllocStatus_val },
-        { 88, -1, 0, AllocRejCode_val },
-        { 89, -1, 0, NULL }, /* Signature */
-        { 90, -1, 0, NULL }, /* SecureDataLen */
-        { 91, -1, 0, NULL }, /* SecureData */
-        { 92, -1, 0, NULL }, /* BrokerOfCredit */
-        { 93, -1, 0, NULL }, /* SignatureLength */
-        { 94, -1, 2, EmailType_val },
-        { 95, -1, 0, NULL }, /* RawDataLength */
-        { 96, -1, 0, NULL }, /* RawData */
-        { 97, -1, 2, PossResend_val },
-        { 98, -1, 0, EncryptMethod_val },
-        { 99, -1, 0, NULL }, /* StopPx */
-        { 100, -1, 0, NULL }, /* ExDestination */
-        { 102, -1, 0, CxlRejReason_val },
-        { 103, -1, 0, OrdRejReason_val },
-        { 104, -1, 2, IOIQualifier_val },
-        { 105, -1, 0, NULL }, /* WaveNo */
-        { 106, -1, 0, NULL }, /* Issuer */
-        { 107, -1, 0, NULL }, /* SecurityDesc */
-        { 108, -1, 0, NULL }, /* HeartBtInt */
-        { 109, -1, 0, NULL }, /* ClientID */
-        { 110, -1, 0, NULL }, /* MinQty */
-        { 111, -1, 0, NULL }, /* MaxFloor */
-        { 112, -1, 0, NULL }, /* TestReqID */
-        { 113, -1, 2, ReportToExch_val },
-        { 114, -1, 2, LocateReqd_val },
-        { 115, -1, 0, NULL }, /* OnBehalfOfCompID */
-        { 116, -1, 0, NULL }, /* OnBehalfOfSubID */
-        { 117, -1, 0, NULL }, /* QuoteID */
-        { 118, -1, 0, NULL }, /* NetMoney */
-        { 119, -1, 0, NULL }, /* SettlCurrAmt */
-        { 120, -1, 0, NULL }, /* SettlCurrency */
-        { 121, -1, 2, ForexReq_val },
-        { 122, -1, 0, NULL }, /* OrigSendingTime */
-        { 123, -1, 2, GapFillFlag_val },
-        { 124, -1, 0, NULL }, /* NoExecs */
-        { 125, -1, 0, NULL }, /* CxlType */
-        { 126, -1, 0, NULL }, /* ExpireTime */
-        { 127, -1, 2, DKReason_val },
-        { 128, -1, 0, NULL }, /* DeliverToCompID */
-        { 129, -1, 0, NULL }, /* DeliverToSubID */
-        { 130, -1, 2, IOINaturalFlag_val },
-        { 131, -1, 0, NULL }, /* QuoteReqID */
-        { 132, -1, 0, NULL }, /* BidPx */
-        { 133, -1, 0, NULL }, /* OfferPx */
-        { 134, -1, 0, NULL }, /* BidSize */
-        { 135, -1, 0, NULL }, /* OfferSize */
-        { 136, -1, 0, NULL }, /* NoMiscFees */
-        { 137, -1, 0, NULL }, /* MiscFeeAmt */
-        { 138, -1, 0, NULL }, /* MiscFeeCurr */
-        { 139, -1, 1, MiscFeeType_val },
-        { 140, -1, 0, NULL }, /* PrevClosePx */
-        { 141, -1, 2, ResetSeqNumFlag_val },
-        { 142, -1, 0, NULL }, /* SenderLocationID */
-        { 143, -1, 0, NULL }, /* TargetLocationID */
-        { 144, -1, 0, NULL }, /* OnBehalfOfLocationID */
-        { 145, -1, 0, NULL }, /* DeliverToLocationID */
-        { 146, -1, 0, NULL }, /* NoRelatedSym */
-        { 147, -1, 0, NULL }, /* Subject */
-        { 148, -1, 0, NULL }, /* Headline */
-        { 149, -1, 0, NULL }, /* URLLink */
-        { 150, -1, 2, ExecType_val },
-        { 151, -1, 0, NULL }, /* LeavesQty */
-        { 152, -1, 0, NULL }, /* CashOrderQty */
-        { 153, -1, 0, NULL }, /* AllocAvgPx */
-        { 154, -1, 0, NULL }, /* AllocNetMoney */
-        { 155, -1, 0, NULL }, /* SettlCurrFxRate */
-        { 156, -1, 2, SettlCurrFxRateCalc_val },
-        { 157, -1, 0, NULL }, /* NumDaysInterest */
-        { 158, -1, 0, NULL }, /* AccruedInterestRate */
-        { 159, -1, 0, NULL }, /* AccruedInterestAmt */
-        { 160, -1, 2, SettlInstMode_val },
-        { 161, -1, 0, NULL }, /* AllocText */
-        { 162, -1, 0, NULL }, /* SettlInstID */
-        { 163, -1, 2, SettlInstTransType_val },
-        { 164, -1, 0, NULL }, /* EmailThreadID */
-        { 165, -1, 2, SettlInstSource_val },
-        { 166, -1, 1, SettlLocation_val },
-        { 167, -1, 1, SecurityType_val },
-        { 168, -1, 0, NULL }, /* EffectiveTime */
-        { 169, -1, 0, StandInstDbType_val },
-        { 170, -1, 0, NULL }, /* StandInstDbName */
-        { 171, -1, 0, NULL }, /* StandInstDbID */
-        { 172, -1, 0, SettlDeliveryType_val },
-        { 173, -1, 0, NULL }, /* SettlDepositoryCode */
-        { 174, -1, 0, NULL }, /* SettlBrkrCode */
-        { 175, -1, 0, NULL }, /* SettlInstCode */
-        { 176, -1, 0, NULL }, /* SecuritySettlAgentName */
-        { 177, -1, 0, NULL }, /* SecuritySettlAgentCode */
-        { 178, -1, 0, NULL }, /* SecuritySettlAgentAcctNum */
-        { 179, -1, 0, NULL }, /* SecuritySettlAgentAcctName */
-        { 180, -1, 0, NULL }, /* SecuritySettlAgentContactName */
-        { 181, -1, 0, NULL }, /* SecuritySettlAgentContactPhone */
-        { 182, -1, 0, NULL }, /* CashSettlAgentName */
-        { 183, -1, 0, NULL }, /* CashSettlAgentCode */
-        { 184, -1, 0, NULL }, /* CashSettlAgentAcctNum */
-        { 185, -1, 0, NULL }, /* CashSettlAgentAcctName */
-        { 186, -1, 0, NULL }, /* CashSettlAgentContactName */
-        { 187, -1, 0, NULL }, /* CashSettlAgentContactPhone */
-        { 188, -1, 0, NULL }, /* BidSpotRate */
-        { 189, -1, 0, NULL }, /* BidForwardPoints */
-        { 190, -1, 0, NULL }, /* OfferSpotRate */
-        { 191, -1, 0, NULL }, /* OfferForwardPoints */
-        { 192, -1, 0, NULL }, /* OrderQty2 */
-        { 193, -1, 0, NULL }, /* SettlDate2 */
-        { 194, -1, 0, NULL }, /* LastSpotRate */
-        { 195, -1, 0, NULL }, /* LastForwardPoints */
-        { 196, -1, 0, NULL }, /* AllocLinkID */
-        { 197, -1, 0, AllocLinkType_val },
-        { 198, -1, 0, NULL }, /* SecondaryOrderID */
-        { 199, -1, 0, NULL }, /* NoIOIQualifiers */
-        { 200, -1, 0, NULL }, /* MaturityMonthYear */
-        { 201, -1, 0, PutOrCall_val },
-        { 202, -1, 0, NULL }, /* StrikePrice */
-        { 203, -1, 0, CoveredOrUncovered_val },
-        { 204, -1, 0, CustomerOrFirm_val },
-        { 205, -1, 0, NULL }, /* MaturityDay */
-        { 206, -1, 0, NULL }, /* OptAttribute */
-        { 207, -1, 0, NULL }, /* SecurityExchange */
-        { 208, -1, 2, NotifyBrokerOfCredit_val },
-        { 209, -1, 0, AllocHandlInst_val },
-        { 210, -1, 0, NULL }, /* MaxShow */
-        { 211, -1, 0, NULL }, /* PegOffsetValue */
-        { 212, -1, 0, NULL }, /* XmlDataLen */
-        { 213, -1, 0, NULL }, /* XmlData */
-        { 214, -1, 0, NULL }, /* SettlInstRefID */
-        { 215, -1, 0, NULL }, /* NoRoutingIDs */
-        { 216, -1, 0, RoutingType_val },
-        { 217, -1, 0, NULL }, /* RoutingID */
-        { 218, -1, 0, NULL }, /* Spread */
-        { 219, -1, 2, Benchmark_val },
-        { 220, -1, 0, NULL }, /* BenchmarkCurveCurrency */
-        { 221, -1, 1, BenchmarkCurveName_val },
-        { 222, -1, 0, NULL }, /* BenchmarkCurvePoint */
-        { 223, -1, 0, NULL }, /* CouponRate */
-        { 224, -1, 0, NULL }, /* CouponPaymentDate */
-        { 225, -1, 0, NULL }, /* IssueDate */
-        { 226, -1, 0, NULL }, /* RepurchaseTerm */
-        { 227, -1, 0, NULL }, /* RepurchaseRate */
-        { 228, -1, 0, NULL }, /* Factor */
-        { 229, -1, 0, NULL }, /* TradeOriginationDate */
-        { 230, -1, 0, NULL }, /* ExDate */
-        { 231, -1, 0, NULL }, /* ContractMultiplier */
-        { 232, -1, 0, NULL }, /* NoStipulations */
-        { 233, -1, 1, StipulationType_val },
-        { 234, -1, 1, StipulationValue_val },
-        { 235, -1, 1, YieldType_val },
-        { 236, -1, 0, NULL }, /* Yield */
-        { 237, -1, 0, NULL }, /* TotalTakedown */
-        { 238, -1, 0, NULL }, /* Concession */
-        { 239, -1, 0, NULL }, /* RepoCollateralSecurityType */
-        { 240, -1, 0, NULL }, /* RedemptionDate */
-        { 241, -1, 0, NULL }, /* UnderlyingCouponPaymentDate */
-        { 242, -1, 0, NULL }, /* UnderlyingIssueDate */
-        { 243, -1, 0, NULL }, /* UnderlyingRepoCollateralSecurityType */
-        { 244, -1, 0, NULL }, /* UnderlyingRepurchaseTerm */
-        { 245, -1, 0, NULL }, /* UnderlyingRepurchaseRate */
-        { 246, -1, 0, NULL }, /* UnderlyingFactor */
-        { 247, -1, 0, NULL }, /* UnderlyingRedemptionDate */
-        { 248, -1, 0, NULL }, /* LegCouponPaymentDate */
-        { 249, -1, 0, NULL }, /* LegIssueDate */
-        { 250, -1, 0, NULL }, /* LegRepoCollateralSecurityType */
-        { 251, -1, 0, NULL }, /* LegRepurchaseTerm */
-        { 252, -1, 0, NULL }, /* LegRepurchaseRate */
-        { 253, -1, 0, NULL }, /* LegFactor */
-        { 254, -1, 0, NULL }, /* LegRedemptionDate */
-        { 255, -1, 0, NULL }, /* CreditRating */
-        { 256, -1, 0, NULL }, /* UnderlyingCreditRating */
-        { 257, -1, 0, NULL }, /* LegCreditRating */
-        { 258, -1, 2, TradedFlatSwitch_val },
-        { 259, -1, 0, NULL }, /* BasisFeatureDate */
-        { 260, -1, 0, NULL }, /* BasisFeaturePrice */
-        { 262, -1, 0, NULL }, /* MDReqID */
-        { 263, -1, 2, SubscriptionRequestType_val },
-        { 264, -1, 0, NULL }, /* MarketDepth */
-        { 265, -1, 0, MDUpdateType_val },
-        { 266, -1, 2, AggregatedBook_val },
-        { 267, -1, 0, NULL }, /* NoMDEntryTypes */
-        { 268, -1, 0, NULL }, /* NoMDEntries */
-        { 269, -1, 2, MDEntryType_val },
-        { 270, -1, 0, NULL }, /* MDEntryPx */
-        { 271, -1, 0, NULL }, /* MDEntrySize */
-        { 272, -1, 0, NULL }, /* MDEntryDate */
-        { 273, -1, 0, NULL }, /* MDEntryTime */
-        { 274, -1, 2, TickDirection_val },
-        { 275, -1, 0, NULL }, /* MDMkt */
-        { 276, -1, 2, QuoteCondition_val },
-        { 277, -1, 2, TradeCondition_val },
-        { 278, -1, 0, NULL }, /* MDEntryID */
-        { 279, -1, 2, MDUpdateAction_val },
-        { 280, -1, 0, NULL }, /* MDEntryRefID */
-        { 281, -1, 2, MDReqRejReason_val },
-        { 282, -1, 0, NULL }, /* MDEntryOriginator */
-        { 283, -1, 0, NULL }, /* LocationID */
-        { 284, -1, 0, NULL }, /* DeskID */
-        { 285, -1, 2, DeleteReason_val },
-        { 286, -1, 2, OpenCloseSettlFlag_val },
-        { 287, -1, 0, NULL }, /* SellerDays */
-        { 288, -1, 0, NULL }, /* MDEntryBuyer */
-        { 289, -1, 0, NULL }, /* MDEntrySeller */
-        { 290, -1, 0, NULL }, /* MDEntryPositionNo */
-        { 291, -1, 2, FinancialStatus_val },
-        { 292, -1, 2, CorporateAction_val },
-        { 293, -1, 0, NULL }, /* DefBidSize */
-        { 294, -1, 0, NULL }, /* DefOfferSize */
-        { 295, -1, 0, NULL }, /* NoQuoteEntries */
-        { 296, -1, 0, NULL }, /* NoQuoteSets */
-        { 297, -1, 0, QuoteStatus_val },
-        { 298, -1, 0, QuoteCancelType_val },
-        { 299, -1, 0, NULL }, /* QuoteEntryID */
-        { 300, -1, 0, QuoteRejectReason_val },
-        { 301, -1, 0, QuoteResponseLevel_val },
-        { 302, -1, 0, NULL }, /* QuoteSetID */
-        { 303, -1, 0, QuoteRequestType_val },
-        { 304, -1, 0, NULL }, /* TotNoQuoteEntries */
-        { 305, -1, 0, NULL }, /* UnderlyingSecurityIDSource */
-        { 306, -1, 0, NULL }, /* UnderlyingIssuer */
-        { 307, -1, 0, NULL }, /* UnderlyingSecurityDesc */
-        { 308, -1, 0, NULL }, /* UnderlyingSecurityExchange */
-        { 309, -1, 0, NULL }, /* UnderlyingSecurityID */
-        { 310, -1, 0, NULL }, /* UnderlyingSecurityType */
-        { 311, -1, 0, NULL }, /* UnderlyingSymbol */
-        { 312, -1, 0, NULL }, /* UnderlyingSymbolSfx */
-        { 313, -1, 0, NULL }, /* UnderlyingMaturityMonthYear */
-        { 314, -1, 0, NULL }, /* UnderlyingMaturityDay */
-        { 315, -1, 0, NULL }, /* UnderlyingPutOrCall */
-        { 316, -1, 0, NULL }, /* UnderlyingStrikePrice */
-        { 317, -1, 0, NULL }, /* UnderlyingOptAttribute */
-        { 318, -1, 0, NULL }, /* UnderlyingCurrency */
-        { 319, -1, 0, NULL }, /* RatioQty */
-        { 320, -1, 0, NULL }, /* SecurityReqID */
-        { 321, -1, 0, SecurityRequestType_val },
-        { 322, -1, 0, NULL }, /* SecurityResponseID */
-        { 323, -1, 0, SecurityResponseType_val },
-        { 324, -1, 0, NULL }, /* SecurityStatusReqID */
-        { 325, -1, 2, UnsolicitedIndicator_val },
-        { 326, -1, 0, SecurityTradingStatus_val },
-        { 327, -1, 0, HaltReasonInt_val },
-        { 328, -1, 2, InViewOfCommon_val },
-        { 329, -1, 2, DueToRelated_val },
-        { 330, -1, 0, NULL }, /* BuyVolume */
-        { 331, -1, 0, NULL }, /* SellVolume */
-        { 332, -1, 0, NULL }, /* HighPx */
-        { 333, -1, 0, NULL }, /* LowPx */
-        { 334, -1, 0, Adjustment_val },
-        { 335, -1, 0, NULL }, /* TradSesReqID */
-        { 336, -1, 1, TradingSessionID_val },
-        { 337, -1, 0, NULL }, /* ContraTrader */
-        { 338, -1, 0, TradSesMethod_val },
-        { 339, -1, 0, TradSesMode_val },
-        { 340, -1, 0, TradSesStatus_val },
-        { 341, -1, 0, NULL }, /* TradSesStartTime */
-        { 342, -1, 0, NULL }, /* TradSesOpenTime */
-        { 343, -1, 0, NULL }, /* TradSesPreCloseTime */
-        { 344, -1, 0, NULL }, /* TradSesCloseTime */
-        { 345, -1, 0, NULL }, /* TradSesEndTime */
-        { 346, -1, 0, NULL }, /* NumberOfOrders */
-        { 347, -1, 1, MessageEncoding_val },
-        { 348, -1, 0, NULL }, /* EncodedIssuerLen */
-        { 349, -1, 0, NULL }, /* EncodedIssuer */
-        { 350, -1, 0, NULL }, /* EncodedSecurityDescLen */
-        { 351, -1, 0, NULL }, /* EncodedSecurityDesc */
-        { 352, -1, 0, NULL }, /* EncodedListExecInstLen */
-        { 353, -1, 0, NULL }, /* EncodedListExecInst */
-        { 354, -1, 0, NULL }, /* EncodedTextLen */
-        { 355, -1, 0, NULL }, /* EncodedText */
-        { 356, -1, 0, NULL }, /* EncodedSubjectLen */
-        { 357, -1, 0, NULL }, /* EncodedSubject */
-        { 358, -1, 0, NULL }, /* EncodedHeadlineLen */
-        { 359, -1, 0, NULL }, /* EncodedHeadline */
-        { 360, -1, 0, NULL }, /* EncodedAllocTextLen */
-        { 361, -1, 0, NULL }, /* EncodedAllocText */
-        { 362, -1, 0, NULL }, /* EncodedUnderlyingIssuerLen */
-        { 363, -1, 0, NULL }, /* EncodedUnderlyingIssuer */
-        { 364, -1, 0, NULL }, /* EncodedUnderlyingSecurityDescLen */
-        { 365, -1, 0, NULL }, /* EncodedUnderlyingSecurityDesc */
-        { 366, -1, 0, NULL }, /* AllocPrice */
-        { 367, -1, 0, NULL }, /* QuoteSetValidUntilTime */
-        { 368, -1, 0, NULL }, /* QuoteEntryRejectReason */
-        { 369, -1, 0, NULL }, /* LastMsgSeqNumProcessed */
-        { 370, -1, 0, NULL }, /* OnBehalfOfSendingTime */
-        { 371, -1, 0, NULL }, /* RefTagID */
-        { 372, -1, 0, NULL }, /* RefMsgType */
-        { 373, -1, 0, SessionRejectReason_val },
-        { 374, -1, 2, BidRequestTransType_val },
-        { 375, -1, 0, NULL }, /* ContraBroker */
-        { 376, -1, 0, NULL }, /* ComplianceID */
-        { 377, -1, 2, SolicitedFlag_val },
-        { 378, -1, 0, ExecRestatementReason_val },
-        { 379, -1, 0, NULL }, /* BusinessRejectRefID */
-        { 380, -1, 0, BusinessRejectReason_val },
-        { 381, -1, 0, NULL }, /* GrossTradeAmt */
-        { 382, -1, 0, NULL }, /* NoContraBrokers */
-        { 383, -1, 0, NULL }, /* MaxMessageSize */
-        { 384, -1, 0, NULL }, /* NoMsgTypes */
-        { 385, -1, 2, MsgDirection_val },
-        { 386, -1, 0, NULL }, /* NoTradingSessions */
-        { 387, -1, 0, NULL }, /* TotalVolumeTraded */
-        { 388, -1, 2, DiscretionInst_val },
-        { 389, -1, 0, NULL }, /* DiscretionOffsetValue */
-        { 390, -1, 0, NULL }, /* BidID */
-        { 391, -1, 0, NULL }, /* ClientBidID */
-        { 392, -1, 0, NULL }, /* ListName */
-        { 393, -1, 0, NULL }, /* TotNoRelatedSym */
-        { 394, -1, 0, BidType_val },
-        { 395, -1, 0, NULL }, /* NumTickets */
-        { 396, -1, 0, NULL }, /* SideValue1 */
-        { 397, -1, 0, NULL }, /* SideValue2 */
-        { 398, -1, 0, NULL }, /* NoBidDescriptors */
-        { 399, -1, 0, BidDescriptorType_val },
-        { 400, -1, 0, NULL }, /* BidDescriptor */
-        { 401, -1, 0, SideValueInd_val },
-        { 402, -1, 0, NULL }, /* LiquidityPctLow */
-        { 403, -1, 0, NULL }, /* LiquidityPctHigh */
-        { 404, -1, 0, NULL }, /* LiquidityValue */
-        { 405, -1, 0, NULL }, /* EFPTrackingError */
-        { 406, -1, 0, NULL }, /* FairValue */
-        { 407, -1, 0, NULL }, /* OutsideIndexPct */
-        { 408, -1, 0, NULL }, /* ValueOfFutures */
-        { 409, -1, 0, LiquidityIndType_val },
-        { 410, -1, 0, NULL }, /* WtAverageLiquidity */
-        { 411, -1, 2, ExchangeForPhysical_val },
-        { 412, -1, 0, NULL }, /* OutMainCntryUIndex */
-        { 413, -1, 0, NULL }, /* CrossPercent */
-        { 414, -1, 0, ProgRptReqs_val },
-        { 415, -1, 0, NULL }, /* ProgPeriodInterval */
-        { 416, -1, 0, IncTaxInd_val },
-        { 417, -1, 0, NULL }, /* NumBidders */
-        { 418, -1, 2, BidTradeType_val },
-        { 419, -1, 2, BasisPxType_val },
-        { 420, -1, 0, NULL }, /* NoBidComponents */
-        { 421, -1, 0, NULL }, /* Country */
-        { 422, -1, 0, NULL }, /* TotNoStrikes */
-        { 423, -1, 0, PriceType_val },
-        { 424, -1, 0, NULL }, /* DayOrderQty */
-        { 425, -1, 0, NULL }, /* DayCumQty */
-        { 426, -1, 0, NULL }, /* DayAvgPx */
-        { 427, -1, 0, GTBookingInst_val },
-        { 428, -1, 0, NULL }, /* NoStrikes */
-        { 429, -1, 0, ListStatusType_val },
-        { 430, -1, 0, NetGrossInd_val },
-        { 431, -1, 0, ListOrderStatus_val },
-        { 432, -1, 0, NULL }, /* ExpireDate */
-        { 433, -1, 2, ListExecInstType_val },
-        { 434, -1, 2, CxlRejResponseTo_val },
-        { 435, -1, 0, NULL }, /* UnderlyingCouponRate */
-        { 436, -1, 0, NULL }, /* UnderlyingContractMultiplier */
-        { 437, -1, 0, NULL }, /* ContraTradeQty */
-        { 438, -1, 0, NULL }, /* ContraTradeTime */
-        { 439, -1, 0, NULL }, /* ClearingFirm */
-        { 440, -1, 0, NULL }, /* ClearingAccount */
-        { 441, -1, 0, NULL }, /* LiquidityNumSecurities */
-        { 442, -1, 2, MultiLegReportingType_val },
-        { 443, -1, 0, NULL }, /* StrikeTime */
-        { 444, -1, 0, NULL }, /* ListStatusText */
-        { 445, -1, 0, NULL }, /* EncodedListStatusTextLen */
-        { 446, -1, 0, NULL }, /* EncodedListStatusText */
-        { 447, -1, 2, PartyIDSource_val },
-        { 448, -1, 0, NULL }, /* PartyID */
-        { 449, -1, 0, NULL }, /* TotalVolumeTradedDate */
-        { 450, -1, 0, NULL }, /* TotalVolumeTradedTime */
-        { 451, -1, 0, NULL }, /* NetChgPrevDay */
-        { 452, -1, 0, PartyRole_val },
-        { 453, -1, 0, NULL }, /* NoPartyIDs */
-        { 454, -1, 0, NULL }, /* NoSecurityAltID */
-        { 455, -1, 0, NULL }, /* SecurityAltID */
-        { 456, -1, 0, NULL }, /* SecurityAltIDSource */
-        { 457, -1, 0, NULL }, /* NoUnderlyingSecurityAltID */
-        { 458, -1, 0, NULL }, /* UnderlyingSecurityAltID */
-        { 459, -1, 0, NULL }, /* UnderlyingSecurityAltIDSource */
-        { 460, -1, 0, Product_val },
-        { 461, -1, 0, NULL }, /* CFICode */
-        { 462, -1, 0, NULL }, /* UnderlyingProduct */
-        { 463, -1, 0, NULL }, /* UnderlyingCFICode */
-        { 464, -1, 2, TestMessageIndicator_val },
-        { 465, -1, 0, QuantityType_val },
-        { 466, -1, 0, NULL }, /* BookingRefID */
-        { 467, -1, 0, NULL }, /* IndividualAllocID */
-        { 468, -1, 2, RoundingDirection_val },
-        { 469, -1, 0, NULL }, /* RoundingModulus */
-        { 470, -1, 0, NULL }, /* CountryOfIssue */
-        { 471, -1, 0, NULL }, /* StateOrProvinceOfIssue */
-        { 472, -1, 0, NULL }, /* LocaleOfIssue */
-        { 473, -1, 0, NULL }, /* NoRegistDtls */
-        { 474, -1, 0, NULL }, /* MailingDtls */
-        { 475, -1, 0, NULL }, /* InvestorCountryOfResidence */
-        { 476, -1, 0, NULL }, /* PaymentRef */
-        { 477, -1, 0, DistribPaymentMethod_val },
-        { 478, -1, 0, NULL }, /* CashDistribCurr */
-        { 479, -1, 0, NULL }, /* CommCurrency */
-        { 480, -1, 2, CancellationRights_val },
-        { 481, -1, 2, MoneyLaunderingStatus_val },
-        { 482, -1, 0, NULL }, /* MailingInst */
-        { 483, -1, 0, NULL }, /* TransBkdTime */
-        { 484, -1, 2, ExecPriceType_val },
-        { 485, -1, 0, NULL }, /* ExecPriceAdjustment */
-        { 486, -1, 0, NULL }, /* DateOfBirth */
-        { 487, -1, 0, TradeReportTransType_val },
-        { 488, -1, 0, NULL }, /* CardHolderName */
-        { 489, -1, 0, NULL }, /* CardNumber */
-        { 490, -1, 0, NULL }, /* CardExpDate */
-        { 491, -1, 0, NULL }, /* CardIssNum */
-        { 492, -1, 0, PaymentMethod_val },
-        { 493, -1, 0, NULL }, /* RegistAcctType */
-        { 494, -1, 0, NULL }, /* Designation */
-        { 495, -1, 0, TaxAdvantageType_val },
-        { 496, -1, 0, NULL }, /* RegistRejReasonText */
-        { 497, -1, 2, FundRenewWaiv_val },
-        { 498, -1, 0, NULL }, /* CashDistribAgentName */
-        { 499, -1, 0, NULL }, /* CashDistribAgentCode */
-        { 500, -1, 0, NULL }, /* CashDistribAgentAcctNumber */
-        { 501, -1, 0, NULL }, /* CashDistribPayRef */
-        { 502, -1, 0, NULL }, /* CashDistribAgentAcctName */
-        { 503, -1, 0, NULL }, /* CardStartDate */
-        { 504, -1, 0, NULL }, /* PaymentDate */
-        { 505, -1, 0, NULL }, /* PaymentRemitterID */
-        { 506, -1, 2, RegistStatus_val },
-        { 507, -1, 0, RegistRejReasonCode_val },
-        { 508, -1, 0, NULL }, /* RegistRefID */
-        { 509, -1, 0, NULL }, /* RegistDtls */
-        { 510, -1, 0, NULL }, /* NoDistribInsts */
-        { 511, -1, 0, NULL }, /* RegistEmail */
-        { 512, -1, 0, NULL }, /* DistribPercentage */
-        { 513, -1, 0, NULL }, /* RegistID */
-        { 514, -1, 2, RegistTransType_val },
-        { 515, -1, 0, NULL }, /* ExecValuationPoint */
-        { 516, -1, 0, NULL }, /* OrderPercent */
-        { 517, -1, 2, OwnershipType_val },
-        { 518, -1, 0, NULL }, /* NoContAmts */
-        { 519, -1, 0, ContAmtType_val },
-        { 520, -1, 0, NULL }, /* ContAmtValue */
-        { 521, -1, 0, NULL }, /* ContAmtCurr */
-        { 522, -1, 0, OwnerType_val },
-        { 523, -1, 0, NULL }, /* PartySubID */
-        { 524, -1, 0, NULL }, /* NestedPartyID */
-        { 525, -1, 0, NULL }, /* NestedPartyIDSource */
-        { 526, -1, 0, NULL }, /* SecondaryClOrdID */
-        { 527, -1, 0, NULL }, /* SecondaryExecID */
-        { 528, -1, 2, OrderCapacity_val },
-        { 529, -1, 2, OrderRestrictions_val },
-        { 530, -1, 2, MassCancelRequestType_val },
-        { 531, -1, 2, MassCancelResponse_val },
-        { 532, -1, 0, MassCancelRejectReason_val },
-        { 533, -1, 0, NULL }, /* TotalAffectedOrders */
-        { 534, -1, 0, NULL }, /* NoAffectedOrders */
-        { 535, -1, 0, NULL }, /* AffectedOrderID */
-        { 536, -1, 0, NULL }, /* AffectedSecondaryOrderID */
-        { 537, -1, 0, QuoteType_val },
-        { 538, -1, 0, NULL }, /* NestedPartyRole */
-        { 539, -1, 0, NULL }, /* NoNestedPartyIDs */
-        { 540, -1, 0, NULL }, /* TotalAccruedInterestAmt */
-        { 541, -1, 0, NULL }, /* MaturityDate */
-        { 542, -1, 0, NULL }, /* UnderlyingMaturityDate */
-        { 543, -1, 0, NULL }, /* InstrRegistry */
-        { 544, -1, 2, CashMargin_val },
-        { 545, -1, 0, NULL }, /* NestedPartySubID */
-        { 546, -1, 2, Scope_val },
-        { 547, -1, 2, MDImplicitDelete_val },
-        { 548, -1, 0, NULL }, /* CrossID */
-        { 549, -1, 0, CrossType_val },
-        { 550, -1, 0, CrossPrioritization_val },
-        { 551, -1, 0, NULL }, /* OrigCrossID */
-        { 552, -1, 2, NoSides_val },
-        { 553, -1, 0, NULL }, /* Username */
-        { 554, -1, 0, NULL }, /* Password */
-        { 555, -1, 0, NULL }, /* NoLegs */
-        { 556, -1, 0, NULL }, /* LegCurrency */
-        { 557, -1, 0, NULL }, /* TotNoSecurityTypes */
-        { 558, -1, 0, NULL }, /* NoSecurityTypes */
-        { 559, -1, 0, SecurityListRequestType_val },
-        { 560, -1, 0, SecurityRequestResult_val },
-        { 561, -1, 0, NULL }, /* RoundLot */
-        { 562, -1, 0, NULL }, /* MinTradeVol */
-        { 563, -1, 0, MultiLegRptTypeReq_val },
-        { 564, -1, 0, NULL }, /* LegPositionEffect */
-        { 565, -1, 0, NULL }, /* LegCoveredOrUncovered */
-        { 566, -1, 0, NULL }, /* LegPrice */
-        { 567, -1, 0, TradSesStatusRejReason_val },
-        { 568, -1, 0, NULL }, /* TradeRequestID */
-        { 569, -1, 0, TradeRequestType_val },
-        { 570, -1, 2, PreviouslyReported_val },
-        { 571, -1, 0, NULL }, /* TradeReportID */
-        { 572, -1, 0, NULL }, /* TradeReportRefID */
-        { 573, -1, 2, MatchStatus_val },
-        { 574, -1, 1, MatchType_val },
-        { 575, -1, 2, OddLot_val },
-        { 576, -1, 0, NULL }, /* NoClearingInstructions */
-        { 577, -1, 0, ClearingInstruction_val },
-        { 578, -1, 0, NULL }, /* TradeInputSource */
-        { 579, -1, 0, NULL }, /* TradeInputDevice */
-        { 580, -1, 0, NULL }, /* NoDates */
-        { 581, -1, 0, AccountType_val },
-        { 582, -1, 0, CustOrderCapacity_val },
-        { 583, -1, 0, NULL }, /* ClOrdLinkID */
-        { 584, -1, 0, NULL }, /* MassStatusReqID */
-        { 585, -1, 0, MassStatusReqType_val },
-        { 586, -1, 0, NULL }, /* OrigOrdModTime */
-        { 587, -1, 0, NULL }, /* LegSettlType */
-        { 588, -1, 0, NULL }, /* LegSettlDate */
-        { 589, -1, 2, DayBookingInst_val },
-        { 590, -1, 2, BookingUnit_val },
-        { 591, -1, 2, PreallocMethod_val },
-        { 592, -1, 0, NULL }, /* UnderlyingCountryOfIssue */
-        { 593, -1, 0, NULL }, /* UnderlyingStateOrProvinceOfIssue */
-        { 594, -1, 0, NULL }, /* UnderlyingLocaleOfIssue */
-        { 595, -1, 0, NULL }, /* UnderlyingInstrRegistry */
-        { 596, -1, 0, NULL }, /* LegCountryOfIssue */
-        { 597, -1, 0, NULL }, /* LegStateOrProvinceOfIssue */
-        { 598, -1, 0, NULL }, /* LegLocaleOfIssue */
-        { 599, -1, 0, NULL }, /* LegInstrRegistry */
-        { 600, -1, 0, NULL }, /* LegSymbol */
-        { 601, -1, 0, NULL }, /* LegSymbolSfx */
-        { 602, -1, 0, NULL }, /* LegSecurityID */
-        { 603, -1, 0, NULL }, /* LegSecurityIDSource */
-        { 604, -1, 0, NULL }, /* NoLegSecurityAltID */
-        { 605, -1, 0, NULL }, /* LegSecurityAltID */
-        { 606, -1, 0, NULL }, /* LegSecurityAltIDSource */
-        { 607, -1, 0, NULL }, /* LegProduct */
-        { 608, -1, 0, NULL }, /* LegCFICode */
-        { 609, -1, 0, NULL }, /* LegSecurityType */
-        { 610, -1, 0, NULL }, /* LegMaturityMonthYear */
-        { 611, -1, 0, NULL }, /* LegMaturityDate */
-        { 612, -1, 0, NULL }, /* LegStrikePrice */
-        { 613, -1, 0, NULL }, /* LegOptAttribute */
-        { 614, -1, 0, NULL }, /* LegContractMultiplier */
-        { 615, -1, 0, NULL }, /* LegCouponRate */
-        { 616, -1, 0, NULL }, /* LegSecurityExchange */
-        { 617, -1, 0, NULL }, /* LegIssuer */
-        { 618, -1, 0, NULL }, /* EncodedLegIssuerLen */
-        { 619, -1, 0, NULL }, /* EncodedLegIssuer */
-        { 620, -1, 0, NULL }, /* LegSecurityDesc */
-        { 621, -1, 0, NULL }, /* EncodedLegSecurityDescLen */
-        { 622, -1, 0, NULL }, /* EncodedLegSecurityDesc */
-        { 623, -1, 0, NULL }, /* LegRatioQty */
-        { 624, -1, 0, NULL }, /* LegSide */
-        { 625, -1, 1, TradingSessionSubID_val },
-        { 626, -1, 0, AllocType_val },
-        { 627, -1, 0, NULL }, /* NoHops */
-        { 628, -1, 0, NULL }, /* HopCompID */
-        { 629, -1, 0, NULL }, /* HopSendingTime */
-        { 630, -1, 0, NULL }, /* HopRefID */
-        { 631, -1, 0, NULL }, /* MidPx */
-        { 632, -1, 0, NULL }, /* BidYield */
-        { 633, -1, 0, NULL }, /* MidYield */
-        { 634, -1, 0, NULL }, /* OfferYield */
-        { 635, -1, 1, ClearingFeeIndicator_val },
-        { 636, -1, 2, WorkingIndicator_val },
-        { 637, -1, 0, NULL }, /* LegLastPx */
-        { 638, -1, 0, PriorityIndicator_val },
-        { 639, -1, 0, NULL }, /* PriceImprovement */
-        { 640, -1, 0, NULL }, /* Price2 */
-        { 641, -1, 0, NULL }, /* LastForwardPoints2 */
-        { 642, -1, 0, NULL }, /* BidForwardPoints2 */
-        { 643, -1, 0, NULL }, /* OfferForwardPoints2 */
-        { 644, -1, 0, NULL }, /* RFQReqID */
-        { 645, -1, 0, NULL }, /* MktBidPx */
-        { 646, -1, 0, NULL }, /* MktOfferPx */
-        { 647, -1, 0, NULL }, /* MinBidSize */
-        { 648, -1, 0, NULL }, /* MinOfferSize */
-        { 649, -1, 0, NULL }, /* QuoteStatusReqID */
-        { 650, -1, 2, LegalConfirm_val },
-        { 651, -1, 0, NULL }, /* UnderlyingLastPx */
-        { 652, -1, 0, NULL }, /* UnderlyingLastQty */
-        { 653, -1, 0, SecDefStatus_val },
-        { 654, -1, 0, NULL }, /* LegRefID */
-        { 655, -1, 0, NULL }, /* ContraLegRefID */
-        { 656, -1, 0, NULL }, /* SettlCurrBidFxRate */
-        { 657, -1, 0, NULL }, /* SettlCurrOfferFxRate */
-        { 658, -1, 0, QuoteRequestRejectReason_val },
-        { 659, -1, 0, NULL }, /* SideComplianceID */
-        { 660, -1, 0, AcctIDSource_val },
-        { 661, -1, 0, NULL }, /* AllocAcctIDSource */
-        { 662, -1, 0, NULL }, /* BenchmarkPrice */
-        { 663, -1, 0, NULL }, /* BenchmarkPriceType */
-        { 664, -1, 0, NULL }, /* ConfirmID */
-        { 665, -1, 0, ConfirmStatus_val },
-        { 666, -1, 0, ConfirmTransType_val },
-        { 667, -1, 0, NULL }, /* ContractSettlMonth */
-        { 668, -1, 0, DeliveryForm_val },
-        { 669, -1, 0, NULL }, /* LastParPx */
-        { 670, -1, 0, NULL }, /* NoLegAllocs */
-        { 671, -1, 0, NULL }, /* LegAllocAccount */
-        { 672, -1, 0, NULL }, /* LegIndividualAllocID */
-        { 673, -1, 0, NULL }, /* LegAllocQty */
-        { 674, -1, 0, NULL }, /* LegAllocAcctIDSource */
-        { 675, -1, 0, NULL }, /* LegSettlCurrency */
-        { 676, -1, 0, NULL }, /* LegBenchmarkCurveCurrency */
-        { 677, -1, 0, NULL }, /* LegBenchmarkCurveName */
-        { 678, -1, 0, NULL }, /* LegBenchmarkCurvePoint */
-        { 679, -1, 0, NULL }, /* LegBenchmarkPrice */
-        { 680, -1, 0, NULL }, /* LegBenchmarkPriceType */
-        { 681, -1, 0, NULL }, /* LegBidPx */
-        { 682, -1, 0, NULL }, /* LegIOIQty */
-        { 683, -1, 0, NULL }, /* NoLegStipulations */
-        { 684, -1, 0, NULL }, /* LegOfferPx */
-        { 685, -1, 0, NULL }, /* LegOrderQty */
-        { 686, -1, 0, NULL }, /* LegPriceType */
-        { 687, -1, 0, NULL }, /* LegQty */
-        { 688, -1, 0, NULL }, /* LegStipulationType */
-        { 689, -1, 0, NULL }, /* LegStipulationValue */
-        { 690, -1, 0, LegSwapType_val },
-        { 691, -1, 0, NULL }, /* Pool */
-        { 692, -1, 0, QuotePriceType_val },
-        { 693, -1, 0, NULL }, /* QuoteRespID */
-        { 694, -1, 0, QuoteRespType_val },
-        { 695, -1, 0, NULL }, /* QuoteQualifier */
-        { 696, -1, 0, NULL }, /* YieldRedemptionDate */
-        { 697, -1, 0, NULL }, /* YieldRedemptionPrice */
-        { 698, -1, 0, NULL }, /* YieldRedemptionPriceType */
-        { 699, -1, 0, NULL }, /* BenchmarkSecurityID */
-        { 700, -1, 0, NULL }, /* ReversalIndicator */
-        { 701, -1, 0, NULL }, /* YieldCalcDate */
-        { 702, -1, 0, NULL }, /* NoPositions */
-        { 703, -1, 1, PosType_val },
-        { 704, -1, 0, NULL }, /* LongQty */
-        { 705, -1, 0, NULL }, /* ShortQty */
-        { 706, -1, 0, PosQtyStatus_val },
-        { 707, -1, 1, PosAmtType_val },
-        { 708, -1, 0, NULL }, /* PosAmt */
-        { 709, -1, 0, PosTransType_val },
-        { 710, -1, 0, NULL }, /* PosReqID */
-        { 711, -1, 0, NULL }, /* NoUnderlyings */
-        { 712, -1, 0, PosMaintAction_val },
-        { 713, -1, 0, NULL }, /* OrigPosReqRefID */
-        { 714, -1, 0, NULL }, /* PosMaintRptRefID */
-        { 715, -1, 0, NULL }, /* ClearingBusinessDate */
-        { 716, -1, 1, SettlSessID_val },
-        { 717, -1, 0, NULL }, /* SettlSessSubID */
-        { 718, -1, 0, AdjustmentType_val },
-        { 719, -1, 0, NULL }, /* ContraryInstructionIndicator */
-        { 720, -1, 0, NULL }, /* PriorSpreadIndicator */
-        { 721, -1, 0, NULL }, /* PosMaintRptID */
-        { 722, -1, 0, PosMaintStatus_val },
-        { 723, -1, 0, PosMaintResult_val },
-        { 724, -1, 0, PosReqType_val },
-        { 725, -1, 0, ResponseTransportType_val },
-        { 726, -1, 0, NULL }, /* ResponseDestination */
-        { 727, -1, 0, NULL }, /* TotalNumPosReports */
-        { 728, -1, 0, PosReqResult_val },
-        { 729, -1, 0, PosReqStatus_val },
-        { 730, -1, 0, NULL }, /* SettlPrice */
-        { 731, -1, 0, SettlPriceType_val },
-        { 732, -1, 0, NULL }, /* UnderlyingSettlPrice */
-        { 733, -1, 0, NULL }, /* UnderlyingSettlPriceType */
-        { 734, -1, 0, NULL }, /* PriorSettlPrice */
-        { 735, -1, 0, NULL }, /* NoQuoteQualifiers */
-        { 736, -1, 0, NULL }, /* AllocSettlCurrency */
-        { 737, -1, 0, NULL }, /* AllocSettlCurrAmt */
-        { 738, -1, 0, NULL }, /* InterestAtMaturity */
-        { 739, -1, 0, NULL }, /* LegDatedDate */
-        { 740, -1, 0, NULL }, /* LegPool */
-        { 741, -1, 0, NULL }, /* AllocInterestAtMaturity */
-        { 742, -1, 0, NULL }, /* AllocAccruedInterestAmt */
-        { 743, -1, 0, NULL }, /* DeliveryDate */
-        { 744, -1, 2, AssignmentMethod_val },
-        { 745, -1, 0, NULL }, /* AssignmentUnit */
-        { 746, -1, 0, NULL }, /* OpenInterest */
-        { 747, -1, 2, ExerciseMethod_val },
-        { 748, -1, 0, NULL }, /* TotNumTradeReports */
-        { 749, -1, 0, TradeRequestResult_val },
-        { 750, -1, 0, TradeRequestStatus_val },
-        { 751, -1, 0, TradeReportRejectReason_val },
-        { 752, -1, 0, SideMultiLegReportingType_val },
-        { 753, -1, 0, NULL }, /* NoPosAmt */
-        { 754, -1, 0, NULL }, /* AutoAcceptIndicator */
-        { 755, -1, 0, NULL }, /* AllocReportID */
-        { 756, -1, 0, NULL }, /* NoNested2PartyIDs */
-        { 757, -1, 0, NULL }, /* Nested2PartyID */
-        { 758, -1, 0, NULL }, /* Nested2PartyIDSource */
-        { 759, -1, 0, NULL }, /* Nested2PartyRole */
-        { 760, -1, 0, NULL }, /* Nested2PartySubID */
-        { 761, -1, 0, NULL }, /* BenchmarkSecurityIDSource */
-        { 762, -1, 0, NULL }, /* SecuritySubType */
-        { 763, -1, 0, NULL }, /* UnderlyingSecuritySubType */
-        { 764, -1, 0, NULL }, /* LegSecuritySubType */
-        { 765, -1, 0, NULL }, /* AllowableOneSidednessPct */
-        { 766, -1, 0, NULL }, /* AllowableOneSidednessValue */
-        { 767, -1, 0, NULL }, /* AllowableOneSidednessCurr */
-        { 768, -1, 0, NULL }, /* NoTrdRegTimestamps */
-        { 769, -1, 0, NULL }, /* TrdRegTimestamp */
-        { 770, -1, 0, TrdRegTimestampType_val },
-        { 771, -1, 0, NULL }, /* TrdRegTimestampOrigin */
-        { 772, -1, 0, NULL }, /* ConfirmRefID */
-        { 773, -1, 0, ConfirmType_val },
-        { 774, -1, 0, ConfirmRejReason_val },
-        { 775, -1, 0, BookingType_val },
-        { 776, -1, 0, NULL }, /* IndividualAllocRejCode */
-        { 777, -1, 0, NULL }, /* SettlInstMsgID */
-        { 778, -1, 0, NULL }, /* NoSettlInst */
-        { 779, -1, 0, NULL }, /* LastUpdateTime */
-        { 780, -1, 0, AllocSettlInstType_val },
-        { 781, -1, 0, NULL }, /* NoSettlPartyIDs */
-        { 782, -1, 0, NULL }, /* SettlPartyID */
-        { 783, -1, 0, NULL }, /* SettlPartyIDSource */
-        { 784, -1, 0, NULL }, /* SettlPartyRole */
-        { 785, -1, 0, NULL }, /* SettlPartySubID */
-        { 786, -1, 0, NULL }, /* SettlPartySubIDType */
-        { 787, -1, 2, DlvyInstType_val },
-        { 788, -1, 0, TerminationType_val },
-        { 789, -1, 0, NULL }, /* NextExpectedMsgSeqNum */
-        { 790, -1, 0, NULL }, /* OrdStatusReqID */
-        { 791, -1, 0, NULL }, /* SettlInstReqID */
-        { 792, -1, 0, SettlInstReqRejCode_val },
-        { 793, -1, 0, NULL }, /* SecondaryAllocID */
-        { 794, -1, 0, AllocReportType_val },
-        { 795, -1, 0, NULL }, /* AllocReportRefID */
-        { 796, -1, 0, AllocCancReplaceReason_val },
-        { 797, -1, 0, NULL }, /* CopyMsgIndicator */
-        { 798, -1, 0, AllocAccountType_val },
-        { 799, -1, 0, NULL }, /* OrderAvgPx */
-        { 800, -1, 0, NULL }, /* OrderBookingQty */
-        { 801, -1, 0, NULL }, /* NoSettlPartySubIDs */
-        { 802, -1, 0, NULL }, /* NoPartySubIDs */
-        { 803, -1, 0, PartySubIDType_val },
-        { 804, -1, 0, NULL }, /* NoNestedPartySubIDs */
-        { 805, -1, 0, NULL }, /* NestedPartySubIDType */
-        { 806, -1, 0, NULL }, /* NoNested2PartySubIDs */
-        { 807, -1, 0, NULL }, /* Nested2PartySubIDType */
-        { 808, -1, 0, AllocIntermedReqType_val },
-        { 810, -1, 0, NULL }, /* UnderlyingPx */
-        { 811, -1, 0, NULL }, /* PriceDelta */
-        { 812, -1, 0, NULL }, /* ApplQueueMax */
-        { 813, -1, 0, NULL }, /* ApplQueueDepth */
-        { 814, -1, 0, ApplQueueResolution_val },
-        { 815, -1, 0, ApplQueueAction_val },
-        { 816, -1, 0, NULL }, /* NoAltMDSource */
-        { 817, -1, 0, NULL }, /* AltMDSourceID */
-        { 818, -1, 0, NULL }, /* SecondaryTradeReportID */
-        { 819, -1, 0, AvgPxIndicator_val },
-        { 820, -1, 0, NULL }, /* TradeLinkID */
-        { 821, -1, 0, NULL }, /* OrderInputDevice */
-        { 822, -1, 0, NULL }, /* UnderlyingTradingSessionID */
-        { 823, -1, 0, NULL }, /* UnderlyingTradingSessionSubID */
-        { 824, -1, 0, NULL }, /* TradeLegRefID */
-        { 825, -1, 0, NULL }, /* ExchangeRule */
-        { 826, -1, 0, TradeAllocIndicator_val },
-        { 827, -1, 0, ExpirationCycle_val },
-        { 828, -1, 0, TrdType_val },
-        { 829, -1, 0, TrdSubType_val },
-        { 830, -1, 0, NULL }, /* TransferReason */
-        { 831, -1, 0, NULL }, /* AsgnReqID */
-        { 832, -1, 0, NULL }, /* TotNumAssignmentReports */
-        { 833, -1, 0, NULL }, /* AsgnRptID */
-        { 834, -1, 0, NULL }, /* ThresholdAmount */
-        { 835, -1, 0, PegMoveType_val },
-        { 836, -1, 0, PegOffsetType_val },
-        { 837, -1, 0, PegLimitType_val },
-        { 838, -1, 0, PegRoundDirection_val },
-        { 839, -1, 0, NULL }, /* PeggedPrice */
-        { 840, -1, 0, PegScope_val },
-        { 841, -1, 0, DiscretionMoveType_val },
-        { 842, -1, 0, DiscretionOffsetType_val },
-        { 843, -1, 0, DiscretionLimitType_val },
-        { 844, -1, 0, DiscretionRoundDirection_val },
-        { 845, -1, 0, NULL }, /* DiscretionPrice */
-        { 846, -1, 0, DiscretionScope_val },
-        { 847, -1, 0, TargetStrategy_val },
-        { 848, -1, 0, NULL }, /* TargetStrategyParameters */
-        { 849, -1, 0, NULL }, /* ParticipationRate */
-        { 850, -1, 0, NULL }, /* TargetStrategyPerformance */
-        { 851, -1, 0, LastLiquidityInd_val },
-        { 852, -1, 2, PublishTrdIndicator_val },
-        { 853, -1, 0, ShortSaleReason_val },
-        { 854, -1, 0, QtyType_val },
-        { 855, -1, 0, NULL }, /* SecondaryTrdType */
-        { 856, -1, 0, TradeReportType_val },
-        { 857, -1, 0, AllocNoOrdersType_val },
-        { 858, -1, 0, NULL }, /* SharedCommission */
-        { 859, -1, 0, NULL }, /* ConfirmReqID */
-        { 860, -1, 0, NULL }, /* AvgParPx */
-        { 861, -1, 0, NULL }, /* ReportedPx */
-        { 862, -1, 0, NULL }, /* NoCapacities */
-        { 863, -1, 0, NULL }, /* OrderCapacityQty */
-        { 864, -1, 0, NULL }, /* NoEvents */
-        { 865, -1, 0, EventType_val },
-        { 866, -1, 0, NULL }, /* EventDate */
-        { 867, -1, 0, NULL }, /* EventPx */
-        { 868, -1, 0, NULL }, /* EventText */
-        { 869, -1, 0, NULL }, /* PctAtRisk */
-        { 870, -1, 0, NULL }, /* NoInstrAttrib */
-        { 871, -1, 0, InstrAttribType_val },
-        { 872, -1, 0, NULL }, /* InstrAttribValue */
-        { 873, -1, 0, NULL }, /* DatedDate */
-        { 874, -1, 0, NULL }, /* InterestAccrualDate */
-        { 875, -1, 0, CPProgram_val },
-        { 876, -1, 0, NULL }, /* CPRegType */
-        { 877, -1, 0, NULL }, /* UnderlyingCPProgram */
-        { 878, -1, 0, NULL }, /* UnderlyingCPRegType */
-        { 879, -1, 0, NULL }, /* UnderlyingQty */
-        { 880, -1, 0, NULL }, /* TrdMatchID */
-        { 881, -1, 0, NULL }, /* SecondaryTradeReportRefID */
-        { 882, -1, 0, NULL }, /* UnderlyingDirtyPrice */
-        { 883, -1, 0, NULL }, /* UnderlyingEndPrice */
-        { 884, -1, 0, NULL }, /* UnderlyingStartValue */
-        { 885, -1, 0, NULL }, /* UnderlyingCurrentValue */
-        { 886, -1, 0, NULL }, /* UnderlyingEndValue */
-        { 887, -1, 0, NULL }, /* NoUnderlyingStips */
-        { 888, -1, 0, NULL }, /* UnderlyingStipType */
-        { 889, -1, 0, NULL }, /* UnderlyingStipValue */
-        { 890, -1, 0, NULL }, /* MaturityNetMoney */
-        { 891, -1, 0, MiscFeeBasis_val },
-        { 892, -1, 0, NULL }, /* TotNoAllocs */
-        { 893, -1, 2, LastFragment_val },
-        { 894, -1, 0, NULL }, /* CollReqID */
-        { 895, -1, 0, CollAsgnReason_val },
-        { 896, -1, 0, CollInquiryQualifier_val },
-        { 897, -1, 0, NULL }, /* NoTrades */
-        { 898, -1, 0, NULL }, /* MarginRatio */
-        { 899, -1, 0, NULL }, /* MarginExcess */
-        { 900, -1, 0, NULL }, /* TotalNetValue */
-        { 901, -1, 0, NULL }, /* CashOutstanding */
-        { 902, -1, 0, NULL }, /* CollAsgnID */
-        { 903, -1, 0, CollAsgnTransType_val },
-        { 904, -1, 0, NULL }, /* CollRespID */
-        { 905, -1, 0, CollAsgnRespType_val },
-        { 906, -1, 0, CollAsgnRejectReason_val },
-        { 907, -1, 0, NULL }, /* CollAsgnRefID */
-        { 908, -1, 0, NULL }, /* CollRptID */
-        { 909, -1, 0, NULL }, /* CollInquiryID */
-        { 910, -1, 0, CollStatus_val },
-        { 911, -1, 0, NULL }, /* TotNumReports */
-        { 912, -1, 2, LastRptRequested_val },
-        { 913, -1, 0, NULL }, /* AgreementDesc */
-        { 914, -1, 0, NULL }, /* AgreementID */
-        { 915, -1, 0, NULL }, /* AgreementDate */
-        { 916, -1, 0, NULL }, /* StartDate */
-        { 917, -1, 0, NULL }, /* EndDate */
-        { 918, -1, 0, NULL }, /* AgreementCurrency */
-        { 919, -1, 0, DeliveryType_val },
-        { 920, -1, 0, NULL }, /* EndAccruedInterestAmt */
-        { 921, -1, 0, NULL }, /* StartCash */
-        { 922, -1, 0, NULL }, /* EndCash */
-        { 923, -1, 0, NULL }, /* UserRequestID */
-        { 924, -1, 0, UserRequestType_val },
-        { 925, -1, 0, NULL }, /* NewPassword */
-        { 926, -1, 0, UserStatus_val },
-        { 927, -1, 0, NULL }, /* UserStatusText */
-        { 928, -1, 0, StatusValue_val },
-        { 929, -1, 0, NULL }, /* StatusText */
-        { 930, -1, 0, NULL }, /* RefCompID */
-        { 931, -1, 0, NULL }, /* RefSubID */
-        { 932, -1, 0, NULL }, /* NetworkResponseID */
-        { 933, -1, 0, NULL }, /* NetworkRequestID */
-        { 934, -1, 0, NULL }, /* LastNetworkResponseID */
-        { 935, -1, 0, NetworkRequestType_val },
-        { 936, -1, 0, NULL }, /* NoCompIDs */
-        { 937, -1, 0, NetworkStatusResponseType_val },
-        { 938, -1, 0, NULL }, /* NoCollInquiryQualifier */
-        { 939, -1, 0, TrdRptStatus_val },
-        { 940, -1, 0, AffirmStatus_val },
-        { 941, -1, 0, NULL }, /* UnderlyingStrikeCurrency */
-        { 942, -1, 0, NULL }, /* LegStrikeCurrency */
-        { 943, -1, 0, NULL }, /* TimeBracket */
-        { 944, -1, 0, CollAction_val },
-        { 945, -1, 0, CollInquiryStatus_val },
-        { 946, -1, 0, CollInquiryResult_val },
-        { 947, -1, 0, NULL }, /* StrikeCurrency */
-        { 948, -1, 0, NULL }, /* NoNested3PartyIDs */
-        { 949, -1, 0, NULL }, /* Nested3PartyID */
-        { 950, -1, 0, NULL }, /* Nested3PartyIDSource */
-        { 951, -1, 0, NULL }, /* Nested3PartyRole */
-        { 952, -1, 0, NULL }, /* NoNested3PartySubIDs */
-        { 953, -1, 0, NULL }, /* Nested3PartySubID */
-        { 954, -1, 0, NULL }, /* Nested3PartySubIDType */
-        { 955, -1, 0, NULL }, /* LegContractSettlMonth */
-        { 956, -1, 0, NULL }, /* LegInterestAccrualDate */
-        { 957, -1, 0, NULL }, /* NoStrategyParameters */
-        { 958, -1, 0, NULL }, /* StrategyParameterName */
-        { 959, -1, 0, StrategyParameterType_val },
-        { 960, -1, 0, NULL }, /* StrategyParameterValue */
-        { 961, -1, 0, NULL }, /* HostCrossID */
-        { 962, -1, 0, NULL }, /* SideTimeInForce */
-        { 963, -1, 0, NULL }, /* MDReportID */
-        { 964, -1, 0, NULL }, /* SecurityReportID */
-        { 965, -1, 1, SecurityStatus_val },
-        { 966, -1, 0, NULL }, /* SettleOnOpenFlag */
-        { 967, -1, 0, NULL }, /* StrikeMultiplier */
-        { 968, -1, 0, NULL }, /* StrikeValue */
-        { 969, -1, 0, NULL }, /* MinPriceIncrement */
-        { 970, -1, 0, NULL }, /* PositionLimit */
-        { 971, -1, 0, NULL }, /* NTPositionLimit */
-        { 972, -1, 0, NULL }, /* UnderlyingAllocationPercent */
-        { 973, -1, 0, NULL }, /* UnderlyingCashAmount */
-        { 974, -1, 1, UnderlyingCashType_val },
-        { 975, -1, 0, UnderlyingSettlementType_val },
-        { 976, -1, 0, NULL }, /* QuantityDate */
-        { 977, -1, 0, NULL }, /* ContIntRptID */
-        { 978, -1, 0, NULL }, /* LateIndicator */
-        { 979, -1, 0, NULL }, /* InputSource */
-        { 980, -1, 2, SecurityUpdateAction_val },
-        { 981, -1, 0, NULL }, /* NoExpiration */
-        { 982, -1, 0, ExpirationQtyType_val },
-        { 983, -1, 0, NULL }, /* ExpQty */
-        { 984, -1, 0, NULL }, /* NoUnderlyingAmounts */
-        { 985, -1, 0, NULL }, /* UnderlyingPayAmount */
-        { 986, -1, 0, NULL }, /* UnderlyingCollectAmount */
-        { 987, -1, 0, NULL }, /* UnderlyingSettlementDate */
-        { 988, -1, 0, NULL }, /* UnderlyingSettlementStatus */
-        { 989, -1, 0, NULL }, /* SecondaryIndividualAllocID */
-        { 990, -1, 0, NULL }, /* LegReportID */
-        { 991, -1, 0, NULL }, /* RndPx */
-        { 992, -1, 0, IndividualAllocType_val },
-        { 993, -1, 0, NULL }, /* AllocCustomerCapacity */
-        { 994, -1, 0, NULL }, /* TierCode */
-        { 996, -1, 1, UnitOfMeasure_val },
-        { 997, -1, 1, TimeUnit_val },
-        { 998, -1, 0, NULL }, /* UnderlyingUnitOfMeasure */
-        { 999, -1, 0, NULL }, /* LegUnitOfMeasure */
-        { 1000, -1, 0, NULL }, /* UnderlyingTimeUnit */
-        { 1001, -1, 0, NULL }, /* LegTimeUnit */
-        { 1002, -1, 0, AllocMethod_val },
-        { 1003, -1, 0, NULL }, /* TradeID */
-        { 1005, -1, 0, NULL }, /* SideTradeReportID */
-        { 1006, -1, 0, NULL }, /* SideFillStationCd */
-        { 1007, -1, 0, NULL }, /* SideReasonCd */
-        { 1008, -1, 0, NULL }, /* SideTrdSubTyp */
-        { 1009, -1, 0, NULL }, /* SideLastQty */
-        { 1011, -1, 0, NULL }, /* MessageEventSource */
-        { 1012, -1, 0, NULL }, /* SideTrdRegTimestamp */
-        { 1013, -1, 0, NULL }, /* SideTrdRegTimestampType */
-        { 1014, -1, 0, NULL }, /* SideTrdRegTimestampSrc */
-        { 1015, -1, 2, AsOfIndicator_val },
-        { 1016, -1, 0, NULL }, /* NoSideTrdRegTS */
-        { 1017, -1, 0, NULL }, /* LegOptionRatio */
-        { 1018, -1, 0, NULL }, /* NoInstrumentParties */
-        { 1019, -1, 0, NULL }, /* InstrumentPartyID */
-        { 1020, -1, 0, NULL }, /* TradeVolume */
-        { 1021, -1, 0, MDBookType_val },
-        { 1022, -1, 0, NULL }, /* MDFeedType */
-        { 1023, -1, 0, NULL }, /* MDPriceLevel */
-        { 1024, -1, 0, MDOriginType_val },
-        { 1025, -1, 0, NULL }, /* FirstPx */
-        { 1026, -1, 0, NULL }, /* MDEntrySpotRate */
-        { 1027, -1, 0, NULL }, /* MDEntryForwardPoints */
-        { 1028, -1, 0, NULL }, /* ManualOrderIndicator */
-        { 1029, -1, 0, NULL }, /* CustDirectedOrder */
-        { 1030, -1, 0, NULL }, /* ReceivedDeptID */
-        { 1031, -1, 2, CustOrderHandlingInst_val },
-        { 1032, -1, 0, OrderHandlingInstSource_val },
-        { 1033, -1, 1, DeskType_val },
-        { 1034, -1, 0, DeskTypeSource_val },
-        { 1035, -1, 2, DeskOrderHandlingInst_val },
-        { 1036, -1, 2, ExecAckStatus_val },
-        { 1037, -1, 0, NULL }, /* UnderlyingDeliveryAmount */
-        { 1038, -1, 0, NULL }, /* UnderlyingCapValue */
-        { 1039, -1, 0, NULL }, /* UnderlyingSettlMethod */
-        { 1040, -1, 0, NULL }, /* SecondaryTradeID */
-        { 1041, -1, 0, NULL }, /* FirmTradeID */
-        { 1042, -1, 0, NULL }, /* SecondaryFirmTradeID */
-        { 1043, -1, 0, CollApplType_val },
-        { 1044, -1, 0, NULL }, /* UnderlyingAdjustedQuantity */
-        { 1045, -1, 0, NULL }, /* UnderlyingFXRate */
-        { 1046, -1, 2, UnderlyingFXRateCalc_val },
-        { 1047, -1, 2, AllocPositionEffect_val },
-        { 1048, -1, 2, DealingCapacity_val },
-        { 1049, -1, 0, NULL }, /* InstrmtAssignmentMethod */
-        { 1050, -1, 0, NULL }, /* InstrumentPartyIDSource */
-        { 1051, -1, 0, NULL }, /* InstrumentPartyRole */
-        { 1052, -1, 0, NULL }, /* NoInstrumentPartySubIDs */
-        { 1053, -1, 0, NULL }, /* InstrumentPartySubID */
-        { 1054, -1, 0, NULL }, /* InstrumentPartySubIDType */
-        { 1055, -1, 0, NULL }, /* PositionCurrency */
-        { 1056, -1, 0, NULL }, /* CalculatedCcyLastQty */
-        { 1057, -1, 2, AggressorIndicator_val },
-        { 1058, -1, 0, NULL }, /* NoUndlyInstrumentParties */
-        { 1059, -1, 0, NULL }, /* UnderlyingInstrumentPartyID */
-        { 1060, -1, 0, NULL }, /* UnderlyingInstrumentPartyIDSource */
-        { 1061, -1, 0, NULL }, /* UnderlyingInstrumentPartyRole */
-        { 1062, -1, 0, NULL }, /* NoUndlyInstrumentPartySubIDs */
-        { 1063, -1, 0, NULL }, /* UnderlyingInstrumentPartySubID */
-        { 1064, -1, 0, NULL }, /* UnderlyingInstrumentPartySubIDType */
-        { 1065, -1, 0, NULL }, /* BidSwapPoints */
-        { 1066, -1, 0, NULL }, /* OfferSwapPoints */
-        { 1067, -1, 0, NULL }, /* LegBidForwardPoints */
-        { 1068, -1, 0, NULL }, /* LegOfferForwardPoints */
-        { 1069, -1, 0, NULL }, /* SwapPoints */
-        { 1070, -1, 0, MDQuoteType_val },
-        { 1071, -1, 0, NULL }, /* LastSwapPoints */
-        { 1072, -1, 0, NULL }, /* SideGrossTradeAmt */
-        { 1073, -1, 0, NULL }, /* LegLastForwardPoints */
-        { 1074, -1, 0, NULL }, /* LegCalculatedCcyLastQty */
-        { 1075, -1, 0, NULL }, /* LegGrossTradeAmt */
-        { 1079, -1, 0, NULL }, /* MaturityTime */
-        { 1080, -1, 0, NULL }, /* RefOrderID */
-        { 1081, -1, 2, RefOrderIDSource_val },
-        { 1082, -1, 0, NULL }, /* SecondaryDisplayQty */
-        { 1083, -1, 2, DisplayWhen_val },
-        { 1084, -1, 2, DisplayMethod_val },
-        { 1085, -1, 0, NULL }, /* DisplayLowQty */
-        { 1086, -1, 0, NULL }, /* DisplayHighQty */
-        { 1087, -1, 0, NULL }, /* DisplayMinIncr */
-        { 1088, -1, 0, NULL }, /* RefreshQty */
-        { 1089, -1, 0, NULL }, /* MatchIncrement */
-        { 1090, -1, 0, NULL }, /* MaxPriceLevels */
-        { 1091, -1, 0, NULL }, /* PreTradeAnonymity */
-        { 1092, -1, 2, PriceProtectionScope_val },
-        { 1093, -1, 2, LotType_val },
-        { 1094, -1, 0, PegPriceType_val },
-        { 1095, -1, 0, NULL }, /* PeggedRefPrice */
-        { 1096, -1, 0, NULL }, /* PegSecurityIDSource */
-        { 1097, -1, 0, NULL }, /* PegSecurityID */
-        { 1098, -1, 0, NULL }, /* PegSymbol */
-        { 1099, -1, 0, NULL }, /* PegSecurityDesc */
-        { 1100, -1, 2, TriggerType_val },
-        { 1101, -1, 2, TriggerAction_val },
-        { 1102, -1, 0, NULL }, /* TriggerPrice */
-        { 1103, -1, 0, NULL }, /* TriggerSymbol */
-        { 1104, -1, 0, NULL }, /* TriggerSecurityID */
-        { 1105, -1, 0, NULL }, /* TriggerSecurityIDSource */
-        { 1106, -1, 0, NULL }, /* TriggerSecurityDesc */
-        { 1107, -1, 2, TriggerPriceType_val },
-        { 1108, -1, 2, TriggerPriceTypeScope_val },
-        { 1109, -1, 2, TriggerPriceDirection_val },
-        { 1110, -1, 0, NULL }, /* TriggerNewPrice */
-        { 1111, -1, 2, TriggerOrderType_val },
-        { 1112, -1, 0, NULL }, /* TriggerNewQty */
-        { 1113, -1, 0, NULL }, /* TriggerTradingSessionID */
-        { 1114, -1, 0, NULL }, /* TriggerTradingSessionSubID */
-        { 1115, -1, 2, OrderCategory_val },
-        { 1116, -1, 0, NULL }, /* NoRootPartyIDs */
-        { 1117, -1, 0, NULL }, /* RootPartyID */
-        { 1118, -1, 0, NULL }, /* RootPartyIDSource */
-        { 1119, -1, 0, NULL }, /* RootPartyRole */
-        { 1120, -1, 0, NULL }, /* NoRootPartySubIDs */
-        { 1121, -1, 0, NULL }, /* RootPartySubID */
-        { 1122, -1, 0, NULL }, /* RootPartySubIDType */
-        { 1123, -1, 2, TradeHandlingInstr_val },
-        { 1124, -1, 0, NULL }, /* OrigTradeHandlingInstr */
-        { 1125, -1, 0, NULL }, /* OrigTradeDate */
-        { 1126, -1, 0, NULL }, /* OrigTradeID */
-        { 1127, -1, 0, NULL }, /* OrigSecondaryTradeID */
-        { 1128, -1, 1, ApplVerID_val },
-        { 1129, -1, 0, NULL }, /* CstmApplVerID */
-        { 1130, -1, 0, NULL }, /* RefApplVerID */
-        { 1131, -1, 0, NULL }, /* RefCstmApplVerID */
-        { 1132, -1, 0, NULL }, /* TZTransactTime */
-        { 1133, -1, 2, ExDestinationIDSource_val },
-        { 1134, -1, 0, NULL }, /* ReportedPxDiff */
-        { 1135, -1, 0, NULL }, /* RptSys */
-        { 1136, -1, 0, NULL }, /* AllocClearingFeeIndicator */
-        { 1137, -1, 0, NULL }, /* DefaultApplVerID */
-        { 1138, -1, 0, NULL }, /* DisplayQty */
-        { 1139, -1, 0, NULL }, /* ExchangeSpecialInstructions */
-        { 1140, -1, 0, NULL }, /* MaxTradeVol */
-        { 1141, -1, 0, NULL }, /* NoMDFeedTypes */
-        { 1142, -1, 0, NULL }, /* MatchAlgorithm */
-        { 1143, -1, 0, NULL }, /* MaxPriceVariation */
-        { 1144, -1, 0, ImpliedMarketIndicator_val },
-        { 1145, -1, 0, NULL }, /* EventTime */
-        { 1146, -1, 0, NULL }, /* MinPriceIncrementAmount */
-        { 1147, -1, 0, NULL }, /* UnitOfMeasureQty */
-        { 1148, -1, 0, NULL }, /* LowLimitPrice */
-        { 1149, -1, 0, NULL }, /* HighLimitPrice */
-        { 1150, -1, 0, NULL }, /* TradingReferencePrice */
-        { 1151, -1, 0, NULL }, /* SecurityGroup */
-        { 1152, -1, 0, NULL }, /* LegNumber */
-        { 1153, -1, 0, NULL }, /* SettlementCycleNo */
-        { 1154, -1, 0, NULL }, /* SideCurrency */
-        { 1155, -1, 0, NULL }, /* SideSettlCurrency */
-        { 1156, -1, 0, NULL }, /* ApplExtID */
-        { 1157, -1, 0, NULL }, /* CcyAmt */
-        { 1158, -1, 0, NULL }, /* NoSettlDetails */
-        { 1159, -1, 0, SettlObligMode_val },
-        { 1160, -1, 0, NULL }, /* SettlObligMsgID */
-        { 1161, -1, 0, NULL }, /* SettlObligID */
-        { 1162, -1, 2, SettlObligTransType_val },
-        { 1163, -1, 0, NULL }, /* SettlObligRefID */
-        { 1164, -1, 2, SettlObligSource_val },
-        { 1165, -1, 0, NULL }, /* NoSettlOblig */
-        { 1166, -1, 0, NULL }, /* QuoteMsgID */
-        { 1167, -1, 0, QuoteEntryStatus_val },
-        { 1168, -1, 0, NULL }, /* TotNoCxldQuotes */
-        { 1169, -1, 0, NULL }, /* TotNoAccQuotes */
-        { 1170, -1, 0, NULL }, /* TotNoRejQuotes */
-        { 1171, -1, 0, NULL }, /* PrivateQuote */
-        { 1172, -1, 0, RespondentType_val },
-        { 1173, -1, 0, NULL }, /* MDSubBookType */
-        { 1174, -1, 0, SecurityTradingEvent_val },
-        { 1175, -1, 0, NULL }, /* NoStatsIndicators */
-        { 1176, -1, 0, StatsType_val },
-        { 1177, -1, 0, NULL }, /* NoOfSecSizes */
-        { 1178, -1, 0, MDSecSizeType_val },
-        { 1179, -1, 0, NULL }, /* MDSecSize */
-        { 1180, -1, 0, NULL }, /* ApplID */
-        { 1181, -1, 0, NULL }, /* ApplSeqNum */
-        { 1182, -1, 0, NULL }, /* ApplBegSeqNum */
-        { 1183, -1, 0, NULL }, /* ApplEndSeqNum */
-        { 1184, -1, 0, NULL }, /* SecurityXMLLen */
-        { 1185, -1, 0, NULL }, /* SecurityXML */
-        { 1186, -1, 0, NULL }, /* SecurityXMLSchema */
-        { 1187, -1, 0, NULL }, /* RefreshIndicator */
-        { 1188, -1, 0, NULL }, /* Volatility */
-        { 1189, -1, 0, NULL }, /* TimeToExpiration */
-        { 1190, -1, 0, NULL }, /* RiskFreeRate */
-        { 1191, -1, 0, NULL }, /* PriceUnitOfMeasure */
-        { 1192, -1, 0, NULL }, /* PriceUnitOfMeasureQty */
-        { 1193, -1, 2, SettlMethod_val },
-        { 1194, -1, 0, ExerciseStyle_val },
-        { 1195, -1, 0, NULL }, /* OptPayoutAmount */
-        { 1196, -1, 1, PriceQuoteMethod_val },
-        { 1197, -1, 1, ValuationMethod_val },
-        { 1198, -1, 0, ListMethod_val },
-        { 1199, -1, 0, NULL }, /* CapPrice */
-        { 1200, -1, 0, NULL }, /* FloorPrice */
-        { 1201, -1, 0, NULL }, /* NoStrikeRules */
-        { 1202, -1, 0, NULL }, /* StartStrikePxRange */
-        { 1203, -1, 0, NULL }, /* EndStrikePxRange */
-        { 1204, -1, 0, NULL }, /* StrikeIncrement */
-        { 1205, -1, 0, NULL }, /* NoTickRules */
-        { 1206, -1, 0, NULL }, /* StartTickPriceRange */
-        { 1207, -1, 0, NULL }, /* EndTickPriceRange */
-        { 1208, -1, 0, NULL }, /* TickIncrement */
-        { 1209, -1, 0, TickRuleType_val },
-        { 1210, -1, 0, NULL }, /* NestedInstrAttribType */
-        { 1211, -1, 0, NULL }, /* NestedInstrAttribValue */
-        { 1212, -1, 0, NULL }, /* LegMaturityTime */
-        { 1213, -1, 0, NULL }, /* UnderlyingMaturityTime */
-        { 1214, -1, 0, NULL }, /* DerivativeSymbol */
-        { 1215, -1, 0, NULL }, /* DerivativeSymbolSfx */
-        { 1216, -1, 0, NULL }, /* DerivativeSecurityID */
-        { 1217, -1, 0, NULL }, /* DerivativeSecurityIDSource */
-        { 1218, -1, 0, NULL }, /* NoDerivativeSecurityAltID */
-        { 1219, -1, 0, NULL }, /* DerivativeSecurityAltID */
-        { 1220, -1, 0, NULL }, /* DerivativeSecurityAltIDSource */
-        { 1221, -1, 0, NULL }, /* SecondaryLowLimitPrice */
-        { 1222, -1, 0, NULL }, /* MaturityRuleID */
-        { 1223, -1, 0, NULL }, /* StrikeRuleID */
-        { 1224, -1, 0, NULL }, /* LegUnitOfMeasureQty */
-        { 1225, -1, 0, NULL }, /* DerivativeOptPayAmount */
-        { 1226, -1, 0, NULL }, /* EndMaturityMonthYear */
-        { 1227, -1, 0, NULL }, /* ProductComplex */
-        { 1228, -1, 0, NULL }, /* DerivativeProductComplex */
-        { 1229, -1, 0, NULL }, /* MaturityMonthYearIncrement */
-        { 1230, -1, 0, NULL }, /* SecondaryHighLimitPrice */
-        { 1231, -1, 0, NULL }, /* MinLotSize */
-        { 1232, -1, 0, NULL }, /* NoExecInstRules */
-        { 1234, -1, 0, NULL }, /* NoLotTypeRules */
-        { 1235, -1, 0, NULL }, /* NoMatchRules */
-        { 1236, -1, 0, NULL }, /* NoMaturityRules */
-        { 1237, -1, 0, NULL }, /* NoOrdTypeRules */
-        { 1239, -1, 0, NULL }, /* NoTimeInForceRules */
-        { 1240, -1, 0, NULL }, /* SecondaryTradingReferencePrice */
-        { 1241, -1, 0, NULL }, /* StartMaturityMonthYear */
-        { 1242, -1, 0, NULL }, /* FlexProductEligibilityIndicator */
-        { 1243, -1, 0, NULL }, /* DerivFlexProductEligibilityIndicator */
-        { 1244, -1, 0, NULL }, /* FlexibleIndicator */
-        { 1245, -1, 0, NULL }, /* TradingCurrency */
-        { 1246, -1, 0, NULL }, /* DerivativeProduct */
-        { 1247, -1, 0, NULL }, /* DerivativeSecurityGroup */
-        { 1248, -1, 0, NULL }, /* DerivativeCFICode */
-        { 1249, -1, 0, NULL }, /* DerivativeSecurityType */
-        { 1250, -1, 0, NULL }, /* DerivativeSecuritySubType */
-        { 1251, -1, 0, NULL }, /* DerivativeMaturityMonthYear */
-        { 1252, -1, 0, NULL }, /* DerivativeMaturityDate */
-        { 1253, -1, 0, NULL }, /* DerivativeMaturityTime */
-        { 1254, -1, 0, NULL }, /* DerivativeSettleOnOpenFlag */
-        { 1255, -1, 0, NULL }, /* DerivativeInstrmtAssignmentMethod */
-        { 1256, -1, 0, NULL }, /* DerivativeSecurityStatus */
-        { 1257, -1, 0, NULL }, /* DerivativeInstrRegistry */
-        { 1258, -1, 0, NULL }, /* DerivativeCountryOfIssue */
-        { 1259, -1, 0, NULL }, /* DerivativeStateOrProvinceOfIssue */
-        { 1260, -1, 0, NULL }, /* DerivativeLocaleOfIssue */
-        { 1261, -1, 0, NULL }, /* DerivativeStrikePrice */
-        { 1262, -1, 0, NULL }, /* DerivativeStrikeCurrency */
-        { 1263, -1, 0, NULL }, /* DerivativeStrikeMultiplier */
-        { 1264, -1, 0, NULL }, /* DerivativeStrikeValue */
-        { 1265, -1, 0, NULL }, /* DerivativeOptAttribute */
-        { 1266, -1, 0, NULL }, /* DerivativeContractMultiplier */
-        { 1267, -1, 0, NULL }, /* DerivativeMinPriceIncrement */
-        { 1268, -1, 0, NULL }, /* DerivativeMinPriceIncrementAmount */
-        { 1269, -1, 0, NULL }, /* DerivativeUnitOfMeasure */
-        { 1270, -1, 0, NULL }, /* DerivativeUnitOfMeasureQty */
-        { 1271, -1, 0, NULL }, /* DerivativeTimeUnit */
-        { 1272, -1, 0, NULL }, /* DerivativeSecurityExchange */
-        { 1273, -1, 0, NULL }, /* DerivativePositionLimit */
-        { 1274, -1, 0, NULL }, /* DerivativeNTPositionLimit */
-        { 1275, -1, 0, NULL }, /* DerivativeIssuer */
-        { 1276, -1, 0, NULL }, /* DerivativeIssueDate */
-        { 1277, -1, 0, NULL }, /* DerivativeEncodedIssuerLen */
-        { 1278, -1, 0, NULL }, /* DerivativeEncodedIssuer */
-        { 1279, -1, 0, NULL }, /* DerivativeSecurityDesc */
-        { 1280, -1, 0, NULL }, /* DerivativeEncodedSecurityDescLen */
-        { 1281, -1, 0, NULL }, /* DerivativeEncodedSecurityDesc */
-        { 1282, -1, 0, NULL }, /* DerivativeSecurityXMLLen */
-        { 1283, -1, 0, NULL }, /* DerivativeSecurityXML */
-        { 1284, -1, 0, NULL }, /* DerivativeSecurityXMLSchema */
-        { 1285, -1, 0, NULL }, /* DerivativeContractSettlMonth */
-        { 1286, -1, 0, NULL }, /* NoDerivativeEvents */
-        { 1287, -1, 0, NULL }, /* DerivativeEventType */
-        { 1288, -1, 0, NULL }, /* DerivativeEventDate */
-        { 1289, -1, 0, NULL }, /* DerivativeEventTime */
-        { 1290, -1, 0, NULL }, /* DerivativeEventPx */
-        { 1291, -1, 0, NULL }, /* DerivativeEventText */
-        { 1292, -1, 0, NULL }, /* NoDerivativeInstrumentParties */
-        { 1293, -1, 0, NULL }, /* DerivativeInstrumentPartyID */
-        { 1294, -1, 0, NULL }, /* DerivativeInstrumentPartyIDSource */
-        { 1295, -1, 0, NULL }, /* DerivativeInstrumentPartyRole */
-        { 1296, -1, 0, NULL }, /* NoDerivativeInstrumentPartySubIDs */
-        { 1297, -1, 0, NULL }, /* DerivativeInstrumentPartySubID */
-        { 1298, -1, 0, NULL }, /* DerivativeInstrumentPartySubIDType */
-        { 1299, -1, 0, NULL }, /* DerivativeExerciseStyle */
-        { 1300, -1, 0, NULL }, /* MarketSegmentID */
-        { 1301, -1, 0, NULL }, /* MarketID */
-        { 1302, -1, 0, MaturityMonthYearIncrementUnits_val },
-        { 1303, -1, 0, MaturityMonthYearFormat_val },
-        { 1304, -1, 0, NULL }, /* StrikeExerciseStyle */
-        { 1305, -1, 0, NULL }, /* SecondaryPriceLimitType */
-        { 1306, -1, 0, PriceLimitType_val },
-        { 1307, -1, 0, DerivativeSecurityListRequestType_val },
-        { 1308, -1, 0, NULL }, /* ExecInstValue */
-        { 1309, -1, 0, NULL }, /* NoTradingSessionRules */
-        { 1310, -1, 0, NULL }, /* NoMarketSegments */
-        { 1311, -1, 0, NULL }, /* NoDerivativeInstrAttrib */
-        { 1312, -1, 0, NULL }, /* NoNestedInstrAttrib */
-        { 1313, -1, 0, NULL }, /* DerivativeInstrAttribType */
-        { 1314, -1, 0, NULL }, /* DerivativeInstrAttribValue */
-        { 1315, -1, 0, NULL }, /* DerivativePriceUnitOfMeasure */
-        { 1316, -1, 0, NULL }, /* DerivativePriceUnitOfMeasureQty */
-        { 1317, -1, 0, NULL }, /* DerivativeSettlMethod */
-        { 1318, -1, 0, NULL }, /* DerivativePriceQuoteMethod */
-        { 1319, -1, 0, NULL }, /* DerivativeValuationMethod */
-        { 1320, -1, 0, NULL }, /* DerivativeListMethod */
-        { 1321, -1, 0, NULL }, /* DerivativeCapPrice */
-        { 1322, -1, 0, NULL }, /* DerivativeFloorPrice */
-        { 1323, -1, 0, NULL }, /* DerivativePutOrCall */
-        { 1324, -1, 0, NULL }, /* ListUpdateAction */
-        { 1325, -1, 0, NULL }, /* ParentMktSegmID */
-        { 1326, -1, 0, NULL }, /* TradingSessionDesc */
-        { 1327, -1, 0, NULL }, /* TradSesUpdateAction */
-        { 1328, -1, 0, NULL }, /* RejectText */
-        { 1329, -1, 0, NULL }, /* FeeMultiplier */
-        { 1330, -1, 0, NULL }, /* UnderlyingLegSymbol */
-        { 1331, -1, 0, NULL }, /* UnderlyingLegSymbolSfx */
-        { 1332, -1, 0, NULL }, /* UnderlyingLegSecurityID */
-        { 1333, -1, 0, NULL }, /* UnderlyingLegSecurityIDSource */
-        { 1334, -1, 0, NULL }, /* NoUnderlyingLegSecurityAltID */
-        { 1335, -1, 0, NULL }, /* UnderlyingLegSecurityAltID */
-        { 1336, -1, 0, NULL }, /* UnderlyingLegSecurityAltIDSource */
-        { 1337, -1, 0, NULL }, /* UnderlyingLegSecurityType */
-        { 1338, -1, 0, NULL }, /* UnderlyingLegSecuritySubType */
-        { 1339, -1, 0, NULL }, /* UnderlyingLegMaturityMonthYear */
-        { 1340, -1, 0, NULL }, /* UnderlyingLegStrikePrice */
-        { 1341, -1, 0, NULL }, /* UnderlyingLegSecurityExchange */
-        { 1342, -1, 0, NULL }, /* NoOfLegUnderlyings */
-        { 1343, -1, 0, NULL }, /* UnderlyingLegPutOrCall */
-        { 1344, -1, 0, NULL }, /* UnderlyingLegCFICode */
-        { 1345, -1, 0, NULL }, /* UnderlyingLegMaturityDate */
-        { 1346, -1, 0, NULL }, /* ApplReqID */
-        { 1347, -1, 0, ApplReqType_val },
-        { 1348, -1, 0, ApplResponseType_val },
-        { 1349, -1, 0, NULL }, /* ApplTotalMessageCount */
-        { 1350, -1, 0, NULL }, /* ApplLastSeqNum */
-        { 1351, -1, 0, NULL }, /* NoApplIDs */
-        { 1352, -1, 0, NULL }, /* ApplResendFlag */
-        { 1353, -1, 0, NULL }, /* ApplResponseID */
-        { 1354, -1, 0, ApplResponseError_val },
-        { 1355, -1, 0, NULL }, /* RefApplID */
-        { 1356, -1, 0, NULL }, /* ApplReportID */
-        { 1357, -1, 0, NULL }, /* RefApplLastSeqNum */
-        { 1358, -1, 0, NULL }, /* LegPutOrCall */
-        { 1359, -1, 0, NULL }, /* EncodedSymbolLen */
-        { 1360, -1, 0, NULL }, /* EncodedSymbol */
-        { 1361, -1, 0, NULL }, /* TotNoFills */
-        { 1362, -1, 0, NULL }, /* NoFills */
-        { 1363, -1, 0, NULL }, /* FillExecID */
-        { 1364, -1, 0, NULL }, /* FillPx */
-        { 1365, -1, 0, NULL }, /* FillQty */
-        { 1366, -1, 0, NULL }, /* LegAllocID */
-        { 1367, -1, 0, NULL }, /* LegAllocSettlCurrency */
-        { 1368, -1, 0, TradSesEvent_val },
-        { 1369, -1, 0, NULL }, /* MassActionReportID */
-        { 1370, -1, 0, NULL }, /* NoNotAffectedOrders */
-        { 1371, -1, 0, NULL }, /* NotAffectedOrderID */
-        { 1372, -1, 0, NULL }, /* NotAffOrigClOrdID */
-        { 1373, -1, 0, MassActionType_val },
-        { 1374, -1, 0, MassActionScope_val },
-        { 1375, -1, 0, MassActionResponse_val },
-        { 1376, -1, 0, MassActionRejectReason_val },
-        { 1377, -1, 0, MultilegModel_val },
-        { 1378, -1, 0, MultilegPriceMethod_val },
-        { 1379, -1, 0, NULL }, /* LegVolatility */
-        { 1380, -1, 0, NULL }, /* DividendYield */
-        { 1381, -1, 0, NULL }, /* LegDividendYield */
-        { 1382, -1, 0, NULL }, /* CurrencyRatio */
-        { 1383, -1, 0, NULL }, /* LegCurrencyRatio */
-        { 1384, -1, 0, NULL }, /* LegExecInst */
-        { 1385, -1, 0, ContingencyType_val },
-        { 1386, -1, 0, ListRejectReason_val },
-        { 1387, -1, 0, NULL }, /* NoTrdRepIndicators */
-        { 1388, -1, 0, NULL }, /* TrdRepPartyRole */
-        { 1389, -1, 0, NULL }, /* TrdRepIndicator */
-        { 1390, -1, 0, TradePublishIndicator_val },
-        { 1391, -1, 0, NULL }, /* UnderlyingLegOptAttribute */
-        { 1392, -1, 0, NULL }, /* UnderlyingLegSecurityDesc */
-        { 1393, -1, 0, NULL }, /* MarketReqID */
-        { 1394, -1, 0, NULL }, /* MarketReportID */
-        { 1395, -1, 2, MarketUpdateAction_val },
-        { 1396, -1, 0, NULL }, /* MarketSegmentDesc */
-        { 1397, -1, 0, NULL }, /* EncodedMktSegmDescLen */
-        { 1398, -1, 0, NULL }, /* EncodedMktSegmDesc */
-        { 1399, -1, 0, NULL }, /* ApplNewSeqNum */
-        { 1400, -1, 0, NULL }, /* EncryptedPasswordMethod */
-        { 1401, -1, 0, NULL }, /* EncryptedPasswordLen */
-        { 1402, -1, 0, NULL }, /* EncryptedPassword */
-        { 1403, -1, 0, NULL }, /* EncryptedNewPasswordLen */
-        { 1404, -1, 0, NULL }, /* EncryptedNewPassword */
-        { 1405, -1, 0, NULL }, /* UnderlyingLegMaturityTime */
-        { 1406, -1, 0, NULL }, /* RefApplExtID */
-        { 1407, -1, 0, NULL }, /* DefaultApplExtID */
-        { 1408, -1, 0, NULL }, /* DefaultCstmApplVerID */
-        { 1409, -1, 0, SessionStatus_val },
-        { 1410, -1, 0, NULL }, /* DefaultVerIndicator */
-        { 1411, -1, 0, NULL }, /* Nested4PartySubIDType */
-        { 1412, -1, 0, NULL }, /* Nested4PartySubID */
-        { 1413, -1, 0, NULL }, /* NoNested4PartySubIDs */
-        { 1414, -1, 0, NULL }, /* NoNested4PartyIDs */
-        { 1415, -1, 0, NULL }, /* Nested4PartyID */
-        { 1416, -1, 0, NULL }, /* Nested4PartyIDSource */
-        { 1417, -1, 0, NULL }, /* Nested4PartyRole */
-        { 1418, -1, 0, NULL }, /* LegLastQty */
-        { 1419, -1, 0, NULL }, /* UnderlyingExerciseStyle */
-        { 1420, -1, 0, NULL }, /* LegExerciseStyle */
-        { 1421, -1, 0, NULL }, /* LegPriceUnitOfMeasure */
-        { 1422, -1, 0, NULL }, /* LegPriceUnitOfMeasureQty */
-        { 1423, -1, 0, NULL }, /* UnderlyingUnitOfMeasureQty */
-        { 1424, -1, 0, NULL }, /* UnderlyingPriceUnitOfMeasure */
-        { 1425, -1, 0, NULL }, /* UnderlyingPriceUnitOfMeasureQty */
-        { 1426, -1, 0, ApplReportType_val },
-        { 1427, -1, 0, NULL }, /* SideExecID */
-        { 1428, -1, 0, NULL }, /* OrderDelay */
-        { 1429, -1, 0, OrderDelayUnit_val },
-        { 1430, -1, 2, VenueType_val },
-        { 1431, -1, 0, RefOrdIDReason_val },
-        { 1432, -1, 0, OrigCustOrderCapacity_val },
-        { 1433, -1, 0, NULL }, /* RefApplReqID */
-        { 1434, -1, 0, ModelType_val },
-        { 1435, -1, 0, ContractMultiplierUnit_val },
-        { 1436, -1, 0, NULL }, /* LegContractMultiplierUnit */
-        { 1437, -1, 0, NULL }, /* UnderlyingContractMultiplierUnit */
-        { 1438, -1, 0, NULL }, /* DerivativeContractMultiplierUnit */
-        { 1439, -1, 0, FlowScheduleType_val },
-        { 1440, -1, 0, NULL }, /* LegFlowScheduleType */
-        { 1441, -1, 0, NULL }, /* UnderlyingFlowScheduleType */
-        { 1442, -1, 0, NULL }, /* DerivativeFlowScheduleType */
-        { 1443, -1, 0, NULL }, /* FillLiquidityInd */
-        { 1444, -1, 0, NULL }, /* SideLiquidityInd */
-        { 1445, -1, 0, NULL }, /* NoRateSources */
-        { 1446, -1, 0, RateSource_val },
-        { 1447, -1, 0, RateSourceType_val },
-        { 1448, -1, 0, NULL }, /* ReferencePage */
-        { 1449, -1, 1, RestructuringType_val },
-        { 1450, -1, 1, Seniority_val },
-        { 1451, -1, 0, NULL }, /* NotionalPercentageOutstanding */
-        { 1452, -1, 0, NULL }, /* OriginalNotionalPercentageOutstanding */
-        { 1453, -1, 0, NULL }, /* UnderlyingRestructuringType */
-        { 1454, -1, 0, NULL }, /* UnderlyingSeniority */
-        { 1455, -1, 0, NULL }, /* UnderlyingNotionalPercentageOutstanding */
-        { 1456, -1, 0, NULL }, /* UnderlyingOriginalNotionalPercentageOutstanding */
-        { 1457, -1, 0, NULL }, /* AttachmentPoint */
-        { 1458, -1, 0, NULL }, /* DetachmentPoint */
-        { 1459, -1, 0, NULL }, /* UnderlyingAttachmentPoint */
-        { 1460, -1, 0, NULL }, /* UnderlyingDetachmentPoint */
-        { 1461, -1, 0, NULL }, /* NoTargetPartyIDs */
-        { 1462, -1, 0, NULL }, /* TargetPartyID */
-        { 1463, -1, 0, NULL }, /* TargetPartyIDSource */
-        { 1464, -1, 0, NULL }, /* TargetPartyRole */
-        { 1465, -1, 0, NULL }, /* SecurityListID */
-        { 1466, -1, 0, NULL }, /* SecurityListRefID */
-        { 1467, -1, 0, NULL }, /* SecurityListDesc */
-        { 1468, -1, 0, NULL }, /* EncodedSecurityListDescLen */
-        { 1469, -1, 0, NULL }, /* EncodedSecurityListDesc */
-        { 1470, -1, 0, SecurityListType_val },
-        { 1471, -1, 0, SecurityListTypeSource_val },
-        { 1472, -1, 0, NULL }, /* NewsID */
-        { 1473, -1, 0, NewsCategory_val },
-        { 1474, -1, 0, NULL }, /* LanguageCode */
-        { 1475, -1, 0, NULL }, /* NoNewsRefIDs */
-        { 1476, -1, 0, NULL }, /* NewsRefID */
-        { 1477, -1, 0, NewsRefType_val },
-        { 1478, -1, 0, StrikePriceDeterminationMethod_val },
-        { 1479, -1, 0, StrikePriceBoundaryMethod_val },
-        { 1480, -1, 0, NULL }, /* StrikePriceBoundaryPrecision */
-        { 1481, -1, 0, UnderlyingPriceDeterminationMethod_val },
-        { 1482, -1, 0, OptPayoutType_val },
-        { 1483, -1, 0, NULL }, /* NoComplexEvents */
-        { 1484, -1, 0, ComplexEventType_val },
-        { 1485, -1, 0, NULL }, /* ComplexOptPayoutAmount */
-        { 1486, -1, 0, NULL }, /* ComplexEventPrice */
-        { 1487, -1, 0, ComplexEventPriceBoundaryMethod_val },
-        { 1488, -1, 0, NULL }, /* ComplexEventPriceBoundaryPrecision */
-        { 1489, -1, 0, ComplexEventPriceTimeType_val },
-        { 1490, -1, 0, ComplexEventCondition_val },
-        { 1491, -1, 0, NULL }, /* NoComplexEventDates */
-        { 1492, -1, 0, NULL }, /* ComplexEventStartDate */
-        { 1493, -1, 0, NULL }, /* ComplexEventEndDate */
-        { 1494, -1, 0, NULL }, /* NoComplexEventTimes */
-        { 1495, -1, 0, NULL }, /* ComplexEventStartTime */
-        { 1496, -1, 0, NULL }, /* ComplexEventEndTime */
-        { 1497, -1, 0, NULL }, /* StreamAsgnReqID */
-        { 1498, -1, 0, StreamAsgnReqType_val },
-        { 1499, -1, 0, NULL }, /* NoAsgnReqs */
-        { 1500, -1, 0, NULL }, /* MDStreamID */
-        { 1501, -1, 0, NULL }, /* StreamAsgnRptID */
-        { 1502, -1, 0, StreamAsgnRejReason_val },
-        { 1503, -1, 0, StreamAsgnAckType_val },
-        { 1504, -1, 0, NULL }, /* RelSymTransactTime */
-        { 1505, -1, 0, NULL }, /* PartyDetailsListRequestID */
-        { 1506, -1, 0, NULL }, /* NoPartyListResponseTypes */
-        { 1507, -1, 0, PartyListResponseType_val },
-        { 1508, -1, 0, NULL }, /* NoRequestedPartyRoles */
-        { 1509, -1, 0, NULL }, /* RequestedPartyRole */
-        { 1510, -1, 0, NULL }, /* PartyDetailsListReportID */
-        { 1511, -1, 0, PartyDetailsRequestResult_val },
-        { 1512, -1, 0, NULL }, /* TotNoPartyList */
-        { 1513, -1, 0, NULL }, /* NoPartyList */
-        { 1514, -1, 0, NULL }, /* NoPartyRelationships */
-        { 1515, -1, 0, PartyRelationship_val },
-        { 1516, -1, 0, NULL }, /* NoPartyAltIDs */
-        { 1517, -1, 0, NULL }, /* PartyAltID */
-        { 1518, -1, 0, NULL }, /* PartyAltIDSource */
-        { 1519, -1, 0, NULL }, /* NoPartyAltSubIDs */
-        { 1520, -1, 0, NULL }, /* PartyAltSubID */
-        { 1521, -1, 0, NULL }, /* PartyAltSubIDType */
-        { 1522, -1, 0, NULL }, /* NoContextPartyIDs */
-        { 1523, -1, 0, NULL }, /* ContextPartyID */
-        { 1524, -1, 0, NULL }, /* ContextPartyIDSource */
-        { 1525, -1, 0, NULL }, /* ContextPartyRole */
-        { 1526, -1, 0, NULL }, /* NoContextPartySubIDs */
-        { 1527, -1, 0, NULL }, /* ContextPartySubID */
-        { 1528, -1, 0, NULL }, /* ContextPartySubIDType */
-        { 1529, -1, 0, NULL }, /* NoRiskLimits */
-        { 1530, -1, 0, RiskLimitType_val },
-        { 1531, -1, 0, NULL }, /* RiskLimitAmount */
-        { 1532, -1, 0, NULL }, /* RiskLimitCurrency */
-        { 1533, -1, 0, NULL }, /* RiskLimitPlatform */
-        { 1534, -1, 0, NULL }, /* NoRiskInstruments */
-        { 1535, -1, 0, RiskInstrumentOperator_val },
-        { 1536, -1, 0, NULL }, /* RiskSymbol */
-        { 1537, -1, 0, NULL }, /* RiskSymbolSfx */
-        { 1538, -1, 0, NULL }, /* RiskSecurityID */
-        { 1539, -1, 0, NULL }, /* RiskSecurityIDSource */
-        { 1540, -1, 0, NULL }, /* NoRiskSecurityAltID */
-        { 1541, -1, 0, NULL }, /* RiskSecurityAltID */
-        { 1542, -1, 0, NULL }, /* RiskSecurityAltIDSource */
-        { 1543, -1, 0, NULL }, /* RiskProduct */
-        { 1544, -1, 0, NULL }, /* RiskProductComplex */
-        { 1545, -1, 0, NULL }, /* RiskSecurityGroup */
-        { 1546, -1, 0, NULL }, /* RiskCFICode */
-        { 1547, -1, 0, NULL }, /* RiskSecurityType */
-        { 1548, -1, 0, NULL }, /* RiskSecuritySubType */
-        { 1549, -1, 0, NULL }, /* RiskMaturityMonthYear */
-        { 1550, -1, 0, NULL }, /* RiskMaturityTime */
-        { 1551, -1, 0, NULL }, /* RiskRestructuringType */
-        { 1552, -1, 0, NULL }, /* RiskSeniority */
-        { 1553, -1, 0, NULL }, /* RiskPutOrCall */
-        { 1554, -1, 0, NULL }, /* RiskFlexibleIndicator */
-        { 1555, -1, 0, NULL }, /* RiskCouponRate */
-        { 1556, -1, 0, NULL }, /* RiskSecurityDesc */
-        { 1557, -1, 0, NULL }, /* RiskInstrumentSettlType */
-        { 1558, -1, 0, NULL }, /* RiskInstrumentMultiplier */
-        { 1559, -1, 0, NULL }, /* NoRiskWarningLevels */
-        { 1560, -1, 0, NULL }, /* RiskWarningLevelPercent */
-        { 1561, -1, 0, NULL }, /* RiskWarningLevelName */
-        { 1562, -1, 0, NULL }, /* NoRelatedPartyIDs */
-        { 1563, -1, 0, NULL }, /* RelatedPartyID */
-        { 1564, -1, 0, NULL }, /* RelatedPartyIDSource */
-        { 1565, -1, 0, NULL }, /* RelatedPartyRole */
-        { 1566, -1, 0, NULL }, /* NoRelatedPartySubIDs */
-        { 1567, -1, 0, NULL }, /* RelatedPartySubID */
-        { 1568, -1, 0, NULL }, /* RelatedPartySubIDType */
-        { 1569, -1, 0, NULL }, /* NoRelatedPartyAltIDs */
-        { 1570, -1, 0, NULL }, /* RelatedPartyAltID */
-        { 1571, -1, 0, NULL }, /* RelatedPartyAltIDSource */
-        { 1572, -1, 0, NULL }, /* NoRelatedPartyAltSubIDs */
-        { 1573, -1, 0, NULL }, /* RelatedPartyAltSubID */
-        { 1574, -1, 0, NULL }, /* RelatedPartyAltSubIDType */
-        { 1575, -1, 0, NULL }, /* NoRelatedContextPartyIDs */
-        { 1576, -1, 0, NULL }, /* RelatedContextPartyID */
-        { 1577, -1, 0, NULL }, /* RelatedContextPartyIDSource */
-        { 1578, -1, 0, NULL }, /* RelatedContextPartyRole */
-        { 1579, -1, 0, NULL }, /* NoRelatedContextPartySubIDs */
-        { 1580, -1, 0, NULL }, /* RelatedContextPartySubID */
-        { 1581, -1, 0, NULL }, /* RelatedContextPartySubIDType */
-        { 1582, -1, 0, NULL }, /* NoRelationshipRiskLimits */
-        { 1583, -1, 0, NULL }, /* RelationshipRiskLimitType */
-        { 1584, -1, 0, NULL }, /* RelationshipRiskLimitAmount */
-        { 1585, -1, 0, NULL }, /* RelationshipRiskLimitCurrency */
-        { 1586, -1, 0, NULL }, /* RelationshipRiskLimitPlatform */
-        { 1587, -1, 0, NULL }, /* NoRelationshipRiskInstruments */
-        { 1588, -1, 0, NULL }, /* RelationshipRiskInstrumentOperator */
-        { 1589, -1, 0, NULL }, /* RelationshipRiskSymbol */
-        { 1590, -1, 0, NULL }, /* RelationshipRiskSymbolSfx */
-        { 1591, -1, 0, NULL }, /* RelationshipRiskSecurityID */
-        { 1592, -1, 0, NULL }, /* RelationshipRiskSecurityIDSource */
-        { 1593, -1, 0, NULL }, /* NoRelationshipRiskSecurityAltID */
-        { 1594, -1, 0, NULL }, /* RelationshipRiskSecurityAltID */
-        { 1595, -1, 0, NULL }, /* RelationshipRiskSecurityAltIDSource */
-        { 1596, -1, 0, NULL }, /* RelationshipRiskProduct */
-        { 1597, -1, 0, NULL }, /* RelationshipRiskProductComplex */
-        { 1598, -1, 0, NULL }, /* RelationshipRiskSecurityGroup */
-        { 1599, -1, 0, NULL }, /* RelationshipRiskCFICode */
-        { 1600, -1, 0, NULL }, /* RelationshipRiskSecurityType */
-        { 1601, -1, 0, NULL }, /* RelationshipRiskSecuritySubType */
-        { 1602, -1, 0, NULL }, /* RelationshipRiskMaturityMonthYear */
-        { 1603, -1, 0, NULL }, /* RelationshipRiskMaturityTime */
-        { 1604, -1, 0, NULL }, /* RelationshipRiskRestructuringType */
-        { 1605, -1, 0, NULL }, /* RelationshipRiskSeniority */
-        { 1606, -1, 0, NULL }, /* RelationshipRiskPutOrCall */
-        { 1607, -1, 0, NULL }, /* RelationshipRiskFlexibleIndicator */
-        { 1608, -1, 0, NULL }, /* RelationshipRiskCouponRate */
-        { 1609, -1, 0, NULL }, /* RelationshipRiskSecurityExchange */
-        { 1610, -1, 0, NULL }, /* RelationshipRiskSecurityDesc */
-        { 1611, -1, 0, NULL }, /* RelationshipRiskInstrumentSettlType */
-        { 1612, -1, 0, NULL }, /* RelationshipRiskInstrumentMultiplier */
-        { 1613, -1, 0, NULL }, /* NoRelationshipRiskWarningLevels */
-        { 1614, -1, 0, NULL }, /* RelationshipRiskWarningLevelPercent */
-        { 1615, -1, 0, NULL }, /* RelationshipRiskWarningLevelName */
-        { 1616, -1, 0, NULL }, /* RiskSecurityExchange */
-        { 1617, -1, 0, StreamAsgnType_val },
-        { 1618, -1, 0, NULL }, /* RelationshipRiskEncodedSecurityDescLen */
-        { 1619, -1, 0, NULL }, /* RelationshipRiskEncodedSecurityDesc */
-        { 1620, -1, 0, NULL }, /* RiskEncodedSecurityDescLen */
-        { 1621, -1, 0, NULL }, /* RiskEncodedSecurityDesc */
+        { 1, 0, NULL }, /* Account */
+        { 2, 0, NULL }, /* AdvId */
+        { 3, 0, NULL }, /* AdvRefID */
+        { 4, 2, AdvSide_val },
+        { 5, 1, AdvTransType_val },
+        { 6, 0, NULL }, /* AvgPx */
+        { 7, 0, NULL }, /* BeginSeqNo */
+        { 8, 0, NULL }, /* BeginString */
+        { 9, 0, NULL }, /* BodyLength */
+        { 10, 0, NULL }, /* CheckSum */
+        { 11, 0, NULL }, /* ClOrdID */
+        { 12, 0, NULL }, /* Commission */
+        { 13, 2, CommType_val },
+        { 14, 0, NULL }, /* CumQty */
+        { 15, 0, NULL }, /* Currency */
+        { 16, 0, NULL }, /* EndSeqNo */
+        { 17, 0, NULL }, /* ExecID */
+        { 18, 2, ExecInst_val },
+        { 19, 0, NULL }, /* ExecRefID */
+        { 20, 2, ExecTransType_val },
+        { 21, 2, HandlInst_val },
+        { 22, 1, SecurityIDSource_val },
+        { 23, 0, NULL }, /* IOIID */
+        { 24, 0, NULL }, /* IOIOthSvc */
+        { 25, 2, IOIQltyInd_val },
+        { 26, 0, NULL }, /* IOIRefID */
+        { 27, 1, IOIQty_val },
+        { 28, 2, IOITransType_val },
+        { 29, 2, LastCapacity_val },
+        { 30, 0, NULL }, /* LastMkt */
+        { 31, 0, NULL }, /* LastPx */
+        { 32, 0, NULL }, /* LastQty */
+        { 33, 0, NULL }, /* NoLinesOfText */
+        { 34, 0, NULL }, /* MsgSeqNum */
+        { 35, 1, MsgType_val },
+        { 36, 0, NULL }, /* NewSeqNo */
+        { 37, 0, NULL }, /* OrderID */
+        { 38, 0, NULL }, /* OrderQty */
+        { 39, 2, OrdStatus_val },
+        { 40, 2, OrdType_val },
+        { 41, 0, NULL }, /* OrigClOrdID */
+        { 42, 0, NULL }, /* OrigTime */
+        { 43, 2, PossDupFlag_val },
+        { 44, 0, NULL }, /* Price */
+        { 45, 0, NULL }, /* RefSeqNum */
+        { 46, 0, NULL }, /* RelatdSym */
+        { 47, 2, Rule80A_val },
+        { 48, 0, NULL }, /* SecurityID */
+        { 49, 0, NULL }, /* SenderCompID */
+        { 50, 0, NULL }, /* SenderSubID */
+        { 51, 0, NULL }, /* SendingDate */
+        { 52, 0, NULL }, /* SendingTime */
+        { 53, 0, NULL }, /* Quantity */
+        { 54, 2, Side_val },
+        { 55, 0, NULL }, /* Symbol */
+        { 56, 0, NULL }, /* TargetCompID */
+        { 57, 0, NULL }, /* TargetSubID */
+        { 58, 0, NULL }, /* Text */
+        { 59, 2, TimeInForce_val },
+        { 60, 0, NULL }, /* TransactTime */
+        { 61, 2, Urgency_val },
+        { 62, 0, NULL }, /* ValidUntilTime */
+        { 63, 1, SettlType_val },
+        { 64, 0, NULL }, /* SettlDate */
+        { 65, 1, SymbolSfx_val },
+        { 66, 0, NULL }, /* ListID */
+        { 67, 0, NULL }, /* ListSeqNo */
+        { 68, 0, NULL }, /* TotNoOrders */
+        { 69, 0, NULL }, /* ListExecInst */
+        { 70, 0, NULL }, /* AllocID */
+        { 71, 2, AllocTransType_val },
+        { 72, 0, NULL }, /* RefAllocID */
+        { 73, 0, NULL }, /* NoOrders */
+        { 74, 0, NULL }, /* AvgPxPrecision */
+        { 75, 0, NULL }, /* TradeDate */
+        { 76, 0, NULL }, /* ExecBroker */
+        { 77, 2, PositionEffect_val },
+        { 78, 0, NULL }, /* NoAllocs */
+        { 79, 0, NULL }, /* AllocAccount */
+        { 80, 0, NULL }, /* AllocQty */
+        { 81, 2, ProcessCode_val },
+        { 82, 0, NULL }, /* NoRpts */
+        { 83, 0, NULL }, /* RptSeq */
+        { 84, 0, NULL }, /* CxlQty */
+        { 85, 0, NULL }, /* NoDlvyInst */
+        { 86, 0, NULL }, /* DlvyInst */
+        { 87, 0, AllocStatus_val },
+        { 88, 0, AllocRejCode_val },
+        { 89, 0, NULL }, /* Signature */
+        { 90, 0, NULL }, /* SecureDataLen */
+        { 91, 0, NULL }, /* SecureData */
+        { 92, 0, NULL }, /* BrokerOfCredit */
+        { 93, 0, NULL }, /* SignatureLength */
+        { 94, 2, EmailType_val },
+        { 95, 0, NULL }, /* RawDataLength */
+        { 96, 0, NULL }, /* RawData */
+        { 97, 2, PossResend_val },
+        { 98, 0, EncryptMethod_val },
+        { 99, 0, NULL }, /* StopPx */
+        { 100, 0, NULL }, /* ExDestination */
+        { 102, 0, CxlRejReason_val },
+        { 103, 0, OrdRejReason_val },
+        { 104, 2, IOIQualifier_val },
+        { 105, 0, NULL }, /* WaveNo */
+        { 106, 0, NULL }, /* Issuer */
+        { 107, 0, NULL }, /* SecurityDesc */
+        { 108, 0, NULL }, /* HeartBtInt */
+        { 109, 0, NULL }, /* ClientID */
+        { 110, 0, NULL }, /* MinQty */
+        { 111, 0, NULL }, /* MaxFloor */
+        { 112, 0, NULL }, /* TestReqID */
+        { 113, 2, ReportToExch_val },
+        { 114, 2, LocateReqd_val },
+        { 115, 0, NULL }, /* OnBehalfOfCompID */
+        { 116, 0, NULL }, /* OnBehalfOfSubID */
+        { 117, 0, NULL }, /* QuoteID */
+        { 118, 0, NULL }, /* NetMoney */
+        { 119, 0, NULL }, /* SettlCurrAmt */
+        { 120, 0, NULL }, /* SettlCurrency */
+        { 121, 2, ForexReq_val },
+        { 122, 0, NULL }, /* OrigSendingTime */
+        { 123, 2, GapFillFlag_val },
+        { 124, 0, NULL }, /* NoExecs */
+        { 125, 0, NULL }, /* CxlType */
+        { 126, 0, NULL }, /* ExpireTime */
+        { 127, 2, DKReason_val },
+        { 128, 0, NULL }, /* DeliverToCompID */
+        { 129, 0, NULL }, /* DeliverToSubID */
+        { 130, 2, IOINaturalFlag_val },
+        { 131, 0, NULL }, /* QuoteReqID */
+        { 132, 0, NULL }, /* BidPx */
+        { 133, 0, NULL }, /* OfferPx */
+        { 134, 0, NULL }, /* BidSize */
+        { 135, 0, NULL }, /* OfferSize */
+        { 136, 0, NULL }, /* NoMiscFees */
+        { 137, 0, NULL }, /* MiscFeeAmt */
+        { 138, 0, NULL }, /* MiscFeeCurr */
+        { 139, 1, MiscFeeType_val },
+        { 140, 0, NULL }, /* PrevClosePx */
+        { 141, 2, ResetSeqNumFlag_val },
+        { 142, 0, NULL }, /* SenderLocationID */
+        { 143, 0, NULL }, /* TargetLocationID */
+        { 144, 0, NULL }, /* OnBehalfOfLocationID */
+        { 145, 0, NULL }, /* DeliverToLocationID */
+        { 146, 0, NULL }, /* NoRelatedSym */
+        { 147, 0, NULL }, /* Subject */
+        { 148, 0, NULL }, /* Headline */
+        { 149, 0, NULL }, /* URLLink */
+        { 150, 2, ExecType_val },
+        { 151, 0, NULL }, /* LeavesQty */
+        { 152, 0, NULL }, /* CashOrderQty */
+        { 153, 0, NULL }, /* AllocAvgPx */
+        { 154, 0, NULL }, /* AllocNetMoney */
+        { 155, 0, NULL }, /* SettlCurrFxRate */
+        { 156, 2, SettlCurrFxRateCalc_val },
+        { 157, 0, NULL }, /* NumDaysInterest */
+        { 158, 0, NULL }, /* AccruedInterestRate */
+        { 159, 0, NULL }, /* AccruedInterestAmt */
+        { 160, 2, SettlInstMode_val },
+        { 161, 0, NULL }, /* AllocText */
+        { 162, 0, NULL }, /* SettlInstID */
+        { 163, 2, SettlInstTransType_val },
+        { 164, 0, NULL }, /* EmailThreadID */
+        { 165, 2, SettlInstSource_val },
+        { 166, 1, SettlLocation_val },
+        { 167, 1, SecurityType_val },
+        { 168, 0, NULL }, /* EffectiveTime */
+        { 169, 0, StandInstDbType_val },
+        { 170, 0, NULL }, /* StandInstDbName */
+        { 171, 0, NULL }, /* StandInstDbID */
+        { 172, 0, SettlDeliveryType_val },
+        { 173, 0, NULL }, /* SettlDepositoryCode */
+        { 174, 0, NULL }, /* SettlBrkrCode */
+        { 175, 0, NULL }, /* SettlInstCode */
+        { 176, 0, NULL }, /* SecuritySettlAgentName */
+        { 177, 0, NULL }, /* SecuritySettlAgentCode */
+        { 178, 0, NULL }, /* SecuritySettlAgentAcctNum */
+        { 179, 0, NULL }, /* SecuritySettlAgentAcctName */
+        { 180, 0, NULL }, /* SecuritySettlAgentContactName */
+        { 181, 0, NULL }, /* SecuritySettlAgentContactPhone */
+        { 182, 0, NULL }, /* CashSettlAgentName */
+        { 183, 0, NULL }, /* CashSettlAgentCode */
+        { 184, 0, NULL }, /* CashSettlAgentAcctNum */
+        { 185, 0, NULL }, /* CashSettlAgentAcctName */
+        { 186, 0, NULL }, /* CashSettlAgentContactName */
+        { 187, 0, NULL }, /* CashSettlAgentContactPhone */
+        { 188, 0, NULL }, /* BidSpotRate */
+        { 189, 0, NULL }, /* BidForwardPoints */
+        { 190, 0, NULL }, /* OfferSpotRate */
+        { 191, 0, NULL }, /* OfferForwardPoints */
+        { 192, 0, NULL }, /* OrderQty2 */
+        { 193, 0, NULL }, /* SettlDate2 */
+        { 194, 0, NULL }, /* LastSpotRate */
+        { 195, 0, NULL }, /* LastForwardPoints */
+        { 196, 0, NULL }, /* AllocLinkID */
+        { 197, 0, AllocLinkType_val },
+        { 198, 0, NULL }, /* SecondaryOrderID */
+        { 199, 0, NULL }, /* NoIOIQualifiers */
+        { 200, 0, NULL }, /* MaturityMonthYear */
+        { 201, 0, PutOrCall_val },
+        { 202, 0, NULL }, /* StrikePrice */
+        { 203, 0, CoveredOrUncovered_val },
+        { 204, 0, CustomerOrFirm_val },
+        { 205, 0, NULL }, /* MaturityDay */
+        { 206, 0, NULL }, /* OptAttribute */
+        { 207, 0, NULL }, /* SecurityExchange */
+        { 208, 2, NotifyBrokerOfCredit_val },
+        { 209, 0, AllocHandlInst_val },
+        { 210, 0, NULL }, /* MaxShow */
+        { 211, 0, NULL }, /* PegOffsetValue */
+        { 212, 0, NULL }, /* XmlDataLen */
+        { 213, 0, NULL }, /* XmlData */
+        { 214, 0, NULL }, /* SettlInstRefID */
+        { 215, 0, NULL }, /* NoRoutingIDs */
+        { 216, 0, RoutingType_val },
+        { 217, 0, NULL }, /* RoutingID */
+        { 218, 0, NULL }, /* Spread */
+        { 219, 2, Benchmark_val },
+        { 220, 0, NULL }, /* BenchmarkCurveCurrency */
+        { 221, 1, BenchmarkCurveName_val },
+        { 222, 0, NULL }, /* BenchmarkCurvePoint */
+        { 223, 0, NULL }, /* CouponRate */
+        { 224, 0, NULL }, /* CouponPaymentDate */
+        { 225, 0, NULL }, /* IssueDate */
+        { 226, 0, NULL }, /* RepurchaseTerm */
+        { 227, 0, NULL }, /* RepurchaseRate */
+        { 228, 0, NULL }, /* Factor */
+        { 229, 0, NULL }, /* TradeOriginationDate */
+        { 230, 0, NULL }, /* ExDate */
+        { 231, 0, NULL }, /* ContractMultiplier */
+        { 232, 0, NULL }, /* NoStipulations */
+        { 233, 1, StipulationType_val },
+        { 234, 1, StipulationValue_val },
+        { 235, 1, YieldType_val },
+        { 236, 0, NULL }, /* Yield */
+        { 237, 0, NULL }, /* TotalTakedown */
+        { 238, 0, NULL }, /* Concession */
+        { 239, 0, NULL }, /* RepoCollateralSecurityType */
+        { 240, 0, NULL }, /* RedemptionDate */
+        { 241, 0, NULL }, /* UnderlyingCouponPaymentDate */
+        { 242, 0, NULL }, /* UnderlyingIssueDate */
+        { 243, 0, NULL }, /* UnderlyingRepoCollateralSecurityType */
+        { 244, 0, NULL }, /* UnderlyingRepurchaseTerm */
+        { 245, 0, NULL }, /* UnderlyingRepurchaseRate */
+        { 246, 0, NULL }, /* UnderlyingFactor */
+        { 247, 0, NULL }, /* UnderlyingRedemptionDate */
+        { 248, 0, NULL }, /* LegCouponPaymentDate */
+        { 249, 0, NULL }, /* LegIssueDate */
+        { 250, 0, NULL }, /* LegRepoCollateralSecurityType */
+        { 251, 0, NULL }, /* LegRepurchaseTerm */
+        { 252, 0, NULL }, /* LegRepurchaseRate */
+        { 253, 0, NULL }, /* LegFactor */
+        { 254, 0, NULL }, /* LegRedemptionDate */
+        { 255, 0, NULL }, /* CreditRating */
+        { 256, 0, NULL }, /* UnderlyingCreditRating */
+        { 257, 0, NULL }, /* LegCreditRating */
+        { 258, 2, TradedFlatSwitch_val },
+        { 259, 0, NULL }, /* BasisFeatureDate */
+        { 260, 0, NULL }, /* BasisFeaturePrice */
+        { 262, 0, NULL }, /* MDReqID */
+        { 263, 2, SubscriptionRequestType_val },
+        { 264, 0, NULL }, /* MarketDepth */
+        { 265, 0, MDUpdateType_val },
+        { 266, 2, AggregatedBook_val },
+        { 267, 0, NULL }, /* NoMDEntryTypes */
+        { 268, 0, NULL }, /* NoMDEntries */
+        { 269, 2, MDEntryType_val },
+        { 270, 0, NULL }, /* MDEntryPx */
+        { 271, 0, NULL }, /* MDEntrySize */
+        { 272, 0, NULL }, /* MDEntryDate */
+        { 273, 0, NULL }, /* MDEntryTime */
+        { 274, 2, TickDirection_val },
+        { 275, 0, NULL }, /* MDMkt */
+        { 276, 2, QuoteCondition_val },
+        { 277, 2, TradeCondition_val },
+        { 278, 0, NULL }, /* MDEntryID */
+        { 279, 2, MDUpdateAction_val },
+        { 280, 0, NULL }, /* MDEntryRefID */
+        { 281, 2, MDReqRejReason_val },
+        { 282, 0, NULL }, /* MDEntryOriginator */
+        { 283, 0, NULL }, /* LocationID */
+        { 284, 0, NULL }, /* DeskID */
+        { 285, 2, DeleteReason_val },
+        { 286, 2, OpenCloseSettlFlag_val },
+        { 287, 0, NULL }, /* SellerDays */
+        { 288, 0, NULL }, /* MDEntryBuyer */
+        { 289, 0, NULL }, /* MDEntrySeller */
+        { 290, 0, NULL }, /* MDEntryPositionNo */
+        { 291, 2, FinancialStatus_val },
+        { 292, 2, CorporateAction_val },
+        { 293, 0, NULL }, /* DefBidSize */
+        { 294, 0, NULL }, /* DefOfferSize */
+        { 295, 0, NULL }, /* NoQuoteEntries */
+        { 296, 0, NULL }, /* NoQuoteSets */
+        { 297, 0, QuoteStatus_val },
+        { 298, 0, QuoteCancelType_val },
+        { 299, 0, NULL }, /* QuoteEntryID */
+        { 300, 0, QuoteRejectReason_val },
+        { 301, 0, QuoteResponseLevel_val },
+        { 302, 0, NULL }, /* QuoteSetID */
+        { 303, 0, QuoteRequestType_val },
+        { 304, 0, NULL }, /* TotNoQuoteEntries */
+        { 305, 0, NULL }, /* UnderlyingSecurityIDSource */
+        { 306, 0, NULL }, /* UnderlyingIssuer */
+        { 307, 0, NULL }, /* UnderlyingSecurityDesc */
+        { 308, 0, NULL }, /* UnderlyingSecurityExchange */
+        { 309, 0, NULL }, /* UnderlyingSecurityID */
+        { 310, 0, NULL }, /* UnderlyingSecurityType */
+        { 311, 0, NULL }, /* UnderlyingSymbol */
+        { 312, 0, NULL }, /* UnderlyingSymbolSfx */
+        { 313, 0, NULL }, /* UnderlyingMaturityMonthYear */
+        { 314, 0, NULL }, /* UnderlyingMaturityDay */
+        { 315, 0, NULL }, /* UnderlyingPutOrCall */
+        { 316, 0, NULL }, /* UnderlyingStrikePrice */
+        { 317, 0, NULL }, /* UnderlyingOptAttribute */
+        { 318, 0, NULL }, /* UnderlyingCurrency */
+        { 319, 0, NULL }, /* RatioQty */
+        { 320, 0, NULL }, /* SecurityReqID */
+        { 321, 0, SecurityRequestType_val },
+        { 322, 0, NULL }, /* SecurityResponseID */
+        { 323, 0, SecurityResponseType_val },
+        { 324, 0, NULL }, /* SecurityStatusReqID */
+        { 325, 2, UnsolicitedIndicator_val },
+        { 326, 0, SecurityTradingStatus_val },
+        { 327, 0, HaltReasonInt_val },
+        { 328, 2, InViewOfCommon_val },
+        { 329, 2, DueToRelated_val },
+        { 330, 0, NULL }, /* BuyVolume */
+        { 331, 0, NULL }, /* SellVolume */
+        { 332, 0, NULL }, /* HighPx */
+        { 333, 0, NULL }, /* LowPx */
+        { 334, 0, Adjustment_val },
+        { 335, 0, NULL }, /* TradSesReqID */
+        { 336, 1, TradingSessionID_val },
+        { 337, 0, NULL }, /* ContraTrader */
+        { 338, 0, TradSesMethod_val },
+        { 339, 0, TradSesMode_val },
+        { 340, 0, TradSesStatus_val },
+        { 341, 0, NULL }, /* TradSesStartTime */
+        { 342, 0, NULL }, /* TradSesOpenTime */
+        { 343, 0, NULL }, /* TradSesPreCloseTime */
+        { 344, 0, NULL }, /* TradSesCloseTime */
+        { 345, 0, NULL }, /* TradSesEndTime */
+        { 346, 0, NULL }, /* NumberOfOrders */
+        { 347, 1, MessageEncoding_val },
+        { 348, 0, NULL }, /* EncodedIssuerLen */
+        { 349, 0, NULL }, /* EncodedIssuer */
+        { 350, 0, NULL }, /* EncodedSecurityDescLen */
+        { 351, 0, NULL }, /* EncodedSecurityDesc */
+        { 352, 0, NULL }, /* EncodedListExecInstLen */
+        { 353, 0, NULL }, /* EncodedListExecInst */
+        { 354, 0, NULL }, /* EncodedTextLen */
+        { 355, 0, NULL }, /* EncodedText */
+        { 356, 0, NULL }, /* EncodedSubjectLen */
+        { 357, 0, NULL }, /* EncodedSubject */
+        { 358, 0, NULL }, /* EncodedHeadlineLen */
+        { 359, 0, NULL }, /* EncodedHeadline */
+        { 360, 0, NULL }, /* EncodedAllocTextLen */
+        { 361, 0, NULL }, /* EncodedAllocText */
+        { 362, 0, NULL }, /* EncodedUnderlyingIssuerLen */
+        { 363, 0, NULL }, /* EncodedUnderlyingIssuer */
+        { 364, 0, NULL }, /* EncodedUnderlyingSecurityDescLen */
+        { 365, 0, NULL }, /* EncodedUnderlyingSecurityDesc */
+        { 366, 0, NULL }, /* AllocPrice */
+        { 367, 0, NULL }, /* QuoteSetValidUntilTime */
+        { 368, 0, NULL }, /* QuoteEntryRejectReason */
+        { 369, 0, NULL }, /* LastMsgSeqNumProcessed */
+        { 370, 0, NULL }, /* OnBehalfOfSendingTime */
+        { 371, 0, NULL }, /* RefTagID */
+        { 372, 0, NULL }, /* RefMsgType */
+        { 373, 0, SessionRejectReason_val },
+        { 374, 2, BidRequestTransType_val },
+        { 375, 0, NULL }, /* ContraBroker */
+        { 376, 0, NULL }, /* ComplianceID */
+        { 377, 2, SolicitedFlag_val },
+        { 378, 0, ExecRestatementReason_val },
+        { 379, 0, NULL }, /* BusinessRejectRefID */
+        { 380, 0, BusinessRejectReason_val },
+        { 381, 0, NULL }, /* GrossTradeAmt */
+        { 382, 0, NULL }, /* NoContraBrokers */
+        { 383, 0, NULL }, /* MaxMessageSize */
+        { 384, 0, NULL }, /* NoMsgTypes */
+        { 385, 2, MsgDirection_val },
+        { 386, 0, NULL }, /* NoTradingSessions */
+        { 387, 0, NULL }, /* TotalVolumeTraded */
+        { 388, 2, DiscretionInst_val },
+        { 389, 0, NULL }, /* DiscretionOffsetValue */
+        { 390, 0, NULL }, /* BidID */
+        { 391, 0, NULL }, /* ClientBidID */
+        { 392, 0, NULL }, /* ListName */
+        { 393, 0, NULL }, /* TotNoRelatedSym */
+        { 394, 0, BidType_val },
+        { 395, 0, NULL }, /* NumTickets */
+        { 396, 0, NULL }, /* SideValue1 */
+        { 397, 0, NULL }, /* SideValue2 */
+        { 398, 0, NULL }, /* NoBidDescriptors */
+        { 399, 0, BidDescriptorType_val },
+        { 400, 0, NULL }, /* BidDescriptor */
+        { 401, 0, SideValueInd_val },
+        { 402, 0, NULL }, /* LiquidityPctLow */
+        { 403, 0, NULL }, /* LiquidityPctHigh */
+        { 404, 0, NULL }, /* LiquidityValue */
+        { 405, 0, NULL }, /* EFPTrackingError */
+        { 406, 0, NULL }, /* FairValue */
+        { 407, 0, NULL }, /* OutsideIndexPct */
+        { 408, 0, NULL }, /* ValueOfFutures */
+        { 409, 0, LiquidityIndType_val },
+        { 410, 0, NULL }, /* WtAverageLiquidity */
+        { 411, 2, ExchangeForPhysical_val },
+        { 412, 0, NULL }, /* OutMainCntryUIndex */
+        { 413, 0, NULL }, /* CrossPercent */
+        { 414, 0, ProgRptReqs_val },
+        { 415, 0, NULL }, /* ProgPeriodInterval */
+        { 416, 0, IncTaxInd_val },
+        { 417, 0, NULL }, /* NumBidders */
+        { 418, 2, BidTradeType_val },
+        { 419, 2, BasisPxType_val },
+        { 420, 0, NULL }, /* NoBidComponents */
+        { 421, 0, NULL }, /* Country */
+        { 422, 0, NULL }, /* TotNoStrikes */
+        { 423, 0, PriceType_val },
+        { 424, 0, NULL }, /* DayOrderQty */
+        { 425, 0, NULL }, /* DayCumQty */
+        { 426, 0, NULL }, /* DayAvgPx */
+        { 427, 0, GTBookingInst_val },
+        { 428, 0, NULL }, /* NoStrikes */
+        { 429, 0, ListStatusType_val },
+        { 430, 0, NetGrossInd_val },
+        { 431, 0, ListOrderStatus_val },
+        { 432, 0, NULL }, /* ExpireDate */
+        { 433, 2, ListExecInstType_val },
+        { 434, 2, CxlRejResponseTo_val },
+        { 435, 0, NULL }, /* UnderlyingCouponRate */
+        { 436, 0, NULL }, /* UnderlyingContractMultiplier */
+        { 437, 0, NULL }, /* ContraTradeQty */
+        { 438, 0, NULL }, /* ContraTradeTime */
+        { 439, 0, NULL }, /* ClearingFirm */
+        { 440, 0, NULL }, /* ClearingAccount */
+        { 441, 0, NULL }, /* LiquidityNumSecurities */
+        { 442, 2, MultiLegReportingType_val },
+        { 443, 0, NULL }, /* StrikeTime */
+        { 444, 0, NULL }, /* ListStatusText */
+        { 445, 0, NULL }, /* EncodedListStatusTextLen */
+        { 446, 0, NULL }, /* EncodedListStatusText */
+        { 447, 2, PartyIDSource_val },
+        { 448, 0, NULL }, /* PartyID */
+        { 449, 0, NULL }, /* TotalVolumeTradedDate */
+        { 450, 0, NULL }, /* TotalVolumeTradedTime */
+        { 451, 0, NULL }, /* NetChgPrevDay */
+        { 452, 0, PartyRole_val },
+        { 453, 0, NULL }, /* NoPartyIDs */
+        { 454, 0, NULL }, /* NoSecurityAltID */
+        { 455, 0, NULL }, /* SecurityAltID */
+        { 456, 0, NULL }, /* SecurityAltIDSource */
+        { 457, 0, NULL }, /* NoUnderlyingSecurityAltID */
+        { 458, 0, NULL }, /* UnderlyingSecurityAltID */
+        { 459, 0, NULL }, /* UnderlyingSecurityAltIDSource */
+        { 460, 0, Product_val },
+        { 461, 0, NULL }, /* CFICode */
+        { 462, 0, NULL }, /* UnderlyingProduct */
+        { 463, 0, NULL }, /* UnderlyingCFICode */
+        { 464, 2, TestMessageIndicator_val },
+        { 465, 0, QuantityType_val },
+        { 466, 0, NULL }, /* BookingRefID */
+        { 467, 0, NULL }, /* IndividualAllocID */
+        { 468, 2, RoundingDirection_val },
+        { 469, 0, NULL }, /* RoundingModulus */
+        { 470, 0, NULL }, /* CountryOfIssue */
+        { 471, 0, NULL }, /* StateOrProvinceOfIssue */
+        { 472, 0, NULL }, /* LocaleOfIssue */
+        { 473, 0, NULL }, /* NoRegistDtls */
+        { 474, 0, NULL }, /* MailingDtls */
+        { 475, 0, NULL }, /* InvestorCountryOfResidence */
+        { 476, 0, NULL }, /* PaymentRef */
+        { 477, 0, DistribPaymentMethod_val },
+        { 478, 0, NULL }, /* CashDistribCurr */
+        { 479, 0, NULL }, /* CommCurrency */
+        { 480, 2, CancellationRights_val },
+        { 481, 2, MoneyLaunderingStatus_val },
+        { 482, 0, NULL }, /* MailingInst */
+        { 483, 0, NULL }, /* TransBkdTime */
+        { 484, 2, ExecPriceType_val },
+        { 485, 0, NULL }, /* ExecPriceAdjustment */
+        { 486, 0, NULL }, /* DateOfBirth */
+        { 487, 0, TradeReportTransType_val },
+        { 488, 0, NULL }, /* CardHolderName */
+        { 489, 0, NULL }, /* CardNumber */
+        { 490, 0, NULL }, /* CardExpDate */
+        { 491, 0, NULL }, /* CardIssNum */
+        { 492, 0, PaymentMethod_val },
+        { 493, 0, NULL }, /* RegistAcctType */
+        { 494, 0, NULL }, /* Designation */
+        { 495, 0, TaxAdvantageType_val },
+        { 496, 0, NULL }, /* RegistRejReasonText */
+        { 497, 2, FundRenewWaiv_val },
+        { 498, 0, NULL }, /* CashDistribAgentName */
+        { 499, 0, NULL }, /* CashDistribAgentCode */
+        { 500, 0, NULL }, /* CashDistribAgentAcctNumber */
+        { 501, 0, NULL }, /* CashDistribPayRef */
+        { 502, 0, NULL }, /* CashDistribAgentAcctName */
+        { 503, 0, NULL }, /* CardStartDate */
+        { 504, 0, NULL }, /* PaymentDate */
+        { 505, 0, NULL }, /* PaymentRemitterID */
+        { 506, 2, RegistStatus_val },
+        { 507, 0, RegistRejReasonCode_val },
+        { 508, 0, NULL }, /* RegistRefID */
+        { 509, 0, NULL }, /* RegistDtls */
+        { 510, 0, NULL }, /* NoDistribInsts */
+        { 511, 0, NULL }, /* RegistEmail */
+        { 512, 0, NULL }, /* DistribPercentage */
+        { 513, 0, NULL }, /* RegistID */
+        { 514, 2, RegistTransType_val },
+        { 515, 0, NULL }, /* ExecValuationPoint */
+        { 516, 0, NULL }, /* OrderPercent */
+        { 517, 2, OwnershipType_val },
+        { 518, 0, NULL }, /* NoContAmts */
+        { 519, 0, ContAmtType_val },
+        { 520, 0, NULL }, /* ContAmtValue */
+        { 521, 0, NULL }, /* ContAmtCurr */
+        { 522, 0, OwnerType_val },
+        { 523, 0, NULL }, /* PartySubID */
+        { 524, 0, NULL }, /* NestedPartyID */
+        { 525, 0, NULL }, /* NestedPartyIDSource */
+        { 526, 0, NULL }, /* SecondaryClOrdID */
+        { 527, 0, NULL }, /* SecondaryExecID */
+        { 528, 2, OrderCapacity_val },
+        { 529, 2, OrderRestrictions_val },
+        { 530, 2, MassCancelRequestType_val },
+        { 531, 2, MassCancelResponse_val },
+        { 532, 0, MassCancelRejectReason_val },
+        { 533, 0, NULL }, /* TotalAffectedOrders */
+        { 534, 0, NULL }, /* NoAffectedOrders */
+        { 535, 0, NULL }, /* AffectedOrderID */
+        { 536, 0, NULL }, /* AffectedSecondaryOrderID */
+        { 537, 0, QuoteType_val },
+        { 538, 0, NULL }, /* NestedPartyRole */
+        { 539, 0, NULL }, /* NoNestedPartyIDs */
+        { 540, 0, NULL }, /* TotalAccruedInterestAmt */
+        { 541, 0, NULL }, /* MaturityDate */
+        { 542, 0, NULL }, /* UnderlyingMaturityDate */
+        { 543, 0, NULL }, /* InstrRegistry */
+        { 544, 2, CashMargin_val },
+        { 545, 0, NULL }, /* NestedPartySubID */
+        { 546, 2, Scope_val },
+        { 547, 2, MDImplicitDelete_val },
+        { 548, 0, NULL }, /* CrossID */
+        { 549, 0, CrossType_val },
+        { 550, 0, CrossPrioritization_val },
+        { 551, 0, NULL }, /* OrigCrossID */
+        { 552, 2, NoSides_val },
+        { 553, 0, NULL }, /* Username */
+        { 554, 0, NULL }, /* Password */
+        { 555, 0, NULL }, /* NoLegs */
+        { 556, 0, NULL }, /* LegCurrency */
+        { 557, 0, NULL }, /* TotNoSecurityTypes */
+        { 558, 0, NULL }, /* NoSecurityTypes */
+        { 559, 0, SecurityListRequestType_val },
+        { 560, 0, SecurityRequestResult_val },
+        { 561, 0, NULL }, /* RoundLot */
+        { 562, 0, NULL }, /* MinTradeVol */
+        { 563, 0, MultiLegRptTypeReq_val },
+        { 564, 0, NULL }, /* LegPositionEffect */
+        { 565, 0, NULL }, /* LegCoveredOrUncovered */
+        { 566, 0, NULL }, /* LegPrice */
+        { 567, 0, TradSesStatusRejReason_val },
+        { 568, 0, NULL }, /* TradeRequestID */
+        { 569, 0, TradeRequestType_val },
+        { 570, 2, PreviouslyReported_val },
+        { 571, 0, NULL }, /* TradeReportID */
+        { 572, 0, NULL }, /* TradeReportRefID */
+        { 573, 2, MatchStatus_val },
+        { 574, 1, MatchType_val },
+        { 575, 2, OddLot_val },
+        { 576, 0, NULL }, /* NoClearingInstructions */
+        { 577, 0, ClearingInstruction_val },
+        { 578, 0, NULL }, /* TradeInputSource */
+        { 579, 0, NULL }, /* TradeInputDevice */
+        { 580, 0, NULL }, /* NoDates */
+        { 581, 0, AccountType_val },
+        { 582, 0, CustOrderCapacity_val },
+        { 583, 0, NULL }, /* ClOrdLinkID */
+        { 584, 0, NULL }, /* MassStatusReqID */
+        { 585, 0, MassStatusReqType_val },
+        { 586, 0, NULL }, /* OrigOrdModTime */
+        { 587, 0, NULL }, /* LegSettlType */
+        { 588, 0, NULL }, /* LegSettlDate */
+        { 589, 2, DayBookingInst_val },
+        { 590, 2, BookingUnit_val },
+        { 591, 2, PreallocMethod_val },
+        { 592, 0, NULL }, /* UnderlyingCountryOfIssue */
+        { 593, 0, NULL }, /* UnderlyingStateOrProvinceOfIssue */
+        { 594, 0, NULL }, /* UnderlyingLocaleOfIssue */
+        { 595, 0, NULL }, /* UnderlyingInstrRegistry */
+        { 596, 0, NULL }, /* LegCountryOfIssue */
+        { 597, 0, NULL }, /* LegStateOrProvinceOfIssue */
+        { 598, 0, NULL }, /* LegLocaleOfIssue */
+        { 599, 0, NULL }, /* LegInstrRegistry */
+        { 600, 0, NULL }, /* LegSymbol */
+        { 601, 0, NULL }, /* LegSymbolSfx */
+        { 602, 0, NULL }, /* LegSecurityID */
+        { 603, 0, NULL }, /* LegSecurityIDSource */
+        { 604, 0, NULL }, /* NoLegSecurityAltID */
+        { 605, 0, NULL }, /* LegSecurityAltID */
+        { 606, 0, NULL }, /* LegSecurityAltIDSource */
+        { 607, 0, NULL }, /* LegProduct */
+        { 608, 0, NULL }, /* LegCFICode */
+        { 609, 0, NULL }, /* LegSecurityType */
+        { 610, 0, NULL }, /* LegMaturityMonthYear */
+        { 611, 0, NULL }, /* LegMaturityDate */
+        { 612, 0, NULL }, /* LegStrikePrice */
+        { 613, 0, NULL }, /* LegOptAttribute */
+        { 614, 0, NULL }, /* LegContractMultiplier */
+        { 615, 0, NULL }, /* LegCouponRate */
+        { 616, 0, NULL }, /* LegSecurityExchange */
+        { 617, 0, NULL }, /* LegIssuer */
+        { 618, 0, NULL }, /* EncodedLegIssuerLen */
+        { 619, 0, NULL }, /* EncodedLegIssuer */
+        { 620, 0, NULL }, /* LegSecurityDesc */
+        { 621, 0, NULL }, /* EncodedLegSecurityDescLen */
+        { 622, 0, NULL }, /* EncodedLegSecurityDesc */
+        { 623, 0, NULL }, /* LegRatioQty */
+        { 624, 0, NULL }, /* LegSide */
+        { 625, 1, TradingSessionSubID_val },
+        { 626, 0, AllocType_val },
+        { 627, 0, NULL }, /* NoHops */
+        { 628, 0, NULL }, /* HopCompID */
+        { 629, 0, NULL }, /* HopSendingTime */
+        { 630, 0, NULL }, /* HopRefID */
+        { 631, 0, NULL }, /* MidPx */
+        { 632, 0, NULL }, /* BidYield */
+        { 633, 0, NULL }, /* MidYield */
+        { 634, 0, NULL }, /* OfferYield */
+        { 635, 1, ClearingFeeIndicator_val },
+        { 636, 2, WorkingIndicator_val },
+        { 637, 0, NULL }, /* LegLastPx */
+        { 638, 0, PriorityIndicator_val },
+        { 639, 0, NULL }, /* PriceImprovement */
+        { 640, 0, NULL }, /* Price2 */
+        { 641, 0, NULL }, /* LastForwardPoints2 */
+        { 642, 0, NULL }, /* BidForwardPoints2 */
+        { 643, 0, NULL }, /* OfferForwardPoints2 */
+        { 644, 0, NULL }, /* RFQReqID */
+        { 645, 0, NULL }, /* MktBidPx */
+        { 646, 0, NULL }, /* MktOfferPx */
+        { 647, 0, NULL }, /* MinBidSize */
+        { 648, 0, NULL }, /* MinOfferSize */
+        { 649, 0, NULL }, /* QuoteStatusReqID */
+        { 650, 2, LegalConfirm_val },
+        { 651, 0, NULL }, /* UnderlyingLastPx */
+        { 652, 0, NULL }, /* UnderlyingLastQty */
+        { 653, 0, SecDefStatus_val },
+        { 654, 0, NULL }, /* LegRefID */
+        { 655, 0, NULL }, /* ContraLegRefID */
+        { 656, 0, NULL }, /* SettlCurrBidFxRate */
+        { 657, 0, NULL }, /* SettlCurrOfferFxRate */
+        { 658, 0, QuoteRequestRejectReason_val },
+        { 659, 0, NULL }, /* SideComplianceID */
+        { 660, 0, AcctIDSource_val },
+        { 661, 0, NULL }, /* AllocAcctIDSource */
+        { 662, 0, NULL }, /* BenchmarkPrice */
+        { 663, 0, NULL }, /* BenchmarkPriceType */
+        { 664, 0, NULL }, /* ConfirmID */
+        { 665, 0, ConfirmStatus_val },
+        { 666, 0, ConfirmTransType_val },
+        { 667, 0, NULL }, /* ContractSettlMonth */
+        { 668, 0, DeliveryForm_val },
+        { 669, 0, NULL }, /* LastParPx */
+        { 670, 0, NULL }, /* NoLegAllocs */
+        { 671, 0, NULL }, /* LegAllocAccount */
+        { 672, 0, NULL }, /* LegIndividualAllocID */
+        { 673, 0, NULL }, /* LegAllocQty */
+        { 674, 0, NULL }, /* LegAllocAcctIDSource */
+        { 675, 0, NULL }, /* LegSettlCurrency */
+        { 676, 0, NULL }, /* LegBenchmarkCurveCurrency */
+        { 677, 0, NULL }, /* LegBenchmarkCurveName */
+        { 678, 0, NULL }, /* LegBenchmarkCurvePoint */
+        { 679, 0, NULL }, /* LegBenchmarkPrice */
+        { 680, 0, NULL }, /* LegBenchmarkPriceType */
+        { 681, 0, NULL }, /* LegBidPx */
+        { 682, 0, NULL }, /* LegIOIQty */
+        { 683, 0, NULL }, /* NoLegStipulations */
+        { 684, 0, NULL }, /* LegOfferPx */
+        { 685, 0, NULL }, /* LegOrderQty */
+        { 686, 0, NULL }, /* LegPriceType */
+        { 687, 0, NULL }, /* LegQty */
+        { 688, 0, NULL }, /* LegStipulationType */
+        { 689, 0, NULL }, /* LegStipulationValue */
+        { 690, 0, LegSwapType_val },
+        { 691, 0, NULL }, /* Pool */
+        { 692, 0, QuotePriceType_val },
+        { 693, 0, NULL }, /* QuoteRespID */
+        { 694, 0, QuoteRespType_val },
+        { 695, 0, NULL }, /* QuoteQualifier */
+        { 696, 0, NULL }, /* YieldRedemptionDate */
+        { 697, 0, NULL }, /* YieldRedemptionPrice */
+        { 698, 0, NULL }, /* YieldRedemptionPriceType */
+        { 699, 0, NULL }, /* BenchmarkSecurityID */
+        { 700, 0, NULL }, /* ReversalIndicator */
+        { 701, 0, NULL }, /* YieldCalcDate */
+        { 702, 0, NULL }, /* NoPositions */
+        { 703, 1, PosType_val },
+        { 704, 0, NULL }, /* LongQty */
+        { 705, 0, NULL }, /* ShortQty */
+        { 706, 0, PosQtyStatus_val },
+        { 707, 1, PosAmtType_val },
+        { 708, 0, NULL }, /* PosAmt */
+        { 709, 0, PosTransType_val },
+        { 710, 0, NULL }, /* PosReqID */
+        { 711, 0, NULL }, /* NoUnderlyings */
+        { 712, 0, PosMaintAction_val },
+        { 713, 0, NULL }, /* OrigPosReqRefID */
+        { 714, 0, NULL }, /* PosMaintRptRefID */
+        { 715, 0, NULL }, /* ClearingBusinessDate */
+        { 716, 1, SettlSessID_val },
+        { 717, 0, NULL }, /* SettlSessSubID */
+        { 718, 0, AdjustmentType_val },
+        { 719, 0, NULL }, /* ContraryInstructionIndicator */
+        { 720, 0, NULL }, /* PriorSpreadIndicator */
+        { 721, 0, NULL }, /* PosMaintRptID */
+        { 722, 0, PosMaintStatus_val },
+        { 723, 0, PosMaintResult_val },
+        { 724, 0, PosReqType_val },
+        { 725, 0, ResponseTransportType_val },
+        { 726, 0, NULL }, /* ResponseDestination */
+        { 727, 0, NULL }, /* TotalNumPosReports */
+        { 728, 0, PosReqResult_val },
+        { 729, 0, PosReqStatus_val },
+        { 730, 0, NULL }, /* SettlPrice */
+        { 731, 0, SettlPriceType_val },
+        { 732, 0, NULL }, /* UnderlyingSettlPrice */
+        { 733, 0, NULL }, /* UnderlyingSettlPriceType */
+        { 734, 0, NULL }, /* PriorSettlPrice */
+        { 735, 0, NULL }, /* NoQuoteQualifiers */
+        { 736, 0, NULL }, /* AllocSettlCurrency */
+        { 737, 0, NULL }, /* AllocSettlCurrAmt */
+        { 738, 0, NULL }, /* InterestAtMaturity */
+        { 739, 0, NULL }, /* LegDatedDate */
+        { 740, 0, NULL }, /* LegPool */
+        { 741, 0, NULL }, /* AllocInterestAtMaturity */
+        { 742, 0, NULL }, /* AllocAccruedInterestAmt */
+        { 743, 0, NULL }, /* DeliveryDate */
+        { 744, 2, AssignmentMethod_val },
+        { 745, 0, NULL }, /* AssignmentUnit */
+        { 746, 0, NULL }, /* OpenInterest */
+        { 747, 2, ExerciseMethod_val },
+        { 748, 0, NULL }, /* TotNumTradeReports */
+        { 749, 0, TradeRequestResult_val },
+        { 750, 0, TradeRequestStatus_val },
+        { 751, 0, TradeReportRejectReason_val },
+        { 752, 0, SideMultiLegReportingType_val },
+        { 753, 0, NULL }, /* NoPosAmt */
+        { 754, 0, NULL }, /* AutoAcceptIndicator */
+        { 755, 0, NULL }, /* AllocReportID */
+        { 756, 0, NULL }, /* NoNested2PartyIDs */
+        { 757, 0, NULL }, /* Nested2PartyID */
+        { 758, 0, NULL }, /* Nested2PartyIDSource */
+        { 759, 0, NULL }, /* Nested2PartyRole */
+        { 760, 0, NULL }, /* Nested2PartySubID */
+        { 761, 0, NULL }, /* BenchmarkSecurityIDSource */
+        { 762, 0, NULL }, /* SecuritySubType */
+        { 763, 0, NULL }, /* UnderlyingSecuritySubType */
+        { 764, 0, NULL }, /* LegSecuritySubType */
+        { 765, 0, NULL }, /* AllowableOneSidednessPct */
+        { 766, 0, NULL }, /* AllowableOneSidednessValue */
+        { 767, 0, NULL }, /* AllowableOneSidednessCurr */
+        { 768, 0, NULL }, /* NoTrdRegTimestamps */
+        { 769, 0, NULL }, /* TrdRegTimestamp */
+        { 770, 0, TrdRegTimestampType_val },
+        { 771, 0, NULL }, /* TrdRegTimestampOrigin */
+        { 772, 0, NULL }, /* ConfirmRefID */
+        { 773, 0, ConfirmType_val },
+        { 774, 0, ConfirmRejReason_val },
+        { 775, 0, BookingType_val },
+        { 776, 0, NULL }, /* IndividualAllocRejCode */
+        { 777, 0, NULL }, /* SettlInstMsgID */
+        { 778, 0, NULL }, /* NoSettlInst */
+        { 779, 0, NULL }, /* LastUpdateTime */
+        { 780, 0, AllocSettlInstType_val },
+        { 781, 0, NULL }, /* NoSettlPartyIDs */
+        { 782, 0, NULL }, /* SettlPartyID */
+        { 783, 0, NULL }, /* SettlPartyIDSource */
+        { 784, 0, NULL }, /* SettlPartyRole */
+        { 785, 0, NULL }, /* SettlPartySubID */
+        { 786, 0, NULL }, /* SettlPartySubIDType */
+        { 787, 2, DlvyInstType_val },
+        { 788, 0, TerminationType_val },
+        { 789, 0, NULL }, /* NextExpectedMsgSeqNum */
+        { 790, 0, NULL }, /* OrdStatusReqID */
+        { 791, 0, NULL }, /* SettlInstReqID */
+        { 792, 0, SettlInstReqRejCode_val },
+        { 793, 0, NULL }, /* SecondaryAllocID */
+        { 794, 0, AllocReportType_val },
+        { 795, 0, NULL }, /* AllocReportRefID */
+        { 796, 0, AllocCancReplaceReason_val },
+        { 797, 0, NULL }, /* CopyMsgIndicator */
+        { 798, 0, AllocAccountType_val },
+        { 799, 0, NULL }, /* OrderAvgPx */
+        { 800, 0, NULL }, /* OrderBookingQty */
+        { 801, 0, NULL }, /* NoSettlPartySubIDs */
+        { 802, 0, NULL }, /* NoPartySubIDs */
+        { 803, 0, PartySubIDType_val },
+        { 804, 0, NULL }, /* NoNestedPartySubIDs */
+        { 805, 0, NULL }, /* NestedPartySubIDType */
+        { 806, 0, NULL }, /* NoNested2PartySubIDs */
+        { 807, 0, NULL }, /* Nested2PartySubIDType */
+        { 808, 0, AllocIntermedReqType_val },
+        { 810, 0, NULL }, /* UnderlyingPx */
+        { 811, 0, NULL }, /* PriceDelta */
+        { 812, 0, NULL }, /* ApplQueueMax */
+        { 813, 0, NULL }, /* ApplQueueDepth */
+        { 814, 0, ApplQueueResolution_val },
+        { 815, 0, ApplQueueAction_val },
+        { 816, 0, NULL }, /* NoAltMDSource */
+        { 817, 0, NULL }, /* AltMDSourceID */
+        { 818, 0, NULL }, /* SecondaryTradeReportID */
+        { 819, 0, AvgPxIndicator_val },
+        { 820, 0, NULL }, /* TradeLinkID */
+        { 821, 0, NULL }, /* OrderInputDevice */
+        { 822, 0, NULL }, /* UnderlyingTradingSessionID */
+        { 823, 0, NULL }, /* UnderlyingTradingSessionSubID */
+        { 824, 0, NULL }, /* TradeLegRefID */
+        { 825, 0, NULL }, /* ExchangeRule */
+        { 826, 0, TradeAllocIndicator_val },
+        { 827, 0, ExpirationCycle_val },
+        { 828, 0, TrdType_val },
+        { 829, 0, TrdSubType_val },
+        { 830, 0, NULL }, /* TransferReason */
+        { 831, 0, NULL }, /* AsgnReqID */
+        { 832, 0, NULL }, /* TotNumAssignmentReports */
+        { 833, 0, NULL }, /* AsgnRptID */
+        { 834, 0, NULL }, /* ThresholdAmount */
+        { 835, 0, PegMoveType_val },
+        { 836, 0, PegOffsetType_val },
+        { 837, 0, PegLimitType_val },
+        { 838, 0, PegRoundDirection_val },
+        { 839, 0, NULL }, /* PeggedPrice */
+        { 840, 0, PegScope_val },
+        { 841, 0, DiscretionMoveType_val },
+        { 842, 0, DiscretionOffsetType_val },
+        { 843, 0, DiscretionLimitType_val },
+        { 844, 0, DiscretionRoundDirection_val },
+        { 845, 0, NULL }, /* DiscretionPrice */
+        { 846, 0, DiscretionScope_val },
+        { 847, 0, TargetStrategy_val },
+        { 848, 0, NULL }, /* TargetStrategyParameters */
+        { 849, 0, NULL }, /* ParticipationRate */
+        { 850, 0, NULL }, /* TargetStrategyPerformance */
+        { 851, 0, LastLiquidityInd_val },
+        { 852, 2, PublishTrdIndicator_val },
+        { 853, 0, ShortSaleReason_val },
+        { 854, 0, QtyType_val },
+        { 855, 0, NULL }, /* SecondaryTrdType */
+        { 856, 0, TradeReportType_val },
+        { 857, 0, AllocNoOrdersType_val },
+        { 858, 0, NULL }, /* SharedCommission */
+        { 859, 0, NULL }, /* ConfirmReqID */
+        { 860, 0, NULL }, /* AvgParPx */
+        { 861, 0, NULL }, /* ReportedPx */
+        { 862, 0, NULL }, /* NoCapacities */
+        { 863, 0, NULL }, /* OrderCapacityQty */
+        { 864, 0, NULL }, /* NoEvents */
+        { 865, 0, EventType_val },
+        { 866, 0, NULL }, /* EventDate */
+        { 867, 0, NULL }, /* EventPx */
+        { 868, 0, NULL }, /* EventText */
+        { 869, 0, NULL }, /* PctAtRisk */
+        { 870, 0, NULL }, /* NoInstrAttrib */
+        { 871, 0, InstrAttribType_val },
+        { 872, 0, NULL }, /* InstrAttribValue */
+        { 873, 0, NULL }, /* DatedDate */
+        { 874, 0, NULL }, /* InterestAccrualDate */
+        { 875, 0, CPProgram_val },
+        { 876, 0, NULL }, /* CPRegType */
+        { 877, 0, NULL }, /* UnderlyingCPProgram */
+        { 878, 0, NULL }, /* UnderlyingCPRegType */
+        { 879, 0, NULL }, /* UnderlyingQty */
+        { 880, 0, NULL }, /* TrdMatchID */
+        { 881, 0, NULL }, /* SecondaryTradeReportRefID */
+        { 882, 0, NULL }, /* UnderlyingDirtyPrice */
+        { 883, 0, NULL }, /* UnderlyingEndPrice */
+        { 884, 0, NULL }, /* UnderlyingStartValue */
+        { 885, 0, NULL }, /* UnderlyingCurrentValue */
+        { 886, 0, NULL }, /* UnderlyingEndValue */
+        { 887, 0, NULL }, /* NoUnderlyingStips */
+        { 888, 0, NULL }, /* UnderlyingStipType */
+        { 889, 0, NULL }, /* UnderlyingStipValue */
+        { 890, 0, NULL }, /* MaturityNetMoney */
+        { 891, 0, MiscFeeBasis_val },
+        { 892, 0, NULL }, /* TotNoAllocs */
+        { 893, 2, LastFragment_val },
+        { 894, 0, NULL }, /* CollReqID */
+        { 895, 0, CollAsgnReason_val },
+        { 896, 0, CollInquiryQualifier_val },
+        { 897, 0, NULL }, /* NoTrades */
+        { 898, 0, NULL }, /* MarginRatio */
+        { 899, 0, NULL }, /* MarginExcess */
+        { 900, 0, NULL }, /* TotalNetValue */
+        { 901, 0, NULL }, /* CashOutstanding */
+        { 902, 0, NULL }, /* CollAsgnID */
+        { 903, 0, CollAsgnTransType_val },
+        { 904, 0, NULL }, /* CollRespID */
+        { 905, 0, CollAsgnRespType_val },
+        { 906, 0, CollAsgnRejectReason_val },
+        { 907, 0, NULL }, /* CollAsgnRefID */
+        { 908, 0, NULL }, /* CollRptID */
+        { 909, 0, NULL }, /* CollInquiryID */
+        { 910, 0, CollStatus_val },
+        { 911, 0, NULL }, /* TotNumReports */
+        { 912, 2, LastRptRequested_val },
+        { 913, 0, NULL }, /* AgreementDesc */
+        { 914, 0, NULL }, /* AgreementID */
+        { 915, 0, NULL }, /* AgreementDate */
+        { 916, 0, NULL }, /* StartDate */
+        { 917, 0, NULL }, /* EndDate */
+        { 918, 0, NULL }, /* AgreementCurrency */
+        { 919, 0, DeliveryType_val },
+        { 920, 0, NULL }, /* EndAccruedInterestAmt */
+        { 921, 0, NULL }, /* StartCash */
+        { 922, 0, NULL }, /* EndCash */
+        { 923, 0, NULL }, /* UserRequestID */
+        { 924, 0, UserRequestType_val },
+        { 925, 0, NULL }, /* NewPassword */
+        { 926, 0, UserStatus_val },
+        { 927, 0, NULL }, /* UserStatusText */
+        { 928, 0, StatusValue_val },
+        { 929, 0, NULL }, /* StatusText */
+        { 930, 0, NULL }, /* RefCompID */
+        { 931, 0, NULL }, /* RefSubID */
+        { 932, 0, NULL }, /* NetworkResponseID */
+        { 933, 0, NULL }, /* NetworkRequestID */
+        { 934, 0, NULL }, /* LastNetworkResponseID */
+        { 935, 0, NetworkRequestType_val },
+        { 936, 0, NULL }, /* NoCompIDs */
+        { 937, 0, NetworkStatusResponseType_val },
+        { 938, 0, NULL }, /* NoCollInquiryQualifier */
+        { 939, 0, TrdRptStatus_val },
+        { 940, 0, AffirmStatus_val },
+        { 941, 0, NULL }, /* UnderlyingStrikeCurrency */
+        { 942, 0, NULL }, /* LegStrikeCurrency */
+        { 943, 0, NULL }, /* TimeBracket */
+        { 944, 0, CollAction_val },
+        { 945, 0, CollInquiryStatus_val },
+        { 946, 0, CollInquiryResult_val },
+        { 947, 0, NULL }, /* StrikeCurrency */
+        { 948, 0, NULL }, /* NoNested3PartyIDs */
+        { 949, 0, NULL }, /* Nested3PartyID */
+        { 950, 0, NULL }, /* Nested3PartyIDSource */
+        { 951, 0, NULL }, /* Nested3PartyRole */
+        { 952, 0, NULL }, /* NoNested3PartySubIDs */
+        { 953, 0, NULL }, /* Nested3PartySubID */
+        { 954, 0, NULL }, /* Nested3PartySubIDType */
+        { 955, 0, NULL }, /* LegContractSettlMonth */
+        { 956, 0, NULL }, /* LegInterestAccrualDate */
+        { 957, 0, NULL }, /* NoStrategyParameters */
+        { 958, 0, NULL }, /* StrategyParameterName */
+        { 959, 0, StrategyParameterType_val },
+        { 960, 0, NULL }, /* StrategyParameterValue */
+        { 961, 0, NULL }, /* HostCrossID */
+        { 962, 0, NULL }, /* SideTimeInForce */
+        { 963, 0, NULL }, /* MDReportID */
+        { 964, 0, NULL }, /* SecurityReportID */
+        { 965, 1, SecurityStatus_val },
+        { 966, 0, NULL }, /* SettleOnOpenFlag */
+        { 967, 0, NULL }, /* StrikeMultiplier */
+        { 968, 0, NULL }, /* StrikeValue */
+        { 969, 0, NULL }, /* MinPriceIncrement */
+        { 970, 0, NULL }, /* PositionLimit */
+        { 971, 0, NULL }, /* NTPositionLimit */
+        { 972, 0, NULL }, /* UnderlyingAllocationPercent */
+        { 973, 0, NULL }, /* UnderlyingCashAmount */
+        { 974, 1, UnderlyingCashType_val },
+        { 975, 0, UnderlyingSettlementType_val },
+        { 976, 0, NULL }, /* QuantityDate */
+        { 977, 0, NULL }, /* ContIntRptID */
+        { 978, 0, NULL }, /* LateIndicator */
+        { 979, 0, NULL }, /* InputSource */
+        { 980, 2, SecurityUpdateAction_val },
+        { 981, 0, NULL }, /* NoExpiration */
+        { 982, 0, ExpirationQtyType_val },
+        { 983, 0, NULL }, /* ExpQty */
+        { 984, 0, NULL }, /* NoUnderlyingAmounts */
+        { 985, 0, NULL }, /* UnderlyingPayAmount */
+        { 986, 0, NULL }, /* UnderlyingCollectAmount */
+        { 987, 0, NULL }, /* UnderlyingSettlementDate */
+        { 988, 0, NULL }, /* UnderlyingSettlementStatus */
+        { 989, 0, NULL }, /* SecondaryIndividualAllocID */
+        { 990, 0, NULL }, /* LegReportID */
+        { 991, 0, NULL }, /* RndPx */
+        { 992, 0, IndividualAllocType_val },
+        { 993, 0, NULL }, /* AllocCustomerCapacity */
+        { 994, 0, NULL }, /* TierCode */
+        { 996, 1, UnitOfMeasure_val },
+        { 997, 1, TimeUnit_val },
+        { 998, 0, NULL }, /* UnderlyingUnitOfMeasure */
+        { 999, 0, NULL }, /* LegUnitOfMeasure */
+        { 1000, 0, NULL }, /* UnderlyingTimeUnit */
+        { 1001, 0, NULL }, /* LegTimeUnit */
+        { 1002, 0, AllocMethod_val },
+        { 1003, 0, NULL }, /* TradeID */
+        { 1005, 0, NULL }, /* SideTradeReportID */
+        { 1006, 0, NULL }, /* SideFillStationCd */
+        { 1007, 0, NULL }, /* SideReasonCd */
+        { 1008, 0, NULL }, /* SideTrdSubTyp */
+        { 1009, 0, NULL }, /* SideLastQty */
+        { 1011, 0, NULL }, /* MessageEventSource */
+        { 1012, 0, NULL }, /* SideTrdRegTimestamp */
+        { 1013, 0, NULL }, /* SideTrdRegTimestampType */
+        { 1014, 0, NULL }, /* SideTrdRegTimestampSrc */
+        { 1015, 2, AsOfIndicator_val },
+        { 1016, 0, NULL }, /* NoSideTrdRegTS */
+        { 1017, 0, NULL }, /* LegOptionRatio */
+        { 1018, 0, NULL }, /* NoInstrumentParties */
+        { 1019, 0, NULL }, /* InstrumentPartyID */
+        { 1020, 0, NULL }, /* TradeVolume */
+        { 1021, 0, MDBookType_val },
+        { 1022, 0, NULL }, /* MDFeedType */
+        { 1023, 0, NULL }, /* MDPriceLevel */
+        { 1024, 0, MDOriginType_val },
+        { 1025, 0, NULL }, /* FirstPx */
+        { 1026, 0, NULL }, /* MDEntrySpotRate */
+        { 1027, 0, NULL }, /* MDEntryForwardPoints */
+        { 1028, 0, NULL }, /* ManualOrderIndicator */
+        { 1029, 0, NULL }, /* CustDirectedOrder */
+        { 1030, 0, NULL }, /* ReceivedDeptID */
+        { 1031, 2, CustOrderHandlingInst_val },
+        { 1032, 0, OrderHandlingInstSource_val },
+        { 1033, 1, DeskType_val },
+        { 1034, 0, DeskTypeSource_val },
+        { 1035, 2, DeskOrderHandlingInst_val },
+        { 1036, 2, ExecAckStatus_val },
+        { 1037, 0, NULL }, /* UnderlyingDeliveryAmount */
+        { 1038, 0, NULL }, /* UnderlyingCapValue */
+        { 1039, 0, NULL }, /* UnderlyingSettlMethod */
+        { 1040, 0, NULL }, /* SecondaryTradeID */
+        { 1041, 0, NULL }, /* FirmTradeID */
+        { 1042, 0, NULL }, /* SecondaryFirmTradeID */
+        { 1043, 0, CollApplType_val },
+        { 1044, 0, NULL }, /* UnderlyingAdjustedQuantity */
+        { 1045, 0, NULL }, /* UnderlyingFXRate */
+        { 1046, 2, UnderlyingFXRateCalc_val },
+        { 1047, 2, AllocPositionEffect_val },
+        { 1048, 2, DealingCapacity_val },
+        { 1049, 0, NULL }, /* InstrmtAssignmentMethod */
+        { 1050, 0, NULL }, /* InstrumentPartyIDSource */
+        { 1051, 0, NULL }, /* InstrumentPartyRole */
+        { 1052, 0, NULL }, /* NoInstrumentPartySubIDs */
+        { 1053, 0, NULL }, /* InstrumentPartySubID */
+        { 1054, 0, NULL }, /* InstrumentPartySubIDType */
+        { 1055, 0, NULL }, /* PositionCurrency */
+        { 1056, 0, NULL }, /* CalculatedCcyLastQty */
+        { 1057, 2, AggressorIndicator_val },
+        { 1058, 0, NULL }, /* NoUndlyInstrumentParties */
+        { 1059, 0, NULL }, /* UnderlyingInstrumentPartyID */
+        { 1060, 0, NULL }, /* UnderlyingInstrumentPartyIDSource */
+        { 1061, 0, NULL }, /* UnderlyingInstrumentPartyRole */
+        { 1062, 0, NULL }, /* NoUndlyInstrumentPartySubIDs */
+        { 1063, 0, NULL }, /* UnderlyingInstrumentPartySubID */
+        { 1064, 0, NULL }, /* UnderlyingInstrumentPartySubIDType */
+        { 1065, 0, NULL }, /* BidSwapPoints */
+        { 1066, 0, NULL }, /* OfferSwapPoints */
+        { 1067, 0, NULL }, /* LegBidForwardPoints */
+        { 1068, 0, NULL }, /* LegOfferForwardPoints */
+        { 1069, 0, NULL }, /* SwapPoints */
+        { 1070, 0, MDQuoteType_val },
+        { 1071, 0, NULL }, /* LastSwapPoints */
+        { 1072, 0, NULL }, /* SideGrossTradeAmt */
+        { 1073, 0, NULL }, /* LegLastForwardPoints */
+        { 1074, 0, NULL }, /* LegCalculatedCcyLastQty */
+        { 1075, 0, NULL }, /* LegGrossTradeAmt */
+        { 1079, 0, NULL }, /* MaturityTime */
+        { 1080, 0, NULL }, /* RefOrderID */
+        { 1081, 2, RefOrderIDSource_val },
+        { 1082, 0, NULL }, /* SecondaryDisplayQty */
+        { 1083, 2, DisplayWhen_val },
+        { 1084, 2, DisplayMethod_val },
+        { 1085, 0, NULL }, /* DisplayLowQty */
+        { 1086, 0, NULL }, /* DisplayHighQty */
+        { 1087, 0, NULL }, /* DisplayMinIncr */
+        { 1088, 0, NULL }, /* RefreshQty */
+        { 1089, 0, NULL }, /* MatchIncrement */
+        { 1090, 0, NULL }, /* MaxPriceLevels */
+        { 1091, 0, NULL }, /* PreTradeAnonymity */
+        { 1092, 2, PriceProtectionScope_val },
+        { 1093, 2, LotType_val },
+        { 1094, 0, PegPriceType_val },
+        { 1095, 0, NULL }, /* PeggedRefPrice */
+        { 1096, 0, NULL }, /* PegSecurityIDSource */
+        { 1097, 0, NULL }, /* PegSecurityID */
+        { 1098, 0, NULL }, /* PegSymbol */
+        { 1099, 0, NULL }, /* PegSecurityDesc */
+        { 1100, 2, TriggerType_val },
+        { 1101, 2, TriggerAction_val },
+        { 1102, 0, NULL }, /* TriggerPrice */
+        { 1103, 0, NULL }, /* TriggerSymbol */
+        { 1104, 0, NULL }, /* TriggerSecurityID */
+        { 1105, 0, NULL }, /* TriggerSecurityIDSource */
+        { 1106, 0, NULL }, /* TriggerSecurityDesc */
+        { 1107, 2, TriggerPriceType_val },
+        { 1108, 2, TriggerPriceTypeScope_val },
+        { 1109, 2, TriggerPriceDirection_val },
+        { 1110, 0, NULL }, /* TriggerNewPrice */
+        { 1111, 2, TriggerOrderType_val },
+        { 1112, 0, NULL }, /* TriggerNewQty */
+        { 1113, 0, NULL }, /* TriggerTradingSessionID */
+        { 1114, 0, NULL }, /* TriggerTradingSessionSubID */
+        { 1115, 2, OrderCategory_val },
+        { 1116, 0, NULL }, /* NoRootPartyIDs */
+        { 1117, 0, NULL }, /* RootPartyID */
+        { 1118, 0, NULL }, /* RootPartyIDSource */
+        { 1119, 0, NULL }, /* RootPartyRole */
+        { 1120, 0, NULL }, /* NoRootPartySubIDs */
+        { 1121, 0, NULL }, /* RootPartySubID */
+        { 1122, 0, NULL }, /* RootPartySubIDType */
+        { 1123, 2, TradeHandlingInstr_val },
+        { 1124, 0, NULL }, /* OrigTradeHandlingInstr */
+        { 1125, 0, NULL }, /* OrigTradeDate */
+        { 1126, 0, NULL }, /* OrigTradeID */
+        { 1127, 0, NULL }, /* OrigSecondaryTradeID */
+        { 1128, 1, ApplVerID_val },
+        { 1129, 0, NULL }, /* CstmApplVerID */
+        { 1130, 0, NULL }, /* RefApplVerID */
+        { 1131, 0, NULL }, /* RefCstmApplVerID */
+        { 1132, 0, NULL }, /* TZTransactTime */
+        { 1133, 2, ExDestinationIDSource_val },
+        { 1134, 0, NULL }, /* ReportedPxDiff */
+        { 1135, 0, NULL }, /* RptSys */
+        { 1136, 0, NULL }, /* AllocClearingFeeIndicator */
+        { 1137, 0, NULL }, /* DefaultApplVerID */
+        { 1138, 0, NULL }, /* DisplayQty */
+        { 1139, 0, NULL }, /* ExchangeSpecialInstructions */
+        { 1140, 0, NULL }, /* MaxTradeVol */
+        { 1141, 0, NULL }, /* NoMDFeedTypes */
+        { 1142, 0, NULL }, /* MatchAlgorithm */
+        { 1143, 0, NULL }, /* MaxPriceVariation */
+        { 1144, 0, ImpliedMarketIndicator_val },
+        { 1145, 0, NULL }, /* EventTime */
+        { 1146, 0, NULL }, /* MinPriceIncrementAmount */
+        { 1147, 0, NULL }, /* UnitOfMeasureQty */
+        { 1148, 0, NULL }, /* LowLimitPrice */
+        { 1149, 0, NULL }, /* HighLimitPrice */
+        { 1150, 0, NULL }, /* TradingReferencePrice */
+        { 1151, 0, NULL }, /* SecurityGroup */
+        { 1152, 0, NULL }, /* LegNumber */
+        { 1153, 0, NULL }, /* SettlementCycleNo */
+        { 1154, 0, NULL }, /* SideCurrency */
+        { 1155, 0, NULL }, /* SideSettlCurrency */
+        { 1156, 0, NULL }, /* ApplExtID */
+        { 1157, 0, NULL }, /* CcyAmt */
+        { 1158, 0, NULL }, /* NoSettlDetails */
+        { 1159, 0, SettlObligMode_val },
+        { 1160, 0, NULL }, /* SettlObligMsgID */
+        { 1161, 0, NULL }, /* SettlObligID */
+        { 1162, 2, SettlObligTransType_val },
+        { 1163, 0, NULL }, /* SettlObligRefID */
+        { 1164, 2, SettlObligSource_val },
+        { 1165, 0, NULL }, /* NoSettlOblig */
+        { 1166, 0, NULL }, /* QuoteMsgID */
+        { 1167, 0, QuoteEntryStatus_val },
+        { 1168, 0, NULL }, /* TotNoCxldQuotes */
+        { 1169, 0, NULL }, /* TotNoAccQuotes */
+        { 1170, 0, NULL }, /* TotNoRejQuotes */
+        { 1171, 0, NULL }, /* PrivateQuote */
+        { 1172, 0, RespondentType_val },
+        { 1173, 0, NULL }, /* MDSubBookType */
+        { 1174, 0, SecurityTradingEvent_val },
+        { 1175, 0, NULL }, /* NoStatsIndicators */
+        { 1176, 0, StatsType_val },
+        { 1177, 0, NULL }, /* NoOfSecSizes */
+        { 1178, 0, MDSecSizeType_val },
+        { 1179, 0, NULL }, /* MDSecSize */
+        { 1180, 0, NULL }, /* ApplID */
+        { 1181, 0, NULL }, /* ApplSeqNum */
+        { 1182, 0, NULL }, /* ApplBegSeqNum */
+        { 1183, 0, NULL }, /* ApplEndSeqNum */
+        { 1184, 0, NULL }, /* SecurityXMLLen */
+        { 1185, 0, NULL }, /* SecurityXML */
+        { 1186, 0, NULL }, /* SecurityXMLSchema */
+        { 1187, 0, NULL }, /* RefreshIndicator */
+        { 1188, 0, NULL }, /* Volatility */
+        { 1189, 0, NULL }, /* TimeToExpiration */
+        { 1190, 0, NULL }, /* RiskFreeRate */
+        { 1191, 0, NULL }, /* PriceUnitOfMeasure */
+        { 1192, 0, NULL }, /* PriceUnitOfMeasureQty */
+        { 1193, 2, SettlMethod_val },
+        { 1194, 0, ExerciseStyle_val },
+        { 1195, 0, NULL }, /* OptPayoutAmount */
+        { 1196, 1, PriceQuoteMethod_val },
+        { 1197, 1, ValuationMethod_val },
+        { 1198, 0, ListMethod_val },
+        { 1199, 0, NULL }, /* CapPrice */
+        { 1200, 0, NULL }, /* FloorPrice */
+        { 1201, 0, NULL }, /* NoStrikeRules */
+        { 1202, 0, NULL }, /* StartStrikePxRange */
+        { 1203, 0, NULL }, /* EndStrikePxRange */
+        { 1204, 0, NULL }, /* StrikeIncrement */
+        { 1205, 0, NULL }, /* NoTickRules */
+        { 1206, 0, NULL }, /* StartTickPriceRange */
+        { 1207, 0, NULL }, /* EndTickPriceRange */
+        { 1208, 0, NULL }, /* TickIncrement */
+        { 1209, 0, TickRuleType_val },
+        { 1210, 0, NULL }, /* NestedInstrAttribType */
+        { 1211, 0, NULL }, /* NestedInstrAttribValue */
+        { 1212, 0, NULL }, /* LegMaturityTime */
+        { 1213, 0, NULL }, /* UnderlyingMaturityTime */
+        { 1214, 0, NULL }, /* DerivativeSymbol */
+        { 1215, 0, NULL }, /* DerivativeSymbolSfx */
+        { 1216, 0, NULL }, /* DerivativeSecurityID */
+        { 1217, 0, NULL }, /* DerivativeSecurityIDSource */
+        { 1218, 0, NULL }, /* NoDerivativeSecurityAltID */
+        { 1219, 0, NULL }, /* DerivativeSecurityAltID */
+        { 1220, 0, NULL }, /* DerivativeSecurityAltIDSource */
+        { 1221, 0, NULL }, /* SecondaryLowLimitPrice */
+        { 1222, 0, NULL }, /* MaturityRuleID */
+        { 1223, 0, NULL }, /* StrikeRuleID */
+        { 1224, 0, NULL }, /* LegUnitOfMeasureQty */
+        { 1225, 0, NULL }, /* DerivativeOptPayAmount */
+        { 1226, 0, NULL }, /* EndMaturityMonthYear */
+        { 1227, 0, NULL }, /* ProductComplex */
+        { 1228, 0, NULL }, /* DerivativeProductComplex */
+        { 1229, 0, NULL }, /* MaturityMonthYearIncrement */
+        { 1230, 0, NULL }, /* SecondaryHighLimitPrice */
+        { 1231, 0, NULL }, /* MinLotSize */
+        { 1232, 0, NULL }, /* NoExecInstRules */
+        { 1234, 0, NULL }, /* NoLotTypeRules */
+        { 1235, 0, NULL }, /* NoMatchRules */
+        { 1236, 0, NULL }, /* NoMaturityRules */
+        { 1237, 0, NULL }, /* NoOrdTypeRules */
+        { 1239, 0, NULL }, /* NoTimeInForceRules */
+        { 1240, 0, NULL }, /* SecondaryTradingReferencePrice */
+        { 1241, 0, NULL }, /* StartMaturityMonthYear */
+        { 1242, 0, NULL }, /* FlexProductEligibilityIndicator */
+        { 1243, 0, NULL }, /* DerivFlexProductEligibilityIndicator */
+        { 1244, 0, NULL }, /* FlexibleIndicator */
+        { 1245, 0, NULL }, /* TradingCurrency */
+        { 1246, 0, NULL }, /* DerivativeProduct */
+        { 1247, 0, NULL }, /* DerivativeSecurityGroup */
+        { 1248, 0, NULL }, /* DerivativeCFICode */
+        { 1249, 0, NULL }, /* DerivativeSecurityType */
+        { 1250, 0, NULL }, /* DerivativeSecuritySubType */
+        { 1251, 0, NULL }, /* DerivativeMaturityMonthYear */
+        { 1252, 0, NULL }, /* DerivativeMaturityDate */
+        { 1253, 0, NULL }, /* DerivativeMaturityTime */
+        { 1254, 0, NULL }, /* DerivativeSettleOnOpenFlag */
+        { 1255, 0, NULL }, /* DerivativeInstrmtAssignmentMethod */
+        { 1256, 0, NULL }, /* DerivativeSecurityStatus */
+        { 1257, 0, NULL }, /* DerivativeInstrRegistry */
+        { 1258, 0, NULL }, /* DerivativeCountryOfIssue */
+        { 1259, 0, NULL }, /* DerivativeStateOrProvinceOfIssue */
+        { 1260, 0, NULL }, /* DerivativeLocaleOfIssue */
+        { 1261, 0, NULL }, /* DerivativeStrikePrice */
+        { 1262, 0, NULL }, /* DerivativeStrikeCurrency */
+        { 1263, 0, NULL }, /* DerivativeStrikeMultiplier */
+        { 1264, 0, NULL }, /* DerivativeStrikeValue */
+        { 1265, 0, NULL }, /* DerivativeOptAttribute */
+        { 1266, 0, NULL }, /* DerivativeContractMultiplier */
+        { 1267, 0, NULL }, /* DerivativeMinPriceIncrement */
+        { 1268, 0, NULL }, /* DerivativeMinPriceIncrementAmount */
+        { 1269, 0, NULL }, /* DerivativeUnitOfMeasure */
+        { 1270, 0, NULL }, /* DerivativeUnitOfMeasureQty */
+        { 1271, 0, NULL }, /* DerivativeTimeUnit */
+        { 1272, 0, NULL }, /* DerivativeSecurityExchange */
+        { 1273, 0, NULL }, /* DerivativePositionLimit */
+        { 1274, 0, NULL }, /* DerivativeNTPositionLimit */
+        { 1275, 0, NULL }, /* DerivativeIssuer */
+        { 1276, 0, NULL }, /* DerivativeIssueDate */
+        { 1277, 0, NULL }, /* DerivativeEncodedIssuerLen */
+        { 1278, 0, NULL }, /* DerivativeEncodedIssuer */
+        { 1279, 0, NULL }, /* DerivativeSecurityDesc */
+        { 1280, 0, NULL }, /* DerivativeEncodedSecurityDescLen */
+        { 1281, 0, NULL }, /* DerivativeEncodedSecurityDesc */
+        { 1282, 0, NULL }, /* DerivativeSecurityXMLLen */
+        { 1283, 0, NULL }, /* DerivativeSecurityXML */
+        { 1284, 0, NULL }, /* DerivativeSecurityXMLSchema */
+        { 1285, 0, NULL }, /* DerivativeContractSettlMonth */
+        { 1286, 0, NULL }, /* NoDerivativeEvents */
+        { 1287, 0, NULL }, /* DerivativeEventType */
+        { 1288, 0, NULL }, /* DerivativeEventDate */
+        { 1289, 0, NULL }, /* DerivativeEventTime */
+        { 1290, 0, NULL }, /* DerivativeEventPx */
+        { 1291, 0, NULL }, /* DerivativeEventText */
+        { 1292, 0, NULL }, /* NoDerivativeInstrumentParties */
+        { 1293, 0, NULL }, /* DerivativeInstrumentPartyID */
+        { 1294, 0, NULL }, /* DerivativeInstrumentPartyIDSource */
+        { 1295, 0, NULL }, /* DerivativeInstrumentPartyRole */
+        { 1296, 0, NULL }, /* NoDerivativeInstrumentPartySubIDs */
+        { 1297, 0, NULL }, /* DerivativeInstrumentPartySubID */
+        { 1298, 0, NULL }, /* DerivativeInstrumentPartySubIDType */
+        { 1299, 0, NULL }, /* DerivativeExerciseStyle */
+        { 1300, 0, NULL }, /* MarketSegmentID */
+        { 1301, 0, NULL }, /* MarketID */
+        { 1302, 0, MaturityMonthYearIncrementUnits_val },
+        { 1303, 0, MaturityMonthYearFormat_val },
+        { 1304, 0, NULL }, /* StrikeExerciseStyle */
+        { 1305, 0, NULL }, /* SecondaryPriceLimitType */
+        { 1306, 0, PriceLimitType_val },
+        { 1307, 0, DerivativeSecurityListRequestType_val },
+        { 1308, 0, NULL }, /* ExecInstValue */
+        { 1309, 0, NULL }, /* NoTradingSessionRules */
+        { 1310, 0, NULL }, /* NoMarketSegments */
+        { 1311, 0, NULL }, /* NoDerivativeInstrAttrib */
+        { 1312, 0, NULL }, /* NoNestedInstrAttrib */
+        { 1313, 0, NULL }, /* DerivativeInstrAttribType */
+        { 1314, 0, NULL }, /* DerivativeInstrAttribValue */
+        { 1315, 0, NULL }, /* DerivativePriceUnitOfMeasure */
+        { 1316, 0, NULL }, /* DerivativePriceUnitOfMeasureQty */
+        { 1317, 0, NULL }, /* DerivativeSettlMethod */
+        { 1318, 0, NULL }, /* DerivativePriceQuoteMethod */
+        { 1319, 0, NULL }, /* DerivativeValuationMethod */
+        { 1320, 0, NULL }, /* DerivativeListMethod */
+        { 1321, 0, NULL }, /* DerivativeCapPrice */
+        { 1322, 0, NULL }, /* DerivativeFloorPrice */
+        { 1323, 0, NULL }, /* DerivativePutOrCall */
+        { 1324, 0, NULL }, /* ListUpdateAction */
+        { 1325, 0, NULL }, /* ParentMktSegmID */
+        { 1326, 0, NULL }, /* TradingSessionDesc */
+        { 1327, 0, NULL }, /* TradSesUpdateAction */
+        { 1328, 0, NULL }, /* RejectText */
+        { 1329, 0, NULL }, /* FeeMultiplier */
+        { 1330, 0, NULL }, /* UnderlyingLegSymbol */
+        { 1331, 0, NULL }, /* UnderlyingLegSymbolSfx */
+        { 1332, 0, NULL }, /* UnderlyingLegSecurityID */
+        { 1333, 0, NULL }, /* UnderlyingLegSecurityIDSource */
+        { 1334, 0, NULL }, /* NoUnderlyingLegSecurityAltID */
+        { 1335, 0, NULL }, /* UnderlyingLegSecurityAltID */
+        { 1336, 0, NULL }, /* UnderlyingLegSecurityAltIDSource */
+        { 1337, 0, NULL }, /* UnderlyingLegSecurityType */
+        { 1338, 0, NULL }, /* UnderlyingLegSecuritySubType */
+        { 1339, 0, NULL }, /* UnderlyingLegMaturityMonthYear */
+        { 1340, 0, NULL }, /* UnderlyingLegStrikePrice */
+        { 1341, 0, NULL }, /* UnderlyingLegSecurityExchange */
+        { 1342, 0, NULL }, /* NoOfLegUnderlyings */
+        { 1343, 0, NULL }, /* UnderlyingLegPutOrCall */
+        { 1344, 0, NULL }, /* UnderlyingLegCFICode */
+        { 1345, 0, NULL }, /* UnderlyingLegMaturityDate */
+        { 1346, 0, NULL }, /* ApplReqID */
+        { 1347, 0, ApplReqType_val },
+        { 1348, 0, ApplResponseType_val },
+        { 1349, 0, NULL }, /* ApplTotalMessageCount */
+        { 1350, 0, NULL }, /* ApplLastSeqNum */
+        { 1351, 0, NULL }, /* NoApplIDs */
+        { 1352, 0, NULL }, /* ApplResendFlag */
+        { 1353, 0, NULL }, /* ApplResponseID */
+        { 1354, 0, ApplResponseError_val },
+        { 1355, 0, NULL }, /* RefApplID */
+        { 1356, 0, NULL }, /* ApplReportID */
+        { 1357, 0, NULL }, /* RefApplLastSeqNum */
+        { 1358, 0, NULL }, /* LegPutOrCall */
+        { 1359, 0, NULL }, /* EncodedSymbolLen */
+        { 1360, 0, NULL }, /* EncodedSymbol */
+        { 1361, 0, NULL }, /* TotNoFills */
+        { 1362, 0, NULL }, /* NoFills */
+        { 1363, 0, NULL }, /* FillExecID */
+        { 1364, 0, NULL }, /* FillPx */
+        { 1365, 0, NULL }, /* FillQty */
+        { 1366, 0, NULL }, /* LegAllocID */
+        { 1367, 0, NULL }, /* LegAllocSettlCurrency */
+        { 1368, 0, TradSesEvent_val },
+        { 1369, 0, NULL }, /* MassActionReportID */
+        { 1370, 0, NULL }, /* NoNotAffectedOrders */
+        { 1371, 0, NULL }, /* NotAffectedOrderID */
+        { 1372, 0, NULL }, /* NotAffOrigClOrdID */
+        { 1373, 0, MassActionType_val },
+        { 1374, 0, MassActionScope_val },
+        { 1375, 0, MassActionResponse_val },
+        { 1376, 0, MassActionRejectReason_val },
+        { 1377, 0, MultilegModel_val },
+        { 1378, 0, MultilegPriceMethod_val },
+        { 1379, 0, NULL }, /* LegVolatility */
+        { 1380, 0, NULL }, /* DividendYield */
+        { 1381, 0, NULL }, /* LegDividendYield */
+        { 1382, 0, NULL }, /* CurrencyRatio */
+        { 1383, 0, NULL }, /* LegCurrencyRatio */
+        { 1384, 0, NULL }, /* LegExecInst */
+        { 1385, 0, ContingencyType_val },
+        { 1386, 0, ListRejectReason_val },
+        { 1387, 0, NULL }, /* NoTrdRepIndicators */
+        { 1388, 0, NULL }, /* TrdRepPartyRole */
+        { 1389, 0, NULL }, /* TrdRepIndicator */
+        { 1390, 0, TradePublishIndicator_val },
+        { 1391, 0, NULL }, /* UnderlyingLegOptAttribute */
+        { 1392, 0, NULL }, /* UnderlyingLegSecurityDesc */
+        { 1393, 0, NULL }, /* MarketReqID */
+        { 1394, 0, NULL }, /* MarketReportID */
+        { 1395, 2, MarketUpdateAction_val },
+        { 1396, 0, NULL }, /* MarketSegmentDesc */
+        { 1397, 0, NULL }, /* EncodedMktSegmDescLen */
+        { 1398, 0, NULL }, /* EncodedMktSegmDesc */
+        { 1399, 0, NULL }, /* ApplNewSeqNum */
+        { 1400, 0, NULL }, /* EncryptedPasswordMethod */
+        { 1401, 0, NULL }, /* EncryptedPasswordLen */
+        { 1402, 0, NULL }, /* EncryptedPassword */
+        { 1403, 0, NULL }, /* EncryptedNewPasswordLen */
+        { 1404, 0, NULL }, /* EncryptedNewPassword */
+        { 1405, 0, NULL }, /* UnderlyingLegMaturityTime */
+        { 1406, 0, NULL }, /* RefApplExtID */
+        { 1407, 0, NULL }, /* DefaultApplExtID */
+        { 1408, 0, NULL }, /* DefaultCstmApplVerID */
+        { 1409, 0, SessionStatus_val },
+        { 1410, 0, NULL }, /* DefaultVerIndicator */
+        { 1411, 0, NULL }, /* Nested4PartySubIDType */
+        { 1412, 0, NULL }, /* Nested4PartySubID */
+        { 1413, 0, NULL }, /* NoNested4PartySubIDs */
+        { 1414, 0, NULL }, /* NoNested4PartyIDs */
+        { 1415, 0, NULL }, /* Nested4PartyID */
+        { 1416, 0, NULL }, /* Nested4PartyIDSource */
+        { 1417, 0, NULL }, /* Nested4PartyRole */
+        { 1418, 0, NULL }, /* LegLastQty */
+        { 1419, 0, NULL }, /* UnderlyingExerciseStyle */
+        { 1420, 0, NULL }, /* LegExerciseStyle */
+        { 1421, 0, NULL }, /* LegPriceUnitOfMeasure */
+        { 1422, 0, NULL }, /* LegPriceUnitOfMeasureQty */
+        { 1423, 0, NULL }, /* UnderlyingUnitOfMeasureQty */
+        { 1424, 0, NULL }, /* UnderlyingPriceUnitOfMeasure */
+        { 1425, 0, NULL }, /* UnderlyingPriceUnitOfMeasureQty */
+        { 1426, 0, ApplReportType_val },
+        { 1427, 0, NULL }, /* SideExecID */
+        { 1428, 0, NULL }, /* OrderDelay */
+        { 1429, 0, OrderDelayUnit_val },
+        { 1430, 2, VenueType_val },
+        { 1431, 0, RefOrdIDReason_val },
+        { 1432, 0, OrigCustOrderCapacity_val },
+        { 1433, 0, NULL }, /* RefApplReqID */
+        { 1434, 0, ModelType_val },
+        { 1435, 0, ContractMultiplierUnit_val },
+        { 1436, 0, NULL }, /* LegContractMultiplierUnit */
+        { 1437, 0, NULL }, /* UnderlyingContractMultiplierUnit */
+        { 1438, 0, NULL }, /* DerivativeContractMultiplierUnit */
+        { 1439, 0, FlowScheduleType_val },
+        { 1440, 0, NULL }, /* LegFlowScheduleType */
+        { 1441, 0, NULL }, /* UnderlyingFlowScheduleType */
+        { 1442, 0, NULL }, /* DerivativeFlowScheduleType */
+        { 1443, 0, NULL }, /* FillLiquidityInd */
+        { 1444, 0, NULL }, /* SideLiquidityInd */
+        { 1445, 0, NULL }, /* NoRateSources */
+        { 1446, 0, RateSource_val },
+        { 1447, 0, RateSourceType_val },
+        { 1448, 0, NULL }, /* ReferencePage */
+        { 1449, 1, RestructuringType_val },
+        { 1450, 1, Seniority_val },
+        { 1451, 0, NULL }, /* NotionalPercentageOutstanding */
+        { 1452, 0, NULL }, /* OriginalNotionalPercentageOutstanding */
+        { 1453, 0, NULL }, /* UnderlyingRestructuringType */
+        { 1454, 0, NULL }, /* UnderlyingSeniority */
+        { 1455, 0, NULL }, /* UnderlyingNotionalPercentageOutstanding */
+        { 1456, 0, NULL }, /* UnderlyingOriginalNotionalPercentageOutstanding */
+        { 1457, 0, NULL }, /* AttachmentPoint */
+        { 1458, 0, NULL }, /* DetachmentPoint */
+        { 1459, 0, NULL }, /* UnderlyingAttachmentPoint */
+        { 1460, 0, NULL }, /* UnderlyingDetachmentPoint */
+        { 1461, 0, NULL }, /* NoTargetPartyIDs */
+        { 1462, 0, NULL }, /* TargetPartyID */
+        { 1463, 0, NULL }, /* TargetPartyIDSource */
+        { 1464, 0, NULL }, /* TargetPartyRole */
+        { 1465, 0, NULL }, /* SecurityListID */
+        { 1466, 0, NULL }, /* SecurityListRefID */
+        { 1467, 0, NULL }, /* SecurityListDesc */
+        { 1468, 0, NULL }, /* EncodedSecurityListDescLen */
+        { 1469, 0, NULL }, /* EncodedSecurityListDesc */
+        { 1470, 0, SecurityListType_val },
+        { 1471, 0, SecurityListTypeSource_val },
+        { 1472, 0, NULL }, /* NewsID */
+        { 1473, 0, NewsCategory_val },
+        { 1474, 0, NULL }, /* LanguageCode */
+        { 1475, 0, NULL }, /* NoNewsRefIDs */
+        { 1476, 0, NULL }, /* NewsRefID */
+        { 1477, 0, NewsRefType_val },
+        { 1478, 0, StrikePriceDeterminationMethod_val },
+        { 1479, 0, StrikePriceBoundaryMethod_val },
+        { 1480, 0, NULL }, /* StrikePriceBoundaryPrecision */
+        { 1481, 0, UnderlyingPriceDeterminationMethod_val },
+        { 1482, 0, OptPayoutType_val },
+        { 1483, 0, NULL }, /* NoComplexEvents */
+        { 1484, 0, ComplexEventType_val },
+        { 1485, 0, NULL }, /* ComplexOptPayoutAmount */
+        { 1486, 0, NULL }, /* ComplexEventPrice */
+        { 1487, 0, ComplexEventPriceBoundaryMethod_val },
+        { 1488, 0, NULL }, /* ComplexEventPriceBoundaryPrecision */
+        { 1489, 0, ComplexEventPriceTimeType_val },
+        { 1490, 0, ComplexEventCondition_val },
+        { 1491, 0, NULL }, /* NoComplexEventDates */
+        { 1492, 0, NULL }, /* ComplexEventStartDate */
+        { 1493, 0, NULL }, /* ComplexEventEndDate */
+        { 1494, 0, NULL }, /* NoComplexEventTimes */
+        { 1495, 0, NULL }, /* ComplexEventStartTime */
+        { 1496, 0, NULL }, /* ComplexEventEndTime */
+        { 1497, 0, NULL }, /* StreamAsgnReqID */
+        { 1498, 0, StreamAsgnReqType_val },
+        { 1499, 0, NULL }, /* NoAsgnReqs */
+        { 1500, 0, NULL }, /* MDStreamID */
+        { 1501, 0, NULL }, /* StreamAsgnRptID */
+        { 1502, 0, StreamAsgnRejReason_val },
+        { 1503, 0, StreamAsgnAckType_val },
+        { 1504, 0, NULL }, /* RelSymTransactTime */
+        { 1505, 0, NULL }, /* PartyDetailsListRequestID */
+        { 1506, 0, NULL }, /* NoPartyListResponseTypes */
+        { 1507, 0, PartyListResponseType_val },
+        { 1508, 0, NULL }, /* NoRequestedPartyRoles */
+        { 1509, 0, NULL }, /* RequestedPartyRole */
+        { 1510, 0, NULL }, /* PartyDetailsListReportID */
+        { 1511, 0, PartyDetailsRequestResult_val },
+        { 1512, 0, NULL }, /* TotNoPartyList */
+        { 1513, 0, NULL }, /* NoPartyList */
+        { 1514, 0, NULL }, /* NoPartyRelationships */
+        { 1515, 0, PartyRelationship_val },
+        { 1516, 0, NULL }, /* NoPartyAltIDs */
+        { 1517, 0, NULL }, /* PartyAltID */
+        { 1518, 0, NULL }, /* PartyAltIDSource */
+        { 1519, 0, NULL }, /* NoPartyAltSubIDs */
+        { 1520, 0, NULL }, /* PartyAltSubID */
+        { 1521, 0, NULL }, /* PartyAltSubIDType */
+        { 1522, 0, NULL }, /* NoContextPartyIDs */
+        { 1523, 0, NULL }, /* ContextPartyID */
+        { 1524, 0, NULL }, /* ContextPartyIDSource */
+        { 1525, 0, NULL }, /* ContextPartyRole */
+        { 1526, 0, NULL }, /* NoContextPartySubIDs */
+        { 1527, 0, NULL }, /* ContextPartySubID */
+        { 1528, 0, NULL }, /* ContextPartySubIDType */
+        { 1529, 0, NULL }, /* NoRiskLimits */
+        { 1530, 0, RiskLimitType_val },
+        { 1531, 0, NULL }, /* RiskLimitAmount */
+        { 1532, 0, NULL }, /* RiskLimitCurrency */
+        { 1533, 0, NULL }, /* RiskLimitPlatform */
+        { 1534, 0, NULL }, /* NoRiskInstruments */
+        { 1535, 0, RiskInstrumentOperator_val },
+        { 1536, 0, NULL }, /* RiskSymbol */
+        { 1537, 0, NULL }, /* RiskSymbolSfx */
+        { 1538, 0, NULL }, /* RiskSecurityID */
+        { 1539, 0, NULL }, /* RiskSecurityIDSource */
+        { 1540, 0, NULL }, /* NoRiskSecurityAltID */
+        { 1541, 0, NULL }, /* RiskSecurityAltID */
+        { 1542, 0, NULL }, /* RiskSecurityAltIDSource */
+        { 1543, 0, NULL }, /* RiskProduct */
+        { 1544, 0, NULL }, /* RiskProductComplex */
+        { 1545, 0, NULL }, /* RiskSecurityGroup */
+        { 1546, 0, NULL }, /* RiskCFICode */
+        { 1547, 0, NULL }, /* RiskSecurityType */
+        { 1548, 0, NULL }, /* RiskSecuritySubType */
+        { 1549, 0, NULL }, /* RiskMaturityMonthYear */
+        { 1550, 0, NULL }, /* RiskMaturityTime */
+        { 1551, 0, NULL }, /* RiskRestructuringType */
+        { 1552, 0, NULL }, /* RiskSeniority */
+        { 1553, 0, NULL }, /* RiskPutOrCall */
+        { 1554, 0, NULL }, /* RiskFlexibleIndicator */
+        { 1555, 0, NULL }, /* RiskCouponRate */
+        { 1556, 0, NULL }, /* RiskSecurityDesc */
+        { 1557, 0, NULL }, /* RiskInstrumentSettlType */
+        { 1558, 0, NULL }, /* RiskInstrumentMultiplier */
+        { 1559, 0, NULL }, /* NoRiskWarningLevels */
+        { 1560, 0, NULL }, /* RiskWarningLevelPercent */
+        { 1561, 0, NULL }, /* RiskWarningLevelName */
+        { 1562, 0, NULL }, /* NoRelatedPartyIDs */
+        { 1563, 0, NULL }, /* RelatedPartyID */
+        { 1564, 0, NULL }, /* RelatedPartyIDSource */
+        { 1565, 0, NULL }, /* RelatedPartyRole */
+        { 1566, 0, NULL }, /* NoRelatedPartySubIDs */
+        { 1567, 0, NULL }, /* RelatedPartySubID */
+        { 1568, 0, NULL }, /* RelatedPartySubIDType */
+        { 1569, 0, NULL }, /* NoRelatedPartyAltIDs */
+        { 1570, 0, NULL }, /* RelatedPartyAltID */
+        { 1571, 0, NULL }, /* RelatedPartyAltIDSource */
+        { 1572, 0, NULL }, /* NoRelatedPartyAltSubIDs */
+        { 1573, 0, NULL }, /* RelatedPartyAltSubID */
+        { 1574, 0, NULL }, /* RelatedPartyAltSubIDType */
+        { 1575, 0, NULL }, /* NoRelatedContextPartyIDs */
+        { 1576, 0, NULL }, /* RelatedContextPartyID */
+        { 1577, 0, NULL }, /* RelatedContextPartyIDSource */
+        { 1578, 0, NULL }, /* RelatedContextPartyRole */
+        { 1579, 0, NULL }, /* NoRelatedContextPartySubIDs */
+        { 1580, 0, NULL }, /* RelatedContextPartySubID */
+        { 1581, 0, NULL }, /* RelatedContextPartySubIDType */
+        { 1582, 0, NULL }, /* NoRelationshipRiskLimits */
+        { 1583, 0, NULL }, /* RelationshipRiskLimitType */
+        { 1584, 0, NULL }, /* RelationshipRiskLimitAmount */
+        { 1585, 0, NULL }, /* RelationshipRiskLimitCurrency */
+        { 1586, 0, NULL }, /* RelationshipRiskLimitPlatform */
+        { 1587, 0, NULL }, /* NoRelationshipRiskInstruments */
+        { 1588, 0, NULL }, /* RelationshipRiskInstrumentOperator */
+        { 1589, 0, NULL }, /* RelationshipRiskSymbol */
+        { 1590, 0, NULL }, /* RelationshipRiskSymbolSfx */
+        { 1591, 0, NULL }, /* RelationshipRiskSecurityID */
+        { 1592, 0, NULL }, /* RelationshipRiskSecurityIDSource */
+        { 1593, 0, NULL }, /* NoRelationshipRiskSecurityAltID */
+        { 1594, 0, NULL }, /* RelationshipRiskSecurityAltID */
+        { 1595, 0, NULL }, /* RelationshipRiskSecurityAltIDSource */
+        { 1596, 0, NULL }, /* RelationshipRiskProduct */
+        { 1597, 0, NULL }, /* RelationshipRiskProductComplex */
+        { 1598, 0, NULL }, /* RelationshipRiskSecurityGroup */
+        { 1599, 0, NULL }, /* RelationshipRiskCFICode */
+        { 1600, 0, NULL }, /* RelationshipRiskSecurityType */
+        { 1601, 0, NULL }, /* RelationshipRiskSecuritySubType */
+        { 1602, 0, NULL }, /* RelationshipRiskMaturityMonthYear */
+        { 1603, 0, NULL }, /* RelationshipRiskMaturityTime */
+        { 1604, 0, NULL }, /* RelationshipRiskRestructuringType */
+        { 1605, 0, NULL }, /* RelationshipRiskSeniority */
+        { 1606, 0, NULL }, /* RelationshipRiskPutOrCall */
+        { 1607, 0, NULL }, /* RelationshipRiskFlexibleIndicator */
+        { 1608, 0, NULL }, /* RelationshipRiskCouponRate */
+        { 1609, 0, NULL }, /* RelationshipRiskSecurityExchange */
+        { 1610, 0, NULL }, /* RelationshipRiskSecurityDesc */
+        { 1611, 0, NULL }, /* RelationshipRiskInstrumentSettlType */
+        { 1612, 0, NULL }, /* RelationshipRiskInstrumentMultiplier */
+        { 1613, 0, NULL }, /* NoRelationshipRiskWarningLevels */
+        { 1614, 0, NULL }, /* RelationshipRiskWarningLevelPercent */
+        { 1615, 0, NULL }, /* RelationshipRiskWarningLevelName */
+        { 1616, 0, NULL }, /* RiskSecurityExchange */
+        { 1617, 0, StreamAsgnType_val },
+        { 1618, 0, NULL }, /* RelationshipRiskEncodedSecurityDescLen */
+        { 1619, 0, NULL }, /* RelationshipRiskEncodedSecurityDesc */
+        { 1620, 0, NULL }, /* RiskEncodedSecurityDescLen */
+        { 1621, 0, NULL }, /* RiskEncodedSecurityDesc */
     };
 
+static int fix_hf[1610];
 static hf_register_info hf_FIX[] = {
 
-        { &fix_fields[0].hf_id,
+        { &fix_hf[0],
             { "Account (1)", "fix.Account",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1].hf_id,
+        { &fix_hf[1],
             { "AdvId (2)", "fix.AdvId",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[2].hf_id,
+        { &fix_hf[2],
             { "AdvRefID (3)", "fix.AdvRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[3].hf_id,
+        { &fix_hf[3],
             { "AdvSide (4)", "fix.AdvSide",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[4].hf_id,
+        { &fix_hf[4],
             { "AdvTransType (5)", "fix.AdvTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[5].hf_id,
+        { &fix_hf[5],
             { "AvgPx (6)", "fix.AvgPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[6].hf_id,
+        { &fix_hf[6],
             { "BeginSeqNo (7)", "fix.BeginSeqNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[7].hf_id,
+        { &fix_hf[7],
             { "BeginString (8)", "fix.BeginString",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[8].hf_id,
+        { &fix_hf[8],
             { "BodyLength (9)", "fix.BodyLength",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[9].hf_id,
+        { &fix_hf[9],
             { "CheckSum (10)", "fix.CheckSum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[10].hf_id,
+        { &fix_hf[10],
             { "ClOrdID (11)", "fix.ClOrdID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[11].hf_id,
+        { &fix_hf[11],
             { "Commission (12)", "fix.Commission",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[12].hf_id,
+        { &fix_hf[12],
             { "CommType (13)", "fix.CommType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[13].hf_id,
+        { &fix_hf[13],
             { "CumQty (14)", "fix.CumQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[14].hf_id,
+        { &fix_hf[14],
             { "Currency (15)", "fix.Currency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[15].hf_id,
+        { &fix_hf[15],
             { "EndSeqNo (16)", "fix.EndSeqNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[16].hf_id,
+        { &fix_hf[16],
             { "ExecID (17)", "fix.ExecID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[17].hf_id,
+        { &fix_hf[17],
             { "ExecInst (18)", "fix.ExecInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[18].hf_id,
+        { &fix_hf[18],
             { "ExecRefID (19)", "fix.ExecRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[19].hf_id,
+        { &fix_hf[19],
             { "ExecTransType (20)", "fix.ExecTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[20].hf_id,
+        { &fix_hf[20],
             { "HandlInst (21)", "fix.HandlInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[21].hf_id,
+        { &fix_hf[21],
             { "SecurityIDSource (22)", "fix.SecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[22].hf_id,
+        { &fix_hf[22],
             { "IOIID (23)", "fix.IOIID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[23].hf_id,
+        { &fix_hf[23],
             { "IOIOthSvc (24)", "fix.IOIOthSvc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[24].hf_id,
+        { &fix_hf[24],
             { "IOIQltyInd (25)", "fix.IOIQltyInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[25].hf_id,
+        { &fix_hf[25],
             { "IOIRefID (26)", "fix.IOIRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[26].hf_id,
+        { &fix_hf[26],
             { "IOIQty (27)", "fix.IOIQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[27].hf_id,
+        { &fix_hf[27],
             { "IOITransType (28)", "fix.IOITransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[28].hf_id,
+        { &fix_hf[28],
             { "LastCapacity (29)", "fix.LastCapacity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[29].hf_id,
+        { &fix_hf[29],
             { "LastMkt (30)", "fix.LastMkt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[30].hf_id,
+        { &fix_hf[30],
             { "LastPx (31)", "fix.LastPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[31].hf_id,
+        { &fix_hf[31],
             { "LastQty (32)", "fix.LastQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[32].hf_id,
+        { &fix_hf[32],
             { "NoLinesOfText (33)", "fix.NoLinesOfText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[33].hf_id,
+        { &fix_hf[33],
             { "MsgSeqNum (34)", "fix.MsgSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[34].hf_id,
+        { &fix_hf[34],
             { "MsgType (35)", "fix.MsgType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[35].hf_id,
+        { &fix_hf[35],
             { "NewSeqNo (36)", "fix.NewSeqNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[36].hf_id,
+        { &fix_hf[36],
             { "OrderID (37)", "fix.OrderID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[37].hf_id,
+        { &fix_hf[37],
             { "OrderQty (38)", "fix.OrderQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[38].hf_id,
+        { &fix_hf[38],
             { "OrdStatus (39)", "fix.OrdStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[39].hf_id,
+        { &fix_hf[39],
             { "OrdType (40)", "fix.OrdType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[40].hf_id,
+        { &fix_hf[40],
             { "OrigClOrdID (41)", "fix.OrigClOrdID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[41].hf_id,
+        { &fix_hf[41],
             { "OrigTime (42)", "fix.OrigTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[42].hf_id,
+        { &fix_hf[42],
             { "PossDupFlag (43)", "fix.PossDupFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[43].hf_id,
+        { &fix_hf[43],
             { "Price (44)", "fix.Price",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[44].hf_id,
+        { &fix_hf[44],
             { "RefSeqNum (45)", "fix.RefSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[45].hf_id,
+        { &fix_hf[45],
             { "RelatdSym (46)", "fix.RelatdSym",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[46].hf_id,
+        { &fix_hf[46],
             { "Rule80A (47)", "fix.Rule80A",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[47].hf_id,
+        { &fix_hf[47],
             { "SecurityID (48)", "fix.SecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[48].hf_id,
+        { &fix_hf[48],
             { "SenderCompID (49)", "fix.SenderCompID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[49].hf_id,
+        { &fix_hf[49],
             { "SenderSubID (50)", "fix.SenderSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[50].hf_id,
+        { &fix_hf[50],
             { "SendingDate (51)", "fix.SendingDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[51].hf_id,
+        { &fix_hf[51],
             { "SendingTime (52)", "fix.SendingTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[52].hf_id,
+        { &fix_hf[52],
             { "Quantity (53)", "fix.Quantity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[53].hf_id,
+        { &fix_hf[53],
             { "Side (54)", "fix.Side",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[54].hf_id,
+        { &fix_hf[54],
             { "Symbol (55)", "fix.Symbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[55].hf_id,
+        { &fix_hf[55],
             { "TargetCompID (56)", "fix.TargetCompID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[56].hf_id,
+        { &fix_hf[56],
             { "TargetSubID (57)", "fix.TargetSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[57].hf_id,
+        { &fix_hf[57],
             { "Text (58)", "fix.Text",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[58].hf_id,
+        { &fix_hf[58],
             { "TimeInForce (59)", "fix.TimeInForce",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[59].hf_id,
+        { &fix_hf[59],
             { "TransactTime (60)", "fix.TransactTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[60].hf_id,
+        { &fix_hf[60],
             { "Urgency (61)", "fix.Urgency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[61].hf_id,
+        { &fix_hf[61],
             { "ValidUntilTime (62)", "fix.ValidUntilTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[62].hf_id,
+        { &fix_hf[62],
             { "SettlType (63)", "fix.SettlType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[63].hf_id,
+        { &fix_hf[63],
             { "SettlDate (64)", "fix.SettlDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[64].hf_id,
+        { &fix_hf[64],
             { "SymbolSfx (65)", "fix.SymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[65].hf_id,
+        { &fix_hf[65],
             { "ListID (66)", "fix.ListID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[66].hf_id,
+        { &fix_hf[66],
             { "ListSeqNo (67)", "fix.ListSeqNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[67].hf_id,
+        { &fix_hf[67],
             { "TotNoOrders (68)", "fix.TotNoOrders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[68].hf_id,
+        { &fix_hf[68],
             { "ListExecInst (69)", "fix.ListExecInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[69].hf_id,
+        { &fix_hf[69],
             { "AllocID (70)", "fix.AllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[70].hf_id,
+        { &fix_hf[70],
             { "AllocTransType (71)", "fix.AllocTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[71].hf_id,
+        { &fix_hf[71],
             { "RefAllocID (72)", "fix.RefAllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[72].hf_id,
+        { &fix_hf[72],
             { "NoOrders (73)", "fix.NoOrders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[73].hf_id,
+        { &fix_hf[73],
             { "AvgPxPrecision (74)", "fix.AvgPxPrecision",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[74].hf_id,
+        { &fix_hf[74],
             { "TradeDate (75)", "fix.TradeDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[75].hf_id,
+        { &fix_hf[75],
             { "ExecBroker (76)", "fix.ExecBroker",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[76].hf_id,
+        { &fix_hf[76],
             { "PositionEffect (77)", "fix.PositionEffect",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[77].hf_id,
+        { &fix_hf[77],
             { "NoAllocs (78)", "fix.NoAllocs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[78].hf_id,
+        { &fix_hf[78],
             { "AllocAccount (79)", "fix.AllocAccount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[79].hf_id,
+        { &fix_hf[79],
             { "AllocQty (80)", "fix.AllocQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[80].hf_id,
+        { &fix_hf[80],
             { "ProcessCode (81)", "fix.ProcessCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[81].hf_id,
+        { &fix_hf[81],
             { "NoRpts (82)", "fix.NoRpts",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[82].hf_id,
+        { &fix_hf[82],
             { "RptSeq (83)", "fix.RptSeq",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[83].hf_id,
+        { &fix_hf[83],
             { "CxlQty (84)", "fix.CxlQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[84].hf_id,
+        { &fix_hf[84],
             { "NoDlvyInst (85)", "fix.NoDlvyInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[85].hf_id,
+        { &fix_hf[85],
             { "DlvyInst (86)", "fix.DlvyInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[86].hf_id,
+        { &fix_hf[86],
             { "AllocStatus (87)", "fix.AllocStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[87].hf_id,
+        { &fix_hf[87],
             { "AllocRejCode (88)", "fix.AllocRejCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[88].hf_id,
+        { &fix_hf[88],
             { "Signature (89)", "fix.Signature",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[89].hf_id,
+        { &fix_hf[89],
             { "SecureDataLen (90)", "fix.SecureDataLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[90].hf_id,
+        { &fix_hf[90],
             { "SecureData (91)", "fix.SecureData",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[91].hf_id,
+        { &fix_hf[91],
             { "BrokerOfCredit (92)", "fix.BrokerOfCredit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[92].hf_id,
+        { &fix_hf[92],
             { "SignatureLength (93)", "fix.SignatureLength",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[93].hf_id,
+        { &fix_hf[93],
             { "EmailType (94)", "fix.EmailType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[94].hf_id,
+        { &fix_hf[94],
             { "RawDataLength (95)", "fix.RawDataLength",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[95].hf_id,
+        { &fix_hf[95],
             { "RawData (96)", "fix.RawData",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[96].hf_id,
+        { &fix_hf[96],
             { "PossResend (97)", "fix.PossResend",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[97].hf_id,
+        { &fix_hf[97],
             { "EncryptMethod (98)", "fix.EncryptMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[98].hf_id,
+        { &fix_hf[98],
             { "StopPx (99)", "fix.StopPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[99].hf_id,
+        { &fix_hf[99],
             { "ExDestination (100)", "fix.ExDestination",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[100].hf_id,
+        { &fix_hf[100],
             { "CxlRejReason (102)", "fix.CxlRejReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[101].hf_id,
+        { &fix_hf[101],
             { "OrdRejReason (103)", "fix.OrdRejReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[102].hf_id,
+        { &fix_hf[102],
             { "IOIQualifier (104)", "fix.IOIQualifier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[103].hf_id,
+        { &fix_hf[103],
             { "WaveNo (105)", "fix.WaveNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[104].hf_id,
+        { &fix_hf[104],
             { "Issuer (106)", "fix.Issuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[105].hf_id,
+        { &fix_hf[105],
             { "SecurityDesc (107)", "fix.SecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[106].hf_id,
+        { &fix_hf[106],
             { "HeartBtInt (108)", "fix.HeartBtInt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[107].hf_id,
+        { &fix_hf[107],
             { "ClientID (109)", "fix.ClientID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[108].hf_id,
+        { &fix_hf[108],
             { "MinQty (110)", "fix.MinQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[109].hf_id,
+        { &fix_hf[109],
             { "MaxFloor (111)", "fix.MaxFloor",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[110].hf_id,
+        { &fix_hf[110],
             { "TestReqID (112)", "fix.TestReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[111].hf_id,
+        { &fix_hf[111],
             { "ReportToExch (113)", "fix.ReportToExch",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[112].hf_id,
+        { &fix_hf[112],
             { "LocateReqd (114)", "fix.LocateReqd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[113].hf_id,
+        { &fix_hf[113],
             { "OnBehalfOfCompID (115)", "fix.OnBehalfOfCompID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[114].hf_id,
+        { &fix_hf[114],
             { "OnBehalfOfSubID (116)", "fix.OnBehalfOfSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[115].hf_id,
+        { &fix_hf[115],
             { "QuoteID (117)", "fix.QuoteID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[116].hf_id,
+        { &fix_hf[116],
             { "NetMoney (118)", "fix.NetMoney",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[117].hf_id,
+        { &fix_hf[117],
             { "SettlCurrAmt (119)", "fix.SettlCurrAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[118].hf_id,
+        { &fix_hf[118],
             { "SettlCurrency (120)", "fix.SettlCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[119].hf_id,
+        { &fix_hf[119],
             { "ForexReq (121)", "fix.ForexReq",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[120].hf_id,
+        { &fix_hf[120],
             { "OrigSendingTime (122)", "fix.OrigSendingTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[121].hf_id,
+        { &fix_hf[121],
             { "GapFillFlag (123)", "fix.GapFillFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[122].hf_id,
+        { &fix_hf[122],
             { "NoExecs (124)", "fix.NoExecs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[123].hf_id,
+        { &fix_hf[123],
             { "CxlType (125)", "fix.CxlType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[124].hf_id,
+        { &fix_hf[124],
             { "ExpireTime (126)", "fix.ExpireTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[125].hf_id,
+        { &fix_hf[125],
             { "DKReason (127)", "fix.DKReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[126].hf_id,
+        { &fix_hf[126],
             { "DeliverToCompID (128)", "fix.DeliverToCompID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[127].hf_id,
+        { &fix_hf[127],
             { "DeliverToSubID (129)", "fix.DeliverToSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[128].hf_id,
+        { &fix_hf[128],
             { "IOINaturalFlag (130)", "fix.IOINaturalFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[129].hf_id,
+        { &fix_hf[129],
             { "QuoteReqID (131)", "fix.QuoteReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[130].hf_id,
+        { &fix_hf[130],
             { "BidPx (132)", "fix.BidPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[131].hf_id,
+        { &fix_hf[131],
             { "OfferPx (133)", "fix.OfferPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[132].hf_id,
+        { &fix_hf[132],
             { "BidSize (134)", "fix.BidSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[133].hf_id,
+        { &fix_hf[133],
             { "OfferSize (135)", "fix.OfferSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[134].hf_id,
+        { &fix_hf[134],
             { "NoMiscFees (136)", "fix.NoMiscFees",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[135].hf_id,
+        { &fix_hf[135],
             { "MiscFeeAmt (137)", "fix.MiscFeeAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[136].hf_id,
+        { &fix_hf[136],
             { "MiscFeeCurr (138)", "fix.MiscFeeCurr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[137].hf_id,
+        { &fix_hf[137],
             { "MiscFeeType (139)", "fix.MiscFeeType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[138].hf_id,
+        { &fix_hf[138],
             { "PrevClosePx (140)", "fix.PrevClosePx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[139].hf_id,
+        { &fix_hf[139],
             { "ResetSeqNumFlag (141)", "fix.ResetSeqNumFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[140].hf_id,
+        { &fix_hf[140],
             { "SenderLocationID (142)", "fix.SenderLocationID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[141].hf_id,
+        { &fix_hf[141],
             { "TargetLocationID (143)", "fix.TargetLocationID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[142].hf_id,
+        { &fix_hf[142],
             { "OnBehalfOfLocationID (144)", "fix.OnBehalfOfLocationID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[143].hf_id,
+        { &fix_hf[143],
             { "DeliverToLocationID (145)", "fix.DeliverToLocationID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[144].hf_id,
+        { &fix_hf[144],
             { "NoRelatedSym (146)", "fix.NoRelatedSym",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[145].hf_id,
+        { &fix_hf[145],
             { "Subject (147)", "fix.Subject",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[146].hf_id,
+        { &fix_hf[146],
             { "Headline (148)", "fix.Headline",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[147].hf_id,
+        { &fix_hf[147],
             { "URLLink (149)", "fix.URLLink",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[148].hf_id,
+        { &fix_hf[148],
             { "ExecType (150)", "fix.ExecType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[149].hf_id,
+        { &fix_hf[149],
             { "LeavesQty (151)", "fix.LeavesQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[150].hf_id,
+        { &fix_hf[150],
             { "CashOrderQty (152)", "fix.CashOrderQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[151].hf_id,
+        { &fix_hf[151],
             { "AllocAvgPx (153)", "fix.AllocAvgPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[152].hf_id,
+        { &fix_hf[152],
             { "AllocNetMoney (154)", "fix.AllocNetMoney",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[153].hf_id,
+        { &fix_hf[153],
             { "SettlCurrFxRate (155)", "fix.SettlCurrFxRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[154].hf_id,
+        { &fix_hf[154],
             { "SettlCurrFxRateCalc (156)", "fix.SettlCurrFxRateCalc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[155].hf_id,
+        { &fix_hf[155],
             { "NumDaysInterest (157)", "fix.NumDaysInterest",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[156].hf_id,
+        { &fix_hf[156],
             { "AccruedInterestRate (158)", "fix.AccruedInterestRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[157].hf_id,
+        { &fix_hf[157],
             { "AccruedInterestAmt (159)", "fix.AccruedInterestAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[158].hf_id,
+        { &fix_hf[158],
             { "SettlInstMode (160)", "fix.SettlInstMode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[159].hf_id,
+        { &fix_hf[159],
             { "AllocText (161)", "fix.AllocText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[160].hf_id,
+        { &fix_hf[160],
             { "SettlInstID (162)", "fix.SettlInstID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[161].hf_id,
+        { &fix_hf[161],
             { "SettlInstTransType (163)", "fix.SettlInstTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[162].hf_id,
+        { &fix_hf[162],
             { "EmailThreadID (164)", "fix.EmailThreadID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[163].hf_id,
+        { &fix_hf[163],
             { "SettlInstSource (165)", "fix.SettlInstSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[164].hf_id,
+        { &fix_hf[164],
             { "SettlLocation (166)", "fix.SettlLocation",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[165].hf_id,
+        { &fix_hf[165],
             { "SecurityType (167)", "fix.SecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[166].hf_id,
+        { &fix_hf[166],
             { "EffectiveTime (168)", "fix.EffectiveTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[167].hf_id,
+        { &fix_hf[167],
             { "StandInstDbType (169)", "fix.StandInstDbType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[168].hf_id,
+        { &fix_hf[168],
             { "StandInstDbName (170)", "fix.StandInstDbName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[169].hf_id,
+        { &fix_hf[169],
             { "StandInstDbID (171)", "fix.StandInstDbID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[170].hf_id,
+        { &fix_hf[170],
             { "SettlDeliveryType (172)", "fix.SettlDeliveryType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[171].hf_id,
+        { &fix_hf[171],
             { "SettlDepositoryCode (173)", "fix.SettlDepositoryCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[172].hf_id,
+        { &fix_hf[172],
             { "SettlBrkrCode (174)", "fix.SettlBrkrCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[173].hf_id,
+        { &fix_hf[173],
             { "SettlInstCode (175)", "fix.SettlInstCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[174].hf_id,
+        { &fix_hf[174],
             { "SecuritySettlAgentName (176)", "fix.SecuritySettlAgentName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[175].hf_id,
+        { &fix_hf[175],
             { "SecuritySettlAgentCode (177)", "fix.SecuritySettlAgentCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[176].hf_id,
+        { &fix_hf[176],
             { "SecuritySettlAgentAcctNum (178)", "fix.SecuritySettlAgentAcctNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[177].hf_id,
+        { &fix_hf[177],
             { "SecuritySettlAgentAcctName (179)", "fix.SecuritySettlAgentAcctName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[178].hf_id,
+        { &fix_hf[178],
             { "SecuritySettlAgentContactName (180)", "fix.SecuritySettlAgentContactName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[179].hf_id,
+        { &fix_hf[179],
             { "SecuritySettlAgentContactPhone (181)", "fix.SecuritySettlAgentContactPhone",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[180].hf_id,
+        { &fix_hf[180],
             { "CashSettlAgentName (182)", "fix.CashSettlAgentName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[181].hf_id,
+        { &fix_hf[181],
             { "CashSettlAgentCode (183)", "fix.CashSettlAgentCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[182].hf_id,
+        { &fix_hf[182],
             { "CashSettlAgentAcctNum (184)", "fix.CashSettlAgentAcctNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[183].hf_id,
+        { &fix_hf[183],
             { "CashSettlAgentAcctName (185)", "fix.CashSettlAgentAcctName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[184].hf_id,
+        { &fix_hf[184],
             { "CashSettlAgentContactName (186)", "fix.CashSettlAgentContactName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[185].hf_id,
+        { &fix_hf[185],
             { "CashSettlAgentContactPhone (187)", "fix.CashSettlAgentContactPhone",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[186].hf_id,
+        { &fix_hf[186],
             { "BidSpotRate (188)", "fix.BidSpotRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[187].hf_id,
+        { &fix_hf[187],
             { "BidForwardPoints (189)", "fix.BidForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[188].hf_id,
+        { &fix_hf[188],
             { "OfferSpotRate (190)", "fix.OfferSpotRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[189].hf_id,
+        { &fix_hf[189],
             { "OfferForwardPoints (191)", "fix.OfferForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[190].hf_id,
+        { &fix_hf[190],
             { "OrderQty2 (192)", "fix.OrderQty2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[191].hf_id,
+        { &fix_hf[191],
             { "SettlDate2 (193)", "fix.SettlDate2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[192].hf_id,
+        { &fix_hf[192],
             { "LastSpotRate (194)", "fix.LastSpotRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[193].hf_id,
+        { &fix_hf[193],
             { "LastForwardPoints (195)", "fix.LastForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[194].hf_id,
+        { &fix_hf[194],
             { "AllocLinkID (196)", "fix.AllocLinkID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[195].hf_id,
+        { &fix_hf[195],
             { "AllocLinkType (197)", "fix.AllocLinkType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[196].hf_id,
+        { &fix_hf[196],
             { "SecondaryOrderID (198)", "fix.SecondaryOrderID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[197].hf_id,
+        { &fix_hf[197],
             { "NoIOIQualifiers (199)", "fix.NoIOIQualifiers",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[198].hf_id,
+        { &fix_hf[198],
             { "MaturityMonthYear (200)", "fix.MaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[199].hf_id,
+        { &fix_hf[199],
             { "PutOrCall (201)", "fix.PutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[200].hf_id,
+        { &fix_hf[200],
             { "StrikePrice (202)", "fix.StrikePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[201].hf_id,
+        { &fix_hf[201],
             { "CoveredOrUncovered (203)", "fix.CoveredOrUncovered",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[202].hf_id,
+        { &fix_hf[202],
             { "CustomerOrFirm (204)", "fix.CustomerOrFirm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[203].hf_id,
+        { &fix_hf[203],
             { "MaturityDay (205)", "fix.MaturityDay",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[204].hf_id,
+        { &fix_hf[204],
             { "OptAttribute (206)", "fix.OptAttribute",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[205].hf_id,
+        { &fix_hf[205],
             { "SecurityExchange (207)", "fix.SecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[206].hf_id,
+        { &fix_hf[206],
             { "NotifyBrokerOfCredit (208)", "fix.NotifyBrokerOfCredit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[207].hf_id,
+        { &fix_hf[207],
             { "AllocHandlInst (209)", "fix.AllocHandlInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[208].hf_id,
+        { &fix_hf[208],
             { "MaxShow (210)", "fix.MaxShow",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[209].hf_id,
+        { &fix_hf[209],
             { "PegOffsetValue (211)", "fix.PegOffsetValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[210].hf_id,
+        { &fix_hf[210],
             { "XmlDataLen (212)", "fix.XmlDataLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[211].hf_id,
+        { &fix_hf[211],
             { "XmlData (213)", "fix.XmlData",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[212].hf_id,
+        { &fix_hf[212],
             { "SettlInstRefID (214)", "fix.SettlInstRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[213].hf_id,
+        { &fix_hf[213],
             { "NoRoutingIDs (215)", "fix.NoRoutingIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[214].hf_id,
+        { &fix_hf[214],
             { "RoutingType (216)", "fix.RoutingType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[215].hf_id,
+        { &fix_hf[215],
             { "RoutingID (217)", "fix.RoutingID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[216].hf_id,
+        { &fix_hf[216],
             { "Spread (218)", "fix.Spread",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[217].hf_id,
+        { &fix_hf[217],
             { "Benchmark (219)", "fix.Benchmark",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[218].hf_id,
+        { &fix_hf[218],
             { "BenchmarkCurveCurrency (220)", "fix.BenchmarkCurveCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[219].hf_id,
+        { &fix_hf[219],
             { "BenchmarkCurveName (221)", "fix.BenchmarkCurveName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[220].hf_id,
+        { &fix_hf[220],
             { "BenchmarkCurvePoint (222)", "fix.BenchmarkCurvePoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[221].hf_id,
+        { &fix_hf[221],
             { "CouponRate (223)", "fix.CouponRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[222].hf_id,
+        { &fix_hf[222],
             { "CouponPaymentDate (224)", "fix.CouponPaymentDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[223].hf_id,
+        { &fix_hf[223],
             { "IssueDate (225)", "fix.IssueDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[224].hf_id,
+        { &fix_hf[224],
             { "RepurchaseTerm (226)", "fix.RepurchaseTerm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[225].hf_id,
+        { &fix_hf[225],
             { "RepurchaseRate (227)", "fix.RepurchaseRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[226].hf_id,
+        { &fix_hf[226],
             { "Factor (228)", "fix.Factor",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[227].hf_id,
+        { &fix_hf[227],
             { "TradeOriginationDate (229)", "fix.TradeOriginationDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[228].hf_id,
+        { &fix_hf[228],
             { "ExDate (230)", "fix.ExDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[229].hf_id,
+        { &fix_hf[229],
             { "ContractMultiplier (231)", "fix.ContractMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[230].hf_id,
+        { &fix_hf[230],
             { "NoStipulations (232)", "fix.NoStipulations",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[231].hf_id,
+        { &fix_hf[231],
             { "StipulationType (233)", "fix.StipulationType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[232].hf_id,
+        { &fix_hf[232],
             { "StipulationValue (234)", "fix.StipulationValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[233].hf_id,
+        { &fix_hf[233],
             { "YieldType (235)", "fix.YieldType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[234].hf_id,
+        { &fix_hf[234],
             { "Yield (236)", "fix.Yield",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[235].hf_id,
+        { &fix_hf[235],
             { "TotalTakedown (237)", "fix.TotalTakedown",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[236].hf_id,
+        { &fix_hf[236],
             { "Concession (238)", "fix.Concession",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[237].hf_id,
+        { &fix_hf[237],
             { "RepoCollateralSecurityType (239)", "fix.RepoCollateralSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[238].hf_id,
+        { &fix_hf[238],
             { "RedemptionDate (240)", "fix.RedemptionDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[239].hf_id,
+        { &fix_hf[239],
             { "UnderlyingCouponPaymentDate (241)", "fix.UnderlyingCouponPaymentDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[240].hf_id,
+        { &fix_hf[240],
             { "UnderlyingIssueDate (242)", "fix.UnderlyingIssueDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[241].hf_id,
+        { &fix_hf[241],
             { "UnderlyingRepoCollateralSecurityType (243)", "fix.UnderlyingRepoCollateralSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[242].hf_id,
+        { &fix_hf[242],
             { "UnderlyingRepurchaseTerm (244)", "fix.UnderlyingRepurchaseTerm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[243].hf_id,
+        { &fix_hf[243],
             { "UnderlyingRepurchaseRate (245)", "fix.UnderlyingRepurchaseRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[244].hf_id,
+        { &fix_hf[244],
             { "UnderlyingFactor (246)", "fix.UnderlyingFactor",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[245].hf_id,
+        { &fix_hf[245],
             { "UnderlyingRedemptionDate (247)", "fix.UnderlyingRedemptionDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[246].hf_id,
+        { &fix_hf[246],
             { "LegCouponPaymentDate (248)", "fix.LegCouponPaymentDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[247].hf_id,
+        { &fix_hf[247],
             { "LegIssueDate (249)", "fix.LegIssueDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[248].hf_id,
+        { &fix_hf[248],
             { "LegRepoCollateralSecurityType (250)", "fix.LegRepoCollateralSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[249].hf_id,
+        { &fix_hf[249],
             { "LegRepurchaseTerm (251)", "fix.LegRepurchaseTerm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[250].hf_id,
+        { &fix_hf[250],
             { "LegRepurchaseRate (252)", "fix.LegRepurchaseRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[251].hf_id,
+        { &fix_hf[251],
             { "LegFactor (253)", "fix.LegFactor",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[252].hf_id,
+        { &fix_hf[252],
             { "LegRedemptionDate (254)", "fix.LegRedemptionDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[253].hf_id,
+        { &fix_hf[253],
             { "CreditRating (255)", "fix.CreditRating",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[254].hf_id,
+        { &fix_hf[254],
             { "UnderlyingCreditRating (256)", "fix.UnderlyingCreditRating",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[255].hf_id,
+        { &fix_hf[255],
             { "LegCreditRating (257)", "fix.LegCreditRating",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[256].hf_id,
+        { &fix_hf[256],
             { "TradedFlatSwitch (258)", "fix.TradedFlatSwitch",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[257].hf_id,
+        { &fix_hf[257],
             { "BasisFeatureDate (259)", "fix.BasisFeatureDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[258].hf_id,
+        { &fix_hf[258],
             { "BasisFeaturePrice (260)", "fix.BasisFeaturePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[259].hf_id,
+        { &fix_hf[259],
             { "MDReqID (262)", "fix.MDReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[260].hf_id,
+        { &fix_hf[260],
             { "SubscriptionRequestType (263)", "fix.SubscriptionRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[261].hf_id,
+        { &fix_hf[261],
             { "MarketDepth (264)", "fix.MarketDepth",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[262].hf_id,
+        { &fix_hf[262],
             { "MDUpdateType (265)", "fix.MDUpdateType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[263].hf_id,
+        { &fix_hf[263],
             { "AggregatedBook (266)", "fix.AggregatedBook",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[264].hf_id,
+        { &fix_hf[264],
             { "NoMDEntryTypes (267)", "fix.NoMDEntryTypes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[265].hf_id,
+        { &fix_hf[265],
             { "NoMDEntries (268)", "fix.NoMDEntries",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[266].hf_id,
+        { &fix_hf[266],
             { "MDEntryType (269)", "fix.MDEntryType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[267].hf_id,
+        { &fix_hf[267],
             { "MDEntryPx (270)", "fix.MDEntryPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[268].hf_id,
+        { &fix_hf[268],
             { "MDEntrySize (271)", "fix.MDEntrySize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[269].hf_id,
+        { &fix_hf[269],
             { "MDEntryDate (272)", "fix.MDEntryDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[270].hf_id,
+        { &fix_hf[270],
             { "MDEntryTime (273)", "fix.MDEntryTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[271].hf_id,
+        { &fix_hf[271],
             { "TickDirection (274)", "fix.TickDirection",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[272].hf_id,
+        { &fix_hf[272],
             { "MDMkt (275)", "fix.MDMkt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[273].hf_id,
+        { &fix_hf[273],
             { "QuoteCondition (276)", "fix.QuoteCondition",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[274].hf_id,
+        { &fix_hf[274],
             { "TradeCondition (277)", "fix.TradeCondition",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[275].hf_id,
+        { &fix_hf[275],
             { "MDEntryID (278)", "fix.MDEntryID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[276].hf_id,
+        { &fix_hf[276],
             { "MDUpdateAction (279)", "fix.MDUpdateAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[277].hf_id,
+        { &fix_hf[277],
             { "MDEntryRefID (280)", "fix.MDEntryRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[278].hf_id,
+        { &fix_hf[278],
             { "MDReqRejReason (281)", "fix.MDReqRejReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[279].hf_id,
+        { &fix_hf[279],
             { "MDEntryOriginator (282)", "fix.MDEntryOriginator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[280].hf_id,
+        { &fix_hf[280],
             { "LocationID (283)", "fix.LocationID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[281].hf_id,
+        { &fix_hf[281],
             { "DeskID (284)", "fix.DeskID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[282].hf_id,
+        { &fix_hf[282],
             { "DeleteReason (285)", "fix.DeleteReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[283].hf_id,
+        { &fix_hf[283],
             { "OpenCloseSettlFlag (286)", "fix.OpenCloseSettlFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[284].hf_id,
+        { &fix_hf[284],
             { "SellerDays (287)", "fix.SellerDays",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[285].hf_id,
+        { &fix_hf[285],
             { "MDEntryBuyer (288)", "fix.MDEntryBuyer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[286].hf_id,
+        { &fix_hf[286],
             { "MDEntrySeller (289)", "fix.MDEntrySeller",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[287].hf_id,
+        { &fix_hf[287],
             { "MDEntryPositionNo (290)", "fix.MDEntryPositionNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[288].hf_id,
+        { &fix_hf[288],
             { "FinancialStatus (291)", "fix.FinancialStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[289].hf_id,
+        { &fix_hf[289],
             { "CorporateAction (292)", "fix.CorporateAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[290].hf_id,
+        { &fix_hf[290],
             { "DefBidSize (293)", "fix.DefBidSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[291].hf_id,
+        { &fix_hf[291],
             { "DefOfferSize (294)", "fix.DefOfferSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[292].hf_id,
+        { &fix_hf[292],
             { "NoQuoteEntries (295)", "fix.NoQuoteEntries",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[293].hf_id,
+        { &fix_hf[293],
             { "NoQuoteSets (296)", "fix.NoQuoteSets",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[294].hf_id,
+        { &fix_hf[294],
             { "QuoteStatus (297)", "fix.QuoteStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[295].hf_id,
+        { &fix_hf[295],
             { "QuoteCancelType (298)", "fix.QuoteCancelType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[296].hf_id,
+        { &fix_hf[296],
             { "QuoteEntryID (299)", "fix.QuoteEntryID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[297].hf_id,
+        { &fix_hf[297],
             { "QuoteRejectReason (300)", "fix.QuoteRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[298].hf_id,
+        { &fix_hf[298],
             { "QuoteResponseLevel (301)", "fix.QuoteResponseLevel",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[299].hf_id,
+        { &fix_hf[299],
             { "QuoteSetID (302)", "fix.QuoteSetID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[300].hf_id,
+        { &fix_hf[300],
             { "QuoteRequestType (303)", "fix.QuoteRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[301].hf_id,
+        { &fix_hf[301],
             { "TotNoQuoteEntries (304)", "fix.TotNoQuoteEntries",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[302].hf_id,
+        { &fix_hf[302],
             { "UnderlyingSecurityIDSource (305)", "fix.UnderlyingSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[303].hf_id,
+        { &fix_hf[303],
             { "UnderlyingIssuer (306)", "fix.UnderlyingIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[304].hf_id,
+        { &fix_hf[304],
             { "UnderlyingSecurityDesc (307)", "fix.UnderlyingSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[305].hf_id,
+        { &fix_hf[305],
             { "UnderlyingSecurityExchange (308)", "fix.UnderlyingSecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[306].hf_id,
+        { &fix_hf[306],
             { "UnderlyingSecurityID (309)", "fix.UnderlyingSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[307].hf_id,
+        { &fix_hf[307],
             { "UnderlyingSecurityType (310)", "fix.UnderlyingSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[308].hf_id,
+        { &fix_hf[308],
             { "UnderlyingSymbol (311)", "fix.UnderlyingSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[309].hf_id,
+        { &fix_hf[309],
             { "UnderlyingSymbolSfx (312)", "fix.UnderlyingSymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[310].hf_id,
+        { &fix_hf[310],
             { "UnderlyingMaturityMonthYear (313)", "fix.UnderlyingMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[311].hf_id,
+        { &fix_hf[311],
             { "UnderlyingMaturityDay (314)", "fix.UnderlyingMaturityDay",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[312].hf_id,
+        { &fix_hf[312],
             { "UnderlyingPutOrCall (315)", "fix.UnderlyingPutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[313].hf_id,
+        { &fix_hf[313],
             { "UnderlyingStrikePrice (316)", "fix.UnderlyingStrikePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[314].hf_id,
+        { &fix_hf[314],
             { "UnderlyingOptAttribute (317)", "fix.UnderlyingOptAttribute",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[315].hf_id,
+        { &fix_hf[315],
             { "UnderlyingCurrency (318)", "fix.UnderlyingCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[316].hf_id,
+        { &fix_hf[316],
             { "RatioQty (319)", "fix.RatioQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[317].hf_id,
+        { &fix_hf[317],
             { "SecurityReqID (320)", "fix.SecurityReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[318].hf_id,
+        { &fix_hf[318],
             { "SecurityRequestType (321)", "fix.SecurityRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[319].hf_id,
+        { &fix_hf[319],
             { "SecurityResponseID (322)", "fix.SecurityResponseID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[320].hf_id,
+        { &fix_hf[320],
             { "SecurityResponseType (323)", "fix.SecurityResponseType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[321].hf_id,
+        { &fix_hf[321],
             { "SecurityStatusReqID (324)", "fix.SecurityStatusReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[322].hf_id,
+        { &fix_hf[322],
             { "UnsolicitedIndicator (325)", "fix.UnsolicitedIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[323].hf_id,
+        { &fix_hf[323],
             { "SecurityTradingStatus (326)", "fix.SecurityTradingStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[324].hf_id,
+        { &fix_hf[324],
             { "HaltReasonInt (327)", "fix.HaltReasonInt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[325].hf_id,
+        { &fix_hf[325],
             { "InViewOfCommon (328)", "fix.InViewOfCommon",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[326].hf_id,
+        { &fix_hf[326],
             { "DueToRelated (329)", "fix.DueToRelated",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[327].hf_id,
+        { &fix_hf[327],
             { "BuyVolume (330)", "fix.BuyVolume",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[328].hf_id,
+        { &fix_hf[328],
             { "SellVolume (331)", "fix.SellVolume",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[329].hf_id,
+        { &fix_hf[329],
             { "HighPx (332)", "fix.HighPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[330].hf_id,
+        { &fix_hf[330],
             { "LowPx (333)", "fix.LowPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[331].hf_id,
+        { &fix_hf[331],
             { "Adjustment (334)", "fix.Adjustment",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[332].hf_id,
+        { &fix_hf[332],
             { "TradSesReqID (335)", "fix.TradSesReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[333].hf_id,
+        { &fix_hf[333],
             { "TradingSessionID (336)", "fix.TradingSessionID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[334].hf_id,
+        { &fix_hf[334],
             { "ContraTrader (337)", "fix.ContraTrader",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[335].hf_id,
+        { &fix_hf[335],
             { "TradSesMethod (338)", "fix.TradSesMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[336].hf_id,
+        { &fix_hf[336],
             { "TradSesMode (339)", "fix.TradSesMode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[337].hf_id,
+        { &fix_hf[337],
             { "TradSesStatus (340)", "fix.TradSesStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[338].hf_id,
+        { &fix_hf[338],
             { "TradSesStartTime (341)", "fix.TradSesStartTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[339].hf_id,
+        { &fix_hf[339],
             { "TradSesOpenTime (342)", "fix.TradSesOpenTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[340].hf_id,
+        { &fix_hf[340],
             { "TradSesPreCloseTime (343)", "fix.TradSesPreCloseTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[341].hf_id,
+        { &fix_hf[341],
             { "TradSesCloseTime (344)", "fix.TradSesCloseTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[342].hf_id,
+        { &fix_hf[342],
             { "TradSesEndTime (345)", "fix.TradSesEndTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[343].hf_id,
+        { &fix_hf[343],
             { "NumberOfOrders (346)", "fix.NumberOfOrders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[344].hf_id,
+        { &fix_hf[344],
             { "MessageEncoding (347)", "fix.MessageEncoding",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[345].hf_id,
+        { &fix_hf[345],
             { "EncodedIssuerLen (348)", "fix.EncodedIssuerLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[346].hf_id,
+        { &fix_hf[346],
             { "EncodedIssuer (349)", "fix.EncodedIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[347].hf_id,
+        { &fix_hf[347],
             { "EncodedSecurityDescLen (350)", "fix.EncodedSecurityDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[348].hf_id,
+        { &fix_hf[348],
             { "EncodedSecurityDesc (351)", "fix.EncodedSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[349].hf_id,
+        { &fix_hf[349],
             { "EncodedListExecInstLen (352)", "fix.EncodedListExecInstLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[350].hf_id,
+        { &fix_hf[350],
             { "EncodedListExecInst (353)", "fix.EncodedListExecInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[351].hf_id,
+        { &fix_hf[351],
             { "EncodedTextLen (354)", "fix.EncodedTextLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[352].hf_id,
+        { &fix_hf[352],
             { "EncodedText (355)", "fix.EncodedText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[353].hf_id,
+        { &fix_hf[353],
             { "EncodedSubjectLen (356)", "fix.EncodedSubjectLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[354].hf_id,
+        { &fix_hf[354],
             { "EncodedSubject (357)", "fix.EncodedSubject",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[355].hf_id,
+        { &fix_hf[355],
             { "EncodedHeadlineLen (358)", "fix.EncodedHeadlineLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[356].hf_id,
+        { &fix_hf[356],
             { "EncodedHeadline (359)", "fix.EncodedHeadline",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[357].hf_id,
+        { &fix_hf[357],
             { "EncodedAllocTextLen (360)", "fix.EncodedAllocTextLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[358].hf_id,
+        { &fix_hf[358],
             { "EncodedAllocText (361)", "fix.EncodedAllocText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[359].hf_id,
+        { &fix_hf[359],
             { "EncodedUnderlyingIssuerLen (362)", "fix.EncodedUnderlyingIssuerLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[360].hf_id,
+        { &fix_hf[360],
             { "EncodedUnderlyingIssuer (363)", "fix.EncodedUnderlyingIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[361].hf_id,
+        { &fix_hf[361],
             { "EncodedUnderlyingSecurityDescLen (364)", "fix.EncodedUnderlyingSecurityDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[362].hf_id,
+        { &fix_hf[362],
             { "EncodedUnderlyingSecurityDesc (365)", "fix.EncodedUnderlyingSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[363].hf_id,
+        { &fix_hf[363],
             { "AllocPrice (366)", "fix.AllocPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[364].hf_id,
+        { &fix_hf[364],
             { "QuoteSetValidUntilTime (367)", "fix.QuoteSetValidUntilTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[365].hf_id,
+        { &fix_hf[365],
             { "QuoteEntryRejectReason (368)", "fix.QuoteEntryRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[366].hf_id,
+        { &fix_hf[366],
             { "LastMsgSeqNumProcessed (369)", "fix.LastMsgSeqNumProcessed",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[367].hf_id,
+        { &fix_hf[367],
             { "OnBehalfOfSendingTime (370)", "fix.OnBehalfOfSendingTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[368].hf_id,
+        { &fix_hf[368],
             { "RefTagID (371)", "fix.RefTagID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[369].hf_id,
+        { &fix_hf[369],
             { "RefMsgType (372)", "fix.RefMsgType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[370].hf_id,
+        { &fix_hf[370],
             { "SessionRejectReason (373)", "fix.SessionRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[371].hf_id,
+        { &fix_hf[371],
             { "BidRequestTransType (374)", "fix.BidRequestTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[372].hf_id,
+        { &fix_hf[372],
             { "ContraBroker (375)", "fix.ContraBroker",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[373].hf_id,
+        { &fix_hf[373],
             { "ComplianceID (376)", "fix.ComplianceID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[374].hf_id,
+        { &fix_hf[374],
             { "SolicitedFlag (377)", "fix.SolicitedFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[375].hf_id,
+        { &fix_hf[375],
             { "ExecRestatementReason (378)", "fix.ExecRestatementReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[376].hf_id,
+        { &fix_hf[376],
             { "BusinessRejectRefID (379)", "fix.BusinessRejectRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[377].hf_id,
+        { &fix_hf[377],
             { "BusinessRejectReason (380)", "fix.BusinessRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[378].hf_id,
+        { &fix_hf[378],
             { "GrossTradeAmt (381)", "fix.GrossTradeAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[379].hf_id,
+        { &fix_hf[379],
             { "NoContraBrokers (382)", "fix.NoContraBrokers",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[380].hf_id,
+        { &fix_hf[380],
             { "MaxMessageSize (383)", "fix.MaxMessageSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[381].hf_id,
+        { &fix_hf[381],
             { "NoMsgTypes (384)", "fix.NoMsgTypes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[382].hf_id,
+        { &fix_hf[382],
             { "MsgDirection (385)", "fix.MsgDirection",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[383].hf_id,
+        { &fix_hf[383],
             { "NoTradingSessions (386)", "fix.NoTradingSessions",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[384].hf_id,
+        { &fix_hf[384],
             { "TotalVolumeTraded (387)", "fix.TotalVolumeTraded",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[385].hf_id,
+        { &fix_hf[385],
             { "DiscretionInst (388)", "fix.DiscretionInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[386].hf_id,
+        { &fix_hf[386],
             { "DiscretionOffsetValue (389)", "fix.DiscretionOffsetValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[387].hf_id,
+        { &fix_hf[387],
             { "BidID (390)", "fix.BidID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[388].hf_id,
+        { &fix_hf[388],
             { "ClientBidID (391)", "fix.ClientBidID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[389].hf_id,
+        { &fix_hf[389],
             { "ListName (392)", "fix.ListName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[390].hf_id,
+        { &fix_hf[390],
             { "TotNoRelatedSym (393)", "fix.TotNoRelatedSym",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[391].hf_id,
+        { &fix_hf[391],
             { "BidType (394)", "fix.BidType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[392].hf_id,
+        { &fix_hf[392],
             { "NumTickets (395)", "fix.NumTickets",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[393].hf_id,
+        { &fix_hf[393],
             { "SideValue1 (396)", "fix.SideValue1",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[394].hf_id,
+        { &fix_hf[394],
             { "SideValue2 (397)", "fix.SideValue2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[395].hf_id,
+        { &fix_hf[395],
             { "NoBidDescriptors (398)", "fix.NoBidDescriptors",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[396].hf_id,
+        { &fix_hf[396],
             { "BidDescriptorType (399)", "fix.BidDescriptorType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[397].hf_id,
+        { &fix_hf[397],
             { "BidDescriptor (400)", "fix.BidDescriptor",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[398].hf_id,
+        { &fix_hf[398],
             { "SideValueInd (401)", "fix.SideValueInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[399].hf_id,
+        { &fix_hf[399],
             { "LiquidityPctLow (402)", "fix.LiquidityPctLow",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[400].hf_id,
+        { &fix_hf[400],
             { "LiquidityPctHigh (403)", "fix.LiquidityPctHigh",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[401].hf_id,
+        { &fix_hf[401],
             { "LiquidityValue (404)", "fix.LiquidityValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[402].hf_id,
+        { &fix_hf[402],
             { "EFPTrackingError (405)", "fix.EFPTrackingError",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[403].hf_id,
+        { &fix_hf[403],
             { "FairValue (406)", "fix.FairValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[404].hf_id,
+        { &fix_hf[404],
             { "OutsideIndexPct (407)", "fix.OutsideIndexPct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[405].hf_id,
+        { &fix_hf[405],
             { "ValueOfFutures (408)", "fix.ValueOfFutures",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[406].hf_id,
+        { &fix_hf[406],
             { "LiquidityIndType (409)", "fix.LiquidityIndType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[407].hf_id,
+        { &fix_hf[407],
             { "WtAverageLiquidity (410)", "fix.WtAverageLiquidity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[408].hf_id,
+        { &fix_hf[408],
             { "ExchangeForPhysical (411)", "fix.ExchangeForPhysical",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[409].hf_id,
+        { &fix_hf[409],
             { "OutMainCntryUIndex (412)", "fix.OutMainCntryUIndex",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[410].hf_id,
+        { &fix_hf[410],
             { "CrossPercent (413)", "fix.CrossPercent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[411].hf_id,
+        { &fix_hf[411],
             { "ProgRptReqs (414)", "fix.ProgRptReqs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[412].hf_id,
+        { &fix_hf[412],
             { "ProgPeriodInterval (415)", "fix.ProgPeriodInterval",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[413].hf_id,
+        { &fix_hf[413],
             { "IncTaxInd (416)", "fix.IncTaxInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[414].hf_id,
+        { &fix_hf[414],
             { "NumBidders (417)", "fix.NumBidders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[415].hf_id,
+        { &fix_hf[415],
             { "BidTradeType (418)", "fix.BidTradeType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[416].hf_id,
+        { &fix_hf[416],
             { "BasisPxType (419)", "fix.BasisPxType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[417].hf_id,
+        { &fix_hf[417],
             { "NoBidComponents (420)", "fix.NoBidComponents",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[418].hf_id,
+        { &fix_hf[418],
             { "Country (421)", "fix.Country",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[419].hf_id,
+        { &fix_hf[419],
             { "TotNoStrikes (422)", "fix.TotNoStrikes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[420].hf_id,
+        { &fix_hf[420],
             { "PriceType (423)", "fix.PriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[421].hf_id,
+        { &fix_hf[421],
             { "DayOrderQty (424)", "fix.DayOrderQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[422].hf_id,
+        { &fix_hf[422],
             { "DayCumQty (425)", "fix.DayCumQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[423].hf_id,
+        { &fix_hf[423],
             { "DayAvgPx (426)", "fix.DayAvgPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[424].hf_id,
+        { &fix_hf[424],
             { "GTBookingInst (427)", "fix.GTBookingInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[425].hf_id,
+        { &fix_hf[425],
             { "NoStrikes (428)", "fix.NoStrikes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[426].hf_id,
+        { &fix_hf[426],
             { "ListStatusType (429)", "fix.ListStatusType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[427].hf_id,
+        { &fix_hf[427],
             { "NetGrossInd (430)", "fix.NetGrossInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[428].hf_id,
+        { &fix_hf[428],
             { "ListOrderStatus (431)", "fix.ListOrderStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[429].hf_id,
+        { &fix_hf[429],
             { "ExpireDate (432)", "fix.ExpireDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[430].hf_id,
+        { &fix_hf[430],
             { "ListExecInstType (433)", "fix.ListExecInstType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[431].hf_id,
+        { &fix_hf[431],
             { "CxlRejResponseTo (434)", "fix.CxlRejResponseTo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[432].hf_id,
+        { &fix_hf[432],
             { "UnderlyingCouponRate (435)", "fix.UnderlyingCouponRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[433].hf_id,
+        { &fix_hf[433],
             { "UnderlyingContractMultiplier (436)", "fix.UnderlyingContractMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[434].hf_id,
+        { &fix_hf[434],
             { "ContraTradeQty (437)", "fix.ContraTradeQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[435].hf_id,
+        { &fix_hf[435],
             { "ContraTradeTime (438)", "fix.ContraTradeTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[436].hf_id,
+        { &fix_hf[436],
             { "ClearingFirm (439)", "fix.ClearingFirm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[437].hf_id,
+        { &fix_hf[437],
             { "ClearingAccount (440)", "fix.ClearingAccount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[438].hf_id,
+        { &fix_hf[438],
             { "LiquidityNumSecurities (441)", "fix.LiquidityNumSecurities",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[439].hf_id,
+        { &fix_hf[439],
             { "MultiLegReportingType (442)", "fix.MultiLegReportingType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[440].hf_id,
+        { &fix_hf[440],
             { "StrikeTime (443)", "fix.StrikeTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[441].hf_id,
+        { &fix_hf[441],
             { "ListStatusText (444)", "fix.ListStatusText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[442].hf_id,
+        { &fix_hf[442],
             { "EncodedListStatusTextLen (445)", "fix.EncodedListStatusTextLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[443].hf_id,
+        { &fix_hf[443],
             { "EncodedListStatusText (446)", "fix.EncodedListStatusText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[444].hf_id,
+        { &fix_hf[444],
             { "PartyIDSource (447)", "fix.PartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[445].hf_id,
+        { &fix_hf[445],
             { "PartyID (448)", "fix.PartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[446].hf_id,
+        { &fix_hf[446],
             { "TotalVolumeTradedDate (449)", "fix.TotalVolumeTradedDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[447].hf_id,
+        { &fix_hf[447],
             { "TotalVolumeTradedTime (450)", "fix.TotalVolumeTradedTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[448].hf_id,
+        { &fix_hf[448],
             { "NetChgPrevDay (451)", "fix.NetChgPrevDay",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[449].hf_id,
+        { &fix_hf[449],
             { "PartyRole (452)", "fix.PartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[450].hf_id,
+        { &fix_hf[450],
             { "NoPartyIDs (453)", "fix.NoPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[451].hf_id,
+        { &fix_hf[451],
             { "NoSecurityAltID (454)", "fix.NoSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[452].hf_id,
+        { &fix_hf[452],
             { "SecurityAltID (455)", "fix.SecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[453].hf_id,
+        { &fix_hf[453],
             { "SecurityAltIDSource (456)", "fix.SecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[454].hf_id,
+        { &fix_hf[454],
             { "NoUnderlyingSecurityAltID (457)", "fix.NoUnderlyingSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[455].hf_id,
+        { &fix_hf[455],
             { "UnderlyingSecurityAltID (458)", "fix.UnderlyingSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[456].hf_id,
+        { &fix_hf[456],
             { "UnderlyingSecurityAltIDSource (459)", "fix.UnderlyingSecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[457].hf_id,
+        { &fix_hf[457],
             { "Product (460)", "fix.Product",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[458].hf_id,
+        { &fix_hf[458],
             { "CFICode (461)", "fix.CFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[459].hf_id,
+        { &fix_hf[459],
             { "UnderlyingProduct (462)", "fix.UnderlyingProduct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[460].hf_id,
+        { &fix_hf[460],
             { "UnderlyingCFICode (463)", "fix.UnderlyingCFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[461].hf_id,
+        { &fix_hf[461],
             { "TestMessageIndicator (464)", "fix.TestMessageIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[462].hf_id,
+        { &fix_hf[462],
             { "QuantityType (465)", "fix.QuantityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[463].hf_id,
+        { &fix_hf[463],
             { "BookingRefID (466)", "fix.BookingRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[464].hf_id,
+        { &fix_hf[464],
             { "IndividualAllocID (467)", "fix.IndividualAllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[465].hf_id,
+        { &fix_hf[465],
             { "RoundingDirection (468)", "fix.RoundingDirection",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[466].hf_id,
+        { &fix_hf[466],
             { "RoundingModulus (469)", "fix.RoundingModulus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[467].hf_id,
+        { &fix_hf[467],
             { "CountryOfIssue (470)", "fix.CountryOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[468].hf_id,
+        { &fix_hf[468],
             { "StateOrProvinceOfIssue (471)", "fix.StateOrProvinceOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[469].hf_id,
+        { &fix_hf[469],
             { "LocaleOfIssue (472)", "fix.LocaleOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[470].hf_id,
+        { &fix_hf[470],
             { "NoRegistDtls (473)", "fix.NoRegistDtls",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[471].hf_id,
+        { &fix_hf[471],
             { "MailingDtls (474)", "fix.MailingDtls",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[472].hf_id,
+        { &fix_hf[472],
             { "InvestorCountryOfResidence (475)", "fix.InvestorCountryOfResidence",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[473].hf_id,
+        { &fix_hf[473],
             { "PaymentRef (476)", "fix.PaymentRef",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[474].hf_id,
+        { &fix_hf[474],
             { "DistribPaymentMethod (477)", "fix.DistribPaymentMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[475].hf_id,
+        { &fix_hf[475],
             { "CashDistribCurr (478)", "fix.CashDistribCurr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[476].hf_id,
+        { &fix_hf[476],
             { "CommCurrency (479)", "fix.CommCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[477].hf_id,
+        { &fix_hf[477],
             { "CancellationRights (480)", "fix.CancellationRights",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[478].hf_id,
+        { &fix_hf[478],
             { "MoneyLaunderingStatus (481)", "fix.MoneyLaunderingStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[479].hf_id,
+        { &fix_hf[479],
             { "MailingInst (482)", "fix.MailingInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[480].hf_id,
+        { &fix_hf[480],
             { "TransBkdTime (483)", "fix.TransBkdTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[481].hf_id,
+        { &fix_hf[481],
             { "ExecPriceType (484)", "fix.ExecPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[482].hf_id,
+        { &fix_hf[482],
             { "ExecPriceAdjustment (485)", "fix.ExecPriceAdjustment",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[483].hf_id,
+        { &fix_hf[483],
             { "DateOfBirth (486)", "fix.DateOfBirth",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[484].hf_id,
+        { &fix_hf[484],
             { "TradeReportTransType (487)", "fix.TradeReportTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[485].hf_id,
+        { &fix_hf[485],
             { "CardHolderName (488)", "fix.CardHolderName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[486].hf_id,
+        { &fix_hf[486],
             { "CardNumber (489)", "fix.CardNumber",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[487].hf_id,
+        { &fix_hf[487],
             { "CardExpDate (490)", "fix.CardExpDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[488].hf_id,
+        { &fix_hf[488],
             { "CardIssNum (491)", "fix.CardIssNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[489].hf_id,
+        { &fix_hf[489],
             { "PaymentMethod (492)", "fix.PaymentMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[490].hf_id,
+        { &fix_hf[490],
             { "RegistAcctType (493)", "fix.RegistAcctType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[491].hf_id,
+        { &fix_hf[491],
             { "Designation (494)", "fix.Designation",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[492].hf_id,
+        { &fix_hf[492],
             { "TaxAdvantageType (495)", "fix.TaxAdvantageType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[493].hf_id,
+        { &fix_hf[493],
             { "RegistRejReasonText (496)", "fix.RegistRejReasonText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[494].hf_id,
+        { &fix_hf[494],
             { "FundRenewWaiv (497)", "fix.FundRenewWaiv",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[495].hf_id,
+        { &fix_hf[495],
             { "CashDistribAgentName (498)", "fix.CashDistribAgentName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[496].hf_id,
+        { &fix_hf[496],
             { "CashDistribAgentCode (499)", "fix.CashDistribAgentCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[497].hf_id,
+        { &fix_hf[497],
             { "CashDistribAgentAcctNumber (500)", "fix.CashDistribAgentAcctNumber",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[498].hf_id,
+        { &fix_hf[498],
             { "CashDistribPayRef (501)", "fix.CashDistribPayRef",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[499].hf_id,
+        { &fix_hf[499],
             { "CashDistribAgentAcctName (502)", "fix.CashDistribAgentAcctName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[500].hf_id,
+        { &fix_hf[500],
             { "CardStartDate (503)", "fix.CardStartDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[501].hf_id,
+        { &fix_hf[501],
             { "PaymentDate (504)", "fix.PaymentDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[502].hf_id,
+        { &fix_hf[502],
             { "PaymentRemitterID (505)", "fix.PaymentRemitterID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[503].hf_id,
+        { &fix_hf[503],
             { "RegistStatus (506)", "fix.RegistStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[504].hf_id,
+        { &fix_hf[504],
             { "RegistRejReasonCode (507)", "fix.RegistRejReasonCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[505].hf_id,
+        { &fix_hf[505],
             { "RegistRefID (508)", "fix.RegistRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[506].hf_id,
+        { &fix_hf[506],
             { "RegistDtls (509)", "fix.RegistDtls",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[507].hf_id,
+        { &fix_hf[507],
             { "NoDistribInsts (510)", "fix.NoDistribInsts",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[508].hf_id,
+        { &fix_hf[508],
             { "RegistEmail (511)", "fix.RegistEmail",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[509].hf_id,
+        { &fix_hf[509],
             { "DistribPercentage (512)", "fix.DistribPercentage",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[510].hf_id,
+        { &fix_hf[510],
             { "RegistID (513)", "fix.RegistID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[511].hf_id,
+        { &fix_hf[511],
             { "RegistTransType (514)", "fix.RegistTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[512].hf_id,
+        { &fix_hf[512],
             { "ExecValuationPoint (515)", "fix.ExecValuationPoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[513].hf_id,
+        { &fix_hf[513],
             { "OrderPercent (516)", "fix.OrderPercent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[514].hf_id,
+        { &fix_hf[514],
             { "OwnershipType (517)", "fix.OwnershipType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[515].hf_id,
+        { &fix_hf[515],
             { "NoContAmts (518)", "fix.NoContAmts",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[516].hf_id,
+        { &fix_hf[516],
             { "ContAmtType (519)", "fix.ContAmtType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[517].hf_id,
+        { &fix_hf[517],
             { "ContAmtValue (520)", "fix.ContAmtValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[518].hf_id,
+        { &fix_hf[518],
             { "ContAmtCurr (521)", "fix.ContAmtCurr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[519].hf_id,
+        { &fix_hf[519],
             { "OwnerType (522)", "fix.OwnerType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[520].hf_id,
+        { &fix_hf[520],
             { "PartySubID (523)", "fix.PartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[521].hf_id,
+        { &fix_hf[521],
             { "NestedPartyID (524)", "fix.NestedPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[522].hf_id,
+        { &fix_hf[522],
             { "NestedPartyIDSource (525)", "fix.NestedPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[523].hf_id,
+        { &fix_hf[523],
             { "SecondaryClOrdID (526)", "fix.SecondaryClOrdID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[524].hf_id,
+        { &fix_hf[524],
             { "SecondaryExecID (527)", "fix.SecondaryExecID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[525].hf_id,
+        { &fix_hf[525],
             { "OrderCapacity (528)", "fix.OrderCapacity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[526].hf_id,
+        { &fix_hf[526],
             { "OrderRestrictions (529)", "fix.OrderRestrictions",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[527].hf_id,
+        { &fix_hf[527],
             { "MassCancelRequestType (530)", "fix.MassCancelRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[528].hf_id,
+        { &fix_hf[528],
             { "MassCancelResponse (531)", "fix.MassCancelResponse",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[529].hf_id,
+        { &fix_hf[529],
             { "MassCancelRejectReason (532)", "fix.MassCancelRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[530].hf_id,
+        { &fix_hf[530],
             { "TotalAffectedOrders (533)", "fix.TotalAffectedOrders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[531].hf_id,
+        { &fix_hf[531],
             { "NoAffectedOrders (534)", "fix.NoAffectedOrders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[532].hf_id,
+        { &fix_hf[532],
             { "AffectedOrderID (535)", "fix.AffectedOrderID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[533].hf_id,
+        { &fix_hf[533],
             { "AffectedSecondaryOrderID (536)", "fix.AffectedSecondaryOrderID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[534].hf_id,
+        { &fix_hf[534],
             { "QuoteType (537)", "fix.QuoteType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[535].hf_id,
+        { &fix_hf[535],
             { "NestedPartyRole (538)", "fix.NestedPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[536].hf_id,
+        { &fix_hf[536],
             { "NoNestedPartyIDs (539)", "fix.NoNestedPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[537].hf_id,
+        { &fix_hf[537],
             { "TotalAccruedInterestAmt (540)", "fix.TotalAccruedInterestAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[538].hf_id,
+        { &fix_hf[538],
             { "MaturityDate (541)", "fix.MaturityDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[539].hf_id,
+        { &fix_hf[539],
             { "UnderlyingMaturityDate (542)", "fix.UnderlyingMaturityDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[540].hf_id,
+        { &fix_hf[540],
             { "InstrRegistry (543)", "fix.InstrRegistry",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[541].hf_id,
+        { &fix_hf[541],
             { "CashMargin (544)", "fix.CashMargin",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[542].hf_id,
+        { &fix_hf[542],
             { "NestedPartySubID (545)", "fix.NestedPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[543].hf_id,
+        { &fix_hf[543],
             { "Scope (546)", "fix.Scope",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[544].hf_id,
+        { &fix_hf[544],
             { "MDImplicitDelete (547)", "fix.MDImplicitDelete",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[545].hf_id,
+        { &fix_hf[545],
             { "CrossID (548)", "fix.CrossID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[546].hf_id,
+        { &fix_hf[546],
             { "CrossType (549)", "fix.CrossType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[547].hf_id,
+        { &fix_hf[547],
             { "CrossPrioritization (550)", "fix.CrossPrioritization",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[548].hf_id,
+        { &fix_hf[548],
             { "OrigCrossID (551)", "fix.OrigCrossID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[549].hf_id,
+        { &fix_hf[549],
             { "NoSides (552)", "fix.NoSides",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[550].hf_id,
+        { &fix_hf[550],
             { "Username (553)", "fix.Username",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[551].hf_id,
+        { &fix_hf[551],
             { "Password (554)", "fix.Password",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[552].hf_id,
+        { &fix_hf[552],
             { "NoLegs (555)", "fix.NoLegs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[553].hf_id,
+        { &fix_hf[553],
             { "LegCurrency (556)", "fix.LegCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[554].hf_id,
+        { &fix_hf[554],
             { "TotNoSecurityTypes (557)", "fix.TotNoSecurityTypes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[555].hf_id,
+        { &fix_hf[555],
             { "NoSecurityTypes (558)", "fix.NoSecurityTypes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[556].hf_id,
+        { &fix_hf[556],
             { "SecurityListRequestType (559)", "fix.SecurityListRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[557].hf_id,
+        { &fix_hf[557],
             { "SecurityRequestResult (560)", "fix.SecurityRequestResult",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[558].hf_id,
+        { &fix_hf[558],
             { "RoundLot (561)", "fix.RoundLot",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[559].hf_id,
+        { &fix_hf[559],
             { "MinTradeVol (562)", "fix.MinTradeVol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[560].hf_id,
+        { &fix_hf[560],
             { "MultiLegRptTypeReq (563)", "fix.MultiLegRptTypeReq",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[561].hf_id,
+        { &fix_hf[561],
             { "LegPositionEffect (564)", "fix.LegPositionEffect",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[562].hf_id,
+        { &fix_hf[562],
             { "LegCoveredOrUncovered (565)", "fix.LegCoveredOrUncovered",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[563].hf_id,
+        { &fix_hf[563],
             { "LegPrice (566)", "fix.LegPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[564].hf_id,
+        { &fix_hf[564],
             { "TradSesStatusRejReason (567)", "fix.TradSesStatusRejReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[565].hf_id,
+        { &fix_hf[565],
             { "TradeRequestID (568)", "fix.TradeRequestID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[566].hf_id,
+        { &fix_hf[566],
             { "TradeRequestType (569)", "fix.TradeRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[567].hf_id,
+        { &fix_hf[567],
             { "PreviouslyReported (570)", "fix.PreviouslyReported",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[568].hf_id,
+        { &fix_hf[568],
             { "TradeReportID (571)", "fix.TradeReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[569].hf_id,
+        { &fix_hf[569],
             { "TradeReportRefID (572)", "fix.TradeReportRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[570].hf_id,
+        { &fix_hf[570],
             { "MatchStatus (573)", "fix.MatchStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[571].hf_id,
+        { &fix_hf[571],
             { "MatchType (574)", "fix.MatchType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[572].hf_id,
+        { &fix_hf[572],
             { "OddLot (575)", "fix.OddLot",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[573].hf_id,
+        { &fix_hf[573],
             { "NoClearingInstructions (576)", "fix.NoClearingInstructions",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[574].hf_id,
+        { &fix_hf[574],
             { "ClearingInstruction (577)", "fix.ClearingInstruction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[575].hf_id,
+        { &fix_hf[575],
             { "TradeInputSource (578)", "fix.TradeInputSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[576].hf_id,
+        { &fix_hf[576],
             { "TradeInputDevice (579)", "fix.TradeInputDevice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[577].hf_id,
+        { &fix_hf[577],
             { "NoDates (580)", "fix.NoDates",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[578].hf_id,
+        { &fix_hf[578],
             { "AccountType (581)", "fix.AccountType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[579].hf_id,
+        { &fix_hf[579],
             { "CustOrderCapacity (582)", "fix.CustOrderCapacity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[580].hf_id,
+        { &fix_hf[580],
             { "ClOrdLinkID (583)", "fix.ClOrdLinkID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[581].hf_id,
+        { &fix_hf[581],
             { "MassStatusReqID (584)", "fix.MassStatusReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[582].hf_id,
+        { &fix_hf[582],
             { "MassStatusReqType (585)", "fix.MassStatusReqType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[583].hf_id,
+        { &fix_hf[583],
             { "OrigOrdModTime (586)", "fix.OrigOrdModTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[584].hf_id,
+        { &fix_hf[584],
             { "LegSettlType (587)", "fix.LegSettlType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[585].hf_id,
+        { &fix_hf[585],
             { "LegSettlDate (588)", "fix.LegSettlDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[586].hf_id,
+        { &fix_hf[586],
             { "DayBookingInst (589)", "fix.DayBookingInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[587].hf_id,
+        { &fix_hf[587],
             { "BookingUnit (590)", "fix.BookingUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[588].hf_id,
+        { &fix_hf[588],
             { "PreallocMethod (591)", "fix.PreallocMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[589].hf_id,
+        { &fix_hf[589],
             { "UnderlyingCountryOfIssue (592)", "fix.UnderlyingCountryOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[590].hf_id,
+        { &fix_hf[590],
             { "UnderlyingStateOrProvinceOfIssue (593)", "fix.UnderlyingStateOrProvinceOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[591].hf_id,
+        { &fix_hf[591],
             { "UnderlyingLocaleOfIssue (594)", "fix.UnderlyingLocaleOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[592].hf_id,
+        { &fix_hf[592],
             { "UnderlyingInstrRegistry (595)", "fix.UnderlyingInstrRegistry",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[593].hf_id,
+        { &fix_hf[593],
             { "LegCountryOfIssue (596)", "fix.LegCountryOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[594].hf_id,
+        { &fix_hf[594],
             { "LegStateOrProvinceOfIssue (597)", "fix.LegStateOrProvinceOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[595].hf_id,
+        { &fix_hf[595],
             { "LegLocaleOfIssue (598)", "fix.LegLocaleOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[596].hf_id,
+        { &fix_hf[596],
             { "LegInstrRegistry (599)", "fix.LegInstrRegistry",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[597].hf_id,
+        { &fix_hf[597],
             { "LegSymbol (600)", "fix.LegSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[598].hf_id,
+        { &fix_hf[598],
             { "LegSymbolSfx (601)", "fix.LegSymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[599].hf_id,
+        { &fix_hf[599],
             { "LegSecurityID (602)", "fix.LegSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[600].hf_id,
+        { &fix_hf[600],
             { "LegSecurityIDSource (603)", "fix.LegSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[601].hf_id,
+        { &fix_hf[601],
             { "NoLegSecurityAltID (604)", "fix.NoLegSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[602].hf_id,
+        { &fix_hf[602],
             { "LegSecurityAltID (605)", "fix.LegSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[603].hf_id,
+        { &fix_hf[603],
             { "LegSecurityAltIDSource (606)", "fix.LegSecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[604].hf_id,
+        { &fix_hf[604],
             { "LegProduct (607)", "fix.LegProduct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[605].hf_id,
+        { &fix_hf[605],
             { "LegCFICode (608)", "fix.LegCFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[606].hf_id,
+        { &fix_hf[606],
             { "LegSecurityType (609)", "fix.LegSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[607].hf_id,
+        { &fix_hf[607],
             { "LegMaturityMonthYear (610)", "fix.LegMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[608].hf_id,
+        { &fix_hf[608],
             { "LegMaturityDate (611)", "fix.LegMaturityDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[609].hf_id,
+        { &fix_hf[609],
             { "LegStrikePrice (612)", "fix.LegStrikePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[610].hf_id,
+        { &fix_hf[610],
             { "LegOptAttribute (613)", "fix.LegOptAttribute",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[611].hf_id,
+        { &fix_hf[611],
             { "LegContractMultiplier (614)", "fix.LegContractMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[612].hf_id,
+        { &fix_hf[612],
             { "LegCouponRate (615)", "fix.LegCouponRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[613].hf_id,
+        { &fix_hf[613],
             { "LegSecurityExchange (616)", "fix.LegSecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[614].hf_id,
+        { &fix_hf[614],
             { "LegIssuer (617)", "fix.LegIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[615].hf_id,
+        { &fix_hf[615],
             { "EncodedLegIssuerLen (618)", "fix.EncodedLegIssuerLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[616].hf_id,
+        { &fix_hf[616],
             { "EncodedLegIssuer (619)", "fix.EncodedLegIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[617].hf_id,
+        { &fix_hf[617],
             { "LegSecurityDesc (620)", "fix.LegSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[618].hf_id,
+        { &fix_hf[618],
             { "EncodedLegSecurityDescLen (621)", "fix.EncodedLegSecurityDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[619].hf_id,
+        { &fix_hf[619],
             { "EncodedLegSecurityDesc (622)", "fix.EncodedLegSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[620].hf_id,
+        { &fix_hf[620],
             { "LegRatioQty (623)", "fix.LegRatioQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[621].hf_id,
+        { &fix_hf[621],
             { "LegSide (624)", "fix.LegSide",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[622].hf_id,
+        { &fix_hf[622],
             { "TradingSessionSubID (625)", "fix.TradingSessionSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[623].hf_id,
+        { &fix_hf[623],
             { "AllocType (626)", "fix.AllocType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[624].hf_id,
+        { &fix_hf[624],
             { "NoHops (627)", "fix.NoHops",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[625].hf_id,
+        { &fix_hf[625],
             { "HopCompID (628)", "fix.HopCompID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[626].hf_id,
+        { &fix_hf[626],
             { "HopSendingTime (629)", "fix.HopSendingTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[627].hf_id,
+        { &fix_hf[627],
             { "HopRefID (630)", "fix.HopRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[628].hf_id,
+        { &fix_hf[628],
             { "MidPx (631)", "fix.MidPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[629].hf_id,
+        { &fix_hf[629],
             { "BidYield (632)", "fix.BidYield",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[630].hf_id,
+        { &fix_hf[630],
             { "MidYield (633)", "fix.MidYield",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[631].hf_id,
+        { &fix_hf[631],
             { "OfferYield (634)", "fix.OfferYield",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[632].hf_id,
+        { &fix_hf[632],
             { "ClearingFeeIndicator (635)", "fix.ClearingFeeIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[633].hf_id,
+        { &fix_hf[633],
             { "WorkingIndicator (636)", "fix.WorkingIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[634].hf_id,
+        { &fix_hf[634],
             { "LegLastPx (637)", "fix.LegLastPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[635].hf_id,
+        { &fix_hf[635],
             { "PriorityIndicator (638)", "fix.PriorityIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[636].hf_id,
+        { &fix_hf[636],
             { "PriceImprovement (639)", "fix.PriceImprovement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[637].hf_id,
+        { &fix_hf[637],
             { "Price2 (640)", "fix.Price2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[638].hf_id,
+        { &fix_hf[638],
             { "LastForwardPoints2 (641)", "fix.LastForwardPoints2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[639].hf_id,
+        { &fix_hf[639],
             { "BidForwardPoints2 (642)", "fix.BidForwardPoints2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[640].hf_id,
+        { &fix_hf[640],
             { "OfferForwardPoints2 (643)", "fix.OfferForwardPoints2",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[641].hf_id,
+        { &fix_hf[641],
             { "RFQReqID (644)", "fix.RFQReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[642].hf_id,
+        { &fix_hf[642],
             { "MktBidPx (645)", "fix.MktBidPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[643].hf_id,
+        { &fix_hf[643],
             { "MktOfferPx (646)", "fix.MktOfferPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[644].hf_id,
+        { &fix_hf[644],
             { "MinBidSize (647)", "fix.MinBidSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[645].hf_id,
+        { &fix_hf[645],
             { "MinOfferSize (648)", "fix.MinOfferSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[646].hf_id,
+        { &fix_hf[646],
             { "QuoteStatusReqID (649)", "fix.QuoteStatusReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[647].hf_id,
+        { &fix_hf[647],
             { "LegalConfirm (650)", "fix.LegalConfirm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[648].hf_id,
+        { &fix_hf[648],
             { "UnderlyingLastPx (651)", "fix.UnderlyingLastPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[649].hf_id,
+        { &fix_hf[649],
             { "UnderlyingLastQty (652)", "fix.UnderlyingLastQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[650].hf_id,
+        { &fix_hf[650],
             { "SecDefStatus (653)", "fix.SecDefStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[651].hf_id,
+        { &fix_hf[651],
             { "LegRefID (654)", "fix.LegRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[652].hf_id,
+        { &fix_hf[652],
             { "ContraLegRefID (655)", "fix.ContraLegRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[653].hf_id,
+        { &fix_hf[653],
             { "SettlCurrBidFxRate (656)", "fix.SettlCurrBidFxRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[654].hf_id,
+        { &fix_hf[654],
             { "SettlCurrOfferFxRate (657)", "fix.SettlCurrOfferFxRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[655].hf_id,
+        { &fix_hf[655],
             { "QuoteRequestRejectReason (658)", "fix.QuoteRequestRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[656].hf_id,
+        { &fix_hf[656],
             { "SideComplianceID (659)", "fix.SideComplianceID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[657].hf_id,
+        { &fix_hf[657],
             { "AcctIDSource (660)", "fix.AcctIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[658].hf_id,
+        { &fix_hf[658],
             { "AllocAcctIDSource (661)", "fix.AllocAcctIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[659].hf_id,
+        { &fix_hf[659],
             { "BenchmarkPrice (662)", "fix.BenchmarkPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[660].hf_id,
+        { &fix_hf[660],
             { "BenchmarkPriceType (663)", "fix.BenchmarkPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[661].hf_id,
+        { &fix_hf[661],
             { "ConfirmID (664)", "fix.ConfirmID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[662].hf_id,
+        { &fix_hf[662],
             { "ConfirmStatus (665)", "fix.ConfirmStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[663].hf_id,
+        { &fix_hf[663],
             { "ConfirmTransType (666)", "fix.ConfirmTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[664].hf_id,
+        { &fix_hf[664],
             { "ContractSettlMonth (667)", "fix.ContractSettlMonth",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[665].hf_id,
+        { &fix_hf[665],
             { "DeliveryForm (668)", "fix.DeliveryForm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[666].hf_id,
+        { &fix_hf[666],
             { "LastParPx (669)", "fix.LastParPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[667].hf_id,
+        { &fix_hf[667],
             { "NoLegAllocs (670)", "fix.NoLegAllocs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[668].hf_id,
+        { &fix_hf[668],
             { "LegAllocAccount (671)", "fix.LegAllocAccount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[669].hf_id,
+        { &fix_hf[669],
             { "LegIndividualAllocID (672)", "fix.LegIndividualAllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[670].hf_id,
+        { &fix_hf[670],
             { "LegAllocQty (673)", "fix.LegAllocQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[671].hf_id,
+        { &fix_hf[671],
             { "LegAllocAcctIDSource (674)", "fix.LegAllocAcctIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[672].hf_id,
+        { &fix_hf[672],
             { "LegSettlCurrency (675)", "fix.LegSettlCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[673].hf_id,
+        { &fix_hf[673],
             { "LegBenchmarkCurveCurrency (676)", "fix.LegBenchmarkCurveCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[674].hf_id,
+        { &fix_hf[674],
             { "LegBenchmarkCurveName (677)", "fix.LegBenchmarkCurveName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[675].hf_id,
+        { &fix_hf[675],
             { "LegBenchmarkCurvePoint (678)", "fix.LegBenchmarkCurvePoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[676].hf_id,
+        { &fix_hf[676],
             { "LegBenchmarkPrice (679)", "fix.LegBenchmarkPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[677].hf_id,
+        { &fix_hf[677],
             { "LegBenchmarkPriceType (680)", "fix.LegBenchmarkPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[678].hf_id,
+        { &fix_hf[678],
             { "LegBidPx (681)", "fix.LegBidPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[679].hf_id,
+        { &fix_hf[679],
             { "LegIOIQty (682)", "fix.LegIOIQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[680].hf_id,
+        { &fix_hf[680],
             { "NoLegStipulations (683)", "fix.NoLegStipulations",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[681].hf_id,
+        { &fix_hf[681],
             { "LegOfferPx (684)", "fix.LegOfferPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[682].hf_id,
+        { &fix_hf[682],
             { "LegOrderQty (685)", "fix.LegOrderQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[683].hf_id,
+        { &fix_hf[683],
             { "LegPriceType (686)", "fix.LegPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[684].hf_id,
+        { &fix_hf[684],
             { "LegQty (687)", "fix.LegQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[685].hf_id,
+        { &fix_hf[685],
             { "LegStipulationType (688)", "fix.LegStipulationType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[686].hf_id,
+        { &fix_hf[686],
             { "LegStipulationValue (689)", "fix.LegStipulationValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[687].hf_id,
+        { &fix_hf[687],
             { "LegSwapType (690)", "fix.LegSwapType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[688].hf_id,
+        { &fix_hf[688],
             { "Pool (691)", "fix.Pool",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[689].hf_id,
+        { &fix_hf[689],
             { "QuotePriceType (692)", "fix.QuotePriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[690].hf_id,
+        { &fix_hf[690],
             { "QuoteRespID (693)", "fix.QuoteRespID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[691].hf_id,
+        { &fix_hf[691],
             { "QuoteRespType (694)", "fix.QuoteRespType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[692].hf_id,
+        { &fix_hf[692],
             { "QuoteQualifier (695)", "fix.QuoteQualifier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[693].hf_id,
+        { &fix_hf[693],
             { "YieldRedemptionDate (696)", "fix.YieldRedemptionDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[694].hf_id,
+        { &fix_hf[694],
             { "YieldRedemptionPrice (697)", "fix.YieldRedemptionPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[695].hf_id,
+        { &fix_hf[695],
             { "YieldRedemptionPriceType (698)", "fix.YieldRedemptionPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[696].hf_id,
+        { &fix_hf[696],
             { "BenchmarkSecurityID (699)", "fix.BenchmarkSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[697].hf_id,
+        { &fix_hf[697],
             { "ReversalIndicator (700)", "fix.ReversalIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[698].hf_id,
+        { &fix_hf[698],
             { "YieldCalcDate (701)", "fix.YieldCalcDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[699].hf_id,
+        { &fix_hf[699],
             { "NoPositions (702)", "fix.NoPositions",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[700].hf_id,
+        { &fix_hf[700],
             { "PosType (703)", "fix.PosType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[701].hf_id,
+        { &fix_hf[701],
             { "LongQty (704)", "fix.LongQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[702].hf_id,
+        { &fix_hf[702],
             { "ShortQty (705)", "fix.ShortQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[703].hf_id,
+        { &fix_hf[703],
             { "PosQtyStatus (706)", "fix.PosQtyStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[704].hf_id,
+        { &fix_hf[704],
             { "PosAmtType (707)", "fix.PosAmtType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[705].hf_id,
+        { &fix_hf[705],
             { "PosAmt (708)", "fix.PosAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[706].hf_id,
+        { &fix_hf[706],
             { "PosTransType (709)", "fix.PosTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[707].hf_id,
+        { &fix_hf[707],
             { "PosReqID (710)", "fix.PosReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[708].hf_id,
+        { &fix_hf[708],
             { "NoUnderlyings (711)", "fix.NoUnderlyings",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[709].hf_id,
+        { &fix_hf[709],
             { "PosMaintAction (712)", "fix.PosMaintAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[710].hf_id,
+        { &fix_hf[710],
             { "OrigPosReqRefID (713)", "fix.OrigPosReqRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[711].hf_id,
+        { &fix_hf[711],
             { "PosMaintRptRefID (714)", "fix.PosMaintRptRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[712].hf_id,
+        { &fix_hf[712],
             { "ClearingBusinessDate (715)", "fix.ClearingBusinessDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[713].hf_id,
+        { &fix_hf[713],
             { "SettlSessID (716)", "fix.SettlSessID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[714].hf_id,
+        { &fix_hf[714],
             { "SettlSessSubID (717)", "fix.SettlSessSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[715].hf_id,
+        { &fix_hf[715],
             { "AdjustmentType (718)", "fix.AdjustmentType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[716].hf_id,
+        { &fix_hf[716],
             { "ContraryInstructionIndicator (719)", "fix.ContraryInstructionIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[717].hf_id,
+        { &fix_hf[717],
             { "PriorSpreadIndicator (720)", "fix.PriorSpreadIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[718].hf_id,
+        { &fix_hf[718],
             { "PosMaintRptID (721)", "fix.PosMaintRptID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[719].hf_id,
+        { &fix_hf[719],
             { "PosMaintStatus (722)", "fix.PosMaintStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[720].hf_id,
+        { &fix_hf[720],
             { "PosMaintResult (723)", "fix.PosMaintResult",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[721].hf_id,
+        { &fix_hf[721],
             { "PosReqType (724)", "fix.PosReqType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[722].hf_id,
+        { &fix_hf[722],
             { "ResponseTransportType (725)", "fix.ResponseTransportType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[723].hf_id,
+        { &fix_hf[723],
             { "ResponseDestination (726)", "fix.ResponseDestination",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[724].hf_id,
+        { &fix_hf[724],
             { "TotalNumPosReports (727)", "fix.TotalNumPosReports",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[725].hf_id,
+        { &fix_hf[725],
             { "PosReqResult (728)", "fix.PosReqResult",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[726].hf_id,
+        { &fix_hf[726],
             { "PosReqStatus (729)", "fix.PosReqStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[727].hf_id,
+        { &fix_hf[727],
             { "SettlPrice (730)", "fix.SettlPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[728].hf_id,
+        { &fix_hf[728],
             { "SettlPriceType (731)", "fix.SettlPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[729].hf_id,
+        { &fix_hf[729],
             { "UnderlyingSettlPrice (732)", "fix.UnderlyingSettlPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[730].hf_id,
+        { &fix_hf[730],
             { "UnderlyingSettlPriceType (733)", "fix.UnderlyingSettlPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[731].hf_id,
+        { &fix_hf[731],
             { "PriorSettlPrice (734)", "fix.PriorSettlPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[732].hf_id,
+        { &fix_hf[732],
             { "NoQuoteQualifiers (735)", "fix.NoQuoteQualifiers",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[733].hf_id,
+        { &fix_hf[733],
             { "AllocSettlCurrency (736)", "fix.AllocSettlCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[734].hf_id,
+        { &fix_hf[734],
             { "AllocSettlCurrAmt (737)", "fix.AllocSettlCurrAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[735].hf_id,
+        { &fix_hf[735],
             { "InterestAtMaturity (738)", "fix.InterestAtMaturity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[736].hf_id,
+        { &fix_hf[736],
             { "LegDatedDate (739)", "fix.LegDatedDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[737].hf_id,
+        { &fix_hf[737],
             { "LegPool (740)", "fix.LegPool",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[738].hf_id,
+        { &fix_hf[738],
             { "AllocInterestAtMaturity (741)", "fix.AllocInterestAtMaturity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[739].hf_id,
+        { &fix_hf[739],
             { "AllocAccruedInterestAmt (742)", "fix.AllocAccruedInterestAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[740].hf_id,
+        { &fix_hf[740],
             { "DeliveryDate (743)", "fix.DeliveryDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[741].hf_id,
+        { &fix_hf[741],
             { "AssignmentMethod (744)", "fix.AssignmentMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[742].hf_id,
+        { &fix_hf[742],
             { "AssignmentUnit (745)", "fix.AssignmentUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[743].hf_id,
+        { &fix_hf[743],
             { "OpenInterest (746)", "fix.OpenInterest",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[744].hf_id,
+        { &fix_hf[744],
             { "ExerciseMethod (747)", "fix.ExerciseMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[745].hf_id,
+        { &fix_hf[745],
             { "TotNumTradeReports (748)", "fix.TotNumTradeReports",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[746].hf_id,
+        { &fix_hf[746],
             { "TradeRequestResult (749)", "fix.TradeRequestResult",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[747].hf_id,
+        { &fix_hf[747],
             { "TradeRequestStatus (750)", "fix.TradeRequestStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[748].hf_id,
+        { &fix_hf[748],
             { "TradeReportRejectReason (751)", "fix.TradeReportRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[749].hf_id,
+        { &fix_hf[749],
             { "SideMultiLegReportingType (752)", "fix.SideMultiLegReportingType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[750].hf_id,
+        { &fix_hf[750],
             { "NoPosAmt (753)", "fix.NoPosAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[751].hf_id,
+        { &fix_hf[751],
             { "AutoAcceptIndicator (754)", "fix.AutoAcceptIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[752].hf_id,
+        { &fix_hf[752],
             { "AllocReportID (755)", "fix.AllocReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[753].hf_id,
+        { &fix_hf[753],
             { "NoNested2PartyIDs (756)", "fix.NoNested2PartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[754].hf_id,
+        { &fix_hf[754],
             { "Nested2PartyID (757)", "fix.Nested2PartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[755].hf_id,
+        { &fix_hf[755],
             { "Nested2PartyIDSource (758)", "fix.Nested2PartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[756].hf_id,
+        { &fix_hf[756],
             { "Nested2PartyRole (759)", "fix.Nested2PartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[757].hf_id,
+        { &fix_hf[757],
             { "Nested2PartySubID (760)", "fix.Nested2PartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[758].hf_id,
+        { &fix_hf[758],
             { "BenchmarkSecurityIDSource (761)", "fix.BenchmarkSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[759].hf_id,
+        { &fix_hf[759],
             { "SecuritySubType (762)", "fix.SecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[760].hf_id,
+        { &fix_hf[760],
             { "UnderlyingSecuritySubType (763)", "fix.UnderlyingSecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[761].hf_id,
+        { &fix_hf[761],
             { "LegSecuritySubType (764)", "fix.LegSecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[762].hf_id,
+        { &fix_hf[762],
             { "AllowableOneSidednessPct (765)", "fix.AllowableOneSidednessPct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[763].hf_id,
+        { &fix_hf[763],
             { "AllowableOneSidednessValue (766)", "fix.AllowableOneSidednessValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[764].hf_id,
+        { &fix_hf[764],
             { "AllowableOneSidednessCurr (767)", "fix.AllowableOneSidednessCurr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[765].hf_id,
+        { &fix_hf[765],
             { "NoTrdRegTimestamps (768)", "fix.NoTrdRegTimestamps",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[766].hf_id,
+        { &fix_hf[766],
             { "TrdRegTimestamp (769)", "fix.TrdRegTimestamp",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[767].hf_id,
+        { &fix_hf[767],
             { "TrdRegTimestampType (770)", "fix.TrdRegTimestampType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[768].hf_id,
+        { &fix_hf[768],
             { "TrdRegTimestampOrigin (771)", "fix.TrdRegTimestampOrigin",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[769].hf_id,
+        { &fix_hf[769],
             { "ConfirmRefID (772)", "fix.ConfirmRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[770].hf_id,
+        { &fix_hf[770],
             { "ConfirmType (773)", "fix.ConfirmType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[771].hf_id,
+        { &fix_hf[771],
             { "ConfirmRejReason (774)", "fix.ConfirmRejReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[772].hf_id,
+        { &fix_hf[772],
             { "BookingType (775)", "fix.BookingType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[773].hf_id,
+        { &fix_hf[773],
             { "IndividualAllocRejCode (776)", "fix.IndividualAllocRejCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[774].hf_id,
+        { &fix_hf[774],
             { "SettlInstMsgID (777)", "fix.SettlInstMsgID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[775].hf_id,
+        { &fix_hf[775],
             { "NoSettlInst (778)", "fix.NoSettlInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[776].hf_id,
+        { &fix_hf[776],
             { "LastUpdateTime (779)", "fix.LastUpdateTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[777].hf_id,
+        { &fix_hf[777],
             { "AllocSettlInstType (780)", "fix.AllocSettlInstType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[778].hf_id,
+        { &fix_hf[778],
             { "NoSettlPartyIDs (781)", "fix.NoSettlPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[779].hf_id,
+        { &fix_hf[779],
             { "SettlPartyID (782)", "fix.SettlPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[780].hf_id,
+        { &fix_hf[780],
             { "SettlPartyIDSource (783)", "fix.SettlPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[781].hf_id,
+        { &fix_hf[781],
             { "SettlPartyRole (784)", "fix.SettlPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[782].hf_id,
+        { &fix_hf[782],
             { "SettlPartySubID (785)", "fix.SettlPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[783].hf_id,
+        { &fix_hf[783],
             { "SettlPartySubIDType (786)", "fix.SettlPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[784].hf_id,
+        { &fix_hf[784],
             { "DlvyInstType (787)", "fix.DlvyInstType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[785].hf_id,
+        { &fix_hf[785],
             { "TerminationType (788)", "fix.TerminationType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[786].hf_id,
+        { &fix_hf[786],
             { "NextExpectedMsgSeqNum (789)", "fix.NextExpectedMsgSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[787].hf_id,
+        { &fix_hf[787],
             { "OrdStatusReqID (790)", "fix.OrdStatusReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[788].hf_id,
+        { &fix_hf[788],
             { "SettlInstReqID (791)", "fix.SettlInstReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[789].hf_id,
+        { &fix_hf[789],
             { "SettlInstReqRejCode (792)", "fix.SettlInstReqRejCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[790].hf_id,
+        { &fix_hf[790],
             { "SecondaryAllocID (793)", "fix.SecondaryAllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[791].hf_id,
+        { &fix_hf[791],
             { "AllocReportType (794)", "fix.AllocReportType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[792].hf_id,
+        { &fix_hf[792],
             { "AllocReportRefID (795)", "fix.AllocReportRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[793].hf_id,
+        { &fix_hf[793],
             { "AllocCancReplaceReason (796)", "fix.AllocCancReplaceReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[794].hf_id,
+        { &fix_hf[794],
             { "CopyMsgIndicator (797)", "fix.CopyMsgIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[795].hf_id,
+        { &fix_hf[795],
             { "AllocAccountType (798)", "fix.AllocAccountType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[796].hf_id,
+        { &fix_hf[796],
             { "OrderAvgPx (799)", "fix.OrderAvgPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[797].hf_id,
+        { &fix_hf[797],
             { "OrderBookingQty (800)", "fix.OrderBookingQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[798].hf_id,
+        { &fix_hf[798],
             { "NoSettlPartySubIDs (801)", "fix.NoSettlPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[799].hf_id,
+        { &fix_hf[799],
             { "NoPartySubIDs (802)", "fix.NoPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[800].hf_id,
+        { &fix_hf[800],
             { "PartySubIDType (803)", "fix.PartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[801].hf_id,
+        { &fix_hf[801],
             { "NoNestedPartySubIDs (804)", "fix.NoNestedPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[802].hf_id,
+        { &fix_hf[802],
             { "NestedPartySubIDType (805)", "fix.NestedPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[803].hf_id,
+        { &fix_hf[803],
             { "NoNested2PartySubIDs (806)", "fix.NoNested2PartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[804].hf_id,
+        { &fix_hf[804],
             { "Nested2PartySubIDType (807)", "fix.Nested2PartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[805].hf_id,
+        { &fix_hf[805],
             { "AllocIntermedReqType (808)", "fix.AllocIntermedReqType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[806].hf_id,
+        { &fix_hf[806],
             { "UnderlyingPx (810)", "fix.UnderlyingPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[807].hf_id,
+        { &fix_hf[807],
             { "PriceDelta (811)", "fix.PriceDelta",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[808].hf_id,
+        { &fix_hf[808],
             { "ApplQueueMax (812)", "fix.ApplQueueMax",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[809].hf_id,
+        { &fix_hf[809],
             { "ApplQueueDepth (813)", "fix.ApplQueueDepth",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[810].hf_id,
+        { &fix_hf[810],
             { "ApplQueueResolution (814)", "fix.ApplQueueResolution",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[811].hf_id,
+        { &fix_hf[811],
             { "ApplQueueAction (815)", "fix.ApplQueueAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[812].hf_id,
+        { &fix_hf[812],
             { "NoAltMDSource (816)", "fix.NoAltMDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[813].hf_id,
+        { &fix_hf[813],
             { "AltMDSourceID (817)", "fix.AltMDSourceID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[814].hf_id,
+        { &fix_hf[814],
             { "SecondaryTradeReportID (818)", "fix.SecondaryTradeReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[815].hf_id,
+        { &fix_hf[815],
             { "AvgPxIndicator (819)", "fix.AvgPxIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[816].hf_id,
+        { &fix_hf[816],
             { "TradeLinkID (820)", "fix.TradeLinkID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[817].hf_id,
+        { &fix_hf[817],
             { "OrderInputDevice (821)", "fix.OrderInputDevice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[818].hf_id,
+        { &fix_hf[818],
             { "UnderlyingTradingSessionID (822)", "fix.UnderlyingTradingSessionID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[819].hf_id,
+        { &fix_hf[819],
             { "UnderlyingTradingSessionSubID (823)", "fix.UnderlyingTradingSessionSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[820].hf_id,
+        { &fix_hf[820],
             { "TradeLegRefID (824)", "fix.TradeLegRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[821].hf_id,
+        { &fix_hf[821],
             { "ExchangeRule (825)", "fix.ExchangeRule",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[822].hf_id,
+        { &fix_hf[822],
             { "TradeAllocIndicator (826)", "fix.TradeAllocIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[823].hf_id,
+        { &fix_hf[823],
             { "ExpirationCycle (827)", "fix.ExpirationCycle",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[824].hf_id,
+        { &fix_hf[824],
             { "TrdType (828)", "fix.TrdType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[825].hf_id,
+        { &fix_hf[825],
             { "TrdSubType (829)", "fix.TrdSubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[826].hf_id,
+        { &fix_hf[826],
             { "TransferReason (830)", "fix.TransferReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[827].hf_id,
+        { &fix_hf[827],
             { "AsgnReqID (831)", "fix.AsgnReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[828].hf_id,
+        { &fix_hf[828],
             { "TotNumAssignmentReports (832)", "fix.TotNumAssignmentReports",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[829].hf_id,
+        { &fix_hf[829],
             { "AsgnRptID (833)", "fix.AsgnRptID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[830].hf_id,
+        { &fix_hf[830],
             { "ThresholdAmount (834)", "fix.ThresholdAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[831].hf_id,
+        { &fix_hf[831],
             { "PegMoveType (835)", "fix.PegMoveType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[832].hf_id,
+        { &fix_hf[832],
             { "PegOffsetType (836)", "fix.PegOffsetType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[833].hf_id,
+        { &fix_hf[833],
             { "PegLimitType (837)", "fix.PegLimitType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[834].hf_id,
+        { &fix_hf[834],
             { "PegRoundDirection (838)", "fix.PegRoundDirection",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[835].hf_id,
+        { &fix_hf[835],
             { "PeggedPrice (839)", "fix.PeggedPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[836].hf_id,
+        { &fix_hf[836],
             { "PegScope (840)", "fix.PegScope",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[837].hf_id,
+        { &fix_hf[837],
             { "DiscretionMoveType (841)", "fix.DiscretionMoveType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[838].hf_id,
+        { &fix_hf[838],
             { "DiscretionOffsetType (842)", "fix.DiscretionOffsetType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[839].hf_id,
+        { &fix_hf[839],
             { "DiscretionLimitType (843)", "fix.DiscretionLimitType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[840].hf_id,
+        { &fix_hf[840],
             { "DiscretionRoundDirection (844)", "fix.DiscretionRoundDirection",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[841].hf_id,
+        { &fix_hf[841],
             { "DiscretionPrice (845)", "fix.DiscretionPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[842].hf_id,
+        { &fix_hf[842],
             { "DiscretionScope (846)", "fix.DiscretionScope",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[843].hf_id,
+        { &fix_hf[843],
             { "TargetStrategy (847)", "fix.TargetStrategy",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[844].hf_id,
+        { &fix_hf[844],
             { "TargetStrategyParameters (848)", "fix.TargetStrategyParameters",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[845].hf_id,
+        { &fix_hf[845],
             { "ParticipationRate (849)", "fix.ParticipationRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[846].hf_id,
+        { &fix_hf[846],
             { "TargetStrategyPerformance (850)", "fix.TargetStrategyPerformance",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[847].hf_id,
+        { &fix_hf[847],
             { "LastLiquidityInd (851)", "fix.LastLiquidityInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[848].hf_id,
+        { &fix_hf[848],
             { "PublishTrdIndicator (852)", "fix.PublishTrdIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[849].hf_id,
+        { &fix_hf[849],
             { "ShortSaleReason (853)", "fix.ShortSaleReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[850].hf_id,
+        { &fix_hf[850],
             { "QtyType (854)", "fix.QtyType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[851].hf_id,
+        { &fix_hf[851],
             { "SecondaryTrdType (855)", "fix.SecondaryTrdType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[852].hf_id,
+        { &fix_hf[852],
             { "TradeReportType (856)", "fix.TradeReportType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[853].hf_id,
+        { &fix_hf[853],
             { "AllocNoOrdersType (857)", "fix.AllocNoOrdersType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[854].hf_id,
+        { &fix_hf[854],
             { "SharedCommission (858)", "fix.SharedCommission",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[855].hf_id,
+        { &fix_hf[855],
             { "ConfirmReqID (859)", "fix.ConfirmReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[856].hf_id,
+        { &fix_hf[856],
             { "AvgParPx (860)", "fix.AvgParPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[857].hf_id,
+        { &fix_hf[857],
             { "ReportedPx (861)", "fix.ReportedPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[858].hf_id,
+        { &fix_hf[858],
             { "NoCapacities (862)", "fix.NoCapacities",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[859].hf_id,
+        { &fix_hf[859],
             { "OrderCapacityQty (863)", "fix.OrderCapacityQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[860].hf_id,
+        { &fix_hf[860],
             { "NoEvents (864)", "fix.NoEvents",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[861].hf_id,
+        { &fix_hf[861],
             { "EventType (865)", "fix.EventType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[862].hf_id,
+        { &fix_hf[862],
             { "EventDate (866)", "fix.EventDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[863].hf_id,
+        { &fix_hf[863],
             { "EventPx (867)", "fix.EventPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[864].hf_id,
+        { &fix_hf[864],
             { "EventText (868)", "fix.EventText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[865].hf_id,
+        { &fix_hf[865],
             { "PctAtRisk (869)", "fix.PctAtRisk",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[866].hf_id,
+        { &fix_hf[866],
             { "NoInstrAttrib (870)", "fix.NoInstrAttrib",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[867].hf_id,
+        { &fix_hf[867],
             { "InstrAttribType (871)", "fix.InstrAttribType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[868].hf_id,
+        { &fix_hf[868],
             { "InstrAttribValue (872)", "fix.InstrAttribValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[869].hf_id,
+        { &fix_hf[869],
             { "DatedDate (873)", "fix.DatedDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[870].hf_id,
+        { &fix_hf[870],
             { "InterestAccrualDate (874)", "fix.InterestAccrualDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[871].hf_id,
+        { &fix_hf[871],
             { "CPProgram (875)", "fix.CPProgram",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[872].hf_id,
+        { &fix_hf[872],
             { "CPRegType (876)", "fix.CPRegType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[873].hf_id,
+        { &fix_hf[873],
             { "UnderlyingCPProgram (877)", "fix.UnderlyingCPProgram",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[874].hf_id,
+        { &fix_hf[874],
             { "UnderlyingCPRegType (878)", "fix.UnderlyingCPRegType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[875].hf_id,
+        { &fix_hf[875],
             { "UnderlyingQty (879)", "fix.UnderlyingQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[876].hf_id,
+        { &fix_hf[876],
             { "TrdMatchID (880)", "fix.TrdMatchID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[877].hf_id,
+        { &fix_hf[877],
             { "SecondaryTradeReportRefID (881)", "fix.SecondaryTradeReportRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[878].hf_id,
+        { &fix_hf[878],
             { "UnderlyingDirtyPrice (882)", "fix.UnderlyingDirtyPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[879].hf_id,
+        { &fix_hf[879],
             { "UnderlyingEndPrice (883)", "fix.UnderlyingEndPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[880].hf_id,
+        { &fix_hf[880],
             { "UnderlyingStartValue (884)", "fix.UnderlyingStartValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[881].hf_id,
+        { &fix_hf[881],
             { "UnderlyingCurrentValue (885)", "fix.UnderlyingCurrentValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[882].hf_id,
+        { &fix_hf[882],
             { "UnderlyingEndValue (886)", "fix.UnderlyingEndValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[883].hf_id,
+        { &fix_hf[883],
             { "NoUnderlyingStips (887)", "fix.NoUnderlyingStips",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[884].hf_id,
+        { &fix_hf[884],
             { "UnderlyingStipType (888)", "fix.UnderlyingStipType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[885].hf_id,
+        { &fix_hf[885],
             { "UnderlyingStipValue (889)", "fix.UnderlyingStipValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[886].hf_id,
+        { &fix_hf[886],
             { "MaturityNetMoney (890)", "fix.MaturityNetMoney",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[887].hf_id,
+        { &fix_hf[887],
             { "MiscFeeBasis (891)", "fix.MiscFeeBasis",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[888].hf_id,
+        { &fix_hf[888],
             { "TotNoAllocs (892)", "fix.TotNoAllocs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[889].hf_id,
+        { &fix_hf[889],
             { "LastFragment (893)", "fix.LastFragment",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[890].hf_id,
+        { &fix_hf[890],
             { "CollReqID (894)", "fix.CollReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[891].hf_id,
+        { &fix_hf[891],
             { "CollAsgnReason (895)", "fix.CollAsgnReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[892].hf_id,
+        { &fix_hf[892],
             { "CollInquiryQualifier (896)", "fix.CollInquiryQualifier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[893].hf_id,
+        { &fix_hf[893],
             { "NoTrades (897)", "fix.NoTrades",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[894].hf_id,
+        { &fix_hf[894],
             { "MarginRatio (898)", "fix.MarginRatio",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[895].hf_id,
+        { &fix_hf[895],
             { "MarginExcess (899)", "fix.MarginExcess",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[896].hf_id,
+        { &fix_hf[896],
             { "TotalNetValue (900)", "fix.TotalNetValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[897].hf_id,
+        { &fix_hf[897],
             { "CashOutstanding (901)", "fix.CashOutstanding",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[898].hf_id,
+        { &fix_hf[898],
             { "CollAsgnID (902)", "fix.CollAsgnID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[899].hf_id,
+        { &fix_hf[899],
             { "CollAsgnTransType (903)", "fix.CollAsgnTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[900].hf_id,
+        { &fix_hf[900],
             { "CollRespID (904)", "fix.CollRespID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[901].hf_id,
+        { &fix_hf[901],
             { "CollAsgnRespType (905)", "fix.CollAsgnRespType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[902].hf_id,
+        { &fix_hf[902],
             { "CollAsgnRejectReason (906)", "fix.CollAsgnRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[903].hf_id,
+        { &fix_hf[903],
             { "CollAsgnRefID (907)", "fix.CollAsgnRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[904].hf_id,
+        { &fix_hf[904],
             { "CollRptID (908)", "fix.CollRptID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[905].hf_id,
+        { &fix_hf[905],
             { "CollInquiryID (909)", "fix.CollInquiryID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[906].hf_id,
+        { &fix_hf[906],
             { "CollStatus (910)", "fix.CollStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[907].hf_id,
+        { &fix_hf[907],
             { "TotNumReports (911)", "fix.TotNumReports",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[908].hf_id,
+        { &fix_hf[908],
             { "LastRptRequested (912)", "fix.LastRptRequested",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[909].hf_id,
+        { &fix_hf[909],
             { "AgreementDesc (913)", "fix.AgreementDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[910].hf_id,
+        { &fix_hf[910],
             { "AgreementID (914)", "fix.AgreementID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[911].hf_id,
+        { &fix_hf[911],
             { "AgreementDate (915)", "fix.AgreementDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[912].hf_id,
+        { &fix_hf[912],
             { "StartDate (916)", "fix.StartDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[913].hf_id,
+        { &fix_hf[913],
             { "EndDate (917)", "fix.EndDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[914].hf_id,
+        { &fix_hf[914],
             { "AgreementCurrency (918)", "fix.AgreementCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[915].hf_id,
+        { &fix_hf[915],
             { "DeliveryType (919)", "fix.DeliveryType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[916].hf_id,
+        { &fix_hf[916],
             { "EndAccruedInterestAmt (920)", "fix.EndAccruedInterestAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[917].hf_id,
+        { &fix_hf[917],
             { "StartCash (921)", "fix.StartCash",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[918].hf_id,
+        { &fix_hf[918],
             { "EndCash (922)", "fix.EndCash",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[919].hf_id,
+        { &fix_hf[919],
             { "UserRequestID (923)", "fix.UserRequestID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[920].hf_id,
+        { &fix_hf[920],
             { "UserRequestType (924)", "fix.UserRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[921].hf_id,
+        { &fix_hf[921],
             { "NewPassword (925)", "fix.NewPassword",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[922].hf_id,
+        { &fix_hf[922],
             { "UserStatus (926)", "fix.UserStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[923].hf_id,
+        { &fix_hf[923],
             { "UserStatusText (927)", "fix.UserStatusText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[924].hf_id,
+        { &fix_hf[924],
             { "StatusValue (928)", "fix.StatusValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[925].hf_id,
+        { &fix_hf[925],
             { "StatusText (929)", "fix.StatusText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[926].hf_id,
+        { &fix_hf[926],
             { "RefCompID (930)", "fix.RefCompID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[927].hf_id,
+        { &fix_hf[927],
             { "RefSubID (931)", "fix.RefSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[928].hf_id,
+        { &fix_hf[928],
             { "NetworkResponseID (932)", "fix.NetworkResponseID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[929].hf_id,
+        { &fix_hf[929],
             { "NetworkRequestID (933)", "fix.NetworkRequestID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[930].hf_id,
+        { &fix_hf[930],
             { "LastNetworkResponseID (934)", "fix.LastNetworkResponseID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[931].hf_id,
+        { &fix_hf[931],
             { "NetworkRequestType (935)", "fix.NetworkRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[932].hf_id,
+        { &fix_hf[932],
             { "NoCompIDs (936)", "fix.NoCompIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[933].hf_id,
+        { &fix_hf[933],
             { "NetworkStatusResponseType (937)", "fix.NetworkStatusResponseType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[934].hf_id,
+        { &fix_hf[934],
             { "NoCollInquiryQualifier (938)", "fix.NoCollInquiryQualifier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[935].hf_id,
+        { &fix_hf[935],
             { "TrdRptStatus (939)", "fix.TrdRptStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[936].hf_id,
+        { &fix_hf[936],
             { "AffirmStatus (940)", "fix.AffirmStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[937].hf_id,
+        { &fix_hf[937],
             { "UnderlyingStrikeCurrency (941)", "fix.UnderlyingStrikeCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[938].hf_id,
+        { &fix_hf[938],
             { "LegStrikeCurrency (942)", "fix.LegStrikeCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[939].hf_id,
+        { &fix_hf[939],
             { "TimeBracket (943)", "fix.TimeBracket",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[940].hf_id,
+        { &fix_hf[940],
             { "CollAction (944)", "fix.CollAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[941].hf_id,
+        { &fix_hf[941],
             { "CollInquiryStatus (945)", "fix.CollInquiryStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[942].hf_id,
+        { &fix_hf[942],
             { "CollInquiryResult (946)", "fix.CollInquiryResult",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[943].hf_id,
+        { &fix_hf[943],
             { "StrikeCurrency (947)", "fix.StrikeCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[944].hf_id,
+        { &fix_hf[944],
             { "NoNested3PartyIDs (948)", "fix.NoNested3PartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[945].hf_id,
+        { &fix_hf[945],
             { "Nested3PartyID (949)", "fix.Nested3PartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[946].hf_id,
+        { &fix_hf[946],
             { "Nested3PartyIDSource (950)", "fix.Nested3PartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[947].hf_id,
+        { &fix_hf[947],
             { "Nested3PartyRole (951)", "fix.Nested3PartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[948].hf_id,
+        { &fix_hf[948],
             { "NoNested3PartySubIDs (952)", "fix.NoNested3PartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[949].hf_id,
+        { &fix_hf[949],
             { "Nested3PartySubID (953)", "fix.Nested3PartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[950].hf_id,
+        { &fix_hf[950],
             { "Nested3PartySubIDType (954)", "fix.Nested3PartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[951].hf_id,
+        { &fix_hf[951],
             { "LegContractSettlMonth (955)", "fix.LegContractSettlMonth",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[952].hf_id,
+        { &fix_hf[952],
             { "LegInterestAccrualDate (956)", "fix.LegInterestAccrualDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[953].hf_id,
+        { &fix_hf[953],
             { "NoStrategyParameters (957)", "fix.NoStrategyParameters",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[954].hf_id,
+        { &fix_hf[954],
             { "StrategyParameterName (958)", "fix.StrategyParameterName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[955].hf_id,
+        { &fix_hf[955],
             { "StrategyParameterType (959)", "fix.StrategyParameterType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[956].hf_id,
+        { &fix_hf[956],
             { "StrategyParameterValue (960)", "fix.StrategyParameterValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[957].hf_id,
+        { &fix_hf[957],
             { "HostCrossID (961)", "fix.HostCrossID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[958].hf_id,
+        { &fix_hf[958],
             { "SideTimeInForce (962)", "fix.SideTimeInForce",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[959].hf_id,
+        { &fix_hf[959],
             { "MDReportID (963)", "fix.MDReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[960].hf_id,
+        { &fix_hf[960],
             { "SecurityReportID (964)", "fix.SecurityReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[961].hf_id,
+        { &fix_hf[961],
             { "SecurityStatus (965)", "fix.SecurityStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[962].hf_id,
+        { &fix_hf[962],
             { "SettleOnOpenFlag (966)", "fix.SettleOnOpenFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[963].hf_id,
+        { &fix_hf[963],
             { "StrikeMultiplier (967)", "fix.StrikeMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[964].hf_id,
+        { &fix_hf[964],
             { "StrikeValue (968)", "fix.StrikeValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[965].hf_id,
+        { &fix_hf[965],
             { "MinPriceIncrement (969)", "fix.MinPriceIncrement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[966].hf_id,
+        { &fix_hf[966],
             { "PositionLimit (970)", "fix.PositionLimit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[967].hf_id,
+        { &fix_hf[967],
             { "NTPositionLimit (971)", "fix.NTPositionLimit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[968].hf_id,
+        { &fix_hf[968],
             { "UnderlyingAllocationPercent (972)", "fix.UnderlyingAllocationPercent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[969].hf_id,
+        { &fix_hf[969],
             { "UnderlyingCashAmount (973)", "fix.UnderlyingCashAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[970].hf_id,
+        { &fix_hf[970],
             { "UnderlyingCashType (974)", "fix.UnderlyingCashType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[971].hf_id,
+        { &fix_hf[971],
             { "UnderlyingSettlementType (975)", "fix.UnderlyingSettlementType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[972].hf_id,
+        { &fix_hf[972],
             { "QuantityDate (976)", "fix.QuantityDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[973].hf_id,
+        { &fix_hf[973],
             { "ContIntRptID (977)", "fix.ContIntRptID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[974].hf_id,
+        { &fix_hf[974],
             { "LateIndicator (978)", "fix.LateIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[975].hf_id,
+        { &fix_hf[975],
             { "InputSource (979)", "fix.InputSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[976].hf_id,
+        { &fix_hf[976],
             { "SecurityUpdateAction (980)", "fix.SecurityUpdateAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[977].hf_id,
+        { &fix_hf[977],
             { "NoExpiration (981)", "fix.NoExpiration",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[978].hf_id,
+        { &fix_hf[978],
             { "ExpirationQtyType (982)", "fix.ExpirationQtyType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[979].hf_id,
+        { &fix_hf[979],
             { "ExpQty (983)", "fix.ExpQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[980].hf_id,
+        { &fix_hf[980],
             { "NoUnderlyingAmounts (984)", "fix.NoUnderlyingAmounts",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[981].hf_id,
+        { &fix_hf[981],
             { "UnderlyingPayAmount (985)", "fix.UnderlyingPayAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[982].hf_id,
+        { &fix_hf[982],
             { "UnderlyingCollectAmount (986)", "fix.UnderlyingCollectAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[983].hf_id,
+        { &fix_hf[983],
             { "UnderlyingSettlementDate (987)", "fix.UnderlyingSettlementDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[984].hf_id,
+        { &fix_hf[984],
             { "UnderlyingSettlementStatus (988)", "fix.UnderlyingSettlementStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[985].hf_id,
+        { &fix_hf[985],
             { "SecondaryIndividualAllocID (989)", "fix.SecondaryIndividualAllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[986].hf_id,
+        { &fix_hf[986],
             { "LegReportID (990)", "fix.LegReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[987].hf_id,
+        { &fix_hf[987],
             { "RndPx (991)", "fix.RndPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[988].hf_id,
+        { &fix_hf[988],
             { "IndividualAllocType (992)", "fix.IndividualAllocType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[989].hf_id,
+        { &fix_hf[989],
             { "AllocCustomerCapacity (993)", "fix.AllocCustomerCapacity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[990].hf_id,
+        { &fix_hf[990],
             { "TierCode (994)", "fix.TierCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[991].hf_id,
+        { &fix_hf[991],
             { "UnitOfMeasure (996)", "fix.UnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[992].hf_id,
+        { &fix_hf[992],
             { "TimeUnit (997)", "fix.TimeUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[993].hf_id,
+        { &fix_hf[993],
             { "UnderlyingUnitOfMeasure (998)", "fix.UnderlyingUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[994].hf_id,
+        { &fix_hf[994],
             { "LegUnitOfMeasure (999)", "fix.LegUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[995].hf_id,
+        { &fix_hf[995],
             { "UnderlyingTimeUnit (1000)", "fix.UnderlyingTimeUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[996].hf_id,
+        { &fix_hf[996],
             { "LegTimeUnit (1001)", "fix.LegTimeUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[997].hf_id,
+        { &fix_hf[997],
             { "AllocMethod (1002)", "fix.AllocMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[998].hf_id,
+        { &fix_hf[998],
             { "TradeID (1003)", "fix.TradeID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[999].hf_id,
+        { &fix_hf[999],
             { "SideTradeReportID (1005)", "fix.SideTradeReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1000].hf_id,
+        { &fix_hf[1000],
             { "SideFillStationCd (1006)", "fix.SideFillStationCd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1001].hf_id,
+        { &fix_hf[1001],
             { "SideReasonCd (1007)", "fix.SideReasonCd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1002].hf_id,
+        { &fix_hf[1002],
             { "SideTrdSubTyp (1008)", "fix.SideTrdSubTyp",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1003].hf_id,
+        { &fix_hf[1003],
             { "SideLastQty (1009)", "fix.SideLastQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1004].hf_id,
+        { &fix_hf[1004],
             { "MessageEventSource (1011)", "fix.MessageEventSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1005].hf_id,
+        { &fix_hf[1005],
             { "SideTrdRegTimestamp (1012)", "fix.SideTrdRegTimestamp",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1006].hf_id,
+        { &fix_hf[1006],
             { "SideTrdRegTimestampType (1013)", "fix.SideTrdRegTimestampType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1007].hf_id,
+        { &fix_hf[1007],
             { "SideTrdRegTimestampSrc (1014)", "fix.SideTrdRegTimestampSrc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1008].hf_id,
+        { &fix_hf[1008],
             { "AsOfIndicator (1015)", "fix.AsOfIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1009].hf_id,
+        { &fix_hf[1009],
             { "NoSideTrdRegTS (1016)", "fix.NoSideTrdRegTS",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1010].hf_id,
+        { &fix_hf[1010],
             { "LegOptionRatio (1017)", "fix.LegOptionRatio",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1011].hf_id,
+        { &fix_hf[1011],
             { "NoInstrumentParties (1018)", "fix.NoInstrumentParties",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1012].hf_id,
+        { &fix_hf[1012],
             { "InstrumentPartyID (1019)", "fix.InstrumentPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1013].hf_id,
+        { &fix_hf[1013],
             { "TradeVolume (1020)", "fix.TradeVolume",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1014].hf_id,
+        { &fix_hf[1014],
             { "MDBookType (1021)", "fix.MDBookType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1015].hf_id,
+        { &fix_hf[1015],
             { "MDFeedType (1022)", "fix.MDFeedType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1016].hf_id,
+        { &fix_hf[1016],
             { "MDPriceLevel (1023)", "fix.MDPriceLevel",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1017].hf_id,
+        { &fix_hf[1017],
             { "MDOriginType (1024)", "fix.MDOriginType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1018].hf_id,
+        { &fix_hf[1018],
             { "FirstPx (1025)", "fix.FirstPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1019].hf_id,
+        { &fix_hf[1019],
             { "MDEntrySpotRate (1026)", "fix.MDEntrySpotRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1020].hf_id,
+        { &fix_hf[1020],
             { "MDEntryForwardPoints (1027)", "fix.MDEntryForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1021].hf_id,
+        { &fix_hf[1021],
             { "ManualOrderIndicator (1028)", "fix.ManualOrderIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1022].hf_id,
+        { &fix_hf[1022],
             { "CustDirectedOrder (1029)", "fix.CustDirectedOrder",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1023].hf_id,
+        { &fix_hf[1023],
             { "ReceivedDeptID (1030)", "fix.ReceivedDeptID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1024].hf_id,
+        { &fix_hf[1024],
             { "CustOrderHandlingInst (1031)", "fix.CustOrderHandlingInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1025].hf_id,
+        { &fix_hf[1025],
             { "OrderHandlingInstSource (1032)", "fix.OrderHandlingInstSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1026].hf_id,
+        { &fix_hf[1026],
             { "DeskType (1033)", "fix.DeskType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1027].hf_id,
+        { &fix_hf[1027],
             { "DeskTypeSource (1034)", "fix.DeskTypeSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1028].hf_id,
+        { &fix_hf[1028],
             { "DeskOrderHandlingInst (1035)", "fix.DeskOrderHandlingInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1029].hf_id,
+        { &fix_hf[1029],
             { "ExecAckStatus (1036)", "fix.ExecAckStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1030].hf_id,
+        { &fix_hf[1030],
             { "UnderlyingDeliveryAmount (1037)", "fix.UnderlyingDeliveryAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1031].hf_id,
+        { &fix_hf[1031],
             { "UnderlyingCapValue (1038)", "fix.UnderlyingCapValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1032].hf_id,
+        { &fix_hf[1032],
             { "UnderlyingSettlMethod (1039)", "fix.UnderlyingSettlMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1033].hf_id,
+        { &fix_hf[1033],
             { "SecondaryTradeID (1040)", "fix.SecondaryTradeID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1034].hf_id,
+        { &fix_hf[1034],
             { "FirmTradeID (1041)", "fix.FirmTradeID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1035].hf_id,
+        { &fix_hf[1035],
             { "SecondaryFirmTradeID (1042)", "fix.SecondaryFirmTradeID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1036].hf_id,
+        { &fix_hf[1036],
             { "CollApplType (1043)", "fix.CollApplType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1037].hf_id,
+        { &fix_hf[1037],
             { "UnderlyingAdjustedQuantity (1044)", "fix.UnderlyingAdjustedQuantity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1038].hf_id,
+        { &fix_hf[1038],
             { "UnderlyingFXRate (1045)", "fix.UnderlyingFXRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1039].hf_id,
+        { &fix_hf[1039],
             { "UnderlyingFXRateCalc (1046)", "fix.UnderlyingFXRateCalc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1040].hf_id,
+        { &fix_hf[1040],
             { "AllocPositionEffect (1047)", "fix.AllocPositionEffect",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1041].hf_id,
+        { &fix_hf[1041],
             { "DealingCapacity (1048)", "fix.DealingCapacity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1042].hf_id,
+        { &fix_hf[1042],
             { "InstrmtAssignmentMethod (1049)", "fix.InstrmtAssignmentMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1043].hf_id,
+        { &fix_hf[1043],
             { "InstrumentPartyIDSource (1050)", "fix.InstrumentPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1044].hf_id,
+        { &fix_hf[1044],
             { "InstrumentPartyRole (1051)", "fix.InstrumentPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1045].hf_id,
+        { &fix_hf[1045],
             { "NoInstrumentPartySubIDs (1052)", "fix.NoInstrumentPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1046].hf_id,
+        { &fix_hf[1046],
             { "InstrumentPartySubID (1053)", "fix.InstrumentPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1047].hf_id,
+        { &fix_hf[1047],
             { "InstrumentPartySubIDType (1054)", "fix.InstrumentPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1048].hf_id,
+        { &fix_hf[1048],
             { "PositionCurrency (1055)", "fix.PositionCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1049].hf_id,
+        { &fix_hf[1049],
             { "CalculatedCcyLastQty (1056)", "fix.CalculatedCcyLastQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1050].hf_id,
+        { &fix_hf[1050],
             { "AggressorIndicator (1057)", "fix.AggressorIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1051].hf_id,
+        { &fix_hf[1051],
             { "NoUndlyInstrumentParties (1058)", "fix.NoUndlyInstrumentParties",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1052].hf_id,
+        { &fix_hf[1052],
             { "UnderlyingInstrumentPartyID (1059)", "fix.UnderlyingInstrumentPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1053].hf_id,
+        { &fix_hf[1053],
             { "UnderlyingInstrumentPartyIDSource (1060)", "fix.UnderlyingInstrumentPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1054].hf_id,
+        { &fix_hf[1054],
             { "UnderlyingInstrumentPartyRole (1061)", "fix.UnderlyingInstrumentPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1055].hf_id,
+        { &fix_hf[1055],
             { "NoUndlyInstrumentPartySubIDs (1062)", "fix.NoUndlyInstrumentPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1056].hf_id,
+        { &fix_hf[1056],
             { "UnderlyingInstrumentPartySubID (1063)", "fix.UnderlyingInstrumentPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1057].hf_id,
+        { &fix_hf[1057],
             { "UnderlyingInstrumentPartySubIDType (1064)", "fix.UnderlyingInstrumentPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1058].hf_id,
+        { &fix_hf[1058],
             { "BidSwapPoints (1065)", "fix.BidSwapPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1059].hf_id,
+        { &fix_hf[1059],
             { "OfferSwapPoints (1066)", "fix.OfferSwapPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1060].hf_id,
+        { &fix_hf[1060],
             { "LegBidForwardPoints (1067)", "fix.LegBidForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1061].hf_id,
+        { &fix_hf[1061],
             { "LegOfferForwardPoints (1068)", "fix.LegOfferForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1062].hf_id,
+        { &fix_hf[1062],
             { "SwapPoints (1069)", "fix.SwapPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1063].hf_id,
+        { &fix_hf[1063],
             { "MDQuoteType (1070)", "fix.MDQuoteType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1064].hf_id,
+        { &fix_hf[1064],
             { "LastSwapPoints (1071)", "fix.LastSwapPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1065].hf_id,
+        { &fix_hf[1065],
             { "SideGrossTradeAmt (1072)", "fix.SideGrossTradeAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1066].hf_id,
+        { &fix_hf[1066],
             { "LegLastForwardPoints (1073)", "fix.LegLastForwardPoints",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1067].hf_id,
+        { &fix_hf[1067],
             { "LegCalculatedCcyLastQty (1074)", "fix.LegCalculatedCcyLastQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1068].hf_id,
+        { &fix_hf[1068],
             { "LegGrossTradeAmt (1075)", "fix.LegGrossTradeAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1069].hf_id,
+        { &fix_hf[1069],
             { "MaturityTime (1079)", "fix.MaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1070].hf_id,
+        { &fix_hf[1070],
             { "RefOrderID (1080)", "fix.RefOrderID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1071].hf_id,
+        { &fix_hf[1071],
             { "RefOrderIDSource (1081)", "fix.RefOrderIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1072].hf_id,
+        { &fix_hf[1072],
             { "SecondaryDisplayQty (1082)", "fix.SecondaryDisplayQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1073].hf_id,
+        { &fix_hf[1073],
             { "DisplayWhen (1083)", "fix.DisplayWhen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1074].hf_id,
+        { &fix_hf[1074],
             { "DisplayMethod (1084)", "fix.DisplayMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1075].hf_id,
+        { &fix_hf[1075],
             { "DisplayLowQty (1085)", "fix.DisplayLowQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1076].hf_id,
+        { &fix_hf[1076],
             { "DisplayHighQty (1086)", "fix.DisplayHighQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1077].hf_id,
+        { &fix_hf[1077],
             { "DisplayMinIncr (1087)", "fix.DisplayMinIncr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1078].hf_id,
+        { &fix_hf[1078],
             { "RefreshQty (1088)", "fix.RefreshQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1079].hf_id,
+        { &fix_hf[1079],
             { "MatchIncrement (1089)", "fix.MatchIncrement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1080].hf_id,
+        { &fix_hf[1080],
             { "MaxPriceLevels (1090)", "fix.MaxPriceLevels",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1081].hf_id,
+        { &fix_hf[1081],
             { "PreTradeAnonymity (1091)", "fix.PreTradeAnonymity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1082].hf_id,
+        { &fix_hf[1082],
             { "PriceProtectionScope (1092)", "fix.PriceProtectionScope",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1083].hf_id,
+        { &fix_hf[1083],
             { "LotType (1093)", "fix.LotType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1084].hf_id,
+        { &fix_hf[1084],
             { "PegPriceType (1094)", "fix.PegPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1085].hf_id,
+        { &fix_hf[1085],
             { "PeggedRefPrice (1095)", "fix.PeggedRefPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1086].hf_id,
+        { &fix_hf[1086],
             { "PegSecurityIDSource (1096)", "fix.PegSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1087].hf_id,
+        { &fix_hf[1087],
             { "PegSecurityID (1097)", "fix.PegSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1088].hf_id,
+        { &fix_hf[1088],
             { "PegSymbol (1098)", "fix.PegSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1089].hf_id,
+        { &fix_hf[1089],
             { "PegSecurityDesc (1099)", "fix.PegSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1090].hf_id,
+        { &fix_hf[1090],
             { "TriggerType (1100)", "fix.TriggerType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1091].hf_id,
+        { &fix_hf[1091],
             { "TriggerAction (1101)", "fix.TriggerAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1092].hf_id,
+        { &fix_hf[1092],
             { "TriggerPrice (1102)", "fix.TriggerPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1093].hf_id,
+        { &fix_hf[1093],
             { "TriggerSymbol (1103)", "fix.TriggerSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1094].hf_id,
+        { &fix_hf[1094],
             { "TriggerSecurityID (1104)", "fix.TriggerSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1095].hf_id,
+        { &fix_hf[1095],
             { "TriggerSecurityIDSource (1105)", "fix.TriggerSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1096].hf_id,
+        { &fix_hf[1096],
             { "TriggerSecurityDesc (1106)", "fix.TriggerSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1097].hf_id,
+        { &fix_hf[1097],
             { "TriggerPriceType (1107)", "fix.TriggerPriceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1098].hf_id,
+        { &fix_hf[1098],
             { "TriggerPriceTypeScope (1108)", "fix.TriggerPriceTypeScope",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1099].hf_id,
+        { &fix_hf[1099],
             { "TriggerPriceDirection (1109)", "fix.TriggerPriceDirection",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1100].hf_id,
+        { &fix_hf[1100],
             { "TriggerNewPrice (1110)", "fix.TriggerNewPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1101].hf_id,
+        { &fix_hf[1101],
             { "TriggerOrderType (1111)", "fix.TriggerOrderType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1102].hf_id,
+        { &fix_hf[1102],
             { "TriggerNewQty (1112)", "fix.TriggerNewQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1103].hf_id,
+        { &fix_hf[1103],
             { "TriggerTradingSessionID (1113)", "fix.TriggerTradingSessionID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1104].hf_id,
+        { &fix_hf[1104],
             { "TriggerTradingSessionSubID (1114)", "fix.TriggerTradingSessionSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1105].hf_id,
+        { &fix_hf[1105],
             { "OrderCategory (1115)", "fix.OrderCategory",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1106].hf_id,
+        { &fix_hf[1106],
             { "NoRootPartyIDs (1116)", "fix.NoRootPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1107].hf_id,
+        { &fix_hf[1107],
             { "RootPartyID (1117)", "fix.RootPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1108].hf_id,
+        { &fix_hf[1108],
             { "RootPartyIDSource (1118)", "fix.RootPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1109].hf_id,
+        { &fix_hf[1109],
             { "RootPartyRole (1119)", "fix.RootPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1110].hf_id,
+        { &fix_hf[1110],
             { "NoRootPartySubIDs (1120)", "fix.NoRootPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1111].hf_id,
+        { &fix_hf[1111],
             { "RootPartySubID (1121)", "fix.RootPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1112].hf_id,
+        { &fix_hf[1112],
             { "RootPartySubIDType (1122)", "fix.RootPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1113].hf_id,
+        { &fix_hf[1113],
             { "TradeHandlingInstr (1123)", "fix.TradeHandlingInstr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1114].hf_id,
+        { &fix_hf[1114],
             { "OrigTradeHandlingInstr (1124)", "fix.OrigTradeHandlingInstr",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1115].hf_id,
+        { &fix_hf[1115],
             { "OrigTradeDate (1125)", "fix.OrigTradeDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1116].hf_id,
+        { &fix_hf[1116],
             { "OrigTradeID (1126)", "fix.OrigTradeID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1117].hf_id,
+        { &fix_hf[1117],
             { "OrigSecondaryTradeID (1127)", "fix.OrigSecondaryTradeID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1118].hf_id,
+        { &fix_hf[1118],
             { "ApplVerID (1128)", "fix.ApplVerID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1119].hf_id,
+        { &fix_hf[1119],
             { "CstmApplVerID (1129)", "fix.CstmApplVerID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1120].hf_id,
+        { &fix_hf[1120],
             { "RefApplVerID (1130)", "fix.RefApplVerID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1121].hf_id,
+        { &fix_hf[1121],
             { "RefCstmApplVerID (1131)", "fix.RefCstmApplVerID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1122].hf_id,
+        { &fix_hf[1122],
             { "TZTransactTime (1132)", "fix.TZTransactTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1123].hf_id,
+        { &fix_hf[1123],
             { "ExDestinationIDSource (1133)", "fix.ExDestinationIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1124].hf_id,
+        { &fix_hf[1124],
             { "ReportedPxDiff (1134)", "fix.ReportedPxDiff",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1125].hf_id,
+        { &fix_hf[1125],
             { "RptSys (1135)", "fix.RptSys",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1126].hf_id,
+        { &fix_hf[1126],
             { "AllocClearingFeeIndicator (1136)", "fix.AllocClearingFeeIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1127].hf_id,
+        { &fix_hf[1127],
             { "DefaultApplVerID (1137)", "fix.DefaultApplVerID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1128].hf_id,
+        { &fix_hf[1128],
             { "DisplayQty (1138)", "fix.DisplayQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1129].hf_id,
+        { &fix_hf[1129],
             { "ExchangeSpecialInstructions (1139)", "fix.ExchangeSpecialInstructions",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1130].hf_id,
+        { &fix_hf[1130],
             { "MaxTradeVol (1140)", "fix.MaxTradeVol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1131].hf_id,
+        { &fix_hf[1131],
             { "NoMDFeedTypes (1141)", "fix.NoMDFeedTypes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1132].hf_id,
+        { &fix_hf[1132],
             { "MatchAlgorithm (1142)", "fix.MatchAlgorithm",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1133].hf_id,
+        { &fix_hf[1133],
             { "MaxPriceVariation (1143)", "fix.MaxPriceVariation",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1134].hf_id,
+        { &fix_hf[1134],
             { "ImpliedMarketIndicator (1144)", "fix.ImpliedMarketIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1135].hf_id,
+        { &fix_hf[1135],
             { "EventTime (1145)", "fix.EventTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1136].hf_id,
+        { &fix_hf[1136],
             { "MinPriceIncrementAmount (1146)", "fix.MinPriceIncrementAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1137].hf_id,
+        { &fix_hf[1137],
             { "UnitOfMeasureQty (1147)", "fix.UnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1138].hf_id,
+        { &fix_hf[1138],
             { "LowLimitPrice (1148)", "fix.LowLimitPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1139].hf_id,
+        { &fix_hf[1139],
             { "HighLimitPrice (1149)", "fix.HighLimitPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1140].hf_id,
+        { &fix_hf[1140],
             { "TradingReferencePrice (1150)", "fix.TradingReferencePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1141].hf_id,
+        { &fix_hf[1141],
             { "SecurityGroup (1151)", "fix.SecurityGroup",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1142].hf_id,
+        { &fix_hf[1142],
             { "LegNumber (1152)", "fix.LegNumber",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1143].hf_id,
+        { &fix_hf[1143],
             { "SettlementCycleNo (1153)", "fix.SettlementCycleNo",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1144].hf_id,
+        { &fix_hf[1144],
             { "SideCurrency (1154)", "fix.SideCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1145].hf_id,
+        { &fix_hf[1145],
             { "SideSettlCurrency (1155)", "fix.SideSettlCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1146].hf_id,
+        { &fix_hf[1146],
             { "ApplExtID (1156)", "fix.ApplExtID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1147].hf_id,
+        { &fix_hf[1147],
             { "CcyAmt (1157)", "fix.CcyAmt",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1148].hf_id,
+        { &fix_hf[1148],
             { "NoSettlDetails (1158)", "fix.NoSettlDetails",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1149].hf_id,
+        { &fix_hf[1149],
             { "SettlObligMode (1159)", "fix.SettlObligMode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1150].hf_id,
+        { &fix_hf[1150],
             { "SettlObligMsgID (1160)", "fix.SettlObligMsgID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1151].hf_id,
+        { &fix_hf[1151],
             { "SettlObligID (1161)", "fix.SettlObligID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1152].hf_id,
+        { &fix_hf[1152],
             { "SettlObligTransType (1162)", "fix.SettlObligTransType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1153].hf_id,
+        { &fix_hf[1153],
             { "SettlObligRefID (1163)", "fix.SettlObligRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1154].hf_id,
+        { &fix_hf[1154],
             { "SettlObligSource (1164)", "fix.SettlObligSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1155].hf_id,
+        { &fix_hf[1155],
             { "NoSettlOblig (1165)", "fix.NoSettlOblig",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1156].hf_id,
+        { &fix_hf[1156],
             { "QuoteMsgID (1166)", "fix.QuoteMsgID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1157].hf_id,
+        { &fix_hf[1157],
             { "QuoteEntryStatus (1167)", "fix.QuoteEntryStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1158].hf_id,
+        { &fix_hf[1158],
             { "TotNoCxldQuotes (1168)", "fix.TotNoCxldQuotes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1159].hf_id,
+        { &fix_hf[1159],
             { "TotNoAccQuotes (1169)", "fix.TotNoAccQuotes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1160].hf_id,
+        { &fix_hf[1160],
             { "TotNoRejQuotes (1170)", "fix.TotNoRejQuotes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1161].hf_id,
+        { &fix_hf[1161],
             { "PrivateQuote (1171)", "fix.PrivateQuote",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1162].hf_id,
+        { &fix_hf[1162],
             { "RespondentType (1172)", "fix.RespondentType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1163].hf_id,
+        { &fix_hf[1163],
             { "MDSubBookType (1173)", "fix.MDSubBookType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1164].hf_id,
+        { &fix_hf[1164],
             { "SecurityTradingEvent (1174)", "fix.SecurityTradingEvent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1165].hf_id,
+        { &fix_hf[1165],
             { "NoStatsIndicators (1175)", "fix.NoStatsIndicators",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1166].hf_id,
+        { &fix_hf[1166],
             { "StatsType (1176)", "fix.StatsType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1167].hf_id,
+        { &fix_hf[1167],
             { "NoOfSecSizes (1177)", "fix.NoOfSecSizes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1168].hf_id,
+        { &fix_hf[1168],
             { "MDSecSizeType (1178)", "fix.MDSecSizeType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1169].hf_id,
+        { &fix_hf[1169],
             { "MDSecSize (1179)", "fix.MDSecSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1170].hf_id,
+        { &fix_hf[1170],
             { "ApplID (1180)", "fix.ApplID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1171].hf_id,
+        { &fix_hf[1171],
             { "ApplSeqNum (1181)", "fix.ApplSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1172].hf_id,
+        { &fix_hf[1172],
             { "ApplBegSeqNum (1182)", "fix.ApplBegSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1173].hf_id,
+        { &fix_hf[1173],
             { "ApplEndSeqNum (1183)", "fix.ApplEndSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1174].hf_id,
+        { &fix_hf[1174],
             { "SecurityXMLLen (1184)", "fix.SecurityXMLLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1175].hf_id,
+        { &fix_hf[1175],
             { "SecurityXML (1185)", "fix.SecurityXML",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1176].hf_id,
+        { &fix_hf[1176],
             { "SecurityXMLSchema (1186)", "fix.SecurityXMLSchema",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1177].hf_id,
+        { &fix_hf[1177],
             { "RefreshIndicator (1187)", "fix.RefreshIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1178].hf_id,
+        { &fix_hf[1178],
             { "Volatility (1188)", "fix.Volatility",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1179].hf_id,
+        { &fix_hf[1179],
             { "TimeToExpiration (1189)", "fix.TimeToExpiration",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1180].hf_id,
+        { &fix_hf[1180],
             { "RiskFreeRate (1190)", "fix.RiskFreeRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1181].hf_id,
+        { &fix_hf[1181],
             { "PriceUnitOfMeasure (1191)", "fix.PriceUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1182].hf_id,
+        { &fix_hf[1182],
             { "PriceUnitOfMeasureQty (1192)", "fix.PriceUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1183].hf_id,
+        { &fix_hf[1183],
             { "SettlMethod (1193)", "fix.SettlMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1184].hf_id,
+        { &fix_hf[1184],
             { "ExerciseStyle (1194)", "fix.ExerciseStyle",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1185].hf_id,
+        { &fix_hf[1185],
             { "OptPayoutAmount (1195)", "fix.OptPayoutAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1186].hf_id,
+        { &fix_hf[1186],
             { "PriceQuoteMethod (1196)", "fix.PriceQuoteMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1187].hf_id,
+        { &fix_hf[1187],
             { "ValuationMethod (1197)", "fix.ValuationMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1188].hf_id,
+        { &fix_hf[1188],
             { "ListMethod (1198)", "fix.ListMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1189].hf_id,
+        { &fix_hf[1189],
             { "CapPrice (1199)", "fix.CapPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1190].hf_id,
+        { &fix_hf[1190],
             { "FloorPrice (1200)", "fix.FloorPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1191].hf_id,
+        { &fix_hf[1191],
             { "NoStrikeRules (1201)", "fix.NoStrikeRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1192].hf_id,
+        { &fix_hf[1192],
             { "StartStrikePxRange (1202)", "fix.StartStrikePxRange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1193].hf_id,
+        { &fix_hf[1193],
             { "EndStrikePxRange (1203)", "fix.EndStrikePxRange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1194].hf_id,
+        { &fix_hf[1194],
             { "StrikeIncrement (1204)", "fix.StrikeIncrement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1195].hf_id,
+        { &fix_hf[1195],
             { "NoTickRules (1205)", "fix.NoTickRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1196].hf_id,
+        { &fix_hf[1196],
             { "StartTickPriceRange (1206)", "fix.StartTickPriceRange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1197].hf_id,
+        { &fix_hf[1197],
             { "EndTickPriceRange (1207)", "fix.EndTickPriceRange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1198].hf_id,
+        { &fix_hf[1198],
             { "TickIncrement (1208)", "fix.TickIncrement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1199].hf_id,
+        { &fix_hf[1199],
             { "TickRuleType (1209)", "fix.TickRuleType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1200].hf_id,
+        { &fix_hf[1200],
             { "NestedInstrAttribType (1210)", "fix.NestedInstrAttribType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1201].hf_id,
+        { &fix_hf[1201],
             { "NestedInstrAttribValue (1211)", "fix.NestedInstrAttribValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1202].hf_id,
+        { &fix_hf[1202],
             { "LegMaturityTime (1212)", "fix.LegMaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1203].hf_id,
+        { &fix_hf[1203],
             { "UnderlyingMaturityTime (1213)", "fix.UnderlyingMaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1204].hf_id,
+        { &fix_hf[1204],
             { "DerivativeSymbol (1214)", "fix.DerivativeSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1205].hf_id,
+        { &fix_hf[1205],
             { "DerivativeSymbolSfx (1215)", "fix.DerivativeSymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1206].hf_id,
+        { &fix_hf[1206],
             { "DerivativeSecurityID (1216)", "fix.DerivativeSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1207].hf_id,
+        { &fix_hf[1207],
             { "DerivativeSecurityIDSource (1217)", "fix.DerivativeSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1208].hf_id,
+        { &fix_hf[1208],
             { "NoDerivativeSecurityAltID (1218)", "fix.NoDerivativeSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1209].hf_id,
+        { &fix_hf[1209],
             { "DerivativeSecurityAltID (1219)", "fix.DerivativeSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1210].hf_id,
+        { &fix_hf[1210],
             { "DerivativeSecurityAltIDSource (1220)", "fix.DerivativeSecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1211].hf_id,
+        { &fix_hf[1211],
             { "SecondaryLowLimitPrice (1221)", "fix.SecondaryLowLimitPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1212].hf_id,
+        { &fix_hf[1212],
             { "MaturityRuleID (1222)", "fix.MaturityRuleID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1213].hf_id,
+        { &fix_hf[1213],
             { "StrikeRuleID (1223)", "fix.StrikeRuleID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1214].hf_id,
+        { &fix_hf[1214],
             { "LegUnitOfMeasureQty (1224)", "fix.LegUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1215].hf_id,
+        { &fix_hf[1215],
             { "DerivativeOptPayAmount (1225)", "fix.DerivativeOptPayAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1216].hf_id,
+        { &fix_hf[1216],
             { "EndMaturityMonthYear (1226)", "fix.EndMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1217].hf_id,
+        { &fix_hf[1217],
             { "ProductComplex (1227)", "fix.ProductComplex",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1218].hf_id,
+        { &fix_hf[1218],
             { "DerivativeProductComplex (1228)", "fix.DerivativeProductComplex",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1219].hf_id,
+        { &fix_hf[1219],
             { "MaturityMonthYearIncrement (1229)", "fix.MaturityMonthYearIncrement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1220].hf_id,
+        { &fix_hf[1220],
             { "SecondaryHighLimitPrice (1230)", "fix.SecondaryHighLimitPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1221].hf_id,
+        { &fix_hf[1221],
             { "MinLotSize (1231)", "fix.MinLotSize",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1222].hf_id,
+        { &fix_hf[1222],
             { "NoExecInstRules (1232)", "fix.NoExecInstRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1223].hf_id,
+        { &fix_hf[1223],
             { "NoLotTypeRules (1234)", "fix.NoLotTypeRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1224].hf_id,
+        { &fix_hf[1224],
             { "NoMatchRules (1235)", "fix.NoMatchRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1225].hf_id,
+        { &fix_hf[1225],
             { "NoMaturityRules (1236)", "fix.NoMaturityRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1226].hf_id,
+        { &fix_hf[1226],
             { "NoOrdTypeRules (1237)", "fix.NoOrdTypeRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1227].hf_id,
+        { &fix_hf[1227],
             { "NoTimeInForceRules (1239)", "fix.NoTimeInForceRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1228].hf_id,
+        { &fix_hf[1228],
             { "SecondaryTradingReferencePrice (1240)", "fix.SecondaryTradingReferencePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1229].hf_id,
+        { &fix_hf[1229],
             { "StartMaturityMonthYear (1241)", "fix.StartMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1230].hf_id,
+        { &fix_hf[1230],
             { "FlexProductEligibilityIndicator (1242)", "fix.FlexProductEligibilityIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1231].hf_id,
+        { &fix_hf[1231],
             { "DerivFlexProductEligibilityIndicator (1243)", "fix.DerivFlexProductEligibilityIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1232].hf_id,
+        { &fix_hf[1232],
             { "FlexibleIndicator (1244)", "fix.FlexibleIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1233].hf_id,
+        { &fix_hf[1233],
             { "TradingCurrency (1245)", "fix.TradingCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1234].hf_id,
+        { &fix_hf[1234],
             { "DerivativeProduct (1246)", "fix.DerivativeProduct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1235].hf_id,
+        { &fix_hf[1235],
             { "DerivativeSecurityGroup (1247)", "fix.DerivativeSecurityGroup",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1236].hf_id,
+        { &fix_hf[1236],
             { "DerivativeCFICode (1248)", "fix.DerivativeCFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1237].hf_id,
+        { &fix_hf[1237],
             { "DerivativeSecurityType (1249)", "fix.DerivativeSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1238].hf_id,
+        { &fix_hf[1238],
             { "DerivativeSecuritySubType (1250)", "fix.DerivativeSecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1239].hf_id,
+        { &fix_hf[1239],
             { "DerivativeMaturityMonthYear (1251)", "fix.DerivativeMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1240].hf_id,
+        { &fix_hf[1240],
             { "DerivativeMaturityDate (1252)", "fix.DerivativeMaturityDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1241].hf_id,
+        { &fix_hf[1241],
             { "DerivativeMaturityTime (1253)", "fix.DerivativeMaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1242].hf_id,
+        { &fix_hf[1242],
             { "DerivativeSettleOnOpenFlag (1254)", "fix.DerivativeSettleOnOpenFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1243].hf_id,
+        { &fix_hf[1243],
             { "DerivativeInstrmtAssignmentMethod (1255)", "fix.DerivativeInstrmtAssignmentMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1244].hf_id,
+        { &fix_hf[1244],
             { "DerivativeSecurityStatus (1256)", "fix.DerivativeSecurityStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1245].hf_id,
+        { &fix_hf[1245],
             { "DerivativeInstrRegistry (1257)", "fix.DerivativeInstrRegistry",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1246].hf_id,
+        { &fix_hf[1246],
             { "DerivativeCountryOfIssue (1258)", "fix.DerivativeCountryOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1247].hf_id,
+        { &fix_hf[1247],
             { "DerivativeStateOrProvinceOfIssue (1259)", "fix.DerivativeStateOrProvinceOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1248].hf_id,
+        { &fix_hf[1248],
             { "DerivativeLocaleOfIssue (1260)", "fix.DerivativeLocaleOfIssue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1249].hf_id,
+        { &fix_hf[1249],
             { "DerivativeStrikePrice (1261)", "fix.DerivativeStrikePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1250].hf_id,
+        { &fix_hf[1250],
             { "DerivativeStrikeCurrency (1262)", "fix.DerivativeStrikeCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1251].hf_id,
+        { &fix_hf[1251],
             { "DerivativeStrikeMultiplier (1263)", "fix.DerivativeStrikeMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1252].hf_id,
+        { &fix_hf[1252],
             { "DerivativeStrikeValue (1264)", "fix.DerivativeStrikeValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1253].hf_id,
+        { &fix_hf[1253],
             { "DerivativeOptAttribute (1265)", "fix.DerivativeOptAttribute",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1254].hf_id,
+        { &fix_hf[1254],
             { "DerivativeContractMultiplier (1266)", "fix.DerivativeContractMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1255].hf_id,
+        { &fix_hf[1255],
             { "DerivativeMinPriceIncrement (1267)", "fix.DerivativeMinPriceIncrement",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1256].hf_id,
+        { &fix_hf[1256],
             { "DerivativeMinPriceIncrementAmount (1268)", "fix.DerivativeMinPriceIncrementAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1257].hf_id,
+        { &fix_hf[1257],
             { "DerivativeUnitOfMeasure (1269)", "fix.DerivativeUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1258].hf_id,
+        { &fix_hf[1258],
             { "DerivativeUnitOfMeasureQty (1270)", "fix.DerivativeUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1259].hf_id,
+        { &fix_hf[1259],
             { "DerivativeTimeUnit (1271)", "fix.DerivativeTimeUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1260].hf_id,
+        { &fix_hf[1260],
             { "DerivativeSecurityExchange (1272)", "fix.DerivativeSecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1261].hf_id,
+        { &fix_hf[1261],
             { "DerivativePositionLimit (1273)", "fix.DerivativePositionLimit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1262].hf_id,
+        { &fix_hf[1262],
             { "DerivativeNTPositionLimit (1274)", "fix.DerivativeNTPositionLimit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1263].hf_id,
+        { &fix_hf[1263],
             { "DerivativeIssuer (1275)", "fix.DerivativeIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1264].hf_id,
+        { &fix_hf[1264],
             { "DerivativeIssueDate (1276)", "fix.DerivativeIssueDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1265].hf_id,
+        { &fix_hf[1265],
             { "DerivativeEncodedIssuerLen (1277)", "fix.DerivativeEncodedIssuerLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1266].hf_id,
+        { &fix_hf[1266],
             { "DerivativeEncodedIssuer (1278)", "fix.DerivativeEncodedIssuer",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1267].hf_id,
+        { &fix_hf[1267],
             { "DerivativeSecurityDesc (1279)", "fix.DerivativeSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1268].hf_id,
+        { &fix_hf[1268],
             { "DerivativeEncodedSecurityDescLen (1280)", "fix.DerivativeEncodedSecurityDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1269].hf_id,
+        { &fix_hf[1269],
             { "DerivativeEncodedSecurityDesc (1281)", "fix.DerivativeEncodedSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1270].hf_id,
+        { &fix_hf[1270],
             { "DerivativeSecurityXMLLen (1282)", "fix.DerivativeSecurityXMLLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1271].hf_id,
+        { &fix_hf[1271],
             { "DerivativeSecurityXML (1283)", "fix.DerivativeSecurityXML",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1272].hf_id,
+        { &fix_hf[1272],
             { "DerivativeSecurityXMLSchema (1284)", "fix.DerivativeSecurityXMLSchema",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1273].hf_id,
+        { &fix_hf[1273],
             { "DerivativeContractSettlMonth (1285)", "fix.DerivativeContractSettlMonth",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1274].hf_id,
+        { &fix_hf[1274],
             { "NoDerivativeEvents (1286)", "fix.NoDerivativeEvents",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1275].hf_id,
+        { &fix_hf[1275],
             { "DerivativeEventType (1287)", "fix.DerivativeEventType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1276].hf_id,
+        { &fix_hf[1276],
             { "DerivativeEventDate (1288)", "fix.DerivativeEventDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1277].hf_id,
+        { &fix_hf[1277],
             { "DerivativeEventTime (1289)", "fix.DerivativeEventTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1278].hf_id,
+        { &fix_hf[1278],
             { "DerivativeEventPx (1290)", "fix.DerivativeEventPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1279].hf_id,
+        { &fix_hf[1279],
             { "DerivativeEventText (1291)", "fix.DerivativeEventText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1280].hf_id,
+        { &fix_hf[1280],
             { "NoDerivativeInstrumentParties (1292)", "fix.NoDerivativeInstrumentParties",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1281].hf_id,
+        { &fix_hf[1281],
             { "DerivativeInstrumentPartyID (1293)", "fix.DerivativeInstrumentPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1282].hf_id,
+        { &fix_hf[1282],
             { "DerivativeInstrumentPartyIDSource (1294)", "fix.DerivativeInstrumentPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1283].hf_id,
+        { &fix_hf[1283],
             { "DerivativeInstrumentPartyRole (1295)", "fix.DerivativeInstrumentPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1284].hf_id,
+        { &fix_hf[1284],
             { "NoDerivativeInstrumentPartySubIDs (1296)", "fix.NoDerivativeInstrumentPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1285].hf_id,
+        { &fix_hf[1285],
             { "DerivativeInstrumentPartySubID (1297)", "fix.DerivativeInstrumentPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1286].hf_id,
+        { &fix_hf[1286],
             { "DerivativeInstrumentPartySubIDType (1298)", "fix.DerivativeInstrumentPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1287].hf_id,
+        { &fix_hf[1287],
             { "DerivativeExerciseStyle (1299)", "fix.DerivativeExerciseStyle",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1288].hf_id,
+        { &fix_hf[1288],
             { "MarketSegmentID (1300)", "fix.MarketSegmentID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1289].hf_id,
+        { &fix_hf[1289],
             { "MarketID (1301)", "fix.MarketID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1290].hf_id,
+        { &fix_hf[1290],
             { "MaturityMonthYearIncrementUnits (1302)", "fix.MaturityMonthYearIncrementUnits",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1291].hf_id,
+        { &fix_hf[1291],
             { "MaturityMonthYearFormat (1303)", "fix.MaturityMonthYearFormat",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1292].hf_id,
+        { &fix_hf[1292],
             { "StrikeExerciseStyle (1304)", "fix.StrikeExerciseStyle",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1293].hf_id,
+        { &fix_hf[1293],
             { "SecondaryPriceLimitType (1305)", "fix.SecondaryPriceLimitType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1294].hf_id,
+        { &fix_hf[1294],
             { "PriceLimitType (1306)", "fix.PriceLimitType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1295].hf_id,
+        { &fix_hf[1295],
             { "DerivativeSecurityListRequestType (1307)", "fix.DerivativeSecurityListRequestType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1296].hf_id,
+        { &fix_hf[1296],
             { "ExecInstValue (1308)", "fix.ExecInstValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1297].hf_id,
+        { &fix_hf[1297],
             { "NoTradingSessionRules (1309)", "fix.NoTradingSessionRules",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1298].hf_id,
+        { &fix_hf[1298],
             { "NoMarketSegments (1310)", "fix.NoMarketSegments",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1299].hf_id,
+        { &fix_hf[1299],
             { "NoDerivativeInstrAttrib (1311)", "fix.NoDerivativeInstrAttrib",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1300].hf_id,
+        { &fix_hf[1300],
             { "NoNestedInstrAttrib (1312)", "fix.NoNestedInstrAttrib",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1301].hf_id,
+        { &fix_hf[1301],
             { "DerivativeInstrAttribType (1313)", "fix.DerivativeInstrAttribType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1302].hf_id,
+        { &fix_hf[1302],
             { "DerivativeInstrAttribValue (1314)", "fix.DerivativeInstrAttribValue",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1303].hf_id,
+        { &fix_hf[1303],
             { "DerivativePriceUnitOfMeasure (1315)", "fix.DerivativePriceUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1304].hf_id,
+        { &fix_hf[1304],
             { "DerivativePriceUnitOfMeasureQty (1316)", "fix.DerivativePriceUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1305].hf_id,
+        { &fix_hf[1305],
             { "DerivativeSettlMethod (1317)", "fix.DerivativeSettlMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1306].hf_id,
+        { &fix_hf[1306],
             { "DerivativePriceQuoteMethod (1318)", "fix.DerivativePriceQuoteMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1307].hf_id,
+        { &fix_hf[1307],
             { "DerivativeValuationMethod (1319)", "fix.DerivativeValuationMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1308].hf_id,
+        { &fix_hf[1308],
             { "DerivativeListMethod (1320)", "fix.DerivativeListMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1309].hf_id,
+        { &fix_hf[1309],
             { "DerivativeCapPrice (1321)", "fix.DerivativeCapPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1310].hf_id,
+        { &fix_hf[1310],
             { "DerivativeFloorPrice (1322)", "fix.DerivativeFloorPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1311].hf_id,
+        { &fix_hf[1311],
             { "DerivativePutOrCall (1323)", "fix.DerivativePutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1312].hf_id,
+        { &fix_hf[1312],
             { "ListUpdateAction (1324)", "fix.ListUpdateAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1313].hf_id,
+        { &fix_hf[1313],
             { "ParentMktSegmID (1325)", "fix.ParentMktSegmID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1314].hf_id,
+        { &fix_hf[1314],
             { "TradingSessionDesc (1326)", "fix.TradingSessionDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1315].hf_id,
+        { &fix_hf[1315],
             { "TradSesUpdateAction (1327)", "fix.TradSesUpdateAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1316].hf_id,
+        { &fix_hf[1316],
             { "RejectText (1328)", "fix.RejectText",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1317].hf_id,
+        { &fix_hf[1317],
             { "FeeMultiplier (1329)", "fix.FeeMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1318].hf_id,
+        { &fix_hf[1318],
             { "UnderlyingLegSymbol (1330)", "fix.UnderlyingLegSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1319].hf_id,
+        { &fix_hf[1319],
             { "UnderlyingLegSymbolSfx (1331)", "fix.UnderlyingLegSymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1320].hf_id,
+        { &fix_hf[1320],
             { "UnderlyingLegSecurityID (1332)", "fix.UnderlyingLegSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1321].hf_id,
+        { &fix_hf[1321],
             { "UnderlyingLegSecurityIDSource (1333)", "fix.UnderlyingLegSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1322].hf_id,
+        { &fix_hf[1322],
             { "NoUnderlyingLegSecurityAltID (1334)", "fix.NoUnderlyingLegSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1323].hf_id,
+        { &fix_hf[1323],
             { "UnderlyingLegSecurityAltID (1335)", "fix.UnderlyingLegSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1324].hf_id,
+        { &fix_hf[1324],
             { "UnderlyingLegSecurityAltIDSource (1336)", "fix.UnderlyingLegSecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1325].hf_id,
+        { &fix_hf[1325],
             { "UnderlyingLegSecurityType (1337)", "fix.UnderlyingLegSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1326].hf_id,
+        { &fix_hf[1326],
             { "UnderlyingLegSecuritySubType (1338)", "fix.UnderlyingLegSecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1327].hf_id,
+        { &fix_hf[1327],
             { "UnderlyingLegMaturityMonthYear (1339)", "fix.UnderlyingLegMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1328].hf_id,
+        { &fix_hf[1328],
             { "UnderlyingLegStrikePrice (1340)", "fix.UnderlyingLegStrikePrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1329].hf_id,
+        { &fix_hf[1329],
             { "UnderlyingLegSecurityExchange (1341)", "fix.UnderlyingLegSecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1330].hf_id,
+        { &fix_hf[1330],
             { "NoOfLegUnderlyings (1342)", "fix.NoOfLegUnderlyings",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1331].hf_id,
+        { &fix_hf[1331],
             { "UnderlyingLegPutOrCall (1343)", "fix.UnderlyingLegPutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1332].hf_id,
+        { &fix_hf[1332],
             { "UnderlyingLegCFICode (1344)", "fix.UnderlyingLegCFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1333].hf_id,
+        { &fix_hf[1333],
             { "UnderlyingLegMaturityDate (1345)", "fix.UnderlyingLegMaturityDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1334].hf_id,
+        { &fix_hf[1334],
             { "ApplReqID (1346)", "fix.ApplReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1335].hf_id,
+        { &fix_hf[1335],
             { "ApplReqType (1347)", "fix.ApplReqType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1336].hf_id,
+        { &fix_hf[1336],
             { "ApplResponseType (1348)", "fix.ApplResponseType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1337].hf_id,
+        { &fix_hf[1337],
             { "ApplTotalMessageCount (1349)", "fix.ApplTotalMessageCount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1338].hf_id,
+        { &fix_hf[1338],
             { "ApplLastSeqNum (1350)", "fix.ApplLastSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1339].hf_id,
+        { &fix_hf[1339],
             { "NoApplIDs (1351)", "fix.NoApplIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1340].hf_id,
+        { &fix_hf[1340],
             { "ApplResendFlag (1352)", "fix.ApplResendFlag",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1341].hf_id,
+        { &fix_hf[1341],
             { "ApplResponseID (1353)", "fix.ApplResponseID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1342].hf_id,
+        { &fix_hf[1342],
             { "ApplResponseError (1354)", "fix.ApplResponseError",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1343].hf_id,
+        { &fix_hf[1343],
             { "RefApplID (1355)", "fix.RefApplID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1344].hf_id,
+        { &fix_hf[1344],
             { "ApplReportID (1356)", "fix.ApplReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1345].hf_id,
+        { &fix_hf[1345],
             { "RefApplLastSeqNum (1357)", "fix.RefApplLastSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1346].hf_id,
+        { &fix_hf[1346],
             { "LegPutOrCall (1358)", "fix.LegPutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1347].hf_id,
+        { &fix_hf[1347],
             { "EncodedSymbolLen (1359)", "fix.EncodedSymbolLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1348].hf_id,
+        { &fix_hf[1348],
             { "EncodedSymbol (1360)", "fix.EncodedSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1349].hf_id,
+        { &fix_hf[1349],
             { "TotNoFills (1361)", "fix.TotNoFills",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1350].hf_id,
+        { &fix_hf[1350],
             { "NoFills (1362)", "fix.NoFills",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1351].hf_id,
+        { &fix_hf[1351],
             { "FillExecID (1363)", "fix.FillExecID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1352].hf_id,
+        { &fix_hf[1352],
             { "FillPx (1364)", "fix.FillPx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1353].hf_id,
+        { &fix_hf[1353],
             { "FillQty (1365)", "fix.FillQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1354].hf_id,
+        { &fix_hf[1354],
             { "LegAllocID (1366)", "fix.LegAllocID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1355].hf_id,
+        { &fix_hf[1355],
             { "LegAllocSettlCurrency (1367)", "fix.LegAllocSettlCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1356].hf_id,
+        { &fix_hf[1356],
             { "TradSesEvent (1368)", "fix.TradSesEvent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1357].hf_id,
+        { &fix_hf[1357],
             { "MassActionReportID (1369)", "fix.MassActionReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1358].hf_id,
+        { &fix_hf[1358],
             { "NoNotAffectedOrders (1370)", "fix.NoNotAffectedOrders",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1359].hf_id,
+        { &fix_hf[1359],
             { "NotAffectedOrderID (1371)", "fix.NotAffectedOrderID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1360].hf_id,
+        { &fix_hf[1360],
             { "NotAffOrigClOrdID (1372)", "fix.NotAffOrigClOrdID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1361].hf_id,
+        { &fix_hf[1361],
             { "MassActionType (1373)", "fix.MassActionType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1362].hf_id,
+        { &fix_hf[1362],
             { "MassActionScope (1374)", "fix.MassActionScope",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1363].hf_id,
+        { &fix_hf[1363],
             { "MassActionResponse (1375)", "fix.MassActionResponse",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1364].hf_id,
+        { &fix_hf[1364],
             { "MassActionRejectReason (1376)", "fix.MassActionRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1365].hf_id,
+        { &fix_hf[1365],
             { "MultilegModel (1377)", "fix.MultilegModel",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1366].hf_id,
+        { &fix_hf[1366],
             { "MultilegPriceMethod (1378)", "fix.MultilegPriceMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1367].hf_id,
+        { &fix_hf[1367],
             { "LegVolatility (1379)", "fix.LegVolatility",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1368].hf_id,
+        { &fix_hf[1368],
             { "DividendYield (1380)", "fix.DividendYield",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1369].hf_id,
+        { &fix_hf[1369],
             { "LegDividendYield (1381)", "fix.LegDividendYield",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1370].hf_id,
+        { &fix_hf[1370],
             { "CurrencyRatio (1382)", "fix.CurrencyRatio",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1371].hf_id,
+        { &fix_hf[1371],
             { "LegCurrencyRatio (1383)", "fix.LegCurrencyRatio",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1372].hf_id,
+        { &fix_hf[1372],
             { "LegExecInst (1384)", "fix.LegExecInst",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1373].hf_id,
+        { &fix_hf[1373],
             { "ContingencyType (1385)", "fix.ContingencyType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1374].hf_id,
+        { &fix_hf[1374],
             { "ListRejectReason (1386)", "fix.ListRejectReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1375].hf_id,
+        { &fix_hf[1375],
             { "NoTrdRepIndicators (1387)", "fix.NoTrdRepIndicators",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1376].hf_id,
+        { &fix_hf[1376],
             { "TrdRepPartyRole (1388)", "fix.TrdRepPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1377].hf_id,
+        { &fix_hf[1377],
             { "TrdRepIndicator (1389)", "fix.TrdRepIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1378].hf_id,
+        { &fix_hf[1378],
             { "TradePublishIndicator (1390)", "fix.TradePublishIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1379].hf_id,
+        { &fix_hf[1379],
             { "UnderlyingLegOptAttribute (1391)", "fix.UnderlyingLegOptAttribute",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1380].hf_id,
+        { &fix_hf[1380],
             { "UnderlyingLegSecurityDesc (1392)", "fix.UnderlyingLegSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1381].hf_id,
+        { &fix_hf[1381],
             { "MarketReqID (1393)", "fix.MarketReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1382].hf_id,
+        { &fix_hf[1382],
             { "MarketReportID (1394)", "fix.MarketReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1383].hf_id,
+        { &fix_hf[1383],
             { "MarketUpdateAction (1395)", "fix.MarketUpdateAction",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1384].hf_id,
+        { &fix_hf[1384],
             { "MarketSegmentDesc (1396)", "fix.MarketSegmentDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1385].hf_id,
+        { &fix_hf[1385],
             { "EncodedMktSegmDescLen (1397)", "fix.EncodedMktSegmDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1386].hf_id,
+        { &fix_hf[1386],
             { "EncodedMktSegmDesc (1398)", "fix.EncodedMktSegmDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1387].hf_id,
+        { &fix_hf[1387],
             { "ApplNewSeqNum (1399)", "fix.ApplNewSeqNum",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1388].hf_id,
+        { &fix_hf[1388],
             { "EncryptedPasswordMethod (1400)", "fix.EncryptedPasswordMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1389].hf_id,
+        { &fix_hf[1389],
             { "EncryptedPasswordLen (1401)", "fix.EncryptedPasswordLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1390].hf_id,
+        { &fix_hf[1390],
             { "EncryptedPassword (1402)", "fix.EncryptedPassword",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1391].hf_id,
+        { &fix_hf[1391],
             { "EncryptedNewPasswordLen (1403)", "fix.EncryptedNewPasswordLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1392].hf_id,
+        { &fix_hf[1392],
             { "EncryptedNewPassword (1404)", "fix.EncryptedNewPassword",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1393].hf_id,
+        { &fix_hf[1393],
             { "UnderlyingLegMaturityTime (1405)", "fix.UnderlyingLegMaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1394].hf_id,
+        { &fix_hf[1394],
             { "RefApplExtID (1406)", "fix.RefApplExtID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1395].hf_id,
+        { &fix_hf[1395],
             { "DefaultApplExtID (1407)", "fix.DefaultApplExtID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1396].hf_id,
+        { &fix_hf[1396],
             { "DefaultCstmApplVerID (1408)", "fix.DefaultCstmApplVerID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1397].hf_id,
+        { &fix_hf[1397],
             { "SessionStatus (1409)", "fix.SessionStatus",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1398].hf_id,
+        { &fix_hf[1398],
             { "DefaultVerIndicator (1410)", "fix.DefaultVerIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1399].hf_id,
+        { &fix_hf[1399],
             { "Nested4PartySubIDType (1411)", "fix.Nested4PartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1400].hf_id,
+        { &fix_hf[1400],
             { "Nested4PartySubID (1412)", "fix.Nested4PartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1401].hf_id,
+        { &fix_hf[1401],
             { "NoNested4PartySubIDs (1413)", "fix.NoNested4PartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1402].hf_id,
+        { &fix_hf[1402],
             { "NoNested4PartyIDs (1414)", "fix.NoNested4PartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1403].hf_id,
+        { &fix_hf[1403],
             { "Nested4PartyID (1415)", "fix.Nested4PartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1404].hf_id,
+        { &fix_hf[1404],
             { "Nested4PartyIDSource (1416)", "fix.Nested4PartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1405].hf_id,
+        { &fix_hf[1405],
             { "Nested4PartyRole (1417)", "fix.Nested4PartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1406].hf_id,
+        { &fix_hf[1406],
             { "LegLastQty (1418)", "fix.LegLastQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1407].hf_id,
+        { &fix_hf[1407],
             { "UnderlyingExerciseStyle (1419)", "fix.UnderlyingExerciseStyle",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1408].hf_id,
+        { &fix_hf[1408],
             { "LegExerciseStyle (1420)", "fix.LegExerciseStyle",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1409].hf_id,
+        { &fix_hf[1409],
             { "LegPriceUnitOfMeasure (1421)", "fix.LegPriceUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1410].hf_id,
+        { &fix_hf[1410],
             { "LegPriceUnitOfMeasureQty (1422)", "fix.LegPriceUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1411].hf_id,
+        { &fix_hf[1411],
             { "UnderlyingUnitOfMeasureQty (1423)", "fix.UnderlyingUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1412].hf_id,
+        { &fix_hf[1412],
             { "UnderlyingPriceUnitOfMeasure (1424)", "fix.UnderlyingPriceUnitOfMeasure",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1413].hf_id,
+        { &fix_hf[1413],
             { "UnderlyingPriceUnitOfMeasureQty (1425)", "fix.UnderlyingPriceUnitOfMeasureQty",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1414].hf_id,
+        { &fix_hf[1414],
             { "ApplReportType (1426)", "fix.ApplReportType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1415].hf_id,
+        { &fix_hf[1415],
             { "SideExecID (1427)", "fix.SideExecID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1416].hf_id,
+        { &fix_hf[1416],
             { "OrderDelay (1428)", "fix.OrderDelay",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1417].hf_id,
+        { &fix_hf[1417],
             { "OrderDelayUnit (1429)", "fix.OrderDelayUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1418].hf_id,
+        { &fix_hf[1418],
             { "VenueType (1430)", "fix.VenueType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1419].hf_id,
+        { &fix_hf[1419],
             { "RefOrdIDReason (1431)", "fix.RefOrdIDReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1420].hf_id,
+        { &fix_hf[1420],
             { "OrigCustOrderCapacity (1432)", "fix.OrigCustOrderCapacity",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1421].hf_id,
+        { &fix_hf[1421],
             { "RefApplReqID (1433)", "fix.RefApplReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1422].hf_id,
+        { &fix_hf[1422],
             { "ModelType (1434)", "fix.ModelType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1423].hf_id,
+        { &fix_hf[1423],
             { "ContractMultiplierUnit (1435)", "fix.ContractMultiplierUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1424].hf_id,
+        { &fix_hf[1424],
             { "LegContractMultiplierUnit (1436)", "fix.LegContractMultiplierUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1425].hf_id,
+        { &fix_hf[1425],
             { "UnderlyingContractMultiplierUnit (1437)", "fix.UnderlyingContractMultiplierUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1426].hf_id,
+        { &fix_hf[1426],
             { "DerivativeContractMultiplierUnit (1438)", "fix.DerivativeContractMultiplierUnit",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1427].hf_id,
+        { &fix_hf[1427],
             { "FlowScheduleType (1439)", "fix.FlowScheduleType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1428].hf_id,
+        { &fix_hf[1428],
             { "LegFlowScheduleType (1440)", "fix.LegFlowScheduleType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1429].hf_id,
+        { &fix_hf[1429],
             { "UnderlyingFlowScheduleType (1441)", "fix.UnderlyingFlowScheduleType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1430].hf_id,
+        { &fix_hf[1430],
             { "DerivativeFlowScheduleType (1442)", "fix.DerivativeFlowScheduleType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1431].hf_id,
+        { &fix_hf[1431],
             { "FillLiquidityInd (1443)", "fix.FillLiquidityInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1432].hf_id,
+        { &fix_hf[1432],
             { "SideLiquidityInd (1444)", "fix.SideLiquidityInd",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1433].hf_id,
+        { &fix_hf[1433],
             { "NoRateSources (1445)", "fix.NoRateSources",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1434].hf_id,
+        { &fix_hf[1434],
             { "RateSource (1446)", "fix.RateSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1435].hf_id,
+        { &fix_hf[1435],
             { "RateSourceType (1447)", "fix.RateSourceType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1436].hf_id,
+        { &fix_hf[1436],
             { "ReferencePage (1448)", "fix.ReferencePage",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1437].hf_id,
+        { &fix_hf[1437],
             { "RestructuringType (1449)", "fix.RestructuringType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1438].hf_id,
+        { &fix_hf[1438],
             { "Seniority (1450)", "fix.Seniority",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1439].hf_id,
+        { &fix_hf[1439],
             { "NotionalPercentageOutstanding (1451)", "fix.NotionalPercentageOutstanding",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1440].hf_id,
+        { &fix_hf[1440],
             { "OriginalNotionalPercentageOutstanding (1452)", "fix.OriginalNotionalPercentageOutstanding",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1441].hf_id,
+        { &fix_hf[1441],
             { "UnderlyingRestructuringType (1453)", "fix.UnderlyingRestructuringType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1442].hf_id,
+        { &fix_hf[1442],
             { "UnderlyingSeniority (1454)", "fix.UnderlyingSeniority",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1443].hf_id,
+        { &fix_hf[1443],
             { "UnderlyingNotionalPercentageOutstanding (1455)", "fix.UnderlyingNotionalPercentageOutstanding",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1444].hf_id,
+        { &fix_hf[1444],
             { "UnderlyingOriginalNotionalPercentageOutstanding (1456)", "fix.UnderlyingOriginalNotionalPercentageOutstanding",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1445].hf_id,
+        { &fix_hf[1445],
             { "AttachmentPoint (1457)", "fix.AttachmentPoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1446].hf_id,
+        { &fix_hf[1446],
             { "DetachmentPoint (1458)", "fix.DetachmentPoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1447].hf_id,
+        { &fix_hf[1447],
             { "UnderlyingAttachmentPoint (1459)", "fix.UnderlyingAttachmentPoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1448].hf_id,
+        { &fix_hf[1448],
             { "UnderlyingDetachmentPoint (1460)", "fix.UnderlyingDetachmentPoint",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1449].hf_id,
+        { &fix_hf[1449],
             { "NoTargetPartyIDs (1461)", "fix.NoTargetPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1450].hf_id,
+        { &fix_hf[1450],
             { "TargetPartyID (1462)", "fix.TargetPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1451].hf_id,
+        { &fix_hf[1451],
             { "TargetPartyIDSource (1463)", "fix.TargetPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1452].hf_id,
+        { &fix_hf[1452],
             { "TargetPartyRole (1464)", "fix.TargetPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1453].hf_id,
+        { &fix_hf[1453],
             { "SecurityListID (1465)", "fix.SecurityListID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1454].hf_id,
+        { &fix_hf[1454],
             { "SecurityListRefID (1466)", "fix.SecurityListRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1455].hf_id,
+        { &fix_hf[1455],
             { "SecurityListDesc (1467)", "fix.SecurityListDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1456].hf_id,
+        { &fix_hf[1456],
             { "EncodedSecurityListDescLen (1468)", "fix.EncodedSecurityListDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1457].hf_id,
+        { &fix_hf[1457],
             { "EncodedSecurityListDesc (1469)", "fix.EncodedSecurityListDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1458].hf_id,
+        { &fix_hf[1458],
             { "SecurityListType (1470)", "fix.SecurityListType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1459].hf_id,
+        { &fix_hf[1459],
             { "SecurityListTypeSource (1471)", "fix.SecurityListTypeSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1460].hf_id,
+        { &fix_hf[1460],
             { "NewsID (1472)", "fix.NewsID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1461].hf_id,
+        { &fix_hf[1461],
             { "NewsCategory (1473)", "fix.NewsCategory",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1462].hf_id,
+        { &fix_hf[1462],
             { "LanguageCode (1474)", "fix.LanguageCode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1463].hf_id,
+        { &fix_hf[1463],
             { "NoNewsRefIDs (1475)", "fix.NoNewsRefIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1464].hf_id,
+        { &fix_hf[1464],
             { "NewsRefID (1476)", "fix.NewsRefID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1465].hf_id,
+        { &fix_hf[1465],
             { "NewsRefType (1477)", "fix.NewsRefType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1466].hf_id,
+        { &fix_hf[1466],
             { "StrikePriceDeterminationMethod (1478)", "fix.StrikePriceDeterminationMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1467].hf_id,
+        { &fix_hf[1467],
             { "StrikePriceBoundaryMethod (1479)", "fix.StrikePriceBoundaryMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1468].hf_id,
+        { &fix_hf[1468],
             { "StrikePriceBoundaryPrecision (1480)", "fix.StrikePriceBoundaryPrecision",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1469].hf_id,
+        { &fix_hf[1469],
             { "UnderlyingPriceDeterminationMethod (1481)", "fix.UnderlyingPriceDeterminationMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1470].hf_id,
+        { &fix_hf[1470],
             { "OptPayoutType (1482)", "fix.OptPayoutType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1471].hf_id,
+        { &fix_hf[1471],
             { "NoComplexEvents (1483)", "fix.NoComplexEvents",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1472].hf_id,
+        { &fix_hf[1472],
             { "ComplexEventType (1484)", "fix.ComplexEventType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1473].hf_id,
+        { &fix_hf[1473],
             { "ComplexOptPayoutAmount (1485)", "fix.ComplexOptPayoutAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1474].hf_id,
+        { &fix_hf[1474],
             { "ComplexEventPrice (1486)", "fix.ComplexEventPrice",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1475].hf_id,
+        { &fix_hf[1475],
             { "ComplexEventPriceBoundaryMethod (1487)", "fix.ComplexEventPriceBoundaryMethod",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1476].hf_id,
+        { &fix_hf[1476],
             { "ComplexEventPriceBoundaryPrecision (1488)", "fix.ComplexEventPriceBoundaryPrecision",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1477].hf_id,
+        { &fix_hf[1477],
             { "ComplexEventPriceTimeType (1489)", "fix.ComplexEventPriceTimeType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1478].hf_id,
+        { &fix_hf[1478],
             { "ComplexEventCondition (1490)", "fix.ComplexEventCondition",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1479].hf_id,
+        { &fix_hf[1479],
             { "NoComplexEventDates (1491)", "fix.NoComplexEventDates",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1480].hf_id,
+        { &fix_hf[1480],
             { "ComplexEventStartDate (1492)", "fix.ComplexEventStartDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1481].hf_id,
+        { &fix_hf[1481],
             { "ComplexEventEndDate (1493)", "fix.ComplexEventEndDate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1482].hf_id,
+        { &fix_hf[1482],
             { "NoComplexEventTimes (1494)", "fix.NoComplexEventTimes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1483].hf_id,
+        { &fix_hf[1483],
             { "ComplexEventStartTime (1495)", "fix.ComplexEventStartTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1484].hf_id,
+        { &fix_hf[1484],
             { "ComplexEventEndTime (1496)", "fix.ComplexEventEndTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1485].hf_id,
+        { &fix_hf[1485],
             { "StreamAsgnReqID (1497)", "fix.StreamAsgnReqID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1486].hf_id,
+        { &fix_hf[1486],
             { "StreamAsgnReqType (1498)", "fix.StreamAsgnReqType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1487].hf_id,
+        { &fix_hf[1487],
             { "NoAsgnReqs (1499)", "fix.NoAsgnReqs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1488].hf_id,
+        { &fix_hf[1488],
             { "MDStreamID (1500)", "fix.MDStreamID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1489].hf_id,
+        { &fix_hf[1489],
             { "StreamAsgnRptID (1501)", "fix.StreamAsgnRptID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1490].hf_id,
+        { &fix_hf[1490],
             { "StreamAsgnRejReason (1502)", "fix.StreamAsgnRejReason",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1491].hf_id,
+        { &fix_hf[1491],
             { "StreamAsgnAckType (1503)", "fix.StreamAsgnAckType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1492].hf_id,
+        { &fix_hf[1492],
             { "RelSymTransactTime (1504)", "fix.RelSymTransactTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1493].hf_id,
+        { &fix_hf[1493],
             { "PartyDetailsListRequestID (1505)", "fix.PartyDetailsListRequestID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1494].hf_id,
+        { &fix_hf[1494],
             { "NoPartyListResponseTypes (1506)", "fix.NoPartyListResponseTypes",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1495].hf_id,
+        { &fix_hf[1495],
             { "PartyListResponseType (1507)", "fix.PartyListResponseType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1496].hf_id,
+        { &fix_hf[1496],
             { "NoRequestedPartyRoles (1508)", "fix.NoRequestedPartyRoles",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1497].hf_id,
+        { &fix_hf[1497],
             { "RequestedPartyRole (1509)", "fix.RequestedPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1498].hf_id,
+        { &fix_hf[1498],
             { "PartyDetailsListReportID (1510)", "fix.PartyDetailsListReportID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1499].hf_id,
+        { &fix_hf[1499],
             { "PartyDetailsRequestResult (1511)", "fix.PartyDetailsRequestResult",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1500].hf_id,
+        { &fix_hf[1500],
             { "TotNoPartyList (1512)", "fix.TotNoPartyList",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1501].hf_id,
+        { &fix_hf[1501],
             { "NoPartyList (1513)", "fix.NoPartyList",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1502].hf_id,
+        { &fix_hf[1502],
             { "NoPartyRelationships (1514)", "fix.NoPartyRelationships",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1503].hf_id,
+        { &fix_hf[1503],
             { "PartyRelationship (1515)", "fix.PartyRelationship",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1504].hf_id,
+        { &fix_hf[1504],
             { "NoPartyAltIDs (1516)", "fix.NoPartyAltIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1505].hf_id,
+        { &fix_hf[1505],
             { "PartyAltID (1517)", "fix.PartyAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1506].hf_id,
+        { &fix_hf[1506],
             { "PartyAltIDSource (1518)", "fix.PartyAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1507].hf_id,
+        { &fix_hf[1507],
             { "NoPartyAltSubIDs (1519)", "fix.NoPartyAltSubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1508].hf_id,
+        { &fix_hf[1508],
             { "PartyAltSubID (1520)", "fix.PartyAltSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1509].hf_id,
+        { &fix_hf[1509],
             { "PartyAltSubIDType (1521)", "fix.PartyAltSubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1510].hf_id,
+        { &fix_hf[1510],
             { "NoContextPartyIDs (1522)", "fix.NoContextPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1511].hf_id,
+        { &fix_hf[1511],
             { "ContextPartyID (1523)", "fix.ContextPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1512].hf_id,
+        { &fix_hf[1512],
             { "ContextPartyIDSource (1524)", "fix.ContextPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1513].hf_id,
+        { &fix_hf[1513],
             { "ContextPartyRole (1525)", "fix.ContextPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1514].hf_id,
+        { &fix_hf[1514],
             { "NoContextPartySubIDs (1526)", "fix.NoContextPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1515].hf_id,
+        { &fix_hf[1515],
             { "ContextPartySubID (1527)", "fix.ContextPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1516].hf_id,
+        { &fix_hf[1516],
             { "ContextPartySubIDType (1528)", "fix.ContextPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1517].hf_id,
+        { &fix_hf[1517],
             { "NoRiskLimits (1529)", "fix.NoRiskLimits",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1518].hf_id,
+        { &fix_hf[1518],
             { "RiskLimitType (1530)", "fix.RiskLimitType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1519].hf_id,
+        { &fix_hf[1519],
             { "RiskLimitAmount (1531)", "fix.RiskLimitAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1520].hf_id,
+        { &fix_hf[1520],
             { "RiskLimitCurrency (1532)", "fix.RiskLimitCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1521].hf_id,
+        { &fix_hf[1521],
             { "RiskLimitPlatform (1533)", "fix.RiskLimitPlatform",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1522].hf_id,
+        { &fix_hf[1522],
             { "NoRiskInstruments (1534)", "fix.NoRiskInstruments",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1523].hf_id,
+        { &fix_hf[1523],
             { "RiskInstrumentOperator (1535)", "fix.RiskInstrumentOperator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1524].hf_id,
+        { &fix_hf[1524],
             { "RiskSymbol (1536)", "fix.RiskSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1525].hf_id,
+        { &fix_hf[1525],
             { "RiskSymbolSfx (1537)", "fix.RiskSymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1526].hf_id,
+        { &fix_hf[1526],
             { "RiskSecurityID (1538)", "fix.RiskSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1527].hf_id,
+        { &fix_hf[1527],
             { "RiskSecurityIDSource (1539)", "fix.RiskSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1528].hf_id,
+        { &fix_hf[1528],
             { "NoRiskSecurityAltID (1540)", "fix.NoRiskSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1529].hf_id,
+        { &fix_hf[1529],
             { "RiskSecurityAltID (1541)", "fix.RiskSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1530].hf_id,
+        { &fix_hf[1530],
             { "RiskSecurityAltIDSource (1542)", "fix.RiskSecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1531].hf_id,
+        { &fix_hf[1531],
             { "RiskProduct (1543)", "fix.RiskProduct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1532].hf_id,
+        { &fix_hf[1532],
             { "RiskProductComplex (1544)", "fix.RiskProductComplex",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1533].hf_id,
+        { &fix_hf[1533],
             { "RiskSecurityGroup (1545)", "fix.RiskSecurityGroup",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1534].hf_id,
+        { &fix_hf[1534],
             { "RiskCFICode (1546)", "fix.RiskCFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1535].hf_id,
+        { &fix_hf[1535],
             { "RiskSecurityType (1547)", "fix.RiskSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1536].hf_id,
+        { &fix_hf[1536],
             { "RiskSecuritySubType (1548)", "fix.RiskSecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1537].hf_id,
+        { &fix_hf[1537],
             { "RiskMaturityMonthYear (1549)", "fix.RiskMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1538].hf_id,
+        { &fix_hf[1538],
             { "RiskMaturityTime (1550)", "fix.RiskMaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1539].hf_id,
+        { &fix_hf[1539],
             { "RiskRestructuringType (1551)", "fix.RiskRestructuringType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1540].hf_id,
+        { &fix_hf[1540],
             { "RiskSeniority (1552)", "fix.RiskSeniority",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1541].hf_id,
+        { &fix_hf[1541],
             { "RiskPutOrCall (1553)", "fix.RiskPutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1542].hf_id,
+        { &fix_hf[1542],
             { "RiskFlexibleIndicator (1554)", "fix.RiskFlexibleIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1543].hf_id,
+        { &fix_hf[1543],
             { "RiskCouponRate (1555)", "fix.RiskCouponRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1544].hf_id,
+        { &fix_hf[1544],
             { "RiskSecurityDesc (1556)", "fix.RiskSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1545].hf_id,
+        { &fix_hf[1545],
             { "RiskInstrumentSettlType (1557)", "fix.RiskInstrumentSettlType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1546].hf_id,
+        { &fix_hf[1546],
             { "RiskInstrumentMultiplier (1558)", "fix.RiskInstrumentMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1547].hf_id,
+        { &fix_hf[1547],
             { "NoRiskWarningLevels (1559)", "fix.NoRiskWarningLevels",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1548].hf_id,
+        { &fix_hf[1548],
             { "RiskWarningLevelPercent (1560)", "fix.RiskWarningLevelPercent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1549].hf_id,
+        { &fix_hf[1549],
             { "RiskWarningLevelName (1561)", "fix.RiskWarningLevelName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1550].hf_id,
+        { &fix_hf[1550],
             { "NoRelatedPartyIDs (1562)", "fix.NoRelatedPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1551].hf_id,
+        { &fix_hf[1551],
             { "RelatedPartyID (1563)", "fix.RelatedPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1552].hf_id,
+        { &fix_hf[1552],
             { "RelatedPartyIDSource (1564)", "fix.RelatedPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1553].hf_id,
+        { &fix_hf[1553],
             { "RelatedPartyRole (1565)", "fix.RelatedPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1554].hf_id,
+        { &fix_hf[1554],
             { "NoRelatedPartySubIDs (1566)", "fix.NoRelatedPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1555].hf_id,
+        { &fix_hf[1555],
             { "RelatedPartySubID (1567)", "fix.RelatedPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1556].hf_id,
+        { &fix_hf[1556],
             { "RelatedPartySubIDType (1568)", "fix.RelatedPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1557].hf_id,
+        { &fix_hf[1557],
             { "NoRelatedPartyAltIDs (1569)", "fix.NoRelatedPartyAltIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1558].hf_id,
+        { &fix_hf[1558],
             { "RelatedPartyAltID (1570)", "fix.RelatedPartyAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1559].hf_id,
+        { &fix_hf[1559],
             { "RelatedPartyAltIDSource (1571)", "fix.RelatedPartyAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1560].hf_id,
+        { &fix_hf[1560],
             { "NoRelatedPartyAltSubIDs (1572)", "fix.NoRelatedPartyAltSubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1561].hf_id,
+        { &fix_hf[1561],
             { "RelatedPartyAltSubID (1573)", "fix.RelatedPartyAltSubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1562].hf_id,
+        { &fix_hf[1562],
             { "RelatedPartyAltSubIDType (1574)", "fix.RelatedPartyAltSubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1563].hf_id,
+        { &fix_hf[1563],
             { "NoRelatedContextPartyIDs (1575)", "fix.NoRelatedContextPartyIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1564].hf_id,
+        { &fix_hf[1564],
             { "RelatedContextPartyID (1576)", "fix.RelatedContextPartyID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1565].hf_id,
+        { &fix_hf[1565],
             { "RelatedContextPartyIDSource (1577)", "fix.RelatedContextPartyIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1566].hf_id,
+        { &fix_hf[1566],
             { "RelatedContextPartyRole (1578)", "fix.RelatedContextPartyRole",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1567].hf_id,
+        { &fix_hf[1567],
             { "NoRelatedContextPartySubIDs (1579)", "fix.NoRelatedContextPartySubIDs",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1568].hf_id,
+        { &fix_hf[1568],
             { "RelatedContextPartySubID (1580)", "fix.RelatedContextPartySubID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1569].hf_id,
+        { &fix_hf[1569],
             { "RelatedContextPartySubIDType (1581)", "fix.RelatedContextPartySubIDType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1570].hf_id,
+        { &fix_hf[1570],
             { "NoRelationshipRiskLimits (1582)", "fix.NoRelationshipRiskLimits",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1571].hf_id,
+        { &fix_hf[1571],
             { "RelationshipRiskLimitType (1583)", "fix.RelationshipRiskLimitType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1572].hf_id,
+        { &fix_hf[1572],
             { "RelationshipRiskLimitAmount (1584)", "fix.RelationshipRiskLimitAmount",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1573].hf_id,
+        { &fix_hf[1573],
             { "RelationshipRiskLimitCurrency (1585)", "fix.RelationshipRiskLimitCurrency",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1574].hf_id,
+        { &fix_hf[1574],
             { "RelationshipRiskLimitPlatform (1586)", "fix.RelationshipRiskLimitPlatform",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1575].hf_id,
+        { &fix_hf[1575],
             { "NoRelationshipRiskInstruments (1587)", "fix.NoRelationshipRiskInstruments",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1576].hf_id,
+        { &fix_hf[1576],
             { "RelationshipRiskInstrumentOperator (1588)", "fix.RelationshipRiskInstrumentOperator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1577].hf_id,
+        { &fix_hf[1577],
             { "RelationshipRiskSymbol (1589)", "fix.RelationshipRiskSymbol",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1578].hf_id,
+        { &fix_hf[1578],
             { "RelationshipRiskSymbolSfx (1590)", "fix.RelationshipRiskSymbolSfx",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1579].hf_id,
+        { &fix_hf[1579],
             { "RelationshipRiskSecurityID (1591)", "fix.RelationshipRiskSecurityID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1580].hf_id,
+        { &fix_hf[1580],
             { "RelationshipRiskSecurityIDSource (1592)", "fix.RelationshipRiskSecurityIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1581].hf_id,
+        { &fix_hf[1581],
             { "NoRelationshipRiskSecurityAltID (1593)", "fix.NoRelationshipRiskSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1582].hf_id,
+        { &fix_hf[1582],
             { "RelationshipRiskSecurityAltID (1594)", "fix.RelationshipRiskSecurityAltID",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1583].hf_id,
+        { &fix_hf[1583],
             { "RelationshipRiskSecurityAltIDSource (1595)", "fix.RelationshipRiskSecurityAltIDSource",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1584].hf_id,
+        { &fix_hf[1584],
             { "RelationshipRiskProduct (1596)", "fix.RelationshipRiskProduct",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1585].hf_id,
+        { &fix_hf[1585],
             { "RelationshipRiskProductComplex (1597)", "fix.RelationshipRiskProductComplex",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1586].hf_id,
+        { &fix_hf[1586],
             { "RelationshipRiskSecurityGroup (1598)", "fix.RelationshipRiskSecurityGroup",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1587].hf_id,
+        { &fix_hf[1587],
             { "RelationshipRiskCFICode (1599)", "fix.RelationshipRiskCFICode",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1588].hf_id,
+        { &fix_hf[1588],
             { "RelationshipRiskSecurityType (1600)", "fix.RelationshipRiskSecurityType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1589].hf_id,
+        { &fix_hf[1589],
             { "RelationshipRiskSecuritySubType (1601)", "fix.RelationshipRiskSecuritySubType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1590].hf_id,
+        { &fix_hf[1590],
             { "RelationshipRiskMaturityMonthYear (1602)", "fix.RelationshipRiskMaturityMonthYear",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1591].hf_id,
+        { &fix_hf[1591],
             { "RelationshipRiskMaturityTime (1603)", "fix.RelationshipRiskMaturityTime",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1592].hf_id,
+        { &fix_hf[1592],
             { "RelationshipRiskRestructuringType (1604)", "fix.RelationshipRiskRestructuringType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1593].hf_id,
+        { &fix_hf[1593],
             { "RelationshipRiskSeniority (1605)", "fix.RelationshipRiskSeniority",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1594].hf_id,
+        { &fix_hf[1594],
             { "RelationshipRiskPutOrCall (1606)", "fix.RelationshipRiskPutOrCall",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1595].hf_id,
+        { &fix_hf[1595],
             { "RelationshipRiskFlexibleIndicator (1607)", "fix.RelationshipRiskFlexibleIndicator",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1596].hf_id,
+        { &fix_hf[1596],
             { "RelationshipRiskCouponRate (1608)", "fix.RelationshipRiskCouponRate",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1597].hf_id,
+        { &fix_hf[1597],
             { "RelationshipRiskSecurityExchange (1609)", "fix.RelationshipRiskSecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1598].hf_id,
+        { &fix_hf[1598],
             { "RelationshipRiskSecurityDesc (1610)", "fix.RelationshipRiskSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1599].hf_id,
+        { &fix_hf[1599],
             { "RelationshipRiskInstrumentSettlType (1611)", "fix.RelationshipRiskInstrumentSettlType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1600].hf_id,
+        { &fix_hf[1600],
             { "RelationshipRiskInstrumentMultiplier (1612)", "fix.RelationshipRiskInstrumentMultiplier",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1601].hf_id,
+        { &fix_hf[1601],
             { "NoRelationshipRiskWarningLevels (1613)", "fix.NoRelationshipRiskWarningLevels",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1602].hf_id,
+        { &fix_hf[1602],
             { "RelationshipRiskWarningLevelPercent (1614)", "fix.RelationshipRiskWarningLevelPercent",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1603].hf_id,
+        { &fix_hf[1603],
             { "RelationshipRiskWarningLevelName (1615)", "fix.RelationshipRiskWarningLevelName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1604].hf_id,
+        { &fix_hf[1604],
             { "RiskSecurityExchange (1616)", "fix.RiskSecurityExchange",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1605].hf_id,
+        { &fix_hf[1605],
             { "StreamAsgnType (1617)", "fix.StreamAsgnType",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1606].hf_id,
+        { &fix_hf[1606],
             { "RelationshipRiskEncodedSecurityDescLen (1618)", "fix.RelationshipRiskEncodedSecurityDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1607].hf_id,
+        { &fix_hf[1607],
             { "RelationshipRiskEncodedSecurityDesc (1619)", "fix.RelationshipRiskEncodedSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1608].hf_id,
+        { &fix_hf[1608],
             { "RiskEncodedSecurityDescLen (1620)", "fix.RiskEncodedSecurityDescLen",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &fix_fields[1609].hf_id,
+        { &fix_hf[1609],
             { "RiskEncodedSecurityDesc (1621)", "fix.RiskEncodedSecurityDesc",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
