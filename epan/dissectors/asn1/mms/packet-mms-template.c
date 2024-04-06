@@ -29,6 +29,8 @@
 void proto_register_mms(void);
 void proto_reg_handoff_mms(void);
 
+static bool use_iec61850_mapping = TRUE;
+
 /* Initialize the protocol and registered fields */
 static int proto_mms;
 
@@ -273,9 +275,13 @@ dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         old_offset = offset;
-        asn1_ctx.private_data = (void*)wmem_new0(pinfo->pool, mms_actx_private_data_t);
+        if (use_iec61850_mapping) {
+            asn1_ctx.private_data = (void*)wmem_new0(pinfo->pool, mms_actx_private_data_t);
+        }
         offset = dissect_mms_MMSpdu(FALSE, tvb, offset, &asn1_ctx, tree, -1);
-        wmem_free(pinfo->pool, asn1_ctx.private_data);
+        if (asn1_ctx.private_data) {
+            wmem_free(pinfo->pool, asn1_ctx.private_data);
+        }
         if (offset == old_offset) {
             proto_tree_add_expert(tree, pinfo, &ei_mms_zero_pdu, tvb, offset, -1);
             break;
@@ -436,6 +442,13 @@ void proto_register_mms(void) {
     expert_mms = expert_register_protocol(proto_mms);
     expert_register_field_array(expert_mms, ei, array_length(ei));
 
+    /* Setting to enable/disable the IEC-61850 mapping on MMS */
+    module_t* mms_module = prefs_register_protocol(proto_mms, proto_reg_handoff_mms);
+
+    prefs_register_bool_preference(mms_module, "use_iec61850_mapping",
+        "Dissect MMS as IEC-61850",
+        "Enables or disables dsissection as IEC-61850 on top of MMS",
+        &use_iec61850_mapping);
 }
 
 
