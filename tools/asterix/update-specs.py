@@ -401,7 +401,7 @@ def part1(ctx, get_ref, catalogue):
                     handle_item(path, i)
 
                 # FieldPart[]
-                tell('static const FieldPart *I{}_PARTS[] = {}'.format(ref,'{'))
+                tell('static const FieldPart * const I{}_PARTS[] = {}'.format(ref,'{'))
                 for i in variation['items']:
                     tell('    {},'.format(part_of(i)))
                 tell('    NULL')
@@ -439,7 +439,7 @@ def part1(ctx, get_ref, catalogue):
                     else:
                         handle_item(path, i)
 
-                tell('static const FieldPart *I{}_PARTS[] = {}'.format(ref,'{'))
+                tell('static const FieldPart * const I{}_PARTS[] = {}'.format(ref,'{'))
                 for i in items:
                     if i is None:
                         tell('    &IXXX_FX,')
@@ -554,7 +554,6 @@ def part2(ctx, ref, uap):
     """Generate UAPs"""
 
     tell = lambda s: ctx.tell('insert1', s)
-    tell('DIAG_OFF_PEDANTIC')
 
     ut = uap['type']
     if ut == 'uap':
@@ -565,7 +564,7 @@ def part2(ctx, ref, uap):
         raise Exception('unexpected uap type {}'.format(ut))
 
     for var in variations:
-        tell('static const AsterixField *I{}_{}[] = {}'.format(ref, var['name'], '{'))
+        tell('static const AsterixField * const I{}_{}[] = {}'.format(ref, var['name'], '{'))
         for i in var['items']:
             if i is None:
                 tell('    &IX_SPARE,')
@@ -574,12 +573,11 @@ def part2(ctx, ref, uap):
         tell('    NULL')
         tell('};')
 
-    tell('static const AsterixField **I{}[] = {}'.format(ref, '{'))
+    tell('static const AsterixField * const * const I{}[] = {}'.format(ref, '{'))
     for var in variations:
         tell('    I{}_{},'.format(ref, var['name']))
     tell('    NULL')
     tell('};')
-    tell('DIAG_ON_PEDANTIC')
     tell('')
 
 def part3(ctx, specs):
@@ -597,9 +595,7 @@ def part3(ctx, specs):
         editions = sorted([val['edition'] for val in lst], key = lambda x: (x['major'], x['minor']), reverse=True)
         editions_fmt = [fmt_edition(cat, edition) for edition in editions]
         editions_str = ', '.join(['I{:03d}'.format(cat)] + editions_fmt)
-        tell('DIAG_OFF_PEDANTIC')
-        tell('static const AsterixField ***I{:03d}all[] = {} {} {};'.format(cat, '{', editions_str, '}'))
-        tell('DIAG_ON_PEDANTIC')
+        tell('static const AsterixField * const * const * const I{:03d}all[] = {} {} {};'.format(cat, '{', editions_str, '}'))
         tell('')
 
         tell('static const enum_val_t I{:03d}_versions[] = {}'.format(cat, '{'))
@@ -623,7 +619,7 @@ def part4(ctx, cats):
     tell = lambda s: ctx.tell('insert1', s)
     tell_pr = lambda s: ctx.tell('insert3', s)
 
-    tell('static const AsterixField ****categories[] = {')
+    tell('static const AsterixField * const * const * const * const categories[] = {')
     for i in range(0, 256):
         val = 'I{:03d}all'.format(i) if i in cats else 'NULL'
         tell('    {}, /* {:03d} */'.format(val, i))

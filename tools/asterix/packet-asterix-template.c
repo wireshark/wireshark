@@ -102,22 +102,20 @@ struct FieldPart_s {
     const char *format_string;  /* format string for showing float values */
 };
 
-DIAG_OFF_PEDANTIC
 typedef struct AsterixField_s AsterixField;
 struct AsterixField_s {
-    uint8_t              type;                    /* type of field */
-    unsigned             length;                  /* fixed length */
-    unsigned             repetition_counter_size; /* size of repetition counter, length of one item is in length */
-    unsigned             header_length;           /* the size is in first header_length bytes of the field */
-    int                 *hf;                      /* pointer to Wireshark hf_register_info */
-    const FieldPart    **part;                    /* Look declaration and description of FieldPart above. */
-    const AsterixField  *field[];                 /* subfields */
+    uint8_t                    type;                    /* type of field */
+    unsigned                   length;                  /* fixed length */
+    unsigned                   repetition_counter_size; /* size of repetition counter, length of one item is in length */
+    unsigned                   header_length;           /* the size is in first header_length bytes of the field */
+    int                       *hf;                      /* pointer to Wireshark hf_register_info */
+    const FieldPart * const   *part;                    /* Look declaration and description of FieldPart above. */
+    const AsterixField * const field[];                 /* subfields */
 };
-DIAG_ON_PEDANTIC
 
 static void dissect_asterix_packet (tvbuff_t *, packet_info *pinfo, proto_tree *);
 static void dissect_asterix_data_block (tvbuff_t *tvb, packet_info *pinfo, unsigned, proto_tree *, uint8_t, int);
-static int dissect_asterix_fields (tvbuff_t *, packet_info *pinfo, unsigned, proto_tree *, uint8_t, const AsterixField *[]);
+static int dissect_asterix_fields (tvbuff_t *, packet_info *pinfo, unsigned, proto_tree *, uint8_t, const AsterixField * const []);
 
 static void asterix_build_subtree (tvbuff_t *, packet_info *pinfo, unsigned, proto_tree *, const AsterixField *);
 static void twos_complement (int64_t *, int);
@@ -125,8 +123,8 @@ static uint8_t asterix_bit (uint8_t, uint8_t);
 static unsigned asterix_fspec_len (tvbuff_t *, unsigned);
 static uint8_t asterix_field_exists (tvbuff_t *, unsigned, int);
 static uint8_t asterix_get_active_uap (tvbuff_t *, unsigned, uint8_t);
-static int asterix_field_length (tvbuff_t *, unsigned, const AsterixField *);
-static int asterix_field_offset (tvbuff_t *, unsigned, const AsterixField *[], int);
+static int asterix_field_length (tvbuff_t *, unsigned, const AsterixField * const);
+static int asterix_field_offset (tvbuff_t *, unsigned, const AsterixField * const [], int);
 static int asterix_message_length (tvbuff_t *, unsigned, uint8_t, uint8_t);
 
 static const char AISCode[] = { ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
@@ -149,7 +147,6 @@ static const FieldPart IXXX_6bit_spare = { 6, 1.0, FIELD_PART_UINT, NULL, NULL }
 static const FieldPart IXXX_7bit_spare = { 7, 1.0, FIELD_PART_UINT, NULL, NULL };
 
 /* Spare Item */
-DIAG_OFF_PEDANTIC
 static const AsterixField IX_SPARE = { FIXED, 0, 0, 0, &hf_spare, NULL, { NULL } };
 
 /* insert1 */
@@ -515,7 +512,7 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, packet_info *pinfo, unsig
 
 // We're transported over UDP and our offset always advances.
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_asterix_fields (tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, uint8_t category, const AsterixField *current_uap[])
+static int dissect_asterix_fields (tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, uint8_t category, const AsterixField * const current_uap [])
 {
     unsigned i, j, size, start, len, inner_offset, fspec_len;
     uint64_t counter;
@@ -538,7 +535,7 @@ static int dissect_asterix_fields (tvbuff_t *tvb, packet_info *pinfo, unsigned o
                     asterix_field_tree = proto_item_add_subtree (asterix_field_item, ett_asterix_subtree);
                     fspec_len = asterix_fspec_len (tvb, offset + start);
                     proto_tree_add_item (asterix_field_tree, hf_asterix_fspec, tvb, offset + start, fspec_len, ENC_NA);
-                    dissect_asterix_fields (tvb, pinfo, offset + start, asterix_field_tree, category, (const AsterixField **)current_uap[i]->field);
+                    dissect_asterix_fields (tvb, pinfo, offset + start, asterix_field_tree, category, current_uap[i]->field);
                     break;
                 case REPETITIVE:
                     asterix_field_item = proto_tree_add_item (tree, *current_uap[i]->hf, tvb, offset + start, len, ENC_NA);
@@ -561,7 +558,7 @@ static int dissect_asterix_fields (tvbuff_t *tvb, packet_info *pinfo, unsigned o
                     start++;
                     fspec_len = asterix_fspec_len (tvb, offset + start);
                     proto_tree_add_item (asterix_field_tree, hf_asterix_fspec, tvb, offset + start, fspec_len, ENC_NA);
-                    dissect_asterix_fields (tvb, pinfo, offset + start, asterix_field_tree, category, (const AsterixField **)current_uap[i]->field);
+                    dissect_asterix_fields (tvb, pinfo, offset + start, asterix_field_tree, category, current_uap[i]->field);
                     break;*/
                 default: /* FIXED, FX, FX_1, FX_UAP */
                     asterix_field_item = proto_tree_add_item (tree, *current_uap[i]->hf, tvb, offset + start, len, ENC_NA);
@@ -710,7 +707,7 @@ static uint8_t asterix_field_exists (tvbuff_t *tvb, unsigned offset, int bitInde
 
 // We're transported over UDP and our offset always advances.
 // NOLINTNEXTLINE(misc-no-recursion)
-static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixField *field)
+static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixField * const field)
 {
     unsigned size;
     uint64_t count;
@@ -752,11 +749,11 @@ static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixFi
 static uint8_t asterix_get_active_uap (tvbuff_t *tvb, unsigned offset, uint8_t category)
 {
     int i, inner_offset;
-    AsterixField **current_uap;
+    AsterixField const * const *current_uap;
 
     if ((category == 1) && (categories[category] != NULL)) { /* if category is supported */
         if (categories[category][global_categories_version[category]][1] != NULL) { /* if exists another uap */
-            current_uap = (AsterixField **)categories[category][global_categories_version[category]][0];
+            current_uap = categories[category][global_categories_version[category]][0];
             if (current_uap != NULL) {
                 inner_offset = asterix_fspec_len (tvb, offset);
                 for (i = 0; current_uap[i] != NULL; i++) {
@@ -773,7 +770,7 @@ static uint8_t asterix_get_active_uap (tvbuff_t *tvb, unsigned offset, uint8_t c
     return 0;
 }
 
-static int asterix_field_offset (tvbuff_t *tvb, unsigned offset, const AsterixField *current_uap[], int field_index)
+static int asterix_field_offset (tvbuff_t *tvb, unsigned offset, const AsterixField * const current_uap[], int field_index)
 {
     int i, inner_offset;
     inner_offset = 0;
@@ -790,10 +787,10 @@ static int asterix_field_offset (tvbuff_t *tvb, unsigned offset, const AsterixFi
 static int asterix_message_length (tvbuff_t *tvb, unsigned offset, uint8_t category, uint8_t active_uap)
 {
     int i, size;
-    AsterixField **current_uap;
+    AsterixField const * const *current_uap;
 
     if (categories[category] != NULL) { /* if category is supported */
-        current_uap = (AsterixField **)categories[category][global_categories_version[category]][active_uap];
+        current_uap = categories[category][global_categories_version[category]][active_uap];
         if (current_uap != NULL) {
             size = asterix_fspec_len (tvb, offset);
             for (i = 0; current_uap[i] != NULL; i++) {
