@@ -1642,6 +1642,10 @@ cf_redissect_packets(capture_file *cf)
     }
     if (cf->redissection_queued != RESCAN_NONE) {
         /* Redissection is (already) queued, wait for "cf_read" to finish. */
+        /* XXX - what if whatever set and later clears read_lock is *not*
+         * cf_read, e.g. process_specified_records ? We need to handle a
+         * queued redissection there too like we do in cf_read.
+         */
         return;
     }
 
@@ -2259,6 +2263,14 @@ process_specified_records(capture_file *cf, packet_range_t *range,
     /* Progress so far. */
     progbar_val = 0.0f;
 
+    /* XXX - It should be ok to have multiple readers, so long as nothing
+     * frees the epan context, e.g. rescan_packets with redissect true,
+     * or anything that closes the file (including reload and certain forms
+     * of saving.) This is mostly to stop cf_save_records but should probably
+     * be handled by callers in order to allow multiple readers (e.g.,
+     * restarting taps after adding or changing one.) We should probably
+     * make this a real reader-writer lock.
+     */
     if (cf->read_lock) {
         ws_warning("Failing due to nested process_specified_records(\"%s\") call!", cf->filename);
         return PSP_FAILED;
@@ -2392,6 +2404,15 @@ cf_retap_packets(capture_file *cf)
         return CF_READ_ABORTED;
     }
 
+    /* XXX - If cf->read_lock is true, process_specified_records will fail
+     * due to a nested call. We fail here so that we don't reset the tap
+     * listeners if this tap isn't going to succeed.
+     */
+    if (cf->read_lock) {
+        ws_warning("Failing due to nested process_specified_records(\"%s\") call!", cf->filename);
+        return CF_READ_ERROR;
+    }
+
     cf_callback_invoke(cf_cb_file_retap_started, cf);
 
     /* Do we have any tap listeners with filters? */
@@ -2428,6 +2449,7 @@ cf_retap_packets(capture_file *cf)
 
     /* Reset the tap listeners. */
     reset_tap_listeners();
+    uint32_t count = cf->count;
 
     epan_dissect_init(&callback_args.edt, cf->epan, create_proto_tree, FALSE);
 
@@ -2435,6 +2457,34 @@ cf_retap_packets(capture_file *cf)
        re-running the taps. */
     packet_range_init(&range, cf);
     packet_range_process_init(&range);
+
+    if (cf->state == FILE_READ_IN_PROGRESS) {
+        /* We're not done with the sequential read of the file and might
+         * add more frames while process_specified_records is going. We
+         * don't want to tap new frames twice, so limit the range to the
+         * frames already here.
+         *
+         * cf_read sets read_lock so we don't tap in case of an offline
+         * file, but cf_continue_tail and cf_finish_tail don't, and we
+         * don't want them to, because tapping new packets in a live
+         * capture is a common use case.
+         *
+         * Note that most other users of process_specified_records (saving,
+         * printing) do want to process new packets, unlike taps.
+         */
+        if (count) {
+            char* range_str = g_strdup_printf("-%u", count);
+            packet_range_convert_str(&range, range_str);
+            g_free(range_str);
+        } else {
+            /* range_t treats a missing number as meaning 1, not 0, and
+             * reverses the order if backwards; thus the syntax -0 means
+             * 0-1, so to only take zero packets we do this.
+             */
+            packet_range_convert_str(&range, "0");
+        }
+        range.process = range_process_user_range;
+    }
 
     ret = process_specified_records(cf, &range, "Recalculating statistics on",
             "all packets", TRUE, retap_packet,
