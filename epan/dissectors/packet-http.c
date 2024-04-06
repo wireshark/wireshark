@@ -951,10 +951,11 @@ determine_http_location_target(wmem_allocator_t *scope, const gchar *base_url, c
 			gchar *netloc_end;
 			gint netloc_length;
 
-			scheme_end = strstr(base_url_no_query, "://") + 3;
-			if (scheme_end == 0) {
+			scheme_end = strstr(base_url_no_query, "://");
+			if (scheme_end == NULL) {
 				return NULL;
 			}
+			scheme_end += 3;
 			netloc_end = strstr(scheme_end, "/");
 			if (netloc_end == NULL) {
 				return NULL;
