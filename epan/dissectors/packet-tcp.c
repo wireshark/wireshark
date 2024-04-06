@@ -998,6 +998,19 @@ static const char* tcp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 
 static ct_dissector_info_t tcp_ct_dissector_info = {&tcp_conv_get_filter_type};
 
+/*
+ * callback function for conversation stats
+ */
+static int tcp_conv_cb_update(conversation_t *conv)
+{
+    struct tcp_analysis *tcpd;
+    tcpd=get_tcp_conversation_data_idempotent(conv);
+    if(tcpd)
+        return tcpd->flow1.flow_count + tcpd->flow2.flow_count;
+    else
+        return 0;
+}
+
 static tap_packet_status
 tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
@@ -1006,8 +1019,9 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
-    add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, CONVERSATION_TCP);
+    add_conversation_table_data_extended(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, CONVERSATION_TCP, (guint32)pinfo->num, tcp_conv_cb_update);
+
 
     return TAP_PACKET_REDRAW;
 }
@@ -1816,6 +1830,9 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     tcpd->flow2.closing_initiator = FALSE;
     tcpd->stream = tcp_stream_count++;
     tcpd->server_port = 0;
+    tcpd->flow_direction = 0;
+    tcpd->flow1.flow_count = 0;
+    tcpd->flow2.flow_count = 0;
 
     return tcpd;
 }
@@ -1845,6 +1862,16 @@ mptcp_attach_subflow(struct mptcp_analysis* mptcpd, struct tcp_analysis* tcpd) {
     tcpd->mptcp_analysis = mptcpd;
 }
 
+struct tcp_analysis *
+get_tcp_conversation_data_idempotent(conversation_t *conv)
+{
+    struct tcp_analysis *tcpd;
+
+    /* Get the data for this conversation */
+    tcpd=(struct tcp_analysis *)conversation_get_proto_data(conv, proto_tcp);
+
+    return tcpd;
+}
 
 struct tcp_analysis *
 get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
@@ -2777,6 +2804,41 @@ finished_checking_retransmission_type:
             tcpd->fwd->tcp_analyze_seq_info->nextseqframe=pinfo->num;
             tcpd->fwd->tcp_analyze_seq_info->nextseqtime.secs=pinfo->abs_ts.secs;
             tcpd->fwd->tcp_analyze_seq_info->nextseqtime.nsecs=pinfo->abs_ts.nsecs;
+
+            /* Count the flows turns by checking all packets carrying real data
+             * Packets not ordered are ignored.
+             */
+            if((!tcpd->ta ) ||
+               !(tcpd->ta->flags & TCP_A_RETRANSMISSION ||
+                 tcpd->ta->flags & TCP_A_OUT_OF_ORDER ||
+                 tcpd->ta->flags & TCP_A_FAST_RETRANSMISSION ||
+                 tcpd->ta->flags & TCP_A_SPURIOUS_RETRANSMISSION)) {
+
+                if( seglen>0) {
+                    /* check direction */
+                    gint8         direction;
+                    direction=cmp_address(&pinfo->src, &pinfo->dst);
+
+                    /* if the addresses are equal, match the ports instead */
+                    if(direction==0) {
+                        direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
+                    }
+
+                    /* invert the direction and increment the counter */
+                    if(direction != tcpd->flow_direction) {
+                        tcpd->flow_direction = direction;
+                        tcpd->fwd->flow_count++;
+                    }
+                    /* if the direction was not reversed, maybe are we
+                     * facing the first flow ? Yes, if the counter still equals 0.
+                     */
+                    else {
+                        if(tcpd->fwd->flow_count==0) {
+                            tcpd->fwd->flow_count++;
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -112,6 +112,11 @@ typedef void (*endpoint_gui_init_cb)(struct register_ct* ct, const char *filter)
  */
 typedef struct register_ct register_ct_t;
 
+/** Conversation extension for TCP */
+typedef struct _conversation_extension_tcp_t {
+    guint64             flows;          /**< number of flows */
+} conv_extension_tcp_t;
+
 /** Conversation list information */
 typedef struct _conversation_item_t {
     ct_dissector_info_t *dissector_info; /**< conversation information provided by dissector */
@@ -137,6 +142,8 @@ typedef struct _conversation_item_t {
     nstime_t            start_abs_time; /**< absolute start time for the conversation */
 
     gboolean filtered;                  /**< the entry contains only filtered data */
+
+    conv_extension_tcp_t ext_tcp;      /**< extension for optional TCP counters */
 } conv_item_t;
 
 /** Endpoint information */
@@ -369,11 +376,21 @@ WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *s
  * @param ctype the conversation type (e.g. CONVERSATION_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
-WS_DLL_PUBLIC void
+WS_DLL_PUBLIC conv_item_t *
 add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port,
     guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
     nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info,
     conversation_type ctype);
+
+/** Decorates add_conversation_table_data_with_conv_id() in order to be
+ *  able to add protocol dependent additional statistics.
+ *
+ */
+WS_DLL_PUBLIC void
+add_conversation_table_data_extended(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port,
+    guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
+    nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info,
+    conversation_type ctype, guint32 frameid, int (*proto_conv_cb)(conversation_t *));
 
 /** Add some data to the endpoint table.
  *

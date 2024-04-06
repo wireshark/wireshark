@@ -375,6 +375,9 @@ typedef struct _tcp_flow_t {
 	 * during reassembly. */
 	guint32 maxnextseq;
 
+	/* The number of data flows seen in that direction */
+	guint16 flow_count;
+
 	/* This tree is indexed by sequence number and keeps track of all
 	 * all pdus spanning multiple segments for this flow.
 	 */
@@ -486,6 +489,9 @@ struct tcp_analysis {
 	 */
 	guint8  tfo_syn_data : 1;
 
+	/* Remembers which side is currently sending data. */
+	gint8  flow_direction : 2;
+
 	/* allocated only when mptcp enabled
 	 * several tcp_analysis may refer to the same mptcp_analysis
 	 * can exist without any meta
@@ -537,6 +543,12 @@ WS_DLL_PUBLIC void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int of
 
 WS_DLL_PUBLIC struct tcp_analysis *get_tcp_conversation_data(conversation_t *conv,
                                 packet_info *pinfo);
+
+/** Same as get_tcp_conversation_data(), without updating any data at all. Thus,
+ *  it really identifies the conversation data and doesn't do anything with it.
+ *
+ */
+WS_DLL_PUBLIC struct tcp_analysis *get_tcp_conversation_data_idempotent(conversation_t *conv);
 
 WS_DLL_PUBLIC gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, struct tcp_analysis *, struct tcpinfo *);
 

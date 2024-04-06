@@ -48,7 +48,7 @@ typedef void (*tap_finish_cb)(void *tapdata);
 						                             ** but does not, itself, require dissection */
 
 /** Flags to indicate what the packet cb should do */
-#define TL_IGNORE_DISPLAY_FILTER    0x00000010      /**< use packet, even if it woul dbe filtered out */
+#define TL_IGNORE_DISPLAY_FILTER    0x00000010      /**< use packet, even if it would be filtered out */
 #define TL_DISPLAY_FILTER_IGNORED   0x00100000      /**< flag for the conversation handler */
 
 typedef struct {

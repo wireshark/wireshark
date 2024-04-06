@@ -585,6 +585,9 @@ void ConversationDataModel::doDataUpdate()
 
 int ConversationDataModel::columnCount(const QModelIndex &) const
 {
+    if(tap()=="tcp")
+        return CONV_TCP_EXT_NUM_COLUMNS;
+
     return CONV_NUM_COLUMNS;
 }
 
@@ -629,6 +632,15 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
             return tr("Bits/s A " UTF8_RIGHTWARDS_ARROW " B"); break;
         case CONV_COLUMN_BPS_BA:
             return tr("Bits/s B " UTF8_RIGHTWARDS_ARROW " A"); break;
+        }
+        /* Extended conversations columns, e.g. TCP */
+        if(tap()=="tcp") {
+            switch (section) {
+            case CONV_TCP_EXT_COLUMN_A:
+                return tr("Flows"); break;
+            default :
+                ws_assert_not_reached(); break;
+            }
         }
     } else if (role == Qt::TextAlignmentRole) {
         if (section == CONV_COLUMN_SRC_ADDR || section == CONV_COLUMN_DST_ADDR)
@@ -777,6 +789,18 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return bpsCalculated ? (role == Qt::DisplayRole ? gchar_free_to_qstring(format_size((int64_t)bps_ab, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI)) : QVariant((qlonglong)bps_ab)): QVariant();
         case CONV_COLUMN_BPS_BA:
             return bpsCalculated ? (role == Qt::DisplayRole ? gchar_free_to_qstring(format_size((int64_t)bps_ba, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI)) : QVariant((qlonglong)bps_ba)): QVariant();
+        }
+        /* Extended conversations columns, e.g. TCP */
+        if(tap()=="tcp") {
+            switch(idx.column()) {
+            case CONV_TCP_EXT_COLUMN_A:
+                {
+                qlonglong flows = (qlonglong)conv_item->ext_tcp.flows;
+                return role == Qt::DisplayRole ? QString("%L1").arg(flows) : (QVariant)flows; break;
+                }
+            default :
+                ws_assert_not_reached(); break;
+            }
         }
     } else if (role == Qt::ToolTipRole) {
         if (idx.column() == CONV_COLUMN_START || idx.column() == CONV_COLUMN_DURATION)

@@ -304,6 +304,12 @@ public:
         CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
     } conversation_column_type_e;
 
+    typedef enum {
+        CONV_TCP_EXT_COLUMN_A = CONV_INDEX_COLUMN,
+        CONV_TCP_EXT_NUM_COLUMNS,
+        CONV_TCP_EXT_INDEX_COLUMN = CONV_TCP_EXT_NUM_COLUMNS
+    } conversation_tcp_ext_column_type_e;
+
     explicit ConversationDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
