@@ -168,10 +168,7 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
 }
 
 WSLUA_METHOD Tvb_bytes(lua_State* L) {
-    /* Obtain a <<lua_class_ByteArray,`ByteArray`>> from a <<lua_class_Tvb,`Tvb`>>.
-
-       @since 1.99.8
-     */
+    /* Obtain a <<lua_class_ByteArray,`ByteArray`>> from a <<lua_class_Tvb,`Tvb`>>. */
 #define WSLUA_OPTARG_Tvb_bytes_OFFSET 2 /* The offset (in octets) from the beginning of the <<lua_class_Tvb,`Tvb`>>. Defaults to 0. */
 #define WSLUA_OPTARG_Tvb_bytes_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
@@ -240,10 +237,7 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
 }
 
 WSLUA_METHOD Tvb_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a <<lua_class_Tvb,`Tvb`>>.
-
-       @since 1.11.3
-     */
+    /* Obtain a Lua string of the binary bytes in a <<lua_class_Tvb,`Tvb`>>. */
 #define WSLUA_OPTARG_Tvb_raw_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_Tvb_raw_LENGTH 3 /* The length of the segment to get. Default is -1, or the remaining bytes in the <<lua_class_Tvb,`Tvb`>>. */
     Tvb tvb = checkTvb(L,1);
@@ -278,10 +272,7 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
-    /* Checks whether contents of two <<lua_class_Tvb,`Tvb`>>s are equal.
-
-       @since 1.99.8
-     */
+    /* Checks whether contents of two <<lua_class_Tvb,`Tvb`>>s are equal. */
     Tvb tvb_l = checkTvb(L,1);
     Tvb tvb_r = checkTvb(L,2);
 
@@ -1061,10 +1052,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 WSLUA_METHOD TvbRange_strsize(lua_State* L) {
     /*
     Find the size of a zero terminated string from a <<lua_class_TvbRange,`TvbRange`>>.
-    The size of the string includes the terminating zero.
-
-    @since 1.11.3
-    */
+    The size of the string includes the terminating zero. */
 #define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     unsigned encoding = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
@@ -1352,10 +1340,7 @@ WSLUA_METHOD TvbRange_offset(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a <<lua_class_TvbRange,`TvbRange`>>.
-
-       @since 1.11.3
-     */
+    /* Obtain a Lua string of the binary bytes in a <<lua_class_TvbRange,`TvbRange`>>. */
 #define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte within the range. Default is 0, or first byte. */
 #define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get. Default is -1, or the remaining bytes in the range. */
     TvbRange tvbr = checkTvbRange(L,1);
@@ -1394,10 +1379,7 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
 }
 
 WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
-    /* Checks whether the contents of two <<lua_class_TvbRange,`TvbRange`>>s are equal.
-
-       @since 1.99.8
-     */
+    /* Checks whether the contents of two <<lua_class_TvbRange,`TvbRange`>>s are equal. */
     TvbRange tvb_l = checkTvbRange(L,1);
     TvbRange tvb_r = checkTvbRange(L,2);
 

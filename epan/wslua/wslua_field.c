@@ -261,8 +261,6 @@ static int FieldInfo_get_display(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FieldInfo_type RO The internal field type, a number which
    matches one of the `ftype` values.
-
-   @since 1.99.8
  */
 static int FieldInfo_get_type(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
@@ -279,8 +277,6 @@ static int FieldInfo_get_type(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FieldInfo_source RO The source `Tvb` object the `FieldInfo` is derived
     from, or nil if there is none.
-
-   @since 1.99.8
  */
 static int FieldInfo_get_source(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
@@ -320,10 +316,7 @@ static int FieldInfo_get_generated(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_hidden RO Whether this field was marked as hidden (boolean).
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE FieldInfo_hidden RO Whether this field was marked as hidden (boolean). */
 static int FieldInfo_get_hidden(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
 
@@ -331,10 +324,7 @@ static int FieldInfo_get_hidden(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_is_url RO Whether this field was marked as being a URL (boolean).
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE FieldInfo_is_url RO Whether this field was marked as being a URL (boolean). */
 static int FieldInfo_get_is_url(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
 
@@ -342,10 +332,7 @@ static int FieldInfo_get_is_url(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_little_endian RO Whether this field is little-endian encoded (boolean).
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE FieldInfo_little_endian RO Whether this field is little-endian encoded (boolean). */
 static int FieldInfo_get_little_endian(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
 
@@ -353,10 +340,7 @@ static int FieldInfo_get_little_endian(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_big_endian RO Whether this field is big-endian encoded (boolean).
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE FieldInfo_big_endian RO Whether this field is big-endian encoded (boolean). */
 static int FieldInfo_get_big_endian(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
 
@@ -364,10 +348,7 @@ static int FieldInfo_get_big_endian(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_name RO The filter name of this field.
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE FieldInfo_name RO The filter name of this field. */
 static int FieldInfo_get_name(lua_State* L) {
     /* The filter name of this field. */
     FieldInfo fi = checkFieldInfo(L,1);
@@ -624,8 +605,6 @@ WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
     /* Gets a Lua array table of all registered field filter names.
 
        NOTE: This is an expensive operation, and should only be used for troubleshooting.
-
-       @since 1.11.3
      */
     void *cookie, *cookie2;
     int i = -1;
@@ -676,10 +655,7 @@ WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
         lua_pushnil(L)
 
 
-/* WSLUA_ATTRIBUTE Field_name RO The filter name of this field, or nil.
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE Field_name RO The filter name of this field, or nil. */
 static int Field_get_name(lua_State* L) {
     Field f = checkField(L,1);
     header_field_info* hfinfo = NULL;
@@ -689,10 +665,7 @@ static int Field_get_name(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Field_display RO The full display name of this field, or nil.
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE Field_display RO The full display name of this field, or nil. */
 static int Field_get_display(lua_State* L) {
     Field f = checkField(L,1);
     header_field_info* hfinfo = NULL;
@@ -702,10 +675,7 @@ static int Field_get_display(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Field_type RO The `ftype` of this field, or nil.
-
-   @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE Field_type RO The `ftype` of this field, or nil. */
 static int Field_get_type(lua_State* L) {
     Field f = checkField(L,1);
     header_field_info* hfinfo = NULL;

@@ -751,8 +751,6 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
 /* WSLUA_ATTRIBUTE TreeItem_text RW Set/get the <<lua_class_TreeItem,`TreeItem`>>'s display string (string).
 
     For the getter, if the TreeItem has no display string, then nil is returned.
-
-    @since 1.99.3
  */
 static int TreeItem_get_text(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
@@ -887,10 +885,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_add_proto_expert_info(lua_State *L) {
-    /* Sets the expert flags of the tree item and adds expert info to the packet.
-
-       @since 1.11.3
-     */
+    /* Sets the expert flags of the tree item and adds expert info to the packet. */
 #define WSLUA_ARG_TreeItem_add_proto_expert_info_EXPERT 2 /* The <<lua_class_ProtoExpert,`ProtoExpert`>> object to add to the tree. */
 #define WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT 3 /* Text for the expert info display
                                                               (default is to use the registered
@@ -919,10 +914,7 @@ WSLUA_METHOD TreeItem_add_proto_expert_info(lua_State *L) {
 
 WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     /* Sets the expert flags of the tree item and adds expert info to the packet
-       associated with the <<lua_class_Tvb,`Tvb`>> or <<lua_class_TvbRange,`TvbRange`>> bytes in the packet.
-
-       @since 1.11.3
-     */
+       associated with the <<lua_class_Tvb,`Tvb`>> or <<lua_class_TvbRange,`TvbRange`>> bytes in the packet. */
 #define WSLUA_ARG_TreeItem_add_tvb_expert_info_EXPERT 2 /* The <<lua_class_ProtoExpert,`ProtoExpert`>> object to add to the tree. */
 #define WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB 3 /* The <<lua_class_Tvb,`Tvb`>> or <<lua_class_TvbRange,`TvbRange`>> object bytes to associate
                                                         the expert info with. */
@@ -969,10 +961,7 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
 }
 
 
-/* WSLUA_ATTRIBUTE TreeItem_visible RO Get the <<lua_class_TreeItem,`TreeItem`>>'s subtree visibility status (boolean).
-
-    @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE TreeItem_visible RO Get the <<lua_class_TreeItem,`TreeItem`>>'s subtree visibility status (boolean). */
 static int TreeItem_get_visible(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
@@ -987,10 +976,7 @@ static int TreeItem_get_visible(lua_State* L) {
 }
 
 
-/* WSLUA_ATTRIBUTE TreeItem_generated RW Set/get the <<lua_class_TreeItem,`TreeItem`>>'s generated state (boolean).
-
-    @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE TreeItem_generated RW Set/get the <<lua_class_TreeItem,`TreeItem`>>'s generated state (boolean). */
 static int TreeItem_get_generated(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
@@ -1024,10 +1010,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
     WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
-/* WSLUA_ATTRIBUTE TreeItem_hidden RW Set/get <<lua_class_TreeItem,`TreeItem`>>'s hidden state (boolean).
-
-    @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE TreeItem_hidden RW Set/get <<lua_class_TreeItem,`TreeItem`>>'s hidden state (boolean). */
 static int TreeItem_get_hidden(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
@@ -1062,10 +1045,7 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
     WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
-/* WSLUA_ATTRIBUTE TreeItem_len RW Set/get <<lua_class_TreeItem,`TreeItem`>>'s length inside tvb, after it has already been created.
-
-    @since 1.99.8
- */
+/* WSLUA_ATTRIBUTE TreeItem_len RW Set/get <<lua_class_TreeItem,`TreeItem`>>'s length inside tvb, after it has already been created. */
 static int TreeItem_get_len(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
     int len = 0;
@@ -1108,8 +1088,6 @@ WSLUA_METHOD TreeItem_referenced(lua_State *L) {
 
     This function takes one parameter that can be a <<lua_class_ProtoField,`ProtoField`>> or <<lua_class_Dissector,`Dissector`>>.
     The <<lua_class_Dissector,`Dissector`>> form is useful when you need to decide whether to call a sub-dissector.
-
-    @since 2.4.0
     */
 #define WSLUA_ARG_TreeItem_referenced_PROTOFIELD 2 /* The <<lua_class_ProtoField,`ProtoField`>> or <<lua_class_Dissector,`Dissector`>> to check if referenced. */
     TreeItem ti = checkTreeItem(L, 1);
@@ -1127,10 +1105,7 @@ WSLUA_METHOD TreeItem_referenced(lua_State *L) {
 }
 
 WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
-    /* Returns string debug information about the <<lua_class_TreeItem,`TreeItem`>>.
-
-       @since 1.99.8
-     */
+    /* Returns string debug information about the <<lua_class_TreeItem,`TreeItem`>>. */
     TreeItem ti = toTreeItem(L,1);
 
     if (ti) {

@@ -140,9 +140,7 @@ void Int64_pack(lua_State* L, luaL_Buffer *b, int idx, bool asLittleEndian) {
 }
 
 WSLUA_METHOD Int64_encode(lua_State* L) {
-    /* Encodes the <<lua_class_Int64,`Int64`>> number into an 8-byte Lua string using the given endianness.
-       @since 1.11.3
-     */
+    /* Encodes the <<lua_class_Int64,`Int64`>> number into an 8-byte Lua string using the given endianness. */
 #define WSLUA_OPTARG_Int64_encode_ENDIAN 2 /* If set to true then little-endian is used,
                                               if false then big-endian; if missing or `nil`,
                                               native host endian. */
@@ -185,9 +183,7 @@ int Int64_unpack(lua_State* L, const char *buff, bool asLittleEndian) {
 }
 
 WSLUA_CONSTRUCTOR Int64_decode(lua_State* L) {
-    /* Decodes an 8-byte Lua string, using the given endianness, into a new <<lua_class_Int64,`Int64`>> object.
-       @since 1.11.3
-     */
+    /* Decodes an 8-byte Lua string, using the given endianness, into a new <<lua_class_Int64,`Int64`>> object. */
 #define WSLUA_ARG_Int64_decode_STRING 1 /* The Lua string containing a binary 64-bit integer. */
 #define WSLUA_OPTARG_Int64_decode_ENDIAN 2 /* If set to true then little-endian is used,
                                               if false then big-endian; if missing or `nil`, native
@@ -211,9 +207,7 @@ WSLUA_CONSTRUCTOR Int64_decode(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Int64_new(lua_State* L) {
-    /* Creates a <<lua_class_Int64,`Int64`>> Object.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_Int64,`Int64`>> object. */
 #define WSLUA_OPTARG_Int64_new_VALUE 1 /* A number, <<lua_class_UInt64,`UInt64`>>, <<lua_class_Int64,`Int64`>>, or string of ASCII digits
                                           to assign the value of the new <<lua_class_Int64,`Int64`>>. Default is 0. */
 #define WSLUA_OPTARG_Int64_new_HIGHVALUE 2 /* If this is a number and the first argument was
@@ -250,42 +244,32 @@ WSLUA_CONSTRUCTOR Int64_new(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Int64__call(lua_State* L) {
-    /* Creates a <<lua_class_Int64,`Int64`>> object.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_Int64,`Int64`>> object. */
     lua_remove(L,1); /* remove the table */
     WSLUA_RETURN(Int64_new(L)); /* The new <<lua_class_Int64,`Int64`>> object. */
 }
 
 WSLUA_CONSTRUCTOR Int64_max(lua_State* L) {
-    /* Creates an <<lua_class_Int64,`Int64`>> of the maximum possible positive value. In other words, this should return an Int64 object of the number 9,223,372,036,854,775,807.
-       @since 1.11.3
-     */
+    /* Creates an <<lua_class_Int64,`Int64`>> of the maximum possible positive value. In other words, this should return an Int64 object of the number 9,223,372,036,854,775,807. */
     pushInt64(L, INT64_MAX);
     WSLUA_RETURN(1); /* The new <<lua_class_Int64,`Int64`>> object of the maximum value. */
 }
 
 WSLUA_CONSTRUCTOR Int64_min(lua_State* L) {
-    /* Creates an <<lua_class_Int64,`Int64`>> of the minimum possible negative value. In other words, this should return an Int64 object of the number -9,223,372,036,854,775,808.
-       @since 1.11.3
-     */
+    /* Creates an <<lua_class_Int64,`Int64`>> of the minimum possible negative value. In other words, this should return an Int64 object of the number -9,223,372,036,854,775,808. */
     pushInt64(L, INT64_MIN);
     WSLUA_RETURN(1); /* The new <<lua_class_Int64,`Int64`>> object of the minimum value. */
 }
 
 
 WSLUA_METHOD Int64_tonumber(lua_State* L) {
-    /* Returns a Lua number of the <<lua_class_Int64,`Int64`>> value. Note that this may lose precision.
-       @since 1.11.3
-     */
+    /* Returns a Lua number of the <<lua_class_Int64,`Int64`>> value. Note that this may lose precision. */
     lua_pushnumber(L, (lua_Number)(checkInt64(L,1)));
     WSLUA_RETURN(1); /* The Lua number. */
 }
 
 WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
-    /* Creates an <<lua_class_Int64,`Int64`>> object from the given hexadecimal string.
-       @since 1.11.3
-     */
+    /* Creates an <<lua_class_Int64,`Int64`>> object from the given hexadecimal string. */
 #define WSLUA_ARG_Int64_fromhex_HEX 1 /* The hex-ASCII Lua string. */
     uint64_t result = 0;
     size_t len = 0;
@@ -301,9 +285,7 @@ WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
 }
 
 WSLUA_METHOD Int64_tohex(lua_State* L) {
-    /* Returns a hexadecimal string of the <<lua_class_Int64,`Int64`>> value.
-       @since 1.11.3
-     */
+    /* Returns a hexadecimal string of the <<lua_class_Int64,`Int64`>> value. */
 #define WSLUA_OPTARG_Int64_tohex_NUMBYTES 2 /* The number of hex chars/nibbles to generate.
                                              A negative value generates uppercase. Default is 16. */
     int64_t b = getInt64(L,1);
@@ -321,7 +303,6 @@ WSLUA_METHOD Int64_tohex(lua_State* L) {
 WSLUA_METHOD Int64_higher(lua_State* L) {
     /* Returns a Lua number of the higher 32 bits of the <<lua_class_Int64,`Int64`>> value. A negative <<lua_class_Int64,`Int64`>>
        will return a negative Lua number.
-       @since 1.11.3
      */
     int64_t num = getInt64(L,1);
     int64_t b = num;
@@ -336,9 +317,7 @@ WSLUA_METHOD Int64_higher(lua_State* L) {
 }
 
 WSLUA_METHOD Int64_lower(lua_State* L) {
-    /* Returns a Lua number of the lower 32 bits of the <<lua_class_Int64,`Int64`>> value. This will always be positive.
-       @since 1.11.3
-     */
+    /* Returns a Lua number of the lower 32 bits of the <<lua_class_Int64,`Int64`>> value. This will always be positive. */
     int64_t b = getInt64(L,1);
     if (b < 0) b = -b; /* masking/shifting negative int64 isn't working on some platforms */
     lua_pushnumber(L,(uint32_t)(b & UINT64_C(0x00000000FFFFFFFFF)));
@@ -357,9 +336,7 @@ WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Int64__unm(lua_State* L) {
-    /* Returns the negative of the <<lua_class_Int64,`Int64`>> as a new <<lua_class_Int64,`Int64`>>.
-       @since 1.11.3
-     */
+    /* Returns the negative of the <<lua_class_Int64,`Int64`>> as a new <<lua_class_Int64,`Int64`>>. */
     pushInt64(L,-(getInt64(L,1)));
     WSLUA_RETURN(1); /* The new <<lua_class_Int64,`Int64`>>. */
 }
@@ -372,30 +349,23 @@ WSLUA_METAMETHOD Int64__unm(lua_State* L) {
     return 1
 
 WSLUA_METAMETHOD Int64__add(lua_State* L) {
-    /* Adds two <<lua_class_Int64,`Int64`>> together and returns a new one. The value may wrapped.
-       @since 1.11.3
-     */
+    /* Adds two <<lua_class_Int64,`Int64`>> together and returns a new one. The value may wrapped. */
     WSLUA_MATH_OP_FUNC(Int64,+);
 }
 
 WSLUA_METAMETHOD Int64__sub(lua_State* L) {
-    /* Subtracts two <<lua_class_Int64,`Int64`>> and returns a new one. The value may wrapped.
-       @since 1.11.3
-     */
+    /* Subtracts two <<lua_class_Int64,`Int64`>> and returns a new one. The value may wrapped. */
     WSLUA_MATH_OP_FUNC(Int64,-);
 }
 
 WSLUA_METAMETHOD Int64__mul(lua_State* L) {
-    /* Multiplies two <<lua_class_Int64,`Int64`>> and returns a new one. The value may truncated.
-       @since 1.11.3
-     */
+    /* Multiplies two <<lua_class_Int64,`Int64`>> and returns a new one. The value may truncated. */
     WSLUA_MATH_OP_FUNC(Int64,*);
 }
 
 WSLUA_METAMETHOD Int64__div(lua_State* L) {
     /* Divides two <<lua_class_Int64,`Int64`>> and returns a new one. Integer divide, no remainder.
        Trying to divide by zero results in a Lua error.
-       @since 1.11.3
      */
     Int64 num1 = getInt64(L,1);
     Int64 num2 = getInt64(L,2);
@@ -409,7 +379,6 @@ WSLUA_METAMETHOD Int64__div(lua_State* L) {
 WSLUA_METAMETHOD Int64__mod(lua_State* L) {
     /* Divides two <<lua_class_Int64,`Int64`>> and returns a new one of the remainder.
        Trying to modulo by zero results in a Lua error.
-       @since 1.11.3
      */
     Int64 num1 = getInt64(L,1);
     Int64 num2 = getInt64(L,2);
@@ -423,7 +392,6 @@ WSLUA_METAMETHOD Int64__mod(lua_State* L) {
 WSLUA_METAMETHOD Int64__pow(lua_State* L) {
     /* The first <<lua_class_Int64,`Int64`>> is taken to the power of the second <<lua_class_Int64,`Int64`>>, returning a new
        one. This may truncate the value.
-       @since 1.11.3
      */
     int64_t num1 = getInt64(L,1);
     int64_t num2 = getInt64(L,2);
@@ -448,30 +416,22 @@ WSLUA_METAMETHOD Int64__pow(lua_State* L) {
     return 1
 
 WSLUA_METAMETHOD Int64__eq(lua_State* L) {
-    /* Returns `true` if both <<lua_class_Int64,`Int64`>> are equal.
-       @since 1.11.3
-     */
+    /* Returns `true` if both <<lua_class_Int64,`Int64`>> are equal. */
     WSLUA_COMP_OP_FUNC(Int64,==);
 }
 
 WSLUA_METAMETHOD Int64__lt(lua_State* L) {
-    /* Returns `true` if first <<lua_class_Int64,`Int64`>> is less than the second.
-       @since 1.11.3
-     */
+    /* Returns `true` if first <<lua_class_Int64,`Int64`>> is less than the second. */
     WSLUA_COMP_OP_FUNC(Int64,<);
 }
 
 WSLUA_METAMETHOD Int64__le(lua_State* L) {
-    /* Returns `true` if the first <<lua_class_Int64,`Int64`>> is less than or equal to the second.
-       @since 1.11.3
-     */
+    /* Returns `true` if the first <<lua_class_Int64,`Int64`>> is less than or equal to the second. */
     WSLUA_COMP_OP_FUNC(Int64,<=);
 }
 
 WSLUA_METHOD Int64_bnot(lua_State* L) {
-    /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise 'not' operation.
-       @since 1.11.3
-     */
+    /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise 'not' operation. */
     pushInt64(L,~(getInt64(L,1)));
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
@@ -488,7 +448,6 @@ WSLUA_METHOD Int64_bnot(lua_State* L) {
 WSLUA_METHOD Int64_band(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise 'and' operation with the given number/`Int64`/`UInt64`.
        Note that multiple arguments are allowed.
-       @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(Int64,&=);
 }
@@ -496,7 +455,6 @@ WSLUA_METHOD Int64_band(lua_State* L) {
 WSLUA_METHOD Int64_bor(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise 'or' operation, with the given number/`Int64`/`UInt64`.
        Note that multiple arguments are allowed.
-       @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(Int64,|=);
 }
@@ -504,7 +462,6 @@ WSLUA_METHOD Int64_bor(lua_State* L) {
 WSLUA_METHOD Int64_bxor(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise 'xor' operation, with the given number/`Int64`/`UInt64`.
        Note that multiple arguments are allowed.
-       @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(Int64,^=);
 }
@@ -512,7 +469,6 @@ WSLUA_METHOD Int64_bxor(lua_State* L) {
 WSLUA_METHOD Int64_lshift(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise logical left-shift operation, by the given
        number of bits.
-       @since 1.11.3
      */
 #define WSLUA_ARG_Int64_lshift_NUMBITS 2 /* The number of bits to left-shift by. */
     uint64_t b = (uint64_t) getInt64(L,1);
@@ -524,7 +480,6 @@ WSLUA_METHOD Int64_lshift(lua_State* L) {
 WSLUA_METHOD Int64_rshift(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise logical right-shift operation, by the
        given number of bits.
-       @since 1.11.3
      */
 #define WSLUA_ARG_Int64_rshift_NUMBITS 2 /* The number of bits to right-shift by. */
     uint64_t b = (uint64_t) getInt64(L,1);
@@ -536,7 +491,6 @@ WSLUA_METHOD Int64_rshift(lua_State* L) {
 WSLUA_METHOD Int64_arshift(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise arithmetic right-shift operation, by the
        given number of bits.
-       @since 1.11.3
      */
 #define WSLUA_ARG_Int64_arshift_NUMBITS 2 /* The number of bits to right-shift by. */
     int64_t b = getInt64(L,1);
@@ -548,7 +502,6 @@ WSLUA_METHOD Int64_arshift(lua_State* L) {
 WSLUA_METHOD Int64_rol(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise left rotation operation, by the given number of
        bits (up to 63).
-       @since 1.11.3
      */
 #define WSLUA_ARG_Int64_rol_NUMBITS 2 /* The number of bits to roll left by. */
     uint64_t b = (uint64_t) getInt64(L,1);
@@ -560,7 +513,6 @@ WSLUA_METHOD Int64_rol(lua_State* L) {
 WSLUA_METHOD Int64_ror(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bitwise right rotation operation, by the given number of
        bits (up to 63).
-       @since 1.11.3
      */
 #define WSLUA_ARG_Int64_ror_NUMBITS 2 /* The number of bits to roll right by. */
     uint64_t b = (uint64_t) getInt64(L,1);
@@ -572,7 +524,6 @@ WSLUA_METHOD Int64_ror(lua_State* L) {
 WSLUA_METHOD Int64_bswap(lua_State* L) {
     /* Returns a <<lua_class_Int64,`Int64`>> of the bytes swapped. This can be used to convert little-endian
        64-bit numbers to big-endian 64 bit numbers or vice versa.
-       @since 1.11.3
      */
     uint64_t b = (uint64_t) getInt64(L,1);
     uint64_t result = 0;
@@ -690,9 +641,7 @@ void UInt64_pack(lua_State* L, luaL_Buffer *b, int idx, bool asLittleEndian) {
 }
 
 WSLUA_METHOD UInt64_encode(lua_State* L) {
-    /* Encodes the <<lua_class_UInt64,`UInt64`>> number into an 8-byte Lua binary string, using given endianness.
-       @since 1.11.3
-     */
+    /* Encodes the <<lua_class_UInt64,`UInt64`>> number into an 8-byte Lua binary string, using given endianness. */
 #define WSLUA_OPTARG_UInt64_encode_ENDIAN 2 /* If set to true then little-endian is used,
                                                if false then big-endian; if missing or `nil`,
                                                native host endian. */
@@ -735,9 +684,7 @@ int UInt64_unpack(lua_State* L, const char *buff, bool asLittleEndian) {
 }
 
 WSLUA_CONSTRUCTOR UInt64_decode(lua_State* L) {
-    /* Decodes an 8-byte Lua binary string, using given endianness, into a new <<lua_class_UInt64,`UInt64`>> object.
-       @since 1.11.3
-     */
+    /* Decodes an 8-byte Lua binary string, using given endianness, into a new <<lua_class_UInt64,`UInt64`>> object. */
 #define WSLUA_ARG_UInt64_decode_STRING 1 /* The Lua string containing a binary 64-bit integer. */
 #define WSLUA_OPTARG_UInt64_decode_ENDIAN 2 /* If set to true then little-endian is used,
                                                if false then big-endian; if missing or `nil`,
@@ -761,9 +708,7 @@ WSLUA_CONSTRUCTOR UInt64_decode(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) {
-    /* Creates a <<lua_class_UInt64,`UInt64`>> Object.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_UInt64,`UInt64`>> object. */
 #define WSLUA_OPTARG_UInt64_new_VALUE 1 /* A number, <<lua_class_UInt64,`UInt64`>>, <<lua_class_Int64,`Int64`>>, or string of digits
                                            to assign the value of the new <<lua_class_UInt64,`UInt64`>>. Default is 0. */
 #define WSLUA_OPTARG_UInt64_new_HIGHVALUE 2 /* If this is a number and the first argument was
@@ -800,33 +745,25 @@ WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) {
 }
 
 WSLUA_METAMETHOD UInt64__call(lua_State* L) {
-    /* Creates a <<lua_class_UInt64,`UInt64`>> object.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_UInt64,`UInt64`>> object. */
     lua_remove(L,1); /* remove the table */
     WSLUA_RETURN(UInt64_new(L)); /* The new <<lua_class_UInt64,`UInt64`>> object. */
 }
 
 WSLUA_CONSTRUCTOR UInt64_max(lua_State* L) {
-    /* Creates a <<lua_class_UInt64,`UInt64`>> of the maximum possible value. In other words, this should return an UInt64 object of the number 18,446,744,073,709,551,615.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_UInt64,`UInt64`>> of the maximum possible value. In other words, this should return an UInt64 object of the number 18,446,744,073,709,551,615. */
     pushUInt64(L,UINT64_MAX);
     WSLUA_RETURN(1); /* The maximum value. */
 }
 
 WSLUA_CONSTRUCTOR UInt64_min(lua_State* L) {
-    /* Creates a <<lua_class_UInt64,`UInt64`>> of the minimum possible value. In other words, this should return an UInt64 object of the number 0.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_UInt64,`UInt64`>> of the minimum possible value. In other words, this should return an UInt64 object of the number 0. */
     pushUInt64(L,0);
     WSLUA_RETURN(1); /* The minimum value. */
 }
 
 WSLUA_METHOD UInt64_tonumber(lua_State* L) {
-    /* Returns a Lua number of the <<lua_class_UInt64,`UInt64`>> value. This may lose precision.
-       @since 1.11.3
-     */
+    /* Returns a Lua number of the <<lua_class_UInt64,`UInt64`>> value. This may lose precision. */
     lua_pushnumber(L,(lua_Number)(checkUInt64(L,1)));
     WSLUA_RETURN(1); /* The Lua number. */
 }
@@ -843,9 +780,7 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
-    /* Creates a <<lua_class_UInt64,`UInt64`>> object from the given hex string.
-       @since 1.11.3
-     */
+    /* Creates a <<lua_class_UInt64,`UInt64`>> object from the given hex string. */
 #define WSLUA_ARG_UInt64_fromhex_HEX 1 /* The hex-ASCII Lua string. */
     uint64_t result = 0;
     size_t len = 0;
@@ -861,9 +796,7 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
 }
 
 WSLUA_METHOD UInt64_tohex(lua_State* L) {
-    /* Returns a hex string of the <<lua_class_UInt64,`UInt64`>> value.
-       @since 1.11.3
-     */
+    /* Returns a hex string of the <<lua_class_UInt64,`UInt64`>> value. */
 #define WSLUA_OPTARG_UInt64_tohex_NUMBYTES 2 /* The number of hex-chars/nibbles to generate.
                                               Negative means uppercase Default is 16. */
     uint64_t b = getUInt64(L,1);
@@ -898,38 +831,29 @@ WSLUA_METHOD UInt64_lower(lua_State* L) {
 }
 
 WSLUA_METAMETHOD UInt64__unm(lua_State* L) {
-    /* Returns the <<lua_class_UInt64,`UInt64`>> in a new <<lua_class_UInt64,`UInt64`>>, since unsigned integers can't be negated.
-       @since 1.11.3
-     */
+    /* Returns the <<lua_class_UInt64,`UInt64`>> in a new <<lua_class_UInt64,`UInt64`>>, since unsigned integers can't be negated. */
     pushUInt64(L,getUInt64(L,1));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
 
 WSLUA_METAMETHOD UInt64__add(lua_State* L) {
-    /* Adds two <<lua_class_UInt64,`UInt64`>> together and returns a new one. This may wrap the value.
-       @since 1.11.3
-     */
+    /* Adds two <<lua_class_UInt64,`UInt64`>> together and returns a new one. This may wrap the value. */
     WSLUA_MATH_OP_FUNC(UInt64,+);
 }
 
 WSLUA_METAMETHOD UInt64__sub(lua_State* L) {
-    /* Subtracts two <<lua_class_UInt64,`UInt64`>> and returns a new one. This may wrap the value.
-       @since 1.11.3
-     */
+    /* Subtracts two <<lua_class_UInt64,`UInt64`>> and returns a new one. This may wrap the value. */
     WSLUA_MATH_OP_FUNC(UInt64,-);
 }
 
 WSLUA_METAMETHOD UInt64__mul(lua_State* L) {
-    /* Multiplies two <<lua_class_UInt64,`UInt64`>> and returns a new one. This may truncate the value.
-       @since 1.11.3
-     */
+    /* Multiplies two <<lua_class_UInt64,`UInt64`>> and returns a new one. This may truncate the value. */
     WSLUA_MATH_OP_FUNC(UInt64,*);
 }
 
 WSLUA_METAMETHOD UInt64__div(lua_State* L) {
     /* Divides two <<lua_class_UInt64,`UInt64`>> and returns a new one. Integer divide, no remainder.
        Trying to divide by zero results in a Lua error.
-       @since 1.11.3
      */
     UInt64 num1 = getUInt64(L,1);
     UInt64 num2 = getUInt64(L,2);
@@ -943,7 +867,6 @@ WSLUA_METAMETHOD UInt64__div(lua_State* L) {
 WSLUA_METAMETHOD UInt64__mod(lua_State* L) {
     /* Divides two <<lua_class_UInt64,`UInt64`>> and returns a new one of the remainder.
        Trying to modulo by zero results in a Lua error.
-       @since 1.11.3
      */
     UInt64 num1 = getUInt64(L,1);
     UInt64 num2 = getUInt64(L,2);
@@ -957,7 +880,6 @@ WSLUA_METAMETHOD UInt64__mod(lua_State* L) {
 WSLUA_METAMETHOD UInt64__pow(lua_State* L) {
     /* The first <<lua_class_UInt64,`UInt64`>> is taken to the power of the second <<lua_class_UInt64,`UInt64`>>/number,
        returning a new one. This may truncate the value.
-       @since 1.11.3
      */
     uint64_t num1 = getUInt64(L,1);
     uint64_t num2 = getUInt64(L,2);
@@ -976,30 +898,22 @@ WSLUA_METAMETHOD UInt64__pow(lua_State* L) {
 }
 
 WSLUA_METAMETHOD UInt64__eq(lua_State* L) {
-    /* Returns true if both <<lua_class_UInt64,`UInt64`>> are equal.
-       @since 1.11.3
-     */
+    /* Returns true if both <<lua_class_UInt64,`UInt64`>> are equal. */
     WSLUA_COMP_OP_FUNC(UInt64,==);
 }
 
 WSLUA_METAMETHOD UInt64__lt(lua_State* L) {
-    /* Returns true if first <<lua_class_UInt64,`UInt64`>> is less than the second.
-       @since 1.11.3
-     */
+    /* Returns true if first <<lua_class_UInt64,`UInt64`>> is less than the second. */
     WSLUA_COMP_OP_FUNC(UInt64,<);
 }
 
 WSLUA_METAMETHOD UInt64__le(lua_State* L) {
-    /* Returns true if first <<lua_class_UInt64,`UInt64`>> is less than or equal to the second.
-       @since 1.11.3
-     */
+    /* Returns true if first <<lua_class_UInt64,`UInt64`>> is less than or equal to the second. */
     WSLUA_COMP_OP_FUNC(UInt64,<=);
 }
 
 WSLUA_METHOD UInt64_bnot(lua_State* L) {
-    /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise 'not' operation.
-       @since 1.11.3
-     */
+    /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise 'not' operation. */
     pushUInt64(L,~(getUInt64(L,1)));
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
@@ -1007,7 +921,6 @@ WSLUA_METHOD UInt64_bnot(lua_State* L) {
 WSLUA_METHOD UInt64_band(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise 'and' operation, with the given number/`Int64`/`UInt64`.
        Note that multiple arguments are allowed.
-       @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(UInt64,&=);
 }
@@ -1015,7 +928,6 @@ WSLUA_METHOD UInt64_band(lua_State* L) {
 WSLUA_METHOD UInt64_bor(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise 'or' operation, with the given number/`Int64`/`UInt64`.
        Note that multiple arguments are allowed.
-       @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(UInt64,|=);
 }
@@ -1023,7 +935,6 @@ WSLUA_METHOD UInt64_bor(lua_State* L) {
 WSLUA_METHOD UInt64_bxor(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise 'xor' operation, with the given number/`Int64`/`UInt64`.
        Note that multiple arguments are allowed.
-       @since 1.11.3
      */
     WSLUA_BIT_OP_FUNC(UInt64,^=);
 }
@@ -1031,7 +942,6 @@ WSLUA_METHOD UInt64_bxor(lua_State* L) {
 WSLUA_METHOD UInt64_lshift(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise logical left-shift operation, by the
        given number of bits.
-       @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_lshift_NUMBITS 2 /* The number of bits to left-shift by. */
     uint64_t b = getUInt64(L,1);
@@ -1043,7 +953,6 @@ WSLUA_METHOD UInt64_lshift(lua_State* L) {
 WSLUA_METHOD UInt64_rshift(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise logical right-shift operation, by the
        given number of bits.
-       @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_rshift_NUMBITS 2 /* The number of bits to right-shift by. */
     uint64_t b = getUInt64(L,1);
@@ -1055,7 +964,6 @@ WSLUA_METHOD UInt64_rshift(lua_State* L) {
 WSLUA_METHOD UInt64_arshift(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise arithmetic right-shift operation, by the
        given number of bits.
-       @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_arshift_NUMBITS 2 /* The number of bits to right-shift by. */
     uint64_t b = getUInt64(L,1);
@@ -1067,7 +975,6 @@ WSLUA_METHOD UInt64_arshift(lua_State* L) {
 WSLUA_METHOD UInt64_rol(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise left rotation operation, by the
        given number of bits (up to 63).
-       @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_rol_NUMBITS 2 /* The number of bits to roll left by. */
     uint64_t b = getUInt64(L,1);
@@ -1079,7 +986,6 @@ WSLUA_METHOD UInt64_rol(lua_State* L) {
 WSLUA_METHOD UInt64_ror(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bitwise right rotation operation, by the
        given number of bits (up to 63).
-       @since 1.11.3
      */
 #define WSLUA_ARG_UInt64_ror_NUMBITS 2 /* The number of bits to roll right by. */
     uint64_t b = getUInt64(L,1);
@@ -1091,7 +997,6 @@ WSLUA_METHOD UInt64_ror(lua_State* L) {
 WSLUA_METHOD UInt64_bswap(lua_State* L) {
     /* Returns a <<lua_class_UInt64,`UInt64`>> of the bytes swapped. This can be used to convert little-endian
        64-bit numbers to big-endian 64 bit numbers or vice versa.
-       @since 1.11.3
      */
     uint64_t b = getUInt64(L,1);
     uint64_t result = 0;

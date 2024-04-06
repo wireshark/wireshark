@@ -37,8 +37,6 @@ WSLUA_CLASS_DEFINE(FrameInfo,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
     whereas when the Lua plugin's `FileHandler.write()` function is invoked, the
     `FrameInfo` object passed in should have its fields read-from/get, to write that
     frame information to the file.
-
-    @since 1.11.3
  */
 
 FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec, Buffer* buf) {
@@ -321,8 +319,6 @@ WSLUA_CLASS_DEFINE(FrameInfoConst,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
     A constant FrameInfo object, passed into Lua as an argument by the FileHandler write
     callback function.  This has similar attributes/properties as FrameInfo, but the fields can
     only be read from, not written to.
-
-    @since 1.11.3
  */
 
 FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const uint8_t *pd) {

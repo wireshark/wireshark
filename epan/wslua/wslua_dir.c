@@ -29,8 +29,6 @@ WSLUA_CONSTRUCTOR Dir_make(lua_State* L) {
        If the directory was created successfully, a boolean `true` is returned.
        If the directory cannot be made because it already exists, `false` is returned.
        If the directory cannot be made because an error occurred, `nil` is returned.
-
-       @since 1.11.3
     */
 #define WSLUA_ARG_Dir_make_NAME 1 /* The name of the directory, possibly including path. */
 
@@ -58,8 +56,6 @@ WSLUA_CONSTRUCTOR Dir_exists(lua_State* L) {
        If the directory exists, a boolean `true` is returned.
        If the path is a file instead, `false` is returned.
        If the path does not exist or an error occurred, `nil` is returned.
-
-       @since 1.11.3
     */
 #define WSLUA_ARG_Dir_exists_NAME 1 /* The name of the directory, possibly including path. */
 
@@ -88,8 +84,6 @@ WSLUA_CONSTRUCTOR Dir_remove(lua_State* L) {
 
        This function only removes empty directories. To remove a directory regardless,
        use `Dir.remove_all()`.
-
-       @since 1.11.3
     */
 #define WSLUA_ARG_Dir_remove_NAME 1 /* The name of the directory, possibly including path. */
 
@@ -148,8 +142,6 @@ WSLUA_CONSTRUCTOR Dir_remove_all(lua_State* L) {
        If the directory was removed successfully, a boolean `true` is returned.
        If the directory cannot be removed because it does not exist, `false` is returned.
        If the directory cannot be removed because an error occurred, `nil` is returned.
-
-       @since 1.11.3
     */
 #define WSLUA_ARG_Dir_remove_all_NAME 1 /* The name of the directory, possibly including path. */
 
@@ -285,10 +277,7 @@ WSLUA_METHOD Dir_close(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Dir_personal_config_path(lua_State* L) {
-    /* Gets the https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration] directory path, with filename if supplied.
-
-       @since 1.11.3
-    */
+    /* Gets the https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration] directory path, with filename if supplied. */
 #define WSLUA_OPTARG_Dir_personal_config_path_FILENAME 1 /* A filename. */
     const char *fname = luaL_optstring(L, WSLUA_OPTARG_Dir_personal_config_path_FILENAME,"");
     char* filename = get_persconffile_path(fname,false);
@@ -299,10 +288,7 @@ WSLUA_CONSTRUCTOR Dir_personal_config_path(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
-    /* Gets the https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration] directory path, with filename if supplied.
-
-       @since 1.11.3
-    */
+    /* Gets the https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[global configuration] directory path, with filename if supplied. */
 #define WSLUA_OPTARG_Dir_global_config_path_FILENAME 1 /* A filename */
     const char *fname = luaL_optstring(L, WSLUA_OPTARG_Dir_global_config_path_FILENAME,"");
     char* filename;
@@ -314,19 +300,13 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Dir_personal_plugins_path(lua_State* L) {
-    /* Gets the personal plugins directory path.
-
-       @since 1.11.3
-    */
+    /* Gets the personal plugins directory path. */
     lua_pushstring(L, get_plugins_pers_dir());
     WSLUA_RETURN(1); /* The pathname of the https://www.wireshark.org/docs/wsug_html_chunked/ChPluginFolders.html[personal plugins] directory. */
 }
 
 WSLUA_CONSTRUCTOR Dir_global_plugins_path(lua_State* L) {
-    /* Gets the global plugins directory path.
-
-       @since 1.11.3
-    */
+    /* Gets the global plugins directory path. */
     lua_pushstring(L, get_plugins_dir());
     WSLUA_RETURN(1); /* The pathname of the https://www.wireshark.org/docs/wsug_html_chunked/ChPluginFolders.html[global plugins] directory. */
 }

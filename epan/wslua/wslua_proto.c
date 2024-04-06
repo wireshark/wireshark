@@ -222,8 +222,6 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
        it will be treated the same as a `false` return for the heuristic; if a positive or negative
        number is returned, then the it will be treated the same as a `true` return for the heuristic,
        meaning the packet is for this protocol and no other heuristic will be tried.
-
-       @since 1.11.3
      */
 #define WSLUA_ARG_Proto_register_heuristic_LISTNAME 2 /* The heuristic list name this function
                                                          is a heuristic for (e.g., "udp" or
@@ -489,10 +487,7 @@ static int Proto_set_fields(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Proto_experts RW The expert info Lua table of this `Proto`.
-
-   @since 1.11.3
- */
+/* WSLUA_ATTRIBUTE Proto_experts RW The expert info Lua table of this `Proto`. */
 static int Proto_get_experts(lua_State* L) {
     Proto proto = checkProto(L,1);
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
@@ -908,8 +903,6 @@ WSLUA_FUNCTION wslua_dissect_tcp_pdus(lua_State* L) {
        their protocol's messages (i.e., their protocol data unit (PDU)). This
        function shouild not be used for protocols whose PDU length cannot be
        determined from a fixed minimum portion, such as HTTP or Telnet.
-
-       @since 1.99.2
      */
 #define WSLUA_ARG_dissect_tcp_pdus_TVB 1 /* The Tvb buffer to dissect PDUs from. */
 #define WSLUA_ARG_dissect_tcp_pdus_TREE 2 /* The Tvb buffer to dissect PDUs from. */

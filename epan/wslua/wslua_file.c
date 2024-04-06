@@ -25,8 +25,6 @@
 
    The classes/functions defined in this section allow you to create your own
    custom Lua-based "capture" file reader, or writer, or both.
-
-   @since 1.11.3
  */
 
 
@@ -77,8 +75,6 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"));
         return false
     end
     ----
-
-   @since 1.11.3
  */
 
 

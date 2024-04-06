@@ -27,8 +27,6 @@ WSLUA_CLASS_DEFINE(FileHandler,NOP);
     A FileHandler object, created by a call to FileHandler.new(arg1, arg2, ...).
     The FileHandler object lets you create a file-format reader, or writer, or
     both, by setting your own read_open/read or write_open/write functions.
-
-    @since 1.11.3
  */
 
 static int filehandler_cb_error_handler(lua_State* L) {

@@ -33,8 +33,6 @@ WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_OR_EXPIRED("CaptureInfo"));
     In other words, when the Lua plugin's `FileHandler.read_open()` function is invoked, a
     `CaptureInfo` object will be passed in as one of the arguments, and its fields
     should be written to by your Lua code to tell Wireshark about the capture.
-
-    @since 1.11.3
  */
 
 CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const bool first_time) {
@@ -309,8 +307,6 @@ WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_OR_EXPIRED("CaptureInfoConst"))
     In other words, when the Lua plugin's FileHandler `write_open` function is invoked, a
     `CaptureInfoConst` object will be passed in as one of the arguments, and its fields
     should be read from by your Lua code to get data about the capture that needs to be written.
-
-    @since 1.11.3
  */
 
 CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {

@@ -105,10 +105,7 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
 }
 
 WSLUA_METAMETHOD ByteArray__eq(lua_State* L) {
-    /* Compares two ByteArray values.
-
-       @since 1.11.4
-     */
+    /* Compares two ByteArray values. */
 #define WSLUA_ARG_ByteArray__eq_FIRST 1 /* First array. */
 #define WSLUA_ARG_ByteArray__eq_SECOND 2 /* Second array. */
     ByteArray ba1 = checkByteArray(L,WSLUA_ARG_ByteArray__eq_FIRST);
@@ -222,7 +219,7 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
 WSLUA_METHOD ByteArray_le_int(lua_State* L) {
     /* Read a little endian encoded signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_le_int_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_le_int_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -263,7 +260,7 @@ WSLUA_METHOD ByteArray_le_int(lua_State* L) {
 WSLUA_METHOD ByteArray_le_int64(lua_State* L) {
     /* Read a little endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_le_int64_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_le_int64_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -304,7 +301,7 @@ WSLUA_METHOD ByteArray_le_int64(lua_State* L) {
 WSLUA_METHOD ByteArray_le_uint(lua_State* L) {
     /* Read a little endian encoded unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_le_uint_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_le_uint_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -345,7 +342,7 @@ WSLUA_METHOD ByteArray_le_uint(lua_State* L) {
 WSLUA_METHOD ByteArray_le_uint64(lua_State* L) {
     /* Read a little endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_le_uint64_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_le_uint64_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -386,7 +383,7 @@ WSLUA_METHOD ByteArray_le_uint64(lua_State* L) {
 WSLUA_METHOD ByteArray_int(lua_State* L) {
     /* Read a big endian encoded signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_int_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_int_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -427,7 +424,7 @@ WSLUA_METHOD ByteArray_int(lua_State* L) {
 WSLUA_METHOD ByteArray_int64(lua_State* L) {
     /* Read a big endian encoded 64 bit signed integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_int64_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_int64_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -468,7 +465,7 @@ WSLUA_METHOD ByteArray_int64(lua_State* L) {
 WSLUA_METHOD ByteArray_uint(lua_State* L) {
     /* Read a big endian encoded unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_uint_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_uint_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -509,7 +506,7 @@ WSLUA_METHOD ByteArray_uint(lua_State* L) {
 WSLUA_METHOD ByteArray_uint64(lua_State* L) {
     /* Read a big endian encoded 64 bit unsigned integer in a <<lua_class_ByteArray,`ByteArray`>> beginning at given offset with given length.
 
-    @since 4.1.0
+       @since 4.2.0
     */
 #define WSLUA_OPTARG_ByteArray_uint64_OFFSET 2 /* The position of the first byte. Default is 0, or the first byte. */
 #define WSLUA_OPTARG_ByteArray_uint64_LENGTH 3 /* The length of the integer. Default is -1, or the remaining bytes in the <<lua_class_ByteArray,`ByteArray`>>. */
@@ -579,10 +576,7 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
-    /* Obtain a Base64 decoded <<lua_class_ByteArray,`ByteArray`>>.
-
-       @since 1.11.3
-     */
+    /* Obtain a Base64 decoded <<lua_class_ByteArray,`ByteArray`>>. */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
     char *data;
@@ -611,10 +605,7 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a <<lua_class_ByteArray,`ByteArray`>>.
-
-       @since 1.11.3
-     */
+    /* Obtain a Lua string of the binary bytes in a <<lua_class_ByteArray,`ByteArray`>>. */
 #define WSLUA_OPTARG_ByteArray_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_ByteArray_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     ByteArray ba = checkByteArray(L,1);
@@ -637,10 +628,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_tohex(lua_State* L) {
-    /* Obtain a Lua string of the bytes in a <<lua_class_ByteArray,`ByteArray`>> as hex-ascii, with given separator
-
-       @since 1.11.3
-     */
+    /* Obtain a Lua string of the bytes in a <<lua_class_ByteArray,`ByteArray`>> as hex-ascii, with given separator. */
 #define WSLUA_OPTARG_ByteArray_tohex_LOWERCASE 2 /* True to use lower-case hex characters (default=false). */
 #define WSLUA_OPTARG_ByteArray_tohex_SEPARATOR 3 /* A string separator to insert between hex bytes (default=nil). */
     ByteArray ba = checkByteArray(L,1);

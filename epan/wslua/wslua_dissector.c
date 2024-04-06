@@ -62,8 +62,6 @@ WSLUA_CONSTRUCTOR Dissector_list (lua_State *L) {
     /* Gets a Lua array table of all registered Dissector names.
 
        Note: This is an expensive operation, and should only be used for troubleshooting.
-
-       @since 1.11.3
      */
     GList* list = get_dissector_names();
     GList* elist = NULL;
@@ -291,8 +289,6 @@ WSLUA_CONSTRUCTOR DissectorTable_list (lua_State *L) {
        use for the first argument to DissectorTable.get().
 
        Note: This is an expensive operation, and should only be used for troubleshooting.
-
-       @since 1.11.3
      */
     dissector_tables_foreach_table_info_t data = { 1, L };
 
@@ -319,8 +315,6 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_list (lua_State *L) {
        use for the first argument in Proto:register_heuristic().
 
        Note: This is an expensive operation, and should only be used for troubleshooting.
-
-       @since 1.11.3
      */
     dissector_tables_foreach_table_info_t data = { 1, L };
 
@@ -461,11 +455,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
 }
 
 WSLUA_METHOD DissectorTable_set (lua_State *L) {
-    /*
-     Clear all existing dissectors from a table and add a new dissector or a range of new dissectors.
-
-     @since 1.11.3
-     */
+    /* Clear all existing dissectors from a table and add a new dissector or a range of new dissectors. */
 #define WSLUA_ARG_DissectorTable_set_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
 #define WSLUA_ARG_DissectorTable_set_DISSECTOR 3 /* The dissector to add (either a <<lua_class_Proto,`Proto`>> or a <<lua_class_Dissector,`Dissector`>>). */
 
@@ -600,11 +590,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
 }
 
 WSLUA_METHOD DissectorTable_remove_all (lua_State *L) {
-    /*
-     Remove all dissectors from a table.
-
-     @since 1.11.3
-     */
+    /* Remove all dissectors from a table. */
 #define WSLUA_ARG_DissectorTable_remove_all_DISSECTOR 2 /* The dissector to remove (either a <<lua_class_Proto,`Proto`>> or a <<lua_class_Dissector,`Dissector`>>). */
     DissectorTable dt = checkDissectorTable(L,1);
     Dissector handle;
@@ -740,8 +726,6 @@ WSLUA_METHOD DissectorTable_add_for_decode_as (lua_State *L) {
     /*
      Add the given <<lua_class_Proto,`Proto`>> to the “Decode as...” list for this DissectorTable.
      The passed-in <<lua_class_Proto,`Proto`>> object's `dissector()` function is used for dissecting.
-
-     @since 1.99.1
      */
 #define WSLUA_ARG_DissectorTable_add_for_decode_as_PROTO 2 /* The <<lua_class_Proto,`Proto`>> to add. */
     DissectorTable dt = checkDissectorTable(L,1);

@@ -1439,10 +1439,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* WSLUA_OPTARG_ProtoField_oid_DESCRIPTION Description of the field. */
 /* _WSLUA_RETURNS_ A <<lua_class_ProtoField,`ProtoField`>> object to be added to a table set to the <<lua_class_attrib_proto_fields,`Proto.fields`>> attribute. */
 
-/* _WSLUA_CONSTRUCTOR_ ProtoField_protocol Creates a <<lua_class_ProtoField,`ProtoField`>> for a sub-protocol.
-
-    @since 1.99.9
-*/
+/* _WSLUA_CONSTRUCTOR_ ProtoField_protocol Creates a <<lua_class_ProtoField,`ProtoField`>> for a sub-protocol. */
 /* WSLUA_ARG_ProtoField_protocol_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_protocol_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_ProtoField_protocol_DESCRIPTION Description of the field. */

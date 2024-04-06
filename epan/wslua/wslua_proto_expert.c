@@ -24,16 +24,10 @@
 
 
 WSLUA_CLASS_DEFINE(ProtoExpert,FAIL_ON_NULL("null ProtoExpert"));
-    /* A Protocol expert info field, to be used when adding items to the dissection tree.
-
-       @since 1.11.3
-     */
+    /* A Protocol expert info field, to be used when adding items to the dissection tree. */
 
 WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
-    /* Creates a new `ProtoExpert` object to be used for a protocol's expert information notices.
-
-       @since 1.11.3
-     */
+    /* Creates a new `ProtoExpert` object to be used for a protocol's expert information notices. */
 #define WSLUA_ARG_ProtoExpert_new_ABBR 1 /* Filter name of the expert info field (the string that
                                             is used in filters). */
 #define WSLUA_ARG_ProtoExpert_new_TEXT 2 /* The default text of the expert field. */
@@ -138,10 +132,7 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
 }
 
 WSLUA_METAMETHOD ProtoExpert__tostring(lua_State* L) {
-    /* Returns a string with debugging information about a `ProtoExpert` object.
-
-       @since 1.11.3
-     */
+    /* Returns a string with debugging information about a `ProtoExpert` object. */
     ProtoExpert pe = toProtoExpert(L,1);
 
     if (!pe) {
