@@ -2022,6 +2022,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bitów/sek. B</translation>
     </message>
     <message>
+        <source>Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Total Packets</source>
         <translation>Całkowita liczba pakietów</translation>
     </message>
@@ -7964,6 +7968,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>deleted</source>
         <translation>usunięte</translation>
+    </message>
+    <message>
+        <source>Auto Switch Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>copy</source>

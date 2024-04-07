@@ -2016,6 +2016,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Bits/s B</translation>
     </message>
     <message>
+        <source>Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Total Packets</source>
         <translation>Paquets totaux</translation>
     </message>
@@ -7942,6 +7946,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>deleted</source>
         <translation>supprimé</translation>
+    </message>
+    <message>
+        <source>Auto Switch Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>copy</source>

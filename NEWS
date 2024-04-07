@@ -10,6 +10,11 @@ Wireshark 4.3.0 Release Notes
 
  What’s New
 
+  Wireshark now supports automatic profile switching. You can associate
+  a display filter with a configuration profile, and when you open a
+  capture file that matches the filter, Wireshark will automatically
+  switch to that profile.
+
   Lua 5.3 and 5.4 are supported, and the Lua version included with the
   Windows and MacOS installers is now 5.4.6.
 
@@ -223,7 +228,8 @@ Wireshark 4.3.0 Release Notes
 
    Allied Telesis Resiliency Link (AT RL), EGNOS Message Server (EMS)
    file format, MAC NR Framed (mac-nr-framed), RF4CE Network Layer
-   (RF4CE), and RF4CE Profile (RF4CE Profile)
+   (RF4CE), RF4CE Profile (RF4CE Profile), and ZeroMQ Message Transport
+   Protocol (ZMTP)
 
   Updated Protocol Support
 

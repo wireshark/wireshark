@@ -2011,6 +2011,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bit/s B </translation>
     </message>
     <message>
+        <source>Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Total Packets</source>
         <translation>Toplam Paket</translation>
     </message>
@@ -7916,6 +7920,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>deleted</source>
         <translation>silindi</translation>
+    </message>
+    <message>
+        <source>Auto Switch Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>copy</source>
