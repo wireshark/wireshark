@@ -725,6 +725,14 @@ should be stored in a 32-bit variable, such as an "int"; if you store it
 in an 8-bit or 16-bit variable, you run the risk of the variable
 overflowing.
 
+If your dissector uses recursion, you must ensure that your code does
+not do so excessively. If there isn't an inherent limit on recursion in
+your dissector, you can can add one using increment_dissection_depth and
+decrement_dissection_depth. Wireshark's CI system uses Clang-tidy to
+check for recursion; you might also need to add suppressions described at
+https://clang.llvm.org/extra/clang-tidy/#suppressing-undesired-diagnostics
+in order to pass CI checks.
+
 sprintf() -> snprintf()
 Prevent yourself from using the sprintf() function, as it does not test the
 length of the given output buffer and might be writing into unintended memory
