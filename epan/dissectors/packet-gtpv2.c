@@ -827,6 +827,8 @@ static int hf_gtpv2_additional_rrm_policy_index;
 
 static int hf_gtpv2_group_id;
 
+static int hf_gtpv2_ie_pscell_id_spare;
+static int hf_gtpv2_ie_pscell_id_nr_cgi;
 static int hf_gtpv2_ie_up_security_policy_up_ip_policy;
 static int hf_gtpv2_ie_up_security_policy_spare;
 static int hf_gtpv2_nf_instance_id_nf_instance_id;
@@ -8576,9 +8578,15 @@ dissect_gtpv2_ie_group_id(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tre
 
 /* 217 PSCell Id / 8.148 */
 static void
-dissect_gtpv2_ie_pscell_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_pscell_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+    offset += 3;
+    proto_tree_add_item(tree, hf_gtpv2_ie_pscell_id_spare, tvb, offset, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ie_pscell_id_nr_cgi, tvb, offset, 5, ENC_NA);
+
 }
 
 /* 218 UP Security Policy / 8.149 */
@@ -12646,6 +12654,16 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_ie_up_security_policy_up_ip_policy,
           { "UP IP Policy", "gtpv2.ie_up_security_policy.up_ip_policy",
           FT_UINT8, BASE_DEC, VALS(gtpv2_up_ip_policy_vals), 0x3,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ie_pscell_id_spare,
+          { "Spare", "gtpv2.pscell_id.spare",
+          FT_UINT40, BASE_DEC, NULL, 0xF000000000,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ie_pscell_id_nr_cgi,
+          { "NR CGI", "gtpv2.pscell_id.nr_cgi",
+          FT_UINT40, BASE_HEX, NULL, 0x0FFFFFFFFF,
           NULL, HFILL }
       },
       { &hf_gtpv2_ie_up_security_policy_spare,
