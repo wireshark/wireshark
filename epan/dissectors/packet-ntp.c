@@ -210,7 +210,9 @@ static const struct {
 	const char *id;
 	const char *data;
 } primary_sources[] = {
-	/* IANA / RFC 5905 */
+	/* Reference Identifier Codes
+	 *  https://www.iana.org/assignments/ntp-parameters/ntp-parameters.xhtml#ntp-parameters-1
+	 */
 	{ "GOES",	"Geostationary Orbit Environment Satellite" },
 	{ "GPS\0",	"Global Position System" },
 	{ "GAL\0",	"Galileo Positioning System" },
@@ -230,8 +232,10 @@ static const struct {
 	{ "ACTS",	"NIST telephone modem" },
 	{ "USNO",	"USNO telephone modem" },
 	{ "PTB\0",	"European telephone modem" },
+	{ "DFM\0",	"UTC(DFM)"},
 
 	/* Unofficial codes */
+	{ "LCL\0",	"uncalibrated local clock" },
 	{ "LOCL",	"uncalibrated local clock" },
 	{ "CESM",	"calibrated Cesium clock" },
 	{ "RBDM",	"calibrated Rubidium clock" },
@@ -241,6 +245,19 @@ static const struct {
 	{ "DTS\0",	"Digital Time Service" },
 	{ "ATOM",	"Atomic clock (calibrated)" },
 	{ "VLF\0",	"VLF radio (OMEGA,, etc.)" },
+	{ "DCFa",	"DCF77 with amplitude modulation" },
+	{ "DCFp",	"DCF77 with phase modulation/pseudo random phase modulation" },
+	{ "PZF\0",	"DCF77 correlation receiver for middle Europe" },
+	{ "PZFs",	"DCF77 correlation receiver (with shared memory access)" },
+	{ "PZFi",	"DCF77 correlation receiver (with interrupt based access)" },
+	{ "GPSD",	"GPSD client driver" },
+	{ "GPSs",	"GPS (with shared memory access)" },
+	{ "GPSi",	"GPS (with interrupt based access)" },
+	{ "GLNs",	"GPS/GLONASS (with shared memory access)" },
+	{ "GLNi",	"GPS/GLONASS (with interrupt based access)" },
+	{ "GNSS",	"Global Navigation Satellite System" },
+	{ "MRS\0",	"Multi Reference System" },
+	{ "Nut1",	"UT1(NIST)" },
 	{ "1PPS",	"External 1 PPS input" },
 	{ "FREE",	"(Internal clock)" },
 	// { "INIT",	"(Initialization)" },
