@@ -2805,7 +2805,7 @@ dissect_gtpv2_bearer_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     static int* const bearer_qos_oct1_flags[] = {
         &hf_gtpv2_bearer_qos_pci,
         &hf_gtpv2_bearer_qos_pl,
-        &hf_gtpv2_bearer_qos_pl,
+        &hf_gtpv2_bearer_qos_pvi,
         NULL
     };
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, bearer_qos_oct1_flags, ENC_BIG_ENDIAN);
@@ -3927,7 +3927,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_bits_item(sgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
     static int* const tra_info_pgw_flags[] = {
-        &hf_gtpv2_tra_info_pgw_pdn_con_creat,
+        &hf_gtpv2_tra_info_sgw_bearer_act_mod_del,
         &hf_gtpv2_tra_info_pgw_pdn_con_term,
         &hf_gtpv2_tra_info_pgw_pdn_con_creat,
         NULL
