@@ -1055,6 +1055,8 @@ void PacketList::setRecentColumnWidth(int col)
 
 void PacketList::drawCurrentPacket()
 {
+    // XXX - Update for multi-select? If more than one packet is Selected,
+    // this changes it so that only the Current packet is Selected.
     QModelIndex current_index = currentIndex();
     if (selectionModel() && current_index.isValid()) {
         selectionModel()->clearSelection();
