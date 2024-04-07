@@ -251,25 +251,25 @@ UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
  * desegmentation of HTTP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static bool http_desegment_headers = TRUE;
+static bool http_desegment_headers = true;
 
 /*
  * desegmentation of HTTP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static bool http_desegment_body = TRUE;
+static bool http_desegment_body = true;
 
 /*
  * De-chunking of content-encoding: chunk entity bodies.
  */
-static bool http_dechunk_body = TRUE;
+static bool http_dechunk_body = true;
 
 /*
  * Decompression of zlib or brotli encoded entities.
  */
 #if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
-static bool http_decompress_body = TRUE;
+static bool http_decompress_body = true;
 #endif
 
 /*
@@ -947,15 +947,14 @@ determine_http_location_target(wmem_allocator_t *scope, const gchar *base_url, c
 		}
 		/* A leading slash means to put the location after the netloc */
 		else if (g_str_has_prefix(location_url, "/")) {
-			gchar *scheme_end;
+			/* We have already tested strstr(base_url) above */
+			gchar *scheme_end = strstr(base_url_no_query, "://") + 3;
 			gchar *netloc_end;
 			gint netloc_length;
 
-			scheme_end = strstr(base_url_no_query, "://");
-			if (scheme_end == NULL) {
+			if (scheme_end[0] == '\0') {
 				return NULL;
 			}
-			scheme_end += 3;
 			netloc_end = strstr(scheme_end, "/");
 			if (netloc_end == NULL) {
 				return NULL;
@@ -1151,7 +1150,7 @@ push_res(http_conv_t *conv_data, packet_info *pinfo)
 	   used. */
 	/* XXX: This finds the only most recent request and doesn't support
          * HTTP 1.1 pipelining. This limitation has been addressed for
-	 * HTTP GETS.
+	 * HTTP GETS if Range Requests are supported.
          */
 	http_req_res_t *req_res = conv_data->req_res_tail;
 	if (!req_res || (req_res->res_framenum > 0 && req_res->response_code >= 200)) {
@@ -1798,7 +1797,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			match_trans_t *match_trans = NULL;
 
-			if (curr->response_code == 206 && curr->resp_has_range) {
+			if (curr && curr->response_code == 206 && curr->resp_has_range) {
 				/* The conv_data->matches_table is only used for GET requests with ranges and
 				*  response_codes of 206 (Partial Content). (Note: only GETs use ranges.)
 				*/
@@ -1833,7 +1832,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/* If responses don't have a range, the I/O is synchronous in which case a request is
 			*  matched with the following response. If a request or response is missing from the
 			*  capture file, correct matching resumes at the next request. */
-			if(!match_trans
+			if(!match_trans && curr
 			&& !curr->resp_has_range
 			&& curr->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
@@ -1868,7 +1867,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			match_trans = NULL;
 
-			if (size > 0 && curr->req_has_range) {
+			if (size > 0 && curr && curr->req_has_range) {
 				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
 									GUINT_TO_POINTER(pinfo->num));
 				if (match_trans) {
@@ -1878,7 +1877,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 			}
 			else {
-				if(!match_trans
+				if(!match_trans && curr
 				&& !curr->resp_has_range
 				&& curr->res_framenum) {
 					pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
@@ -1887,7 +1886,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 			}
 
-			if (curr->full_uri) {
+			if (curr && curr->full_uri) {
 				pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
 								curr->full_uri);
 				proto_item_set_url(pi);
@@ -2442,7 +2441,7 @@ basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 	/* Save the request URI for various later uses */
 	request_uri = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
 
-	if (request_uri == NULL)
+	if (request_uri == NULL && curr)
 	       request_uri = curr->request_uri;
 
 	stat_info->request_uri = wmem_strdup(pinfo->pool, request_uri);
@@ -3278,7 +3277,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
 	       http_conv_t *conv_data, media_container_type_t http_type, wmem_map_t *header_value_map,
-	       gboolean streaming_chunk_mode, http_req_res_t *curr)
+	       gboolean streaming_chunk_mode, http_req_res_t *curr_req_res)
 {
 	int len;
 	int line_end_offset;
@@ -3296,7 +3295,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	int f;
 	int* hf_id;
 	tap_credential_t* auth;
-	http_req_res_t  *curr_req_res = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, HTTP_PROTO_DATA_REQRES);
 	http_info_value_t *stat_info = p_get_proto_data(pinfo->pool, pinfo, proto_http, HTTP_PROTO_DATA_INFO);
 	wmem_allocator_t *scope = (!PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) ? wmem_file_scope() :
 		                      ((PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) ? NULL : pinfo->pool);
@@ -3432,11 +3430,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			}
 		}
 	} else {
-
-
-
-
-
 		/*
 		 * Add it to the protocol tree as a particular field,
 		 * but display the line as is.
@@ -3698,9 +3691,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		case HDR_RANGE:
 			{
 			/* THIS IS A GET REQUEST
-			*  Note: GET is the only method that employs ranges.
-			*/
-			if (!pinfo->fd->visited) {
+			 *  Note: GET is the only method that employs ranges.
+			 *  (Unless the data has errors or is noncompliant.)
+			 */
+			if (curr_req_res && !pinfo->fd->visited) {
 			 /*
 			 *  Unlike protocols such as NFS and SMB, the HTTP protocol (RFC 9110) does not
 			 *  provide an identifier with which to match requests and responses. Instead,
@@ -3755,20 +3749,22 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				req_trans->first_range_num = first_range_num;
 				req_trans->req_frame = pinfo->num;
 				req_trans->abs_time = pinfo->fd->abs_ts;
-				req_trans->request_uri = curr->request_uri;
+				req_trans->request_uri = curr_req_res->request_uri;
 
 				conv_data->req_list = g_slist_append(conv_data->req_list, GUINT_TO_POINTER(req_trans));
+				curr_req_res->req_has_range = TRUE;
 			}
 			}
 
-			curr->req_has_range = TRUE;
 			break;
 			}
 		case HDR_CONTENT_RANGE:
 			/*
-			*  THIS IS A GET RESPONSE
-			*  GET is the only method that employs ranges. */
-			if (!pinfo->fd->visited) {
+			 * THIS IS A GET RESPONSE
+			 * GET is the only method that employs ranges.
+			 *  (Unless the data has errors or is noncompliant.
+			 */
+			if (curr_req_res && !pinfo->fd->visited) {
 				guint8  *first_crange_num_str = NULL;
 				unsigned long first_crange_num = 0;
 				guint   pos;
@@ -3823,12 +3819,14 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					nstime_delta(&ns, &pinfo->fd->abs_ts, &req_trans->abs_time);
 					match_trans->delta_time = ns;
 					match_trans->request_uri = req_trans->request_uri;
-					match_trans->http_host = curr->http_host;
+					match_trans->http_host = curr_req_res->http_host;
 
 					wmem_map_insert(conv_data->matches_table,
 						GUINT_TO_POINTER(match_trans->req_frame), (void *)match_trans);
 					wmem_map_insert(conv_data->matches_table,
 						GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
+
+					curr_req_res->resp_has_range = TRUE;
 
 					/* Remove and free all of the list entries up to and including the
 					*  matching one from req_list. */
@@ -3846,7 +3844,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					}
 				}
 			}
-			curr->resp_has_range = TRUE;
 			break;
 		}
 	}
