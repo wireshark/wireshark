@@ -1801,6 +1801,7 @@ bool IOGraphDialog::saveCsv(const QString &file_name) const
 
 IOGraph::IOGraph(QCustomPlot *parent) :
     parent_(parent),
+    tap_registered_(true),
     visible_(false),
     graph_(NULL),
     bars_(NULL),
@@ -1827,16 +1828,25 @@ IOGraph::IOGraph(QCustomPlot *parent) :
 //                             error_string->str);
 //        config_err_ = error_string->str;
         g_string_free(error_string, true);
+        tap_registered_ = false;
     }
 }
 
 IOGraph::~IOGraph() {
-    remove_tap_listener(this);
+    removeTapListener();
     if (graph_) {
         parent_->removeGraph(graph_);
     }
     if (bars_) {
         parent_->removePlottable(bars_);
+    }
+}
+
+void IOGraph::removeTapListener()
+{
+    if (tap_registered_) {
+        remove_tap_listener(this);
+        tap_registered_ = false;
     }
 }
 
@@ -2373,7 +2383,7 @@ void IOGraph::captureEvent(CaptureEvent e)
     if ((e.captureContext() == CaptureEvent::File) &&
             (e.eventType() == CaptureEvent::Closing))
     {
-         remove_tap_listener(this);
+        removeTapListener();
     }
 }
 

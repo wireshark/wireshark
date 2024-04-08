@@ -114,12 +114,15 @@ private:
     static tap_packet_status tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags);
     static void tapDraw(void *iog_ptr);
 
+    void removeTapListener();
+
     template<class DataMap> double maxValueFromGraphData(const DataMap &map);
     template<class DataMap> void scaleGraphData(DataMap &map, int scalar);
 
     QCustomPlot *parent_;
     QString config_err_;
     QString name_;
+    bool tap_registered_;
     bool visible_;
     bool need_retap_;
     QCPGraph *graph_;
