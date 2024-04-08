@@ -107,7 +107,7 @@ tap_register_plugin(const tap_plugin *plug)
 void
 tap_register_plugin(const tap_plugin *plug _U_)
 {
-	ws_warning("tap_register_plugin: built without support for binary plugins");
+	ws_warning("built without support for binary plugins");
 }
 #endif /* HAVE_PLUGINS */
 
@@ -681,7 +681,7 @@ remove_tap_listener(void *tapdata)
 
 		}
 		if(!tl) {
-			ws_warning("remove_tap_listener(): no listener found with that tap data");
+			ws_warning("no listener found with that tap data");
 			return;
 		}
 	}
