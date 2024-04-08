@@ -1727,7 +1727,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     gboolean    add_to_packet_list = FALSE;
     gboolean    compiled _U_;
     guint32     frames_count;
-    gboolean    queued_rescan_type = RESCAN_NONE;
+    rescan_type queued_rescan_type = RESCAN_NONE;
 
     if (cf->state == FILE_CLOSED || cf->state == FILE_READ_PENDING) {
         return;
