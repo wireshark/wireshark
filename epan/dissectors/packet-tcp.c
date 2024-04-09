@@ -1107,26 +1107,11 @@ tcp_filter_valid(packet_info *pinfo, void *user_data _U_)
 }
 
 static gchar*
-tcp_build_filter(packet_info *pinfo, void *user_data _U_)
+tcp_build_filter_by_id(packet_info *pinfo, void *user_data _U_)
 {
-    if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
-        /* TCP over IPv4 */
-        return ws_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-            address_to_str(pinfo->pool, &pinfo->net_src),
-            address_to_str(pinfo->pool, &pinfo->net_dst),
-            pinfo->srcport, pinfo->destport );
-    }
-
-    if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
-        /* TCP over IPv6 */
-        return ws_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-            address_to_str(pinfo->pool, &pinfo->net_src),
-            address_to_str(pinfo->pool, &pinfo->net_dst),
-            pinfo->srcport, pinfo->destport );
-    }
-
-    return NULL;
+        return ws_strdup_printf("tcp.stream eq %d", pinfo->stream_id);
 }
+
 
 /****************************************************************************/
 /* whenever a TCP packet is seen by the tap listener */
@@ -1184,10 +1169,11 @@ gchar *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint
      * Eventually the endpoint API should support storing multiple
      * endpoints and TCP should be changed to use the endpoint API.
      */
+    conv = find_conversation_strat(pinfo);
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_TCP) &&
-        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
+        conv != NULL)
     {
         /* TCP over IPv4/6 */
         tcpd=get_tcp_conversation_data(conv, pinfo);
@@ -5651,7 +5637,8 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     int offset = 0;
     struct tcp_analysis *tcpd;
 
-    tcpd=get_tcp_conversation_data(NULL,pinfo);
+    conversation_t *stratconv = find_conversation_strat(pinfo);
+    tcpd=get_tcp_conversation_data(stratconv,pinfo);
 
     wscale_pi = proto_tree_add_item(tree, proto_tcp_option_wscale, tvb, offset, -1, ENC_NA);
     wscale_tree = proto_item_add_subtree(wscale_pi, ett_tcp_option_wscale);
@@ -7921,13 +7908,67 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * reusing ports (see issue 15097), as find_or_create_conversation automatically
      * extends the conversation found. This extension is done later.
      */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
-    if(!conv) {
-        conv = conversation_new(pinfo->num, &pinfo->src,
-                     &pinfo->dst, CONVERSATION_TCP,
-                     pinfo->srcport, pinfo->destport, 0);
+    gboolean is_ordinary_conv = TRUE;
+
+    /* deinterlacing requested */
+    if(prefs.conversation_deinterlacing_key>0) {
+      guint conv_type;
+      guint32 dtlc_iface = 0;
+      guint32 dtlc_vlan = 0;
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+         pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+           pinfo->vlan_id>0) {
+
+          conv_type = CONVERSATION_ETH_IV;
+          dtlc_vlan = pinfo->vlan_id;
+        }
+        else {
+          conv_type = CONVERSATION_ETH_IN;
+        }
+        dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+      }
+      else {
+
+        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+           pinfo->vlan_id>0) {
+
+          conv_type = CONVERSATION_ETH_NV;
+          dtlc_vlan = pinfo->vlan_id;
+        }
+        else {
+          conv_type = CONVERSATION_ETH_NN;
+        }
+      }
+      conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, conv_type, dtlc_iface, dtlc_vlan , 0);
+      if(underlying_conv) {
+          is_ordinary_conv = FALSE;
+
+          conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+          if(!conv) {
+              conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP,
+                                        pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+              conversation_is_new = TRUE;
+          }
+      }
+    }
+
+    /*
+     * When it's not asked to deinterlace, or if deinterlacing failed (no related IP conversation),
+     * just proceed the ordinary way.
+     */
+    if(is_ordinary_conv) {
+
+      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
+      if(!conv) {
+          conv = conversation_new(pinfo->num, &pinfo->src,
+                         &pinfo->dst, CONVERSATION_TCP,
+                         pinfo->srcport, pinfo->destport, 0);
         /* we need to know when a conversation is new then we initialize the completeness correctly */
-        conversation_is_new = TRUE;
+          conversation_is_new = TRUE;
+      }
     }
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
@@ -8075,6 +8116,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * to tap listeners.
          */
         tcph->th_stream = tcpd->stream;
+
+        /* Copy the stream index into pinfo as well to make it available
+         * to callback functions (essentially conversation following events in GUI)
+         */
+        pinfo->stream_id = tcpd->stream;
 
         /* initialize the SACK blocks seen to 0 */
         if(tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info) {
@@ -10143,7 +10189,7 @@ proto_register_tcp(void)
     register_decode_as(&tcp_da);
 
     register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_endpoint_packet);
-    register_conversation_filter("tcp", "TCP", tcp_filter_valid, tcp_build_filter, NULL);
+    register_conversation_filter("tcp", "TCP", tcp_filter_valid, tcp_build_filter_by_id, NULL);
 
     register_seq_analysis("tcp", "TCP Flows", proto_tcp, NULL, 0, tcp_seq_analysis_packet);
 

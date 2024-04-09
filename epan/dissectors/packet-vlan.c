@@ -21,6 +21,8 @@
 #include <epan/to_str.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
+#include <epan/conversation_table.h>
+#include <epan/conversation_filter.h>
 
 void proto_register_vlan(void);
 void proto_reg_handoff_vlan(void);
@@ -313,6 +315,56 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ethertype_data.fh_tree = vlan_tree;
     ethertype_data.trailer_id = hf_vlan_trailer;
     ethertype_data.fcs_len = 0;
+
+    /* deinterlacing requested */
+    if(prefs.conversation_deinterlacing_key>0) {
+      conversation_t *conv;
+      guint conv_type;
+      guint32 dtlc_iface = 0;
+      guint32 dtlc_vlan = 0;
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+         pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+           pinfo->vlan_id>0) {
+
+          conv_type = CONVERSATION_ETH_IV;
+          dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+          dtlc_vlan = pinfo->vlan_id;
+
+          /* look for existing conv, create one if none found */
+          conv = find_conversation_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst, conv_type,
+                                 dtlc_iface, dtlc_vlan, 0);
+
+          if(!conv) {
+            /* ETH _IN moulting into _IV */
+            conv = conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
+                                conv_type, dtlc_iface, pinfo->vlan_id, 0);
+          }
+        }
+        // else : vlan id == 0, such thing is not expected
+      }
+      else {
+        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+           pinfo->vlan_id>0) {
+
+          conv_type = CONVERSATION_ETH_NV;
+
+          /* look for existing conv, create one if none found */
+          conv = find_conversation_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst, conv_type,
+                                 dtlc_iface, pinfo->vlan_id, 0);
+
+          if(!conv) {
+            /* ETH _NN moulting into _NV */
+            conv = conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
+                                conv_type, dtlc_iface, pinfo->vlan_id, 0);
+          }
+        }
+        // else : vlan id == 0, such thing is not expected
+      }
+
+    }
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
   }

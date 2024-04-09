@@ -38,6 +38,11 @@ extern "C" {
 #define DEF_GUI_DECIMAL_PLACES2 4
 #define DEF_GUI_DECIMAL_PLACES3 6
 
+#define CONV_DEINT_KEY_CAPFILE    0x01 /* unused yet */
+#define CONV_DEINT_KEY_INTERFACE  0x02
+#define CONV_DEINT_KEY_MAC        0x04
+#define CONV_DEINT_KEY_VLAN       0x08
+
 struct epan_uat;
 struct _e_addr_resolve;
 
@@ -214,6 +219,7 @@ typedef struct _e_prefs {
   bool         enable_incomplete_dissectors_check;
   bool         incomplete_dissectors_check_debug;
   bool         strict_conversation_tracking_heuristics;
+  gint         conversation_deinterlacing_key;
   bool         ignore_dup_frames;
   guint        ignore_dup_frames_cache_entries;
   bool         filter_expressions_old;  /* TRUE if old filter expressions preferences were loaded. */

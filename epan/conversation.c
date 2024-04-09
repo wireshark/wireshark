@@ -14,6 +14,8 @@
 
 #include <glib.h>
 
+#include <wiretap/wtap.h>
+
 #include "packet.h"
 #include "to_str.h"
 #include "conversation.h"
@@ -70,6 +72,28 @@ enum {
     ENDP_NO_PORTS_IDX = ADDR2_IDX
 };
 
+/* Element offsets for the deinterlacer conversations */
+enum {
+    DEINTR_ADDR1_IDX,
+    DEINTR_ADDR2_IDX,
+    DEINTR_KEY1_IDX,
+    DEINTR_KEY2_IDX,
+    DEINTR_KEY3_IDX,
+    DEINTR_ENDP_IDX
+};
+
+/* Element offsets for the deinterlaced conversations */
+enum {
+    DEINTD_ADDR1_IDX,
+    DEINTD_ADDR2_IDX,
+    DEINTD_PORT1_IDX,
+    DEINTD_PORT2_IDX,
+    DEINTD_ENDP_EXACT_IDX,
+    DEINTD_EXACT_IDX_COUNT,
+    DEINTD_ADDRS_IDX_COUNT = DEINTD_PORT2_IDX,
+    DEINTD_ENDP_NO_PORTS_IDX = DEINTD_PORT1_IDX
+};
+
 /* Names for conversation_element_type values. */
 static const char *type_names[] = {
     "endpoint",
@@ -117,6 +141,21 @@ static wmem_map_t *conversation_hashtable_no_addr2_or_port2;
  * Hash table for conversations with a single unsigned ID number.
  */
 static wmem_map_t *conversation_hashtable_id;
+
+/*
+ * Hash table for conversations with no wildcards, and an anchor
+ */
+static wmem_map_t *conversation_hashtable_exact_addr_port_anc = NULL;
+
+/*
+ * Hash table for conversations based on addresses only, and an anchor
+ */
+static wmem_map_t *conversation_hashtable_exact_addr_anc = NULL;
+
+/*
+ * Hash table for deinterlacing conversations (typically L1 or L2)
+ */
+static wmem_map_t *conversation_hashtable_deinterlacer = NULL;
 
 static guint32 new_index;
 
@@ -582,6 +621,73 @@ conversation_init(void)
                                                        conversation_match_element_list);
     wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), id_map_key),
                     conversation_hashtable_id);
+
+    /*
+     * Initialize the "deinterlacer" table, which is used as the basis for the
+     * deinterlacing process, and in conjunction with the "anchor" tables
+     *
+     * Typically the elements are:
+     *   ETH address 1
+     *   ETH address 2
+     *   Interface id
+     *   VLAN id
+     *   not used yet
+     *
+     * By the time of implementation, these table is invoked through the
+     * conversation_deinterlacing_key user preference.
+     */
+    conversation_element_t deinterlacer_elements[EXACT_IDX_COUNT+1] = {
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_UINT, .port_val = 0 },
+        { CE_UINT, .port_val = 0 },
+        { CE_UINT, .uint_val = 0 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = CONVERSATION_NONE }
+    };
+    char *deinterlacer_map_key = conversation_element_list_name(wmem_epan_scope(), deinterlacer_elements);
+    conversation_hashtable_deinterlacer = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                                    conversation_hash_element_list,
+                                                                    conversation_match_element_list);
+    wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), deinterlacer_map_key),
+                    conversation_hashtable_deinterlacer);
+
+    /*
+     * Initialize the "_anc" tables, which are very similar to their standard counterparts
+     * but contain an additional "anchor" materialized as an integer. This value is supposed
+     * to indicate a stream ID of the underlying protocol, thus attaching two conversations
+     * of two protocols together.
+     *
+     * By the time of implementation, these table is invoked through the
+     * conversation_deinterlacing_key user preference.
+     */
+    conversation_element_t exact_elements_anc[EXACT_IDX_COUNT+1] = {
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_PORT, .port_val = 0 },
+        { CE_PORT, .port_val = 0 },
+        { CE_UINT, .uint_val = 0 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = CONVERSATION_NONE }
+    };
+    char *exact_anc_map_key = conversation_element_list_name(wmem_epan_scope(), exact_elements_anc);
+    conversation_hashtable_exact_addr_port_anc = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                                    conversation_hash_element_list,
+                                                                    conversation_match_element_list);
+    wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), exact_anc_map_key),
+                    conversation_hashtable_exact_addr_port_anc);
+
+    conversation_element_t addrs_elements_anc[ADDRS_IDX_COUNT+1] = {
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_ADDRESS, .addr_val = ADDRESS_INIT_NONE },
+        { CE_UINT, .uint_val = 0 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = CONVERSATION_NONE }
+    };
+    char *addrs_anc_map_key = conversation_element_list_name(wmem_epan_scope(), addrs_elements_anc);
+    conversation_hashtable_exact_addr_anc = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                                    conversation_hash_element_list,
+                                                                    conversation_match_element_list);
+    wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), addrs_anc_map_key),
+                    conversation_hashtable_exact_addr_anc);
+
 }
 
 /**
@@ -968,6 +1074,141 @@ conversation_new_by_id(const guint32 setup_frame, const conversation_type ctype,
     return conversation;
 }
 
+conversation_t *
+conversation_new_deinterlacer(const guint32 setup_frame, const address *addr1, const address *addr2,
+        const conversation_type ctype, const guint32 key1, const guint32 key2, const guint32 key3)
+{
+
+    conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
+    conversation->conv_index = new_index;
+    conversation->setup_frame = conversation->last_frame = setup_frame;
+
+    conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTR_ENDP_IDX+1));
+
+    new_key[DEINTR_ADDR1_IDX].type = CE_ADDRESS;
+    if (addr1 != NULL) {
+        copy_address_wmem(wmem_file_scope(), &new_key[DEINTR_ADDR1_IDX].addr_val, addr1);
+    }
+    else {
+        clear_address(&new_key[DEINTR_ADDR1_IDX].addr_val);
+    }
+
+    new_key[DEINTR_ADDR2_IDX].type = CE_ADDRESS;
+    if (addr2 != NULL) {
+        copy_address_wmem(wmem_file_scope(), &new_key[DEINTR_ADDR2_IDX].addr_val, addr2);
+    }
+    else {
+        clear_address(&new_key[DEINTR_ADDR2_IDX].addr_val);
+    }
+
+    new_key[DEINTR_KEY1_IDX].type = CE_UINT;
+    new_key[DEINTR_KEY1_IDX].uint_val = key1;
+
+    new_key[DEINTR_KEY2_IDX].type = CE_UINT;
+    new_key[DEINTR_KEY2_IDX].uint_val = key2;
+
+    new_key[DEINTR_KEY3_IDX].type = CE_UINT;
+    new_key[DEINTR_KEY3_IDX].uint_val = key3;
+
+    new_key[DEINTR_ENDP_IDX].type = CE_CONVERSATION_TYPE;
+    new_key[DEINTR_ENDP_IDX].conversation_type_val = ctype;
+
+    conversation->key_ptr = new_key;
+
+    new_index++;
+
+    conversation_insert_into_hashtable(conversation_hashtable_deinterlacer, conversation);
+
+    return conversation;
+}
+
+conversation_t *
+conversation_new_deinterlaced(const guint32 setup_frame, const address *addr1, const address *addr2,
+        const conversation_type ctype, const guint32 port1, const guint32 port2, const guint32 anchor, const guint options)
+{
+
+    conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
+    conversation->conv_index = new_index;
+    conversation->setup_frame = conversation->last_frame = setup_frame;
+
+    if (options & NO_PORTS) {
+        conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTD_ENDP_NO_PORTS_IDX+1));
+
+        new_key[DEINTD_ADDR1_IDX].type = CE_ADDRESS;
+        if (addr1 != NULL) {
+            copy_address_wmem(wmem_file_scope(), &new_key[DEINTD_ADDR1_IDX].addr_val, addr1);
+        }
+        else {
+          clear_address(&new_key[DEINTD_ADDR1_IDX].addr_val);
+        }
+
+        new_key[DEINTD_ADDR2_IDX].type = CE_ADDRESS;
+        if (addr2 != NULL) {
+            copy_address_wmem(wmem_file_scope(), &new_key[DEINTD_ADDR2_IDX].addr_val, addr2);
+        }
+        else {
+          clear_address(&new_key[DEINTD_ADDR2_IDX].addr_val);
+        }
+
+        new_key[DEINTD_ENDP_NO_PORTS_IDX].type = CE_UINT;
+        new_key[DEINTD_ENDP_NO_PORTS_IDX].uint_val = anchor;
+
+        new_key[DEINTD_ENDP_NO_PORTS_IDX+ 1].type = CE_CONVERSATION_TYPE;
+        new_key[DEINTD_ENDP_NO_PORTS_IDX+ 1].conversation_type_val = ctype;
+
+        // set the options and key pointer
+        conversation->options = options;
+        conversation->key_ptr = new_key;
+
+        new_index++;
+
+        conversation_insert_into_hashtable(conversation_hashtable_exact_addr_anc, conversation);
+
+        return conversation;
+    }
+    else {
+        conversation_element_t *new_key = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * (DEINTD_EXACT_IDX_COUNT+1));
+
+        new_key[DEINTD_ADDR1_IDX].type = CE_ADDRESS;
+        if (addr1 != NULL) {
+            copy_address_wmem(wmem_file_scope(), &new_key[DEINTD_ADDR1_IDX].addr_val, addr1);
+        }
+        else {
+          clear_address(&new_key[DEINTD_ADDR1_IDX].addr_val);
+        }
+
+        new_key[DEINTD_ADDR2_IDX].type = CE_ADDRESS;
+        if (addr2 != NULL) {
+            copy_address_wmem(wmem_file_scope(), &new_key[DEINTD_ADDR2_IDX].addr_val, addr2);
+        }
+        else {
+          clear_address(&new_key[DEINTD_ADDR2_IDX].addr_val);
+        }
+
+        new_key[DEINTD_PORT1_IDX].type = CE_PORT;
+        new_key[DEINTD_PORT1_IDX].port_val = port1;
+
+        new_key[DEINTD_PORT2_IDX].type = CE_PORT;
+        new_key[DEINTD_PORT2_IDX].port_val = port2;
+
+        new_key[DEINTD_ENDP_EXACT_IDX].type = CE_UINT;
+        new_key[DEINTD_ENDP_EXACT_IDX].uint_val = anchor;
+
+        new_key[DEINTD_ENDP_EXACT_IDX + 1].type = CE_CONVERSATION_TYPE;
+        new_key[DEINTD_ENDP_EXACT_IDX + 1].conversation_type_val = ctype;
+
+        // set the options and key pointer
+        conversation->options = options;
+        conversation->key_ptr = new_key;
+
+        new_index++;
+
+        conversation_insert_into_hashtable(conversation_hashtable_exact_addr_port_anc, conversation);
+
+        return conversation;
+    }
+}
+
 /*
  * Set the port 2 value in a key. Remove the original from table,
  * update the options and port values, insert the updated key.
@@ -1185,6 +1426,76 @@ conversation_lookup_no_ports(const guint32 frame_num, const address *addr1,
         { CE_CONVERSATION_TYPE, .conversation_type_val = ctype },
     };
     return conversation_lookup_hashtable(conversation_hashtable_exact_addr, frame_num, key);
+}
+
+/*
+ * Search a particular hash table for a conversation with the specified
+ * {addr1, port1, addr2, port2, anchor} and set up before frame_num.
+ */
+static conversation_t *
+conversation_lookup_exact_anc(const guint32 frame_num, const address *addr1, const guint32 port1,
+                          const address *addr2, const guint32 port2, const conversation_type ctype,
+                          const guint32 anchor)
+{
+    conversation_element_t key[DEINTD_EXACT_IDX_COUNT+1] = {
+        { CE_ADDRESS, .addr_val = *addr1 },
+        { CE_ADDRESS, .addr_val = *addr2 },
+        { CE_PORT, .port_val = port1 },
+        { CE_PORT, .port_val = port2 },
+        { CE_UINT, .uint_val = anchor },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = ctype },
+    };
+    return conversation_lookup_hashtable(conversation_hashtable_exact_addr_port_anc, frame_num, key);
+}
+
+/*
+ * Search a particular hash table for a conversation with the specified
+ * {addr1, addr2, anchor} and set up before frame_num.
+ */
+static conversation_t *
+conversation_lookup_no_ports_anc(const guint32 frame_num, const address *addr1,
+                          const address *addr2, const conversation_type ctype, const guint32 anchor)
+{
+    conversation_element_t key[DEINTD_ADDRS_IDX_COUNT+1] = {
+        { CE_ADDRESS, .addr_val = *addr1 },
+        { CE_ADDRESS, .addr_val = *addr2 },
+        { CE_UINT, .uint_val = anchor },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = ctype },
+    };
+    return conversation_lookup_hashtable(conversation_hashtable_exact_addr_anc, frame_num, key);
+}
+
+static conversation_t *
+conversation_lookup_no_anc_anc(const guint32 frame_num, const address *addr1,
+                          const address *addr2, const conversation_type ctype)
+{
+    conversation_element_t key[ADDRS_IDX_COUNT] = {
+        { CE_ADDRESS, .addr_val = *addr1 },
+        { CE_ADDRESS, .addr_val = *addr2 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = ctype },
+    };
+    return conversation_lookup_hashtable(conversation_hashtable_exact_addr_anc, frame_num, key);
+}
+
+/*
+ * Search a particular hash table for a conversation with the specified
+ * {addr1, addr2, key1, key2, key3} and set up before frame_num.
+ * At this moment only the deinterlace table is likely to be called.
+ */
+static conversation_t *
+conversation_lookup_deinterlacer(const guint32 frame_num, const address *addr1,
+                          const address *addr2, const conversation_type ctype,
+                          const guint32 key1, const guint32 key2, const guint32 key3)
+{
+    conversation_element_t key[DEINTR_ENDP_IDX+1] = {
+        { CE_ADDRESS, .addr_val = *addr1 },
+        { CE_ADDRESS, .addr_val = *addr2 },
+        { CE_UINT, .uint_val = key1 },
+        { CE_UINT, .uint_val = key2 },
+        { CE_UINT, .uint_val = key3 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = ctype },
+    };
+    return conversation_lookup_hashtable(conversation_hashtable_deinterlacer, frame_num, key);
 }
 
 /*
@@ -1605,6 +1916,85 @@ end:
 }
 
 conversation_t *
+find_conversation_deinterlaced(const guint32 frame_num, const address *addr_a, const address *addr_b, const conversation_type ctype,
+        const guint32 port_a, const guint32 port_b, const guint32 anchor, const guint options)
+{
+    conversation_t *conversation, *other_conv;
+
+    if (!(options & (NO_ADDR_B|NO_PORT_B|NO_PORT_X|NO_ANC))) {
+        conversation = conversation_lookup_exact_anc(frame_num, addr_a, port_a, addr_b, port_b, ctype, anchor);
+
+        other_conv = conversation_lookup_exact_anc(frame_num, addr_b, port_b, addr_a, port_a, ctype, anchor);
+        if (other_conv != NULL) {
+            if (conversation != NULL) {
+                if(other_conv->conv_index > conversation->conv_index) {
+                    conversation = other_conv;
+                }
+            }
+            else {
+                conversation = other_conv;
+            }
+        }
+
+    }
+    else { /* typically : IP protocols */
+        if (!(options & NO_ANC)) {
+            conversation = conversation_lookup_no_ports_anc(frame_num, addr_a, addr_b, ctype, anchor);
+            other_conv = conversation_lookup_no_ports_anc(frame_num, addr_b, addr_a, ctype, anchor);
+            if (other_conv != NULL) {
+                if (conversation != NULL) {
+                    if(other_conv->conv_index > conversation->conv_index) {
+                        conversation = other_conv;
+                    }
+                }
+                else {
+                    conversation = other_conv;
+                }
+            }
+        }
+        else { /* NO_ANC */
+            conversation = conversation_lookup_no_anc_anc(frame_num, addr_a, addr_b, ctype);
+            other_conv = conversation_lookup_no_anc_anc(frame_num, addr_b, addr_a, ctype);
+            if (other_conv != NULL) {
+                if (conversation != NULL) {
+                    if(other_conv->conv_index > conversation->conv_index) {
+                        conversation = other_conv;
+                    }
+                }
+                else {
+                    conversation = other_conv;
+                }
+            }
+        }
+    }
+
+    return conversation;
+}
+
+conversation_t *
+find_conversation_deinterlacer(const guint32 frame_num, const address *addr_a, const address *addr_b,
+        const conversation_type ctype, const guint32 key_a, const guint32 key_b, const guint32 key_c)
+{
+    conversation_t *conversation, *other_conv;
+
+    conversation = conversation_lookup_deinterlacer(frame_num, addr_a, addr_b, ctype, key_a, key_b, key_c);
+
+    other_conv = conversation_lookup_deinterlacer(frame_num, addr_b, addr_a, ctype, key_a, key_b, key_c);
+    if (other_conv != NULL) {
+        if (conversation != NULL) {
+            if(other_conv->conv_index > conversation->conv_index) {
+                conversation = other_conv;
+            }
+        }
+        else {
+            conversation = other_conv;
+        }
+    }
+
+    return conversation;
+}
+
+conversation_t *
 find_conversation_by_id(const guint32 frame, const conversation_type ctype, const guint32 id)
 {
     conversation_element_t elements[2] = {
@@ -1790,6 +2180,69 @@ try_conversation_dissector_by_id(const conversation_type ctype, const guint32 id
     return FALSE;
 }
 
+/* identifies a conversation ("classic" or deinterlaced) */
+conversation_t *
+find_conversation_strat(packet_info *pinfo)
+{
+  //conversation_t *conv;
+  conversation_t *conv=NULL;
+  guint dr_conv_type; /* deinterlacer conv type */
+  guint32 dtlc_iface = 0;
+  guint32 dtlc_vlan = 0;
+  gboolean is_ordinary_conv = TRUE;
+  conversation_type dd_conv_type; /* deinterlaced conv type */
+
+  dd_conv_type = conversation_pt_to_conversation_type(pinfo->ptype);
+
+  if(prefs.conversation_deinterlacing_key>0) {
+    if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+       pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+         pinfo->vlan_id>0) {
+
+        // NOT HANDLED YET dr_conv_type = CONVERSATION_ETH_IV;
+        dr_conv_type = CONVERSATION_ETH_IV;
+        dtlc_vlan = pinfo->vlan_id;
+      }
+      else {
+        dr_conv_type = CONVERSATION_ETH_IN;
+      }
+      dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+    }
+    else {
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+         pinfo->vlan_id>0) {
+
+        // NOT HANDLED YET dr_conv_type = CONVERSATION_ETH_NV;
+        dr_conv_type = CONVERSATION_ETH_NV;
+        dtlc_vlan = pinfo->vlan_id;
+      }
+      else {
+        dr_conv_type = CONVERSATION_ETH_NN;
+      }
+    }
+
+    conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, dr_conv_type, dtlc_iface, dtlc_vlan , 0);
+    if(underlying_conv) {
+        is_ordinary_conv = FALSE;
+        //conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+        conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, dd_conv_type, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+    }
+  }
+
+  if(is_ordinary_conv) {
+      //conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
+      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, dd_conv_type, pinfo->srcport, pinfo->destport, 0);
+      if(!conv) {
+          conv = conversation_new(pinfo->num, &pinfo->src,
+                         &pinfo->dst, CONVERSATION_TCP,
+                         pinfo->srcport, pinfo->destport, 0);
+      }
+  }
+  return conv;
+}
+
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
  */
@@ -1837,6 +2290,61 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
                 conv->last_frame = pinfo->num;
             }
         }
+    }
+
+    DENDENT();
+
+    return conv;
+}
+
+/**  A helper function that calls find_conversation() using data from pinfo,
+ *  as above, but somewhat simplified for being accessed from packet_list.
+ *  The frame number and addresses are taken from pinfo.
+ */
+conversation_t *
+find_conversation_pinfo_ro(packet_info *pinfo)
+{
+    conversation_t *conv = NULL;
+
+    DINSTR(gchar *src_str = address_to_str(NULL, &pinfo->src));
+    DINSTR(gchar *dst_str = address_to_str(NULL, &pinfo->dst));
+    DPRINT(("called for frame #%u: %s:%d -> %s:%d (ptype=%d)",
+                pinfo->num, src_str, pinfo->srcport,
+                dst_str, pinfo->destport, pinfo->ptype));
+    DINDENT();
+    DINSTR(wmem_free(NULL, src_str));
+    DINSTR(wmem_free(NULL, dst_str));
+
+    /* Have we seen this conversation before? */
+    if (pinfo->use_conv_addr_port_endpoints) {
+        DISSECTOR_ASSERT(pinfo->conv_addr_port_endpoints);
+        if ((conv = find_conversation(pinfo->num, &pinfo->conv_addr_port_endpoints->addr1, &pinfo->conv_addr_port_endpoints->addr2,
+                        pinfo->conv_addr_port_endpoints->ctype, pinfo->conv_addr_port_endpoints->port1,
+                        pinfo->conv_addr_port_endpoints->port2, 0)) != NULL) {
+            DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
+                    pinfo->num, conv->last_frame));
+            if (pinfo->num > conv->last_frame) {
+                conv->last_frame = pinfo->num;
+            }
+        }
+    } else if (pinfo->conv_elements) {
+        if ((conv = find_conversation_full(pinfo->num, pinfo->conv_elements)) != NULL) {
+            DPRINT(("found previous conversation elements for frame #%u (last_frame=%d)",
+                        pinfo->num, conv->last_frame));
+            if (pinfo->num > conv->last_frame) {
+                conv->last_frame = pinfo->num;
+            }
+        }
+    } else {
+        if ((conv = find_conversation_strat(pinfo)) != NULL) {
+            DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
+                        pinfo->num, conv->last_frame));
+            if (pinfo->num > conv->last_frame) {
+                conv->last_frame = pinfo->num;
+            }
+        }
+        /* else: something is either not implemented or not handled,
+         * ICMP Type 3/11 are good examples. */
     }
 
     DENDENT();

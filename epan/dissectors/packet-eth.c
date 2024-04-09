@@ -578,11 +578,39 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   }
 
   /* if we still did not leave the dissection, try identifying any ETH conversation
+   * When deinterlacing was asked and an interface is known, create an _IN conv,
+   * otherwise create an ordinary _NN one.
    *
    */
-  conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_ETH, 0, 0, NO_PORT_X);
+
+  guint conv_type = CONVERSATION_ETH_NN;
+  /* deinterlacing is requested */
+  if(prefs.conversation_deinterlacing_key>0) {
+    guint32 dtlc_iface = 0;
+
+    if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+       pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+      conv_type = CONVERSATION_ETH_IN;
+      dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+    }
+    else {
+      conv_type = CONVERSATION_ETH_NN;
+    }
+
+    // identify an existing conversation or create a new one
+    conversation_t *conv_deint = find_conversation_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst, conv_type,
+                                 dtlc_iface, 0, 0);
+    if(!conv_deint) {
+      conv_deint = conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
+                                conv_type, dtlc_iface, 0, 0);
+    }
+  }
+
+  conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conv_type, 0, 0, NO_PORT_X);
+
   if(!conv) {
-    conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_ETH, 0, 0, NO_PORTS);
+    conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conv_type, 0, 0, NO_PORTS);
   }
   else {
     /*
@@ -596,6 +624,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       }
     }
   }
+
   ethd = get_eth_conversation_data(conv, pinfo);
   if(ethd) {
     ehdr->stream = ethd->stream;

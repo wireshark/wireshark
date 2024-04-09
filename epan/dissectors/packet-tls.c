@@ -647,7 +647,17 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      *       the conv_version, must set the copy in the conversation
      *       in addition to conv_version
      */
-    conversation = find_or_create_conversation(pinfo);
+    /* Get the conversation with the deinterlacing strategy,
+     * assuming it does exist, as created by an underlying proto.
+     */
+    conversation = find_conversation_strat(pinfo);
+    if(conversation == NULL) {
+        conversation = conversation_new(pinfo->num, &pinfo->src,
+            &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
+            pinfo->srcport, pinfo->destport, 0);
+    }
+
+
     ssl_session_save = ssl_session = ssl_get_session(conversation, tls_handle);
     session = &ssl_session->session;
     is_from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
@@ -4255,7 +4265,7 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
     }
 
     /* Lookup EXPORTER_SECRET based on client_random from conversation */
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    conversation_t *conv = find_conversation_strat(pinfo);
     if (!conv) {
         return FALSE;
     }

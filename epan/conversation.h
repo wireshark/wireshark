@@ -52,6 +52,7 @@ extern "C" {
 #define NO_ADDR_B 0x00010000
 #define NO_PORT_B 0x00020000
 #define NO_PORT_X 0x00040000
+#define NO_ANC    0x00080000
 
 /** Flags to handle endpoints */
 #define USE_LAST_ENDPOINT 0x08		/**< Use last endpoint created, regardless of type */
@@ -103,7 +104,11 @@ typedef enum {
     CONVERSATION_IDN,
     CONVERSATION_IP,		/* IP */
     CONVERSATION_IPV6,		/* IPv6 */
-    CONVERSATION_ETH,		/* ETHERNET */
+    CONVERSATION_ETH,           /* ETHERNET classic */
+    CONVERSATION_ETH_NN,        /* ETHERNET deinterlaced Interface:N VLAN:N */
+    CONVERSATION_ETH_NV,        /* ETHERNET deinterlaced Interface:N VLAN:Y */
+    CONVERSATION_ETH_IN,        /* ETHERNET deinterlaced Interface:Y VLAN:N */
+    CONVERSATION_ETH_IV,        /* ETHERNET deinterlaced Interface:Y VLAN:Y */
     CONVERSATION_VSPC_VMOTION,	/* VMware vSPC vMotion (Telnet) */
 } conversation_type;
 
@@ -311,6 +316,18 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new(const guint32 setup
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_by_id(const guint32 setup_frame, const conversation_type ctype, const guint32 id);
 
 /**
+ *
+ */
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_deinterlaced(const guint32 setup_frame, const address *addr1, const address *addr2,
+    const conversation_type ctype, const guint32 port1, const guint32 port2, const guint32 anchor, const guint options);
+
+/**
+ *
+ */
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_deinterlacer(const guint32 setup_frame, const address *addr1, const address *addr2,
+    const conversation_type ctype, const guint32 key1, const guint32 key2, const guint32 key3);
+
+/**
  * Search for a conversation based on the structure and values of an element list.
  * @param frame_num Frame number. Must be greater than or equal to the conversation's initial frame number.
  * @param elements An array of element types and values. Must not be NULL. Must be terminated with a CE_CONVERSATION_TYPE element.
@@ -368,12 +385,32 @@ WS_DLL_PUBLIC conversation_t *find_conversation_full(const guint32 frame_num, co
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const conversation_type ctype, const guint32 port_a, const guint32 port_b, const guint options);
 
+WS_DLL_PUBLIC conversation_t *find_conversation_deinterlaced(const guint32 frame_num, const address *addr_a, const address *addr_b,
+    const conversation_type ctype, const guint32 port_a, const guint32 port_b, const guint32 anchor, const guint options);
+
+WS_DLL_PUBLIC conversation_t *find_conversation_deinterlacer(const guint32 frame_num, const address *addr_a, const address *addr_b,
+    const conversation_type ctype, const guint32 key_a, const guint32 key_b, const guint32 key_c);
+
 WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const conversation_type ctype, const guint32 id);
+
+/**  A helper function that calls find_conversation() using data from pinfo,
+ *  and returns a conversation according to the runtime deinterlacing strategy.
+ *  The frame number and addresses are taken from pinfo.
+ */
+WS_DLL_PUBLIC conversation_t *find_conversation_strat(packet_info *pinfo);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
  */
 WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const guint options);
+
+/**  A helper function that calls find_conversation() using data from pinfo.
+ *  It's a simplified version of find_conversation_pinfo() to avoid
+ *  unnecessary checks and be limited to read-only, which is the minimal
+ *  need for displaying packets in packet_list.
+ *  The frame number and addresses are taken from pinfo.
+ */
+WS_DLL_PUBLIC conversation_t *find_conversation_pinfo_ro(packet_info *pinfo);
 
 /**
  * A helper function that calls find_conversation() and, if a conversation is

@@ -49,6 +49,7 @@
 #include "packet-vxlan.h"
 #include "packet-mpls.h"
 #include "packet-nsh.h"
+#include "packet-eth.h"
 
 void proto_register_ip(void);
 void proto_reg_handoff_ip(void);
@@ -2351,30 +2352,101 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     }
   }
 
-  conversation_t *conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, NO_PORT_X);
-  if(!conv) {
-    conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, NO_PORTS);
-  }
-  else {
-    /*
-     * while not strictly necessary because there is only 1
-     * conversation between 2 IPs, we still move the last frame
-     * indicator as being a usual practice.
-     */
-    if (!(pinfo->fd->visited)) {
-      if (pinfo->num > conv->last_frame) {
-        conv->last_frame = pinfo->num;
+  conversation_t *conv;
+
+  gboolean is_ordinary_conv = TRUE;
+  /* deinterlacing requested */
+  if(prefs.conversation_deinterlacing_key>0) {
+    guint conv_type;
+    guint32 dtlc_iface = 0;
+    guint32 dtlc_vlan = 0;
+
+    if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+       pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+         pinfo->vlan_id>0) {
+
+        conv_type = CONVERSATION_ETH_IV;
+        dtlc_vlan = pinfo->vlan_id;
+      }
+      else {
+        conv_type = CONVERSATION_ETH_IN;
+      }
+      dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+    }
+    else {
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+         pinfo->vlan_id>0) {
+
+        conv_type = CONVERSATION_ETH_NV;
+        dtlc_vlan = pinfo->vlan_id;
+      }
+      else {
+        conv_type = CONVERSATION_ETH_NN;
+      }
+    }
+
+    conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, conv_type, dtlc_iface, dtlc_vlan, 0);
+    if(underlying_conv) {
+      is_ordinary_conv = FALSE;
+
+      conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, underlying_conv->conv_index, NO_PORT_X);
+      if(!conv) {
+        conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP,
+                                    0, 0, underlying_conv->conv_index, NO_PORTS);
+
+        conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, underlying_conv->conv_index, NO_PORT_X);
+      }
+      else {
+        /*
+         * while not strictly necessary because there is only 1
+         * conversation between 2 IPs, we still move the last frame
+         * indicator as being a usual practice.
+         */
+        if (!(pinfo->fd->visited)) {
+          if (pinfo->num > conv->last_frame) {
+            conv->last_frame = pinfo->num;
+          }
+        }
+      }
+      ipd = get_ip_conversation_data(conv, pinfo);
+      if(ipd) {
+        iph->ip_stream = ipd->stream;
+
+        item = proto_tree_add_uint(ip_tree, hf_ip_stream, tvb, offset, 0, ipd->stream);
+        proto_item_set_generated(item);
       }
     }
   }
 
-  ipd = get_ip_conversation_data(conv, pinfo);
-  if(ipd) {
-    iph->ip_stream = ipd->stream;
-
-    item = proto_tree_add_uint(ip_tree, hf_ip_stream, tvb, offset, 0, ipd->stream);
-    proto_item_set_generated(item);
+  /* no deinterlacing asked or possible ( e.g. Linux Cooked Captures ) */
+  if(is_ordinary_conv) {
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, NO_PORT_X);
+    if(!conv) {
+      conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, NO_PORTS);
+    }
+    else {
+      /*
+       * while not strictly necessary because there is only 1
+       * conversation between 2 IPs, we still move the last frame
+       * indicator as being a usual practice.
+       */
+      if (!(pinfo->fd->visited)) {
+        if (pinfo->num > conv->last_frame) {
+          conv->last_frame = pinfo->num;
+        }
+      }
+    }
+    ipd = get_ip_conversation_data(conv, pinfo);
+    if(ipd) {
+      iph->ip_stream = ipd->stream;
+      item = proto_tree_add_uint(ip_tree, hf_ip_stream, tvb, offset, 0, ipd->stream);
+      proto_item_set_generated(item);
+    }
   }
+
 
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */

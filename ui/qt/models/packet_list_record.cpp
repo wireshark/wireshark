@@ -204,7 +204,8 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
         color_ver_ = rows_color_ver_;
     }
 
-    struct conversation * conv = find_conversation_pinfo(&edt.pi, 0);
+    struct conversation * conv = find_conversation_pinfo_ro(&edt.pi);
+
     conv_index_ = ! conv ? 0 : conv->conv_index;
 
     epan_dissect_cleanup(&edt);

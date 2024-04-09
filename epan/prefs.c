@@ -155,6 +155,23 @@ static const enum_val_t gui_selection_style[] = {
     {NULL, NULL, -1}
 };
 
+/* None : Historical behavior, no deinterlacing */
+#define CONV_DEINT_CHOICE_NONE 0
+/* MI : MAC & Interface */
+#define CONV_DEINT_CHOICE_MI CONV_DEINT_KEY_MAC + CONV_DEINT_KEY_INTERFACE
+/* VM : VLAN & MAC */
+#define CONV_DEINT_CHOICE_VM CONV_DEINT_KEY_VLAN + CONV_DEINT_KEY_MAC
+/* VMI : VLAN & MAC & Interface */
+#define CONV_DEINT_CHOICE_VMI CONV_DEINT_KEY_VLAN + CONV_DEINT_KEY_MAC + CONV_DEINT_KEY_INTERFACE
+
+static const enum_val_t conv_deint_options[] = {
+    {"NONE", "NONE", CONV_DEINT_CHOICE_NONE},
+    {".MI", ".MI", CONV_DEINT_CHOICE_MI },
+    {"VM.", "VM.", CONV_DEINT_CHOICE_VM },
+    {"VMI", "VMI", CONV_DEINT_CHOICE_VMI },
+    {NULL, NULL, -1}
+};
+
 #if defined(HAVE_PCAP_CREATE)
 /* Can set monitor mode and buffer size. */
 static gint num_capture_cols = 7;
@@ -3971,11 +3988,17 @@ prefs_register_modules(void)
                                    "Ignore frames that are exact duplicates of any previous frame.",
                                    &prefs.ignore_dup_frames);
 
+    prefs_register_enum_preference(protocols_module, "conversation_deinterlacing_key",
+                                   "Deinterlacing conversations key",
+                                   "Use this key for deinterlacing conversations.",
+                                   (gint *)&prefs.conversation_deinterlacing_key, conv_deint_options, FALSE);
+
     prefs_register_uint_preference(protocols_module, "ignore_dup_frames_cache_entries",
             "The max number of hashes to keep in memory for determining duplicates frames",
             "If \"Ignore duplicate frames\" is set, this setting sets the maximum number "
             "of cache entries to maintain. A 0 means no limit.",
             10, &prefs.ignore_dup_frames_cache_entries);
+
 
     /* Obsolete preferences
      * These "modules" were reorganized/renamed to correspond to their GUI

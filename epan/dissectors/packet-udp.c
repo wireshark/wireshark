@@ -358,26 +358,11 @@ udp_filter_valid(packet_info *pinfo, void *user_data _U_)
 }
 
 static gchar*
-udp_build_filter(packet_info *pinfo, void *user_data _U_)
+udp_build_filter_by_id(packet_info *pinfo, void *user_data _U_)
 {
-    if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
-        /* UDP over IPv4 */
-        return ws_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-                    address_to_str(pinfo->pool, &pinfo->net_src),
-                    address_to_str(pinfo->pool, &pinfo->net_dst),
-                    pinfo->srcport, pinfo->destport );
-    }
-
-    if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
-        /* UDP over IPv6 */
-        return ws_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-                    address_to_str(pinfo->pool, &pinfo->net_src),
-                    address_to_str(pinfo->pool, &pinfo->net_dst),
-                    pinfo->srcport, pinfo->destport );
-    }
-
-    return NULL;
+        return ws_strdup_printf("udp.stream eq %d", pinfo->stream_id);
 }
+
 
 static gchar *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
@@ -390,10 +375,11 @@ static gchar *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo
      * Eventually the endpoint API should support storing multiple
      * endpoints and UDP should be changed to use the endpoint API.
      */
+    conv = find_conversation_strat(pinfo);
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_UDP) &&
-        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_UDP, pinfo->srcport, pinfo->destport, 0)) != NULL)
+        conv != NULL)
     {
         /* UDP over IPv4/6 */
         udpd=get_udp_conversation_data(conv, pinfo);
@@ -1230,7 +1216,66 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     pinfo->destport = udph->uh_dport;
 
     /* find(or create if needed) the conversation for this udp session */
-    conv = find_or_create_conversation(pinfo);
+    gboolean is_ordinary_conv = TRUE;
+
+    /* deinterlacing requested */
+    if(prefs.conversation_deinterlacing_key>0) {
+      guint conv_type;
+      guint32 dtlc_iface = 0;
+      guint32 dtlc_vlan = 0;
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+         pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+           pinfo->vlan_id>0) {
+
+          conv_type = CONVERSATION_ETH_IV;
+          dtlc_vlan = pinfo->vlan_id;
+        }
+        else {
+          conv_type = CONVERSATION_ETH_IN;
+        }
+        dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+      }
+      else {
+
+        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+           pinfo->vlan_id>0) {
+
+          conv_type = CONVERSATION_ETH_NV;
+          dtlc_vlan = pinfo->vlan_id;
+        }
+        else {
+          conv_type = CONVERSATION_ETH_NN;
+        }
+      }
+      conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, conv_type, dtlc_iface, dtlc_vlan , 0);
+      if(underlying_conv) {
+          is_ordinary_conv = FALSE;
+
+          conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+          if(!conv) {
+              conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP,
+                                        pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+          }
+      }
+    }
+
+    /*
+     * When it's not asked to deinterlace, or if deinterlacing failed (no related IP conversation),
+     * just proceed the ordinary way.
+     */
+    if(is_ordinary_conv) {
+
+      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP, pinfo->srcport, pinfo->destport, 0);
+      if(!conv) {
+          conv = conversation_new(pinfo->num, &pinfo->src,
+                         &pinfo->dst, CONVERSATION_UDP,
+                         pinfo->srcport, pinfo->destport, 0);
+      }
+    }
+
     udpd = get_udp_conversation_data(conv, pinfo);
     if (udpd) {
         item = proto_tree_add_uint(udp_tree, hf_udp_stream, tvb, offset, 0, udpd->stream);
@@ -1240,6 +1285,12 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         * to tap listeners.
         */
         udph->uh_stream = udpd->stream;
+
+        /* Copy the stream index into pinfo as well to make it available
+         * to callback functions (essentially conversation following events in GUI)
+         */
+        pinfo->stream_id = udpd->stream;
+
     }
 
     tap_queue_packet(udp_tap, pinfo, udph);
@@ -1523,7 +1574,7 @@ proto_register_udp(void)
 
     register_decode_as(&udp_da);
     register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_endpoint_packet);
-    register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter, NULL);
+    register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter_by_id, NULL);
     register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
                         udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count, NULL);
 
