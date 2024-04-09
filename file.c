@@ -264,6 +264,12 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
     /* We're about to start reading the file. */
     cf->state = FILE_READ_IN_PROGRESS;
 
+    /* If there was a pending redissection for the old file (there
+     * shouldn't be), clear it. cf_close() should have failed if the
+     * old file's read lock was held, but it doesn't hurt to clear it. */
+    cf->read_lock = FALSE;
+    cf->redissection_queued = RESCAN_NONE;
+
     cf->provider.wth = wth;
     cf->f_datalen = 0;
 
@@ -506,6 +512,8 @@ cf_read(capture_file *cf, gboolean reloading)
                 cf->filename, reloading);
         return CF_READ_ERROR;
     }
+    /* This is a full dissection, so clear any pending request for one. */
+    cf->redissection_queued = RESCAN_NONE;
     cf->read_lock = TRUE;
 
     /* Compile the current display filter.
