@@ -2077,31 +2077,29 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         p_pdcp_info = (struct pdcp_nr_info *)data;
     }
 
-    /* If no RLC layer in this frame, query RLC table for configured drb settings */
-    if (!p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0)) {
-        /* Signalling plane is always 12 bits SN */
-        if (p_pdcp_info->plane == NR_SIGNALING_PLANE && p_pdcp_info->bearerType == Bearer_DCCH) {
-            p_pdcp_info->seqnum_length = PDCP_NR_SN_LENGTH_12_BITS;
-        }
-        /* If DRB channel, query rlc mappings (from RRC) */
-        else if (p_pdcp_info->plane == NR_USER_PLANE) {
-            pdcp_bearer_parameters *params = get_rlc_nr_drb_pdcp_mapping(p_pdcp_info->ueid, p_pdcp_info->bearerId);
-            if (params) {
-                if (p_pdcp_info->direction == DIRECTION_UPLINK) {
-                    p_pdcp_info->seqnum_length = params->pdcp_sn_bits_ul;
-                    if (params->pdcp_sdap_ul) {
-                        p_pdcp_info->sdap_header |= PDCP_NR_UL_SDAP_HEADER_PRESENT;
-                    }
+    /* Even if no RLC layer in this frame, query RLC table for configured drb settings */
+    /* Signalling plane is always 12 bits SN */
+    if (p_pdcp_info->plane == NR_SIGNALING_PLANE && p_pdcp_info->bearerType == Bearer_DCCH) {
+        p_pdcp_info->seqnum_length = PDCP_NR_SN_LENGTH_12_BITS;
+    }
+    /* If DRB channel, query rlc mappings (hopefully set from RRC) */
+    else if (p_pdcp_info->plane == NR_USER_PLANE) {
+        pdcp_bearer_parameters *params = get_rlc_nr_drb_pdcp_mapping(p_pdcp_info->ueid, p_pdcp_info->bearerId);
+        if (params) {
+            if (p_pdcp_info->direction == DIRECTION_UPLINK) {
+                p_pdcp_info->seqnum_length = params->pdcp_sn_bits_ul;
+                if (params->pdcp_sdap_ul) {
+                    p_pdcp_info->sdap_header |= PDCP_NR_UL_SDAP_HEADER_PRESENT;
                 }
-                else {
-                    p_pdcp_info->seqnum_length = params->pdcp_sn_bits_dl;
-                    if (params->pdcp_sdap_dl) {
-                        p_pdcp_info->sdap_header |= PDCP_NR_DL_SDAP_HEADER_PRESENT;
-                    }
-                }
-                p_pdcp_info->maci_present = params->pdcp_integrity;
-                p_pdcp_info->ciphering_disabled = params->pdcp_ciphering_disabled;
             }
+            else {
+                p_pdcp_info->seqnum_length = params->pdcp_sn_bits_dl;
+                if (params->pdcp_sdap_dl) {
+                    p_pdcp_info->sdap_header |= PDCP_NR_DL_SDAP_HEADER_PRESENT;
+                }
+            }
+            p_pdcp_info->maci_present = params->pdcp_integrity;
+            p_pdcp_info->ciphering_disabled = params->pdcp_ciphering_disabled;
         }
     }
 
@@ -2455,6 +2453,8 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             should_decipher = pdu_security->seen_next_ul_pdu && !pdu_security->dl_after_reest_request;
         }
     }
+
+    gint pdcp_offset = offset;
     payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info, sdap_length,
                                    should_decipher,
                                    &payload_deciphered);
@@ -2539,29 +2539,31 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((p_pdcp_info->maci_present) ? 4 : 0);
 
         if (sdap_length) {
-            /* SDAP */
+            /* SDAP (not to be taken from decrypted payload) */
             proto_item *sdap_ti;
             proto_tree *sdap_tree;
             guint32 qfi;
 
             /* Protocol subtree */
-            sdap_ti = proto_tree_add_item(pdcp_tree, proto_sdap, payload_tvb, offset, 1, ENC_NA);
+            sdap_ti = proto_tree_add_item(pdcp_tree, proto_sdap, tvb, pdcp_offset, 1, ENC_NA);
             sdap_tree = proto_item_add_subtree(sdap_ti, ett_sdap);
             if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
                 gboolean data_control;
-                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_data_control, payload_tvb, offset, 1, ENC_NA, &data_control);
-                proto_tree_add_item(sdap_tree, hf_sdap_reserved, payload_tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_data_control, tvb, pdcp_offset, 1, ENC_NA, &data_control);
+                proto_tree_add_item(sdap_tree, hf_sdap_reserved, tvb, pdcp_offset, 1, ENC_NA);
                 proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &pdu_type_bit));
             } else {
                 gboolean rdi, rqi;
-                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rdi, payload_tvb, offset, 1, ENC_NA, &rdi);
-                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rqi, payload_tvb, offset, 1, ENC_NA, &rqi);
+                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rdi, tvb, pdcp_offset, 1, ENC_NA, &rdi);
+                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rqi, tvb, pdcp_offset, 1, ENC_NA, &rqi);
                 proto_item_append_text(sdap_ti, " (RDI=%s, RQI=%s",
                                        tfs_get_string(rdi, &sdap_rdi), tfs_get_string(rqi, &sdap_rqi));
             }
             /* QFI is common to both directions */
-            proto_tree_add_item_ret_uint(sdap_tree, hf_sdap_qfi, payload_tvb, offset, 1, ENC_NA, &qfi);
-            offset++;
+            proto_tree_add_item_ret_uint(sdap_tree, hf_sdap_qfi, tvb, pdcp_offset, 1, ENC_NA, &qfi);
+            if (!payload_deciphered) {
+                offset++;
+            }
             proto_item_append_text(sdap_ti, "  QFI=%u)", qfi);
             payload_length--;
         }

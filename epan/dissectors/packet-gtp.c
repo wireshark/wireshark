@@ -781,6 +781,10 @@ typedef struct {
     guint rohc_compression;
     //guint rohc_mode;
     guint rohc_profile;
+    /* One approach would be to just use the TEID, but it is 32 bits and would need to be
+     * truncated to (ultimately) 16 bits to be used as a UEId for PDCP */
+    guint32 ue_id;
+    guint   rb_id;
 } uat_pdcp_nr_keys_record_t;
 
 /* N.B. this is an array/table of the struct above, where IP address + TEID is the key */
@@ -813,6 +817,20 @@ static bool pdcp_nr_update_cb(void *r, char **err) {
         return FALSE;
     }
 
+    /* Range-check rb */
+    if ((rec->rb_id < 1) || (rec->rb_id > 32)) {
+        if (err)
+            *err = ws_strdup_printf("RB Id must be in range [1,32]");
+        return FALSE;
+    }
+
+    /* Range-check ueid */
+    if ((rec->ue_id < 1) || (rec->ue_id > 65535)) {
+        if (err)
+            *err = ws_strdup_printf("UEId must be in range [1,65535]");
+        return FALSE;
+    }
+
     return TRUE;
 }
 
@@ -822,7 +840,7 @@ static void *pdcp_nr_copy_cb(void *n, const void *o, size_t len _U_) {
 
     /* Copy UAT fields */
     new_rec->ip_addr_str = g_strdup(old_rec->ip_addr_str);
-    clear_address(&new_rec->ip_address);
+    clear_address(&new_rec->ip_address);   /* not copying address.. */
     new_rec->teid_str = g_strdup(old_rec->teid_str);
     new_rec->direction = old_rec->direction;
     new_rec->sdap_header_present = old_rec->sdap_header_present;
@@ -832,6 +850,8 @@ static void *pdcp_nr_copy_cb(void *n, const void *o, size_t len _U_) {
     new_rec->rohc_compression = old_rec->rohc_compression;
     //new_rec->rohc_mode = old_rec->rohc_mode;
     new_rec->rohc_profile = old_rec->rohc_profile;
+    new_rec->ue_id = old_rec->ue_id;
+    new_rec->rb_id = old_rec->rb_id;
 
     pdcp_nr_update_cb(new_rec, NULL);
 
@@ -847,44 +867,48 @@ static void pdcp_nr_free_cb(void *r)
     free_address_wmem(wmem_epan_scope(), &rec->ip_address);
 }
 
-#define PDCP_NR_DIRECTION_UPLINK_STR "UL"
+#define PDCP_NR_DIRECTION_UPLINK_STR   "UL"
+#define PDCP_NR_DIRECTION_DOWNLINK_STR "DL"
 static const value_string vs_direction[] = {
-    { PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR },
-    { PDCP_NR_DIRECTION_DOWNLINK, "DL" },
+    { PDCP_NR_DIRECTION_UPLINK,   PDCP_NR_DIRECTION_UPLINK_STR },
+    { PDCP_NR_DIRECTION_DOWNLINK, PDCP_NR_DIRECTION_DOWNLINK_STR },
     { 0, NULL }
 };
 
 /* Value sets for each drop-down list in the GUI */
 #define PDCP_NR_SDAP_HEADER_NOT_PRESENT_STR "SDAP header NOT present"
 #define PDCP_NR_SDAP_HEADER_NOT_PRESENT 0
-#define PDCP_NR_SDAP_HEADER_PRESENT 1
+#define PDCP_NR_SDAP_HEADER_PRESENT     1
 static const value_string vs_sdap_header_present[] = {
     { 0, PDCP_NR_SDAP_HEADER_NOT_PRESENT_STR },
     { 1, "SDAP header present" },
     { 0, NULL }
 };
 
-#define PDCP_LTE_HEADER_PRESENT_STR "Header present"
+#define PDCP_LTE_HEADER_NOT_PRESENT_STR "Header NOT present"
+#define PDCP_LTE_HEADER_PRESENT_STR     "Header present"
 #define PDCP_LTE_HEADER_NOT_PRESENT 0
-#define PDCP_LTE_HEADER_PRESENT 1
+#define PDCP_LTE_HEADER_PRESENT     1
 
 static const value_string vs_header_present[] = {
-    { 0, "Header NOT present" },
+    { 0, PDCP_LTE_HEADER_NOT_PRESENT_STR },
     { 1, PDCP_LTE_HEADER_PRESENT_STR },
     { 0, NULL }
 };
 
 
 #define MAC_I_PRESENT_FALSE_STR "MAC-I NOT present"
+#define MAC_I_PRESENT_TRUE_STR  "MAC-I present"
 static const value_string vs_mac_i_present[] = {
     { FALSE, MAC_I_PRESENT_FALSE_STR },
-    { TRUE, "MAC-I present" },
+    { TRUE,  MAC_I_PRESENT_TRUE_STR },
     { 0, NULL }
 };
 
-#define USER_PLANE_STR "User plane"
+#define SIGNALING_PLANE_STR "Signaling plane"
+#define USER_PLANE_STR      "User plane"
 static const value_string vs_pdcp_plane[] = {
-    { NR_SIGNALING_PLANE, "Signaling plane" },
+    { NR_SIGNALING_PLANE, SIGNALING_PLANE_STR },
     { NR_USER_PLANE, USER_PLANE_STR },
     { 0, NULL }
 };
@@ -937,6 +961,8 @@ UAT_VS_DEF(pdcp_nr_users, pdcp_nr_sn_length, uat_pdcp_nr_keys_record_t, guint, P
 UAT_VS_DEF(pdcp_nr_users, rohc_compression, uat_pdcp_nr_keys_record_t, guint, FALSE, ROHC_COMPRESSION_FALSE_STR)
 //UAT_VS_DEF(pdcp_nr_users, rohc_mode, uat_pdcp_nr_keys_record_t, guint, MODE_NOT_SET, ROHC_MODE_NOT_SET_STR)
 UAT_VS_DEF(pdcp_nr_users, rohc_profile, uat_pdcp_nr_keys_record_t, guint, ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR)
+UAT_DEC_CB_DEF(pdcp_nr_users, ue_id, uat_pdcp_nr_keys_record_t)
+UAT_DEC_CB_DEF(pdcp_nr_users, rb_id, uat_pdcp_nr_keys_record_t)
 
 static uat_pdcp_nr_keys_record_t* look_up_pdcp_nr_keys_record(packet_info *pinfo, guint32 teidn)
 {
@@ -10208,12 +10234,14 @@ dissect_gtp_tpsu_as_pdcp_nr_info(tvbuff_t * tvb, packet_info * pinfo, proto_tree
         struct pdcp_nr_info temp_data;
 
         pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
-        /* Fill in pdcp_nr_info */
 
+        /* Fill in pdcp_nr_info */
         temp_data.direction = found_record->direction;
-        /*temp_data.ueid*/
-        /*temp_data.bearerType;*/
-        /*temp_data.bearerId;*/
+        temp_data.bearerType = Bearer_DCCH;  /* always */
+        /* Want to use same ueid as other PDCP config.. */
+        temp_data.ueid = found_record->ue_id;
+        /* Get this from table, may also be available from F1AP signalling... */
+        temp_data.bearerId = found_record->rb_id;
 
         /* Details of PDCP header */
         temp_data.plane = found_record->plane;
@@ -10228,6 +10256,7 @@ dissect_gtp_tpsu_as_pdcp_nr_info(tvbuff_t * tvb, packet_info * pinfo, proto_tree
         } else {
             temp_data.sdap_header = 0;
         }
+        /* Integrity MAC present? */
         temp_data.maci_present = found_record->mac_i_present;
 
         /* RoHC settings */
@@ -11813,10 +11842,10 @@ proto_register_gtp(void)
            FT_UINT16, BASE_HEX_DEC, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_gtp_session,
-        { "Session", "gtp.session",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }
+        {&hf_gtp_session,
+          { "Session", "gtp.session",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
         },
         {&hf_gtp_sndcp_number,
          { "SNDCP N-PDU LLC Number", "gtp.sndcp_number",
@@ -13046,6 +13075,7 @@ proto_register_gtp(void)
         NULL,                               /* reset callback */
         pdcp_lte_keys_uat_flds);            /* UAT field definitions */
 
+
     prefs_register_uat_preference(gtp_module,
         "pdcp_lte_table",
         "GTP PDCP-LTE Keys",
@@ -13055,7 +13085,7 @@ proto_register_gtp(void)
     static uat_field_t pdcp_nr_keys_uat_flds[] = {
         UAT_FLD_CSTRING_OTHER(pdcp_nr_users, ip_addr_str, "Dst IP address", pdcp_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
         UAT_FLD_CSTRING_OTHER(pdcp_nr_users, teid_str, "TEID value or \"" PDCP_TEID_WILDCARD "\"", pdcp_uat_fld_teid_chk_cb, "Tunnel Endpoint Identifier"),
-        UAT_FLD_VS(pdcp_nr_users, direction, "Direction", vs_direction, "Direction"),
+        UAT_FLD_VS(pdcp_nr_users, direction, "Direction", vs_direction, "Direction of frames"),
         UAT_FLD_VS(pdcp_nr_users, sdap_header_present, "SDAP header present flag", vs_sdap_header_present, "SDAP header present flag"),
         UAT_FLD_VS(pdcp_nr_users, mac_i_present, "MAC-I present flag", vs_mac_i_present, "MAC-I present flag"),
         UAT_FLD_VS(pdcp_nr_users, plane, "Plane", vs_pdcp_plane, "Signaling or user plane"),
@@ -13063,6 +13093,9 @@ proto_register_gtp(void)
         UAT_FLD_VS(pdcp_nr_users, rohc_compression, "ROHC compression", vs_rohc_compression, "Header compression"),
         //UAT_FLD_VS(pdcp_nr_users, rohc_mode, "ROHC mode", vs_rohc_mode, "ROHC mode"),
         UAT_FLD_VS(pdcp_nr_users, rohc_profile, "ROHC profile", vs_rohc_profile, "ROHC profile"),
+        UAT_FLD_DEC(pdcp_nr_users, ue_id, "UE Id", "UE Identifier to match other PDCP config"),
+        UAT_FLD_DEC(pdcp_nr_users, rb_id, "RB Id", "Radio Bearer Identifier"),
+
         UAT_END_FIELDS
     };
 
@@ -13080,6 +13113,17 @@ proto_register_gtp(void)
         NULL,                              /* post update callback */
         NULL,                              /* reset callback */
         pdcp_nr_keys_uat_flds);            /* UAT field definitions */
+
+    /* Set default values for new entries to this table.  Choosing SRB-1 (DL) */
+    static const char *nr_keys_uat_defaults_[] = {
+        NULL, /*dst-address*/
+        "*",  /*teid*/
+        PDCP_NR_DIRECTION_DOWNLINK_STR, PDCP_NR_SDAP_HEADER_NOT_PRESENT_STR, MAC_I_PRESENT_TRUE_STR,
+        SIGNALING_PLANE_STR, PDCP_SN_LENGTH_12_BITS_STR, ROHC_COMPRESSION_FALSE_STR, ROHC_PROFILE_UNCOMPRESSED_STR,
+        "1", /*ueid*/ "1" /*rb*/
+    };
+    uat_set_default_values(pdcp_nr_keys_uat, nr_keys_uat_defaults_);
+
 
     prefs_register_uat_preference(gtp_module,
         "pdcp_nr_table",
@@ -13128,8 +13172,6 @@ proto_reg_handoff_gtp(void)
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
         radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
-
-
 
         eth_handle           = find_dissector_add_dependency("eth_withoutfcs", proto_gtp);
         ip_handle            = find_dissector_add_dependency("ip", proto_gtp);
