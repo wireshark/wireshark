@@ -2984,7 +2984,7 @@ BACnetFileStartOption [] = {
 };
 
 static const value_string
-BACnetFileRequestCount [] = {
+BacnetFileRequestedCount [] = {
     { 0, "Requested Octet Count: "},
     { 1, "Requested Record Count: "},
     { 0, NULL}
@@ -3171,8 +3171,8 @@ BACnetLifeSafetyState [] = {
 
 static const value_string
 BACnetLimitEnable[] = {
-    { 0, "low-limit" },
-    { 1, "high-limit" },
+    { 0, "low-limit-enable" },
+    { 1, "high-limit-enable" },
     { 0, NULL }
 };
 
@@ -3458,6 +3458,7 @@ BACnetReliability [] = {
     { 22, "proprietary-command-failure"},
     { 23, "faults-listed"},
     { 24, "referenced-object-fault"},
+    { 25, "multi-state-out-of-range"},
     { 0,  NULL}
 };
 
@@ -4641,9 +4642,9 @@ BACnetAcknowledgementFilter [] = {
 
 static const value_string
 BACnetResultFlags [] = {
-    { 0, "firstitem"},
-    { 1, "lastitem"},
-    { 2, "moreitems"},
+    { 0, "first-item"},
+    { 1, "last-item"},
+    { 2, "more-items"},
     { 0, NULL}
 };
 
@@ -4808,7 +4809,7 @@ BACnetEventType [] = {
     {  4, "floating-limit" },
     {  5, "out-of-range" },
     {  6, "complex-event-type" },
-    {  7, "(deprecated)buffer-ready" },
+    {  7, "(deprecated)event-buffer-ready" },
     {  8, "change-of-life-safety" },
     {  9, "extended" },
     { 10, "buffer-ready" },
@@ -6640,11 +6641,9 @@ BACnetVendorIdentifiers [] = {
     { 1367, "iDM Energiesysteme GmbH" },
     { 1368, "BeNext B.V." },
     { 1369, "CleanAir.ai Corporation" },
-    { 1369, "CleanAir.ai Corporation" },
     { 1370, "Revolution Microelectronics (America) Inc." },
     { 1371, "Real-Time Systems GmbH" },
     { 1372, "ZedBee Technologies Pvt Ltd" },
-    { 1373, "Winmate Technology Solutions Pvt. Ltd." },
     { 1373, "Winmate Technology Solutions Pvt. Ltd." },
     { 1374, "Senticon Ltd." },
     { 1375, "Rossaker AB" },
@@ -6733,6 +6732,18 @@ BACnetVendorIdentifiers [] = {
     { 1460, "Delta Fire Ltda." },
     { 1461, "Bock Water Heaters, Inc." },
     { 1462, "Cleaver-Brooks" },
+    { 1463, "Scanalytics, Inc." },
+    { 1464, "WI6LABS" },
+    { 1465, "AC&T System Co., Ltd" },
+    { 1466, "VergeSense" },
+    { 1467, "Systemair Mfg. Inc." },
+    { 1468, "Seeley International" },
+    { 1469, "Crane Building Services & Utilities" },
+    { 1470, "Brady Corporation" },
+    { 1471, "Qingdao Hisense Hitachi Air-Conditioning Systems Co., Ltd." },
+    { 1472, "Golden Quality Co. Ltd." },
+    { 1473, "Elvaco AB" },
+    { 1474, "Strong Technology, LLC" },
     { 0, NULL }
 };
 static value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
@@ -15715,7 +15726,7 @@ fAtomicReadFileRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
                         val_to_str_const(tag_no, BACnetFileAccessOption, "unknown access method"));
         offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
         offset  = fSignedTag(tvb, pinfo, subtree, offset, val_to_str_const(tag_no, BACnetFileStartOption, "unknown option"));
-        offset  = fUnsignedTag(tvb, pinfo, subtree, offset, val_to_str_const(tag_no, BACnetFileRequestCount, "unknown option"));
+        offset  = fUnsignedTag(tvb, pinfo, subtree, offset, val_to_str_const(tag_no, BacnetFileRequestedCount, "unknown option"));
         offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
     }
     return offset;
