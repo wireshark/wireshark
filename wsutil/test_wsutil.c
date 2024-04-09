@@ -47,7 +47,7 @@ struct in6_test {
     ws_in6_addr addr;
 };
 
-static struct in6_test in6_test1 = {
+static const struct in6_test in6_test1 = {
     .str = "2001:db8:ffaa:ddbb:1199:2288:3377:1",
     .addr = { { 0x20, 0x01, 0x0d, 0xb8, 0xff, 0xaa, 0xdd, 0xbb,
                 0x11, 0x99, 0x22, 0x88, 0x33, 0x77, 0x00, 0x01 } }

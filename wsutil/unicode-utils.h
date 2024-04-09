@@ -50,7 +50,7 @@ extern "C" {
     _CHECK_UTF_8(LOG_LEVEL_ECHO, str, len)
 
 WSUTIL_EXPORT
-int ws_utf8_seqlen[256];
+const int ws_utf8_seqlen[256];
 
 /** Given the first byte in an UTF-8 encoded code point,
  * return the length of the multibyte sequence, or *ZERO*

@@ -449,9 +449,9 @@ format_units(wmem_allocator_t *allocator, double size,
     bool scientific = false;
     double abs_size = fabs(size);
     int exponent = 0;
-    static const char *si_prefix[] = {" a", " f", " p", " n", " μ", " m", " ", " k", " M", " G", " T", " P", " E"};
-    static const char *iec_prefix[] = {" ", " Ki", " Mi", " Gi", " Ti", " Pi", " Ei"};
-    const char **prefix = si_prefix;
+    static const char * const si_prefix[] = {" a", " f", " p", " n", " μ", " m", " ", " k", " M", " G", " T", " P", " E"};
+    static const char * const iec_prefix[] = {" ", " Ki", " Mi", " Gi", " Ti", " Pi", " Ei"};
+    const char * const *prefix = si_prefix;
     int max_exp = (int)G_N_ELEMENTS(si_prefix) - 1;
 
     char *ret_val;

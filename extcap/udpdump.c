@@ -70,7 +70,7 @@ enum {
 	OPT_PAYLOAD
 };
 
-static struct ws_option longopts[] = {
+static const struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	/* Generic application options */
 	{ "help", ws_no_argument, NULL, OPT_HELP},

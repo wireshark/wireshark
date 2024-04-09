@@ -118,7 +118,7 @@ static const unsigned char *find_string(const unsigned char *, int *, const char
 #define HAVE_YEAR(s)		(s & S_YEAR)
 #define HAVE_HOUR(s)		(s & S_HOUR)
 
-static char utc[] = { "UTC" };
+static const char utc[] = { "UTC" };
 /* RFC-822/RFC-2822 */
 static const char * const nast[5] = {
        "EST",    "CST",    "MST",    "PST",    "\0\0\0"

@@ -59,7 +59,7 @@ enum {
     OPT_LEVEL,
 };
 
-static struct ws_option longopts[] = {
+static const struct ws_option longopts[] = {
     { "p", ws_required_argument, NULL, OPT_PROVIDER},
     { "k", ws_required_argument, NULL, OPT_KEYWORD},
     { "l", ws_required_argument, NULL, OPT_LEVEL},
