@@ -46,7 +46,7 @@ typedef struct {
 /** Individual column info */
 typedef struct {
   gint                col_fmt;              /**< Format of column */
-  gboolean           *fmt_matx;             /**< Specifies which formats apply to a column */
+  bool               *fmt_matx;             /**< Specifies which formats apply to a column */
   gchar              *col_title;            /**< Column titles */
   gchar              *col_custom_fields;    /**< Custom column fields */
   gint                col_custom_occurrence;/**< Custom column field occurrence */
@@ -55,7 +55,7 @@ typedef struct {
   const gchar        *col_data;             /**< Column data */
   gchar              *col_buf;              /**< Buffer into which to copy data for column */
   int                 col_fence;            /**< Stuff in column buffer before this index is immutable */
-  gboolean            writable;             /**< writable or not */
+  bool                writable;             /**< writable or not */
   int                 hf_id;
 } col_item_t;
 
@@ -67,7 +67,7 @@ struct epan_column_info {
   gint               *col_first;            /**< First column number with a given format */
   gint               *col_last;             /**< Last column number with a given format */
   col_expr_t          col_expr;             /**< Column expressions and values */
-  gboolean            writable;             /**< writable or not @todo Are we still writing to the columns? */
+  bool                writable;             /**< writable or not @todo Are we still writing to the columns? */
   GRegex             *prime_regex;          /**< Used to prime custom columns */
 };
 

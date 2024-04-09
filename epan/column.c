@@ -399,55 +399,55 @@ column_dump_column_formats(void)
 /* Marks each array element true if it can be substituted for the given
    column format */
 void
-get_column_format_matches(gboolean *fmt_list, const gint format) {
+get_column_format_matches(bool *fmt_list, const gint format) {
 
   /* Get the obvious: the format itself */
   if ((format >= 0) && (format < NUM_COL_FMTS))
-    fmt_list[format] = TRUE;
+    fmt_list[format] = true;
 
   /* Get any formats lower down on the chain */
   switch (format) {
     case COL_DEF_SRC:
-      fmt_list[COL_RES_DL_SRC] = TRUE;
-      fmt_list[COL_RES_NET_SRC] = TRUE;
+      fmt_list[COL_RES_DL_SRC] = true;
+      fmt_list[COL_RES_NET_SRC] = true;
       break;
     case COL_RES_SRC:
-      fmt_list[COL_RES_DL_SRC] = TRUE;
-      fmt_list[COL_RES_NET_SRC] = TRUE;
+      fmt_list[COL_RES_DL_SRC] = true;
+      fmt_list[COL_RES_NET_SRC] = true;
       break;
     case COL_UNRES_SRC:
-      fmt_list[COL_UNRES_DL_SRC] = TRUE;
-      fmt_list[COL_UNRES_NET_SRC] = TRUE;
+      fmt_list[COL_UNRES_DL_SRC] = true;
+      fmt_list[COL_UNRES_NET_SRC] = true;
       break;
     case COL_DEF_DST:
-      fmt_list[COL_RES_DL_DST] = TRUE;
-      fmt_list[COL_RES_NET_DST] = TRUE;
+      fmt_list[COL_RES_DL_DST] = true;
+      fmt_list[COL_RES_NET_DST] = true;
       break;
     case COL_RES_DST:
-      fmt_list[COL_RES_DL_DST] = TRUE;
-      fmt_list[COL_RES_NET_DST] = TRUE;
+      fmt_list[COL_RES_DL_DST] = true;
+      fmt_list[COL_RES_NET_DST] = true;
       break;
     case COL_UNRES_DST:
-      fmt_list[COL_UNRES_DL_DST] = TRUE;
-      fmt_list[COL_UNRES_NET_DST] = TRUE;
+      fmt_list[COL_UNRES_DL_DST] = true;
+      fmt_list[COL_UNRES_NET_DST] = true;
       break;
     case COL_DEF_DL_SRC:
-      fmt_list[COL_RES_DL_SRC] = TRUE;
+      fmt_list[COL_RES_DL_SRC] = true;
       break;
     case COL_DEF_DL_DST:
-      fmt_list[COL_RES_DL_DST] = TRUE;
+      fmt_list[COL_RES_DL_DST] = true;
       break;
     case COL_DEF_NET_SRC:
-      fmt_list[COL_RES_NET_SRC] = TRUE;
+      fmt_list[COL_RES_NET_SRC] = true;
       break;
     case COL_DEF_NET_DST:
-      fmt_list[COL_RES_NET_DST] = TRUE;
+      fmt_list[COL_RES_NET_DST] = true;
       break;
     case COL_DEF_SRC_PORT:
-      fmt_list[COL_RES_SRC_PORT] = TRUE;
+      fmt_list[COL_RES_SRC_PORT] = true;
       break;
     case COL_DEF_DST_PORT:
-      fmt_list[COL_RES_DST_PORT] = TRUE;
+      fmt_list[COL_RES_DST_PORT] = true;
       break;
     default:
       break;
@@ -1074,7 +1074,7 @@ col_finalize(column_info *cinfo)
       col_item->col_custom_dfilter = NULL;
     }
 
-    col_item->fmt_matx = g_new0(gboolean, NUM_COL_FMTS);
+    col_item->fmt_matx = g_new0(bool, NUM_COL_FMTS);
     get_column_format_matches(col_item->fmt_matx, col_item->col_fmt);
     col_item->col_data = NULL;
 

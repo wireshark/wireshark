@@ -41,7 +41,7 @@ gint                 get_column_format(const gint);
 WS_DLL_PUBLIC
 void                 set_column_format(const gint, const gint);
 WS_DLL_PUBLIC
-void                 get_column_format_matches(gboolean *, const gint);
+void                 get_column_format_matches(bool *, const gint);
 WS_DLL_PUBLIC
 gint                 get_column_format_from_str(const gchar *);
 WS_DLL_PUBLIC
