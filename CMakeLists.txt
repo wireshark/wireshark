@@ -1911,7 +1911,7 @@ set_package_properties(LZ4 PROPERTIES
 set_package_properties(SNAPPY PROPERTIES
 	DESCRIPTION "A fast compressor/decompressor from Google"
 	URL "https://google.github.io/snappy/"
-	PURPOSE "Snappy decompression in CQL and Kafka dissectors"
+	PURPOSE "Snappy decompression in Couchbase, CQL, Kafka and Mongo dissectors"
 )
 set_package_properties(ZSTD PROPERTIES
 	DESCRIPTION "A compressor/decompressor from Facebook providing better compression than Snappy at a cost of speed"

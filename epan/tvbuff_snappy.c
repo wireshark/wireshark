@@ -30,19 +30,19 @@ tvb_uncompress_snappy(tvbuff_t *tvb, const int offset, int comprlen)
     guchar *decompressed_buffer = NULL;
     size_t orig_size = 0;
     snappy_status ret;
+    const void *compr_ptr;
 
-    if (tvb == NULL || comprlen <= 0) {
+    if (tvb == NULL || comprlen <= 0 || comprlen > tvb_captured_length_remaining(tvb, offset)) {
         return NULL;
     }
 
-    ret = snappy_uncompressed_length(tvb_get_ptr(tvb, offset, -1),
-        tvb_captured_length_remaining(tvb, offset), &orig_size);
+    compr_ptr = tvb_get_ptr(tvb, offset, comprlen);
+    ret = snappy_uncompressed_length(compr_ptr, comprlen, &orig_size);
 
     if (ret == SNAPPY_OK) {
         decompressed_buffer = (guchar *)g_malloc(orig_size);
 
-        ret = snappy_uncompress(tvb_get_ptr(tvb, offset, -1),
-            tvb_captured_length_remaining(tvb, offset), decompressed_buffer, &orig_size);
+        ret = snappy_uncompress(compr_ptr, comprlen, decompressed_buffer, &orig_size);
 
         if (ret == SNAPPY_OK) {
             uncompr_tvb = tvb_new_real_data(decompressed_buffer, (guint32)orig_size, (guint32)orig_size);
