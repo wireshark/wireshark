@@ -2759,29 +2759,12 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
 #ifdef HAVE_SNAPPY
       if (datatype & DT_SNAPPY) {
-        size_t orig_size = 0;
-        snappy_status ret;
-        guchar *decompressed_buffer = NULL;
-        tvbuff_t* compressed_tvb = NULL;
-
-        ret = snappy_uncompressed_length(tvb_get_ptr(tvb, offset, -1),
-                                         tvb_captured_length_remaining(tvb, offset),
-                                         &orig_size);
-        if (ret == SNAPPY_OK) {
-          decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
-          ret = snappy_uncompress(tvb_get_ptr(tvb, offset, -1),
-                                  tvb_captured_length_remaining(tvb, offset),
-                                  decompressed_buffer,
-                                  &orig_size);
-          if (ret == SNAPPY_OK) {
-            compressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (guint32)orig_size, (guint32)orig_size);
-            add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");
+        tvbuff_t* decompressed_tvb = tvb_child_uncompress_snappy(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+        if (decompressed_tvb != NULL) {
+            add_new_data_source(pinfo, decompressed_tvb, "Decompressed Data");
             if (datatype & DT_JSON) {
-              call_dissector(json_handle, compressed_tvb, pinfo, tree);
+              call_dissector(json_handle, decompressed_tvb, pinfo, tree);
             }
-          } else {
-            expert_add_info_format(pinfo, ti, &ei_compression_error, "Error uncompressing snappy data");
-          }
         } else {
             expert_add_info_format(pinfo, ti, &ei_compression_error, "Error uncompressing snappy data");
         }

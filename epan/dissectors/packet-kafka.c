@@ -1732,9 +1732,6 @@ decompress_lz4(tvbuff_t *tvb _U_, packet_info *pinfo, int offset _U_, guint32 le
 static gboolean
 decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tvbuff_t **decompressed_tvb, int *decompressed_offset)
 {
-    guint8 *data = (guint8*)tvb_memdup(pinfo->pool, tvb, offset, length);
-    size_t uncompressed_size, out_size;
-    snappy_status rc = SNAPPY_OK;
     tvbuff_t *composite_tvb = NULL;
     gboolean ret = FALSE;
 
@@ -1745,6 +1742,8 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
         int count = 0;
 
         while (pos < length && count < MAX_LOOP_ITERATIONS) {
+            tvbuff_t *decompressed_chunk_tvb;
+
             if (pos > length-4) {
                 // XXX - this is presumably an error, as the chunk size
                 // doesn't fully fit in the data, so an error should be
@@ -1765,25 +1764,11 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
                 // should be reported.
                 goto end;
             }
-            rc = snappy_uncompressed_length(&data[pos], chunk_size, &uncompressed_size);
-            if (rc != SNAPPY_OK) {
-                goto end;
-            }
-            guint8 *decompressed_buffer = (guint8*)wmem_alloc(pinfo->pool, uncompressed_size);
-            out_size = uncompressed_size;
-            rc = snappy_uncompress(&data[pos], chunk_size, decompressed_buffer, &out_size);
-            if (rc != SNAPPY_OK) {
-                goto end;
-            }
-            if (out_size != uncompressed_size) {
-                decompressed_buffer = (guint8 *)wmem_realloc(pinfo->pool, decompressed_buffer, out_size);
-            }
-
+            decompressed_chunk_tvb = tvb_child_uncompress_snappy(tvb, tvb, pos, chunk_size);
             if (!composite_tvb) {
                 composite_tvb = tvb_new_composite();
             }
-            tvb_composite_append(composite_tvb,
-                      tvb_new_child_real_data(tvb, decompressed_buffer, (guint)out_size, (gint)out_size));
+            tvb_composite_append(composite_tvb, decompressed_chunk_tvb);
             pos += chunk_size;
             count++;
             DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
@@ -1792,23 +1777,10 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
     } else {
 
         /* unframed format */
-        rc = snappy_uncompressed_length(data, length, &uncompressed_size);
-        if (rc != SNAPPY_OK) {
+        *decompressed_tvb = tvb_child_uncompress_snappy(tvb, tvb, offset, length);
+        if (*decompressed_tvb == NULL) {
             goto end;
         }
-
-        guint8 *decompressed_buffer = (guint8*)wmem_alloc(pinfo->pool, uncompressed_size);
-
-        out_size = uncompressed_size;
-        rc = snappy_uncompress(data, length, decompressed_buffer, &out_size);
-        if (rc != SNAPPY_OK) {
-            goto end;
-        }
-        if (out_size != uncompressed_size) {
-            decompressed_buffer = (guint8 *)wmem_realloc(pinfo->pool, decompressed_buffer, out_size);
-        }
-
-        *decompressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (guint)out_size, (gint)out_size);
         *decompressed_offset = 0;
 
     }
@@ -1816,12 +1788,12 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
 end:
     if (composite_tvb) {
         tvb_composite_finalize(composite_tvb);
-        if (ret == 1) {
+        if (ret) {
             *decompressed_tvb = composite_tvb;
             *decompressed_offset = 0;
         }
     }
-    if (ret == FALSE) {
+    if (!ret) {
         col_append_str(pinfo->cinfo, COL_INFO, " [snappy decompression failed]");
     }
     return ret;
@@ -1858,7 +1830,7 @@ decompress_zstd(tvbuff_t *tvb _U_, packet_info *pinfo, int offset _U_, guint32 l
 #endif /* HAVE_ZSTD */
 
 // Max is currently 2^22 in
-// https://github.com/apache/kafka/blob/trunk/clients/src/main/java/org/apache/kafka/common/record/KafkaLZ4BlockOutputStream.java
+// https://github.com/apache/kafka/blob/trunk/clients/src/main/java/org/apache/kafka/common/compress/KafkaLZ4BlockOutputStream.java
 #define MAX_DECOMPRESSION_SIZE (1 << 22)
 static gboolean
 decompress(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, int codec, tvbuff_t **decompressed_tvb, int *decompressed_offset)
