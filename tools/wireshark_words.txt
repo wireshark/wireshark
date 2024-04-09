@@ -192,6 +192,7 @@ bthci
 btmesh
 btsdp
 btsnoop
+btxnq
 bucuresti
 bugzilla
 buildbot
@@ -1593,6 +1594,7 @@ resolver
 resolvers
 resub
 resubmission
+resynchronisation
 resynchronization
 resynchronize
 resynchronized
@@ -1635,6 +1637,7 @@ rsrvd
 rtitcp
 rtpdump
 rtpevent
+rtpfb
 rtpmidi
 rtpmux
 rtpstream
@@ -1934,6 +1937,7 @@ transiently
 transifex
 transitioning
 transitivity
+transportcc
 transum
 transversal
 traveler

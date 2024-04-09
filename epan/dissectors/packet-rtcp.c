@@ -1914,7 +1914,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, packet_inf
     {
       return offset + packet_length;
     }
-    else /* RTPFB FMT types that are still unnasigned by IANA */
+    else /* RTPFB FMT types that are still unassigned by IANA */
     {
       int start_offset = offset;
 
@@ -3100,10 +3100,10 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 proto_tree_add_item(sub_tree, hf_rtcp_mccp_floor_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
-            /* Medis Port Number */
+            /* Media Port Number */
             proto_tree_add_item(sub_tree, hf_rtcp_mccp_media_port_no, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            /* IP Address*/
+            /* IP Address */
             if (ip_ver == 0) {
                 proto_tree_add_item(sub_tree, hf_rtcp_mccp_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
@@ -8485,7 +8485,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_block_length, { "rtcp.block_length.invalid", PI_PROTOCOL, PI_WARN, "Block length is greater than packet length", EXPFILL }},
         { &ei_srtcp_encrypted_payload, { "srtcp.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted RTCP Payload - not dissected", EXPFILL }},
         { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
-        { &ei_rtcp_rtpfb_fmt_not_implemented, { "rtcp.rfpfb.fmt_not_implemented", PI_UNDECODED, PI_WARN, "RCPFB FMT not dissected, contact Wireshark developers if you want this to be supported", EXPFILL }},
+        { &ei_rtcp_rtpfb_fmt_not_implemented, { "rtcp.rtpfb.fmt_not_implemented", PI_UNDECODED, PI_WARN, "RTPFB FMT not dissected, contact Wireshark developers if you want this to be supported", EXPFILL }},
         { &ei_rtcp_rtpfb_ccfb_too_many_reports, { "rtcp.mcptt.ccfb.invalid_pkt", PI_UNDECODED, PI_WARN, "RTPFB CCFB report block must not include more than 2^14 metric blocks", EXPFILL }},
         { &ei_rtcp_mcptt_unknown_fld, { "rtcp.mcptt.unknown_fld", PI_PROTOCOL, PI_WARN, "Unknown field", EXPFILL }},
         { &ei_rtcp_mcptt_location_type, { "rtcp.mcptt.location_type_uk", PI_PROTOCOL, PI_WARN, "Unknown location type", EXPFILL }},
