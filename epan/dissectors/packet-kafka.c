@@ -1763,7 +1763,10 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length,
                 // should be reported.
                 goto end;
             }
-            decompressed_chunk_tvb = tvb_child_uncompress_snappy(tvb, tvb, pos, chunk_size);
+            decompressed_chunk_tvb = tvb_child_uncompress_snappy(tvb, tvb, offset+pos, chunk_size);
+            if (decompressed_chunk_tvb == NULL) {
+                goto end;
+            }
             if (!composite_tvb) {
                 composite_tvb = tvb_new_composite();
             }
