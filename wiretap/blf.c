@@ -935,7 +935,7 @@ blf_find_next_logcontainer(blf_params_t* params, int* err, char** err_info) {
                 ws_debug("container object magic is not LOBJ");
             }
             else {
-                ws_debug("container object magic is not LOBJ (pos: 0x%" PRIx64 ")", file_tell(params->fh));
+                ws_debug("container object magic is not LOBJ (pos: 0x%" PRIx64 ")", file_tell(params->fh) - 1);
             }
             if (i > 0) {
                 int j = i;
