@@ -1180,40 +1180,39 @@ dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
 }
 
 /*
- * Pre KIP-482 coding. The string is prefixed with signed 16-bit integer containing number of octets.
+ * Pre KIP-482 coding. The string is prefixed with signed 32-bit integer containing number of octets.
  */
 static int
 dissect_kafka_regular_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo, int offset,
                     int *p_offset, int *p_length)
 {
-    gint16 length;
+    gint32 length;
     proto_item *pi;
 
-    length = (gint16) tvb_get_ntohs(tvb, offset);
+    length = (gint32) tvb_get_ntohl(tvb, offset);
     if (length < -1) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
         if (p_offset) {
-            *p_offset = 2;
+            *p_offset = 4;
         }
         if (p_length) {
             *p_length = 0;
         }
-        return offset + 2;
+        return offset + 4;
     }
 
     if (length == -1) {
-        proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, 2, NULL, 0);
+        proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, 4, NULL, 0);
     } else {
-        proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, length + 2,
-        tvb_get_ptr(tvb, offset + 2, length),
-                length);
+        proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, length + 4,
+                                         tvb_get_ptr(tvb, offset + 4, length), length);
     }
 
-    if (p_offset != NULL) *p_offset = offset + 2;
+    if (p_offset != NULL) *p_offset = offset + 4;
     if (p_length != NULL) *p_length = length;
 
-    offset += 2;
+    offset += 4;
     if (length != -1) offset += length;
 
     return offset;
@@ -1905,12 +1904,13 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     offset = dissect_kafka_int8(subtree, hf_kafka_message_magic, tvb, pinfo, offset, &magic_byte);
 
-    offset = dissect_kafka_int8(subtree, hf_kafka_message_codec, tvb, pinfo, offset, &codec);
+    /* Don't advance "offset" here: The following message timestamp type field is in the same byte as the codec. */
+    (void)dissect_kafka_int8(subtree, hf_kafka_message_codec, tvb, pinfo, offset, &codec);
     codec &= KAFKA_MESSAGE_CODEC_MASK;
 
     offset = dissect_kafka_int8(subtree, hf_kafka_message_timestamp_type, tvb, pinfo, offset, NULL);
 
-    if (magic_byte == 1) {
+    if (magic_byte > 0) {
         proto_tree_add_item(subtree, hf_kafka_message_timestamp, tvb, offset, 8, ENC_TIME_MSECS|ENC_BIG_ENDIAN);
         offset += 8;
     }
