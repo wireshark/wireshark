@@ -661,11 +661,6 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         return true;
     }
 
-    if (container->real_length == 0) {
-        ws_info("blf_pull_logcontainer_into_memory: found container with 0 length");
-        return true;
-    }
-
     /* pull compressed data into buffer */
     if (container->infile_start_pos < 0) {
         /*
@@ -709,6 +704,26 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: data_length (%" PRIu64 ") > UINT_MAX",
             data_length);
         return false;
+    }
+
+    if (container->real_length == 0) {
+        ws_info("blf_pull_logcontainer_into_memory: found container with 0 length");
+        /* Skip empty container */
+        if (!wtap_read_bytes_or_eof(params->fh, NULL, (unsigned int)data_length, err, err_info)) {
+            if (*err == WTAP_ERR_SHORT_READ) {
+                /*
+                 * XXX - our caller will turn this into an EOF.
+                 * How *should* it be treated?
+                 * For now, we turn it into Yet Another Internal Error,
+                 * pending having better documentation of the file
+                 * format.
+                 */
+                *err = WTAP_ERR_INTERNAL;
+                *err_info = ws_strdup("blf_pull_logcontainer_into_memory: short read on 0-length container");
+            }
+            return false;
+        }
+        return true;
     }
 
     if (container->compression_method == BLF_COMPRESSION_NONE) {
