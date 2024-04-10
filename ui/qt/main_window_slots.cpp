@@ -2231,7 +2231,7 @@ void MainWindow::on_actionEditTimeShift_triggered()
 
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             ts_dialog, SLOT(setCaptureFile(capture_file*)));
-    connect(ts_dialog, SIGNAL(timeShifted()), packet_list_, SLOT(applyTimeShift()));
+    connect(ts_dialog, &TimeShiftDialog::timeShifted, packet_list_, &PacketList::applyTimeShift, Qt::QueuedConnection);
 
     ts_dialog->setWindowModality(Qt::ApplicationModal);
     ts_dialog->setAttribute(Qt::WA_DeleteOnClose);
