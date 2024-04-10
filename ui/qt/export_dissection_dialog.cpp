@@ -151,6 +151,12 @@ void ExportDissectionDialog::show()
 void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
 {
     if (selected.length() > 0) {
+        /* writing might take a while, so hide ourselves so the user
+         * can't click on anything here (this dialog will be closed
+         * and deleted once this function is done), but can access
+         * the ProgressDialog in the main window to cancel the export.
+         */
+        hide();
         cf_print_status_t status;
         QString file_name = selected[0];
 
