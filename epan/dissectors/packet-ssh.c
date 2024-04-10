@@ -2848,7 +2848,6 @@ ssh_decryption_set_mac_id(struct ssh_peer_data *peer)
     } else if (0 == strcmp(mac_name, "hmac-sha2-256")) {
         peer->mac_id = CIPHER_MAC_SHA2_256;
     } else {
-        peer->mac = NULL;
         ws_debug("decryption MAC not supported: %s", mac_name);
     }
 }
