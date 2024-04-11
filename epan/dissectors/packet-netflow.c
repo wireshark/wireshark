@@ -3640,6 +3640,9 @@ static int      hf_pie_ixia_diameter_result_code;
 static int      hf_pie_ixia_diameter_subscription_id_data;
 static int      hf_pie_ixia_session_fingerprint;
 static int      hf_pie_ixia_session_parse_errors;
+static int      hf_pie_ixia_http_headers;
+static int      hf_pie_ixia_http_header_field;
+static int      hf_pie_ixia_http_header_value;
 
 static int      hf_pie_netscaler;
 static int      hf_pie_netscaler_roundtriptime;
@@ -11303,6 +11306,19 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_IXIA << 16) | 365):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_session_parse_errors,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 366):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_headers,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 367):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_header_field,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 368):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_header_value,
+                                     tvb, offset, length, ENC_ASCII);
             break;
             /* END Ixia Communications */
 
@@ -20084,6 +20100,27 @@ proto_register_netflow(void)
          {"Parse Errors", "cflow.pie.ixia.session-parse-errors",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           "Session Parse Errors Count", HFILL}
+        },
+
+        /* ixia, 3054 / 366 */
+        {&hf_pie_ixia_http_headers,
+         {"HTTP Headers", "cflow.pie.ixia.http-headers",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of HTTP Headers", HFILL}
+        },
+
+        /* ixia, 3054 / 367 */
+        {&hf_pie_ixia_http_header_field,
+         {"HTTP Header Field", "cflow.pie.ixia.http-header-field",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Field name of HTTP header", HFILL}
+        },
+
+        /* ixia, 3054 / 368 */
+        {&hf_pie_ixia_http_header_value,
+         {"HTTP Header Value", "cflow.pie.ixia.http-header-value",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Value for HTTP header", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
