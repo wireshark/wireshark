@@ -15,7 +15,6 @@
 #include "locale.h"
 
 #include <epan/stat_tap_ui.h>
-#include "epan/stats_tree_priv.h"
 #include "epan/uat-int.h"
 
 #include <wsutil/utf8_entities.h>
