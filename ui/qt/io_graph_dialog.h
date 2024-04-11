@@ -136,7 +136,7 @@ private:
     QString vu_field_;
     int hf_index_;
     int interval_;
-    double start_time_;
+    nstime_t start_time_;
 
     // Cached data. We should be able to change the Y axis without retapping as
     // much as is feasible.

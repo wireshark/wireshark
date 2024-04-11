@@ -1808,6 +1808,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     val_units_(IOG_ITEM_UNIT_FIRST),
     hf_index_(-1),
     interval_(0),
+    start_time_(NSTIME_INIT_ZERO),
     cur_idx_(-1)
 {
     Q_ASSERT(parent_ != NULL);
@@ -2200,10 +2201,10 @@ bool IOGraph::removeFromLegend()
 double IOGraph::startOffset() const
 {
     if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
-        return start_time_;
+        return nstime_to_sec(&start_time_);
     }
     if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
-        return start_time_;
+        return nstime_to_sec(&start_time_);
     }
     return 0.0;
 }
@@ -2236,7 +2237,7 @@ void IOGraph::clearAllData()
     if (bars_) {
         bars_->data()->clear();
     }
-    start_time_ = 0.0;
+    nstime_set_zero(&start_time_);
 }
 
 void IOGraph::recalcGraphData(capture_file *cap_file)
@@ -2245,15 +2246,12 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
     unsigned int mavg_in_average_count = 0, mavg_left = 0;
     unsigned int mavg_to_remove = 0, mavg_to_add = 0;
     double mavg_cumulated = 0;
-    QCPAxis *x_axis = nullptr;
 
     if (graph_) {
         graph_->data()->clear();
-        x_axis = graph_->keyAxis();
     }
     if (bars_) {
         bars_->data()->clear();
-        x_axis = bars_->keyAxis();
     }
 
     if (moving_avg_period_ > 0 && cur_idx_ >= 0) {
@@ -2281,11 +2279,9 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
         mavg_to_add = (unsigned int)warmup_interval;
     }
 
+    double ts_offset = startOffset();
     for (int i = 0; i <= cur_idx_; i++) {
-        double ts = (double) i * interval_ / SCALE_F;
-        if (x_axis && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(x_axis->ticker())) {
-            ts += start_time_;
-        }
+        double ts = (double) i * interval_ / SCALE_F + ts_offset;
         double val = getItemValue(i, cap_file);
 
         if (moving_avg_period_ > 0) {
@@ -2558,11 +2554,8 @@ tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dis
     }
 
     /* set start time */
-    if (iog->start_time_ == 0.0) {
-        nstime_t start_nstime;
-        nstime_set_zero(&start_nstime);
-        nstime_delta(&start_nstime, &pinfo->abs_ts, &pinfo->rel_ts);
-        iog->start_time_ = nstime_to_sec(&start_nstime);
+    if (nstime_is_zero(&iog->start_time_)) {
+        nstime_delta(&iog->start_time_, &pinfo->abs_ts, &pinfo->rel_ts);
     }
 
     epan_dissect_t *adv_edt = NULL;
