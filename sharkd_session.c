@@ -4465,7 +4465,9 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         if (field_name)
             field_name = field_name + 1;
 
-        graph->interval = interval_ms;
+        /* io_graph_item now supports microseconds (and this parameter
+         * is expected to be in microseconds.) */
+        graph->interval = 1000 * interval_ms;
 
         graph->hf_index = -1;
         graph->error = check_field_unit(field_name, &graph->hf_index, graph->calc_type);

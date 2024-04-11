@@ -83,7 +83,7 @@
 // Scale factor to convert the units the interval is stored in to seconds.
 // Must match what get_io_graph_index() in io_graph_item expects.
 // Increase this in order to make smaller intervals possible.
-const int SCALE = 1000;
+const int SCALE = 1000000;
 const double SCALE_F = (double)SCALE;
 
 const qreal graph_line_width_ = 1.0;
@@ -399,6 +399,20 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     stat_timer_->start(stat_update_interval_);
 
     // Intervals (ms)
+    // #6441 asks for arbitrary values. We could probably do that with
+    // a QSpinBox, e.g. using QAbstractSpinBox::AdaptiveDecimalStepType
+    // or similar (it only exists starting in Qt 5.12) and suffix(),
+    // or something fancier with valueFromText() and textFromValue() to
+    // convert to and from SI prefixes.
+    ui->intervalComboBox->addItem(tr("1 μs"),   SCALE / 1000000);
+    ui->intervalComboBox->addItem(tr("2 μs"),   SCALE / 500000);
+    ui->intervalComboBox->addItem(tr("5 μs"),   SCALE / 200000);
+    ui->intervalComboBox->addItem(tr("10 μs"),  SCALE / 100000);
+    ui->intervalComboBox->addItem(tr("20 μs"),  SCALE / 50000);
+    ui->intervalComboBox->addItem(tr("50 μs"),  SCALE / 20000);
+    ui->intervalComboBox->addItem(tr("100 μs"), SCALE / 10000);
+    ui->intervalComboBox->addItem(tr("200 μs"), SCALE / 5000);
+    ui->intervalComboBox->addItem(tr("500 μs"), SCALE / 2000);
     ui->intervalComboBox->addItem(tr("1 ms"),   SCALE / 1000);
     ui->intervalComboBox->addItem(tr("2 ms"),   SCALE / 500);
     ui->intervalComboBox->addItem(tr("5 ms"),   SCALE / 200);
@@ -413,8 +427,10 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ui->intervalComboBox->addItem(tr("5 sec"),  SCALE * 5);
     ui->intervalComboBox->addItem(tr("10 sec"), SCALE * 10);
     ui->intervalComboBox->addItem(tr("1 min"),  SCALE * 60);
+    ui->intervalComboBox->addItem(tr("2 min"),  SCALE * 120);
+    ui->intervalComboBox->addItem(tr("5 min"),  SCALE * 300);
     ui->intervalComboBox->addItem(tr("10 min"), SCALE * 600);
-    ui->intervalComboBox->setCurrentIndex(9);
+    ui->intervalComboBox->setCurrentIndex(18);
 
     ui->todCheckBox->setChecked(false);
     iop->xAxis->setTicker(number_ticker_);
@@ -1767,7 +1783,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
     for (int interval = 0; interval <= max_interval; interval++) {
         int64_t interval_start = interval * ui_interval;
         if (qSharedPointerDynamicCast<QCPAxisTickerDateTime>(ui->ioPlot->xAxis->ticker()) != nullptr) {
-            nstime_t interval_time = NSTIME_INIT_SECS_MSECS((time_t)(interval_start / SCALE), (int)(interval_start % SCALE));
+            nstime_t interval_time = NSTIME_INIT_SECS_USECS((time_t)(interval_start / SCALE), (int)(interval_start % SCALE));
 
             nstime_add(&interval_time, &start_time_);
 
@@ -2567,7 +2583,7 @@ tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dis
         if (old_size == 0) {
             new_size = 1024;
         } else {
-            new_size = MIN(old_size << 1, old_size + 262144);
+            new_size = MIN((old_size * 3) / 2, max_io_items_);
         }
         new_size = MAX(new_size, (size_t)idx + 1);
         try {

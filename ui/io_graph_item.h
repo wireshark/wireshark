@@ -157,7 +157,7 @@ reset_io_graph_items(io_graph_item_t *items, size_t count, int hf_index _U_) {
  * It is up to the caller to determine if the return value is valid.
  *
  * @param [in] pinfo Packet of interest.
- * @param [in] interval Time interval in milliseconds.
+ * @param [in] interval Time interval in microseconds
  * @return Array index on success, -1 on failure.
  *
  * @note pinfo->rel_ts, and hence the index, is not affected by ignoring
@@ -200,7 +200,7 @@ double get_io_graph_item(const io_graph_item_t *items, io_graph_item_unit_t val_
  * @param edt [in] Dissection information for advanced statistics. May be NULL.
  * @param hf_index [in] Header field index for advanced statistics.
  * @param item_unit [in] The type of unit to calculate. From IOG_ITEM_UNITS.
- * @param interval [in] Timing interval in ms.
+ * @param interval [in] Timing interval in μs.
  * @return true if the update was successful, otherwise false.
  */
 static inline bool
@@ -350,7 +350,7 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                      * returns an invalid interval if so.
                      */
                     pt = pinfo->rel_ts.secs * 1000000 + pinfo->rel_ts.nsecs / 1000;
-                    pt = pt % (interval * 1000);
+                    pt = pt % interval;
                     if (pt > t) {
                         pt = t;
                     }
@@ -370,8 +370,8 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                         }
                         j--;
                         t -= pt;
-                        if (t > (uint64_t) interval * 1000) {
-                            pt = (uint64_t) interval * 1000;
+                        if (t > (uint64_t) interval) {
+                            pt = (uint64_t) interval;
                         } else {
                             pt = t;
                         }

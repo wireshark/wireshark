@@ -31,7 +31,7 @@ int64_t get_io_graph_index(packet_info *pinfo, int interval) {
     if (time_delta.secs<0) {
         return -1;
     }
-    return ((time_delta.secs*INT64_C(1000) + time_delta.nsecs/1000000) / interval);
+    return ((time_delta.secs*INT64_C(1000000) + time_delta.nsecs/1000) / interval);
 }
 
 GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_unit_t item_unit)
@@ -270,17 +270,17 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
         case IOG_ITEM_UNIT_CALC_LOAD:
             // "LOAD graphs plot the QUEUE-depth of the connection over time"
             // (for response time fields such as smb.time, rpc.time, etc.)
-            // This interval is expressed in milliseconds.
+            // This interval is expressed in microseconds.
             if (idx == cur_idx_ && cap_file) {
                 // If this is the last interval, it may not be full width.
-                uint64_t start_ms = (uint64_t)interval_ * idx;
-                nstime_t timediff = { start_ms / 1000, (start_ms % 1000) * 1000000 };
+                uint64_t start_us = (uint64_t)interval_ * idx;
+                nstime_t timediff = NSTIME_INIT_SECS_USECS(start_us / 1000000, start_us % 1000000);
                 nstime_delta(&timediff, &cap_file->elapsed_time, &timediff);
-                interval = (uint32_t)(nstime_to_msec(&timediff) + 0.5);
+                interval = (uint32_t)(1000*nstime_to_msec(&timediff) + 0.5);
             } else {
                 interval = interval_;
             }
-            value = nstime_to_msec(&item->time_tot) / interval;
+            value = (1000 * nstime_to_msec(&item->time_tot)) / interval;
             break;
         default:
             break;
