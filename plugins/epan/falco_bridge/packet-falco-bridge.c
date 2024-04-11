@@ -329,7 +329,7 @@ create_source_hfids(bridge_info* bi)
                     fdisplay = BASE_OCT;
                     break;
                 default:
-                    THROW_FORMATTED(DissectorError, "error in source %s: format %d for field %s is not supported",
+                    THROW_FORMATTED(DissectorError, "error in Falco bridge plugin %s: format %d for field %s is not supported",
                         get_sinsp_source_name(bi->ssi), sfi.display_format, sfi.abbrev);
                 }
                 break;
@@ -338,6 +338,11 @@ create_source_hfids(bridge_info* bi)
                 ws_warning("plugin %s: type of field %s (%d) is not supported",
                     get_sinsp_source_name(bi->ssi),
                     sfi.abbrev, sfi.type);
+            }
+
+            if(strlen(sfi.display) == 0) {
+                THROW_FORMATTED(DissectorError, "error in Falco bridge plugin %s: field %s is missing display name",
+                   get_sinsp_source_name(bi->ssi), sfi.abbrev);
             }
 
             hf_register_info finfo = {
