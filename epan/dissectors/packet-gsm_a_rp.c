@@ -111,7 +111,7 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	/* no length check possible */
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 
 /*
@@ -120,7 +120,7 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static guint16
 de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	return(de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len));
+	return de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len);
 }
 
 /*
@@ -129,7 +129,7 @@ de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static guint16
 de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	return(de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len));
+	return de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len);
 }
 
 /*
@@ -156,7 +156,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rp_extraneous_data);
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 
 /*
@@ -220,7 +220,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rp_extraneous_data);
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 
 guint16 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {

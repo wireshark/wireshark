@@ -577,7 +577,7 @@ opv_to_opi(const gint8 value, const option_part_definition *opd, const char *unk
 	if (opd) {
         while (opd[i].identifier_strptr) {
             if (opd[i].value == value) {
-                return(opd[i].identifier_strptr);
+                return opd[i].identifier_strptr;
             }
             i++;
         }
@@ -593,7 +593,7 @@ opv_to_opt(const gint8 value, const option_part_definition *opd)
 	if (opd) {
         while (opd[i].identifier_strptr) {
             if (opd[i].value == value) {
-                return(opd[i].type);
+                return opd[i].type;
             }
             i++;
         }

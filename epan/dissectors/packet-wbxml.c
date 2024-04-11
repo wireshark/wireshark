@@ -190,11 +190,11 @@ val_to_valstr(guint32 val, const value_valuestring *vvs)
 
 	while (vvs[i].valstrptr) {
 		if (vvs[i].value == val)
-			return(vvs[i].valstrptr);
+			return vvs[i].valstrptr;
 		i++;
 	}
 
-	return(NULL);
+	return NULL;
 }
 
 /* Note on Token mapping

@@ -259,16 +259,16 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
   gint32 version;
 
   if (tvb_reported_length(message_tvb) < 4 + 4)
-    return(0);
+    return 0;
 
   /* Check, if this packet really contains a ComponentStatusProtocol message */
   type = tvb_get_guint8(message_tvb, 0);
   if (type != COMPONENTSTATUS_REPORT) {
-    return(0);
+    return 0;
   }
   version = tvb_get_ntohl(message_tvb, 4);
   if (version != COMPONENTSTATUSPROTOCOL_VERSION) {
-    return(0);
+    return 0;
   }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ComponentStatusProtocol");
@@ -279,7 +279,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
   /* dissect the message */
   dissect_componentstatusprotocol_message(message_tvb, pinfo, componentstatusprotocol_tree);
-  return(tvb_reported_length(message_tvb));
+  return tvb_reported_length(message_tvb);
 }
 
 

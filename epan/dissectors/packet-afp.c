@@ -1422,7 +1422,7 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 	}
 
 	attribute = tvb_get_ntohs(tvb, offset);
-	return(attribute);
+	return attribute;
 }
 
 static void
@@ -1677,7 +1677,7 @@ decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
 					ett_afp_dir_attribute, attributes, ENC_BIG_ENDIAN);
 	attribute = tvb_get_ntohs(tvb, offset);
 
-	return(attribute);
+	return attribute;
 }
 
 /* -------------------------- */

@@ -276,7 +276,7 @@ optsstr(wmem_allocator_t *pool, guint8 opts)
 	const int MAX_STR_LEN = 256;
 
 	if (opts == 0)
-		return("");
+		return "";
 
 	msg=(char *)wmem_alloc(pool, MAX_STR_LEN);
 	if (opts & PGM_OPT){
@@ -298,7 +298,7 @@ optsstr(wmem_allocator_t *pool, guint8 opts)
 	if (!idx) {
 		snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", opts);
 	}
-	return(msg);
+	return msg;
 }
 static const char *
 paritystr(wmem_allocator_t *pool, guint8 parity)
@@ -308,7 +308,7 @@ paritystr(wmem_allocator_t *pool, guint8 parity)
 	const int MAX_STR_LEN = 256;
 
 	if (parity == 0)
-		return("");
+		return "";
 
 	msg=(char *)wmem_alloc(pool, MAX_STR_LEN);
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
@@ -322,7 +322,7 @@ paritystr(wmem_allocator_t *pool, guint8 parity)
 	if (!idx) {
 		snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", parity);
 	}
-	return(msg);
+	return msg;
 }
 
 static const value_string opt_vals[] = {

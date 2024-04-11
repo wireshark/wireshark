@@ -10253,7 +10253,7 @@ value_string_ext smb2_cmd_vals_ext = VALUE_STRING_EXT_INIT(smb2_cmd_vals);
 static const char *decode_smb2_name(guint16 cmd)
 {
 	if (cmd > 0xFF) return "unknown";
-	return(smb2_cmd_vals[cmd & 0xFF].strptr);
+	return smb2_cmd_vals[cmd & 0xFF].strptr;
 }
 
 static smb2_function smb2_dissector[256] = {

@@ -1042,12 +1042,12 @@ static void set_tlv_flag(gboolean flag)
 
 static gboolean get_tlv_flag(void)
 {
-	return(tlv_flag);
+	return tlv_flag;
 } /* get_tlv_flag */
 
 static gboolean get_mic_flag(void)
 {
-	return(mic_flag);
+	return mic_flag;
 } /* get_mic_flag */
 
 /*******************************************************************************************/
@@ -1423,7 +1423,7 @@ handle things. To be investigated further */
 	} /* switch _base_message_type */
 
 
-	return(_offset);
+	return _offset;
 } /* dissect_wlccp_ccm_msg */
 
 static guint dissect_wlccp_sec_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
@@ -1451,7 +1451,7 @@ static guint dissect_wlccp_sec_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_sec_msg */
 
@@ -1536,7 +1536,7 @@ static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	} /* switch _base_message_type */
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_rrm_msg */
 
@@ -1566,7 +1566,7 @@ static guint dissect_wlccp_qos_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 	} /* switch _base_message_type */
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_qos_msg */
 
@@ -1762,7 +1762,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_nm_msg */
 
@@ -1788,7 +1788,7 @@ static guint dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 
 	} /* switch _base_message_type */
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_mip_msg */
 
@@ -2006,7 +2006,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 	/* done with decoding the contained TLVs */
 
-	return(_tlv_end > _offset ? _tlv_end : _offset);
+	return (_tlv_end > _offset) ? _tlv_end : _offset;
 
 } /* dissect_wlccp_tlvs */
 
@@ -2058,7 +2058,7 @@ static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 	} /* switch _type_id */
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_ccm_tlv */
 
@@ -2217,7 +2217,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 	} /* switch _type_id */
 
-	return(_offset);
+	return _offset;
 } /* dissect_wlccp_sec_tlv */
 
 
@@ -2757,7 +2757,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 	} /* switch type_id */
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_rrm_tlv */
 
@@ -2781,7 +2781,7 @@ static guint dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	} /* switch _type_id */
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_qos_tlv */
 
@@ -2982,7 +2982,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 	} /* switch _type_id */
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_nm_tlv */
 
@@ -3007,7 +3007,7 @@ static guint dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	} /* switch _type_id */
 
 
-	return(_offset);
+	return _offset;
 
 } /* dissect_wlccp_mip_tlv */
 

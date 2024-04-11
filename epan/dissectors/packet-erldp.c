@@ -948,9 +948,9 @@ static guint get_erldp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                int offset, void *data _U_)
 {
   if (is_handshake(tvb, offset))
-    return(2 + tvb_get_ntohs(tvb, offset));
+    return 2 + tvb_get_ntohs(tvb, offset);
 
-  return(4 + tvb_get_ntohl(tvb, offset));
+  return 4 + tvb_get_ntohl(tvb, offset);
 }
 
 /*--- dissect_erldp -------------------------------------------------*/

@@ -4274,7 +4274,7 @@ dissect_ber_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 bool
 oid_has_dissector(const char *oid) {
-    return(dissector_get_string_handle(ber_oid_dissector_table, oid) != NULL);
+    return (dissector_get_string_handle(ber_oid_dissector_table, oid) != NULL);
 }
 
 static void

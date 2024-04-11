@@ -1091,7 +1091,7 @@ be_cic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.3  Connection Release Requested
@@ -1122,7 +1122,7 @@ be_res_avail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     }
 
 
-    return(len);
+    return len;
 }
 /*
  * [2] 3.2.2.5 Cause
@@ -1268,7 +1268,7 @@ bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.6  IMSI
@@ -1301,7 +1301,7 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gui
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -1319,7 +1319,7 @@ be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 
    /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * [2] 3.2.2.9 Layer 3 Header Information
@@ -1344,7 +1344,7 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -1375,7 +1375,7 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -1645,7 +1645,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.12 Periodicity
@@ -1659,7 +1659,7 @@ be_periodicity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     proto_tree_add_item(tree, hf_gsm_a_bssmap_periodicity, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.13 Extended Resource Indicator
@@ -1685,7 +1685,7 @@ be_ext_res_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     curr_offset++;
 
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.14 Total Resource Accessible
@@ -1705,7 +1705,7 @@ be_tot_res_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /*curr_offset+=2;*/
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.15 LSA Identifier
@@ -1728,7 +1728,7 @@ be_lsa_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
     /*curr_offset+=3;*/
 
 
-    return(len);
+    return len;
 }
 
 
@@ -1753,7 +1753,7 @@ be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         curr_offset+=3;
     }
 
-    return(len);
+    return len;
 }
 /*
  * [2] 3.2.2.17 Cell Identifier
@@ -1887,7 +1887,7 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         break;
     }
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 guint16
@@ -1920,7 +1920,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -1967,7 +1967,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.19 Classmark Information Type 2
@@ -1998,7 +1998,7 @@ be_int_band(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     curr_offset++;
 
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.22 RR Cause
@@ -2039,7 +2039,7 @@ be_lsa_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
         curr_offset+=3;
     }
 
-    return(len);
+    return len;
 }
 /*
  * [2] 3.2.2.24 Layer 3 Information
@@ -2106,7 +2106,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2135,7 +2135,7 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2152,7 +2152,7 @@ be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2215,7 +2215,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.27a    Cell Identifier List Segment
@@ -2253,7 +2253,7 @@ be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-2);
 
 
-    return(len);
+    return len;
 }
 
 /*
@@ -2274,7 +2274,7 @@ be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.27c    Cell Identifier List Segment for cells to be established
@@ -2294,7 +2294,7 @@ be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.27d    (void)
@@ -2317,7 +2317,7 @@ be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.27f    Cell Identifier List Segment for not established cells - no establishment possible
@@ -2337,7 +2337,7 @@ be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len-1);
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.28 Response Request
@@ -2365,7 +2365,7 @@ be_res_ind_method(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree_add_item(tree, hf_gsm_a_bssap_res_ind_method, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(len);
+    return len;
 }
 
 /*
@@ -2386,7 +2386,7 @@ be_cic_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     proto_tree_add_item(tree, hf_gsm_a_bssap_cic_list_range, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssap_cic_list_status, tvb, (curr_offset+1), (len-1), ENC_NA);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.32 Diagnostics
@@ -2403,7 +2403,7 @@ be_diag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
     NO_MORE_DATA_CHECK(len);
     proto_tree_add_item(tree, hf_gsm_a_bssap_diag_msg_rcv, tvb, curr_offset, (len-2), ENC_NA);
 
-    return(len);
+    return len;
 }
 /*
  * [2] 3.2.2.33 Chosen Channel
@@ -2483,7 +2483,7 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2501,7 +2501,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 
@@ -2532,13 +2532,13 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
     if(word==0x1709){
         /* start the dissection from byte 3 */
         de_mid(l3_tvb, tree, pinfo, 2, 9, NULL, 0);
-        return(len);
+        return len;
     }
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message
      * as defined in 3GPP TS 24.008, n is equal to the length of that radio interface layer 3 message. */
     call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
 
-    return(len);
+    return len;
 }
 
 /*
@@ -2556,7 +2556,7 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.37 Trace Type
@@ -2585,7 +2585,7 @@ be_trace_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2603,7 +2603,7 @@ be_trace_trigger_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
     /* 3.2.2.39 Trace Reference */
@@ -2620,7 +2620,7 @@ be_trace_reference(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
     /* 3.2.2.40 TransactionID */
 static guint16
@@ -2644,7 +2644,7 @@ be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.41 Mobile Identity (IMSI, IMEISV or IMEI as coded in 3GPP TS 24.008)
@@ -2666,7 +2666,7 @@ be_trace_omc_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * [2] 3.2.2.43 Forward Indicator
@@ -2690,7 +2690,7 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2727,7 +2727,7 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2765,7 +2765,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.46 Circuit Pool List
@@ -2791,7 +2791,7 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2811,7 +2811,7 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -2878,7 +2878,7 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.52 Assignment Requirement
@@ -2963,7 +2963,7 @@ be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_item(tree, hf_gsm_a_bssmap_smi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.58 Old BSS to New BSS information
@@ -3018,7 +3018,7 @@ be_lcs_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     proto_tree_add_item(tree, hf_gsm_a_bssmap_lcs_pri, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -3044,7 +3044,7 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
         curr_offset++;
     }
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -3063,7 +3063,7 @@ be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     data_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     dissect_geographical_description(data_tvb, pinfo, tree);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.65 Positioning Data
@@ -3104,7 +3104,7 @@ be_pos_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
         }
     }
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.66 LCS Cause
@@ -3187,7 +3187,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gui
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.69 Network Element Identity
@@ -3207,7 +3207,7 @@ be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.71 Deciphering Keys
@@ -3227,7 +3227,7 @@ be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.73 Return Error Cause
@@ -3242,7 +3242,7 @@ be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.74 Segmentation
@@ -3257,7 +3257,7 @@ be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.75 Service Handover
@@ -3284,7 +3284,7 @@ be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 5, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_serv_ho_inf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
-    return(len);
+    return len;
 }
 
 /*
@@ -3306,7 +3306,7 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     container_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, pinfo, tree, NULL);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.77 Source RNC to target RNC transparent information (cdma2000)
@@ -3323,7 +3323,7 @@ be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
      * for cdma2000 is defined in relevant specifications.
      */
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.78 GERAN Classmark
@@ -3362,7 +3362,7 @@ be_geran_cls_m(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     proto_tree_add_item(tree, hf_gsm_a_bssmap_acceptable_chan_coding_bit2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_acceptable_chan_coding_bit1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.79 GERAN BSC Container
@@ -3384,7 +3384,7 @@ be_geran_bsc_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree_add_item(tree, hf_gsm_a_bssmap_allowed_data_rate_bit4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_max_nb_traffic_chan, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.80 New BSS to Old BSS Information
@@ -3422,7 +3422,7 @@ be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
         dissect_ranap_InterSystemInformation_TransparentContainer_PDU(new_tvb, pinfo, tree, NULL);
     }
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.82 SNA Access Information
@@ -3436,7 +3436,7 @@ be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 
 /*
@@ -3455,7 +3455,7 @@ be_vstk_rand_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree_add_uint64(tree, hf_gsm_a_bssmap_vstk_rand, tvb, curr_offset, 5, vstk_rand);
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (((curr_offset+4)<<3)+4), 4, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.84 VSTK information
@@ -3465,7 +3465,7 @@ be_vstk_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 {
     proto_tree_add_item(tree, hf_gsm_a_bssmap_vstk, tvb, offset, 16, ENC_NA);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.85 Paging Information
@@ -3499,7 +3499,7 @@ be_paging_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     proto_tree_add_item(tree, hf_gsm_a_bssmap_paging_inf_flg, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.86 IMEI
@@ -3514,7 +3514,7 @@ be_vel_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 {
     dissect_description_of_velocity(tvb, tree, pinfo, offset, len, add_string, string_len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.88 VGCS Feature Flags
@@ -3564,7 +3564,7 @@ be_vgcs_feat_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     curr_offset++;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.89 Talker Priority
@@ -3589,7 +3589,7 @@ be_talker_pri(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /*
@@ -3611,7 +3611,7 @@ be_talker_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     curr_offset++;
     proto_tree_add_item(tree, hf_gsm_a_bssmap_talker_identity_field, tvb, curr_offset, len-1, ENC_NA);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.92 SMS to VGCS
@@ -3625,7 +3625,7 @@ be_sms_to_vgcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     rp_data_n_ms(tvb, tree, pinfo, offset, len);
 
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.93 VGCS talker mode
@@ -3665,7 +3665,7 @@ be_vgcs_talker_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_tree_add_item(tree, hf_gsm_a_bssmap_group_cipher_key_nb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, ((curr_offset<<3)+6), 2, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.94 VGCS/VBS Cell Status
@@ -3691,7 +3691,7 @@ be_vgcs_vbs_cell_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3), 5, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_vgcs_vbs_cell_status, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.95 GANSS Assistance Data
@@ -3707,7 +3707,7 @@ be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.96 GANSS Positioning Data
@@ -3752,7 +3752,7 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     proto_tree_add_item(tree, hf_gsm_a_bssmap_usage, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.97 GANSS Location Type
@@ -3766,7 +3766,7 @@ be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.98 Application Data
@@ -3780,7 +3780,7 @@ be_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 
     proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.99 Data Identity
@@ -3790,7 +3790,7 @@ be_app_data_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 {
     proto_tree_add_item(tree, hf_gsm_a_bssmap_data_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.100    Application Data Information
@@ -3809,7 +3809,7 @@ be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3), 7, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_bt_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.101    MSISDN
@@ -3864,7 +3864,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         default:
             /* Bogus */
             proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_bogus_length, tvb, curr_offset, len, "Bogus length %u",len);
-            return(len);
+            return len;
     }
     proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     rtp_port = tvb_get_ntohs(tvb,curr_offset);
@@ -3889,7 +3889,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         rtp_add_address(pinfo, PT_UDP, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->num, FALSE, 0);
         rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->num);
     }
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.103    Speech Codec List
@@ -4095,7 +4095,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
         }
     }
     proto_item_set_len(item, consumed);
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.104    Speech Codec
@@ -4245,7 +4245,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         }
     }
     proto_item_set_len(item, consumed);
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.105    Call Identifier
@@ -4265,7 +4265,7 @@ be_call_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     proto_tree_add_item(tree, hf_gsm_a_bssmap_call_id, tvb, curr_offset, 4, ENC_LITTLE_ENDIAN);
     curr_offset+=4;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.106    Call Identifier List
@@ -4284,7 +4284,7 @@ be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         curr_offset+=4;
     }
 
-    return(len);
+    return len;
 }
 /*
  * 3.2.2.107    A-Interface Selector for RESET
@@ -4308,7 +4308,7 @@ be_a_itf_sel_for_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     proto_tree_add_item(tree, hf_gsm_a_bssmap_rtd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.109    Kc128
@@ -4322,7 +4322,7 @@ be_kc128(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
     proto_tree_add_item(tree, hf_gsm_a_bssmap_kc128, tvb, curr_offset, 16, ENC_NA);
     curr_offset+=16;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 3.2.2.110    CSG Identifier
@@ -4348,7 +4348,7 @@ be_csg_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
     bit_offset += 7;
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_cell_access_mode, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 
 /*
@@ -4394,7 +4394,7 @@ be_reroute_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     proto_tree_add_item(tree, hf_gsm_a_bssmap_reroute_rej_cause, tvb, curr_offset, 1, ENC_NA);
     curr_offset+=1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 
 }
 
@@ -4410,7 +4410,7 @@ be_send_seqn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     proto_tree_add_item(tree, hf_gsm_a_bssmap_send_seqn, tvb, curr_offset, 1, ENC_NA);
     curr_offset+=1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 
 }
 
@@ -4434,7 +4434,7 @@ be_reroute_outcome(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_item(tree, hf_gsm_a_bssmap_reroute_outcome, tvb, curr_offset, 1, ENC_NA);
     curr_offset+=1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 
 }
 
@@ -4471,7 +4471,7 @@ be_lcls_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     proto_tree_add_item(tree, hf_gsm_a_bssmap_lcls_conf, tvb, curr_offset, 1, ENC_NA);
     curr_offset+=1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 
 }
 
@@ -4496,7 +4496,7 @@ be_lcls_con_status_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree_add_item(tree, hf_gsm_a_bssmap_lcls_con_status_control, tvb, curr_offset, 1, ENC_NA);
     curr_offset+=1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 
 }
 
@@ -4526,7 +4526,7 @@ be_lcls_bss_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_item(tree, hf_gsm_a_bssmap_lcls_bss_status, tvb, curr_offset, 1, ENC_NA);
     curr_offset+=1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 
 }
 
@@ -4864,7 +4864,7 @@ be_fe_extra_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     proto_tree_add_item(tree, hf_fe_extra_info_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.2  Current Channel type 2 */
@@ -4881,7 +4881,7 @@ be_fe_cur_chan_type2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     proto_tree_add_item(tree, hf_fe_cur_chan_type2_chan_field_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.3  Target cell radio information */
@@ -4895,7 +4895,7 @@ be_fe_target_radio_cell_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     proto_tree_add_item(tree, hf_fe_target_radio_cell_info_rxlev_ncell_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.4  GPRS Suspend Information */
@@ -4911,7 +4911,7 @@ be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     bssgp_suspend_ack(tvb, tree, pinfo, offset, len);
     curr_offset += len;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.5  MultiRate configuration Information */
@@ -4947,7 +4947,7 @@ be_fe_dual_transfer_mode_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_tree_add_item(tree, hf_fe_dtm_info_spare_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.7  Inter RAT Handover Info */
@@ -4988,7 +4988,7 @@ be_fe_cell_load_info_group(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     curr_offset += be_cell_id(tvb, tree, pinfo, curr_offset, len, NULL, 0);
     curr_offset += be_field_element_dissect(tvb, tree, pinfo, curr_offset, len + offset - curr_offset, NULL, 0);
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.12 Cell Load Information */
@@ -5007,7 +5007,7 @@ be_fe_cell_load_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     proto_tree_add_item(tree, hf_fe_cell_load_info_nrt_load_information_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.13 PS Indication */
@@ -5020,7 +5020,7 @@ be_fe_ps_indication(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_tree_add_item(tree, hf_fe_ps_indication, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.14 DTM Handover Command Indication */
@@ -5033,7 +5033,7 @@ be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     proto_tree_add_item(tree, hf_fe_dtm_ho_command_ind_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 
 /* 3.2.3.17 Source Cell ID */
@@ -5054,7 +5054,7 @@ be_fe_source_cell_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, gu
     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
     dissect_s1ap_Global_ENB_ID_PDU(new_tvb, pinfo, tree, NULL);
 
-    return(len);
+    return len;
 }
 
 

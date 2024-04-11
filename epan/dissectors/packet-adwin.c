@@ -1085,7 +1085,7 @@ dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	      || length == UDPR4_LENGTH
 	      || length == GetDataSHPacket_LENGTH
 	      || length == GetDataSHRequest_LENGTH))
-		return(0);
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin");
 	col_clear(pinfo->cinfo, COL_INFO);

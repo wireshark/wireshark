@@ -1201,7 +1201,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 
   /* no half assoc? nothing to do!*/
   if (!h)
-    return(is_retransmission);
+    return is_retransmission;
 
 
   framenum = pinfo->num;
@@ -1216,7 +1216,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
    *  retransmission of that in frame 0.
    */
   if (framenum == 0)
-    return(is_retransmission);
+    return is_retransmission;
 
   /* we have not seen any tsn yet in this half assoc set the ground */
   if (! h->started) {
@@ -1264,7 +1264,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 
   tsn_tree(t, tsn_item, pinfo, tvb, framenum);
 
-  return(is_retransmission);
+  return is_retransmission;
 }
 
 static void

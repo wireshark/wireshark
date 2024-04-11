@@ -321,7 +321,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 /*
  * 10.4 Cause
@@ -366,7 +366,7 @@ de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_next_deciphering_key_value, tvb, bit_offset, 56, ENC_NA);
 	/*offset += 7;*/
 
-	return(len);
+	return len;
 }
 /*
  * 10.9 Geographic Location
@@ -415,7 +415,7 @@ de_bmaple_req_gps_ass_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	/* Octet 5 to Octet 8+2n Satellite related data */
 	proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, curr_offset, len-2, "Satellite related data Not decoded yet");
-	return(len);
+	return len;
 }
 /*
  * 10.11 IMSI
@@ -479,7 +479,7 @@ de_bmaple_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 		curr_offset++;
 	}
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 /*
  * 10.14 LCS Client Type
@@ -521,7 +521,7 @@ de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	/*bitCount = bitCount + 4;*/
 	curr_offset++;
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 /*
  * 10.15 LCS Priority
@@ -582,7 +582,7 @@ de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_response_time_category, tvb, bitCount, 2, ENC_BIG_ENDIAN);
 	/*bitCount = bitCount + 2;*/
 
-	return(len);
+	return len;
 }
 /*
  * 10.17 (void)
@@ -607,7 +607,7 @@ de_bmaple_location_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	proto_tree_add_item(tree, hf_gsm_bssmap_le_pos_method, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
-	return(curr_offset - offset);
+	return curr_offset - offset;
 }
 /*
  * 10.19 Network Element Identity
@@ -639,8 +639,7 @@ de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 		curr_offset++;
 	}
 
-
-	return(len);
+	return len;
 }
 /*
  * 10.21 Return Error Request

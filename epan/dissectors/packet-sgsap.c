@@ -113,7 +113,7 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 9.4.3    Erroneous message
@@ -160,7 +160,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     }
 
 
-    return(len);
+    return len;
 }
 /*
  * 9.4.3a   E-UTRAN Cell Global Identity
@@ -181,7 +181,7 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
     proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset += 4;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.4    Global CN-Id
@@ -206,7 +206,7 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset += 2;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.5    IMEISV
@@ -229,7 +229,7 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
         snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);
     }
 
-    return(len);
+    return len;
 }
 
 /*
@@ -263,7 +263,7 @@ de_sgsap_imsi_det_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     proto_tree_add_item(tree, hf_sgsap_imsi_det_eps, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset += 1;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.8    IMSI detach from non-EPS service type
@@ -287,7 +287,7 @@ de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     proto_tree_add_item(tree, hf_sgsap_imsi_det_non_eps, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset += 1;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.9    LCS client identity
@@ -314,7 +314,7 @@ de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_item(tree, hf_sgsap_lcs_indic, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset += 1;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.11   Location area identifier
@@ -341,7 +341,7 @@ de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     dtap_mm_mm_info(tvb, tree, pinfo, curr_offset, len);
 
-    return(len);
+    return len;
 }
 
 /*
@@ -372,7 +372,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     }
 
-    return(len);
+    return len;
 }
 /*
  * 9.4.14   Mobile identity
@@ -405,7 +405,7 @@ de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
         call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, tree);
     }
 
-    return(len);
+    return len;
 }
 /*
  * 9.4.16   Reject cause
@@ -443,7 +443,7 @@ de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     }
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.18   SGs cause
@@ -486,7 +486,7 @@ de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     }
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.19   SS code
@@ -537,7 +537,7 @@ de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     proto_tree_add_item(tree, hf_sgsap_ue_emm_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     curr_offset += 1;
 
-    return(curr_offset - offset);
+    return curr_offset-offset;
 }
 /*
  * 9.4.22   VLR name
@@ -565,7 +565,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
             snprintf(add_string, string_len, " - %s", fqdn);
     }
 
-    return(len);
+    return len;
 }
 
 /*
@@ -590,11 +590,10 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static guint16
 de_sgsap_add_paging_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-
     /* Octet 3 0 0 0 0 0 0 0 CSRI */
     proto_tree_add_item(tree, hf_sgsap_csri, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 
 #if 0
@@ -612,7 +611,7 @@ de_sgsap_tmsi_based_nri_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
      * Octet 3 and Octet 4 The rest of the information element is coded as the value part of the Network resource identifier container IE
      * defined in 3GPP TS 24.008.
      */
-    return(len);
+    return len;
 }
 #endif
 /*
@@ -635,7 +634,7 @@ de_sgsap_selected_cs_dmn_op(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 
     dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, sub_tree, offset, E212_LAI, TRUE);
 
-    return(len);
+    return len;
 }
 
 static const value_string sgsap_elem_strings[] = {

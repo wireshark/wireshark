@@ -1943,7 +1943,7 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
                         called ? hf_sccp_called_pc_member  : hf_sccp_calling_pc_member,
                         0, 0);
 
-  return(offset + ANSI_PC_LENGTH);
+  return offset + ANSI_PC_LENGTH;
 }
 
 /*  FUNCTION dissect_sccp_called_calling_param():
@@ -2624,7 +2624,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   default:
-    if (!sccp_tree) return(parameter_length);
+    if (!sccp_tree) return parameter_length;
 
   }
 
@@ -2742,7 +2742,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
   }
 
-  return(parameter_length);
+  return parameter_length;
 }
 
 /*  FUNCTION dissect_sccp_variable_parameter():
@@ -2791,7 +2791,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
   dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree, parameter_type, offset,
                          parameter_length, sccp_info);
 
-  return(parameter_length + length_length);
+  return parameter_length + length_length;
 }
 
 /*  FUNCTION dissect_sccp_optional_parameters():

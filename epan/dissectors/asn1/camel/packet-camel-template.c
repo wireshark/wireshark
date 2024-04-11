@@ -401,7 +401,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
                                "Diagnostic : %u", oct);
     curr_offset++;
   }
-  return(curr_offset - offset);
+  return curr_offset - offset;
 }
 
 static int dissect_camel_InitialDPArgExtensionV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

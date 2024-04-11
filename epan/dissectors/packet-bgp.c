@@ -3365,7 +3365,7 @@ decode_path_prefix4(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
     proto_tree_add_item(prefix_tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, ip_addr);
-    return(4 + 1 + length);
+    return 4 + 1 + length;
 }
 
 /*
@@ -3402,7 +3402,7 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
     proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 1, length, ip_addr);
-    return(1 + length);
+    return 1 + length;
 }
 
 /*
@@ -3440,7 +3440,7 @@ decode_path_prefix6(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
         tag, plen);
     proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, &addr);
 
-    return(4 + 1 + length);
+    return 4 + 1 + length;
 }
 
 /*
@@ -3473,7 +3473,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
     proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length, &addr);
-    return(1 + length);
+    return 1 + length;
 }
 
 static int
@@ -3513,7 +3513,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
     if (parent_item != NULL)
       proto_item_append_text(parent_item, " (%s/%u)",
                              address_to_str(pinfo->pool, &addr_str), plen);
-    return(2 + length);
+    return 2 + length;
 }
 
 const char*
@@ -3924,7 +3924,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     if (afi != AFNUM_INET && afi != AFNUM_INET6)
     {
         expert_add_info(pinfo, NULL, &ei_bgp_afi_type_not_supported);
-        return(-1);
+        return -1;
     }
 
     tot_flow_len = tvb_get_guint8(tvb, offset);
@@ -4070,7 +4070,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
           break;
       proto_item_set_len(filter_item,filter_len+1);
     }
-    return(tot_flow_len+offset_len-1);
+    return tot_flow_len+offset_len-1;
 }
 
 /*
@@ -4305,7 +4305,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
         indx += 3 ;
     }
 
-    return((indx - offset) / 3);
+    return (indx - offset) / 3;
 }
 
 static guint
@@ -4346,7 +4346,7 @@ decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
         }
     }
     proto_item_set_len(labels_item, (indx - offset));
-    return((indx - offset) / 3);
+    return (indx - offset) / 3;
 }
 
 /*
@@ -6521,7 +6521,7 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                                    "Invalid EVPN ESI (%u)!", esi_type);
             return (-1);
     }
-    return(0);
+    return 0;
 }
 
 /*
@@ -7642,7 +7642,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
            case SAFNUM_FSPEC_VPN_RULE:
              total_length = decode_flowspec_nlri(tree, tvb, offset, afi, safi, pinfo);
              if(total_length < 0)
-               return(-1);
+               return -1;
              total_length++;
            break;
             case SAFNUM_BGP_MUP:
@@ -7839,7 +7839,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_FSPEC_VPN_RULE:
                 total_length = decode_flowspec_nlri(tree, tvb, offset, afi, safi, pinfo);
                 if(total_length < 0)
-                    return(-1);
+                    return -1;
                 total_length++;
                 break;
             default:
@@ -8134,7 +8134,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                                          "Unknown AFI (%u) value", afi);
             return -1;
     } /* switch (afi) */
-    return(total_length);
+    return total_length;
 }
 
 /*
@@ -8599,7 +8599,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
             counter_as_segment++;
         }
         *number_as_segment = counter_as_segment;
-        return(4);
+        return 4;
     }
     /* case of user specified ASN length */
     if (bgp_asn_len != 0) {
@@ -8618,13 +8618,13 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
             counter_as_segment++;
         }
         *number_as_segment = counter_as_segment;
-        return(bgp_asn_len);
+        return bgp_asn_len;
     }
     /* case of a empty path attribute */
     if (as_path_offset == end_attr_offset)
     {
         *number_as_segment = 0;
-        return(bgp_asn_len);
+        return bgp_asn_len;
     }
     /* case of we run the heuristic to find the as length */
     k_save = k;
@@ -8674,10 +8674,10 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     if (k == end_attr_offset) {
     /* success */
         *number_as_segment = counter_as_segment;
-        return(assumed_as_len);
+        return assumed_as_len;
     } else
     /* we are in trouble */
-    return(-1);
+    return -1;
 }
 
 /*
@@ -9465,7 +9465,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
         proto_item_append_text (community_item, " [%s]", val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown community"));
         offset = offset + 8;
     }
-    return(0);
+    return 0;
 }
 
 static int
@@ -9590,7 +9590,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
     }
 
 
-    return(0);
+    return 0;
 }
 
 /*

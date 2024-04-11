@@ -1117,7 +1117,7 @@ get_x25_pkt_len(tvbuff_t *tvb)
          * is not mandatory, so we must check the packet length before trying
          * to read it */
         if (tvb_reported_length(tvb) == 3)
-            return(3);
+            return 3;
         bytex = tvb_get_guint8(tvb, 3);
         called_len  = (bytex >> 0) & 0x0F;
         calling_len = (bytex >> 4) & 0x0F;

@@ -2063,7 +2063,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
       rr_len     -= 1;
     }
   }
-  return(initial_offset - cur_offset);
+  return initial_offset - cur_offset;
 }
 
 static int
@@ -2092,8 +2092,9 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int 
     rr_len     -= 1;
   }
 
-  return(initial_offset - cur_offset);
+  return initial_offset - cur_offset;
 }
+
 /*
  * SIG, KEY, and CERT RR algorithms.
  * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2017-01-09)

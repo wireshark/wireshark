@@ -1562,7 +1562,7 @@ de_nas_5gs_mm_5gs_ta_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_tree_add_item(tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
     curr_offset += 3;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*

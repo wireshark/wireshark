@@ -3008,7 +3008,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			if (datalen) {
 				*datalen = data_len;
 			}
-			return(plaintext);
+			return plaintext;
 		}
 		tvb_free(encr_tvb);
 	}

@@ -761,7 +761,7 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
                     "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
     start++;
   }
-  return(start);
+  return start;
 }
 
 

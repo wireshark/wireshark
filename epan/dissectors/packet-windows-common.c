@@ -1462,7 +1462,7 @@ match_wkwn_sids(const char* sid) {
 	int i = 0;
 	while (well_known_sids[i].name) {
 		if (strcmp(well_known_sids[i].sid, sid)==0) {
-			return(well_known_sids[i].name);
+			return well_known_sids[i].name;
 		}
 		i++;
 	}
@@ -1542,7 +1542,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	if(hf_sid <= 0){
 		/* if no tree, just return the offset of the end_of_SID+1 */
 		if (!parent_tree)
-			return(offset+(6+(num_auth*4)));
+			return offset+(6+(num_auth*4));
 
 		hf_sid=hf_nt_sid;
 	}

@@ -165,7 +165,7 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, g
     proto_tree_add_item(tree, hf_gsm_bsslap_ta, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.12 Measurement Report IE
@@ -180,7 +180,7 @@ de_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
     proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 
-    return(len);
+    return len;
 }
 #endif
 /*
@@ -209,7 +209,7 @@ de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_item(tree, hf_gsm_bsslap_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.15 RRLP Flag IE
@@ -227,7 +227,7 @@ de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     proto_tree_add_item(tree, hf_gsm_bsslap_rrlp_flg, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 static guint16
 de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -247,7 +247,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     }
 
     curr_offset += length;
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.17 Cell Identity List IE
@@ -316,7 +316,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     }
 
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.18 Enhanced Measurement Report IE
@@ -333,7 +333,7 @@ de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 
-    return(len);
+    return len;
 }
 /*
  * 5.19 Location Area Code IE
@@ -347,7 +347,7 @@ de_lac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
     proto_tree_add_item(tree, hf_gsm_bsslap_lac, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.21 MS Power IE
@@ -361,7 +361,7 @@ de_ms_pow(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
     proto_tree_add_item(tree, hf_gsm_bsslap_ms_pow, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -376,7 +376,7 @@ de_delta_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     proto_tree_add_item(tree, hf_gsm_bsslap_timer_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.23 Serving Cell Identifier IE
@@ -394,7 +394,7 @@ de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_item(tree, hf_gsm_bsslap_encryption_key, tvb, curr_offset, 8, ENC_NA);
     curr_offset = curr_offset + 8;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.25 Cipher Mode Setting IE
@@ -420,7 +420,7 @@ de_poll_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     proto_tree_add_item(tree, hf_gsm_bsslap_poll_rep, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 5.29 Packet Channel Description IE
@@ -437,7 +437,7 @@ de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 
-    return(len);
+    return len;
 }
 /*
  * 5.31 TFI IE
@@ -456,7 +456,7 @@ de_tfi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
     proto_tree_add_item(tree, hf_gsm_bsslap_tfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*

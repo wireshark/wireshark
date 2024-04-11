@@ -1925,7 +1925,7 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     if (primary_header_size == 0) {      /*Couldn't parse primary header*/
         col_add_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-        return(0);      /*Give up*/
+        return 0;      /*Give up*/
     }
 
     proto_item_set_len(ti, primary_header_size);
@@ -1953,7 +1953,7 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     proto_item_set_len(ti_bundle_protocol, offset);
 
-    return(offset);
+    return offset;
 }
 
 /// Introspect the data to choose a dissector version

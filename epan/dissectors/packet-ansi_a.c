@@ -63,14 +63,14 @@ my_try_val_to_str_idx(guint32 val, const ext_value_string_t *vs, gint *dec_idx)
         if (vs[i].value == val)
         {
             *dec_idx = vs[i].dec_index;
-            return(vs[i].strptr);
+            return vs[i].strptr;
         }
 
         i++;
     }
 
     *dec_idx = -1;
-    return(NULL);
+    return NULL;
 }
 
 static const true_false_string tfs_l2_reset_dont_reset =
@@ -1648,7 +1648,7 @@ static const gchar *ansi_a_so_int_to_str(gint32 so)
         }
     }
 
-    return(str);
+    return str;
 }
 
 static void
@@ -1688,11 +1688,11 @@ content_fill_aux(
         proto_tree_add_expert(tree, pinfo, &ei_ansi_a_short_data, \
             tvb, curr_offset, (sdc_len)); \
         curr_offset += (sdc_len); \
-        return(curr_offset - offset); \
+        return curr_offset - offset; \
     }
 
 #define NO_MORE_DATA_CHECK(nmdc_len) \
-    if ((nmdc_len) <= (curr_offset - offset)) return(nmdc_len);
+    if ((nmdc_len) <= (curr_offset - offset)) return nmdc_len;
 
 
 /*
@@ -1728,7 +1728,7 @@ elem_chan_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1803,7 +1803,7 @@ elem_chan_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1834,7 +1834,7 @@ elem_return_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1883,7 +1883,7 @@ elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1908,7 +1908,7 @@ elem_sr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1933,7 +1933,7 @@ elem_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2006,7 +2006,7 @@ elem_is95_chan_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2103,7 +2103,7 @@ elem_enc_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2338,7 +2338,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2502,7 +2502,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2533,7 +2533,7 @@ elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2565,7 +2565,7 @@ elem_prio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, g
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2589,7 +2589,7 @@ elem_p_rev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2733,7 +2733,7 @@ elem_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2812,7 +2812,7 @@ elem_cell_id_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
         break;
     }
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static guint8
@@ -2834,7 +2834,7 @@ elem_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2883,7 +2883,7 @@ elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2915,7 +2915,7 @@ elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2966,7 +2966,7 @@ elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 of
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2987,7 +2987,7 @@ elem_ssci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, g
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3062,7 +3062,7 @@ elem_downlink_re_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     proto_item_append_text(parent_item_p, " - %u cell%s", num_cells, plurality(num_cells, "", "s"));
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3080,7 +3080,7 @@ elem_downlink_re(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3127,7 +3127,7 @@ elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3166,7 +3166,7 @@ elem_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3185,7 +3185,7 @@ elem_s_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3254,7 +3254,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3278,7 +3278,7 @@ elem_uz_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3321,7 +3321,7 @@ elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3455,7 +3455,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3484,7 +3484,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3503,7 +3503,7 @@ elem_auth_conf_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3583,7 +3583,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3610,7 +3610,7 @@ elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3677,7 +3677,7 @@ elem_lai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3731,7 +3731,7 @@ elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3750,7 +3750,7 @@ elem_anchor_pdsn_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3769,7 +3769,7 @@ elem_anchor_pp_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3810,7 +3810,7 @@ elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3850,7 +3850,7 @@ elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3875,7 +3875,7 @@ elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3899,7 +3899,7 @@ elem_mwi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3975,7 +3975,7 @@ elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4054,7 +4054,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4079,7 +4079,7 @@ elem_qos_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4208,7 +4208,7 @@ elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offse
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4245,7 +4245,7 @@ elem_xmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4297,7 +4297,7 @@ elem_reg_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4323,7 +4323,7 @@ elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4390,7 +4390,7 @@ elem_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4438,7 +4438,7 @@ elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4460,7 +4460,7 @@ elem_so_aux(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
     /* no length check possible */
 
-    return(2);
+    return 2;
 }
 
 static guint8
@@ -4483,7 +4483,7 @@ elem_so(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gui
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4508,7 +4508,7 @@ elem_soci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, g
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4565,7 +4565,7 @@ elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4600,7 +4600,7 @@ elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 
@@ -4716,7 +4716,7 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4736,7 +4736,7 @@ elem_amps_hho_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4942,7 +4942,7 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4983,7 +4983,7 @@ elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5190,7 +5190,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5227,7 +5227,7 @@ elem_ptype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, 
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5549,7 +5549,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5752,7 +5752,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5837,7 +5837,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5909,7 +5909,7 @@ elem_cdma_sowd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5951,7 +5951,7 @@ elem_re_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
 
     /* no length check possible */
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6096,7 +6096,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6122,7 +6122,7 @@ elem_band_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6158,7 +6158,7 @@ elem_is2000_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6217,7 +6217,7 @@ elem_auth_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6353,7 +6353,7 @@ elem_psmm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6372,7 +6372,7 @@ elem_geo_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6464,7 +6464,7 @@ elem_cct_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6483,7 +6483,7 @@ elem_paca_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6521,7 +6521,7 @@ elem_paca_order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6546,7 +6546,7 @@ elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6611,7 +6611,7 @@ elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6856,7 +6856,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6879,7 +6879,7 @@ elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6918,7 +6918,7 @@ elem_plcm_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -6972,7 +6972,7 @@ elem_bdtmf_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -7023,7 +7023,7 @@ elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -7289,7 +7289,7 @@ elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gu
         consumed += 2;
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -7351,7 +7351,7 @@ elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
         proto_item_set_len(data_p->elem_item, consumed);
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -7389,7 +7389,7 @@ elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, 
         consumed = 1;
     }
 
-    return(consumed);
+    return consumed;
 }
 
 /*
@@ -7442,7 +7442,7 @@ elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
         }
     }
 
-    return(consumed + 1);
+    return consumed + 1;
 }
 
 /*
@@ -7484,7 +7484,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
         consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, tree, curr_offset, -1, data_p);
     }
 
-    return(consumed);
+    return consumed;
 }
 
 

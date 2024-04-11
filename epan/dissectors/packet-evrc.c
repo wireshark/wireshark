@@ -203,19 +203,19 @@ evrc_frame_type_to_octs(guint8 frame_type)
         break;
 
     case 1:     /* 1/8 rate */
-        return(2);
+        return 2;
 
     case 2:     /* 1/4 rate */
-        return(5);
+        return 5;
 
     case 3:     /* 1/2 rate */
-        return(10);
+        return 10;
 
     case 4:     /* full rate */
-        return(22);
+        return 22;
     }
 
-    return(0);
+    return 0;
 }
 
 /* GENERIC EVRC DISSECTOR FUNCTIONS */

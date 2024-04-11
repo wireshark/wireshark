@@ -195,7 +195,7 @@ dissect_mvrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint
 
         offset++;
     }
-    return( offset );
+    return offset;
 }
 
 /* dissect_main

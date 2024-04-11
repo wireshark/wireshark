@@ -547,7 +547,7 @@ megaco_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
         proto_item_set_hidden(pi);
     }
 
-    return(pi);
+    return pi;
 }
 
 static proto_item *
@@ -564,7 +564,7 @@ my_proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
         proto_item_set_hidden(pi);
     }
 
-    return(pi);
+    return pi;
 }
 
 /*

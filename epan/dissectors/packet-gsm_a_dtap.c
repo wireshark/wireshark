@@ -4034,7 +4034,7 @@ de_gcc_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset += 4;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const value_string gcc_call_state_vals[] = {
@@ -4129,7 +4129,7 @@ de_gcc_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const true_false_string gcc_orig_ind_vals = {
@@ -4148,7 +4148,7 @@ de_gcc_orig_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const true_false_string gcc_state_attr_da = {
@@ -4214,7 +4214,7 @@ de_bcc_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset += 4;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const range_string bcc_call_state_vals[] = {
@@ -4305,7 +4305,7 @@ de_bcc_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const true_false_string bcc_orig_ind_vals = {
@@ -4324,7 +4324,7 @@ de_bcc_orig_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const true_false_string bcc_state_attr_da = {

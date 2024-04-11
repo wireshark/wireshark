@@ -307,7 +307,7 @@ static guint
 get_xmcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
-  return(XMCP_HDR_LEN + tvb_get_ntohs(tvb, offset+2));
+  return XMCP_HDR_LEN + tvb_get_ntohs(tvb, offset+2);
 }
 
 static guint16
@@ -317,7 +317,7 @@ get_xmcp_attr_padded_len(guint16 attr_length)
    * As in STUN, all XMCP attributes report their length in bytes,
    * but are padded to the next 4-byte multiple.
    */
-  return((attr_length + 3) & 0xfffc);
+  return (attr_length + 3) & 0xfffc;
 }
 
 static guint16
@@ -337,11 +337,11 @@ get_xmcp_attr_fixed_len(guint16 xmcp_attr)
   case XMCP_SUBSCRIPTION_ID:
   case XMCP_SERVICE_REMOVED_REASON:
   case XMCP_DOMAIN:
-    return(4);
+    return 4;
   case XMCP_SERVICE_IDENTITY:
-    return(20);
+    return 20;
   default:
-    return(0);
+    return 0;
   }
 }
 
@@ -353,15 +353,15 @@ get_xmcp_attr_min_len(guint16 xmcp_attr)
   case XMCP_NONCE:
   case XMCP_CLIENT_NAME:
   case XMCP_CLIENT_LABEL:
-    return(1);
+    return 1;
   case XMCP_ERROR_CODE:
-    return(4);
+    return 4;
   case XMCP_SERVICE_TRANSPORT:
-    return(8); /* 4-byte fixed plus an IPv4 address */
+    return 8; /* 4-byte fixed plus an IPv4 address */
   case XMCP_MESSAGE_INTEGRITY:
-    return(20); /* HMAC-SHA1 */
+    return 20; /* HMAC-SHA1 */
   default:
-    return(get_xmcp_attr_fixed_len(xmcp_attr));
+    return get_xmcp_attr_fixed_len(xmcp_attr);
   }
 }
 
@@ -371,16 +371,16 @@ get_xmcp_attr_max_len(guint16 xmcp_attr) {
 
   switch (xmcp_attr) {
   case XMCP_SERVICE_TRANSPORT:
-    return(20); /* 4-byte fixed plus an IPv6 address */
+    return 20; /* 4-byte fixed plus an IPv6 address */
   case XMCP_MESSAGE_INTEGRITY:
-    return(32); /* HMAC-SHA-256 */
+    return 32; /* HMAC-SHA-256 */
   case XMCP_NONCE:
   case XMCP_CLIENT_NAME:
   case XMCP_CLIENT_LABEL:
-    return(255);
+    return 255;
   default:
     fixed_len = get_xmcp_attr_fixed_len(xmcp_attr);
-    return(fixed_len ? fixed_len : 0xffff);
+    return fixed_len ? fixed_len : 0xffff;
   }
 }
 

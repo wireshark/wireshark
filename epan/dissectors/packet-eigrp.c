@@ -1025,7 +1025,7 @@ dissect_eigrp_extdata_flags (proto_tree *tree, tvbuff_t *tvb, int offset)
                         ENC_BIG_ENDIAN);
 
     offset += 1;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -1074,7 +1074,7 @@ dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int lim
                         ENC_BIG_ENDIAN);
 
     offset += limit;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -1218,7 +1218,7 @@ dissect_eigrp_ipx_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     }
 
     offset +=4;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -1430,7 +1430,7 @@ dissect_eigrp_legacy_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     dissect_eigrp_metric_flags(sub_tree, sub_tvb, 15, 1);
 
     offset += 16;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -1499,7 +1499,7 @@ dissect_eigrp_ipx_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
     sub_offset += 2;
 
     offset += sub_offset;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -1564,7 +1564,7 @@ dissect_eigrp_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
     sub_offset += 1;
 
     offset += sub_offset;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -1617,7 +1617,7 @@ dissect_eigrp_nexthop (proto_tree *tree, tvbuff_t *tvb, guint16 afi, int offset)
         break;
     }
 
-    return(offset);
+    return offset;
 }
 
 /**
@@ -2093,7 +2093,7 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
 
     }
 
-    return(offset);
+    return offset;
 }
 
 /**
@@ -2189,7 +2189,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
     }
 
     offset += sub_offset;
-    return(offset);
+    return offset;
 }
 
 /**
@@ -2287,7 +2287,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
         offset = dissect_eigrp_wide_metric_attr(tree, tvb, offset, attr_size);
     }
 
-    return(offset);
+    return offset;
 }
 
 /**
@@ -2499,7 +2499,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                  * Therefore, it must be at least 4.
                  */
                 proto_tree_add_expert(eigrp_tree, pinfo, &ei_eigrp_tlv_len, tvb, offset, -1);
-                return(tvb_captured_length(tvb));
+                return tvb_captured_length(tvb);
             }
 
             tlv_tree = proto_tree_add_subtree(eigrp_tree, tvb, offset, size, ett_eigrp_tlv, &ti,
@@ -2551,7 +2551,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Return the amount of data this dissector was able to dissect */
-    return(tvb_captured_length(tvb));
+    return tvb_captured_length(tvb);
 }
 
 static void

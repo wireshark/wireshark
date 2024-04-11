@@ -4984,7 +4984,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     if(memcmp(mac,dgst,len))
         return -1;
 
-    return(0);
+    return 0;
 }
 
 static gint
@@ -5075,7 +5075,7 @@ dtls_check_mac(SslDecryptSession *ssl, SslDecoder*decoder, gint ct, guint8* data
     if(memcmp(mac,buf,len))
         return -1;
 
-    return(0);
+    return 0;
 }
 /* Decryption integrity check }}} */
 

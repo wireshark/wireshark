@@ -385,7 +385,7 @@ dissect_msrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint
 
         offset++;
     }
-    return( offset );
+    return offset ;
 }
 
 
@@ -429,7 +429,7 @@ dissect_msrp_four_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint 
 
         offset++;
     }
-    return( offset );
+    return offset;
 }
 
 

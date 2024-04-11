@@ -286,7 +286,7 @@ key_to_val(const gchar *key, int keylen, const value_string_keyval *kv, const gc
   int i = 0;
   while (kv[i].key) {
     if (!strncmp(kv[i].key, key, keylen)) {
-      return(kv[i].val);
+      return kv[i].val;
     }
     i++;
   }
@@ -299,7 +299,7 @@ check_valid_version(const gchar *version) {
   int match_size = (version[0] == '0') ? 4 : 3;
   while (valid_zrtp_versions[i].version) {
     if (!strncmp(valid_zrtp_versions[i].version, version, match_size)) {
-      return(valid_zrtp_versions[i].version);
+      return valid_zrtp_versions[i].version;
     }
     i++;
   }

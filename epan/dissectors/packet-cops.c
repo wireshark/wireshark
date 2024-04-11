@@ -3036,7 +3036,7 @@ info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, const cha
     proto_item *tv;
 
     tv  = proto_tree_add_none_format( st, hf_cops_subtree, tvb, offset, n, "%s", str);
-    return( proto_item_add_subtree( tv, ett_cops_subtree ) );
+    return proto_item_add_subtree( tv, ett_cops_subtree );
 }
 
 /* Cops - Section : D-QoS Transaction ID */

@@ -369,8 +369,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   footer_tvb = tvb_new_subset_length_caplen(message_tvb, 8+body_length, length, 8);
   dissect_cpfi_footer(footer_tvb, cpfi_tree);
 
-  return(tvb_reported_length(message_tvb));
-
+  return tvb_reported_length(message_tvb);
 }
 
 /* Register the protocol with Wireshark */

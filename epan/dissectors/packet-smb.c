@@ -17781,25 +17781,19 @@ static const char *decode_smb_error(guint8 errcls, guint16 errcode)
 	switch (errcls) {
 
 	case SMB_SUCCESS:
-
-		return("No Error");   /* No error ??? */
+		return "No Error";   /* No error ??? */
 
 	case SMB_ERRDOS:
-
-		return(val_to_str_ext(errcode, &DOS_errors_ext, "Unknown DOS error (%x)"));
+		return val_to_str_ext(errcode, &DOS_errors_ext, "Unknown DOS error (%x)");
 
 	case SMB_ERRSRV:
-
-		return(val_to_str_ext(errcode, &SRV_errors_ext, "Unknown SRV error (%x)"));
+		return val_to_str_ext(errcode, &SRV_errors_ext, "Unknown SRV error (%x)");
 
 	case SMB_ERRHRD:
-
-		return(val_to_str_ext(errcode, &HRD_errors_ext, "Unknown HRD error (%x)"));
+		return val_to_str_ext(errcode, &HRD_errors_ext, "Unknown HRD error (%x)");
 
 	default:
-
-		return("Unknown error class!");
-
+		return "Unknown error class!";
 	}
 
 }

@@ -131,7 +131,7 @@ nlm_msg_res_unmatched_equal(gconstpointer k1, gconstpointer k2)
 		return 0;
 	}
 
-	return( memcmp(umd1->cookie, umd2->cookie, umd1->cookie_len) == 0);
+	return (memcmp(umd1->cookie, umd2->cookie, umd1->cookie_len) == 0);
 }
 static gint
 nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
@@ -139,7 +139,7 @@ nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
 	guint mk1 = GPOINTER_TO_UINT(k1);
 	guint mk2 = GPOINTER_TO_UINT(k2);
 
-	return( mk1==mk2 );
+	return mk1==mk2;
 }
 
 static void

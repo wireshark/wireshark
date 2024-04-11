@@ -7476,11 +7476,11 @@ MT_DL_TextGet(guint8 mt)
 {
   if (mt < ElementsOf(szMT_Downlink))
   {
-    return(szMT_Downlink[mt]);
+    return szMT_Downlink[mt];
   }
   else
   {
-    return("Unknown message type");
+    return "Unknown message type";
   }
 }
 
@@ -7489,11 +7489,11 @@ MT_UL_TextGet(guint8 mt)
 {
   if (mt < ElementsOf(szMT_Uplink))
   {
-    return(szMT_Uplink[mt]);
+    return szMT_Uplink[mt];
   }
   else
   {
-    return("Unknown message type");
+    return "Unknown message type";
   }
 }
 

@@ -5377,7 +5377,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
   /* verify base */
   if (base < 2 || base > 16) {
     *string = '\0';
-    return(string);
+    return string;
   }
   /* deal with zeros */
   if ((level == 0) && (!show_zero)) {
@@ -5386,7 +5386,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
     }
     string[i++] = ' ';
     string[i] = '\0';
-    return(string + i);
+    return string+i;
   }
 
   i = 0;
@@ -5408,7 +5408,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
   /* add a space at the end (ok it's at the start but it will be at the end)*/
   string[i++] = ' ';
   string[i] = '\0';
-  return(string + i);
+  return string+i;
 }
 
 

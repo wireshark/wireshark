@@ -1715,7 +1715,7 @@ dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
         }
     }
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1737,7 +1737,7 @@ dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
     curr_offset += dissect_arfcn_list_core(tvb, tree, pinfo, offset, len, add_string, string_len, oct);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1760,7 +1760,7 @@ dissect_arfcn_list2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
     curr_offset += dissect_arfcn_list_core(tvb, tree, pinfo, offset, len, add_string, string_len, oct);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static guint16
@@ -2086,7 +2086,7 @@ de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
 
     curr_offset = curr_offset + 2;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2131,7 +2131,7 @@ de_rr_cell_opt_bcch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2169,7 +2169,7 @@ de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2193,7 +2193,7 @@ de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2271,7 +2271,7 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32
 
     curr_offset = curr_offset + 2;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.5a Channel Description 2
@@ -2364,7 +2364,7 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
 
     curr_offset = curr_offset + 2;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2404,7 +2404,7 @@ de_rr_ch_dsc3(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
 
     curr_offset = curr_offset + 2;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2451,7 +2451,7 @@ de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.7 Channel Mode 2
@@ -2480,7 +2480,7 @@ de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.7a UTRAN Classmark information element
@@ -2500,7 +2500,7 @@ de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     }
 
     curr_offset += len;
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -2554,7 +2554,7 @@ de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.8 Channel Needed
@@ -2583,7 +2583,7 @@ de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.8a Channel Request Description
@@ -2700,7 +2700,7 @@ de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     }
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.10 Cipher Response
@@ -2731,7 +2731,7 @@ de_rr_cip_mode_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_cr, tvb, (curr_offset<<3)+bit_offset+3, 1, ENC_BIG_ENDIAN);
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /* [3] 10.5.2.11 Control Channel Description */
 
@@ -2792,7 +2792,7 @@ de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /* [3] 10.5.2.11a  DTM Information Details
@@ -2873,7 +2873,7 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     {
        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_underrun);
     }
-    return(len);
+    return len;
 }
 /*
  * [3] 10.5.2.12 Frequency Channel Sequence
@@ -2897,7 +2897,7 @@ de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     curr_offset = curr_offset + 8;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -3166,7 +3166,7 @@ de_rr_ho_ref(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 static const value_string gsm_a_access_tech_type_vals[] = {
@@ -3410,7 +3410,7 @@ de_tbf_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset)
 
     item = proto_tree_add_uint(tree, hf_gsm_a_rr_tbf_starting_time, tvb, bit_offset >> 3, ((curr_bit_offset - bit_offset) >> 3) + 1, rfn);
     proto_item_set_generated(item);
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -4232,7 +4232,7 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4351,7 +4351,7 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
      * Thus the value part is 17 - 1 == 16 octets long.  Unused bits are set to zero. */
     gsm_rr_padding_bits(subtree, tvb, bit_offset, 16, 0x00);
 
-    return(16);
+    return 16;
 }
 
 /*
@@ -4382,7 +4382,7 @@ de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     }
 
     curr_offset = curr_offset + len;
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -4398,7 +4398,7 @@ de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_tree_add_item(tree, hf_gsm_a_rr_mobile_time_difference, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 
     curr_offset = curr_offset + len;
-    return(curr_offset - offset);
+    return curr_offset - offset;
 
 }
 /*
@@ -4587,7 +4587,7 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     }
 
     curr_offset = offset + len;
-    return(curr_offset - offset);
+    return curr_offset - offset;
 
 }
 /*
@@ -4635,7 +4635,7 @@ de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         curr_offset++;
     }
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 
 }
 /*
@@ -4929,7 +4929,7 @@ de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
         }
     }
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 
 }
 /*
@@ -4958,7 +4958,7 @@ de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
 
     curr_offset += 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.25c RR Packet Uplink Assignment
@@ -5021,7 +5021,7 @@ de_rr_page_mode(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guin
 
     curr_offset += 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.26a (void)
@@ -5043,7 +5043,7 @@ de_rr_ncc_perm(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.28 Power Command
@@ -5113,7 +5113,7 @@ de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5137,7 +5137,7 @@ de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinf
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.29 RACH Control Parameters
@@ -5198,7 +5198,7 @@ de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
 
     curr_offset = curr_offset + 2;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.30 Request Reference M V 3
@@ -5245,7 +5245,7 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
     item = proto_tree_add_uint(subtree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
     proto_item_set_generated(item);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.31
@@ -5261,7 +5261,7 @@ de_rr_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -5960,7 +5960,7 @@ de_rr_bsic_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -5985,7 +5985,7 @@ de_rr_report_priority_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6055,7 +6055,7 @@ de_rr_meas_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6075,7 +6075,7 @@ de_rr_3g_add_meas_param_desc2(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 /* Additions in Rel-8 */
@@ -6388,7 +6388,7 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6435,7 +6435,7 @@ de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6463,7 +6463,7 @@ de_rr_eutran_neighbour_cells_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6527,7 +6527,7 @@ de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         curr_bit_offset += 1;
     }
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6551,7 +6551,7 @@ de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6572,7 +6572,7 @@ de_rr_eutran_pcid_to_ta_mapping(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6746,7 +6746,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
         curr_bit_offset += 1;
     }
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6870,7 +6870,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -6928,7 +6928,7 @@ de_rr_eutran_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -7041,7 +7041,7 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -7068,7 +7068,7 @@ de_rr_eutran_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -7089,7 +7089,7 @@ de_rr_eutran_csg_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -7113,7 +7113,7 @@ de_rr_utran_measurement_control_param_mi(tvbuff_t *tvb, proto_tree *tree, gint b
 
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static gint
@@ -7148,7 +7148,7 @@ de_rr_3g_supplementary_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_o
     }
     proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return(curr_bit_offset - bit_offset);
+    return curr_bit_offset - bit_offset;
 }
 
 static guint16
@@ -8556,7 +8556,7 @@ de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     item = proto_tree_add_uint(tree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
     proto_item_set_generated(item);
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.39 Synchronization Indication
@@ -8600,7 +8600,7 @@ de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8616,7 +8616,7 @@ de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     proto_tree_add_item(tree, hf_gsm_a_rr_timing_adv, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8632,7 +8632,7 @@ de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_item(tree, hf_gsm_a_rr_time_diff, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.41a TLLI
@@ -8657,7 +8657,7 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     if(add_string)
         snprintf(add_string, string_len, " - 0x%x", tlli);
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8677,7 +8677,7 @@ de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     proto_tree_add_item(subtree, hf_gsm_a_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset = curr_offset + 4;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8706,7 +8706,7 @@ de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_gsm_a_rr_group_cipher_key_number, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8723,7 +8723,7 @@ de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
     curr_offset = curr_offset + 2;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.43 Wait Indication
@@ -8739,7 +8739,7 @@ de_rr_wait_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8773,7 +8773,7 @@ de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     curr_offset = offset + len;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8816,7 +8816,7 @@ de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     curr_offset = curr_offset + 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * [3] 10.5.2.48 APDU ID
@@ -8903,7 +8903,7 @@ de_rr_ho_to_utran_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     }
 
     curr_offset += len;
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 
@@ -8945,7 +8945,7 @@ de_rr_serv_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     proto_tree_add_item(tree, hf_gsm_a_rr_MBMS_broadcast, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8972,7 +8972,7 @@ de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     curr_offset = curr_offset + 3;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -8998,7 +8998,7 @@ de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     curr_offset += 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -9027,7 +9027,7 @@ de_rr_feature_indicator(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset += 1;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*

@@ -693,7 +693,7 @@ de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
     }
 
-    return(len);
+    return len;
 }
 
 /*
@@ -1201,7 +1201,7 @@ de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_csfb_resp, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.3.6  Daylight saving time
@@ -1422,7 +1422,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
     }
 
-    return(len);
+    return len;
 }
 
 /*
@@ -1574,7 +1574,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         dissect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
     }
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.3.16 GPRS timer
@@ -1635,7 +1635,7 @@ de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_esm_imeisv_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 9.9.3.19 KSI and sequence number
@@ -1656,7 +1656,7 @@ de_emm_nas_ksi_and_seq_no(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     proto_tree_add_bits_item(tree, hf_nas_eps_seq_no_short, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1734,7 +1734,7 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /*bit_offset+=3;*/
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 
 /*
@@ -1783,7 +1783,7 @@ de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         }
     }
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.3.23 NAS security algorithms
@@ -1837,7 +1837,7 @@ de_emm_nas_sec_alsgs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset++;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.3.24 Network name
@@ -1858,7 +1858,7 @@ de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_nonce, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset+=4;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.3.25A Paging identity
@@ -1881,7 +1881,7 @@ de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_paging_id, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
     /*curr_offset+=1;*/
 
-    return(1);
+    return 1;
 }
 /*
  * 9.9.3.26 P-TMSI signature
@@ -1946,7 +1946,7 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_short_mac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.3.29 Time zone
@@ -1977,7 +1977,7 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.3.33 Tracking area identity list
@@ -2086,7 +2086,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         }
     }
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.3.34 UE network capability
@@ -2287,7 +2287,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         curr_offset++;
     }
 
-    return(len);
+    return len;
 }
 /* UE radio capability information update needed flag (URC upd) (octet 1) */
 static const true_false_string  nas_eps_emm_ue_ra_cap_inf_upd_need_flg = {
@@ -2311,7 +2311,7 @@ de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.3.36 UE security capability
@@ -2399,7 +2399,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
      * then also octet 6 shall be included and octet 7 may be included.
      */
     if (len == 2)
-        return(len);
+        return len;
 
     /* UMTS encryption algorithms supported (octet 5)
      * UEA0    UEA1    UEA2    UEA3    UEA4    UEA5    UEA6    UEA7
@@ -2413,14 +2413,14 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset++;
 
     if (len == 4)
-        return(len);
+        return len;
 
     /* GPRS encryption algorithms supported (octet 7) */
     /* 0 spare    GEA1    GEA2    GEA3    GEA4    GEA5    GEA6    GEA7*/
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct7_flags, ENC_NA);
     curr_offset++;
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.3.37 Emergency Number List
@@ -2502,7 +2502,7 @@ de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
      */
     proto_tree_add_item(tree, hf_nas_eps_emm_ss_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 
 /*
@@ -2528,7 +2528,7 @@ de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     proto_tree_add_item(tree, hf_nas_eps_emm_lcs_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.3.41 LCS client identity
@@ -2550,7 +2550,7 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
     dissect_gsm_map_lcs_LCS_ClientID_PDU( new_tvb, pinfo, tree, NULL );
 
-    return(len);
+    return len;
 }
 
 /*
@@ -2578,7 +2578,7 @@ de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     p_add_proto_data(pinfo->pool, pinfo, proto_nas_eps, 0, GUINT_TO_POINTER(msg_cont_type));
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 9.9.3.43 Generic message container
@@ -2614,7 +2614,7 @@ de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
     }
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.3.44 Voice domain preference and UE's usage setting
@@ -3209,7 +3209,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* APN-AMBR for downlink (extended) octet 5 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3231,7 +3231,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* APN-AMBR for uplink (extended)   octet 6 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3253,7 +3253,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* APN-AMBR for downlink (extended-2)   octet 7 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if ((octet == 0)||(octet == 0xff)) {
@@ -3267,7 +3267,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* APN-AMBR for uplink (extended-2) octet 8 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if ((octet == 0)||(octet == 0xff)) {
@@ -3281,7 +3281,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
     curr_offset++;
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.4.2A Connectivity type
@@ -3343,7 +3343,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_esm_qci, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Maximum bit rate for uplink octet 4 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3355,7 +3355,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Maximum bit rate for downlink octet 5 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3367,7 +3367,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Guaranteed bit rate for uplink octet 6 */
     octet = tvb_get_guint8(tvb,curr_offset);
     proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_gbr_ul, tvb, curr_offset, 1, octet,
@@ -3375,7 +3375,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Guaranteed bit rate for downlink octet 7 */
     octet = tvb_get_guint8(tvb,curr_offset);
     proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_gbr_dl, tvb, curr_offset, 1, octet,
@@ -3383,7 +3383,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Maximum bit rate for uplink (extended) octet 8 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3397,7 +3397,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Maximum bit rate for downlink (extended) octet 9 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3411,7 +3411,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Guaranteed bit rate for uplink (extended) octet 10 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3425,7 +3425,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Guaranteed bit rate for downlink (extended) octet 11 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3439,7 +3439,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
-        return(len);
+        return len;
     /* Maximum bit rate for uplink (extended-2) octet 12 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
@@ -3484,7 +3484,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                        calc_bitrate_ext2(octet));
     }
 
-    return(len);
+    return len;
 }
 /*
  * 9.9.4.4 ESM cause
@@ -3560,7 +3560,7 @@ de_esm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset++;
 
-    return(curr_offset - offset);
+    return curr_offset - offset;
 }
 /*
  * 9.9.4.5 ESM information transfer flag
@@ -3579,11 +3579,10 @@ de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset = offset;
 
-
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_esm_eit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 /*
  * 9.9.4.6 Linked EPS bearer identity
@@ -3637,7 +3636,7 @@ de_esm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     proto_tree_add_item(tree, hf_nas_eps_esm_notif_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-    return(len);
+    return len;
 }
 
 /*
@@ -3705,7 +3704,7 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
             break;
     }
 
-    return(curr_offset-offset);
+    return curr_offset-offset;
 }
 
 /*

@@ -462,7 +462,7 @@ dissect_bssap_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tre
         break;
     }
 
-    return(parameter_length);
+    return parameter_length;
 }
 
 static guint16
@@ -481,7 +481,7 @@ dissect_bssap_var_parameter(tvbuff_t *tvb, packet_info *pinfo,
     dissect_bssap_parameter(tvb, pinfo, bssap_tree, tree, parameter_type,
                 offset, parameter_length, sccp_info);
 
-    return(parameter_length + length_length);
+    return parameter_length + length_length;
 }
 
 static int

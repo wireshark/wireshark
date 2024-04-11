@@ -79,7 +79,7 @@ match_strextval_idx(guint32 val, const ext_value_string *vs, gint *idx) {
 			if (vs[i].value == val) {
 				if (idx)
 					*idx = i;
-				return(vs[i].strptr);
+				return vs[i].strptr;
 			}
 			i++;
 		}

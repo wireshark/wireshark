@@ -241,13 +241,13 @@ fresh_handler(tvbuff_t *tvb, proto_tree *tree, guint len _U_, guint32 offset)
     {
         proto_tree_add_item(tree, hf_ansi_683_fresh_incl16, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_683_fresh, tvb, offset, 2, ENC_BIG_ENDIAN);
-        return(2);
+        return 2;
     }
 
     proto_tree_add_item(tree, hf_ansi_683_fresh_incl8, tvb, offset, 1, ENC_NA);
     proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 7, ENC_NA);
 
-    return(1);
+    return 1;
 }
 
 /*

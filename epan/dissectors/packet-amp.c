@@ -327,7 +327,7 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
         // TODO -- not supported yet.
         break;
     }
-    return(ret);
+    return ret;
 }
 
 void

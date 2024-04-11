@@ -545,7 +545,7 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo, prot
 		diam_sub_dis->avp_str = wmem_strdup_printf(pinfo->pool, "%s/%u", address_to_str(pinfo->pool, &addr), prefix_len);
 	}
 
-	return(prefix_len_bytes+2);
+	return prefix_len_bytes+2;
 }
 
 /* AVP Code: 1 User-Name */

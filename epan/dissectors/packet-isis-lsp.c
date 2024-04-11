@@ -1727,7 +1727,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_m_bit, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_g_bit, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_p_bit, tvb, offset, 1, ENC_NA);
-        return(0);
+        return 0;
 
     case SEGMENT_ROUTING_CAP:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2, ett_isis_lsp_clv_sr_cap,
@@ -1751,7 +1751,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_expert_format(rt_tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset+4, tlv_len+2,
                                          "Unknown SubTlv: Type: %d, Length: %d", tlv_type, tlv_len);
 
-        return(0);
+        return 0;
 
     case IPV6_TE_ROUTER_ID:
         /* 12: IPv6 TE Router ID (rfc5316) */
@@ -1776,7 +1776,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_flags, tvb, offset, 4, ENC_NA);
         }
 
-        return(0);
+        return 0;
 
     case TREES:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1786,7 +1786,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_maximum_nof_trees_to_compute, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trees_nof_trees_to_use, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
-        return(0);
+        return 0;
 
     case TREE_IDENTIFIER:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1807,7 +1807,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 2;
         }
 
-        return(0);
+        return 0;
 
     case NICKNAME:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1821,7 +1821,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 5;
         }
 
-        return(0);
+        return 0;
 
     case INTERESTED_VLANS:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1851,7 +1851,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 6;
         }
 
-        return(0);
+        return 0;
 
     case TREES_USED_IDENTIFIER:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1872,7 +1872,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             sublen -= 2;
         }
 
-        return(0);
+        return 0;
 
     case VLAN_GROUP:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1890,7 +1890,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 2;
         }
 
-        return(0);
+        return 0;
 
     case SEGMENT_ROUTING_ALG:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1901,7 +1901,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_alg, tvb, offset+i, 1, ENC_NA);
             i++;
         }
-        return(0);
+        return 0;
 
     case SEGMENT_ROUTING_LB:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1924,7 +1924,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             }
             i += (5 + tlv_len);
         }
-        return(0);
+        return 0;
 
     case SRV6_CAP:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1933,7 +1933,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
                                                 subtype, sublen);
         proto_tree_add_bitmask(rt_tree, tvb, offset, hf_isis_lsp_clv_srv6_cap_flags,
                                ett_isis_lsp_clv_srv6_cap_flags, srv6_cap_flags, ENC_NA);
-        return(0);
+        return 0;
 
     case NODE_MSD:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1946,7 +1946,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             sublen -= 2;
             offset += 2;
         }
-        return(0);
+        return 0;
 
     case FLEX_ALGO_DEF:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1981,10 +1981,10 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             sublen -= tlv_len;
             offset += tlv_len;
         }
-        return(0);
+        return 0;
 
     default:
-        return(-1);
+        return -1;
     }
 }
 

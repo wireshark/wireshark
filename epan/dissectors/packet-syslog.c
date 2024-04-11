@@ -149,7 +149,7 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const 
 
   g_strfreev(split_string);
 
-  return(mtp3_tvb);
+  return mtp3_tvb;
 }
 
 static gboolean dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, guint* offset, gint hfindex)
