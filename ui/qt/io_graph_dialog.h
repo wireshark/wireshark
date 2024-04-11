@@ -116,6 +116,8 @@ private:
 
     void removeTapListener();
 
+    bool showsZero() const;
+
     template<class DataMap> double maxValueFromGraphData(const DataMap &map);
     template<class DataMap> void scaleGraphData(DataMap &map, int scalar);
 

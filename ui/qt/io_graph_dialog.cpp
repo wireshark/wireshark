@@ -2003,6 +2003,7 @@ void IOGraph::setColor(const QRgb color)
 void IOGraph::setPlotStyle(int style)
 {
     bool recalc = false;
+    bool shows_zero = showsZero();
 
     // Switch plottable if needed
     switch (style) {
@@ -2100,6 +2101,11 @@ void IOGraph::setPlotStyle(int style)
         // Stacking set in scanGraphs
         bars_->moveBelow(NULL);
         break;
+    }
+
+    if (shows_zero != showsZero()) {
+        // recalculate if whether zero is added changed
+        recalc = true;
     }
 
     setName(name_);
@@ -2391,6 +2397,37 @@ void IOGraph::reloadValueUnitField()
 {
     if (vu_field_.length() > 0) {
         setValueUnitField(vu_field_);
+    }
+}
+
+// returns true if the current plot style shows zero values,
+// false if null values are omitted.
+bool IOGraph::showsZero() const
+{
+    switch (val_units_) {
+    case IOG_ITEM_UNIT_PACKETS:
+    case IOG_ITEM_UNIT_BYTES:
+    case IOG_ITEM_UNIT_BITS:
+    case IOG_ITEM_UNIT_CALC_FRAMES:
+    case IOG_ITEM_UNIT_CALC_FIELDS:
+        if (graph_ && graph_->lineStyle() == QCPGraph::lsNone) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    case IOG_ITEM_UNIT_CALC_SUM:
+    case IOG_ITEM_UNIT_CALC_MAX:
+    case IOG_ITEM_UNIT_CALC_MIN:
+    case IOG_ITEM_UNIT_CALC_AVERAGE:
+    case IOG_ITEM_UNIT_CALC_LOAD:
+        // These are not the same sort of "omitted zeros" as above,
+        // but changing val_units_ always results in a recalculation
+        // so it doesn't matter (see modelDataChanged)
+        return false;
+
+    default:
+        return true;
     }
 }
 
