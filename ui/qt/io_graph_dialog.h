@@ -88,6 +88,7 @@ public:
     QCPGraph *graph() const { return graph_; }
     QCPBars *bars() const { return bars_; }
     double startOffset() const;
+    nstime_t startTime() const;
     int packetFromTime(double ts) const;
     bool hasItemToShow(int idx, double value) const;
     double getItemValue(int idx, const capture_file *cap_file) const;
@@ -196,7 +197,7 @@ private:
     QCPGraph *base_graph_;
     QCPItemTracer *tracer_;
     uint32_t packet_num_;
-    double start_time_;
+    nstime_t start_time_;
     bool mouse_drags_;
     QRubberBand *rubber_band_;
     QPoint rb_origin_;

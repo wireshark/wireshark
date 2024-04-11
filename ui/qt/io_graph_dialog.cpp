@@ -12,6 +12,7 @@
 #include <ui_io_graph_dialog.h>
 
 #include "file.h"
+#include "locale.h"
 
 #include <epan/stat_tap_ui.h>
 #include "epan/stats_tree_priv.h"
@@ -33,6 +34,8 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
+#include <wsutil/nstime.h>
+#include <wsutil/to_str.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
 #include <ui/qt/widgets/copy_from_profile_button.h>
@@ -59,11 +62,14 @@
 // - We retap and redraw more than we should.
 // - Smoothing doesn't seem to match GTK+
 // - Closing the color picker on macOS sends the dialog to the background.
+// - X-axis time buckets are based on the file relative time, even in
+//   Time of Day / absolute time mode. (See io_graph_item.c/get_io_graph_index)
+//   Changing this would mean retapping when switching to ToD mode, though.
 
 // To do:
 // - Use scroll bars?
 //   https://www.qcustomplot.com/index.php/tutorials/specialcases/scrollbar
-// - Scroll during live captures
+// - Scroll during live captures (currently the graph auto rescales instead)
 // - Set ticks per pixel (e.g. pressing "2" sets 2 tpp).
 // - Explicitly handle missing values, e.g. via NAN.
 // - Add a "show missing" or "show zero" option to the UAT?
@@ -156,6 +162,8 @@ static uat_t *iog_uat_;
 static const char *iog_uat_defaults_[] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1"
 };
+
+static char *decimal_point;
 
 extern "C" {
 
@@ -334,7 +342,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     uat_delegate_(nullptr),
     base_graph_(nullptr),
     tracer_(nullptr),
-    start_time_(0.0),
+    start_time_(NSTIME_INIT_ZERO),
     mouse_drags_(true),
     rubber_band_(nullptr),
     stat_timer_(nullptr),
@@ -921,7 +929,7 @@ void IOGraphDialog::getGraphInfo()
 {
     base_graph_ = NULL;
     QCPBars *prev_bars = NULL;
-    start_time_ = 0.0;
+    nstime_set_zero(&start_time_);
 
     tracer_->setGraph(NULL);
     IOGraph *selectedGraph = currentActiveGraph();
@@ -943,9 +951,9 @@ void IOGraphDialog::getGraphInfo()
                     prev_bars = bars;
                 }
                 if (iog->visible() && iog->maxInterval() >= 0) {
-                    double iog_start = iog->startOffset();
-                    if (start_time_ == 0.0 || iog_start < start_time_) {
-                        start_time_ = iog_start;
+                    nstime_t iog_start = iog->startTime();
+                    if (nstime_is_zero(&start_time_) || nstime_cmp(&iog_start, &start_time_) < 0) {
+                        nstime_copy(&start_time_, &iog_start);
                     }
                 }
 
@@ -1136,7 +1144,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
             tracer_->setGraphKey(iop->xAxis->pixelToCoord(event->pos().x()));
             ts = tracer_->position->key();
             if (IOGraph *iog = currentActiveGraph()) {
-                interval_packet = iog->packetFromTime(ts - start_time_);
+                interval_packet = iog->packetFromTime(ts - nstime_to_sec(&start_time_));
             }
         }
 
@@ -1158,6 +1166,8 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
                 }
                 val = " = " + QString::number(tracer_->position->value(), 'g', 4);
             }
+            // XXX - If Time of Day is selected, should we use ISO 8601
+            // timestamps or something similar here instead of epoch time?
             hint += tr("%1 (%2s%3).")
                     .arg(msg)
                     .arg(QString::number(ts, 'f', precision_))
@@ -1346,7 +1356,8 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
 
 void IOGraphDialog::on_todCheckBox_toggled(bool checked)
 {
-    double orig_start = start_time_;
+    nstime_t orig_start;
+    nstime_copy(&orig_start, &start_time_);
     bool orig_auto = auto_axes_;
 
     if (checked) {
@@ -1358,7 +1369,8 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
     scheduleRecalc(true);
     auto_axes_ = orig_auto;
     getGraphInfo();
-    ui->ioPlot->xAxis->moveRange(start_time_ - orig_start);
+    nstime_delta(&orig_start, &start_time_, &orig_start);
+    ui->ioPlot->xAxis->moveRange(nstime_to_sec(&orig_start));
     mouseMoved(NULL); // Update hint
 }
 
@@ -1754,19 +1766,31 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
     stream << '\n';
 
     for (int interval = 0; interval <= max_interval; interval++) {
-        double interval_start = (double)interval * ((double)ui_interval / SCALE_F);
+        int64_t interval_start = interval * ui_interval;
         if (qSharedPointerDynamicCast<QCPAxisTickerDateTime>(ui->ioPlot->xAxis->ticker()) != nullptr) {
-            interval_start += start_time_;
-            // XXX - If we support precision smaller than ms, we can't use
-            // QDateTime, and would use nstime_to_iso8601 or similar. (In such
-            // case we'd want to store the nstime_t version of start_time_ rather
-            // than immediately converting it to a double in tapPacket().)
+            nstime_t interval_time = NSTIME_INIT_SECS_MSECS((time_t)(interval_start / SCALE), (int)(interval_start % SCALE));
+
+            nstime_add(&interval_time, &start_time_);
+
+            static char time_string_buf[39];
+
+            if (decimal_point == nullptr) {
+                decimal_point = g_strdup(localeconv()->decimal_point);
+            }
             // Should we convert to UTC for output, even if the graph axis has
             // local time?
-            QDateTime interval_dt = QDateTime::fromMSecsSinceEpoch(int64_t(interval_start * 1000.0));
-            stream << interval_dt.toString(Qt::ISODateWithMs);
+            // The question of what precision to use is somewhat tricky.
+            // The buckets are aligned to the relative time start, not to
+            // absolute time, so the timestamp precision should be used instead
+            // of the bucket precision. We can save the precision of the
+            // start time timestamp for each graph, but we don't necessarily
+            // have a guarantee that all timestamps in the file have the same
+            // precision. Possibly nstime_t should store precision, cf. #15579
+            format_nstime_as_iso8601(time_string_buf, sizeof time_string_buf, &interval_time, decimal_point, true, 9); // precision_);
+
+            stream << time_string_buf;
         } else {
-            stream << interval_start;
+            stream << (double)interval_start / SCALE_F;
         }
         foreach (IOGraph *iog, activeGraphs) {
             double value = 0.0;
@@ -2207,6 +2231,17 @@ double IOGraph::startOffset() const
         return nstime_to_sec(&start_time_);
     }
     return 0.0;
+}
+
+nstime_t IOGraph::startTime() const
+{
+    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
+        return start_time_;
+    }
+    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
+        return start_time_;
+    }
+    return nstime_t(NSTIME_INIT_ZERO);
 }
 
 int IOGraph::packetFromTime(double ts) const
