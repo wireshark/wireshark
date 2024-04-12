@@ -380,8 +380,7 @@ static gboolean process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const guchar *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   headers_t *eh_ptr, http_conv_t *conv_data,
-			   media_container_type_t http_type, wmem_map_t *header_value_map, gboolean streaming_chunk_mode,
-			   http_req_res_t *curr);
+			   media_container_type_t http_type, wmem_map_t *header_value_map, gboolean streaming_chunk_mode);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, gchar *value);
@@ -948,15 +947,17 @@ determine_http_location_target(wmem_allocator_t *scope, const gchar *base_url, c
 		/* A leading slash means to put the location after the netloc */
 		else if (g_str_has_prefix(location_url, "/")) {
 			/* We have already tested strstr(base_url) above */
-			gchar *scheme_end = strstr(base_url_no_query, "://") + 3;
+			gchar *scheme_end;
 			gchar *netloc_end;
 			gint netloc_length;
 
-			if (scheme_end[0] == '\0') {
+			scheme_end = strstr(base_url_no_query, "://") + 3;
+			/* The following code was the only way to stop VS dereferencing errors. */
+			if (!(*scheme_end)) {
 				return NULL;
 			}
 			netloc_end = strstr(scheme_end, "/");
-			if (netloc_end == NULL) {
+			if (!(*netloc_end)) {
 				return NULL;
 			}
 			netloc_length = (gint) (netloc_end - base_url_no_query);
@@ -1742,7 +1743,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			gboolean good_header = process_header(tvb, offset, next_offset, line, linelen,
 			    colon_offset, pinfo, http_tree, headers, conv_data,
-			    http_type, header_value_map, streaming_chunk_mode, curr);
+			    http_type, header_value_map, streaming_chunk_mode);
 			if (http_check_ascii_headers && !good_header) {
 				/*
 				 * Line is not a good HTTP header.
@@ -1832,7 +1833,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/* If responses don't have a range, the I/O is synchronous in which case a request is
 			*  matched with the following response. If a request or response is missing from the
 			*  capture file, correct matching resumes at the next request. */
-			if(!match_trans && curr
+			if(!match_trans
+			&& curr
 			&& !curr->resp_has_range
 			&& curr->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
@@ -1866,37 +1868,38 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_set_hidden(hidden_item);
 
 			match_trans = NULL;
+			if (curr) {
+				if (size > 0 && curr->req_has_range) {
+					match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
+										GUINT_TO_POINTER(pinfo->num));
+					if (match_trans) {
+						pi = proto_tree_add_uint(http_tree, hf_http_response_in,
+										tvb, 0, 0, match_trans->resp_frame);
+						proto_item_set_generated(pi);
+					}
+				}
+				else {
+					if(!match_trans
+					&& !curr->resp_has_range
+					&& curr->res_framenum) {
+						pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
+						proto_item_set_generated(pi);
 
-			if (size > 0 && curr && curr->req_has_range) {
-				match_trans = (match_trans_t *)wmem_map_lookup(conv_data->matches_table,
-									GUINT_TO_POINTER(pinfo->num));
-				if (match_trans) {
-					pi = proto_tree_add_uint(http_tree, hf_http_response_in,
-									tvb, 0, 0, match_trans->resp_frame);
+					}
+				}
+
+				if (curr->full_uri) {
+					pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
+									curr->full_uri);
+					proto_item_set_url(pi);
 					proto_item_set_generated(pi);
 				}
-			}
-			else {
-				if(!match_trans && curr
-				&& !curr->resp_has_range
-				&& curr->res_framenum) {
-					pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
+				else if (stat_info->full_uri){
+					pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
+									stat_info->full_uri);
+					proto_item_set_url(pi);
 					proto_item_set_generated(pi);
-
 				}
-			}
-
-			if (curr && curr->full_uri) {
-				pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
-								curr->full_uri);
-				proto_item_set_url(pi);
-				proto_item_set_generated(pi);
-			}
-			else if (stat_info->full_uri){
-				pi = proto_tree_add_string(http_tree, hf_http_request_full_uri, tvb, 0, 0,
-								stat_info->full_uri);
-				proto_item_set_url(pi);
-				proto_item_set_generated(pi);
 			}
 			}
 			break;
@@ -2066,7 +2069,7 @@ dissecting_body:
 		/*
 		 * Handle *transfer* encodings.
 		 */
-		if (headers->transfer_encoding_chunked) {
+		if (headers && headers->transfer_encoding_chunked) {
 			if (!http_dechunk_body) {
 				/* Chunking disabled, cannot dissect further. */
 				/* XXX: Should this be sent to the follow tap? */
@@ -3286,7 +3289,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
 	       http_conv_t *conv_data, media_container_type_t http_type, wmem_map_t *header_value_map,
-	       gboolean streaming_chunk_mode, http_req_res_t *curr_req_res)
+	       gboolean streaming_chunk_mode)
 {
 	int len;
 	int line_end_offset;
@@ -3304,6 +3307,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	int f;
 	int* hf_id;
 	tap_credential_t* auth;
+	http_req_res_t  *curr_req_res = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+			proto_http, HTTP_PROTO_DATA_REQRES);
 	http_info_value_t *stat_info = p_get_proto_data(pinfo->pool, pinfo, proto_http, HTTP_PROTO_DATA_INFO);
 	wmem_allocator_t *scope = (!PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) ? wmem_file_scope() :
 		                      ((PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) ? NULL : pinfo->pool);
@@ -3733,11 +3738,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 			/* Get the first range number */
 			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
-			first_range_num_str = strtok(value_bytes, "-");
-			first_range_num_str = strtok(value_bytes, "=");
-
 			if (first_range_num_str) {
 				first_range_num_str += 6;  /* Move the pointer past "bytes=" */
+				first_range_num_str = strtok(first_range_num_str, "-");
 				first_range_num = strtoul(first_range_num_str, NULL ,10);
 			}
 			if (first_range_num == 0) {
@@ -3747,14 +3750,13 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				char *str = wmem_strdup(wmem_file_scope(), value);
 				str += 8;
 				first_range_num = strtoul(str, NULL ,10);
-
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
 			*  because there are rarely more than 10 requests in the list."
 			*/
 			if (first_range_num > 0) {
-				request_trans_t* req_trans = g_new(request_trans_t, 1);
+				request_trans_t* req_trans = wmem_new(wmem_file_scope(), request_trans_t);
 				req_trans->first_range_num = first_range_num;
 				req_trans->req_frame = pinfo->num;
 				req_trans->abs_time = pinfo->fd->abs_ts;
@@ -3783,18 +3785,13 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				GSList *iter = NULL;
 
 				/* Get the first content range number  */
-				first_crange_num_str = wmem_alloc(scope, 100);
-				first_crange_num_str = g_strdup(value);
-
-				/* Eliminate the trailing "/12345" file size string */
-				first_crange_num_str = strtok(value_bytes, "/");
-				first_crange_num_str = strtok(value_bytes, "-");
-				first_crange_num_str = strtok(value_bytes, " ");
-
+				first_crange_num_str = wmem_strdup(wmem_file_scope(), value);
 				if (first_crange_num_str) {
 					first_crange_num_str += 6;  /* Move the pointer past "bytes=" */
+					first_crange_num_str = strtok(first_crange_num_str, "-");
 					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
 				}
+
 				if (first_crange_num == 0) {
 					/* The first number of the range is missing or '0'. So we'll
 					* use the second number in the range instead."
@@ -3835,24 +3832,24 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					wmem_map_insert(conv_data->matches_table,
 						GUINT_TO_POINTER(match_trans->resp_frame), (void *)match_trans);
 
-					curr_req_res->resp_has_range = TRUE;
-
 					/* Remove and free all of the list entries up to and including the
 					*  matching one from req_list. */
 					if (conv_data->req_list) {
-						GSList *next, *top_of_list;
+						GSList *top_of_list = NULL;
 
 						top_of_list = conv_data->req_list;
 						pos++;
+
 						for (guint q = 0; q < pos; q++) {
-							next = top_of_list->next;
-							top_of_list = g_slist_delete_link(top_of_list, top_of_list);
-							top_of_list = next;
+						    top_of_list = g_slist_delete_link(top_of_list, top_of_list);
 						}
-						conv_data->req_list = top_of_list;
+						if (top_of_list)
+							conv_data->req_list = top_of_list;
 					}
 				}
 			}
+			if (curr_req_res)
+				curr_req_res->resp_has_range = TRUE;
 			break;
 		}
 	}
