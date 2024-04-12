@@ -228,7 +228,7 @@ typedef struct _dbus_type_reader_t {
 } dbus_type_reader_t;
 
 typedef union {
-	gboolean bool_;
+	bool bool_;
 	guint32 uint;
 	gint32 int_;
 	guint64 uint64;

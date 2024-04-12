@@ -55,7 +55,7 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint enc
  * and returns proto_item* and boolean value retreived */
 WS_DLL_PUBLIC
 proto_item*
-ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gboolean *retval);
+ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, bool *retval);
 
 /* Gets data from tvbuff, adds it to proto_tree, *DOES NOT* increment
  * offset, and returns proto_item* */
