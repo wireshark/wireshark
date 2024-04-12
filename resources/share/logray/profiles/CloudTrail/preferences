@@ -1,0 +1,18 @@
+# Configuration file for Logray
+#
+# Packet list column format
+# Each pair of strings consists of a column title and its format
+gui.column.format:
+	"No.", "%m",
+	"Time", "%t",
+	"Source", "%s",
+	"Destination", "%d",
+	"Length", "%L",
+	"Service", "%Cus:ct.shortsrc:0:R",
+	"Region", "%Cus:ct.region:0:R",
+	"Bucket/Instance", "%Cus:s3.bucket || ec2.name:0:R",
+	"User Name", "%Cus:ct.user:0:R",
+	"Event Name", "%Cus:ct.name:0:R",
+	"User IP", "%Cus:ct.srcip:0:R",
+	"Info", "%i"
+
