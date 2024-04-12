@@ -1168,7 +1168,7 @@ ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, pro
 {
     fragment_head   *ipfd_head;
     tvbuff_t        *next_tvb;
-    gboolean         update_col_info = TRUE;
+    bool             update_col_info = true;
 
     pinfo->fragmented = TRUE;
     *show_data_ptr = TRUE;

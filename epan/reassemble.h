@@ -543,7 +543,7 @@ typedef struct _fragment_items {
 WS_DLL_PUBLIC tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const char *name, fragment_head *fd_head, const fragment_items *fit,
-    gboolean *update_col_infop, proto_tree *tree);
+    bool *update_col_infop, proto_tree *tree);
 
 WS_DLL_PUBLIC gboolean
 show_fragment_tree(fragment_head *ipfd_head, const fragment_items *fit,

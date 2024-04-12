@@ -3756,7 +3756,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (msgtype_tp) {
         guint32         tp_offset = 0;
         gboolean        tp_more_segments = FALSE;
-        gboolean        update_col_info = TRUE;
+        bool            update_col_info = true;
         fragment_head  *someip_tp_head = NULL;
         proto_tree     *tp_tree = NULL;
 

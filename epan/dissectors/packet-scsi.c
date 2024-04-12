@@ -6252,7 +6252,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32           expected_length;
     fragment_head    *ipfd_head;
     tvbuff_t         *next_tvb        = tvb;
-    gboolean          update_col_info = TRUE;
+    bool              update_col_info = true;
     gboolean          more_frags      = FALSE;
 
     if (!itlq || !itl) {

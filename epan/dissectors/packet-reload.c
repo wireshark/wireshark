@@ -3877,7 +3877,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   fragment_head        *reload_fd_head  = NULL;
   guint32               fragment        = 0;
   gboolean              save_fragmented = FALSE;
-  gboolean              update_col_info = TRUE;
+  bool                  update_col_info = true;
 
   offset = 0;
   effective_length = tvb_captured_length(tvb);

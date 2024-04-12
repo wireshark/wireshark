@@ -376,7 +376,7 @@ tvbuff_t *stream_process_reassembled(
     tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char *name, const stream_pdu_fragment_t *frag,
     const struct _fragment_items *fit,
-    gboolean *update_col_infop, proto_tree *tree)
+    bool *update_col_infop, proto_tree *tree)
 {
     stream_pdu_t *pdu;
     DISSECTOR_ASSERT(frag);

@@ -356,7 +356,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                             (fragment_number < (fragment_amount-1))        /* more_frags */
                                             );
 
-                gboolean update_col_info = TRUE;
+                bool update_col_info = true;
                 /* See if this completes an SDU */
                 tvbuff_t *next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled UDPCP Payload",
                                                               fh, &udpcp_frag_items,

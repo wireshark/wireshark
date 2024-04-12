@@ -784,7 +784,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
                               more_frags                                  /* more_frags */
                               );
 
-            gboolean update_col_info = TRUE;
+            bool update_col_info = true;
             next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
                                                 fh, &rlc_nr_frag_items,
                                                 &update_col_info, tree);
@@ -1164,7 +1164,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
                               more_frags                                  /* more_frags */
                               );
 
-            gboolean update_col_info = TRUE;
+            bool update_col_info = true;
             next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
                                                 fh, &rlc_nr_frag_items,
                                                 &update_col_info, tree);

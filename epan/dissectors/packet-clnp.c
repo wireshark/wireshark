@@ -216,7 +216,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     gboolean        save_in_error_pkt;
     fragment_head  *fd_head;
     tvbuff_t       *next_tvb;
-    gboolean        update_col_info = TRUE;
+    bool            update_col_info = true;
     gboolean        save_fragmented;
     heur_dtbl_entry_t *hdtbl_entry;
 

@@ -1177,7 +1177,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     tvbuff_t   *next_tvb, *data_tvb;
     gboolean   dissected = FALSE;
-    gboolean   update_col_info = TRUE;
+    bool       update_col_info = true;
     gboolean   complete = FALSE;
 
     dvbs2_bb_data     *pdata;

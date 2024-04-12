@@ -1908,7 +1908,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   guint16    ipsum;
   fragment_head *ipfd_head = NULL;
   tvbuff_t   *next_tvb;
-  gboolean   update_col_info = TRUE;
+  bool       update_col_info = true;
   gboolean   save_fragmented;
   ws_ip4 *iph;
   guint32    src32, dst32;

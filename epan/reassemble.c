@@ -2844,10 +2844,10 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	const char *name, fragment_head *fd_head, const fragment_items *fit,
-	gboolean *update_col_infop, proto_tree *tree)
+	bool *update_col_infop, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
-	gboolean update_col_info;
+	bool update_col_info;
 	proto_item *frag_tree_item;
 
 	if (fd_head != NULL && pinfo->num == fd_head->reassembled_in && pinfo->curr_layer_num == fd_head->reas_in_layer_num) {
@@ -2885,7 +2885,7 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 */
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
 			pinfo->fragmented = FALSE;	/* one-fragment packet */
-			update_col_info = TRUE;
+			update_col_info = true;
 		}
 		if (update_col_infop != NULL)
 			*update_col_infop = update_col_info;

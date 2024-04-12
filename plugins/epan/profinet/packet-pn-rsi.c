@@ -295,7 +295,7 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
     proto_item     *pn_rsi_tree_item;
     proto_item     *payload_item = NULL;
     proto_item     *payload_tree = NULL;
-    gboolean        update_col_info = TRUE;
+    bool            update_col_info = true;
 
     if (pinfo->srcport != 0 && pinfo->destport != 0) {
         /* COTP over RFC1006/TCP, try reassembling */
