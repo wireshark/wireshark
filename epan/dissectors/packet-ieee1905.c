@@ -237,6 +237,22 @@ static int hf_ieee1905_bss_client_mac;
 static int hf_ieee1905_bss_client_last_assoc;
 static int hf_ieee1905_ap_vht_supported_vht_tx_mcs;
 static int hf_ieee1905_ap_vht_supported_vht_rx_mcs;
+static int hf_ieee1905_ap_vht_tx_mcs_map_1ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_2ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_3ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_4ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_5ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_6ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_7ss;
+static int hf_ieee1905_ap_vht_tx_mcs_map_8ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_1ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_2ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_3ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_4ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_5ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_6ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_7ss;
+static int hf_ieee1905_ap_vht_rx_mcs_map_8ss;
 static int hf_ieee1905_channel_pref_preference;
 static int hf_ieee1905_channel_pref_reason;
 static int hf_ieee1905_channel_preference_radio_id;
@@ -781,6 +797,8 @@ static gint ett_ap_radio_basic_cap_class_tree;
 static gint ett_radio_basic_non_op_list;
 static gint ett_ht_cap_flags;
 static gint ett_vht_cap_flags;
+static gint ett_ieee1905_ap_vht_tx_mcs_set;
+static gint ett_ieee1905_ap_vht_rx_mcs_set;
 static gint ett_assoc_clients_bss_list;
 static gint ett_assoc_client_bss_tree;
 static gint ett_assoc_client_list;
@@ -3161,6 +3179,39 @@ dissect_ap_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect an AP VHT Capabilities TLV
  */
+
+static const value_string vht_supported_mcs_vals[] = {
+    { 0, "Support for VHT-MCS 0-7" },
+    { 1, "Support for VHT-MCS 0-8" },
+    { 2, "Support for VHT-MCS 0-9" },
+    { 3, "Not supported" },
+    { 0, NULL }
+};
+
+static int * const tx_vht_mcs_map_headers[] = {
+    &hf_ieee1905_ap_vht_tx_mcs_map_8ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_7ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_6ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_5ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_4ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_3ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_2ss,
+    &hf_ieee1905_ap_vht_tx_mcs_map_1ss,
+    NULL
+};
+
+static int * const rx_vht_mcs_map_headers[] = {
+    &hf_ieee1905_ap_vht_rx_mcs_map_8ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_7ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_6ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_5ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_4ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_3ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_2ss,
+    &hf_ieee1905_ap_vht_rx_mcs_map_1ss,
+    NULL
+};
+
 static int
 dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
@@ -3181,12 +3232,16 @@ dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
                         tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    proto_tree_add_item(tree, hf_ieee1905_ap_vht_supported_vht_tx_mcs,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                    hf_ieee1905_ap_vht_supported_vht_tx_mcs,
+                    ett_ieee1905_ap_vht_tx_mcs_set,
+                    tx_vht_mcs_map_headers, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ieee1905_ap_vht_supported_vht_rx_mcs,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                    hf_ieee1905_ap_vht_supported_vht_rx_mcs,
+                    ett_ieee1905_ap_vht_rx_mcs_set,
+                    rx_vht_mcs_map_headers, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     offset += 2;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_ieee1905_vht_cap_flags,
@@ -3331,7 +3386,7 @@ dissect_ap_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         proto_tree_add_bitmask_with_flags(mcs_set, tvb, offset,
                         hf_ieee1905_ap_he_cap_tx_mcs_le_80_mhz,
-                        ett_ieee1905_ap_he_rx_mcs_set,
+                        ett_ieee1905_ap_he_tx_mcs_set,
                         tx_he_mcs_map_headers, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         offset += 2;
 
@@ -3348,7 +3403,7 @@ dissect_ap_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             proto_tree_add_bitmask_with_flags(mcs_set, tvb, offset,
                         hf_ieee1905_ap_he_cap_tx_mcs_160_mhz,
-                        ett_ieee1905_ap_he_rx_mcs_set,
+                        ett_ieee1905_ap_he_tx_mcs_set,
                         tx_he_mcs_map_headers, ENC_BIG_ENDIAN, BMT_NO_APPEND);
             offset += 2;
 
@@ -3366,7 +3421,7 @@ dissect_ap_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             proto_tree_add_bitmask_with_flags(mcs_set, tvb, offset,
                         hf_ieee1905_ap_he_cap_tx_mcs_80p80_mhz,
-                        ett_ieee1905_ap_he_rx_mcs_set,
+                        ett_ieee1905_ap_he_tx_mcs_set,
                         tx_he_mcs_map_headers, ENC_BIG_ENDIAN, BMT_NO_APPEND);
             offset += 2;
 
@@ -9479,12 +9534,108 @@ proto_register_ieee1905(void)
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_vht_supported_vht_tx_mcs,
-          { "Supported VHY Tx MCS", "ieee1905.vht.supported_tx_mcs",
-            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+          { "Supported VHT Tx MCS", "ieee1905.ap_vht.supported_tx_mcs",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_vht_supported_vht_rx_mcs,
-          { "Supported VHY Rx MCS", "ieee1905.vht.supported_rx_mcs",
-            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+          { "Supported VHT Rx MCS", "ieee1905.ap_vht.supported_rx_mcs",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_1ss,
+          { "Max Tx VHT MCS for 1 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_1_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0003, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_2ss,
+          { "Max Tx VHT MCS for 2 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_2_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x000C, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_3ss,
+          { "Max Tx VHT MCS for 3 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_3_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0030, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_4ss,
+          { "Max Tx VHT MCS for 4 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_4_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x00C0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_5ss,
+          { "Max Tx VHT MCS for 5 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_5_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0300, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_6ss,
+          { "Max Tx VHT MCS for 6 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_6_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0C00, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_7ss,
+          { "Max Tx VHT MCS for 7 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_7_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x3000, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_tx_mcs_map_8ss,
+          { "Max Tx VHT MCS for 8 SS",
+            "ieee1905.ap_vht.max_tx_vht_mcs_8_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0xC000, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_1ss,
+          { "Max Rx VHT MCS for 1 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_1_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0003, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_2ss,
+          { "Max Rx VHT MCS for 2 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_2_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x000C, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_3ss,
+          { "Max Rx VHT MCS for 3 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_3_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0030, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_4ss,
+          { "Max Rx VHT MCS for 4 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_4_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x00C0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_5ss,
+          { "Max Rx VHT MCS for 5 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_5_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0300, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_6ss,
+          { "Max Rx VHT MCS for 6 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_6_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x0C00, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_7ss,
+          { "Max Rx VHT MCS for 7 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_7_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0x3000, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_vht_rx_mcs_map_8ss,
+          { "Max Rx VHT MCS for 8 SS",
+            "ieee1905.ap_vht.max_rx_vht_mcs_8_ss",
+            FT_UINT16, BASE_DEC, VALS(vht_supported_mcs_vals),
+            0xC000, NULL, HFILL }},
 
         { &hf_ieee1905_assoc_clients_bss_count,
           { "Included BSS count", "ieee1905.assoc_client.bss_count",
@@ -11815,6 +11966,8 @@ proto_register_ieee1905(void)
         &ett_radio_basic_non_op_list,
         &ett_ht_cap_flags,
         &ett_vht_cap_flags,
+        &ett_ieee1905_ap_vht_tx_mcs_set,
+        &ett_ieee1905_ap_vht_rx_mcs_set,
         &ett_assoc_clients_bss_list,
         &ett_assoc_client_bss_tree,
         &ett_assoc_client_list,
