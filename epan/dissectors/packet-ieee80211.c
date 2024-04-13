@@ -5768,6 +5768,7 @@ static int hf_ieee80211_tag_power_capability_max;
 
 static int hf_ieee80211_tag_tpc_report_trsmt_pow;
 static int hf_ieee80211_tag_tpc_report_link_mrg;
+static int hf_ieee80211_tag_tpc_report_reserved;
 
 static int hf_ieee80211_tag_supported_channels;
 static int hf_ieee80211_tag_supported_channels_first;
@@ -12891,6 +12892,10 @@ add_ff_rm_tpc_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
   proto_item *tpc_item;
 
   /* 8.4.2.19 TPC Report element */
+  /* XXX - The TPC Report element is exactly the same as that dissected
+   * by ieee80211_tag_tpc_report(), so some of these fixed fields duplicate
+   * tagged fields.
+   */
   tpc_item = proto_tree_add_item(tree, hf_ieee80211_ff_tpc, tvb, offset, 4, ENC_NA);
   tpc_tree = proto_item_add_subtree(tpc_item, ett_tpc);
   proto_tree_add_item(tpc_tree, hf_ieee80211_ff_tpc_element_id, tvb, offset, 1, ENC_NA);
@@ -31648,7 +31653,10 @@ ieee80211_tag_tpc_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U
   return 1; /* Even with no data, we can't return 0 */
 }
 
-/* 7.3.2.18 TPC Report element (35) */
+/* TPC Report element (35)
+ * 7.3.2.18 (Std 802.11-2007), 8.4.2.19 (Std 802.11-2012),
+ * 9.4.2.17 (Std 802.11-2016), 9.4.2.16 (Std 802.11-2020)
+ */
 static int
 ieee80211_tag_tpc_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -31663,11 +31671,25 @@ ieee80211_tag_tpc_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_trsmt_pow, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, " Transmit Power: %d", tvb_get_guint8(tvb, offset));
+  proto_item_append_text(field_data->item_tag, " Transmit Power: %d dBm", tvb_get_guint8(tvb, offset));
   offset += 1;
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_link_mrg, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, ", Link Margin: %d", tvb_get_guint8(tvb, offset));
+  /*
+   * "The Link Margin field is reserved when a TPC Report element is
+   * included in a Beacon frame or Probe Response frame." - 2012 and later
+   */
+
+  uint32_t ftype = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(),
+                                                     pinfo, proto_wlan,
+                                                     FRAME_TYPE_KEY));
+
+  if (ftype == MGT_BEACON || ftype == MGT_PROBE_RESP) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_reserved, tvb, offset, 1, ENC_NA);
+  } else {
+    proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_link_mrg, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    proto_item_append_text(field_data->item_tag, ", Link Margin: %d dBm", tvb_get_guint8(tvb, offset));
+  }
   return tvb_captured_length(tvb);
 }
 
@@ -36327,6 +36349,8 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
   /*
    * Add the frame type to the pinfo for those cases where it is needed
    * to determine other things.
+   * XXX - Is there any reason why this is file scoped? Couldn't this
+   * be pinfo->pool?
    */
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, FRAME_TYPE_KEY, GINT_TO_POINTER(COMPOSE_FRAME_TYPE(fcf)));
 
@@ -38282,6 +38306,10 @@ dissect_pv1_management(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
                  guint len_no_fcs, guint16 frame_control _U_)
 {
 
+  /*
+   * XXX - We add COMPOSE_FRAME_TYPE(fcf) (which doesn't work for PV1) as
+   * proto_data FRAME_TYPE_KEY for PV0. Do we need to put something here?
+   */
   switch (subtype) {
     case PV1_MANAGEMENT_ACTION:
       offset = dissect_pv1_mgmt_action(tvb, pinfo, tree, offset, phdr, len_no_fcs);
@@ -42756,7 +42784,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_tpc_tx_power,
      {"TPC Transmit Power", "wlan.rm.tpc.tx_power",
-      FT_INT8, BASE_DEC, NULL, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_tpc_link_margin,
@@ -50956,23 +50984,28 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan.powercap.min",
-      FT_INT8, BASE_DEC, NULL, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       "The nominal minimum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan.powercap.max",
-      FT_INT8, BASE_DEC, NULL, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       "The nominal maximum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_tpc_report_trsmt_pow,
-     {"Transmit Power", "wlan.tcprep.trsmt_pow",
-      FT_INT8, BASE_DEC, NULL, 0,
+     {"Transmit Power", "wlan.tpcrep.trsmt_pow",
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_tpc_report_link_mrg,
-     {"Link Margin", "wlan.tcprep.link_mrg",
+     {"Link Margin", "wlan.tpcrep.link_mrg",
       FT_INT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_tpc_report_reserved,
+     {"Reserved", "wlan.tpcrep.reserved",
+      FT_INT8, BASE_DEC, NULL, 0,
+      "TPC Link Margin field is reserved in a Beacon or Probe Response frame", HFILL }},
 
     {&hf_ieee80211_tag_supported_channels,
      {"Supported Channels Set", "wlan.supchan",
