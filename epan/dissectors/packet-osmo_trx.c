@@ -254,9 +254,9 @@ struct otrxd_pdu_info {
 	/* PDU version */
 	guint32 ver;
 	/* BATCH.ind marker */
-	gboolean batch;
+	bool batch;
 	/* SHADOW.ind marker */
-	gboolean shadow;
+	bool shadow;
 	/* Number of batched PDUs */
 	guint32 num_pdus;
 	/* TRX (RF channel) number */
@@ -266,7 +266,7 @@ struct otrxd_pdu_info {
 	/* TDMA timeslot number */
 	guint32 tn;
 	/* NOPE.{ind,req} marker */
-	gboolean nope;
+	bool nope;
 	/* Modulation type and string */
 	enum otrxd_mod_type mod;
 	const gchar *mod_str;

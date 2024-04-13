@@ -72,7 +72,7 @@ dissect_mctp_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *mctp_ctrl_tree, *mctp_ctrl_hdr_tree;
     guint len, payload_start, cmd;
     proto_item *ti, *hti;
-    gboolean rq;
+    bool rq;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MCTP Control");
     col_clear(pinfo->cinfo, COL_INFO);

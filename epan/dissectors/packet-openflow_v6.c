@@ -1284,7 +1284,7 @@ static const value_string openflow_v6_header_type_namespace_values[] = {
 
 typedef struct oxm_header {
     guint32 oxm_class;
-    gboolean oxm_hm;
+    bool oxm_hm;
     guint32 oxm_field;
     guint32 oxm_length;
 } oxm_header;
@@ -1292,7 +1292,7 @@ static int
 dissect_openflow_oxm_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_, oxm_header *retval)
 {
     guint32 oxm_class;
-    gboolean oxm_hm;
+    bool oxm_hm;
     guint32 oxm_field;
     guint32 oxm_length;
 

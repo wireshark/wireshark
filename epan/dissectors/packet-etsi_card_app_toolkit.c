@@ -1049,7 +1049,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	while (pos < length) {
 		proto_item *ti;
 		guint32 g8, cmd_nr, cmd_qual;
-		gboolean cmd_qual_flag;
+		bool cmd_qual_flag;
 		guint16 tag;
 		guint32 len, i;
 		guint8 *ptr = NULL;
@@ -1108,7 +1108,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			case 0x13:
 				proto_tree_add_item_ret_boolean(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual_flag);
 				sms_data.stk_packing_required = cmd_qual_flag;
-				cmd_qual = cmd_qual_flag ? 1 : 0;
+				cmd_qual = cmd_qual_flag;
 				break;
 			case 0x26:
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
@@ -1118,7 +1118,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				break;
 			case 0x43:
 				proto_tree_add_item_ret_boolean(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual_flag);
-				cmd_qual = cmd_qual_flag ? 1 : 0;
+				cmd_qual = cmd_qual_flag;
 				break;
 			default:
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);

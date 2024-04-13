@@ -285,7 +285,7 @@ static const fragment_items docsis_frag_items = {
 /* Dissection */
 /* Code to Dissect the extended header; TLV Formatted headers */
 static void
-dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, gboolean *is_encrypted)
+dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_encrypted)
 {
   proto_tree *ehdr_tree;
   proto_item *eh_length_item;
@@ -479,7 +479,7 @@ dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree
 /* The length field may condain a SID, but this logic is not handled here */
 static void
 dissect_exthdr_length_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree,
-                             guint8 exthdr, guint16 mac_parm, guint16 len_sid, guint16 *payload_length, gboolean *is_encrypted)
+                             guint8 exthdr, guint16 mac_parm, guint16 len_sid, guint16 *payload_length, bool *is_encrypted)
 {
   proto_item *length_item;
   if (exthdr == EXT_HDR_ON)
@@ -599,7 +599,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   guint16 payload_length = 0;
   /* guint16 framelen = 0; */
   gboolean save_fragmented;
-  gboolean is_encrypted = FALSE;
+  bool is_encrypted = false;
   gboolean fcs_correct;
   proto_item *ti;
   proto_tree *docsis_tree;

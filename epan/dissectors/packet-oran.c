@@ -1194,7 +1194,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     ext11_settings_t ext11_settings;
     memset(&ext11_settings, 0, sizeof(ext11_settings));
 
-    gboolean extension_flag = FALSE;
+    bool extension_flag = false;
 
     /* These sections are similar, so handle as common with per-type differences */
     if (sectionType <= SEC_C_UE_SCHED) {
@@ -1910,7 +1910,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 11: /* Flexible Weights Extension Type */
             {
-                gboolean disableBFWs;
+                bool disableBFWs;
                 guint32  numBundPrb;
 
                 /* disableBFWs */
@@ -2198,7 +2198,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
 
                 /* disableBFWs */
-                gboolean disableBFWs;
+                bool disableBFWs;
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_disable_bfws,
                                                 tvb, offset, 1, ENC_BIG_ENDIAN, &disableBFWs);
                 if (disableBFWs) {
@@ -2356,7 +2356,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* reserved (2 bits? - spec says 1) */
                     proto_tree_add_bits_item(pattern_tree, hf_oran_reserved, tvb, offset*8, 2, ENC_BIG_ENDIAN);
                     /* rbgIncl */
-                    gboolean rbgIncl;
+                    bool rbgIncl;
                     proto_tree_add_item_ret_boolean(pattern_tree, hf_oran_RbgIncl, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgIncl);
                     offset += 1;
 

@@ -4904,7 +4904,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                     offset += 2;
                 } else {
-                    gboolean format;
+                    bool format;
 
                     /* F(ormat) bit tells us how long the length field is */
                     proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_sch_format,
@@ -6914,7 +6914,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
                     offset += 2;
                 } else {
-                    gboolean format;
+                    bool format;
 
                     /* F(ormat) bit tells us how long the length field is */
                     proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_mch_format,
@@ -7344,7 +7344,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else {
             /* Not the last one */
             if (lcids[number_of_headers] != PADDING_LCID) {
-                guint32 format;
+                bool format;
 
                 /* F(ormat) bit tells us how long the length field is */
                 proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_slsch_format,

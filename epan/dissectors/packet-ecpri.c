@@ -397,6 +397,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     }
 
     /* do-while loop for concatenation check */
+    bool concatenation_bit;
     do
     {
         /* 4-byte boundary check for concatenation */
@@ -429,7 +430,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         /* Reserved */
         proto_tree_add_item(header_tree, hf_reserved, tvb, offset, 1, ENC_NA);
         /* C(oncatenated */
-        ti_c_bit = proto_tree_add_item_ret_boolean(header_tree, hf_c_bit, tvb, offset, 1, ENC_NA, &concatenation);
+        ti_c_bit = proto_tree_add_item_ret_boolean(header_tree, hf_c_bit, tvb, offset, 1, ENC_NA, &concatenation_bit);
         offset += 1;
 
         /* eCPRI Message Type */
@@ -783,8 +784,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 offset += payload_size;
             }
         }
-    } while (concatenation != 0 && reported_length - offset >= ECPRI_HEADER_LENGTH);
-    if (concatenation != 0) {
+    } while (concatenation_bit != 0 && reported_length - offset >= ECPRI_HEADER_LENGTH);
+    if (concatenation_bit != false) {
         expert_add_info_format(pinfo, ti_c_bit, &ei_c_bit, "Concatenation Bit is 1, should be 0");
     }
 

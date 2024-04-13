@@ -550,7 +550,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	guint8       primitive;
 	const gchar *str;
 	gint         bfcp_payload_length;
-	gboolean     f_bit;
+	bool         f_bit;
 	proto_tree  *bfcp_tree;
 	proto_item	*ti;
 

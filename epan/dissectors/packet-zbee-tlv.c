@@ -1654,7 +1654,7 @@ dissect_zbee_tlv_tunneling_npdu_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     {
         proto_item *npdu_flags_item = proto_tree_add_item(tree, hf_zbee_tlv_local_tunneling_npdu_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree *npdu_flags_tree = proto_item_add_subtree(npdu_flags_item, ett_zbee_tlv_zbd_tunneling_npdu_flags);
-        gboolean secur;
+        bool secur;
 
         proto_tree_add_item_ret_boolean(npdu_flags_tree, hf_zbee_tlv_local_tunneling_npdu_flags_security, tvb, offset, 1, ENC_LITTLE_ENDIAN, &secur);
         proto_tree_add_item_ret_uint(tree, hf_zbee_tlv_local_tunneling_npdu_length, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN, &npdu_len);

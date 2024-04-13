@@ -3622,8 +3622,8 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint32         protocol_version = 0;
     guint32         version = 0;
     guint32         msgtype = 0;
-    gboolean        msgtype_ack = FALSE;
-    gboolean        msgtype_tp = FALSE;
+    bool            msgtype_ack = false;
+    bool            msgtype_tp = false;
     guint32         retcode = 0;
     int             tmp = 0;
 
@@ -3755,7 +3755,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* Is this a SOME/IP-TP segment? */
     if (msgtype_tp) {
         guint32         tp_offset = 0;
-        gboolean        tp_more_segments = FALSE;
+        bool            tp_more_segments = false;
         bool            update_col_info = true;
         fragment_head  *someip_tp_head = NULL;
         proto_tree     *tp_tree = NULL;

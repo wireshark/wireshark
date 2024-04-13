@@ -735,7 +735,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
 	const guint8* str;
 	guint32 value;
-	gboolean flag;
+	bool flag;
 	proto_tree* subtree;
 	switch (type) {
 		case WS_IFLA_IFNAME:

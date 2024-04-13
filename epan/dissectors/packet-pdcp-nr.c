@@ -2257,7 +2257,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         /**********************************/
         /* User-plane messages            */
-        gboolean is_user_plane;
+        bool is_user_plane;
 
         /* Data/Control flag */
         proto_tree_add_item_ret_boolean(pdcp_tree, hf_pdcp_nr_data_control, tvb, offset, 1, ENC_BIG_ENDIAN, &is_user_plane);
@@ -2550,12 +2550,12 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             sdap_ti = proto_tree_add_item(pdcp_tree, proto_sdap, tvb, pdcp_offset, 1, ENC_NA);
             sdap_tree = proto_item_add_subtree(sdap_ti, ett_sdap);
             if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
-                gboolean data_control;
+                bool data_control;
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_data_control, tvb, pdcp_offset, 1, ENC_NA, &data_control);
                 proto_tree_add_item(sdap_tree, hf_sdap_reserved, tvb, pdcp_offset, 1, ENC_NA);
                 proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &pdu_type_bit));
             } else {
-                gboolean rdi, rqi;
+                bool rdi, rqi;
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rdi, tvb, pdcp_offset, 1, ENC_NA, &rdi);
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rqi, tvb, pdcp_offset, 1, ENC_NA, &rqi);
                 proto_item_append_text(sdap_ti, " (RDI=%s, RQI=%s",

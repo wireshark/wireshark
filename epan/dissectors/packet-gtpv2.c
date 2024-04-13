@@ -7804,7 +7804,7 @@ static void
 dissect_gtpv2_mon_event_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
-    gboolean srie;
+    bool srie;
     guint32 scef_id_len;
 
     /* Octet 4 higher four bits flags SIRE, NSCF, NSUI and NSUR */
@@ -8454,8 +8454,8 @@ static void
 dissect_gtpv2_ie_mon_event_ext_inf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
     int offset = 0;
-    gboolean lrtp;
-    gboolean srie;
+    bool lrtp;
+    bool srie;
     guint32 scef_id_len;
 
     /* Octet 5  Bit 8-3 Spare Bit 2 SRIE Bit 1 LRTP */

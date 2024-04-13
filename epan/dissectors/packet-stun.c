@@ -1283,7 +1283,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             }
             case CHANGE_REQUEST:
             {
-                gboolean change_ip, change_port;
+                bool change_ip, change_port;
                 if (att_length < 4)
                     break;
                 proto_tree_add_item_ret_boolean(att_tree, hf_stun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN, &change_ip);

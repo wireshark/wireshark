@@ -343,6 +343,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
         /* variable to store T, L, V of TLVs & other data */
         guint optlen = 0, type = 0, val = 0;
+        bool bool_val = false;
         proto_item* tlv, * tlv_item, * tlv_item2;
 
         /* reading type & length of TLVS from stream */
@@ -739,9 +740,9 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         case Status:/* Type 15: Status */
 
             /* adding Status as proto_item to the tree */
-            proto_tree_add_item_ret_boolean(message_subtree2, hf_ubt_dt_status, tvb, offset, optlen, ENC_BIG_ENDIAN, &val);
-            proto_item_append_text(tlv, ": %u(%s)", val, (val == 1) ? "Success" : "Failure");
-            col_append_fstr(pinfo->cinfo, COL_INFO, " status:%02d(%s)", val, (val == 1) ? "Success" : "Failure");
+            proto_tree_add_item_ret_boolean(message_subtree2, hf_ubt_dt_status, tvb, offset, optlen, ENC_BIG_ENDIAN, &bool_val);
+            proto_item_append_text(tlv, ": %u(%s)", bool_val, bool_val ? "Success" : "Failure");
+            col_append_fstr(pinfo->cinfo, COL_INFO, " status:%02d(%s)", bool_val, bool_val ? "Success" : "Failure");
             offset += optlen;
             break;
 

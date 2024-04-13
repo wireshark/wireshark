@@ -1719,7 +1719,7 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 	proto_item *general_level_idc_item;
 	guint32     general_profile_idc, general_level_idc;
 	guint32		sub_layer_profile_idc[32] = { 0 };
-	gboolean general_tier_flag = 0;
+	bool general_tier_flag = 0;
 	gboolean general_profile_compatibility_flag[32] = { 0 };
 	gboolean sub_layer_profile_present_flag[32] = { 0 };
 	gboolean sub_layer_level_present_flag[32] = { 0 };

@@ -704,7 +704,7 @@ static void
 dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree, guint16 remaining_length) {
   proto_tree_add_item (tree, hf_plc_mb_mc_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-  gboolean packet_start_pointer_field_present;
+  bool packet_start_pointer_field_present;
   unsigned packet_start_pointer;
 
   proto_tree_add_item_ret_boolean(tree, hf_plc_mb_mc_pspf_present, tvb, 0, 1, FALSE, &packet_start_pointer_field_present);

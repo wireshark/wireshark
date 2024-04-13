@@ -2004,10 +2004,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_TLS:
       case EAP_TYPE_TEAP:
       {
-        gboolean more_fragments;
-        gboolean has_length;
-        gboolean is_start;
-        gboolean outer_tlvs = false;
+        bool more_fragments;
+        bool has_length;
+        bool is_start;
+        bool outer_tlvs = false;
         gint outer_tlvs_length = 0;
         int      eap_tls_seq      = -1;
         guint32  eap_reass_cookie =  0;
@@ -2465,9 +2465,9 @@ skip_tls_dissector:
       **********************************************************************/
       case EAP_TYPE_IKEV2:
       {
-        gboolean more_fragments;
-        gboolean has_length;
-        gboolean icv_present;
+        bool more_fragments;
+        bool has_length;
+        bool icv_present;
 
         /* Flags field, 1 byte */
         ti = proto_tree_add_item(eap_tree, hf_eap_ikev2_flags, tvb, offset, 1, ENC_BIG_ENDIAN);

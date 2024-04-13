@@ -111,7 +111,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint8        version;
     guint8        type;
     guint32       channel_id, seqno;
-    gboolean      lqi_mode = FALSE;
+    bool          lqi_mode = false;
 
     dissector_handle_t  next_dissector;
 

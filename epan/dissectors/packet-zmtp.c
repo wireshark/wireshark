@@ -618,7 +618,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             }
 
             /* as-server */
-            gboolean as_server;
+            bool as_server;
             proto_tree_add_item_ret_boolean(zmtp_tree, hf_zmtp_as_server, tvb, offset, 1, ENC_NA, &as_server);
             offset++;
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s)", tfs_get_string(as_server, &tfs_server_client));

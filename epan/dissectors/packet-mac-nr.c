@@ -1436,7 +1436,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_item *ti = proto_tree_add_item(tree, hf_mac_nr_rar, tvb, offset, -1, ENC_NA);
     proto_item_set_hidden(ti);
 
-    gboolean E, T;
+    bool E, T;
 
     do {
         /* Subheader */
@@ -1675,7 +1675,7 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* P */
     proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_p, tvb, *offset, 1, ENC_BIG_ENDIAN);
     /* V */
-    gboolean V;
+    bool V;
     proto_tree_add_item_ret_boolean(entry_tree, hf_mac_nr_control_me_phr_v, tvb, *offset, 1, ENC_BIG_ENDIAN, &V);
     /* PH. TODO: infer whether value relates to Type1 (PUSCH), Type2 (PUCCH) or Type3 (SRS).
        And decide whether:
@@ -1891,7 +1891,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_tree *subheader_tree = proto_item_add_subtree(subheader_ti, ett_mac_nr_subheader);
 
 
-        gboolean F, fixed_len;
+        bool F, fixed_len;
         guint32 SDU_length=0;
 
         /* 1st bit is always reserved */
@@ -2097,7 +2097,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
                 guint32 phr_ph, phr_pcmax_f_c, c_rnti, lcg_id, bs, br_lcid, bit_rate;
-                gboolean dir;
+                bool dir;
 
                 switch (lcid) {
                 case TWO_OCTET_ELCID_FIELD:
@@ -2525,7 +2525,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             else {
                 /* Downlink control elements */
                 guint32 ta_tag_id, ta_ta, br_lcid, bit_rate;
-                gboolean dir;
+                bool dir;
 
                 if (lcid != PADDING_LCID) {
                     if (data_seen) {
@@ -2675,7 +2675,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case SP_SRS_ACT_DEACT_LCID:
                         {
-                            gboolean ad, c;
+                            bool ad, c;
                             guint32 start_offset = offset;
                             guint resources = 0;
 
@@ -2702,7 +2702,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 /* Activating - show info for resources */
                                 guint length = c ? (SDU_length-2) / 2 + 2: SDU_length;
                                 while (offset - start_offset < length) {
-                                    gboolean f;
+                                    bool f;
                                     proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
                                                         tvb, offset, 1, ENC_NA, &f);
                                     guint32 resource_id = tvb_get_guint8(tvb, offset) & 0x7f;
@@ -2848,7 +2848,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case SP_CSI_RS_CSI_IM_RES_SET_ACT_DEACT_LCID:
                         {
-                            gboolean ad;
+                            bool ad;
                             guint32 start_offset = offset;
                             static int * const sp_csi_rs_csi_im_res_set_act_deact_flags[] = {
                                 &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3,

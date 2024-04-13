@@ -1409,8 +1409,8 @@ static int dissect_zb_direct_leave(tvbuff_t    *tvb,
 
     if (offset < tvb_reported_length(tvb))
     {
-        gboolean rm_children;
-        gboolean rejoin;
+        bool rm_children;
+        bool rejoin;
 
         proto_tree_add_item_ret_boolean(tree, hf_zb_direct_comm_rm_children, tvb, offset, 1, ENC_LITTLE_ENDIAN, &rm_children);
         offset += 1;
@@ -1525,7 +1525,7 @@ static int dissect_zb_direct_finding_binding(tvbuff_t    *tvb,
     if (offset < tvb_reported_length(tvb))
     {
         guint32 endpoint;
-        gboolean initiator;
+        bool initiator;
 
         proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_fb_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN, &endpoint);
         offset += 1;

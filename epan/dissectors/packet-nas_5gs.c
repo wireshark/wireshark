@@ -2783,7 +2783,7 @@ de_nas_5gs_mm_op_def_acc_cat_def(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     guint32 i = 1, j, k;
     guint32 length, criteria_length, criteria_type, criteria_count;
     guint32 curr_offset, saved_offset, saved_offset2, saved_offset3, criteria_offset;
-    gboolean psac;
+    bool psac;
 
     curr_offset = offset;
 
@@ -4967,7 +4967,7 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
     proto_item *ti;
-    gboolean si6lla;
+    bool si6lla;
     guint32 pdu_addr;
     guint8 interface_id[8];
 

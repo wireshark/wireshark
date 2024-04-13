@@ -155,7 +155,8 @@ dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   proto_tree *rrcp_tree;
   guint8 proto;
   int offset = 0;
-  guint32 reply, opcode;
+  bool reply;
+  guint32 opcode;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
     return FALSE;

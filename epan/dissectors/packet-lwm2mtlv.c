@@ -745,7 +745,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 			break;
 		case DATA_TYPE_BOOLEAN:
 		{
-			gboolean boolval;
+			bool boolval;
 			proto_tree_add_item_ret_boolean(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN, &boolval);
 			proto_item_append_text(tlv_tree, ": %s", boolval ? "True" : "False");
 			break;

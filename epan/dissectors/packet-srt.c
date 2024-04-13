@@ -1042,7 +1042,7 @@ dissect_srt_udp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
                 void *data _U_)
 {
     /* Other misc. local variables. */
-    gboolean is_control = 0;
+    bool is_control = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRT");
     col_clear  (pinfo->cinfo, COL_INFO);

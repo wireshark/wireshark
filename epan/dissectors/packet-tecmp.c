@@ -1021,7 +1021,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     nstime_t timestamp;
     guint64 ns = 0;
-    gboolean async = FALSE;
+    bool async = false;
     guint tmp;
 
     static int * const dataflags_generic[] = {

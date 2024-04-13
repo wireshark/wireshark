@@ -9930,8 +9930,8 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
             void *private_data _U_)
 {
     guint32 pdu_type;
-    gboolean dl_disc_blk;
-    gboolean dl_flush;
+    bool dl_disc_blk;
+    bool dl_flush;
     guint32 dl_disc_num_blks;
     gint offset = 0;
 
@@ -9950,7 +9950,7 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
         case NR_UP_DL_USER_DATA:
         {
             /* 5.5.2.1 */
-            gboolean report_delivered;
+            bool report_delivered;
 
             /* PDU Type (=0) Spare DL Discard Blocks DL Flush Report polling Octet 1*/
             proto_tree_add_item(nrup_tree, hf_nrup_spr_bit_extnd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -10005,13 +10005,13 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
         case NR_UP_DL_DATA_DELIVERY_STATUS:
         {
             /* 5.5.2.2 */
-            gboolean high_tx_nr_pdcp_sn_ind;
-            gboolean high_del_nr_pdcp_sn_ind;
-            gboolean lost_packet_report;
-            gboolean high_retx_nr_pdcp_sn_ind;
-            gboolean high_del_retx_nr_pdcp_sn_ind;
-            gboolean cause_rpt;
-            gboolean data_rate_ind;
+            bool high_tx_nr_pdcp_sn_ind;
+            bool high_del_nr_pdcp_sn_ind;
+            bool lost_packet_report;
+            bool high_retx_nr_pdcp_sn_ind;
+            bool high_del_retx_nr_pdcp_sn_ind;
+            bool cause_rpt;
+            bool data_rate_ind;
             guint32 lost_NR_U_SN_range;
 
             proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_high_tx_nr_pdcp_sn_ind ,tvb, offset,1, ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
@@ -10080,11 +10080,11 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
         case NR_UP_ASSISTANCE_INFORMATION_DATA:
         {
             /* 5.5.2.3 */
-            gboolean pdcp_duplication_indication;
-            gboolean assistance_information_ind;
-            gboolean ul_delay_ind;
-            gboolean dl_delay_ind;
-            gboolean pdcp_duplication_suggestion;
+            bool pdcp_duplication_indication;
+            bool assistance_information_ind;
+            bool ul_delay_ind;
+            bool dl_delay_ind;
+            bool pdcp_duplication_suggestion;
 
             /* Flags */
             proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_pdcp_duplication_ind, tvb, offset,1, ENC_BIG_ENDIAN, &pdcp_duplication_indication);

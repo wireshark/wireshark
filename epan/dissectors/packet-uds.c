@@ -1711,7 +1711,7 @@ dissect_uds_subfunction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree,
     }
 
     if (suppress_bit) {
-        gboolean suppress;
+        bool suppress;
 
         proto_tree_add_item_ret_boolean(subfunction_tree, hf_uds_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
 
@@ -2310,7 +2310,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
     switch (service) {
         case UDS_SERVICES_DSC:
         {
-            gboolean suppress;
+            bool suppress;
             proto_tree_add_item_ret_boolean(uds_tree, hf_uds_dsc_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_dsc_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
             col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(enum_val, uds_dsc_types, "Unknown (0x%02x)"));

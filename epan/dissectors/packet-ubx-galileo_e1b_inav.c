@@ -65,7 +65,7 @@ static const value_string GAL_SSP[] = {
 
 /* Dissect Galileo E1-B I/NAV navigation message */
 static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gboolean sar_start, sar_long_rlm;
+    bool sar_start, sar_long_rlm;
     guint32 page_type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Galileo E1-B I/NAV");

@@ -106,7 +106,7 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     guint   prog_info_len, es_info_len;
     guint32 stream_type;
     guint16 pid;
-    gboolean current;
+    bool current;
 
     proto_item *ti;
     proto_tree *mpeg_pmt_tree;

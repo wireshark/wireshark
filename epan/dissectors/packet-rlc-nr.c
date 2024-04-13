@@ -1034,7 +1034,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
                               rlc_nr_info *p_rlc_nr_info, proto_item *top_ti,
                               rlc_3gpp_tap_info *tap_info _U_)
 {
-    gboolean dc, polling;
+    bool dc, polling;
     guint32 seg_info, sn;
     guint64 reserved;
     proto_item *am_ti;

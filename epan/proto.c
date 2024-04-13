@@ -3748,7 +3748,7 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 proto_item *
 proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
                                 const gint start, gint length,
-                                const guint encoding, gboolean *retval)
+                                const guint encoding, bool *retval)
 {
 	header_field_info *hfinfo;
 	field_info	  *new_fi;

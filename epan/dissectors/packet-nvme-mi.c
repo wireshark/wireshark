@@ -277,7 +277,7 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *nvme_mi_tree, *nvme_mi_hdr_tree;
     struct nvme_mi_conv_info *mi_conv;
     guint len, payload_len, type;
-    gboolean resp, mic_enabled;
+    bool resp, mic_enabled;
     proto_item *ti, *it2;
     conversation_t *conv;
     tvbuff_t *sub_tvb;

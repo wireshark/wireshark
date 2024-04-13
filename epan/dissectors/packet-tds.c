@@ -2597,7 +2597,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                      * The size appears to be variable governed on the Precision specification.
                      * Sign of TRUE indicates negative.
                      */
-                    gboolean sign = FALSE;
+                    bool sign = false;
 
                     proto_tree_add_item_ret_boolean(sub_tree, hf_tds_type_varbyte_data_sign, tvb, *offset, 1, ENC_NA, &sign);
                     *offset += 1;
@@ -2649,7 +2649,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                      * but this code does not rely on that.
                      * Sign of TRUE indicates positive.
                      */
-                    gboolean sign = TRUE;
+                    bool sign = true;
 
                     proto_tree_add_item_ret_boolean(sub_tree,
                         hf_tds_type_varbyte_data_sign, tvb, *offset, 1,

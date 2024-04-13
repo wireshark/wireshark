@@ -2827,7 +2827,7 @@ static int dissect_1722_acf_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint       offset = 0;
     guint       captured_length = tvb_captured_length(tvb);
     guint32     pad_length;
-    gboolean    mtv;
+    bool        mtv;
     guint32     bus_id;
     guint32     lin_id;
     gint        payload_length;

@@ -4433,9 +4433,9 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     guint32             scope;
     guint32             job_type;
     gboolean            supplier_flag;
-    gboolean            language_flag;
-    gboolean            method_flag;
-    gboolean            delivery_address_flag;
+    bool                language_flag;
+    bool                method_flag;
+    bool                delivery_address_flag;
     guint32             profiles_type;
     guint32             profiles_choice_type;
     guint32             integer_type_flag;
