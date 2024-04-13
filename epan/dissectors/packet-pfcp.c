@@ -1984,27 +1984,13 @@ pfcp_is_cause_accepted(guint8 cause) {
     return cause == 1;
 }
 
-/* Data structure attached to a conversation
-*  of a session
-*/
-typedef struct pfcp_session_conv_info_t {
-    struct pfcp_session_conv_info_t *next;
-    GHashTable             *unmatched;
-    GHashTable             *matched;
-} pfcp_session_conv_info_t;
-
-static pfcp_session_conv_info_t *pfcp_session_info_items;
-
 /* Data structure attached to a conversation,
 *  to keep track of request/response-pairs
 */
 typedef struct pfcp_conv_info_t {
-    struct pfcp_conv_info_t *next;
     wmem_map_t             *unmatched;
     wmem_map_t             *matched;
 } pfcp_conv_info_t;
-
-static pfcp_conv_info_t *pfcp_info_items;
 
 /* structure used to track responses to requests using sequence number */
 typedef struct pfcp_msg_hash_entry {
@@ -12204,24 +12190,7 @@ pfcp_init(void)
 static void
 pfcp_cleanup(void)
 {
-    pfcp_session_conv_info_t *pfcp_info;
-
-    /* Free up state attached to the pfcp_info structures */
-    for (pfcp_info = pfcp_session_info_items; pfcp_info != NULL; ) {
-        pfcp_session_conv_info_t *next;
-
-        g_hash_table_destroy(pfcp_info->matched);
-        pfcp_info->matched=NULL;
-        g_hash_table_destroy(pfcp_info->unmatched);
-        pfcp_info->unmatched=NULL;
-
-        next = pfcp_info->next;
-        pfcp_info = next;
-    }
-
     /* Free up state attached to the pfcp session structures */
-    pfcp_info_items = NULL;
-
     if (pfcp_session_table != NULL) {
         g_hash_table_destroy(pfcp_session_table);
     }

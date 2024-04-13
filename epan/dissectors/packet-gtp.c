@@ -4254,12 +4254,9 @@ static const _gtp_mess_items umts_mess_items[] = {
         to keep track of request/response-pairs
  */
 typedef struct gtp_conv_info_t {
-    struct gtp_conv_info_t *next;
     wmem_map_t             *unmatched;
     wmem_map_t             *matched;
 } gtp_conv_info_t;
-
-static gtp_conv_info_t *gtp_info_items;
 
 static guint
 gtp_sn_hash(gconstpointer k)
@@ -10360,9 +10357,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         gtp_info->unmatched = wmem_map_new(wmem_file_scope(), gtp_sn_hash, gtp_sn_equal_unmatched);
 
         conversation_add_proto_data(conversation, proto_gtp, gtp_info);
-
-        gtp_info->next = gtp_info_items;
-        gtp_info_items = gtp_info;
     }
 
     gtp_hdr->flags = tvb_get_guint8(tvb, offset);
@@ -11047,27 +11041,6 @@ static void
 gtp_init(void)
 {
     gtp_session_count = 1;
-    session_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-    frame_map = wmem_map_new(wmem_file_scope(), gtp_info_hash, gtp_info_equal);
-}
-
-static void
-gtp_cleanup(void)
-{
-    /* our structures are in file-scoped wmem_map_t's which will be
-     * automatically freed when the capture file is closed; here we just null
-     * out our pointers to prevent potential references to freed memory.
-     */
-    gtp_conv_info_t *gtp_info;
-
-    for (gtp_info = gtp_info_items; gtp_info != NULL; gtp_info = gtp_info->next) {
-        gtp_info->matched=NULL;
-        gtp_info->unmatched=NULL;
-    }
-
-    gtp_info_items = NULL;
-    session_table = NULL;
-    frame_map = NULL;
 }
 
 void
@@ -13141,8 +13114,9 @@ proto_register_gtp(void)
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP Data Record Type", proto_gtp, FT_UINT16, BASE_DEC);
     gtp_hdr_ext_dissector_table = register_dissector_table("gtp.hdr_ext", "GTP Header Extension", proto_gtp, FT_UINT16, BASE_DEC);
 
+    session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_equal);
     register_init_routine(gtp_init);
-    register_cleanup_routine(gtp_cleanup);
     gtp_tap = register_tap("gtp");
     gtpv1_tap = register_tap("gtpv1");
 
