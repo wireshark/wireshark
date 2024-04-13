@@ -179,7 +179,7 @@ dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   guint32 type_length, msg_len;
   guint tvb_length;
   int bit_offset;
-  gboolean is_fragmented;
+  bool is_fragmented;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 

@@ -53,7 +53,7 @@ typedef struct _h225_packet_info {
   /* added for h225 conversations analysis */
   gboolean      is_faststart;      /* true, if faststart field is included */
   gboolean      is_h245;
-  gboolean      is_h245Tunneling;
+  bool          is_h245Tunneling;
   guint32       h245_address;
   guint16       h245_port;
   gchar         dialedDigits[129]; /* Dialed Digits in the LRQ and LCF used for voip analysis */

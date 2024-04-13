@@ -825,7 +825,7 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls);
 
 extern bool
 tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
-                      guint16 *server_version, gboolean *is_hrr);
+                      guint16 *server_version, bool *is_hrr);
 
 extern void
 ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,

@@ -228,7 +228,7 @@ gboolean wscbor_require_map(wscbor_chunk_t *chunk);
  * The value can be deleted with wscbor_require_delete().
  */
 WS_DLL_PUBLIC
-gboolean * wscbor_require_boolean(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
+bool * wscbor_require_boolean(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
 /** Require a CBOR item to have an unsigned-integer value.
  * @note This reader will clip the most significant bit of the value.
@@ -291,7 +291,7 @@ WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_ctrl(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);
 
 WS_DLL_PUBLIC
-proto_item * proto_tree_add_cbor_boolean(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const gboolean *value);
+proto_item * proto_tree_add_cbor_boolean(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const bool *value);
 
 WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_uint64(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const guint64 *value);

@@ -344,7 +344,7 @@ static int * const wrapper_control_flags[] = {
 
 int
 bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-					gint offset, gboolean *pis_net_msg_flg)
+					gint offset, bool *pis_net_msg_flg)
 {
 	guint8 bacnet_dlen;
 	guint8 bacnet_wrapper_control;
@@ -732,7 +732,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 		/* Security-Payload */
 		case BAC_NET_SECUR_PAY:
 		{
-			gboolean is_net_msg_flg;
+			bool is_net_msg_flg;
 			guint16 bacnet_len;
 
 			offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, &is_net_msg_flg);

@@ -508,7 +508,7 @@ gboolean wscbor_require_map(wscbor_chunk_t *chunk) {
     return wscbor_require_major_type(chunk, CBOR_TYPE_MAP);
 }
 
-gboolean * wscbor_require_boolean(wmem_allocator_t *alloc, wscbor_chunk_t *chunk) {
+bool * wscbor_require_boolean(wmem_allocator_t *alloc, wscbor_chunk_t *chunk) {
     if (!wscbor_require_major_type(chunk, CBOR_TYPE_FLOAT_CTRL)) {
         return NULL;
     }
@@ -516,8 +516,8 @@ gboolean * wscbor_require_boolean(wmem_allocator_t *alloc, wscbor_chunk_t *chunk
     switch (chunk->type_minor) {
         case CBOR_CTRL_TRUE:
         case CBOR_CTRL_FALSE: {
-            gboolean *value = NULL;
-            value = wmem_new(alloc, gboolean);
+            bool *value = NULL;
+            value = wmem_new(alloc, bool);
             *value = (chunk->type_minor == CBOR_CTRL_TRUE);
             return value;
         }
@@ -617,7 +617,7 @@ proto_item * proto_tree_add_cbor_ctrl(proto_tree *tree, int hfindex, packet_info
     return item;
 }
 
-proto_item * proto_tree_add_cbor_boolean(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const gboolean *value) {
+proto_item * proto_tree_add_cbor_boolean(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const bool *value) {
     proto_item *item = proto_tree_add_boolean(tree, hfindex, tvb, chunk->start, chunk->data_length, value ? *value : FALSE);
     wscbor_chunk_mark_errors(pinfo, item, chunk);
     return item;

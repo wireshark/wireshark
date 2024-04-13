@@ -932,7 +932,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 #.FN_HDR TBCD-STRING
   int min_len, max_len;
-  gboolean has_extension;
+  bool has_extension;
 
   get_size_constraint_from_stack(actx, "TBCD_STRING", &min_len, &max_len, &has_extension);
 #.FN_PARS TBCD-STRING

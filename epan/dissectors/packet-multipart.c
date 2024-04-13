@@ -540,7 +540,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 #endif
     char *filename = NULL;
     char *mimetypename = NULL;
-    gboolean last_field = FALSE;
+    bool last_field = false;
     gboolean is_raw_data = FALSE;
 
     const guint8 *boundary = (guint8 *)m_info->boundary;

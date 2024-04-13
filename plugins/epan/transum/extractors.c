@@ -97,7 +97,7 @@ int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
     return 0;
 }
 
-int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t *element_count)
+int extract_bool(proto_tree *tree, int field_id, bool *result_array, size_t *element_count)
 {
     GPtrArray *finfo_array;
 
@@ -120,9 +120,9 @@ int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t 
 
         ws_assert(fvalue_type_ftenum(fv) == FT_BOOLEAN);
         if (fvalue_get_uinteger64(fv))
-            result_array[i] = TRUE;
+            result_array[i] = true;
         else
-            result_array[i] = FALSE;
+            result_array[i] = false;
     }
 
     return 0;

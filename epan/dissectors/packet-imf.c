@@ -671,7 +671,7 @@ dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int leng
 
 
 int
-imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_field)
+imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, bool *last_field)
 {
 
   while(offset < max_length) {
@@ -686,7 +686,7 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
           if (++offset >= max_length) {
             /* end of buffer and also end of fields */
             if (last_field) {
-              *last_field = TRUE;
+              *last_field = true;
             }
             /* caller expects that there is CRLF after returned offset, if last_field is set */
             return offset - 2;
@@ -697,7 +697,7 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
           /* probably end of the fields */
           if ((offset + 1) < max_length && tvb_get_guint8(tvb, offset + 1) == '\n') {
             if(last_field) {
-              *last_field = TRUE;
+              *last_field = true;
             }
           }
           return offset;
@@ -736,7 +736,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   gint  end_offset = 0;
   gint   max_length;
   guint8 *key;
-  gboolean last_field = FALSE;
+  bool last_field = false;
   tvbuff_t *next_tvb;
   struct imf_field *f_info;
   imf_eo_t *eo_info = NULL;

@@ -186,7 +186,7 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
 int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
 {
     guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
-    gboolean field_bool[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    bool field_bool[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
     if (!extract_uint(tree, hf_of_interest[HF_INTEREST_TCP_STREAM].hf, field_uint, &field_value_count)) {

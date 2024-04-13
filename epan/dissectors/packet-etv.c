@@ -58,7 +58,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	proto_item *pi;
 	proto_tree *etv_tree;
 	proto_item *items[PACKET_MPEG_SECT_PI__SIZE];
-	gboolean    ssi;
+	bool        ssi;
 	guint       reserved;
 	guint8      reserved2;
 	guint16     filter_info;

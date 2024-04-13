@@ -169,7 +169,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	tvbuff_t *val_tvb = NULL, *pdu_tvb = NULL, *fragment_tvb = NULL;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
-	gboolean is_fragmented;
+	bool is_fragmented;
 	int captured_pdu_length;
 
 	hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
@@ -298,14 +298,14 @@ dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, p
 
  */
 guint32
-dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length, gboolean *is_fragmented)
+dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length, bool *is_fragmented)
 {
 	guint8 byte;
 	guint32 len;
 	proto_item *pi;
 	int num_bits;
 	int i, bit, str_length, str_index;
-	gboolean tmp;
+	bool tmp;
 
 	if(!length){
 		length=&len;
@@ -465,7 +465,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 static guint32
 dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
 {
-	gboolean small_number, length_bit;
+	bool small_number, length_bit;
 	guint32 len, length_determinant;
 	proto_item *pi;
 
@@ -699,7 +699,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	 */
 
 	if (has_extension) {
-		gboolean extension_present;
+		bool extension_present;
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
@@ -753,7 +753,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	for(char_pos=0;char_pos<length;char_pos++){
 		guchar val;
 		int i;
-		gboolean bit;
+		bool bit;
 
 		val=0;
 		for(i=0;i<bits_per_char;i++){
@@ -977,7 +977,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	 * a single bit shall be added to the field-list in a bit-field of length one
 	 */
 	if (has_extension) {
-		gboolean extension_present;
+		bool extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if (extension_present){
@@ -1148,7 +1148,7 @@ dissect_per_relative_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, pr
 
 /* this function reads a single bit */
 guint32
-dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool_val)
+dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, bool *bool_val)
 {
 	guint8 ch, mask;
 	gboolean value;
@@ -1341,7 +1341,7 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
 
 DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(has_extension){
-		gboolean extension_present;
+		bool extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
@@ -1452,7 +1452,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		val+=min;
 	} else {
 		int i,num_bytes;
-		gboolean bit;
+		bool bit;
 
 		/* 10.5.7.4 */
 		/* 12.2.6 */
@@ -1502,11 +1502,11 @@ dissect_per_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
 	nstime_t timeval;
 	header_field_info *hfi;
 	int num_bits;
-	gboolean tmp;
+	bool tmp;
 
 DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	if(has_extension){
-		gboolean extension_present;
+		bool extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
@@ -1703,7 +1703,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	proto_item *it=NULL;
 	guint32 enum_index, val;
 	guint32 start_offset = offset;
-	gboolean extension_present = FALSE;
+	bool extension_present = false;
 	header_field_info *hfi;
 
 	if (has_extension) {
@@ -1768,7 +1768,7 @@ dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tr
 guint32
 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, gint *value)
 {
-	gboolean /*extension_present,*/ extension_flag;
+	bool /*extension_present,*/ extension_flag;
 	int extension_root_entries;
 	guint32 choice_index;
 	int i, idx, cidx;
@@ -1784,7 +1784,7 @@ DEBUG_ENTRY("dissect_per_choice");
 	/* 22.5 */
 	if (choice[0].extension == ASN1_NO_EXTENSIONS){
 		/*extension_present = FALSE; ?? */
-		extension_flag = FALSE;
+		extension_flag = false;
 	} else {
 		/*extension_present = TRUE; ?? */
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
@@ -1927,7 +1927,7 @@ index_get_field_name(const per_sequence_t *sequence, int idx)
 guint32
 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence)
 {
-	gboolean /*extension_present,*/ extension_flag, optional_field_flag;
+	bool /*extension_present,*/ extension_flag, optional_field_flag;
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
@@ -2004,7 +2004,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 
 	if(extension_flag){
-		gboolean extension_bit;
+		bool extension_bit;
 		guint32 num_known_extensions;
 		guint32 num_extensions;
 		guint32 extension_mask;
@@ -2113,7 +2113,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 guint32
 dissect_per_sequence_eag(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, const per_sequence_t *sequence)
 {
-	gboolean optional_field_flag;
+	bool optional_field_flag;
 	guint32 i, j, num_opts;
 	guint32 optional_mask[SEQ_MAX_COMPONENTS>>5];
 
@@ -2259,7 +2259,7 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	/*gint val_start, val_length;*/
 	guint32 length, fragmented_length = 0;
 	header_field_info *hfi;
-	gboolean is_fragmented = FALSE;
+	bool is_fragmented = false;
 	tvbuff_t *fragmented_tvb = NULL, *out_tvb = NULL, *fragment_tvb = NULL;
 
 	hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
@@ -2283,7 +2283,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	 * and zero otherwise.
 	 */
 	 if (has_extension) {
-		 gboolean extension_present;
+		 bool extension_present;
 		 offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
@@ -2444,7 +2444,7 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 	gint val_start = 0, val_length;
 	guint32 length = 0, fragmented_length = 0;
 	header_field_info *hfi;
-	gboolean is_fragmented = FALSE;
+	bool is_fragmented = false;
 	tvbuff_t *out_tvb = NULL, *fragment_tvb = NULL;
 
 	hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
@@ -2452,7 +2452,7 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 DEBUG_ENTRY("dissect_per_octet_string");
 
 	if (has_extension) {  /* 16.3 an extension marker is present */
-		gboolean extension_present;
+		bool extension_present;
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if (extension_present) max_len = NO_BOUND;  /* skip to 16.8 */
@@ -2593,7 +2593,7 @@ guint32 dissect_per_size_constrained_type(tvbuff_t *tvb, guint32 offset, asn1_ct
 	return offset;
 }
 
-gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int *pmin_len, int *pmax_len, gboolean *phas_extension)
+gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int *pmin_len, int *pmax_len, bool *phas_extension)
 {
 	asn1_par_t *par;
 

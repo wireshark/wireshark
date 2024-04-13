@@ -2844,7 +2844,7 @@ dissect_smb2_file_allocation_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_allocation_info, tvb, offset, -1, ENC_NA);
@@ -2863,7 +2863,7 @@ dissect_smb2_file_endoffile_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_endoffile_info, tvb, offset, -1, ENC_NA);
@@ -2882,7 +2882,7 @@ dissect_smb2_file_alternate_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_alternate_name_info, tvb, offset, -1, ENC_NA);
@@ -2901,7 +2901,7 @@ dissect_smb2_file_normalized_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_normalized_name_info, tvb, offset, -1, ENC_NA);
@@ -2953,7 +2953,7 @@ dissect_smb2_file_standard_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_standard_info, tvb, offset, -1, ENC_NA);
@@ -2971,7 +2971,7 @@ dissect_smb2_file_internal_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_internal_info, tvb, offset, -1, ENC_NA);
@@ -2989,7 +2989,7 @@ dissect_smb2_file_mode_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_mode_info, tvb, offset, -1, ENC_NA);
@@ -3007,7 +3007,7 @@ dissect_smb2_file_alignment_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_alignment_info, tvb, offset, -1, ENC_NA);
@@ -3025,7 +3025,7 @@ dissect_smb2_file_position_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_position_info, tvb, offset, -1, ENC_NA);
@@ -3061,7 +3061,7 @@ dissect_smb2_file_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *par
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_ea_info, tvb, offset, -1, ENC_NA);
@@ -3080,7 +3080,7 @@ dissect_smb2_file_stream_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_stream_info, tvb, offset, -1, ENC_NA);
@@ -3099,7 +3099,7 @@ dissect_smb2_file_pipe_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_pipe_info, tvb, offset, -1, ENC_NA);
@@ -3118,7 +3118,7 @@ dissect_smb2_file_compression_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_compression_info, tvb, offset, -1, ENC_NA);
@@ -3137,7 +3137,7 @@ dissect_smb2_file_network_open_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_network_open_info, tvb, offset, -1, ENC_NA);
@@ -3157,7 +3157,7 @@ dissect_smb2_file_attribute_tag_info(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16     bc;
-	gboolean    trunc;
+	bool        trunc;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_attribute_tag_info, tvb, offset, -1, ENC_NA);

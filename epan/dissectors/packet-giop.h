@@ -508,7 +508,7 @@ WS_DLL_PUBLIC gboolean is_big_endian (MessageHeader * header);
 
 WS_DLL_PUBLIC guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 			   gboolean old_stream_is_big_endian, guint32 old_boundary,
-			   gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr );
+			   bool *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr );
 
 /* Take in an array of guint8 and create a new ephemeral string.
  * Replace non-printable characters with periods.

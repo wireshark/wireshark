@@ -180,7 +180,7 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 }
 
 /* 9 Encoding of Boolean values */
-guint32 dissect_oer_boolean(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, gboolean* bool_val)
+guint32 dissect_oer_boolean(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, bool* bool_val)
 {
     guint32 val = 0;
     DEBUG_ENTRY("dissect_oer_boolean");

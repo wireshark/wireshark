@@ -245,7 +245,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item *pi;
 	proto_tree *eiss_tree;
 	proto_item *items[PACKET_MPEG_SECT_PI__SIZE];
-	gboolean    ssi;
+	bool        ssi;
 	guint       reserved;
 	guint8      reserved2;
 	guint8      sect_num, last_sect_num;

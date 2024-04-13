@@ -2725,7 +2725,7 @@ SL-V2X-ConfigCommon-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rr
   }
 
 #.FN_BODY RLC-Config-v1250/ul-extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
-  gboolean ext_li_field;
+  bool ext_li_field;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
   if (mapping != NULL) {
@@ -2733,7 +2733,7 @@ SL-V2X-ConfigCommon-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rr
   }
 
 #.FN_BODY RLC-Config-v1250/dl-extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
-  gboolean ext_li_field;
+  bool ext_li_field;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
   if (mapping != NULL) {
@@ -2741,7 +2741,7 @@ SL-V2X-ConfigCommon-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rr
   }
 
 #.FN_BODY RLC-Config-v1310/ul-extended-RLC-AM-SN-r13 VAL_PTR=&ext_am_sn
-  gboolean ext_am_sn;
+  bool ext_am_sn;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
   if (mapping != NULL) {
@@ -2749,7 +2749,7 @@ SL-V2X-ConfigCommon-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rr
   }
 
 #.FN_BODY RLC-Config-v1310/dl-extended-RLC-AM-SN-r13 VAL_PTR=&ext_am_sn
-  gboolean ext_am_sn;
+  bool ext_am_sn;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
   if (mapping != NULL) {

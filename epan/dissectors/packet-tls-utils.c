@@ -9479,7 +9479,7 @@ ssl_is_authoritative_version_message(guint8 content_type, guint8 handshake_type,
  */
 bool
 tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
-                      guint16 *server_version, gboolean *is_hrr)
+                      guint16 *server_version, bool *is_hrr)
 {
     /* SHA256("HelloRetryRequest") */
     static const guint8 tls13_hrr_random_magic[] = {

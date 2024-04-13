@@ -315,7 +315,7 @@ wscbor_test_require_boolean_simple(void)
         g_assert_nonnull(chunk);
         g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
 
-        const gboolean *val = wscbor_require_boolean(test_scope, chunk);
+        const bool *val = wscbor_require_boolean(test_scope, chunk);
         if ((ex->type_major == CBOR_TYPE_FLOAT_CTRL)
                 && ((ex->head_value == CBOR_CTRL_FALSE) || (ex->head_value == CBOR_CTRL_TRUE))) {
             g_assert_nonnull(val);

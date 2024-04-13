@@ -77,7 +77,7 @@ WS_DLL_PUBLIC guint32 dissect_oer_object_identifier(tvbuff_t *tvb, guint32 offse
 //WS_DLL_PUBLIC guint32 dissect_oer_relative_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
 //WS_DLL_PUBLIC guint32 dissect_oer_relative_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx);
 
-WS_DLL_PUBLIC guint32 dissect_oer_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool_val);
+WS_DLL_PUBLIC guint32 dissect_oer_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, bool *bool_val);
 
 WS_DLL_PUBLIC guint32 dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);
 
@@ -110,9 +110,9 @@ WS_DLL_PUBLIC guint32 dissect_oer_open_type(tvbuff_t *tvb, guint32 offset, asn1_
 //WS_DLL_PUBLIC guint32 dissect_oer_external_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, oer_type_fn type_cb);
 
 //extern guint32 dissect_oer_size_constrained_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, oer_type_fn type_cb, const gchar *name, int min_len, int max_len, gboolean has_extension);
-///extern gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int *pmin_len, int *pmax_len, gboolean *phas_extension);
+///extern gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int *pmin_len, int *pmax_len, bool *phas_extension);
 
-//extern guint32 dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length, gboolean *is_fragmented);
+//extern guint32 dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length, bool *is_fragmented);
 
 //WS_DLL_PUBLIC int call_oer_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index);
 //WS_DLL_PUBLIC void register_oer_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);

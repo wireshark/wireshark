@@ -353,7 +353,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.FN_PARS H223LogicalChannelParameters/segmentableFlag
   VAL_PTR = &value
 #.FN_BODY H223LogicalChannelParameters/segmentableFlag
-  gboolean value;
+  bool value;
 %(DEFAULT_BODY)s
   if(h223_lc_params_temp)
 	h223_lc_params_temp->segmentable = value;

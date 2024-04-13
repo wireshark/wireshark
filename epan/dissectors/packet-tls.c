@@ -2797,7 +2797,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
 
     {
         guint32 hs_offset = offset;
-        gboolean is_hrr = FALSE;
+        bool is_hrr = false;
 
         msg_type = tvb_get_guint8(tvb, offset);
         length   = tvb_get_ntoh24(tvb, offset + 1);

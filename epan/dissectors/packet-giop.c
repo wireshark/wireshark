@@ -2505,7 +2505,7 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_t
  */
 
 static void dissect_typecode_string_param(tvbuff_t *tvb, proto_tree *tree, gint *offset,
-                                          gboolean new_stream_is_big_endian, guint32 new_boundary, int hf_id, const gchar **str ) {
+                                          bool     new_stream_is_big_endian, guint32 new_boundary, int hf_id, const gchar **str ) {
 
   guint32      u_octet4;        /* unsigned int32 */
   const gchar *buf = NULL;             /* ptr to string buffer */
@@ -2524,7 +2524,7 @@ static void dissect_tk_objref_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
                                      gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -2552,7 +2552,7 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                                      MessageHeader * header, wmem_list_t *params) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   /* parameter count (of tuples)  */
   guint32 *count = wmem_new0(pinfo->pool, guint32);
@@ -2613,7 +2613,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     MessageHeader * header) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32  TCKind;                   /* TypeCode */
   gint32   s_octet4;                 /* signed int32 */
@@ -2678,7 +2678,7 @@ static void dissect_tk_enum_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    gboolean stream_is_big_endian, guint32 boundary, wmem_list_t *params) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32  *count = wmem_alloc0(pinfo->pool, sizeof(guint32));    /* parameter count (of tuples)  */
   /*guint32 seqlen;*/   /* sequence length */
@@ -2724,7 +2724,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_
                                        MessageHeader * header, wmem_list_t *params) {
 
   guint32  new_boundary;        /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32  *u_octet4 = wmem_new(pinfo->pool, guint32);            /* unsigned int32 */
 
@@ -2757,7 +2757,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     MessageHeader * header, wmem_list_t *params) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32  *u_octet4 = wmem_new(pinfo->pool, guint32); /* unsigned int32 */
 
@@ -2797,7 +2797,7 @@ static void dissect_tk_alias_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     MessageHeader * header, wmem_list_t *params) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -2833,7 +2833,7 @@ static void dissect_tk_except_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                                      MessageHeader * header) {
 
   guint32  new_boundary;        /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32  count;               /* parameter count (of tuples)  */
   /*guint32  seqlen;*/            /* sequence length */
@@ -2880,7 +2880,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     MessageHeader * header) {
 
   guint32  new_boundary;        /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   gint16   s_octet2;            /* signed int16 */
 
@@ -2941,7 +2941,7 @@ static void dissect_tk_value_box_params(tvbuff_t *tvb, packet_info *pinfo, proto
                                         MessageHeader * header) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -2968,7 +2968,7 @@ static void dissect_tk_native_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
                                      gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian; /* new endianness for encapsulation */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -2994,7 +2994,7 @@ static void dissect_tk_abstract_interface_params(tvbuff_t *tvb, proto_tree *tree
                                                  gboolean stream_is_big_endian, guint32 boundary) {
 
   guint32  new_boundary;              /* new boundary for encapsulation */
-  gboolean new_stream_is_big_endian;  /* new endianness for encapsulation */
+  bool     new_stream_is_big_endian;  /* new endianness for encapsulation */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -3041,7 +3041,7 @@ static void dissect_tk_abstract_interface_params(tvbuff_t *tvb, proto_tree *tree
 
 guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
                        gboolean old_stream_is_big_endian, guint32 old_boundary,
-                       gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr ) {
+                       bool *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr ) {
 
   guint32 seqlen;   /* sequence length */
   guint8  giop_endianness;
@@ -4195,7 +4195,7 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
   guint32     i;
   guint32     vscid;            /* Vendor Service context id */
   guint32     scid;
-  gboolean    encapsulation_is_be;
+  bool        encapsulation_is_be;
   guint32     encapsulation_boundary;
   int         temp_offset;
   int         start_offset = *offset;
@@ -6006,7 +6006,7 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   guint32      pidtag;             /* profile ID TAG */
   const guint8 *profile_data;       /* profile_data pointer */
   guint32      new_boundary;       /* for encapsulations encountered */
-  gboolean     new_big_endianness; /* for encapsulations encountered */
+  bool         new_big_endianness; /* for encapsulations encountered */
   proto_item  *ti;
 
   /* Get ProfileId tag */

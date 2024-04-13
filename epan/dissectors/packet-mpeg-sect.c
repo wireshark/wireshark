@@ -246,7 +246,7 @@ packet_mpeg_sect_mjd_to_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time)
 
 guint
 packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
-            proto_tree *tree, guint *sect_len, gboolean *ssi)
+            proto_tree *tree, guint *sect_len, bool *ssi)
 {
     return packet_mpeg_sect_header_extra(tvb, offset, tree, sect_len,
                          NULL, ssi, NULL);
@@ -254,7 +254,7 @@ packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
 
 guint
 packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
-                guint *sect_len, guint *reserved, gboolean *ssi,
+                guint *sect_len, guint *reserved, bool *ssi,
                 proto_item **items)
 {
     guint       tmp;
@@ -334,7 +334,7 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo,
     gint     tvb_len;
     gint     offset           = 0;
     guint    section_length   = 0;
-    gboolean syntax_indicator = FALSE;
+    bool     syntax_indicator = false;
     guint8   table_id;
 
     proto_item *ti;

@@ -1682,7 +1682,7 @@ static gboolean dissect_status_assertion(proto_tree *tree, int hfassert, packet_
         proto_tree *tree_assert = proto_item_add_subtree(item_assert, ett_status_assert);
 
         wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-        gboolean *status_val = wscbor_require_boolean(pinfo->pool, chunk);
+        bool *status_val = wscbor_require_boolean(pinfo->pool, chunk);
         proto_tree_add_cbor_boolean(tree_assert, hf_status_assert_val, pinfo, tvb, chunk, status_val);
         if (status_val) {
             result = *status_val;
