@@ -17,6 +17,8 @@
  */
 #include "config.h"
 
+#include <math.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
@@ -1271,6 +1273,8 @@ static expert_field ei_pfcp_ie_encoding_error;
 static int pfcp_tap = -1;
 
 static bool g_pfcp_session;
+static unsigned pref_pair_matching_max_interval_ms; /* Default: disable */
+
 static guint32 pfcp_session_count;
 
 typedef struct pfcp_rule_ids {
@@ -2017,14 +2021,24 @@ pfcp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
     const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
 
     if (key1->req_frame && key2->req_frame && (key1->req_frame != key2->req_frame)) {
-        return 0;
+        return FALSE;
     }
 
     if (key1->rep_frame && key2->rep_frame && (key1->rep_frame != key2->rep_frame)) {
-        return 0;
+        return FALSE;
     }
 
-    return key1->seq_nr == key2->seq_nr;
+    if (key1->seq_nr == key2->seq_nr) {
+        if (pref_pair_matching_max_interval_ms) {
+            nstime_t delta;
+            nstime_delta(&delta, &key1->req_time, &key2->req_time);
+            double diff = fabs(nstime_to_msec(&delta));
+            return diff < pref_pair_matching_max_interval_ms;
+        }
+
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static gboolean
@@ -2033,7 +2047,17 @@ pfcp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     const pfcp_msg_hash_t *key1 = (const pfcp_msg_hash_t *)k1;
     const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
 
-    return key1->seq_nr == key2->seq_nr;
+    if (key1->seq_nr == key2->seq_nr) {
+        if (pref_pair_matching_max_interval_ms) {
+            nstime_t delta;
+            nstime_delta(&delta, &key1->req_time, &key2->req_time);
+            double diff = fabs(nstime_to_msec(&delta));
+            return diff < pref_pair_matching_max_interval_ms;
+        }
+
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static GHashTable *pfcp_stat_msg_idx_hash;
@@ -17328,6 +17352,9 @@ proto_register_pfcp(void)
     pfcp_register_generic_ie_dissector(VENDOR_NOKIA, "pfcp_nokia_ies", "pfcp.ie.nokia", "Nokia IE Type", pfcp_nokia_ies, G_N_ELEMENTS(pfcp_nokia_ies));
 
     prefs_register_bool_preference(module_pfcp, "track_pfcp_session", "Track PFCP session", "Track PFCP session", &g_pfcp_session);
+
+    prefs_register_uint_preference(module_pfcp, "pair_max_interval", "Max interval allowed in pair matching", "Request/reply pair matches only if their timestamps are closer than that value, in ms (default 0, i.e. don't use timestamps)", 10, &pref_pair_matching_max_interval_ms);
+
     register_init_routine(pfcp_init);
     register_cleanup_routine(pfcp_cleanup);
 
