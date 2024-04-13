@@ -19,6 +19,28 @@ static int hf_nmea0183_unknown_field;
 static int hf_nmea0183_checksum;
 static int hf_nmea0183_checksum_calculated;
 
+static int hf_nmea0183_gga_time;
+static int hf_nmea0183_gga_time_hour;
+static int hf_nmea0183_gga_time_minute;
+static int hf_nmea0183_gga_time_second;
+static int hf_nmea0183_gga_latitude;
+static int hf_nmea0183_gga_latitude_degree;
+static int hf_nmea0183_gga_latitude_minute;
+static int hf_nmea0183_gga_latitude_direction;
+static int hf_nmea0183_gga_longitude;
+static int hf_nmea0183_gga_longitude_degree;
+static int hf_nmea0183_gga_longitude_minute;
+static int hf_nmea0183_gga_longitude_direction;
+static int hf_nmea0183_gga_quality;
+static int hf_nmea0183_gga_number_satellites;
+static int hf_nmea0183_gga_horizontal_dilution;
+static int hf_nmea0183_gga_altitude;
+static int hf_nmea0183_gga_altitude_unit;
+static int hf_nmea0183_gga_geoidal_separation;
+static int hf_nmea0183_gga_geoidal_separation_unit;
+static int hf_nmea0183_gga_age_dgps;
+static int hf_nmea0183_gga_dgps_station;
+
 static int hf_nmea0183_zda_time;
 static int hf_nmea0183_zda_time_hour;
 static int hf_nmea0183_zda_time_minute;
@@ -33,6 +55,9 @@ static int ett_nmea0183;
 static int ett_nmea0183_checksum;
 static int ett_nmea0183_sentence;
 static int ett_nmea0183_zda_time;
+static int ett_nmea0183_gga_time;
+static int ett_nmea0183_gga_latitude;
+static int ett_nmea0183_gga_longitude;
 
 static expert_field ei_nmea0183_invalid_first_character;
 static expert_field ei_nmea0183_missing_checksum_character;
@@ -40,7 +65,11 @@ static expert_field ei_nmea0183_invalid_end_of_line;
 static expert_field ei_nmea0183_checksum_incorrect;
 static expert_field ei_nmea0183_sentence_too_long;
 static expert_field ei_nmea0183_field_time_too_short;
+static expert_field ei_nmea0183_field_latitude_too_short;
+static expert_field ei_nmea0183_field_longitude_too_short;
 static expert_field ei_nmea0183_field_missing;
+static expert_field ei_nmea0183_gga_altitude_unit_incorrect;
+static expert_field ei_nmea0183_gga_geoidal_separation_unit_incorrect;
 
 static int proto_nmea0183;
 
@@ -318,6 +347,19 @@ static const string_string known_sentence_ids[] = {
     {"ZZU", "Time, UTC"},
     {NULL, NULL}};
 
+// List of GPS Quality Indicator (Source: NMEA Revealed by Eric S. Raymond, https://gpsd.gitlab.io/gpsd/NMEA.html, retrieved 2023-01-26)
+static const string_string known_gps_quality_indicators[] = {
+    {"0", "Fix not available"},
+    {"1", "GPS fix"},
+    {"2", "Differential GPS fix"},
+    {"3", "PPS fix"},
+    {"4", "Real Time Kinematic"},
+    {"5", "Float Real Time Kinematic"},
+    {"6", "Estimated (dead reckoning)"},
+    {"7", "Manual input mode"},
+    {"8", "Simulation mode"},
+    {NULL, NULL}};
+
 static uint8_t calculate_checksum(tvbuff_t *tvb, const gint start, const gint length)
 {
     uint8_t checksum = 0;
@@ -412,7 +454,7 @@ dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect a single field containing a dimensionless value. Returns length including separator */
 static int
-dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf, const char *suffix)
 {
     if (offset > (gint)tvb_captured_length(tvb))
     {
@@ -427,7 +469,247 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     {
         proto_item_append_text(ti, "[empty]");
     }
+    else if (suffix != NULL)
+    {
+        proto_item_append_text(ti, " %s", suffix);
+    }
     return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a latitude/longitude direction field.
+ * Returns length including separator
+ **/
+static int
+dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                         gint offset, int hf,
+                                         wmem_allocator_t *scope, const guint8 **retval)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    proto_item *ti = proto_tree_add_item_ret_string(tree, hf,
+                                                    tvb, offset, end_of_field_offset - offset, ENC_ASCII,
+                                                    scope, retval);
+    if (end_of_field_offset - offset == 0)
+    {
+        if (retval == NULL)
+        {
+            proto_item_append_text(ti, "[empty]");
+        }
+        else
+        {
+            proto_item_append_text(ti, "[missing]");
+            expert_add_info(pinfo, ti, &ei_nmea0183_field_missing);
+        }
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a latitude field + direction field. The fields are split into a tree with degree, minute and direction elements.
+ * Returns length including separator
+ **/
+static int
+dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                                int hf_latitude, int hf_degree, int hf_minute, int hf_direction, int ett_latitude)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf_latitude, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_latitude, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[empty]");
+
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+    }
+    else if (end_of_field_offset - offset >= 4)
+    {
+        const guint8 *degree = NULL;
+        const guint8 *minute = NULL;
+        const guint8 *direction = NULL;
+        proto_tree *latitude_subtree = proto_item_add_subtree(ti, ett_latitude);
+
+        proto_tree_add_item_ret_string(latitude_subtree, hf_degree,
+                                       tvb, offset, 2,
+                                       ENC_ASCII, pinfo->pool, &degree);
+
+        proto_tree_add_item_ret_string(latitude_subtree, hf_minute,
+                                       tvb, offset + 2, end_of_field_offset - offset - 2,
+                                       ENC_ASCII, pinfo->pool, &minute);
+
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+
+        proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
+    }
+    else
+    {
+        expert_add_info(pinfo, ti, &ei_nmea0183_field_latitude_too_short);
+
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a longitude field + direction field. The fields are split into a tree with degree, minute and direction elements.
+ * Returns length including separator
+ **/
+static int
+dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                                 int hf_longitude, int hf_degree, int hf_minute, int hf_direction, int ett_latitude)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf_longitude, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_longitude, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[empty]");
+
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+    }
+    else if (end_of_field_offset - offset >= 5)
+    {
+        const guint8 *degree = NULL;
+        const guint8 *minute = NULL;
+        const guint8 *direction = NULL;
+        proto_tree *longitude_subtree = proto_item_add_subtree(ti, ett_latitude);
+
+        proto_tree_add_item_ret_string(longitude_subtree, hf_degree,
+                                       tvb, offset, 3,
+                                       ENC_ASCII, pinfo->pool, &degree);
+
+        proto_tree_add_item_ret_string(longitude_subtree, hf_minute,
+                                       tvb, offset + 3, end_of_field_offset - offset - 3,
+                                       ENC_ASCII, pinfo->pool, &minute);
+
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+
+        proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
+    }
+    else
+    {
+        expert_add_info(pinfo, ti, &ei_nmea0183_field_longitude_too_short);
+
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a required gps quality field. Returns length including separator */
+static int
+dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const guint8 *quality = NULL;
+    ti = proto_tree_add_item_ret_string(tree, hf,
+                                        tvb, offset, end_of_field_offset - offset, ENC_ASCII,
+                                        pinfo->pool, &quality);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[missing]");
+        expert_add_info(pinfo, ti, &ei_nmea0183_field_missing);
+    }
+    else
+    {
+        proto_item_append_text(ti, " (%s)", str_to_str(quality, known_gps_quality_indicators, "Unknown quality"));
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a single field containing a fixed text.
+    The text of the field must match the `expected_text` or expert info `invalid_ei` is
+    added to the field. An empty field is allowed. Returns length including separator */
+static int
+dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf,
+                                  const guint8 *expected_text, expert_field *invalid_ei)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    const guint8 *text = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    ti = proto_tree_add_item_ret_string(tree, hf,
+                                        tvb, offset, end_of_field_offset - offset, ENC_ASCII,
+                                        pinfo->pool, &text);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[empty]");
+    }
+    else if (g_ascii_strcasecmp(text, expected_text) != 0)
+    {
+        expert_add_info(pinfo, ti, invalid_ei);
+    }
+    return end_of_field_offset - offset + 1;
+}
+
+/* Dissect a GGA sentence. The time, latitude and longitude fields is split into individual parts. */
+static int
+dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "GGA sentence - Global Positioning System Fix");
+
+    offset += dissect_nmea0183_field_time(tvb, pinfo, subtree, offset, hf_nmea0183_gga_time,
+                                          hf_nmea0183_gga_time_hour, hf_nmea0183_gga_time_minute,
+                                          hf_nmea0183_gga_time_second, ett_nmea0183_gga_time);
+
+    offset += dissect_nmea0183_field_latitude(tvb, pinfo, subtree, offset, hf_nmea0183_gga_latitude,
+                                              hf_nmea0183_gga_latitude_degree, hf_nmea0183_gga_latitude_minute,
+                                              hf_nmea0183_gga_latitude_direction, ett_nmea0183_gga_latitude);
+
+    offset += dissect_nmea0183_field_longitude(tvb, pinfo, subtree, offset, hf_nmea0183_gga_longitude,
+                                               hf_nmea0183_gga_longitude_degree, hf_nmea0183_gga_longitude_minute,
+                                               hf_nmea0183_gga_longitude_direction, ett_nmea0183_gga_longitude);
+
+    offset += dissect_nmea0183_field_gps_quality(tvb, pinfo, subtree, offset, hf_nmea0183_gga_quality);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_number_satellites, NULL);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_horizontal_dilution, "meter");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_altitude, "meter");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_gga_altitude_unit,
+                                                "M", &ei_nmea0183_gga_altitude_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_geoidal_separation, "meter");
+
+    offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_gga_geoidal_separation_unit,
+                                                "M", &ei_nmea0183_gga_geoidal_separation_unit_incorrect);
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_age_dgps, "second");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_dgps_station, NULL);
+
+    return tvb_captured_length(tvb);
 }
 
 /* Dissect a ZDA (Time & Date) sentence. The time field is split into individual parts. */
@@ -443,15 +725,15 @@ dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                                           hf_nmea0183_zda_time_hour, hf_nmea0183_zda_time_minute,
                                           hf_nmea0183_zda_time_second, ett_nmea0183_zda_time);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_day);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_day, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_month);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_month, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_year);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_year, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_hour);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_hour, NULL);
 
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_minute);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_minute, NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -537,7 +819,11 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Data */
     offset += 1;
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
-    if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
+    if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
+    {
+        offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
     {
         offset += dissect_nmea0183_sentence_zda(data_tvb, pinfo, nmea0183_tree);
     }
@@ -620,6 +906,111 @@ void proto_register_nmea0183(void)
           FT_UINT8, BASE_HEX,
           NULL, 0x0,
           "NMEA 0183 Calculated checksum", HFILL}},
+        {&hf_nmea0183_gga_time,
+         {"UTC Time of position", "nmea0183.gga_time",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA UTC Time field", HFILL}},
+        {&hf_nmea0183_gga_time_hour,
+         {"Hour", "nmea0183.gga_time_hour",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA UTC hour", HFILL}},
+        {&hf_nmea0183_gga_time_minute,
+         {"Minute", "nmea0183.gga_time_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA UTC minute", HFILL}},
+        {&hf_nmea0183_gga_time_second,
+         {"Second", "nmea0183.gga_time_second",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA UTC second", HFILL}},
+        {&hf_nmea0183_gga_latitude,
+         {"Latitude", "nmea0183.gga_latitude",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Latitude field", HFILL}},
+        {&hf_nmea0183_gga_latitude_degree,
+         {"Degree", "nmea0183.gga_latitude_degree",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Latitude Degree", HFILL}},
+        {&hf_nmea0183_gga_latitude_minute,
+         {"Minute", "nmea0183.gga_latitude_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Latitude Minute", HFILL}},
+        {&hf_nmea0183_gga_latitude_direction,
+         {"Direction", "nmea0183.gga_latitude_direction",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Latitude Direction", HFILL}},
+        {&hf_nmea0183_gga_longitude,
+         {"Longitude", "nmea0183.gga_longitude",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Longitude field", HFILL}},
+        {&hf_nmea0183_gga_longitude_degree,
+         {"Degree", "nmea0183.gga_longitude_degree",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Longitude Degree", HFILL}},
+        {&hf_nmea0183_gga_longitude_minute,
+         {"Minute", "nmea0183.gga_longitude_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Longitude Minute", HFILL}},
+        {&hf_nmea0183_gga_longitude_direction,
+         {"Direction", "nmea0183.gga_longitude_direction",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Longitude Direction", HFILL}},
+        {&hf_nmea0183_gga_quality,
+         {"Quality indicator", "nmea0183.gga_quality",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Quality indicator", HFILL}},
+        {&hf_nmea0183_gga_number_satellites,
+         {"Number of satellites", "nmea0183.gga_number_satellites",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Number of satellites in use", HFILL}},
+        {&hf_nmea0183_gga_horizontal_dilution,
+         {"Horizontal Dilution", "nmea0183.gga_horizontal_dilution",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Horizontal Dilution of precision", HFILL}},
+        {&hf_nmea0183_gga_altitude,
+         {"Altitude", "nmea0183.gga_altitude",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Antenna Altitude above mean-sea-level", HFILL}},
+        {&hf_nmea0183_gga_altitude_unit,
+         {"Altitude unit", "nmea0183.gga_altitude_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Units of antenna altitude", HFILL}},
+        {&hf_nmea0183_gga_geoidal_separation,
+         {"Geoidal separation", "nmea0183.gga_geoidal_separation",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Geoidal separation, the difference between the WGS-84 earth ellipsoid and mean-sea-level", HFILL}},
+        {&hf_nmea0183_gga_geoidal_separation_unit,
+         {"Geoidal separation unit", "nmea0183.gga_geoidal_separation_unit",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Units of geoidal separation, meters", HFILL}},
+        {&hf_nmea0183_gga_age_dgps,
+         {"Age of differential GPS", "nmea0183.gga_age_dgps",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Age of differential GPS data in seconds", HFILL}},
+        {&hf_nmea0183_gga_dgps_station,
+         {"Differential GPS station id", "nmea0183.gga_dgps_station",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GGA Differential reference station ID", HFILL}},
         {&hf_nmea0183_zda_time,
          {"UTC Time", "nmea0183.zda_time",
           FT_NONE, BASE_NONE,
@@ -671,7 +1062,10 @@ void proto_register_nmea0183(void)
         &ett_nmea0183,
         &ett_nmea0183_checksum,
         &ett_nmea0183_sentence,
-        &ett_nmea0183_zda_time};
+        &ett_nmea0183_zda_time,
+        &ett_nmea0183_gga_time,
+        &ett_nmea0183_gga_latitude,
+        &ett_nmea0183_gga_longitude};
 
     static ei_register_info ei[] = {
         {&ei_nmea0183_invalid_first_character,
@@ -692,9 +1086,21 @@ void proto_register_nmea0183(void)
         {&ei_nmea0183_field_time_too_short,
          {"nmea0183.field_time_too_short", PI_PROTOCOL, PI_WARN,
           "Field containing time is too short. Field should be at least 6 characters", EXPFILL}},
+        {&ei_nmea0183_field_latitude_too_short,
+         {"nmea0183.field_latitude_too_short", PI_PROTOCOL, PI_WARN,
+          "Field containing latitude is too short. Field should be at least 4 characters", EXPFILL}},
+        {&ei_nmea0183_field_longitude_too_short,
+         {"nmea0183.field_longitude_too_short", PI_PROTOCOL, PI_WARN,
+          "Field containing longitude is too short. Field should be at least 5 characters", EXPFILL}},
         {&ei_nmea0183_field_missing,
          {"nmea0183.field_missing", PI_PROTOCOL, PI_WARN,
-          "Field expected, but not found", EXPFILL}}};
+          "Field expected, but not found", EXPFILL}},
+        {&ei_nmea0183_gga_altitude_unit_incorrect,
+         {"nmea0183.gga_altitude_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect altitude unit (should be 'M')", EXPFILL}},
+        {&ei_nmea0183_gga_geoidal_separation_unit_incorrect,
+         {"nmea0183.gga_geoidal_separation_unit_incorrect", PI_PROTOCOL, PI_WARN,
+          "Incorrect geoidal separation unit (should be 'M')", EXPFILL}}};
 
     proto_nmea0183 = proto_register_protocol(
         "NMEA 0183 protocol", /* name        */
