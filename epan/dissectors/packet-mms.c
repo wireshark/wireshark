@@ -343,12 +343,12 @@ static int hf_mms_conclude_errorPDU;              /* T_conclude_errorPDU */
 static int hf_mms_vmdLogicalStatus;               /* T_vmdLogicalStatus */
 static int hf_mms_vmdPhysicalStatus;              /* T_vmdPhysicalStatus */
 static int hf_mms_localDetail;                    /* BIT_STRING_SIZE_0_128 */
-static int hf_mms_extendedObjectClass;            /* T_extendedObjectClass */
-static int hf_mms_objectClass;                    /* T_objectClass */
-static int hf_mms_objectScope;                    /* T_objectScope */
 static int hf_mms_vmdSpecific;                    /* NULL */
 static int hf_mms_domainSpecific;                 /* Identifier */
 static int hf_mms_aaSpecific;                     /* NULL */
+static int hf_mms_extendedObjectClass;            /* T_extendedObjectClass */
+static int hf_mms_objectClass;                    /* ObjectClass */
+static int hf_mms_objectScope;                    /* ObjectScope */
 static int hf_mms_getNameList_Request_continueAfter;  /* Identifier */
 static int hf_mms_listOfIdentifier;               /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfIdentifier_item;          /* Identifier */
@@ -359,7 +359,7 @@ static int hf_mms_revision;                       /* VisibleString */
 static int hf_mms_listOfAbstractSyntaxes;         /* T_listOfAbstractSyntaxes */
 static int hf_mms_listOfAbstractSyntaxes_item;    /* OBJECT_IDENTIFIER */
 static int hf_mms_extendedObjectClass_01;         /* T_extendedObjectClass_01 */
-static int hf_mms_objectClass_01;                 /* T_objectClass_01 */
+static int hf_mms_objectClass_01;                 /* T_objectClass */
 static int hf_mms_currentName;                    /* ObjectName */
 static int hf_mms_newIdentifier;                  /* Identifier */
 static int hf_mms_getCapabilityList_Request_continueAfter;  /* VisibleString */
@@ -807,9 +807,9 @@ static gint ett_mms_LoadUnitControlFromFile_Error;
 static gint ett_mms_RejectPDU;
 static gint ett_mms_T_rejectReason;
 static gint ett_mms_Status_Response;
+static gint ett_mms_ObjectScope;
 static gint ett_mms_GetNameList_Request;
 static gint ett_mms_T_extendedObjectClass;
-static gint ett_mms_T_objectScope;
 static gint ett_mms_GetNameList_Response;
 static gint ett_mms_SEQUENCE_OF_Identifier;
 static gint ett_mms_Identify_Response;
@@ -1010,7 +1010,8 @@ typedef enum _iec61850_8_1_vmd_specific {
 typedef enum _itemid_type {
     IEC61850_ITEM_ID_NOT_SET = 0,
     IEC61850_ITEM_ID_CTLMODEL,
-    IEC61850_ITEM_ID_Q
+    IEC61850_ITEM_ID_Q,
+    IEC61850_ITEM_ID_OPER
 } itemid_type;
 
 typedef struct _mms_transaction_t {
@@ -1019,6 +1020,7 @@ typedef struct _mms_transaction_t {
     nstime_t req_time;
     /* Rquest info*/
     itemid_type itemid;    /* Numeric representation of ItemId substring */
+    int conf_serv_pdu_type_req;
 } mms_transaction_t;
 
 typedef struct _mms_conv_info_t {
@@ -1031,15 +1033,119 @@ typedef struct mms_private_data_t
     char moreCinfo[BUFFER_SIZE_MORE];
 } mms_private_data_t;
 
+#define MMS_CONFIRMED_REQUEST_PDU        0
+#define MMS_CONFIRMED_RESPONSE_PDU       1
+#define MMS_CONFIRMED_ERROR_PDU          2
+#define MMS_UNCONFIRMED_PDU              3
+#define MMS_REJECT_PDU                   4
+#define MMS_CANCEL_REQUEST_PDU           5
+#define MMS_CANCEL_RESPONSE_PDU          6
+#define MMS_CANCEL_ERROR_PDU             7
+#define MMS_INITIATE_REQUEST_PDU         8
+#define MMS_INITIATE_RESPONSE_PDU        9
+#define MMS_INITIATE_ERROR_PDU          10
+#define MMS_CONCLUDE_REQUEST_PDU        11
+#define MMS_CONCLUDE_RESPONSE_PDU       12
+#define MMS_CONCLUDE_ERROR_PDU          13
+
+#define MMS_CONFIRMEDSERVICE_STATUS    0
+#define MMS_CONFIRMEDSERVICE_GETNAMELIST    1
+#define MMS_CONFIRMEDSERVICE_IDENTIFY    2
+#define MMS_CONFIRMEDSERVICE_RENAME    3
+#define MMS_CONFIRMEDSERVICE_READ    4
+#define MMS_CONFIRMEDSERVICE_WRITE    5
+#define MMS_CONFIRMEDSERVICE_GETVARIABLEACCESSATTRIBUTES    6
+#define MMS_CONFIRMEDSERVICE_DEFINENAMEDVARIABLE    7
+#define MMS_CONFIRMEDSERVICE_DEFINESCATTEREDACCESS    8
+#define MMS_CONFIRMEDSERVICE_GETSCATTEREDACCESSATTRIBUTES    9
+#define MMS_CONFIRMEDSERVICE_DELETEVARIABLEACCESS    10
+#define MMS_CONFIRMEDSERVICE_DEFINENAMEDVARIABLELIST    11
+#define MMS_CONFIRMEDSERVICE_GETNAMEDVARIABLELISTATTRIBUTES    12
+#define MMS_CONFIRMEDSERVICE_DELETENAMEDVARIABLELIST    13
+#define MMS_CONFIRMEDSERVICE_DEFINENAMEDTYPE    14
+#define MMS_CONFIRMEDSERVICE_GETNAMEDTYPEATTRIBUTES    15
+#define MMS_CONFIRMEDSERVICE_DELETENAMEDTYPE    16
+#define MMS_CONFIRMEDSERVICE_INPUT    17
+#define MMS_CONFIRMEDSERVICE_OUTPUT    18
+#define MMS_CONFIRMEDSERVICE_TAKECONTROL    19
+#define MMS_CONFIRMEDSERVICE_RELINQUISHCONTROL    20
+#define MMS_CONFIRMEDSERVICE_DEFINESEMAPHORE    21
+#define MMS_CONFIRMEDSERVICE_DELETESEMAPHORE    22
+#define MMS_CONFIRMEDSERVICE_REPORTSEMAPHORESTATUS    23
+#define MMS_CONFIRMEDSERVICE_REPORTPOOLSEMAPHORESTATUS    24
+#define MMS_CONFIRMEDSERVICE_REPORTSEMAPHOREENTRYSTATUS    25
+#define MMS_CONFIRMEDSERVICE_INITIATEDOWNLOADSEQUENCE    26
+#define MMS_CONFIRMEDSERVICE_DOWNLOADSEGMENT    27
+#define MMS_CONFIRMEDSERVICE_TERMINATEDOWNLOADSEQUENCE    28
+#define MMS_CONFIRMEDSERVICE_INITIATEUPLOADSEQUENCE    29
+#define MMS_CONFIRMEDSERVICE_UPLOADSEGMENT    30
+#define MMS_CONFIRMEDSERVICE_TERMINATEUPLOADSEQUENCE    31
+#define MMS_CONFIRMEDSERVICE_REQUESTDOMAINDOWNLOAD    32
+#define MMS_CONFIRMEDSERVICE_REQUESTDOMAINUPLOAD    33
+#define MMS_CONFIRMEDSERVICE_LOADDOMAINCONTENT    34
+#define MMS_CONFIRMEDSERVICE_STOREDOMAINCONTENT    35
+#define MMS_CONFIRMEDSERVICE_DELETEDOMAIN    36
+#define MMS_CONFIRMEDSERVICE_GETDOMAINATTRIBUTES    37
+#define MMS_CONFIRMEDSERVICE_CREATEPROGRAMINVOCATION    38
+#define MMS_CONFIRMEDSERVICE_DELETEPROGRAMINVOCATION    39
+#define MMS_CONFIRMEDSERVICE_START    40
+#define MMS_CONFIRMEDSERVICE_STOP    41
+#define MMS_CONFIRMEDSERVICE_RESUME    42
+#define MMS_CONFIRMEDSERVICE_RESET    43
+#define MMS_CONFIRMEDSERVICE_KILL    44
+#define MMS_CONFIRMEDSERVICE_GETPROGRAMINVOCATIONATTRIBUTES    45
+#define MMS_CONFIRMEDSERVICE_OBTAINFILE    46
+#define MMS_CONFIRMEDSERVICE_DEFINEEVENTCONDITION    47
+#define MMS_CONFIRMEDSERVICE_DELETEEVENTCONDITION    48
+#define MMS_CONFIRMEDSERVICE_GETEVENTCONDITIONATTRIBUTES    49
+#define MMS_CONFIRMEDSERVICE_REPORTEVENTCONDITIONSTATUS    50
+#define MMS_CONFIRMEDSERVICE_ALTEREVENTCONDITIONMONITORING    51
+#define MMS_CONFIRMEDSERVICE_TRIGGEREVENT    52
+#define MMS_CONFIRMEDSERVICE_DEFINEEVENTACTION    53
+#define MMS_CONFIRMEDSERVICE_DELETEEVENTACTION    54
+#define MMS_CONFIRMEDSERVICE_GETEVENTACTIONATTRIBUTES    55
+#define MMS_CONFIRMEDSERVICE_REPORTEVENTACTIONSTATUS    56
+#define MMS_CONFIRMEDSERVICE_DEFINEEVENTENROLLMENT    57
+#define MMS_CONFIRMEDSERVICE_DELETEEVENTENROLLMENT    58
+#define MMS_CONFIRMEDSERVICE_ALTEREVENTENROLLMENT    59
+#define MMS_CONFIRMEDSERVICE_REPORTEVENTENROLLMENTSTATUS    60
+#define MMS_CONFIRMEDSERVICE_GETEVENTENROLLMENTATTRIBUTES    61
+#define MMS_CONFIRMEDSERVICE_ACKNOWLEDGEEVENTNOTIFICATION    62
+#define MMS_CONFIRMEDSERVICE_GETALARMSUMMARY    63
+#define MMS_CONFIRMEDSERVICE_GETALARMENROLLMENTSUMMARY    64
+#define MMS_CONFIRMEDSERVICE_READJOURNAL    65
+#define MMS_CONFIRMEDSERVICE_WRITEJOURNAL    66
+#define MMS_CONFIRMEDSERVICE_INITIALIZEJOURNAL    67
+#define MMS_CONFIRMEDSERVICE_REPORTJOURNALSTATUS    68
+#define MMS_CONFIRMEDSERVICE_CREATEJOURNAL    69
+#define MMS_CONFIRMEDSERVICE_DELETEJOURNAL    70
+#define MMS_CONFIRMEDSERVICE_GETCAPABILITYLIST    71
+#define MMS_CONFIRMEDSERVICE_FILEOPEN    72
+#define MMS_FILEREAD    73
+#define MMS_FILECLOSE    74
+#define MMS_FILERENAME    75
+#define MMS_FILEDELETE    76
+#define MMS_FILEDIRECTORY    77
+
+#define MMS_OBJECTCLASS_DOMAIN 9
+
+#define MMS_OBJECTSCOPE_VMDSPECIFIC 0
+#define MMS_OBJECTSCOPE_DOMAINSPECIFIC 1
+
+#define MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR 1
 
 typedef struct mms_actx_private_data_t
 {
     int mms_pdu_type;                               /* MMSpdu type taken from MMSpdu CHOISE branch_taken */
     int invokeid;
-    iec61850_8_1_vmd_specific vmd_specific;    /* Numeric representation of decode vmd_specific strings */
+    iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
     int listOfAccessResult_cnt;                     /* Posision  in the list, 1 count*/
     guint16 reported_optflds;                       /* Bitmap over included fields*/
-    mms_transaction_t* mms_trans;
+    proto_item* pdu_item;                           /* The item to append PDU info to */
+    int confirmedservice_type;                      /* Requested service */
+    int objectclass;
+    int objectscope;
+    mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record*/
 } mms_actx_private_data_t;
 
 
@@ -1216,104 +1322,104 @@ dissect_mms_ReportedOptFlds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_mms_Unsigned32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-        uint32_t  val;
-        conversation_t *conversation;
-        mms_conv_info_t *mms_info;
-        mms_transaction_t *mms_trans;
+    uint32_t  val;
+    conversation_t *conversation;
+    mms_conv_info_t *mms_info;
+    mms_transaction_t *mms_trans;
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &val);
 
-        if (hf_index == hf_mms_invokeID){
-                mms_actx_private_data_t* mms_priv = (mms_actx_private_data_t*)actx->private_data;
-                if(mms_priv){
-                    mms_priv->invokeid=val;
-                    private_data_add_preCinfo(actx, val);
-                    conversation = find_or_create_conversation(actx->pinfo);
+    if (hf_index == hf_mms_invokeID){
+        mms_actx_private_data_t* mms_priv = (mms_actx_private_data_t*)actx->private_data;
+        if(mms_priv){
+            mms_priv->invokeid=val;
+            private_data_add_preCinfo(actx, val);
+            conversation = find_or_create_conversation(actx->pinfo);
 
-                    mms_info = (mms_conv_info_t *)conversation_get_proto_data(conversation, proto_mms);
-                    if (!mms_info) {
-                            /*
-                                * No.  Attach that information to the conversation, and add
-                                * it to the list of information structures.
-                                */
-                            mms_info = wmem_new(wmem_file_scope(), mms_conv_info_t);
-                            mms_info->pdus=wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+            mms_info = (mms_conv_info_t *)conversation_get_proto_data(conversation, proto_mms);
+            if (!mms_info) {
+                /*
+                 * No.  Attach that information to the conversation, and add
+                 * it to the list of information structures.
+                 */
+                mms_info = wmem_new(wmem_file_scope(), mms_conv_info_t);
+                mms_info->pdus=wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
-                            conversation_add_proto_data(conversation, proto_mms, mms_info);
+                conversation_add_proto_data(conversation, proto_mms, mms_info);
+            }
+            /* Request or response? */
+            bool is_request;
+
+            switch(mms_priv->mms_pdu_type){
+                case 0:
+                    /* Confirmed-RequestPDU */
+                    is_request = true;
+                    break;
+                case 1:
+                    /* confirmed-ResponsePDU */
+                    is_request = false;
+                    break;
+                case 2:
+                    /* Confirmed-ErrorPDU */
+                    is_request = false;
+                    break;
+                default:
+                    is_request = false;
+                    break;
+            }
+
+            if (!PINFO_FD_VISITED(actx->pinfo)) {
+                if (is_request==true) {
+                    /* This is a request */
+                    mms_trans=wmem_new(wmem_file_scope(), mms_transaction_t);
+                    mms_trans->req_frame = actx->pinfo->num;
+                    mms_trans->rep_frame = 0;
+                    mms_trans->req_time = actx->pinfo->fd->abs_ts;
+                    wmem_map_insert(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid), (void *)mms_trans);
+                } else {
+                    mms_trans=(mms_transaction_t *)wmem_map_lookup(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid));
+                    if (mms_trans) {
+                        mms_trans->rep_frame = actx->pinfo->num;
                     }
-                    /* Request or response? */
-                    bool is_request;
+                }
+            } else {
+                mms_trans=(mms_transaction_t *)wmem_map_lookup(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid));
+            }
+            if (!mms_trans) {
+                /* create a "fake" mms_trans structure */
+                mms_trans=wmem_new(actx->pinfo->pool, mms_transaction_t);
+                mms_trans->req_frame = 0;
+                mms_trans->rep_frame = 0;
+                mms_trans->req_time = actx->pinfo->fd->abs_ts;
+            }
+            mms_priv->mms_trans_p = mms_trans;
 
-                    switch(mms_priv->mms_pdu_type){
-                        case 0:
-                            /* Confirmed-RequestPDU */
-                            is_request = true;
-                            break;
-                        case 1:
-                            /* confirmed-ResponsePDU */
-                            is_request = false;
-                            break;
-                        case 2:
-                            /* Confirmed-ErrorPDU */
-                            is_request = false;
-                            break;
-                        default:
-                            is_request = false;
-                            break;
+            /* print state tracking in the tree */
+            if (is_request) {
+                    /* This is a request */
+                    if (mms_trans->rep_frame) {
+                            proto_item *it;
+
+                            it = proto_tree_add_uint(actx->subtree.top_tree, hf_mms_response_in, tvb, 0, 0, mms_trans->rep_frame);
+                            proto_item_set_generated(it);
                     }
+            } else {
+                /* This is a reply */
+                if (mms_trans->req_frame) {
+                        proto_item *it;
+                        nstime_t ns;
 
-                    if (!PINFO_FD_VISITED(actx->pinfo)) {
-                            if (is_request==true) {
-                                    /* This is a request */
-                                    mms_trans=wmem_new(wmem_file_scope(), mms_transaction_t);
-                                    mms_trans->req_frame = actx->pinfo->num;
-                                    mms_trans->rep_frame = 0;
-                                    mms_trans->req_time = actx->pinfo->fd->abs_ts;
-                                    wmem_map_insert(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid), (void *)mms_trans);
-                            } else {
-                                    mms_trans=(mms_transaction_t *)wmem_map_lookup(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid));
-                                    if (mms_trans) {
-                                            mms_trans->rep_frame = actx->pinfo->num;
-                                    }
-                            }
-                    } else {
-                            mms_trans=(mms_transaction_t *)wmem_map_lookup(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid));
-                    }
-                    if (!mms_trans) {
-                            /* create a "fake" mms_trans structure */
-                            mms_trans=wmem_new(actx->pinfo->pool, mms_transaction_t);
-                            mms_trans->req_frame = 0;
-                            mms_trans->rep_frame = 0;
-                            mms_trans->req_time = actx->pinfo->fd->abs_ts;
-                    }
-                    mms_priv->mms_trans = mms_trans;
+                        it = proto_tree_add_uint(actx->subtree.top_tree, hf_mms_response_to, tvb, 0, 0, mms_trans->req_frame);
+                        proto_item_set_generated(it);
 
-                    /* print state tracking in the tree */
-                    if (is_request) {
-                            /* This is a request */
-                            if (mms_trans->rep_frame) {
-                                    proto_item *it;
-
-                                    it = proto_tree_add_uint(actx->subtree.top_tree, hf_mms_response_in, tvb, 0, 0, mms_trans->rep_frame);
-                                    proto_item_set_generated(it);
-                            }
-                    } else {
-                            /* This is a reply */
-                            if (mms_trans->req_frame) {
-                                    proto_item *it;
-                                    nstime_t ns;
-
-                                    it = proto_tree_add_uint(actx->subtree.top_tree, hf_mms_response_to, tvb, 0, 0, mms_trans->req_frame);
-                                    proto_item_set_generated(it);
-
-                                    nstime_delta(&ns, &actx->pinfo->fd->abs_ts, &mms_trans->req_time);
-                                    it = proto_tree_add_time(actx->subtree.top_tree, hf_mms_response_time, tvb, 0, 0, &ns);
-                                    proto_item_set_generated(it);
-                            }
-                    }
+                        nstime_delta(&ns, &actx->pinfo->fd->abs_ts, &mms_trans->req_time);
+                        it = proto_tree_add_time(actx->subtree.top_tree, hf_mms_response_time, tvb, 0, 0, &ns);
+                        proto_item_set_generated(it);
+                }
             }
         }
+    }
 
 
   return offset;
@@ -1334,13 +1440,17 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                 private_data_add_moreCinfo_id(actx,tvb);
         }
         if ((mms_priv) && (hf_index == hf_mms_objectName_domain_specific_itemId)) {
-                private_data_add_moreCinfo_id(actx,tvb);
+            private_data_add_moreCinfo_id(actx,tvb);
+            if(mms_priv->mms_trans_p){
                 const char *itemid_str = tvb_get_string_enc(actx->pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
                 if(g_str_has_suffix(itemid_str,"$ctlModel")){
-                    mms_priv->mms_trans->itemid = IEC61850_ITEM_ID_CTLMODEL;
+                   mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
                 }else  if(g_str_has_suffix(itemid_str,"$q")){
-                    mms_priv->mms_trans->itemid = IEC61850_ITEM_ID_Q;
-                }
+                   mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_Q;
+                }else if(g_str_has_suffix(itemid_str,"$Oper")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_OPER;
+                 }
+            }
         }
 
         if ((mms_priv) && (hf_index == hf_mms_vmd_specific)){
@@ -1533,8 +1643,128 @@ dissect_mms_Status_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const value_string mms_T_objectClass_vals[] = {
+static const value_string mms_ObjectClass_vals[] = {
   {   0, "nammedVariable" },
+  {   1, "scatteredAccess" },
+  {   2, "namedVariableList" },
+  {   3, "namedType" },
+  {   4, "semaphore" },
+  {   5, "eventCondition" },
+  {   6, "eventAction" },
+  {   7, "eventEnrollment" },
+  {   8, "journal" },
+  {   9, "domain" },
+  {  10, "programInvocation" },
+  {  11, "operatorStation" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_mms_ObjectClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+    uint32_t  val;
+
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &val);
+
+        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+        if(mms_priv){
+            mms_priv->objectclass = val;
+        }
+
+
+  return offset;
+}
+
+
+static const value_string mms_T_extendedObjectClass_vals[] = {
+  {   0, "objectClass" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_extendedObjectClass_choice[] = {
+  {   0, &hf_mms_objectClass     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_ObjectClass },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_T_extendedObjectClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_extendedObjectClass_choice, hf_index, ett_mms_T_extendedObjectClass,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_NULL(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const value_string mms_ObjectScope_vals[] = {
+  {   0, "vmdSpecific" },
+  {   1, "domainSpecific" },
+  {   2, "aaSpecific" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ObjectScope_choice[] = {
+  {   0, &hf_mms_vmdSpecific     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
+  {   1, &hf_mms_domainSpecific  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  {   2, &hf_mms_aaSpecific      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_ObjectScope(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+    int  val;
+
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ObjectScope_choice, hf_index, ett_mms_ObjectScope,
+                                 &val);
+
+        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+        if(mms_priv){
+            mms_priv->objectscope = val;
+        }
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t GetNameList_Request_sequence[] = {
+  { &hf_mms_extendedObjectClass, BER_CLASS_CON, 0, 0, dissect_mms_T_extendedObjectClass },
+  { &hf_mms_objectScope     , BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectScope },
+  { &hf_mms_getNameList_Request_continueAfter, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_GetNameList_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   GetNameList_Request_sequence, hf_index, ett_mms_GetNameList_Request);
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_Identify_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const value_string mms_T_objectClass_vals[] = {
+  {   0, "namedVariable" },
   {   1, "scatteredAccess" },
   {   2, "namedVariableList" },
   {   3, "namedType" },
@@ -1559,117 +1789,13 @@ dissect_mms_T_objectClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const value_string mms_T_extendedObjectClass_vals[] = {
-  {   0, "objectClass" },
-  { 0, NULL }
-};
-
-static const ber_choice_t T_extendedObjectClass_choice[] = {
-  {   0, &hf_mms_objectClass     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_T_objectClass },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_mms_T_extendedObjectClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_extendedObjectClass_choice, hf_index, ett_mms_T_extendedObjectClass,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_mms_NULL(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const value_string mms_T_objectScope_vals[] = {
-  {   0, "vmdSpecific" },
-  {   1, "domainSpecific" },
-  {   2, "aaSpecific" },
-  { 0, NULL }
-};
-
-static const ber_choice_t T_objectScope_choice[] = {
-  {   0, &hf_mms_vmdSpecific     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
-  {   1, &hf_mms_domainSpecific  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
-  {   2, &hf_mms_aaSpecific      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_mms_T_objectScope(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_objectScope_choice, hf_index, ett_mms_T_objectScope,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t GetNameList_Request_sequence[] = {
-  { &hf_mms_extendedObjectClass, BER_CLASS_CON, 0, 0, dissect_mms_T_extendedObjectClass },
-  { &hf_mms_objectScope     , BER_CLASS_CON, 1, 0, dissect_mms_T_objectScope },
-  { &hf_mms_getNameList_Request_continueAfter, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_mms_GetNameList_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GetNameList_Request_sequence, hf_index, ett_mms_GetNameList_Request);
-
-  return offset;
-}
-
-
-
-static int
-dissect_mms_Identify_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const value_string mms_T_objectClass_01_vals[] = {
-  {   0, "namedVariable" },
-  {   1, "scatteredAccess" },
-  {   2, "namedVariableList" },
-  {   3, "namedType" },
-  {   4, "semaphore" },
-  {   5, "eventCondition" },
-  {   6, "eventAction" },
-  {   7, "eventEnrollment" },
-  {   8, "journal" },
-  {   9, "domain" },
-  {  10, "programInvocation" },
-  {  11, "operatorStation" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_mms_T_objectClass_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
 static const value_string mms_T_extendedObjectClass_01_vals[] = {
   {   0, "objectClass" },
   { 0, NULL }
 };
 
 static const ber_choice_t T_extendedObjectClass_01_choice[] = {
-  {   0, &hf_mms_objectClass_01  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_T_objectClass_01 },
+  {   0, &hf_mms_objectClass_01  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_T_objectClass },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2246,7 +2372,7 @@ static int* const quality_field_bits_oct2[] = {
                     hf_index = hf_mms_iec61850_inclusion_bitstring;
                 }
             }
-        }else if((mms_priv->mms_trans)&&(mms_priv->mms_trans->itemid == IEC61850_ITEM_ID_Q)){
+        }else if ((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q)){
             hf_index = hf_mms_iec61850_quality_bitstring;
         }
     }
@@ -2257,7 +2383,7 @@ static int* const quality_field_bits_oct2[] = {
 
 
     if(mms_priv){
-        if((parameter_tvb)&&(mms_priv->mms_trans)&&(mms_priv->mms_trans->itemid == IEC61850_ITEM_ID_Q)){
+        if((parameter_tvb) && (mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q)){
             proto_tree *sub_tree;
             sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_quality_bitstring);
             proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, quality_field_bits_oct1, ENC_NA);
@@ -2275,7 +2401,7 @@ static int
 dissect_mms_T_integer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
     if(mms_priv){
-        if((mms_priv->mms_trans)&&(mms_priv->mms_trans->itemid == IEC61850_ITEM_ID_CTLMODEL)){
+        if((mms_priv->mms_trans_p)&&(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CTLMODEL)){
             hf_index = hf_mms_iec61850_ctlModel;
         }
     }
@@ -5116,9 +5242,32 @@ static const ber_choice_t ConfirmedServiceRequest_choice[] = {
 
 static int
 dissect_mms_ConfirmedServiceRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+        gint8    ber_class;
+        bool     pc;
+        gint32   tag;
+
+        get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+        if(mms_priv){
+            mms_priv->confirmedservice_type = tag;
+        }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ConfirmedServiceRequest_choice, hf_index, ett_mms_ConfirmedServiceRequest,
                                  NULL);
+
+
+        if(mms_priv){
+            if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_GETNAMELIST){
+                if(mms_priv->objectclass == MMS_OBJECTCLASS_DOMAIN){
+                    if(mms_priv->objectscope == MMS_OBJECTSCOPE_VMDSPECIFIC){
+                        mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR;
+                    }
+                }
+            }
+        }
+
+
 
   return offset;
 }
@@ -5154,8 +5303,15 @@ static const ber_sequence_t Confirmed_RequestPDU_sequence[] = {
 
 static int
 dissect_mms_Confirmed_RequestPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Confirmed_RequestPDU_sequence, hf_index, ett_mms_Confirmed_RequestPDU);
+
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(tree){
+        mms_priv->pdu_item = (proto_item*)tree->last_child;
+    }
+
 
   return offset;
 }
@@ -7112,9 +7268,21 @@ static const ber_choice_t ConfirmedServiceResponse_choice[] = {
 
 static int
 dissect_mms_ConfirmedServiceResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+        gint8    ber_class;
+        bool     pc;
+        gint32   tag;
+
+        get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+        if(mms_priv){
+            mms_priv->confirmedservice_type = tag;
+        }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ConfirmedServiceResponse_choice, hf_index, ett_mms_ConfirmedServiceResponse,
                                  NULL);
+
+
 
   return offset;
 }
@@ -7129,8 +7297,15 @@ static const ber_sequence_t Confirmed_ResponsePDU_sequence[] = {
 
 static int
 dissect_mms_Confirmed_ResponsePDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Confirmed_ResponsePDU_sequence, hf_index, ett_mms_Confirmed_ResponsePDU);
+
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(tree){
+        mms_priv->pdu_item = (proto_item*)tree->last_child;
+    }
+
 
   return offset;
 }
@@ -7309,8 +7484,22 @@ static const ber_sequence_t Unconfirmed_PDU_sequence[] = {
 
 static int
 dissect_mms_Unconfirmed_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+   mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if (!mms_priv->mms_trans_p) {
+        /* create a "fake" mms_trans structure */
+        mms_priv->mms_trans_p=wmem_new(actx->pinfo->pool, mms_transaction_t);
+        mms_priv->mms_trans_p->req_frame = 0;
+        mms_priv->mms_trans_p->rep_frame = 0;
+        mms_priv->mms_trans_p->req_time = actx->pinfo->fd->abs_ts;
+
+    }
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Unconfirmed_PDU_sequence, hf_index, ett_mms_Unconfirmed_PDU);
+
+    if(tree){
+        mms_priv->pdu_item = (proto_item*)tree->last_child;
+    }
 
   return offset;
 }
@@ -7762,8 +7951,16 @@ static const ber_sequence_t Initiate_RequestPDU_sequence[] = {
 
 static int
 dissect_mms_Initiate_RequestPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Initiate_RequestPDU_sequence, hf_index, ett_mms_Initiate_RequestPDU);
+
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(tree){
+        mms_priv->pdu_item = (proto_item*)tree->last_child;
+    }
+
+
 
   return offset;
 }
@@ -7796,8 +7993,14 @@ static const ber_sequence_t Initiate_ResponsePDU_sequence[] = {
 
 static int
 dissect_mms_Initiate_ResponsePDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Initiate_ResponsePDU_sequence, hf_index, ett_mms_Initiate_ResponsePDU);
+
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(tree){
+        mms_priv->pdu_item = (proto_item*)tree->last_child;
+    }
 
   return offset;
 }
@@ -7895,7 +8098,49 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 
     if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-            if (mms_has_private_data(actx)){
+            if(mms_priv){
+                switch(mms_priv->mms_pdu_type){
+                    case MMS_UNCONFIRMED_PDU:
+                        if(mms_priv->vmd_specific==IEC61850_8_1_RPT){
+                            col_append_str(actx->pinfo->cinfo, COL_INFO, "Unconfirmed <RPT>");
+                            proto_item_append_text(mms_priv->pdu_item, " [RPT]");
+                        }else if((mms_priv->mms_trans_p)&&(mms_priv->mms_trans_p->itemid==IEC61850_ITEM_ID_OPER)){
+                            col_append_str(actx->pinfo->cinfo, COL_INFO, "Unconfirmed-CommandTermination");
+                            proto_item_append_text(mms_priv->pdu_item, " [Unconfirmed-CommandTermination]");
+                        }
+                    break;
+                    case MMS_INITIATE_REQUEST_PDU:
+                        col_append_str(actx->pinfo->cinfo, COL_INFO, "Associate Request");
+                        proto_item_append_text(mms_priv->pdu_item, " [Associate Request]");
+                        break;
+                    case MMS_INITIATE_RESPONSE_PDU:
+                        col_append_str(actx->pinfo->cinfo, COL_INFO, "Associate Response");
+                        proto_item_append_text(mms_priv->pdu_item, " [Associate Response]");
+                        break;
+                    case MMS_CONFIRMED_REQUEST_PDU:
+                        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR){
+                            col_append_str(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryRequest");
+                            proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryRequest]");
+                        }else if (mms_has_private_data(actx)){
+                            col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
+                                    private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+                        }
+                    break;
+                    case MMS_CONFIRMED_RESPONSE_PDU:
+                        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR){
+                            col_append_str(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryResponse");
+                            proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryResponse]");
+                        }else if(mms_has_private_data(actx)){
+                            col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
+                                    private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+                        }
+                    break;
+                   default:
+                        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
+                                private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+                   break;
+                 }
+            }else if (mms_has_private_data(actx)){
                     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
                             private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
             }else{
@@ -7903,7 +8148,6 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                             mms_MMSpdu_vals[branch_taken].strptr);
             }
     }
-
 
 
   return offset;
@@ -7928,7 +8172,12 @@ dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
         tree = proto_item_add_subtree(item, ett_mms);
         asn1_ctx.subtree.top_tree = parent_tree;
     }
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS");
+    if (use_iec61850_mapping) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS/IEC61850");
+    }
+    else {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS");
+    }
     col_clear(pinfo->cinfo, COL_INFO);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -9158,18 +9407,6 @@ void proto_register_mms(void) {
       { "localDetail", "mms.localDetail",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_0_128", HFILL }},
-    { &hf_mms_extendedObjectClass,
-      { "extendedObjectClass", "mms.extendedObjectClass",
-        FT_UINT32, BASE_DEC, VALS(mms_T_extendedObjectClass_vals), 0,
-        NULL, HFILL }},
-    { &hf_mms_objectClass,
-      { "objectClass", "mms.objectClass",
-        FT_INT32, BASE_DEC, VALS(mms_T_objectClass_vals), 0,
-        NULL, HFILL }},
-    { &hf_mms_objectScope,
-      { "objectScope", "mms.objectScope",
-        FT_UINT32, BASE_DEC, VALS(mms_T_objectScope_vals), 0,
-        NULL, HFILL }},
     { &hf_mms_vmdSpecific,
       { "vmdSpecific", "mms.vmdSpecific_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9181,6 +9418,18 @@ void proto_register_mms(void) {
     { &hf_mms_aaSpecific,
       { "aaSpecific", "mms.aaSpecific_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mms_extendedObjectClass,
+      { "extendedObjectClass", "mms.extendedObjectClass",
+        FT_UINT32, BASE_DEC, VALS(mms_T_extendedObjectClass_vals), 0,
+        NULL, HFILL }},
+    { &hf_mms_objectClass,
+      { "objectClass", "mms.objectClass",
+        FT_INT32, BASE_DEC, VALS(mms_ObjectClass_vals), 0,
+        NULL, HFILL }},
+    { &hf_mms_objectScope,
+      { "objectScope", "mms.objectScope",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectScope_vals), 0,
         NULL, HFILL }},
     { &hf_mms_getNameList_Request_continueAfter,
       { "continueAfter", "mms.getNameList-Request_continueAfter",
@@ -9224,8 +9473,8 @@ void proto_register_mms(void) {
         "T_extendedObjectClass_01", HFILL }},
     { &hf_mms_objectClass_01,
       { "objectClass", "mms.objectClass",
-        FT_INT32, BASE_DEC, VALS(mms_T_objectClass_01_vals), 0,
-        "T_objectClass_01", HFILL }},
+        FT_INT32, BASE_DEC, VALS(mms_T_objectClass_vals), 0,
+        NULL, HFILL }},
     { &hf_mms_currentName,
       { "currentName", "mms.currentName",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
@@ -10891,9 +11140,9 @@ void proto_register_mms(void) {
     &ett_mms_RejectPDU,
     &ett_mms_T_rejectReason,
     &ett_mms_Status_Response,
+    &ett_mms_ObjectScope,
     &ett_mms_GetNameList_Request,
     &ett_mms_T_extendedObjectClass,
-    &ett_mms_T_objectScope,
     &ett_mms_GetNameList_Response,
     &ett_mms_SEQUENCE_OF_Identifier,
     &ett_mms_Identify_Response,

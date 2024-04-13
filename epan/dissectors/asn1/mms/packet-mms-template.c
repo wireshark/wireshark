@@ -95,7 +95,8 @@ typedef enum _iec61850_8_1_vmd_specific {
 typedef enum _itemid_type {
     IEC61850_ITEM_ID_NOT_SET = 0,
     IEC61850_ITEM_ID_CTLMODEL,
-    IEC61850_ITEM_ID_Q
+    IEC61850_ITEM_ID_Q,
+    IEC61850_ITEM_ID_OPER
 } itemid_type;
 
 typedef struct _mms_transaction_t {
@@ -104,6 +105,7 @@ typedef struct _mms_transaction_t {
     nstime_t req_time;
     /* Rquest info*/
     itemid_type itemid;    /* Numeric representation of ItemId substring */
+    int conf_serv_pdu_type_req;
 } mms_transaction_t;
 
 typedef struct _mms_conv_info_t {
@@ -116,15 +118,119 @@ typedef struct mms_private_data_t
     char moreCinfo[BUFFER_SIZE_MORE];
 } mms_private_data_t;
 
+#define MMS_CONFIRMED_REQUEST_PDU        0
+#define MMS_CONFIRMED_RESPONSE_PDU       1
+#define MMS_CONFIRMED_ERROR_PDU          2
+#define MMS_UNCONFIRMED_PDU              3
+#define MMS_REJECT_PDU                   4
+#define MMS_CANCEL_REQUEST_PDU           5
+#define MMS_CANCEL_RESPONSE_PDU          6
+#define MMS_CANCEL_ERROR_PDU             7
+#define MMS_INITIATE_REQUEST_PDU         8
+#define MMS_INITIATE_RESPONSE_PDU        9
+#define MMS_INITIATE_ERROR_PDU          10
+#define MMS_CONCLUDE_REQUEST_PDU        11
+#define MMS_CONCLUDE_RESPONSE_PDU       12
+#define MMS_CONCLUDE_ERROR_PDU          13
+
+#define MMS_CONFIRMEDSERVICE_STATUS    0
+#define MMS_CONFIRMEDSERVICE_GETNAMELIST    1
+#define MMS_CONFIRMEDSERVICE_IDENTIFY    2
+#define MMS_CONFIRMEDSERVICE_RENAME    3
+#define MMS_CONFIRMEDSERVICE_READ    4
+#define MMS_CONFIRMEDSERVICE_WRITE    5
+#define MMS_CONFIRMEDSERVICE_GETVARIABLEACCESSATTRIBUTES    6
+#define MMS_CONFIRMEDSERVICE_DEFINENAMEDVARIABLE    7
+#define MMS_CONFIRMEDSERVICE_DEFINESCATTEREDACCESS    8
+#define MMS_CONFIRMEDSERVICE_GETSCATTEREDACCESSATTRIBUTES    9
+#define MMS_CONFIRMEDSERVICE_DELETEVARIABLEACCESS    10
+#define MMS_CONFIRMEDSERVICE_DEFINENAMEDVARIABLELIST    11
+#define MMS_CONFIRMEDSERVICE_GETNAMEDVARIABLELISTATTRIBUTES    12
+#define MMS_CONFIRMEDSERVICE_DELETENAMEDVARIABLELIST    13
+#define MMS_CONFIRMEDSERVICE_DEFINENAMEDTYPE    14
+#define MMS_CONFIRMEDSERVICE_GETNAMEDTYPEATTRIBUTES    15
+#define MMS_CONFIRMEDSERVICE_DELETENAMEDTYPE    16
+#define MMS_CONFIRMEDSERVICE_INPUT    17
+#define MMS_CONFIRMEDSERVICE_OUTPUT    18
+#define MMS_CONFIRMEDSERVICE_TAKECONTROL    19
+#define MMS_CONFIRMEDSERVICE_RELINQUISHCONTROL    20
+#define MMS_CONFIRMEDSERVICE_DEFINESEMAPHORE    21
+#define MMS_CONFIRMEDSERVICE_DELETESEMAPHORE    22
+#define MMS_CONFIRMEDSERVICE_REPORTSEMAPHORESTATUS    23
+#define MMS_CONFIRMEDSERVICE_REPORTPOOLSEMAPHORESTATUS    24
+#define MMS_CONFIRMEDSERVICE_REPORTSEMAPHOREENTRYSTATUS    25
+#define MMS_CONFIRMEDSERVICE_INITIATEDOWNLOADSEQUENCE    26
+#define MMS_CONFIRMEDSERVICE_DOWNLOADSEGMENT    27
+#define MMS_CONFIRMEDSERVICE_TERMINATEDOWNLOADSEQUENCE    28
+#define MMS_CONFIRMEDSERVICE_INITIATEUPLOADSEQUENCE    29
+#define MMS_CONFIRMEDSERVICE_UPLOADSEGMENT    30
+#define MMS_CONFIRMEDSERVICE_TERMINATEUPLOADSEQUENCE    31
+#define MMS_CONFIRMEDSERVICE_REQUESTDOMAINDOWNLOAD    32
+#define MMS_CONFIRMEDSERVICE_REQUESTDOMAINUPLOAD    33
+#define MMS_CONFIRMEDSERVICE_LOADDOMAINCONTENT    34
+#define MMS_CONFIRMEDSERVICE_STOREDOMAINCONTENT    35
+#define MMS_CONFIRMEDSERVICE_DELETEDOMAIN    36
+#define MMS_CONFIRMEDSERVICE_GETDOMAINATTRIBUTES    37
+#define MMS_CONFIRMEDSERVICE_CREATEPROGRAMINVOCATION    38
+#define MMS_CONFIRMEDSERVICE_DELETEPROGRAMINVOCATION    39
+#define MMS_CONFIRMEDSERVICE_START    40
+#define MMS_CONFIRMEDSERVICE_STOP    41
+#define MMS_CONFIRMEDSERVICE_RESUME    42
+#define MMS_CONFIRMEDSERVICE_RESET    43
+#define MMS_CONFIRMEDSERVICE_KILL    44
+#define MMS_CONFIRMEDSERVICE_GETPROGRAMINVOCATIONATTRIBUTES    45
+#define MMS_CONFIRMEDSERVICE_OBTAINFILE    46
+#define MMS_CONFIRMEDSERVICE_DEFINEEVENTCONDITION    47
+#define MMS_CONFIRMEDSERVICE_DELETEEVENTCONDITION    48
+#define MMS_CONFIRMEDSERVICE_GETEVENTCONDITIONATTRIBUTES    49
+#define MMS_CONFIRMEDSERVICE_REPORTEVENTCONDITIONSTATUS    50
+#define MMS_CONFIRMEDSERVICE_ALTEREVENTCONDITIONMONITORING    51
+#define MMS_CONFIRMEDSERVICE_TRIGGEREVENT    52
+#define MMS_CONFIRMEDSERVICE_DEFINEEVENTACTION    53
+#define MMS_CONFIRMEDSERVICE_DELETEEVENTACTION    54
+#define MMS_CONFIRMEDSERVICE_GETEVENTACTIONATTRIBUTES    55
+#define MMS_CONFIRMEDSERVICE_REPORTEVENTACTIONSTATUS    56
+#define MMS_CONFIRMEDSERVICE_DEFINEEVENTENROLLMENT    57
+#define MMS_CONFIRMEDSERVICE_DELETEEVENTENROLLMENT    58
+#define MMS_CONFIRMEDSERVICE_ALTEREVENTENROLLMENT    59
+#define MMS_CONFIRMEDSERVICE_REPORTEVENTENROLLMENTSTATUS    60
+#define MMS_CONFIRMEDSERVICE_GETEVENTENROLLMENTATTRIBUTES    61
+#define MMS_CONFIRMEDSERVICE_ACKNOWLEDGEEVENTNOTIFICATION    62
+#define MMS_CONFIRMEDSERVICE_GETALARMSUMMARY    63
+#define MMS_CONFIRMEDSERVICE_GETALARMENROLLMENTSUMMARY    64
+#define MMS_CONFIRMEDSERVICE_READJOURNAL    65
+#define MMS_CONFIRMEDSERVICE_WRITEJOURNAL    66
+#define MMS_CONFIRMEDSERVICE_INITIALIZEJOURNAL    67
+#define MMS_CONFIRMEDSERVICE_REPORTJOURNALSTATUS    68
+#define MMS_CONFIRMEDSERVICE_CREATEJOURNAL    69
+#define MMS_CONFIRMEDSERVICE_DELETEJOURNAL    70
+#define MMS_CONFIRMEDSERVICE_GETCAPABILITYLIST    71
+#define MMS_CONFIRMEDSERVICE_FILEOPEN    72
+#define MMS_FILEREAD    73
+#define MMS_FILECLOSE    74
+#define MMS_FILERENAME    75
+#define MMS_FILEDELETE    76
+#define MMS_FILEDIRECTORY    77
+
+#define MMS_OBJECTCLASS_DOMAIN 9
+
+#define MMS_OBJECTSCOPE_VMDSPECIFIC 0
+#define MMS_OBJECTSCOPE_DOMAINSPECIFIC 1
+
+#define MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR 1
 
 typedef struct mms_actx_private_data_t
 {
     int mms_pdu_type;                               /* MMSpdu type taken from MMSpdu CHOISE branch_taken */
     int invokeid;
-    iec61850_8_1_vmd_specific vmd_specific;    /* Numeric representation of decode vmd_specific strings */
+    iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
     int listOfAccessResult_cnt;                     /* Posision  in the list, 1 count*/
     guint16 reported_optflds;                       /* Bitmap over included fields*/
-    mms_transaction_t* mms_trans;
+    proto_item* pdu_item;                           /* The item to append PDU info to */
+    int confirmedservice_type;                      /* Requested service */
+    int objectclass;
+    int objectscope;
+    mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record*/
 } mms_actx_private_data_t;
 
 
@@ -270,7 +376,12 @@ dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* da
         tree = proto_item_add_subtree(item, ett_mms);
         asn1_ctx.subtree.top_tree = parent_tree;
     }
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS");
+    if (use_iec61850_mapping) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS/IEC61850");
+    }
+    else {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS");
+    }
     col_clear(pinfo->cinfo, COL_INFO);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
