@@ -2190,7 +2190,9 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_item_set_generated(security_ti);
 
         /* Setup frame */
-        if (pinfo->num > pdu_security->algorithm_configuration_frame) {
+        if (pdu_security->algorithm_configuration_frame &&
+            pinfo->num > pdu_security->algorithm_configuration_frame) {
+            /* Must be set, and be seen before this frame */
             ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_setup_frame,
                                      tvb, 0, 0, pdu_security->algorithm_configuration_frame);
             proto_item_set_generated(ti);
