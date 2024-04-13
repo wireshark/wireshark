@@ -1781,7 +1781,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
     stream << '\n';
 
     for (int interval = 0; interval <= max_interval; interval++) {
-        int64_t interval_start = interval * ui_interval;
+        int64_t interval_start = (int64_t)interval * ui_interval;
         if (qSharedPointerDynamicCast<QCPAxisTickerDateTime>(ui->ioPlot->xAxis->ticker()) != nullptr) {
             nstime_t interval_time = NSTIME_INIT_SECS_USECS((time_t)(interval_start / SCALE), (int)(interval_start % SCALE));
 
