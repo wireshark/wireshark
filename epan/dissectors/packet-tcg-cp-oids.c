@@ -90,20 +90,20 @@ static int hf_tcg_cp_oids_backupServiceURI;       /* IA5String */
 static int hf_tcg_cp_oids_UTF8String_PDU;
 
 /* Initialize the subtree pointers */
-static gint ett_tcg_cp_oids_TPMSpecification;
-static gint ett_tcg_cp_oids_TCGSpecificationVersion;
-static gint ett_tcg_cp_oids_TCGPlatformSpecification;
-static gint ett_tcg_cp_oids_TCPASpecVersion;
-static gint ett_tcg_cp_oids_TPMSecurityAssertions;
-static gint ett_tcg_cp_oids_TBBSecurityAssertions;
-static gint ett_tcg_cp_oids_CommonCriteriaMeasures;
-static gint ett_tcg_cp_oids_URIReference;
-static gint ett_tcg_cp_oids_FIPSLevel;
-static gint ett_tcg_cp_oids_HashAlgAndValue;
-static gint ett_tcg_cp_oids_HashedSubjectInfoURI;
-static gint ett_tcg_cp_oids_TCGRelevantCredentials;
-static gint ett_tcg_cp_oids_TCGRelevantManifests;
-static gint ett_tcg_cp_oids_VirtualPlatformBackupServiceURI;
+static int ett_tcg_cp_oids_TPMSpecification;
+static int ett_tcg_cp_oids_TCGSpecificationVersion;
+static int ett_tcg_cp_oids_TCGPlatformSpecification;
+static int ett_tcg_cp_oids_TCPASpecVersion;
+static int ett_tcg_cp_oids_TPMSecurityAssertions;
+static int ett_tcg_cp_oids_TBBSecurityAssertions;
+static int ett_tcg_cp_oids_CommonCriteriaMeasures;
+static int ett_tcg_cp_oids_URIReference;
+static int ett_tcg_cp_oids_FIPSLevel;
+static int ett_tcg_cp_oids_HashAlgAndValue;
+static int ett_tcg_cp_oids_HashedSubjectInfoURI;
+static int ett_tcg_cp_oids_TCGRelevantCredentials;
+static int ett_tcg_cp_oids_TCGRelevantManifests;
+static int ett_tcg_cp_oids_VirtualPlatformBackupServiceURI;
 
 
 static int

@@ -435,173 +435,173 @@ static int hf_h450_12_ssCISilentMonitorPermitted;  /* NULL */
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
-static gint ett_h450_H4501SupplementaryService;
-static gint ett_h450_NetworkFacilityExtension;
-static gint ett_h450_EntityType;
-static gint ett_h450_InterpretationApdu;
-static gint ett_h450_ServiceApdus;
-static gint ett_h450_T_rosApdus;
-static gint ett_h450_EndpointAddress;
-static gint ett_h450_SEQUENCE_OF_AliasAddress;
-static gint ett_h450_PartySubaddress;
-static gint ett_h450_UserSpecifiedSubaddress;
-static gint ett_h450_Extension;
+static int ett_h450_H4501SupplementaryService;
+static int ett_h450_NetworkFacilityExtension;
+static int ett_h450_EntityType;
+static int ett_h450_InterpretationApdu;
+static int ett_h450_ServiceApdus;
+static int ett_h450_T_rosApdus;
+static int ett_h450_EndpointAddress;
+static int ett_h450_SEQUENCE_OF_AliasAddress;
+static int ett_h450_PartySubaddress;
+static int ett_h450_UserSpecifiedSubaddress;
+static int ett_h450_Extension;
 
 /* --- Module Call-Transfer-Operations --- --- ---                            */
 
-static gint ett_h450_2_DummyArg;
-static gint ett_h450_2_DummyRes;
-static gint ett_h450_2_CTInitiateArg;
-static gint ett_h450_2_T_cTInitiateArg_argumentExtension;
-static gint ett_h450_2_CTSetupArg;
-static gint ett_h450_2_T_cTSetupArg_argumentExtension;
-static gint ett_h450_2_CTIdentifyRes;
-static gint ett_h450_2_T_resultExtension;
-static gint ett_h450_2_CTUpdateArg;
-static gint ett_h450_2_T_cTUpdateArg_argumentExtension;
-static gint ett_h450_2_SubaddressTransferArg;
-static gint ett_h450_2_T_subaddressTransferArg_argumentExtension;
-static gint ett_h450_2_CTCompleteArg;
-static gint ett_h450_2_T_cTCompleteArg_argumentExtension;
-static gint ett_h450_2_CTActiveArg;
-static gint ett_h450_2_T_cTActiveArg_argumentExtension;
-static gint ett_h450_2_ExtensionSeq;
-static gint ett_h450_2_PAR_unspecified;
+static int ett_h450_2_DummyArg;
+static int ett_h450_2_DummyRes;
+static int ett_h450_2_CTInitiateArg;
+static int ett_h450_2_T_cTInitiateArg_argumentExtension;
+static int ett_h450_2_CTSetupArg;
+static int ett_h450_2_T_cTSetupArg_argumentExtension;
+static int ett_h450_2_CTIdentifyRes;
+static int ett_h450_2_T_resultExtension;
+static int ett_h450_2_CTUpdateArg;
+static int ett_h450_2_T_cTUpdateArg_argumentExtension;
+static int ett_h450_2_SubaddressTransferArg;
+static int ett_h450_2_T_subaddressTransferArg_argumentExtension;
+static int ett_h450_2_CTCompleteArg;
+static int ett_h450_2_T_cTCompleteArg_argumentExtension;
+static int ett_h450_2_CTActiveArg;
+static int ett_h450_2_T_cTActiveArg_argumentExtension;
+static int ett_h450_2_ExtensionSeq;
+static int ett_h450_2_PAR_unspecified;
 
 /* --- Module Call-Diversion-Operations --- --- ---                           */
 
-static gint ett_h450_3_ARG_activateDiversionQ;
-static gint ett_h450_3_ActivateDiversionQArg_extension;
-static gint ett_h450_3_RES_activateDiversionQ;
-static gint ett_h450_3_ARG_deactivateDiversionQ;
-static gint ett_h450_3_DeactivateDiversionQArg_extension;
-static gint ett_h450_3_RES_deactivateDiversionQ;
-static gint ett_h450_3_ARG_interrogateDiversionQ;
-static gint ett_h450_3_InterrogateDiversionQ_extension;
-static gint ett_h450_3_ARG_checkRestriction;
-static gint ett_h450_3_CheckRestrictionArg_extension;
-static gint ett_h450_3_RES_checkRestriction;
-static gint ett_h450_3_ARG_callRerouting;
-static gint ett_h450_3_CallReroutingArg_extension;
-static gint ett_h450_3_RES_callRerouting;
-static gint ett_h450_3_ARG_divertingLegInformation1;
-static gint ett_h450_3_DivertingLegInformation1Arg_extension;
-static gint ett_h450_3_ARG_divertingLegInformation2;
-static gint ett_h450_3_DivertingLegInformation2Arg_extension;
-static gint ett_h450_3_ARG_divertingLegInformation3;
-static gint ett_h450_3_DivertingLegInformation3Arg_extension;
-static gint ett_h450_3_ARG_divertingLegInformation4;
-static gint ett_h450_3_DivertingLegInformation4Arg_extension;
-static gint ett_h450_3_ARG_cfnrDivertedLegFailed;
-static gint ett_h450_3_IntResultList;
-static gint ett_h450_3_IntResult;
-static gint ett_h450_3_IntResult_extension;
-static gint ett_h450_3_PAR_unspecified;
-static gint ett_h450_3_ExtensionSeq;
+static int ett_h450_3_ARG_activateDiversionQ;
+static int ett_h450_3_ActivateDiversionQArg_extension;
+static int ett_h450_3_RES_activateDiversionQ;
+static int ett_h450_3_ARG_deactivateDiversionQ;
+static int ett_h450_3_DeactivateDiversionQArg_extension;
+static int ett_h450_3_RES_deactivateDiversionQ;
+static int ett_h450_3_ARG_interrogateDiversionQ;
+static int ett_h450_3_InterrogateDiversionQ_extension;
+static int ett_h450_3_ARG_checkRestriction;
+static int ett_h450_3_CheckRestrictionArg_extension;
+static int ett_h450_3_RES_checkRestriction;
+static int ett_h450_3_ARG_callRerouting;
+static int ett_h450_3_CallReroutingArg_extension;
+static int ett_h450_3_RES_callRerouting;
+static int ett_h450_3_ARG_divertingLegInformation1;
+static int ett_h450_3_DivertingLegInformation1Arg_extension;
+static int ett_h450_3_ARG_divertingLegInformation2;
+static int ett_h450_3_DivertingLegInformation2Arg_extension;
+static int ett_h450_3_ARG_divertingLegInformation3;
+static int ett_h450_3_DivertingLegInformation3Arg_extension;
+static int ett_h450_3_ARG_divertingLegInformation4;
+static int ett_h450_3_DivertingLegInformation4Arg_extension;
+static int ett_h450_3_ARG_cfnrDivertedLegFailed;
+static int ett_h450_3_IntResultList;
+static int ett_h450_3_IntResult;
+static int ett_h450_3_IntResult_extension;
+static int ett_h450_3_PAR_unspecified;
+static int ett_h450_3_ExtensionSeq;
 
 /* --- Module Call-Hold-Operations --- --- ---                                */
 
-static gint ett_h450_4_HoldNotificArg;
-static gint ett_h450_4_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_4_RetrieveNotificArg;
-static gint ett_h450_4_RemoteHoldArg;
-static gint ett_h450_4_RemoteHoldRes;
-static gint ett_h450_4_RemoteRetrieveArg;
-static gint ett_h450_4_RemoteRetrieveRes;
-static gint ett_h450_4_MixedExtension;
-static gint ett_h450_4_PAR_undefined;
+static int ett_h450_4_HoldNotificArg;
+static int ett_h450_4_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_4_RetrieveNotificArg;
+static int ett_h450_4_RemoteHoldArg;
+static int ett_h450_4_RemoteHoldRes;
+static int ett_h450_4_RemoteRetrieveArg;
+static int ett_h450_4_RemoteRetrieveRes;
+static int ett_h450_4_MixedExtension;
+static int ett_h450_4_PAR_undefined;
 
 /* --- Module Call-Park-Pickup-Operations --- --- ---                         */
 
-static gint ett_h450_5_CpRequestArg;
-static gint ett_h450_5_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_5_CpRequestRes;
-static gint ett_h450_5_CpSetupArg;
-static gint ett_h450_5_CpSetupRes;
-static gint ett_h450_5_GroupIndicationOnArg;
-static gint ett_h450_5_GroupIndicationOnRes;
-static gint ett_h450_5_GroupIndicationOffArg;
-static gint ett_h450_5_GroupIndicationOffRes;
-static gint ett_h450_5_PickrequArg;
-static gint ett_h450_5_PickrequRes;
-static gint ett_h450_5_PickupArg;
-static gint ett_h450_5_PickupRes;
-static gint ett_h450_5_PickExeArg;
-static gint ett_h450_5_PickExeRes;
-static gint ett_h450_5_CpNotifyArg;
-static gint ett_h450_5_CpickupNotifyArg;
-static gint ett_h450_5_PAR_undefined;
+static int ett_h450_5_CpRequestArg;
+static int ett_h450_5_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_5_CpRequestRes;
+static int ett_h450_5_CpSetupArg;
+static int ett_h450_5_CpSetupRes;
+static int ett_h450_5_GroupIndicationOnArg;
+static int ett_h450_5_GroupIndicationOnRes;
+static int ett_h450_5_GroupIndicationOffArg;
+static int ett_h450_5_GroupIndicationOffRes;
+static int ett_h450_5_PickrequArg;
+static int ett_h450_5_PickrequRes;
+static int ett_h450_5_PickupArg;
+static int ett_h450_5_PickupRes;
+static int ett_h450_5_PickExeArg;
+static int ett_h450_5_PickExeRes;
+static int ett_h450_5_CpNotifyArg;
+static int ett_h450_5_CpickupNotifyArg;
+static int ett_h450_5_PAR_undefined;
 
 /* --- Module Call-Waiting-Operations --- --- ---                             */
 
-static gint ett_h450_6_CallWaitingArg;
-static gint ett_h450_6_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_6_CallWaitingArg;
+static int ett_h450_6_SEQUENCE_SIZE_0_255_OF_MixedExtension;
 
 /* --- Module Message-Waiting-Indication-Operations --- --- ---               */
 
-static gint ett_h450_7_MWIActivateArg;
-static gint ett_h450_7_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_7_DummyRes;
-static gint ett_h450_7_MWIDeactivateArg;
-static gint ett_h450_7_MWIInterrogateArg;
-static gint ett_h450_7_MWIInterrogateRes;
-static gint ett_h450_7_MWIInterrogateResElt;
-static gint ett_h450_7_MsgCentreId;
-static gint ett_h450_7_PAR_undefined;
+static int ett_h450_7_MWIActivateArg;
+static int ett_h450_7_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_7_DummyRes;
+static int ett_h450_7_MWIDeactivateArg;
+static int ett_h450_7_MWIInterrogateArg;
+static int ett_h450_7_MWIInterrogateRes;
+static int ett_h450_7_MWIInterrogateResElt;
+static int ett_h450_7_MsgCentreId;
+static int ett_h450_7_PAR_undefined;
 
 /* --- Module Name-Operations --- --- ---                                     */
 
-static gint ett_h450_8_ARG_callingName;
-static gint ett_h450_8_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_8_ARG_alertingName;
-static gint ett_h450_8_ARG_connectedName;
-static gint ett_h450_8_ARG_busyName;
-static gint ett_h450_8_Name;
-static gint ett_h450_8_NamePresentationAllowed;
-static gint ett_h450_8_NamePresentationRestricted;
+static int ett_h450_8_ARG_callingName;
+static int ett_h450_8_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_8_ARG_alertingName;
+static int ett_h450_8_ARG_connectedName;
+static int ett_h450_8_ARG_busyName;
+static int ett_h450_8_Name;
+static int ett_h450_8_NamePresentationAllowed;
+static int ett_h450_8_NamePresentationRestricted;
 
 /* --- Module Call-Completion-Operations --- --- ---                          */
 
-static gint ett_h450_9_CcRequestArg;
-static gint ett_h450_9_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_9_CcRequestRes;
-static gint ett_h450_9_CcArg;
-static gint ett_h450_9_CcShortArg;
-static gint ett_h450_9_CcLongArg;
+static int ett_h450_9_CcRequestArg;
+static int ett_h450_9_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_9_CcRequestRes;
+static int ett_h450_9_CcArg;
+static int ett_h450_9_CcShortArg;
+static int ett_h450_9_CcLongArg;
 
 /* --- Module Call-Offer-Operations --- --- ---                               */
 
-static gint ett_h450_10_CoReqOptArg;
-static gint ett_h450_10_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_10_RUAlertOptArg;
-static gint ett_h450_10_CfbOvrOptArg;
+static int ett_h450_10_CoReqOptArg;
+static int ett_h450_10_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_10_RUAlertOptArg;
+static int ett_h450_10_CfbOvrOptArg;
 
 /* --- Module Call-Intrusion-Operations --- --- ---                           */
 
-static gint ett_h450_11_CIRequestArg;
-static gint ett_h450_11_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_11_CIRequestRes;
-static gint ett_h450_11_CIGetCIPLOptArg;
-static gint ett_h450_11_CIGetCIPLRes;
-static gint ett_h450_11_CIIsOptArg;
-static gint ett_h450_11_CIIsOptRes;
-static gint ett_h450_11_CIFrcRelArg;
-static gint ett_h450_11_CIFrcRelOptRes;
-static gint ett_h450_11_CIWobOptArg;
-static gint ett_h450_11_CIWobOptRes;
-static gint ett_h450_11_CISilentArg;
-static gint ett_h450_11_CISilentOptRes;
-static gint ett_h450_11_CINotificationArg;
-static gint ett_h450_11_CIStatusInformation;
+static int ett_h450_11_CIRequestArg;
+static int ett_h450_11_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_11_CIRequestRes;
+static int ett_h450_11_CIGetCIPLOptArg;
+static int ett_h450_11_CIGetCIPLRes;
+static int ett_h450_11_CIIsOptArg;
+static int ett_h450_11_CIIsOptRes;
+static int ett_h450_11_CIFrcRelArg;
+static int ett_h450_11_CIFrcRelOptRes;
+static int ett_h450_11_CIWobOptArg;
+static int ett_h450_11_CIWobOptRes;
+static int ett_h450_11_CISilentArg;
+static int ett_h450_11_CISilentOptRes;
+static int ett_h450_11_CINotificationArg;
+static int ett_h450_11_CIStatusInformation;
 
 /* --- Module Common-Information-Operations --- --- ---                       */
 
-static gint ett_h450_12_CmnArg;
-static gint ett_h450_12_SEQUENCE_SIZE_0_255_OF_MixedExtension;
-static gint ett_h450_12_DummyArg;
-static gint ett_h450_12_FeatureList;
-static gint ett_h450_12_FeatureValues;
-static gint ett_h450_12_FeatureControl;
+static int ett_h450_12_CmnArg;
+static int ett_h450_12_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static int ett_h450_12_DummyArg;
+static int ett_h450_12_FeatureList;
+static int ett_h450_12_FeatureValues;
+static int ett_h450_12_FeatureControl;
 
 static expert_field ei_h450_unsupported_arg_type;
 static expert_field ei_h450_unsupported_result_type;

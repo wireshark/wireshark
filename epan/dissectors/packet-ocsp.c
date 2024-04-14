@@ -95,25 +95,25 @@ static int hf_ocsp_crlTime;                       /* GeneralizedTime */
 
 /* Initialize the subtree pointers */
 static gint ett_ocsp;
-static gint ett_ocsp_OCSPRequest;
-static gint ett_ocsp_TBSRequest;
-static gint ett_ocsp_SEQUENCE_OF_Request;
-static gint ett_ocsp_Signature;
-static gint ett_ocsp_SEQUENCE_OF_Certificate;
-static gint ett_ocsp_Request;
-static gint ett_ocsp_CertID;
-static gint ett_ocsp_OCSPResponse;
-static gint ett_ocsp_ResponseBytes;
-static gint ett_ocsp_BasicOCSPResponse;
-static gint ett_ocsp_ResponseData;
-static gint ett_ocsp_SEQUENCE_OF_SingleResponse;
-static gint ett_ocsp_ResponderID;
-static gint ett_ocsp_SingleResponse;
-static gint ett_ocsp_CertStatus;
-static gint ett_ocsp_RevokedInfo;
-static gint ett_ocsp_AcceptableResponses;
-static gint ett_ocsp_ServiceLocator;
-static gint ett_ocsp_CrlID;
+static int ett_ocsp_OCSPRequest;
+static int ett_ocsp_TBSRequest;
+static int ett_ocsp_SEQUENCE_OF_Request;
+static int ett_ocsp_Signature;
+static int ett_ocsp_SEQUENCE_OF_Certificate;
+static int ett_ocsp_Request;
+static int ett_ocsp_CertID;
+static int ett_ocsp_OCSPResponse;
+static int ett_ocsp_ResponseBytes;
+static int ett_ocsp_BasicOCSPResponse;
+static int ett_ocsp_ResponseData;
+static int ett_ocsp_SEQUENCE_OF_SingleResponse;
+static int ett_ocsp_ResponderID;
+static int ett_ocsp_SingleResponse;
+static int ett_ocsp_CertStatus;
+static int ett_ocsp_RevokedInfo;
+static int ett_ocsp_AcceptableResponses;
+static int ett_ocsp_ServiceLocator;
+static int ett_ocsp_CrlID;
 
 
 

@@ -144,38 +144,38 @@ static int hf_h235_fecBeforeSrtp;                 /* NULL */
 static int hf_h235_fecAfterSrtp;                  /* NULL */
 
 /* Initialize the subtree pointers */
-static gint ett_h235_NonStandardParameter;
-static gint ett_h235_DHset;
-static gint ett_h235_ECpoint;
-static gint ett_h235_ECKASDH;
-static gint ett_h235_T_eckasdhp;
-static gint ett_h235_T_eckasdh2;
-static gint ett_h235_TypedCertificate;
-static gint ett_h235_AuthenticationBES;
-static gint ett_h235_AuthenticationMechanism;
-static gint ett_h235_ClearToken;
-static gint ett_h235_SEQUENCE_OF_ProfileElement;
-static gint ett_h235_ProfileElement;
-static gint ett_h235_Element;
-static gint ett_h235_SIGNED;
-static gint ett_h235_ENCRYPTED;
-static gint ett_h235_HASHED;
-static gint ett_h235_Params;
-static gint ett_h235_CryptoToken;
-static gint ett_h235_T_cryptoEncryptedToken;
-static gint ett_h235_T_cryptoSignedToken;
-static gint ett_h235_T_cryptoHashedToken;
-static gint ett_h235_H235Key;
-static gint ett_h235_V3KeySyncMaterial;
-static gint ett_h235_SrtpCryptoCapability;
-static gint ett_h235_SrtpCryptoInfo;
-static gint ett_h235_SrtpKeys;
-static gint ett_h235_SrtpKeyParameters;
-static gint ett_h235_T_lifetime;
-static gint ett_h235_T_mki;
-static gint ett_h235_SrtpSessionParameters;
-static gint ett_h235_SEQUENCE_OF_GenericData;
-static gint ett_h235_FecOrder;
+static int ett_h235_NonStandardParameter;
+static int ett_h235_DHset;
+static int ett_h235_ECpoint;
+static int ett_h235_ECKASDH;
+static int ett_h235_T_eckasdhp;
+static int ett_h235_T_eckasdh2;
+static int ett_h235_TypedCertificate;
+static int ett_h235_AuthenticationBES;
+static int ett_h235_AuthenticationMechanism;
+static int ett_h235_ClearToken;
+static int ett_h235_SEQUENCE_OF_ProfileElement;
+static int ett_h235_ProfileElement;
+static int ett_h235_Element;
+static int ett_h235_SIGNED;
+static int ett_h235_ENCRYPTED;
+static int ett_h235_HASHED;
+static int ett_h235_Params;
+static int ett_h235_CryptoToken;
+static int ett_h235_T_cryptoEncryptedToken;
+static int ett_h235_T_cryptoSignedToken;
+static int ett_h235_T_cryptoHashedToken;
+static int ett_h235_H235Key;
+static int ett_h235_V3KeySyncMaterial;
+static int ett_h235_SrtpCryptoCapability;
+static int ett_h235_SrtpCryptoInfo;
+static int ett_h235_SrtpKeys;
+static int ett_h235_SrtpKeyParameters;
+static int ett_h235_T_lifetime;
+static int ett_h235_T_mki;
+static int ett_h235_SrtpSessionParameters;
+static int ett_h235_SEQUENCE_OF_GenericData;
+static int ett_h235_FecOrder;
 
 
 static int

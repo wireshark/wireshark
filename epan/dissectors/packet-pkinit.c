@@ -71,17 +71,17 @@ static int hf_pkinit_kdc_cert;                    /* OCTET_STRING */
 static int hf_pkinit_encryption_cert;             /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_pkinit_PaPkAsReq;
-static gint ett_pkinit_SEQUENCE_OF_TrustedCA;
-static gint ett_pkinit_TrustedCA;
-static gint ett_pkinit_AuthPack;
-static gint ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier;
-static gint ett_pkinit_PKAuthenticator;
-static gint ett_pkinit_KRB5PrincipalName;
-static gint ett_pkinit_PaPkAsRep;
-static gint ett_pkinit_KDCDHKeyInfo;
-static gint ett_pkinit_PKAuthenticator_Win2k;
-static gint ett_pkinit_PA_PK_AS_REQ_Win2k;
+static int ett_pkinit_PaPkAsReq;
+static int ett_pkinit_SEQUENCE_OF_TrustedCA;
+static int ett_pkinit_TrustedCA;
+static int ett_pkinit_AuthPack;
+static int ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier;
+static int ett_pkinit_PKAuthenticator;
+static int ett_pkinit_KRB5PrincipalName;
+static int ett_pkinit_PaPkAsRep;
+static int ett_pkinit_KDCDHKeyInfo;
+static int ett_pkinit_PKAuthenticator_Win2k;
+static int ett_pkinit_PA_PK_AS_REQ_Win2k;
 
 static int dissect_KerberosV5Spec2_KerberosTime(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Realm(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);

@@ -73,12 +73,12 @@ static int hf_mpeg_pes_must_be_zero;              /* BIT_STRING_SIZE_5 */
 static int hf_mpeg_pes_temporal_sequence_number;  /* BIT_STRING_SIZE_10 */
 static int hf_mpeg_pes_frame_type;                /* T_frame_type */
 static int hf_mpeg_pes_vbv_delay;                 /* BIT_STRING_SIZE_16 */
-static gint ett_mpeg_pes_PES;
-static gint ett_mpeg_pes_Stream;
-static gint ett_mpeg_pes_Sequence_header;
-static gint ett_mpeg_pes_Sequence_extension;
-static gint ett_mpeg_pes_Group_of_pictures;
-static gint ett_mpeg_pes_Picture;
+static int ett_mpeg_pes_PES;
+static int ett_mpeg_pes_Stream;
+static int ett_mpeg_pes_Sequence_header;
+static int ett_mpeg_pes_Sequence_extension;
+static int ett_mpeg_pes_Group_of_pictures;
+static int ett_mpeg_pes_Picture;
 
 
 static int

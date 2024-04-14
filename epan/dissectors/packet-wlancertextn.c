@@ -39,7 +39,7 @@ static int hf_wlancertextn_SSIDList_PDU;          /* SSIDList */
 static int hf_wlancertextn_SSIDList_item;         /* SSID */
 
 /* Initialize the subtree pointers */
-static gint ett_wlancertextn_SSIDList;
+static int ett_wlancertextn_SSIDList;
 
 
 

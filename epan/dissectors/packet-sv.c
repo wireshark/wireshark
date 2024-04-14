@@ -119,10 +119,10 @@ static int ett_gmidentity;
 static int ett_reserve1;
 
 
-static gint ett_sv_SampledValues;
-static gint ett_sv_SavPdu;
-static gint ett_sv_SEQUENCE_OF_ASDU;
-static gint ett_sv_ASDU;
+static int ett_sv_SampledValues;
+static int ett_sv_SavPdu;
+static int ett_sv_SEQUENCE_OF_ASDU;
+static int ett_sv_ASDU;
 
 static expert_field ei_sv_mal_utctime;
 static expert_field ei_sv_zero_pdu;

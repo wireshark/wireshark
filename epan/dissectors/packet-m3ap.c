@@ -199,52 +199,52 @@ static int hf_m3ap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value *
 /* Initialize the subtree pointers */
 static int ett_m3ap;
 static int ett_m3ap_IPAddress;
-static gint ett_m3ap_PrivateIE_ID;
-static gint ett_m3ap_ProtocolIE_Container;
-static gint ett_m3ap_ProtocolIE_Field;
-static gint ett_m3ap_ProtocolExtensionContainer;
-static gint ett_m3ap_ProtocolExtensionField;
-static gint ett_m3ap_PrivateIE_Container;
-static gint ett_m3ap_PrivateIE_Field;
-static gint ett_m3ap_AllocationAndRetentionPriority;
-static gint ett_m3ap_Cause;
-static gint ett_m3ap_CriticalityDiagnostics;
-static gint ett_m3ap_CriticalityDiagnostics_IE_List;
-static gint ett_m3ap_CriticalityDiagnostics_IE_List_item;
-static gint ett_m3ap_ECGI;
-static gint ett_m3ap_Global_MCE_ID;
-static gint ett_m3ap_GBR_QosInformation;
-static gint ett_m3ap_MBMS_Cell_List;
-static gint ett_m3ap_MBMS_E_RAB_QoS_Parameters;
-static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionItem;
-static gint ett_m3ap_TMGI;
-static gint ett_m3ap_TNL_Information;
-static gint ett_m3ap_MBMSSessionStartRequest;
-static gint ett_m3ap_MBMSSessionStartResponse;
-static gint ett_m3ap_MBMSSessionStartFailure;
-static gint ett_m3ap_MBMSSessionStopRequest;
-static gint ett_m3ap_MBMSSessionStopResponse;
-static gint ett_m3ap_MBMSSessionUpdateRequest;
-static gint ett_m3ap_MBMSSessionUpdateResponse;
-static gint ett_m3ap_MBMSSessionUpdateFailure;
-static gint ett_m3ap_ErrorIndication;
-static gint ett_m3ap_Reset;
-static gint ett_m3ap_ResetType;
-static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListRes;
-static gint ett_m3ap_ResetAcknowledge;
-static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck;
-static gint ett_m3ap_PrivateMessage;
-static gint ett_m3ap_M3SetupRequest;
-static gint ett_m3ap_MBMSServiceAreaListItem;
-static gint ett_m3ap_M3SetupResponse;
-static gint ett_m3ap_M3SetupFailure;
-static gint ett_m3ap_MCEConfigurationUpdate;
-static gint ett_m3ap_MCEConfigurationUpdateAcknowledge;
-static gint ett_m3ap_MCEConfigurationUpdateFailure;
-static gint ett_m3ap_M3AP_PDU;
-static gint ett_m3ap_InitiatingMessage;
-static gint ett_m3ap_SuccessfulOutcome;
-static gint ett_m3ap_UnsuccessfulOutcome;
+static int ett_m3ap_PrivateIE_ID;
+static int ett_m3ap_ProtocolIE_Container;
+static int ett_m3ap_ProtocolIE_Field;
+static int ett_m3ap_ProtocolExtensionContainer;
+static int ett_m3ap_ProtocolExtensionField;
+static int ett_m3ap_PrivateIE_Container;
+static int ett_m3ap_PrivateIE_Field;
+static int ett_m3ap_AllocationAndRetentionPriority;
+static int ett_m3ap_Cause;
+static int ett_m3ap_CriticalityDiagnostics;
+static int ett_m3ap_CriticalityDiagnostics_IE_List;
+static int ett_m3ap_CriticalityDiagnostics_IE_List_item;
+static int ett_m3ap_ECGI;
+static int ett_m3ap_Global_MCE_ID;
+static int ett_m3ap_GBR_QosInformation;
+static int ett_m3ap_MBMS_Cell_List;
+static int ett_m3ap_MBMS_E_RAB_QoS_Parameters;
+static int ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionItem;
+static int ett_m3ap_TMGI;
+static int ett_m3ap_TNL_Information;
+static int ett_m3ap_MBMSSessionStartRequest;
+static int ett_m3ap_MBMSSessionStartResponse;
+static int ett_m3ap_MBMSSessionStartFailure;
+static int ett_m3ap_MBMSSessionStopRequest;
+static int ett_m3ap_MBMSSessionStopResponse;
+static int ett_m3ap_MBMSSessionUpdateRequest;
+static int ett_m3ap_MBMSSessionUpdateResponse;
+static int ett_m3ap_MBMSSessionUpdateFailure;
+static int ett_m3ap_ErrorIndication;
+static int ett_m3ap_Reset;
+static int ett_m3ap_ResetType;
+static int ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListRes;
+static int ett_m3ap_ResetAcknowledge;
+static int ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck;
+static int ett_m3ap_PrivateMessage;
+static int ett_m3ap_M3SetupRequest;
+static int ett_m3ap_MBMSServiceAreaListItem;
+static int ett_m3ap_M3SetupResponse;
+static int ett_m3ap_M3SetupFailure;
+static int ett_m3ap_MCEConfigurationUpdate;
+static int ett_m3ap_MCEConfigurationUpdateAcknowledge;
+static int ett_m3ap_MCEConfigurationUpdateFailure;
+static int ett_m3ap_M3AP_PDU;
+static int ett_m3ap_InitiatingMessage;
+static int ett_m3ap_SuccessfulOutcome;
+static int ett_m3ap_UnsuccessfulOutcome;
 
 static expert_field ei_m3ap_invalid_ip_address_len;
 
@@ -649,7 +649,7 @@ dissect_m3ap_AllocationAndRetentionPriority(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_m3ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GUINT64_CONSTANT(10000000000), NULL, FALSE);
+                                                            0U, UINT64_C(10000000000), NULL, FALSE);
 
   return offset;
 }

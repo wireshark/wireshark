@@ -131,26 +131,26 @@ static int hf_acp133_OnSupported_acp127_tn;
 
 /* Initialize the subtree pointers */
 static gint ett_acp133;
-static gint ett_acp133_OnSupported;
-static gint ett_acp133_Addressees;
-static gint ett_acp133_MonthlyUKMs;
-static gint ett_acp133_SEQUENCE_OF_UKMEntry;
-static gint ett_acp133_Remarks;
-static gint ett_acp133_RIParameters;
-static gint ett_acp133_RIParametersDeprecated;
-static gint ett_acp133_UKMEntry;
-static gint ett_acp133_PairwiseTag;
-static gint ett_acp133_MLReceiptPolicy;
-static gint ett_acp133_SEQUENCE_OF_GeneralNames;
-static gint ett_acp133_DLSubmitPermission;
-static gint ett_acp133_DLPolicy;
-static gint ett_acp133_T_requested_delivery_method;
-static gint ett_acp133_SEQUENCE_OF_AlgorithmInformation;
-static gint ett_acp133_AlgorithmInformation;
-static gint ett_acp133_AddressCapabilities;
-static gint ett_acp133_SET_OF_Capability;
-static gint ett_acp133_Capability;
-static gint ett_acp133_SET_OF_ExtendedContentType;
+static int ett_acp133_OnSupported;
+static int ett_acp133_Addressees;
+static int ett_acp133_MonthlyUKMs;
+static int ett_acp133_SEQUENCE_OF_UKMEntry;
+static int ett_acp133_Remarks;
+static int ett_acp133_RIParameters;
+static int ett_acp133_RIParametersDeprecated;
+static int ett_acp133_UKMEntry;
+static int ett_acp133_PairwiseTag;
+static int ett_acp133_MLReceiptPolicy;
+static int ett_acp133_SEQUENCE_OF_GeneralNames;
+static int ett_acp133_DLSubmitPermission;
+static int ett_acp133_DLPolicy;
+static int ett_acp133_T_requested_delivery_method;
+static int ett_acp133_SEQUENCE_OF_AlgorithmInformation;
+static int ett_acp133_AlgorithmInformation;
+static int ett_acp133_AddressCapabilities;
+static int ett_acp133_SET_OF_Capability;
+static int ett_acp133_Capability;
+static int ett_acp133_SET_OF_ExtendedContentType;
 
 
 static const value_string acp133_ACPPreferredDelivery_vals[] = {

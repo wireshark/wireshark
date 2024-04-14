@@ -104,14 +104,14 @@ static gint ett_spnego_wraptoken;
 static gint ett_spnego_krb5;
 static gint ett_spnego_krb5_cfx_flags;
 
-static gint ett_spnego_NegotiationToken;
-static gint ett_spnego_MechTypeList;
-static gint ett_spnego_NegTokenInit;
-static gint ett_spnego_NegHints;
-static gint ett_spnego_NegTokenInit2;
-static gint ett_spnego_ContextFlags;
-static gint ett_spnego_NegTokenTarg;
-static gint ett_spnego_InitialContextToken_U;
+static int ett_spnego_NegotiationToken;
+static int ett_spnego_MechTypeList;
+static int ett_spnego_NegTokenInit;
+static int ett_spnego_NegHints;
+static int ett_spnego_NegTokenInit2;
+static int ett_spnego_ContextFlags;
+static int ett_spnego_NegTokenTarg;
+static int ett_spnego_InitialContextToken_U;
 
 static expert_field ei_spnego_decrypted_keytype;
 static expert_field ei_spnego_unknown_header;

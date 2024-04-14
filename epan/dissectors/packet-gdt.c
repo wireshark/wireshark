@@ -89,27 +89,27 @@ static int hf_gdt_enc_type;                       /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
 static int ett_gdt;
-static gint ett_gdt_Header;
-static gint ett_gdt_EndPointDescriptor;
-static gint ett_gdt_Body;
-static gint ett_gdt_StateMessage;
-static gint ett_gdt_ServiceMessage;
-static gint ett_gdt_RoutingMessage;
-static gint ett_gdt_RegistrationMessage;
-static gint ett_gdt_StatsMessage;
-static gint ett_gdt_AuthMessage;
-static gint ett_gdt_DataRetentionMessage;
-static gint ett_gdt_FilterMessage;
-static gint ett_gdt_PacketFwdMessage;
-static gint ett_gdt_NotifyMessage;
-static gint ett_gdt_DataMessage;
-static gint ett_gdt_ConfigMessage;
-static gint ett_gdt_Parameter;
-static gint ett_gdt_T_value;
-static gint ett_gdt_Parameters;
-static gint ett_gdt_HopInfo;
-static gint ett_gdt_GDTMessage;
-static gint ett_gdt_EncryptionInfo;
+static int ett_gdt_Header;
+static int ett_gdt_EndPointDescriptor;
+static int ett_gdt_Body;
+static int ett_gdt_StateMessage;
+static int ett_gdt_ServiceMessage;
+static int ett_gdt_RoutingMessage;
+static int ett_gdt_RegistrationMessage;
+static int ett_gdt_StatsMessage;
+static int ett_gdt_AuthMessage;
+static int ett_gdt_DataRetentionMessage;
+static int ett_gdt_FilterMessage;
+static int ett_gdt_PacketFwdMessage;
+static int ett_gdt_NotifyMessage;
+static int ett_gdt_DataMessage;
+static int ett_gdt_ConfigMessage;
+static int ett_gdt_Parameter;
+static int ett_gdt_T_value;
+static int ett_gdt_Parameters;
+static int ett_gdt_HopInfo;
+static int ett_gdt_GDTMessage;
+static int ett_gdt_EncryptionInfo;
 
 
 

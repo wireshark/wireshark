@@ -90,24 +90,24 @@ static int hf_pkixac_ClassList_topSecret;
 
 /* Initialize the subtree pointers */
 static gint ett_pkixac;
-static gint ett_pkixac_ObjectDigestInfo;
-static gint ett_pkixac_IssuerSerial;
-static gint ett_pkixac_Targets;
-static gint ett_pkixac_Target;
-static gint ett_pkixac_TargetCert;
-static gint ett_pkixac_IetfAttrSyntax;
-static gint ett_pkixac_T_values;
-static gint ett_pkixac_T_values_item;
-static gint ett_pkixac_SvceAuthInfo;
-static gint ett_pkixac_RoleSyntax;
-static gint ett_pkixac_Clearance;
-static gint ett_pkixac_SET_OF_SecurityCategory;
-static gint ett_pkixac_RFC3281Clearance;
-static gint ett_pkixac_ClassList;
-static gint ett_pkixac_SecurityCategory;
-static gint ett_pkixac_AAControls;
-static gint ett_pkixac_AttrSpec;
-static gint ett_pkixac_ProxyInfo;
+static int ett_pkixac_ObjectDigestInfo;
+static int ett_pkixac_IssuerSerial;
+static int ett_pkixac_Targets;
+static int ett_pkixac_Target;
+static int ett_pkixac_TargetCert;
+static int ett_pkixac_IetfAttrSyntax;
+static int ett_pkixac_T_values;
+static int ett_pkixac_T_values_item;
+static int ett_pkixac_SvceAuthInfo;
+static int ett_pkixac_RoleSyntax;
+static int ett_pkixac_Clearance;
+static int ett_pkixac_SET_OF_SecurityCategory;
+static int ett_pkixac_RFC3281Clearance;
+static int ett_pkixac_ClassList;
+static int ett_pkixac_SecurityCategory;
+static int ett_pkixac_AAControls;
+static int ett_pkixac_AttrSpec;
+static int ett_pkixac_ProxyInfo;
 
 static const char *object_identifier_id;
 

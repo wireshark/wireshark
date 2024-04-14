@@ -95,29 +95,29 @@ static int hf_pkix1explicit_min_01;               /* ASId */
 static int hf_pkix1explicit_max_01;               /* ASId */
 
 /* Initialize the subtree pointers */
-static gint ett_pkix1explicit_Time;
-static gint ett_pkix1explicit_Extensions;
-static gint ett_pkix1explicit_Extension;
-static gint ett_pkix1explicit_DomainParameters;
-static gint ett_pkix1explicit_ValidationParms;
-static gint ett_pkix1explicit_Attribute;
-static gint ett_pkix1explicit_T_values;
-static gint ett_pkix1explicit_AttributeTypeAndValue;
-static gint ett_pkix1explicit_RDNSequence;
-static gint ett_pkix1explicit_RelativeDistinguishedName;
-static gint ett_pkix1explicit_TeletexDomainDefinedAttribute;
-static gint ett_pkix1explicit_Features;
-static gint ett_pkix1explicit_IPAddrBlocks;
-static gint ett_pkix1explicit_IPAddressFamily;
-static gint ett_pkix1explicit_IPAddressChoice;
-static gint ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange;
-static gint ett_pkix1explicit_IPAddressOrRange;
-static gint ett_pkix1explicit_IPAddressRange;
-static gint ett_pkix1explicit_ASIdentifiers;
-static gint ett_pkix1explicit_ASIdentifierChoice;
-static gint ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange;
-static gint ett_pkix1explicit_ASIdOrRange;
-static gint ett_pkix1explicit_ASRange;
+static int ett_pkix1explicit_Time;
+static int ett_pkix1explicit_Extensions;
+static int ett_pkix1explicit_Extension;
+static int ett_pkix1explicit_DomainParameters;
+static int ett_pkix1explicit_ValidationParms;
+static int ett_pkix1explicit_Attribute;
+static int ett_pkix1explicit_T_values;
+static int ett_pkix1explicit_AttributeTypeAndValue;
+static int ett_pkix1explicit_RDNSequence;
+static int ett_pkix1explicit_RelativeDistinguishedName;
+static int ett_pkix1explicit_TeletexDomainDefinedAttribute;
+static int ett_pkix1explicit_Features;
+static int ett_pkix1explicit_IPAddrBlocks;
+static int ett_pkix1explicit_IPAddressFamily;
+static int ett_pkix1explicit_IPAddressChoice;
+static int ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange;
+static int ett_pkix1explicit_IPAddressOrRange;
+static int ett_pkix1explicit_IPAddressRange;
+static int ett_pkix1explicit_ASIdentifiers;
+static int ett_pkix1explicit_ASIdentifierChoice;
+static int ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange;
+static int ett_pkix1explicit_ASIdOrRange;
+static int ett_pkix1explicit_ASRange;
 
 int
 dissect_pkix1explicit_Certificate(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {

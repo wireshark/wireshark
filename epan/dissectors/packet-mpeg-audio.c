@@ -44,8 +44,8 @@ static int hf_mpeg_audio_comment;                 /* OCTET_STRING_SIZE_28 */
 static int hf_mpeg_audio_must_be_zero;            /* INTEGER_0_255 */
 static int hf_mpeg_audio_track;                   /* INTEGER_0_255 */
 static int hf_mpeg_audio_genre;                   /* T_genre */
-static gint ett_mpeg_audio_Audio;
-static gint ett_mpeg_audio_ID3v1;
+static int ett_mpeg_audio_Audio;
+static int ett_mpeg_audio_ID3v1;
 
 
 static int

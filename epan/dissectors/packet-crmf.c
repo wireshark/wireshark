@@ -118,32 +118,32 @@ static int hf_crmf_attributes;                    /* Attributes */
 static int hf_crmf_Attributes_item;               /* Attribute */
 
 /* Initialize the subtree pointers */
-static gint ett_crmf_CertReqMessages;
-static gint ett_crmf_CertReqMsg;
-static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue;
-static gint ett_crmf_CertRequest;
-static gint ett_crmf_CertTemplate;
-static gint ett_crmf_OptionalValidity;
-static gint ett_crmf_Controls;
-static gint ett_crmf_AttributeTypeAndValue;
-static gint ett_crmf_ProofOfPossession;
-static gint ett_crmf_POPOSigningKey;
-static gint ett_crmf_POPOSigningKeyInput;
-static gint ett_crmf_T_authInfo;
-static gint ett_crmf_PKMACValue;
-static gint ett_crmf_PBMParameter;
-static gint ett_crmf_POPOPrivKey;
-static gint ett_crmf_PKIPublicationInfo;
-static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo;
-static gint ett_crmf_SinglePubInfo;
-static gint ett_crmf_PKIArchiveOptions;
-static gint ett_crmf_EncryptedKey;
-static gint ett_crmf_EncryptedValue;
-static gint ett_crmf_CertId;
-static gint ett_crmf_EncKeyWithID;
-static gint ett_crmf_T_identifier;
-static gint ett_crmf_PrivateKeyInfo;
-static gint ett_crmf_Attributes;
+static int ett_crmf_CertReqMessages;
+static int ett_crmf_CertReqMsg;
+static int ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue;
+static int ett_crmf_CertRequest;
+static int ett_crmf_CertTemplate;
+static int ett_crmf_OptionalValidity;
+static int ett_crmf_Controls;
+static int ett_crmf_AttributeTypeAndValue;
+static int ett_crmf_ProofOfPossession;
+static int ett_crmf_POPOSigningKey;
+static int ett_crmf_POPOSigningKeyInput;
+static int ett_crmf_T_authInfo;
+static int ett_crmf_PKMACValue;
+static int ett_crmf_PBMParameter;
+static int ett_crmf_POPOPrivKey;
+static int ett_crmf_PKIPublicationInfo;
+static int ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo;
+static int ett_crmf_SinglePubInfo;
+static int ett_crmf_PKIArchiveOptions;
+static int ett_crmf_EncryptedKey;
+static int ett_crmf_EncryptedValue;
+static int ett_crmf_CertId;
+static int ett_crmf_EncKeyWithID;
+static int ett_crmf_T_identifier;
+static int ett_crmf_PrivateKeyInfo;
+static int ett_crmf_Attributes;
 
 
 static int

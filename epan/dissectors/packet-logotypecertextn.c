@@ -74,25 +74,25 @@ static int hf_logotypecertextn_hashAlg;           /* AlgorithmIdentifier */
 static int hf_logotypecertextn_hashValue;         /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_logotypecertextn_LogotypeExtn;
-static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo;
-static gint ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo;
-static gint ett_logotypecertextn_LogotypeInfo;
-static gint ett_logotypecertextn_LogotypeData;
-static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeImage;
-static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeAudio;
-static gint ett_logotypecertextn_LogotypeImage;
-static gint ett_logotypecertextn_LogotypeAudio;
-static gint ett_logotypecertextn_LogotypeDetails;
-static gint ett_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue;
-static gint ett_logotypecertextn_T_logotypeURI;
-static gint ett_logotypecertextn_LogotypeImageInfo;
-static gint ett_logotypecertextn_LogotypeImageResolution;
-static gint ett_logotypecertextn_LogotypeAudioInfo;
-static gint ett_logotypecertextn_OtherLogotypeInfo;
-static gint ett_logotypecertextn_LogotypeReference;
-static gint ett_logotypecertextn_T_refStructURI;
-static gint ett_logotypecertextn_HashAlgAndValue;
+static int ett_logotypecertextn_LogotypeExtn;
+static int ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo;
+static int ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo;
+static int ett_logotypecertextn_LogotypeInfo;
+static int ett_logotypecertextn_LogotypeData;
+static int ett_logotypecertextn_SEQUENCE_OF_LogotypeImage;
+static int ett_logotypecertextn_SEQUENCE_OF_LogotypeAudio;
+static int ett_logotypecertextn_LogotypeImage;
+static int ett_logotypecertextn_LogotypeAudio;
+static int ett_logotypecertextn_LogotypeDetails;
+static int ett_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue;
+static int ett_logotypecertextn_T_logotypeURI;
+static int ett_logotypecertextn_LogotypeImageInfo;
+static int ett_logotypecertextn_LogotypeImageResolution;
+static int ett_logotypecertextn_LogotypeAudioInfo;
+static int ett_logotypecertextn_OtherLogotypeInfo;
+static int ett_logotypecertextn_LogotypeReference;
+static int ett_logotypecertextn_T_refStructURI;
+static int ett_logotypecertextn_HashAlgAndValue;
 
 
 

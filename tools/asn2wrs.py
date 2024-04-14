@@ -1686,10 +1686,10 @@ class EthCtx:
     def eth_output_ett (self):
         fx = self.output.file_open('ett')
         fempty = True
-        #fx.write("static gint ett_%s;\n" % (self.eproto))
+        #fx.write("static int ett_%s;\n" % (self.eproto))
         for t in self.eth_type_ord:
             if self.eth_type[t]['tree']:
-                fx.write("static gint %s;\n" % (self.eth_type[t]['tree']))
+                fx.write("static int %s;\n" % (self.eth_type[t]['tree']))
                 fempty = False
         self.output.file_close(fx, discard=fempty)
 
@@ -3389,12 +3389,12 @@ class Type (Node):
             minv += 'U'
         elif (str(minv)[0] == "-") and str(minv)[1:].isdigit():
             if (int(minv) == -(2**31)):
-                minv = "G_MININT32"
+                minv = "INT32_MIN"
             elif (int(minv) < -(2**31)):
-                minv = "G_GINT64_CONSTANT(%s)" % (str(minv))
+                minv = "INT64_C(%s)" % (str(minv))
         if str(maxv).isdigit():
             if (int(maxv) >= 2**32):
-                maxv = "G_GUINT64_CONSTANT(%s)" % (str(maxv))
+                maxv = "UINT64_C(%s)" % (str(maxv))
             else:
                 maxv += 'U'
         if (ext): ext = 'TRUE'

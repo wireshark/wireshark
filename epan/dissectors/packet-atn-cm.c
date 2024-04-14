@@ -82,21 +82,21 @@ static int hf_atn_cm_locSysNselTsel;              /* OCTET_STRING_SIZE_10_11 */
 static int hf_atn_cm_hours;                       /* Timehours */
 static int hf_atn_cm_minutes;                     /* Timeminutes */
 
-static gint ett_atn_cm_CMAircraftMessage;
-static gint ett_atn_cm_CMGroundMessage;
-static gint ett_atn_cm_APAddress;
-static gint ett_atn_cm_AEQualifierVersion;
-static gint ett_atn_cm_AEQualifierVersionAddress;
-static gint ett_atn_cm_CMContactRequest;
-static gint ett_atn_cm_CMLogonRequest;
-static gint ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress;
-static gint ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersion;
-static gint ett_atn_cm_CMLogonResponse;
-static gint ett_atn_cm_Date;
-static gint ett_atn_cm_DateTime;
-static gint ett_atn_cm_LongTsap;
-static gint ett_atn_cm_ShortTsap;
-static gint ett_atn_cm_Time;
+static int ett_atn_cm_CMAircraftMessage;
+static int ett_atn_cm_CMGroundMessage;
+static int ett_atn_cm_APAddress;
+static int ett_atn_cm_AEQualifierVersion;
+static int ett_atn_cm_AEQualifierVersionAddress;
+static int ett_atn_cm_CMContactRequest;
+static int ett_atn_cm_CMLogonRequest;
+static int ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress;
+static int ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersion;
+static int ett_atn_cm_CMLogonResponse;
+static int ett_atn_cm_Date;
+static int ett_atn_cm_DateTime;
+static int ett_atn_cm_LongTsap;
+static int ett_atn_cm_ShortTsap;
+static int ett_atn_cm_Time;
 static gint ett_atn_cm;
 
 

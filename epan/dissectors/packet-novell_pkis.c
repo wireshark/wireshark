@@ -69,22 +69,22 @@ static int hf_novell_pkis_perCertificateLimit;    /* MonetaryValue */
 static int hf_novell_pkis_currency;               /* Currency */
 static int hf_novell_pkis_amount;                 /* INTEGER */
 static int hf_novell_pkis_amtExp10;               /* INTEGER */
-static gint ett_novell_pkis_SecurityAttributes;
-static gint ett_novell_pkis_GLBExtensions;
-static gint ett_novell_pkis_Quality;
-static gint ett_novell_pkis_CompusecQuality;
-static gint ett_novell_pkis_CompusecQualityPair;
-static gint ett_novell_pkis_CryptoQuality;
-static gint ett_novell_pkis_CryptoQualityPair;
-static gint ett_novell_pkis_CertificateClass;
-static gint ett_novell_pkis_EnterpriseId;
-static gint ett_novell_pkis_SEQUENCE_SIZE_1_1_OF_SecurityLabelType1;
-static gint ett_novell_pkis_SecurityLabelType1;
-static gint ett_novell_pkis_Singletons;
-static gint ett_novell_pkis_SingletonChoice;
-static gint ett_novell_pkis_SingletonRange;
-static gint ett_novell_pkis_RelianceLimits;
-static gint ett_novell_pkis_MonetaryValue;
+static int ett_novell_pkis_SecurityAttributes;
+static int ett_novell_pkis_GLBExtensions;
+static int ett_novell_pkis_Quality;
+static int ett_novell_pkis_CompusecQuality;
+static int ett_novell_pkis_CompusecQualityPair;
+static int ett_novell_pkis_CryptoQuality;
+static int ett_novell_pkis_CryptoQualityPair;
+static int ett_novell_pkis_CertificateClass;
+static int ett_novell_pkis_EnterpriseId;
+static int ett_novell_pkis_SEQUENCE_SIZE_1_1_OF_SecurityLabelType1;
+static int ett_novell_pkis_SecurityLabelType1;
+static int ett_novell_pkis_Singletons;
+static int ett_novell_pkis_SingletonChoice;
+static int ett_novell_pkis_SingletonRange;
+static int ett_novell_pkis_RelianceLimits;
+static int ett_novell_pkis_MonetaryValue;
 
 
 static int

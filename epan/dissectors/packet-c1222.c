@@ -209,14 +209,14 @@ static guint32 calling_AP_title_allocated;
 static guint32 key_id_element_allocated;
 static guint32 iv_element_allocated;
 
-static gint ett_c1222_MESSAGE_U;
-static gint ett_c1222_Called_AP_title;
-static gint ett_c1222_Calling_AP_title;
-static gint ett_c1222_Calling_authentication_value_U;
-static gint ett_c1222_Authentication_value_encoding;
-static gint ett_c1222_Calling_authentication_value_single_asn1;
-static gint ett_c1222_Calling_authentication_value_c1222_U;
-static gint ett_c1222_Calling_authentication_value_c1221_U;
+static int ett_c1222_MESSAGE_U;
+static int ett_c1222_Called_AP_title;
+static int ett_c1222_Calling_AP_title;
+static int ett_c1222_Calling_authentication_value_U;
+static int ett_c1222_Authentication_value_encoding;
+static int ett_c1222_Calling_authentication_value_single_asn1;
+static int ett_c1222_Calling_authentication_value_c1222_U;
+static int ett_c1222_Calling_authentication_value_c1221_U;
 
 static expert_field ei_c1222_command_truncated;
 static expert_field ei_c1222_bad_checksum;

@@ -239,92 +239,92 @@ static int hf_h460_21_sourceAddress;              /* UnicastAddress */
 
 /* --- Module NUMBER-PORTABILITY --- --- ---                                  */
 
-static gint ett_h460_2_NumberPortabilityInfo;
-static gint ett_h460_2_T_nUMBERPORTABILITYDATA;
-static gint ett_h460_2_NumberPortabilityRejectReason;
-static gint ett_h460_2_PortabilityAddress;
-static gint ett_h460_2_NumberPortabilityTypeOfNumber;
-static gint ett_h460_2_PortabilityTypeOfNumber;
-static gint ett_h460_2_RegionalParameters;
+static int ett_h460_2_NumberPortabilityInfo;
+static int ett_h460_2_T_nUMBERPORTABILITYDATA;
+static int ett_h460_2_NumberPortabilityRejectReason;
+static int ett_h460_2_PortabilityAddress;
+static int ett_h460_2_NumberPortabilityTypeOfNumber;
+static int ett_h460_2_PortabilityTypeOfNumber;
+static int ett_h460_2_RegionalParameters;
 
 /* --- Module CIRCUIT-STATUS-MAP --- --- ---                                  */
 
-static gint ett_h460_3_CircuitStatus;
-static gint ett_h460_3_SEQUENCE_OF_CircuitStatusMap;
-static gint ett_h460_3_CircuitStatusMap;
-static gint ett_h460_3_CircuitStatusType;
+static int ett_h460_3_CircuitStatus;
+static int ett_h460_3_SEQUENCE_OF_CircuitStatusMap;
+static int ett_h460_3_CircuitStatusMap;
+static int ett_h460_3_CircuitStatusType;
 
 /* --- Module CALL-PRIORITY --- --- ---                                       */
 
-static gint ett_h460_4_CallPriorityInfo;
-static gint ett_h460_4_T_priorityValue;
-static gint ett_h460_4_SEQUENCE_OF_ClearToken;
-static gint ett_h460_4_SEQUENCE_OF_CryptoToken;
-static gint ett_h460_4_T_rejectReason;
-static gint ett_h460_4_CountryInternationalNetworkCallOriginationIdentification;
-static gint ett_h460_4_T_numberingPlan;
-static gint ett_h460_4_T_x121;
-static gint ett_h460_4_T_e164;
+static int ett_h460_4_CallPriorityInfo;
+static int ett_h460_4_T_priorityValue;
+static int ett_h460_4_SEQUENCE_OF_ClearToken;
+static int ett_h460_4_SEQUENCE_OF_CryptoToken;
+static int ett_h460_4_T_rejectReason;
+static int ett_h460_4_CountryInternationalNetworkCallOriginationIdentification;
+static int ett_h460_4_T_numberingPlan;
+static int ett_h460_4_T_x121;
+static int ett_h460_4_T_e164;
 
 /* --- Modules QOS-MONITORING-REPORT QOS-MONITORING-EXTENDED-VOIP-REPORT --- --- --- */
 
-static gint ett_h460_9_Extension;
-static gint ett_h460_9_RTCPMeasures;
-static gint ett_h460_9_T_mediaSenderMeasures;
-static gint ett_h460_9_T_mediaReceiverMeasures;
-static gint ett_h460_9_SEQUENCE_OF_Extension;
-static gint ett_h460_9_PerCallQoSReport;
-static gint ett_h460_9_SEQUENCE_OF_RTCPMeasures;
-static gint ett_h460_9_QosMonitoringReportData;
-static gint ett_h460_9_PeriodicQoSMonReport;
-static gint ett_h460_9_SEQUENCE_OF_PerCallQoSReport;
-static gint ett_h460_9_FinalQosMonReport;
-static gint ett_h460_9_InterGKQosMonReport;
-static gint ett_h460_9_ExtendedRTPMetrics;
-static gint ett_h460_9_BurstMetrics;
-static gint ett_h460_9_PLCtypes;
-static gint ett_h460_9_JitterBufferParms;
-static gint ett_h460_9_JitterBufferTypes;
+static int ett_h460_9_Extension;
+static int ett_h460_9_RTCPMeasures;
+static int ett_h460_9_T_mediaSenderMeasures;
+static int ett_h460_9_T_mediaReceiverMeasures;
+static int ett_h460_9_SEQUENCE_OF_Extension;
+static int ett_h460_9_PerCallQoSReport;
+static int ett_h460_9_SEQUENCE_OF_RTCPMeasures;
+static int ett_h460_9_QosMonitoringReportData;
+static int ett_h460_9_PeriodicQoSMonReport;
+static int ett_h460_9_SEQUENCE_OF_PerCallQoSReport;
+static int ett_h460_9_FinalQosMonReport;
+static int ett_h460_9_InterGKQosMonReport;
+static int ett_h460_9_ExtendedRTPMetrics;
+static int ett_h460_9_BurstMetrics;
+static int ett_h460_9_PLCtypes;
+static int ett_h460_9_JitterBufferParms;
+static int ett_h460_9_JitterBufferTypes;
 
 /* --- Module CALL-PARTY-CATEGORY --- --- ---                                 */
 
-static gint ett_h460_10_CallPartyCategoryInfo;
+static int ett_h460_10_CallPartyCategoryInfo;
 
 /* --- Module MLPP --- --- ---                                                */
 
-static gint ett_h460_14_MLPPInfo;
-static gint ett_h460_14_MlppNotification;
-static gint ett_h460_14_AlternateParty;
-static gint ett_h460_14_ReleaseCall;
+static int ett_h460_14_MLPPInfo;
+static int ett_h460_14_MlppNotification;
+static int ett_h460_14_AlternateParty;
+static int ett_h460_14_ReleaseCall;
 
 /* --- Module SIGNALLING-CHANNEL-SUSPEND-REDIRECT --- --- ---                 */
 
-static gint ett_h460_15_SignallingChannelData;
-static gint ett_h460_15_T_signallingChannelData;
-static gint ett_h460_15_ChannelSuspendRequest;
-static gint ett_h460_15_SEQUENCE_OF_TransportAddress;
-static gint ett_h460_15_ChannelSuspendResponse;
-static gint ett_h460_15_ChannelSuspendConfirm;
-static gint ett_h460_15_ChannelSuspendCancel;
-static gint ett_h460_15_ChannelResumeRequest;
-static gint ett_h460_15_ChannelResumeResponse;
+static int ett_h460_15_SignallingChannelData;
+static int ett_h460_15_T_signallingChannelData;
+static int ett_h460_15_ChannelSuspendRequest;
+static int ett_h460_15_SEQUENCE_OF_TransportAddress;
+static int ett_h460_15_ChannelSuspendResponse;
+static int ett_h460_15_ChannelSuspendConfirm;
+static int ett_h460_15_ChannelSuspendCancel;
+static int ett_h460_15_ChannelResumeRequest;
+static int ett_h460_15_ChannelResumeResponse;
 
 /* --- Module SIGNALLING-TRAVERSAL --- --- ---                                */
 
-static gint ett_h460_18_IncomingCallIndication;
-static gint ett_h460_18_LRQKeepAliveData;
+static int ett_h460_18_IncomingCallIndication;
+static int ett_h460_18_LRQKeepAliveData;
 
 /* --- Module MEDIA-TRAVERSAL --- --- ---                                     */
 
-static gint ett_h460_19_TraversalParameters;
+static int ett_h460_19_TraversalParameters;
 
 /* --- Module MESSAGE-BROADCAST --- --- ---                                   */
 
-static gint ett_h460_21_CapabilityAdvertisement;
-static gint ett_h460_21_SEQUENCE_SIZE_1_256_OF_TransmitCapabilities;
-static gint ett_h460_21_ReceiveCapabilities;
-static gint ett_h460_21_SEQUENCE_SIZE_1_256_OF_Capability;
-static gint ett_h460_21_TransmitCapabilities;
+static int ett_h460_21_CapabilityAdvertisement;
+static int ett_h460_21_SEQUENCE_SIZE_1_256_OF_TransmitCapabilities;
+static int ett_h460_21_ReceiveCapabilities;
+static int ett_h460_21_SEQUENCE_SIZE_1_256_OF_Capability;
+static int ett_h460_21_TransmitCapabilities;
 
 /* Main dissector handle */
 static dissector_handle_t h460_name_handle;

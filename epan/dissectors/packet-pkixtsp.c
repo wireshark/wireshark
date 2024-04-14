@@ -93,13 +93,13 @@ static int hf_pkixtsp_PKIFailureInfo_systemFailure;
 
 /* Initialize the subtree pointers */
 static gint ett_pkixtsp;
-static gint ett_pkixtsp_TimeStampReq;
-static gint ett_pkixtsp_MessageImprint;
-static gint ett_pkixtsp_TimeStampResp;
-static gint ett_pkixtsp_PKIStatusInfo;
-static gint ett_pkixtsp_PKIFailureInfo;
-static gint ett_pkixtsp_TSTInfo;
-static gint ett_pkixtsp_Accuracy;
+static int ett_pkixtsp_TimeStampReq;
+static int ett_pkixtsp_MessageImprint;
+static int ett_pkixtsp_TimeStampResp;
+static int ett_pkixtsp_PKIStatusInfo;
+static int ett_pkixtsp_PKIFailureInfo;
+static int ett_pkixtsp_TSTInfo;
+static int ett_pkixtsp_Accuracy;
 
 
 

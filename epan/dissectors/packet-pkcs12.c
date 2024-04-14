@@ -118,25 +118,25 @@ static int hf_pkcs12_encryptionScheme;            /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme;           /* AlgorithmIdentifier */
 
 /* Initialize the subtree pointers */
-static gint ett_pkcs12_PFX;
-static gint ett_pkcs12_MacData;
-static gint ett_pkcs12_AuthenticatedSafe;
-static gint ett_pkcs12_SafeContents;
-static gint ett_pkcs12_SafeBag;
-static gint ett_pkcs12_SET_OF_PKCS12Attribute;
-static gint ett_pkcs12_CertBag;
-static gint ett_pkcs12_CRLBag;
-static gint ett_pkcs12_SecretBag;
-static gint ett_pkcs12_PKCS12Attribute;
-static gint ett_pkcs12_T_attrValues;
-static gint ett_pkcs12_PrivateKeyInfo;
-static gint ett_pkcs12_Attributes;
-static gint ett_pkcs12_EncryptedPrivateKeyInfo;
-static gint ett_pkcs12_PBEParameter;
-static gint ett_pkcs12_PBKDF2Params;
-static gint ett_pkcs12_T_saltChoice;
-static gint ett_pkcs12_PBES2Params;
-static gint ett_pkcs12_PBMAC1Params;
+static int ett_pkcs12_PFX;
+static int ett_pkcs12_MacData;
+static int ett_pkcs12_AuthenticatedSafe;
+static int ett_pkcs12_SafeContents;
+static int ett_pkcs12_SafeBag;
+static int ett_pkcs12_SET_OF_PKCS12Attribute;
+static int ett_pkcs12_CertBag;
+static int ett_pkcs12_CRLBag;
+static int ett_pkcs12_SecretBag;
+static int ett_pkcs12_PKCS12Attribute;
+static int ett_pkcs12_T_attrValues;
+static int ett_pkcs12_PrivateKeyInfo;
+static int ett_pkcs12_Attributes;
+static int ett_pkcs12_EncryptedPrivateKeyInfo;
+static int ett_pkcs12_PBEParameter;
+static int ett_pkcs12_PBKDF2Params;
+static int ett_pkcs12_T_saltChoice;
+static int ett_pkcs12_PBES2Params;
+static int ett_pkcs12_PBMAC1Params;
 
 static void append_oid(wmem_allocator_t *pool, proto_tree *tree, const char *oid)
 {

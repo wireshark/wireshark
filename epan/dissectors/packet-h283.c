@@ -66,20 +66,20 @@ static int hf_h283_deviceChange;                  /* NULL */
 
 /* Initialize the subtree pointers */
 static int ett_h283;
-static gint ett_h283_H221NonStandard;
-static gint ett_h283_NonStandardIdentifier;
-static gint ett_h283_NonStandardParameter;
-static gint ett_h283_LCTPDU;
-static gint ett_h283_T_pduType;
-static gint ett_h283_SEQUENCE_OF_NonStandardParameter;
-static gint ett_h283_MTAddress;
-static gint ett_h283_RDCData;
-static gint ett_h283_T_dataType;
-static gint ett_h283_LCTMessage;
-static gint ett_h283_LCTRequest;
-static gint ett_h283_LCTResponse;
-static gint ett_h283_LCTIndication;
-static gint ett_h283_NonStandardMessage;
+static int ett_h283_H221NonStandard;
+static int ett_h283_NonStandardIdentifier;
+static int ett_h283_NonStandardParameter;
+static int ett_h283_LCTPDU;
+static int ett_h283_T_pduType;
+static int ett_h283_SEQUENCE_OF_NonStandardParameter;
+static int ett_h283_MTAddress;
+static int ett_h283_RDCData;
+static int ett_h283_T_dataType;
+static int ett_h283_LCTMessage;
+static int ett_h283_LCTRequest;
+static int ett_h283_LCTResponse;
+static int ett_h283_LCTIndication;
+static int ett_h283_NonStandardMessage;
 
 /* Subdissectors */
 static dissector_handle_t rdc_pdu_handle;

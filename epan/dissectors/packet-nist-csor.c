@@ -39,7 +39,7 @@ static int hf_nist_csor_aes_IV;                   /* AES_IV */
 static int hf_nist_csor_numberOfBits;             /* NumberOfBits */
 
 /* Initialize the subtree pointers */
-static gint ett_nist_csor_CFBParameters;
+static int ett_nist_csor_CFBParameters;
 
 
 int

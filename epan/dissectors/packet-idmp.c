@@ -154,16 +154,16 @@ static int hf_idmp_absent;                        /* NULL */
 
 /* Initialize the subtree pointers */
 static gint ett_idmp;
-static gint ett_idmp_IDM_PDU;
-static gint ett_idmp_IdmBind;
-static gint ett_idmp_IdmBindResult;
-static gint ett_idmp_IdmBindError;
-static gint ett_idmp_Request;
-static gint ett_idmp_IdmResult;
-static gint ett_idmp_Error;
-static gint ett_idmp_IdmReject;
-static gint ett_idmp_Code;
-static gint ett_idmp_InvokeId;
+static int ett_idmp_IDM_PDU;
+static int ett_idmp_IdmBind;
+static int ett_idmp_IdmBindResult;
+static int ett_idmp_IdmBindError;
+static int ett_idmp_Request;
+static int ett_idmp_IdmResult;
+static int ett_idmp_Error;
+static int ett_idmp_IdmReject;
+static int ett_idmp_Code;
+static int ett_idmp_InvokeId;
 
 
 

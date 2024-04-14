@@ -61,10 +61,10 @@ static int hf_cdt_contentType_OID;                /* T_contentType_OID */
 static int hf_cdt_compressedContent;              /* CompressedContent */
 
 /* Initialize the subtree pointers */
-static gint ett_cdt_CompressedData;
-static gint ett_cdt_CompressionAlgorithmIdentifier;
-static gint ett_cdt_CompressedContentInfo;
-static gint ett_cdt_T_contentType;
+static int ett_cdt_CompressedData;
+static int ett_cdt_CompressionAlgorithmIdentifier;
+static int ett_cdt_CompressedContentInfo;
+static int ett_cdt_T_contentType;
 
 static expert_field ei_cdt_unable_compress_content;
 static expert_field ei_cdt_unable_uncompress_content;

@@ -96,16 +96,16 @@ static int hf_credssp_clientNonce;                /* T_clientNonce */
 static gint ett_credssp;
 static gint ett_credssp_RGC_CredBuffer;
 
-static gint ett_credssp_NegoData;
-static gint ett_credssp_NegoData_item;
-static gint ett_credssp_TSPasswordCreds;
-static gint ett_credssp_TSCspDataDetail;
-static gint ett_credssp_TSSmartCardCreds;
-static gint ett_credssp_TSRemoteGuardPackageCred;
-static gint ett_credssp_TSRemoteGuardCreds;
-static gint ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred;
-static gint ett_credssp_TSCredentials;
-static gint ett_credssp_TSRequest;
+static int ett_credssp_NegoData;
+static int ett_credssp_NegoData_item;
+static int ett_credssp_TSPasswordCreds;
+static int ett_credssp_TSCspDataDetail;
+static int ett_credssp_TSSmartCardCreds;
+static int ett_credssp_TSRemoteGuardPackageCred;
+static int ett_credssp_TSRemoteGuardCreds;
+static int ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred;
+static int ett_credssp_TSCredentials;
+static int ett_credssp_TSRequest;
 
 
 

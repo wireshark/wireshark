@@ -127,28 +127,28 @@ static struct tcaphash_context_t * gp_tcap_context;
 /* Note the high bit should be masked off when registering in this table (0x7fff)*/
 static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation Codes */
 
-static gint ett_ansi_tcap_OperationCode;
-static gint ett_ansi_tcap_ErrorCode;
-static gint ett_ansi_tcap_PackageType;
-static gint ett_ansi_tcap_UniTransactionPDU;
-static gint ett_ansi_tcap_TransactionPDU;
-static gint ett_ansi_tcap_Abort;
-static gint ett_ansi_tcap_T_causeInformation;
-static gint ett_ansi_tcap_DialoguePortion_U;
-static gint ett_ansi_tcap_T_applicationContext;
-static gint ett_ansi_tcap_T_securityContext;
-static gint ett_ansi_tcap_UserInformation_U;
-static gint ett_ansi_tcap_Confidentiality;
-static gint ett_ansi_tcap_T_confidentialityId;
-static gint ett_ansi_tcap_SEQUENCE_OF_ComponentPDU;
-static gint ett_ansi_tcap_ComponentPDU;
-static gint ett_ansi_tcap_Invoke;
-static gint ett_ansi_tcap_ReturnResult;
-static gint ett_ansi_tcap_ReturnError;
-static gint ett_ansi_tcap_Reject;
-static gint ett_ansi_tcap_T_reject_parameter;
-static gint ett_ansi_tcap_T_paramSequence;
-static gint ett_ansi_tcap_T_paramSet;
+static int ett_ansi_tcap_OperationCode;
+static int ett_ansi_tcap_ErrorCode;
+static int ett_ansi_tcap_PackageType;
+static int ett_ansi_tcap_UniTransactionPDU;
+static int ett_ansi_tcap_TransactionPDU;
+static int ett_ansi_tcap_Abort;
+static int ett_ansi_tcap_T_causeInformation;
+static int ett_ansi_tcap_DialoguePortion_U;
+static int ett_ansi_tcap_T_applicationContext;
+static int ett_ansi_tcap_T_securityContext;
+static int ett_ansi_tcap_UserInformation_U;
+static int ett_ansi_tcap_Confidentiality;
+static int ett_ansi_tcap_T_confidentialityId;
+static int ett_ansi_tcap_SEQUENCE_OF_ComponentPDU;
+static int ett_ansi_tcap_ComponentPDU;
+static int ett_ansi_tcap_Invoke;
+static int ett_ansi_tcap_ReturnResult;
+static int ett_ansi_tcap_ReturnError;
+static int ett_ansi_tcap_Reject;
+static int ett_ansi_tcap_T_reject_parameter;
+static int ett_ansi_tcap_T_paramSequence;
+static int ett_ansi_tcap_T_paramSet;
 
 #define MAX_SSN 254
 

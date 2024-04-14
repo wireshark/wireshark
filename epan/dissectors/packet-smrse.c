@@ -68,17 +68,17 @@ static int hf_smrse_ms_address;                   /* SMS_Address */
 
 /* Initialize the subtree pointers */
 static gint ett_smrse;
-static gint ett_smrse_SMR_Bind;
-static gint ett_smrse_SMS_Address;
-static gint ett_smrse_T_address_value;
-static gint ett_smrse_SMR_Bind_Confirm;
-static gint ett_smrse_SMR_Bind_Failure;
-static gint ett_smrse_SMR_Unbind;
-static gint ett_smrse_RPDataMT;
-static gint ett_smrse_RPDataMO;
-static gint ett_smrse_RPAck;
-static gint ett_smrse_RPError;
-static gint ett_smrse_RPAlertSC;
+static int ett_smrse_SMR_Bind;
+static int ett_smrse_SMS_Address;
+static int ett_smrse_T_address_value;
+static int ett_smrse_SMR_Bind_Confirm;
+static int ett_smrse_SMR_Bind_Failure;
+static int ett_smrse_SMR_Unbind;
+static int ett_smrse_RPDataMT;
+static int ett_smrse_RPDataMO;
+static int ett_smrse_RPAck;
+static int ett_smrse_RPError;
+static int ett_smrse_RPAlertSC;
 
 
 

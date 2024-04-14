@@ -71,18 +71,18 @@ static int hf_pkcs1_r;                            /* INTEGER */
 static int hf_pkcs1_s;                            /* INTEGER */
 
 /* Initialize the subtree pointers */
-static gint ett_pkcs1_RSAPublicKey;
-static gint ett_pkcs1_DigestInfo;
-static gint ett_pkcs1_DSA_Params;
-static gint ett_pkcs1_DomainParameters;
-static gint ett_pkcs1_ValidationParams;
-static gint ett_pkcs1_RSASSA_PSS_params;
-static gint ett_pkcs1_ECParameters;
-static gint ett_pkcs1_SpecifiedECDomain;
-static gint ett_pkcs1_FieldID;
-static gint ett_pkcs1_Curve;
-static gint ett_pkcs1_DSA_Sig_Value;
-static gint ett_pkcs1_ECDSA_Sig_Value;
+static int ett_pkcs1_RSAPublicKey;
+static int ett_pkcs1_DigestInfo;
+static int ett_pkcs1_DSA_Params;
+static int ett_pkcs1_DomainParameters;
+static int ett_pkcs1_ValidationParams;
+static int ett_pkcs1_RSASSA_PSS_params;
+static int ett_pkcs1_ECParameters;
+static int ett_pkcs1_SpecifiedECDomain;
+static int ett_pkcs1_FieldID;
+static int ett_pkcs1_Curve;
+static int ett_pkcs1_DSA_Sig_Value;
+static int ett_pkcs1_ECDSA_Sig_Value;
 
 
 

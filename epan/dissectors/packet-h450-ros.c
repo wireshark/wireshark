@@ -55,14 +55,14 @@ static int hf_h450_ros_returnResultProblem;       /* ReturnResultProblem */
 static int hf_h450_ros_returnErrorProblem;        /* ReturnErrorProblem */
 
 /* Initialize the subtree pointers */
-static gint ett_h450_ros_Code;
-static gint ett_h450_ros_ROS;
-static gint ett_h450_ros_Invoke;
-static gint ett_h450_ros_ReturnResult;
-static gint ett_h450_ros_T_result;
-static gint ett_h450_ros_ReturnError;
-static gint ett_h450_ros_Reject;
-static gint ett_h450_ros_T_problem;
+static int ett_h450_ros_Code;
+static int ett_h450_ros_ROS;
+static int ett_h450_ros_Invoke;
+static int ett_h450_ros_ReturnResult;
+static int ett_h450_ros_T_result;
+static int ett_h450_ros_ReturnError;
+static int ett_h450_ros_Reject;
+static int ett_h450_ros_T_problem;
 
 static expert_field ei_ros_undecoded;
 

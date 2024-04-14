@@ -143,15 +143,15 @@ static int hf_t38_reassembled_in;
 static int hf_t38_reassembled_length;
 
 static gint ett_t38;
-static gint ett_t38_IFPPacket;
-static gint ett_t38_Type_of_msg;
-static gint ett_t38_Data_Field;
-static gint ett_t38_Data_Field_item;
-static gint ett_t38_UDPTLPacket;
-static gint ett_t38_T_error_recovery;
-static gint ett_t38_T_secondary_ifp_packets;
-static gint ett_t38_T_fec_info;
-static gint ett_t38_T_fec_data;
+static int ett_t38_IFPPacket;
+static int ett_t38_Type_of_msg;
+static int ett_t38_Data_Field;
+static int ett_t38_Data_Field_item;
+static int ett_t38_UDPTLPacket;
+static int ett_t38_T_error_recovery;
+static int ett_t38_T_secondary_ifp_packets;
+static int ett_t38_T_fec_info;
+static int ett_t38_T_fec_data;
 static gint ett_t38_setup;
 
 static gint ett_data_fragment;

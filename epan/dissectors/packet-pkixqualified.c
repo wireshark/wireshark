@@ -58,13 +58,13 @@ static int hf_pkixqualified_nameRegistrationAuthorities;  /* NameRegistrationAut
 static int hf_pkixqualified_NameRegistrationAuthorities_item;  /* GeneralName */
 
 /* Initialize the subtree pointers */
-static gint ett_pkixqualified_BiometricSyntax;
-static gint ett_pkixqualified_BiometricData;
-static gint ett_pkixqualified_TypeOfBiometricData;
-static gint ett_pkixqualified_QCStatements;
-static gint ett_pkixqualified_QCStatement;
-static gint ett_pkixqualified_SemanticsInformation;
-static gint ett_pkixqualified_NameRegistrationAuthorities;
+static int ett_pkixqualified_BiometricSyntax;
+static int ett_pkixqualified_BiometricData;
+static int ett_pkixqualified_TypeOfBiometricData;
+static int ett_pkixqualified_QCStatements;
+static int ett_pkixqualified_QCStatement;
+static int ett_pkixqualified_SemanticsInformation;
+static int ett_pkixqualified_NameRegistrationAuthorities;
 
 static const char *object_identifier_id;
 

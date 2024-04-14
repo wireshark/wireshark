@@ -69,9 +69,9 @@ static int hf_lnpdqp_oli;                         /* OriginatingStationType */
 static int ett_lnpdqp;
 static int ett_lnpdqp_digitstype;
 static int ett_lnpdqp_digits;
-static gint ett_lnpdqp_ConnectionControlArg_U;
-static gint ett_lnpdqp_ProvideInstructionArg_U;
-static gint ett_lnpdqp_ServiceKey;
+static int ett_lnpdqp_ConnectionControlArg_U;
+static int ett_lnpdqp_ProvideInstructionArg_U;
+static int ett_lnpdqp_ServiceKey;
 
 
 /* Type of Digits (octet 1, bits A-H) */

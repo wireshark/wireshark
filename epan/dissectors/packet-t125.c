@@ -75,12 +75,12 @@ static int hf_t125_connect_result;                /* Connect_Result */
 /* Initialize the subtree pointers */
 static int ett_t125;
 
-static gint ett_t125_DomainParameters;
-static gint ett_t125_Connect_Initial_U;
-static gint ett_t125_Connect_Response_U;
-static gint ett_t125_Connect_Additional_U;
-static gint ett_t125_Connect_Result_U;
-static gint ett_t125_ConnectMCSPDU;
+static int ett_t125_DomainParameters;
+static int ett_t125_Connect_Initial_U;
+static int ett_t125_Connect_Response_U;
+static int ett_t125_Connect_Additional_U;
+static int ett_t125_Connect_Result_U;
+static int ett_t125_ConnectMCSPDU;
 
 static heur_dissector_list_t t125_heur_subdissector_list;
 

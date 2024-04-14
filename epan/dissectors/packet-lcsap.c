@@ -273,69 +273,69 @@ static int ett_lcsap_plmnd_id;
 static int ett_lcsap_imsi;
 static int ett_lcsap_civic_address;
 
-static gint ett_lcsap_ProtocolIE_Container;
-static gint ett_lcsap_ProtocolIE_Field;
-static gint ett_lcsap_ProtocolExtensionContainer;
-static gint ett_lcsap_ProtocolExtensionField;
-static gint ett_lcsap_Additional_PositioningDataSet;
-static gint ett_lcsap_Altitude_And_Direction;
-static gint ett_lcsap_Ciphering_Data;
-static gint ett_lcsap_Ciphering_Data_Ack;
-static gint ett_lcsap_Ciphering_Data_Error_Report;
-static gint ett_lcsap_Ciphering_Data_Set;
-static gint ett_lcsap_Ciphering_Data_Error_Report_Contents;
-static gint ett_lcsap_E_CGI;
-static gint ett_lcsap_Ellipsoid_Point_With_Uncertainty_Ellipse;
-static gint ett_lcsap_Ellipsoid_Point_With_Altitude;
-static gint ett_lcsap_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid;
-static gint ett_lcsap_Ellipsoid_Arc;
-static gint ett_lcsap_ENB_ID;
-static gint ett_lcsap_Geographical_Area;
-static gint ett_lcsap_Geographical_Coordinates;
-static gint ett_lcsap_Global_eNB_ID;
-static gint ett_lcsap_GNSS_Positioning_Data_Set;
-static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse;
-static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse;
-static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid;
-static gint ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid;
-static gint ett_lcsap_High_Accuracy_Geographical_Coordinates;
-static gint ett_lcsap_High_Accuracy_Uncertainty_Ellipse;
-static gint ett_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse;
-static gint ett_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse;
-static gint ett_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude;
-static gint ett_lcsap_Horizontal_Speed_And_Bearing;
-static gint ett_lcsap_Horizontal_Velocity;
-static gint ett_lcsap_Horizontal_With_Vertical_Velocity;
-static gint ett_lcsap_Horizontal_Velocity_With_Uncertainty;
-static gint ett_lcsap_Horizontal_With_Vertical_Velocity_And_Uncertainty;
-static gint ett_lcsap_LCS_Cause;
-static gint ett_lcsap_LCS_QoS;
-static gint ett_lcsap_MultipleAPDUs;
-static gint ett_lcsap_Network_Element;
-static gint ett_lcsap_Point;
-static gint ett_lcsap_Point_With_Uncertainty;
-static gint ett_lcsap_Polygon;
-static gint ett_lcsap_Polygon_Point;
-static gint ett_lcsap_Positioning_Data;
-static gint ett_lcsap_Positioning_Data_Set;
-static gint ett_lcsap_Uncertainty_Ellipse;
-static gint ett_lcsap_UE_Positioning_Capability;
-static gint ett_lcsap_UE_Area_Indication;
-static gint ett_lcsap_Velocity_Estimate;
-static gint ett_lcsap_Vertical_Velocity;
-static gint ett_lcsap_Location_Request;
-static gint ett_lcsap_Location_Response;
-static gint ett_lcsap_Location_Abort_Request;
-static gint ett_lcsap_Connection_Oriented_Information;
-static gint ett_lcsap_Connectionless_Information;
-static gint ett_lcsap_Reset_Request;
-static gint ett_lcsap_Reset_Acknowledge;
-static gint ett_lcsap_Ciphering_Key_Data;
-static gint ett_lcsap_Ciphering_Key_Data_Result;
-static gint ett_lcsap_LCS_AP_PDU;
-static gint ett_lcsap_InitiatingMessage;
-static gint ett_lcsap_SuccessfulOutcome;
-static gint ett_lcsap_UnsuccessfulOutcome;
+static int ett_lcsap_ProtocolIE_Container;
+static int ett_lcsap_ProtocolIE_Field;
+static int ett_lcsap_ProtocolExtensionContainer;
+static int ett_lcsap_ProtocolExtensionField;
+static int ett_lcsap_Additional_PositioningDataSet;
+static int ett_lcsap_Altitude_And_Direction;
+static int ett_lcsap_Ciphering_Data;
+static int ett_lcsap_Ciphering_Data_Ack;
+static int ett_lcsap_Ciphering_Data_Error_Report;
+static int ett_lcsap_Ciphering_Data_Set;
+static int ett_lcsap_Ciphering_Data_Error_Report_Contents;
+static int ett_lcsap_E_CGI;
+static int ett_lcsap_Ellipsoid_Point_With_Uncertainty_Ellipse;
+static int ett_lcsap_Ellipsoid_Point_With_Altitude;
+static int ett_lcsap_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid;
+static int ett_lcsap_Ellipsoid_Arc;
+static int ett_lcsap_ENB_ID;
+static int ett_lcsap_Geographical_Area;
+static int ett_lcsap_Geographical_Coordinates;
+static int ett_lcsap_Global_eNB_ID;
+static int ett_lcsap_GNSS_Positioning_Data_Set;
+static int ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Uncertainty_Ellipse;
+static int ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Scalable_Uncertainty_Ellipse;
+static int ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Uncertainty_Ellipsoid;
+static int ett_lcsap_High_Accuracy_Ellipsoid_Point_With_Altitude_And_Scalable_Uncertainty_Ellipsoid;
+static int ett_lcsap_High_Accuracy_Geographical_Coordinates;
+static int ett_lcsap_High_Accuracy_Uncertainty_Ellipse;
+static int ett_lcsap_High_Accuracy_Extended_Uncertainty_Ellipse;
+static int ett_lcsap_High_Accuracy_Scalable_Uncertainty_Ellipse;
+static int ett_lcsap_High_Accuracy_Scalable_Uncertainty_Altitude;
+static int ett_lcsap_Horizontal_Speed_And_Bearing;
+static int ett_lcsap_Horizontal_Velocity;
+static int ett_lcsap_Horizontal_With_Vertical_Velocity;
+static int ett_lcsap_Horizontal_Velocity_With_Uncertainty;
+static int ett_lcsap_Horizontal_With_Vertical_Velocity_And_Uncertainty;
+static int ett_lcsap_LCS_Cause;
+static int ett_lcsap_LCS_QoS;
+static int ett_lcsap_MultipleAPDUs;
+static int ett_lcsap_Network_Element;
+static int ett_lcsap_Point;
+static int ett_lcsap_Point_With_Uncertainty;
+static int ett_lcsap_Polygon;
+static int ett_lcsap_Polygon_Point;
+static int ett_lcsap_Positioning_Data;
+static int ett_lcsap_Positioning_Data_Set;
+static int ett_lcsap_Uncertainty_Ellipse;
+static int ett_lcsap_UE_Positioning_Capability;
+static int ett_lcsap_UE_Area_Indication;
+static int ett_lcsap_Velocity_Estimate;
+static int ett_lcsap_Vertical_Velocity;
+static int ett_lcsap_Location_Request;
+static int ett_lcsap_Location_Response;
+static int ett_lcsap_Location_Abort_Request;
+static int ett_lcsap_Connection_Oriented_Information;
+static int ett_lcsap_Connectionless_Information;
+static int ett_lcsap_Reset_Request;
+static int ett_lcsap_Reset_Acknowledge;
+static int ett_lcsap_Ciphering_Key_Data;
+static int ett_lcsap_Ciphering_Key_Data_Result;
+static int ett_lcsap_LCS_AP_PDU;
+static int ett_lcsap_InitiatingMessage;
+static int ett_lcsap_SuccessfulOutcome;
+static int ett_lcsap_UnsuccessfulOutcome;
 
 static expert_field ei_lcsap_civic_data_not_xml;
 
@@ -1411,7 +1411,7 @@ dissect_lcsap_Polygon(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_lcsap_High_Accuracy_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            G_MININT32, 2147483647U, NULL, FALSE);
+                                                            INT32_MIN, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -1421,7 +1421,7 @@ dissect_lcsap_High_Accuracy_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_lcsap_High_Accuracy_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            G_MININT32, 2147483647U, NULL, FALSE);
+                                                            INT32_MIN, 2147483647U, NULL, FALSE);
 
   return offset;
 }

@@ -48,7 +48,7 @@ static int hf_ns_cert_exts_CertType_smime_ca;
 static int hf_ns_cert_exts_CertType_object_signing_ca;
 
 /* Initialize the subtree pointers */
-static gint ett_ns_cert_exts_CertType;
+static int ett_ns_cert_exts_CertType;
 
 
 

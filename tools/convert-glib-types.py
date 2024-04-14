@@ -47,8 +47,6 @@ type_map = {
 }
 
 definition_map = {
-    'TRUE': 'true',
-    'FALSE': 'false',
     'G_MAXINT8': 'INT8_MAX',
     'G_MAXINT16': 'INT16_MAX',
     'G_MAXINT32': 'INT32_MAX',
@@ -68,6 +66,11 @@ definition_map = {
     'G_GUINT64_CONSTANT': 'UINT64_C',
 }
 
+tf_definition_map = {
+    'TRUE': 'true',
+    'FALSE': 'false',
+}
+
 format_spec_map = {
     'G_GINT64_FORMAT': 'PRId64',
     'G_GUINT64_FORMAT': 'PRIu64',
@@ -84,6 +87,8 @@ def convert_file(file):
                 lines = re.sub(rf'([^"])\b{glib_type}\b([^"])', rf'\1{c99_type}\2', lines, flags=re.MULTILINE)
             for glib_define, c99_define in definition_map.items():
                 lines = re.sub(rf'\b{glib_define}\b', rf'{c99_define}', lines, flags=re.MULTILINE)
+            for glib_tf_define, c99_define in tf_definition_map.items():
+                lines = re.sub(rf'\b{glib_tf_define}\b([^\'"])', rf'{c99_define}\1', lines, flags=re.MULTILINE)
             for glib_fmt_spec, c99_fmt_spec in format_spec_map.items():
                 lines = re.sub(rf'\b{glib_fmt_spec}\b', rf'{c99_fmt_spec}', lines, flags=re.MULTILINE)
     except IsADirectoryError:

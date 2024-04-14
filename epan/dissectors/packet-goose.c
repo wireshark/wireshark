@@ -163,23 +163,23 @@ static int ett_goose;
 static int ett_reserve1;
 static int ett_expert_inf_sim;
 
-static gint ett_goose_GOOSEpdu;
-static gint ett_goose_GSEMngtPdu;
-static gint ett_goose_RequestResponse;
-static gint ett_goose_GSEMngtRequests;
-static gint ett_goose_GSEMngtResponses;
-static gint ett_goose_GetReferenceRequestPdu;
-static gint ett_goose_T_getReferenceRequest_offset;
-static gint ett_goose_GetElementRequestPdu;
-static gint ett_goose_T_references;
-static gint ett_goose_GSEMngtResponsePdu;
-static gint ett_goose_PositiveNegative;
-static gint ett_goose_T_responsePositive;
-static gint ett_goose_SEQUENCE_OF_RequestResults;
-static gint ett_goose_RequestResults;
-static gint ett_goose_IECGoosePdu;
-static gint ett_goose_SEQUENCE_OF_Data;
-static gint ett_goose_Data;
+static int ett_goose_GOOSEpdu;
+static int ett_goose_GSEMngtPdu;
+static int ett_goose_RequestResponse;
+static int ett_goose_GSEMngtRequests;
+static int ett_goose_GSEMngtResponses;
+static int ett_goose_GetReferenceRequestPdu;
+static int ett_goose_T_getReferenceRequest_offset;
+static int ett_goose_GetElementRequestPdu;
+static int ett_goose_T_references;
+static int ett_goose_GSEMngtResponsePdu;
+static int ett_goose_PositiveNegative;
+static int ett_goose_T_responsePositive;
+static int ett_goose_SEQUENCE_OF_RequestResults;
+static int ett_goose_RequestResults;
+static int ett_goose_IECGoosePdu;
+static int ett_goose_SEQUENCE_OF_Data;
+static int ett_goose_Data;
 
 /*--- Cyclic dependencies ---*/
 

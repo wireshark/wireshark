@@ -49,12 +49,12 @@ static int hf_pkix1implicit_bmpString;            /* BMPString */
 static int hf_pkix1implicit_utf8String;           /* UTF8String */
 
 /* Initialize the subtree pointers */
-static gint ett_pkix1implicit_AuthorityInfoAccessSyntax;
-static gint ett_pkix1implicit_AccessDescription;
-static gint ett_pkix1implicit_UserNotice;
-static gint ett_pkix1implicit_NoticeReference;
-static gint ett_pkix1implicit_T_noticeNumbers;
-static gint ett_pkix1implicit_DisplayText;
+static int ett_pkix1implicit_AuthorityInfoAccessSyntax;
+static int ett_pkix1implicit_AccessDescription;
+static int ett_pkix1implicit_UserNotice;
+static int ett_pkix1implicit_NoticeReference;
+static int ett_pkix1implicit_T_noticeNumbers;
+static int ett_pkix1implicit_DisplayText;
 
 
 int

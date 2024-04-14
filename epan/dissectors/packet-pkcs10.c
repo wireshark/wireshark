@@ -64,11 +64,11 @@ static int hf_pkcs10_signatureAlgorithm;          /* AlgorithmIdentifier */
 static int hf_pkcs10_signature;                   /* BIT_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_pkcs10_CertificationRequestInfo;
-static gint ett_pkcs10_Attributes;
-static gint ett_pkcs10_Attribute;
-static gint ett_pkcs10_T_values;
-static gint ett_pkcs10_CertificationRequest;
+static int ett_pkcs10_CertificationRequestInfo;
+static int ett_pkcs10_Attributes;
+static int ett_pkcs10_Attribute;
+static int ett_pkcs10_T_values;
+static int ett_pkcs10_CertificationRequest;
 
 static const value_string pkcs10_T_version_vals[] = {
   {   0, "v1" },

@@ -39,8 +39,8 @@ static int hf_pkixproxy_policyLanguage;           /* OBJECT_IDENTIFIER */
 static int hf_pkixproxy_policy;                   /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_pkixproxy_ProxyCertInfoExtension;
-static gint ett_pkixproxy_ProxyPolicy;
+static int ett_pkixproxy_ProxyCertInfoExtension;
+static int ett_pkixproxy_ProxyPolicy;
 
 
 

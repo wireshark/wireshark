@@ -58,16 +58,16 @@ static int hf_q932_ros_present;                   /* INTEGER */
 static int hf_q932_ros_InvokeId_present;          /* InvokeId_present */
 
 /* Initialize the subtree pointers */
-static gint ett_q932_ros_Code;
-static gint ett_q932_ros_ROS;
-static gint ett_q932_ros_Invoke;
-static gint ett_q932_ros_T_linkedId;
-static gint ett_q932_ros_ReturnResult;
-static gint ett_q932_ros_T_result;
-static gint ett_q932_ros_ReturnError;
-static gint ett_q932_ros_Reject;
-static gint ett_q932_ros_T_problem;
-static gint ett_q932_ros_InvokeId;
+static int ett_q932_ros_Code;
+static int ett_q932_ros_ROS;
+static int ett_q932_ros_Invoke;
+static int ett_q932_ros_T_linkedId;
+static int ett_q932_ros_ReturnResult;
+static int ett_q932_ros_T_result;
+static int ett_q932_ros_ReturnError;
+static int ett_q932_ros_Reject;
+static int ett_q932_ros_T_problem;
+static int ett_q932_ros_InvokeId;
 
 static expert_field ei_ros_undecoded;
 

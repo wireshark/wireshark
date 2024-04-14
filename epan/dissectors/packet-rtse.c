@@ -76,14 +76,14 @@ static int hf_rtse_octetString;                   /* T_octetString */
 
 /* Initialize the subtree pointers */
 static gint ett_rtse;
-static gint ett_rtse_RTSE_apdus;
-static gint ett_rtse_RTORQapdu;
-static gint ett_rtse_RTOACapdu;
-static gint ett_rtse_RTORJapdu;
-static gint ett_rtse_RTABapdu;
-static gint ett_rtse_ConnectionData;
-static gint ett_rtse_SessionConnectionIdentifier;
-static gint ett_rtse_CallingSSuserReference;
+static int ett_rtse_RTSE_apdus;
+static int ett_rtse_RTORQapdu;
+static int ett_rtse_RTOACapdu;
+static int ett_rtse_RTORJapdu;
+static int ett_rtse_RTABapdu;
+static int ett_rtse_ConnectionData;
+static int ett_rtse_SessionConnectionIdentifier;
+static int ett_rtse_CallingSSuserReference;
 
 static expert_field ei_rtse_dissector_oid_not_implemented;
 static expert_field ei_rtse_unknown_rtse_pdu;

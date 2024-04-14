@@ -109,19 +109,19 @@ static int hf_h323_timeToLive;                    /* TimeToLive */
 static int hf_h323_includeFastStart;              /* NULL */
 
 /* Initialize the subtree pointers */
-static gint ett_h323_RasTunnelledSignallingMessage;
-static gint ett_h323_T_messageContent;
-static gint ett_h323_RobustnessData;
-static gint ett_h323_T_robustnessData;
-static gint ett_h323_BackupCallSignalAddresses;
-static gint ett_h323_BackupCallSignalAddresses_item;
-static gint ett_h323_Rrq_RD;
-static gint ett_h323_Rcf_RD;
-static gint ett_h323_Setup_RD;
-static gint ett_h323_Connect_RD;
-static gint ett_h323_Status_RD;
-static gint ett_h323_T_fastStart;
-static gint ett_h323_StatusInquiry_RD;
+static int ett_h323_RasTunnelledSignallingMessage;
+static int ett_h323_T_messageContent;
+static int ett_h323_RobustnessData;
+static int ett_h323_T_robustnessData;
+static int ett_h323_BackupCallSignalAddresses;
+static int ett_h323_BackupCallSignalAddresses_item;
+static int ett_h323_Rrq_RD;
+static int ett_h323_Rcf_RD;
+static int ett_h323_Setup_RD;
+static int ett_h323_Connect_RD;
+static int ett_h323_Status_RD;
+static int ett_h323_T_fastStart;
+static int ett_h323_StatusInquiry_RD;
 
 
 

@@ -79,19 +79,19 @@ static int hf_q932_destinationEntityAddress;      /* AddressInformation */
 /* Initialize the subtree pointers */
 static gint ett_q932;
 static gint ett_q932_ie;
-static gint ett_q932_PresentedAddressScreened;
-static gint ett_q932_PresentedAddressUnscreened;
-static gint ett_q932_PresentedNumberScreened;
-static gint ett_q932_PresentedNumberUnscreened;
-static gint ett_q932_AddressScreened;
-static gint ett_q932_NumberScreened;
-static gint ett_q932_Address;
-static gint ett_q932_PartyNumber;
-static gint ett_q932_PublicPartyNumber;
-static gint ett_q932_PrivatePartyNumber;
-static gint ett_q932_PartySubaddress;
-static gint ett_q932_UserSpecifiedSubaddress;
-static gint ett_q932_NetworkFacilityExtension_U;
+static int ett_q932_PresentedAddressScreened;
+static int ett_q932_PresentedAddressUnscreened;
+static int ett_q932_PresentedNumberScreened;
+static int ett_q932_PresentedNumberUnscreened;
+static int ett_q932_AddressScreened;
+static int ett_q932_NumberScreened;
+static int ett_q932_Address;
+static int ett_q932_PartyNumber;
+static int ett_q932_PublicPartyNumber;
+static int ett_q932_PrivatePartyNumber;
+static int ett_q932_PartySubaddress;
+static int ett_q932_UserSpecifiedSubaddress;
+static int ett_q932_NetworkFacilityExtension_U;
 
 static expert_field ei_q932_dse_not_supported;
 static expert_field ei_q932_acse_not_supported;

@@ -1577,441 +1577,441 @@ static gint ett_qsig_unknown_extension;
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
-static gint ett_qsig_Extension;
-static gint ett_qsig_PresentedAddressScreened;
-static gint ett_qsig_PresentedAddressUnscreened;
-static gint ett_qsig_PresentedNumberScreened;
-static gint ett_qsig_PresentedNumberUnscreened;
-static gint ett_qsig_AddressScreened;
-static gint ett_qsig_NumberScreened;
-static gint ett_qsig_Address;
-static gint ett_qsig_PartyNumber;
-static gint ett_qsig_PublicPartyNumber;
-static gint ett_qsig_PrivatePartyNumber;
-static gint ett_qsig_PartySubaddress;
-static gint ett_qsig_UserSpecifiedSubaddress;
+static int ett_qsig_Extension;
+static int ett_qsig_PresentedAddressScreened;
+static int ett_qsig_PresentedAddressUnscreened;
+static int ett_qsig_PresentedNumberScreened;
+static int ett_qsig_PresentedNumberUnscreened;
+static int ett_qsig_AddressScreened;
+static int ett_qsig_NumberScreened;
+static int ett_qsig_Address;
+static int ett_qsig_PartyNumber;
+static int ett_qsig_PublicPartyNumber;
+static int ett_qsig_PrivatePartyNumber;
+static int ett_qsig_PartySubaddress;
+static int ett_qsig_UserSpecifiedSubaddress;
 
 /* --- Module Name-Operations-asn1-97 --- --- ---                             */
 
-static gint ett_qsig_na_NameArg;
-static gint ett_qsig_na_T_nameSequence;
-static gint ett_qsig_na_NameExtension;
-static gint ett_qsig_na_SEQUENCE_OF_Extension;
-static gint ett_qsig_na_Name;
-static gint ett_qsig_na_NamePresentationAllowed;
-static gint ett_qsig_na_NamePresentationRestricted;
-static gint ett_qsig_na_NameSet;
+static int ett_qsig_na_NameArg;
+static int ett_qsig_na_T_nameSequence;
+static int ett_qsig_na_NameExtension;
+static int ett_qsig_na_SEQUENCE_OF_Extension;
+static int ett_qsig_na_Name;
+static int ett_qsig_na_NamePresentationAllowed;
+static int ett_qsig_na_NamePresentationRestricted;
+static int ett_qsig_na_NameSet;
 
 /* --- Module Call-Diversion-Operations-asn1-97 --- --- ---                   */
 
-static gint ett_qsig_cf_ARG_activateDiversionQ;
-static gint ett_qsig_cf_ADExtension;
-static gint ett_qsig_cf_SEQUENCE_OF_Extension;
-static gint ett_qsig_cf_RES_activateDiversionQ;
-static gint ett_qsig_cf_ARG_deactivateDiversionQ;
-static gint ett_qsig_cf_DDExtension;
-static gint ett_qsig_cf_RES_deactivateDiversionQ;
-static gint ett_qsig_cf_ARG_interrogateDiversionQ;
-static gint ett_qsig_cf_IDExtension;
-static gint ett_qsig_cf_ARG_checkRestriction;
-static gint ett_qsig_cf_CHRExtension;
-static gint ett_qsig_cf_RES_checkRestriction;
-static gint ett_qsig_cf_ARG_callRerouteing;
-static gint ett_qsig_cf_CRRExtension;
-static gint ett_qsig_cf_RES_callRerouteing;
-static gint ett_qsig_cf_ARG_divertingLegInformation1;
-static gint ett_qsig_cf_DLI1Extension;
-static gint ett_qsig_cf_ARG_divertingLegInformation2;
-static gint ett_qsig_cf_DLI2Extension;
-static gint ett_qsig_cf_ARG_divertingLegInformation3;
-static gint ett_qsig_cf_DLI3Extension;
-static gint ett_qsig_cf_ARG_cfnrDivertedLegFailed;
-static gint ett_qsig_cf_IntResultList;
-static gint ett_qsig_cf_IntResult;
-static gint ett_qsig_cf_IRExtension;
+static int ett_qsig_cf_ARG_activateDiversionQ;
+static int ett_qsig_cf_ADExtension;
+static int ett_qsig_cf_SEQUENCE_OF_Extension;
+static int ett_qsig_cf_RES_activateDiversionQ;
+static int ett_qsig_cf_ARG_deactivateDiversionQ;
+static int ett_qsig_cf_DDExtension;
+static int ett_qsig_cf_RES_deactivateDiversionQ;
+static int ett_qsig_cf_ARG_interrogateDiversionQ;
+static int ett_qsig_cf_IDExtension;
+static int ett_qsig_cf_ARG_checkRestriction;
+static int ett_qsig_cf_CHRExtension;
+static int ett_qsig_cf_RES_checkRestriction;
+static int ett_qsig_cf_ARG_callRerouteing;
+static int ett_qsig_cf_CRRExtension;
+static int ett_qsig_cf_RES_callRerouteing;
+static int ett_qsig_cf_ARG_divertingLegInformation1;
+static int ett_qsig_cf_DLI1Extension;
+static int ett_qsig_cf_ARG_divertingLegInformation2;
+static int ett_qsig_cf_DLI2Extension;
+static int ett_qsig_cf_ARG_divertingLegInformation3;
+static int ett_qsig_cf_DLI3Extension;
+static int ett_qsig_cf_ARG_cfnrDivertedLegFailed;
+static int ett_qsig_cf_IntResultList;
+static int ett_qsig_cf_IntResult;
+static int ett_qsig_cf_IRExtension;
 
 /* --- Module Path-Replacement-Operations-asn1-97 --- --- ---                 */
 
-static gint ett_qsig_pr_PRProposeArg;
-static gint ett_qsig_pr_PRPExtension;
-static gint ett_qsig_pr_SEQUENCE_OF_Extension;
-static gint ett_qsig_pr_PRSetupArg;
-static gint ett_qsig_pr_PRSExtension;
-static gint ett_qsig_pr_PRRetainArg;
-static gint ett_qsig_pr_PRRExtension;
-static gint ett_qsig_pr_DummyResult;
-static gint ett_qsig_pr_DummyArg;
+static int ett_qsig_pr_PRProposeArg;
+static int ett_qsig_pr_PRPExtension;
+static int ett_qsig_pr_SEQUENCE_OF_Extension;
+static int ett_qsig_pr_PRSetupArg;
+static int ett_qsig_pr_PRSExtension;
+static int ett_qsig_pr_PRRetainArg;
+static int ett_qsig_pr_PRRExtension;
+static int ett_qsig_pr_DummyResult;
+static int ett_qsig_pr_DummyArg;
 
 /* --- Module Call-Transfer-Operations-asn1-97 --- --- ---                    */
 
-static gint ett_qsig_ct_DummyArg;
-static gint ett_qsig_ct_SEQUENCE_OF_Extension;
-static gint ett_qsig_ct_DummyRes;
-static gint ett_qsig_ct_CTIdentifyRes;
-static gint ett_qsig_ct_T_resultExtension;
-static gint ett_qsig_ct_CTInitiateArg;
-static gint ett_qsig_ct_CTIargumentExtension;
-static gint ett_qsig_ct_CTSetupArg;
-static gint ett_qsig_ct_CTSargumentExtension;
-static gint ett_qsig_ct_CTActiveArg;
-static gint ett_qsig_ct_CTAargumentExtension;
-static gint ett_qsig_ct_CTCompleteArg;
-static gint ett_qsig_ct_CTCargumentExtension;
-static gint ett_qsig_ct_CTUpdateArg;
-static gint ett_qsig_ct_CTUargumentExtension;
-static gint ett_qsig_ct_SubaddressTransferArg;
-static gint ett_qsig_ct_STargumentExtension;
+static int ett_qsig_ct_DummyArg;
+static int ett_qsig_ct_SEQUENCE_OF_Extension;
+static int ett_qsig_ct_DummyRes;
+static int ett_qsig_ct_CTIdentifyRes;
+static int ett_qsig_ct_T_resultExtension;
+static int ett_qsig_ct_CTInitiateArg;
+static int ett_qsig_ct_CTIargumentExtension;
+static int ett_qsig_ct_CTSetupArg;
+static int ett_qsig_ct_CTSargumentExtension;
+static int ett_qsig_ct_CTActiveArg;
+static int ett_qsig_ct_CTAargumentExtension;
+static int ett_qsig_ct_CTCompleteArg;
+static int ett_qsig_ct_CTCargumentExtension;
+static int ett_qsig_ct_CTUpdateArg;
+static int ett_qsig_ct_CTUargumentExtension;
+static int ett_qsig_ct_SubaddressTransferArg;
+static int ett_qsig_ct_STargumentExtension;
 
 /* --- Module SS-CC-Operations-asn1-97 --- --- ---                            */
 
-static gint ett_qsig_cc_CcRequestArg;
-static gint ett_qsig_cc_CcRequestRes;
-static gint ett_qsig_cc_CcOptionalArg;
-static gint ett_qsig_cc_T_fullArg;
-static gint ett_qsig_cc_CcExtension;
-static gint ett_qsig_cc_SEQUENCE_OF_Extension;
+static int ett_qsig_cc_CcRequestArg;
+static int ett_qsig_cc_CcRequestRes;
+static int ett_qsig_cc_CcOptionalArg;
+static int ett_qsig_cc_T_fullArg;
+static int ett_qsig_cc_CcExtension;
+static int ett_qsig_cc_SEQUENCE_OF_Extension;
 
 /* --- Module Call-Offer-Operations-asn1-97 --- --- ---                       */
 
-static gint ett_qsig_co_PathRetainArg;
-static gint ett_qsig_co_T_extendedServiceList;
-static gint ett_qsig_co_ServiceAvailableArg;
-static gint ett_qsig_co_T_extendedServiceList_01;
-static gint ett_qsig_co_ServiceList;
-static gint ett_qsig_co_DummyArg;
-static gint ett_qsig_co_SEQUENCE_OF_Extension;
-static gint ett_qsig_co_DummyRes;
+static int ett_qsig_co_PathRetainArg;
+static int ett_qsig_co_T_extendedServiceList;
+static int ett_qsig_co_ServiceAvailableArg;
+static int ett_qsig_co_T_extendedServiceList_01;
+static int ett_qsig_co_ServiceList;
+static int ett_qsig_co_DummyArg;
+static int ett_qsig_co_SEQUENCE_OF_Extension;
+static int ett_qsig_co_DummyRes;
 
 /* --- Module Do-Not-Disturb-Operations-asn1-97 --- --- ---                   */
 
-static gint ett_qsig_dnd_DummyArg;
-static gint ett_qsig_dnd_SEQUENCE_OF_Extension;
-static gint ett_qsig_dnd_DummyRes;
-static gint ett_qsig_dnd_DNDActivateArg;
-static gint ett_qsig_dnd_DNDAargumentExtension;
-static gint ett_qsig_dnd_DNDActivateRes;
-static gint ett_qsig_dnd_T_status;
-static gint ett_qsig_dnd_T_status_item;
-static gint ett_qsig_dnd_T_resultExtension;
-static gint ett_qsig_dnd_DNDDeactivateArg;
-static gint ett_qsig_dnd_DNDDargumentExtension;
-static gint ett_qsig_dnd_DNDInterrogateArg;
-static gint ett_qsig_dnd_DNDIargumentExtension;
-static gint ett_qsig_dnd_DNDInterrogateRes;
-static gint ett_qsig_dnd_T_status_01;
-static gint ett_qsig_dnd_T_status_item_01;
-static gint ett_qsig_dnd_T_resultExtension_01;
-static gint ett_qsig_dnd_DNDOverrideArg;
-static gint ett_qsig_dnd_DNDOargumentExtension;
-static gint ett_qsig_dnd_PathRetainArg;
-static gint ett_qsig_dnd_T_extendedServiceList;
-static gint ett_qsig_dnd_ServiceAvailableArg;
-static gint ett_qsig_dnd_T_extendedServiceList_01;
-static gint ett_qsig_dnd_ServiceList;
+static int ett_qsig_dnd_DummyArg;
+static int ett_qsig_dnd_SEQUENCE_OF_Extension;
+static int ett_qsig_dnd_DummyRes;
+static int ett_qsig_dnd_DNDActivateArg;
+static int ett_qsig_dnd_DNDAargumentExtension;
+static int ett_qsig_dnd_DNDActivateRes;
+static int ett_qsig_dnd_T_status;
+static int ett_qsig_dnd_T_status_item;
+static int ett_qsig_dnd_T_resultExtension;
+static int ett_qsig_dnd_DNDDeactivateArg;
+static int ett_qsig_dnd_DNDDargumentExtension;
+static int ett_qsig_dnd_DNDInterrogateArg;
+static int ett_qsig_dnd_DNDIargumentExtension;
+static int ett_qsig_dnd_DNDInterrogateRes;
+static int ett_qsig_dnd_T_status_01;
+static int ett_qsig_dnd_T_status_item_01;
+static int ett_qsig_dnd_T_resultExtension_01;
+static int ett_qsig_dnd_DNDOverrideArg;
+static int ett_qsig_dnd_DNDOargumentExtension;
+static int ett_qsig_dnd_PathRetainArg;
+static int ett_qsig_dnd_T_extendedServiceList;
+static int ett_qsig_dnd_ServiceAvailableArg;
+static int ett_qsig_dnd_T_extendedServiceList_01;
+static int ett_qsig_dnd_ServiceList;
 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
 
-static gint ett_qsig_ci_PathRetainArg;
-static gint ett_qsig_ci_T_extendedServiceList;
-static gint ett_qsig_ci_ServiceAvailableArg;
-static gint ett_qsig_ci_T_extendedServiceList_01;
-static gint ett_qsig_ci_ServiceList;
-static gint ett_qsig_ci_DummyArg;
-static gint ett_qsig_ci_SEQUENCE_OF_Extension;
-static gint ett_qsig_ci_DummyRes;
-static gint ett_qsig_ci_CIRequestArg;
-static gint ett_qsig_ci_T_argumentExtension;
-static gint ett_qsig_ci_CIRequestRes;
-static gint ett_qsig_ci_T_resultExtension;
-static gint ett_qsig_ci_CIGetCIPLRes;
-static gint ett_qsig_ci_T_resultExtension_01;
+static int ett_qsig_ci_PathRetainArg;
+static int ett_qsig_ci_T_extendedServiceList;
+static int ett_qsig_ci_ServiceAvailableArg;
+static int ett_qsig_ci_T_extendedServiceList_01;
+static int ett_qsig_ci_ServiceList;
+static int ett_qsig_ci_DummyArg;
+static int ett_qsig_ci_SEQUENCE_OF_Extension;
+static int ett_qsig_ci_DummyRes;
+static int ett_qsig_ci_CIRequestArg;
+static int ett_qsig_ci_T_argumentExtension;
+static int ett_qsig_ci_CIRequestRes;
+static int ett_qsig_ci_T_resultExtension;
+static int ett_qsig_ci_CIGetCIPLRes;
+static int ett_qsig_ci_T_resultExtension_01;
 
 /* --- Module SS-AOC-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_aoc_AocRateArg;
-static gint ett_qsig_aoc_T_aocRate;
-static gint ett_qsig_aoc_T_rateArgExtension;
-static gint ett_qsig_aoc_SEQUENCE_OF_Extension;
-static gint ett_qsig_aoc_AocInterimArg;
-static gint ett_qsig_aoc_T_interimCharge;
-static gint ett_qsig_aoc_T_specificCurrency;
-static gint ett_qsig_aoc_T_interimArgExtension;
-static gint ett_qsig_aoc_AocFinalArg;
-static gint ett_qsig_aoc_T_finalCharge;
-static gint ett_qsig_aoc_T_specificCurrency_01;
-static gint ett_qsig_aoc_T_finalArgExtension;
-static gint ett_qsig_aoc_AOCSCurrencyInfoList;
-static gint ett_qsig_aoc_AOCSCurrencyInfo;
-static gint ett_qsig_aoc_T_rateType;
-static gint ett_qsig_aoc_DurationCurrency;
-static gint ett_qsig_aoc_FlatRateCurrency;
-static gint ett_qsig_aoc_VolumeRateCurrency;
-static gint ett_qsig_aoc_RecordedCurrency;
-static gint ett_qsig_aoc_Amount;
-static gint ett_qsig_aoc_Time;
-static gint ett_qsig_aoc_ChargingAssociation;
-static gint ett_qsig_aoc_ChargeRequestArg;
-static gint ett_qsig_aoc_SEQUENCE_SIZE_0_7_OF_AdviceModeCombination;
-static gint ett_qsig_aoc_T_chargeReqArgExtension;
-static gint ett_qsig_aoc_ChargeRequestRes;
-static gint ett_qsig_aoc_T_chargeReqResExtension;
-static gint ett_qsig_aoc_DummyArg;
-static gint ett_qsig_aoc_AocCompleteArg;
-static gint ett_qsig_aoc_T_completeArgExtension;
-static gint ett_qsig_aoc_AocCompleteRes;
-static gint ett_qsig_aoc_T_completeResExtension;
-static gint ett_qsig_aoc_AocDivChargeReqArg;
-static gint ett_qsig_aoc_T_aocDivChargeReqArgExt;
+static int ett_qsig_aoc_AocRateArg;
+static int ett_qsig_aoc_T_aocRate;
+static int ett_qsig_aoc_T_rateArgExtension;
+static int ett_qsig_aoc_SEQUENCE_OF_Extension;
+static int ett_qsig_aoc_AocInterimArg;
+static int ett_qsig_aoc_T_interimCharge;
+static int ett_qsig_aoc_T_specificCurrency;
+static int ett_qsig_aoc_T_interimArgExtension;
+static int ett_qsig_aoc_AocFinalArg;
+static int ett_qsig_aoc_T_finalCharge;
+static int ett_qsig_aoc_T_specificCurrency_01;
+static int ett_qsig_aoc_T_finalArgExtension;
+static int ett_qsig_aoc_AOCSCurrencyInfoList;
+static int ett_qsig_aoc_AOCSCurrencyInfo;
+static int ett_qsig_aoc_T_rateType;
+static int ett_qsig_aoc_DurationCurrency;
+static int ett_qsig_aoc_FlatRateCurrency;
+static int ett_qsig_aoc_VolumeRateCurrency;
+static int ett_qsig_aoc_RecordedCurrency;
+static int ett_qsig_aoc_Amount;
+static int ett_qsig_aoc_Time;
+static int ett_qsig_aoc_ChargingAssociation;
+static int ett_qsig_aoc_ChargeRequestArg;
+static int ett_qsig_aoc_SEQUENCE_SIZE_0_7_OF_AdviceModeCombination;
+static int ett_qsig_aoc_T_chargeReqArgExtension;
+static int ett_qsig_aoc_ChargeRequestRes;
+static int ett_qsig_aoc_T_chargeReqResExtension;
+static int ett_qsig_aoc_DummyArg;
+static int ett_qsig_aoc_AocCompleteArg;
+static int ett_qsig_aoc_T_completeArgExtension;
+static int ett_qsig_aoc_AocCompleteRes;
+static int ett_qsig_aoc_T_completeResExtension;
+static int ett_qsig_aoc_AocDivChargeReqArg;
+static int ett_qsig_aoc_T_aocDivChargeReqArgExt;
 
 /* --- Module Recall-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_re_ReAlertingArg;
-static gint ett_qsig_re_T_argumentExtension;
-static gint ett_qsig_re_SEQUENCE_OF_Extension;
-static gint ett_qsig_re_ReAnswerArg;
-static gint ett_qsig_re_T_argumentExtension_01;
+static int ett_qsig_re_ReAlertingArg;
+static int ett_qsig_re_T_argumentExtension;
+static int ett_qsig_re_SEQUENCE_OF_Extension;
+static int ett_qsig_re_ReAnswerArg;
+static int ett_qsig_re_T_argumentExtension_01;
 
 /* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
 
-static gint ett_qsig_sync_SynchronizationReqArg;
-static gint ett_qsig_sync_SynchronizationReqRes;
-static gint ett_qsig_sync_SynchronizationInfoArg;
-static gint ett_qsig_sync_ArgExtension;
-static gint ett_qsig_sync_SEQUENCE_OF_Extension;
+static int ett_qsig_sync_SynchronizationReqArg;
+static int ett_qsig_sync_SynchronizationReqRes;
+static int ett_qsig_sync_SynchronizationInfoArg;
+static int ett_qsig_sync_ArgExtension;
+static int ett_qsig_sync_SEQUENCE_OF_Extension;
 
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
-static gint ett_qsig_cint_CintInformation1Arg;
-static gint ett_qsig_cint_CintInformation2Arg;
-static gint ett_qsig_cint_CintCondArg;
-static gint ett_qsig_cint_CintExtension;
-static gint ett_qsig_cint_SEQUENCE_OF_Extension;
+static int ett_qsig_cint_CintInformation1Arg;
+static int ett_qsig_cint_CintInformation2Arg;
+static int ett_qsig_cint_CintCondArg;
+static int ett_qsig_cint_CintExtension;
+static int ett_qsig_cint_SEQUENCE_OF_Extension;
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
-static gint ett_qsig_cmn_CmnArg;
-static gint ett_qsig_cmn_T_extension;
-static gint ett_qsig_cmn_SEQUENCE_OF_Extension;
-static gint ett_qsig_cmn_DummyArg;
-static gint ett_qsig_cmn_FeatureIdList;
-static gint ett_qsig_cmn_EquipmentId;
+static int ett_qsig_cmn_CmnArg;
+static int ett_qsig_cmn_T_extension;
+static int ett_qsig_cmn_SEQUENCE_OF_Extension;
+static int ett_qsig_cmn_DummyArg;
+static int ett_qsig_cmn_FeatureIdList;
+static int ett_qsig_cmn_EquipmentId;
 
 /* --- Module Call-Interruption-Operations-asn1-97 --- --- ---                */
 
-static gint ett_qsig_cpi_CPIRequestArg;
-static gint ett_qsig_cpi_T_argumentExtension;
-static gint ett_qsig_cpi_SEQUENCE_OF_Extension;
-static gint ett_qsig_cpi_CPIPRequestArg;
-static gint ett_qsig_cpi_T_argumentExtension_01;
+static int ett_qsig_cpi_CPIRequestArg;
+static int ett_qsig_cpi_T_argumentExtension;
+static int ett_qsig_cpi_SEQUENCE_OF_Extension;
+static int ett_qsig_cpi_CPIPRequestArg;
+static int ett_qsig_cpi_T_argumentExtension_01;
 
 /* --- Module PUM-Registration-Operations-asn1-97 --- --- ---                 */
 
-static gint ett_qsig_pumr_PumRegistrArg;
-static gint ett_qsig_pumr_RpumUserId;
-static gint ett_qsig_pumr_T_userPin;
-static gint ett_qsig_pumr_PumRegistrRes;
-static gint ett_qsig_pumr_DummyRes;
-static gint ett_qsig_pumr_SEQUENCE_OF_Extension;
-static gint ett_qsig_pumr_PumDelRegArg;
-static gint ett_qsig_pumr_XpumUserId;
-static gint ett_qsig_pumr_PumDe_regArg;
-static gint ett_qsig_pumr_DpumUserId;
-static gint ett_qsig_pumr_T_userPin_01;
-static gint ett_qsig_pumr_PumInterrogArg;
-static gint ett_qsig_pumr_IpumUserId;
-static gint ett_qsig_pumr_T_userPin_02;
-static gint ett_qsig_pumr_PumInterrogRes;
-static gint ett_qsig_pumr_PumInterrogRes_item;
-static gint ett_qsig_pumr_SessionParams;
-static gint ett_qsig_pumr_PumrExtension;
+static int ett_qsig_pumr_PumRegistrArg;
+static int ett_qsig_pumr_RpumUserId;
+static int ett_qsig_pumr_T_userPin;
+static int ett_qsig_pumr_PumRegistrRes;
+static int ett_qsig_pumr_DummyRes;
+static int ett_qsig_pumr_SEQUENCE_OF_Extension;
+static int ett_qsig_pumr_PumDelRegArg;
+static int ett_qsig_pumr_XpumUserId;
+static int ett_qsig_pumr_PumDe_regArg;
+static int ett_qsig_pumr_DpumUserId;
+static int ett_qsig_pumr_T_userPin_01;
+static int ett_qsig_pumr_PumInterrogArg;
+static int ett_qsig_pumr_IpumUserId;
+static int ett_qsig_pumr_T_userPin_02;
+static int ett_qsig_pumr_PumInterrogRes;
+static int ett_qsig_pumr_PumInterrogRes_item;
+static int ett_qsig_pumr_SessionParams;
+static int ett_qsig_pumr_PumrExtension;
 
 /* --- Module Private-User-Mobility-Call-Handling-Operations-asn1-97 --- --- --- */
 
-static gint ett_qsig_pumch_EnquiryArg;
-static gint ett_qsig_pumch_DivertArg;
-static gint ett_qsig_pumch_InformArg;
-static gint ett_qsig_pumch_EnquiryRes;
-static gint ett_qsig_pumch_CurrLocation;
-static gint ett_qsig_pumch_CfuActivated;
-static gint ett_qsig_pumch_DummyRes;
-static gint ett_qsig_pumch_SEQUENCE_OF_Extension;
-static gint ett_qsig_pumch_PumiExtension;
-static gint ett_qsig_pumch_PumIdentity;
-static gint ett_qsig_pumch_T_both;
-static gint ett_qsig_pumch_PumoArg;
-static gint ett_qsig_pumch_T_pumoaextension;
+static int ett_qsig_pumch_EnquiryArg;
+static int ett_qsig_pumch_DivertArg;
+static int ett_qsig_pumch_InformArg;
+static int ett_qsig_pumch_EnquiryRes;
+static int ett_qsig_pumch_CurrLocation;
+static int ett_qsig_pumch_CfuActivated;
+static int ett_qsig_pumch_DummyRes;
+static int ett_qsig_pumch_SEQUENCE_OF_Extension;
+static int ett_qsig_pumch_PumiExtension;
+static int ett_qsig_pumch_PumIdentity;
+static int ett_qsig_pumch_T_both;
+static int ett_qsig_pumch_PumoArg;
+static int ett_qsig_pumch_T_pumoaextension;
 
 /* --- Module Single-Step-Call-Transfer-Operations-asn1-97 --- --- ---        */
 
-static gint ett_qsig_ssct_DummyArg;
-static gint ett_qsig_ssct_SEQUENCE_OF_Extension;
-static gint ett_qsig_ssct_DummyRes;
-static gint ett_qsig_ssct_SSCTInitiateArg;
-static gint ett_qsig_ssct_SSCTIargumentExtension;
-static gint ett_qsig_ssct_SSCTSetupArg;
-static gint ett_qsig_ssct_SSCTSargumentExtension;
-static gint ett_qsig_ssct_SSCTDigitInfoArg;
-static gint ett_qsig_ssct_SSCTDargumentExtension;
+static int ett_qsig_ssct_DummyArg;
+static int ett_qsig_ssct_SEQUENCE_OF_Extension;
+static int ett_qsig_ssct_DummyRes;
+static int ett_qsig_ssct_SSCTInitiateArg;
+static int ett_qsig_ssct_SSCTIargumentExtension;
+static int ett_qsig_ssct_SSCTSetupArg;
+static int ett_qsig_ssct_SSCTSargumentExtension;
+static int ett_qsig_ssct_SSCTDigitInfoArg;
+static int ett_qsig_ssct_SSCTDargumentExtension;
 
 /* --- Module WTM-Location-Registration-Operations-asn1-97 --- --- ---        */
 
-static gint ett_qsig_wtmlr_LocUpdArg;
-static gint ett_qsig_wtmlr_DummyRes;
-static gint ett_qsig_wtmlr_SEQUENCE_OF_Extension;
-static gint ett_qsig_wtmlr_LocDelArg;
-static gint ett_qsig_wtmlr_LocDeRegArg;
-static gint ett_qsig_wtmlr_PisnEnqArg;
-static gint ett_qsig_wtmlr_PisnEnqRes;
-static gint ett_qsig_wtmlr_GetRRCInfArg;
-static gint ett_qsig_wtmlr_GetRRCInfRes;
-static gint ett_qsig_wtmlr_LocInfoCheckArg;
-static gint ett_qsig_wtmlr_LocInfoCheckRes;
-static gint ett_qsig_wtmlr_WtmUserId;
-static gint ett_qsig_wtmlr_LrExtension;
+static int ett_qsig_wtmlr_LocUpdArg;
+static int ett_qsig_wtmlr_DummyRes;
+static int ett_qsig_wtmlr_SEQUENCE_OF_Extension;
+static int ett_qsig_wtmlr_LocDelArg;
+static int ett_qsig_wtmlr_LocDeRegArg;
+static int ett_qsig_wtmlr_PisnEnqArg;
+static int ett_qsig_wtmlr_PisnEnqRes;
+static int ett_qsig_wtmlr_GetRRCInfArg;
+static int ett_qsig_wtmlr_GetRRCInfRes;
+static int ett_qsig_wtmlr_LocInfoCheckArg;
+static int ett_qsig_wtmlr_LocInfoCheckRes;
+static int ett_qsig_wtmlr_WtmUserId;
+static int ett_qsig_wtmlr_LrExtension;
 
 /* --- Module Wireless-Terminal-Call-Handling-Operations-asn1-97 --- --- ---  */
 
-static gint ett_qsig_wtmch_EnquiryArg;
-static gint ett_qsig_wtmch_DivertArg;
-static gint ett_qsig_wtmch_InformArg;
-static gint ett_qsig_wtmch_EnquiryRes;
-static gint ett_qsig_wtmch_CurrLocation;
-static gint ett_qsig_wtmch_CfuActivated;
-static gint ett_qsig_wtmch_DummyRes;
-static gint ett_qsig_wtmch_SEQUENCE_OF_Extension;
-static gint ett_qsig_wtmch_WtmiExtension;
-static gint ett_qsig_wtmch_WtmIdentity;
-static gint ett_qsig_wtmch_T_both;
-static gint ett_qsig_wtmch_WtmoArg;
-static gint ett_qsig_wtmch_T_wtmoaextension;
+static int ett_qsig_wtmch_EnquiryArg;
+static int ett_qsig_wtmch_DivertArg;
+static int ett_qsig_wtmch_InformArg;
+static int ett_qsig_wtmch_EnquiryRes;
+static int ett_qsig_wtmch_CurrLocation;
+static int ett_qsig_wtmch_CfuActivated;
+static int ett_qsig_wtmch_DummyRes;
+static int ett_qsig_wtmch_SEQUENCE_OF_Extension;
+static int ett_qsig_wtmch_WtmiExtension;
+static int ett_qsig_wtmch_WtmIdentity;
+static int ett_qsig_wtmch_T_both;
+static int ett_qsig_wtmch_WtmoArg;
+static int ett_qsig_wtmch_T_wtmoaextension;
 
 /* --- Module WTM-Authentication-Operations-asn1-97 --- --- ---               */
 
-static gint ett_qsig_wtmau_AuthWtmArg;
-static gint ett_qsig_wtmau_AuthWtmRes;
-static gint ett_qsig_wtmau_WtatParamArg;
-static gint ett_qsig_wtmau_WtatParamRes;
-static gint ett_qsig_wtmau_WtanParamArg;
-static gint ett_qsig_wtmau_WtmUserId;
-static gint ett_qsig_wtmau_WtanParamRes;
-static gint ett_qsig_wtmau_ARG_transferAuthParam;
-static gint ett_qsig_wtmau_WtatParamInfo;
-static gint ett_qsig_wtmau_T_wtatParamInfoChoice;
-static gint ett_qsig_wtmau_WtanParamInfo;
-static gint ett_qsig_wtmau_AuthSessionKeyInfo;
-static gint ett_qsig_wtmau_CalcWtatInfo;
-static gint ett_qsig_wtmau_CalcWtatInfoUnit;
-static gint ett_qsig_wtmau_CalcWtanInfo;
-static gint ett_qsig_wtmau_DummyExtension;
-static gint ett_qsig_wtmau_SEQUENCE_OF_Extension;
-static gint ett_qsig_wtmau_AuthAlgorithm;
+static int ett_qsig_wtmau_AuthWtmArg;
+static int ett_qsig_wtmau_AuthWtmRes;
+static int ett_qsig_wtmau_WtatParamArg;
+static int ett_qsig_wtmau_WtatParamRes;
+static int ett_qsig_wtmau_WtanParamArg;
+static int ett_qsig_wtmau_WtmUserId;
+static int ett_qsig_wtmau_WtanParamRes;
+static int ett_qsig_wtmau_ARG_transferAuthParam;
+static int ett_qsig_wtmau_WtatParamInfo;
+static int ett_qsig_wtmau_T_wtatParamInfoChoice;
+static int ett_qsig_wtmau_WtanParamInfo;
+static int ett_qsig_wtmau_AuthSessionKeyInfo;
+static int ett_qsig_wtmau_CalcWtatInfo;
+static int ett_qsig_wtmau_CalcWtatInfoUnit;
+static int ett_qsig_wtmau_CalcWtanInfo;
+static int ett_qsig_wtmau_DummyExtension;
+static int ett_qsig_wtmau_SEQUENCE_OF_Extension;
+static int ett_qsig_wtmau_AuthAlgorithm;
 
 /* --- Module SS-SD-Operations-asn1-97 --- --- ---                            */
 
-static gint ett_qsig_sd_DisplayArg;
-static gint ett_qsig_sd_DisplayString;
-static gint ett_qsig_sd_KeypadArg;
-static gint ett_qsig_sd_SDExtension;
-static gint ett_qsig_sd_SEQUENCE_OF_Extension;
+static int ett_qsig_sd_DisplayArg;
+static int ett_qsig_sd_DisplayString;
+static int ett_qsig_sd_KeypadArg;
+static int ett_qsig_sd_SDExtension;
+static int ett_qsig_sd_SEQUENCE_OF_Extension;
 
 /* --- Module Call-Identification-and-Call-Linkage-Operations-asn1-97 --- --- --- */
 
-static gint ett_qsig_cidl_CallIdentificationAssignArg;
-static gint ett_qsig_cidl_CallIdentificationUpdateArg;
-static gint ett_qsig_cidl_CallIdentificationData;
-static gint ett_qsig_cidl_T_linkageID;
-static gint ett_qsig_cidl_ExtensionType;
-static gint ett_qsig_cidl_SEQUENCE_OF_Extension;
+static int ett_qsig_cidl_CallIdentificationAssignArg;
+static int ett_qsig_cidl_CallIdentificationUpdateArg;
+static int ett_qsig_cidl_CallIdentificationData;
+static int ett_qsig_cidl_T_linkageID;
+static int ett_qsig_cidl_ExtensionType;
+static int ett_qsig_cidl_SEQUENCE_OF_Extension;
 
 /* --- Module Short-Message-Service-Operations-asn1-97 --- --- ---            */
 
-static gint ett_qsig_sms_SmsSubmitArg;
-static gint ett_qsig_sms_SmsSubmitRes;
-static gint ett_qsig_sms_SmsDeliverArg;
-static gint ett_qsig_sms_SmsDeliverRes;
-static gint ett_qsig_sms_SmsStatusReportArg;
-static gint ett_qsig_sms_SmsStatusReportRes;
-static gint ett_qsig_sms_SmsCommandArg;
-static gint ett_qsig_sms_SmsCommandRes;
-static gint ett_qsig_sms_ScAlertArg;
-static gint ett_qsig_sms_DummyRes;
-static gint ett_qsig_sms_SmSubmitParameter;
-static gint ett_qsig_sms_SmDeliverParameter;
-static gint ett_qsig_sms_SmsDeliverResChoice;
-static gint ett_qsig_sms_ResChoiceSeq;
-static gint ett_qsig_sms_SmsStatusReportResponseChoice;
-static gint ett_qsig_sms_SmsExtension;
-static gint ett_qsig_sms_SEQUENCE_OF_Extension;
-static gint ett_qsig_sms_ValidityPeriod;
-static gint ett_qsig_sms_ValidityPeriodEnh;
-static gint ett_qsig_sms_EnhancedVP;
-static gint ett_qsig_sms_UserData;
-static gint ett_qsig_sms_ShortMessageText;
-static gint ett_qsig_sms_UserDataHeader;
-static gint ett_qsig_sms_UserDataHeaderChoice;
-static gint ett_qsig_sms_SmscControlParameterHeader;
-static gint ett_qsig_sms_Concatenated8BitSMHeader;
-static gint ett_qsig_sms_Concatenated16BitSMHeader;
-static gint ett_qsig_sms_ApplicationPort8BitHeader;
-static gint ett_qsig_sms_ApplicationPort16BitHeader;
-static gint ett_qsig_sms_GenericUserValue;
-static gint ett_qsig_sms_PAR_smsDeliverError;
-static gint ett_qsig_sms_PAR_smsSubmitError;
-static gint ett_qsig_sms_PAR_smsStatusReportError;
-static gint ett_qsig_sms_PAR_smsCommandError;
+static int ett_qsig_sms_SmsSubmitArg;
+static int ett_qsig_sms_SmsSubmitRes;
+static int ett_qsig_sms_SmsDeliverArg;
+static int ett_qsig_sms_SmsDeliverRes;
+static int ett_qsig_sms_SmsStatusReportArg;
+static int ett_qsig_sms_SmsStatusReportRes;
+static int ett_qsig_sms_SmsCommandArg;
+static int ett_qsig_sms_SmsCommandRes;
+static int ett_qsig_sms_ScAlertArg;
+static int ett_qsig_sms_DummyRes;
+static int ett_qsig_sms_SmSubmitParameter;
+static int ett_qsig_sms_SmDeliverParameter;
+static int ett_qsig_sms_SmsDeliverResChoice;
+static int ett_qsig_sms_ResChoiceSeq;
+static int ett_qsig_sms_SmsStatusReportResponseChoice;
+static int ett_qsig_sms_SmsExtension;
+static int ett_qsig_sms_SEQUENCE_OF_Extension;
+static int ett_qsig_sms_ValidityPeriod;
+static int ett_qsig_sms_ValidityPeriodEnh;
+static int ett_qsig_sms_EnhancedVP;
+static int ett_qsig_sms_UserData;
+static int ett_qsig_sms_ShortMessageText;
+static int ett_qsig_sms_UserDataHeader;
+static int ett_qsig_sms_UserDataHeaderChoice;
+static int ett_qsig_sms_SmscControlParameterHeader;
+static int ett_qsig_sms_Concatenated8BitSMHeader;
+static int ett_qsig_sms_Concatenated16BitSMHeader;
+static int ett_qsig_sms_ApplicationPort8BitHeader;
+static int ett_qsig_sms_ApplicationPort16BitHeader;
+static int ett_qsig_sms_GenericUserValue;
+static int ett_qsig_sms_PAR_smsDeliverError;
+static int ett_qsig_sms_PAR_smsSubmitError;
+static int ett_qsig_sms_PAR_smsStatusReportError;
+static int ett_qsig_sms_PAR_smsCommandError;
 
 /* --- Module SS-MCR-Operations-asn97 --- --- ---                             */
 
-static gint ett_qsig_mcr_MCRequestArg;
-static gint ett_qsig_mcr_MCRequestResult;
-static gint ett_qsig_mcr_MCInformArg;
-static gint ett_qsig_mcr_MCAlertingArg;
-static gint ett_qsig_mcr_CallType;
-static gint ett_qsig_mcr_Correlation;
-static gint ett_qsig_mcr_MCRExtensions;
-static gint ett_qsig_mcr_SEQUENCE_OF_Extension;
+static int ett_qsig_mcr_MCRequestArg;
+static int ett_qsig_mcr_MCRequestResult;
+static int ett_qsig_mcr_MCInformArg;
+static int ett_qsig_mcr_MCAlertingArg;
+static int ett_qsig_mcr_CallType;
+static int ett_qsig_mcr_Correlation;
+static int ett_qsig_mcr_MCRExtensions;
+static int ett_qsig_mcr_SEQUENCE_OF_Extension;
 
 /* --- Module SS-MCM-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_mcm_MCMailboxFullArg;
-static gint ett_qsig_mcm_MailboxFullFor;
-static gint ett_qsig_mcm_MailboxFullPar;
-static gint ett_qsig_mcm_MCMServiceArg;
-static gint ett_qsig_mcm_MCMChange;
-static gint ett_qsig_mcm_SEQUENCE_OF_MCMServiceInfo;
-static gint ett_qsig_mcm_SEQUENCE_OF_MessageType;
-static gint ett_qsig_mcm_MCMServiceInfo;
-static gint ett_qsig_mcm_MCMInterrogateArg;
-static gint ett_qsig_mcm_MCMInterrogateRes;
-static gint ett_qsig_mcm_MCMNewMsgArg;
-static gint ett_qsig_mcm_MCMNewArgumentExt;
-static gint ett_qsig_mcm_SEQUENCE_OF_Extension;
-static gint ett_qsig_mcm_MCMNoNewMsgArg;
-static gint ett_qsig_mcm_MCMNoNewArgumentExt;
-static gint ett_qsig_mcm_MCMUpdateArg;
-static gint ett_qsig_mcm_MCMUpdateReqArg;
-static gint ett_qsig_mcm_MCMUpdArgArgumentExt;
-static gint ett_qsig_mcm_MCMUpdateReqRes;
-static gint ett_qsig_mcm_MCMUpdateReqResElt;
-static gint ett_qsig_mcm_MCMUpdResArgumentExt;
-static gint ett_qsig_mcm_PartyInfo;
-static gint ett_qsig_mcm_UpdateInfo;
-static gint ett_qsig_mcm_AllMsgInfo;
-static gint ett_qsig_mcm_MessageInfo;
-static gint ett_qsig_mcm_CompleteInfo;
-static gint ett_qsig_mcm_AddressHeader;
-static gint ett_qsig_mcm_CompressedInfo;
-static gint ett_qsig_mcm_MsgCentreId;
-static gint ett_qsig_mcm_MCMExtensions;
+static int ett_qsig_mcm_MCMailboxFullArg;
+static int ett_qsig_mcm_MailboxFullFor;
+static int ett_qsig_mcm_MailboxFullPar;
+static int ett_qsig_mcm_MCMServiceArg;
+static int ett_qsig_mcm_MCMChange;
+static int ett_qsig_mcm_SEQUENCE_OF_MCMServiceInfo;
+static int ett_qsig_mcm_SEQUENCE_OF_MessageType;
+static int ett_qsig_mcm_MCMServiceInfo;
+static int ett_qsig_mcm_MCMInterrogateArg;
+static int ett_qsig_mcm_MCMInterrogateRes;
+static int ett_qsig_mcm_MCMNewMsgArg;
+static int ett_qsig_mcm_MCMNewArgumentExt;
+static int ett_qsig_mcm_SEQUENCE_OF_Extension;
+static int ett_qsig_mcm_MCMNoNewMsgArg;
+static int ett_qsig_mcm_MCMNoNewArgumentExt;
+static int ett_qsig_mcm_MCMUpdateArg;
+static int ett_qsig_mcm_MCMUpdateReqArg;
+static int ett_qsig_mcm_MCMUpdArgArgumentExt;
+static int ett_qsig_mcm_MCMUpdateReqRes;
+static int ett_qsig_mcm_MCMUpdateReqResElt;
+static int ett_qsig_mcm_MCMUpdResArgumentExt;
+static int ett_qsig_mcm_PartyInfo;
+static int ett_qsig_mcm_UpdateInfo;
+static int ett_qsig_mcm_AllMsgInfo;
+static int ett_qsig_mcm_MessageInfo;
+static int ett_qsig_mcm_CompleteInfo;
+static int ett_qsig_mcm_AddressHeader;
+static int ett_qsig_mcm_CompressedInfo;
+static int ett_qsig_mcm_MsgCentreId;
+static int ett_qsig_mcm_MCMExtensions;
 
 /* --- Module SS-MID-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_mid_MIDMailboxAuthArg;
-static gint ett_qsig_mid_MIDMailboxIDArg;
-static gint ett_qsig_mid_PartyInfo;
-static gint ett_qsig_mid_String;
-static gint ett_qsig_mid_MIDExtensions;
-static gint ett_qsig_mid_SEQUENCE_OF_Extension;
+static int ett_qsig_mid_MIDMailboxAuthArg;
+static int ett_qsig_mid_MIDMailboxIDArg;
+static int ett_qsig_mid_PartyInfo;
+static int ett_qsig_mid_String;
+static int ett_qsig_mid_MIDExtensions;
+static int ett_qsig_mid_SEQUENCE_OF_Extension;
 static gint ett_cnq_PSS1InformationElement;
 
 /* static expert_field ei_qsig_unsupported_arg_type; */
