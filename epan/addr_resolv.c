@@ -3496,7 +3496,8 @@ host_name_lookup_init(void)
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
     if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
 #endif
-        if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
+        /* XXX - Check which options we should set */
+        if (ares_init_options(&ghba_chan, NULL, 0) == ARES_SUCCESS && ares_init_options(&ghbn_chan, NULL, 0) == ARES_SUCCESS) {
             async_dns_initialized = TRUE;
             c_ares_set_dns_servers();
         }
