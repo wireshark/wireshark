@@ -2563,11 +2563,13 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             }
             /* QFI is common to both directions */
             proto_tree_add_item_ret_uint(sdap_tree, hf_sdap_qfi, tvb, pdcp_offset, 1, ENC_NA, &qfi);
+
+            /* Did SDAP come out of main tvb?  If ciphered, was already taken off the front.. */
             if (!payload_deciphered) {
-                offset++;
+                offset += sdap_length;
+                payload_length -= sdap_length;
             }
             proto_item_append_text(sdap_ti, "  QFI=%u)", qfi);
-            payload_length--;
         }
 
         if (payload_length > 0) {
