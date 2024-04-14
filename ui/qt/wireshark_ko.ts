@@ -4297,6 +4297,42 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>다른 프로필에서 그래프를 복사합니다.</translation>
     </message>
     <message>
+        <source>1 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>10 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>20 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>50 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>100 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>200 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>500 μs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>1 ms</source>
         <translation>1 ms</translation>
     </message>
@@ -4339,6 +4375,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>5 sec</source>
         <translation>5초</translation>
+    </message>
+    <message>
+        <source>2 min</source>
+        <translation type="unfinished">10분 {2 ?}</translation>
+    </message>
+    <message>
+        <source>5 min</source>
+        <translation type="unfinished">10분 {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>

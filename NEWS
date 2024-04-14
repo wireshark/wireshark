@@ -15,8 +15,9 @@ Wireshark 4.3.0 Release Notes
   capture file that matches the filter, Wireshark will automatically
   switch to that profile.
 
-  Lua 5.3 and 5.4 are supported, and the Lua version included with the
-  Windows and MacOS installers is now 5.4.6.
+  Lua support for older LUA versions has been dropped. Only 5.3 and 5.4
+  are supported, and the Lua version included with the Windows and MacOS
+  installers is now 5.4.6.
 
   Improved display filter support for value strings (optional string
   representations for numeric fields).
@@ -227,9 +228,9 @@ Wireshark 4.3.0 Release Notes
   New Protocol Support
 
    Allied Telesis Resiliency Link (AT RL), EGNOS Message Server (EMS)
-   file format, MAC NR Framed (mac-nr-framed), RF4CE Network Layer
-   (RF4CE), RF4CE Profile (RF4CE Profile), and ZeroMQ Message Transport
-   Protocol (ZMTP)
+   file format, Galileo E1-B I/NAV navigation messages, MAC NR Framed
+   (mac-nr-framed), RF4CE Network Layer (RF4CE), RF4CE Profile (RF4CE
+   Profile), and ZeroMQ Message Transport Protocol (ZMTP)
 
   Updated Protocol Support
 
