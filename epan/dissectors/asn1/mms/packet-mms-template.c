@@ -231,6 +231,7 @@ typedef struct mms_actx_private_data_t
     int objectclass;
     int objectscope;
     mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record*/
+    char* itemid_str;
 } mms_actx_private_data_t;
 
 

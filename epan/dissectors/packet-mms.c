@@ -1146,6 +1146,7 @@ typedef struct mms_actx_private_data_t
     int objectclass;
     int objectscope;
     mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record*/
+    char* itemid_str;
 } mms_actx_private_data_t;
 
 
@@ -1439,22 +1440,22 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
         if (hf_index == hf_mms_domainId) {
                 private_data_add_moreCinfo_id(actx,tvb);
         }
-        if ((mms_priv) && (hf_index == hf_mms_objectName_domain_specific_itemId)) {
+        if ((mms_priv) && ((hf_index == hf_mms_objectName_domain_specific_itemId)||(hf_index ==hf_mms_listOfIdentifier_item))) {
             private_data_add_moreCinfo_id(actx,tvb);
-            if(mms_priv->mms_trans_p){
-                const char *itemid_str = tvb_get_string_enc(actx->pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
-                if(g_str_has_suffix(itemid_str,"$ctlModel")){
+            if((mms_priv->mms_trans_p)&&(parameter_tvb)){
+                mms_priv->itemid_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
+                if(g_str_has_suffix(mms_priv->itemid_str,"$ctlModel")){
                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
-                }else  if(g_str_has_suffix(itemid_str,"$q")){
+                }else  if(g_str_has_suffix(mms_priv->itemid_str,"$q")){
                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_Q;
-                }else if(g_str_has_suffix(itemid_str,"$Oper")){
+                }else if(g_str_has_suffix(mms_priv->itemid_str,"$Oper")){
                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_OPER;
                  }
             }
         }
 
         if ((mms_priv) && (hf_index == hf_mms_vmd_specific)){
-                const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
+                const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
                 if (strcmp(vmd_specific_str, "RPT") == 0) {
                         mms_priv->vmd_specific = IEC61850_8_1_RPT;
                 }
@@ -8118,7 +8119,7 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                         proto_item_append_text(mms_priv->pdu_item, " [Associate Response]");
                         break;
                     case MMS_CONFIRMED_REQUEST_PDU:
-                        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR){
+                        if((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR)){
                             col_append_str(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryRequest");
                             proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryRequest]");
                         }else if (mms_has_private_data(actx)){
@@ -8127,9 +8128,9 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                         }
                     break;
                     case MMS_CONFIRMED_RESPONSE_PDU:
-                        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR){
-                            col_append_str(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryResponse");
-                            proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryResponse]");
+                        if((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR)){
+                            col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryResponse %s", mms_priv->itemid_str);
+                            proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryResponse ]");
                         }else if(mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
                                     private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
