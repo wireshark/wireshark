@@ -757,6 +757,7 @@ goaway
 golomb
 google
 gopname
+gostr
 gpointer
 gprscdr
 gprsmeasurementparams3g
@@ -1095,6 +1096,7 @@ mozilla
 mp4ves
 mpeg4
 mplstp
+mpquic
 mpsse
 mptcp
 mrcpv
@@ -1146,6 +1148,7 @@ mysql
 nacks
 nagle
 namelen
+nameor
 namespace
 naptr
 narrowband
@@ -1618,6 +1621,7 @@ revertive
 revocations
 rf4ce
 rfcomm
+rfinfo
 rfmon
 rgoose
 ripemd

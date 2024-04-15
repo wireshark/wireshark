@@ -4409,7 +4409,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         return -1;
     }
 
-    /* check for enough info to proced */
+    /* check for enough info to proceed */
     guint need_all = SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION;
     guint need_any = SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET;
     if (((ssl_session->state & need_all) != need_all) || ((ssl_session->state & need_any) == 0)) {

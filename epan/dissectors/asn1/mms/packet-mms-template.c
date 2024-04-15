@@ -34,7 +34,7 @@ static bool use_iec61850_mapping = TRUE;
 /* Initialize the protocol and registered fields */
 static int proto_mms;
 
-/* Converstaion */
+/* Conversation */
 static int hf_mms_response_in;
 static int hf_mms_response_to;
 static int hf_mms_response_time;
@@ -103,7 +103,7 @@ typedef struct _mms_transaction_t {
     uint32_t req_frame;
     uint32_t rep_frame;
     nstime_t req_time;
-    /* Rquest info*/
+    /* Request info*/
     itemid_type itemid;    /* Numeric representation of ItemId substring */
     int conf_serv_pdu_type_req;
 } mms_transaction_t;
@@ -227,13 +227,13 @@ typedef struct mms_actx_private_data_t
     int mms_pdu_type;                               /* MMSpdu type taken from MMSpdu CHOISE branch_taken */
     int invokeid;
     iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
-    int listOfAccessResult_cnt;                     /* Posision  in the list, 1 count*/
-    guint16 reported_optflds;                       /* Bitmap over included fields*/
+    int listOfAccessResult_cnt;                     /* Position in the list, 1 count */
+    guint16 reported_optflds;                       /* Bitmap over included fields */
     proto_item* pdu_item;                           /* The item to append PDU info to */
     int confirmedservice_type;                      /* Requested service */
     int objectclass;
     int objectscope;
-    mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record*/
+    mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record */
     char* itemid_str;
 } mms_actx_private_data_t;
 
@@ -562,7 +562,7 @@ void proto_register_mms(void) {
 
     prefs_register_bool_preference(mms_module, "use_iec61850_mapping",
         "Dissect MMS as IEC-61850",
-        "Enables or disables dsissection as IEC-61850 on top of MMS",
+        "Enables or disables dissection as IEC-61850 on top of MMS",
         &use_iec61850_mapping);
 }
 

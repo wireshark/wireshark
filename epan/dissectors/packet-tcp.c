@@ -8542,7 +8542,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 tcpd->fwd->maxnextseq = tcph->th_seq + 1;
             }
         }
-        /* Initiliaze the is_first_ack */
+        /* Initialize the is_first_ack */
         tcpd->fwd->is_first_ack = TRUE;
     }
     if(tcph->th_flags & TH_FIN) {

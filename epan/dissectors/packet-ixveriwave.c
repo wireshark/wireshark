@@ -2065,7 +2065,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (dbm != 100) {
         proto_tree_add_item(tap_tree, hf_radiotap_dbm_antd, tvb, offset, 1, ENC_NA);
     }
-    offset+=2;  /* also skips paddng octet */
+    offset+=2;  /* also skips padding octet */
 
     /* VeriWave flags */
     vw_flags = tvb_get_letohs(tvb, offset);
@@ -2247,7 +2247,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     next_tvb = tvb_new_subset_remaining(tvb, length);
 
-    /* dissect the 802.11 radio informaton and header next */
+    /* dissect the 802.11 radio information and header next */
     call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
 }
 
@@ -2515,7 +2515,7 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_uint(vw_infoC_tree, hf_radiotap_vht_mu_mimo_flg,
                     tvb, offset, 1, vht_mu_mimo_flg);
 
-                // extract user Postiion in case of mu-mimo
+                // extract user Position in case of mu-mimo
                 proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_user_pos, tvb, offset, 1, ENC_NA);
 
             } else {
@@ -2941,7 +2941,7 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* There's data to dissect; grab the rest of the frame. */
         next_tvb = tvb_new_subset_remaining(tvb, length);
 
-        /* dissect the 802.11 radio informaton and header next */
+        /* dissect the 802.11 radio information and header next */
         call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
     }
 }
@@ -4052,7 +4052,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Layer 1 Info[1]", "ixveriwave.info.layer_1_info_1",
         FT_UINT24, BASE_DEC, NULL, 0x020000, NULL, HFILL } },
     { &hf_radiotap_vw_info_rx_vht_frame_received_with_vht_sig_b_length,
-        { "VHT frame received with the use of the VHT_SIG_B.LENGTH", "ixveriwave.info.vht_frame_received_with_vht_sig_b_lengt",
+        { "VHT frame received with the use of the VHT_SIG_B.LENGTH", "ixveriwave.info.vht_frame_received_with_vht_sig_b_length",
         FT_BOOLEAN, 24, NULL, 0x040000, NULL, HFILL } },
     { &hf_radiotap_vw_info_rx_vht_frame_received_without_vht_sig_b_length,
         { "VHT frame received without the use of VHT_SIG_B.LENGTH", "ixveriwave.info.vht_frame_received_without_vht_sig_b_length",

@@ -1816,7 +1816,7 @@ static const value_string pfcp_ie_type[] = {
     { 291, "Group ID"},                                             /* Fixed / Clause 8.2.198 */
     { 292, "CP IP Address"},                                        /* Extendable / Clause 8.2.199 */
     { 293, "IP Address and Port Number Replacement"},               /* Variable Length / Clause 8.2.200 */
-    { 294, "DNS Query/Reponse Filter"},                             /* Variable Length / Clause 8.2.201 */
+    { 294, "DNS Query/Response Filter"},                             /* Variable Length / Clause 8.2.201 */
     { 295, "Direct Reporting Information"},                         /* Extendable / Table 7.5.2.9-4 */
     { 296, "Event Notification URI"},                               /* Variable Length / Clause 8.2.202 */
     { 297, "Notification Correlation ID"},                          /* Variable Length / Clause 8.2.203 */

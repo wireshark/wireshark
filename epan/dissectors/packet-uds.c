@@ -2370,7 +2370,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
 
         case UDS_SERVICES_RDBI:
             if (sid & UDS_REPLY_MASK) {
-                /* Can't know the size of the data for each identifier, Decode like if there is only one idenfifier */
+                /* Can't know the size of the data for each identifier, Decode like if there is only one identifier */
                 guint32 data_identifier;
                 ti = proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbi_data_identifier, tvb, offset, 2, ENC_BIG_ENDIAN, &data_identifier);
                 protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
