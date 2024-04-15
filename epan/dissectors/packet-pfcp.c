@@ -5,7 +5,7 @@
  * Copyright 2017-2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Updates and corrections:
- * Copyright 2017-2023, Joakim Karlsson <oakimk@gmail.com>
+ * Copyright 2017-2024, Joakim Karlsson <oakimk@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.4.0 (2024-01-04)
+ * Ref 3GPP TS 29.244 V18.5.0 (2024-03-26)
  */
 #include "config.h"
 
@@ -286,6 +286,9 @@ static int hf_pfcp_report_type_b0_dldr;
 static int hf_pfcp_offending_ie;
 static int hf_pfcp_offending_ie_value;
 
+static int hf_pfcp_up_function_features_o13_b5_upsbies;
+static int hf_pfcp_up_function_features_o13_b4_mtsdt;
+static int hf_pfcp_up_function_features_o13_b3_edbnc;
 static int hf_pfcp_up_function_features_o13_b2_qmdrm;
 static int hf_pfcp_up_function_features_o13_b1_cntl;
 static int hf_pfcp_up_function_features_o13_b0_pdusm;
@@ -434,7 +437,9 @@ static int hf_pfcp_dl_data_notification_delay;
 static int hf_pfcp_packet_count;
 static int hf_pfcp_dl_data_service_inf_b0_ppi;
 static int hf_pfcp_dl_data_service_inf_b1_qfii;
+static int hf_pfcp_dl_data_service_inf_b2_dlpsi;
 static int hf_pfcp_ppi;
+static int hf_pfcp_dldatapacketsize;
 
 static int hf_pfcp_pfcpsmreq_flags_b0_drobu;
 static int hf_pfcp_pfcpsmreq_flags_b1_sndem;
@@ -1014,6 +1019,25 @@ static int hf_pfcp_rtp_header_extension_id;
 static int hf_pfcp_rtp_payload_type;
 
 static int hf_pfcp_rtp_payload_format;
+
+static int hf_pfcp_extended_dl_buffering_notification_policy_flags_b0_edbn;
+
+static int hf_pfcp_mt_sdt_control_information_flags_b0_rdsi;
+
+static int hf_pfcp_reporting_thresholds_flags_b3_uldr;
+static int hf_pfcp_reporting_thresholds_flags_b2_dldr;
+static int hf_pfcp_reporting_thresholds_flags_b1_ulci;
+static int hf_pfcp_reporting_thresholds_flags_b0_dlci;
+static int hf_pfcp_reporting_thresholds_dl_congestion_information_threshold;
+static int hf_pfcp_reporting_thresholds_ul_congestion_information_threshold;
+static int hf_pfcp_reporting_thresholds_dl_data_rate_threshold;
+static int hf_pfcp_reporting_thresholds_ul_data_rate_threshold;
+
+static int hf_pfcp_rtp_header_extension_additional_information_flags_b1_pssai;
+static int hf_pfcp_rtp_header_extension_additional_information_flags_b0_fi;
+static int hf_pfcp_rtp_header_extension_additional_information_pssa;
+static int hf_pfcp_rtp_header_extension_additional_information_format;
+
 
 /* Enterprise IEs */
 /* BBF */
@@ -1792,7 +1816,7 @@ static const value_string pfcp_ie_type[] = {
     { 291, "Group ID"},                                             /* Fixed / Clause 8.2.198 */
     { 292, "CP IP Address"},                                        /* Extendable / Clause 8.2.199 */
     { 293, "IP Address and Port Number Replacement"},               /* Variable Length / Clause 8.2.200 */
-    { 294, "DNS Query Filter"},                                     /* Variable Length / Clause 8.2.201 */
+    { 294, "DNS Query/Reponse Filter"},                             /* Variable Length / Clause 8.2.201 */
     { 295, "Direct Reporting Information"},                         /* Extendable / Table 7.5.2.9-4 */
     { 296, "Event Notification URI"},                               /* Variable Length / Clause 8.2.202 */
     { 297, "Notification Correlation ID"},                          /* Variable Length / Clause 8.2.203 */
@@ -1844,7 +1868,11 @@ static const value_string pfcp_ie_type[] = {
     { 343, "RTP Header Extension ID"},                              /* Fixed Length / Clause 8.2.235 */
     { 344, "RTP Payload Type"},                                     /* Fixed Length / Clause 8.2.236 */
     { 345, "RTP Payload Format"},                                   /* Fixed Length / Clause 8.2.237 */
-    //346 to 32767 Spare. For future use.
+    { 346, "Extended DL Buffering Notification Policy"},            /* Extendable / Clause 8.2.238 */
+    { 347, "MT-SDT Control Information"},                           /* Extendable / Clause 8.2.239 */
+    { 348, "Reporting Thresholds"},                                 /* Extendable / Clause 8.2.240 */
+    { 349, "RTP Header Extension Additional Information"},          /* Extendable / Clause 8.2.241 */
+    //350 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -3321,13 +3349,16 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o13_flags[] = {
-        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_up_function_features_o13_b5_upsbies,
+        &hf_pfcp_up_function_features_o13_b4_mtsdt,
+        &hf_pfcp_up_function_features_o13_b3_edbnc,
         &hf_pfcp_up_function_features_o13_b2_qmdrm,
         &hf_pfcp_up_function_features_o13_b1_cntl,
         &hf_pfcp_up_function_features_o13_b0_pdusm,
         NULL
     };
-    /* Octet 13  Spare  QMDRM   CN-TL   PDUSM  */
+    /* Octet 13  Spare  UPSBIES MT-SDT  EDBNC   QMDRM   CN-TL   PDUSM  */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o13_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3395,12 +3426,13 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint64 flags;
 
     static int * const pfcp_dl_data_service_inf_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_dl_data_service_inf_b2_dlpsi,
         &hf_pfcp_dl_data_service_inf_b1_qfii,
         &hf_pfcp_dl_data_service_inf_b0_ppi,
         NULL
     };
-    /* Octet 5  Spare   QFII    PPI */
+    /* Octet 5  Spare   DLPSI   QFII    PPI */
     proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_dl_data_service_inf_flags, ENC_BIG_ENDIAN, &flags);
     offset += 1;
 
@@ -3423,6 +3455,15 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(tree, hf_pfcp_spare_b7_b6, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_pfcp_qfi, tvb, offset, 1, ENC_NA);
         offset++;
+    }
+
+    /* The DLPSI flag in octet 5 indicates whether the DL Data Packet Size value in octet 'q' to 'q+1' shall be present */
+    if ((flags & 0x2) == 2) {
+        /*
+         * DL Data Packet Size
+         */
+        proto_tree_add_item(tree, hf_pfcp_dldatapacketsize, tvb, offset, 2, ENC_NA);
+        offset += 2;
     }
 
     if (offset < length) {
@@ -8433,7 +8474,23 @@ static const value_string pfcp_rattype_vals[] = {
     { 8, "EUTRAN-NB-IoT" },
     { 9, "LTE-M" },
     { 10, "NR" },
-    { 11, "NR-REDCAP" },
+    { 11, "WB-E-UTRAN (LEO)" },
+    { 12, "WB-E-UTRAN (MEO)" },
+    { 13, "WB-E-UTRAN (GEO)" },
+    { 14, "WB-E-UTRAN (OTHERSAT)" },
+    { 15, "EUTRAN-NB-IoT (LEO)" },
+    { 16, "EUTRAN-NB-IoT (MEO)" },
+    { 17, "EUTRAN-NB-IoT (GEO)" },
+    { 18, "EUTRAN-NB-IoT (OTHERSAT)" },
+    { 19, "LTE-M (LEO)" },
+    { 20, "LTE-M (MEO)" },
+    { 21, "LTE-M (GEO)" },
+    { 22, "LTE-M (OTHERSAT)" },
+    { 23, "NR (LEO)" },
+    { 24, "NR (MEO)" },
+    { 25, "NR (GEO)" },
+    { 26, "NR (OTHERSAT)" },
+    { 27, "NR-REDCAP" },
     { 0, NULL }
 };
 
@@ -8809,10 +8866,10 @@ dissect_pfcp_ip_address_and_port_number_replacement(tvbuff_t *tvb, packet_info *
 }
 
 /*
- * 8.2.201    DNS Query Filter
+ * 8.2.201    DNS Query/Response Filter
  */
 static void
-dissect_pfcp_dns_query_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_dns_query_response_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
     guint32 dns_query_length;
@@ -9691,6 +9748,141 @@ dissect_pfcp_rtp_payload_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_pfcp_rtp_payload_format, tvb, 0, length, ENC_NA);
 }
 
+/*
+ * 8.2.238   Extended DL Buffering Notification Policy
+ */
+static void
+dissect_pfcp_extended_dl_buffering_notification_policy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_extended_dl_buffering_notification_policy_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_extended_dl_buffering_notification_policy_flags_b0_edbn,
+        NULL
+    };
+    /* Octet 5  Spare   EDBN */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_extended_dl_buffering_notification_policy_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.239   MT-SDT Control Information
+ */
+static void
+dissect_pfcp_mt_sdt_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_mt_sdt_control_information_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_mt_sdt_control_information_flags_b0_rdsi,
+        NULL
+    };
+    /* Octet 5  Spare   RDSI */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_mt_sdt_control_information_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.340   Reporting Thresholds
+ */
+static void
+dissect_pfcp_reporting_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 reporting_thresholds_flags;
+
+    static int * const pfcp_reporting_thresholds_flags[] = {
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_reporting_thresholds_flags_b3_uldr,
+        &hf_pfcp_reporting_thresholds_flags_b2_dldr,
+        &hf_pfcp_reporting_thresholds_flags_b1_ulci,
+        &hf_pfcp_reporting_thresholds_flags_b0_dlci,
+        NULL
+    };
+    /* Octet 5  Spare   RP  Ul  DL */
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_reporting_thresholds_flags, ENC_BIG_ENDIAN, &reporting_thresholds_flags);
+    offset += 1;
+
+    /* m to (m+1) DL Congestion information threshold */
+    if ((reporting_thresholds_flags & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_congestion_information_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    /* p to (p+1) UL Congestion information threshold */
+    if ((reporting_thresholds_flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_congestion_information_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    /* q to (q+4) DL Data Rate threshold */
+    if ((reporting_thresholds_flags & 0x4)) {
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_data_rate_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    /* r to (r+4) UL Data Rate threshold */
+    if ((reporting_thresholds_flags & 0x4)) {
+        proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_data_rate_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, length);
+    }
+}
+
+/*
+ * 8.2.241   RTP Header Extension Additional Information
+ */
+static const value_string pfcp_rtp_header_extension_additional_information_type_vals[] = {
+    { 1, "1-byte (short) format in used" },
+    { 2, "2-byte (long) format in used" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_rtp_header_extension_additional_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint64 rtp_header_extension_additional_information_flags;
+
+    static int * const pfcp_rtp_header_extension_additional_information_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_rtp_header_extension_additional_information_flags_b1_pssai,
+        &hf_pfcp_rtp_header_extension_additional_information_flags_b0_fi,
+        NULL
+    };
+    /* Octet 5  Spare   PSSAI   FI */
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_rtp_header_extension_additional_information_flags, ENC_BIG_ENDIAN, &rtp_header_extension_additional_information_flags);
+    offset += 1;
+
+    /* Octet 6 */
+    /* PSSA */
+    if ((rtp_header_extension_additional_information_flags & 0x2)) {
+        proto_tree_add_item(tree, hf_pfcp_rtp_header_extension_additional_information_pssa, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    /* Format */
+    if ((rtp_header_extension_additional_information_flags & 0x1)) {
+        proto_tree_add_item(tree, hf_pfcp_rtp_header_extension_additional_information_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
 static pfcp_msg_hash_t *
 pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, pfcp_conv_info_t *pfcp_info, guint8 last_cause)
 {
@@ -10374,7 +10566,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    291 */    { dissect_pfcp_group_id },                                      /* Group ID                                        Fixed / Clause 8.2.198 */
 /*    292 */    { dissect_pfcp_cp_ip_address },                                 /* CP IP Address                                   Variable Length / Clause 8.2.199 */
 /*    293 */    { dissect_pfcp_ip_address_and_port_number_replacement },        /* IP Address and Port Number Replacement          Variable Length / Clause 8.2.200 */
-/*    294 */    { dissect_pfcp_dns_query_filter },                              /* DNS Query Filter                                Variable Length / Clause 8.2.201 */
+/*    294 */    { dissect_pfcp_dns_query_response_filter },                     /* DNS Query/Response Filter                       Variable Length / Clause 8.2.201 */
 /*    295 */    { dissect_pfcp_grouped_ie },                                    /* Direct Reporting Information                    Extendable / Table 7.5.2.9-4  */
 /*    296 */    { dissect_pfcp_event_notification_uri },                        /* Event Notification URI                          Variable Length / Clause 8.2.202 */
 /*    297 */    { dissect_pfcp_notification_correlation_id },                   /* Notification Correlation ID                     Fixed / Clause 8.2.203 */
@@ -10426,7 +10618,11 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    343 */    { dissect_pfcp_rtp_header_extension_id },                       /* RTP Header Extension ID                          Fixed Length / Clause 8.2.235 */
 /*    344 */    { dissect_pfcp_rtp_payload_type },                              /* RTP Payload Type                                 Fixed Length / Clause 8.2.236 */
 /*    345 */    { dissect_pfcp_rtp_payload_format },                            /* RTP Payload Format                               Fixed Length / Clause 8.2.237 */
-//346 to 32767 Spare. For future use.
+/*    346 */    { dissect_pfcp_extended_dl_buffering_notification_policy },     /* Extended DL Buffering Notification Policy	    Extendable / Clause 8.2.238 */
+/*    347 */    { dissect_pfcp_mt_sdt_control_information },                    /* MT-SDT Control Information	                    Extendable / Clause 8.2.239 */
+/*    348 */    { dissect_pfcp_reporting_thresholds },                          /* Reporting Thresholds	                            Extendable / Clause 8.2.240 */
+/*    349 */    { dissect_pfcp_rtp_header_extension_additional_information },   /* RTP Header Extension Additional Information	    Extendable / Clause 8.2.241 */
+//350 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -13775,6 +13971,21 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
             "UPF support of QoS monitoring of Data Rate Measurement", HFILL }
         },
+        { &hf_pfcp_up_function_features_o13_b3_edbnc,
+        { "EDBNC", "pfcp.up_function_features.edbnc",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            "UP function supports Extended DL Buffering Notification Control", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o13_b4_mtsdt,
+        { "MT-SDT", "pfcp.up_function_features.mtsdt",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            "UPF support of reporting the size of DL Data Packets per QoS flow", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o13_b5_upsbies,
+        { "UPSBIES", "pfcp.up_function_features.upsbies",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            "UPF support of event subscription via Service Based Interface", HFILL }
+        },
 
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
@@ -14032,9 +14243,19 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
+        { &hf_pfcp_dl_data_service_inf_b2_dlpsi,
+        { "DLPSI(DL Packet Size Indication)", "pfcp.dl_data_service_inf.dlpsi",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
         { &hf_pfcp_ppi,
-        { "Paging Policy Indication", "pfcp.ppi",
+        { "Paging Policy Indication", "pfcp.dl_data_service_inf.ppi",
             FT_UINT16, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dldatapacketsize,
+        { "DL Data Packet Size", "pfcp.dl_data_service_inf.dlpacketsize",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_pfcpsmreq_flags_b0_drobu,
@@ -16295,6 +16516,12 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
+        { &hf_pfcp_measurement_indication_flags_b0_dqfi,
+        { "DQFI", "pfcp.measurement_indication.dqfi",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
         { &hf_pfcp_hplmn_s_nssai_sst,
         { "SST (Slice/Service Type)", "pfcp.hplmn_s_nssai.sst",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -16333,6 +16560,80 @@ proto_register_pfcp(void)
         { &hf_pfcp_rtp_payload_format,
         { "RTP Payload Format", "pfcp.rtp_payload_format.rtp_payload_format",
             FT_UINT8, BASE_DEC, VALS(pfcp_rtp_payload_format_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_extended_dl_buffering_notification_policy_flags_b0_edbn,
+        { "EDBN", "pfcp.extended_dl_buffering_notification_policy.edbn",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_mt_sdt_control_information_flags_b0_rdsi,
+        { "RDSI", "pfcp.mt_sdt_control_information.rdsi",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_reporting_thresholds_flags_b0_dlci,
+        { "DLCI", "pfcp.reporting_thresholds.flags.dlci",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_flags_b1_ulci,
+        { "ULCI", "pfcp.reporting_thresholds.flags.ulci",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_flags_b2_dldr,
+        { "DLRP", "pfcp.reporting_thresholds.flags.dlrp",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_flags_b3_uldr,
+        { "ULRP", "pfcp.reporting_thresholds.flags.ulrp",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_dl_congestion_information_threshold,
+        { "DL Congestion Information Threshold", "pfcp.reporting_thresholds.dl_congestion",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_ul_congestion_information_threshold,
+        { "UL Congestion Information Threshold", "pfcp.reporting_thresholds.ul_congestion",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_dl_data_rate_threshold,
+        { "DL Data Rate threshold (kilobits)", "pfcp.reporting_thresholds.dl_data_rate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_thresholds_ul_data_rate_threshold,
+        { "UL Data Rate threshold (kilobits)", "pfcp.reporting_thresholds.ul_data_rate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_rtp_header_extension_additional_information_flags_b0_fi,
+        { "FI (Format Indication)", "pfcp.rtp_header_extension_additional_information.flags.fi",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_rtp_header_extension_additional_information_flags_b1_pssai,
+        { "PSSAI (PDU Set Size Activation Indication)", "pfcp.rtp_header_extension_additional_information.flags.pssai",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_rtp_header_extension_additional_information_pssa,
+        { "PSSA", "pfcp.rtp_header_extension_additional_information.pssa",
+            FT_UINT8, BASE_DEC, NULL, 0x4,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_rtp_header_extension_additional_information_format,
+        { "Format", "pfcp.rtp_header_extension_additional_information.format",
+            FT_UINT8, BASE_DEC, VALS(pfcp_rtp_header_extension_additional_information_type_vals), 0x3,
             NULL, HFILL }
         },
 
