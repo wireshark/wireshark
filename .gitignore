@@ -153,6 +153,17 @@ CMakeLists.txt.user*
 # Debian packaging
 /debian/
 
+# Visual Studio
+.vs
+.tx
+.github
+.config
+.gitlab
+out
+CMakePresets.json
+CMakeSettings.json
+Gemfile.lock
+
 # Misc #
 ########
 .vagrant

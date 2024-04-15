@@ -1201,7 +1201,13 @@ find_package(GCRYPT "1.8.0" REQUIRED)
 # C Asynchronous resolver
 reset_find_package(CARES)
 find_package(CARES "1.13.0" REQUIRED)
-find_package(LEX REQUIRED)
+include(cmake/modules/FindLEX.cmake)
+find_program(LEX_EXECUTABLE REQUIRED
+             NAMES
+	         win_flex.exe
+             PATHS
+	         "E:\\Wireshark\\4.2.4-Libs\\wireshark-x64-libs-4.2\\win_flex_bison-master\\")
+# message(FATAL_ERROR "flex: [${LEX_EXECUTABLE}]")
 find_package(Perl)
 find_package(PCRE2 REQUIRED)
 
@@ -2731,8 +2737,13 @@ if(BUILD_wireshark AND QT_FOUND)
 		${ZLIB_LIBRARIES}
 		${MINIZIP_LIBRARIES}
 	)
-
+	set(run_dir ${CMAKE_BINARY_DIR}/run CACHE PATH "run directory" FORCE)
+	get_target_property(Qt6WindeployQt Qt6::windeployqt LOCATION_<CONFIG>)
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_WIRESHARK_BUNDLE_FILES})
+	add_custom_target(wireshark-post-depend ALL
+	    DEPENDS wireshark
+	    COMMAND ${Qt6WindeployQt} ${run_dir}/Wireshark.exe
+	    COMMAND ${Qt6WindeployQt} --list relative ${run_dir}/Wireshark.exe > ${run_dir}/wireshark.qt.deps)
 	if(MSVC)
 		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT wireshark)
 	endif()
@@ -2817,6 +2828,25 @@ if(BUILD_wireshark AND QT_FOUND)
 			\"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/Wireshark.exe\")"
 		)
 
+		# install missing libraries
+		if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+		    install(FILES ${CMAKE_BINARY_DIR}/run/glib-2.0-0.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/gmodule-2.0-0.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/libwireshark.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/libwiretap.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/libwsutil.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/iconv-2.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/intl-8.dll
+			DESTINATION .)
+		    install(FILES ${CMAKE_BINARY_DIR}/run/pcre2-8.dll
+			DESTINATION .)
+		endif()
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
@@ -3206,7 +3236,7 @@ if(BUILD_capinfos)
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	target_include_directories(capinfos SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
 	executable_link_mingw_unicode(capinfos)
-	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})	
 endif()
 
 if(BUILD_captype)
@@ -3371,6 +3401,22 @@ if(WIN32)
 		add_subdirectory( packaging/portableapps EXCLUDE_FROM_ALL )
 		ADD_PORTABLEAPPS_PACKAGE_TARGET()
 	endif()
+endif()
+
+if(BUILD_QtIfw)
+    include(InstallRequiredSystemLibraries)
+    set(CPACK_GENERATOR "IFW")
+    set(CPACK_IFW_ROOT "C:/Qt/Tools/QtInstallerFramework/4.7/")
+    set(CPACK_PACKAGE_VERSION_MAJOR "1")
+    set(CPACK_PACKAGE_VERSION_MINOR "0")    
+    include(CPackIFW)
+    list(APPEND ifw_args
+    CPACK_GENERATOR='${CMAKE_GENERATOR}'
+    CPACK_IFW_ROOT='${CPACK_IFW_ROOT}'
+    CPACK_PACKAGE_VERSION_MAJOR='CPACK_PACKAGE_VERSION_MAJOR'
+    CPACK_PACKAGE_VERSION_MINOR='CPACK_PACKAGE_VERSION_MINOR')
+    add_custom_target(ifw-package
+	COMMAND cpack -G ${CPACK_GENERATOR})
 endif()
 
 if (MAXMINDDB_FOUND)

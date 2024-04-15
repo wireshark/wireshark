@@ -1,5 +1,5 @@
 # Build options for use by CMake
-
+option(BUILD_QtIfw         "Build Qt Installer Framework Installation Package" ON)
 option(BUILD_wireshark     "Build Wireshark" ON)
 option(BUILD_logray        "Build Logray" OFF)
 if(BUILD_wireshark OR BUILD_logray)
