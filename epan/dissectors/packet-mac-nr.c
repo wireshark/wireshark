@@ -376,6 +376,7 @@ static gint global_mac_nr_lcid_drb_source = (gint)FromStaticTable;
 
 
 static const value_string drb_lcid_vals[] = {
+    { 3,  "LCID 3"},
     { 4,  "LCID 4"},
     { 5,  "LCID 5"},
     { 6,  "LCID 6"},
@@ -459,10 +460,13 @@ typedef struct dynamic_lcid_drb_mapping_t {
 } dynamic_lcid_drb_mapping_t;
 
 typedef struct ue_dynamic_drb_mappings_t {
-    dynamic_lcid_drb_mapping_t mapping[33];  /* Index is LCID (2-32) */
-    guint8 drb_to_lcid_mappings[33];         /* Also map drbid (1-32) -> lcid */
+    gboolean srb3_set;
+    gboolean srb4_set;
+    dynamic_lcid_drb_mapping_t mapping[33];  /* Index is LCID (3-32) */
+    guint8 drb_to_lcid_mappings[33];         /* Also map drbid -> lcid (1-32) */
 } ue_dynamic_drb_mappings_t;
 
+/* ueId -> ue_dynamic_drb_mappings_t* */
 static GHashTable *mac_nr_ue_bearers_hash;
 
 
@@ -1725,12 +1729,15 @@ static gboolean lookup_rlc_bearer_from_lcid(guint16 ueid,
                                             guint8 direction,
                                             rlc_bearer_type_t *rlc_bearer_type,  /* out */
                                             guint8 *seqnum_length,               /* out */
-                                            gint *drb_id)                        /* out */
+                                            gint *drb_id,                        /* out */
+                                            gboolean *is_srb)                    /* out */
 {
     /* Zero params (in case no match is found) */
     *rlc_bearer_type = rlcRaw;
     *seqnum_length    = 0;
     *drb_id           = 0;
+
+    *is_srb = FALSE;
 
     if (global_mac_nr_lcid_drb_source == (int)FromStaticTable) {
 
@@ -1751,13 +1758,28 @@ static gboolean lookup_rlc_bearer_from_lcid(guint16 ueid,
                 return TRUE;
             }
         }
+        if (lcid==3 || lcid==4) {
+            /* Wasn't found as DRB, so lets assume SRB-3 (or SRB-4) */
+            *is_srb = TRUE;
+        }
         return FALSE;
     }
     else {
         /* Look up the dynamic mappings for this UE */
         ue_dynamic_drb_mappings_t *ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_nr_ue_bearers_hash, GUINT_TO_POINTER((guint)ueid));
         if (!ue_mappings) {
+            /* No entry for this UE.. */
+            if (lcid==3 || lcid==4) {
+                *is_srb = TRUE;
+            }
             return FALSE;
+        }
+
+        if (lcid==3) {
+            *is_srb = ue_mappings->srb3_set;
+        }
+        if (lcid==4) {
+            *is_srb = ue_mappings->srb4_set;
         }
 
         /* Look up setting gleaned from configuration protocol */
@@ -1899,15 +1921,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         guint8 lcid = tvb_get_guint8(tvb, offset) & 0x3f;
         gint32 elcid= -1;
         switch (lcid) {
-        case TWO_OCTET_ELCID_FIELD:
-            elcid = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
-            fixed_len = TRUE;
-            break;
-        case ONE_OCTET_ELCID_FIELD:
-            elcid = tvb_get_guint8(tvb, offset+1);
-            fixed_len = is_fixed_sized_elcid(elcid, p_mac_nr_info->direction);
-        default:
-            break;
+            case TWO_OCTET_ELCID_FIELD:
+                elcid = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
+                fixed_len = TRUE;
+                break;
+            case ONE_OCTET_ELCID_FIELD:
+                elcid = tvb_get_guint8(tvb, offset+1);
+                fixed_len = is_fixed_sized_elcid(elcid, p_mac_nr_info->direction);
+            default:
+                break;
         }
         if (elcid == -1) {
             /* No elcid present */
@@ -1927,33 +1949,35 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
                                   hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
                             tvb, offset, 1, lcid);
-        /* Also add as a hidden, direction-less field */
+        /* Also add LCID as a hidden, direction-less field */
         proto_item *bi_di_lcid = proto_tree_add_uint(subheader_tree, hf_mac_nr_lcid, tvb, offset, 1, lcid);
         proto_item_set_hidden(bi_di_lcid);
         offset++;
 
+        /* Show eLCID, if present */
         switch (lcid) {
-        case TWO_OCTET_ELCID_FIELD:
-            elcid = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(subheader_tree,
-                (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
-                hf_mac_nr_ulsch_elcid_2oct : hf_mac_nr_dlsch_elcid_2oct,
-                tvb, offset, 2, elcid);
-            offset += 2;
-            break;
-        case ONE_OCTET_ELCID_FIELD:
-            elcid = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(subheader_tree,
-                (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
-                hf_mac_nr_ulsch_elcid_1oct : hf_mac_nr_dlsch_elcid_1oct,
-                tvb, offset, 1, elcid);
-            offset += 1;
-            break;
+            case TWO_OCTET_ELCID_FIELD:
+                elcid = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                proto_tree_add_uint(subheader_tree,
+                    (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
+                    hf_mac_nr_ulsch_elcid_2oct : hf_mac_nr_dlsch_elcid_2oct,
+                    tvb, offset, 2, elcid);
+                offset += 2;
+                break;
+            case ONE_OCTET_ELCID_FIELD:
+                elcid = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint(subheader_tree,
+                    (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
+                    hf_mac_nr_ulsch_elcid_1oct : hf_mac_nr_dlsch_elcid_1oct,
+                    tvb, offset, 1, elcid);
+                offset += 1;
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
+        /* Show length */
         if (!fixed_len) {
             if (F) {
                 /* Long length */
@@ -1976,6 +2000,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+                /* UL.  Check various CCCH LCIDs */
                 if ((lcid == CCCH_LCID) || (lcid == 36)) {
                     SDU_length = 8;
                 } else if ((lcid == CCCH_48_BITS_LCID) || (lcid == 35)) {
@@ -1985,13 +2010,30 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                  tvb, offset, SDU_length, ENC_NA);
             }
             else {
+                /* DL */
                 sch_pdu_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_dlsch_sdu,
                                                  tvb, offset, SDU_length, ENC_NA);
             }
 
-            /* Call RLC if configured to do so for this SDU */
-            if ((lcid >= 4) && (lcid <= 32)) {
-                /* Look for mapping for this LCID to drb channel set by UAT table */
+            gboolean is_srb = FALSE;
+            if (lcid == 3 || lcid == 4) {
+                /* Work out whether we are to assume that we are dealing with SRB-3 or SRB-4 */
+                rlc_bearer_type_t rlc_bearer_type;
+                guint8 seqnum_length;
+                gint drb_id;
+
+                lookup_rlc_bearer_from_lcid(p_mac_nr_info->ueid,
+                                            lcid,
+                                            p_mac_nr_info->direction,
+                                            &rlc_bearer_type,
+                                            &seqnum_length,
+                                            &drb_id,
+                                            &is_srb);
+            }
+
+            /* Might also call RLC if configured to do so for this SDU */
+            if ((lcid >= 3) && (lcid <= 32) && !is_srb) {
+                /* Look for DRB mapping for this LCID to drb channel set by UAT table */
                 rlc_bearer_type_t rlc_bearer_type;
                 guint8 seqnum_length;
                 gint drb_id;
@@ -2006,7 +2048,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                             p_mac_nr_info->direction,
                                             &rlc_bearer_type,
                                             &seqnum_length,
-                                            &drb_id);
+                                            &drb_id,
+                                            &is_srb);
 
                 /* Dissect according to channel type */
                 switch (rlc_bearer_type) {
@@ -2037,8 +2080,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* Nothing to do! */
                         break;
                 }
-            } else if (lcid >= 1 && lcid <= 3) {
-
+            } else if ((lcid >= 1 && lcid <= 2) || ((lcid==3 || lcid==4) && is_srb)) {
+                /* SRB */
                 tap_info->sdus_for_lcid[lcid]++;
                 tap_info->bytes_for_lcid[lcid] += SDU_length;
 
@@ -3374,8 +3417,8 @@ void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping)
     if (drb_mapping->lcid_present) {
         lcid = drb_mapping->lcid;
 
-        /* Ignore if LCID is out of range */
-        if ((lcid < 4) || (lcid > 32)) {
+        /* Ignore if LCID is out of range.  */
+        if ((lcid < 3) || (lcid > 32)) {
             return;
         }
     }
@@ -3392,8 +3435,8 @@ void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping)
     }
 
     /* If lcid wasn't supplied, need to try to look up from drbid */
-    if ((lcid == 0) && (drb_mapping->drbid <= 32)) {
-        lcid = ue_mappings->drb_to_lcid_mappings[drb_mapping->drbid];
+    if ((lcid == 0) && (drb_mapping->rbid <= 32)) {
+        lcid = ue_mappings->drb_to_lcid_mappings[drb_mapping->rbid];
     }
     if (lcid == 0) {
         /* Still no lcid - give up */
@@ -3402,8 +3445,8 @@ void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping)
 
     /* Set array entry */
     ue_mappings->mapping[lcid].valid = TRUE;
-    ue_mappings->mapping[lcid].drbid = drb_mapping->drbid;
-    ue_mappings->drb_to_lcid_mappings[drb_mapping->drbid] = lcid;
+    ue_mappings->mapping[lcid].drbid = drb_mapping->rbid;
+    ue_mappings->drb_to_lcid_mappings[drb_mapping->rbid] = lcid;
 
     /* Fill in available RLC info */
     if (drb_mapping->rlcMode_present) {
@@ -3415,6 +3458,41 @@ void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping)
         }
     }
 }
+
+void set_mac_nr_srb3_in_use(guint16 ueid)
+{
+    ue_dynamic_drb_mappings_t *ue_mappings;
+
+    /* Look for existing UE entry */
+    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_nr_ue_bearers_hash,
+                                                                   GUINT_TO_POINTER(ueid));
+    if (!ue_mappings) {
+        /* If not found, create & add to table */
+        ue_mappings = wmem_new0(wmem_file_scope(), ue_dynamic_drb_mappings_t);
+        g_hash_table_insert(mac_nr_ue_bearers_hash,
+                            GUINT_TO_POINTER(ueid),
+                            ue_mappings);
+    }
+    ue_mappings->srb3_set = TRUE;
+}
+
+void set_mac_nr_srb4_in_use(guint16 ueid)
+{
+    ue_dynamic_drb_mappings_t *ue_mappings;
+
+    /* Look for existing UE entry */
+    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_nr_ue_bearers_hash,
+                                                                   GUINT_TO_POINTER(ueid));
+    if (!ue_mappings) {
+        /* If not found, create & add to table */
+        ue_mappings = wmem_new0(wmem_file_scope(), ue_dynamic_drb_mappings_t);
+        g_hash_table_insert(mac_nr_ue_bearers_hash,
+                            GUINT_TO_POINTER(ueid),
+                            ue_mappings);
+    }
+    ue_mappings->srb4_set = TRUE;
+}
+
 
 
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
@@ -5157,7 +5235,9 @@ void proto_register_mac_nr(void)
     };
 
     static uat_field_t lcid_drb_mapping_flds[] = {
-        UAT_FLD_VS(lcid_drb_mappings, lcid, "LCID (4-32)", drb_lcid_vals, "The MAC LCID"),
+        UAT_FLD_VS(lcid_drb_mappings, lcid, "LCID (3-32)", drb_lcid_vals,
+                   "The MAC LCID.  Note that under NR-DC, LCID 3 may be SRB-3. "
+                   "LCID 4 may also be LCID4"),
         UAT_FLD_DEC(lcid_drb_mappings, drbid,"DRBID id (1-32)", "Identifier of logical data channel"),
         UAT_FLD_VS(lcid_drb_mappings, bearer_type_ul, "UL RLC Bearer Type", rlc_bearer_type_vals, "UL Bearer Mode"),
         UAT_FLD_VS(lcid_drb_mappings, bearer_type_dl, "DL RLC Bearer Type", rlc_bearer_type_vals, "DL Bearer Mode"),
@@ -5186,8 +5266,9 @@ void proto_register_mac_nr(void)
         &global_mac_nr_attempt_rrc_decode);
 
     prefs_register_bool_preference(mac_nr_module, "attempt_to_dissect_srb_sdus",
-        "Attempt to dissect LCID 1-3 as srb1-3",
-        "Will call NR RLC dissector with standard settings as per RRC spec",
+        "Attempt to dissect LCID 1-4 as srb1-4",
+        "Will call NR RLC dissector with standard settings as per RRC spec, unless "
+        "LCID 3,4 are being used for user-plane",
         &global_mac_nr_attempt_srb_decode);
 
     prefs_register_enum_preference(mac_nr_module, "lcid_to_drb_mapping_source",

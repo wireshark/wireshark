@@ -116,9 +116,10 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 /* Some are optional, and may not be seen (e.g. on reestablishment) */
 typedef struct nr_drb_mac_rlc_mapping_t
 {
-    gboolean   active;
+    gboolean   active;              /* Is set while inside RLC-BearerConfig or DRB-ToAddMod */
     guint16    ueid;                /* Mandatory */
-    guint8     drbid;               /* Mandatory */
+    gboolean   is_drb;              /* Mandatory */
+    guint8     rbid;                /* Mandatory */
 
     gboolean   lcid_present;
     guint8     lcid;                /* Part of LogicalChannelConfig - optional */
@@ -137,6 +138,9 @@ typedef struct nr_drb_mac_rlc_mapping_t
 /* Set details of an LCID -> drb channel mapping.  To be called from
    configuration protocol (i.e. RRC) */
 void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping);
+
+void set_mac_nr_srb3_in_use(guint16 ueid);
+void set_mac_nr_srb4_in_use(guint16 ueid);
 
 
 /* Function to attempt to populate p_mac_lte_info using framing definition above */

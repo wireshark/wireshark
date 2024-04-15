@@ -1968,10 +1968,20 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
-  if (p_ueid != NULL && drb_mapping->drbid) {
+  if (p_ueid != NULL && drb_mapping->rbid) {
     drb_mapping->ueid = *p_ueid;
-    /* Tell MAC about this mapping */
-    set_mac_nr_bearer_mapping(drb_mapping);
+    if (drb_mapping->is_drb) {
+      /* Tell MAC about this mapping */
+      set_mac_nr_bearer_mapping(drb_mapping);
+    }
+    else if (drb_mapping->lcid_present && drb_mapping->lcid==3) {
+      /* Tell MAC that LCID 3 is for SRB-3 */
+      set_mac_nr_srb3_in_use(drb_mapping->ueid);
+    }
+    else if (drb_mapping->lcid_present && drb_mapping->lcid==4) {
+      /* Tell MAC that LCID 4 is for SRB-4 */
+      set_mac_nr_srb4_in_use(drb_mapping->ueid);
+    }
   }
   drb_mapping->active = FALSE;
 
@@ -1979,7 +1989,19 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   guint32 value;
 %(DEFAULT_BODY)s
   if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
-    nr_rrc_get_private_data(actx)->drb_rlc_mapping.drbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = TRUE;
+  }
+  else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
+    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
+  }
+
+#.FN_BODY SRB-Identity VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = FALSE;
   }
   else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
     nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
