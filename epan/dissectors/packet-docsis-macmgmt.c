@@ -67,6 +67,12 @@
 #include <epan/expert.h>
 #include <wsutil/utf8_entities.h>
 #include "packet-docsis-tlv.h"
+#include <epan/addr_resolv.h>
+#include <epan/asn1.h>
+#include "packet-cms.h"
+#include "packet-ocsp.h"
+#include "packet-pkcs1.h"
+#include "packet-x509af.h"
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
 
@@ -136,6 +142,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_RBA_SW 61
 #define MGT_RBA_HW 62
 #define MGT_EXT_RNG_REQ 67
+#define MGT_BPKM_REQ_V5 69
+#define MGT_BPKM_RSP_V5 70
 
 #define UCD_SYMBOL_RATE 1
 #define UCD_FREQUENCY 2
@@ -269,6 +277,18 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define BPKM_SA_QUERY_TYPE 26
 #define BPKM_IP_ADDRESS 27
 #define BPKM_DNLD_PARAMS 28
+#define BPKM_CVC_ROOT_CA_CERT 51
+#define BPKM_CVC_CA_CERT 52
+#define BPKM_DEV_CA_CERT 53
+#define BPKM_ROOT_CA_CERT 54
+#define BPKM_CM_NONCE 61
+#define BPKM_MSG_SIGNATURE 62
+#define BPKM_KEY_EXCHANGE_SHARE 63
+#define BPKM_ALLOWED_BPI_VERSIONS 64
+#define BPKM_OCSP_RSP 65
+#define BPKM_CMTS_DESIGNATION 66
+#define BPKM_CM_STATUS_CODE 67
+#define BPKM_DETECTED_ERRORS 68
 #define BPKM_VENDOR_DEFINED 127
 
 #define DCCREQ_UP_CHAN_ID 1
@@ -651,6 +671,18 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define KEY_MGMT_VERSION 0
 #define KEY_MGMT_MULTIPART 1
 
+/* BPKM CMTS Designation */
+#define BPKMATTR_CMTS_DESIGNATION_CERTIFICATE_FINGERPRINT 0
+#define BPKMATTR_CMTS_DESIGNATION_COMMON_NAME 1
+#define BPKMATTR_CMTS_DESIGNATION_ORG_UNIT 2
+#define BPKMATTR_CMTS_DESIGNATION_ORG_NAME 3
+#define BPKMATTR_CMTS_DESIGNATION_SERIAL_NUMBER 4
+#define BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_FINGERPRINT 5
+#define BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_COMMON_NAME 6
+#define BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_ORG_UNIT 7
+#define BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_ORG_NAME 8
+#define BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_SERIAL_NUMBER 9
+
 static int proto_docsis_mgmt;
 static int proto_docsis_sync;
 static int proto_docsis_ucd;
@@ -869,6 +901,9 @@ static int hf_docsis_bpkm_code;
 static int hf_docsis_bpkm_length;
 static int hf_docsis_bpkm_ident;
 static int hf_docsis_bpkmattr;
+static int hf_docsis_bpkmattr_tlv;
+static int hf_docsis_bpkmattr_tlv_type;
+static int hf_docsis_bpkmattr_tlv_length;
 static int hf_docsis_bpkmattr_serial_num;
 static int hf_docsis_bpkmattr_manf_id;
 static int hf_docsis_bpkmattr_mac_addr;
@@ -884,11 +919,12 @@ static int hf_docsis_bpkmattr_said;
 static int hf_docsis_bpkmattr_tek_params;
 static int hf_docsis_bpkmattr_cbc_iv;
 static int hf_docsis_bpkmattr_error_code;
-static int hf_docsis_bpkmattr_vendor_def;
 static int hf_docsis_bpkmattr_ca_cert;
 static int hf_docsis_bpkmattr_cm_cert;
 static int hf_docsis_bpkmattr_security_cap;
 static int hf_docsis_bpkmattr_crypto_suite;
+static int hf_docsis_bpkmattr_crypto_suite_encr;
+static int hf_docsis_bpkmattr_crypto_suite_auth;
 static int hf_docsis_bpkmattr_crypto_suite_list;
 static int hf_docsis_bpkmattr_bpi_version;
 static int hf_docsis_bpkmattr_sa_descr;
@@ -897,8 +933,33 @@ static int hf_docsis_bpkmattr_sa_query;
 static int hf_docsis_bpkmattr_sa_query_type;
 static int hf_docsis_bpkmattr_ip_address;
 static int hf_docsis_bpkmattr_download_param;
-static int hf_docsis_bpkmattr_type;
-static int hf_docsis_bpkmattr_length;
+static int hf_docsis_bpkmattr_cvc_root_ca_cert;
+static int hf_docsis_bpkmattr_cvc_ca_cert;
+static int hf_docsis_bpkmattr_dev_ca_cert;
+static int hf_docsis_bpkmattr_root_ca_cert;
+static int hf_docsis_bpkmattr_cm_nonce;
+static int hf_docsis_bpkmattr_msg_signature;
+static int hf_docsis_bpkmattr_key_exchange_share_field_id;
+static int hf_docsis_bpkmattr_key_exchange_share_key_share;
+static int hf_docsis_bpkmattr_allowed_bpi_versions;
+static int hf_docsis_bpkmattr_allowed_bpi_version;
+static int hf_docsis_bpkmattr_ocsp_responses;
+static int hf_docsis_bpkmattr_ocsp_response;
+static int hf_docsis_bpkmattr_cmts_designation;
+static int hf_docsis_bpkmattr_cmts_designation_data_type;
+static int hf_docsis_bpkmattr_cmts_designation_certificate_fingerprint;
+static int hf_docsis_bpkmattr_cmts_designation_common_name;
+static int hf_docsis_bpkmattr_cmts_designation_org_unit;
+static int hf_docsis_bpkmattr_cmts_designation_org_name;
+static int hf_docsis_bpkmattr_cmts_designation_serial_number;
+static int hf_docsis_bpkmattr_cmts_designation_issuing_ca_fingerprint;
+static int hf_docsis_bpkmattr_cmts_designation_issuing_ca_common_name;
+static int hf_docsis_bpkmattr_cmts_designation_issuing_ca_org_unit;
+static int hf_docsis_bpkmattr_cmts_designation_issuing_ca_org_name;
+static int hf_docsis_bpkmattr_cmts_designation_issuing_ca_serial_number;
+static int hf_docsis_bpkmattr_cm_status_code;
+static int hf_docsis_bpkmattr_detected_errors;
+static int hf_docsis_bpkmattr_vendor_def;
 
 static int hf_docsis_regack_sid;
 static int hf_docsis_regack_response;
@@ -1396,13 +1457,18 @@ static gint ett_docsis_uccrsp;
 static gint ett_docsis_bpkmreq;
 static gint ett_docsis_bpkmrsp;
 static gint ett_docsis_bpkmattr;
+static gint ett_docsis_bpkmattr_tlv;
 static gint ett_docsis_bpkmattr_cmid;
 static gint ett_docsis_bpkmattr_scap;
+static gint ett_docsis_bpkmattr_crypto_suite;
+static gint ett_docsis_bpkmattr_crypto_suite_list;
+static gint ett_docsis_bpkmattr_allowed_bpi_versions;
+static gint ett_docsis_bpkmattr_ocsp_responses;
+static gint ett_docsis_bpkmattr_cmts_designation;
 static gint ett_docsis_bpkmattr_tekp;
 static gint ett_docsis_bpkmattr_sadsc;
 static gint ett_docsis_bpkmattr_saqry;
 static gint ett_docsis_bpkmattr_dnld;
-static gint ett_docsis_bpkmattrtlv;
 
 static gint ett_docsis_regack;
 
@@ -1659,6 +1725,8 @@ static const value_string mgmt_type_vals[] = {
   {MGT_RBA_SW,         "DOCSIS SW-Friendly Resource Block Assignment"},
   {MGT_RBA_HW,         "DOCSIS HW-Friendly Resource Block Assignment"},
   {MGT_EXT_RNG_REQ,    "Extended Upstream Range Request"},
+  {MGT_BPKM_REQ_V5,    "Privacy Key Management Request v5"},
+  {MGT_BPKM_RSP_V5,    "Privacy Key Management Response v5"},
   {0, NULL}
 };
 
@@ -1774,10 +1842,6 @@ static const value_string rngrsp_tlv_commanded_power_subtlv_vals[] = {
 };
 
 static const value_string code_field_vals[] = {
-  { 0, "Reserved"},
-  { 1, "Reserved"},
-  { 2, "Reserved"},
-  { 3, "Reserved"},
   { 4, "Auth Request"},
   { 5, "Auth Reply"},
   { 6, "Auth Reject"},
@@ -1786,10 +1850,11 @@ static const value_string code_field_vals[] = {
   { 9, "Key Reject"},
   {10, "Auth Invalid"},
   {11, "TEK Invalid"},
-  {12, "Authent Info"},
+  {12, "Auth Info"},
   {13, "Map Request"},
   {14, "Map Reply"},
   {15, "Map Reject"},
+  {16, "Auth Status Info"},
   {0, NULL},
 };
 
@@ -1989,7 +2054,7 @@ static const value_string bpkmattr_tlv_vals[] = {
   {BPKM_RSA_PUB_KEY,        "RSA Public Key"},
   {BPKM_CM_ID,              "CM Identification"},
   {BPKM_DISPLAY_STR,        "Display String"},
-  {BPKM_AUTH_KEY,           "Auth Key"},
+  {BPKM_AUTH_KEY,           "Auth Key (encrypted)"},
   {BPKM_TEK,                "Traffic Encryption Key"},
   {BPKM_KEY_LIFETIME,       "Key Lifetime"},
   {BPKM_KEY_SEQ_NUM,        "Key Sequence Number"},
@@ -2011,6 +2076,18 @@ static const value_string bpkmattr_tlv_vals[] = {
   {BPKM_SA_QUERY_TYPE,      "SA Query Type"},
   {BPKM_IP_ADDRESS,         "IP Address"},
   {BPKM_DNLD_PARAMS,        "Download Parameters"},
+  {BPKM_CVC_ROOT_CA_CERT,   "CVC Root CA Certificate"},
+  {BPKM_CVC_CA_CERT,        "CVC CA Certificate"},
+  {BPKM_DEV_CA_CERT,        "Device CA Certificate"},
+  {BPKM_ROOT_CA_CERT,       "Root CA Certificate"},
+  {BPKM_CM_NONCE,           "CM Nonce"},
+  {BPKM_MSG_SIGNATURE,      "Message Signature"},
+  {BPKM_KEY_EXCHANGE_SHARE, "Key Exchange Share"},
+  {BPKM_ALLOWED_BPI_VERSIONS, "Allowed BPI Versions"},
+  {BPKM_OCSP_RSP,           "OCSP Responses"},
+  {BPKM_CMTS_DESIGNATION,   "CMTS Designation"},
+  {BPKM_CM_STATUS_CODE,     "CM-Status Code"},
+  {BPKM_DETECTED_ERRORS,    "Detected Errors"},
   {BPKM_VENDOR_DEFINED,     "Vendor Defined"},
   {0, NULL}
 };
@@ -2027,20 +2104,96 @@ static const value_string error_code_vals[] = {
   {8, "Downstream traffic flow not mapped to SAID"},
   {9, "Time of day not acquired"},
   {10, "EAE Disabled"},
+  {11, "BPI+ Version not supported"},
   {0, NULL},
 };
 
-static const value_string crypto_suite_attr_vals[] = {
-  {0x0100, "CBC-Mode 56-bit DES, no data authentication"},
-  {0x0200, "CBC-Mode 40-bit DES, no data authentication"},
-  {0x0300, "CBC-Mode 128-bit AES, no data authentication"},
-  {0, NULL},
+static const value_string bpkm_crypto_suite_encr_vals[] = {
+  {0x01, "CBC-Mode 56-bit DES"},
+  {0x02, "CBC-Mode 40-bit DES"},
+  {0x03, "CBC-Mode 128-bit AES"},
+  {0x04, "CBC-Mode 256-bit AES"},
+  {0, NULL}
+};
+
+static const value_string bpkm_crypto_suite_auth_vals[] = {
+  {0x00, "No"},
+  {0, NULL}
+};
+
+static const value_string bpkmattr_key_exchange_share_field_id_vals[] = {
+  {0x0017, "secp256r1"},
+  {0x0018, "secp384r1"},
+  {0x0019, "secp521r1"},
+  {0x001D, "x25519"},
+  {0x001E, "x448"},
+  {0, NULL}
 };
 
 static const value_string bpi_ver_vals[] = {
   {0, "Reserved"},
-  {1, "BPI+"},
-  {0, NULL},
+  {1, "BPI+ v1"},
+  {2, "BPI+ v2"},
+  {0, NULL}
+};
+
+static const value_string bpi_sa_vals[] = {
+  {0, "Primary"},
+  {1, "Static"},
+  {2, "Dynamic"},
+  {0, NULL}
+};
+
+static const range_string bpi_sa_query_type_vals[] = {
+  {1, 1,     "IP Multicast"},
+  {128, 255, "Vendor Specific"},
+  {0, 0, NULL}
+};
+
+static const value_string bpkm_cmts_binding_vals[] = {
+  {BPKMATTR_CMTS_DESIGNATION_CERTIFICATE_FINGERPRINT,  "Certificate Fingerprint"},
+  {BPKMATTR_CMTS_DESIGNATION_COMMON_NAME,              "Common Name"},
+  {BPKMATTR_CMTS_DESIGNATION_ORG_UNIT,                 "Organizational Unit"},
+  {BPKMATTR_CMTS_DESIGNATION_ORG_NAME,                 "Organization Name"},
+  {BPKMATTR_CMTS_DESIGNATION_SERIAL_NUMBER,            "Serial Number"},
+  {BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_FINGERPRINT,   "Issuing CA Fingerprint"},
+  {BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_COMMON_NAME,   "Issuing CA Common Name"},
+  {BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_ORG_UNIT,      "Issuing CA Organizational Unit"},
+  {BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_ORG_NAME,      "Issuing CA Organization Name"},
+  {BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_SERIAL_NUMBER, "Issuing CA Serial Number"},
+  {0, NULL}
+};
+
+static const value_string bpkm_cm_status_code_vals[] = {
+  {0, "No error"},
+  {1, "Generic error"},
+  {2, "Auth Reply not received"},
+  {3, "Missing Auth Reply required attribute"},
+  {4, "BPI-Version mismatch"},
+  {5, "NONCE mismatch"},
+  {11, "Signature Format Error"},
+  {12, "Signature Algorithm not supported"},
+  {13, "Public Key Algorithm not supported"},
+  {14, "Incomplete Certificate Chain"},
+  {15, "Certificate Not Trusted"},
+  {16, "Missing EE certificate revocation information"},
+  {17, "Missing CA certificate revocation information"},
+  {18, "EE certificate Expired"},
+  {19, "CA certificate Expired"},
+  {20, "CMTS-designation fingerprint (SHA-256) mismatch"},
+  {21, "CMTS-designation Common-Name mismatch"},
+  {22, "CMTS-designation Organizational-Unit mismatch"},
+  {23, "CMTS-designation Organization-Name mismatch"},
+  {24, "CMTS-designation Serial-Number mismatch"},
+  {25, "CMTS-designation Issuing-CA-fingerprint (SHA-256) mismatch"},
+  {26, "CMTS-designation Issuing-CA-Common-Name mismatch"},
+  {27, "CMTS-designation Issuing-CA-Organizational-Unit mismatch"},
+  {28, "CMTS-designation Issuing-CA-Organization mismatch"},
+  {29, "CMTS-designation Issuing-CA-Serial-umber mismatch"},
+  {30, "Missing Key-Derivation required parameters"},
+  {31, "Key-Derivation parameters field mismatch"},
+  {32, "Key-Derivation error"},
+  {0, NULL}
 };
 
 static const value_string mdd_tlv_vals[] = {
@@ -3971,244 +4124,382 @@ dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
  */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_attrs(tvbuff_t * tvb, packet_info * pinfo, proto_item *item _U_, proto_tree *tree, gint pos, gint length)
 {
-  guint8 type;
-  guint32 length;
-  int pos = 0;
-  gint total_len;
-  proto_tree *attr_tree, *attr_subtree;
-  proto_item *ti, *tlv_item, *tlv_len_item;
-  tvbuff_t *attr_tvb;
+  proto_item *tlv_item, *tlv_subitem;
+  proto_tree *tlv_tree, *tlv_subtree;
+  guint32 tlv_type, tlv_subtype;
+  gint tlv_length, end = pos + length, i, attr_end;
 
-  total_len = tvb_reported_length_remaining (tvb, 0);
+  guint32 value;
+  const gchar * label;
+  asn1_ctx_t asn1_ctx;
+
+  static int *const bpkmattr_crypto_suite[] = {
+    &hf_docsis_bpkmattr_crypto_suite_encr,
+    &hf_docsis_bpkmattr_crypto_suite_auth,
+    NULL
+  };
+
   increment_dissection_depth(pinfo);
-  while (pos < total_len)
+  while (pos + 2 < end)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    attr_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
-                                  ett_docsis_bpkmattrtlv, &tlv_item,
-                                  val_to_str(type, bpkmattr_tlv_vals,
-                                  "Unknown TLV (%u)"));
-    proto_tree_add_uint (attr_tree, hf_docsis_bpkmattr_type, tvb, pos, 1, type);
-    pos++;
-    tlv_len_item = proto_tree_add_item_ret_uint (attr_tree, hf_docsis_bpkmattr_length,
-                           tvb, pos, 2, ENC_BIG_ENDIAN, &length);
-    pos += 2;
-    proto_item_set_len(tlv_item, length + 2);
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_ntohs(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_bpkmattr_tlv, tvb, pos, tlv_length + 3, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, bpkmattr_tlv_vals, "Unknown TLV: %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_bpkmattr_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
+    pos += 3;
 
-    switch (type)
+    if (tlv_length > 1487)
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "TLV length too big: %i", tlv_length);
+
+    switch (tlv_type)
     {
-    case BPKM_RESERVED:
-      break;
     case BPKM_SERIAL_NUM:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_serial_num, tvb, pos, length, ENC_ASCII);
+      proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_serial_num, tvb, pos, tlv_length, ENC_ASCII);
+      if (tlv_length > 255)
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "TLV length too big: %i", tlv_length);
       break;
     case BPKM_MANUFACTURER_ID:
-      if (length == 3)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_manf_id, tvb, pos, length, ENC_NA);
-      else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      if (tlv_length == 3) {
+        tlv_subitem = proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_bpkmattr_manf_id, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        label = uint_get_manuf_name_if_known(value);
+        proto_item_append_text(tlv_subitem, " (%s)", label ? label : "unknown OUI");
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_MAC_ADDR:
-      if (length == 6)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_mac_addr, tvb, pos, length, ENC_NA);
+      if (tlv_length == 6)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_mac_addr, tvb, pos, tlv_length, ENC_NA);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_RSA_PUB_KEY:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_rsa_pub_key, tvb, pos, length, ENC_NA);
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_pkcs1_RSAPublicKey(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_rsa_pub_key);
       break;
     case BPKM_CM_ID:
-      ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_cm_id, tvb, pos, length, ENC_NA);
-      attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_cmid);
-      attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      dissect_attrs (attr_tvb, pinfo, attr_subtree);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_cm_id, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_cmid);
+      dissect_attrs(tvb, pinfo, tlv_item, tlv_subtree, pos, tlv_length);
+      if (tlv_length < 126)
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "TLV length too small: %i", tlv_length);
       break;
     case BPKM_DISPLAY_STR:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_display_str, tvb, pos, length, ENC_ASCII);
+      proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_display_str, tvb, pos, tlv_length, ENC_ASCII);
+      if (tlv_length > 128)
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "TLV length too big: %i", tlv_length);
       break;
     case BPKM_AUTH_KEY:
-      if ((length == 96) || (length == 128) || (length == 256))
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_auth_key, tvb, pos, length, ENC_NA);
+      if (tlv_length == 96 || tlv_length == 128 || tlv_length == 256)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_auth_key, tvb, pos, tlv_length, ENC_NA);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_TEK:
-      if (length == 8 || length == 16)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_tek, tvb, pos, length, ENC_NA);
+      if (tlv_length == 8 || tlv_length == 16 || tlv_length == 32)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_tek, tvb, pos, tlv_length, ENC_NA);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_KEY_LIFETIME:
-      if (length == 4)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_key_life, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_key_life, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_KEY_SEQ_NUM:
-      if (length == 1)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_key_seq, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_key_seq, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_HMAC_DIGEST:
-      if (length == 20)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_hmac_digest, tvb, pos, length, ENC_NA);
+      if (tlv_length == 20)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_hmac_digest, tvb, pos, tlv_length, ENC_NA);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_SAID:
-      if (length == 2)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_said, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 2)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_said, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_TEK_PARAM:
-      ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_tek_params, tvb, pos, length, ENC_NA);
-      attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_tekp);
-      attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      dissect_attrs (attr_tvb, pinfo, attr_subtree);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_tek_params, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_tekp);
+      dissect_attrs(tvb, pinfo, tlv_item, tlv_subtree, pos, tlv_length);
       break;
     case BPKM_OBSOLETED:
       break;
     case BPKM_CBC_IV:
-      if (length == 8 || length == 16)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos, length, ENC_NA);
+      if (tlv_length == 8 || tlv_length == 16)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos, tlv_length, ENC_NA);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_ERROR_CODE:
-      if (length == 1)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_error_code, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_error_code, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_CA_CERT:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_ca_cert, tvb, pos, length, ENC_NA);
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_x509af_Certificate(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_ca_cert);
       break;
     case BPKM_CM_CERT:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_cm_cert, tvb, pos, length, ENC_NA);
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_x509af_Certificate(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_cm_cert);
       break;
     case BPKM_SEC_CAPABILITIES:
-      ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_security_cap, tvb, pos, length, ENC_NA);
-      attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_scap);
-      attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      dissect_attrs (attr_tvb, pinfo, attr_subtree);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_security_cap, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_scap);
+      dissect_attrs(tvb, pinfo, tlv_item, tlv_subtree, pos, tlv_length);
       break;
     case BPKM_CRYPTO_SUITE:
-      if (length == 2)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_crypto_suite, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 2)
+        proto_tree_add_bitmask(tlv_tree, tvb, pos, hf_docsis_bpkmattr_crypto_suite,
+                               ett_docsis_bpkmattr_crypto_suite, bpkmattr_crypto_suite, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_CRYPTO_SUITE_LIST:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_crypto_suite_list, tvb, pos, length, ENC_NA);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_crypto_suite_list, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_crypto_suite_list);
+      for (i = 0; i < tlv_length - 1; i += 2)
+        proto_tree_add_bitmask(tlv_subtree, tvb, pos + i, hf_docsis_bpkmattr_crypto_suite,
+                               ett_docsis_bpkmattr_crypto_suite, bpkmattr_crypto_suite, ENC_BIG_ENDIAN);
+      if (i < tlv_length)
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_BPI_VERSION:
-      if (length == 1)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_bpi_version, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_bpi_version, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_SA_DESCRIPTOR:
-      ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_sa_descr, tvb, pos, length, ENC_NA);
-      attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_sadsc);
-      attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      dissect_attrs (attr_tvb, pinfo, attr_subtree);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_sa_descr, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_sadsc);
+      dissect_attrs(tvb, pinfo, tlv_item, tlv_subtree, pos, tlv_length);
       break;
     case BPKM_SA_TYPE:
-      if (length == 1)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_sa_type, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_sa_type, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_SA_QUERY:
-      ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_sa_query, tvb, pos, length, ENC_NA);
-      attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_saqry);
-      attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      dissect_attrs (attr_tvb, pinfo, attr_subtree);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_sa_query, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_saqry);
+      dissect_attrs(tvb, pinfo, tlv_item, tlv_subtree, pos, tlv_length);
       break;
     case BPKM_SA_QUERY_TYPE:
-      if (length == 1)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_sa_query_type, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_sa_query_type, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_IP_ADDRESS:
-      if (length == 4)
-        proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_ip_address, tvb, pos, length, ENC_BIG_ENDIAN);
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_ip_address, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
-      break;
-    case BPKM_VENDOR_DEFINED:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_vendor_def, tvb, pos, length, ENC_NA);
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     case BPKM_DNLD_PARAMS:
-      ti = proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_download_param, tvb, pos, length, ENC_NA);
-      attr_subtree = proto_item_add_subtree(ti, ett_docsis_bpkmattr_dnld);
-      attr_tvb = tvb_new_subset_length (tvb, pos, length);
-      dissect_attrs (attr_tvb, pinfo, attr_subtree);
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_download_param, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_dnld);
+      dissect_attrs(tvb, pinfo, tlv_item, tlv_subtree, pos, tlv_length);
+      break;
+    case BPKM_CVC_ROOT_CA_CERT:
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_x509af_Certificate(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_cvc_root_ca_cert);
+      break;
+    case BPKM_CVC_CA_CERT:
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_x509af_Certificate(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_cvc_ca_cert);
+      break;
+    case BPKM_DEV_CA_CERT:
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_x509af_Certificate(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_dev_ca_cert);
+      break;
+    case BPKM_ROOT_CA_CERT:
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_x509af_Certificate(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_root_ca_cert);
+      break;
+    case BPKM_CM_NONCE:
+      if (tlv_length == 8)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_cm_nonce, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case BPKM_MSG_SIGNATURE:
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      dissect_cms_SignedData(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_msg_signature);
+      break;
+    case BPKM_KEY_EXCHANGE_SHARE:
+      if (tlv_length > 2) {
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_key_exchange_share_field_id, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_key_exchange_share_key_share, tvb, pos + 2, tlv_length - 2, ENC_NA);
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case BPKM_ALLOWED_BPI_VERSIONS:
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_allowed_bpi_versions, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_allowed_bpi_versions);
+      for (i = 0; i < tlv_length; ++i)
+        proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_allowed_bpi_version, tvb, pos + i, 1, ENC_BIG_ENDIAN);
+      break;
+    case BPKM_OCSP_RSP:
+      tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_ocsp_responses, tvb, pos, tlv_length, ENC_NA);
+      tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_ocsp_responses);
+      asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+      i = pos;
+      attr_end = pos + tlv_length;
+      while (i < attr_end)
+        i = dissect_ocsp_OCSPResponse(false, tvb, i, &asn1_ctx, tlv_subtree, hf_docsis_bpkmattr_ocsp_response);
+      break;
+    case BPKM_CMTS_DESIGNATION:
+      if (tlv_length) {
+        tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_cmts_designation, tvb, pos, tlv_length, ENC_NA);
+        tlv_subtree = proto_item_add_subtree(tlv_subitem, ett_docsis_bpkmattr_cmts_designation);
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_bpkmattr_cmts_designation_data_type,
+                                     tvb, pos, 1, ENC_BIG_ENDIAN, &tlv_subtype);
+        switch (tlv_subtype)
+        {
+        case BPKMATTR_CMTS_DESIGNATION_CERTIFICATE_FINGERPRINT:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_certificate_fingerprint,
+                              tvb, pos + 1, tlv_length - 1, ENC_NA);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_COMMON_NAME:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_common_name,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ORG_UNIT:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_org_unit,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ORG_NAME:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_org_name,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_SERIAL_NUMBER:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_serial_number,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_FINGERPRINT:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_issuing_ca_fingerprint,
+                              tvb, pos + 1, tlv_length - 1, ENC_NA);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_COMMON_NAME:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_issuing_ca_common_name,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_ORG_UNIT:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_issuing_ca_org_unit,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_ORG_NAME:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_issuing_ca_org_name,
+                              tvb, pos + 1, tlv_length - 1, ENC_ASCII);
+          break;
+        case BPKMATTR_CMTS_DESIGNATION_ISSUING_CA_SERIAL_NUMBER:
+          proto_tree_add_item(tlv_subtree, hf_docsis_bpkmattr_cmts_designation_issuing_ca_serial_number,
+                              tvb, pos, tlv_length - 1, ENC_ASCII);
+          break;
+        }
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case BPKM_CM_STATUS_CODE:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_cm_status_code, tvb, pos, tlv_length, ENC_NA);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case BPKM_DETECTED_ERRORS:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_detected_errors, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case BPKM_VENDOR_DEFINED:
+      proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_vendor_def, tvb, pos, tlv_length, ENC_NA);
       break;
     default:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_vendor_def, tvb, pos, length, ENC_NA);
+      proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_vendor_def, tvb, pos, tlv_length, ENC_NA);
       break;
     }
 
-    pos += length;            /* switch */
-  }                           /* while */
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
   decrement_dissection_depth(pinfo);
 }
 
 static int
-dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+dissect_bpkmreq(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  proto_item *it;
-  proto_tree *bpkmreq_tree, *bpkmattr_tree;
-  guint32 code;
-  tvbuff_t *attrs_tvb;
+  proto_item *bpkmreq_item, *attr_item;
+  proto_tree *bpkmreq_tree, *attr_tree;
+  tvbuff_t *tlv_tvb = NULL;
 
-  it = proto_tree_add_item(tree, proto_docsis_bpkmreq, tvb, 0, -1, ENC_NA);
-  bpkmreq_tree = proto_item_add_subtree (it, ett_docsis_bpkmreq);
-  proto_tree_add_item_ret_uint (bpkmreq_tree, hf_docsis_bpkm_code, tvb, 0, 1,
-                           ENC_BIG_ENDIAN, &code);
+  guint32 code, id, length;
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Request (%s)",
-                val_to_str (code, code_field_vals, "%d"));
+  bpkmreq_item = proto_tree_add_item(tree, proto_docsis_bpkmreq, tvb, 0, -1, ENC_NA);
+  bpkmreq_tree = proto_item_add_subtree(bpkmreq_item, ett_docsis_bpkmreq);
+  proto_tree_add_item_ret_uint(bpkmreq_tree, hf_docsis_bpkm_code, tvb, 0, 1, ENC_BIG_ENDIAN, &code);
+  proto_tree_add_item_ret_uint(bpkmreq_tree, hf_docsis_bpkm_ident, tvb, 1, 1, ENC_BIG_ENDIAN, &id);
+  proto_tree_add_item_ret_uint(bpkmreq_tree, hf_docsis_bpkm_length, tvb, 2, 2, ENC_BIG_ENDIAN, &length);
 
-  proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkm_ident, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkm_length, tvb, 2, 2, ENC_BIG_ENDIAN);
-  it = proto_tree_add_item(bpkmreq_tree, hf_docsis_bpkmattr, tvb, 4, tvb_reported_length_remaining(tvb, 4), ENC_NA);
-  bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "BPKM Request (BPKM-REQ): %s, ID %u",
+               val_to_str(code, code_field_vals, "Unknown Code (%u)"), id);
 
-  attrs_tvb = tvb_new_subset_remaining (tvb, 4);
-  dissect_attrs(attrs_tvb, pinfo, bpkmattr_tree);
+  id += code << 8;
+  tlv_tvb = dissect_multipart(tvb, pinfo, bpkmreq_tree, data, MGT_BPKM_REQ, id, 4);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb)) {
+    attr_item = proto_tree_add_item(bpkmreq_tree, hf_docsis_bpkmattr, tlv_tvb, 0, length, ENC_NA);
+    attr_tree = proto_item_add_subtree(attr_item, ett_docsis_bpkmattr);
+    dissect_attrs(tlv_tvb, pinfo, attr_item, attr_tree, 0, length);
+    if (length != tvb_reported_length(tlv_tvb))
+      expert_add_info_format(pinfo, bpkmreq_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+  }
   return tvb_captured_length(tvb);
 }
 
 static int
-dissect_bpkmrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+dissect_bpkmrsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  proto_item *it;
-  proto_tree *bpkmrsp_tree, *bpkmattr_tree;
-  guint32 code;
-  tvbuff_t *attrs_tvb;
+  proto_item *bpkmrsp_item, *attr_item;
+  proto_tree *bpkmrsp_tree, *attr_tree;
+  tvbuff_t *tlv_tvb = NULL;
 
-  it = proto_tree_add_item(tree, proto_docsis_bpkmrsp, tvb, 0, -1, ENC_NA);
-  bpkmrsp_tree = proto_item_add_subtree (it, ett_docsis_bpkmrsp);
+  guint32 code, id, length;
 
-  proto_tree_add_item_ret_uint (bpkmrsp_tree, hf_docsis_bpkm_code, tvb, 0, 1, ENC_BIG_ENDIAN, &code);
+  bpkmrsp_item = proto_tree_add_item(tree, proto_docsis_bpkmrsp, tvb, 0, -1, ENC_NA);
+  bpkmrsp_tree = proto_item_add_subtree(bpkmrsp_item, ett_docsis_bpkmrsp);
+  proto_tree_add_item_ret_uint(bpkmrsp_tree, hf_docsis_bpkm_code, tvb, 0, 1, ENC_BIG_ENDIAN, &code);
+  proto_tree_add_item_ret_uint(bpkmrsp_tree, hf_docsis_bpkm_ident, tvb, 1, 1, ENC_BIG_ENDIAN, &id);
+  proto_tree_add_item_ret_uint(bpkmrsp_tree, hf_docsis_bpkm_length, tvb, 2, 2, ENC_BIG_ENDIAN, &length);
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Response (%s)",
-                val_to_str (code, code_field_vals, "Unknown code %u"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "BPKM Response (BPKM-RSP): %s, ID %u",
+               val_to_str(code, code_field_vals, "Unknown Code (%u)"), id);
 
-  proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkm_ident, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkm_length, tvb, 2, 2, ENC_BIG_ENDIAN);
-  it = proto_tree_add_item(bpkmrsp_tree, hf_docsis_bpkmattr, tvb, 4, tvb_reported_length_remaining(tvb, 4), ENC_NA);
-  bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
-
-  attrs_tvb = tvb_new_subset_remaining (tvb, 4);
-  dissect_attrs(attrs_tvb, pinfo, bpkmattr_tree);
+  id += code << 8;
+  tlv_tvb = dissect_multipart(tvb, pinfo, bpkmrsp_tree, data, MGT_BPKM_RSP, id, 4);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb)) {
+    attr_item = proto_tree_add_item(bpkmrsp_tree, hf_docsis_bpkmattr, tlv_tvb, 0, length, ENC_NA);
+    attr_tree = proto_item_add_subtree(attr_item, ett_docsis_bpkmattr);
+    dissect_attrs(tlv_tvb, pinfo, attr_item, attr_tree, 0, length);
+    if (length != tvb_reported_length(tlv_tvb))
+      expert_add_info_format(pinfo, bpkmrsp_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+  }
   return tvb_captured_length(tvb);
 }
 
@@ -8762,25 +9053,40 @@ proto_register_docsis_mgmt (void)
     },
     /* BPKM */
     {&hf_docsis_bpkm_code,
-     {"BPKM Code", "docsis_bpkm.code",
+     {"Code", "docsis_bpkm.code",
       FT_UINT8, BASE_DEC, VALS (code_field_vals), 0x0,
-      "BPKM Request Message", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_bpkm_ident,
-     {"BPKM Identifier", "docsis_bpkm.ident",
+     {"Identifier", "docsis_bpkm.ident",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
-    {&hf_docsis_bpkmattr,
-     {"BPKM Attributes", "docsis_bpkm.attr",
-      FT_BYTES, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x0,
-      NULL, HFILL}
-    },
     {&hf_docsis_bpkm_length,
-     {"BPKM Length", "docsis_bpkm.length",
+     {"Length", "docsis_bpkm.length",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
+    {&hf_docsis_bpkmattr,
+     {"Attributes", "docsis_bpkm.attr",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_tlv,
+     {"TLV", "docsis_bpkm.attr.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+     },
+    {&hf_docsis_bpkmattr_tlv_type,
+     {"Type", "docsis_bpkm.attr.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(bpkmattr_tlv_vals), 0x0,
+      NULL, HFILL}
+     },
+    {&hf_docsis_bpkmattr_tlv_length,
+     {"Length", "docsis_bpkm.attr.tlv.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+     },
     {&hf_docsis_bpkmattr_serial_num,
      {"Serial Number", "docsis_bpkm.attr.serialnum",
       FT_STRING, BASE_NONE, NULL, 0x0,
@@ -8788,7 +9094,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_bpkmattr_manf_id,
      {"Manufacturer ID", "docsis_bpkm.attr.manfid",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
+      FT_UINT24, BASE_HEX, NULL, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_bpkmattr_mac_addr,
@@ -8798,8 +9104,8 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_bpkmattr_rsa_pub_key,
      {"RSA Public Key", "docsis_bpkm.attr.rsa_pub_key",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded RSA Public Key", HFILL}
     },
     {&hf_docsis_bpkmattr_cm_id,
      {"CM Identification", "docsis_bpkm.attr.cmid",
@@ -8813,32 +9119,32 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_bpkmattr_auth_key,
      {"Auth Key", "docsis_bpkm.attr.auth_key",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "Encrypted Authorization Key", HFILL}
     },
     {&hf_docsis_bpkmattr_tek,
      {"Traffic Encryption Key", "docsis_bpkm.attr.tek",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "Encrypted Traffic Encryption Key", HFILL}
     },
     {&hf_docsis_bpkmattr_key_life,
-     {"Key Lifetime(s)", "docsis_bpkm.attr.keylife",
+     {"Key Lifetime (s)", "docsis_bpkm.attr.keylife",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL}
+      "Remaining key lifetime (s)", HFILL}
     },
     {&hf_docsis_bpkmattr_key_seq,
      {"Key Sequence Number", "docsis_bpkm.attr.keyseq",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC, NULL, 0x0f,
       NULL, HFILL}
     },
     {&hf_docsis_bpkmattr_hmac_digest,
      {"HMAC Digest", "docsis_bpkm.attr.hmacdigest",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
+      "HMAC Digest (160-bit keyed SHA-1 hash)", HFILL}
     },
     {&hf_docsis_bpkmattr_said,
      {"SAID", "docsis_bpkm.attr.said",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
+      FT_UINT16, BASE_DEC, NULL, 0x3fff,
       "Security Association ID", HFILL}
     },
     {&hf_docsis_bpkmattr_tek_params,
@@ -8849,27 +9155,22 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_bpkmattr_cbc_iv,
      {"CBC IV", "docsis_bpkm.attr.cbciv",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Cypher Block Chaining", HFILL}
+      "Cypher Block Chaining initialization vector", HFILL}
     },
     {&hf_docsis_bpkmattr_error_code,
      {"Error Code", "docsis_bpkm.attr.errcode",
       FT_UINT8, BASE_DEC, VALS (error_code_vals), 0x0,
       NULL, HFILL}
     },
-    {&hf_docsis_bpkmattr_vendor_def,
-     {"Vendor Defined", "docsis_bpkm.attr.vendordef",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-    },
     {&hf_docsis_bpkmattr_ca_cert,
-     {"CA Certificate", "docsis_bpkm.attr.cacert",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
+     {"Device CA Certificate", "docsis_bpkm.attr.cacert",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded Device CA Certificate", HFILL}
     },
     {&hf_docsis_bpkmattr_cm_cert,
      {"CM Certificate", "docsis_bpkm.attr.cmcert",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded CM Device Certificate", HFILL}
     },
     {&hf_docsis_bpkmattr_security_cap,
      {"Security Capabilities", "docsis_bpkm.attr.seccap",
@@ -8878,8 +9179,18 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_bpkmattr_crypto_suite,
      {"Cryptographic Suite", "docsis_bpkm.attr.cryptosuite",
-      FT_UINT16, BASE_HEX, VALS(crypto_suite_attr_vals), 0x0,
+      FT_UINT16, BASE_HEX, NULL, 0x0,
       NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_crypto_suite_encr,
+     {"Encryption", "docsis_bpkm.attr.cryptosuite.encr",
+      FT_UINT16, BASE_HEX, VALS(bpkm_crypto_suite_encr_vals), 0xff00,
+      "Data Encryption Algorithm", HFILL}
+    },
+    {&hf_docsis_bpkmattr_crypto_suite_auth,
+     {"Authentication", "docsis_bpkm.attr.cryptosuite.auth",
+      FT_UINT16, BASE_HEX, VALS(bpkm_crypto_suite_auth_vals), 0x00ff,
+      "Data Authentication Algorithm", HFILL}
     },
     {&hf_docsis_bpkmattr_crypto_suite_list,
      {"Cryptographic Suite List", "docsis_bpkm.attr.crypto_suite_lst",
@@ -8894,22 +9205,22 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_bpkmattr_sa_descr,
      {"SA Descriptor", "docsis_bpkm.attr.sadescr",
       FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
-      NULL, HFILL}
+      "Security Association Descriptor", HFILL}
     },
     {&hf_docsis_bpkmattr_sa_type,
      {"SA Type", "docsis_bpkm.attr.satype",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, HFILL}
+      FT_UINT8, BASE_DEC, VALS(bpi_sa_vals), 0x0,
+      "Security Association Type", HFILL}
     },
     {&hf_docsis_bpkmattr_sa_query,
      {"SA Query", "docsis_bpkm.attr.saquery",
       FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
-      NULL, HFILL}
+      "Security Association Query", HFILL}
     },
     {&hf_docsis_bpkmattr_sa_query_type,
      {"SA Query Type", "docsis_bpkm.attr.saquery_type",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}
+      FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(bpi_sa_query_type_vals), 0x0,
+      "Security Association Query Type", HFILL}
     },
     {&hf_docsis_bpkmattr_ip_address,
      {"IP Address", "docsis_bpkm.attr.ipaddr",
@@ -8921,16 +9232,141 @@ proto_register_docsis_mgmt (void)
       FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
       NULL, HFILL}
     },
-    {&hf_docsis_bpkmattr_type,
-     {"Type", "docsis_bpkm.attr.type",
-      FT_UINT8, BASE_DEC, VALS(bpkmattr_tlv_vals), 0x0,
-      "TLV Type", HFILL}
-     },
-    {&hf_docsis_bpkmattr_length,
-     {"Length", "docsis_bpkm.attr.length",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
-      "TLV Length", HFILL}
-     },
+    {&hf_docsis_bpkmattr_cvc_root_ca_cert,
+     {"CVC Root CA Certificate (deprecated)", "docsis_bpkm.attr.cvc_root_ca_cert",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded CVC Root CA Certificate from the legacy PKI", HFILL}
+    },
+    {&hf_docsis_bpkmattr_cvc_ca_cert,
+     {"CVC CA Certificate (deprecated)", "docsis_bpkm.attr.cvc_ca_cert",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded CVC CA Certificate from the legacy PKI", HFILL}
+    },
+    {&hf_docsis_bpkmattr_dev_ca_cert,
+     {"Device CA Certificate", "docsis_bpkm.attr.dev_ca_cert",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded Device CA Certificate from the new PKI", HFILL}
+    },
+    {&hf_docsis_bpkmattr_root_ca_cert,
+     {"Root CA Certificate", "docsis_bpkm.attr.root_ca_cert",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded Root CA Certificate from the new PKI", HFILL}
+    },
+    {&hf_docsis_bpkmattr_cm_nonce,
+     {"CM Nonce", "docsis_bpkm.attr.cm_nonce",
+      FT_UINT64, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_msg_signature,
+     {"Message Signature", "docsis_bpkm.attr.msg_signature",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      "DER-encoded CMS Signature", HFILL}
+    },
+    {&hf_docsis_bpkmattr_key_exchange_share_field_id,
+     {"Key Exchange Share: Field ID", "docsis_bpkm.attr.key_exchange_share.field_id",
+      FT_UINT16, BASE_HEX, VALS(bpkmattr_key_exchange_share_field_id_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_key_exchange_share_key_share,
+     {"Key Exchange Share", "docsis_bpkm.attr.key_exchange_share.key_share",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_allowed_bpi_versions,
+     {"Allowed BPI Versions", "docsis_bpkm.attr.allowed_bpi_versions",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_allowed_bpi_version,
+     {"BPI Version", "docsis_bpkm.attr.allowed_bpi_version",
+      FT_UINT8, BASE_DEC, VALS(bpi_ver_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_ocsp_responses,
+     {"OCSP Responses", "docsis_bpkm.attr.ocsp_responses",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_ocsp_response,
+     {"OCSP Response", "docsis_bpkm.attr.ocsp_response",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation,
+     {"CMTS Designation", "docsis_bpkm.attr.cmts_designation",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_data_type,
+     {"DataType", "docsis_bpkm.attr.cmts_designation.data_type",
+      FT_UINT8, BASE_DEC, VALS(bpkm_cmts_binding_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_certificate_fingerprint,
+     {"Certificate Fingerprint", "docsis_bpkm.attr.cmts_designation.certificate_fingerprint",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_common_name,
+     {"Common Name", "docsis_bpkm.attr.cmts_designation.common_name",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_org_unit,
+     {"Organizational Unit", "docsis_bpkm.attr.cmts_designation.org_unit",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_org_name,
+     {"Organization Name", "docsis_bpkm.attr.cmts_designation.org_name",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_serial_number,
+     {"Serial Number", "docsis_bpkm.attr.cmts_designation.serial_number",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_issuing_ca_fingerprint,
+     {"Issuing CA Fingerprint", "docsis_bpkm.attr.cmts_designation.issuing_ca_fingerprint",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_issuing_ca_common_name,
+     {"Issuing CA Common Name", "docsis_bpkm.attr.cmts_designation.issuing_ca_common_name",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_issuing_ca_org_unit,
+     {"Issuing CA Organizational Unit", "docsis_bpkm.attr.cmts_designation.issuing_ca_org_unit",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_issuing_ca_org_name,
+     {"Issuing CA Organization Name", "docsis_bpkm.attr.cmts_designation.issuing_ca_org_name",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cmts_designation_issuing_ca_serial_number,
+     {"Issuing CA Serial Number", "docsis_bpkm.attr.cmts_designation.issuing_ca_serial_number",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_cm_status_code,
+     {"CM-Status Code", "docsis_bpkm.attr.cm_status_code",
+      FT_UINT8, BASE_DEC, VALS(bpkm_cm_status_code_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_detected_errors,
+     {"Detected Errors", "docsis_bpkm.attr.detected_errors",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_bpkmattr_vendor_def,
+     {"Vendor Defined", "docsis_bpkm.attr.vendordef",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
     /* REG-ACK */
     {&hf_docsis_regack_sid,
      {"Service Identifier", "docsis_regack.sid",
@@ -11214,13 +11650,18 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_bpkmreq,
     &ett_docsis_bpkmrsp,
     &ett_docsis_bpkmattr,
+    &ett_docsis_bpkmattr_tlv,
     &ett_docsis_bpkmattr_cmid,
     &ett_docsis_bpkmattr_scap,
+    &ett_docsis_bpkmattr_crypto_suite,
+    &ett_docsis_bpkmattr_crypto_suite_list,
+    &ett_docsis_bpkmattr_allowed_bpi_versions,
+    &ett_docsis_bpkmattr_ocsp_responses,
+    &ett_docsis_bpkmattr_cmts_designation,
     &ett_docsis_bpkmattr_tekp,
     &ett_docsis_bpkmattr_sadsc,
     &ett_docsis_bpkmattr_saqry,
     &ett_docsis_bpkmattr_dnld,
-    &ett_docsis_bpkmattrtlv,
     &ett_docsis_regack,
     &ett_docsis_dsareq,
     &ett_docsis_dsarsp,
@@ -11454,6 +11895,8 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_RBA_SW, docsis_rba_handle);
   dissector_add_uint ("docsis_mgmt", MGT_RBA_HW, docsis_rba_handle);
   dissector_add_uint ("docsis_mgmt", MGT_EXT_RNG_REQ, create_dissector_handle( dissect_ext_rngreq, proto_docsis_ext_rngreq ));
+  dissector_add_uint ("docsis_mgmt", MGT_BPKM_REQ_V5, create_dissector_handle(dissect_bpkmreq, proto_docsis_bpkmreq));
+  dissector_add_uint ("docsis_mgmt", MGT_BPKM_RSP_V5, create_dissector_handle(dissect_bpkmrsp, proto_docsis_bpkmrsp));
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 
