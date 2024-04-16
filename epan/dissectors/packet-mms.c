@@ -1127,12 +1127,15 @@ typedef struct mms_private_data_t
 #define MMS_FILEDELETE    76
 #define MMS_FILEDIRECTORY    77
 
+#define MMS_OBJECTCLASS_NAMMEDVARIABLE 0
 #define MMS_OBJECTCLASS_DOMAIN 9
 
 #define MMS_OBJECTSCOPE_VMDSPECIFIC 0
 #define MMS_OBJECTSCOPE_DOMAINSPECIFIC 1
 
+#define MMS_IEC_61850_CONF_SERV_PDU_NOT_SET 0
 #define MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR 1
+#define MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY 2
 
 typedef struct mms_actx_private_data_t
 {
@@ -1250,8 +1253,8 @@ private_data_add_moreCinfo_id(asn1_ctx_t* actx, tvbuff_t* tvb)
 {
     mms_private_data_t* private_data = (mms_private_data_t*)mms_get_private_data(actx);
     (void)g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
-    (void)g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool,
-        tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
+    (void)g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool, tvb,
+        0, tvb_reported_length(tvb), ENC_ASCII | ENC_NA), BUFFER_SIZE_MORE);
 }
 
 static void
@@ -1373,9 +1376,8 @@ dissect_mms_Unsigned32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
             if (!PINFO_FD_VISITED(actx->pinfo)) {
                 if (is_request==true) {
                     /* This is a request */
-                    mms_trans=wmem_new(wmem_file_scope(), mms_transaction_t);
+                    mms_trans=wmem_new0(wmem_file_scope(), mms_transaction_t);
                     mms_trans->req_frame = actx->pinfo->num;
-                    mms_trans->rep_frame = 0;
                     mms_trans->req_time = actx->pinfo->fd->abs_ts;
                     wmem_map_insert(mms_info->pdus, GUINT_TO_POINTER(mms_priv->invokeid), (void *)mms_trans);
                 } else {
@@ -1438,10 +1440,11 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                                             &parameter_tvb);
 
         if (hf_index == hf_mms_domainId) {
-                private_data_add_moreCinfo_id(actx,tvb);
+                private_data_add_moreCinfo_id(actx,parameter_tvb);
         }
-        if ((mms_priv) && ((hf_index == hf_mms_objectName_domain_specific_itemId)||(hf_index ==hf_mms_listOfIdentifier_item))) {
-            private_data_add_moreCinfo_id(actx,tvb);
+        if ((mms_priv) && ((hf_index == hf_mms_objectName_domain_specific_itemId)||
+                (hf_index ==hf_mms_listOfIdentifier_item)||(hf_mms_listOfIdentifier_item))) {
+            private_data_add_moreCinfo_id(actx,parameter_tvb);
             if((mms_priv->mms_trans_p)&&(parameter_tvb)){
                 mms_priv->itemid_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
                 if(g_str_has_suffix(mms_priv->itemid_str,"$ctlModel")){
@@ -5264,6 +5267,8 @@ dissect_mms_ConfirmedServiceRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
                     if(mms_priv->objectscope == MMS_OBJECTSCOPE_VMDSPECIFIC){
                         mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR;
                     }
+                }else if(mms_priv->objectclass == MMS_OBJECTCLASS_NAMMEDVARIABLE){
+                    mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY;
                 }
             }
         }
@@ -7488,9 +7493,7 @@ dissect_mms_Unconfirmed_PDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
     if (!mms_priv->mms_trans_p) {
         /* create a "fake" mms_trans structure */
-        mms_priv->mms_trans_p=wmem_new(actx->pinfo->pool, mms_transaction_t);
-        mms_priv->mms_trans_p->req_frame = 0;
-        mms_priv->mms_trans_p->rep_frame = 0;
+        mms_priv->mms_trans_p=wmem_new0(actx->pinfo->pool, mms_transaction_t);
         mms_priv->mms_trans_p->req_time = actx->pinfo->fd->abs_ts;
 
     }
@@ -8119,18 +8122,28 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                         proto_item_append_text(mms_priv->pdu_item, " [Associate Response]");
                         break;
                     case MMS_CONFIRMED_REQUEST_PDU:
-                        if((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR)){
-                            col_append_str(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryRequest");
-                            proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryRequest]");
+                        if(mms_priv->mms_trans_p){
+                            if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR){
+                                col_append_str(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryRequest");
+                                proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryRequest]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetLogicalDeviceDirectoryRequest %s", mms_priv->itemid_str);
+                                proto_item_append_text(mms_priv->pdu_item, " [GetLogicalDeviceDirectoryRequest ]");
+                            }
                         }else if (mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
                                     private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
                         }
                     break;
                     case MMS_CONFIRMED_RESPONSE_PDU:
-                        if((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR)){
-                            col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryResponse %s", mms_priv->itemid_str);
-                            proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryResponse ]");
+                        if(mms_priv->mms_trans_p){
+                            if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetServerDirectoryResponse %s", mms_priv->itemid_str);
+                                proto_item_append_text(mms_priv->pdu_item, " [GetServerDirectoryResponse ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetLogicalDeviceDirectoryResponse%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetLogicalDeviceDirectoryResponse ]");
+                            }
                         }else if(mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
                                     private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));

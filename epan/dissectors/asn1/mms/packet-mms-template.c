@@ -212,12 +212,15 @@ typedef struct mms_private_data_t
 #define MMS_FILEDELETE    76
 #define MMS_FILEDIRECTORY    77
 
+#define MMS_OBJECTCLASS_NAMMEDVARIABLE 0
 #define MMS_OBJECTCLASS_DOMAIN 9
 
 #define MMS_OBJECTSCOPE_VMDSPECIFIC 0
 #define MMS_OBJECTSCOPE_DOMAINSPECIFIC 1
 
+#define MMS_IEC_61850_CONF_SERV_PDU_NOT_SET 0
 #define MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR 1
+#define MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY 2
 
 typedef struct mms_actx_private_data_t
 {
@@ -335,8 +338,8 @@ private_data_add_moreCinfo_id(asn1_ctx_t* actx, tvbuff_t* tvb)
 {
     mms_private_data_t* private_data = (mms_private_data_t*)mms_get_private_data(actx);
     (void)g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
-    (void)g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool,
-        tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
+    (void)g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool, tvb,
+        0, tvb_reported_length(tvb), ENC_ASCII | ENC_NA), BUFFER_SIZE_MORE);
 }
 
 static void
