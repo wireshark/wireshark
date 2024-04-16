@@ -37,10 +37,6 @@ enum sdp_trace_id_hf_type
  */
 #define SDP_INFO_OFFSET 10 /* Max number of SDP data occurensies in a single frame */
 
-typedef struct _sdp_conv_info {
-    wmem_array_t *sdp_setup_info_list;
-} sdp_conv_info_t;
-
 typedef struct _sdp_setup_info {
     int  hf_id;                         /* Header field to use */
     enum sdp_trace_id_hf_type hf_type;  /* Indicates which of the following variables to use( add guint32 etc as needed)*/

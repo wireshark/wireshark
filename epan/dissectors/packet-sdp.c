@@ -24,6 +24,7 @@
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include <epan/strutil.h>
 
 #include <wsutil/strtoi.h>
@@ -278,6 +279,9 @@ typedef struct {
 
     /* Data parsed from "m=" */
     wmem_array_t *media_descriptions;   /* array of media_description_t */
+
+    wmem_array_t *sdp_setup_info_list;  /* array of sdp_setup_info_t that refer
+                                         * to the same RTP conversation */
 
     /* SRTP related info XXX note currently we only handle one crypto line in the SDP
     * We should probably handle offer/answer and session updates etc(SIP) quite possibly the whole handling of
@@ -2285,6 +2289,7 @@ static void
 apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int request_frame, sdp_setup_info_t *setup_info)
 {
     int establish_frame = 0;
+    wmem_array_t *setup_info_list;
 
     struct srtp_info *srtp_info = NULL;
 
@@ -2407,6 +2412,20 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
             bfcp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, "SDP", establish_frame);
         }
     } /* end of loop through all media descriptions. */
+
+    /* Copy the list of setup info of calls with the same RTP information
+     * to the transport info, so that we have it when dissecting the
+     * request as well.
+     * XXX - There can be multiple media descriptions, and while this SDP's
+     * setup info is on all of them, some other SDP might have some but not
+     * all media descriptions, so the arrays of setup infos might be different.
+     * They should be consolidated as with rtp_add_setup_info_if_no_duplicate()
+     * in packet-rtp.c, or stored with each media descriptor.
+     */
+    setup_info_list = p_get_proto_data(pinfo->pool, pinfo, proto_sdp, 0);
+    if (setup_info_list) {
+        transport_info->sdp_setup_info_list = setup_info_list;
+    }
 }
 
 void
@@ -2624,13 +2643,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     memset(&sdp_data, 0, sizeof(sdp_data));
 
-    if (!pinfo->fd->visited) {
-        transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->num );
+    transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->num );
 
-        if (transport_info == NULL) {
-          /* Can't find it in the requests, make sure it's not a response */
-          transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_rsps, pinfo->num );
-        }
+    if (transport_info == NULL) {
+      /* Can't find it in the requests, make sure it's not a response */
+      transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_rsps, pinfo->num );
     }
 
     if (transport_info == NULL) {
@@ -2839,6 +2856,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * Use 0 as request_frame since there is no (known) request.
          */
         apply_sdp_transport(pinfo, transport_info, 0, setup_info);
+        /* Save the list of setup info of calls with the same RTP information
+         * to the packet in file scope, since transport_info is local and
+         * we won't do this on future passes.
+         */
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_sdp, 0, transport_info->sdp_setup_info_list);
     }
 
     /* Add information to the VoIP Calls dialog. */
@@ -2901,30 +2923,28 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         proto_tree_add_item(sdp_tree, hf_sdp_data, tvb, offset, datalen, ENC_NA);
     }
     /* Add Trace info */
-    conversation_t *sdp_conv;
-    wmem_array_t *sdp_conv_info_list;
-    sdp_conv = find_conversation_pinfo(pinfo, 0);
-    if (sdp_conv) {
+    wmem_array_t *setup_info_list = transport_info->sdp_setup_info_list;
+    if (!setup_info_list) {
+        setup_info_list = (wmem_array_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_sdp, 0);
+    }
+    if (setup_info_list) {
         guint i;
         sdp_setup_info_t *stored_setup_info;
         proto_item *item;
-        sdp_conv_info_list = (wmem_array_t *)conversation_get_proto_data(sdp_conv, proto_sdp);
-        if(sdp_conv_info_list){
-            for (i = 0; i < wmem_array_get_count(sdp_conv_info_list); i++) {
-                stored_setup_info = (sdp_setup_info_t *)wmem_array_index(sdp_conv_info_list, i);
-                if (stored_setup_info->hf_id) {
-                    if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
-                        item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.str);
-                        proto_item_set_generated(item);
-                        if (stored_setup_info->add_hidden == TRUE) {
-                            proto_item_set_hidden(item);
-                        }
-                    } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
-                        item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
-                        proto_item_set_generated(item);
-                        if (stored_setup_info->add_hidden == TRUE) {
-                            proto_item_set_hidden(item);
-                        }
+        for (i = 0; i < wmem_array_get_count(setup_info_list); i++) {
+            stored_setup_info = (sdp_setup_info_t *)wmem_array_index(setup_info_list, i);
+            if (stored_setup_info->hf_id) {
+                if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
+                    item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.str);
+                    proto_item_set_generated(item);
+                    if (stored_setup_info->add_hidden == TRUE) {
+                        proto_item_set_hidden(item);
+                    }
+                } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
+                    item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
+                    proto_item_set_generated(item);
+                    if (stored_setup_info->add_hidden == TRUE) {
+                        proto_item_set_hidden(item);
                     }
                 }
             }

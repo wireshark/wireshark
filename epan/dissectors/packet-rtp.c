@@ -1184,7 +1184,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
          struct srtp_info *srtp_info, sdp_setup_info_t *setup_info)
 {
     address null_addr;
-    conversation_t* p_conv, *sdp_conv;
+    conversation_t* p_conv;
     struct _rtp_conversation_info *p_conv_data;
     wmem_array_t *rtp_conv_info_list = NULL;
     wmem_map_t *ssrc_number_space = NULL;
@@ -1322,10 +1322,14 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
             wmem_array_append(p_conv_data->rtp_sdp_setup_info_list, setup_info, 1);
         }
     }
-    sdp_conv = find_or_create_conversation(pinfo);
-    if (sdp_conv && p_conv_data->rtp_sdp_setup_info_list) {
-        /* Add the collected information to the SDP conversation */
-        conversation_add_proto_data(sdp_conv, proto_sdp, p_conv_data->rtp_sdp_setup_info_list);
+    if (p_conv_data->rtp_sdp_setup_info_list) {
+        /* Convey the collected information to SDP */
+        /* This is pinfo->pool because this function might not have been called
+         * by SDP, in which case we don't need to save it, and SDP might have
+         * a file scoped transport info to store it in (using the Offer/Answer
+         * model, e.g. with SIP.)
+         */
+        p_add_proto_data(pinfo->pool, pinfo, proto_sdp, 0, p_conv_data->rtp_sdp_setup_info_list);
     }
 
 }
