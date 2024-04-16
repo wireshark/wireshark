@@ -13,4 +13,4 @@
 #include <epan/stats_tree.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
+#include <epan/dfilter/dfilter.h>
