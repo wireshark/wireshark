@@ -141,6 +141,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_DPT_INFO 60
 #define MGT_RBA_SW 61
 #define MGT_RBA_HW 62
+#define MGT_CWT_REQ 63
+#define MGT_CWT_RSP 64
 #define MGT_EXT_RNG_REQ 67
 #define MGT_BPKM_REQ_V5 69
 #define MGT_BPKM_RSP_V5 70
@@ -671,6 +673,14 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define KEY_MGMT_VERSION 0
 #define KEY_MGMT_MULTIPART 1
 
+/* CWT-REQ and CWT-RSP */
+#define CWT_PHASE_ROTATION 1
+#define CWT_MAX_DURATION 2
+#define CWT_US_ENCODINGS 3
+#define CWT_US_ENCODINGS_CID 1
+#define CWT_US_ENCODINGS_SC_INDEX 2
+#define CWT_US_ENCODINGS_POWER_BOOST 3
+
 /* BPKM CMTS Designation */
 #define BPKMATTR_CMTS_DESIGNATION_CERTIFICATE_FINGERPRINT 0
 #define BPKMATTR_CMTS_DESIGNATION_COMMON_NAME 1
@@ -734,6 +744,8 @@ static int proto_docsis_optreq;
 static int proto_docsis_optrsp;
 static int proto_docsis_optack;
 static int proto_docsis_rba;
+static int proto_docsis_cwt_req;
+static int proto_docsis_cwt_rsp;
 static int proto_docsis_ext_rngreq;
 
 static int hf_docsis_sync_cmts_timestamp;
@@ -1389,6 +1401,23 @@ static int hf_docsis_rba_rba_expiration_time;
 static int hf_docsis_rba_number_of_subbands;
 static int hf_docsis_rba_subband_direction;
 
+/* CWT-REQ and CWT-RSP */
+static int hf_docsis_cwt_trans_id;
+static int hf_docsis_cwt_sub_band_id;
+static int hf_docsis_cwt_op_code;
+static int hf_docsis_cwt_status;
+static int hf_docsis_cwt_tlv;
+static int hf_docsis_cwt_tlv_type;
+static int hf_docsis_cwt_tlv_length;
+static int hf_docsis_cwt_phase_rotation;
+static int hf_docsis_cwt_max_duration;
+static int hf_docsis_cwt_us_encodings_tlv;
+static int hf_docsis_cwt_us_encodings_tlv_type;
+static int hf_docsis_cwt_us_encodings_tlv_length;
+static int hf_docsis_cwt_us_encodings_cid;
+static int hf_docsis_cwt_us_encodings_sc_index;
+static int hf_docsis_cwt_us_encodings_power_boost;
+
 static int hf_docsis_mgt_upstream_chid;
 static int hf_docsis_mgt_down_chid;
 static int hf_docsis_mgt_tranid;
@@ -1577,7 +1606,10 @@ static gint ett_docsis_optack;
 
 static gint ett_docsis_rba;
 static gint ett_docsis_rba_control_byte;
-
+static gint ett_docsis_cwt_req;
+static gint ett_docsis_cwt_rsp;
+static gint ett_docsis_cwt_tlv;
+static gint ett_docsis_cwt_subtlv;
 static gint ett_docsis_ext_rngreq;
 
 static gint ett_docsis_mgmt;
@@ -1591,6 +1623,7 @@ static expert_field ei_docsis_mgmt_tlvlen_bad;
 static expert_field ei_docsis_mgmt_tlvtype_unknown;
 static expert_field ei_docsis_mgmt_version_unknown;
 static expert_field ei_docsis_mgmt_opt_req_trigger_def_measure_duration;
+static expert_field ei_docsis_cwt_out_of_range;
 
 static dissector_table_t docsis_mgmt_dissector_table;
 static dissector_handle_t docsis_tlv_handle;
@@ -1724,6 +1757,8 @@ static const value_string mgmt_type_vals[] = {
   {MGT_DPT_INFO,       "DOCSIS Time Protocol Information"},
   {MGT_RBA_SW,         "DOCSIS SW-Friendly Resource Block Assignment"},
   {MGT_RBA_HW,         "DOCSIS HW-Friendly Resource Block Assignment"},
+  {MGT_CWT_REQ,        "IG Discovery CW Test Request"},
+  {MGT_CWT_RSP,        "IG Discovery CW Test Response"},
   {MGT_EXT_RNG_REQ,    "Extended Upstream Range Request"},
   {MGT_BPKM_REQ_V5,    "Privacy Key Management Request v5"},
   {MGT_BPKM_RSP_V5,    "Privacy Key Management Response v5"},
@@ -2848,6 +2883,41 @@ static const value_string rba_subband_direction_vals [] = {
 static const value_string extended_us_channel_vals [] = {
   {0, "Channel is not an Extended Upstream Channel"},
   {1, "Channel is an Extended Upstream Channel"},
+  {0, NULL}
+};
+
+static const value_string cwt_op_code_vals [] = {
+  {1, "Start"},
+  {2, "Stop"},
+  {0, NULL}
+};
+
+static const value_string cwt_status_vals [] = {
+  {1, "CWT-REQ accepted"},
+  {2, "CWT-REQ rejected, invalid request"},
+  {3, "CWT-REQ rejected, no-op"},
+  {4, "CW aborted, transaction mismatch"},
+  {5, "CW aborted, max duration timeout"},
+  {0, NULL}
+};
+static const value_string cwt_tlv_vals [] = {
+  {1, "Phase Rotation"},
+  {2, "Maximum Duration"},
+  {3, "Upstream Encodings"},
+  {0, NULL}
+};
+
+static const value_string cwt_phase_rotation_vals [] = {
+  {1, "pi/2"},
+  {2, "2pi/3"},
+  {3, "pi"},
+  {0, NULL}
+};
+
+static const value_string cwt_us_encodings_tlv_vals [] = {
+  {1, "Extended Upstream Channel ID"},
+  {2, "Upstream Subcarrier Index"},
+  {3, "Power Boost"},
   {0, NULL}
 };
 
@@ -8171,6 +8241,161 @@ dissect_rba (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   return tvb_captured_length(tvb);
 }
 
+static void
+dissect_cwt_us_encodings_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree, *subtlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length, i;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_cwt_us_encodings_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, cwt_us_encodings_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_cwt_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_cwt_us_encodings_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_cwt_us_encodings_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case CWT_US_ENCODINGS_CID:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_cwt_us_encodings_cid, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CWT_US_ENCODINGS_SC_INDEX:
+      subtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length, ett_docsis_cwt_subtlv, NULL,
+                                           "Upstream Subcarrier Indices");
+      for (i = 0; i + 1 < tlv_length; i += 2)
+        proto_tree_add_item(subtlv_tree, hf_docsis_cwt_us_encodings_sc_index, tvb, pos + i, 2, ENC_BIG_ENDIAN);
+      if (i != tlv_length)
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CWT_US_ENCODINGS_POWER_BOOST:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_cwt_us_encodings_power_boost, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_cwt_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  guint32 value;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_cwt_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, cwt_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_cwt_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_cwt_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_cwt_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case CWT_PHASE_ROTATION:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_cwt_phase_rotation, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CWT_MAX_DURATION:
+      if (tlv_length == 2) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_cwt_max_duration, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 1000)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_cwt_out_of_range, "Invalid CWT Maximum Duration: %i", value);
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CWT_US_ENCODINGS:
+      dissect_cwt_us_encodings_tlv(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static int
+dissect_cwt_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *cwt_req_item;
+  proto_tree *cwt_req_tree;
+  tvbuff_t *tlv_tvb = NULL;
+
+  guint32 transaction_id, sub_band_id, op_code, id = 0;
+
+  cwt_req_item = proto_tree_add_item(tree, proto_docsis_cwt_req, tvb, 0, -1, ENC_NA);
+  cwt_req_tree = proto_item_add_subtree(cwt_req_item, ett_docsis_cwt_req);
+  proto_tree_add_item_ret_uint(cwt_req_tree, hf_docsis_cwt_trans_id, tvb, 0, 1, ENC_BIG_ENDIAN, &transaction_id);
+  proto_tree_add_item_ret_uint(cwt_req_tree, hf_docsis_cwt_sub_band_id, tvb, 1, 1, ENC_BIG_ENDIAN, &sub_band_id);
+  proto_tree_add_item_ret_uint(cwt_req_tree, hf_docsis_cwt_op_code, tvb, 2, 1, ENC_BIG_ENDIAN, &op_code);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "CWT-REQ %s ID %u on sub-band %u",
+               val_to_str(op_code, cwt_op_code_vals, "Unknown Op Code (%u)"),
+               transaction_id, sub_band_id);
+
+  id = (transaction_id << 8) + sub_band_id;
+  tlv_tvb = dissect_multipart(tvb, pinfo, cwt_req_tree, data, MGT_CWT_REQ, id, 3);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_cwt_tlv(tlv_tvb, pinfo, cwt_req_item, cwt_req_tree, 0, tvb_reported_length(tlv_tvb));
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_cwt_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *cwt_rsp_item;
+  proto_tree *cwt_rsp_tree;
+  tvbuff_t *tlv_tvb = NULL;
+
+  guint32 transaction_id, sub_band_id, op_code, status, id = 0;
+
+  cwt_rsp_item = proto_tree_add_item(tree, proto_docsis_cwt_rsp, tvb, 0, -1, ENC_NA);
+  cwt_rsp_tree = proto_item_add_subtree(cwt_rsp_item, ett_docsis_cwt_rsp);
+  proto_tree_add_item_ret_uint(cwt_rsp_tree, hf_docsis_cwt_trans_id, tvb, 0, 1, ENC_BIG_ENDIAN, &transaction_id);
+  proto_tree_add_item_ret_uint(cwt_rsp_tree, hf_docsis_cwt_sub_band_id, tvb, 1, 1, ENC_BIG_ENDIAN, &sub_band_id);
+  proto_tree_add_item_ret_uint(cwt_rsp_tree, hf_docsis_cwt_op_code, tvb, 2, 1, ENC_BIG_ENDIAN, &op_code);
+  proto_tree_add_item_ret_uint(cwt_rsp_tree, hf_docsis_cwt_status, tvb, 3, 1, ENC_BIG_ENDIAN, &status);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "CWT-RSP %s ID %u on sub-band %u: %s",
+               val_to_str(op_code, cwt_op_code_vals, "Unknown Op Code (%u)"),
+               transaction_id, sub_band_id,
+               val_to_str(op_code, cwt_status_vals, "Unknown Status (%u)"));
+
+  id = (transaction_id << 8) + sub_band_id;
+  tlv_tvb = dissect_multipart(tvb, pinfo, cwt_rsp_tree, data, MGT_CWT_RSP, id, 4);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_cwt_tlv(tlv_tvb, pinfo, cwt_rsp_item, cwt_rsp_tree, 0, tvb_reported_length(tlv_tvb));
+  return tvb_captured_length(tvb);
+}
+
 static int
 dissect_ext_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
 {
@@ -11474,7 +11699,75 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_rba_subband_direction,
      {"Sub-band direction", "docsis_rba.subband_direction", FT_UINT8, BASE_DEC, VALS(rba_subband_direction_vals), 0x0, NULL, HFILL}
     },
-
+    /* CWT-REQ and CWT-RSP */
+    {&hf_docsis_cwt_trans_id,
+     {"Transaction ID", "docsis_cwt.trans_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_sub_band_id,
+     {"Sub-band ID", "docsis_cwt.subband_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_op_code,
+     {"Operation Code", "docsis_cwt.op_code",
+      FT_UINT8, BASE_DEC, VALS(cwt_op_code_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_status,
+     {"Status", "docsis_cwt.status",
+      FT_UINT8, BASE_DEC, VALS(cwt_status_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_tlv,
+     {"TLV", "docsis_cwt.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_tlv_type,
+     {"Type", "docsis_cwt.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(cwt_tlv_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_tlv_length,
+     {"Length", "docsis_cwt.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cwt_phase_rotation,
+     {"Phase Rotation", "docsis_cwt.phase_rotation",
+      FT_UINT8, BASE_DEC, VALS(cwt_phase_rotation_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_max_duration,
+     {"Maximum Duration", "docsis_cwt.max_duration",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_us_encodings_tlv,
+     {"TLV", "docsis_cwt.us_encodings.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_us_encodings_tlv_type,
+     {"Type", "docsis_cwt.us_encodings.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(cwt_us_encodings_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_us_encodings_tlv_length,
+     {"Length", "docsis_cwt.us_encodings.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_us_encodings_cid,
+     {"Extended Upstream Channel ID", "docsis_cwt.us_encodings.cid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_us_encodings_sc_index,
+     {"Upstream Subcarrier Index", "docsis_cwt.us_encodings.sc_index",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_cwt_us_encodings_power_boost,
+     {"CWT Power Boost", "docsis_cwt.us_encodings.power_boost",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0,
+      NULL, HFILL}
+    },
     /* MAC Management */
     {&hf_docsis_mgt_upstream_chid,
      {"Upstream Channel ID", "docsis_mgmt.upchid",
@@ -11753,6 +12046,10 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_optack,
     &ett_docsis_rba,
     &ett_docsis_rba_control_byte,
+    &ett_docsis_cwt_req,
+    &ett_docsis_cwt_rsp,
+    &ett_docsis_cwt_tlv,
+    &ett_docsis_cwt_subtlv,
     &ett_docsis_ext_rngreq,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
@@ -11766,6 +12063,7 @@ proto_register_docsis_mgmt (void)
     {&ei_docsis_mgmt_tlvtype_unknown, { "docsis_mgmt.tlvtypeunknown", PI_PROTOCOL, PI_WARN, "Unknown TLV type", EXPFILL}},
     {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown mac management version", EXPFILL}},
     {&ei_docsis_mgmt_opt_req_trigger_def_measure_duration, { "docsis_mgmt.optreq_trigger_def.wrongduration", PI_PROTOCOL, PI_WARN, "Wrong duration of FDX-triggered OPT-REQ", EXPFILL}},
+    {&ei_docsis_cwt_out_of_range, {"docsis_cwt.out_of_range", PI_PROTOCOL, PI_WARN, "CWT value out-of-range", EXPFILL}}
    };
 
   expert_module_t* expert_docsis_mgmt;
@@ -11832,6 +12130,8 @@ proto_register_docsis_mgmt (void)
   proto_docsis_optrsp = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Response", "DOCSIS OPT-RSP", "docsis_optrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_optack = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Acknowledge", "DOCSIS OPT-ACK", "docsis_optack", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_rba = proto_register_protocol_in_name_only("DOCSIS Resource Block Assignment Message", "DOCSIS RBA", "docsis_rba", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_cwt_req = proto_register_protocol_in_name_only("DOCSIS IG Discovery CW Test Request", "DOCSIS CWT-REQ", "docsis_cwt.req", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_cwt_rsp = proto_register_protocol_in_name_only("DOCSIS IG Discovery CW Test Response", "DOCSIS CWT-RSP", "docsis_cwt.rsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ext_rngreq = proto_register_protocol_in_name_only("DOCSIS Extended Range Request Message", "DOCSIS EXT-RNG-REQ", "docsis_ext_rngreq", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
@@ -11894,6 +12194,8 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_OPT_ACK, create_dissector_handle( dissect_optack, proto_docsis_optack ));
   dissector_add_uint ("docsis_mgmt", MGT_RBA_SW, docsis_rba_handle);
   dissector_add_uint ("docsis_mgmt", MGT_RBA_HW, docsis_rba_handle);
+  dissector_add_uint ("docsis_mgmt", MGT_CWT_REQ, create_dissector_handle(dissect_cwt_req, proto_docsis_cwt_req));
+  dissector_add_uint ("docsis_mgmt", MGT_CWT_RSP, create_dissector_handle(dissect_cwt_rsp, proto_docsis_cwt_rsp));
   dissector_add_uint ("docsis_mgmt", MGT_EXT_RNG_REQ, create_dissector_handle( dissect_ext_rngreq, proto_docsis_ext_rngreq ));
   dissector_add_uint ("docsis_mgmt", MGT_BPKM_REQ_V5, create_dissector_handle(dissect_bpkmreq, proto_docsis_bpkmreq));
   dissector_add_uint ("docsis_mgmt", MGT_BPKM_RSP_V5, create_dissector_handle(dissect_bpkmrsp, proto_docsis_bpkmrsp));
