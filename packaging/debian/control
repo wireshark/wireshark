@@ -54,6 +54,7 @@ Build-Depends: asciidoctor,
                qt6-base-dev,
                qt6-multimedia-dev,
                qt6-tools-dev,
+               quilt,
                xsltproc,
                libfalcosecurity0-dev <pkg.wireshark.logray>
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
