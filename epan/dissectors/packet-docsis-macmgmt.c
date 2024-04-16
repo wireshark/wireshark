@@ -509,8 +509,13 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DSG_DA_TO_DSID_ASSOCIATION_DSID 2
 
 /* CMTS DOCSIS VERSION */
-#define CMTS_MAJOR_DOCSIS_VERSION 1
-#define CMTS_MINOR_DOCSIS_VERSION 2
+#define CMTS_DOCSIS_VERSION_MAJOR_PRE_40 1
+#define CMTS_DOCSIS_VERSION_MINOR_PRE_40 2
+#define CMTS_DOCSIS_VERSION_MAJOR 3
+#define CMTS_DOCSIS_VERSION_MINOR 4
+#define CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE 5
+#define CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE_FDD 0x01
+#define CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE_FDX 0x02
 
 /* Define Tukey raised cosine window */
 #define TUKEY_0TS 0
@@ -978,6 +983,9 @@ static int hf_docsis_mdd_ccc;
 static int hf_docsis_mdd_number_of_fragments;
 static int hf_docsis_mdd_fragment_sequence_number;
 static int hf_docsis_mdd_current_channel_dcid;
+static int hf_docsis_mdd_tlv;
+static int hf_docsis_mdd_tlv_type;
+static int hf_docsis_mdd_tlv_length;
 static int hf_docsis_mdd_ds_active_channel_list_subtype;
 static int hf_docsis_mdd_ds_active_channel_list_length;
 static int hf_docsis_mdd_downstream_active_channel_list_channel_id;
@@ -1006,8 +1014,6 @@ static int hf_docsis_mdd_ds_service_group_subtype;
 static int hf_docsis_mdd_ds_service_group_length;
 static int hf_docsis_mdd_mac_domain_downstream_service_group_md_ds_sg_identifier;
 static int hf_docsis_mdd_mac_domain_downstream_service_group_channel_id;
-static int hf_docsis_mdd_type;
-static int hf_docsis_mdd_length;
 static int hf_docsis_mdd_downstream_ambiguity_resolution_frequency;
 static int hf_docsis_mdd_channel_profile_reporting_control_subtype;
 static int hf_docsis_mdd_channel_profile_reporting_control_length;
@@ -1043,11 +1049,19 @@ static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequ
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup;
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power;
 static int hf_docsis_mdd_extended_upstream_transmit_power_support;
-static int hf_docsis_mdd_unknown;
 
 static int hf_docsis_mdd_cmts_major_docsis_version;
 static int hf_docsis_mdd_cmts_minor_docsis_version;
-static int hf_docsis_mdd_cmts_docsis_version_unknown;
+static int hf_docsis_mdd_docsis_version_tlv;
+static int hf_docsis_mdd_docsis_version_tlv_type;
+static int hf_docsis_mdd_docsis_version_tlv_length;
+static int hf_docsis_mdd_docsis_version_major_pre_40;
+static int hf_docsis_mdd_docsis_version_minor_pre_40;
+static int hf_docsis_mdd_docsis_version_major;
+static int hf_docsis_mdd_docsis_version_minor;
+static int hf_docsis_mdd_docsis_version_ext_spectrum_mode;
+static int hf_docsis_mdd_docsis_version_ext_spectrum_mode_fdd;
+static int hf_docsis_mdd_docsis_version_ext_spectrum_mode_fdx;
 
 static int hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator;
 static int hf_docsis_mdd_dls_broadcast_and_multicast_delivery_method;
@@ -1390,6 +1404,8 @@ static gint ett_docsis_mdd_up_active_channel_list;
 static gint ett_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschids;
 static gint ett_docsis_mdd_cm_status_event_control;
 static gint ett_docsis_mdd_dsg_da_to_dsid;
+static gint ett_docsis_mdd_docsis_version;
+static gint ett_docsis_mdd_docsis_version_tlv;
 static gint ett_docsis_mdd_diplexer_band_edge;
 static gint ett_docsis_mdd_full_duplex_descriptor;
 static gint ett_docsis_mdd_full_duplex_sub_band_descriptor;
@@ -2218,6 +2234,15 @@ static const value_string mdd_full_duplex_sub_band_width_vals[] = {
 static const value_string mdd_full_duplex_sub_band_vals[] = {
   {FDX_SUB_BAND_ID, "Full Duplex Sub-band ID"},
   {FDX_SUB_BAND_OFFSET, "Full Duplex Sub-band Offset"},
+  {0, NULL}
+};
+
+static const value_string mdd_docsis_version_vals[] = {
+  {CMTS_DOCSIS_VERSION_MAJOR_PRE_40, "CMTS Pre-DOCSIS 4.0 Major DOCSIS Version"},
+  {CMTS_DOCSIS_VERSION_MINOR_PRE_40, "CMTS Pre-DOCSIS 4.0 Minor DOCSIS Version"},
+  {CMTS_DOCSIS_VERSION_MAJOR, "CMTS Major DOCSIS Version"},
+  {CMTS_DOCSIS_VERSION_MINOR, "CMTS Minor DOCSIS Version"},
+  {CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE, "CMTS Extended Spectrum Mode of Operation"},
   {0, NULL}
 };
 
@@ -5576,6 +5601,105 @@ dissect_mdd_dsg_da_to_dsid(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * 
 }
 
 static void
+dissect_mdd_docsis_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+  guint32 tlv_value;
+
+  gint major = -1, minor = -1;
+  gint major_pos = 0, minor_pos = 0;
+  guint8 ext_spectrum_mode = 0;
+
+  static int *const mdd_cmts_docsis_version_ext_spectrum_mode[] = {
+    &hf_docsis_mdd_docsis_version_ext_spectrum_mode_fdd,
+    &hf_docsis_mdd_docsis_version_ext_spectrum_mode_fdx,
+    NULL
+  };
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_docsis_version_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, mdd_docsis_version_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_docsis_version);
+    proto_tree_add_item(tlv_tree, hf_docsis_mdd_docsis_version_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_mdd_docsis_version_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case CMTS_DOCSIS_VERSION_MAJOR_PRE_40:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_mdd_docsis_version_major_pre_40,
+                                     tvb, pos, tlv_length, ENC_BIG_ENDIAN, &tlv_value);
+        if (major < 0) {
+          major = tlv_value;
+          major_pos = pos;
+        }
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CMTS_DOCSIS_VERSION_MINOR_PRE_40:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_mdd_docsis_version_minor_pre_40,
+                                     tvb, pos, tlv_length, ENC_BIG_ENDIAN, &tlv_value);
+        if (minor < 0) {
+          minor = tlv_value;
+          minor_pos = pos;
+        }
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CMTS_DOCSIS_VERSION_MAJOR:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_mdd_docsis_version_major,
+                                     tvb, pos, tlv_length, ENC_BIG_ENDIAN, &tlv_value);
+        major = tlv_value;
+        major_pos = pos;
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CMTS_DOCSIS_VERSION_MINOR:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_mdd_docsis_version_minor,
+                                     tvb, pos, tlv_length, ENC_BIG_ENDIAN, &tlv_value);
+        minor = tlv_value;
+        minor_pos = pos;
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE:
+      if (tlv_length == 1) {
+        ext_spectrum_mode = tvb_get_guint8(tvb, pos);
+        proto_tree_add_bitmask_value(tlv_tree, tvb, pos, hf_docsis_mdd_docsis_version_ext_spectrum_mode,
+                                     ett_docsis_mdd_docsis_version_tlv,
+                                     mdd_cmts_docsis_version_ext_spectrum_mode, ext_spectrum_mode);
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (major > -1)
+    proto_item_set_hidden(proto_tree_add_item(tree, hf_docsis_mdd_cmts_major_docsis_version, tvb, major_pos, 1, ENC_BIG_ENDIAN));
+  if (minor > -1)
+    proto_item_set_hidden(proto_tree_add_item(tree, hf_docsis_mdd_cmts_minor_docsis_version, tvb, minor_pos, 1, ENC_BIG_ENDIAN));
+  if (major > -1 && minor > -1)
+    proto_item_append_text(item, ": DOCSIS %d.%d%s%s", major, minor,
+                           (ext_spectrum_mode & CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE_FDD) ? " + FDD" : "",
+                           (ext_spectrum_mode & CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE_FDX) ? " + FDX" : "");
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
 dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * tree, int start, guint16 len)
 {
   guint8 type;
@@ -5758,15 +5882,12 @@ dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto
 static int
 dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  proto_item *it;
+  proto_item *mdd_item;
   proto_tree *mdd_tree;
 
   int pos;
-  guint subpos = 0;
   guint8 type;
   guint32 i, length;
-  guint8 subtype;
-  guint32 sublength;
 
   proto_tree *tlv_tree;
   proto_item *tlv_item;
@@ -5779,8 +5900,8 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 
   col_set_str(pinfo->cinfo, COL_INFO, "MDD Message:");
 
-  it = proto_tree_add_item (tree, proto_docsis_mdd, tvb, 0, -1,ENC_NA);
-  mdd_tree = proto_item_add_subtree (it, ett_docsis_mdd);
+  mdd_item = proto_tree_add_item(tree, proto_docsis_mdd, tvb, 0, -1, ENC_NA);
+  mdd_tree = proto_item_add_subtree(mdd_item, ett_docsis_mdd);
 
   proto_tree_add_item (mdd_tree, hf_docsis_mdd_ccc, tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (mdd_tree, hf_docsis_mdd_number_of_fragments, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -5791,16 +5912,14 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   pos = 4;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(mdd_tree, tvb, pos, -1,
-                                            ett_tlv, &tlv_item,
-                                            val_to_str(type, mdd_tlv_vals,
-                                                       "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_mdd_type, tvb, pos, 1, type);
-    pos++;
-    proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_mdd_length, tvb, pos, 1, ENC_NA, &length);
-    pos++;
-    proto_item_set_len(tlv_item, length + 2);
+    type = tvb_get_guint8(tvb, pos);
+    length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(mdd_tree, hf_docsis_mdd_tlv, tvb, pos, length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(type, mdd_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_mdd_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_mdd_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
 
     switch(type)
     {
@@ -5854,24 +5973,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
       proto_tree_add_item (tlv_tree, hf_docsis_mdd_extended_upstream_transmit_power_support, tvb, pos, 1, ENC_BIG_ENDIAN);
       break;
     case CMTS_DOCSIS_VERSION:
-      subpos = pos;
-      while (subpos < pos + length + 2) {
-        subtype = tvb_get_guint8 (tvb, subpos);
-        sublength = tvb_get_guint8 (tvb, subpos + 1);
-        switch(subtype) {
-          case CMTS_MAJOR_DOCSIS_VERSION:
-            proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_major_docsis_version, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
-            break;
-          case CMTS_MINOR_DOCSIS_VERSION:
-            proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_minor_docsis_version, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
-            break;
-          default:
-            it = proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_docsis_version_unknown, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
-            expert_add_info_format(pinfo, it, &ei_docsis_mgmt_tlvtype_unknown, "Unknown CMTS Version TLV type: %u", subtype);
-            break;
-        }
-        subpos += sublength + 2;
-      }
+      dissect_mdd_docsis_version(tvb, pinfo, tlv_item, tlv_tree, pos, length);
       break;
     case CM_PERIODIC_MAINTENANCE_TIMEOUT_INDICATOR:
       proto_tree_add_item (tlv_tree, hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator, tvb, pos, length, ENC_BIG_ENDIAN);
@@ -5911,8 +6013,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
       dissect_mdd_full_duplex_descriptor(tvb, pinfo, tlv_tree, pos, length );
       break;
     default:
-      it = proto_tree_add_item (tlv_tree, hf_docsis_mdd_unknown, tvb, pos, length, ENC_BIG_ENDIAN);
-      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_tlvtype_unknown, "Unknown MDD TLV type: %u", type);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown MDD TLV type: %u", type);
       break;
     }
 
@@ -9462,6 +9563,21 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "MDD Current Channel DCID", HFILL}
     },
+    {&hf_docsis_mdd_tlv,
+     {"TLV", "docsis_mdd.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_tlv_type,
+     {"Type", "docsis_mdd.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(mdd_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_tlv_length,
+     {"Length", "docsis_mdd.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
     {&hf_docsis_mdd_ds_active_channel_list_subtype,
      {"Type", "docsis_mdd.downstream_active_channel_list_tlvtype",
       FT_UINT8, BASE_DEC, VALS(mdd_ds_active_channel_list_vals), 0x0,
@@ -9601,16 +9717,6 @@ proto_register_docsis_mgmt (void)
      {"MD-DS-SG Identifier", "docsis_mdd.mac_domain_downstream_service_group_md_ds_sg_identifier",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "MDD MAC Domain Downstream Service Group MD-DS-SG Identifier", HFILL}
-    },
-    {&hf_docsis_mdd_type,
-     {"Type", "docsis_mdd.type",
-      FT_UINT8, BASE_DEC, VALS(mdd_tlv_vals), 0x0,
-      NULL, HFILL}
-    },
-    {&hf_docsis_mdd_length,
-     {"Length", "docsis_mdd.length",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, HFILL}
     },
     {&hf_docsis_mdd_downstream_ambiguity_resolution_frequency,
      {"Frequency", "docsis_mdd.downstream_ambiguity_resolution_frequency",
@@ -9787,25 +9893,65 @@ proto_register_docsis_mgmt (void)
        FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
        "MDD Extended Upstream Transmit Power Support", HFILL}
     },
-    {&hf_docsis_mdd_unknown,
-     { "Unknown MDD TLV", "docsis_mdd.unknown_tlv",
-       FT_UINT8, BASE_DEC, NULL, 0x0,
-       NULL, HFILL}
-    },
     {&hf_docsis_mdd_cmts_major_docsis_version,
-     { "CMTS Major DOCSIS Version", "docsis_mdd.cmts_major_docsis_version",
-       FT_UINT8, BASE_DEC, NULL, 0x0,
-       NULL, HFILL}
+     { "CMTS Major DOCSIS Version (legacy)", "docsis_mdd.cmts_major_docsis_version",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
     },
     {&hf_docsis_mdd_cmts_minor_docsis_version,
-     { "CMTS Minor DOCSIS Version", "docsis_mdd.cmts_minor_docsis_version",
+     { "CMTS Minor DOCSIS Version (legacy)", "docsis_mdd.cmts_minor_docsis_version",
        FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL, HFILL}
     },
-    {&hf_docsis_mdd_cmts_docsis_version_unknown,
-     { "Unknown CMTS DOCSIS Version Type", "docsis_mdd.cmts_docsis_version_unknown",
-       FT_UINT8, BASE_DEC, NULL, 0x0,
-       NULL, HFILL}
+    {&hf_docsis_mdd_docsis_version_tlv,
+     {"TLV", "docsis_mdd.docsis_version.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_tlv_type,
+     {"Type", "docsis_mdd.docsis_version.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(mdd_docsis_version_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_tlv_length,
+     {"Length", "docsis_mdd.docsis_version.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_major_pre_40,
+     { "CMTS Pre-DOCSIS 4.0 Major DOCSIS Version", "docsis_mdd.docsis_version.major_pre_40",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_minor_pre_40,
+     { "CMTS Pre-DOCSIS 4.0 Minor DOCSIS Version", "docsis_mdd.docsis_version.minor_pre_40",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_major,
+     { "CMTS Major DOCSIS Version", "docsis_mdd.docsis_version.major",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_minor,
+     { "CMTS Minor DOCSIS Version", "docsis_mdd.docsis_version.minor",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_ext_spectrum_mode,
+     {"CMTS Extended Spectrum Mode of Operation", "docsis_mdd.docsis_version.ext_spectrum_mode",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_ext_spectrum_mode_fdd,
+     {"FDD", "docsis_mdd.docsis_version.fdd",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE_FDD,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_docsis_version_ext_spectrum_mode_fdx,
+     {"FDX", "docsis_mdd.docsis_version.fdx",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE_FDX,
+      NULL, HFILL}
     },
     {&hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator,
      { "CM periodic maintenance timeout indicator", "docsis_mdd.cm_periodic_maintenance_timeout_indicator",
@@ -10816,6 +10962,8 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschids,
     &ett_docsis_mdd_cm_status_event_control,
     &ett_docsis_mdd_dsg_da_to_dsid,
+    &ett_docsis_mdd_docsis_version,
+    &ett_docsis_mdd_docsis_version_tlv,
     &ett_docsis_mdd_diplexer_band_edge,
     &ett_docsis_mdd_full_duplex_descriptor,
     &ett_docsis_mdd_full_duplex_sub_band_descriptor,
