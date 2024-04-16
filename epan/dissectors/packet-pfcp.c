@@ -438,7 +438,7 @@ static int hf_pfcp_packet_count;
 static int hf_pfcp_dl_data_service_inf_b0_ppi;
 static int hf_pfcp_dl_data_service_inf_b1_qfii;
 static int hf_pfcp_dl_data_service_inf_b2_dlpsi;
-static int hf_pfcp_ppi;
+static int hf_pfcp_paging_policy_indication;
 static int hf_pfcp_dldatapacketsize;
 
 static int hf_pfcp_pfcpsmreq_flags_b0_drobu;
@@ -3443,7 +3443,7 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          * from the PGW (see IETF RFC 2474
          */
         proto_tree_add_item(tree, hf_pfcp_spare_b7_b6, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_pfcp_ppi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_paging_policy_indication, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
 
@@ -14248,8 +14248,8 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
-        { &hf_pfcp_ppi,
-        { "Paging Policy Indication", "pfcp.dl_data_service_inf.ppi",
+        { &hf_pfcp_paging_policy_indication,
+        { "Paging Policy Indication", "pfcp.dl_data_service_inf.paging_policy_indication",
             FT_UINT16, BASE_DEC, NULL, 0x7f,
             NULL, HFILL }
         },
@@ -15896,7 +15896,7 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_rattype,
         { "RAT Type", "pfcp.rattype",
-            FT_UINT8, BASE_DEC, VALS(pfcp_rattype_vals), 0xF,
+            FT_UINT8, BASE_DEC, VALS(pfcp_rattype_vals), 0x0,
             NULL, HFILL }
         },
 
