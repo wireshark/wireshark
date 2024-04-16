@@ -404,6 +404,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR 6
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS 7
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUB_BAND_ID 8
+#define DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_DS 9
 
 /* MAC Domain Downstream Service Group */
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_MD_DS_SG_IDENTIFIER 1
@@ -421,7 +422,6 @@ void proto_reg_handoff_docsis_mgmt(void);
 /* Primary Capable */
 #define NOT_PRIMARY_CAPABLE 0
 #define PRIMARY_CAPABLE 1
-#define FDX_DOWNSTREAM_CHANNEL 2
 
 /* Can carry MAP and UCD */
 #define CANNOT_CARRY_MAP_UCD 0
@@ -986,6 +986,8 @@ static int hf_docsis_mdd_downstream_active_channel_list_annex;
 static int hf_docsis_mdd_downstream_active_channel_list_modulation_order;
 static int hf_docsis_mdd_downstream_active_channel_list_primary_capable;
 static int hf_docsis_mdd_downstream_active_channel_list_map_ucd_transport_indicator;
+static int hf_docsis_mdd_downstream_active_channel_list_fdx_sub_band_id;
+static int hf_docsis_mdd_downstream_active_channel_list_fdx_ds;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure;
@@ -1875,15 +1877,21 @@ static const value_string modulation_order_vals[] = {
 };
 
 static const value_string primary_capable_vals[] = {
-  {NOT_PRIMARY_CAPABLE,		"Channel is not primary-capable"},
-  {PRIMARY_CAPABLE,     	"Channel is primary-capable"},
-  {FDX_DOWNSTREAM_CHANNEL,	"FDX downstream channel"},
+  {NOT_PRIMARY_CAPABLE, "Channel is not primary-capable"},
+  {PRIMARY_CAPABLE, "Channel is primary-capable"},
+  {2, "Reserved (was FDX downstream channel)"},
   {0, NULL}
 };
 
 static const value_string map_ucd_transport_indicator_vals[] = {
   {CANNOT_CARRY_MAP_UCD, "Channel cannot carry MAPs and UCDs for the MAC domain for which the MDD is sent"},
   {CAN_CARRY_MAP_UCD,    "Channel can carry MAPs and UCDs for the MAC domain for which the MDD is sent"},
+  {0, NULL}
+};
+
+static const value_string mdd_downstream_active_channel_list_fdx_vals[] = {
+  {0, "Not an FDX Downstream Channel"},
+  {1, "FDX Downstream Channel"},
   {0, NULL}
 };
 
@@ -2098,6 +2106,7 @@ static const value_string mdd_ds_active_channel_list_vals[] = {
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR, "MAP and UCD transport indicator"},
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS, "OFDM PLC Parameters"},
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUB_BAND_ID, "Full Duplex Sub-band ID"},
+  {DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_DS, "Full Duplex Downstream"},
   {0, NULL}
 };
 
@@ -5290,7 +5299,10 @@ dissect_mdd_ds_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_, proto
       proto_tree_add_bitmask(mdd_tree, tvb, pos, hf_docsis_mdd_ofdm_plc_parameters, ett_sub_tlv, ofdm_plc_parameters, ENC_BIG_ENDIAN);
       break;
     case DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUB_BAND_ID:
-      proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_id, tvb, pos, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mdd_tree, hf_docsis_mdd_downstream_active_channel_list_fdx_sub_band_id, tvb, pos, 1, ENC_BIG_ENDIAN);
+      break;
+    case DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_DS:
+      proto_tree_add_item(mdd_tree, hf_docsis_mdd_downstream_active_channel_list_fdx_ds, tvb, pos, 1, ENC_BIG_ENDIAN);
       break;
     }
 
@@ -9514,6 +9526,16 @@ proto_register_docsis_mgmt (void)
      {"MAP and UCD transport indicator", "docsis_mdd.downstream_active_channel_list_map_ucd_transport_indicator",
       FT_UINT8, BASE_DEC, VALS(map_ucd_transport_indicator_vals), 0x0,
       "MDD Downstream Active Channel List MAP and UCD Transport Indicator", HFILL}
+    },
+    {&hf_docsis_mdd_downstream_active_channel_list_fdx_sub_band_id,
+     {"Full Duplex Sub-band ID", "docsis_mdd.downstream_active_channel_list_fdx_subband_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_downstream_active_channel_list_fdx_ds,
+     {"FDX Downstream", "docsis_mdd.downstream_active_channel_list_fdx_ds",
+      FT_UINT8, BASE_DEC, VALS(mdd_downstream_active_channel_list_fdx_vals), 0x0,
+      "MDD Downstream Active Channel List FDX Downstream Indicator", HFILL}
     },
     {&hf_docsis_mdd_ofdm_plc_parameters,
      {"OFDM PLC Parameters", "docsis_mdd.ofdm_plc_parameters",
