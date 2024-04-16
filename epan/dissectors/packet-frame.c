@@ -497,7 +497,7 @@ frame_add_hash(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
 	if (option_id == OPT_PKT_HASH) {
 		packet_hash_opt_t *hash = &option->packet_hash;
 		const char *format
-			= fr_user_data->n_changes ? "%s (%u)" : ", %s (%u)";
+			= fr_user_data->n_changes ? ", %s (%u)" : "%s (%u)";
 
 		proto_item_append_text(fr_user_data->item, format,
 				       get_hash_type_string(hash->type),
