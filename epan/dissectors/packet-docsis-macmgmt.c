@@ -3131,10 +3131,6 @@ static const value_string unique_unlimited[] = {
   {0, NULL}
 };
 
-static const unit_name_string local_units_hz = { "Hz", NULL };
-
-static const unit_name_string local_units_mhz = { " MHz", NULL };
-
 static void
 ofdma_ir_pow_ctrl_start_pow(char *buf, guint32 value)
 {
@@ -10340,7 +10336,7 @@ proto_register_docsis_mgmt (void)
      {
        "OFDM Block Frequency",
        "docsis_dccreq.ds_ofdm_block_freq",
-       FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &local_units_hz, 0x0,
+       FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x0,
        NULL,
        HFILL
      }
@@ -11479,17 +11475,17 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_mdd_diplexer_us_upper_band_edge_override,
      {"Diplexer Upstream Upper Band Edge Override", "docsis_mdd.diplexer_us_upper_band_edge_override",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &local_units_mhz, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_mdd_diplexer_ds_lower_band_edge_override,
      {"Diplexer Downstream Lower Band Edge Override", "docsis_mdd.diplexer_ds_lower_band_edge_override",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &local_units_mhz, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_mdd_diplexer_ds_upper_band_edge_override,
      {"Diplexer Downstream Upper Band Edge Override", "docsis_mdd.diplexer_ds_upper_band_edge_override",
-      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &local_units_mhz, 0x0,
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0,
       NULL, HFILL}
     },
     /* MDD Advanced Band Plan Descriptor */
@@ -11922,7 +11918,7 @@ proto_register_docsis_mgmt (void)
       {"Roll Off", "docsis_ocd.tlv.roll_off", FT_UINT8, BASE_DEC, VALS (docsis_ocd_roll_off), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_ofdm_spec_loc,
-      {"OFDM Spectrum Location", "docsis_ocd.tlv.ofdm_spec_loc", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &local_units_hz, 0x0, NULL, HFILL}
+      {"OFDM Spectrum Location", "docsis_ocd.tlv.ofdm_spec_loc", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_time_int_depth,
       {"Time Interleaving Depth", "docsis_ocd.tlv.time_int_depth", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
