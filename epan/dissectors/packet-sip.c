@@ -1180,6 +1180,7 @@ typedef struct
     guint32 source_port;
     address dest_address;
     guint32 dest_port;
+    port_type ptype;
 } sip_hash_key;
 
 
@@ -1230,7 +1231,8 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
     return  (addresses_equal(&(val1->source_address), &(val2->source_address))) &&
         (val1->source_port == val2->source_port) &&
         (addresses_equal(&(val1->dest_address), &(val2->dest_address))) &&
-        (val1->dest_port == val2->dest_port);
+        (val1->dest_port == val2->dest_port) &&
+        (val1->ptype == val2->ptype);
 }
 
 
@@ -5229,12 +5231,6 @@ guint sip_is_packet_resend(packet_info *pinfo,
     sip_frame_result_value *sip_frame_result = NULL;
     guint result = 0;
 
-    /* Only consider retransmission of UDP packets */
-    if (pinfo->ptype != PT_UDP)
-    {
-        return 0;
-    }
-
     /* Don't consider packets that appear to be resent only because
        they are e.g. returned in ICMP unreachable messages. */
     if (pinfo->flags.in_error_pkt)
@@ -5281,6 +5277,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
     } else {
         key.source_port = MAGIC_SOURCE_PORT;
     }
+    key.ptype = pinfo->ptype;
 
     /* Do the lookup */
     p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
@@ -5322,6 +5319,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         } else {
             p_key->source_port = MAGIC_SOURCE_PORT;
         }
+        p_key->ptype = pinfo->ptype;
 
         p_val->cseq = cseq_number;
         p_val->method = wmem_strdup(wmem_file_scope(), cseq_method);
@@ -5429,12 +5427,6 @@ guint sip_find_request(packet_info *pinfo,
     gint seconds_between_packets;
     gint nseconds_between_packets;
 
-    /* Only consider UDP */
-    if (pinfo->ptype != PT_UDP)
-    {
-        return 0;
-    }
-
     /* Ignore error (usually ICMP) frames */
     if (pinfo->flags.in_error_pkt)
     {
@@ -5474,6 +5466,7 @@ guint sip_find_request(packet_info *pinfo,
             pinfo->net_dst.data);
     key.dest_port = pinfo->srcport;
     key.source_port = pinfo->destport;
+    key.ptype = pinfo->ptype;
 
     /* Do the lookup */
     p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
@@ -5543,12 +5536,6 @@ guint sip_find_invite(packet_info *pinfo,
     gint seconds_between_packets;
     gint nseconds_between_packets;
 
-    /* Only consider UDP */
-    if (pinfo->ptype != PT_UDP)
-    {
-        return 0;
-    }
-
     /* Ignore error (usually ICMP) frames */
     if (pinfo->flags.in_error_pkt)
     {
@@ -5588,6 +5575,7 @@ guint sip_find_invite(packet_info *pinfo,
             pinfo->net_src.data);
     key.dest_port = pinfo->destport;
     key.source_port = pinfo->srcport;
+    key.ptype = pinfo->ptype;
 
     /* Do the lookup */
     p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
