@@ -143,6 +143,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_RBA_HW 62
 #define MGT_CWT_REQ 63
 #define MGT_CWT_RSP 64
+#define MGT_ECT_REQ 65
+#define MGT_ECT_RSP 66
 #define MGT_EXT_RNG_REQ 67
 #define MGT_BPKM_REQ_V5 69
 #define MGT_BPKM_RSP_V5 70
@@ -681,6 +683,27 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define CWT_US_ENCODINGS_SC_INDEX 2
 #define CWT_US_ENCODINGS_POWER_BOOST 3
 
+/* ECT-REQ and ECT-RSP */
+#define ECT_CONTROL 87
+#define ECT_CONTROL_SUBBAND_DIRECTION 1
+#define ECT_CONTROL_STATUS 2
+#define ECT_CONTROL_METHOD 3
+#define ECT_CONTROL_METHOD_FG 1
+#define ECT_CONTROL_METHOD_FG_DURATION 1
+#define ECT_CONTROL_METHOD_FG_PERIODICITY 2
+#define ECT_CONTROL_METHOD_FG_EXPIRATION_TIME 3
+#define ECT_CONTROL_METHOD_FG_DS_ZBL 4
+#define ECT_CONTROL_METHOD_BG 2
+#define ECT_CONTROL_METHOD_BG_DURATION 1
+#define ECT_CONTROL_METHOD_BG_PERIODICITY 2
+#define ECT_CONTROL_METHOD_BG_EXPIRATION_TIME 3
+#define ECT_CONTROL_METHOD_BG_START_TIME 4
+#define ECT_CONTROL_PARTIAL_SERVICE 4
+#define ECT_CONTROL_PARTIAL_SERVICE_DCID 1
+#define ECT_CONTROL_PARTIAL_SERVICE_UCID 2
+#define ECT_CONTROL_DEFERRAL_TIME 5
+#define ECT_CONTROL_RXMER_DURATION 6
+
 /* BPKM CMTS Designation */
 #define BPKMATTR_CMTS_DESIGNATION_CERTIFICATE_FINGERPRINT 0
 #define BPKMATTR_CMTS_DESIGNATION_COMMON_NAME 1
@@ -746,6 +769,8 @@ static int proto_docsis_optack;
 static int proto_docsis_rba;
 static int proto_docsis_cwt_req;
 static int proto_docsis_cwt_rsp;
+static int proto_docsis_ect_req;
+static int proto_docsis_ect_rsp;
 static int proto_docsis_ext_rngreq;
 
 static int hf_docsis_sync_cmts_timestamp;
@@ -1418,6 +1443,42 @@ static int hf_docsis_cwt_us_encodings_cid;
 static int hf_docsis_cwt_us_encodings_sc_index;
 static int hf_docsis_cwt_us_encodings_power_boost;
 
+/* ECT-REQ and ECT-RSP */
+static int hf_docsis_ect_trans_id;
+static int hf_docsis_ect_rsp_code;
+static int hf_docsis_ect_tlv;
+static int hf_docsis_ect_tlv_type;
+static int hf_docsis_ect_tlv_length;
+static int hf_docsis_ect_control_tlv;
+static int hf_docsis_ect_control_tlv_type;
+static int hf_docsis_ect_control_tlv_length;
+static int hf_docsis_ect_control_subband_direction;
+static int hf_docsis_ect_control_status;
+static int hf_docsis_ect_control_method_tlv;
+static int hf_docsis_ect_control_method_tlv_type;
+static int hf_docsis_ect_control_method_tlv_length;
+static int hf_docsis_ect_control_method_fg_tlv;
+static int hf_docsis_ect_control_method_fg_tlv_type;
+static int hf_docsis_ect_control_method_fg_tlv_length;
+static int hf_docsis_ect_control_method_fg_duration;
+static int hf_docsis_ect_control_method_fg_periodicity;
+static int hf_docsis_ect_control_method_fg_expiration_time;
+static int hf_docsis_ect_control_method_fg_ds_zbl;
+static int hf_docsis_ect_control_method_bg_tlv;
+static int hf_docsis_ect_control_method_bg_tlv_type;
+static int hf_docsis_ect_control_method_bg_tlv_length;
+static int hf_docsis_ect_control_method_bg_duration;
+static int hf_docsis_ect_control_method_bg_periodicity;
+static int hf_docsis_ect_control_method_bg_expiration_time;
+static int hf_docsis_ect_control_method_bg_start_time;
+static int hf_docsis_ect_control_partial_service_tlv;
+static int hf_docsis_ect_control_partial_service_tlv_type;
+static int hf_docsis_ect_control_partial_service_tlv_length;
+static int hf_docsis_ect_control_partial_service_dcid;
+static int hf_docsis_ect_control_partial_service_ucid;
+static int hf_docsis_ect_control_deferral_time;
+static int hf_docsis_ect_control_rxmer_duration;
+
 static int hf_docsis_mgt_upstream_chid;
 static int hf_docsis_mgt_down_chid;
 static int hf_docsis_mgt_tranid;
@@ -1610,6 +1671,9 @@ static gint ett_docsis_cwt_req;
 static gint ett_docsis_cwt_rsp;
 static gint ett_docsis_cwt_tlv;
 static gint ett_docsis_cwt_subtlv;
+static gint ett_docsis_ect_req;
+static gint ett_docsis_ect_rsp;
+static gint ett_docsis_ect_tlv;
 static gint ett_docsis_ext_rngreq;
 
 static gint ett_docsis_mgmt;
@@ -1624,6 +1688,7 @@ static expert_field ei_docsis_mgmt_tlvtype_unknown;
 static expert_field ei_docsis_mgmt_version_unknown;
 static expert_field ei_docsis_mgmt_opt_req_trigger_def_measure_duration;
 static expert_field ei_docsis_cwt_out_of_range;
+static expert_field ei_docsis_ect_control_out_of_range;
 
 static dissector_table_t docsis_mgmt_dissector_table;
 static dissector_handle_t docsis_tlv_handle;
@@ -1759,6 +1824,8 @@ static const value_string mgmt_type_vals[] = {
   {MGT_RBA_HW,         "DOCSIS HW-Friendly Resource Block Assignment"},
   {MGT_CWT_REQ,        "IG Discovery CW Test Request"},
   {MGT_CWT_RSP,        "IG Discovery CW Test Response"},
+  {MGT_ECT_REQ,        "CM Echo Cancellation Training Request"},
+  {MGT_ECT_RSP,        "CM Echo Cancellation Training Response"},
   {MGT_EXT_RNG_REQ,    "Extended Upstream Range Request"},
   {MGT_BPKM_REQ_V5,    "Privacy Key Management Request v5"},
   {MGT_BPKM_RSP_V5,    "Privacy Key Management Response v5"},
@@ -2874,9 +2941,9 @@ static const value_string sid_field_bit15_14_vals [] = {
 };
 
 static const value_string rba_subband_direction_vals [] = {
-  {0, "Direction of this sub-band is downstream"},
-  {1, "Direction of this sub-band is upstream"},
-  {2, "Direction of this sub-band is undefined for this RBA"},
+  {0, "Downstream"},
+  {1, "Upstream"},
+  {2, "Undefined for this RBA"},
   {0, NULL}
 };
 
@@ -2920,6 +2987,109 @@ static const value_string cwt_us_encodings_tlv_vals [] = {
   {3, "Power Boost"},
   {0, NULL}
 };
+
+static void ect_trans_id_val(char *buf, guint16 value)
+{
+  if (value == 255)
+    snprintf(buf, ITEM_LABEL_LENGTH, "unsolicited ECT-RSP message");
+  else
+    snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+}
+
+static const value_string ect_rsp_code_vals [] = {
+  {0, "OK"},
+  {1, "Reject, invalid parameters"},
+  {2, "Reject, RBA not currently active"},
+  {3, "Reject, Defer EC Training"},
+  {0, NULL}
+};
+
+/* ECT TLVs */
+static const value_string ect_tlv_vals [] = {
+  {87, "Control Encodings"},
+  {0, NULL}
+};
+
+/* TLV 87.* */
+static const value_string ect_control_tlv_vals [] = {
+  {1, "Sub-band Direction Set"},
+  {2, "Training Status"},
+  {3, "Training Method"},
+  {4, "Partial Service Indicator"},
+  {5, "Training Deferral Time"},
+  {6, "RxMER Duration"},
+  {0, NULL}
+};
+
+/* TLV 87.2 */
+static const value_string ect_control_status_vals [] = {
+  {0, "Converged"},
+  {1, "Not yet converged"},
+  {2, "No longer converged"},
+  {3, "N/A"},
+  {0, NULL}
+};
+
+/* TLV 87.3.* */
+static const value_string ect_control_method_tlv_vals [] = {
+  {1, "Foreground Training Parameters"},
+  {2, "Background Training Parameters"},
+  {3, "Training Method"},
+  {4, "Partial Service Indicator"},
+  {5, "Training Deferral Time"},
+  {0, NULL}
+};
+
+/* TLV 87.3.1.* */
+static const value_string ect_control_method_fg_tlv_vals [] = {
+  {1, "Duration"},
+  {2, "Periodicity"},
+  {3, "Expiration Time"},
+  {4, "Downstream Zero Bit Loading"},
+  {0, NULL}
+};
+
+/* TLV 87.3.1.1, 8.6 */
+static const unit_name_string units_symbols = { " symbol", " symbols" };
+
+/* TLV 87.3.1.4 */
+static const value_string ect_ds_zbl_vals [] = {
+  {0, "Not required"},
+  {1, "Required"},
+  {0, NULL}
+};
+
+/* TLV 87.3.2.* */
+static const value_string ect_control_method_bg_tlv_vals [] = {
+  {1, "Duration"},
+  {2, "Periodicity"},
+  {3, "Expiration Time"},
+  {4, "Window Start Time"},
+  {0, NULL}
+};
+
+/* TLV 87.4.* */
+static const value_string ect_control_partial_service_tlv_vals [] = {
+  {1, "Downstream Channel List"},
+  {2, "Upstream Channel List"},
+  {0, NULL}
+};
+
+/* TLV 87.3.1.4 */
+static void ect_deferral_time_val(char *buf, guint16 value)
+{
+  switch(value)
+  {
+  case 0:
+    snprintf(buf, ITEM_LABEL_LENGTH, "Next time the RBA sub-band direction set is active");
+    break;
+  case 1:
+    snprintf(buf, ITEM_LABEL_LENGTH, "When the channel(s) in the RBA on which partial service occurred have recovered");
+    break;
+  default:
+    snprintf(buf, ITEM_LABEL_LENGTH, "%d ms", value);
+  }
+}
 
 static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes"};
 
@@ -8396,6 +8566,357 @@ dissect_cwt_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
   return tvb_captured_length(tvb);
 }
 
+static void
+dissect_ect_control_partial_service_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length, i;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_partial_service_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_partial_service_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_partial_service_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_partial_service_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case ECT_CONTROL_PARTIAL_SERVICE_DCID:
+      for (i = 0; i < tlv_length; ++i)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_partial_service_dcid, tvb, pos + i, 1, ENC_BIG_ENDIAN);
+      break;
+    case ECT_CONTROL_PARTIAL_SERVICE_UCID:
+      for (i = 0; i < tlv_length; ++i)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_partial_service_ucid, tvb, pos + i, 1, ENC_BIG_ENDIAN);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_ect_control_method_bg_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  guint32 value;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_bg_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_method_bg_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_bg_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_bg_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case ECT_CONTROL_METHOD_BG_DURATION:
+      if (tlv_length == 2) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_method_bg_duration, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 1000)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid ECT Background Duration: %i", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_BG_PERIODICITY:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_method_bg_periodicity, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 30)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid ECT Background Periodicity: %i", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_BG_EXPIRATION_TIME:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_method_bg_expiration_time, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 255)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid ECT Background Expiration Time: %i", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_BG_START_TIME:
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_bg_start_time, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_ect_control_method_fg_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  guint32 value;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_fg_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_method_fg_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_fg_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_fg_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case ECT_CONTROL_METHOD_FG_DURATION:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_method_fg_duration, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 128)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid ECT Foreground Duration: %i", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_FG_PERIODICITY:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_method_fg_periodicity, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 30)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid ECT Foreground Periodicity: %i", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_FG_EXPIRATION_TIME:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_method_fg_expiration_time, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 255)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid ECT Foreground Expiration Time: %i", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_FG_DS_ZBL:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_fg_ds_zbl, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_ect_control_method_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_method_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case ECT_CONTROL_METHOD_FG:
+      dissect_ect_control_method_fg_tlv(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    case ECT_CONTROL_METHOD_BG:
+      dissect_ect_control_method_bg_tlv(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_ect_control_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length, i;
+
+  guint32 value;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_control_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case ECT_CONTROL_SUBBAND_DIRECTION:
+      for (i = 0; i < tlv_length; ++i)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_subband_direction, tvb, pos + i, 1, ENC_BIG_ENDIAN);
+      break;
+    case ECT_CONTROL_STATUS:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_status, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_METHOD:
+      dissect_ect_control_method_tlv(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    case ECT_CONTROL_PARTIAL_SERVICE:
+      dissect_ect_control_partial_service_tlv(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    case ECT_CONTROL_DEFERRAL_TIME:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_ect_control_deferral_time, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case ECT_CONTROL_RXMER_DURATION:
+      if (tlv_length == 1) {
+        proto_tree_add_item_ret_uint(tlv_tree, hf_docsis_ect_control_rxmer_duration, tvb, pos, tlv_length, ENC_BIG_ENDIAN, &value);
+        if (value < 1 || value > 128)
+          expert_add_info_format(pinfo, tlv_item, &ei_docsis_ect_control_out_of_range, "Invalid RxMER Duration: %i symbols", value);
+      }
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_ect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_ect_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_ect_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case ECT_CONTROL:
+      dissect_ect_control_tlv(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static int
+dissect_ect_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *ect_req_item;
+  proto_tree *ect_req_tree;
+  tvbuff_t *tlv_tvb = NULL;
+
+  guint32 transaction_id;
+
+  ect_req_item = proto_tree_add_item(tree, proto_docsis_ect_req, tvb, 0, -1, ENC_NA);
+  ect_req_tree = proto_item_add_subtree(ect_req_item, ett_docsis_ect_req);
+  proto_tree_add_item_ret_uint(ect_req_tree, hf_docsis_ect_trans_id, tvb, 0, 2, ENC_BIG_ENDIAN, &transaction_id);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "ECT-REQ ID %u", transaction_id);
+
+  tlv_tvb = dissect_multipart(tvb, pinfo, ect_req_tree, data, MGT_ECT_REQ, transaction_id, 2);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_ect_tlv(tlv_tvb, pinfo, ect_req_item, ect_req_tree, 0, tvb_reported_length(tlv_tvb));
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *ect_rsp_item;
+  proto_tree *ect_rsp_tree;
+  tvbuff_t *tlv_tvb = NULL;
+
+  guint32 transaction_id, rsp_code;
+
+  ect_rsp_item = proto_tree_add_item(tree, proto_docsis_ect_rsp, tvb, 0, -1, ENC_NA);
+  ect_rsp_tree = proto_item_add_subtree(ect_rsp_item, ett_docsis_ect_rsp);
+  proto_tree_add_item_ret_uint(ect_rsp_tree, hf_docsis_ect_trans_id, tvb, 0, 2, ENC_BIG_ENDIAN, &transaction_id);
+  proto_tree_add_item_ret_uint(ect_rsp_tree, hf_docsis_ect_rsp_code, tvb, 2, 1, ENC_BIG_ENDIAN, &rsp_code);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "ECT-RSP ID %u: %s",
+               transaction_id,
+               val_to_str(rsp_code, ect_rsp_code_vals, "Unknown Response Code (%u)"));
+
+  tlv_tvb = dissect_multipart(tvb, pinfo, ect_rsp_tree, data, MGT_ECT_RSP, transaction_id, 3);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_ect_tlv(tlv_tvb, pinfo, ect_rsp_item, ect_rsp_tree, 0, tvb_reported_length(tlv_tvb));
+  return tvb_captured_length(tvb);
+}
+
 static int
 dissect_ext_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
 {
@@ -11768,6 +12289,177 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0,
       NULL, HFILL}
     },
+    /* ECT-REQ and ECT-RSP */
+    {&hf_docsis_ect_trans_id,
+    {"Transaction ID", "docsis_ect.trans_id",
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(ect_trans_id_val), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_rsp_code,
+    {"Response Code", "docsis_ect.rsp_code",
+      FT_UINT8, BASE_DEC, VALS(ect_rsp_code_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_tlv,
+    {"TLV", "docsis_ect.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_tlv_type,
+    {"Type", "docsis_ect.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(ect_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_tlv_length,
+    {"Length", "docsis_ect.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_tlv,
+    {"TLV", "docsis_ect.control.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_tlv_type,
+    {"Type", "docsis_ect.control.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(ect_control_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_tlv_length,
+    {"Length", "docsis_ect.control.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_subband_direction,
+    {"Direction", "docsis_ect.control.subband_direction",
+      FT_UINT8, BASE_DEC, VALS(rba_subband_direction_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_status,
+    {"Training Status", "docsis_ect.control.status",
+      FT_UINT8, BASE_DEC, VALS(ect_control_status_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_tlv,
+    {"TLV", "docsis_ect.control.method.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_tlv_type,
+    {"Type", "docsis_ect.control.method.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(ect_control_method_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_tlv_length,
+    {"Length", "docsis_ect.control.method.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_tlv,
+    {"TLV", "docsis_ect.control.method.fg.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_tlv_type,
+    {"Type", "docsis_ect.control.method.fg.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(ect_control_method_fg_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_tlv_length,
+    {"Length", "docsis_ect.control.method.fg.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_duration,
+    {"Duration", "docsis_ect.control.method.fg.duration",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_symbols, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_periodicity,
+    {"Periodicity", "docsis_ect.control.method.fg.periodicity",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_expiration_time,
+    {"Expiration Time", "docsis_ect.control.method.fg.expiration_time",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_fg_ds_zbl,
+    {"Downstream Zero Bit Loading", "docsis_ect.control.method.fg.ds_zbl",
+      FT_UINT8, BASE_DEC, VALS(ect_ds_zbl_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_tlv,
+    {"TLV", "docsis_ect.control.method.bg.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_tlv_type,
+    {"Type", "docsis_ect.control.method.bg.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(ect_control_method_bg_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_tlv_length,
+    {"Length", "docsis_ect.control.method.bg.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_duration,
+    {"Duration", "docsis_ect.control.method.bg.duration",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_periodicity,
+    {"Periodicity", "docsis_ect.control.method.bg.periodicity",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_expiration_time,
+    {"Expiration Time", "docsis_ect.control.method.bg.expiration_time",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_method_bg_start_time,
+    {"Start Time", "docsis_ect.control.method.bg.start_time",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_partial_service_tlv,
+    {"TLV", "docsis_ect.control.partial_service.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_partial_service_tlv_type,
+    {"Type", "docsis_ect.control.partial_service.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(ect_control_partial_service_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_partial_service_tlv_length,
+    {"Length", "docsis_ect.control.partial_service.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_partial_service_dcid,
+    {"DCID", "docsis_ect.control.partial_service.dcid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_partial_service_ucid,
+    {"UCID", "docsis_ect.control.partial_service.ucid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_deferral_time,
+    {"Deferral Time", "docsis_ect.control.deferral_time",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(ect_deferral_time_val), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ect_control_rxmer_duration,
+    {"RxMER Duration", "docsis_ect.control.rxmer_duration",
+      FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_symbols, 0x0,
+      NULL, HFILL}
+    },
     /* MAC Management */
     {&hf_docsis_mgt_upstream_chid,
      {"Upstream Channel ID", "docsis_mgmt.upchid",
@@ -12050,6 +12742,9 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_cwt_rsp,
     &ett_docsis_cwt_tlv,
     &ett_docsis_cwt_subtlv,
+    &ett_docsis_ect_req,
+    &ett_docsis_ect_rsp,
+    &ett_docsis_ect_tlv,
     &ett_docsis_ext_rngreq,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
@@ -12063,7 +12758,8 @@ proto_register_docsis_mgmt (void)
     {&ei_docsis_mgmt_tlvtype_unknown, { "docsis_mgmt.tlvtypeunknown", PI_PROTOCOL, PI_WARN, "Unknown TLV type", EXPFILL}},
     {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown mac management version", EXPFILL}},
     {&ei_docsis_mgmt_opt_req_trigger_def_measure_duration, { "docsis_mgmt.optreq_trigger_def.wrongduration", PI_PROTOCOL, PI_WARN, "Wrong duration of FDX-triggered OPT-REQ", EXPFILL}},
-    {&ei_docsis_cwt_out_of_range, {"docsis_cwt.out_of_range", PI_PROTOCOL, PI_WARN, "CWT value out-of-range", EXPFILL}}
+    {&ei_docsis_cwt_out_of_range, {"docsis_cwt.out_of_range", PI_PROTOCOL, PI_WARN, "CWT value out-of-range", EXPFILL}},
+    {&ei_docsis_ect_control_out_of_range, {"docsis_ect.control.out_of_range", PI_PROTOCOL, PI_WARN, "ECT Control value out-of-range", EXPFILL}}
    };
 
   expert_module_t* expert_docsis_mgmt;
@@ -12132,6 +12828,8 @@ proto_register_docsis_mgmt (void)
   proto_docsis_rba = proto_register_protocol_in_name_only("DOCSIS Resource Block Assignment Message", "DOCSIS RBA", "docsis_rba", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_cwt_req = proto_register_protocol_in_name_only("DOCSIS IG Discovery CW Test Request", "DOCSIS CWT-REQ", "docsis_cwt.req", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_cwt_rsp = proto_register_protocol_in_name_only("DOCSIS IG Discovery CW Test Response", "DOCSIS CWT-RSP", "docsis_cwt.rsp", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_ect_req = proto_register_protocol_in_name_only("DOCSIS CM Echo Cancellation Training Request", "DOCSIS ECT-REQ", "docsis_ect.req", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_ect_rsp = proto_register_protocol_in_name_only("DOCSIS CM Echo Cancellation Training Response", "DOCSIS ECT-RSP", "docsis_ect.rsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ext_rngreq = proto_register_protocol_in_name_only("DOCSIS Extended Range Request Message", "DOCSIS EXT-RNG-REQ", "docsis_ext_rngreq", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
@@ -12196,6 +12894,8 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_RBA_HW, docsis_rba_handle);
   dissector_add_uint ("docsis_mgmt", MGT_CWT_REQ, create_dissector_handle(dissect_cwt_req, proto_docsis_cwt_req));
   dissector_add_uint ("docsis_mgmt", MGT_CWT_RSP, create_dissector_handle(dissect_cwt_rsp, proto_docsis_cwt_rsp));
+  dissector_add_uint ("docsis_mgmt", MGT_ECT_REQ, create_dissector_handle(dissect_ect_req, proto_docsis_ect_req));
+  dissector_add_uint ("docsis_mgmt", MGT_ECT_RSP, create_dissector_handle(dissect_ect_rsp, proto_docsis_ect_rsp));
   dissector_add_uint ("docsis_mgmt", MGT_EXT_RNG_REQ, create_dissector_handle( dissect_ext_rngreq, proto_docsis_ext_rngreq ));
   dissector_add_uint ("docsis_mgmt", MGT_BPKM_REQ_V5, create_dissector_handle(dissect_bpkmreq, proto_docsis_bpkmreq));
   dissector_add_uint ("docsis_mgmt", MGT_BPKM_RSP_V5, create_dissector_handle(dissect_bpkmrsp, proto_docsis_bpkmrsp));
