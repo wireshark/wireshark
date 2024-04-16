@@ -7488,9 +7488,9 @@ dissect_optreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 {
   proto_item *it;
   proto_tree *opt_tree;
-  tvbuff_t *next_tvb;
+  tvbuff_t *tlv_tvb = NULL;
 
-  guint32 downstream_channel_id, profile_identifier, opcode;
+  guint32 downstream_channel_id, profile_identifier, opcode, id;
 
   it = proto_tree_add_item(tree, proto_docsis_optreq, tvb, 0, -1, ENC_NA);
   opt_tree = proto_item_add_subtree (it, ett_docsis_optreq);
@@ -7503,14 +7503,11 @@ dissect_optreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                               val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
                               val_to_str(opcode, opt_opcode_vals, "Unknown Opcode (%u)"), opcode);
 
-  /* Call Dissector TLVs */
-  if(tvb_reported_length_remaining(tvb, 5) > 0 )
-  {
-    next_tvb = tvb_new_subset_remaining(tvb, 5);
-    dissect_optreq_tlv(next_tvb, pinfo, opt_tree);
-  }
-
-  return tvb_reported_length(tvb);
+  id = (downstream_channel_id << 16) + profile_identifier;
+  tlv_tvb = dissect_multipart(tvb, pinfo, opt_tree, data, MGT_OPT_REQ, id, 5);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_optreq_tlv(tlv_tvb, pinfo, opt_tree);
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -10605,7 +10602,7 @@ proto_register_docsis_mgmt (void)
      {"Unknown TLV", "docsis_optreq.unknown_tlv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_reserved,
-     {"Reserved", "docsis_optreq.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Reserved", "docsis_optreq.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optreq_prof_id,
      {"Profile Identifier", "docsis_optreq.prof_id", FT_UINT8, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL}
