@@ -9361,7 +9361,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_ucd_cent_freq_subc0,
      {"Center Frequency of Subcarrier 0", "docsis_ucd.cent_freq_subc0",
-      FT_UINT8, BASE_DEC, NULL, 0x00,
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0x00,
       NULL, HFILL}
     },
     {&hf_docsis_ucd_subcarrier_range,
