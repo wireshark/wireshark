@@ -584,6 +584,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define US_EVENT_CH_ID 1
 #define US_EVENT_MASK 2
 
+/* OCD */
 #define DISCRETE_FOURIER_TRANSFORM_SIZE 0
 #define CYCLIC_PREFIX 1
 #define ROLL_OFF 2
@@ -591,6 +592,9 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define TIME_INTERLEAVING_DEPTH 4
 #define SUBCARRIER_ASSIGNMENT_RANGE_LIST 5
 #define PRIMARY_CAPABILITY_INDICATOR 6
+#define FDX_INDICATOR 7
+
+/* DPD */
 #define SUBCARRIER_ASSIGNMENT_VECTOR 6
 
 #define SUBCARRIER_ASSIGNMENT_RANGE_CONT 0
@@ -1203,6 +1207,7 @@ static int hf_docsis_ocd_tlv_roll_off;
 static int hf_docsis_ocd_tlv_ofdm_spec_loc;
 static int hf_docsis_ocd_tlv_time_int_depth;
 static int hf_docsis_ocd_tlv_prim_cap_ind;
+static int hf_docsis_ocd_tlv_fdx_ind;
 static int hf_docsis_ocd_tlv_subc_assign_type;
 static int hf_docsis_ocd_tlv_subc_assign_value;
 static int hf_docsis_ocd_subc_assign_subc_type;
@@ -2361,6 +2366,11 @@ static const value_string docsis_ocd_prim_cap_ind_str[] = {
   {0, NULL}
 };
 
+static const value_string docsis_ocd_fdx_ind_str[] = {
+  {1, "FDX Channel"},
+  {0, NULL}
+};
+
 static const value_string ocd_tlv_vals[] = {
   {DISCRETE_FOURIER_TRANSFORM_SIZE, "Discrete Fourier Transform Size"},
   {CYCLIC_PREFIX, "Cyclic Prefix"},
@@ -2369,6 +2379,7 @@ static const value_string ocd_tlv_vals[] = {
   {TIME_INTERLEAVING_DEPTH, "Time Interleaving Depth"},
   {SUBCARRIER_ASSIGNMENT_RANGE_LIST, "Subcarrier Assignment Range/List"},
   {PRIMARY_CAPABILITY_INDICATOR, "Primary Capable Indicator"},
+  {FDX_INDICATOR, "FDX Indicator"},
   {0, NULL}
 };
 
@@ -7033,6 +7044,16 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
         expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
       }
       break;
+    case FDX_INDICATOR:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_fdx_ind, tvb, pos, 1, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
     default:
       proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
       break;
@@ -7046,8 +7067,8 @@ dissect_ocd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 {
   proto_item *it;
   proto_tree *ocd_tree;
-  tvbuff_t *next_tvb;
-  guint32 downstream_channel_id, configuration_change_count;
+  tvbuff_t *tlv_tvb = NULL;
+  guint32 downstream_channel_id, configuration_change_count, id;
 
   it = proto_tree_add_item(tree, proto_docsis_ocd, tvb, 0, -1, ENC_NA);
   ocd_tree = proto_item_add_subtree (it, ett_docsis_ocd);
@@ -7057,10 +7078,10 @@ dissect_ocd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "OCD: DS CH ID: %u, CCC: %u", downstream_channel_id, configuration_change_count);
 
-  /* Call Dissector TLVs */
-  next_tvb = tvb_new_subset_remaining(tvb, 2);
-  dissect_ocd_tlv(next_tvb, pinfo, ocd_tree);
-
+  id = (downstream_channel_id << 16) + configuration_change_count;
+  tlv_tvb = dissect_multipart(tvb, pinfo, ocd_tree, data, MGT_OCD, id, 2);
+  if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
+    dissect_ocd_tlv(tlv_tvb, pinfo, ocd_tree);
   return tvb_captured_length(tvb);
 }
 
@@ -10497,6 +10518,9 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_ocd_tlv_prim_cap_ind,
       {"Primary Capable Indicator", "docsis_ocd.tlv.prim_cap_ind", FT_UINT8, BASE_DEC, VALS(docsis_ocd_prim_cap_ind_str), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_ocd_tlv_fdx_ind,
+      {"FDX Indicator", "docsis_ocd.tlv.fdx_indicator", FT_UINT8, BASE_DEC, VALS(docsis_ocd_fdx_ind_str), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_subc_assign_type,
       {"Assignment type", "docsis_ocd.tlv.subc_assign.type", FT_UINT8, BASE_DEC, VALS(docsis_ocd_subc_assign_type_str), 0xC0, NULL, HFILL}
