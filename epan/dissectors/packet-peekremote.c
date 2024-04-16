@@ -56,6 +56,11 @@
 
 #define PEEKREMOTE_PORT 5000 /* Not IANA registered */
 
+#define PEEKREMOTE_V3   3
+#define PEEKRMEOTE_NEW_BASE_LEN 9
+#define PEEKREMOTE_V3_HDR_LEN 13
+
+
 void proto_register_peekremote(void);
 void proto_reg_handoff_peekremote(void);
 
@@ -240,7 +245,7 @@ static gint ett_peekremote_status;
 static gint ett_peekremote_extflags;
 
 static dissector_handle_t wlan_radio_handle;
-
+static dissector_handle_t radiotap_handle;
 
 static int
 dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -437,7 +442,24 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 8;
     }
     break;
-
+  /* With LiveAction's consent (via Issue #19533) new version Peekremote v3 encapsulation is defined as:
+  *  [ UDP [ PEEKREMOTE v3 [ RADIOTAP [ 80211 ]]]]
+  */
+  case PEEKREMOTE_V3:
+    if (header_size != PEEKREMOTE_V3_HDR_LEN) {
+      expert_add_info(pinfo, ti_header_size, &ei_peekremote_invalid_header_size);
+      if (header_size > PEEKRMEOTE_NEW_BASE_LEN) {
+        offset += (header_size - PEEKRMEOTE_NEW_BASE_LEN);
+      }
+    } else {
+      proto_tree_add_item(peekremote_tree, hf_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_item_set_end(ti, tvb, offset);
+      next_tvb = tvb_new_subset_remaining(tvb, offset);
+      call_dissector(radiotap_handle, next_tvb, pinfo, tree);
+      return TRUE;
+    }
+    break;
   default:
     expert_add_info(pinfo, ti_header_version, &ei_peekremote_unknown_header_version);
     if (header_size > 9)
@@ -835,8 +857,10 @@ proto_register_peekremote(void)
 void
 proto_reg_handoff_peekremote(void)
 {
+  /* Peekremote V0/V2 */
   wlan_radio_handle = find_dissector_add_dependency("wlan_radio", proto_peekremote);
-
+  /* Peekremote V3 */
+  radiotap_handle = find_dissector_add_dependency("radiotap", proto_peekremote);
   dissector_add_uint_with_preference("udp.port", PEEKREMOTE_PORT, peekremote_handle);
 
   heur_dissector_add("udp", dissect_peekremote_new, "OmniPeek Remote over UDP", "peekremote_udp", proto_peekremote, HEURISTIC_ENABLE);
