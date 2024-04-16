@@ -4368,7 +4368,6 @@ static guint32 pcapng_compute_packet_hash_option_size(wtap_optval_t *optval)
 {
     packet_hash_opt_t* hash = &optval->packet_hash;
     guint32 size;
-    guint32 pad;
 
     switch (hash->type) {
     case OPT_HASH_CRC32:
@@ -4388,12 +4387,25 @@ static guint32 pcapng_compute_packet_hash_option_size(wtap_optval_t *optval)
         size = hash->hash_bytes->len;
         break;
     }
+    /* XXX - What if the size of the hash bytes doesn't match the
+     * expected size? We can:
+     * 1) Return 0, and omit it when writing
+     * 2) Return hash_bytes->len, and write it out exactly as we have it
+     * 3) Return the correct size here, and when writing err or possibly
+     * truncate.
+     */
+    /* Account for the size of the algorithm type field. */
+    size += 1;
+#if 0
+    /* compute_block_option_size() handles padding. */
+    uint32_t pad;
     if ((size % 4)) {
         pad = 4 - (size % 4);
     } else {
         pad = 0;
     }
     size += pad;
+#endif
     return size;
 }
 
@@ -4401,7 +4413,6 @@ static guint32 pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
 {
     packet_verdict_opt_t* verdict = &optval->packet_verdictval;
     guint32 size;
-    guint32 pad;
 
     switch (verdict->type) {
 
@@ -4410,23 +4421,31 @@ static guint32 pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
         break;
 
     case packet_verdict_linux_ebpf_tc:
-        size = 9;
+        size = 8;
         break;
 
     case packet_verdict_linux_ebpf_xdp:
-        size = 9;
+        size = 8;
         break;
 
     default:
         size = 0;
         break;
     }
+    /* Account for the type octet */
+    if (size) {
+        size += 1;
+    }
+#if 0
+    /* compute_block_option_size() handles padding. */
+    uint32_t pad;
     if ((size % 4)) {
         pad = 4 - (size % 4);
     } else {
         pad = 0;
     }
     size += pad;
+#endif
     return size;
 }
 
@@ -4467,6 +4486,15 @@ compute_block_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_
 
     /*
      * Are we writing this option?
+     */
+    /*
+     * XXX: The option length field is 16 bits. If size > 65535 (how?
+     * was the block was obtained from some format other than pcapng?),
+     * are we going to silently omit the option (in which case we shouldn't
+     * add the size here), or err out when writing it (in which case
+     * it's probably fine to add the size or not?) Adding it here and
+     * then omitting it when writing, as some of the routines do, means
+     * creating a corrupt file.
      */
     if (size != 0) {
         /*
@@ -4922,7 +4950,8 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
     switch (verdict->type) {
 
     case packet_verdict_hardware:
-        size = verdict->data.verdict_bytes->len;
+        /* Include type octet */
+        size = verdict->data.verdict_bytes->len + 1;
         if (size > 65535) {
             /*
              * Too big to fit in the option.
@@ -4941,8 +4970,8 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
         if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
             return FALSE;
 
-        if (!wtap_dump_file_write(wdh, verdict->data.verdict_bytes->data, size,
-                                  err))
+        if (!wtap_dump_file_write(wdh, verdict->data.verdict_bytes->data,
+                                  verdict->data.verdict_bytes->len, err))
             return FALSE;
         break;
 
@@ -4982,6 +5011,63 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
         /* Unknown - don't write it out. */
         return TRUE;
     }
+
+    /* write padding (if any) */
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
+            return FALSE;
+    }
+    return TRUE;
+}
+
+static gboolean pcapng_write_packet_hash_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
+{
+    packet_hash_opt_t* hash = &optval->packet_hash;
+    struct pcapng_option_header option_hdr;
+    uint8_t type;
+    size_t size;
+    const uint32_t zero_pad = 0;
+    uint32_t pad;
+
+    size = pcapng_compute_packet_hash_option_size(optval);
+
+    if (size > 65535) {
+        /*
+         * Too big to fit in the option.
+         * Don't write anything.
+         *
+         * XXX - truncate it?  Report an error?
+         */
+        return TRUE;
+    }
+
+    if (size > hash->hash_bytes->len + 1) {
+        /*
+         * We don't have enough bytes to write.
+         * pcapng_compute_packet_hash_option_size() should return 0 if
+         * we want to silently omit the option instead, or should return
+         * the length if we want to blindly copy it.
+         * XXX - Is this the best error type?
+         */
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        return FALSE;
+    }
+
+    type = hash->type;
+
+    option_hdr.type         = option_id;
+    /* Include type byte */
+    option_hdr.value_length = (uint16_t)size;
+    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+        return FALSE;
+
+    if (!wtap_dump_file_write(wdh, &type, sizeof(uint8_t), err))
+        return FALSE;
+
+    if (!wtap_dump_file_write(wdh, hash->hash_bytes->data, size - 1,
+                              err))
+        return FALSE;
 
     /* write padding (if any) */
     if ((size % 4)) {
@@ -5231,8 +5317,14 @@ static gboolean write_wtap_epb_option(wtap_dumper *wdh, wtap_block_t block _U_, 
             return FALSE;
         break;
     case OPT_PKT_VERDICT:
-        if (!pcapng_write_packet_verdict_option(wdh, OPT_EPB_QUEUE, optval,
+        if (!pcapng_write_packet_verdict_option(wdh, OPT_EPB_VERDICT, optval,
                                                 err))
+            return false;
+        break;
+    case OPT_PKT_HASH:
+        if (!pcapng_write_packet_hash_option(wdh, OPT_EPB_HASH, optval,
+                                             err))
+            return false;
         break;
     default:
         /* Unknown options - write by datatype? */
