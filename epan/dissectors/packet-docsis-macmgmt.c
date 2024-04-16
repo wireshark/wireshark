@@ -394,6 +394,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS 20
 #define DIPLEXER_BAND_EDGE 21
 #define ADVANCED_BAND_PLAN 22
+#define MDD_BPI_PLUS 23
 
 
 /* Downstream Active Channel List */
@@ -622,6 +623,10 @@ void proto_reg_handoff_docsis_mgmt(void);
 /* MDD Advanced Band Plan */
 #define MDD_ABP_SUB_BAND_COUNT 2
 #define MDD_ABP_SUB_BAND_WIDTH 3
+
+/* MDD BPI+ */
+#define MDD_BPI_PLUS_VERSION 1
+#define MDD_BPI_PLUS_CFG 2
 
 #define KEY_MGMT_VERSION 0
 #define KEY_MGMT_MULTIPART 1
@@ -1091,6 +1096,13 @@ static int hf_docsis_mdd_abp_tlv_length;
 static int hf_docsis_mdd_abp_sub_band_count;
 static int hf_docsis_mdd_abp_sub_band_width;
 
+static int hf_docsis_mdd_bpi_plus_tlv;
+static int hf_docsis_mdd_bpi_plus_tlv_type;
+static int hf_docsis_mdd_bpi_plus_tlv_length;
+static int hf_docsis_mdd_bpi_plus_version;
+static int hf_docsis_mdd_bpi_plus_cfg;
+static int hf_docsis_mdd_bpi_plus_cfg_eae;
+
 static int hf_docsis_bintrngreq_mddsgid;
 static int hf_docsis_bintrngreq_capflags;
 static int hf_docsis_bintrngreq_capflags_frag;
@@ -1401,6 +1413,7 @@ static gint ett_docsis_mdd_docsis_version;
 static gint ett_docsis_mdd_docsis_version_tlv;
 static gint ett_docsis_mdd_diplexer_band_edge;
 static gint ett_docsis_mdd_advanced_band_plan;
+static gint ett_docsis_mdd_bpi_plus;
 
 static gint ett_docsis_bintrngreq;
 
@@ -2011,6 +2024,7 @@ static const value_string mdd_tlv_vals[] = {
   {CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS  ,       "CM-STATUS Event Enable for DOCSIS 3.1 Specific Events"},
   {DIPLEXER_BAND_EDGE  ,                                 "Diplexer Band Edge"},
   {ADVANCED_BAND_PLAN,                                   "Advanced Band Plan Descriptor"},
+  {MDD_BPI_PLUS,                                         "BPI+ Enabled Version and Configuration"},
   {0, NULL}
 };
 
@@ -2227,6 +2241,12 @@ static const value_string mdd_docsis_version_vals[] = {
   {CMTS_DOCSIS_VERSION_MAJOR, "CMTS Major DOCSIS Version"},
   {CMTS_DOCSIS_VERSION_MINOR, "CMTS Minor DOCSIS Version"},
   {CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE, "CMTS Extended Spectrum Mode of Operation"},
+  {0, NULL}
+};
+
+static const value_string mdd_bpi_plus_vals[] = {
+  {MDD_BPI_PLUS_VERSION, "BPI+ Version Number"},
+  {MDD_BPI_PLUS_CFG, "BPI+ Configuration Bitmask"},
   {0, NULL}
 };
 
@@ -5800,6 +5820,54 @@ dissect_mdd_advanced_band_plan(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item
     expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
 }
 
+static void
+dissect_mdd_bpi_plus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  static int *const mdd_bpi_plus_cfg[] = {
+    &hf_docsis_mdd_bpi_plus_cfg_eae,
+    NULL
+  };
+
+  while (pos + 1 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_bpi_plus_tlv, tvb, pos, tlv_length + 2, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, mdd_bpi_plus_vals, "Unknown TLV: %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_bpi_plus);
+    proto_tree_add_item(tlv_tree, hf_docsis_mdd_bpi_plus_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_mdd_bpi_plus_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+    pos += 2;
+
+    switch (tlv_type)
+    {
+    case MDD_BPI_PLUS_VERSION:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_mdd_bpi_plus_version, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case MDD_BPI_PLUS_CFG:
+      if (tlv_length == 1)
+        proto_tree_add_bitmask(tlv_tree, tvb, pos, hf_docsis_mdd_bpi_plus_cfg, ett_sub_tlv, mdd_bpi_plus_cfg, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
 static int
 dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
@@ -5932,6 +6000,9 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
       break;
     case ADVANCED_BAND_PLAN:
       dissect_mdd_advanced_band_plan(tvb, pinfo, tlv_item, tlv_tree, pos, length);
+      break;
+    case MDD_BPI_PLUS:
+      dissect_mdd_bpi_plus(tvb, pinfo, tlv_item, tlv_tree, pos, length);
       break;
     default:
       expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown MDD TLV type: %u", type);
@@ -10013,6 +10084,37 @@ proto_register_docsis_mgmt (void)
      {"Full Duplex Sub-band Width", "docsis_mdd.advanced_band_plan.subband_width",
       FT_UINT8, BASE_DEC, VALS(mdd_abp_sub_band_width_vals), 0x0, NULL, HFILL}
     },
+    /* MDD BPI+*/
+    {&hf_docsis_mdd_bpi_plus_tlv,
+     {"TLV", "docsis_mdd.bpi_plus.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_bpi_plus_tlv_type,
+     {"Type", "docsis_mdd.bpi_plus.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(mdd_bpi_plus_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_bpi_plus_tlv_length,
+     {"Length", "docsis_mdd.bpi_plus.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_bpi_plus_version,
+     {"Version", "docsis_mdd.bpi_plus.version",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "BPI+ Version Number", HFILL}
+    },
+    {&hf_docsis_mdd_bpi_plus_cfg,
+     {"Configuration", "docsis_mdd.bpi_plus.cfg",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "BPI+ Configuration Bitmask", HFILL}
+    },
+    {&hf_docsis_mdd_bpi_plus_cfg_eae,
+     {"Early Authentication and Encryption", "docsis_mdd.bpi_plus.eae",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
+      NULL, HFILL}
+    },
     /* B_INIT_RNG_REQ */
     {&hf_docsis_bintrngreq_capflags,
      {"Capability Flags", "docsis_bintrngreq.capflags",
@@ -10865,6 +10967,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_mdd_docsis_version_tlv,
     &ett_docsis_mdd_diplexer_band_edge,
     &ett_docsis_mdd_advanced_band_plan,
+    &ett_docsis_mdd_bpi_plus,
     &ett_docsis_bintrngreq,
     &ett_docsis_dbcreq,
     &ett_docsis_dbcrsp,
