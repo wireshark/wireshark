@@ -26,7 +26,7 @@ void proto_reg_handoff_pim(void);
 #define PIM_TYPE(x)             ((x) & 0x0f)
 #define PIM_VER(x)              (((x) & 0xf0) >> 4)
 #define PIM_BIDIR_SUBTYPE(x)    ((x) & 0x0f)
-#define PIM_BIDIR_RSVD(x)       (((x) & 0xf0) >> 4)
+#define PIM_SUBTYPE(x)          (((x) & 0xf0) >> 4)
 
 /* PIM message type */
 
@@ -43,6 +43,12 @@ void proto_reg_handoff_pim(void);
 #define PIM_TYPE_DF_ELECT 10        /* DF Election [RFC5015] */
 #define PIM_TYPE_ECMP_REDIR 11      /* ECMP Redirect [RFC6754] */
 #define PIM_TYPE_PFM 12             /* PIM PFM [RFC8364] */
+#define PIM_TYPE_PACKED_REGISTER 13 /* PIM PFM [RFC9465] */
+
+/* PIM Message Subtypes */
+
+#define PIM_TYPE_PACKED_NULL_REGISTER 0  /* 13.0 */
+#define PIM_TYPE_PACKED_REGISTER_STOP 1  /* 13.1 */
 
 /* PIM Message hello options */
 
@@ -126,6 +132,16 @@ static const value_string pimtypevals[] = {
     { PIM_TYPE_DF_ELECT, "DF election"},
     { PIM_TYPE_ECMP_REDIR, "ECMP redirect" },
     { PIM_TYPE_PFM, "PFM source discovery"},
+    { PIM_TYPE_PACKED_REGISTER, "Packed Register"},
+    { 0, NULL }
+};
+
+/*
+ * List of subtypes for PIM message Type 13.
+ */
+static const value_string pimtype13subtypevals[] = {
+    { PIM_TYPE_PACKED_NULL_REGISTER, "Packed Null-Register" },
+    { PIM_TYPE_PACKED_REGISTER_STOP, "Packed Register-Stop" },
     { 0, NULL }
 };
 
@@ -208,6 +224,9 @@ static int hf_pim_df_elect_rsvd;
 static int hf_pim_cksum;
 static int hf_pim_cksum_status;
 static int hf_pim_res_bytes;
+static int hf_pim_reg_stop_p_bit;
+static int hf_pim_type_13_subtype;
+static int hf_pim_type_13_flagbits;
 /* PIM Hello options (RFC 4601, section 4.9.2 and RFC 3973, section 4.7.5) */
 static int hf_pim_option;
 static int hf_pim_optiontype;
@@ -1069,6 +1088,7 @@ static int
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int offset = 0;
     guint8 pim_typever;
+    guint8 pim_subtype;
     guint8 pim_bidir_subtype = 0;
     guint length, pim_length;
     vec_t cksum_vec[4];
@@ -1083,10 +1103,20 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_clear(pinfo->cinfo, COL_INFO);
 
     pim_typever = tvb_get_guint8(tvb, 0);
+    pim_subtype = PIM_SUBTYPE(tvb_get_guint8(tvb, 1));
 
     switch (PIM_VER(pim_typever)) {
     case 2:
-        typestr = val_to_str(PIM_TYPE(pim_typever), pimtypevals, "Unknown (%u)");
+        if (PIM_TYPE(pim_typever) < 12) {
+            typestr = val_to_str(PIM_TYPE(pim_typever), pimtypevals, "Unknown (%u)");
+        } else if ((PIM_TYPE(pim_typever) == PIM_TYPE_PACKED_REGISTER)) {
+            /*
+             * Need only the first 4 bits for subtype as per the new PIM Common header.
+             */
+            typestr = val_to_str(pim_subtype, pimtype13subtypevals, "Unknown (%u)");
+        } else {
+            typestr = "Unknown";
+        }
         break;
     case 1:     /* PIMv1 - we should never see this */
     default:
@@ -1106,12 +1136,23 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (PIM_TYPE(pim_typever) == PIM_TYPE_PFM) {
         proto_tree_add_item(pim_tree, hf_pfm_no_forward_bit, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     }
+    if (PIM_TYPE(pim_typever) == PIM_TYPE_REGISTER_STOP) {
+        /*
+         * [version-4bits][type-4bits][0x01]
+         */
+        proto_tree_add_item(pim_tree, hf_pim_reg_stop_p_bit, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    }
     if (PIM_TYPE(pim_typever) == PIM_TYPE_DF_ELECT) {
         proto_tree_add_item(pim_tree, hf_pim_df_elect_subtype, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pim_tree, hf_pim_df_elect_rsvd, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         pim_bidir_subtype = tvb_get_guint8(tvb,offset);
-    }
-    else {
+    } else if ((PIM_TYPE(pim_typever) == PIM_TYPE_PACKED_REGISTER)) {
+        /*
+         * [version-4bits][type-4bits][0x[SubType-4bits][Flagbits-4bits]
+         */
+        proto_tree_add_item(pim_tree, hf_pim_type_13_subtype, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pim_tree, hf_pim_type_13_flagbits, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    } else {
         proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
     }
 
@@ -1696,6 +1737,46 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     breakbreak12:
         break;
     }
+
+    case PIM_TYPE_PACKED_REGISTER:     /* Packed Register */
+    {
+        int ngroups;
+        int advance, i;
+        proto_tree *grouptree = NULL;
+        proto_item *tigroup;
+
+        switch (pim_subtype) {
+        case PIM_TYPE_PACKED_NULL_REGISTER:
+        case PIM_TYPE_PACKED_REGISTER_STOP:
+            /*
+             * Total length minus PIM header length
+             * divided by 1 encoded record size (14 bytes).
+            */
+            ngroups = (length-4)/14;
+            for (i = 0; i < ngroups; i++) {
+                /*
+                 * RFC9465 states that an (S,G) entry is called a "Record".
+                 */
+                tigroup=proto_tree_add_string_format(pimopt_tree, hf_pim_group, tvb, offset, -1, "", "Record %d", i+1);
+                grouptree = proto_item_add_subtree(tigroup, ett_pim);
+                if (!dissect_pim_addr(pinfo, grouptree, tvb, offset, pimv2_group,
+                                      wmem_strdup_printf(pinfo->pool, "Group"), NULL,
+                                      hf_pim_group_ip4, hf_pim_group_ip6, &advance))
+                    goto breakpackedreg;
+                offset += advance;
+                if (!dissect_pim_addr(pinfo, grouptree, tvb, offset, pimv2_unicast, NULL, NULL,
+                                      hf_pim_source_ip4, hf_pim_source_ip6, &advance))
+                    goto breakpackedreg;
+                offset += advance;
+            }
+            break;
+        default:
+            break;
+        }
+    breakpackedreg:
+        break;
+    }
+
     default:
         break;
     }
@@ -1753,6 +1834,17 @@ proto_register_pim(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_pim_type_13_subtype,
+              { "Subtype", "pim.subtype_type13",
+                FT_UINT8, BASE_DEC, VALS(pimtype13subtypevals), 0xf0,
+                NULL, HFILL }
+            },
+            { &hf_pim_type_13_flagbits,
+              { "Flag Bits", "pim.flag_bits_type13",
+                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                NULL, HFILL }
+            },
+
             { &hf_pim_option,
               { "PIM Options", "pim.option",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2277,6 +2369,11 @@ proto_register_pim(void)
               { "Pfm no forward bit", "pim.pfmnoforwardbit",
                 FT_BOOLEAN, 8, NULL, 0x80,
                 "When set, this bit means that the PFM message is not to be forwarded.", HFILL }
+            },
+            { &hf_pim_reg_stop_p_bit,
+              { "P-bit", "pim.packedregstoppbit",
+                FT_BOOLEAN, 8, NULL, 0x01,
+                "RP is indicating Register-Packing capability (RFC9465).", HFILL }
             }
         };
 
