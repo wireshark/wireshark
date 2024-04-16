@@ -2726,19 +2726,19 @@ static const unit_name_string local_units_mhz = { " MHz", NULL };
 static void
 ofdma_ir_pow_ctrl_start_pow(char *buf, guint32 value)
 {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%f dBmV/1.6MHz", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dBmV/1.6MHz", value/4.0);
 }
 
 static void
 ofdma_ir_pow_ctrl_step_size(char *buf, guint32 value)
 {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
 }
 
 static void
 fourth_db(char *buf, guint32 value)
 {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
 }
 
 static void
