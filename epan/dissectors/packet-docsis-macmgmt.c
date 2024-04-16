@@ -613,9 +613,25 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define OPT_REQ_TRIGGER_DEFINITION_RXMER_TO_REPORT 6
 #define OPT_REQ_TRIGGER_DEFINITION_START_TIME 7
 
-#define OPT_RSP_RXMER_AND_SNR_MARGIN_DATA 1
-#define OPT_RSP_RXMER_PER_SUBCARRIER 1
-#define OPT_RSP_SNR_MARGIN 4
+#define OPT_RSP_RXMER 1
+#define OPT_RSP_DATA_CW 2
+#define OPT_RSP_NCP_FIELDS 3
+
+#define OPT_RSP_RXMER_SUBCARRIER 1
+#define OPT_RSP_RXMER_SUBCARRIER_THRESHOLD 2
+#define OPT_RSP_RXMER_SUBCARRIER_THRESHOLD_COUNT 3
+#define OPT_RSP_RXMER_SNR_MARGIN 4
+#define OPT_RSP_RXMER_AVG 5
+#define OPT_RSP_RXMER_ECT_RBA_SUBBAND_DIRECTION 6
+
+#define OPT_RSP_DATA_CW_COUNT 1
+#define OPT_RSP_DATA_CW_CORRECTED 2
+#define OPT_RSP_DATA_CW_UNCORRECTABLE 3
+#define OPT_RSP_DATA_CW_THRESHOLD_COMPARISON 4
+
+#define OPT_RSP_NCP_FIELDS_COUNT 1
+#define OPT_RSP_NCP_FIELDS_FAILURE 2
+#define OPT_RSP_NCP_FIELDS_THRESHOLD_COMPARISON 3
 
 #define DIPLEXER_US_UPPER_BAND_EDGE 1
 #define DIPLEXER_DS_LOWER_BAND_EDGE 2
@@ -1265,18 +1281,37 @@ static int hf_docsis_optreq_tlv_trigger_definition_sound_ambig_offset;
 static int hf_docsis_optreq_tlv_trigger_definition_rx_mer_to_report;
 static int hf_docsis_optreq_tlv_trigger_definition_start_time;
 
-static int hf_docsis_optrsp_tlv_unknown;
-static int hf_docsis_optrsp_prof_id;
 static int hf_docsis_optrsp_reserved;
+static int hf_docsis_optrsp_prof_id;
 static int hf_docsis_optrsp_status;
-static int hf_docsis_optrsp_tlv_data;
-static int hf_docsis_optrsp_type;
-static int hf_docsis_optrsp_length;
-static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data;
-static int hf_docsis_optrsp_xmer_snr_margin_type;
-static int hf_docsis_optrsp_xmer_snr_margin_length;
-static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data_rxmer_subc;
-static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin;
+static int hf_docsis_optrsp_tlv;
+static int hf_docsis_optrsp_tlv_type;
+static int hf_docsis_optrsp_tlv_length;
+static int hf_docsis_optrsp_rxmer_tlv;
+static int hf_docsis_optrsp_rxmer_tlv_type;
+static int hf_docsis_optrsp_rxmer_tlv_length;
+static int hf_docsis_optrsp_rxmer_subcarrier;
+static int hf_docsis_optrsp_rxmer_subcarrier_threshold;
+static int hf_docsis_optrsp_rxmer_subcarrier_threshold_count;
+static int hf_docsis_optrsp_rxmer_snr_margin;
+static int hf_docsis_optrsp_rxmer_avg;
+static int hf_docsis_optrsp_rxmer_ect_rba_subband_direction;
+static int hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb0;
+static int hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb1;
+static int hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb2;
+static int hf_docsis_optrsp_data_cw_tlv;
+static int hf_docsis_optrsp_data_cw_tlv_type;
+static int hf_docsis_optrsp_data_cw_tlv_length;
+static int hf_docsis_optrsp_data_cw_count;
+static int hf_docsis_optrsp_data_cw_corrected;
+static int hf_docsis_optrsp_data_cw_uncorrectable;
+static int hf_docsis_optrsp_data_cw_threshold_comparison;
+static int hf_docsis_optrsp_ncp_fields_tlv;
+static int hf_docsis_optrsp_ncp_fields_tlv_type;
+static int hf_docsis_optrsp_ncp_fields_tlv_length;
+static int hf_docsis_optrsp_ncp_fields_count;
+static int hf_docsis_optrsp_ncp_fields_failure;
+static int hf_docsis_optrsp_ncp_fields_threshold_comparison;
 
 static int hf_docsis_optack_prof_id;
 static int hf_docsis_optack_reserved;
@@ -1467,9 +1502,10 @@ static gint ett_docsis_optreq_tlv_trigger_definition_params_tlv;
 
 static gint ett_docsis_optrsp;
 static gint ett_docsis_optrsp_tlv;
-static gint ett_docsis_optrsp_tlvtlv;
-static gint ett_docsis_optrsp_tlv_rxmer_snr_margin_data;
-static gint ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv;
+static gint ett_docsis_optrsp_rxmer_tlv;
+static gint ett_docsis_optrsp_rxmer_subcarrier_tlv;
+static gint ett_docsis_optrsp_data_cw_tlv;
+static gint ett_docsis_optrsp_ncp_fields_tlv;
 
 static gint ett_docsis_optack;
 
@@ -2536,6 +2572,7 @@ static const value_string opt_status_vals[] = {
   {5, "Aborted"},
   {6, "Complete"},
   {7, "Profile already assigned to the CM"},
+  {8, "DS Lock Lost"},
   {0, NULL}
 };
 
@@ -2597,12 +2634,46 @@ static const value_string optreq_tlv_triggered_definition_rx_mer_to_report_vals[
 };
 
 static const value_string optrsp_tlv_vals [] = {
-  {OPT_RSP_RXMER_AND_SNR_MARGIN_DATA, "RxMER and SNR Margin Data"},
+  {OPT_RSP_RXMER, "RxMER and SNR Margin Data"},
+  {OPT_RSP_DATA_CW, "Data Profile Codeword Data"},
+  {OPT_RSP_NCP_FIELDS, "NCP Fields Data"},
   {0, NULL}
 };
 
-static const value_string optrsp_tlv_rxmer_snr_margin_vals [] = {
-  {OPT_RSP_RXMER_PER_SUBCARRIER, "RxMER per Subcarrier"},
+static const value_string optrsp_rxmer_vals [] = {
+  {OPT_RSP_RXMER_SUBCARRIER, "RxMER per Subcarrier"},
+  {OPT_RSP_RXMER_SUBCARRIER_THRESHOLD, "RxMER per Subcarrier Threshold Comparison Result"},
+  {OPT_RSP_RXMER_SUBCARRIER_THRESHOLD_COUNT, "Number of Subcarriers whose RxMER is RxMER Margin below the RxMER Target"},
+  {OPT_RSP_RXMER_SNR_MARGIN, "SNR Margin"},
+  {OPT_RSP_RXMER_AVG, "Average RxMER"},
+  {OPT_RSP_RXMER_ECT_RBA_SUBBAND_DIRECTION, "ECT RxMER Probe-Triggered RBA Sub-band Direction Set"},
+  {0, NULL}
+};
+
+static const value_string optrsp_data_cw_vals [] = {
+  {OPT_RSP_DATA_CW_COUNT, "Codeword Count"},
+  {OPT_RSP_DATA_CW_CORRECTED, "Corrected Codeword Count"},
+  {OPT_RSP_DATA_CW_UNCORRECTABLE, "Uncorrectable Codeword Count"},
+  {OPT_RSP_DATA_CW_THRESHOLD_COMPARISON, "Codeword Threshold Comparison Result for Candidate Profile"},
+  {0, NULL}
+};
+
+static const value_string optrsp_data_cw_threshold_comparison_vals [] = {
+  {0, "Uncorrectable Codeword Count (N_e) reached"},
+  {1, "Codeword Count (N_c) reached"},
+  {0, NULL}
+};
+
+static const value_string optrsp_ncp_fields_vals [] = {
+  {OPT_RSP_NCP_FIELDS_COUNT, "NCP Fields Count"},
+  {OPT_RSP_NCP_FIELDS_FAILURE, "NCP CRC Failure Count"},
+  {OPT_RSP_NCP_FIELDS_THRESHOLD_COMPARISON, "NCP CRC Threshold Comparison Result"},
+  {0, NULL}
+};
+
+static const value_string optrsp_ncp_fields_threshold_comparison_vals [] = {
+  {0, "NCP CRC Failure Count (NF_e) reached"},
+  {1, "NCP Fields Count (NF_c) reached"},
   {0, NULL}
 };
 
@@ -7511,135 +7582,246 @@ dissect_optreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 }
 
 static void
-dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_optrsp_tlv_rxmer(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
 {
-  proto_item *it, *tlv_item, *tlv_len_item;
-  proto_tree *tlv_tree, *tlvtlv_tree;
-  guint pos = 0;
-  guint length;
-  guint8 type;
-  guint number_of_subcarriers = 0;
-  guint i;
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length, i;
 
-  it = proto_tree_add_item(tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
-  tlv_tree = proto_item_add_subtree (it, ett_docsis_optrsp_tlv_rxmer_snr_margin_data);
+  static int *const ect_rba_subband_direction[] = {
+      &hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb0,
+      &hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb1,
+      &hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb2,
+      NULL};
 
-  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  while (pos + 2 < end)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    length = tvb_get_ntohs ( tvb, pos + 1);
-    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
-                                            ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv, &tlv_item,
-                                            val_to_str(type, optrsp_tlv_rxmer_snr_margin_vals,
-                                                       "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlvtlv_tree, hf_docsis_optrsp_xmer_snr_margin_type, tvb, pos, 1, type);
-    pos++;
-    tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_optrsp_xmer_snr_margin_length, tvb, pos, 2, ENC_NA);
-    pos+=2;
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_ntohs(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_rxmer_tlv, tvb, pos, tlv_length + 3, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_rxmer_vals, "Unknown TLV %u"));
+    if (tlv_type == OPT_RSP_RXMER_SUBCARRIER) // huge list
+      tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_rxmer_subcarrier_tlv);
+    else
+      tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_rxmer_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
+    pos += 3;
 
-
-    switch (type)
+    switch (tlv_type)
     {
-    case OPT_RSP_RXMER_PER_SUBCARRIER:
-      if ((guint) tvb_reported_length_remaining(tvb, pos) < length)
-      {
-        number_of_subcarriers = tvb_reported_length_remaining(tvb,pos);
-      } else {
-        number_of_subcarriers = length;
-      }
-      for(i=0; i < number_of_subcarriers;++i)
-      {
-        proto_tree_add_item(tlvtlv_tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data_rxmer_subc, tvb, pos+i, 1, ENC_NA);
-      }
+    case OPT_RSP_RXMER_SUBCARRIER:
+      for (i = 0; i < tlv_length; ++i)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_subcarrier, tvb, pos + i, 1, ENC_BIG_ENDIAN);
       break;
-    case OPT_RSP_SNR_MARGIN:
-      if (length == 1)
-      {
-        proto_tree_add_item(tlvtlv_tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin, tvb, pos, length, ENC_NA);
-      }
+    case OPT_RSP_RXMER_SUBCARRIER_THRESHOLD:
+      proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_subcarrier_threshold, tvb, pos, tlv_length, ENC_NA);
+      break;
+    case OPT_RSP_RXMER_SUBCARRIER_THRESHOLD_COUNT:
+      if (tlv_length == 2)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_subcarrier_threshold_count, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
       else
-      {
-        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
-      }
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_RXMER_SNR_MARGIN:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_snr_margin, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_RXMER_AVG:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_rxmer_avg, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_RXMER_ECT_RBA_SUBBAND_DIRECTION:
+      if (tlv_length == 1) {
+        proto_tree_add_bitmask_with_flags(tlv_tree, tvb, pos, hf_docsis_optrsp_rxmer_ect_rba_subband_direction,
+                                          ett_docsis_optrsp_rxmer_tlv, ect_rba_subband_direction, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+        proto_tree_add_bitmask_list(tlv_tree, tvb, pos, tlv_length, ect_rba_subband_direction, ENC_BIG_ENDIAN);
+      } else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     default:
-      proto_tree_add_item (tlvtlv_tree, hf_docsis_optrsp_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
-      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
       break;
-    } /* switch */
-    pos += length;
-  } /* while */
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
 }
 
 static void
-dissect_optrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_optrsp_tlv_data_cw(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
 {
-  proto_item *it, *tlv_item;
+  proto_item *tlv_item;
   proto_tree *tlv_tree;
-  guint pos = 0;
-  guint length;
-  guint8 type;
-  tvbuff_t *next_tvb;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
 
-
-  it = proto_tree_add_item(tree, hf_docsis_optrsp_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
-  tlv_tree = proto_item_add_subtree (it, ett_docsis_optrsp_tlv);
-
-  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  while (pos + 2 < end)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
-                                            ett_docsis_optrsp_tlvtlv, &tlv_item,
-                                            val_to_str(type, optrsp_tlv_vals,
-                                                       "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_optrsp_type, tvb, pos, 1, type);
-    pos++;
-    proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optrsp_length, tvb, pos, 2, ENC_NA, &length);
-    pos+=2;
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_ntohs(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_data_cw_tlv, tvb, pos, tlv_length + 3, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_data_cw_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_data_cw_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
+    pos += 3;
 
-    switch (type)
+    switch (tlv_type)
     {
-    case OPT_RSP_RXMER_AND_SNR_MARGIN_DATA:
-      if ((guint) tvb_reported_length_remaining(tvb, pos) < length) {
-        next_tvb = tvb_new_subset_remaining(tvb, pos);
-      } else {
-        next_tvb = tvb_new_subset_length(tvb, pos, length);
-      }
-      dissect_optrsp_tlv_rxmer_and_snr_margin_data(next_tvb, pinfo, tlv_tree);
+    case OPT_RSP_DATA_CW_COUNT:
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_count, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_DATA_CW_CORRECTED:
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_corrected, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_DATA_CW_UNCORRECTABLE:
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_uncorrectable, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_DATA_CW_THRESHOLD_COMPARISON:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_threshold_comparison, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
       break;
     default:
-      proto_tree_add_item (tlv_tree, hf_docsis_dpd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
-      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
       break;
-    } /* switch */
-    pos += length;
-  } /* while */
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_optrsp_tlv_ncp_fields(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  while (pos + 2 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_ntohs(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_ncp_fields_tlv, tvb, pos, tlv_length + 3, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_ncp_fields_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_ncp_fields_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
+    pos += 3;
+
+    switch (tlv_type)
+    {
+    case OPT_RSP_NCP_FIELDS_COUNT:
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_count, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_NCP_FIELDS_FAILURE:
+      if (tlv_length == 4)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_failure, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    case OPT_RSP_NCP_FIELDS_THRESHOLD_COMPARISON:
+      if (tlv_length == 1)
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_threshold_comparison, tvb, pos, tlv_length, ENC_BIG_ENDIAN);
+      else
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
+}
+
+static void
+dissect_optrsp_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint pos, gint length)
+{
+  proto_item *tlv_item;
+  proto_tree *tlv_tree;
+  guint32 tlv_type;
+  gint tlv_length, end = pos + length;
+
+  while (pos + 2 < end)
+  {
+    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_length = tvb_get_ntohs(tvb, pos + 1);
+    tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_tlv, tvb, pos, tlv_length + 3, ENC_NA);
+    proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_tlv_vals, "Unknown TLV %u"));
+    tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_tlv);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_docsis_optrsp_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
+    pos += 3;
+
+    switch (tlv_type)
+    {
+    case OPT_RSP_RXMER:
+      dissect_optrsp_tlv_rxmer(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    case OPT_RSP_DATA_CW:
+      dissect_optrsp_tlv_data_cw(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    case OPT_RSP_NCP_FIELDS:
+      dissect_optrsp_tlv_ncp_fields(tvb, pinfo, tlv_item, tlv_tree, pos, tlv_length);
+      break;
+    default:
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV type: %u", tlv_type);
+      break;
+    }
+    pos += tlv_length;
+  }
+  if (pos != end)
+    expert_add_info_format(pinfo, item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %i", length);
 }
 
 static int
-dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+dissect_optrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  proto_item *it;
+  proto_item *opt_item;
   proto_tree *opt_tree;
   tvbuff_t *tlv_tvb = NULL;
 
   guint32 downstream_channel_id, profile_identifier, status, id;
 
-  it = proto_tree_add_item(tree, proto_docsis_optrsp, tvb, 0, -1, ENC_NA);
-  opt_tree = proto_item_add_subtree (it, ett_docsis_optrsp);
-  proto_tree_add_item (opt_tree, hf_docsis_optrsp_reserved, tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
-  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optrsp_prof_id, tvb, 3, 1, ENC_BIG_ENDIAN, &profile_identifier);
-  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optrsp_status, tvb, 4, 1, ENC_BIG_ENDIAN, &status);
+  opt_item = proto_tree_add_item(tree, proto_docsis_optrsp, tvb, 0, -1, ENC_NA);
+  opt_tree = proto_item_add_subtree(opt_item, ett_docsis_optrsp);
+  proto_tree_add_item(opt_tree, hf_docsis_optrsp_reserved, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(opt_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
+  proto_tree_add_item_ret_uint(opt_tree, hf_docsis_optrsp_prof_id, tvb, 3, 1, ENC_BIG_ENDIAN, &profile_identifier);
+  proto_tree_add_item_ret_uint(opt_tree, hf_docsis_optrsp_status, tvb, 4, 1, ENC_BIG_ENDIAN, &status);
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "OPT-RSP: DS CH ID: %u, Profile ID: %s (%u), Status: %s (%u)", downstream_channel_id,
-                              val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
-                              val_to_str(status, opt_status_vals, "Unknown status (%u)"), status);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "OPT-RSP: DS CH ID: %u, Profile ID: %s (%u), Status: %s (%u)", downstream_channel_id,
+               val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
+               val_to_str(status, opt_status_vals, "Unknown status (%u)"), status);
 
   id = (downstream_channel_id << 16) + profile_identifier;
   tlv_tvb = dissect_multipart(tvb, pinfo, opt_tree, data, MGT_OPT_RSP, id, 5);
   if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))
-    dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
+    dissect_optrsp_tlv(tlv_tvb, pinfo, opt_item, opt_tree, 0, tvb_reported_length(tlv_tvb));
   return tvb_captured_length(tvb);
 }
 
@@ -10686,41 +10868,134 @@ proto_register_docsis_mgmt (void)
      {"Time-Triggered Start Time", "docsis_optreq.trigger_definition.start_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     /* OPT-RSP */
-    {&hf_docsis_optrsp_tlv_unknown,
-     {"Unknown TLV", "docsis_optrsp.unknown_tlv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
     {&hf_docsis_optrsp_reserved,
-     {"Reserved", "docsis_optrsp.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Reserved", "docsis_optrsp.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_prof_id,
-     {"Profile Identifier", "docsis_optrsp.prof_id", FT_UINT8, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL}
+     {"Profile Identifier", "docsis_optrsp.prof_id",
+      FT_UINT8, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_status,
-     {"Status", "docsis_optrsp.status", FT_UINT8, BASE_DEC, VALS(opt_status_vals), 0x0, NULL, HFILL}
+     {"Status", "docsis_optrsp.status",
+      FT_UINT8, BASE_DEC, VALS(opt_status_vals), 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_tlv_data,
-     {"TLV Data", "docsis_optrsp.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_tlv,
+     {"TLV", "docsis_optrsp.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_type,
-     {"Type", "docsis_optrsp.type", FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_tlv_type,
+     {"Type", "docsis_optrsp.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(optrsp_tlv_vals), 0x0, "OPT-RSP TLV type", HFILL}
     },
-    {&hf_docsis_optrsp_length,
-     {"Length", "docsis_optrsp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_tlv_length,
+     {"Length", "docsis_optrsp.tlv.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data,
-     {"TLV Data", "docsis_optrsp.rxmer_snr_margin.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_rxmer_tlv,
+     {"TLV", "docsis_optrsp.rxmer_snr_margin.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_xmer_snr_margin_type,
-     {"Type", "docsis_optrsp.xmer_snr_margin.type", FT_UINT8, BASE_DEC, VALS(optrsp_tlv_rxmer_snr_margin_vals), 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_rxmer_tlv_type,
+     {"Type", "docsis_optrsp.rxmer_snr_margin.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(optrsp_rxmer_vals), 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_xmer_snr_margin_length,
-     {"Length", "docsis_optrsp.rxmer_snr_margin.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_rxmer_tlv_length,
+     {"Length", "docsis_optrsp.rxmer_snr_margin.tlv.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data_rxmer_subc,
-     {"RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_per_subc", FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_rxmer_subcarrier,
+     {"RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_per_subc",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0, NULL, HFILL}
     },
-    {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin,
-     {"SNR Margin", "docsis_optrsp.rxmer_snr_margin.snr_margin", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_optrsp_rxmer_subcarrier_threshold,
+     {"Result", "docsis_optrsp.rxmer_snr_margin.threshold_per_subc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "RxMER per Subcarrier Threshold Comparison Result", HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_subcarrier_threshold_count,
+     {"Number of Subcarriers", "docsis_optrsp.rxmer_snr_margin.threshold_count",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Number of Subcarriers whose RxMER is RxMER Margin below the RxMER Target", HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_snr_margin,
+     {"SNR Margin", "docsis_optrsp.rxmer_snr_margin.snr_margin",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_avg,
+     {"Average RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_avg",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_ect_rba_subband_direction,
+     {"ECT RxMER Probe-Triggered RBA Sub-band Direction Set", "docsis_optrsp.rxmer_snr_margin.ect_rba_subband_direction",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb0,
+     {"Direction Sub-band 0", "docsis_optrsp.rxmer_snr_margin.ect_rba_subband_direction.0",
+      FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x04, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb1,
+     {"Direction Sub-band 1", "docsis_optrsp.rxmer_snr_margin.ect_rba_subband_direction.1",
+      FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x02, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_rxmer_ect_rba_subband_direction_sb2,
+     {"Direction Sub-band 2", "docsis_optrsp.rxmer_snr_margin.ect_rba_subband_direction.2",
+      FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x01, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_tlv,
+     {"TLV", "docsis_optrsp.data_cw.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_tlv_type,
+     {"Type", "docsis_optrsp.data_cw.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(optrsp_data_cw_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_tlv_length,
+     {"Length", "docsis_optrsp.data_cw.tlv.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_count,
+     {"Codeword Count", "docsis_optrsp.data_cw.count",
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_corrected,
+     {"Corrected Codeword Count", "docsis_optrsp.data_cw.corrected",
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_uncorrectable,
+     {"Uncorrectable Codeword Count", "docsis_optrsp.data_cw.uncorrectable",
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_data_cw_threshold_comparison,
+     {"Comparison Result", "docsis_optrsp.data_cw.threshold_comparison",
+      FT_UINT8, BASE_DEC, VALS(optrsp_data_cw_threshold_comparison_vals), 0x0,
+      "Codeword Threshold Comparison Result for Candidate Profile", HFILL}
+    },
+    {&hf_docsis_optrsp_ncp_fields_tlv,
+     {"TLV", "docsis_optrsp.ncp_fields.tlv",
+      FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_ncp_fields_tlv_type,
+     {"Type", "docsis_optrsp.ncp_fields.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(optrsp_ncp_fields_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_ncp_fields_tlv_length,
+     {"Length", "docsis_optrsp.ncp_fields.tlv.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_ncp_fields_count,
+     {"NCP Fields Count", "docsis_optrsp.ncp_fields.count",
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_ncp_fields_failure,
+     {"NCP CRC Failure Count", "docsis_optrsp.ncp_fields.failure",
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_ncp_fields_threshold_comparison,
+     {"Comparison Result", "docsis_optrsp.ncp_fields.threshold_comparison",
+      FT_UINT8, BASE_DEC, VALS(optrsp_ncp_fields_threshold_comparison_vals), 0x0,
+      "NCP CRC Threshold Comparison Result", HFILL
+     }
     },
     /* OPT-ACK */
     {&hf_docsis_optack_prof_id,
@@ -11030,9 +11305,10 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_optreq_tlv_trigger_definition_params_tlv,
     &ett_docsis_optrsp,
     &ett_docsis_optrsp_tlv,
-    &ett_docsis_optrsp_tlvtlv,
-    &ett_docsis_optrsp_tlv_rxmer_snr_margin_data,
-    &ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv,
+    &ett_docsis_optrsp_rxmer_tlv,
+    &ett_docsis_optrsp_rxmer_subcarrier_tlv,
+    &ett_docsis_optrsp_data_cw_tlv,
+    &ett_docsis_optrsp_ncp_fields_tlv,
     &ett_docsis_optack,
     &ett_docsis_rba,
     &ett_docsis_rba_control_byte,
