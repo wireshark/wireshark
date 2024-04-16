@@ -213,6 +213,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 
 #define MAP_v1 1
 #define MAP_v5 5
+#define MAP_PROBE_IE_PW_MASK 0x00010000
+#define MAP_PROBE_IE_ST_MASK 0x00004000
 
 #define RNGRSP_TIMING 1
 #define RNGRSP_PWR_LEVEL_ADJ 2
@@ -794,6 +796,7 @@ static int hf_docsis_map_probe_frame;
 static int hf_docsis_map_symbol_in_frame;
 static int hf_docsis_map_start_subc;
 static int hf_docsis_map_subc_skip;
+static int hf_docsis_map_ect;
 
 
 static int hf_docsis_rngreq_sid_field_bit15;
@@ -1643,7 +1646,14 @@ static const true_false_string pw_vals = {"transmit using alternate power settin
 
 static const true_false_string eq_vals = {"equalizer disabled", "equalizer enabled"};
 
-static const true_false_string st_vals = {"stagger", "no stagger"};
+static const value_string map_ect_vals[] = {
+  {0, "Ranging probe"},
+  {1, "ECT probe"},
+  {2, "ECT RxMER probe"},
+  {3, "First ECT probe"},
+  {4, "First ECT RxMER probe"},
+  {0, NULL}
+};
 
 static const value_string last_cw_len_vals[] = {
   {1, "Fixed"},
@@ -3366,7 +3376,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 static int
 dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 version, void* data _U_)
 {
-  guint32 i, numie, upchid, ucd_count, cat = 0;
+  guint32 i, numie, upchid, ucd_count, cat = 0, ie;
   int pos;
   proto_item *it;
   proto_tree *map_tree;
@@ -3387,6 +3397,19 @@ dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 
     &hf_docsis_map_symbol_in_frame,
     &hf_docsis_map_start_subc,
     &hf_docsis_map_subc_skip,
+    NULL
+  };
+
+  static int * const probe_ies_ect[] = {
+    &hf_docsis_map_sid,
+    &hf_docsis_map_mer,
+    &hf_docsis_map_pw,
+    &hf_docsis_map_eq,
+    &hf_docsis_map_st,
+    &hf_docsis_map_probe_frame,
+    &hf_docsis_map_symbol_in_frame,
+    &hf_docsis_map_start_subc,
+    &hf_docsis_map_ect,
     NULL
   };
 
@@ -3451,7 +3474,11 @@ dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 
     pos = 8;
     for (i = 0; i < numie; i++)
     {
-      proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_probe_ie, ett_docsis_map_probe_ie, probe_ies, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+      ie = tvb_get_guint32(tvb, pos, ENC_BIG_ENDIAN);
+      if ((ie & (MAP_PROBE_IE_PW_MASK | MAP_PROBE_IE_ST_MASK)) == 0)
+        proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_probe_ie, ett_docsis_map_probe_ie, probe_ies_ect, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+      else
+        proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_probe_ie, ett_docsis_map_probe_ie, probe_ies, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
       pos = pos + 4;
     }
   }
@@ -8213,7 +8240,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_map_pw,
      {"PW (Power)", "docsis_map.pw",
-      FT_BOOLEAN, 32, TFS(&pw_vals), 0x00010000,
+      FT_BOOLEAN, 32, TFS(&pw_vals), MAP_PROBE_IE_PW_MASK,
       NULL, HFILL}
     },
     {&hf_docsis_map_eq,
@@ -8223,7 +8250,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_map_st,
      {"St (Stagger)", "docsis_map.st",
-      FT_BOOLEAN, 32, TFS(&st_vals), 0x00004000,
+      FT_BOOLEAN, 32, TFS(&tfs_yes_no), MAP_PROBE_IE_ST_MASK,
       NULL, HFILL}
     },
     {&hf_docsis_map_probe_frame,
@@ -8244,6 +8271,11 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_map_subc_skip,
      {"Subc Skip", "docsis_map.subc_skip",
       FT_UINT32, BASE_DEC, NULL, 0x00000007,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_ect,
+     {"ECT Control", "docsis_map.ect",
+      FT_UINT32, BASE_DEC, VALS(map_ect_vals), 0x00000007,
       NULL, HFILL}
     },
 
