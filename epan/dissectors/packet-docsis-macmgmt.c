@@ -146,6 +146,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_ECT_REQ 65
 #define MGT_ECT_RSP 66
 #define MGT_EXT_RNG_REQ 67
+#define MGT_DPR 68
 #define MGT_BPKM_REQ_V5 69
 #define MGT_BPKM_RSP_V5 70
 
@@ -772,6 +773,7 @@ static int proto_docsis_cwt_rsp;
 static int proto_docsis_ect_req;
 static int proto_docsis_ect_rsp;
 static int proto_docsis_ext_rngreq;
+static int proto_docsis_dpr;
 
 static int hf_docsis_sync_cmts_timestamp;
 
@@ -1479,6 +1481,14 @@ static int hf_docsis_ect_control_partial_service_ucid;
 static int hf_docsis_ect_control_deferral_time;
 static int hf_docsis_ect_control_rxmer_duration;
 
+/* DPR */
+static int hf_docsis_dpr_carrier;
+static int hf_docsis_dpr_dcid;
+static int hf_docsis_dpr_tg_id;
+static int hf_docsis_dpr_reserved;
+static int hf_docsis_dpr_start_time;
+static int hf_docsis_dpr_duration;
+
 static int hf_docsis_mgt_upstream_chid;
 static int hf_docsis_mgt_down_chid;
 static int hf_docsis_mgt_tranid;
@@ -1675,6 +1685,7 @@ static gint ett_docsis_ect_req;
 static gint ett_docsis_ect_rsp;
 static gint ett_docsis_ect_tlv;
 static gint ett_docsis_ext_rngreq;
+static gint ett_docsis_dpr;
 
 static gint ett_docsis_mgmt;
 static gint ett_mgmt_pay;
@@ -1689,6 +1700,7 @@ static expert_field ei_docsis_mgmt_version_unknown;
 static expert_field ei_docsis_mgmt_opt_req_trigger_def_measure_duration;
 static expert_field ei_docsis_cwt_out_of_range;
 static expert_field ei_docsis_ect_control_out_of_range;
+static expert_field ei_docsis_dpr_out_of_range;
 
 static dissector_table_t docsis_mgmt_dissector_table;
 static dissector_handle_t docsis_tlv_handle;
@@ -1827,6 +1839,7 @@ static const value_string mgmt_type_vals[] = {
   {MGT_ECT_REQ,        "CM Echo Cancellation Training Request"},
   {MGT_ECT_RSP,        "CM Echo Cancellation Training Response"},
   {MGT_EXT_RNG_REQ,    "Extended Upstream Range Request"},
+  {MGT_DPR,            "Downstream Protection"},
   {MGT_BPKM_REQ_V5,    "Privacy Key Management Request v5"},
   {MGT_BPKM_RSP_V5,    "Privacy Key Management Response v5"},
   {0, NULL}
@@ -3091,6 +3104,12 @@ static void ect_deferral_time_val(char *buf, guint16 value)
   }
 }
 
+static const range_string dpr_tg_id_vals [] = {
+  {0x01, 0xff, "TG ID"},
+  {0x00, 0x00, "All Transmission Groups"},
+  {0, 0, NULL}
+};
+
 static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes"};
 
 static const true_false_string tfs_allow_inhibit = { "Inhibit Initial Ranging", "Ranging Allowed" };
@@ -3132,6 +3151,13 @@ static void
 fourth_db(char *buf, guint32 value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
+}
+
+static void
+d30_time_ticks(char *buf, guint32 value)
+{
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u 10.24 MHz time ticks (%.3f "UTF8_MICRO_SIGN"s)",
+             value, value/10.24);
 }
 
 static void
@@ -8937,6 +8963,30 @@ dissect_ext_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 }
 
 static int
+dissect_dpr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *dpr_item, *item;
+  proto_tree *dpr_tree;
+
+  guint32 dcid, tg_id, duration;
+
+  dpr_item = proto_tree_add_item(tree, proto_docsis_dpr, tvb, 0, -1, ENC_NA);
+  dpr_tree = proto_item_add_subtree(dpr_item, ett_docsis_dpr);
+  proto_tree_add_item(dpr_tree, hf_docsis_dpr_carrier, tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(dpr_tree, hf_docsis_dpr_dcid, tvb, 1, 1, ENC_BIG_ENDIAN, &dcid);
+  proto_tree_add_item_ret_uint(dpr_tree, hf_docsis_dpr_tg_id, tvb, 2, 1, ENC_BIG_ENDIAN, &tg_id);
+  proto_tree_add_item(dpr_tree, hf_docsis_dpr_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(dpr_tree, hf_docsis_dpr_start_time, tvb, 4, 4, ENC_BIG_ENDIAN);
+  item = proto_tree_add_item_ret_uint(dpr_tree, hf_docsis_dpr_duration, tvb, 8, 4, ENC_BIG_ENDIAN, &duration);
+  if ((duration & 0xff000000) > 0)
+    expert_add_info_format(pinfo, item, &ei_docsis_dpr_out_of_range, "Invalid DPR Duration: %u", duration);
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "DPR DCID %u on TG ID %u", dcid, tg_id);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint32 type, version, dsap, ssap, msg_len;
@@ -12460,6 +12510,34 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_symbols, 0x0,
       NULL, HFILL}
     },
+    /* DPR */
+    {&hf_docsis_dpr_carrier,
+    {"Carrier DCID", "docsis_dpr.carrier",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_dpr_dcid,
+    {"Protected DCID", "docsis_dpr.dcid",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_dpr_tg_id,
+    {"Protected TG ID", "docsis_dpr.tg_id",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dpr_tg_id_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_dpr_reserved,
+    {"Reserved", "docsis_dpr.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_dpr_start_time,
+    {"Start time", "docsis_dpr.start_time",
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(d30_time_ticks), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_dpr_duration,
+    {"Duration", "docsis_dpr.duration",
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(d30_time_ticks), 0x0,
+      NULL, HFILL}
+    },
     /* MAC Management */
     {&hf_docsis_mgt_upstream_chid,
      {"Upstream Channel ID", "docsis_mgmt.upchid",
@@ -12746,6 +12824,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_ect_rsp,
     &ett_docsis_ect_tlv,
     &ett_docsis_ext_rngreq,
+    &ett_docsis_dpr,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
     &ett_docsis_tlv_fragment,
@@ -12759,7 +12838,8 @@ proto_register_docsis_mgmt (void)
     {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown mac management version", EXPFILL}},
     {&ei_docsis_mgmt_opt_req_trigger_def_measure_duration, { "docsis_mgmt.optreq_trigger_def.wrongduration", PI_PROTOCOL, PI_WARN, "Wrong duration of FDX-triggered OPT-REQ", EXPFILL}},
     {&ei_docsis_cwt_out_of_range, {"docsis_cwt.out_of_range", PI_PROTOCOL, PI_WARN, "CWT value out-of-range", EXPFILL}},
-    {&ei_docsis_ect_control_out_of_range, {"docsis_ect.control.out_of_range", PI_PROTOCOL, PI_WARN, "ECT Control value out-of-range", EXPFILL}}
+    {&ei_docsis_ect_control_out_of_range, {"docsis_ect.control.out_of_range", PI_PROTOCOL, PI_WARN, "ECT Control value out-of-range", EXPFILL}},
+    {&ei_docsis_dpr_out_of_range, {"docsis_dpr.out_of_range", PI_PROTOCOL, PI_WARN, "DPR Duration out-of-range", EXPFILL}}
    };
 
   expert_module_t* expert_docsis_mgmt;
@@ -12831,6 +12911,7 @@ proto_register_docsis_mgmt (void)
   proto_docsis_ect_req = proto_register_protocol_in_name_only("DOCSIS CM Echo Cancellation Training Request", "DOCSIS ECT-REQ", "docsis_ect.req", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ect_rsp = proto_register_protocol_in_name_only("DOCSIS CM Echo Cancellation Training Response", "DOCSIS ECT-RSP", "docsis_ect.rsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ext_rngreq = proto_register_protocol_in_name_only("DOCSIS Extended Range Request Message", "DOCSIS EXT-RNG-REQ", "docsis_ext_rngreq", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_dpr = proto_register_protocol_in_name_only("DOCSIS Downstream Protection", "DOCSIS DPR", "docsis_dpr", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
   docsis_ucd_handle = register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
@@ -12897,6 +12978,7 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_ECT_REQ, create_dissector_handle(dissect_ect_req, proto_docsis_ect_req));
   dissector_add_uint ("docsis_mgmt", MGT_ECT_RSP, create_dissector_handle(dissect_ect_rsp, proto_docsis_ect_rsp));
   dissector_add_uint ("docsis_mgmt", MGT_EXT_RNG_REQ, create_dissector_handle( dissect_ext_rngreq, proto_docsis_ext_rngreq ));
+  dissector_add_uint ("docsis_mgmt", MGT_DPR, create_dissector_handle(dissect_dpr, proto_docsis_dpr));
   dissector_add_uint ("docsis_mgmt", MGT_BPKM_REQ_V5, create_dissector_handle(dissect_bpkmreq, proto_docsis_bpkmreq));
   dissector_add_uint ("docsis_mgmt", MGT_BPKM_RSP_V5, create_dissector_handle(dissect_bpkmrsp, proto_docsis_bpkmrsp));
 
