@@ -2007,6 +2007,17 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
     nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
   }
 
+#.FN_BODY SRB-Identity-v1700 VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.rbid = (guint8)value;
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.is_drb = FALSE;
+  }
+  else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
+    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
+  }
+
 #.FN_BODY RLC-Config VAL_PTR=&value
   guint32 value;
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
