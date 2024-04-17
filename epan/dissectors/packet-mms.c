@@ -5261,7 +5261,7 @@ dissect_mms_ConfirmedServiceRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
                                  NULL);
 
 
-        if(mms_priv){
+        if(mms_priv && mms_priv->mms_trans_p){
             if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_GETNAMELIST){
                 if(mms_priv->objectclass == MMS_OBJECTCLASS_DOMAIN){
                     if(mms_priv->objectscope == MMS_OBJECTSCOPE_VMDSPECIFIC){
