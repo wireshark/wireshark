@@ -7999,11 +7999,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * retransmission, reattempting a handshake that was reset (due
      * to a half-open connection) with the same sequence number, or
      * (unlikely) a new connection that happens to use the same sequence
-     * number as the previous one.
+     * number as the previous one (#18333).
      *
      * If we have received a RST or FIN on the retrieved conversation,
-     * create a new conversation in order to clear out the follow info,
-     * sequence analysis, desegmentation, etc.
+     * we can detect that unlikely case, and create a new conversation
+     * in order to clear out the follow info, sequence analysis,
+     * desegmentation, etc.
      * If not, it's probably a retransmission, and will be marked
      * as one later, but restore some flow values to reduce the
      * sequence analysis warnings if our capture file is missing a RST
@@ -8056,30 +8057,54 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         tcpd->had_acc_ecn_setup_syn = (tcph->th_flags & (TH_AE|TH_CWR|TH_ECE)) == (TH_AE|TH_CWR|TH_ECE);
     }
 
-    /* If this is a SYN/ACK packet, then check if its seq-nr is different
+    /* Handle cases of a SYN/ACK packet where there's evidence of a new
+     * conversation but the capture is missing the SYN packet of the
+     * new conversation.
+     *
+     * If this is a SYN/ACK packet, then check if its seq-nr is different
      * from the base_seq of the retrieved conversation. If this is the
-     * case, set the TA_PORTS_REUSED flag and override the base seq.
-     * (XXX: Should this create a new conversation, as above with a
-     * SYN packet? We might have received the new connection's SYN/ACK before
-     * the SYN packet, or the SYN might be missing from the capture file.)
+     * case, create a new conversation as above with a SYN packet, and set
+     * the TA_PORTS_REUSED flag and override the base seq.
      * If the seq-nr is the same as the base_seq, then do nothing so it
-     * will be marked as a retransmission later.
+     * will be marked as a retransmission later, unless we have received
+     * a RST or FIN on the conversation (in which case this is the case
+     * of a RST followed by the same initial sequence number being picked.)
+     *
+     * If this is an unacceptable SYN-ACK and the other side believes that
+     * the conversation is ESTABLISHED, it will be replied to with an
+     * empty ACK with the current sequence number (according to the other
+     * side.) See RFC 9293 3.5.2. This *probably* leads to a situation where
+     * the side sending this SYN-ACK then issues a RST, because the two
+     * sides have different ideas about the connection state. It's not clear
+     * how to handle the annoying edge case where A sends a SYN, B responds
+     * with a SYN-ACK that A intends to accept, but before A can finish
+     * the handshake B responds with another SYN-ACK _with a different seq-nr_
+     * instead of retransmitting, then A responds accepting the first SYN-ACK,
+     * and then B goes on happily using the sequence number from the first
+     * SYN-ACK, forgetting all about the second one it sent instead of sending
+     * a RST. In such a case we'll have changed the seq-nr to the new one
+     * and/or set up a new conversation instead of just ignoring that SYN-ACK.
+     *
      * XXX - Is this affected by MPTCP which can use multiple SYNs?
      */
     if (tcpd != NULL && (tcph->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
         if ((tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
-            (tcph->th_seq != tcpd->fwd->base_seq)) {
-
+            (tcph->th_seq != tcpd->fwd->base_seq ||
+             (tcpd->conversation_completeness & TCP_COMPLETENESS_RST) ||
+             (tcpd->conversation_completeness & TCP_COMPLETENESS_FIN))) {
             /* the retrieved conversation might have a different base_seq (issue 16944) */
-            /* XXX: Shouldn't this create a new conversation? Changing the
-             * base_seq will change how the previous packets in the conversation
-             * are processed in the second pass.
-             */
-            tcpd->fwd->base_seq = tcph->th_seq;
 
-            if(!tcpd->ta)
-                tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
-            tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+            if (!PINFO_FD_VISITED(pinfo)) {
+                conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
+                tcpd=get_tcp_conversation_data(conv,pinfo);
+
+                if(!tcpd->ta)
+                    tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+                tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+
+                /* As above, a new conversation */
+                conversation_is_new = TRUE;
+            }
         }
         tcpd->had_acc_ecn_setup_syn_ack = ((tcph->th_flags & (TH_AE|TH_CWR)) == TH_CWR) ||
                                           ((tcph->th_flags & (TH_AE|TH_ECE)) == TH_AE);
