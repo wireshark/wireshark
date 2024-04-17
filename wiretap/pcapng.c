@@ -4283,18 +4283,20 @@ typedef struct compute_options_size_t
     compute_option_size_func compute_option_size;
 } compute_options_size_t;
 
+/*
+ * As it says at the top of the file, an option sizer "calculates how many
+ * bytes the option's data requires, not including any padding bytes."
+ * Callers are responsible for rounding up to multiples of 4 bytes.
+ * compute_block_options_size() does that for each option in the block;
+ * option writers that call an option sizer (which helps ensure that the
+ * sizes are internally consistent) should do the same.
+ */
+
 static uint32_t pcapng_compute_string_option_size(wtap_optval_t *optval)
 {
-    uint32_t size = 0, pad;
+    uint32_t size = 0;
 
     size = (uint32_t)strlen(optval->stringval) & 0xffff;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    size += pad;
 
     return size;
 }
@@ -4302,16 +4304,9 @@ static uint32_t pcapng_compute_string_option_size(wtap_optval_t *optval)
 #if 0
 static uint32_t pcapng_compute_bytes_option_size(wtap_optval_t *optval)
 {
-    uint32_t size = 0, pad;
+    uint32_t size = 0;
 
     size = (uint32_t)g_bytes_get_size(optval->byteval) & 0xffff;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    size += pad;
 
     return size;
 }
@@ -4321,7 +4316,6 @@ static uint32_t pcapng_compute_if_filter_option_size(wtap_optval_t *optval)
 {
     if_filter_opt_t* filter = &optval->if_filterval;
     uint32_t size;
-    uint32_t pad;
 
     if (filter->type == if_filter_pcap) {
         size = (uint32_t)(strlen(filter->data.filter_str) + 1) & 0xffff;
@@ -4331,18 +4325,12 @@ static uint32_t pcapng_compute_if_filter_option_size(wtap_optval_t *optval)
         /* Unknown type; don't write it */
         size = 0;
     }
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-    size += pad;
     return size;
 }
 
 static uint32_t pcapng_compute_custom_option_size(wtap_optval_t *optval)
 {
-    size_t size, pad;
+    size_t size;
 
     /* PEN */
     size = sizeof(uint32_t);
@@ -4359,13 +4347,6 @@ static uint32_t pcapng_compute_custom_option_size(wtap_optval_t *optval)
     if (size > 65535) {
         size = 65535;
     }
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    size += pad;
 
     return (uint32_t)size;
 }
@@ -4402,16 +4383,7 @@ static uint32_t pcapng_compute_packet_hash_option_size(wtap_optval_t *optval)
      */
     /* Account for the size of the algorithm type field. */
     size += 1;
-#if 0
-    /* compute_block_option_size() handles padding. */
-    uint32_t pad;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-    size += pad;
-#endif
+
     return size;
 }
 
@@ -4442,16 +4414,7 @@ static uint32_t pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
     if (size) {
         size += 1;
     }
-#if 0
-    /* compute_block_option_size() handles padding. */
-    uint32_t pad;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-    size += pad;
-#endif
+
     return size;
 }
 
@@ -4953,11 +4916,11 @@ static bool pcapng_write_packet_verdict_option(wtap_dumper *wdh, unsigned option
     const uint32_t zero_pad = 0;
     uint32_t pad;
 
+    size = pcapng_compute_packet_verdict_option_size(optval);
+
     switch (verdict->type) {
 
     case packet_verdict_hardware:
-        /* Include type octet */
-        size = verdict->data.verdict_bytes->len + 1;
         if (size > 65535) {
             /*
              * Too big to fit in the option.
@@ -4982,7 +4945,6 @@ static bool pcapng_write_packet_verdict_option(wtap_dumper *wdh, unsigned option
         break;
 
     case packet_verdict_linux_ebpf_tc:
-        size = 9;
         option_hdr.type         = option_id;
         option_hdr.value_length = (uint16_t)size;
         if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -4998,7 +4960,6 @@ static bool pcapng_write_packet_verdict_option(wtap_dumper *wdh, unsigned option
         break;
 
     case packet_verdict_linux_ebpf_xdp:
-        size = 9;
         option_hdr.type         = option_id;
         option_hdr.value_length = (uint16_t)size;
         if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
