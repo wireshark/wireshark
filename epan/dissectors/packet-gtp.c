@@ -10183,8 +10183,7 @@ dissect_gtp_tpdu_by_handle(dissector_handle_t handle, tvbuff_t * tvb, packet_inf
     tvbuff_t        *next_tvb;
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(handle, next_tvb, pinfo, tree);
-    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-    col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP/");
 }
 
 static void
@@ -10985,8 +10984,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 #endif
                     proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
 
-                    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-                    col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+                    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP/");
                 }
             }
             break;
