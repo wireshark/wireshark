@@ -2225,7 +2225,7 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
     dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(meas_result_scg_fail_mrdc_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY SecurityAlgorithmConfig
+#.FN_BODY SecurityConfigSMC/securityAlgorithmConfig
   guint16 *p_ueid;
   pdcp_nr_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
