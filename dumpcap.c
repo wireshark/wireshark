@@ -2422,6 +2422,28 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
 }
 
 /*
+ * Return true if the block contains packet, event, or log data. Return false otherwise.
+ */
+static bool is_data_block(uint32_t block_type)
+{
+    // Any block types that lead to calling wtap_read_packet_bytes in
+    // wiretap/pcapng.c should be listed here.
+    switch (block_type) {
+        case BLOCK_TYPE_PB:
+        case BLOCK_TYPE_EPB:
+        case BLOCK_TYPE_SPB:
+        case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
+        case BLOCK_TYPE_SYSDIG_EVENT:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+/*
  * Read the part of the initial pcapng SHB following the block type
  * (we've already read the block type).
  */
@@ -2922,15 +2944,15 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
                        bh->block_total_length);
             break;
         }
-        if (bh->block_total_length > pcap_src->cap_pipe_max_pkt_size) {
+        if (is_data_block(bh->block_type) && bh->block_total_length > pcap_src->cap_pipe_max_pkt_size) {
             /*
             * The record contains more data than the advertised/allowed in the
             * pcapng header, do not try to read more data (do not change to
             * STATE_EXPECT_DATA) as that would not fit in the buffer and
             * instead stop with an error.
             */
-            snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-                    ld->packets_captured+1, bh->block_total_length);
+            snprintf(errmsg, errmsgl, "Block %u type 0x%08x too long (%d bytes)",
+                    ld->packets_captured+1, bh->block_type, bh->block_total_length);
             break;
         }
 
@@ -4799,7 +4821,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
             global_ld.go = FALSE;
             global_ld.err = err;
             pcap_src->dropped++;
-        } else if (bh->block_type == BLOCK_TYPE_EPB || bh->block_type == BLOCK_TYPE_SPB || bh->block_type == BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT || bh->block_type == BLOCK_TYPE_SYSDIG_EVENT || bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2 || bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
+        } else if (is_data_block(bh->block_type)) {
             /* Count packets for block types that should be dissected, i.e. ones that show up in the packet list. */
             ws_debug("Wrote a pcapng block type %u of length %d captured on interface %u.",
                    bh->block_type, bh->block_total_length, pcap_src->interface_id);
