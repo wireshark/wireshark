@@ -2507,8 +2507,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     call_dissector(ip_handle, next_tvb, pinfo, tree);
                     offset += tvb_captured_length_remaining(tvb, offset);
                 }
-                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
-                col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC/");
             }
             break;
         case ROHC_PROFILE_RTP:
@@ -2949,8 +2948,7 @@ start_over:
             call_data_dissector(next_tvb, pinfo, tree);
         }
 
-        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
-        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC/");
         return tvb_captured_length(tvb);
     }
     else if (((oct&0x80)==0x00) &&
