@@ -12,11 +12,9 @@
 
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 
-#ifndef Q_OS_WIN
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "packet_range_group_box.h"
 #include "ui/help_url.h"
-#endif // Q_OS_WIN
 
 #include <ui/packet_range.h>
 
@@ -75,9 +73,6 @@ class CaptureFileDialog : public WiresharkFileDialog
 public:
     explicit CaptureFileDialog(QWidget *parent = NULL, capture_file *cf = NULL);
     static check_savability_t checkSaveAsWithComments(QWidget *
-#if defined(Q_OS_WIN)
-            parent
-#endif // Q_OS_WIN
             , capture_file *cf, int file_type);
 
     int mergeType();
@@ -87,7 +82,6 @@ public:
 private:
     capture_file *cap_file_;
 
-#if !defined(Q_OS_WIN)
     void addMergeControls(QVBoxLayout &v_box);
     void addFormatTypeSelector(QVBoxLayout &v_box);
     void addDisplayFilterEdit(QString &display_filter);
@@ -129,19 +123,11 @@ private:
     QPushButton *save_bt_;
     topic_action_e help_topic_;
 
-#else // Q_OS_WIN
-    int file_type_;
-    int merge_type_;
-    wtap_compression_type compression_type_;
-#endif // Q_OS_WIN
-
 signals:
 
 public slots:
 
-#ifndef Q_OS_WIN
     void accept() Q_DECL_OVERRIDE;
-#endif
     int exec() Q_DECL_OVERRIDE;
     int open(QString &file_name, unsigned int &type, QString &display_filter);
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
@@ -149,11 +135,9 @@ public slots:
     int merge(QString &file_name, QString &display_filter);
 
 private slots:
-#if !defined(Q_OS_WIN)
     void fixFilenameExtension();
     void preview(const QString & path);
     void on_buttonBox_helpRequested();
-#endif // Q_OS_WIN
 };
 
 #endif // CAPTURE_FILE_DIALOG_H

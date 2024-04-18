@@ -1999,9 +1999,6 @@ if(WIN32)
 	set(PLATFORM_UI_SRC
 		ui/win32/file_dlg_win32.cpp
 	)
-	set(PLATFORM_UI_RC_FILES
-		resources/file_dlg_win32.rc
-	)
 elseif(APPLE)
 	set(PLATFORM_UI_SRC
 		ui/macosx/cocoa_bridge.mm

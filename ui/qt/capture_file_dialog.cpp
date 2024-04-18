@@ -17,12 +17,6 @@
 #include "capture_file_dialog.h"
 
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#include "ui/packet_range.h"
-#include "ui/win32/file_dlg_win32.h"
-#else // Q_OS_WIN
-
 #include <errno.h>
 #include "wsutil/filesystem.h"
 #include "wsutil/nstime.h"
@@ -40,7 +34,6 @@
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
 #include <QVBoxLayout>
-#endif // ! Q_OS_WIN
 
 #include <QPushButton>
 #include <QMessageBox>
@@ -54,18 +47,13 @@ static const double HEIGHT_SCALE_FACTOR = 1.4;
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf) :
     WiresharkFileDialog(parent),
     cap_file_(cf),
-#if !defined(Q_OS_WIN)
     display_filter_edit_(NULL),
     default_ft_(-1),
     save_bt_(NULL),
     help_topic_(TOPIC_ACTION_NONE)
-#else
-    file_type_(-1)
-#endif
 {
    setDirectory(mainApp->openDialogInitialDir());
 
-#if !defined(Q_OS_WIN)
     // Add extra widgets
     // https://wiki.qt.io/Qt_project_org_faq#How_can_I_add_widgets_to_my_QFileDialog_instance.3F
     setOption(QFileDialog::DontUseNativeDialog, true);
@@ -82,10 +70,6 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf) :
     // Left and right boxes for controls and preview
     h_box->addLayout(&left_v_box_);
     h_box->addLayout(&right_v_box_);
-
-#else // Q_OS_WIN
-    merge_type_ = 0;
-#endif // Q_OS_WIN
 }
 
 check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
@@ -213,7 +197,6 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, c
 }
 
 
-#ifndef Q_OS_WIN
 void CaptureFileDialog::accept()
 {
     //
@@ -234,7 +217,6 @@ void CaptureFileDialog::accept()
     }
     WiresharkFileDialog::accept();
 }
-#endif // ! Q_OS_WIN
 
 
 // You have to use open, merge, saveAs, or exportPackets. We should
@@ -244,98 +226,6 @@ int CaptureFileDialog::exec() {
 }
 
 
-
-// Windows
-// We use native file dialogs here, rather than the Qt dialog
-#ifdef Q_OS_WIN
-int CaptureFileDialog::selectedFileType() {
-    return file_type_;
-}
-
-wtap_compression_type CaptureFileDialog::compressionType() {
-    return compression_type_;
-}
-
-int CaptureFileDialog::open(QString &file_name, unsigned int &type, QString &display_filter) {
-    QString title_str = mainApp->windowTitleString(tr("Open Capture File"));
-    GString *fname = g_string_new(file_name.toUtf8().constData());
-    GString *dfilter = g_string_new(display_filter.toUtf8().constData());
-    bool wof_status;
-
-    // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
-    wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, &type, dfilter);
-    file_name = fname->str;
-    display_filter = dfilter->str;
-
-    g_string_free(fname, true);
-    g_string_free(dfilter, true);
-
-    return (int) wof_status;
-}
-
-check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
-    QString title_str = mainApp->windowTitleString(tr("Save Capture File As"));
-    GString *fname = g_string_new(file_name.toUtf8().constData());
-    bool wsf_status;
-
-    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
-    file_name = fname->str;
-
-    g_string_free(fname, true);
-
-    if (wsf_status) {
-        return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
-    }
-
-    return CANCELLED;
-}
-
-check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
-    QString title_str = mainApp->windowTitleString(tr("Export Specified Packets"));
-    GString *fname = g_string_new(file_name.toUtf8().constData());
-    bool wespf_status;
-
-    if (selRange.length() > 0)
-    {
-        packet_range_convert_selection_str(range, selRange.toUtf8().constData());
-    }
-
-    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), cap_file_, fname, &file_type_, &compression_type_, range);
-    file_name = fname->str;
-
-    g_string_free(fname, true);
-
-    if (wespf_status) {
-        return checkSaveAsWithComments(parentWidget(), cap_file_, file_type_);
-    }
-
-    return CANCELLED;
-}
-
-int CaptureFileDialog::merge(QString &file_name, QString &display_filter) {
-    QString title_str = mainApp->windowTitleString(tr("Merge Capture File"));
-    GString *fname = g_string_new(file_name.toUtf8().constData());
-    GString *dfilter = g_string_new(display_filter.toUtf8().constData());
-    bool wmf_status;
-
-
-    wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), title_str.toStdWString().c_str(), fname, dfilter, &merge_type_);
-    file_name = fname->str;
-    display_filter = dfilter->str;
-
-    g_string_free(fname, true);
-    g_string_free(dfilter, true);
-
-    return (int) wmf_status;
-}
-
-int CaptureFileDialog::mergeType() {
-    return merge_type_;
-}
-
-#else // ! Q_OS_WIN
-// Not Windows
-// We use the Qt dialogs here
 QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
 {
     QString extension_type_name;
@@ -1011,5 +901,3 @@ void CaptureFileDialog::on_buttonBox_helpRequested()
 {
     if (help_topic_ != TOPIC_ACTION_NONE) mainApp->helpTopicAction(help_topic_);
 }
-
-#endif // ! Q_OS_WIN

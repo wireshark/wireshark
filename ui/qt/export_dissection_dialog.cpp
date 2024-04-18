@@ -9,12 +9,6 @@
 
 #include "export_dissection_dialog.h"
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#include "ui/packet_range.h"
-#include "ui/win32/file_dlg_win32.h"
-#else // Q_OS_WIN
-
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
 #include "ui/util.h"
@@ -28,11 +22,9 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QPushButton>
-#endif // Q_OS_WIN
 
 #include "main_application.h"
 
-#if !defined(Q_OS_WIN)
 static const QStringList export_extensions = QStringList()
     << ""
     << "txt"
@@ -43,25 +35,16 @@ static const QStringList export_extensions = QStringList()
     << "c"
     << "json";
 
-#endif
-
 ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type, QString selRange):
     WiresharkFileDialog(parent),
     export_type_(export_type),
     cap_file_(cap_file)
-#if !defined(Q_OS_WIN)
     , save_bt_(NULL)
-#else
-    , sel_range_(selRange)
-#endif /* Q_OS_WIN */
 {
     setWindowTitle(mainApp->windowTitleString(tr("Export Packet Dissections")));
 
     setDirectory(mainApp->openDialogInitialDir());
 
-#if !defined(Q_OS_WIN)
-    // Add extra widgets
-    // https://wiki.qt.io/Qt_project_org_faq#How_can_I_add_widgets_to_my_QFileDialog_instance.3F
     setOption(QFileDialog::DontUseNativeDialog, true);
     QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
     QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
@@ -124,30 +107,21 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
 
     connect(this, SIGNAL(filesSelected(QStringList)), this, SLOT(dialogAccepted(QStringList)));
-#else // Q_OS_WIN
-#endif // Q_OS_WIN
 }
 
 ExportDissectionDialog::~ExportDissectionDialog()
 {
-#if !defined(Q_OS_WIN)
     g_free(print_args_.file);
     packet_range_cleanup(&print_args_.range);
-#endif
 }
 
 void ExportDissectionDialog::show()
 {
-#if !defined(Q_OS_WIN)
     if (cap_file_) {
         WiresharkFileDialog::show();
     }
-#else // Q_OS_WIN
-    win32_export_file((HWND)parentWidget()->effectiveWinId(), windowTitle().toStdWString().c_str(), cap_file_, export_type_, sel_range_.toStdString().c_str());
-#endif // Q_OS_WIN
 }
 
-#ifndef Q_OS_WIN
 void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
 {
     if (selected.length() > 0) {
@@ -269,4 +243,3 @@ void ExportDissectionDialog::on_buttonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_EXPORT_FILE_DIALOG);
 }
-#endif // Q_OS_WIN
