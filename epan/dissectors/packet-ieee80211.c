@@ -49971,11 +49971,11 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_mcsset_extended_nss_bw_capable,
-     {"Extended NSS BW Capable", "wlan.vht.ncsset.ext_nss_bw_cap",
+     {"VHT Extended NSS BW Capable", "wlan.vht.mcsset.vht_ext_nss_bw_capable",
       FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x2000, NULL, HFILL }},
 
     {&hf_ieee80211_vht_mcsset_reserved,
-     {"Reserved", "wlan.vht.ncsset.reserved",
+     {"Reserved", "wlan.vht.mcsset.reserved",
       FT_UINT16, BASE_HEX, NULL, 0xc000, NULL, HFILL }},
 
     {&hf_ieee80211_vht_op,
@@ -51071,12 +51071,12 @@ proto_register_ieee80211(void)
       "(not interpreted)", HFILL }},
 
     {&hf_ieee80211_tag_measure_report_measurement_token,
-     {"Measurement Token", "wlan.measure.req.token",
+     {"Measurement Token", "wlan.measure.rep.token",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode,
-     {"Measurement Report Mode", "wlan.measure.req.mode",
+     {"Measurement Report Mode", "wlan.measure.rep.mode",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
@@ -51341,12 +51341,12 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_subelement_length,
-     {"Length", "wlan.measure.req.sub.length",
+     {"Length", "wlan.measure.rep.sub.length",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_beacon_sub_id,
-     {"SubElement ID", "wlan.measure.req.beacon.sub.id",
+     {"SubElement ID", "wlan.measure.rep.beacon.sub.id",
       FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_report_beacon_sub_id_vals), 0,
       NULL, HFILL }},
 
