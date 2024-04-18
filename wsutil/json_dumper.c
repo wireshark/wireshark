@@ -11,11 +11,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+
 #include <glib.h>
 
 #include "json_dumper.h"
-#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
-
 #include <math.h>
 
 #include <wsutil/wslog.h>

@@ -9,9 +9,9 @@
  */
 
 #include "config.h"
-#include "filesystem.h"
-
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+
+#include "filesystem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
