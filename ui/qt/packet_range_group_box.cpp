@@ -113,12 +113,23 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->selectedDisplayedLabel->setEnabled(displayed_checked);
 
         if (range_->include_dependents) {
-            pr_ui_->selectedCapturedLabel->setText(QString::number(range_->selected_plus_depends_cnt));
-            pr_ui_->selectedDisplayedLabel->setText(QString::number(range_->displayed_selected_plus_depends_cnt));
+            label_count = range_->selected_plus_depends_cnt;
         } else {
-            pr_ui_->selectedCapturedLabel->setText(QString::number(range_->selection_range_cnt));
-            pr_ui_->selectedDisplayedLabel->setText(QString::number(range_->displayed_selection_range_cnt));
+            label_count = range_->selection_range_cnt;
         }
+        if (range_->remove_ignored) {
+            label_count -= range_->ignored_selection_range_cnt;
+        }
+        pr_ui_->selectedCapturedLabel->setText(QString::number(label_count));
+        if (range_->include_dependents) {
+            label_count = range_->displayed_selected_plus_depends_cnt;
+        } else {
+            label_count = range_->displayed_selection_range_cnt;
+        }
+        if (range_->remove_ignored) {
+            label_count -= range_->displayed_ignored_selection_range_cnt;
+        }
+        pr_ui_->selectedDisplayedLabel->setText(QString::number(label_count));
     } else {
         if (range_->process == range_process_selected) {
             pr_ui_->allButton->setChecked(true);
