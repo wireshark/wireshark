@@ -92,10 +92,11 @@ typedef struct iso15765_identifier {
 
 typedef struct iso15765_frame {
     guint32  seq;
-    guint32  offset;
+    guint32  last_byte_seen;
     guint32  len;
+    guint32  bytes_in_cf;
     gboolean error;
-    gboolean complete;
+    gboolean ff_seen;
     guint16  last_frag_id;
     guint8   frag_id_high[16];
 } iso15765_frame_t;
@@ -703,6 +704,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 iso15765_frame_t *iso15765_frame = wmem_new0(wmem_file_scope(), iso15765_frame_t);
                 iso15765_frame->seq = iso15765_info->seq = ++msg_seqid;
                 iso15765_frame->len = full_len;
+                iso15765_frame->bytes_in_cf = MAX(8, tvb_reported_length(tvb)) - pci_offset - 1;
 
                 wmem_map_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
             }
@@ -808,6 +810,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 iso15765_frame_t *iso15765_frame = wmem_new0(wmem_file_scope(), iso15765_frame_t);
                 iso15765_frame->seq = iso15765_info->seq = ++msg_seqid;
                 iso15765_frame->len = full_len;
+                iso15765_frame->bytes_in_cf = MAX(8, tvb_reported_length(tvb)) - pci_offset - 1;
 
                 wmem_map_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
             }
@@ -853,25 +856,37 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             if (!iso15765_frame->error) {
                 gboolean       save_fragmented = pinfo->fragmented;
                 guint32        len = data_length;
+                guint32        missing_bytes = 0;
                 fragment_head *frag_msg;
 
                 /* Check if it's the last packet */
                 if (!(pinfo->fd->visited)) {
                     iso15765_info->bytes_used = data_length;
 
-                    /* Update the last_frag_id */
-                    if (frag_id > iso15765_frame->last_frag_id) {
+                    if (frag_id > iso15765_frame->last_frag_id || !iso15765_frame->ff_seen) {
+                        if (frag_id > iso15765_frame->last_frag_id + 1) {
+                            missing_bytes = (frag_id - iso15765_frame->last_frag_id - 1) * iso15765_frame->bytes_in_cf;
+                        }
+                        /* Update the last_frag_id */
+                        iso15765_frame->ff_seen = TRUE;
                         iso15765_frame->last_frag_id = frag_id;
-                    }
 
-                    iso15765_frame->offset += len;
-                    if (iso15765_frame->offset >= iso15765_frame->len) {
-                        iso15765_info->last = TRUE;
-                        iso15765_frame->complete = TRUE;
-                        len -= (iso15765_frame->offset - iso15765_frame->len);
 
-                        /* Determine how many bytes were needed to calculate padding latter. */
-                        iso15765_info->bytes_used = data_length - (iso15765_frame->offset - iso15765_frame->len);
+                        /* Here we use iso15765_frame->last_byte_seen to make sure that we correctly detect
+                         * the last Consecutive Frame, even if some frames were missing in the middle.
+                         * Note that the last Consecutive Frame might not be the last packet,
+                         * as it might arrive out of order.
+                         */
+                        iso15765_frame->last_byte_seen += missing_bytes;
+                        iso15765_frame->last_byte_seen += len;
+                        if (iso15765_frame->last_byte_seen >= iso15765_frame->len) {
+                            iso15765_info->last = TRUE;
+                            len -= (iso15765_frame->last_byte_seen - iso15765_frame->len);
+
+                            /* Determine how many bytes were needed to calculate padding latter. */
+                            iso15765_info->bytes_used = data_length - (iso15765_frame->last_byte_seen - iso15765_frame->len);
+                        }
+
                     }
                 }
                 pinfo->fragmented = TRUE;
