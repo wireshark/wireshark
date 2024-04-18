@@ -1,8 +1,8 @@
 The X11 dissector generator is no longer run automatically.
 
-To run the dissector generator, you will need perl 5.10 and the XML::Twig
-module from CPAN. You will also need 'git' to retrieve the lastest protocol
-descriptions.
+To run the dissector generator, you will need perl 5.10 or later and the
+XML::Twig module from CPAN. You will also need 'git' to retrieve the
+latest protocol descriptions.
 
 Once you have those, you also need the XML protocol descriptions. In the
 epan/dissectors directory, run the following commands:
