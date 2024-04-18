@@ -503,7 +503,7 @@ static int hf_cigi2_sensor_control_level;
 static int hf_cigi2_sensor_control_ac_coupling;
 static int hf_cigi2_sensor_control_noise;
 
-static const true_false_string cigi2_sensor_control_polarity_tfs = {
+static const true_false_string black_white_tfs = {
     "Black",
     "White"
 };
@@ -1025,7 +1025,7 @@ static const true_false_string cigi3_entity_control_collision_detection_request_
     "No Request"
 };
 
-static const true_false_string cigi3_entity_control_inherit_alpha_tfs = {
+static const true_false_string inherited_not_inherited_tfs = {
     "Inherited",
     "Not Inherited"
 };
@@ -1888,11 +1888,6 @@ static const true_false_string cigi3_sensor_control_polarity_tfs = {
     "White hot"
 };
 
-static const true_false_string cigi3_sensor_control_track_white_black_tfs = {
-    "Black",
-    "White"
-};
-
 
 /* CIGI4 Sensor Control */
 #define CIGI4_PACKET_SIZE_SENSOR_CONTROL 32
@@ -1927,12 +1922,6 @@ static const true_false_string cigi4_sensor_control_polarity_tfs = {
     "Black hot",
     "White hot"
 };
-
-static const true_false_string cigi4_sensor_control_track_white_black_tfs = {
-    "Black",
-    "White"
-};
-
 
 
 /* CIGI3 Motion Tracker Control */
@@ -2785,11 +2774,6 @@ static const true_false_string cigi3_3_symbol_control_flash_control_tfs = {
     "Continue"
 };
 
-static const true_false_string cigi3_3_symbol_control_inherit_color_tfs = {
-    "Inherited",
-    "Not Inherited"
-};
-
 
 /* CIGI4 Symbol Control */
 #define CIGI4_PACKET_SIZE_SYMBOL_CONTROL 48
@@ -2826,10 +2810,6 @@ static const true_false_string cigi4_symbol_control_flash_control_tfs = {
     "Continue"
 };
 
-static const true_false_string cigi4_symbol_control_inherit_color_tfs = {
-    "Inherited",
-    "Not Inherited"
-};
 
 /* CIGI3_3 Short Symbol Control */
 #define CIGI3_PACKET_SIZE_SHORT_SYMBOL_CONTROL_DEFINITION 32
@@ -10741,7 +10721,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_entity_control_inherit_alpha,
             { "Inherit Alpha", "cigi.entity_control.inherit_alpha",
-                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_inherit_alpha_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
                 "Specifies whether the entity's alpha is combined with the apparent alpha of its parent", HFILL }
         },
         { &hf_cigi3_entity_control_ground_ocean_clamp,
@@ -10840,7 +10820,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_entity_control_inherit_alpha,
             { "Inherit Alpha", "cigi.entity_control.inherit_alpha",
-                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_inherit_alpha_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
                 "Specifies whether the entity's alpha is combined with the apparent alpha of its parent", HFILL }
         },
         { &hf_cigi3_3_entity_control_ground_ocean_clamp,
@@ -13314,7 +13294,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_control_polarity,
             { "Polarity", "cigi.sensor_control.polarity",
-                FT_BOOLEAN, 8, TFS(&cigi2_sensor_control_polarity_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&black_white_tfs), 0x02,
                 "Indicates whether this sensor is showing white hot or black hot", HFILL }
         },
         { &hf_cigi2_sensor_control_line_dropout,
@@ -13339,7 +13319,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_control_track_polarity,
             { "Track White/Black", "cigi.sensor_control.track_polarity",
-                FT_BOOLEAN, 8, TFS(&cigi2_sensor_control_polarity_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&black_white_tfs), 0x04,
                 "Identifies whether the weapons sensor will track wither white or black", HFILL }
         },
         { &hf_cigi2_sensor_control_gain,
@@ -13401,7 +13381,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_control_track_white_black,
             { "Track White/Black", "cigi.sensor_control.track_white_black",
-                FT_BOOLEAN, 8, TFS(&cigi3_sensor_control_track_white_black_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&black_white_tfs), 0x10,
                 "Specifies whether the sensor tracks white or black", HFILL }
         },
         { &hf_cigi3_sensor_control_track_mode,
@@ -13474,7 +13454,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi4_sensor_control_track_white_black,
             { "Track White/Black", "cigi.sensor_control.track_white_black",
-                FT_BOOLEAN, 8, TFS(&cigi4_sensor_control_track_white_black_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&black_white_tfs), 0x10,
                 "Specifies whether the sensor tracks white or black", HFILL }
         },
         { &hf_cigi4_sensor_control_track_mode,
@@ -17074,7 +17054,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_control_inherit_color,
             { "Inherit Color", "cigi.symbol_control.inherit_color",
-                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_inherit_color_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
                 "Specifies whether the symbol inherits color from a parent symbol", HFILL }
         },
         { &hf_cigi3_3_symbol_control_parent_symbol_ident,
@@ -17176,7 +17156,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi4_symbol_control_inherit_color,
             { "Inherit Color", "cigi.symbol_control.inherit_color",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_control_inherit_color_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
                 "Specifies whether the symbol inherits color from a parent symbol", HFILL }
         },
         { &hf_cigi4_symbol_control_parent_symbol_ident,
@@ -17280,7 +17260,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_short_symbol_control_inherit_color,
             { "Inherit Color", "cigi.short_symbol_control.inherit_color",
-                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_inherit_color_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
                 "Specifies whether the symbol inherits color from a parent symbol", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attribute_select1,
@@ -17382,7 +17362,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi4_short_symbol_control_inherit_color,
             { "Inherit Color", "cigi.short_symbol_control.inherit_color",
-                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_inherit_color_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
                 "Specifies whether the symbol inherits color from a parent symbol", HFILL }
         },
         { &hf_cigi4_short_symbol_control_attribute_select1,
