@@ -4143,7 +4143,8 @@ static bool
 sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_data)
 {
     register_follow_t *follower = (register_follow_t *) value;
-    packet_info *pi = (packet_info *) user_data;
+    epan_dissect_t *edt = (epan_dissect_t *) user_data;
+    packet_info *pi = &edt->pi;
 
     const int proto_id = get_follow_proto_id(follower);
 
@@ -4155,7 +4156,7 @@ sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_dat
         const char *layer_proto = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
         char *follow_filter;
 
-        follow_filter = get_follow_conv_func(follower)(NULL, pi, &ignore_stream, &ignore_sub_stream);
+        follow_filter = get_follow_conv_func(follower)(edt, pi, &ignore_stream, &ignore_sub_stream);
 
         json_dumper_begin_array(&dumper);
         json_dumper_value_string(&dumper, layer_proto);
@@ -4327,7 +4328,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
     }
 
     sharkd_json_array_open("fol");
-    follow_iterate_followers(sharkd_follower_visit_layers_cb, pi);
+    follow_iterate_followers(sharkd_follower_visit_layers_cb, edt);
     sharkd_json_array_close();
 
     sharkd_json_result_epilogue();
