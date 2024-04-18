@@ -3145,6 +3145,15 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
         }
         params->blf_data->start_of_last_obj = start_pos;
 
+        if (!params->random) {
+            /* Make sure that we start after this object next time,
+             * but only if it's a linear read. We can have random reads
+             * during the linear read, so we have to make sure we don't
+             * lose track of our position.
+             */
+            params->blf_data->current_real_seek_pos = start_pos + MAX(MAX(16, header.object_length), header.header_length);
+        }
+
         switch (header.header_type) {
         case BLF_HEADER_TYPE_DEFAULT:
             if (!blf_read_log_object_header(params, err, err_info, start_pos + sizeof(blf_blockheader_t), start_pos + header.header_length, &logheader)) {
@@ -3179,9 +3188,6 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             ws_debug("unknown header type");
             return false;
         }
-
-        /* already making sure that we start after this object next time. */
-        params->blf_data->current_real_seek_pos = start_pos + MAX(MAX(16, header.object_length), header.header_length);
 
         if (metadata_cont && header.object_type != BLF_OBJTYPE_APP_TEXT) {
             /* If we're in the middle of a sequence of AppText metadata objects,
