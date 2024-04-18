@@ -8031,12 +8031,17 @@ static int hf_ieee80211_tag_rsnx;
 static int hf_ieee80211_tag_rsnx_length;
 static int hf_ieee80211_tag_rsnx_protected_twt_operations_support;
 static int hf_ieee80211_tag_rsnx_sae_hash_to_element;
-static int hf_ieee80211_tag_rsnx_reserved_b6b7;
+static int hf_ieee80211_tag_rsnx_sae_pk;
+static int hf_ieee80211_tag_rsnx_protected_wur_frame_support;
 /* octet 2 */
 static int hf_ieee80211_tag_rsnx_secure_ltf_support;
 static int hf_ieee80211_tag_rsnx_secure_rtt_supported;
-static int hf_ieee80211_tag_rsnx_range_protection_required;
-static int hf_ieee80211_tag_rsnx_reserved_b11thru15;
+static int hf_ieee80211_tag_rsnx_urnm_mfpr_x20;
+static int hf_ieee80211_tag_rsnx_protected_announce_support;
+static int hf_ieee80211_tag_rsnx_pbac;
+static int hf_ieee80211_tag_rsnx_extended_s1g_action_protection;
+static int hf_ieee80211_tag_rsnx_spp_amsdu_capable;
+static int hf_ieee80211_tag_rsnx_urnm_mfpr;
 static int hf_ieee80211_tag_rsnx_reserved;
 
 
@@ -34633,14 +34638,19 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     &hf_ieee80211_tag_rsnx_length,
     &hf_ieee80211_tag_rsnx_protected_twt_operations_support,
     &hf_ieee80211_tag_rsnx_sae_hash_to_element,
-    &hf_ieee80211_tag_rsnx_reserved_b6b7,
+    &hf_ieee80211_tag_rsnx_sae_pk,
+    &hf_ieee80211_tag_rsnx_protected_wur_frame_support,
     NULL
   };
   static int * const octet2[] = {
     &hf_ieee80211_tag_rsnx_secure_ltf_support,
     &hf_ieee80211_tag_rsnx_secure_rtt_supported,
-    &hf_ieee80211_tag_rsnx_range_protection_required,
-    &hf_ieee80211_tag_rsnx_reserved_b11thru15,
+    &hf_ieee80211_tag_rsnx_urnm_mfpr_x20,
+    &hf_ieee80211_tag_rsnx_protected_announce_support,
+    &hf_ieee80211_tag_rsnx_pbac,
+    &hf_ieee80211_tag_rsnx_extended_s1g_action_protection,
+    &hf_ieee80211_tag_rsnx_spp_amsdu_capable,
+    &hf_ieee80211_tag_rsnx_urnm_mfpr,
     NULL
   };
 
@@ -58031,15 +58041,19 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_rsnx_protected_twt_operations_support,
       {"Protected TWT Operations Support", "wlan.rsnx.protected_twt_operations_support",
-       FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+       FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_sae_hash_to_element,
       {"SAE Hash to element", "wlan.rsnx.sae_hash_to_element",
-       FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
+       FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_rsnx_reserved_b6b7,
-      {"Reserved", "wlan.rsnx.reserved",
-       FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+    {&hf_ieee80211_tag_rsnx_sae_pk,
+      {"SAE-PK", "wlan.rsnx.sae_pk",
+       FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_protected_wur_frame_support,
+      {"Protected WUR Frame Support", "wlan.rsnx.protected_wur_frame_support",
+       FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_secure_ltf_support,
       {"Secure LTF Support", "wlan.rsnx.secure_ltf_support",
@@ -58049,13 +58063,29 @@ proto_register_ieee80211(void)
       {"Secure RTT Supported", "wlan.rsnx.secure_rtt_supported",
        FT_BOOLEAN, 8, NULL, GENMASK(1, 1), NULL, HFILL }},
 
-    {&hf_ieee80211_tag_rsnx_range_protection_required,
-      {"Range Protection Required (RNM-MFP)", "wlan.rsnx.rnmmfp",
-       FT_BOOLEAN, 8, NULL, GENMASK(2, 2), NULL, HFILL }},
+    {&hf_ieee80211_tag_rsnx_urnm_mfpr_x20,
+      {"URNM-MFPR-X20", "wlan.rsnx.urnm_mfpr_x20",
+       FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_rsnx_reserved_b11thru15,
-      {"Reserved", "wlan.rsnx.reserved.b11thru15",
-       FT_UINT8, BASE_HEX, NULL, GENMASK(7, 3), NULL, HFILL }},
+    {&hf_ieee80211_tag_rsnx_protected_announce_support,
+      {"Protected Announce Support", "wlan.rsnx.protected_announce_support",
+       FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_pbac,
+      {"PBAC", "wlan.rsnx.pbac",
+       FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_extended_s1g_action_protection,
+      {"Extended S1G Action Protection", "wlan.rsnx.extended_s1g_action_protection",
+       FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_spp_amsdu_capable,
+      {"SPP AMSDU Capable", "wlan.rsnx.spp_amsdu_capable",
+       FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_urnm_mfpr,
+      {"URNM-MFPR", "wlan.rsnx.urnm_mfpr",
+       FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_reserved,
       {"Reserved", "wlan.rsnx.reserved",
