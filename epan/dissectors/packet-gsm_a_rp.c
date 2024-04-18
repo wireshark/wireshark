@@ -26,6 +26,7 @@
 #include <wsutil/wsjson.h>
 
 #include "packet-gsm_a_common.h"
+#include "packet-media-type.h"
 
 void proto_register_gsm_a_rp(void);
 void proto_reg_handoff_gsm_a_rp(void);
@@ -488,7 +489,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 static int
-dissect_nf_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nf_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, media_content_info_t *content_info)
 {
 	tvbuff_t* json_tvb;
 	int ret;
@@ -496,6 +497,8 @@ dissect_nf_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char *json_data;
 	const char *content_id;
 
+	if (!gsm_a_dtap_handle || !content_info || content_info->type > MEDIA_CONTAINER_HTTP_OTHERS || !content_info->content_id)
+		return 0;
 	json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
 	if (!json_tvb)
 		return 0;
@@ -510,18 +513,19 @@ dissect_nf_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!cur_tok)
 		return 0;
 	content_id = json_get_string(json_data, cur_tok, "contentId");
-	if (content_id && !strcmp(content_id, "sms") && gsm_a_dtap_handle)
+	if (content_id && !strcmp(content_id, content_info->content_id))
 		return call_dissector_only(gsm_a_dtap_handle, tvb, pinfo, tree, NULL);
 
 	return 0;
 }
 
 static int
-dissect_rp_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rp_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int ret;
+	media_content_info_t *content_info = (media_content_info_t *)data;
 
-	ret = dissect_nf_media_type(tvb, pinfo, tree);
+	ret = dissect_nf_media_type(tvb, pinfo, tree, content_info);
 	if (!ret)
 		ret = dissect_rp(tvb, pinfo, tree, NULL);
 	return ret;
