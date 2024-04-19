@@ -723,6 +723,7 @@ ber_proto_tree_add_item(packet_info *pinfo, proto_tree *tree,
                         gint length, const guint encoding)
 {
     header_field_info *hfinfo;
+    proto_item* ti;
 
     hfinfo = proto_registrar_get_nth((guint)hfindex);
     if (hfinfo != NULL) {
@@ -796,7 +797,11 @@ ber_proto_tree_add_item(packet_info *pinfo, proto_tree *tree,
             break;
         }
     }
-    return proto_tree_add_item(tree, hfindex, tvb, start, length, encoding);
+    ti = proto_tree_add_item(tree, hfindex, tvb, start, length, encoding);
+    if (length == 0) {
+        proto_item_append_text(ti, "[Empty]");
+    }
+    return ti;
 }
 
 static int
