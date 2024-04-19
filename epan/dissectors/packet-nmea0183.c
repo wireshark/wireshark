@@ -19,6 +19,10 @@ static int hf_nmea0183_unknown_field;
 static int hf_nmea0183_checksum;
 static int hf_nmea0183_checksum_calculated;
 
+static int hf_nmea0183_dpt_depth;
+static int hf_nmea0183_dpt_offset;
+static int hf_nmea0183_dpt_max_range;
+
 static int hf_nmea0183_gga_time;
 static int hf_nmea0183_gga_time_hour;
 static int hf_nmea0183_gga_time_minute;
@@ -667,6 +671,24 @@ dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return end_of_field_offset - offset + 1;
 }
 
+/* Dissect a DPT sentence. */
+static int
+dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence, NULL, "DPT sentence - Depth of Water");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_depth, "meter");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_offset, "meter");
+
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_max_range, "meter");
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a GGA sentence. The time, latitude and longitude fields is split into individual parts. */
 static int
 dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -707,7 +729,7 @@ dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_age_dgps, "second");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_dgps_station, NULL);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_dgps_station, NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -819,7 +841,11 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Data */
     offset += 1;
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
-    if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
+    if (g_ascii_strcasecmp(sentence_id, "DPT") == 0)
+    {
+        offset += dissect_nmea0183_sentence_dpt(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
     {
         offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, nmea0183_tree);
     }
@@ -906,6 +932,21 @@ void proto_register_nmea0183(void)
           FT_UINT8, BASE_HEX,
           NULL, 0x0,
           "NMEA 0183 Calculated checksum", HFILL}},
+        {&hf_nmea0183_dpt_depth,
+         {"Water depth", "nmea0183.dpt_depth",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 DPT Water depth relative to transducer", HFILL}},
+        {&hf_nmea0183_dpt_offset,
+         {"Offset", "nmea0183.dpt_offset",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 DPT Offset from transducer, positive means distance from transducer to water line, negative means distance from transducer to keel", HFILL}},
+        {&hf_nmea0183_dpt_max_range,
+         {"Maximum range", "nmea0183.dpt_max_range",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 DPT Maximum range scale in use (NMEA 3.0 and above)", HFILL}},
         {&hf_nmea0183_gga_time,
          {"UTC Time of position", "nmea0183.gga_time",
           FT_NONE, BASE_NONE,
