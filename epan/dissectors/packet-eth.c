@@ -602,8 +602,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     conversation_t *conv_deint = find_conversation_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst, conv_type,
                                  dtlc_iface, 0, 0);
     if(!conv_deint) {
-      conv_deint = conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
-                                conv_type, dtlc_iface, 0, 0);
+      conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
+                   conv_type, dtlc_iface, 0, 0);
     }
   }
 

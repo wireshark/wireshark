@@ -3666,7 +3666,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, underlying_conv->conv_index, NO_PORT_X);
             if(!conv) {
-                conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6,
+                conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6,
                                                      0, 0, underlying_conv->conv_index, NO_PORTS);
 
                 conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, underlying_conv->conv_index, NO_PORT_X);

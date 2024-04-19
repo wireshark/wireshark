@@ -2394,7 +2394,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
       conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, underlying_conv->conv_index, NO_PORT_X);
       if(!conv) {
-        conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP,
+        conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP,
                                     0, 0, underlying_conv->conv_index, NO_PORTS);
 
         conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IP, 0, 0, underlying_conv->conv_index, NO_PORT_X);

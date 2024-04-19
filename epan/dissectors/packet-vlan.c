@@ -339,7 +339,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
           if(!conv) {
             /* ETH _IN moulting into _IV */
-            conv = conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
+            conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
                                 conv_type, dtlc_iface, pinfo->vlan_id, 0);
           }
         }
@@ -357,7 +357,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
           if(!conv) {
             /* ETH _NN moulting into _NV */
-            conv = conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
+            conversation_new_deinterlacer(pinfo->num, &pinfo->src, &pinfo->dst,
                                 conv_type, dtlc_iface, pinfo->vlan_id, 0);
           }
         }
