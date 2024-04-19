@@ -1391,7 +1391,7 @@ dissect_mms_Unsigned32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
             }
             if (!mms_trans) {
                 /* create a "fake" mms_trans structure */
-                mms_trans=wmem_new(actx->pinfo->pool, mms_transaction_t);
+                mms_trans=wmem_new0(actx->pinfo->pool, mms_transaction_t);
                 mms_trans->req_frame = 0;
                 mms_trans->rep_frame = 0;
                 mms_trans->req_time = actx->pinfo->fd->abs_ts;
