@@ -72,6 +72,21 @@ static int hf_mms_iec61850_timequality80;
 static int hf_mms_iec61850_timequality40;
 static int hf_mms_iec61850_timequality20;
 static int hf_mms_iec61850_timequality1F;
+static int hf_mms_iec61850_check_bitstring;
+static int hf_mms_iec61850_check_b1;
+static int hf_mms_iec61850_check_b0;
+static int hf_mms_iec61850_orcategory;
+static int hf_mms_iec61850_beh$stval;
+static int hf_mms_iec61850_mod$stval;
+static int hf_mms_iec61850_health$stval;
+static int hf_mms_iec61850_ctlval;
+static int hf_mms_iec61850_origin;
+static int hf_mms_iec61850_origin_orcat;
+static int hf_mms_iec61850_origin_orident;
+static int hf_mms_iec61850_ctlNum;
+static int hf_mms_iec61850_T;
+static int hf_mms_iec61850_test;
+
 static int hf_mms_confirmed_RequestPDU;           /* Confirmed_RequestPDU */
 static int hf_mms_confirmed_ResponsePDU;          /* Confirmed_ResponsePDU */
 static int hf_mms_confirmed_ErrorPDU;             /* Confirmed_ErrorPDU */
@@ -439,7 +454,7 @@ static int hf_mms_specificationWithResult;        /* BOOLEAN */
 static int hf_mms_variableAccessSpecificatn;      /* VariableAccessSpecification */
 static int hf_mms_listOfAccessResult;             /* SEQUENCE_OF_AccessResult */
 static int hf_mms_listOfAccessResult_item;        /* AccessResult */
-static int hf_mms_listOfData;                     /* SEQUENCE_OF_Data */
+static int hf_mms_listOfData;                     /* T_listOfData */
 static int hf_mms_listOfData_item;                /* Data */
 static int hf_mms_Write_Response_item;            /* Write_Response_item */
 static int hf_mms_failure;                        /* DataAccessError */
@@ -472,14 +487,14 @@ static int hf_mms_listOfTypeName_item;            /* ObjectName */
 static int hf_mms_success_01;                     /* Data */
 static int hf_mms_array_01;                       /* SEQUENCE_OF_Data */
 static int hf_mms_array_item;                     /* Data */
-static int hf_mms_structure_01;                   /* SEQUENCE_OF_Data */
+static int hf_mms_structure_01;                   /* T_structure_01 */
 static int hf_mms_structure_item;                 /* Data */
 static int hf_mms_boolean_01;                     /* T_boolean */
 static int hf_mms_data_bit_string;                /* T_data_bit_string */
 static int hf_mms_integer_01;                     /* T_integer */
 static int hf_mms_unsigned_01;                    /* T_unsigned */
 static int hf_mms_floating_point;                 /* FloatingPoint */
-static int hf_mms_data_octet_string;              /* OCTET_STRING */
+static int hf_mms_data_octet_string;              /* T_data_octet_string */
 static int hf_mms_data_visible_string;            /* T_data_visible_string */
 static int hf_mms_data_binary_time;               /* T_data_binary_time */
 static int hf_mms_bcd_01;                         /* INTEGER */
@@ -771,6 +786,7 @@ static int hf_mms_Transitions_any_to_deleted;
 /* Initialize the subtree pointers */
 static int ett_mms;
 static int ett_mms_iec61850_quality_bitstring;
+static int ett_mms_iec61850_check_bitstring;
 static int ett_mms_ReportedOptFlds;
 static int ett_mms_MMSpdu;
 static int ett_mms_Confirmed_RequestPDU;
@@ -864,7 +880,7 @@ static int ett_mms_Read_Request;
 static int ett_mms_Read_Response;
 static int ett_mms_SEQUENCE_OF_AccessResult;
 static int ett_mms_Write_Request;
-static int ett_mms_SEQUENCE_OF_Data;
+static int ett_mms_T_listOfData;
 static int ett_mms_Write_Response;
 static int ett_mms_Write_Response_item;
 static int ett_mms_InformationReport;
@@ -891,6 +907,8 @@ static int ett_mms_DeleteNamedType_Request;
 static int ett_mms_DeleteNamedType_Response;
 static int ett_mms_AccessResult;
 static int ett_mms_Data;
+static int ett_mms_SEQUENCE_OF_Data;
+static int ett_mms_T_structure_01;
 static int ett_mms_VariableAccessSpecification;
 static int ett_mms_T_listOfVariable_02;
 static int ett_mms_T_listOfVariable_item_02;
@@ -1011,7 +1029,14 @@ typedef enum _itemid_type {
     IEC61850_ITEM_ID_NOT_SET = 0,
     IEC61850_ITEM_ID_CTLMODEL,
     IEC61850_ITEM_ID_Q,
-    IEC61850_ITEM_ID_OPER
+    IEC61850_ITEM_ID_OPER,
+    IEC61850_ITEM_ID_CHECK,
+    IEC61850_ITEM_ID_OR_CAT,
+    IEC61850_ITEM_ID_BEH$STVAL,
+    IEC61850_ITEM_ID_MOD$STVAL,
+    IEC61850_ITEM_ID_HEALTH$STVAL,
+    IEC61850_ITEM_ID_$BR$_OR_$RP$,
+    IEC61850_ITEM_ID_$SBOW
 } itemid_type;
 
 typedef struct _mms_transaction_t {
@@ -1128,6 +1153,7 @@ typedef struct mms_private_data_t
 #define MMS_FILEDIRECTORY    77
 
 #define MMS_OBJECTCLASS_NAMMEDVARIABLE 0
+#define MMS_OBJECTCLASS_NAMEDVARIABLELIST 2
 #define MMS_OBJECTCLASS_DOMAIN 9
 
 #define MMS_OBJECTSCOPE_VMDSPECIFIC 0
@@ -1136,6 +1162,11 @@ typedef struct mms_private_data_t
 #define MMS_IEC_61850_CONF_SERV_PDU_NOT_SET 0
 #define MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR 1
 #define MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY 2
+#define MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY 3
+#define MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY 4
+#define MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE 5
+#define MMS_IEC_61850_CONF_SERV_PDU_READ 6
+#define MMS_IEC_61850_CONF_SERV_PDU_WRITE 7
 
 typedef struct mms_actx_private_data_t
 {
@@ -1143,6 +1174,7 @@ typedef struct mms_actx_private_data_t
     int invokeid;
     iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
     int listOfAccessResult_cnt;                     /* Position in the list, 1 count */
+    int data_cnt;                                   /* Number of times data occured(depth)*/
     guint16 reported_optflds;                       /* Bitmap over included fields */
     proto_item* pdu_item;                           /* The item to append PDU info to */
     int confirmedservice_type;                      /* Requested service */
@@ -1150,6 +1182,7 @@ typedef struct mms_actx_private_data_t
     int objectscope;
     mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record */
     char* itemid_str;
+    int success;                                    /* If variable access succeded or not */
 } mms_actx_private_data_t;
 
 
@@ -1211,6 +1244,38 @@ static const value_string mms_iec6150_timeaccuracy_vals[] = {
     {31, "Unspecified"},
     {0, NULL}
 };
+
+static const value_string mms_iec6150_orcategory_vals[] = {
+    {0, "not-supported"},
+    {1, "bay-control"},
+    {2, "station-control"},
+    {3, "remote-control"},
+    {4, "automatic-bay"},
+    {5, "automatic-station"},
+    {6, "automatic-station"},
+    {7, "maintenance"},
+    {8, "process"},
+    {0, NULL}
+};
+
+static const value_string mms_iec6150_beh_vals[] = {
+    {0,"Uninitialised"},
+    {1, "on"},
+    {2, "blocked"},
+    {3, "test"},
+    {4, "test/blocked"},
+    {5, "off"},
+    {0, NULL}
+};
+
+static const value_string mms_iec6150_health_vals[] = {
+    {0,"Uninitialised"},
+    {1,"Ok"},
+    {2,"Warning"},
+    {3,"Alarm"},
+    {0, NULL}
+};
+
 /* Helper function to get or create the private data struct */
 static
 mms_private_data_t* mms_get_private_data(asn1_ctx_t* actx)
@@ -1288,6 +1353,7 @@ static int dissect_mms_VariableSpecification(bool implicit_tag _U_, tvbuff_t *tv
 static int dissect_mms_AlternateAccess(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Data -> Data/array -> Data */
+/* Data -> Data/structure -> Data */
 static int dissect_mms_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
@@ -1443,25 +1509,40 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                 private_data_add_moreCinfo_id(actx,parameter_tvb);
         }
         if ((mms_priv) && ((hf_index == hf_mms_objectName_domain_specific_itemId)||
-                (hf_index ==hf_mms_listOfIdentifier_item)||(hf_mms_listOfIdentifier_item))) {
+                (hf_index ==hf_mms_listOfIdentifier_item))) {
             private_data_add_moreCinfo_id(actx,parameter_tvb);
             if((mms_priv->mms_trans_p)&&(parameter_tvb)){
                 mms_priv->itemid_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
                 if(g_str_has_suffix(mms_priv->itemid_str,"$ctlModel")){
-                   mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
                 }else  if(g_str_has_suffix(mms_priv->itemid_str,"$q")){
-                   mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_Q;
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_Q;
                 }else if(g_str_has_suffix(mms_priv->itemid_str,"$Oper")){
                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_OPER;
+                 }else if((g_str_has_suffix(mms_priv->itemid_str,"$Oper$Check")) || (g_str_has_suffix(mms_priv->itemid_str,"$SBOw$Check"))){
+                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CHECK;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"$orCat")){
+                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_OR_CAT;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"Beh$stVal")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_BEH$STVAL;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"Mod$stVal")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_MOD$STVAL;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"Health$stVal")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_HEALTH$STVAL;
+                 }else if((g_strrstr(mms_priv->itemid_str,"$BR$") || g_strrstr(mms_priv->itemid_str,"$RP$"))){ //GetBRCBValues,GetURCBValues,)
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_$BR$_OR_$RP$;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"$SBOw")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_$SBOW;
+                    mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE;
                  }
             }
         }
 
         if ((mms_priv) && (hf_index == hf_mms_vmd_specific)){
-                const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
-                if (strcmp(vmd_specific_str, "RPT") == 0) {
-                        mms_priv->vmd_specific = IEC61850_8_1_RPT;
-                }
+            const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
+            if (strcmp(vmd_specific_str, "RPT") == 0) {
+                    mms_priv->vmd_specific = IEC61850_8_1_RPT;
+            }
         }
 
 
@@ -2309,7 +2390,7 @@ dissect_mms_Read_Request(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static const ber_sequence_t SEQUENCE_OF_Data_sequence_of[1] = {
-  { &hf_mms_listOfData_item , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mms_Data },
+  { &hf_mms_array_item      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mms_Data },
 };
 
 static int
@@ -2321,15 +2402,51 @@ dissect_mms_SEQUENCE_OF_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
+static const ber_sequence_t T_structure_01_sequence_of[1] = {
+  { &hf_mms_structure_item  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mms_Data },
+};
+
+static int
+dissect_mms_T_structure_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if((mms_priv)&& (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 3){
+                /* IEC 61850-8-1 origin, if we hgave a struct here Tm was not there */
+                hf_index = hf_mms_iec61850_origin;
+                mms_priv->data_cnt++;
+            }else if(mms_priv->data_cnt == 4){
+                /* IEC 61850-8-1 origin, if we hgave a struct here Tm was not there */
+                hf_index = hf_mms_iec61850_origin;
+            }
+        }
+    }
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      T_structure_01_sequence_of, hf_index, ett_mms_T_structure_01);
+
+
+
+  return offset;
+}
+
+
 
 static int
 dissect_mms_T_boolean(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if((mms_priv) && (mms_priv->mms_trans_p)){
         if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
             if(mms_priv->listOfAccessResult_cnt == 6){
-                    /* IEC 61850-8-1 BufOvfl */
-                    hf_index = hf_mms_iec61850_bufovfl;
+                /* IEC 61850-8-1 BufOvfl */
+                hf_index = hf_mms_iec61850_bufovfl;
+            }
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 2){
+                /* IEC 61850-8-1 ctlVal */
+                hf_index = hf_mms_iec61850_ctlval;
+            }else if(mms_priv->data_cnt == 9){
+                /* IEC 61850-8-1 Test */
+                hf_index = hf_mms_iec61850_test;
             }
         }
     }
@@ -2364,9 +2481,17 @@ static int* const quality_field_bits_oct2[] = {
     &hf_mms_iec61850_Quality0008,
     NULL
 };
+
+static int * const mms_iec61850_chec_bits[] = {
+    &hf_mms_iec61850_check_b1,
+    &hf_mms_iec61850_check_b0,
+    NULL
+};
     tvbuff_t *parameter_tvb;
+    proto_tree *sub_tree;
+
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if((mms_priv)&&(mms_priv->mms_trans_p)){
         if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
             if(mms_priv->listOfAccessResult_cnt == 2){
                     /* IEC 61850-8-1 Reported OptFlds */
@@ -2376,8 +2501,14 @@ static int* const quality_field_bits_oct2[] = {
                     hf_index = hf_mms_iec61850_inclusion_bitstring;
                 }
             }
-        }else if ((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q)){
+        }else if (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q){
             hf_index = hf_mms_iec61850_quality_bitstring;
+        }else if (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CHECK){
+            hf_index = hf_mms_iec61850_check_bitstring;
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 10){
+                hf_index = hf_mms_iec61850_check_bitstring;
+            }
         }
     }
 
@@ -2386,12 +2517,19 @@ static int* const quality_field_bits_oct2[] = {
                                     &parameter_tvb);
 
 
-    if(mms_priv){
-        if((parameter_tvb) && (mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q)){
-            proto_tree *sub_tree;
+    if((mms_priv)&&(parameter_tvb) && (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q){
             sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_quality_bitstring);
             proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, quality_field_bits_oct1, ENC_NA);
             proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 1, 1, quality_field_bits_oct2, ENC_NA);
+        }else if (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CHECK){
+            sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_check_bitstring);
+            proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, mms_iec61850_chec_bits, ENC_NA);
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 10){
+                sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_check_bitstring);
+                proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, mms_iec61850_chec_bits, ENC_NA);
+            }
         }
     }
 
@@ -2404,9 +2542,22 @@ static int* const quality_field_bits_oct2[] = {
 static int
 dissect_mms_T_integer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
-        if((mms_priv->mms_trans_p)&&(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CTLMODEL)){
+    if((mms_priv) && (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CTLMODEL){
             hf_index = hf_mms_iec61850_ctlModel;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_OR_CAT){
+            hf_index = hf_mms_iec61850_orcategory;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_BEH$STVAL){
+            hf_index = hf_mms_iec61850_beh$stval;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_MOD$STVAL){
+            hf_index = hf_mms_iec61850_beh$stval;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_HEALTH$STVAL){
+            hf_index = hf_mms_iec61850_health$stval;
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 5){
+                /* IEC 61850-8-1 Origin Catagory */
+                hf_index = hf_mms_iec61850_origin_orcat;
+            }
         }
     }
 
@@ -2423,7 +2574,7 @@ dissect_mms_T_integer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_mms_T_unsigned(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if((mms_priv) && (mms_priv->mms_trans_p)){
         if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
             if(mms_priv->listOfAccessResult_cnt == 3){
                     /* IEC 61850-8-1 SeqNum */
@@ -2431,6 +2582,11 @@ dissect_mms_T_unsigned(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
             }else if(mms_priv->listOfAccessResult_cnt == 8){
                     /* IEC 61850-8-1 ConfRev */
                     hf_index = hf_mms_iec61850_confrev;
+            }
+        }
+        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 7){
+                hf_index = hf_mms_iec61850_ctlNum;
             }
         }
     }
@@ -2450,6 +2606,26 @@ dissect_mms_FloatingPoint(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
                                        NULL);
 
         private_data_add_moreCinfo_float(actx, tvb);
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_T_data_octet_string(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if((mms_priv)&& (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 6){
+                hf_index = hf_mms_iec61850_origin_orident;
+            }
+        }
+    }
+      offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
 
 
   return offset;
@@ -2645,9 +2821,18 @@ dissect_mms_UtcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
         if(hf_index > 0)
         {
-                proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
-                proto_tree_add_bitmask_list(tree, tvb, offset+7, 1, TimeQuality_bits, ENC_BIG_ENDIAN);
+            mms_actx_private_data_t* mms_priv = (mms_actx_private_data_t*)actx->private_data;
+            if((mms_priv)&& (mms_priv->mms_trans_p)){
+                if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+                    if(mms_priv->data_cnt == 8){
+                        hf_index = hf_mms_iec61850_T;
+                    }
+                }
+            }
+            proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+            proto_tree_add_bitmask_list(tree, tvb, offset+7, 1, TimeQuality_bits, ENC_BIG_ENDIAN);
         }
+
 
 
 
@@ -2676,13 +2861,13 @@ static const value_string mms_Data_vals[] = {
 
 static const ber_choice_t Data_choice[] = {
   {   1, &hf_mms_array_01        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
-  {   2, &hf_mms_structure_01    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
+  {   2, &hf_mms_structure_01    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_T_structure_01 },
   {   3, &hf_mms_boolean_01      , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_T_boolean },
   {   4, &hf_mms_data_bit_string , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_T_data_bit_string },
   {   5, &hf_mms_integer_01      , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mms_T_integer },
   {   6, &hf_mms_unsigned_01     , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_mms_T_unsigned },
   {   7, &hf_mms_floating_point  , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_mms_FloatingPoint },
-  {   9, &hf_mms_data_octet_string, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
+  {   9, &hf_mms_data_octet_string, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_T_data_octet_string },
   {  10, &hf_mms_data_visible_string, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_T_data_visible_string },
   {  12, &hf_mms_data_binary_time, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_T_data_binary_time },
   {  13, &hf_mms_bcd_01          , BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
@@ -2698,9 +2883,16 @@ dissect_mms_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
   // Data -> Data/array -> Data
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv){
+        mms_priv->data_cnt += 1;
+    }
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Data_choice, hf_index, ett_mms_Data,
                                  NULL);
+
+
 
   actx->pinfo->dissection_depth -= 2;
   decrement_dissection_depth(actx->pinfo);
@@ -2708,9 +2900,31 @@ dissect_mms_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+static const ber_sequence_t T_listOfData_sequence_of[1] = {
+  { &hf_mms_listOfData_item , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mms_Data },
+};
+
+static int
+dissect_mms_T_listOfData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv){
+        mms_priv->data_cnt = 0;
+     }
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      T_listOfData_sequence_of, hf_index, ett_mms_T_listOfData);
+
+    if(mms_priv){
+        mms_priv->data_cnt = 0;
+     }
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t Write_Request_sequence[] = {
   { &hf_mms_variableAccessSpecificatn, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mms_VariableAccessSpecification },
-  { &hf_mms_listOfData      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
+  { &hf_mms_listOfData      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_T_listOfData },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5269,7 +5483,17 @@ dissect_mms_ConfirmedServiceRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
                     }
                 }else if(mms_priv->objectclass == MMS_OBJECTCLASS_NAMMEDVARIABLE){
                     mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY;
+                }else if(mms_priv->objectclass == MMS_OBJECTCLASS_NAMEDVARIABLELIST){
+                    mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY;
                 }
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_GETNAMEDVARIABLELISTATTRIBUTES){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY;
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_READ){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_READ;
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_WRITE){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_WRITE;
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_GETVARIABLEACCESSATTRIBUTES){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY;
             }
         }
 
@@ -5480,6 +5704,7 @@ static const ber_choice_t AccessResult_choice[] = {
 
 static int
 dissect_mms_AccessResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+    int branch_taken;
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
     if(mms_priv){
         /* If listOfAccessResult_cnt > 2 we are into the optional data.
@@ -5556,8 +5781,11 @@ dissect_mms_AccessResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AccessResult_choice, hf_index, ett_mms_AccessResult,
-                                 NULL);
+                                 &branch_taken);
 
+    if(mms_priv){
+        mms_priv->success = branch_taken;
+    }
 
 
   return offset;
@@ -8129,6 +8357,31 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                             }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY){
                                 col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetLogicalDeviceDirectoryRequest %s", mms_priv->itemid_str);
                                 proto_item_append_text(mms_priv->pdu_item, " [GetLogicalDeviceDirectoryRequest ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataSetDirectoryRequest %s", mms_priv->itemid_str);
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataSetDirectoryRequest]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataDirectoryRequest%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataDirectoryRequest]");
+                            } else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_READ){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetRCBValuesRequest %s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetRCBValuesRequest]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataValueRequest %s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetDataValueRequest]");
+                                }
+                            } else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_WRITE){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetRCBValuesRequest %s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetRCBValuesRequest]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetDataValueRequest %s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetDataValueRequest]");
+                                }
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SelectWithValueRequest %s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [SelectWithValueRequest]");
                             }
                         }else if (mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
@@ -8143,6 +8396,36 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                             }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY){
                                 col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetLogicalDeviceDirectoryResponse%s", private_data_get_moreCinfo(actx));
                                 proto_item_append_text(mms_priv->pdu_item, " [GetLogicalDeviceDirectoryResponse ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataSetDirectoryResponse%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataSetDirectoryResponse ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataDirectoryResponse%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataDirectoryResponse ]");
+                            }else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_READ){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetRCBValuesResponse");
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetRCBValuesResponse]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataValueResponse");
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetDataValueResponse ]");
+                                }
+                                if(mms_priv->success == 1){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " success");
+                                }else{
+                                     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " failure");
+                                }
+                            } else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_WRITE){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetRCBValuesResponse %s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetRCBValuesResponse]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetDataValueResponse %s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetDataValueResponse]");
+                                }
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SelectWithValueResponse %s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [SelectWithValueResponse]");
                             }
                         }else if(mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
@@ -8337,6 +8620,62 @@ void proto_register_mms(void) {
         { "Time Accuracy", "mms.iec61850.timeaccuracy",
             FT_UINT8, BASE_HEX, VALS(mms_iec6150_timeaccuracy_vals), 0x1F,
             NULL, HFILL } },
+        { &hf_mms_iec61850_check_bitstring,
+          { "Check", "mms.iec61850.check_bitstring",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_check_b1,
+        { "Synchrocheck", "mms.iec61850.synchrocheck",
+            FT_BOOLEAN, 2, NULL, 0x2,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_check_b0,
+        { "Interlock-check", "mms.iec61850.interlockcheck",
+            FT_BOOLEAN, 2, NULL, 0x1,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_orcategory,
+        { "orCategory", "mms.iec61850.orcategory",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_orcategory_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_beh$stval,
+        { "beh", "mms.iec61850.beh",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_beh_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_mod$stval,
+        { "mod", "mms.iec61850.mod",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_beh_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_health$stval,
+        { "health", "mms.iec61850.health",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_health_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_ctlval,
+        { "ctlVal", "mms.iec61850.ctlval",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_origin,
+          { "Origin", "mms.iec61850.origin",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_origin_orcat,
+        { "Origin Catagory", "mms.iec61850.orcat",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_origin_orident,
+        { "Origin Identifier", "mms.iec61850.orident",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_ctlNum,
+        { "ctlNum", "mms.iec61850.ctlnum",
+            FT_INT8, BASE_DEC, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_T,
+        { "T(Timestamp)", "mms.iec61850.timestamp",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_test,
+        { "Test", "mms.iec61850.test",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
     { &hf_mms_confirmed_RequestPDU,
       { "confirmed-RequestPDU", "mms.confirmed_RequestPDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9808,7 +10147,7 @@ void proto_register_mms(void) {
     { &hf_mms_listOfData,
       { "listOfData", "mms.listOfData",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_OF_Data", HFILL }},
+        NULL, HFILL }},
     { &hf_mms_listOfData_item,
       { "Data", "mms.Data",
         FT_UINT32, BASE_DEC, VALS(mms_Data_vals), 0,
@@ -9940,7 +10279,7 @@ void proto_register_mms(void) {
     { &hf_mms_structure_01,
       { "structure", "mms.structure",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_OF_Data", HFILL }},
+        "T_structure_01", HFILL }},
     { &hf_mms_structure_item,
       { "Data", "mms.Data",
         FT_UINT32, BASE_DEC, VALS(mms_Data_vals), 0,
@@ -9968,7 +10307,7 @@ void proto_register_mms(void) {
     { &hf_mms_data_octet_string,
       { "octet-string", "mms.data.octet-string",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "T_data_octet_string", HFILL }},
     { &hf_mms_data_visible_string,
       { "visible-string", "mms.data.visible-string",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -11118,6 +11457,8 @@ void proto_register_mms(void) {
     /* List of subtrees */
     static gint* ett[] = {
             &ett_mms,
+            &ett_mms_iec61850_quality_bitstring,
+            &ett_mms_iec61850_check_bitstring,
     &ett_mms_ReportedOptFlds,
     &ett_mms_MMSpdu,
     &ett_mms_Confirmed_RequestPDU,
@@ -11211,7 +11552,7 @@ void proto_register_mms(void) {
     &ett_mms_Read_Response,
     &ett_mms_SEQUENCE_OF_AccessResult,
     &ett_mms_Write_Request,
-    &ett_mms_SEQUENCE_OF_Data,
+    &ett_mms_T_listOfData,
     &ett_mms_Write_Response,
     &ett_mms_Write_Response_item,
     &ett_mms_InformationReport,
@@ -11238,6 +11579,8 @@ void proto_register_mms(void) {
     &ett_mms_DeleteNamedType_Response,
     &ett_mms_AccessResult,
     &ett_mms_Data,
+    &ett_mms_SEQUENCE_OF_Data,
+    &ett_mms_T_structure_01,
     &ett_mms_VariableAccessSpecification,
     &ett_mms_T_listOfVariable_02,
     &ett_mms_T_listOfVariable_item_02,

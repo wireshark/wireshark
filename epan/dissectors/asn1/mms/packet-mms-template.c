@@ -67,11 +67,27 @@ static int hf_mms_iec61850_timequality80;
 static int hf_mms_iec61850_timequality40;
 static int hf_mms_iec61850_timequality20;
 static int hf_mms_iec61850_timequality1F;
+static int hf_mms_iec61850_check_bitstring;
+static int hf_mms_iec61850_check_b1;
+static int hf_mms_iec61850_check_b0;
+static int hf_mms_iec61850_orcategory;
+static int hf_mms_iec61850_beh$stval;
+static int hf_mms_iec61850_mod$stval;
+static int hf_mms_iec61850_health$stval;
+static int hf_mms_iec61850_ctlval;
+static int hf_mms_iec61850_origin;
+static int hf_mms_iec61850_origin_orcat;
+static int hf_mms_iec61850_origin_orident;
+static int hf_mms_iec61850_ctlNum;
+static int hf_mms_iec61850_T;
+static int hf_mms_iec61850_test;
+
 #include "packet-mms-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_mms;
 static int ett_mms_iec61850_quality_bitstring;
+static int ett_mms_iec61850_check_bitstring;
 #include "packet-mms-ett.c"
 
 static expert_field ei_mms_mal_timeofday_encoding;
@@ -96,7 +112,14 @@ typedef enum _itemid_type {
     IEC61850_ITEM_ID_NOT_SET = 0,
     IEC61850_ITEM_ID_CTLMODEL,
     IEC61850_ITEM_ID_Q,
-    IEC61850_ITEM_ID_OPER
+    IEC61850_ITEM_ID_OPER,
+    IEC61850_ITEM_ID_CHECK,
+    IEC61850_ITEM_ID_OR_CAT,
+    IEC61850_ITEM_ID_BEH$STVAL,
+    IEC61850_ITEM_ID_MOD$STVAL,
+    IEC61850_ITEM_ID_HEALTH$STVAL,
+    IEC61850_ITEM_ID_$BR$_OR_$RP$,
+    IEC61850_ITEM_ID_$SBOW
 } itemid_type;
 
 typedef struct _mms_transaction_t {
@@ -213,6 +236,7 @@ typedef struct mms_private_data_t
 #define MMS_FILEDIRECTORY    77
 
 #define MMS_OBJECTCLASS_NAMMEDVARIABLE 0
+#define MMS_OBJECTCLASS_NAMEDVARIABLELIST 2
 #define MMS_OBJECTCLASS_DOMAIN 9
 
 #define MMS_OBJECTSCOPE_VMDSPECIFIC 0
@@ -221,6 +245,11 @@ typedef struct mms_private_data_t
 #define MMS_IEC_61850_CONF_SERV_PDU_NOT_SET 0
 #define MMS_IEC_61850_CONF_SERV_PDU_GET_SERV_DIR 1
 #define MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY 2
+#define MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY 3
+#define MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY 4
+#define MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE 5
+#define MMS_IEC_61850_CONF_SERV_PDU_READ 6
+#define MMS_IEC_61850_CONF_SERV_PDU_WRITE 7
 
 typedef struct mms_actx_private_data_t
 {
@@ -228,6 +257,7 @@ typedef struct mms_actx_private_data_t
     int invokeid;
     iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
     int listOfAccessResult_cnt;                     /* Position in the list, 1 count */
+    int data_cnt;                                   /* Number of times data occured(depth)*/
     guint16 reported_optflds;                       /* Bitmap over included fields */
     proto_item* pdu_item;                           /* The item to append PDU info to */
     int confirmedservice_type;                      /* Requested service */
@@ -235,6 +265,7 @@ typedef struct mms_actx_private_data_t
     int objectscope;
     mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record */
     char* itemid_str;
+    int success;                                    /* If variable access succeded or not */
 } mms_actx_private_data_t;
 
 
@@ -296,6 +327,38 @@ static const value_string mms_iec6150_timeaccuracy_vals[] = {
     {31, "Unspecified"},
     {0, NULL}
 };
+
+static const value_string mms_iec6150_orcategory_vals[] = {
+    {0, "not-supported"},
+    {1, "bay-control"},
+    {2, "station-control"},
+    {3, "remote-control"},
+    {4, "automatic-bay"},
+    {5, "automatic-station"},
+    {6, "automatic-station"},
+    {7, "maintenance"},
+    {8, "process"},
+    {0, NULL}
+};
+
+static const value_string mms_iec6150_beh_vals[] = {
+    {0,"Uninitialised"},
+    {1, "on"},
+    {2, "blocked"},
+    {3, "test"},
+    {4, "test/blocked"},
+    {5, "off"},
+    {0, NULL}
+};
+
+static const value_string mms_iec6150_health_vals[] = {
+    {0,"Uninitialised"},
+    {1,"Ok"},
+    {2,"Warning"},
+    {3,"Alarm"},
+    {0, NULL}
+};
+
 /* Helper function to get or create the private data struct */
 static
 mms_private_data_t* mms_get_private_data(asn1_ctx_t* actx)
@@ -531,12 +594,70 @@ void proto_register_mms(void) {
         { "Time Accuracy", "mms.iec61850.timeaccuracy",
             FT_UINT8, BASE_HEX, VALS(mms_iec6150_timeaccuracy_vals), 0x1F,
             NULL, HFILL } },
+        { &hf_mms_iec61850_check_bitstring,
+          { "Check", "mms.iec61850.check_bitstring",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_check_b1,
+        { "Synchrocheck", "mms.iec61850.synchrocheck",
+            FT_BOOLEAN, 2, NULL, 0x2,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_check_b0,
+        { "Interlock-check", "mms.iec61850.interlockcheck",
+            FT_BOOLEAN, 2, NULL, 0x1,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_orcategory,
+        { "orCategory", "mms.iec61850.orcategory",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_orcategory_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_beh$stval,
+        { "beh", "mms.iec61850.beh",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_beh_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_mod$stval,
+        { "mod", "mms.iec61850.mod",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_beh_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_health$stval,
+        { "health", "mms.iec61850.health",
+            FT_UINT8, BASE_DEC, VALS(mms_iec6150_health_vals), 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_ctlval,
+        { "ctlVal", "mms.iec61850.ctlval",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_origin,
+          { "Origin", "mms.iec61850.origin",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_origin_orcat,
+        { "Origin Catagory", "mms.iec61850.orcat",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_origin_orident,
+        { "Origin Identifier", "mms.iec61850.orident",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_ctlNum,
+        { "ctlNum", "mms.iec61850.ctlnum",
+            FT_INT8, BASE_DEC, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_T,
+        { "T(Timestamp)", "mms.iec61850.timestamp",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL } },
+        { &hf_mms_iec61850_test,
+        { "Test", "mms.iec61850.test",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
 #include "packet-mms-hfarr.c"
     };
 
     /* List of subtrees */
     static gint* ett[] = {
             &ett_mms,
+            &ett_mms_iec61850_quality_bitstring,
+            &ett_mms_iec61850_check_bitstring,
 #include "packet-mms-ettarr.c"
     };
 

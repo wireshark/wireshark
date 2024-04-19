@@ -127,6 +127,31 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
                             }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY){
                                 col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetLogicalDeviceDirectoryRequest %%s", mms_priv->itemid_str);
                                 proto_item_append_text(mms_priv->pdu_item, " [GetLogicalDeviceDirectoryRequest ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataSetDirectoryRequest %%s", mms_priv->itemid_str);
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataSetDirectoryRequest]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataDirectoryRequest%%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataDirectoryRequest]");
+                            } else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_READ){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetRCBValuesRequest %%s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetRCBValuesRequest]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataValueRequest %%s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetDataValueRequest]");
+                                }
+                            } else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_WRITE){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetRCBValuesRequest %%s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetRCBValuesRequest]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetDataValueRequest %%s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetDataValueRequest]");
+                                }
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SelectWithValueRequest %%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [SelectWithValueRequest]");
                             }
                         }else if (mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s%%s%%s",
@@ -141,6 +166,36 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
                             }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY){
                                 col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetLogicalDeviceDirectoryResponse%%s", private_data_get_moreCinfo(actx));
                                 proto_item_append_text(mms_priv->pdu_item, " [GetLogicalDeviceDirectoryResponse ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataSetDirectoryResponse%%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataSetDirectoryResponse ]");
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataDirectoryResponse%%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [GetDataDirectoryResponse ]");
+                            }else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_READ){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetRCBValuesResponse");
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetRCBValuesResponse]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "GetDataValueResponse");
+                                    proto_item_append_text(mms_priv->pdu_item, " [GetDataValueResponse ]");
+                                }
+                                if(mms_priv->success == 1){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " success");
+                                }else{
+                                     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " failure");
+                                }
+                            } else if (mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_WRITE){
+                                if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_$BR$_OR_$RP$){
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetRCBValuesResponse %%s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetRCBValuesResponse]");
+                                }else{
+                                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SetDataValueResponse %%s", private_data_get_moreCinfo(actx));
+                                    proto_item_append_text(mms_priv->pdu_item, " [SetDataValueResponse]");
+                                }
+                            }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+                                col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SelectWithValueResponse %%s", private_data_get_moreCinfo(actx));
+                                proto_item_append_text(mms_priv->pdu_item, " [SelectWithValueResponse]");
                             }
                         }else if(mms_has_private_data(actx)){
                             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s%%s%%s",
@@ -227,7 +282,17 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
                     }
                 }else if(mms_priv->objectclass == MMS_OBJECTCLASS_NAMMEDVARIABLE){
                     mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETLOGICALDEVICEDIRECTORY;
+                }else if(mms_priv->objectclass == MMS_OBJECTCLASS_NAMEDVARIABLELIST){
+                    mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY;
                 }
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_GETNAMEDVARIABLELISTATTRIBUTES){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETDATASETDIRECTORY;
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_READ){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_READ;
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_WRITE){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_WRITE;
+            }else if(mms_priv->confirmedservice_type == MMS_CONFIRMEDSERVICE_GETVARIABLEACCESSATTRIBUTES){
+                mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_GETDATADIRECTORY;
             }
         }
 
@@ -356,9 +421,18 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
         if(hf_index > 0)
         {
-                proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
-                proto_tree_add_bitmask_list(tree, tvb, offset+7, 1, TimeQuality_bits, ENC_BIG_ENDIAN);
+            mms_actx_private_data_t* mms_priv = (mms_actx_private_data_t*)actx->private_data;
+            if((mms_priv)&& (mms_priv->mms_trans_p)){
+                if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+                    if(mms_priv->data_cnt == 8){
+                        hf_index = hf_mms_iec61850_T;
+                    }
+                }
+            }
+            proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+            proto_tree_add_bitmask_list(tree, tvb, offset+7, 1, TimeQuality_bits, ENC_BIG_ENDIAN);
         }
+
 
 
 #.FN_BODY Unsigned32 VAL_PTR=&val
@@ -471,25 +545,40 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
                 private_data_add_moreCinfo_id(actx,parameter_tvb);
         }
         if ((mms_priv) && ((hf_index == hf_mms_objectName_domain_specific_itemId)||
-                (hf_index ==hf_mms_listOfIdentifier_item)||(hf_mms_listOfIdentifier_item))) {
+                (hf_index ==hf_mms_listOfIdentifier_item))) {
             private_data_add_moreCinfo_id(actx,parameter_tvb);
             if((mms_priv->mms_trans_p)&&(parameter_tvb)){
                 mms_priv->itemid_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
                 if(g_str_has_suffix(mms_priv->itemid_str,"$ctlModel")){
-                   mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
                 }else  if(g_str_has_suffix(mms_priv->itemid_str,"$q")){
-                   mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_Q;
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_Q;
                 }else if(g_str_has_suffix(mms_priv->itemid_str,"$Oper")){
                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_OPER;
+                 }else if((g_str_has_suffix(mms_priv->itemid_str,"$Oper$Check")) || (g_str_has_suffix(mms_priv->itemid_str,"$SBOw$Check"))){
+                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CHECK;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"$orCat")){
+                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_OR_CAT;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"Beh$stVal")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_BEH$STVAL;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"Mod$stVal")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_MOD$STVAL;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"Health$stVal")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_HEALTH$STVAL;
+                 }else if((g_strrstr(mms_priv->itemid_str,"$BR$") || g_strrstr(mms_priv->itemid_str,"$RP$"))){ //GetBRCBValues,GetURCBValues,)
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_$BR$_OR_$RP$;
+                 }else if(g_str_has_suffix(mms_priv->itemid_str,"$SBOw")){
+                    mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_$SBOW;
+                    mms_priv->mms_trans_p->conf_serv_pdu_type_req = MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE;
                  }
             }
         }
 
         if ((mms_priv) && (hf_index == hf_mms_vmd_specific)){
-                const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
-                if (strcmp(vmd_specific_str, "RPT") == 0) {
-                        mms_priv->vmd_specific = IEC61850_8_1_RPT;
-                }
+            const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
+            if (strcmp(vmd_specific_str, "RPT") == 0) {
+                    mms_priv->vmd_specific = IEC61850_8_1_RPT;
+            }
         }
 
 #.FN_BODY InformationReport/listOfAccessResult
@@ -501,7 +590,8 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 %(DEFAULT_BODY)s
 
-#.FN_BODY AccessResult
+#.FN_BODY AccessResult VAL_PTR=&branch_taken
+    int branch_taken;
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
     if(mms_priv){
         /* If listOfAccessResult_cnt > 2 we are into the optional data.
@@ -577,6 +667,43 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
     }
 
 %(DEFAULT_BODY)s
+    if(mms_priv){
+        mms_priv->success = branch_taken;
+    }
+
+#.FN_BODY Write-Request/listOfData
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv){
+        mms_priv->data_cnt = 0;
+     }
+%(DEFAULT_BODY)s
+    if(mms_priv){
+        mms_priv->data_cnt = 0;
+     }
+
+#.FN_BODY Data
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if(mms_priv){
+        mms_priv->data_cnt += 1;
+    }
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY Data/structure
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if((mms_priv)&& (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 3){
+                /* IEC 61850-8-1 origin, if we hgave a struct here Tm was not there */
+                hf_index = hf_mms_iec61850_origin;
+                mms_priv->data_cnt++;
+            }else if(mms_priv->data_cnt == 4){
+                /* IEC 61850-8-1 origin, if we hgave a struct here Tm was not there */
+                hf_index = hf_mms_iec61850_origin;
+            }
+        }
+    }
+%(DEFAULT_BODY)s
 
 #.FN_BODY Data/visible-string
 
@@ -593,6 +720,17 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
         }
     }
 %(DEFAULT_BODY)s
+
+#.FN_BODY Data/octet-string
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    if((mms_priv)&& (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 6){
+                hf_index = hf_mms_iec61850_origin_orident;
+            }
+        }
+    }
+    %(DEFAULT_BODY)s
 
 #.FN_BODY Data/bit-string VAL_PTR= &parameter_tvb
 
@@ -615,9 +753,17 @@ static int* const quality_field_bits_oct2[] = {
     &hf_mms_iec61850_Quality0008,
     NULL
 };
+
+static int * const mms_iec61850_chec_bits[] = {
+    &hf_mms_iec61850_check_b1,
+    &hf_mms_iec61850_check_b0,
+    NULL
+};
     tvbuff_t *parameter_tvb;
+    proto_tree *sub_tree;
+
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if((mms_priv)&&(mms_priv->mms_trans_p)){
         if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
             if(mms_priv->listOfAccessResult_cnt == 2){
                     /* IEC 61850-8-1 Reported OptFlds */
@@ -627,19 +773,32 @@ static int* const quality_field_bits_oct2[] = {
                     hf_index = hf_mms_iec61850_inclusion_bitstring;
                 }
             }
-        }else if ((mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q)){
+        }else if (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q){
             hf_index = hf_mms_iec61850_quality_bitstring;
+        }else if (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CHECK){
+            hf_index = hf_mms_iec61850_check_bitstring;
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 10){
+                hf_index = hf_mms_iec61850_check_bitstring;
+            }
         }
     }
 
 %(DEFAULT_BODY)s
 
-    if(mms_priv){
-        if((parameter_tvb) && (mms_priv->mms_trans_p) && (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q)){
-            proto_tree *sub_tree;
+    if((mms_priv)&&(parameter_tvb) && (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_Q){
             sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_quality_bitstring);
             proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, quality_field_bits_oct1, ENC_NA);
             proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 1, 1, quality_field_bits_oct2, ENC_NA);
+        }else if (mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CHECK){
+            sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_check_bitstring);
+            proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, mms_iec61850_chec_bits, ENC_NA);
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 10){
+                sub_tree = proto_item_add_subtree(actx->created_item, ett_mms_iec61850_check_bitstring);
+                proto_tree_add_bitmask_list(sub_tree, parameter_tvb, 0, 1, mms_iec61850_chec_bits, ENC_NA);
+            }
         }
     }
 
@@ -653,7 +812,7 @@ static int* const quality_field_bits_oct2[] = {
 
 #.FN_BODY Data/unsigned
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if((mms_priv) && (mms_priv->mms_trans_p)){
         if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
             if(mms_priv->listOfAccessResult_cnt == 3){
                     /* IEC 61850-8-1 SeqNum */
@@ -663,16 +822,29 @@ static int* const quality_field_bits_oct2[] = {
                     hf_index = hf_mms_iec61850_confrev;
             }
         }
+        if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 7){
+                hf_index = hf_mms_iec61850_ctlNum;
+            }
+        }
     }
 %(DEFAULT_BODY)s
 
 #.FN_BODY Data/boolean
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if((mms_priv) && (mms_priv->mms_trans_p)){
         if(mms_priv->vmd_specific == IEC61850_8_1_RPT ){
             if(mms_priv->listOfAccessResult_cnt == 6){
-                    /* IEC 61850-8-1 BufOvfl */
-                    hf_index = hf_mms_iec61850_bufovfl;
+                /* IEC 61850-8-1 BufOvfl */
+                hf_index = hf_mms_iec61850_bufovfl;
+            }
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 2){
+                /* IEC 61850-8-1 ctlVal */
+                hf_index = hf_mms_iec61850_ctlval;
+            }else if(mms_priv->data_cnt == 9){
+                /* IEC 61850-8-1 Test */
+                hf_index = hf_mms_iec61850_test;
             }
         }
     }
@@ -692,9 +864,22 @@ static int* const quality_field_bits_oct2[] = {
 
 #.FN_BODY Data/integer
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
-        if((mms_priv->mms_trans_p)&&(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CTLMODEL)){
+    if((mms_priv) && (mms_priv->mms_trans_p)){
+        if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_CTLMODEL){
             hf_index = hf_mms_iec61850_ctlModel;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_OR_CAT){
+            hf_index = hf_mms_iec61850_orcategory;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_BEH$STVAL){
+            hf_index = hf_mms_iec61850_beh$stval;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_MOD$STVAL){
+            hf_index = hf_mms_iec61850_beh$stval;
+        }else if(mms_priv->mms_trans_p->itemid == IEC61850_ITEM_ID_HEALTH$STVAL){
+            hf_index = hf_mms_iec61850_health$stval;
+        }else if(mms_priv->mms_trans_p->conf_serv_pdu_type_req == MMS_IEC_61850_CONF_SERV_PDU_SELECTWITHVALUE){
+            if(mms_priv->data_cnt == 5){
+                /* IEC 61850-8-1 Origin Catagory */
+                hf_index = hf_mms_iec61850_origin_orcat;
+            }
         }
     }
 
