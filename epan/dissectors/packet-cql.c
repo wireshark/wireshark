@@ -87,6 +87,7 @@ static int hf_cql_custom;
 static int hf_cql_null_value;
 static int hf_cql_int;
 static int hf_cql_uuid;
+static int hf_cql_tracing_uuid;
 static int hf_cql_port;
 static int hf_cql_timeuuid;
 static int hf_cql_varchar;
@@ -1356,6 +1357,10 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				break;
 		}
 	} else {
+		if (flags & CQL_HEADER_FLAG_TRACING) {
+			add_cql_uuid(cql_tree, hf_cql_tracing_uuid, tvb, offset);
+			offset += 16;
+		}
 		switch (opcode) {
 			case CQL_OPCODE_ERROR:
 				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message ERROR");
@@ -2474,6 +2479,15 @@ proto_register_cql(void)
 			&hf_cql_uuid,
 			{
 				"UUID", "cql.uuid",
+				FT_GUID, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_tracing_uuid,
+			{
+				"Tracing UUID", "cql.tracing_uuid",
 				FT_GUID, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
