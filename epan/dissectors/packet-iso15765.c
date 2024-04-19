@@ -36,8 +36,8 @@
  */
 
 /*
- * Support for FlexRay variant, see: https://www.autosar.org/fileadmin/user_upload/standards/classic/20-11/AUTOSAR_SWS_FlexRayARTransportLayer.pdf
- */
+ * Support for FlexRay variant, see: https://www.autosar.org/fileadmin/standards/R20-11/CP/AUTOSAR_SWS_FlexRayARTransportLayer.pdf
+*/
 
 #include "config.h"
 
