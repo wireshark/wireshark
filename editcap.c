@@ -1944,6 +1944,10 @@ main(int argc, char *argv[])
                 }
                 while (nstime_cmp(&rec->ts, &block_next) > 0) { /* time for the next file */
 
+                    /* We presumably want to write the DSBs from files given
+                     * on the command line to every file.
+                     */
+                    wtap_block_array_ref(params.dsbs_initial);
                     if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
                         cfile_close_failure_message(filename, write_err,
                                                     write_err_info);
@@ -1979,6 +1983,11 @@ main(int argc, char *argv[])
         if (split_packet_count != 0) {
             /* time for the next file? */
             if (written_count > 0 && (written_count % split_packet_count) == 0) {
+
+                /* We presumably want to write the DSBs from files given
+                 * on the command line to every file.
+                 */
+                wtap_block_array_ref(params.dsbs_initial);
                 if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
                     cfile_close_failure_message(filename, write_err,
                                                 write_err_info);
