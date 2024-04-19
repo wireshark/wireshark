@@ -792,16 +792,18 @@ ber_proto_tree_add_item(packet_info *pinfo, proto_tree *tree,
                 return ber_add_bad_length_error(pinfo, tree,
                     hfinfo->name, tvb, start, length);
             break;
-
+        case FT_STRING:
+            if (length == 0) {
+                ti = proto_tree_add_item(tree, hfindex, tvb, start, length, encoding);
+                proto_item_append_text(ti, "<MISSING>");
+                return ti;
+            }
+            break;
         default:
             break;
         }
     }
-    ti = proto_tree_add_item(tree, hfindex, tvb, start, length, encoding);
-    if (length == 0) {
-        proto_item_append_text(ti, "[Empty]");
-    }
-    return ti;
+    return proto_tree_add_item(tree, hfindex, tvb, start, length, encoding);
 }
 
 static int
