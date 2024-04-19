@@ -45,6 +45,21 @@ static int hf_nmea0183_gga_geoidal_separation_unit;
 static int hf_nmea0183_gga_age_dgps;
 static int hf_nmea0183_gga_dgps_station;
 
+static int hf_nmea0183_gll_latitude;
+static int hf_nmea0183_gll_latitude_degree;
+static int hf_nmea0183_gll_latitude_minute;
+static int hf_nmea0183_gll_latitude_direction;
+static int hf_nmea0183_gll_longitude;
+static int hf_nmea0183_gll_longitude_degree;
+static int hf_nmea0183_gll_longitude_minute;
+static int hf_nmea0183_gll_longitude_direction;
+static int hf_nmea0183_gll_time;
+static int hf_nmea0183_gll_time_hour;
+static int hf_nmea0183_gll_time_minute;
+static int hf_nmea0183_gll_time_second;
+static int hf_nmea0183_gll_status;
+static int hf_nmea0183_gll_mode;
+
 static int hf_nmea0183_rot_rate_of_turn;
 static int hf_nmea0183_rot_valid;
 
@@ -65,6 +80,9 @@ static int ett_nmea0183_zda_time;
 static int ett_nmea0183_gga_time;
 static int ett_nmea0183_gga_latitude;
 static int ett_nmea0183_gga_longitude;
+static int ett_nmea0183_gll_time;
+static int ett_nmea0183_gll_latitude;
+static int ett_nmea0183_gll_longitude;
 
 static expert_field ei_nmea0183_invalid_first_character;
 static expert_field ei_nmea0183_missing_checksum_character;
@@ -371,6 +389,21 @@ static const string_string known_gps_quality_indicators[] = {
 static const string_string known_status_indicators[] = {
     {"A", "Valid/Active"},
     {"V", "Invalid/Void"},
+    {NULL, NULL}};
+
+// List of FAA Mode Indicator (Source: NMEA Revealed by Eric S. Raymond, https://gpsd.gitlab.io/gpsd/NMEA.html, retrieved 2024-04-19)
+static const string_string known_faa_mode_indicators[] = {
+    {"A", "Autonomous mode"},
+    {"C", "Quectel Querk, Caution"},
+    {"D", "Differential Mode"},
+    {"E", "Estimated (dead-reckoning) mode"},
+    {"F", "RTK Float mode"},
+    {"M", "Manual Input Mode"},
+    {"N", "Data Not Valid"},
+    {"P", "Precise"},
+    {"R", "RTK Integer mode"},
+    {"S", "Simulated Mode"},
+    {"U", "Quectel Querk, Unsafe"},
     {NULL, NULL}};
 
 static uint8_t calculate_checksum(tvbuff_t *tvb, const gint start, const gint length)
@@ -680,6 +713,33 @@ dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return end_of_field_offset - offset + 1;
 }
 
+/* Dissect a optional FAA mode indicator field. Returns length including separator */
+static int
+dissect_nmea0183_field_faa_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const guint8 *mode = NULL;
+    ti = proto_tree_add_item_ret_string(tree, hf,
+                                        tvb, offset, end_of_field_offset - offset, ENC_ASCII,
+                                        pinfo->pool, &mode);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[empty]");
+    }
+    else
+    {
+        proto_item_append_text(ti, " (%s)", str_to_str(mode, known_faa_mode_indicators, "Unknown FAA mode"));
+    }
+    return end_of_field_offset - offset + 1;
+}
+
 /* Dissect a optional A/V status field. Returns length including separator */
 static int
 dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
@@ -709,7 +769,7 @@ dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* Dissect a DPT sentence. */
 static int
-dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint offset = 0;
 
@@ -727,7 +787,7 @@ dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 /* Dissect a GGA sentence. The time, latitude and longitude fields is split into individual parts. */
 static int
-dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint offset = 0;
 
@@ -770,6 +830,35 @@ dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     return tvb_captured_length(tvb);
 }
 
+/* Dissect a GLL sentence. The latitude, longitude and time fields is split into individual parts. */
+static int
+dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    gint offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "GLL sentence - Geographic Position");
+
+    offset += dissect_nmea0183_field_latitude(tvb, pinfo, subtree, offset, hf_nmea0183_gll_latitude,
+                                              hf_nmea0183_gll_latitude_degree, hf_nmea0183_gll_latitude_minute,
+                                              hf_nmea0183_gll_latitude_direction, ett_nmea0183_gll_latitude);
+
+    offset += dissect_nmea0183_field_longitude(tvb, pinfo, subtree, offset, hf_nmea0183_gll_longitude,
+                                               hf_nmea0183_gll_longitude_degree, hf_nmea0183_gll_longitude_minute,
+                                               hf_nmea0183_gll_longitude_direction, ett_nmea0183_gll_longitude);
+
+    offset += dissect_nmea0183_field_time(tvb, pinfo, subtree, offset, hf_nmea0183_gll_time,
+                                          hf_nmea0183_gll_time_hour, hf_nmea0183_gll_time_minute,
+                                          hf_nmea0183_gll_time_second, ett_nmea0183_gll_time);
+
+    offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_gll_status);
+
+    dissect_nmea0183_field_faa_mode(tvb, pinfo, subtree, offset, hf_nmea0183_gll_mode);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a ROT sentence. */
 static int
 dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -789,7 +878,7 @@ dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 /* Dissect a ZDA (Time & Date) sentence. The time field is split into individual parts. */
 static int
-dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint offset = 0;
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
@@ -901,6 +990,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
     {
         offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "GLL") == 0)
+    {
+        offset += dissect_nmea0183_sentence_gll(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
     {
@@ -1109,6 +1202,76 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 GGA Differential reference station ID", HFILL}},
+        {&hf_nmea0183_gll_latitude,
+         {"Latitude", "nmea0183.gll_latitude",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Latitude field", HFILL}},
+        {&hf_nmea0183_gll_latitude_degree,
+         {"Degree", "nmea0183.gll_latitude_degree",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Latitude Degree", HFILL}},
+        {&hf_nmea0183_gll_latitude_minute,
+         {"Minute", "nmea0183.gll_latitude_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Latitude Minute", HFILL}},
+        {&hf_nmea0183_gll_latitude_direction,
+         {"Direction", "nmea0183.gll_latitude_direction",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Latitude Direction", HFILL}},
+        {&hf_nmea0183_gll_longitude,
+         {"Longitude", "nmea0183.gll_longitude",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Longitude field", HFILL}},
+        {&hf_nmea0183_gll_longitude_degree,
+         {"Degree", "nmea0183.gll_longitude_degree",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Longitude Degree", HFILL}},
+        {&hf_nmea0183_gll_longitude_minute,
+         {"Minute", "nmea0183.gll_longitude_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Longitude Minute", HFILL}},
+        {&hf_nmea0183_gll_longitude_direction,
+         {"Direction", "nmea0183.gll_longitude_direction",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Longitude Direction", HFILL}},
+        {&hf_nmea0183_gll_time,
+         {"UTC Time of position", "nmea0183.gll_time",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL UTC Time field", HFILL}},
+        {&hf_nmea0183_gll_time_hour,
+         {"Hour", "nmea0183.gll_time_hour",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL UTC hour", HFILL}},
+        {&hf_nmea0183_gll_time_minute,
+         {"Minute", "nmea0183.gll_time_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL UTC minute", HFILL}},
+        {&hf_nmea0183_gll_time_second,
+         {"Second", "nmea0183.gll_time_second",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL UTC second", HFILL}},
+        {&hf_nmea0183_gll_status,
+         {"Status", "nmea0183.gll_status",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL Status", HFILL}},
+        {&hf_nmea0183_gll_mode,
+         {"FAA mode", "nmea0183.gll_mode",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 GLL FAA mode indicator (NMEA 2.3 and later)", HFILL}},
         {&hf_nmea0183_rot_rate_of_turn,
          {"Rate of turn", "nmea0183.rot_rate_of_turn",
           FT_STRING, BASE_NONE,
@@ -1173,7 +1336,10 @@ void proto_register_nmea0183(void)
         &ett_nmea0183_zda_time,
         &ett_nmea0183_gga_time,
         &ett_nmea0183_gga_latitude,
-        &ett_nmea0183_gga_longitude};
+        &ett_nmea0183_gga_longitude,
+        &ett_nmea0183_gll_time,
+        &ett_nmea0183_gll_latitude,
+        &ett_nmea0183_gll_longitude};
 
     static ei_register_info ei[] = {
         {&ei_nmea0183_invalid_first_character,
