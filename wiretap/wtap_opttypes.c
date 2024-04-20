@@ -466,6 +466,32 @@ void wtap_block_array_free(GArray* block_array)
     g_array_free(block_array, TRUE);
 }
 
+void wtap_block_array_ref(GArray* block_array)
+{
+    unsigned block;
+
+    if (block_array == NULL)
+        return;
+
+    for (block = 0; block < block_array->len; block++) {
+        wtap_block_ref(g_array_index(block_array, wtap_block_t, block));
+    }
+    g_array_ref(block_array);
+}
+
+void wtap_block_array_unref(GArray* block_array)
+{
+    unsigned block;
+
+    if (block_array == NULL)
+        return;
+
+    for (block = 0; block < block_array->len; block++) {
+        wtap_block_unref(g_array_index(block_array, wtap_block_t, block));
+    }
+    g_array_unref(block_array);
+}
+
 /*
  * Make a copy of a block.
  */

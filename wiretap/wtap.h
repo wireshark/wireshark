@@ -1478,7 +1478,8 @@ typedef struct addrinfo_lists {
  * @note The shb_hdr and idb_inf arguments will be used until
  *     wtap_dump_close() is called, but will not be free'd by the dumper. If
  *     you created them, you must free them yourself after wtap_dump_close().
- *     dsbs_initial will be freed by wtap_dump_close(),
+ *     dsbs_initial will be unreferenced by wtap_dump_close(), so to reuse
+ *     them for another dump file, call wtap_block_array_ref() before closing.
  *     dsbs_growing typically refers to another wth->dsbs.
  *     nrbs_growing typically refers to another wth->nrbs.
  *

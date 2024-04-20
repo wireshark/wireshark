@@ -615,6 +615,29 @@ wtap_block_unref(wtap_block_t block);
 WS_DLL_PUBLIC void
 wtap_block_array_free(GArray* block_array);
 
+/** Decrement the reference count of an array of blocks
+ *
+ * Decrement the reference count of each block in the array
+ * and the GArray itself. Any element whose reference count
+ * drops to 0 will be freed. If the GArray and every block
+ * has a reference count of 1, this is the same as
+ * wtap_block_array_free().
+ *
+ * @param[in] block_array Array of blocks to be dereferenced
+ */
+WS_DLL_PUBLIC void
+wtap_block_array_unref(GArray* block_array);
+
+/** Increment the reference count of an array of blocks
+ *
+ * Increment the reference count of each block in the array
+ * and the GArray itself.
+ *
+ * @param[in] block_array Array of blocks to be referenced
+ */
+WS_DLL_PUBLIC void
+wtap_block_array_ref(GArray* block_array);
+
 /** Provide type of a block
  *
  * @param[in] block Block from which to retrieve mandatory data

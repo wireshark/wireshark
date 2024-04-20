@@ -2680,7 +2680,7 @@ wtap_dump_close(wtap_dumper *wdh, gboolean *needs_reload,
 		*needs_reload = wdh->needs_reload;
 	g_free(wdh->priv);
 	wtap_block_array_free(wdh->interface_data);
-	wtap_block_array_free(wdh->dsbs_initial);
+	wtap_block_array_unref(wdh->dsbs_initial);
 	g_free(wdh);
 	return ret;
 }
