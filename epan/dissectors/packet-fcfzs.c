@@ -9,6 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * Fibre Channel Generic Services (FC-GS) specification.
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
