@@ -355,7 +355,7 @@ typedef struct {
 } http_req_res_private_data_t;
 
  typedef struct _request_trans_t {
-	unsigned long first_range_num;
+	uint64_t first_range_num;
 	guint32 req_frame;
 	nstime_t abs_time;
 	gchar *request_uri;
@@ -3731,25 +3731,55 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 *
 			 *  The method of matching used herein is able to recover from packet loss,
 			 *  any number of missing frames, and duplicate range requests. The
-			 *  method used is explaned within the comments.
+			 *  method used is explained within the comments.
 			 */
-			guint8  *first_range_num_str = NULL;
-			unsigned long first_range_num = 0;
-
-			/* Get the first range number */
-			first_range_num_str = wmem_strdup(wmem_file_scope(), value);
-			if (first_range_num_str) {
-				first_range_num_str += 6;  /* Move the pointer past "bytes=" */
-				first_range_num_str = strtok(first_range_num_str, "-");
-				first_range_num = strtoul(first_range_num_str, NULL ,10);
+			/* https://www.rfc-editor.org/rfc/rfc9110.html#name-range-requests
+			 * Note that RFC 9110 16.5 defines a registry for
+			 * range units, but only bytes are registered.
+			 * ABNF:
+			 * Range = ranges-specifier
+			 * ranges-specifier = range-unit "=" range-set
+			 * range-set        = 1#range-spec
+			 * range-spec       = int-range / suffix-range / other-range
+			 * 1# is an ABNF extension defined in RFC 9110 5.6.1
+			 * which covers comma separated list with optional
+			 * white space:
+			 * 1#element => element *( OWS "," OWS element )
+			 * We don't care about other-range, but will try to
+			 * handle int-range and suffix-range.
+			 * This ignores any entries past the first in a list,
+			 * though responses to such would be multipart.
+			 * As mentioned above, this breaks down if the
+			 * response does not include all requested ranges
+			 * fully in one response.
+			 */
+			const char *pos = strchr(value, '=');
+			if (pos == NULL) {
+				break;
 			}
-			if (first_range_num == 0) {
-				/* The first number of the range is missing or '0'. So we'll
-				* use the second number in the range instead."
-				*/
-				char *str = wmem_strdup(wmem_file_scope(), value);
-				str += 8;
-				first_range_num = strtoul(str, NULL ,10);
+			pos++;
+			uint64_t first_range_num = 0;
+			/* Get the first range number */
+			ws_strtou64(pos, &pos, &first_range_num);
+			/* If the first number of the range is missing or '0',
+			 * use the second number in the range instead if we can.
+			 * XXX - Unlike strtoul, we can check the return value
+			 * of ws_strtou64() to distinguish between "converted
+			 * successfully as 0" and "failed conversion."
+			 * Note that strtoul allows an unsigned integer to
+			 * begin with a negative sign and applies unsigned
+			 * integer wraparound rules.
+			 * ws_strtouXX rejects an initial hyphen-minus, which
+			 * is good, as we want to properly handle:
+			 * 	suffix-range = "-" suffix-length
+			 */
+			if (first_range_num == 0 && *pos == '-') {
+				pos++;
+				/* Pass in an end pointer to convert
+				 * a list of ranges, the first of which is
+				 * a suffix-range.
+				 */
+				ws_strtou64(pos, &pos, &first_range_num);
 			}
 			/* req_list is used for req/resp matching and the deletion (and freeing) of matching
 			*  requests and any orphans that preceed them. A GSList is used instead of a wmem map
@@ -3762,6 +3792,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				req_trans->abs_time = pinfo->fd->abs_ts;
 				req_trans->request_uri = curr_req_res->request_uri;
 
+				/* XXX - This leaks if matching responses aren't
+				 * found (the data does not, but the list node
+				 * does.) A wmem_list would prevent that.
+				 */
 				conv_data->req_list = g_slist_append(conv_data->req_list, GUINT_TO_POINTER(req_trans));
 				curr_req_res->req_has_range = TRUE;
 			}
@@ -3773,47 +3807,72 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			/*
 			 * THIS IS A GET RESPONSE
 			 * GET is the only method that employs ranges.
-			 *  (Unless the data has errors or is noncompliant.
+			 * XXX - Except that RFC 9110 14.4 & 14.5 note that by
+			 * private agreement it can be included in a request
+			 * to request a partial PUT.
+			 * ABNF:
+			 * Content-Range     = range-unit SP ( range-resp / unsatisfied-range )
+			 * range-resp        = incl-range "/" ( complete-length / "*" )
+			 * We do not attempt to handle unsatisfied-range.
+			 * Note that only one range can be included; multiple
+			 * ranges are transmitted with the media type of
+			 * "multipart/byteranges" and each body part contains
+			 * its own Content-Type and Content-Range fields.
+			 * The multipart dissector does not handle this nor
+			 * access the request list.
 			 */
 			if (curr_req_res && !pinfo->fd->visited) {
-				guint8  *first_crange_num_str = NULL;
-				unsigned long first_crange_num = 0;
-				guint   pos;
 				request_trans_t *req_trans;
 				match_trans_t *match_trans = NULL;
 				nstime_t  ns;
 				GSList *iter = NULL;
 
-				/* Get the first content range number  */
-				first_crange_num_str = wmem_strdup(wmem_file_scope(), value);
-				if (first_crange_num_str) {
-					first_crange_num_str += 6;  /* Move the pointer past "bytes=" */
-					first_crange_num_str = strtok(first_crange_num_str, "-");
-					first_crange_num = strtoul(first_crange_num_str, NULL ,10);
+				/* Note SP instead of '=' in ABNF. */
+				const char *pos = strchr(value, ' ');
+				if (pos == NULL) {
+					break;
 				}
+				pos++;
+				uint64_t first_crange_num = 0;
+				/* Get the first content range number */
+				ws_strtou64(pos, &pos, &first_crange_num);
 
-				if (first_crange_num == 0) {
-					/* The first number of the range is missing or '0'. So we'll
-					* use the second number in the range instead."
-					*/
-					char *str = wmem_strdup(wmem_file_scope(), value);
-					str += 8;
-					first_crange_num = strtoul(str, NULL ,10);
+				if (first_crange_num == 0 && *pos == '-') {
+					pos++;
+					ws_strtou64(pos, &pos, &first_crange_num);
 				}
 
 				/* Get the position of the matching request if any in the reqs_table.
 				* This is used to remove and free the matching request, and the unmatched
-				* requests (orphans) that preceed it. */
+				* requests (orphans) that preceed it.
+				* XXX - There is *NO* guarantee that there is
+				* a perfectly matching request, see 15.3.7:
+				* "However, a server might want to send only a
+				* subset of the data requested for reasons of
+				* its own... A client MUST inspect a 206
+				* response's Content-Type and Content-Range
+				* field(s) to determine what parts are enclosed
+				* and whether additional requests are needed."
+				* Also 15.3.7.2 Multiple Parts, noting that
+				* the response may be sent in a Content-Type
+				* multipart/byteranges, also "When multiple
+				* ranges are requested, a server MAY coalesce
+				* any of the ranges that overlap, or that are
+				* separated by a gap that is smaller than the
+				* overhead of sending multiple parts, regardless
+				* of the order in which the corresponding range-
+				* spec appeared in the received Range header
+				* field." and 15.3.7.3 Combining Parts.
+				* However, as mentioned above, the LIFO method
+				* had issues with that as well. Truly proper
+				* handling of such edge cases is more difficult.
+				*/
 				req_trans = NULL;
-				pos = 0;
 				if (conv_data->req_list && conv_data->req_list->data) {
 					for (iter = conv_data->req_list; iter; iter = iter->next) {
 						if (((request_trans_t*)iter->data)->first_range_num == first_crange_num) {
 							req_trans = iter->data;
 							break;
-						}
-						else {
-							pos++;
 						}
 					}
 				}
@@ -3838,13 +3897,15 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						GSList *top_of_list = NULL;
 
 						top_of_list = conv_data->req_list;
-						pos++;
+						while (top_of_list && top_of_list->data != req_trans) {
 
-						for (guint q = 0; q < pos; q++) {
 						    top_of_list = g_slist_delete_link(top_of_list, top_of_list);
 						}
-						if (top_of_list)
-							conv_data->req_list = top_of_list;
+						if (top_of_list && top_of_list->data == req_trans) {
+
+						    top_of_list = g_slist_delete_link(top_of_list, top_of_list);
+						}
+						conv_data->req_list = top_of_list;
 					}
 				}
 			}
