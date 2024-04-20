@@ -425,7 +425,7 @@ pcapng_write_interface_description_block(FILE* pfile,
         }
 
         /* 11 - IDB_FILTER */
-        if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < UINT16_MAX)) {
+        if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < UINT16_MAX - 1)) {
                 /* No, this isn't a string, it has an extra type byte */
                 options_length += (uint32_t)(sizeof(struct ws_option) +
                                             (uint16_t)(ADD_PADDING(strlen(filter)+ 1)));
@@ -496,7 +496,8 @@ pcapng_write_interface_description_block(FILE* pfile,
         }
 
         /* 11 - IDB_FILTER - write filter string if applicable
-         * We only write version 1 of the filter, pcapng string
+         * We write out the libpcap filter expression, not the
+         * generated BPF code.
          */
         if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < UINT16_MAX - 1)) {
                 option.type = IDB_FILTER;
