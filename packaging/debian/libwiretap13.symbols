@@ -47,6 +47,8 @@ libwiretap.so.13 libwiretap13 #MINVER#
  wtap_block_add_uint64_option@Base 2.1.2
  wtap_block_add_uint8_option@Base 2.1.2
  wtap_block_array_free@Base 2.1.2
+ wtap_block_array_ref@Base 4.0.15
+ wtap_block_array_unref@Base 4.0.15
  wtap_block_copy@Base 2.1.2
  wtap_block_count_option@Base 3.5.0
  wtap_block_create@Base 2.1.2
