@@ -7604,15 +7604,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Scope</source>
-        <translation>Anwendungsbereich</translation>
+        <translation type="vanished">Anwendungsbereich</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Beschreibung</translation>
+        <translation type="vanished">Beschreibung</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation>Webseite</translation>
+        <translation type="vanished">Webseite</translation>
     </message>
 </context>
 <context>
@@ -14973,39 +14973,39 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
-        <translation>Plugin installieren</translation>
+        <translation type="vanished">Plugin installieren</translation>
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation>Binary Plugin (*%1 *%1.[0-9]*)</translation>
+        <translation type="vanished">Binary Plugin (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation>Fehler beim Entfernen des alten Plugins vom persönlichen Plugin-Ordner. Eventuell müssen Sie Wireshark erst schließen und die Datei danach manuell entfernen: &quot;%1&quot;.</translation>
+        <translation type="vanished">Fehler beim Entfernen des alten Plugins vom persönlichen Plugin-Ordner. Eventuell müssen Sie Wireshark erst schließen und die Datei danach manuell entfernen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation>Plugins können jeglichen Code unter dem aktuellen Benutzer ausführen. Stellen Sie vor dem Installieren die Vertrauenswürdigkeit sicher.
+        <translation type="vanished">Plugins können jeglichen Code unter dem aktuellen Benutzer ausführen. Stellen Sie vor dem Installieren die Vertrauenswürdigkeit sicher.
 
 Mit der Installation von &quot;%1&quot; in den persönlichen Plugin-Ordner fortfahren?</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation>Erstellen des Ordners fehlgeschlagen: %1</translation>
+        <translation type="vanished">Erstellen des Ordners fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation>Die Datei existiert bereits. Soll sie überschrieben werden?</translation>
+        <translation type="vanished">Die Datei existiert bereits. Soll sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation>Fehler beim Kopieren der Datei nach: %1</translation>
+        <translation type="vanished">Fehler beim Kopieren der Datei nach: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation>Plugin &quot;%1&quot; erfolgreich installieren. Um es nutzen zu können bitte Programm neu starten.</translation>
+        <translation type="vanished">Plugin &quot;%1&quot; erfolgreich installieren. Um es nutzen zu können bitte Programm neu starten.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -15216,7 +15216,7 @@ Mit der Installation von &quot;%1&quot; in den persönlichen Plugin-Ordner fortf
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation>Plugin installieren</translation>
+        <translation type="vanished">Plugin installieren</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

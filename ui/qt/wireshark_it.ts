@@ -4315,39 +4315,39 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>1 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>1 μs</translation>
     </message>
     <message>
         <source>2 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>2 μs</translation>
     </message>
     <message>
         <source>5 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>5 μs</translation>
     </message>
     <message>
         <source>10 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>10 μs</translation>
     </message>
     <message>
         <source>20 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>20 μs</translation>
     </message>
     <message>
         <source>50 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>50 μs</translation>
     </message>
     <message>
         <source>100 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>100 μs</translation>
     </message>
     <message>
         <source>200 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>200 μs</translation>
     </message>
     <message>
         <source>500 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>500 μs</translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -4395,11 +4395,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10 min {2 ?}</translation>
+        <translation>2 min</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10 min {5 ?}</translation>
+        <translation>5 min</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -7604,15 +7604,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Scope</source>
-        <translation>Ambito</translation>
+        <translation type="vanished">Ambito</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Descrizione</translation>
+        <translation type="vanished">Descrizione</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation>Pagina principale</translation>
+        <translation type="vanished">Pagina principale</translation>
     </message>
 </context>
 <context>
@@ -14968,39 +14968,39 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
-        <translation>Installa plugin</translation>
+        <translation type="vanished">Installa plugin</translation>
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation>Plugin binario (*%1 *%1.[0-9]*)</translation>
+        <translation type="vanished">Plugin binario (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation>Errore durante la rimozione del vecchio plugin dalla cartella dei plugin personali. Potresti dover chiudere Wireshark prima e quindi rimuovere manualmente il file &quot;%1&quot;.</translation>
+        <translation type="vanished">Errore durante la rimozione del vecchio plugin dalla cartella dei plugin personali. Potresti dover chiudere Wireshark prima e quindi rimuovere manualmente il file &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation>I plugin possono eseguire codice arbitrario come l&apos;utente corrente. Assicurati che sia affidabile prima di installarlo.
+        <translation type="vanished">I plugin possono eseguire codice arbitrario come l&apos;utente corrente. Assicurati che sia affidabile prima di installarlo.
 
 Vuoi continuare l&apos;installazione del file &quot;%1&quot; nella cartella dei plugin personali?</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation>Impossibile creare la cartella: %1</translation>
+        <translation type="vanished">Impossibile creare la cartella: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation>Il file esiste già. Vuoi sovrascriverò?</translation>
+        <translation type="vanished">Il file esiste già. Vuoi sovrascriverò?</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation>Copia del file non riuscita nella destinazione: %1</translation>
+        <translation type="vanished">Copia del file non riuscita nella destinazione: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation>Plugin &apos;%1&apos; installato correttamente. È necessario riavviare il programma per poterlo utilizzare.</translation>
+        <translation type="vanished">Plugin &apos;%1&apos; installato correttamente. È necessario riavviare il programma per poterlo utilizzare.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -15211,7 +15211,7 @@ Vuoi continuare l&apos;installazione del file &quot;%1&quot; nella cartella dei 
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation>Installa plugin</translation>
+        <translation type="vanished">Installa plugin</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

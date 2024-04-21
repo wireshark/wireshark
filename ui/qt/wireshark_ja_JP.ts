@@ -7585,15 +7585,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Scope</source>
-        <translation>スコープ</translation>
+        <translation type="vanished">スコープ</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>記述</translation>
+        <translation type="vanished">記述</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation>ホームページ</translation>
+        <translation type="vanished">ホームページ</translation>
     </message>
 </context>
 <context>
@@ -14942,39 +14942,39 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
-        <translation>プラグインのインストール</translation>
+        <translation type="vanished">プラグインのインストール</translation>
     </message>
     <message>
         <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation>バイナリープラグイン (*%1 *%1.[0-9]*)</translation>
+        <translation type="vanished">バイナリープラグイン (*%1 *%1.[0-9]*)</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation>個人プラグインフォルダーから古いプラグインを削除する際のエラー。 最初にWiresharkを閉じて手動で &quot;%1&quot; ファイルを削除する必要があるかもしれません。</translation>
+        <translation type="vanished">個人プラグインフォルダーから古いプラグインを削除する際のエラー。 最初にWiresharkを閉じて手動で &quot;%1&quot; ファイルを削除する必要があるかもしれません。</translation>
     </message>
     <message>
         <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
 
 Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation>プラグインは現在のユーザとして任意のコードを実行できます。インストール前に信頼できるか確認ください。
+        <translation type="vanished">プラグインは現在のユーザとして任意のコードを実行できます。インストール前に信頼できるか確認ください。
 
 引き続き、個人プラグインフォルダにファイル&quot;%1&quot; をインストールしますか？</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation>ディレクトリを作成できませんでした: %1</translation>
+        <translation type="vanished">ディレクトリを作成できませんでした: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation>ファイルがすでに存在します。上書きしますか？</translation>
+        <translation type="vanished">ファイルがすでに存在します。上書きしますか？</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation>ファイルを宛先へコピーできませんでした: %1</translation>
+        <translation type="vanished">ファイルを宛先へコピーできませんでした: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation>プラグイン&apos;%1&apos; のインストールは成功しました。 プログラムを再起動して利用できるようにする必要があります。</translation>
+        <translation type="vanished">プラグイン&apos;%1&apos; のインストールは成功しました。 プログラムを再起動して利用できるようにする必要があります。</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -15182,7 +15182,7 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation>プラグインのインストール</translation>
+        <translation type="vanished">プラグインのインストール</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

@@ -7534,18 +7534,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <source>Path</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Scope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="unfinished">Descripción</translation>
-    </message>
-    <message>
-        <source>Homepage</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>PortsModel</name>
@@ -14831,40 +14819,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Install plugin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
-
-Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to create the directory: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to copy the file to the destination: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show or hide the toolbar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15062,10 +15016,6 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     <message>
         <source> before restarting the capture</source>
         <translation>antes de reiniciar la captura</translation>
-    </message>
-    <message>
-        <source>Install Plugin</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

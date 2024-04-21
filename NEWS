@@ -25,9 +25,6 @@ Wireshark 4.3.0 Release Notes
   Display filter functions can be implemented as runtime-loadable C
   plugins.
 
-  Plugin registration API was refactored. Plugin authors must update
-  their plugins as described below.
-
   Custom columns can be defined using any valid field expression, such
   as display filter functions, slices, arithmetic calculations, logical
   tests, raw byte addressing, and the layer modifier.
@@ -175,19 +172,6 @@ Wireshark 4.3.0 Release Notes
        files), and selected rows or the entire table can be saved or
        copied to the clipboard in several formats.
 
-     • New "Tools › Install Plugin" option provides a convenient method
-       to install a binary plugin to the personal folder.
-
-     • The personal binary plugins folder now has higher priority than
-       the global folder.
-
-     • The binary plugins folder path no longer uses an X.Y version
-       component. Plugins are required to add the ABI version to the
-       file name.
-
-     • Truncated fields in the detail view are now displayed as "Field
-       name […]: data" instead of "Field name [truncated]: data"
-
      • When capturing files in multiple file mode, a pattern that places
        the date and time before the index number can be used (e.g.,
        foo_20240714110102_00001.pcap instead of
@@ -247,12 +231,9 @@ Wireshark 4.3.0 Release Notes
 
   Major API Changes
 
-     • Plugin registration API was refactored. Plugin authors must do
-       the following: 1 - Remove the existing boilerplate (version,
-       want_major` and `want_minor` and plugin API declarations. 2 - Add
-       a struct ws_module to the plugin. 3 - Call one of the
-       WIRESHARK_PLUGIN_REGISTER_* macros. See README.plugins sections 5
-       and doc/plugins.example/hello.c for details and examples.
+     • Plugins should provide a `plugin_describe()` function that
+       returns an ORed list of flags consisting of the plugin types used
+       (declared in wsutil/plugins.h).
 
  Getting Wireshark
 

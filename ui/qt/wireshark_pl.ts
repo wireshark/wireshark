@@ -7616,15 +7616,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Scope</source>
-        <translation>Zakres</translation>
+        <translation type="vanished">Zakres</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Opis</translation>
+        <translation type="vanished">Opis</translation>
     </message>
     <message>
         <source>Homepage</source>
-        <translation>Strona główna</translation>
+        <translation type="vanished">Strona główna</translation>
     </message>
 </context>
 <context>
@@ -14992,37 +14992,27 @@ a:hover {
     </message>
     <message>
         <source>Install plugin</source>
-        <translation>Zainstaluj wtyczkę</translation>
-    </message>
-    <message>
-        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Zainstaluj wtyczkę</translation>
     </message>
     <message>
         <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation>Błąd podczas usuwania starej wtyczki z osobistego folderu wtyczek. Może być konieczne zamknięcie programu Wireshark, a następnie ręczne usunięcie pliku &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
-
-Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Błąd podczas usuwania starej wtyczki z osobistego folderu wtyczek. Może być konieczne zamknięcie programu Wireshark, a następnie ręczne usunięcie pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to create the directory: %1</source>
-        <translation>Nie udało się utworzyć katalogu: %1</translation>
+        <translation type="vanished">Nie udało się utworzyć katalogu: %1</translation>
     </message>
     <message>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation>Plik już istnieje. Czy chcesz go nadpisać?</translation>
+        <translation type="vanished">Plik już istnieje. Czy chcesz go nadpisać?</translation>
     </message>
     <message>
         <source>Failed to copy the file to the destination: %1</source>
-        <translation>Nie udało się skopiować pliku do miejsca docelowego: %1</translation>
+        <translation type="vanished">Nie udało się skopiować pliku do miejsca docelowego: %1</translation>
     </message>
     <message>
         <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation>Wtyczka &apos;%1&apos; została pomyślnie zainstalowana. Aby móc z niego korzystać, należy ponownie uruchomić program.</translation>
+        <translation type="vanished">Wtyczka &apos;%1&apos; została pomyślnie zainstalowana. Aby móc z niego korzystać, należy ponownie uruchomić program.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -15236,7 +15226,7 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation>Zainstaluj wtyczkę</translation>
+        <translation type="vanished">Zainstaluj wtyczkę</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

@@ -55703,8 +55703,8 @@ static uint8_t asterix_bit (uint8_t b, uint8_t bitNo)
  * If the number is positive, all other bits must remain 0. */
 static void twos_complement (int64_t *v, int bit_len)
 {
-    if (*v & (G_GUINT64_CONSTANT(1) << (bit_len - 1))) {
-        *v |= (G_GUINT64_CONSTANT(0xffffffffffffffff) << bit_len);
+    if (*v & (UINT64_C(1) << (bit_len - 1))) {
+        *v |= (UINT64_C(0xffffffffffffffff) << bit_len);
     }
 }
 
