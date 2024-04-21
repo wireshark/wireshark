@@ -149,6 +149,7 @@ static int ett_cql_protocol;
 static int ett_cql_version;
 static int ett_cql_message;
 static int ett_cql_result_columns;
+static int ett_cql_results_no_metadata;
 static int ett_cql_result_map;
 static int ett_cql_result_set;
 static int ett_cql_result_metadata;
@@ -1468,8 +1469,10 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						offset += 2;
 						proto_tree_add_item(cust_payload_tree, hf_cql_bytesmap_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
 						offset += string_length;
-						proto_tree_add_item(single_column_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
-						offset += bytes_length;
+						if (bytes_length > 0) {
+							proto_tree_add_item(cust_payload_tree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
+							offset += bytes_length;
+						}
 					}
 					return offset;
 				}
@@ -1572,12 +1575,16 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 									offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count);
 								} else {
 									for (k = 0; k < result_rows_columns_count; ++k) {
-										single_column_subtree = proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
-										proto_item_append_text(single_column_subtree, " for column # %" PRId64, k + 1);
-										offset += 4;
+										proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
 										if (bytes_length > 0) {
+											offset += 4;
+											single_column_subtree = proto_tree_add_subtree(columns_subtree, tvb, offset, bytes_length, ett_cql_results_no_metadata, &ti, "Column data");
+											proto_item_append_text(single_column_subtree, " for column # %" PRId64, k + 1);
 											proto_tree_add_item(single_column_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
 											offset += bytes_length;
+										} else if (bytes_length <= 0) {
+											expert_add_info(pinfo, ti, &ei_cql_unexpected_negative_value);
+											return tvb_reported_length(tvb);
 										}
 									}
 								}
@@ -2589,6 +2596,7 @@ proto_register_cql(void)
 		&ett_cql_version,
 		&ett_cql_message,
 		&ett_cql_result_columns,
+		&ett_cql_results_no_metadata,
 		&ett_cql_result_map,
 		&ett_cql_result_set,
 		&ett_cql_result_metadata,
