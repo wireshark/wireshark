@@ -392,6 +392,50 @@ static const value_string cql_result_row_type_names[] = {
 	{ 0x0, NULL }
 };
 
+/* From https://github.com/apache/cassandra/blob/cbf4dcb3345c7e2f42f6a897c66b6460b7acc2ca/doc/native_protocol_v4.spec#L1046 */
+typedef enum {
+	CQL_ERROR_SERVER = 0x0000,
+	CQL_ERROR_PROTOCOL = 0x000A,
+	CQL_ERROR_AUTH = 0x0100,
+	CQL_ERROR_UNAVAILABLE = 0x1000,
+	CQL_ERROR_OVERLOADED = 0x1001,
+	CQL_ERROR_BOOTSTRAPPING = 0x1002,
+	CQL_ERROR_TRUNCATE = 0x1003,
+	CQL_ERROR_WRITE_TIMEOUT = 0x1100,
+	CQL_ERROR_READ_TIMEOUT = 0x1200,
+	CQL_ERROR_READ_FAILURE = 0x1300,
+	CQL_ERROR_FUNCTION_FAILURE = 0x1400,
+	CQL_ERROR_WRITE_FAILURE = 0x1500,
+	CQL_ERROR_SYNTAX = 0x2000,
+	CQL_ERROR_UNAUTHORIEZED = 0x2100,
+	CQL_ERROR_INVALID = 0x2200,
+	CQL_ERROR_CONFIG = 0x2300,
+	CQL_ERROR_ALREADY_EXISTS = 0x2400,
+	CQL_ERROR_UNPREPARED = 0x2500
+} cql_error_types;
+
+static const value_string cql_error_names[] = {
+	{ CQL_ERROR_SERVER, "Server error" },
+	{ CQL_ERROR_PROTOCOL, "Protocol error" },
+	{ CQL_ERROR_AUTH, "Authentication error" },
+	{ CQL_ERROR_UNAVAILABLE, "Unavailable exception" },
+	{ CQL_ERROR_OVERLOADED, "Overloaded" },
+	{ CQL_ERROR_BOOTSTRAPPING, "Is_bootstrapping" },
+	{ CQL_ERROR_TRUNCATE, "Truncate_error" },
+	{ CQL_ERROR_WRITE_TIMEOUT, "Write_timeout" },
+	{ CQL_ERROR_READ_TIMEOUT, "Read_timeout" },
+	{ CQL_ERROR_READ_FAILURE, "Read_failure" },
+	{ CQL_ERROR_FUNCTION_FAILURE, "Function_failure" },
+	{ CQL_ERROR_WRITE_FAILURE, "Write_failure" },
+	{ CQL_ERROR_SYNTAX, "Syntax_error" },
+	{ CQL_ERROR_UNAUTHORIEZED, "Unauthorized" },
+	{ CQL_ERROR_INVALID, "Invalid" },
+	{CQL_ERROR_CONFIG, "Config_error" },
+	{ CQL_ERROR_ALREADY_EXISTS, "Already_exists" },
+	{ CQL_ERROR_UNPREPARED, "Unprepared" },
+	{ 0x0, NULL}
+};
+
 static gint
 dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, gint offset, int execute)
 {
@@ -2416,8 +2460,8 @@ proto_register_cql(void)
 			&hf_cql_error_code,
 			{
 				"Error Code", "cql.error_code",
-				FT_INT32, BASE_DEC,
-				NULL, 0x0,
+				FT_UINT32, BASE_HEX,
+				VALS(cql_error_names), 0x0,
 				"Error code from CQL server", HFILL
 			}
 		},
