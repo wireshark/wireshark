@@ -1576,13 +1576,17 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 								} else {
 									for (k = 0; k < result_rows_columns_count; ++k) {
 										proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
+										offset += 4;
+										single_column_subtree = proto_tree_add_subtree(columns_subtree, tvb, offset, bytes_length > 0 ? bytes_length : 0, ett_cql_results_no_metadata, &ti, "Column data");
 										if (bytes_length > 0) {
-											offset += 4;
-											single_column_subtree = proto_tree_add_subtree(columns_subtree, tvb, offset, bytes_length, ett_cql_results_no_metadata, &ti, "Column data");
 											proto_item_append_text(single_column_subtree, " for column # %" PRId64, k + 1);
 											proto_tree_add_item(single_column_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
 											offset += bytes_length;
-										} else if (bytes_length <= 0) {
+										} else if (bytes_length == -1) {
+											proto_item_append_text(single_column_subtree, " is NULL for column # %" PRId64, k + 1);
+										} else if (bytes_length == -2) {
+											proto_item_append_text(single_column_subtree, " is not set for column # %" PRId64, k + 1);
+										} else {
 											expert_add_info(pinfo, ti, &ei_cql_unexpected_negative_value);
 											return tvb_reported_length(tvb);
 										}
