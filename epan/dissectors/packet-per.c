@@ -61,6 +61,8 @@ static int hf_per_internal_range = -1;
 static int hf_per_internal_num_bits = -1;
 static int hf_per_internal_min = -1;
 static int hf_per_internal_value = -1;
+static int hf_per_internal_min_int = -1;
+static int hf_per_internal_value_int = -1;
 static int hf_per_encoding_boiler_plate = -1;
 
 static gint ett_per_open_type = -1;
@@ -1419,10 +1421,18 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 		if (display_internal_per_fields){
 			str = decode_bits_in_field(actx->pinfo->pool, (offset&0x07),num_bits,val,ENC_BIG_ENDIAN);
-			proto_tree_add_uint(tree, hf_per_internal_min, tvb, val_start,val_length, min);
+			if (FT_IS_INT(hfi->type)) {
+				proto_tree_add_int(tree, hf_per_internal_min_int, tvb, val_start, val_length, min);
+			} else {
+				proto_tree_add_uint(tree, hf_per_internal_min, tvb, val_start, val_length, min);
+			}
 			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
 			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start, val_length, num_bits);
-			proto_tree_add_uint64_format_value(tree, hf_per_internal_value, tvb, val_start, val_length, val+min, "%s decimal value: %u", str, val+min);
+			if (FT_IS_INT(hfi->type)) {
+				proto_tree_add_int64_format_value(tree, hf_per_internal_value_int, tvb, val_start, val_length, val + min, "%s decimal value: %i", str, val + min);
+			} else {
+				proto_tree_add_uint64_format_value(tree, hf_per_internal_value, tvb, val_start, val_length, val + min, "%s decimal value: %u", str, val + min);
+			}
 		}
 		/* The actual value */
 		val+=min;
@@ -2927,6 +2937,14 @@ proto_register_per(void)
 		  { "Bits", "per.internal.value",
 		    FT_UINT64, BASE_DEC, NULL, 0,
 		    NULL, HFILL }},
+		{ &hf_per_internal_min_int,
+		  { "Min", "per.internal.min_int",
+		    FT_INT32, BASE_DEC, NULL, 0,
+		    NULL, HFILL } },
+		{ &hf_per_internal_value_int,
+		  { "Bits", "per.internal.value_int",
+		    FT_INT64, BASE_DEC, NULL, 0,
+		    NULL, HFILL } },
 		{ &hf_per_encoding_boiler_plate,
 		  { "PER encoded protocol, to see PER internal fields set protocol PER preferences", "per.encoding_boiler_plate",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
