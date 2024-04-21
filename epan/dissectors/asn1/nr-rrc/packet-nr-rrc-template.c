@@ -1061,7 +1061,7 @@ proto_register_nr_rrc(void) {
   register_dissector("nr-rrc.measgapconfig_msg", dissect_nr_rrc_measgapconfig_msg, proto_nr_rrc);
   register_dissector("nr-rrc.handoverpreparationinformation_msg", dissect_nr_rrc_handoverpreparationinformation_msg, proto_nr_rrc);
   register_dissector("nr-rrc.handovercommand_msg", dissect_nr_rrc_handovercommand_msg, proto_nr_rrc);
-
+ /*#include "packet-nr-rrc-dis-reg.c" */
 #include "packet-nr-rrc-dis-reg.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
