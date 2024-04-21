@@ -207,27 +207,27 @@ SchedulingRequestResourceConfig
 SDT-MAC-PHY-CG-Config-r17
 SidelinkParametersNR-r16
 SidelinkUEInformationNR-r16
-SIB1
-SIB2
-SIB3
-SIB4
-SIB5
-SIB6
-SIB7
-SIB8
-SIB9
-SIB10-r16
-SIB11-r16
-SIB12-r16
-SIB13-r16
-SIB14-r16
-SIB15-r17
-SIB16-r17
-SIB17-r17
-SIB18-r17
-SIB19-r17
-SIB20-r17
-SIB21-r17
+SIB1                               @sib1
+SIB2                               @sib2
+SIB3                               @sib3
+SIB4                               @sib4
+SIB5                               @sib5
+SIB6                               @sib6
+SIB7                               @sib7
+SIB8                               @sib8
+SIB9                               @sib9
+SIB10-r16                          @sib10-r16
+SIB11-r16                          @sib11-r16
+SIB12-r16                          @sib12-r16
+SIB13-r16                          @sib13-r16
+SIB14-r16                          @sib14-r16
+SIB15-r17                          @sib15-r17
+SIB16-r17                          @sib16-r17
+SIB17-r17                          @sib17-r17
+SIB18-r17                          @sib18-r17
+SIB19-r17                          @sib21-r17
+SIB20-r17                          @sib22-r17
+SIB21-r17                          @sib23-r17
 SL-ConfigDedicatedEUTRA-Info-r16
 SL-ConfigDedicatedNR-r16
 SL-MeasResultListRelay-r17
@@ -724,73 +724,73 @@ RAT-Type TYPE_PREFIX
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MIB");
 
 #.FN_HDR SystemInformation
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "System Information [");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "System Information [ ");
 
 #.FN_FTR SystemInformation
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
 
 #.FN_HDR SIB2
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB2");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB2 ");
 
 #.FN_HDR SIB3
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB3");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB3 ");
 
 #.FN_HDR SIB4
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB4");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB4 ");
 
 #.FN_HDR SIB5
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB5");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB5 ");
 
 #.FN_HDR SIB6
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB6");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB6 ");
 
 #.FN_HDR SIB7
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB7");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB7 ");
 
 #.FN_HDR SIB8
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB8");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB8 ");
 
 #.FN_HDR SIB9
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB9");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB9 ");
 
 #.FN_HDR SIB10-r16
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB10");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB10 ");
 
 #.FN_HDR SIB11-r16
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB11");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB11");
 
 #.FN_HDR SIB12-r16
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB12");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB12 ");
 
 #.FN_HDR SIB13-r16
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB13");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB13 ");
 
 #.FN_HDR SIB14-r16
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB14");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB14 ");
 
 #.FN_HDR SIB15-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB15");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB15 ");
 
 #.FN_HDR SIB16-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB16");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB16 ");
 
 #.FN_HDR SIB17-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB17");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB17 ");
 
 #.FN_HDR SIB18-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB18");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB18 ");
 
 #.FN_HDR SIB19-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB19");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB19 ");
 
 #.FN_HDR SIB20-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB20");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB20 ");
 
 #.FN_HDR SIB21-r17
-  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB21");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB21 ");
 
 #.FN_HDR SIB1
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SIB1");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SIB1 ");
 
 #.FN_HDR RRCReject
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reject");
