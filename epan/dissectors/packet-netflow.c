@@ -3643,6 +3643,11 @@ static int      hf_pie_ixia_session_parse_errors;
 static int      hf_pie_ixia_http_headers;
 static int      hf_pie_ixia_http_header_field;
 static int      hf_pie_ixia_http_header_value;
+static int      hf_pie_ixia_sip_packets;
+static int      hf_pie_ixia_sip_headers;
+static int      hf_pie_ixia_sip_type;
+static int      hf_pie_ixia_sip_header_field;
+static int      hf_pie_ixia_sip_header_value;
 
 static int      hf_pie_netscaler;
 static int      hf_pie_netscaler_roundtriptime;
@@ -11318,6 +11323,28 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 368):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_header_value,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 369):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_packets,
+                                     tvb, offset, length, ENC_ASCII);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 370):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_headers,
+                                     tvb, offset, length, ENC_ASCII);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 371):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_type,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 372):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_header_field,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 373):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_sip_header_value,
                                      tvb, offset, length, ENC_ASCII);
             break;
             /* END Ixia Communications */
@@ -20121,6 +20148,41 @@ proto_register_netflow(void)
          {"HTTP Header Value", "cflow.pie.ixia.http-header-value",
           FT_STRING, BASE_NONE, NULL, 0x0,
           "Value for HTTP header", HFILL}
+        },
+
+        /* ixia, 3054 / 369 */
+        {&hf_pie_ixia_sip_packets,
+         {"SIP Packets", "cflow.pie.ixia.sip-packets",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "List of SIP packets", HFILL}
+        },
+
+        /* ixia, 3054 / 370 */
+        {&hf_pie_ixia_sip_headers,
+         {"SIP Headers", "cflow.pie.ixia.sip-headers",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of SIP headers", HFILL}
+        },
+
+        /* ixia, 3054 / 371 */
+        {&hf_pie_ixia_sip_type,
+         {"SIP Type", "cflow.pie.ixia.sip-type",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Type of SIP packet", HFILL}
+        },
+
+        /* ixia, 3054 / 372 */
+        {&hf_pie_ixia_sip_header_field,
+         {"SIP Header Field", "cflow.pie.ixia.sip-header-field",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Name of SIP header", HFILL}
+        },
+
+        /* ixia, 3054 / 373 */
+        {&hf_pie_ixia_sip_header_value,
+         {"SIP Header Value", "cflow.pie.ixia.sip-header-value",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "Value of SIP header", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
