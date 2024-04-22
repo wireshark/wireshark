@@ -218,6 +218,7 @@ private:
     void panAxes(int x_pixels, int y_pixels);
     void toggleTracerStyle(bool force_default = false);
     void getGraphInfo();
+    void updateHint();
     void updateLegend();
     QRectF getZoomRanges(QRect zoom_rect);
     void createIOGraph(int currentRow);
@@ -233,6 +234,7 @@ private slots:
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);
+    void selectedFrameChanged(QList<int> frames);
 
     void resetAxes();
     void updateStatistics(void);

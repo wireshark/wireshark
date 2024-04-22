@@ -30,6 +30,7 @@
 #include <ui/qt/widgets/qcp_axis_ticker_si.h>
 #include "progress_frame.h"
 #include "main_application.h"
+#include <ui/qt/main_window.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
@@ -511,6 +512,11 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     connect(iop, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
     connect(iop, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(iop, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseReleased(QMouseEvent*)));
+
+    MainWindow *main_window = qobject_cast<MainWindow *>(mainApp->mainWindow());
+    if (main_window != nullptr) {
+        connect(main_window, &MainWindow::framesSelected, this, &IOGraphDialog::selectedFrameChanged);
+    }
 }
 
 IOGraphDialog::~IOGraphDialog()
@@ -689,7 +695,7 @@ void IOGraphDialog::syncGraphSettings(int row)
     iog->setVisible(visible);
 
     getGraphInfo();
-    mouseMoved(NULL); // Update hint
+    updateHint();
     updateLegend();
 
     if (visible) {
@@ -981,6 +987,74 @@ void IOGraphDialog::getGraphInfo()
     }
 }
 
+void IOGraphDialog::updateHint()
+{
+    QCustomPlot *iop = ui->ioPlot;
+    QString hint;
+
+    // XXX: ElidedLabel doesn't support rich text / HTML, we
+    // used to bold this error
+    if (!hint_err_.isEmpty()) {
+        hint += QString("%1 ").arg(hint_err_);
+    }
+    if (mouse_drags_) {
+        double ts = 0;
+        packet_num_ = 0;
+        int interval_packet = -1;
+
+        if (tracer_->graph()) {
+            ts = tracer_->position->key();
+            if (IOGraph *iog = currentActiveGraph()) {
+                interval_packet = iog->packetFromTime(ts - nstime_to_sec(&start_time_));
+            }
+        }
+
+        if (interval_packet < 0) {
+            hint += tr("Hover over the graph for details.");
+        } else {
+            QString msg = is_packet_configuration_namespace() ? tr("No packets in interval") : tr("No events in interval");
+            QString val;
+            if (interval_packet > 0) {
+                packet_num_ = (uint32_t) interval_packet;
+                if (is_packet_configuration_namespace()) {
+                    msg = QString("%1 %2")
+                            .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
+                            .arg(packet_num_);
+                } else {
+                    msg = QString("%1 %2")
+                            .arg(!file_closed_ ? tr("Click to select event") : tr("Event"))
+                            .arg(packet_num_);
+                }
+                val = " = " + QString::number(tracer_->position->value(), 'g', 4);
+            }
+            // XXX - If Time of Day is selected, should we use ISO 8601
+            // timestamps or something similar here instead of epoch time?
+            hint += tr("%1 (%2s%3).")
+                    .arg(msg)
+                    .arg(QString::number(ts, 'f', precision_))
+                    .arg(val);
+        }
+        iop->replot(QCustomPlot::rpQueuedReplot);
+    } else {
+        if (rubber_band_ && rubber_band_->isVisible()) {
+            QRectF zoom_ranges = getZoomRanges(rubber_band_->geometry());
+            if (zoom_ranges.width() > 0.0 && zoom_ranges.height() > 0.0) {
+                hint += tr("Release to zoom, x = %1 to %2, y = %3 to %4")
+                        .arg(zoom_ranges.x())
+                        .arg(zoom_ranges.x() + zoom_ranges.width())
+                        .arg(zoom_ranges.y())
+                        .arg(zoom_ranges.y() + zoom_ranges.height());
+            } else {
+                hint += tr("Unable to select range.");
+            }
+        } else {
+            hint += tr("Click to select a portion of the graph.");
+        }
+    }
+
+    ui->hintLabel->setText(hint);
+}
+
 void IOGraphDialog::updateLegend()
 {
     QCustomPlot *iop = ui->ioPlot;
@@ -1125,89 +1199,35 @@ void IOGraphDialog::graphClicked(QMouseEvent *event)
 void IOGraphDialog::mouseMoved(QMouseEvent *event)
 {
     QCustomPlot *iop = ui->ioPlot;
-    QString hint;
     Qt::CursorShape shape = Qt::ArrowCursor;
 
-    // XXX: ElidedLabel doesn't support rich text / HTML, we
-    // used to bold this error
-    if (!hint_err_.isEmpty()) {
-        hint += QString("%1 ").arg(hint_err_);
-    }
-    if (event) {
-        if (event->buttons().testFlag(Qt::LeftButton)) {
-            if (mouse_drags_) {
-                shape = Qt::ClosedHandCursor;
-            } else {
-                shape = Qt::CrossCursor;
-            }
-        } else if (iop->axisRect()->rect().contains(event->pos())) {
-            if (mouse_drags_) {
-                shape = Qt::OpenHandCursor;
-            } else {
-                shape = Qt::CrossCursor;
-            }
+    if (event->buttons().testFlag(Qt::LeftButton)) {
+        if (mouse_drags_) {
+            shape = Qt::ClosedHandCursor;
+        } else {
+            shape = Qt::CrossCursor;
         }
-        iop->setCursor(QCursor(shape));
+    } else if (iop->axisRect()->rect().contains(event->pos())) {
+        if (mouse_drags_) {
+            shape = Qt::OpenHandCursor;
+        } else {
+            shape = Qt::CrossCursor;
+        }
     }
+    iop->setCursor(QCursor(shape));
 
     if (mouse_drags_) {
-        double ts = 0;
-        packet_num_ = 0;
-        int interval_packet = -1;
-
-        if (event && tracer_->graph()) {
+        if (tracer_->graph()) {
             tracer_->setGraphKey(iop->xAxis->pixelToCoord(event->pos().x()));
-            ts = tracer_->position->key();
-            if (IOGraph *iog = currentActiveGraph()) {
-                interval_packet = iog->packetFromTime(ts - nstime_to_sec(&start_time_));
-            }
         }
 
-        if (interval_packet < 0) {
-            hint += tr("Hover over the graph for details.");
-        } else {
-            QString msg = is_packet_configuration_namespace() ? tr("No packets in interval") : tr("No events in interval");
-            QString val;
-            if (interval_packet > 0) {
-                packet_num_ = (uint32_t) interval_packet;
-                if (is_packet_configuration_namespace()) {
-                    msg = QString("%1 %2")
-                            .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
-                            .arg(packet_num_);
-                } else {
-                    msg = QString("%1 %2")
-                            .arg(!file_closed_ ? tr("Click to select event") : tr("Event"))
-                            .arg(packet_num_);
-                }
-                val = " = " + QString::number(tracer_->position->value(), 'g', 4);
-            }
-            // XXX - If Time of Day is selected, should we use ISO 8601
-            // timestamps or something similar here instead of epoch time?
-            hint += tr("%1 (%2s%3).")
-                    .arg(msg)
-                    .arg(QString::number(ts, 'f', precision_))
-                    .arg(val);
-        }
-        iop->replot(QCustomPlot::rpQueuedReplot);
     } else {
-        if (event && rubber_band_ && rubber_band_->isVisible()) {
+        if (rubber_band_ && rubber_band_->isVisible()) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
-            QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
-            if (zoom_ranges.width() > 0.0 && zoom_ranges.height() > 0.0) {
-                hint += tr("Release to zoom, x = %1 to %2, y = %3 to %4")
-                        .arg(zoom_ranges.x())
-                        .arg(zoom_ranges.x() + zoom_ranges.width())
-                        .arg(zoom_ranges.y())
-                        .arg(zoom_ranges.y() + zoom_ranges.height());
-            } else {
-                hint += tr("Unable to select range.");
-            }
-        } else {
-            hint += tr("Click to select a portion of the graph.");
         }
     }
 
-    ui->hintLabel->setText(hint);
+    updateHint();
 }
 
 void IOGraphDialog::mouseReleased(QMouseEvent *event)
@@ -1250,6 +1270,40 @@ void IOGraphDialog::resetAxes()
 
     auto_axes_ = true;
     iop->replot();
+}
+
+void IOGraphDialog::selectedFrameChanged(QList<int> frames)
+{
+    if (frames.count() == 1 && cap_file_.isValid() && !file_closed_ && tracer_->graph() && cap_file_.packetInfo() != nullptr) {
+        packet_info *pinfo = cap_file_.packetInfo();
+        if (pinfo->num != packet_num_) {
+            // This prevents being triggered by the IOG's own GoToPacketAction,
+            // although that is mostly harmless.
+            int interval = ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt();
+
+            /*
+             * setGraphKey (with Interpolation false, as it is by default)
+             * finds the nearest point to the key. Our buckets are derived
+             * from rounding down (XXX - which is appropriate for relative
+             * time but less so when absolute time of day is selected.)
+             * We could call get_io_graph_index() and then multiply to get
+             * the exact ts for the bucket, but it's fewer math operations
+             * operations simply to subtract half the interval.
+             * XXX - Getting the exact value would be superior if we wished
+             * to avoid doing anything in the case that the tracer is
+             * already pointing at the correct bucket. (Is the hint always
+             * correct in that case?)
+             */
+#if 0
+            int64_t idx = get_io_graph_index(pinfo, interval);
+            double ts = (double)idx * interval / SCALE_F + nstime_to_sec(&start_time);
+#endif
+            double key = nstime_to_sec(&pinfo->rel_ts) - (interval / (2 * SCALE_F)) + nstime_to_sec(&start_time_);
+            tracer_->setGraphKey(key);
+            ui->ioPlot->replot();
+            updateHint();
+        }
+    }
 }
 
 void IOGraphDialog::updateStatistics()
@@ -1386,7 +1440,7 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
     getGraphInfo();
     nstime_delta(&orig_start, &start_time_, &orig_start);
     ui->ioPlot->xAxis->moveRange(nstime_to_sec(&orig_start));
-    mouseMoved(NULL); // Update hint
+    updateHint();
 }
 
 void IOGraphDialog::modelRowsReset()
@@ -1464,7 +1518,7 @@ void IOGraphDialog::on_deleteToolButton_clicked()
 
     // We should probably be smarter about this.
     hint_err_.clear();
-    mouseMoved(NULL);
+    updateHint();
 }
 
 void IOGraphDialog::on_copyToolButton_clicked()
@@ -1483,7 +1537,7 @@ void IOGraphDialog::on_clearToolButton_clicked()
     }
 
     hint_err_.clear();
-    mouseMoved(NULL);
+    updateHint();
 }
 
 void IOGraphDialog::on_moveUpwardsToolButton_clicked()
