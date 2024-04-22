@@ -336,7 +336,7 @@ static void dissect_zmtp_metadata(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* These command details are largely taken from the Lua dissector */
-static void dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree,
+static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree,
                                  mechanism_type mechanism)
 {
     proto_item *len_ti, *mech_ti;
@@ -439,7 +439,7 @@ static void dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _
                     offset += 8;
                     /* 80 bytes signature */
                     proto_tree_add_item(tree, hf_zmtp_curvezmq_signature, tvb, offset, 80, ENC_ASCII);
-                    /* offset += 80; */
+                    offset += 80;
                 }
                 /* Else */
                 /*     unsupported version (TODO: expert info?) */
@@ -508,6 +508,8 @@ static void dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
     /* Extra separator in case data follows in same segment */
     col_append_str(pinfo->cinfo, COL_INFO, "  ");
+
+    return offset;
 }
 
 static int
