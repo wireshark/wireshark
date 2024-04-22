@@ -860,7 +860,8 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 	guint msg_no = 0;
 	guint32 msg_in_bundle_size;
 	guint8 msg_in_bundle_user;
-	gint b_inst_strlen, padlen;
+	guint32 b_inst_strlen;
+	gint padlen;
 
 	/* for fragmented messages */
 	gint len, reported_len;
@@ -1097,10 +1098,9 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 			if ((message_type == TIPCv2_RESET_MSG)
 					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4)) != 0))){ /* is allowed */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, ENC_ASCII);
-				/* the bearer instance string is padded with \0 to the next word boundary */
-				b_inst_strlen = tvb_strsize(tipc_tvb, offset);
+				proto_tree_add_item_ret_length(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, ENC_ASCII, &b_inst_strlen);
 				offset += b_inst_strlen;
+				/* the bearer instance string is padded with \0 to the next word boundary */
 				if ((padlen = ((b_inst_strlen%4)?(4-(b_inst_strlen%4)):0)) > 0) {
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_padding, tipc_tvb, offset, padlen, NULL, "%d byte%c", padlen, (padlen!=1?'s':0));
 					offset += padlen;
