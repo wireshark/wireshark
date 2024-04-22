@@ -1566,10 +1566,10 @@ static void dissect_pnf_param_general_value(ptvcursor_t * ptvc, packet_info* pin
 	ptvcursor_add(ptvc, hf_nfapi_maximum_total_number_ul_layers, 1, ENC_BIG_ENDIAN);
 
 	// Shared Bands
-	item = ptvcursor_add(ptvc, hf_nfapi_shared_bands, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(ptvc, hf_nfapi_shared_bands, 1, ENC_BIG_ENDIAN);
 
 	// Shared PA
-	item = ptvcursor_add(ptvc, hf_nfapi_shared_pa, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(ptvc, hf_nfapi_shared_pa, 1, ENC_BIG_ENDIAN);
 
 	ptvcursor_add(ptvc, hf_nfapi_maximum_total_power, 2, ENC_BIG_ENDIAN);
 	ptvcursor_add(ptvc, hf_nfapi_oui, 3, ENC_HOST_ENDIAN);
@@ -4280,7 +4280,7 @@ static void dissect_ul_config_request_body_value(ptvcursor_t * ptvc, packet_info
 	}
 
 	// SRS present
-	item = ptvcursor_add(ptvc, hf_nfapi_srs_present, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(ptvc, hf_nfapi_srs_present, 1, ENC_BIG_ENDIAN);
 
 	dissect_array_value(ptvc, pinfo, "UL Config PDU List", ett_nfapi_ul_config_request_pdu_list, num_pdu, dissect_ul_config_pdu);
 }
