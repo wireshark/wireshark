@@ -1100,7 +1100,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				/* the bearer instance string is padded with \0 to the next word boundary */
 				b_inst_strlen = tvb_strsize(tipc_tvb, offset);
 				offset += b_inst_strlen;
-				if ((padlen = (4-b_inst_strlen%4)) > 0) {
+				if ((padlen = ((b_inst_strlen%4)?(4-(b_inst_strlen%4)):0)) > 0) {
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_padding, tipc_tvb, offset, padlen, NULL, "%d byte%c", padlen, (padlen!=1?'s':0));
 					offset += padlen;
 				}
