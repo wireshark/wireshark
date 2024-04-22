@@ -849,6 +849,7 @@ static const value_string nas_5gs_epd_vals[] = {
 };
 
 struct nas5gs_private_data {
+    guint8 sec_hdr_type;
     guint32 payload_container_type;
 };
 
@@ -2580,9 +2581,14 @@ de_nas_5gs_mm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
     /* The purpose of the NAS message container IE is to encapsulate a plain 5GS NAS message. */
-    /* a NAS message without NAS security heade */
+    /* a NAS message without NAS security header */
+    struct nas5gs_private_data *nas5gs_data = nas5gs_get_private_data(pinfo);
 
-    dissect_nas_5gs(tvb_new_subset_length(tvb, offset, len), pinfo, tree, NULL);
+    if (nas5gs_data->sec_hdr_type == NAS_5GS_PLAIN_NAS_MSG || g_nas_5gs_null_decipher) {
+        dissect_nas_5gs(tvb_new_subset_length(tvb, offset, len), pinfo, tree, NULL);
+    } else {
+        proto_tree_add_subtree(tree, tvb, offset, len, ett_nas_5gs_enc, NULL, "Encrypted data");
+    }
 
     return len;
 }
@@ -10292,7 +10298,8 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item *item;
     proto_tree *nas_5gs_tree, *sub_tree;
     int offset = 0;
-    guint8 seq_hdr_type, ext_pd;
+    guint8 sec_hdr_type, ext_pd;
+    struct nas5gs_private_data *nas5gs_data = nas5gs_get_private_data(pinfo);
 
     /* make entry in the Protocol column on summary display */
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NAS-5GS");
@@ -10308,8 +10315,9 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Security header type associated with a spare half octet; or
     * PDU session identity                                         octet 2 */
     /* Determine if it's a plain 5GS NAS Message or not */
-    seq_hdr_type = tvb_get_guint8(tvb, offset + 1);
-    if (seq_hdr_type == NAS_5GS_PLAIN_NAS_MSG) {
+    sec_hdr_type = tvb_get_guint8(tvb, offset + 1);
+    nas5gs_data->sec_hdr_type = sec_hdr_type;
+    if (sec_hdr_type == NAS_5GS_PLAIN_NAS_MSG) {
         return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     }
     /* Security protected NAS 5GS message*/
@@ -10329,7 +10337,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree_add_item(sub_tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    if ((seq_hdr_type != NAS_5GS_INTEG_CIPH_NAS_MSG && seq_hdr_type != NAS_5GS_INTEG_CIPH_NEW_NAS_MSG) ||
+    if ((sec_hdr_type != NAS_5GS_INTEG_CIPH_NAS_MSG && sec_hdr_type != NAS_5GS_INTEG_CIPH_NEW_NAS_MSG) ||
         g_nas_5gs_null_decipher) {
         return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     } else {
