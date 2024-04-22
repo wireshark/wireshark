@@ -12,7 +12,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  * Protocol ref:
- * http://tipc.sourceforge.net/
+ * https://tipc.sourceforge.net/
+ * https://tipc.sourceforge.net/protocol.html
  */
 
 
