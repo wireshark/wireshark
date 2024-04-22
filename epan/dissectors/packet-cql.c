@@ -1676,7 +1676,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						}
 
 						/* <result_metadata> is identical to rows result metadata */
-						offset = parse_result_metadata(metadata_subtree, pinfo, tvb, offset, result_rows_flags, result_rows_columns_count);
+						parse_result_metadata(metadata_subtree, pinfo, tvb, offset, result_rows_flags, result_rows_columns_count);
 
 						break;
 					case CQL_RESULT_KIND_SCHEMA_CHANGE:
