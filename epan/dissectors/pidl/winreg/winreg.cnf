@@ -153,7 +153,7 @@ winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 acc
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 
-struct access_mask_info winreg_access_mask_info = {
+static struct access_mask_info winreg_access_mask_info = {
 	"WINREG",		/* Name of specific rights */
 	winreg_specific_rights,	/* Dissection function */
 	NULL,			/* Generic mapping table */

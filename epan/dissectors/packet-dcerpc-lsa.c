@@ -1832,25 +1832,25 @@ lsarpc_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guin
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
-struct access_mask_info lsarpc_policy_access_mask_info = {
+static struct access_mask_info lsarpc_policy_access_mask_info = {
 	"LSA Policy",			/* Name of specific rights */
 	lsarpc_policy_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
-struct access_mask_info lsarpc_account_access_mask_info = {
+static struct access_mask_info lsarpc_account_access_mask_info = {
 	"LSA Account",			/* Name of specific rights */
 	lsarpc_account_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
-struct access_mask_info lsarpc_secret_access_mask_info = {
+static struct access_mask_info lsarpc_secret_access_mask_info = {
 	"LSA Secret",			/* Name of specific rights */
 	lsarpc_secret_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
-struct access_mask_info lsarpc_domain_access_mask_info = {
+static struct access_mask_info lsarpc_domain_access_mask_info = {
 	"LSA Domain",			/* Name of specific rights */
 	lsarpc_domain_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
@@ -1880,6 +1880,7 @@ lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_inf
 		&lsarpc_secret_access_mask_info, NULL);
 	return offset;
 }
+/* TODO: not called, so couldn't make static. Delete? */
 int
 lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
 {

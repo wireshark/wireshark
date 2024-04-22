@@ -382,7 +382,7 @@ NOEMIT mapi_dissect_element_EcDoRpcExt_rgbOut__
 
 CODE START
 
-tvbuff_t *
+static tvbuff_t *
 mapi_deobfuscate(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 size)
 {
 	tvbuff_t *deob_tvb = NULL;
@@ -591,7 +591,7 @@ mapi_dissect_element_AuxInfo_auxHeader(tvbuff_t *tvb _U_, int offset _U_, packet
 	return offset;
 }
 
-int
+static int
 dissect_EcDoConnectEx_AuxInfoOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	if (length == 0){
@@ -606,7 +606,7 @@ mapi_dissect_element_EcDoConnectEx_rgbAuxOut_(tvbuff_t *tvb _U_, int offset _U_,
 	return dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoConnectEx_AuxInfoOut);
 }
 
-int
+static int
 dissect_EcDoRpcExt2_AuxInfoOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	if (length == 0){
@@ -750,7 +750,7 @@ mapi_dissect_AUX_DATA(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 }
 
-int
+static int
 mapi_dissect_AUX_HEADER_TYPE_ENUM(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint8 Version, int hf_index _U_, guint8 *hdrType)
 {
 	switch(Version) {
@@ -925,7 +925,7 @@ mapi_dissect_struct_EcDoRpcMapiResponse(tvbuff_t *tvb, int offset, packet_info *
 	return offset;
 }
 
-int
+static int
 uint32_size_uint8_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_size_index, int hf_buffer_index, guint32 param)
 {
 	guint32 size= 0;
@@ -1124,6 +1124,7 @@ mapi_dissect_struct_Logon_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	#define  RHEF_XorMagic     0x0002
 	#define  RHEF_Last         0x0004
 
+static
 int dissect_RPC_HEADER_EXT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, tvbuff_t **ppUncomp_tvb)
 {
 	proto_tree *hTree = NULL;
@@ -1255,7 +1256,7 @@ mapi_dissect_struct_AuxInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 	return offset;
 }
 
-int
+static int
 mapi_dissect_RgbInOut(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index)
 {
 	proto_item *item = NULL;
@@ -1312,7 +1313,7 @@ mapi_dissect_struct_RgbIn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	return mapi_dissect_RgbInOut(tvb, offset, pinfo, parent_tree, di, drep, hf_index);
 }
 
-int
+static int
 dissect_EcDoRpcExt2_RgbOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	if (length == 0){
@@ -1327,7 +1328,7 @@ mapi_dissect_element_EcDoRpcExt2_rgbOut_(tvbuff_t *tvb _U_, int offset _U_, pack
 	return dissect_ndr_ucvarray_block(tvb, offset, pinfo, tree, di, drep, &dissect_EcDoRpcExt2_RgbOut);
 }
 
-int
+static int
 dissect_EcDoRpcExt_RgbOut(tvbuff_t *tvb _U_, int offset _U_, int length _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	if (length == 0){

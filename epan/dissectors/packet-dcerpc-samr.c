@@ -2058,7 +2058,7 @@ samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
-struct access_mask_info samr_connect_access_mask_info = {
+static struct access_mask_info samr_connect_access_mask_info = {
 	"SAMR Connect",			/* Name of specific rights */
 	samr_connect_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
@@ -2085,7 +2085,7 @@ samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
-struct access_mask_info samr_alias_access_mask_info = {
+static struct access_mask_info samr_alias_access_mask_info = {
 	"SAMR Alias",			/* Name of specific rights */
 	samr_alias_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
@@ -2112,7 +2112,7 @@ samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
-struct access_mask_info samr_group_access_mask_info = {
+static struct access_mask_info samr_group_access_mask_info = {
 	"SAMR Group",			/* Name of specific rights */
 	samr_group_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
@@ -2145,7 +2145,7 @@ samr_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint3
 	};
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
-struct access_mask_info samr_domain_access_mask_info = {
+static struct access_mask_info samr_domain_access_mask_info = {
 	"SAMR Domain",			/* Name of specific rights */
 	samr_domain_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
