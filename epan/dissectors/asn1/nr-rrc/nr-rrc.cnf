@@ -216,18 +216,18 @@ SIB6                               @sib6
 SIB7                               @sib7
 SIB8                               @sib8
 SIB9                               @sib9
-SIB10-r16                          @sib10-r16
-SIB11-r16                          @sib11-r16
-SIB12-r16                          @sib12-r16
-SIB13-r16                          @sib13-r16
-SIB14-r16                          @sib14-r16
-SIB15-r17                          @sib15-r17
-SIB16-r17                          @sib16-r17
-SIB17-r17                          @sib17-r17
-SIB18-r17                          @sib18-r17
-SIB19-r17                          @sib21-r17
-SIB20-r17                          @sib22-r17
-SIB21-r17                          @sib23-r17
+SIB10-r16                          @sib10
+SIB11-r16                          @sib11
+SIB12-r16                          @sib12
+SIB13-r16                          @sib13
+SIB14-r16                          @sib14
+SIB15-r17                          @sib15
+SIB16-r17                          @sib16
+SIB17-r17                          @sib17
+SIB18-r17                          @sib18
+SIB19-r17                          @sib21
+SIB20-r17                          @sib22
+SIB21-r17                          @sib23
 SL-ConfigDedicatedEUTRA-Info-r16
 SL-ConfigDedicatedNR-r16
 SL-MeasResultListRelay-r17
