@@ -60,6 +60,9 @@
 #define PEEKRMEOTE_NEW_BASE_LEN 9
 #define PEEKREMOTE_V3_HDR_LEN 13
 
+#define PEEKREMOTE_V0_6GHZ_BAND_VALID 0x08
+#define PEEKREMOTE_V0_IS_6GHZ_BAND    0x10
+
 
 void proto_register_peekremote(void);
 void proto_reg_handoff_peekremote(void);
@@ -206,6 +209,8 @@ static int hf_peekremote_flags;
 static int hf_peekremote_flags_control_frame;
 static int hf_peekremote_flags_crc_error;
 static int hf_peekremote_flags_frame_error;
+static int hf_peekremote_flags_6ghz_band_valid;
+static int hf_peekremote_flags_6ghz;
 static int hf_peekremote_flags_reserved;
 static int hf_peekremote_frequency;
 static int hf_peekremote_header_size;
@@ -287,6 +292,8 @@ dissect_peekremote_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree_add_item(flags_tree, hf_peekremote_flags_control_frame, tvb, offset, 1, ENC_NA);
   proto_tree_add_item(flags_tree, hf_peekremote_flags_crc_error, tvb, offset, 1, ENC_NA);
   proto_tree_add_item(flags_tree, hf_peekremote_flags_frame_error, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flags_tree, hf_peekremote_flags_6ghz_band_valid, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flags_tree, hf_peekremote_flags_6ghz, tvb, offset, 1, ENC_NA);
   proto_tree_add_item(flags_tree, hf_peekremote_flags_reserved, tvb, offset, 1, ENC_NA);
 
   return 1;
@@ -481,7 +488,8 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   proto_item *ti = NULL;
   struct ieee_802_11_phdr phdr;
   guint8 signal_percent;
-
+  uint8_t flags = 0;
+  bool is_6ghz = false;
   memset(&phdr, 0, sizeof(phdr));
 
   /*
@@ -538,6 +546,14 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   phdr.has_tsf_timestamp = TRUE;
   phdr.tsf_timestamp = tvb_get_ntoh64(tvb, 8);
 
+  flags = tvb_get_guint8(tvb, 6);
+  if (flags & PEEKREMOTE_V0_6GHZ_BAND_VALID) {
+    bool is_bg;
+    is_6ghz = flags & PEEKREMOTE_V0_IS_6GHZ_BAND;
+    is_bg   = is_6ghz ? false : CHAN_IS_BG(phdr.channel);
+    phdr.has_frequency = TRUE;
+    phdr.frequency = ieee80211_chan_band_to_mhz(phdr.channel, is_bg, is_6ghz);
+  }
   /*
    * We don't know they PHY, but we do have the data rate;
    * try to guess the PHY based on the data rate and channel.
@@ -548,7 +564,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     phdr.phy_info.info_11b.has_short_preamble = FALSE;
   } else if (RATE_IS_OFDM(phdr.data_rate)) {
     /* 11a or 11g, depending on the band. */
-    if (CHAN_IS_BG(phdr.channel)) {
+    if (CHAN_IS_BG(phdr.channel) && !is_6ghz) {
       /* 11g */
       phdr.phy = PHDR_802_11_PHY_11G;
       phdr.phy_info.info_11g.has_mode = FALSE;
@@ -612,9 +628,19 @@ proto_register_peekremote(void)
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
         NULL, HFILL }
     },
+    { &hf_peekremote_flags_6ghz_band_valid,
+      { "Is 6GHz band flag valid", "peekremote.flags.6ghzband_valid",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_flags_6ghz,
+      { "6GHz band", "peekremote.flags.6ghz",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+        NULL, HFILL }
+    },
     { &hf_peekremote_flags_reserved,
       { "Reserved", "peekremote.flags.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0xF8,
+        FT_UINT8, BASE_HEX, NULL, 0xE0,
         "Must be zero", HFILL }
     },
     { &hf_peekremote_status,

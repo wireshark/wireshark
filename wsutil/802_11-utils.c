@@ -84,6 +84,26 @@ ieee80211_chan_to_mhz(int chan, bool is_bg) {
 }
 
 /*
+ * Get Frequency given a Channel number and band.
+ */
+unsigned
+ieee80211_chan_band_to_mhz(int chan, bool is_bg, bool is_6ghz) {
+    unsigned i;
+
+    int start_idx = 0;
+    if (is_6ghz) {
+        start_idx = 3;
+    }
+    for (i = start_idx; i < NUM_FREQ_CVT; i++) {
+        if (is_bg == freq_cvt[i].is_bg &&
+                chan >= freq_cvt[i].cmin && chan <= MAX_CHANNEL(freq_cvt[i])) {
+            return ((chan - freq_cvt[i].cmin) * FREQ_STEP) + freq_cvt[i].fmin;
+        }
+    }
+    return 0;
+}
+
+/*
  * Get channel representation string given a Frequency
  */
 char*
