@@ -102,7 +102,7 @@ static gint hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k_ = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_co_extension2 = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_co_guid = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_co_guid_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_sequence_number = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_command = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_compression_guid = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_connection = -1;
@@ -529,7 +529,7 @@ const value_string frsrpc_frsrpc_CommPktChunkType_vals[] = {
 	{ FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER, "FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER" },
 	{ FRSRPC_COMM_PKT_CHUNK_REMOTE_CO, "FRSRPC_COMM_PKT_CHUNK_REMOTE_CO" },
 	{ FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K, "FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K" },
-	{ FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2, "FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2" },
+	{ FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2, "FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2" },
 	{ FRSRPC_COMM_PKT_CHUNK_EOP, "FRSRPC_COMM_PKT_CHUNK_EOP" },
 { 0, NULL }
 };
@@ -558,7 +558,7 @@ static int frsrpc_dissect_element_CommPktChunkData_gvsn(tvbuff_t *tvb _U_, int o
 static int frsrpc_dissect_element_CommPktChunkData_gvsn_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int frsrpc_dissect_element_CommPktChunkData_co_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int frsrpc_dissect_element_CommPktChunkData_co_guid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int frsrpc_dissect_element_CommPktChunkData_co_sequnence_number(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int frsrpc_dissect_element_CommPktChunkData_co_sequence_number(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int frsrpc_dissect_element_CommPktChunkData_remote_co(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int frsrpc_dissect_element_CommPktChunkData_remote_co_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int frsrpc_dissect_element_CommPktChunkData_co_ext_win2k(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -2035,7 +2035,7 @@ frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, int o
 /* IDL: 	FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER=0x0010, */
 /* IDL: 	FRSRPC_COMM_PKT_CHUNK_REMOTE_CO=0x000D, */
 /* IDL: 	FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K=0x0016, */
-/* IDL: 	FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2=0x0017, */
+/* IDL: 	FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2=0x0017, */
 /* IDL: 	FRSRPC_COMM_PKT_CHUNK_EOP=0x0013, */
 /* IDL: } */
 
@@ -2074,10 +2074,10 @@ frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)] [case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)] hyper file_offset; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_GVSN)] [case(FRSRPC_COMM_PKT_CHUNK_GVSN)] [subcontext(4)] frsrpc_CommPktGSVN gvsn; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)] [case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)] [subcontext(4)] GUID co_guid; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)] [case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)] uint32 co_sequnence_number; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)] [case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)] uint32 co_sequence_number; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)] [case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)] [subcontext(4)] frsrpc_CommPktChangeOrderCommand remote_co; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)] [case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)] [subcontext(4)] frsrpc_CommPktCoRecordExtensionWin2k co_ext_win2k; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2)] [case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2)] frsrpc_CommPktChangeOrderRecordExtension co_extension2; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2)] [case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2)] frsrpc_CommPktChangeOrderRecordExtension co_extension2; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_EOP)] [case(FRSRPC_COMM_PKT_CHUNK_EOP)] [value(0xFFFFFFFF)] uint32 bopend; */
 /* IDL: } */
 
@@ -2354,9 +2354,9 @@ frsrpc_dissect_element_CommPktChunkData_co_guid_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-frsrpc_dissect_element_CommPktChunkData_co_sequnence_number(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+frsrpc_dissect_element_CommPktChunkData_co_sequence_number(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_co_sequence_number, 0);
 
 	return offset;
 }
@@ -2524,7 +2524,7 @@ frsrpc_dissect_CommPktChunkData(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		break;
 
 		case FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER:
-			offset = frsrpc_dissect_element_CommPktChunkData_co_sequnence_number(tvb, offset, pinfo, tree, di, drep);
+			offset = frsrpc_dissect_element_CommPktChunkData_co_sequence_number(tvb, offset, pinfo, tree, di, drep);
 		break;
 
 		case FRSRPC_COMM_PKT_CHUNK_REMOTE_CO:
@@ -2535,7 +2535,7 @@ frsrpc_dissect_CommPktChunkData(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 			offset = frsrpc_dissect_element_CommPktChunkData_co_ext_win2k(tvb, offset, pinfo, tree, di, drep);
 		break;
 
-		case FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2:
+		case FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2:
 			offset = frsrpc_dissect_element_CommPktChunkData_co_extension2(tvb, offset, pinfo, tree, di, drep);
 		break;
 
@@ -3615,8 +3615,8 @@ void proto_register_dcerpc_frsrpc(void)
 	  { "Co Guid", "frsrpc.frsrpc_CommPktChunkData.co_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_guid_,
 	  { "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number,
-	  { "Co Sequnence Number", "frsrpc.frsrpc_CommPktChunkData.co_sequnence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_sequence_number,
+	  { "Co Sequence Number", "frsrpc.frsrpc_CommPktChunkData.co_sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_command,
 	  { "Command", "frsrpc.frsrpc_CommPktChunkData.command", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCommand_vals), 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_compression_guid,

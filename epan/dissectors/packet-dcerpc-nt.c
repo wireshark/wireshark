@@ -1629,7 +1629,7 @@ dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 	proto_tree *tree;
 	int old_offset=offset;
 
-	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
+	ALIGN_TO_4_BYTES;  /* structure starts with short, but is aligned for longs */
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_logon_hours, &item, "LOGON_HOURS:");

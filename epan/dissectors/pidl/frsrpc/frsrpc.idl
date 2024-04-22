@@ -249,7 +249,7 @@ interface frsrpc
 
 		FRSRPC_COMM_PKT_CHUNK_REMOTE_CO			= 0x000D,
 		FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K		= 0x0016,
-		FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2		= 0x0017,
+		FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2		= 0x0017,
 
 		FRSRPC_COMM_PKT_CHUNK_EOP			= 0x0013
 	} frsrpc_CommPktChunkType;
@@ -293,12 +293,12 @@ interface frsrpc
 		[case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)][subcontext(4)]
 			GUID co_guid;
 		[case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)]
-			uint32 co_sequnence_number;
+			uint32 co_sequence_number;
 		[case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)][subcontext(4)]
 			frsrpc_CommPktChangeOrderCommand remote_co;
 		[case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)][subcontext(4)]
 			frsrpc_CommPktCoRecordExtensionWin2k co_ext_win2k;
-		[case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2)]
+		[case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2)]
 			frsrpc_CommPktChangeOrderRecordExtension co_extension2;
 		[case(FRSRPC_COMM_PKT_CHUNK_EOP)]
 			[value(0xFFFFFFFF)] uint32 bopend;

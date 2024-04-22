@@ -111,7 +111,7 @@ int frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet
 #define FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER (0x0010)
 #define FRSRPC_COMM_PKT_CHUNK_REMOTE_CO (0x000D)
 #define FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K (0x0016)
-#define FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2 (0x0017)
+#define FRSRPC_COMM_PKT_CHUNK_CO_EXTENSION_2 (0x0017)
 #define FRSRPC_COMM_PKT_CHUNK_EOP (0x0013)
 extern const value_string frsrpc_frsrpc_CommPktChunkType_vals[];
 int frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_);

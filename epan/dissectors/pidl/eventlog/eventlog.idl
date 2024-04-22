@@ -208,7 +208,7 @@
 
 	/*****************/
 	/* Function 0x16 */
-	NTSTATUS eventlog_GetLogIntormation(
+	NTSTATUS eventlog_GetLogInformation(
 		[in] policy_handle *handle,
 		[in] uint32 dwInfoLevel,
 		[out] [size_is(cbBufSize)] char lpBuffer[*],

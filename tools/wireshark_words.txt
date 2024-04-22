@@ -33,6 +33,8 @@ addba
 additionals
 additionsr
 addon
+addrbook
+addrtype
 adjacency
 adlink
 administrable
@@ -85,6 +87,7 @@ appid
 appkey
 applctrl
 applicability
+approx
 appset
 arbitrated
 arcnet
@@ -297,6 +300,8 @@ clksrc
 cllog
 clopts
 clsfr
+clusctl
+clusprop
 clustermap
 cmake
 cmdcontrol
@@ -405,6 +410,7 @@ datarate
 dataset
 datastate
 datetime
+daysofweek
 dccreq
 dcerpc
 dct3trace
@@ -534,11 +540,13 @@ dlsch
 dmepi
 dnskey
 dnssec
+dnssrv
 docomo
 docsis
 dodag
 dot11Qos
 dot1q
+dotnet
 double
 downlink
 doxygen
@@ -977,6 +985,7 @@ leasequery
 legitimisation
 libgcrypt
 libiconv
+libndr
 libnl
 libpcap
 libsmi
@@ -1102,6 +1111,7 @@ mptcp
 mrcpv
 msbuild
 mscldap
+msgflag
 msgid
 msglen
 msgreq
@@ -1187,9 +1197,11 @@ nikon
 nitnxlate
 nmtcommand
 nnsvc
+noalign
 noascii
 noauth
 nodeid
+nodiscriminant
 nofcs
 nokia
 nolintnextline
@@ -1223,10 +1235,13 @@ nssvc
 nstat
 nstime
 nstrace
+nt4change
 ntlmssp
 ntlmv
 ntohl
 ntohs
+ntstatus
+nttime
 ntwkconn
 nullptr
 nvgre
@@ -1285,6 +1300,7 @@ optimizer
 optiplex
 optreq
 ordinal
+orpcthat
 orthogonal
 oscillatory
 oscore
@@ -1725,6 +1741,7 @@ sharkd
 shenzhen
 shomiti
 shortstr
+shtdn
 siapp
 sidelink
 signaal
@@ -1739,6 +1756,7 @@ skype
 slaac
 slimp
 slsch
+smime
 smpdirected
 smpte
 smrse
@@ -1772,6 +1790,7 @@ spline
 spnego
 spoofing
 spooled
+spooler
 sqlwarn
 srbid
 srcdst
@@ -1952,6 +1971,7 @@ truncatable
 truncate
 truncates
 truncating
+trustdom
 tshark
 tspec
 tstamp
@@ -2059,6 +2079,7 @@ unignore
 unimplemented
 uninformative
 uninhibit
+uninitialised
 uninitialized
 uninstall
 uninstallation
@@ -2146,6 +2167,7 @@ usability
 usbmon
 usbms
 usbpcap
+usenet
 userauth
 userdata
 userinfo
@@ -2204,6 +2226,7 @@ wbxml
 webcam
 webkit
 websocket
+werror
 whoami
 wideband
 wifidump
@@ -2211,6 +2234,7 @@ wikipedia
 wikis
 wimax
 wimaxasncp
+win2k
 winflexbison
 winget
 winpcap
