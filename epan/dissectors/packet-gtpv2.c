@@ -559,7 +559,7 @@ static int hf_gtpv2_iksrvcc;
 static int hf_gtpv2_nsapi08;
 static int hf_gtpv2_voice_domain_and_ue_usage_setting;
 static int hf_gtpv2_ue_radio_capability_for_paging_information;
-static int hf_gtpv2_upd_source_port_number;
+static int hf_gtpv2_port_number;
 static int hf_gtpv2_uplink_used_ue_ambr;
 static int hf_gtpv2_tmsi_bytes;
 static int hf_gtpv2_dl_gtp_u_sequence_number;
@@ -1194,13 +1194,13 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_GUTI                   117
 #define GTPV2_IE_F_CONTAINER            118
 #define GTPV2_IE_F_CAUSE                119
-#define GTPV2_IE_SEL_PLMN_ID            120
+#define GTPV2_IE_PLMN_ID                120
 #define GTPV2_IE_TARGET_ID              121
 /* GTPV2_IE_NSAPI                       122 */
 #define GTPV2_IE_PKT_FLOW_ID            123
 #define GTPV2_IE_RAB_CONTEXT            124
 #define GTPV2_IE_S_RNC_PDCP_CTX_INFO    125
-#define GTPV2_IE_UDP_S_PORT_NR          126
+#define GTPV2_IE_PORT_NR                 126
 #define GTPV2_IE_APN_RESTRICTION        127
 #define GTPV2_IE_SEL_MODE               128
 #define GTPV2_IE_SOURCE_IDENT           129
@@ -1291,7 +1291,7 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_PC5_QOS_FLOW                        212
 #define GTPV2_IE_SGI_PTP_TUNNEL_ADDRESS              213
 #define GTPV2_IE_PGW_CHANGE_INFO                     214
-#define GTPV2_IE_PGW_SET_FQDN                        215
+#define GTPV2_IE_PGW_FQDN                            215
 #define GTPV2_IE_GROUP_ID                            216
 #define GTPV2_IE_PSCELL_ID                           217
 #define GTPV2_IE_UP_SECURITY_POLICY                  218
@@ -1396,13 +1396,13 @@ static const value_string gtpv2_element_type_vals[] = {
     {117, "GUTI"},                                                              /* Variable Length / 8.47 */
     {118, "F-Container"},                                                       /* Variable Length / 8.48 */
     {119, "F-Cause"},                                                           /* Variable Length / 8.49 */
-    {120, "Selected PLMN ID"},                                                  /* Variable Length / 8.50 */
+    {120, "PLMN ID"},                                                           /* Variable Length / 8.50 */
     {121, "Target Identification"},                                             /* Variable Length / 8.51 */
     {122, "NSAPI"},                                                             /* Extendable / 8.52 */
     {123, "Packet Flow ID"},                                                    /* Variable Length / 8.53 */
     {124, "RAB Context"},                                                       /* Fixed Length / 8.54 */
     {125, "Source RNC PDCP Context Info"},                                      /* Variable Length / 8.55 */
-    {126, "UDP Source Port Number"},                                            /* Extendable / 8.56 */
+    {126, "Port Number"},                                                       /* Extendable / 8.56 */
     {127, "APN Restriction"},                                                   /* Extendable / 8.57 */
     {128, "Selection Mode"},                                                    /* Extendable / 8.58 */
     {129, "Source Identification"},                                             /* Variable Length / 8.50 */
@@ -1491,7 +1491,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {212, "PC5 QoS Flow" },                                                     /* Extendable / 8.143 */
     {213, "SGi PtP Tunnel Address" },                                           /* Extendable / 8.144 */
     {214, "PGW Change Info" },                                                  /* Extendable / 8.145 */
-    {215, "PGW Set FQDN" },                                                     /* Extendable / 8.146 */
+    {215, "PGW FQDN" },                                                         /* Extendable / 8.146 */
     {216, "Group Id" },                                                         /* Variable Length / 8.147 */
     {217, "PSCell ID" },                                                        /* Fixed Length / 8.148*/
     {218, "UP Security Policy" },                                               /* Extendable / 8.149*/
@@ -5696,7 +5696,7 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 }
 
 /*
- * 8.50 Selected PLMN ID
+ * 8.50 PLMN ID
  */
 /*
  * The Selected PLMN ID IE contains the core network operator selected for tne UE
@@ -5716,7 +5716,7 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
  *         +--+--+--+--+--+--+--+--+
  */
 static void
-dissect_gtpv2_sel_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     gchar *mcc_mnc_str;
 
@@ -6003,12 +6003,12 @@ dissect_gtpv2_s_rnc_pdcp_ctx_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 }
 
 /*
- * 8.56 UDP Source Port Number
+ * 8.56 Port Number
  */
 static void
-dissect_udp_s_port_nr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_port_nr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_item(tree, hf_gtpv2_upd_source_port_number, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_port_number, tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%u", tvb_get_ntohs(tvb, 0));
 }
 /*
@@ -8557,9 +8557,9 @@ dissect_gtpv2_ie_pgw_change_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
 }
 
-/* 215 PGW Set FQDN Extendable / 8.146 */
+/* 215 PGW FQDN Extendable / 8.146 */
 static void
-dissect_gtpv2_ie_pgw_set_fqdn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+dissect_gtpv2_ie_pgw_fqdn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
 {
     int offset = 0;
     offset = decode_gtpv2_fqdn(tvb, pinfo, tree, item, offset, length);
@@ -8719,13 +8719,13 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_GUTI, dissect_gtpv2_guti},                                   /* 117, GUTI 8.47 */
     {GTPV2_IE_F_CONTAINER, dissect_gtpv2_F_container},                     /* 118, Fully Qualified Container (F-Container) */
     {GTPV2_IE_F_CAUSE, dissect_gtpv2_F_cause},                             /* 119, Fully Qualified Cause (F-Cause) */
-    {GTPV2_IE_SEL_PLMN_ID, dissect_gtpv2_sel_plmn_id},                     /* 120, Selected PLMN ID 8.50 */
+    {GTPV2_IE_PLMN_ID, dissect_gtpv2_plmn_id},                             /* 120, PLMN ID 8.50 */
     {GTPV2_IE_TARGET_ID, dissect_gtpv2_target_id},                         /* 121, Target Identification */
                                                                            /* 122, Void 8.52 */
     {GTPV2_IE_PKT_FLOW_ID, dissect_gtpv2_pkt_flow_id},                     /* 123, Packet Flow ID 8.53 */
     {GTPV2_IE_RAB_CONTEXT, dissect_gtpv2_rab_context},                     /* 124, RAB Context 8.54 */
     {GTPV2_IE_S_RNC_PDCP_CTX_INFO, dissect_gtpv2_s_rnc_pdcp_ctx_info},     /* 125, Source RNC PDCP context info 8.55 */
-    {GTPV2_IE_UDP_S_PORT_NR, dissect_udp_s_port_nr},                       /* 126, UDP Source Port Number 8.56 */
+    {GTPV2_IE_PORT_NR, dissect_port_nr},                                   /* 126, Port Number 8.56 */
     {GTPV2_IE_APN_RESTRICTION, dissect_gtpv2_apn_rest},                    /* 127, APN Restriction */
     {GTPV2_IE_SEL_MODE, dissect_gtpv2_selec_mode},                         /* 128, Selection Mode */
     {GTPV2_IE_SOURCE_IDENT, dissect_gtpv2_source_ident},                   /* 129, Source Identification 8.59 */
@@ -8815,7 +8815,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_PC5_QOS_FLOW, dissect_gtpv2_ie_pc5_qos_flow },                 /* 212 PC5 QoS Flow Extendable / 8.143 */
     {GTPV2_IE_SGI_PTP_TUNNEL_ADDRESS, dissect_gtpv2_ie_sgi_ptp_tunnel_address }, /* 213 SGi PtP Tunnel Address Extendable / 8.144 */
     {GTPV2_IE_PGW_CHANGE_INFO, dissect_gtpv2_ie_pgw_change_info },           /* 214 PGW Change Info Extendable / 8.145 */
-    {GTPV2_IE_PGW_SET_FQDN, dissect_gtpv2_ie_pgw_set_fqdn },                 /* 215 PGW Set FQDN Extendable / 8.146 */
+    {GTPV2_IE_PGW_FQDN, dissect_gtpv2_ie_pgw_fqdn },                         /* 215 PGW FQDN Extendable / 8.146 */
     {GTPV2_IE_GROUP_ID, dissect_gtpv2_ie_group_id },                         /* 216 Group Id Variable Length / 8.147 */
     {GTPV2_IE_PSCELL_ID, dissect_gtpv2_ie_pscell_id },                       /* 217 PSCell Id Fixed Length / 8.148 */
     {GTPV2_IE_UP_SECURITY_POLICY, dissect_gtpv2_ie_up_security_policy },     /* 218 UP Security Policy Extendable / 8.149 */
@@ -11718,7 +11718,7 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_hop_counter, { "Hop Counter", "gtpv2.hop_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_packet_flow_id, { "Packet Flow ID", "gtpv2.packet_flow_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_rrc_container, { "RRC Container", "gtpv2.rrc_container", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtpv2_upd_source_port_number, { "UPD Source Port Number", "gtpv2.upd_source_port_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtpv2_port_number, { "Port Number", "gtpv2.port_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_proprietary_value, { "Proprietary value", "gtpv2.proprietary_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_spare_bytes, { "Spare", "gtpv2.spare_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_dl_pdcp_sequence_number, { "DL PDCP Sequence Number", "gtpv2.dl_pdcp_sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
