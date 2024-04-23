@@ -1974,9 +1974,9 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_telephone, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_docsis_cable_device, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_station_only, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_enable_system_cap_cvlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_enable_system_cap_svlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_enable_system_cap_tpmr_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_cvlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_svlan_component, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_tpmr_component, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	offset += 2;
 
