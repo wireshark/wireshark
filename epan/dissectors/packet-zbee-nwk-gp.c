@@ -1768,6 +1768,9 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         NULL
     };
 
+    if (data == NULL)
+        return 0;
+
     memset(&packet, 0, sizeof(packet));
     packet.ieee_packet_src64 = ieee_packet->src64;
     /* Add ourself to the protocol column, clear the info column and create the protocol tree. */
