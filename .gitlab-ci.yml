@@ -1116,7 +1116,7 @@ Code Lines and Data:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
     - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
-    - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
+    - if [ "$CI_JOB_STATUS" == "canceled" ]; then exit 0 ; fi
     - . /tmp/fuzz_result.sh
     - if $FUZZ_PASSED ; then exit 0 ; fi
     - echo Fuzzing failed. Generating report.
