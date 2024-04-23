@@ -3870,18 +3870,15 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
 		proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_segmentation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-		if (segment_size != 0)
-		{
-			offset += 1;
-			proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_command_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			offset += 1;
+		offset += 1;
+		proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_command_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 
-			item = proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_segment_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			if ( tvb_reported_length_remaining(tvb, offset) < segment_size )
-				expert_add_info_format(pinfo, item, &ei_real_length_differs,
-								"Captured length differs, only %d octets will be displayed", tvb_reported_length_remaining(tvb, offset) - 4 );
-		}
+		item = proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_segment_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		if ( tvb_reported_length_remaining(tvb, offset) < segment_size )
+			expert_add_info_format(pinfo, item, &ei_real_length_differs,
+							"Captured length differs, only %d octets will be displayed", tvb_reported_length_remaining(tvb, offset) - 4 );
 
 		if (segmented == EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 		{
