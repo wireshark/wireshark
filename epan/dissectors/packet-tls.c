@@ -275,6 +275,63 @@ static reassembly_table ssl_reassembly_table;
 static reassembly_table tls_hs_reassembly_table;
 static guint32 hs_reassembly_id_count;
 
+/* Fragment TLS handshake reassembly functions. The records are
+ * organized by session and direction; this allows reassembly across
+ * QUIC connection migration when addresses and ports change.
+ */
+typedef struct _tls_hs_fragment_key {
+        const SslSession *session;
+        uint32_t id;
+        bool from_server;
+} tls_hs_fragment_key;
+
+static unsigned
+tls_hs_fragment_hash(gconstpointer k)
+{
+        const tls_hs_fragment_key* key = (const tls_hs_fragment_key*) k;
+        return key->id;
+}
+
+static int
+tls_hs_fragment_equal(gconstpointer k1, gconstpointer k2)
+{
+        const tls_hs_fragment_key* key1 = (const tls_hs_fragment_key*) k1;
+        const tls_hs_fragment_key* key2 = (const tls_hs_fragment_key*) k2;
+
+        return (key1->id == key2->id &&
+                key1->session == key2->session &&
+                key1->from_server == key2->from_server);
+}
+
+static gpointer
+tls_hs_fragment_temporary_key(const packet_info *pinfo, const uint32_t id,
+                     const void *data)
+{
+        tls_hs_fragment_key *key = g_slice_new0(tls_hs_fragment_key);
+        SslSession *session = (SslSession *)data;
+        key->id = id;
+        key->session = session;
+        key->from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
+        return key;
+}
+
+static void
+tls_hs_fragment_free_temporary_key(gpointer ptr)
+{
+        tls_hs_fragment_key *key = (tls_hs_fragment_key *)ptr;
+        g_slice_free(tls_hs_fragment_key, key);
+}
+
+const reassembly_table_functions
+tls_hs_reassembly_table_functions = {
+        tls_hs_fragment_hash,
+        tls_hs_fragment_equal,
+        tls_hs_fragment_temporary_key,
+        tls_hs_fragment_temporary_key,
+        tls_hs_fragment_free_temporary_key,
+        tls_hs_fragment_free_temporary_key,
+};
+
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void
 ssl_init(void)
@@ -2482,7 +2539,8 @@ static TlsHsFragment *
 save_tls_handshake_fragment(packet_info *pinfo, guint8 curr_layer_num_tls,
                             guint record_id, guint reassembly_id,
                             tvbuff_t *tvb, guint32 offset, guint frag_len,
-                            guint frag_offset, guint8 msg_type, gboolean is_last)
+                            guint frag_offset, guint8 msg_type, gboolean is_last,
+                            SslSession *session)
 {
     // Full handshake messages should not be saved.
     DISSECTOR_ASSERT(!(frag_offset == 0 && is_last));
@@ -2510,7 +2568,7 @@ save_tls_handshake_fragment(packet_info *pinfo, guint8 curr_layer_num_tls,
 
     // Add (subset of) record data.
     fragment_add_check(&tls_hs_reassembly_table, tvb, offset,
-                       pinfo, reassembly_id, NULL, frag_offset, frag_len, !is_last);
+                       pinfo, reassembly_id, session, frag_offset, frag_len, !is_last);
 
     return frag_info;
 }
@@ -2613,7 +2671,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         // 1. (First pass:) If a previous handshake message needed reassembly.
         if (*hs_reassembly_id_p) {
             // Continuation, so a previous fragment *must* exist.
-            fh = fragment_get(&tls_hs_reassembly_table, pinfo, *hs_reassembly_id_p, NULL);
+            fh = fragment_get(&tls_hs_reassembly_table, pinfo, *hs_reassembly_id_p, session);
             DISSECTOR_ASSERT(fh);
             // We expect that reassembly has not completed yet.
             DISSECTOR_ASSERT(fh->tvb_data == NULL);
@@ -2654,7 +2712,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 guint8 msg_type = tvb_get_guint8(len_tvb, 0);
                 gboolean is_last = frags_len + subset_len == msg_len;
                 frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
-                        tvb, offset, subset_len, frags_len, msg_type, is_last);
+                        tvb, offset, subset_len, frags_len, msg_type, is_last, session);
                 if (is_last) {
                     // Reassembly finished, next message should not continue this message.
                     *hs_reassembly_id_p = 0;
@@ -2738,7 +2796,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 guint8 msg_type = tvb_get_guint8(tvb, offset);
                 *hs_reassembly_id_p = ++hs_reassembly_id_count;
                 frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
-                        tvb, offset, subset_len, 0, msg_type, FALSE);
+                        tvb, offset, subset_len, 0, msg_type, FALSE, session);
             } else {
                 // The first pass must have created a new fragment.
                 DISSECTOR_ASSERT(frag_info && frag_info->offset == 0);
@@ -4862,7 +4920,7 @@ proto_register_tls(void)
     reassembly_table_register(&ssl_reassembly_table,
                           &tcp_reassembly_table_functions);
     reassembly_table_register(&tls_hs_reassembly_table,
-                          &addresses_ports_reassembly_table_functions);
+                          &tls_hs_reassembly_table_functions);
     register_decode_as(&ssl_da);
 
     /* XXX: this seems unused due to new "Follow TLS" method, remove? */

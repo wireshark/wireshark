@@ -5832,7 +5832,7 @@ ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port
 }
 
 int
-ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info *pinfo)
+ssl_packet_from_server(SslSession *session, dissector_table_t table, const packet_info *pinfo)
 {
     gint ret;
     if (session && session->srv_addr.type != AT_NONE) {

@@ -748,7 +748,7 @@ extern void
 ssl_association_remove(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp);
 
 extern gint
-ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info *pinfo);
+ssl_packet_from_server(SslSession *session, dissector_table_t table, const packet_info *pinfo);
 
 /* Obtain information about the current TLS layer. */
 SslPacketInfo *
