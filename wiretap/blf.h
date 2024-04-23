@@ -161,6 +161,11 @@ typedef struct blf_ethernetframeheader_ex {
     uint32_t error;
 } blf_ethernetframeheader_ex_t;
 
+#define BLF_ETHERNET_EX_RES             0x0001
+#define BLF_ETHERNET_EX_HARDWARECHANNEL 0x0002
+#define BLF_ETHERNET_EX_FRAMEDURATION   0x0004
+#define BLF_ETHERNET_EX_FRAMEHANDLE     0x0008
+
 typedef struct blf_wlanframeheader {
     uint16_t channel;
     uint16_t flags;
@@ -622,6 +627,17 @@ typedef struct blf_ethernet_status {
 */
 } blf_ethernet_status_t;
 
+#define BLF_ETH_STATUS_LINKSTATUS       0x0001
+#define BLF_ETH_STATUS_BITRATE          0x0002
+#define BLF_ETH_STATUS_ETHERNETPHY      0x0004
+#define BLF_ETH_STATUS_DUPLEX           0x0008
+#define BLF_ETH_STATUS_MDITYPE          0x0010
+#define BLF_ETH_STATUS_CONNECTOR        0x0020
+#define BLF_ETH_STATUS_CLOCKMODE        0x0040
+#define BLF_ETH_STATUS_BRPAIR           0x0080
+#define BLF_ETH_STATUS_HARDWARECHANNEL  0x0100
+#define BLF_ETH_STATUS_LINKUPDURATION   0x0200
+
 typedef struct blf_ethernet_phystate {
     uint16_t    channel;
     uint16_t    flags;
@@ -630,6 +646,10 @@ typedef struct blf_ethernet_phystate {
     uint8_t     hardwareChannel;
     uint8_t     res1;
 } blf_ethernet_phystate_t;
+
+#define BLF_PHY_STATE_PHYSTATE          0x0001
+#define BLF_PHY_STATE_PHYEVENT          0x0002
+#define BLF_PHY_STATE_HARDWARECHANNEL   0x0004
 
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/ObjectHeaderBase.h */
@@ -761,21 +781,6 @@ typedef struct blf_ethernet_phystate {
 #define BLF_OBJTYPE_ATTRIBUTE_EVENT             131
 #define BLF_OBJTYPE_DISTRIBUTED_OBJECT_CHANGE   132
 #define BLF_OBJTYPE_ETHERNET_PHY_STATE          133
-
-#define BLF_ETH_STATUS_LINKSTATUS 0x0001
-#define BLF_ETH_STATUS_BITRATE 0x0002
-#define BLF_ETH_STATUS_ETHERNETPHY 0x0004
-#define BLF_ETH_STATUS_DUPLEX 0x0008
-#define BLF_ETH_STATUS_MDITYPE 0x0010
-#define BLF_ETH_STATUS_CONNECTOR 0x0020
-#define BLF_ETH_STATUS_CLOCKMODE  0x0040
-#define BLF_ETH_STATUS_BRPAIR 0x0080
-#define BLF_ETH_STATUS_HARDWARECHANNEL 0x0100
-#define BLF_ETH_STATUS_LINKUPDURATION 0x0200
-
-#define BLF_PHY_STATE_PHYSTATE          0x0001
-#define BLF_PHY_STATE_PHYEVENT          0x0002
-#define BLF_PHY_STATE_HARDWARECHANNEL   0x0004
 
 #endif
 

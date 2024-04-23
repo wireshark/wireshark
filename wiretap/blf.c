@@ -1409,8 +1409,14 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
         return false;
     }
 
-    blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
-    wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
+    if (ethheader.flags & BLF_ETHERNET_EX_HARDWARECHANNEL) {
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
+        wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
+    }
+    else {
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
+    }
+
     blf_add_direction_option(params, ethheader.direction);
 
     return true;
