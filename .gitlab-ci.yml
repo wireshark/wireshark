@@ -290,6 +290,7 @@ Source Package:
     - cp -v doc/release-notes.txt ../release-notes-${WIRESHARK_VERSION}.txt
   after_script:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+    - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
     - if [ -n "$SCHEDULE_TYPE" ] ; then exit 0 ; fi
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha512 sha256 sha1 ; do openssl $digest wireshark-*.tar.* ; done
@@ -641,15 +642,15 @@ Documentation:
     - ninja all_guides
     - cd docbook
     - for HTML_DIR in wsug_html wsug_html_chunked wsdg_html wsdg_html_chunked ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
-  after_script:
-    - mv -v build/docbook/ws[ud]g_html{,_chunked}.zip .
-    - mv -v build/docbook/Wireshark*Guide.{epub,pdf} .
+    - cd docbook
     - |
       if [ -n "$S3_DESTINATION_DOCS" ] ; then
         for DOC_FILE in ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ; do
           aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
         done
       fi
+  after_script:
+    - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
   artifacts:
     paths:
       - wsug_html.zip
@@ -1007,14 +1008,14 @@ API Reference:
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
-  after_script:
-    - mv build/wsar_html.zip .
-    - mv build/doxygen_output.txt .
-    - mv build/doxygen_errors.txt .
+    - mv wsar_html.zip doxygen_{output,errors}.txt ..
+    - cd ..
     - |
       if [ -n "$S3_DESTINATION_DOCS" ] ; then
         aws s3 cp wsar_html.zip "$S3_DESTINATION_DOCS/"
       fi
+  after_script:
+    - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
   artifacts:
     paths:
     - doxygen_errors.txt
@@ -1115,6 +1116,7 @@ Code Lines and Data:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
     - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+    - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
     - . /tmp/fuzz_result.sh
     - if $FUZZ_PASSED ; then exit 0 ; fi
     - echo Fuzzing failed. Generating report.
