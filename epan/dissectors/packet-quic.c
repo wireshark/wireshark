@@ -3337,16 +3337,18 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
 /**
  * Tries to construct the appropriate cipher for the current key phase.
  * See also "PROTECTED PAYLOAD DECRYPTION" comment on top of this file.
+ * Returns true if the cipher was newly created (and needs to be either
+ * freed or added to the array of ciphers), false if an existing cipher
+ * was returned.
  */
-static quic_pp_cipher *
-quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server)
+static bool
+quic_get_pp_cipher(quic_pp_cipher *pp_cipher, gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server, uint64_t pkn)
 {
     const char *error = NULL;
-    gboolean    success = FALSE;
 
     /* Keys were previously not available. */
     if (quic_info->skip_decryption) {
-        return NULL;
+        return false;
     }
 
     quic_pp_state_t *client_pp = &quic_info->client_pp;
@@ -3355,46 +3357,71 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
 
     /*
      * If the key phase changed, try to decrypt the packet using the new cipher.
+     * However, if the packet number is before we changed to the current phase,
+     * try the previous cipher instead.
      * If that fails, then it is either a malicious packet or out-of-order.
-     * In that case, try the previous cipher (unless it is the very first KP1).
      * '!!' is due to key_phase being a signed bitfield, it forces -1 into 1.
      */
-    if (key_phase != !!pp_state->key_phase) {
-        quic_pp_cipher new_cipher;
-
-        memset(&new_cipher, 0, sizeof(new_cipher));
-        if (!quic_pp_cipher_prepare(&new_cipher, quic_info->hash_algo,
+    if (key_phase != !!pp_state->key_phase && pkn > pp_state->changed_in_pkn) {
+        memset(pp_cipher, 0, sizeof(quic_pp_cipher));
+        if (!quic_pp_cipher_prepare(pp_cipher, quic_info->hash_algo,
                                     quic_info->cipher_algo, quic_info->cipher_mode, pp_state->next_secret, &error, quic_info->version)) {
             /* This should never be reached, if the parameters were wrong
              * before, then it should have set "skip_decryption". */
             REPORT_DISSECTOR_BUG("quic_pp_cipher_prepare unexpectedly failed: %s", error);
-            return NULL;
+            return false;
         }
 
-        // TODO verify decryption before switching keys.
-        success = TRUE;
-
-        if (success) {
-            /* Verified the cipher, use it from now on and rotate the key. */
-            /* Note that HP cipher is not touched.
-               https://tools.ietf.org/html/draft-ietf-quic-tls-32#section-5.4
-	       "The same header protection key is used for the duration of the
-	        connection, with the value not changing after a key update" */
-            quic_pp_cipher_reset(&pp_state->pp_ciphers[key_phase]);
-            pp_state->pp_ciphers[key_phase] = new_cipher;
-            quic_update_key(quic_info->version, quic_info->hash_algo, pp_state);
-
-            pp_state->key_phase = key_phase;
-            //pp_state->changed_in_pkn = pkn;
-
-            return &pp_state->pp_ciphers[key_phase];
-        } else {
-            // TODO fallback to previous cipher
-            return NULL;
-        }
+        return true;
     }
 
-    return &pp_state->pp_ciphers[key_phase];
+    *pp_cipher = pp_state->pp_ciphers[key_phase];
+    return false;
+}
+
+/**
+ * After success decrypting payload, replaces the previous cipher for this
+ * phase with the new one, and stores the packet number where this occurred.
+ */
+static void
+quic_set_pp_cipher(quic_pp_cipher *pp_cipher, gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server, uint64_t pkn)
+{
+    /* Keys were previously not available. */
+    if (quic_info->skip_decryption) {
+        return;
+    }
+
+    quic_pp_state_t *client_pp = &quic_info->client_pp;
+    quic_pp_state_t *server_pp = &quic_info->server_pp;
+    quic_pp_state_t *pp_state = !from_server ? client_pp : server_pp;
+
+    /*
+     * If the key phase changed, replace the old cipher at this phase
+     * with the new one, since we succeeded.
+     *
+     * XXX - Perhaps optimally we should have a dynamic array of ciphers,
+     * and a tree storing the packet numbers at which they changed,
+     * instead of storing only two ciphers at once. We could even try
+     * more than one cipher for a given polarity when things are badly
+     * out of order and missing. (Servers and clients are not supposed
+     * to switch a second time until they have received acks for the
+     * previous changes, but there can still be old outstanding packets.
+     * See RFC 9001 6. Key Update.)
+     */
+    if (key_phase != !!pp_state->key_phase && pkn > pp_state->changed_in_pkn) {
+
+        /* Verified the cipher, use it from now on and rotate the key. */
+        /* Note that HP cipher is not touched.
+           https://tools.ietf.org/html/draft-ietf-quic-tls-32#section-5.4
+           "The same header protection key is used for the duration of the
+            connection, with the value not changing after a key update" */
+        quic_pp_cipher_reset(&pp_state->pp_ciphers[key_phase]);
+        pp_state->pp_ciphers[key_phase] = *pp_cipher;
+        quic_update_key(quic_info->version, quic_info->hash_algo, pp_state);
+
+        pp_state->key_phase = key_phase;
+        pp_state->changed_in_pkn = pkn;
+    }
 }
 
 /**
@@ -4042,7 +4069,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint8  first_byte = 0;
     gboolean    key_phase = FALSE;
     proto_item *ti;
-    quic_pp_cipher *pp_cipher = NULL;
+    quic_pp_cipher pp_cipher = {0};
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
     gboolean loss_bits_negotiated = FALSE;
@@ -4106,10 +4133,6 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         proto_item_append_text(pi, " DCID=%s", dcid_str);
     }
 
-    if (!PINFO_FD_VISITED(pinfo) && conn) {
-        pp_cipher = quic_get_pp_cipher(key_phase, conn, from_server);
-    }
-
     if (quic_packet->decryption.error) {
         expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed,
                                "Failed to create decryption context: %s", quic_packet->decryption.error);
@@ -4130,11 +4153,23 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     ti = proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
 
     if (conn) {
+        bool phase_change = false;
+        if (!PINFO_FD_VISITED(pinfo)) {
+            phase_change = quic_get_pp_cipher(&pp_cipher, key_phase, conn, from_server, quic_packet->packet_number);
+        }
+
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, pp_cipher, first_byte, quic_packet->pkn_len);
-        if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
-            // Packet number is verified to be valid, remember it.
-            *quic_max_packet_number(conn, dgram_info->path_id, from_server, first_byte) = quic_packet->packet_number;
+                             conn, quic_packet, from_server, &pp_cipher,
+                             first_byte, quic_packet->pkn_len);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            if (!quic_packet->decryption.error) {
+                // Packet number is verified to be valid, remember it.
+                *quic_max_packet_number(conn, dgram_info->path_id, from_server, first_byte) = quic_packet->packet_number;
+                // pp cipher is verified to be valid, remember if it new.
+                quic_set_pp_cipher(&pp_cipher, key_phase, conn, from_server, quic_packet->packet_number);
+            } else if (phase_change) {
+                quic_pp_cipher_reset(&pp_cipher);
+            }
         }
     }
     offset += tvb_reported_length_remaining(tvb, offset);
