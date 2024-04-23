@@ -166,6 +166,16 @@ typedef struct blf_ethernetframeheader_ex {
 #define BLF_ETHERNET_EX_FRAMEDURATION   0x0004
 #define BLF_ETHERNET_EX_FRAMEHANDLE     0x0008
 
+typedef struct blf_ethernet_rxerror {
+    uint16_t struct_length;
+    uint16_t channel;
+    uint16_t direction;
+    uint16_t hw_channel;
+    uint32_t frame_checksum;
+    uint16_t frame_length;  /* Number of valid raw Ethernet data bytes */
+    uint32_t error;
+} blf_ethernet_rxerror_t;
+
 typedef struct blf_wlanframeheader {
     uint16_t channel;
     uint16_t flags;

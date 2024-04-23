@@ -377,6 +377,17 @@ fix_endianness_blf_ethernetframeheader_ex(blf_ethernetframeheader_ex_t *header) 
 }
 
 static void
+fix_endianness_blf_ethernet_rxerror(blf_ethernet_rxerror_t* header) {
+    header->struct_length = GUINT16_FROM_LE(header->struct_length);
+    header->channel = GUINT16_FROM_LE(header->channel);
+    header->direction = GUINT16_FROM_LE(header->direction);
+    header->hw_channel = GUINT16_FROM_LE(header->hw_channel);
+    header->frame_checksum = GUINT32_FROM_LE(header->frame_checksum);
+    header->frame_length = GUINT16_FROM_LE(header->frame_length);
+    header->error = GUINT32_FROM_LE(header->error);
+}
+
+static void
 fix_endianness_blf_wlanframeheader(blf_wlanframeheader_t* header) {
     header->channel = GUINT16_FROM_LE(header->channel);
     header->flags = GUINT16_FROM_LE(header->flags);
@@ -1379,12 +1390,13 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
 }
 
 static bool
-blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
+blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int64_t block_start,int64_t data_start,
+                            int64_t object_length, uint32_t flags, uint64_t object_timestamp, gboolean error) {
     blf_ethernetframeheader_ex_t ethheader;
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_ex_t)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: ETHERNET_FRAME_EX: not enough bytes for ethernet frame header in object");
+        *err_info = ws_strdup_printf("blf: %s: not enough bytes for ethernet frame header in object", error ? "ETHERNET_ERROR_EX" : "ETHERNET_FRAME_EX");
         ws_debug("not enough bytes for ethernet frame header in object");
         return false;
     }
@@ -1399,7 +1411,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
 
     if (object_length - (data_start - block_start) - sizeof(blf_ethernetframeheader_ex_t) < ethheader.frame_length) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: ETHERNET_FRAME_EX: frame too short");
+        *err_info = ws_strdup_printf("blf: %s: frame too short", error ? "ETHERNET_ERROR_EX" : "ETHERNET_FRAME_EX");
         ws_debug("frame too short");
         return false;
     }
@@ -1417,6 +1429,49 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int6
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
     }
 
+    blf_add_direction_option(params, ethheader.direction);
+
+    return true;
+}
+
+static bool
+blf_read_ethernet_rxerror(blf_params_t* params, int* err, char** err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
+    blf_ethernet_rxerror_t ethheader;
+
+    if (object_length < (data_start - block_start) + (int)sizeof(blf_ethernet_rxerror_t)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: ETHERNET_RXERROR: not enough bytes for ethernet frame header in object");
+        ws_debug("not enough bytes for ethernet rx error header in object");
+        return false;
+    }
+
+    if (!blf_read_bytes(params, data_start, &ethheader, sizeof(blf_ethernet_rxerror_t), err, err_info)) {
+        ws_debug("not enough bytes for ethernet rx error header in file");
+        return false;
+    }
+    fix_endianness_blf_ethernet_rxerror(&ethheader);
+
+    ws_buffer_assure_space(params->buf, ethheader.frame_length);
+
+    if (object_length - (data_start - block_start) < ethheader.frame_length) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: ETHERNET_RXERROR: frame too short");
+        ws_debug("frame too short");
+        return false;
+    }
+
+    if (!blf_read_bytes(params, data_start + sizeof(blf_ethernet_rxerror_t), ws_buffer_start_ptr(params->buf), ethheader.frame_length, err, err_info)) {
+        ws_debug("copying ethernet rx error failed");
+        return false;
+    }
+
+    if (ethheader.hw_channel != 0) {    /* In this object type, a value of 0 is considered invalid. */
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, ethheader.hw_channel, ethheader.frame_length, ethheader.frame_length);
+        wtap_block_add_uint32_option(params->rec->block, OPT_PKT_QUEUE, ethheader.hw_channel);
+    }
+    else {
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_ETHERNET, ethheader.channel, UINT16_MAX, ethheader.frame_length, ethheader.frame_length);
+    }
     blf_add_direction_option(params, ethheader.direction);
 
     return true;
@@ -3217,7 +3272,15 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             break;
 
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
-            return blf_read_ethernetframe_ext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            return blf_read_ethernetframe_ext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, false);
+            break;
+
+        case BLF_OBJTYPE_ETHERNET_RX_ERROR:
+            return blf_read_ethernet_rxerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+            break;
+
+        case BLF_OBJTYPE_ETHERNET_ERROR_EX:
+            return blf_read_ethernetframe_ext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, true);
             break;
 
         case BLF_OBJTYPE_WLAN_FRAME:
