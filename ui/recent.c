@@ -64,6 +64,7 @@
 #define RECENT_GUI_GEOMETRY_MAIN_MASTER_SPLIT   "gui.geometry_main_master_split"
 #define RECENT_GUI_GEOMETRY_MAIN_EXTRA_SPLIT    "gui.geometry_main_extra_split"
 #define RECENT_LAST_USED_PROFILE                "gui.last_used_profile"
+#define RECENT_PROFILE_SWITCH_CHECK_COUNT       "gui.profile_switch_check_count"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR      "gui.fileopen_remembered_dir"
 #define RECENT_GUI_CONVERSATION_TABS            "gui.conversation_tabs"
 #define RECENT_GUI_CONVERSATION_TABS_COLUMNS    "gui.conversation_tabs_columns"
@@ -920,6 +921,12 @@ write_recent(void)
     fprintf(rf, "\n# Last used Configuration Profile.\n");
     fprintf(rf, RECENT_LAST_USED_PROFILE ": %s\n", get_profile_name());
 
+    fprintf(rf, "\n# Number of packets or events to check for automatic profile switching.\n");
+    fprintf(rf, "# Decimal number. Zero disables switching.\n");
+    const char * def_prefix = recent.gui_profile_switch_check_count == 1000 ? "#" : "";
+    fprintf(rf, "%s" RECENT_PROFILE_SWITCH_CHECK_COUNT ": %d\n", def_prefix,
+            recent.gui_profile_switch_check_count);
+
     write_recent_boolean(rf, "Warn if running with elevated permissions (e.g. as root)",
             RECENT_KEY_PRIVS_WARN_IF_ELEVATED,
             recent.privs_warn_if_elevated);
@@ -1267,6 +1274,13 @@ read_set_recent_common_pair_static(char *key, const char *value,
         if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, false)) {
             set_profile_name (value);
         }
+    } else if (strcmp(key, RECENT_PROFILE_SWITCH_CHECK_COUNT) == 0) {
+        num = strtol(value, &p, 0);
+        if (p == value || *p != '\0')
+            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
+        if (num <= 0)
+            return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
+        recent.gui_profile_switch_check_count = (int)num;
     } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
         /* now have something like "gui.geom.main.x", split it into win and sub_key */
         char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
@@ -1570,6 +1584,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_geometry_main = NULL;
     recent.gui_geometry_main_master_split = NULL;
     recent.gui_geometry_main_extra_split = NULL;
+    recent.gui_profile_switch_check_count = 1000;
     recent.gui_fileopen_remembered_dir = NULL;
 
     /* Construct the pathname of the user's recent common file. */

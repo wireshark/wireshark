@@ -11,6 +11,7 @@
 #include <main_application.h>
 
 #include <ui/profile.h>
+#include <ui/recent.h>
 
 #include <ui/qt/capture_file.h>
 #include <ui/qt/models/packet_list_model.h>
@@ -64,13 +65,9 @@ void ProfileSwitcher::captureEventHandler(CaptureEvent ev)
     }
 }
 
-// XXX How do we turn this into a preference? Regular preferences won't
-// work since they're read from each profile. Maybe add a special field
-// to the default personal profile settings?
-#define PROFILE_SWITCH_CHECK_COUNT 1000
 void ProfileSwitcher::checkPacket(capture_file *cap_file, frame_data *fdata, qsizetype row)
 {
-    if (profile_changed_ || !capture_file_changed_ || row >= PROFILE_SWITCH_CHECK_COUNT) {
+    if (profile_changed_ || !capture_file_changed_ || row >= recent.gui_profile_switch_check_count) {
         return;
     }
 

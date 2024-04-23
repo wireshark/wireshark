@@ -10,8 +10,6 @@
 #include "config.h"
 
 #include "wsutil/filesystem.h"
-#include "wsutil/utf8_entities.h"
-#include "epan/prefs.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -72,6 +70,13 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->hintLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
+
+    QString as_tooltip = pd_ui_->autoSwitchLimitLabel->toolTip();
+    pd_ui_->autoSwitchSpinBox->setToolTip(as_tooltip);
+    if (!is_packet_configuration_namespace()) {
+        pd_ui_->autoSwitchLimitLabel->setText(tr("Auto switch event limit"));
+    }
+    pd_ui_->autoSwitchSpinBox->setValue(recent.gui_profile_switch_check_count);
 
     import_button_ = pd_ui_->buttonBox->addButton(tr("Import", "noun"), QDialogButtonBox::ActionRole);
 
@@ -455,6 +460,8 @@ void ProfileDialog::buttonBoxAccepted()
     bool write_recent = true;
     bool item_data_removed = false;
 
+    recent.gui_profile_switch_check_count = pd_ui_->autoSwitchSpinBox->value();
+
     QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
 
     pd_ui_->buttonBox->setFocus();
@@ -734,3 +741,4 @@ void ProfileDialog::resetTreeView()
         pd_ui_->profileTreeView->header()->hide();
     }
 }
+

@@ -167,6 +167,7 @@ typedef struct recent_settings_tag {
     GList      *conversation_tabs_columns;          /* save the columns for conversation dialogs */
     GList      *endpoint_tabs;                      /* enabled endpoint dialog tabs */
     GList      *endpoint_tabs_columns;              /* save the columns for endpoint dialogs */
+    int         gui_profile_switch_check_count;     /* number of packets / events to check for automatic profile switching */
     char       *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */
     bool        gui_rlc_use_pdus_from_mac;
     GList      *custom_colors;

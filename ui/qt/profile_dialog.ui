@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>570</width>
+    <width>600</width>
     <height>400</height>
    </rect>
   </property>
@@ -54,7 +54,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
      <item>
       <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
@@ -91,6 +91,42 @@
        <property name="icon">
         <iconset>
          <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="autoSwitchLimitLabel">
+       <property name="toolTip">
+        <string>The number of packets or events to check for automatic profile switching.</string>
+       </property>
+       <property name="text">
+        <string>Auto switch packet limit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="autoSwitchSpinBox">
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::NoButtons</enum>
+       </property>
+       <property name="maximum">
+        <number>10000000</number>
+       </property>
+       <property name="singleStep">
+        <number>1000</number>
        </property>
       </widget>
      </item>
