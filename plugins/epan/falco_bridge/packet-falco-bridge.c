@@ -18,8 +18,13 @@
 // - Add a configuration preference for individual conversation filters vs ANDing them?
 //   We would need to add deregister_(|log_)conversation_filter before we implement this.
 // - Add syscall IP address conversation support
+// - Add prefs for
+//   - set_snaplen
+//   - set_dopfailed
+//   - set_import_users
 
 #include "config.h"
+#define WS_LOG_DOMAIN "falco-bridge"
 
 #include <stddef.h>
 #include <stdint.h>

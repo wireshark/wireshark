@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "sinsp-span"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -384,7 +385,7 @@ bool skip_field(const filtercheck_field_info *ffi) {
 }
 
 /*
- * We want the flexibility to decide the deiplay order of the fields in the UI, since
+ * We want the flexibility to decide the display order of the fields in the UI, since
  * the order in which they are defined in filterchecks.{cpp,h} is not necessarily the one we want.
  */
 void reorder_syscall_fields(std::vector<const filter_check_info*>* all_syscall_fields) {
@@ -661,6 +662,16 @@ char* get_evt_arg_name(void* sinp_evt_info, uint32_t arg_num) {
     return realinfo->params[arg_num].name;
 }
 
+static void add_empty_events(sinsp_span_t *sinsp_span, uint64_t evt_num)
+{
+    if (evt_num <= sinsp_span->sfe_ptrs.size()) {
+        return;
+    }
+    sinsp_span->sfe_ptrs.resize(evt_num);
+    sinsp_span->sfe_lengths.resize(evt_num);
+    sinsp_span->sfe_infos.resize(evt_num);
+}
+
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 {
     sinsp_span->sfe_slab = NULL;
@@ -691,9 +702,7 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     // Fill in any gaps
     if (evt_num > 1 && evt_num - 1 > sinsp_span->sfe_ptrs.size()) {
         ws_debug("Filling syscall gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num - 1);
-        sinsp_span->sfe_ptrs.resize(evt_num - 1);
-        sinsp_span->sfe_lengths.resize(evt_num - 1);
-        sinsp_span->sfe_infos.resize(evt_num - 1);
+        add_empty_events(sinsp_span, evt_num - 1);
     }
 
     // libsinsp requires that events be processed in order so we cache our extracted
@@ -879,6 +888,12 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
     // libsinsp event numbers may or may not be contiguous. Make sure our event cache is at
     // least as large as the current frame number. add_syscall_event_to_cache will fill in
     // any gaps with null entries.
+    uint64_t num_events = sinsp_span->inspector.get_num_events();
+    if (num_events > sinsp_span->sfe_ptrs.size()) {
+        ws_debug("Filling sinsp events gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), (unsigned) num_events);
+        add_empty_events(sinsp_span, num_events);
+    }
+
     while (frame_num > sinsp_span->sfe_ptrs.size()) {
         sinsp_evt *evt = NULL;
         try {
@@ -887,11 +902,14 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
             case SCAP_TIMEOUT:
             case SCAP_FILTERED_EVENT:
                 break;
+            case SCAP_UNEXPECTED_BLOCK:
+                ws_debug("Filling unexpected block gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), frame_num);
+                add_empty_events(sinsp_span, frame_num);
+                break;
             case SCAP_EOF:
-                ws_debug("Filling syscall EOF gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), frame_num);
-                sinsp_span->sfe_ptrs.resize(frame_num);
-                sinsp_span->sfe_lengths.resize(frame_num);
-                sinsp_span->sfe_infos.resize(frame_num);
+                // XXX Should this be an error instead?
+                ws_warning("Filling syscall EOF gap from %d to %u at %u", (int) sinsp_span->sfe_ptrs.size(), frame_num, (unsigned)sinsp_span->inspector.get_bytes_read());
+                add_empty_events(sinsp_span, frame_num);
                 break;
             case SCAP_SUCCESS:
                 add_syscall_event_to_cache(sinsp_span, ssi, evt);
