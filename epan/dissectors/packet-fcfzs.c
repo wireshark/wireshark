@@ -116,9 +116,13 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
         len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                             1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
+        offset += 4;
+        proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset,
                             len, ENC_ASCII);
-        offset += 4 + len + (4-(len % 4));
+        offset += len;
+        /* Fill Bytes */
+        if (len % 4)
+            offset += 4 - (len % 4);
 
 
         /* Number of zones */
@@ -131,9 +135,13 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+4,
+            offset += 4;
+            proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset,
                                 len, ENC_ASCII);
-            offset += 4 + len + (4-(len % 4));
+            offset += len;
+            /* Fill Bytes */
+            if (len % 4)
+                offset += 4 - (len % 4);
 
             nummbrs = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_nummbrentries, tvb, offset,
