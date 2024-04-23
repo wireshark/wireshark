@@ -399,6 +399,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"dumpconf",   "pref",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"follow",     "follow",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
         {"follow",     "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"follow",     "sub_stream", 2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
         {"frame",      "frame",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
         {"frame",      "proto",      2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
         {"frame",      "ref_frame",  2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
@@ -631,7 +632,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
                     {
                         sharkd_json_error(
                                 rpcid, -32600, NULL,
-                                "The data type for member %s is not a valid", attr_name
+                                "The data type for member %s is not valid", attr_name
                                 );
                         return FALSE;
                     }
@@ -3917,8 +3918,10 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
  * Process follow request
  *
  * Input:
- *   (m) follow  - follow protocol request (e.g. HTTP)
- *   (m) filter  - filter request (e.g. tcp.stream == 1)
+ *   (m) follow     - follow protocol request (e.g. HTTP)
+ *   (m) filter     - filter request (e.g. tcp.stream == 1)
+ *   (m) stream     - stream index number
+ *   (o) sub_stream - follow sub-stream index number (e.g. for HTTP/2 and QUIC streams)
  *
  * Output object with attributes:
  *
@@ -3939,6 +3942,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 {
     const char *tok_follow = json_find_attr(buf, tokens, count, "follow");
     const char *tok_filter = json_find_attr(buf, tokens, count, "filter");
+    const char *tok_sub_stream = json_find_attr(buf, tokens, count, "sub_stream");
 
     register_follow_t *follower;
     GString *tap_error;
@@ -3957,8 +3961,15 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
         return;
     }
 
+    guint64 substream_id = SUBSTREAM_UNUSED;
+    if (tok_sub_stream)
+    {
+        ws_strtou64(tok_sub_stream, NULL, &substream_id);
+    }
+
     /* follow_reset_stream ? */
     follow_info = g_new0(follow_info_t, 1);
+    follow_info->substream_id = substream_id;
     /* gui_data, filter_out_filter not set, but not used by dissector */
 
     tap_error = register_tap_listener(get_follow_tap_string(follower), follow_info, tok_filter, 0, NULL, get_follow_tap_handler(follower), NULL, NULL);
@@ -4169,6 +4180,41 @@ sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_dat
     return FALSE;
 }
 
+static bool
+sharkd_followers_visit_layers_cb(const void *key _U_, void *value, void *user_data)
+{
+    register_follow_t *follower = (register_follow_t *) value;
+    epan_dissect_t *edt = (epan_dissect_t *) user_data;
+    packet_info *pi = &edt->pi;
+
+    const int proto_id = get_follow_proto_id(follower);
+
+    guint stream;
+    guint sub_stream = (guint) SUBSTREAM_UNUSED;
+
+    if (proto_is_frame_protocol(pi->layers, proto_get_protocol_filter_name(proto_id)))
+    {
+        const char *layer_proto = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
+        char *follow_filter;
+
+        follow_filter = get_follow_conv_func(follower)(edt, pi, (guint *) &stream, (guint *) &sub_stream);
+
+        sharkd_json_object_open(NULL);
+        sharkd_json_value_string("protocol", layer_proto);
+        sharkd_json_value_string("filter", follow_filter);
+        sharkd_json_value_anyf("stream", "%d", stream);
+        if (sub_stream != (guint) SUBSTREAM_UNUSED)
+        {
+            sharkd_json_value_anyf("sub_stream", "%d", sub_stream);
+        }
+        sharkd_json_object_close();
+
+        g_free(follow_filter);
+    }
+
+    return FALSE;
+}
+
 struct sharkd_frame_request_data
 {
     gboolean display_hidden;
@@ -4329,6 +4375,10 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
     sharkd_json_array_open("fol");
     follow_iterate_followers(sharkd_follower_visit_layers_cb, edt);
+    sharkd_json_array_close();
+
+    sharkd_json_array_open("followers");
+    follow_iterate_followers(sharkd_followers_visit_layers_cb, edt);
     sharkd_json_array_close();
 
     sharkd_json_result_epilogue();
@@ -4714,6 +4764,11 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *   (o) fol   - array of follow filters:
  *                  [0] - protocol
  *                  [1] - filter string
+ *   (o) followers - array of followers with attributes:
+ *                      protocol - protocol string
+ *                      filter - filter string
+ *                      stream - stream index number
+ *                      sub_stream - sub-stream index number (optional, e.g. for HTTP/2 and QUIC streams)
  *   (o) i   - if frame is ignored
  *   (o) m   - if frame is marked
  *   (o) bg  - color filter - background color in hex
