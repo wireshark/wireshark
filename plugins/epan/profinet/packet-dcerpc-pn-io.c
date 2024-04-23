@@ -18209,22 +18209,22 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_am_location_beginslotnum,
-      { "AM_Location.BeginSlotNumber", "pn_io.slot_nr",
+      { "AM_Location.BeginSlotNumber", "pn_io.am_location.beginslotnumber",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_am_location_beginsubslotnum,
-      { "AM_Location.BeginSubSlotNumber", "pn_io.subslot_nr",
+      { "AM_Location.BeginSubSlotNumber", "pn_io.am_location.beginsubslotnumber",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_am_location_endslotnum,
-      { "AM_Location.EndSlotNumber", "pn_io.slot_nr",
+      { "AM_Location.EndSlotNumber", "pn_io.am_location.endslotnumber",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_am_location_endsubslotnum,
-      { "AM_Location.EndSubSlotNumber", "pn_io.subslot_nr",
+      { "AM_Location.EndSubSlotNumber", "pn_io.am_location.endsubslotnumber",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
@@ -18349,7 +18349,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_pe_energy_to_operate,
-      { "Energy Consumption_to_operate in kWh", "pn_io.profienergy.energy.to_destination",
+      { "Energy Consumption_to_operate in kWh", "pn_io.profienergy.energy.to_operate",
         FT_FLOAT, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
