@@ -1011,7 +1011,13 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         }
         break;
 #endif
-    /*case 'l':*/    /* Automatic scrolling in live capture mode */
+    case 'l':        /* tshark "Line-buffer" standard output */
+        capture_opts->update_interval = 0;
+        /* Wireshark uses 'l' for Automatic scrolling in live capture mode,
+         * but ui/commandline.c should not and does not call this function
+         * for 'l'.
+         */
+        break;
 #ifdef HAVE_PCAP_SETSAMPLING
     case 'm':
         if (get_sampling_arguments(capture_opts, optarg_str_p) == FALSE) {
@@ -1158,7 +1164,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->temp_dir = g_strdup(optarg_str_p);
         break;
     case LONGOPT_UPDATE_INTERVAL:  /* capture update interval */
-        capture_opts->update_interval = get_positive_int(optarg_str_p, "update interval");
+        capture_opts->update_interval = get_natural_int(optarg_str_p, "update interval");
         break;
     default:
         /* the caller is responsible to send us only the right opt's */

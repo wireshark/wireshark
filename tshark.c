@@ -550,6 +550,7 @@ print_usage(FILE *output)
     fprintf(output, "                           output format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "  -l                       flush standard output after each packet\n");
+    fprintf(output, "                           (implies --update-interval 0)\n");
     fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
     fprintf(output, "  -Q                       only log true errors to stderr (quieter than -q)\n");
     fprintf(output, "  -g                       enable group read access on the output file(s)\n");
@@ -1582,6 +1583,15 @@ main(int argc, char *argv[])
                    protocol trees - arguably even better, as it may do fewer
                    writes. */
                 line_buffered = TRUE;
+#ifdef HAVE_LIBPCAP
+                /* Set the update-interval to 0 so that dumpcap reports packets
+                 * as soon as available instead of buffering them.
+                 */
+                exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+                if (exit_status != 0) {
+                    goto clean_exit;
+                }
+#endif
                 break;
             case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP

@@ -672,7 +672,7 @@ normally used when piping a live capture to a program or script, so that
 output for a packet shows up as soon as the packet is seen and
 dissected, it should work just as well as true line-buffering.  We do
 this as a workaround for a deficiency in the Microsoft Visual C++ C
-library.)
+library.) This also sets *--update-interval* to 0 ms.
 
 This may be useful when piping the output of *TShark* to another
 program, as it means that the program to which the output is piped will
