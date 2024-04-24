@@ -187,7 +187,18 @@ static int hf_pfcp_redirect_server_address = -1;
 static int hf_pfcp_other_redirect_server_addr_len = -1;
 static int hf_pfcp_other_redirect_server_address = -1;
 static int hf_pfcp_redirect_port = -1;
-static int hf_pfcp_outer_hdr_desc = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b0_gtp_udp_ipv4 = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b1_gtp_udp_ipv6 = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b2_udp_ipv4 = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b3_udp_ipv6 = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b4_ipv4 = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b5_ipv6 = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b6_ctag = -1;
+static int hf_pfcp_outer_hdr_desc_o5_b7_stag = -1;
+static int hf_pfcp_outer_hdr_desc_o6_b0_n19 = -1;
+static int hf_pfcp_outer_hdr_desc_o6_b1_n6 = -1;
+static int hf_pfcp_outer_hdr_desc_o6_b2_ssm_cteid = -1;
+static int hf_pfcp_outer_hdr_desc_o6_spare = -1;
 static int hf_pfcp_outer_hdr_creation_teid = -1;
 static int hf_pfcp_outer_hdr_creation_ipv4 = -1;
 static int hf_pfcp_outer_hdr_creation_ipv6 = -1;
@@ -4472,41 +4483,38 @@ dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /*
  * 8.2.56   Outer Header Creation
  */
-
-static const value_string pfcp_outer_hdr_desc_vals[] = {
-
-    { 0x0001, "GTP-U/UDP/IPv4 " },
-    { 0x0002, "GTP-U/UDP/IPv6 " },
-    { 0x0003, "GTP-U/UDP/IPv4/IPv6 " },
-    { 0x0004, "UDP/IPv4 " },
-    { 0x0008, "UDP/IPv6 " },
-    { 0x000C, "UDP/IPv4/IPv6 " },
-    { 0x0010, "IPv4 " },
-    { 0x0020, "IPv6 " },
-    { 0x0030, "IPv4/IPv6 " },
-    { 0x0040, "C-TAG " },
-    { 0x0080, "S-TAG " },
-    { 0x0100, "N19 Indication " },
-    { 0x0200, "N6 Indication " },
-    { 0x0400, "Low Layer SSM and C-TEID " },
-    { 0, NULL }
-};
-
 static void
 dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    guint32 value;
+    guint64 value;
 
-    /* Octet 5  Outer Header Creation Description */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_outer_hdr_desc, tvb, offset, 2, ENC_BIG_ENDIAN, &value);
+    static int * const outer_hdr_desc[] = {
+        &hf_pfcp_outer_hdr_desc_o5_b7_stag,
+        &hf_pfcp_outer_hdr_desc_o5_b6_ctag,
+        &hf_pfcp_outer_hdr_desc_o5_b5_ipv6,
+        &hf_pfcp_outer_hdr_desc_o5_b4_ipv4,
+        &hf_pfcp_outer_hdr_desc_o5_b3_udp_ipv6,
+        &hf_pfcp_outer_hdr_desc_o5_b2_udp_ipv4,
+        &hf_pfcp_outer_hdr_desc_o5_b1_gtp_udp_ipv6,
+        &hf_pfcp_outer_hdr_desc_o5_b0_gtp_udp_ipv4,
+        &hf_pfcp_outer_hdr_desc_o6_spare,
+        &hf_pfcp_outer_hdr_desc_o6_b2_ssm_cteid,
+        &hf_pfcp_outer_hdr_desc_o6_b1_n6,
+        &hf_pfcp_outer_hdr_desc_o6_b0_n19,
+        NULL
+    };
+
+    /* Octet 5-6  Outer Header Creation Description */
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 2, outer_hdr_desc, ENC_BIG_ENDIAN, &value);
     offset += 2;
+
 
     /* m to (m+3)   TEID
      * The TEID field shall be present if the Outer Header Creation Description requests the creation of a GTP-U header.
      * Otherwise it shall not be present
      */
-    if ((value & 0x000100) || (value & 0x000200)) {
+    if ((value & 0x0100) || (value & 0x0200)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -4515,7 +4523,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * p to (p+3)   IPv4
     * The IPv4 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv4 header
     */
-    if ((value & 0x000100) || (value & 0x000400) || (value & 0x001000)) {
+    if ((value & 0x0100) || (value & 0x0400) || (value & 0x1000)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -4524,7 +4532,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * q to (q+15)   IPv6
     * The IPv6 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv6 header
     */
-    if ((value & 0x000200) || (value & 0x000800) || (value & 0x002000)) {
+    if ((value & 0x0200) || (value & 0x0800) || (value & 0x2000)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
@@ -4533,7 +4541,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * r to (r+1)   Port Number
     * The Port Number field shall be present if the Outer Header Creation Description requests the creation of a UDP/IP header
     */
-    if ((value & 0x000400) || (value & 0x000800)) {
+    if ((value & 0x0400) || (value & 0x0800)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
@@ -4542,7 +4550,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * t to (t+2)   C-TAG
     * The C-TAG field shall be present if the Outer Header Creation Description requests the setting of the C-Tag in Ethernet packet
     */
-    if (value & 0x004000) {
+    if (value & 0x4000) {
         offset = decode_pfcp_c_tag(tvb, pinfo, tree, item, offset);
     }
 
@@ -4550,7 +4558,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * u to (u+2)   S-TAG
     * The S-TAG field shall be present if the Outer Header Creation Description requests the setting of the S-Tag in Ethernet packet
     */
-    if (value & 0x008000) {
+    if (value & 0x8000) {
         offset = decode_pfcp_s_tag(tvb, pinfo, tree, item, offset);
     }
 
@@ -12606,9 +12614,64 @@ proto_register_pfcp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_outer_hdr_desc,
-        { "Outer Header Creation Description", "pfcp.outer_hdr_desc",
-            FT_UINT16, BASE_DEC, VALS(pfcp_outer_hdr_desc_vals), 0x0,
+        { &hf_pfcp_outer_hdr_desc_o5_b0_gtp_udp_ipv4,
+        { "GTP-U/UDP/IPv4", "pfcp.pfcp_outer_hdr_desc.gtpu_udp_ipv4",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b1_gtp_udp_ipv6,
+        { "GTP-U/UDP/IPv6", "pfcp.pfcp_outer_hdr_desc.gtpu_udp_ipv6",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b2_udp_ipv4,
+        { "UDP/IPv4", "pfcp.pfcp_outer_hdr_desc.udp_ipv4",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b3_udp_ipv6,
+        { "UDP/IPv6", "pfcp.pfcp_outer_hdr_desc.udp_ipv6",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b4_ipv4,
+        { "IPv4", "pfcp.pfcp_outer_hdr_desc.ipv4",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b5_ipv6,
+        { "IPv6", "pfcp.pfcp_outer_hdr_desc.ipv6",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b6_ctag,
+        { "C-TAG", "pfcp.pfcp_outer_hdr_desc.ctag",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o5_b7_stag,
+        { "S-TAG", "pfcp.pfcp_outer_hdr_desc.stag",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o6_b0_n19,
+        { "N19 Indication", "pfcp.pfcp_outer_hdr_desc.n19",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o6_b1_n6,
+        { "N6 Indication", "pfcp.pfcp_outer_hdr_desc.n6",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o6_b2_ssm_cteid,
+        { "Low Layer SSM and C-TEID", "pfcp.pfcp_outer_hdr_desc.ssm_cteid",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc_o6_spare,
+        { "Spare", "pfcp.pfcp_outer_hdr_desc.spare",
+            FT_UINT16, BASE_DEC, NULL, 0x00f8,
             NULL, HFILL }
         },
         { &hf_pfcp_outer_hdr_creation_teid,
