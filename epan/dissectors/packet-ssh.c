@@ -2131,6 +2131,8 @@ ssh_kex_hash_type(gchar *type_string)
         return SSH_KEX_HASH_SHA1;
     }else if (type_string && g_str_has_suffix(type_string, "sha256")) {
         return SSH_KEX_HASH_SHA256;
+    }else if (type_string && g_str_has_suffix(type_string, "sha256@libssh.org")) {
+        return SSH_KEX_HASH_SHA256;
     }else if (type_string && g_str_has_suffix(type_string, "sha512")) {
         return SSH_KEX_HASH_SHA512;
     } else {
