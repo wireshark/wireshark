@@ -319,6 +319,21 @@ static int hf_mac_nr_rar_grant_csi;
 
 static int hf_mac_nr_rar_temp_crnti;
 
+static int hf_mac_nr_msgb;
+static int hf_mac_nr_msgb_subheader;
+static int hf_mac_nr_msgb_e;
+static int hf_mac_nr_msgb_t1;
+static int hf_mac_nr_msgb_t2;
+static int hf_mac_nr_msgb_s;
+static int hf_mac_nr_msgb_reserved;
+static int hf_mac_nr_msgb_reserved2;
+static int hf_mac_nr_msgb_reserved3;
+static int hf_mac_nr_msgb_ta_command;
+static int hf_mac_nr_msgb_channelaccess_cpext;
+static int hf_mac_nr_msgb_tpc;
+static int hf_mac_nr_msgb_harq_feedback_timing_indicator;
+static int hf_mac_nr_msgb_pucch_resource_indicator;
+
 static int hf_mac_nr_padding;
 
 static int hf_mac_nr_differential_koffset;
@@ -503,6 +518,7 @@ static const value_string rnti_type_vals[] =
     { C_RNTI,      "C-RNTI"},
     { SI_RNTI,     "SI-RNTI"},
     { CS_RNTI,     "CS-RNTI"},
+    { MSGB_RNTI,   "MSGB-RNTI"},
     { 0, NULL }
 };
 
@@ -1282,8 +1298,31 @@ static const value_string bit_rate_vals[] =
 };
 static value_string_ext bit_rate_vals_ext = VALUE_STRING_EXT_INIT(bit_rate_vals);
 
+
+static const true_false_string msgb_t1_vals = {
+    "Random Access Preamble ID present",
+    "T2 is valid"
+};
+
+static const true_false_string msgb_t2_vals = {
+    "S is valid",
+    "Backoff Indicator",
+};
+
+static const true_false_string msgb_s_vals = {
+    "MAC subPDU(s) for MAC SDU present",
+    "MAC subPDU(s) for MAC SDU *NOT* present"
+};
+
+
 /* Forward declarations */
 static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
+
+static int dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                  proto_item *pdu_ti, guint32 offset,
+                                  mac_nr_info *p_mac_nr_info,
+                                  mac_3gpp_tap_info *tap_info);
+
 
 /* Write the given formatted text to:
    - the info column (if pinfo != NULL)
@@ -1428,6 +1467,44 @@ static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+/* Common to RAR and MSGB */
+static int dissect_fallbackrar(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset,
+                               proto_item *ti, proto_item *pdu_ti, guint32 rapid)
+{
+    /* 1 reserved bit */
+    proto_tree_add_item(tree, hf_mac_nr_rar_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* TA (12 bits) */
+    guint32 ta;
+    proto_tree_add_item_ret_uint(tree, hf_mac_nr_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
+    offset++;
+
+    /* Break down the 27-bits of the grant field, according to 38.213, section 8.2 */
+    static int * const rar_grant_fields[] = {
+        &hf_mac_nr_rar_grant_hopping,
+        &hf_mac_nr_rar_grant_fra,
+        &hf_mac_nr_rar_grant_tsa,
+        &hf_mac_nr_rar_grant_mcs,
+        &hf_mac_nr_rar_grant_tcsp,
+        &hf_mac_nr_rar_grant_csi,
+        NULL
+    };
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mac_nr_rar_grant,
+                           ett_mac_nr_rar_grant, rar_grant_fields, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* C-RNTI (2 bytes) */
+    guint32 c_rnti;
+    proto_tree_add_item_ret_uint(tree, hf_mac_nr_rar_temp_crnti, tvb, offset, 2, ENC_BIG_ENDIAN, &c_rnti);
+    offset += 2;
+
+    write_pdu_label_and_info(pdu_ti, ti, pinfo,
+                             "(RAPID=%u TA=%u Temp C-RNTI=%u) ", rapid, ta, c_rnti);
+
+    return offset;
+}
+
+
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         proto_item *pdu_ti _U_, guint32 offset,
                         mac_nr_info *p_mac_nr_info, mac_3gpp_tap_info *tap_info)
@@ -1476,35 +1553,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (TRUE) {
                 /* SubPDU.  Not for SI request - TODO: define RAPID range for SI request in mac_nr_info */
 
-                /* 1 reserved bit */
-                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-                /* TA (12 bits) */
-                guint32 ta;
-                proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
-                offset++;
-
-                /* Break down the 27-bits of the grant field, according to 38.213, section 8.2 */
-                static int * const rar_grant_fields[] = {
-                    &hf_mac_nr_rar_grant_hopping,
-                    &hf_mac_nr_rar_grant_fra,
-                    &hf_mac_nr_rar_grant_tsa,
-                    &hf_mac_nr_rar_grant_mcs,
-                    &hf_mac_nr_rar_grant_tcsp,
-                    &hf_mac_nr_rar_grant_csi,
-                    NULL
-                };
-                proto_tree_add_bitmask(rar_subheader_tree, tvb, offset, hf_mac_nr_rar_grant,
-                                       ett_mac_nr_rar_grant, rar_grant_fields, ENC_BIG_ENDIAN);
-                offset += 4;
-
-                /* C-RNTI (2 bytes) */
-                guint32 c_rnti;
-                proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_temp_crnti, tvb, offset, 2, ENC_BIG_ENDIAN, &c_rnti);
-                offset += 2;
-
-                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                         "(RAPID=%u TA=%u Temp C-RNTI=%u) ", rapid, ta, c_rnti);
+                offset = dissect_fallbackrar(rar_subheader_tree, pinfo, tvb, offset, subheader_ti, pdu_ti, rapid);
             }
             tap_info->number_of_rars++;
         }
@@ -1520,8 +1569,127 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     /* Update padding bytes in stats */
     tap_info->padding_bytes += (p_mac_nr_info->length - offset);
-
 }
+
+static void dissect_msgb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                         proto_item *pdu_ti _U_, guint32 offset,
+                         mac_nr_info *p_mac_nr_info, mac_3gpp_tap_info *tap_info)
+{
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "MSGB (MSGB-RNTI=%u) ",
+                             p_mac_nr_info->rnti);
+
+    /* Create hidden 'virtual root' so can filter on mac-nr.msgb */
+    proto_item *ti = proto_tree_add_item(tree, hf_mac_nr_msgb, tvb, offset, -1, ENC_NA);
+    proto_item_set_hidden(ti);
+
+    bool E, T1, T2, S;
+
+    /* N.B. T2 only present if T1 is 0 */
+    /* N.B. T2 indicates BI (can only appear in first subheader */
+
+    do {
+        /* Subheader */
+        proto_item *subheader_ti = proto_tree_add_item(tree,
+                                                       hf_mac_nr_msgb_subheader,
+                                                       tvb, offset, 0, ENC_ASCII);
+        proto_tree *msgb_subheader_tree = proto_item_add_subtree(subheader_ti, ett_mac_nr_rar_subheader);
+
+        /* Note extension & T1, T2 bits */
+        proto_tree_add_item_ret_boolean(msgb_subheader_tree, hf_mac_nr_msgb_e, tvb, offset, 1, ENC_BIG_ENDIAN, &E);
+        proto_tree_add_item_ret_boolean(msgb_subheader_tree, hf_mac_nr_msgb_t1, tvb, offset, 1, ENC_BIG_ENDIAN, &T1);
+        if (!T1) {
+            /* T2 */
+            proto_tree_add_item_ret_boolean(msgb_subheader_tree, hf_mac_nr_msgb_t2, tvb, offset, 1, ENC_BIG_ENDIAN, &T2);
+        }
+
+        if (T1) {
+            /* RAPID (FallbackRAR MAC subheader) */
+            guint32 rapid;
+            proto_tree_add_item_ret_uint(msgb_subheader_tree, hf_mac_nr_rar_rapid, tvb, offset, 1, ENC_BIG_ENDIAN, &rapid);
+            offset++;
+
+            /* FallbackRAR (see 6.2.3a) */
+            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "FallbackRAR ");
+            offset = dissect_fallbackrar(msgb_subheader_tree, pinfo, tvb, offset,
+                                         subheader_ti, pdu_ti, rapid);
+        }
+        else if (!T2) {
+            /* BI */
+            guint32 BI;
+
+            /* 1 reserved bit */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* BI (4 bits) */
+            /* N.B., should define & use own BI field? */
+            proto_tree_add_item_ret_uint(msgb_subheader_tree, hf_mac_nr_rar_bi, tvb, offset, 1, ENC_BIG_ENDIAN, &BI);
+            offset++;
+
+            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+                                     "(BI=%u) ", BI);
+        }
+        else {
+            /* Read S (MAC SDU Indicator) */
+            proto_tree_add_item_ret_boolean(msgb_subheader_tree, hf_mac_nr_msgb_s, tvb, offset, 1, ENC_BIG_ENDIAN, &S);
+
+            /* 4 reserved bits */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            /* successRAR is in 6.2.3a-2 */
+            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "SuccessRAR ");
+
+            /* UE Contention Resolution Identity */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_control_ue_contention_resolution_identity,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            /* R (1 bit) */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* ChannelAccess-CPext */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_channelaccess_cpext, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* TPC */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_tpc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* HARQ Feedback Timing Indicator */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_harq_feedback_timing_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            /* PUCCH Resource Indicator */
+            proto_tree_add_item(msgb_subheader_tree, hf_mac_nr_msgb_pucch_resource_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* Timing Advance Command */
+            guint32 ta_command;
+            proto_tree_add_item_ret_uint(msgb_subheader_tree, hf_mac_nr_msgb_ta_command, tvb, offset, 2, ENC_BIG_ENDIAN, &ta_command);
+            offset += 2;
+
+            /* C-RNTI */
+            guint32 c_rnti;
+            proto_tree_add_item_ret_uint(msgb_subheader_tree, hf_mac_nr_rar_temp_crnti, tvb, offset, 2, ENC_BIG_ENDIAN, &c_rnti);
+            offset += 2;
+
+            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+                                     "(C-RNTI=%u, TA=%u) ", c_rnti, ta_command);
+
+            if (S) {
+                /* subPDU(s) for MAC SDU present */
+                offset = dissect_ulsch_or_dlsch(tvb, pinfo, tree, pdu_ti, offset,
+                                                p_mac_nr_info,
+                                                tap_info);
+            }
+        }
+        /* Set subheader (+subpdu..) length */
+        proto_item_set_end(subheader_ti, tvb, offset);
+
+    } while (E);
+
+    /* Any remaining length is padding */
+    if (tvb_reported_length_remaining(tvb, offset)) {
+        proto_tree_add_item(tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
+    }
+
+    /* Update padding bytes in stats */
+    tap_info->padding_bytes += (p_mac_nr_info->length - offset);
+}
+
 
 static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
 {
@@ -1888,11 +2056,10 @@ mac_nr_pcmax_f_c_fmt(gchar *s, guint32 v)
 
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
-static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                   proto_item *pdu_ti, guint32 offset,
-                                   mac_nr_info *p_mac_nr_info,
-                                   proto_tree *context_tree _U_,
-                                   mac_3gpp_tap_info *tap_info)
+static int dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                  proto_item *pdu_ti, guint32 offset,
+                                  mac_nr_info *p_mac_nr_info,
+                                  mac_3gpp_tap_info *tap_info)
 {
     gboolean ces_seen = FALSE;
     gboolean data_seen = FALSE;
@@ -3070,6 +3237,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     } while (tvb_reported_length_remaining(tvb, offset));
 
+    return offset;
 }
 
 
@@ -3199,13 +3367,16 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
             dissect_rar(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info, tap_info);
             break;
 
+        case MSGB_RNTI:
+            /* MSGB PDU */
+            dissect_msgb(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info, tap_info);
+            break;
+
         case C_RNTI:
         case CS_RNTI:
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_nr_tree, pdu_ti, offset,
-                                   p_mac_nr_info,
-                                   context_tree,
-                                   tap_info);
+                                   p_mac_nr_info, tap_info);
             break;
 
         case SI_RNTI:
@@ -3793,10 +3964,98 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-
         { &hf_mac_nr_rar_temp_crnti,
             { "Temporary C-RNTI",
               "mac-nr.rar.temp_crnti", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
+        /* MSGB */
+        { &hf_mac_nr_msgb,
+            { "MSGB",
+              "mac-nr.msgb", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_subheader,
+            { "Subheader",
+              "mac-nr.msgb.subheader", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_e,
+            { "Extension",
+              "mac-nr.msgb.e", FT_BOOLEAN, 8, TFS(&rar_ext_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_t1,
+            { "t1",
+              "mac-nr.msgb.t1", FT_BOOLEAN, 8, TFS(&msgb_t1_vals), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_t2,
+            { "t2",
+              "mac-nr.msgb.t2", FT_BOOLEAN, 8, TFS(&msgb_t2_vals), 0x20,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_s,
+            { "s",
+              "mac-nr.msgb.s", FT_BOOLEAN, 8, TFS(&msgb_s_vals), 0x10,
+              "MAC SDU indicator", HFILL
+            }
+        },
+
+        { &hf_mac_nr_msgb_reserved,
+            { "Reserved",
+              "mac-nr.msgb.reserved", FT_UINT8, BASE_DEC, NULL, 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_reserved2,
+            { "Reserved",
+              "mac-nr.msgb.reserved", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_reserved3,
+            { "Reserved",
+              "mac-nr.msgb.reserved", FT_UINT8, BASE_DEC, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_ta_command,
+            { "Timing Advance Command",
+              "mac-nr.msgb.ta-command", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL
+            }
+        },
+        /* TODO: vals from 38.213 [6] */
+        { &hf_mac_nr_msgb_channelaccess_cpext,
+            { "ChannelAccess-CPext",
+              "mac-nr.msgb.channelaccess-cpext", FT_UINT8, BASE_DEC, NULL, 0x60,
+              NULL, HFILL
+            }
+        },
+        /* TODO: vals from 38.213 [6] */
+        { &hf_mac_nr_msgb_tpc,
+            { "TPC",
+              "mac-nr.msgb.tpc", FT_UINT8, BASE_DEC, NULL, 0x18,
+              "TPC command for the PUCCH resource containing HARQ feedback for MSGB", HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_harq_feedback_timing_indicator,
+            { "HARQ Feedback Timing Indicator",
+              "mac-nr.msgb.harq-feedback-timing-indicator", FT_UINT8, BASE_DEC, NULL, 0x07,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_msgb_pucch_resource_indicator,
+            { "PUCCH Resource Indicator",
+              "mac-nr.msgb.pucch-resource-indicator", FT_UINT8, BASE_DEC, NULL, 0xf0,
               NULL, HFILL
             }
         },

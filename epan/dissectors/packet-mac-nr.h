@@ -24,6 +24,7 @@
 #define C_RNTI      3
 #define SI_RNTI     4
 #define CS_RNTI     5
+#define MSGB_RNTI   6
 
 /* Context info attached to each NR MAC frame */
 typedef struct mac_nr_info

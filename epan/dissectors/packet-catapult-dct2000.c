@@ -2913,6 +2913,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         case 5:
                             p_mac_nr_info->rntiType = C_RNTI;
                             break;
+                        case 6:
+                            p_mac_nr_info->rntiType = MSGB_RNTI;
+                            break;
                         default:
                             p_mac_nr_info->rntiType = NO_RNTI;
                             break;
