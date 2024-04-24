@@ -366,10 +366,10 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 
 
 /* IDL: bitmap { */
-/* IDL: 	EVENTLOG_SEQUENTIAL_READ =  0x0001 , */
-/* IDL: 	EVENTLOG_SEEK_READ =  0x0002 , */
-/* IDL: 	EVENTLOG_FORWARDS_READ =  0x0004 , */
-/* IDL: 	EVENTLOG_BACKWARDS_READ =  0x0008 , */
+/* IDL: 	EVENTLOG_SEQUENTIAL_READ =  0x00000001 , */
+/* IDL: 	EVENTLOG_SEEK_READ =  0x00000002 , */
+/* IDL: 	EVENTLOG_FORWARDS_READ =  0x00000004 , */
+/* IDL: 	EVENTLOG_BACKWARDS_READ =  0x00000008 , */
 /* IDL: } */
 
 int
@@ -404,12 +404,12 @@ eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, pac
 
 
 /* IDL: bitmap { */
-/* IDL: 	EVENTLOG_SUCCESS =  0x0000 , */
-/* IDL: 	EVENTLOG_ERROR_TYPE =  0x0001 , */
-/* IDL: 	EVENTLOG_WARNING_TYPE =  0x0002 , */
-/* IDL: 	EVENTLOG_INFORMATION_TYPE =  0x0004 , */
-/* IDL: 	EVENTLOG_AUDIT_SUCCESS =  0x0008 , */
-/* IDL: 	EVENTLOG_AUDIT_FAILURE =  0x0010 , */
+/* IDL: 	EVENTLOG_SUCCESS =  0x00000000 , */
+/* IDL: 	EVENTLOG_ERROR_TYPE =  0x00000001 , */
+/* IDL: 	EVENTLOG_WARNING_TYPE =  0x00000002 , */
+/* IDL: 	EVENTLOG_INFORMATION_TYPE =  0x00000004 , */
+/* IDL: 	EVENTLOG_AUDIT_SUCCESS =  0x00000008 , */
+/* IDL: 	EVENTLOG_AUDIT_FAILURE =  0x00000010 , */
 /* IDL: } */
 
 int
@@ -2182,23 +2182,23 @@ void proto_register_dcerpc_eventlog(void)
 	{ &hf_eventlog_Record_string,
 	  { "string", "eventlog.Record.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE,
-	  { "EVENTLOG AUDIT FAILURE", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_FAILURE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_FAILURE_tfs), ( 0x0010 ), NULL, HFILL }},
+	  { "EVENTLOG AUDIT FAILURE", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_FAILURE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_FAILURE_tfs), ( 0x00000010 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS,
-	  { "EVENTLOG AUDIT SUCCESS", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS_tfs), ( 0x0008 ), NULL, HFILL }},
+	  { "EVENTLOG AUDIT SUCCESS", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE,
-	  { "EVENTLOG ERROR TYPE", "eventlog.eventlogEventTypes.EVENTLOG_ERROR_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_ERROR_TYPE_tfs), ( 0x0001 ), NULL, HFILL }},
+	  { "EVENTLOG ERROR TYPE", "eventlog.eventlogEventTypes.EVENTLOG_ERROR_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_ERROR_TYPE_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
-	  { "EVENTLOG INFORMATION TYPE", "eventlog.eventlogEventTypes.EVENTLOG_INFORMATION_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_INFORMATION_TYPE_tfs), ( 0x0004 ), NULL, HFILL }},
+	  { "EVENTLOG INFORMATION TYPE", "eventlog.eventlogEventTypes.EVENTLOG_INFORMATION_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_INFORMATION_TYPE_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
-	  { "EVENTLOG WARNING TYPE", "eventlog.eventlogEventTypes.EVENTLOG_WARNING_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_WARNING_TYPE_tfs), ( 0x0002 ), NULL, HFILL }},
+	  { "EVENTLOG WARNING TYPE", "eventlog.eventlogEventTypes.EVENTLOG_WARNING_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_WARNING_TYPE_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ,
-	  { "EVENTLOG BACKWARDS READ", "eventlog.eventlogReadFlags.EVENTLOG_BACKWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_BACKWARDS_READ_tfs), ( 0x0008 ), NULL, HFILL }},
+	  { "EVENTLOG BACKWARDS READ", "eventlog.eventlogReadFlags.EVENTLOG_BACKWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_BACKWARDS_READ_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ,
-	  { "EVENTLOG FORWARDS READ", "eventlog.eventlogReadFlags.EVENTLOG_FORWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_FORWARDS_READ_tfs), ( 0x0004 ), NULL, HFILL }},
+	  { "EVENTLOG FORWARDS READ", "eventlog.eventlogReadFlags.EVENTLOG_FORWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_FORWARDS_READ_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ,
-	  { "EVENTLOG SEEK READ", "eventlog.eventlogReadFlags.EVENTLOG_SEEK_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEEK_READ_tfs), ( 0x0002 ), NULL, HFILL }},
+	  { "EVENTLOG SEEK READ", "eventlog.eventlogReadFlags.EVENTLOG_SEEK_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEEK_READ_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ,
-	  { "EVENTLOG SEQUENTIAL READ", "eventlog.eventlogReadFlags.EVENTLOG_SEQUENTIAL_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ_tfs), ( 0x0001 ), NULL, HFILL }},
+	  { "EVENTLOG SEQUENTIAL READ", "eventlog.eventlogReadFlags.EVENTLOG_SEQUENTIAL_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlog_BackupEventLogW_backupfilename,
 	  { "Backupfilename", "eventlog.eventlog_BackupEventLogW.backupfilename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_BackupEventLogW_handle,
