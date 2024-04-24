@@ -1107,6 +1107,9 @@ class TestSharkd:
             {"jsonrpc":"2.0", "id":4, "method":"follow",
             "params":{"follow": "HTTP", "filter": "garbage filter"}
             },
+            {"jsonrpc":"2.0", "id":5, "method":"follow",
+             "params":{"follow": "HTTP", "filter": "http", "sub_stream": "garbage sub_stream"}
+             },
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Mandatory parameter follow is missing"}},
@@ -1114,6 +1117,9 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":4,
             "error":{"code":-12002,"message":"sharkd_session_process_follow() name=HTTP error=Filter \"garbage filter\" is invalid - \"filter\" was unexpected in this context."}
             },
+            {"jsonrpc":"2.0","id":5,
+             "error":{"code":-32600,"message":"The data type for member sub_stream is not valid"}
+             },
         ))
 
     def test_sharkd_req_follow_no_match(self, check_sharkd_session, capture_file):
@@ -1149,6 +1155,28 @@ class TestSharkd:
              "payloads": [
                  {"n": 1, "d": MatchRegExp(r'AQEGAAAAPR0A[a-zA-Z0-9]{330}AANwQBAwYq/wAAAAAAAAA=')}]}
             },
+        ))
+
+    def test_sharkd_req_follow_http2(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+             "params":{"file": capture_file('quic-with-secrets.pcapng')}
+             },
+            {"jsonrpc":"2.0", "id":2, "method":"follow",
+             "params":{"follow": "HTTP2", "filter": "tcp.stream eq 0 and http2.streamid eq 1", "sub_stream": 1}
+             },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,
+             "result":{
+                 "shost": "2606:4700:10::6816:826", "sport": "443", "sbytes": 656,
+                 "chost": "2001:db8:1::1", "cport": "57098", "cbytes": 109643,
+                 "payloads": [
+                     {"n": 12, "d": MatchRegExp(r'^.*VuLVVTLGVuO3E9MC45Cgo.*$')},
+                     {"n": 19, "s": 1, "d": MatchRegExp(r'^.*7IG1hPTg2NDAwCgo.*$')},
+                     {"n": 44, "s": 1, "d": MatchRegExp(r'^.*Pgo8L2h0bWw.*$')},
+                 ]}
+             },
         ))
 
     def test_sharkd_req_iograph_bad(self, check_sharkd_session, capture_file):
@@ -1230,7 +1258,30 @@ class TestSharkd:
             },
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
-            {"jsonrpc":"2.0","id":2,"result":{"fol": [["UDP", "udp.stream eq 1"]]}},
+            {"jsonrpc":"2.0","id":2,"result":{
+                "fol": [["UDP", "udp.stream eq 1"]],
+                "followers": [{"protocol": "UDP","filter": "udp.stream eq 1","stream": 1}]
+            }},
+        ))
+
+    def test_sharkd_req_frame_http2(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+             "params":{"file": capture_file('quic-with-secrets.pcapng')}
+             },
+            {"jsonrpc":"2.0", "id":2, "method":"frame",
+             "params":{"frame": 12}
+             },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{
+                "fol": [["HTTP2", "tcp.stream eq 0 and http2.streamid eq 1"],["TCP","tcp.stream eq 0"],["TLS","tcp.stream eq 0"]],
+                "followers": [
+                    {"protocol": "HTTP2","filter": "tcp.stream eq 0 and http2.streamid eq 1","stream": 0, "sub_stream": 1},
+                    {"protocol": "TCP","filter": "tcp.stream eq 0","stream": 0},
+                    {"protocol": "TLS","filter": "tcp.stream eq 0","stream": 0},
+                ]
+            }},
         ))
 
     def test_sharkd_req_frame_proto(self, check_sharkd_session, capture_file):
@@ -1283,7 +1334,7 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"error":{"code":-3002,"message":"Frame number is out of range"}},
             {"jsonrpc":"2.0","id":3,"result":{"status":"OK"}},
-            {"jsonrpc":"2.0","id":4,"result":{"comment":["foo\nbar"],"fol": MatchAny(list)}},
+            {"jsonrpc":"2.0","id":4,"result":{"comment":["foo\nbar"],"fol": MatchAny(list), "followers": MatchAny(list)}},
         ))
 
     def test_sharkd_req_setconf_bad(self, check_sharkd_session):
