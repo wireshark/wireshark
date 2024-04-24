@@ -730,6 +730,9 @@ if(USE_qt6)
 	if(Qt6Multimedia_FOUND)
 		target_link_libraries(ui_logray PUBLIC Qt6::Multimedia)
 	endif()
+	if(Qt6DBus_FOUND)
+		target_link_libraries(ui_logray PUBLIC Qt6::DBus)
+	endif()
 endif()
 
 target_compile_definitions(ui_logray
