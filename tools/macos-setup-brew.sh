@@ -23,6 +23,7 @@ function print_usage() {
     printf "\\t--install-dmg-deps: install packages required to build the .dmg file\\n"
     printf "\\t--install-sparkle-deps: install the Sparkle automatic updater\\n"
     printf "\\t--install-all: install everything\\n"
+    printf "\\t--install-logray: install everything to compile Logray and falco bridge\\n"
     printf "\\t[other]: other options are passed as-is to apt\\n"
 }
 
@@ -46,6 +47,7 @@ INSTALL_DOC_DEPS=0
 INSTALL_DMG_DEPS=0
 INSTALL_SPARKLE_DEPS=0
 INSTALL_TEST_DEPS=0
+INSTALL_LOGRAY=0
 OPTIONS=()
 for arg; do
     case $arg in
@@ -67,6 +69,9 @@ for arg; do
             ;;
         --install-test-deps)
             INSTALL_TEST_DEPS=1
+            ;;
+        --install-logray)
+            INSTALL_LOGRAY=1
             ;;
         --install-all)
             INSTALL_OPTIONAL=1
@@ -124,6 +129,12 @@ DOC_DEPS_LIST=(
     docbook-xsl
 )
 
+LOGRAY_LIST=(
+    jsoncpp
+    onetbb
+    re2
+)
+
 ACTUAL_LIST=( "${BUILD_LIST[@]}" "${REQUIRED_LIST[@]}" )
 
 # Now arrange for optional support libraries
@@ -133,6 +144,10 @@ fi
 
 if [ $INSTALL_DOC_DEPS -ne 0 ] ; then
     ACTUAL_LIST+=( "${DOC_DEPS_LIST[@]}" )
+fi
+
+if [ $INSTALL_LOGRAY -ne 0 ] ; then
+    ACTUAL_LIST+=( "${LOGRAY_LIST[@]}" )
 fi
 
 if (( ${#OPTIONS[@]} != 0 )); then
@@ -153,6 +168,28 @@ fi
 if [ $INSTALL_TEST_DEPS -ne 0 ] ; then
     printf "Sorry, you'll have to install pytest and pytest-xdist yourself for the time being.\\n"
     # pip3 install pytest pytest-xdist
+fi
+
+if [ $INSTALL_LOGRAY -ne 0 ] ; then
+    FALCO_LIBS_VERSION=0.14.3
+    if [ "$FALCO_LIBS_VERSION" ] && [ ! -f "falco-libs-$FALCO_LIBS_VERSION-done" ] ; then
+        echo "Downloading, building, and installing libsinsp and libscap:"
+        [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || curl -L -O --remote-header-name "https://github.com/falcosecurity/libs/archive/refs/tags/$FALCO_LIBS_VERSION.tar.gz"
+        mv "libs-$FALCO_LIBS_VERSION.tar.gz" "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
+        tar -xf "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
+        mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
+        cd "falco-libs-$FALCO_LIBS_VERSION"
+        patch -p1 < "../tools/macos-setup-patches/falco-uthash_h-install.patch"
+        mkdir build_dir
+        cd build_dir
+        cmake -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
+            -DUSE_BUNDLED_DEPS=ON -DUSE_BUNDLED_CARES=OFF -DUSE_BUNDLED_ZLIB=OFF \
+            -DUSE_BUNDLED_JSONCPP=OFF -DUSE_BUNDLED_TBB=OFF -DUSE_BUNDLED_RE2=OFF \
+            ..
+        make
+        sudo make install
+        cd ../..
+    fi
 fi
 
 # Uncomment to add PNG compression utilities used by compress-pngs:

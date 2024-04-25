@@ -1,0 +1,63 @@
+name: Build Logray macOS
+
+on: [push]
+
+jobs:
+  macos:
+    name: Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          check-latest: true
+      - name: Install deps
+        run: ./tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps --install-logray
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+      - name: Install dmgbuild
+        run: pip3 install dmgbuild
+      - name: Mkdir
+        run: mkdir build
+      - name: Cmake
+        working-directory: build
+        run: cmake -GNinja -DBUILD_logray=ON -DBUILD_falcodump=ON -DBUILD_androiddump=OFF -DBUILD_ciscodump=OFF -DBUILD_mmdbresolve=OFF -DBUILD_randpkt=OFF -DBUILD_randpktdump=OFF -DBUILD_sharkd=OFF -DBUILD_sshdump=OFF -DBUILD_tshark=OFF -DBUILD_wifidump=OFF -DBUILD_wireshark=OFF ..
+      - name: Build
+        run: ninja
+        working-directory: build
+      - name: Create falco plugin dir
+        run: mkdir run/Logray.app/Contents/PlugIns/logray/falco
+        working-directory: build
+      - name: Build libcloudtrail
+        shell: bash
+        run: |
+          CLOUDTRAIL_VERSION="0.12.0"
+          curl -OL --remote-header-name "https://github.com/falcosecurity/plugins/archive/refs/tags/cloudtrail-${CLOUDTRAIL_VERSION?}.tar.gz"
+          tar xzf plugins-cloudtrail-${CLOUDTRAIL_VERSION?}.tar.gz
+          cd plugins-cloudtrail-${CLOUDTRAIL_VERSION?}/plugins/cloudtrail
+          make
+          cp libcloudtrail.so ../../../build/run/Logray.app/Contents/PlugIns/logray/falco/libcloudtrail.so
+      - name: Build libgcpaudit
+        shell: bash
+        run: |
+          GCPAUDIT_VERSION="0.3.2"
+          curl -OL --remote-header-name "https://github.com/falcosecurity/plugins/archive/refs/tags/plugins/gcpaudit/v${GCPAUDIT_VERSION?}.tar.gz"
+          tar xzf plugins-plugins-gcpaudit-v${GCPAUDIT_VERSION?}.tar.gz
+          cd plugins-plugins-gcpaudit-v${GCPAUDIT_VERSION?}/plugins/gcpaudit
+          make
+          cp libgcpaudit.so ../../../build/run/Logray.app/Contents/PlugIns/logray/falco/libgcpaudit.so
+      - name: Build dmg
+        run: ninja logray_dmg
+        working-directory: build
+      - name: Upload dmg packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: build/run/*dmg
