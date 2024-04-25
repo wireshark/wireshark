@@ -891,6 +891,19 @@ static int hf_pn_io_pe_wol_wake_up_method;
 static int hf_pn_io_pe_wol_wake_up_data_length;
 static int hf_pn_io_pe_mode_id_source;
 static int hf_pn_io_pe_mode_id_destination;
+static int hf_pn_io_pe_measurement;
+static int hf_pn_io_pe_measurement_id;
+static int hf_pn_io_pe_measurement_object_number;
+static int hf_pn_io_pe_measurement_accuracy_domain;
+static int hf_pn_io_pe_measurement_accuracy_class;
+static int hf_pn_io_pe_measurement_range;
+static int hf_pn_io_pe_measurement_structure_length;
+static int hf_pn_io_pe_measurement_structure_id;
+static int hf_pn_io_pe_measurement_status;
+static int hf_pn_io_pe_measurement_value;
+static int hf_pn_io_pe_measurement_value_uint32;
+static int hf_pn_io_pe_measurement_value_float32;
+static int hf_pn_io_pe_measurement_value_float64;
 static int hf_pn_io_pe_operational_mode;
 
 static int hf_pn_io_snmp_community_name_length;
@@ -980,6 +993,8 @@ static gint ett_pn_io_pe_service_response;
 static gint ett_pn_io_pe_service_datarequest;
 static gint ett_pn_io_pe_service_dataresponse;
 static gint ett_pn_io_pe_mode_attributes;
+static gint ett_pn_io_pe_measurement_id;
+static gint ett_pn_io_pe_measurement_value;
 static gint ett_pn_io_pe_operational_mode;
 
 static gint ett_pn_io_tsn_domain_port_config;
@@ -2825,6 +2840,14 @@ static const value_string pn_io_pe_services_modifier[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_pe_services_modifier_with_details[] = {
+    { 0x1100, "Reset_Energy_Meter all, ignore Measurement ID and ignore Object Number" },
+    { 0x1101, "Reset_Energy_Meter all meters with this Measurement ID" },
+    { 0x1102, "Reset_Energy_Meter all meters with this Object Number" },
+    { 0x1103, "Reset_Energy_Meter specific meter with this Measurement ID and this Object Number" },
+    { 0, NULL }
+};
+
 static const range_string pn_io_pe_service_status[] = {
     { 0x00, 0x00, "reserved" },
     { 0x01, 0x01, "ready" },
@@ -2875,6 +2898,13 @@ static const value_string pn_io_pe_mode_attributes_bit0[] = {
 static const value_string pn_io_pe_wol_wake_up_method[] = {
     { 0x01, "Wake-up based on magic packet" },
     { 0x02, "Wake-up based on vendor specific data (PE Version < V1.3)" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pe_measurement_status[] = {
+    { 0x01, "valid" },
+    { 0x02, "not available" },
+    { 0x03, "temporarily not available" },
     { 0, NULL }
 };
 
@@ -10135,6 +10165,11 @@ dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
         proto_tree *pedata_tree;
         guint32 u32PauseTime;
         guint8 u8ModeID;
+        guint8 u8Count;
+        guint16 u16MeasurementID;
+        guint16 u16ObjectNumber;
+        guint32 value32;
+        guint64 value64;
 
         pedata_item = proto_tree_add_item(tree, hf_pn_io_pe_service_datarequest, tvb, offset, u16BodyLength, ENC_NA);
         pedata_tree = proto_item_add_subtree(pedata_item, ett_pn_io_pe_service_datarequest);
@@ -10156,6 +10191,66 @@ dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
                 request_ref, u8ModeID);
             col_add = TRUE;
             break;
+        case 0x1002:    /* Get_Measurement_Values */
+        case 0x1004:    /* Get_Measurement_Values_with_Object_Number */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep, hf_pn_io_pe_data_count, &u8Count);
+            /* align padding */
+            offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+            while (u8Count--) {
+                if (service_modifier == 0x1004) {
+                    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, pedata_tree, drep,
+                        hf_pn_io_pe_measurement_object_number, &u16ObjectNumber);
+                }
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_measurement_id, &u16MeasurementID);
+            }
+            break;
+        case 0x1100:    /* Reset_Energy_Meter all */
+        case 0x1101:    /* Reset_Energy_Meter all meters with this ID */
+        case 0x1102:    /* Reset_Energy_Meter all meters with this Object Number */
+        case 0x1103:    /* Reset_Energy_Meter meter with this ID and this Object Number */
+            /* rewrite item text with detailed information */
+            proto_item_set_text(pedata_item, "%s", val_to_str_const(service_modifier, pn_io_pe_services_modifier_with_details, "Unknown"));
+
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, pedata_tree, drep, hf_pn_io_pe_measurement_object_number, &u16ObjectNumber);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, pedata_tree, drep, hf_pn_io_pe_measurement_id, &u16MeasurementID);
+            break;
+        case 0x1200:    /* Set_Meter */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep, hf_pn_io_pe_data_count, &u8Count);
+            /* align padding */
+            offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+            while (u8Count--) {
+                proto_item *measurement_item;
+                proto_tree *measurement_tree;
+                int byte_length = 4;
+
+                /* depending on measurement ID we may encounter differing byte lengths for value */
+                u16MeasurementID = tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+                if ((u16MeasurementID >= 210) && (u16MeasurementID <= 219)) {
+                    byte_length = 8;
+                }
+
+                measurement_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_measurement, tvb, offset, 4+byte_length, ENC_NA);
+                measurement_tree = proto_item_add_subtree(measurement_item, ett_pn_io_pe_measurement_id);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                    hf_pn_io_pe_measurement_object_number, &u16ObjectNumber);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                    hf_pn_io_pe_measurement_id, &u16MeasurementID);
+                if (byte_length == 8) {
+                    dcerpc_info di; /* fake dcerpc_info struct */
+                    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+                    di.call_data = &dcv;
+                    offset = dissect_dcerpc_uint64(tvb, offset, pinfo, measurement_tree, &di, drep,
+                        hf_pn_io_pe_measurement_value_float64, &value64);
+                } else if ((u16MeasurementID >= 220) && (u16MeasurementID <= 229)) {
+                    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_value_uint32, &value32);
+                } else {
+                    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_value_float32, &value32);
+                }
+            }
+            break;
         case 0x2101:    /* Go_Sleep_Mode_WOL_with_pause_time */
             offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
                 hf_pn_io_pe_pause_time, &u32PauseTime);
@@ -10164,7 +10259,7 @@ dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
             col_add = TRUE;
             break;
         default:
-            offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "PE RequestData");
+            offset = dissect_pn_user_data(tvb, offset, pinfo, pedata_tree, u16BodyLength, "RequestData");
             break;
         }
     }
@@ -10273,6 +10368,15 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
         guint8 u8EntityPEASE;
         guint8 u8WOLMethod;
         guint16 u16WOLDataLength;
+        guint16 u16MeasurementID;
+        guint16 u16ObjectNumber;
+        guint8 u8Accuracy;
+        guint16 u16StructureLength;
+        guint8 u8StructureID;
+        guint8 value8;
+        guint16 value16;
+        guint32 value32;
+        guint64 value64;
 
         pedata_item = proto_tree_add_item(tree, hf_pn_io_pe_service_dataresponse, tvb, offset, u16BodyLength, ENC_NA);
         pedata_tree = proto_item_add_subtree(pedata_item, ett_pn_io_pe_service_dataresponse);
@@ -10417,6 +10521,122 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
             col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIenergy ServiceResponse, Ref: 0x%02x, Query_Attributes PE Version V%u.%u Class 0x%02x",
                 request_ref, u8VersionMajor, u8VersionMinor, u8EntityClass);
             col_add = TRUE;
+            break;
+        case 0x10:      /* Query_Measurement */
+            /*
+             * structures:
+             *  0x01: Measurement Values
+             *  0x02: Measurement List
+             *  0x03: Measurement Values with Object Number
+             *  0x04: Measurement List with Object Number
+             */
+            if ((structure_id == 0x02) || (structure_id == 0x04)) {
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_data_count, &u8Count);
+                /* align padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+                while (u8Count--) {
+                    proto_item *measurement_item;
+                    proto_tree *measurement_tree;
+
+                    if (structure_id == 0x04) {
+                        measurement_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_measurement, tvb, offset, 10, ENC_NA);
+                        measurement_tree = proto_item_add_subtree(measurement_item, ett_pn_io_pe_measurement_id);
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_object_number, &u16ObjectNumber);
+                    } else {
+                        measurement_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_measurement, tvb, offset, 8, ENC_NA);
+                        measurement_tree = proto_item_add_subtree(measurement_item, ett_pn_io_pe_measurement_id);
+                    }
+                    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_id, &u16MeasurementID);
+                    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_accuracy_domain, &u8Accuracy);
+                    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_accuracy_class, &u8Accuracy);
+                    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_range, &value32);
+                }
+            } else if ((structure_id == 0x01) || (structure_id == 0x03)) {
+                offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                    hf_pn_io_pe_data_count, &u8Count);
+                /* align padding */
+                offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+                while (u8Count--) {
+                    proto_item *measurement_item;
+                    proto_tree *measurement_tree;
+
+                    /* peek for structure length */
+                    u16StructureLength = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                    measurement_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_measurement, tvb, offset,
+                        u16StructureLength, ENC_NA);
+                    measurement_tree = proto_item_add_subtree(measurement_item, ett_pn_io_pe_measurement_id);
+
+                    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_structure_length, &value16);
+                    u16StructureLength -= 2;
+                    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, measurement_tree, drep,
+                        hf_pn_io_pe_measurement_structure_id, &u8StructureID);
+                    u16StructureLength -= 1;
+                    if (u8StructureID == 2) {
+                        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_status, &value8);
+                        u16StructureLength -= 1;
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_object_number, &u16ObjectNumber);
+                        u16StructureLength -= 2;
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_id, &u16MeasurementID);
+                        u16StructureLength -= 2;
+                    } else {
+                        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_id, &u16MeasurementID);
+                        u16StructureLength -= 2;
+                        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_status, &value8);
+                        u16StructureLength -= 1;
+                    }
+
+                    if ((u16MeasurementID >= 210) && (u16MeasurementID <= 219)) {
+                        dcerpc_info di; /* fake dcerpc_info struct */
+                        dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+                        di.call_data = &dcv;
+                        offset = dissect_dcerpc_uint64(tvb, offset, pinfo, measurement_tree, &di, drep,
+                            hf_pn_io_pe_measurement_value_float64, &value64);
+                        u16StructureLength -= 8;
+                    } else if ((u16MeasurementID >= 220) && (u16MeasurementID <= 229)) {
+                        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_value_uint32, &value32);
+                        u16StructureLength -= 4;
+                    } else {
+                        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, measurement_tree, drep,
+                            hf_pn_io_pe_measurement_value_float32, &value32);
+                        u16StructureLength -= 4;
+                    }
+
+                    if (u16StructureLength > 0) {
+                        /* remainder is optional timestamp */
+                        offset = dissect_pn_user_data(tvb, offset, pinfo, pedata_tree, u16StructureLength, "Timestamp");
+                    }
+                }
+            }
+            break;
+        case 0x12:      /* Set_Meter */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, pedata_tree, drep,
+                hf_pn_io_pe_data_count, &u8Count);
+            /* align padding */
+            offset = dissect_pn_padding(tvb, offset, pinfo, pedata_tree, 1);
+            while (u8Count--) {
+                proto_item *measurement_item;
+                proto_tree *measurement_tree;
+
+                measurement_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_measurement, tvb, offset, 4, ENC_NA);
+                measurement_tree = proto_item_add_subtree(measurement_item, ett_pn_io_pe_measurement_id);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                    hf_pn_io_pe_measurement_object_number, &u16ObjectNumber);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, measurement_tree, drep,
+                    hf_pn_io_pe_measurement_id, &u16MeasurementID);
+            }
             break;
         case 0x20:      /* Info_Sleep_Mode_WOL */
             offset = dissect_dcerpc_uint32(tvb, offset, pinfo, pedata_tree, drep,
@@ -18433,6 +18653,71 @@ proto_register_pn_io (void)
          FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
          NULL, HFILL }
     },
+    { &hf_pn_io_pe_measurement,
+      { "Measurement", "pn_io.profienergy.measurement",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_id,
+      { "ID", "pn_io.profienergy.measurement.id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_object_number,
+      { "Object_Number", "pn_io.profienergy.measurement.object_number",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_accuracy_domain,
+      { "Accuracy_Domain", "pn_io.profienergy.measurement.accuracy_domain",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_accuracy_class,
+      { "Accuracy_Class", "pn_io.profienergy.measurement.accuracy_class",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_range,
+      { "Range", "pn_io.profienergy.measurement.range",
+        FT_FLOAT, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_structure_length,
+      { "Structure Length", "pn_io.profienergy.measurement.structure_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_structure_id,
+      { "Structure ID", "pn_io.profienergy.measurement.structure_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_status,
+      { "Status", "pn_io.profienergy.measurement.status",
+        FT_UINT8, BASE_DEC, VALS(pn_io_pe_measurement_status), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_value,
+      { "Measurement Value", "pn_io.profienergy.measurement.value",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_value_uint32,
+      { "Value", "pn_io.profienergy.measurement.value_uint32",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_value_float32,
+      { "Value", "pn_io.profienergy.measurement.value_float32",
+        FT_FLOAT, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pe_measurement_value_float64,
+      { "Value", "pn_io.profienergy.measurement.value_float64",
+        FT_DOUBLE, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pe_operational_mode,
     { "PE_OperationalMode", "pn_io.pe_operationalmode",
        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pe_operational_mode), 0x0,
@@ -18539,6 +18824,8 @@ proto_register_pn_io (void)
         &ett_pn_io_pe_service_datarequest,
         &ett_pn_io_pe_service_dataresponse,
         &ett_pn_io_pe_mode_attributes,
+        &ett_pn_io_pe_measurement_id,
+        &ett_pn_io_pe_measurement_value,
         &ett_pn_io_pe_operational_mode,
         &ett_pn_io_neighbor,
         &ett_pn_io_tsn_domain_vid_config,
