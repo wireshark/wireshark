@@ -74,12 +74,12 @@ private slots:
 #endif
     void importFromDirectory();
 
-    void on_newToolButton_clicked();
-    void on_deleteToolButton_clicked();
-    void on_copyToolButton_clicked();
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
-    void on_buttonBox_helpRequested();
+    void newToolButtonClicked();
+    void deleteToolButtonClicked();
+    void copyToolButtonClicked();
+    void buttonBoxAccepted();
+    void buttonBoxRejected();
+    void buttonBoxHelpRequested();
     void dataChanged(const QModelIndex &);
 
     void filterChanged(const QString &);
