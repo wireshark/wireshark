@@ -733,6 +733,7 @@ proto_reg_handoff_gssapi(void)
 					  &gssapi_auth_fns);
 
 	dissector_add_string("dns.tsig.mac", "gss.microsoft.com", gssapi_handle);
+	dissector_add_string("dns.tsig.mac", "gss-tsig", gssapi_handle);
 }
 
 /*
