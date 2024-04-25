@@ -322,7 +322,7 @@ tls_hs_fragment_free_temporary_key(gpointer ptr)
         g_slice_free(tls_hs_fragment_key, key);
 }
 
-const reassembly_table_functions
+static const reassembly_table_functions
 tls_hs_reassembly_table_functions = {
         tls_hs_fragment_hash,
         tls_hs_fragment_equal,
