@@ -365,103 +365,104 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
 
     struct member_attribute name_array[] = {
         // Root members
-        {NULL,         "jsonrpc",    1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {NULL,         "userid",     1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {NULL,         "id",         1, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
-        {NULL,         "method",     1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {NULL,         "params",     1, JSMN_OBJECT,       SHARKD_JSON_OBJECT,   SHARKD_OPTIONAL},
+        {NULL,         "jsonrpc",        1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {NULL,         "userid",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {NULL,         "id",             1, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
+        {NULL,         "method",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {NULL,         "params",         1, JSMN_OBJECT,       SHARKD_JSON_OBJECT,   SHARKD_OPTIONAL},
 
         // Valid methods
-        {"method",     "analyse",    1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "bye",        1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "check",      1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "complete",   1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "download",   1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "dumpconf",   1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "follow",     1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "frame",      1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "frames",     1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "info",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "intervals",  1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "iograph",    1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "load",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "setcomment", 1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "setconf",    1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "status",     1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"method",     "tap",        1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "analyse",        1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "bye",            1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "check",          1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "complete",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "download",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "dumpconf",       1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "follow",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "frame",          1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "frames",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "info",           1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "intervals",      1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "iograph",        1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "load",           1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "setcomment",     1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "setconf",        1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "status",         1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"method",     "tap",            1, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
 
         // Parameters and their method context
-        {"check",      "field",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"check",      "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"complete",   "field",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"complete",   "pref",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"download",   "token",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"dumpconf",   "pref",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"follow",     "follow",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {"follow",     "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {"follow",     "sub_stream", 2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"frame",      "frame",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
-        {"frame",      "proto",      2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
-        {"frame",      "ref_frame",  2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"frame",      "prev_frame", 2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"frame",      "columns",    2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
-        {"frame",      "color",      2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
-        {"frame",      "bytes",      2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
-        {"frame",      "hidden",     2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
-        {"frames",     "column*",    2, JSMN_UNDEFINED,    SHARKD_JSON_ANY,      SHARKD_OPTIONAL},
-        {"frames",     "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"frames",     "skip",       2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"frames",     "limit",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"frames",     "refs",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"intervals",  "interval",   2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"intervals",  "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "interval",   2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
-        {"iograph",    "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph0",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {"iograph",    "graph1",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph2",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph3",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph4",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph5",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph6",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph7",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph8",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "graph9",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter0",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter1",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter2",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter3",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter4",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter5",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter6",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter7",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter8",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"iograph",    "filter9",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"load",       "file",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {"setcomment", "frame",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
-        {"setcomment", "comment",    2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"setconf",    "name",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {"setconf",    "value",      2, JSMN_UNDEFINED,    SHARKD_JSON_ANY,      SHARKD_MANDATORY},
-        {"tap",        "tap0",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
-        {"tap",        "tap1",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap2",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap3",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap4",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap5",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap6",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap7",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap8",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap9",       2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap10",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap11",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap12",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap13",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap14",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "tap15",      2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
-        {"tap",        "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"check",      "field",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"check",      "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"complete",   "field",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"complete",   "pref",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"download",   "token",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"dumpconf",   "pref",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"follow",     "follow",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"follow",     "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"follow",     "sub_stream",     2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"frame",      "frame",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
+        {"frame",      "proto",          2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"frame",      "ref_frame",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"frame",      "prev_frame",     2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"frame",      "columns",        2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"frame",      "color",          2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"frame",      "bytes",          2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"frame",      "hidden",         2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
+        {"frames",     "column*",        2, JSMN_UNDEFINED,    SHARKD_JSON_ANY,      SHARKD_OPTIONAL},
+        {"frames",     "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"frames",     "skip",           2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"frames",     "limit",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"frames",     "refs",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"intervals",  "interval",       2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"intervals",  "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "interval",       2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"iograph",    "interval_units", 2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph0",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"iograph",    "graph1",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph2",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph3",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph4",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph5",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph6",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph7",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph8",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "graph9",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter0",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter1",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter2",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter3",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter4",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter5",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter6",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter7",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter8",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"iograph",    "filter9",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"load",       "file",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"setcomment", "frame",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
+        {"setcomment", "comment",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"setconf",    "name",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"setconf",    "value",          2, JSMN_UNDEFINED,    SHARKD_JSON_ANY,      SHARKD_MANDATORY},
+        {"tap",        "tap0",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"tap",        "tap1",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap2",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap3",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap4",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap5",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap6",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap7",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap8",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap9",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap10",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap11",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap12",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap13",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap14",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "tap15",          2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
+        {"tap",        "filter",         2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
 
         // End of the name_array
-        {NULL,         NULL,         0, JSMN_STRING,       SHARKD_ARRAY_END,   SHARKD_OPTIONAL},
+        {NULL,         NULL,             0, JSMN_STRING,       SHARKD_ARRAY_END,   SHARKD_OPTIONAL},
     };
 
     rpcid = 0;
@@ -4384,7 +4385,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
     sharkd_json_result_epilogue();
 }
 
-#define SHARKD_IOGRAPH_MAX_ITEMS 250000 /* 250k limit of items is taken from wireshark-qt, on x86_64 sizeof(io_graph_item_t) is 88, so single graph can take max 21 MB */
+#define SHARKD_IOGRAPH_MAX_ITEMS 1 << 25 /* 33,554,432 limit of items, same as max_io_items_ in ui/qt/io_graph_dialog.h */
 
 struct sharkd_iograph
 {
@@ -4444,7 +4445,8 @@ sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const vo
  * Process iograph request
  *
  * Input:
- *   (o) interval - interval time in ms, if not specified: 1000ms
+ *   (o) interval           - interval time, if not specified: 1000
+ *   (o) interval_units     - units for interval time, must be 's', 'ms' or 'us', if not specified: ms
  *   (m) graph0             - First graph request
  *   (o) graph1...graph9    - Other graph requests
  *   (o) filter0            - First graph filter
@@ -4462,15 +4464,48 @@ static void
 sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 {
     const char *tok_interval = json_find_attr(buf, tokens, count, "interval");
+    const char *tok_interval_units = json_find_attr(buf, tokens, count, "interval_units");
     struct sharkd_iograph graphs[10];
     gboolean is_any_ok = FALSE;
     int graph_count;
 
-    guint32 interval_ms = 1000; /* default: one per second */
     int i;
 
+    /* default: 1000ms = one per second */
+    guint32 interval = 1000;
+    const char *interval_units = "ms";
+
     if (tok_interval)
-        ws_strtou32(tok_interval, NULL, &interval_ms);
+        ws_strtou32(tok_interval, NULL, &interval);
+
+    if (tok_interval_units)
+    {
+        if (strcmp(tok_interval_units, "us") != 0 &&
+            strcmp(tok_interval_units, "ms") != 0 &&
+            strcmp(tok_interval_units, "s") != 0)
+        {
+            sharkd_json_error(
+                    rpcid, -7003, NULL,
+                    "Invalid interval_units parameter: '%s', must be 's', 'ms' or 'us'", tok_interval_units
+            );
+            return;
+        }
+        interval_units = tok_interval_units;
+    }
+
+    guint32 interval_us = 0;
+    if (strcmp(interval_units, "us") == 0)
+    {
+        interval_us = interval;
+    }
+    else if (strcmp(interval_units, "ms") == 0)
+    {
+        interval_us = 1000 * interval;
+    }
+    else if (strcmp(interval_units, "s") == 0)
+    {
+        interval_us = 1000000 * interval;
+    }
 
     for (i = graph_count = 0; i < (int) G_N_ELEMENTS(graphs); i++)
     {
@@ -4518,7 +4553,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 
         /* io_graph_item now supports microseconds (and this parameter
          * is expected to be in microseconds.) */
-        graph->interval = 1000 * interval_ms;
+        graph->interval = interval_us;
 
         graph->hf_index = -1;
         graph->error = check_field_unit(field_name, &graph->hf_index, graph->calc_type);
