@@ -57,62 +57,6 @@ spell = SpellChecker()
 spell.word_frequency.load_text_file('./tools/wireshark_words.txt')
 
 
-class TypoSourceDocumentParser(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.capturing = False
-        self.content = ''
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'pre':
-            self.capturing = True
-
-    def handle_endtag(self, tag):
-        if tag == 'pre':
-            self.capturing = False
-
-    def handle_data(self, data):
-        if self.capturing:
-            self.content += data
-
-
-# Fetch some common mispellings from wikipedia so we will definitely flag them.
-print('Fetching Wikipedia\'s list of common misspellings.')
-req_headers = { 'User-Agent': 'Wireshark check-wikipedia-typos' }
-req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
-wiki_db = dict()
-try:
-    response = urllib.request.urlopen(req)
-    content = response.read()
-    content = content.decode('UTF-8', 'replace')
-
-    # Extract the "<pre>...</pre>" part of the document.
-    parser = TypoSourceDocumentParser()
-    parser.feed(content)
-    content = parser.content.strip()
-
-    wiki_db = dict(l.lower().split('->', maxsplit=1) for l in content.splitlines())
-    del wiki_db['cmo']      # All false positives.
-    del wiki_db['ect']      # Too many false positives.
-    del wiki_db['thru']     # We'll let that one thru. ;-)
-    del wiki_db['sargeant'] # All false positives.
-
-    # Remove each word from dict
-    removed = 0
-    for word in wiki_db:
-        try:
-            if should_exit:
-                exit(1)
-            spell.word_frequency.remove_words([word])
-            #print('Removed', word)
-            removed += 1
-        except:
-            pass
-
-    print('Removed', removed, 'known bad words')
-except:
-    print('Failed to fetch and/or parse Wikipedia mispellings!')
-
 
 # Track words that were not found.
 missing_words = []
@@ -508,8 +452,64 @@ parser.add_argument('--open', action='store_true',
 parser.add_argument('--comments', action='store_true',
                     help='check comments in source files')
 
-
 args = parser.parse_args()
+
+class TypoSourceDocumentParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.capturing = False
+        self.content = ''
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'pre':
+            self.capturing = True
+
+    def handle_endtag(self, tag):
+        if tag == 'pre':
+            self.capturing = False
+
+    def handle_data(self, data):
+        if self.capturing:
+            self.content += data
+
+
+# Fetch some common mispellings from wikipedia so we will definitely flag them.
+print('Fetching Wikipedia\'s list of common misspellings.')
+req_headers = { 'User-Agent': 'Wireshark check-wikipedia-typos' }
+req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
+wiki_db = dict()
+try:
+    response = urllib.request.urlopen(req)
+    content = response.read()
+    content = content.decode('UTF-8', 'replace')
+
+    # Extract the "<pre>...</pre>" part of the document.
+    parser = TypoSourceDocumentParser()
+    parser.feed(content)
+    content = parser.content.strip()
+
+    wiki_db = dict(l.lower().split('->', maxsplit=1) for l in content.splitlines())
+    del wiki_db['cmo']      # All false positives.
+    del wiki_db['ect']      # Too many false positives.
+    del wiki_db['thru']     # We'll let that one thru. ;-)
+    del wiki_db['sargeant'] # All false positives.
+
+    # Remove each word from dict
+    removed = 0
+    for word in wiki_db:
+        try:
+            if should_exit:
+                exit(1)
+            spell.word_frequency.remove_words([word])
+            #print('Removed', word)
+            removed += 1
+        except:
+            pass
+
+    print('Removed', removed, 'known bad words')
+except:
+    print('Failed to fetch and/or parse Wikipedia mispellings!')
+
 
 
 # Get files from wherever command-line args indicate.

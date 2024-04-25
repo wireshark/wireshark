@@ -6494,7 +6494,7 @@ process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * 
             offset = dissect_struct_barrier_lvb(tvb, offset, tree, LUSTRE_REC_OFF);
             break;
         case LDLM_SET_INFO:
-            /* no data - c.f. Request reasoning, this prossesed as RFQ_OBD_SET_INFO */
+            /* no data - c.f. Request reasoning, this processed as RFQ_OBD_SET_INFO */
             break;
         default:
             expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "UNKNOWN LDLM OPCODE: %d (type: %d)", trans->opcode, pb_type);

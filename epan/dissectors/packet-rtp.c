@@ -120,7 +120,7 @@ struct _rtp_conversation_info
     struct srtp_info* srtp_info;                    /* SRTP context */
     bta2dp_codec_info_t* bta2dp_info;
     btvdp_codec_info_t* btvdp_info;
-    wmem_array_t* rtp_sdp_setup_info_list;           /**> List with data from all SDP occurencies for this steram holding a call ID)*/
+    wmem_array_t* rtp_sdp_setup_info_list;           /**> List with data from all SDP occurrences for this stream holding a call ID)*/
 };
 
 typedef struct {

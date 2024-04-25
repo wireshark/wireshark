@@ -159,6 +159,7 @@ beamformer
 beamforming
 bgpsec
 bgpspec
+bharti
 bibliographic
 bibliography
 bidirection
@@ -526,6 +527,7 @@ disambiguation
 discontinuities
 discriminant
 discriminator
+dishnet
 dissection
 dissector
 dissectors
@@ -690,9 +692,11 @@ fileset
 filsfils
 firefox
 firewall
+fiveco
 fixme
 flag1
 flag2
+flanger
 flavored
 flexray
 flowid
@@ -763,6 +767,7 @@ gnodeb
 gnutls
 goaway
 golomb
+goodput
 google
 gopname
 gostr
@@ -804,6 +809,7 @@ hnbap
 homedir
 homeplug
 hopcount
+hostkey
 hostname
 howto
 hpfeeds
@@ -1214,6 +1220,7 @@ noncriticalextensions
 nopad
 noqueue
 nordig
+normalised
 nortel
 notarized
 notational
@@ -1397,6 +1404,7 @@ powercontrol
 pppdump
 pppoe
 prach
+pradesh
 preambles
 preauth
 precisions
@@ -1420,6 +1428,7 @@ prioritized
 privkey
 procid
 profidrive
+profienergy
 profinet
 promisc
 promiscsniff
@@ -1617,6 +1626,7 @@ resynchronisation
 resynchronization
 resynchronize
 resynchronized
+retap
 retarder
 retrans
 retranslated
@@ -1765,6 +1775,7 @@ snaplen
 snow3g
 snprintf
 sockaddr
+socketcan
 softkey
 solera
 someip
@@ -2194,6 +2205,7 @@ vector3d
 venusmngr
 verbose
 verbosity
+verifications
 verifier
 verizon
 version2

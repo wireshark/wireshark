@@ -1467,7 +1467,7 @@ static const value_string pn_io_arproperties_combined_object_container_with_lega
     { 0, NULL }
 };
 
-/* bit 29 for advanced statup mode*/
+/* bit 29 for advanced startup mode*/
 static const value_string pn_io_arproperties_combined_object_container_with_advanced_startupmode[] = {
     { 0x00000000, "CombinedObjectContainer not used" },
     { 0x00000001, "Usage of CombinedObjectContainer required" },
@@ -14478,7 +14478,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
                     hf_pn_io_ps_f_par_crc, &par_crc);
 
 
-    /* Differniate between ipar_crc and no_ipar_crc */
+    /* Differentiate between ipar_crc and no_ipar_crc */
     if( (prm_flag2_f_block_id & 0x08) && !(prm_flag2_f_block_id & 0x20) ) {    /* include ipar_crc display */
         col_append_fstr(pinfo->cinfo, COL_INFO,
                         ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x,"
@@ -18881,7 +18881,7 @@ proto_register_pn_io (void)
         &pnio_ps_selection);
     prefs_register_directory_preference(pnio_module, "pnio_ps_networkpath",
         "Folder containing GSD files",     /* Title */
-        "Place GSD files in this folder.", /* Descreption */
+        "Place GSD files in this folder.", /* Description */
         &pnio_ps_networkpath);             /* Variable in which to save the GSD file folder path */
 
     /* subdissector code */

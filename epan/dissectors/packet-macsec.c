@@ -156,7 +156,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     tci_an_field = tvb_get_guint8(tvb, 0);
 
-    /* if the frame is an encyrpted MACsec frame, remember that */
+    /* if the frame is an encrypted MACsec frame, remember that */
     if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
         encrypted = true;
     }

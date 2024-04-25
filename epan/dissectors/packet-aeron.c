@@ -2169,7 +2169,7 @@ static void aeron_msg_process(tvbuff_t * tvb, int offset, packet_info * pinfo, a
                         msg = aeron_term_msg_find_le(term, info->term_offset);
                         if (msg != NULL)
                         {
-                            /* Is this the next expexted term offset? */
+                            /* Is this the next expected term offset? */
                             if (msg->next_expected_term_offset == info->term_offset)
                             {
                                 /* Yes - we can add the fragment to the message */

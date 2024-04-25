@@ -253,11 +253,11 @@ typedef struct mms_private_data_t
 
 typedef struct mms_actx_private_data_t
 {
-    int mms_pdu_type;                               /* MMSpdu type taken from MMSpdu CHOISE branch_taken */
+    int mms_pdu_type;                               /* MMSpdu type taken from MMSpdu CHOICE branch_taken */
     int invokeid;
     iec61850_8_1_vmd_specific vmd_specific;         /* Numeric representation of decode vmd_specific strings */
     int listOfAccessResult_cnt;                     /* Position in the list, 1 count */
-    int data_cnt;                                   /* Number of times data occured(depth)*/
+    int data_cnt;                                   /* Number of times data occurred(depth)*/
     guint16 reported_optflds;                       /* Bitmap over included fields */
     proto_item* pdu_item;                           /* The item to append PDU info to */
     int confirmedservice_type;                      /* Requested service */
@@ -265,7 +265,7 @@ typedef struct mms_actx_private_data_t
     int objectscope;
     mms_transaction_t* mms_trans_p;                 /* Pointer to the transaction record */
     char* itemid_str;
-    int success;                                    /* If variable access succeded or not */
+    int success;                                    /* If variable access succeeded or not */
 } mms_actx_private_data_t;
 
 
@@ -631,7 +631,7 @@ void proto_register_mms(void) {
             FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL } },
         { &hf_mms_iec61850_origin_orcat,
-        { "Origin Catagory", "mms.iec61850.orcat",
+        { "Origin Category", "mms.iec61850.orcat",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL } },
         { &hf_mms_iec61850_origin_orident,

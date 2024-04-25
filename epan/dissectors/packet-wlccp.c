@@ -426,7 +426,7 @@ static void set_tlv_flag(gboolean flag);
 static gboolean get_tlv_flag(void);
 static gboolean get_mic_flag(void);
 
-/* Initialize some utlity variables */
+/* Initialize some utility variables */
 static gboolean mic_flag=0, tlv_flag=0;
 
 /* Initialize the protocol and registered fields */
@@ -1429,7 +1429,7 @@ handle things. To be investigated further */
 static guint dissect_wlccp_sec_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
 {
 
-/* at the momemt we have no more data to use to write this dissector code */
+/* at the moment we have no more data to use to write this dissector code */
 /* it's just a place holder for now                                       */
 
 	switch (_base_message_type)
@@ -1544,7 +1544,7 @@ static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 static guint dissect_wlccp_qos_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
 {
-/* at the momemt we have no more data to use to write this dissector code */
+/* at the moment we have no more data to use to write this dissector code */
 /* it's just a place holder for now                                       */
 
 
@@ -1768,7 +1768,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 static guint dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
 {
-/* at the momemt we have no more data to use to write this dissector code */
+/* at the moment we have no more data to use to write this dissector code */
 /* it's just a place holder for now                                       */
 
 	switch (_base_message_type)
@@ -3936,7 +3936,7 @@ proto_register_wlccp(void)
 		},
 
 		{ &hf_wlccp_rpidensity,
-		  { "RPI Density", "wlccp.rpi_denisty",
+		  { "RPI Density", "wlccp.rpi_density",
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
