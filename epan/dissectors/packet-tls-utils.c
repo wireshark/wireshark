@@ -1403,6 +1403,18 @@ const value_string tls13_key_update_request[] = {
 };
 
 /* RFC 5246 7.4.1.4.1 */
+/* https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
+/* Note that the TLS 1.3 SignatureScheme registry reserves all values
+ * with first octet 0x00-0x06 and all values with second octet 0x00-0x03
+ * for backwards compatiblilty with TLS 1.2 SignatureAndHashAlgorithm.
+ *
+ * RFC 8422 and RFC 9189 add official support in TLS 1.2 for some algorithms
+ * originally defined for TLS 1.3, and extend the TLS SignatureAlgorithm
+ * and TLS HashAlgorithm registries, but the new values are not compatible
+ * with all of the TLS 1.3-only SignatureSchemes. Adding those values could
+ * cause confusion if used to interpret one of those schemes in a
+ * signature_algorithms extension offered in a TLS 1.3 ClientHello.
+ */
 const value_string tls_hash_algorithm[] = {
     { 0, "None" },
     { 1, "MD5" },
@@ -1411,7 +1423,14 @@ const value_string tls_hash_algorithm[] = {
     { 4, "SHA256" },
     { 5, "SHA384" },
     { 6, "SHA512" },
-    { 7, "SM3" },
+#if 0
+    /* RFC 8422 adds this to the HashAlgorithm registry, but it really
+     * only applies to 0x0807 and 0x0808, not for other TLS 1.3
+     * SignatureSchemes with 0x08 in the octet used for Hash in TLS 1.2.
+     * E.g., we don't want to display this for 0x0806 rsa_pss_rsae_sha512.
+     */
+    { 8, "Intrinsic" },
+#endif
     { 0, NULL }
 };
 
@@ -1420,7 +1439,13 @@ const value_string tls_signature_algorithm[] = {
     { 1, "RSA" },
     { 2, "DSA" },
     { 3, "ECDSA" },
-    { 4, "SM2" },
+#if 0
+    /* As above. */
+    { 7, "ED25519" },
+    { 8, "ED448" },
+    { 64, "GOSTR34102012_256" },
+    { 65, "GOSTR34102012_512" },
+#endif
     { 0, NULL }
 };
 
