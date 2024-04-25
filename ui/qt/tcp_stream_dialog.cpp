@@ -45,6 +45,8 @@
 // - ACK & RWIN segment ticks in tcptrace graph
 // - Add missing elements (retrans, URG, SACK, etc) to tcptrace. It probably makes
 //   sense to subclass QCPGraph for this.
+// - Allow switching the tracer between graphs when there are two / selecting
+//   the other graph, at the very least if base_graph_ is disabled.
 
 // The GTK+ version computes a 20 (or 21!) segment moving average. Comment
 // out the line below to use that. By default we use a 1 second MA.
@@ -73,6 +75,7 @@ const QString segment_length_label_ = QObject::tr("Segment Length (B)");
 const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
 const QString time_s_label_ = QObject::tr("Time (s)");
 const QString window_size_label_ = QObject::tr("Window Size (B)");
+const QString cwnd_label_ = QObject::tr("Unacked (Outstanding) Bytes (B)");
 
 QCPErrorBarsNotSelectable::QCPErrorBarsNotSelectable(QCPAxis *keyAxis, QCPAxis *valueAxis) :
     QCPErrorBars(keyAxis, valueAxis)
@@ -292,7 +295,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sack2_eb_->setDataPlottable(sack2_graph_);
 
     // RWin graph - displays upper extent of RWIN advertised on reverse packets
-    rwin_graph_ = sp->addGraph();
+    rwin_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
     rwin_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
 
@@ -1581,9 +1584,18 @@ void TCPStreamDialog::fillWindowScale()
             }
         }
     }
+    /* base_graph_ is the one that the tracer is on and allows selecting
+     * segments. XXX - Is the congestion window more interesting to see
+     * the exact value and select?
+     */
     base_graph_->setData(cwnd_time, cwnd_size);
     rwin_graph_->setData(rel_time, win_size);
-    sp->yAxis->setLabel(window_size_label_);
+    sp->yAxis->setLabel(cwnd_label_);
+
+    sp->yAxis2->setLabel(window_size_label_);
+    sp->yAxis2->setLabelColor(QColor(graph_color_3));
+    sp->yAxis2->setTickLabelColor(QColor(graph_color_3));
+    sp->yAxis2->setVisible(true);
 }
 
 QString TCPStreamDialog::streamDescription()
