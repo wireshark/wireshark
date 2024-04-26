@@ -329,7 +329,7 @@ void SequenceDialog::hScrollBarChanged(int value)
 {
     if (qAbs(ui->sequencePlot->xAxis2->range().center()-value/100.0) > 0.01) {
       ui->sequencePlot->xAxis2->setRange(value/100.0, ui->sequencePlot->xAxis2->range().size(), Qt::AlignCenter);
-      ui->sequencePlot->replot();
+      ui->sequencePlot->replot(QCustomPlot::rpQueuedReplot);
     }
 }
 
@@ -337,7 +337,7 @@ void SequenceDialog::vScrollBarChanged(int value)
 {
     if (qAbs(ui->sequencePlot->yAxis->range().center()-value/100.0) > 0.01) {
       ui->sequencePlot->yAxis->setRange(value/100.0, ui->sequencePlot->yAxis->range().size(), Qt::AlignCenter);
-      ui->sequencePlot->replot();
+      ui->sequencePlot->replot(QCustomPlot::rpQueuedReplot);
     }
 }
 
@@ -575,11 +575,11 @@ void SequenceDialog::panAxes(int x_pixels, int y_pixels)
 
     if (h_pan && !(sp->xAxis2->range().contains(min_left_) && sp->xAxis2->range().contains(info_->sainfo()->num_nodes - 0.5))) {
         sp->xAxis2->moveRange(h_pan);
-        sp->replot();
+        sp->replot(QCustomPlot::rpQueuedReplot);
     }
     if (v_pan && !(sp->yAxis->range().contains(min_top_) && sp->yAxis->range().contains(num_items_))) {
         sp->yAxis->moveRange(v_pan);
-        sp->replot();
+        sp->replot(QCustomPlot::rpQueuedReplot);
     }
 }
 
