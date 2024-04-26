@@ -891,7 +891,7 @@ disp_type( gchar *result, guint32 type)
 {
     guint nValueH = (type>>16) & 0xFFFF;
     guint nValueL = (type & 0xFFFF);
-    snprintf( result, 18, "%u.%u (%.4X.%.4X)", nValueH, nValueL, nValueH, nValueL);
+    snprintf( result, ITEM_LABEL_LENGTH, "%u.%u (%.4X.%.4X)", nValueH, nValueL, nValueH, nValueL);
 }
 
 static void
@@ -901,7 +901,7 @@ disp_version( gchar *result, guint32 version)
     {
         guint nValueH = (version>>16) & 0xFFFF;
         guint nValueL = (version & 0xFFFF);
-        snprintf( result, 11, "FW: %u.%u", nValueH, nValueL);
+        snprintf( result, ITEM_LABEL_LENGTH, "FW: %u.%u", nValueH, nValueL);
     }
     else
     {
@@ -909,7 +909,7 @@ disp_version( gchar *result, guint32 version)
         guint nHWLow = (version>>16) & 0xFF;
         guint nFWHigh = (version>>8) & 0xFF;
         guint nFWLow = version & 0xFF;
-        snprintf( result, 25, "HW: %u.%u / FW: %u.%u", nHWHigh, nHWLow, nFWHigh, nFWLow);
+        snprintf( result, ITEM_LABEL_LENGTH, "HW: %u.%u / FW: %u.%u", nHWHigh, nHWLow, nFWHigh, nFWLow);
     }
 }
 
@@ -917,14 +917,14 @@ static void disp_voltage(gchar *result, guint32 voltage)
 {
     guint nValueH = (voltage>>16) & 0xFFFF;
     guint nValueL = (voltage & 0xFFFF);
-    snprintf( result, 11, "%u.%u V", nValueH, nValueL);
+    snprintf( result, ITEM_LABEL_LENGTH, "%u.%u V", nValueH, nValueL);
 }
 
 static void disp_mac( gchar *result, guint64 mac)
 {
     guint8 *pData = (guint8*)(&mac);
 
-    snprintf( result, 18, "%.2X-%.2X-%.2X-%.2X-%.2X-%.2X", pData[5], pData[4], pData[3], pData[2],
+    snprintf( result, ITEM_LABEL_LENGTH, "%.2X-%.2X-%.2X-%.2X-%.2X-%.2X", pData[5], pData[4], pData[3], pData[2],
                            pData[1], pData[0]);
 }
 
@@ -932,23 +932,23 @@ static void disp_ip( gchar *result, guint32 ip)
 {
     guint8 *pData = (guint8*)(&ip);
 
-    snprintf( result, 15, "%u.%u.%u.%u", pData[3], pData[2], pData[1], pData[0]);
+    snprintf( result, ITEM_LABEL_LENGTH, "%u.%u.%u.%u", pData[3], pData[2], pData[1], pData[0]);
 }
 
 static void disp_mask( gchar *result, guint32 mask)
 {
     guint8 *pData = (guint8*)(&mask);
 
-    snprintf( result, 15, "%u.%u.%u.%u", pData[3], pData[2], pData[1], pData[0]);
+    snprintf( result, ITEM_LABEL_LENGTH, "%u.%u.%u.%u", pData[3], pData[2], pData[1], pData[0]);
 }
 
 static void disp_timeout( gchar *result, guint32 timeout)
 {
     if (timeout != 0)
-        snprintf( result, 12, "%u%s",
+        snprintf( result, ITEM_LABEL_LENGTH, "%u%s",
                   timeout, unit_name_string_get_value(timeout, &units_second_seconds));
     else
-        snprintf( result, 8, "Disabled");
+        snprintf( result, ITEM_LABEL_LENGTH, "Disabled");
 }
 
 /*
