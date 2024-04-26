@@ -531,12 +531,20 @@ void SequenceDialog::panAxes(int x_pixels, int y_pixels)
     double v_pan = 0.0;
 
     h_pan = sp->xAxis2->range().size() * x_pixels / sp->xAxis2->axisRect()->width();
+    // The nodes are placed on integer x values from 0 to num_nodes - 1.
+    // We allow 0.5 of margin around a node (also reflected in the
+    // horizontalScrollBar range.)
     if (h_pan < 0) {
         h_pan = qMax(h_pan, min_left_ - sp->xAxis2->range().lower);
     } else {
-        h_pan = qMin(h_pan, info_->sainfo()->num_nodes - sp->xAxis2->range().upper);
+        h_pan = qMin(h_pan, info_->sainfo()->num_nodes - 0.5 - sp->xAxis2->range().upper);
     }
 
+    if (sp->yAxis->rangeReversed()) {
+        // For reversed axes, lower still references the mathemathetically
+        // smaller number than upper, so reverse the direction.
+        y_pixels = -y_pixels;
+    }
     v_pan = sp->yAxis->range().size() * y_pixels / sp->yAxis->axisRect()->height();
     if (v_pan < 0) {
         v_pan = qMax(v_pan, min_top_ - sp->yAxis->range().lower);
@@ -544,7 +552,7 @@ void SequenceDialog::panAxes(int x_pixels, int y_pixels)
         v_pan = qMin(v_pan, num_items_ - sp->yAxis->range().upper);
     }
 
-    if (h_pan && !(sp->xAxis2->range().contains(min_left_) && sp->xAxis2->range().contains(info_->sainfo()->num_nodes))) {
+    if (h_pan && !(sp->xAxis2->range().contains(min_left_) && sp->xAxis2->range().contains(info_->sainfo()->num_nodes - 0.5))) {
         sp->xAxis2->moveRange(h_pan);
         sp->replot();
     }
