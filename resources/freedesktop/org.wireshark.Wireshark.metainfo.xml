@@ -7,8 +7,9 @@
 
 <component type="desktop">
     <id>org.wireshark.Wireshark</id>
+    <launchable type="desktop-id">org.wireshark.Wireshark.desktop</launchable>
     <name>Wireshark</name>
-    <summary>Wireshark is the world's foremost protocol analyzer</summary>
+    <summary>Network protocol analyzer</summary>
     <developer_name>The Wireshark developer community</developer_name>
     <content_rating type="oars-1.1"/>
     <metadata_license>CC0-1.0</metadata_license>
