@@ -3128,7 +3128,7 @@ void proto_register_dect_nwk(void)
 			}
 		},
 		{ &hf_dect_nwk_s_ie_iwu_to_iwu_discriminator_type,
-			{ "Discriminator Type", "dect_nwk.s.ie.iwu_to_iwu.protocol_discriminator", FT_UINT8, BASE_HEX,
+			{ "Discriminator Type", "dect_nwk.s.ie.iwu_to_iwu.discriminator_type", FT_UINT8, BASE_HEX,
 				VALS(dect_nwk_s_ie_iwu_to_iwu_discriminator_type_val), 0x7F, NULL, HFILL
 			}
 		},

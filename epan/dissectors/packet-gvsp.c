@@ -3589,7 +3589,7 @@ void proto_register_gvsp(void)
 
         { &hf_gvsp_gendc_part_header_1D_padding_v2_2,
         { "Padding (1D Data)", "gvsp.gendc.part.header.1d.padding",
-        FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+        FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         } },
     };

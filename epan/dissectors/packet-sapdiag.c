@@ -3612,7 +3612,7 @@ proto_register_sapdiag(void)
 		{ &hf_sapdiag_item_ui_event_data,
 			{ "UI Event Source Data", "sapdiag.item.value.uievent.data", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapdiag_item_ui_event_container_nrs,
-			{ "UI Event Source Container IDs Numbers", "sapdiag.item.value.uievent.containernrs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+			{ "UI Event Source Container IDs Numbers", "sapdiag.item.value.uievent.containernrs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapdiag_item_ui_event_container,
 			{ "UI Event Source Container ID", "sapdiag.item.value.uievent.container", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 

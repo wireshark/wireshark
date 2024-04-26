@@ -1728,7 +1728,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_error_description,
-		{ "Error status", "simulcrypt.error_description", FT_STRING, BASE_NONE, NULL, 0x0,   /* error_description --> ASCII byte string */
+		{ "Error description", "simulcrypt.error_description", FT_STRING, BASE_NONE, NULL, 0x0,   /* error_description --> ASCII byte string */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_psig_parameter_type,

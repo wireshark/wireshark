@@ -3796,7 +3796,7 @@ proto_register_h264(void)
         },
         { &hf_h264_pacsi_tl0picidx,
             { "TL0PICIDX", "h264.pacsi.tl0picidx",
-            FT_UINT8, BASE_DEC, NULL, 0xff,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_pacsi_idrpicid,

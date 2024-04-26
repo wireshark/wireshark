@@ -1030,7 +1030,7 @@ void proto_register_sasp(void)
     static hf_register_info hf[] = {
         /*SASP Header */
         { &hf_sasp_type,
-          { "Type", "sasp.msg.type",
+          { "Type", "sasp.type",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             "SASP Header", HFILL }
         },
