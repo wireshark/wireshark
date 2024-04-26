@@ -642,7 +642,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
    is done, and given that the width for COL...SRC and COL...DST columns
    is somewhat arbitrary in any case.  We should probably clean
    that up eventually, though. */
-static const char *
+const char *
 get_column_longest_string(const gint format)
 {
   switch (format) {

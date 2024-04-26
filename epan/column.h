@@ -65,6 +65,8 @@ gint                 get_column_custom_occurrence(const gint);
 WS_DLL_PUBLIC
 void                 set_column_custom_occurrence(const gint, const gint);
 WS_DLL_PUBLIC
+const gchar         *get_column_longest_string(const gint);
+WS_DLL_PUBLIC
 const gchar         *get_column_width_string(const gint, const gint);
 WS_DLL_PUBLIC
 gint                 get_column_char_width(const gint format);

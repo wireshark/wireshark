@@ -11,6 +11,7 @@
 
 #include "epan/addr_resolv.h"
 #include "epan/sequence_analysis.h"
+#include "epan/column.h"
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -82,6 +83,14 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     smooth_font_size(comment_font);
     comment_axis_->setTickLabelFont(comment_font);
     comment_axis_->setSelectedTickLabelFont(QFont(comment_font.family(), comment_font.pointSizeF(), QFont::Bold));
+
+    // By default QCPAxisRect auto resizes, which creates some slight but
+    // noticeable horizontal movement when scrolling vertically. Prevent that.
+    key_axis_->axisRect()->setAutoMargins(QCP::msTop | QCP::msBottom);
+    int time_margin = QFontMetrics(key_axis_->tickLabelFont()).horizontalAdvance(get_column_longest_string(COL_CLS_TIME));
+    int comment_margin = QFontMetrics(comment_font).height() * (max_comment_em_width_ + 1); // Add 1 as using the exact elided width is slightly too narrow
+    key_axis_->axisRect()->setMargins(QMargins(time_margin, 0, comment_margin, 0));
+
     //             frame_label
     // port_src -----------------> port_dst
 
