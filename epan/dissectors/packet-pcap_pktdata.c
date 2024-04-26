@@ -170,7 +170,7 @@ const value_string link_type_vals[] = {
     { 205,  "C_HDLC_WITH_DIR" },
     { 206,  "FRELAY_WITH_DIR" },
     { 207,  "LAPB_WITH_DIR" },          /* LAPB with direction pseudo-header */
-    { 209,  "IPMB_LINUX" },
+    { 209,  "I2C_LINUX" },
     { 210,  "FLEXRAY" },                /* FlexRay automotive bus */
     { 211,  "MOST" },                   /* Media Oriented Systems Transport */
     { 212,  "LIN" },                    /* Local Interconnect Network */

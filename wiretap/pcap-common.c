@@ -358,7 +358,7 @@ static const struct {
 	{ 203,		WTAP_ENCAP_LAPD },
 	/* PPP with pseudoheader */
 	{ 204,		WTAP_ENCAP_PPP_WITH_PHDR },
-	/* IPMB/I2C with a Linux-specific header (defined by Pigeon Point Systems) */
+	/* I2C with a Linux-specific header (defined by Pigeon Point Systems) */
 	{ 209,		WTAP_ENCAP_I2C_LINUX },
 	/* FlexRay frame */
 	{ 210,		WTAP_ENCAP_FLEXRAY },
