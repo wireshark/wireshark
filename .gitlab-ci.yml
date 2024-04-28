@@ -641,8 +641,7 @@ Documentation:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja all_guides
     - cd docbook
-    - for HTML_DIR in wsug_html wsug_html_chunked wsdg_html wsdg_html_chunked ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
-    - cd docbook
+    - for HTML_DIR in ws[ud]g_html{,_chunked} ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
     - |
       if [ -n "$S3_DESTINATION_DOCS" ] ; then
         for DOC_FILE in ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ; do
