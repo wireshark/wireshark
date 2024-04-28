@@ -7784,6 +7784,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>[no capture file]</source>
         <translation>[no hay archivo de captura]</translation>
     </message>
