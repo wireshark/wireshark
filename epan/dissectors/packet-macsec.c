@@ -90,7 +90,9 @@ pref_key_string_to_bin(const gchar *key_string, unsigned char **key_bin)
     int i, j;
     char input[3];
 
-    if ((NULL == key_string) || (NULL == key_bin)) {
+    ws_return_val_if(key_bin == NULL, -1);
+
+    if (NULL == key_string) {
         *key_bin = NULL;
         return -1;
     }
