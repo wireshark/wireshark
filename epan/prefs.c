@@ -3890,6 +3890,16 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.tap_update_interval);
 
+    prefs_register_uint_preference(stats_module, "flow_graph_max_export_items",
+                                   "Maximum Flow Graph items to export as image",
+                                   "The maximum number of Flow Graph items (frames) "
+                                   "to include when exporting the graph as an image. "
+                                   "Note that some formats (e.g., JPEG) have inherent "
+                                   "pixel limits and image viewers might be unable to "
+                                   "handle very large images.",
+                                   10,
+                                   &prefs.flow_graph_max_export_items);
+
     prefs_register_bool_preference(stats_module, "st_enable_burstinfo",
             "Enable the calculation of burst information",
             "If enabled burst rates will be calculated for statistics that use the stats_tree system. "
@@ -4424,6 +4434,7 @@ pre_init_prefs(void)
 
 /* set the default values for the tap/statistics dialog box */
     prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
+    prefs.flow_graph_max_export_items = 1000;
     prefs.st_enable_burstinfo = true;
     prefs.st_burst_showcount = false;
     prefs.st_burst_resolution = ST_DEF_BURSTRES;

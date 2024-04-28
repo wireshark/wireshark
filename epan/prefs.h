@@ -245,6 +245,7 @@ typedef struct _e_prefs {
   int          gui_decimal_places3; /* Used for type 3 calculations */
   bool         gui_rtp_player_use_disk1;
   bool         gui_rtp_player_use_disk2;
+  unsigned     flow_graph_max_export_items;
   bool         st_enable_burstinfo;
   bool         st_burst_showcount;
   int          st_burst_resolution;

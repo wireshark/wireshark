@@ -491,14 +491,55 @@ void SequenceDialog::exportDiagram()
 
     if (file_name.length() > 0) {
         bool save_ok = false;
+        // The QCustomPlot save functions take a width and a height, measured
+        // in pixels (for the entire viewport).
+        // In order to display the whole graph, we have to change the axes
+        // and scale up the width and height appropriately so that the text
+        // has the proper spacing. (Using the scale factor in some of the
+        // image writing functions makes the text illegible.)
+        // If we set the axes back to their old value without replotting,
+        // there's no visual effects from doing this.
+        QCustomPlot *sp = ui->sequencePlot;
+        QCPRange old_yrange = sp->yAxis->range();
+        QCPRange old_xrange = sp->xAxis2->range();
+        // For the horizonal aspect, we'll display all the nodes.
+        // Nodes can excluded by filtering (hiding nodes is in the todo list.)
+        // Use the current width of a node as determined by the user zooming
+        // with Key_Plus and Key_Minus, multiply that by the number of nodes,
+        // and add in the margin from the Time and Comment columns.
+        // MAX_NUM_NODES is 40, which results in a manageable 8802 pixel width
+        // at the default zoom level on my Linux box.
+        // (If the user has zoomed in unreasonably, that's on the user.)
+        int hmargin = sp->axisRect()->outerRect().width() - sp->axisRect()->width();
+        double nodeSize = (sp->axisRect()->width()) / old_xrange.size();
+        // For the vertical aspect, we need to put a bound on the number of
+        // pixels or items we'll put in an image, as it can get far too large.
+        // (JPEG only supports 16 bit aspect sizes, PNG supports 31 bit but
+        // many viewers don't.)
+        int vmargin = sp->axisRect()->outerRect().height() - sp->axisRect()->height();
+        // 1000 items is a little over 27000 pixels in height on my machine.
+        // XXX - Should this pref be pixels instead of items?
+        //int max_pixel = 24576;
+        //double range_span = ((max_pixel - vmargin) / (one_em_ * 1.5));
+        double range_span = prefs.flow_graph_max_export_items;
+        // Start at the current top item, and QCPRange::bounded does what
+        // we want, with margins of 1.0 on top and bottom.
+        QCPRange new_yrange(old_yrange.lower, old_yrange.lower + range_span);
+        new_yrange = new_yrange.bounded(min_top_, num_items_);
+        sp->yAxis->setRange(new_yrange);
+        // margins of 0.5 on left and right for port number, etc.
+        sp->xAxis2->setRange(min_left_, info_->sainfo()->num_nodes - 0.5);
+        // As seen in resetAxes(), we have an item take ~ 1.5*one_em_ pixels.
+        int ySize = new_yrange.size() * (one_em_ * 1.5) + vmargin;
+        int xSize = (nodeSize * info_->sainfo()->num_nodes) + hmargin;
         if (extension.compare(pdf_filter) == 0) {
-            save_ok = ui->sequencePlot->savePdf(file_name);
+            save_ok = ui->sequencePlot->savePdf(file_name, xSize, ySize);
         } else if (extension.compare(png_filter) == 0) {
-            save_ok = ui->sequencePlot->savePng(file_name);
+            save_ok = ui->sequencePlot->savePng(file_name, xSize, ySize);
         } else if (extension.compare(bmp_filter) == 0) {
-            save_ok = ui->sequencePlot->saveBmp(file_name);
+            save_ok = ui->sequencePlot->saveBmp(file_name, xSize, ySize);
         } else if (extension.compare(jpeg_filter) == 0) {
-            save_ok = ui->sequencePlot->saveJpg(file_name);
+            save_ok = ui->sequencePlot->saveJpg(file_name, xSize, ySize);
         } else if (extension.compare(ascii_filter) == 0 && !file_closed_ && info_->sainfo()) {
             FILE  *outfile = ws_fopen(file_name.toUtf8().constData(), "w");
             if (outfile != NULL) {
@@ -509,6 +550,8 @@ void SequenceDialog::exportDiagram()
                 save_ok = false;
             }
         }
+        sp->yAxis->setRange(old_yrange);
+        sp->xAxis2->setRange(old_xrange);
         // else error dialog?
         if (save_ok) {
             mainApp->setLastOpenDirFromFilename(file_name);
