@@ -1003,9 +1003,11 @@ btle_crc(tvbuff_t *tvb, const guint8 payload_len, const guint32 crc_init)
     return state;
 }
 
-static const gchar * adv_pdu_type_str_get(const btle_context_t *btle_context, guint32 pdu_type)
+static const gchar * adv_pdu_type_str_get(const btle_context_t *btle_context, guint32 pdu_type, gboolean is_periodic_adv)
 {
-    if (!btle_context || !(btle_context->channel < 37)) {
+    if (is_periodic_adv) {
+        return "AUX_SYNC_IND";
+    } else if (!btle_context || !(btle_context->channel < 37)) {
         return val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown");
     } else if (pdu_type == 0x07 && btle_context->aux_pdu_type_valid) {
         return val_to_str_ext_const(btle_context->aux_pdu_type, &aux_pdu_common_vals_ext, "Unknown");
@@ -2016,6 +2018,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree  *link_layer_data_tree;
         guint8       header, pdu_type;
         gboolean     ch_sel_valid = FALSE, tx_add_valid = FALSE, rx_add_valid = FALSE;
+        gboolean     is_periodic_adv = FALSE;
 
         if (crc_status == CRC_INDETERMINATE &&
             access_address == ACCESS_ADDRESS_ADVERTISING) {
@@ -2036,6 +2039,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (!wmem_tree) {
             /* Check periodic advertising tree */
             wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(periodic_adv_info_tree, key);
+            if (wmem_tree) {
+                is_periodic_adv = true;
+            }
         }
 
         if (wmem_tree) {
@@ -2087,9 +2093,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         }
 
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s", adv_pdu_type_str_get(btle_context, pdu_type));
+        proto_item_append_text(advertising_header_item, " (PDU Type: %s", adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
         item = proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(item, " %s", adv_pdu_type_str_get(btle_context, pdu_type));
+        proto_item_append_text(item, " %s", adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         if (ch_sel_valid) {
@@ -2118,7 +2124,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         proto_item_append_text(advertising_header_item, ")");
 
-        col_set_str(pinfo->cinfo, COL_INFO, adv_pdu_type_str_get(btle_context, pdu_type));
+        col_set_str(pinfo->cinfo, COL_INFO, adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
 
         offset += 1;
 
