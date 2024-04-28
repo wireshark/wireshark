@@ -200,6 +200,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(diagramClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
+    connect(sp, &QCustomPlot::afterLayout, this, &SequenceDialog::layoutAxisLabels);
 
     // Button must be enabled by VoIP dialogs
     player_button_->setVisible(false);
@@ -611,13 +612,21 @@ void SequenceDialog::resetAxes(bool keep_lower)
     ui->verticalScrollBar->setRange((rmin - 1.0) * 100, (num_items_ - 0.5 - rmin) * 100);
     yAxisChanged(sp->yAxis->range());
 
+    sp->replot(QCustomPlot::rpQueuedReplot);
+}
+
+void SequenceDialog::layoutAxisLabels()
+{
     // It would be exceedingly handy if we could do one or both of the
     // following:
     // - Position an axis label above its axis inline with the tick labels.
     // - Anchor a QCPItemText to one of the corners of a QCPAxis.
-    // Neither of those appear to be possible, so we first call replot in
-    // order to lay out our X axes, place our labels, the call replot again.
-    sp->replot(QCustomPlot::rpQueuedReplot);
+    // Neither of those appear to be possible, so we place our labels using
+    // absolute positioning immediately after the layout size and positions
+    // are set, and right before the replot (or print) draw step occurs,
+    // using the new QCustomPlot 2.1.0 QCustomPlot::afterLayout signal.
+
+    QCustomPlot *sp = ui->sequencePlot;
 
     QRect axis_rect = sp->axisRect()->rect();
 
@@ -631,8 +640,6 @@ void SequenceDialog::resetAxes(bool keep_lower)
                                        + sp->yAxis2->tickLabelPadding()
                                        + sp->yAxis2->offset(),
                                        axis_rect.top()  / 2);
-
-    sp->replot(QCustomPlot::rpRefreshHint);
 }
 
 void SequenceDialog::resetView()

@@ -77,6 +77,7 @@ private slots:
     void fillDiagram();
     void resetView();
     void exportDiagram();
+    void layoutAxisLabels();
 
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionGoToPacket_triggered();
