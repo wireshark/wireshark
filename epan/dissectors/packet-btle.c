@@ -534,6 +534,7 @@ static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
 static wmem_tree_t *connection_info_tree;
+static wmem_tree_t *periodic_adv_info_tree;
 static wmem_tree_t *broadcastiso_connection_info_tree;
 static wmem_tree_t *connection_parameter_info_tree;
 static wmem_tree_t *adi_to_first_frame_tree;
@@ -1847,6 +1848,53 @@ dissect_ad_eir(tvbuff_t *tvb, guint32 interface_id, guint32 adapter_id, guint32 
     }
 }
 
+static guint8
+guess_btle_pdu_type_from_access(guint32 interface_id,
+                                guint32 adapter_id,
+                                guint32 access_address)
+{
+    wmem_tree_key_t key[5];
+    wmem_tree_t     *wmem_tree;
+    guint32 broadcast_iso_seed_access_address = access_address & 0x0041ffff;
+
+    /* No context to provide us with physical channel pdu type, make an assumption from the access address */
+    if (access_address == ACCESS_ADDRESS_ADVERTISING) {
+        return BTLE_PDU_TYPE_ADVERTISING;
+    }
+
+    /* Check if it is a connection context. */
+    key[0].length = 1;
+    key[0].key = &interface_id;
+    key[1].length = 1;
+    key[1].key = &adapter_id;
+    key[2].length = 1;
+    key[2].key = &access_address;
+    key[3].length = 0;
+    key[3].key = NULL;
+
+    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
+    if (wmem_tree) {
+        /* Connection. */
+        return BTLE_PDU_TYPE_DATA;
+    }
+
+    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(periodic_adv_info_tree, key);
+    if (wmem_tree) {
+        /* Periodic advertiser. */
+        return BTLE_PDU_TYPE_ADVERTISING;
+    }
+
+    key[2].key = &broadcast_iso_seed_access_address;
+    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(broadcastiso_connection_info_tree, key);
+    if (wmem_tree) {
+        /* Broadcast ISO. */
+        return BTLE_PDU_TYPE_BROADCASTISO;
+    }
+
+    /* Default to data. */
+    return BTLE_PDU_TYPE_DATA;
+}
+
 static gint
 dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1956,7 +2004,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (btle_pdu_type == BTLE_PDU_TYPE_UNKNOWN) {
         /* No context to provide us with physical channel pdu type, make an assumption from the access address */
-        btle_pdu_type = access_address == ACCESS_ADDRESS_ADVERTISING ? BTLE_PDU_TYPE_ADVERTISING : BTLE_PDU_TYPE_DATA;
+        btle_pdu_type = guess_btle_pdu_type_from_access(interface_id,
+                                                        adapter_id,
+                                                        access_address);
     }
 
     if (btle_pdu_type == BTLE_PDU_TYPE_ADVERTISING) {
@@ -1967,7 +2017,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint8       header, pdu_type;
         gboolean     ch_sel_valid = FALSE, tx_add_valid = FALSE, rx_add_valid = FALSE;
 
-        if (crc_status == CRC_INDETERMINATE) {
+        if (crc_status == CRC_INDETERMINATE &&
+            access_address == ACCESS_ADDRESS_ADVERTISING) {
             /* Advertising channel CRCs can aways be calculated, because CRCInit is always known. */
             crc_status = CRC_CAN_BE_CALCULATED;
         }
@@ -1982,6 +2033,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[3].key = NULL;
 
         wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
+        if (!wmem_tree) {
+            /* Check periodic advertising tree */
+            wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(periodic_adv_info_tree, key);
+        }
+
         if (wmem_tree) {
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (connection_info) {
@@ -2447,14 +2503,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
                         wmem_tree_new(wmem_file_scope());
 
-                    wmem_tree_insert32_array(connection_info_tree, key, connection_info);
+                    wmem_tree_insert32_array(periodic_adv_info_tree, key, connection_info);
 
                     connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
                     connection_parameter_info->parameters_frame = pinfo->num;
 
                     key[3].length = 1;
                     key[3].key = &pinfo->num;
-                    wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+                    wmem_tree_insert32_array(periodic_adv_info_tree, key, connection_parameter_info);
                 }
 
                 sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -5983,6 +6039,7 @@ proto_register_btle(void)
     };
 
     connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    periodic_adv_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     broadcastiso_connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     connection_parameter_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     adi_to_first_frame_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
