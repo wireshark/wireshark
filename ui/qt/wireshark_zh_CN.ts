@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>复制到剪贴板</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -278,7 +278,7 @@
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">LMP 子版本</translation>
+        <translation>LMP 子版本</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -386,7 +386,7 @@
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished">Ctrl+M</translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -1906,7 +1906,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ColumnTypeDelegate</name>
     <message>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Left</source>
@@ -7768,8 +7768,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>复制该配置文件。</translation>
     </message>
     <message>
+        <source>The number of packets or events to check for automatic profile switching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto switch packet limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>配置文件</translation>
+    </message>
+    <message>
+        <source>Auto switch event limit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import</source>
@@ -8296,6 +8308,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Window Size (B)</source>
         <translation>窗口大小 (B)</translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -9775,7 +9791,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
+        <translation>左 + 右</translation>
     </message>
     <message>
         <source>To Right</source>
@@ -10086,7 +10102,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+R</translation>
     </message>
     <message>
         <source>Find Only &amp;Singles</source>
@@ -10098,7 +10114,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Mark Packets</source>

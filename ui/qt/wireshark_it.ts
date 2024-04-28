@@ -7602,18 +7602,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Path</source>
         <translation>Percorso</translation>
     </message>
-    <message>
-        <source>Scope</source>
-        <translation type="vanished">Ambito</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Descrizione</translation>
-    </message>
-    <message>
-        <source>Homepage</source>
-        <translation type="vanished">Pagina principale</translation>
-    </message>
 </context>
 <context>
     <name>PortsModel</name>
@@ -7809,8 +7797,20 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Copia questo profilo.</translation>
     </message>
     <message>
+        <source>The number of packets or events to check for automatic profile switching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto switch packet limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Profili di configurazione</translation>
+    </message>
+    <message>
+        <source>Auto switch event limit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import</source>
@@ -8356,6 +8356,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Window Size (B)</source>
         <translation>Dimensione della finestra (B)</translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -14967,42 +14971,6 @@ a:hover {
         <translation>Valore SSRC non trovato.</translation>
     </message>
     <message>
-        <source>Install plugin</source>
-        <translation type="vanished">Installa plugin</translation>
-    </message>
-    <message>
-        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="vanished">Plugin binario (*%1 *%1.[0-9]*)</translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="vanished">Errore durante la rimozione del vecchio plugin dalla cartella dei plugin personali. Potresti dover chiudere Wireshark prima e quindi rimuovere manualmente il file &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
-
-Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="vanished">I plugin possono eseguire codice arbitrario come l&apos;utente corrente. Assicurati che sia affidabile prima di installarlo.
-
-Vuoi continuare l&apos;installazione del file &quot;%1&quot; nella cartella dei plugin personali?</translation>
-    </message>
-    <message>
-        <source>Failed to create the directory: %1</source>
-        <translation type="vanished">Impossibile creare la cartella: %1</translation>
-    </message>
-    <message>
-        <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="vanished">Il file esiste già. Vuoi sovrascriverò?</translation>
-    </message>
-    <message>
-        <source>Failed to copy the file to the destination: %1</source>
-        <translation type="vanished">Copia del file non riuscita nella destinazione: %1</translation>
-    </message>
-    <message>
-        <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="vanished">Plugin &apos;%1&apos; installato correttamente. È necessario riavviare il programma per poterlo utilizzare.</translation>
-    </message>
-    <message>
         <source>Show or hide the toolbar</source>
         <translation>Mostra o nascondi la barra degli strumenti</translation>
     </message>
@@ -15208,10 +15176,6 @@ Vuoi continuare l&apos;installazione del file &quot;%1&quot; nella cartella dei 
     <message>
         <source> before restarting the capture</source>
         <translation> prima di riavviare la cattura</translation>
-    </message>
-    <message>
-        <source>Install Plugin</source>
-        <translation type="vanished">Installa plugin</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

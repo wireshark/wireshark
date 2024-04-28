@@ -7614,18 +7614,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Path</source>
         <translation>Ścieżka</translation>
     </message>
-    <message>
-        <source>Scope</source>
-        <translation type="vanished">Zakres</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Opis</translation>
-    </message>
-    <message>
-        <source>Homepage</source>
-        <translation type="vanished">Strona główna</translation>
-    </message>
 </context>
 <context>
     <name>PortsModel</name>
@@ -7821,8 +7809,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kopiuj ten profil.</translation>
     </message>
     <message>
+        <source>The number of packets or events to check for automatic profile switching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto switch packet limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Konfiguracja profili</translation>
+    </message>
+    <message>
+        <source>Auto switch event limit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import</source>
@@ -8375,6 +8375,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Window Size (B)</source>
         <translation>Rozmiar okna (B)</translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -14991,30 +14995,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Install plugin</source>
-        <translation type="vanished">Zainstaluj wtyczkę</translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="vanished">Błąd podczas usuwania starej wtyczki z osobistego folderu wtyczek. Może być konieczne zamknięcie programu Wireshark, a następnie ręczne usunięcie pliku &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to create the directory: %1</source>
-        <translation type="vanished">Nie udało się utworzyć katalogu: %1</translation>
-    </message>
-    <message>
-        <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="vanished">Plik już istnieje. Czy chcesz go nadpisać?</translation>
-    </message>
-    <message>
-        <source>Failed to copy the file to the destination: %1</source>
-        <translation type="vanished">Nie udało się skopiować pliku do miejsca docelowego: %1</translation>
-    </message>
-    <message>
-        <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="vanished">Wtyczka &apos;%1&apos; została pomyślnie zainstalowana. Aby móc z niego korzystać, należy ponownie uruchomić program.</translation>
-    </message>
-    <message>
         <source>Show or hide the toolbar</source>
         <translation>Pokaż lub ukryj pasek narzędziowy</translation>
     </message>
@@ -15223,10 +15203,6 @@ a:hover {
     <message>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
-    </message>
-    <message>
-        <source>Install Plugin</source>
-        <translation type="vanished">Zainstaluj wtyczkę</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

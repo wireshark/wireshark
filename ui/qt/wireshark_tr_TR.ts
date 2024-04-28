@@ -7775,8 +7775,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bu profili kopyalayın.</translation>
     </message>
     <message>
+        <source>The number of packets or events to check for automatic profile switching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto switch packet limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Yapılandırma Profilleri</translation>
+    </message>
+    <message>
+        <source>Auto switch event limit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import</source>
@@ -8315,6 +8327,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Window Size (B)</source>
         <translation>Pencere Boyutu (B)</translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[no capture file]</source>

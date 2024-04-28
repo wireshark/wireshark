@@ -2011,7 +2011,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>フロー</translation>
     </message>
     <message>
         <source>Total Packets</source>
@@ -2157,11 +2157,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as C Array</source>
-        <translation type="unfinished"></translation>
+        <translation>…C言語配列として</translation>
     </message>
     <message>
         <source>Copy packet bytes as C Array.</source>
-        <translation type="unfinished"></translation>
+        <translation>C言語配列としてパケットバイト列をコピーします。</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -3375,27 +3375,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&quot;File&quot; dialog location</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;ファイル&quot; ダイアログの場所</translation>
     </message>
     <message>
         <source>Capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイル</translation>
     </message>
     <message>
         <source>Untitled capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>名称未設定キャプチャファイル</translation>
     </message>
     <message>
         <source>Preferences, profiles, manuf, …</source>
-        <translation type="unfinished"></translation>
+        <translation>設定, プロファイル, manuf, …</translation>
     </message>
     <message>
         <source>Program files</source>
-        <translation type="unfinished"></translation>
+        <translation>プログラムファイル</translation>
     </message>
     <message>
         <source>Binary plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>バイナリプラグイン</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
@@ -3403,7 +3403,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>外部キャプチャ(extcap)プラグイン</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
@@ -3664,7 +3664,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">大文字小文字を区別</translation>
+        <translation>大文字小文字を区別</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -4297,39 +4297,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>1 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>1マイクロ秒</translation>
     </message>
     <message>
         <source>2 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>2マイクロ秒</translation>
     </message>
     <message>
         <source>5 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>5マイクロ秒</translation>
     </message>
     <message>
         <source>10 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>10マイクロ秒</translation>
     </message>
     <message>
         <source>20 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>20マイクロ秒</translation>
     </message>
     <message>
         <source>50 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>50マイクロ秒</translation>
     </message>
     <message>
         <source>100 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>100マイクロ秒</translation>
     </message>
     <message>
         <source>200 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>200マイクロ秒</translation>
     </message>
     <message>
         <source>500 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>500マイクロ秒</translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -4377,11 +4377,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished">10分 {2 ?}</translation>
+        <translation>2分</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished">10分 {5 ?}</translation>
+        <translation>5分</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -7583,18 +7583,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Path</source>
         <translation>パス</translation>
     </message>
-    <message>
-        <source>Scope</source>
-        <translation type="vanished">スコープ</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">記述</translation>
-    </message>
-    <message>
-        <source>Homepage</source>
-        <translation type="vanished">ホームページ</translation>
-    </message>
 </context>
 <context>
     <name>PortsModel</name>
@@ -7790,8 +7778,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>このプロファイルをコピーします</translation>
     </message>
     <message>
+        <source>The number of packets or events to check for automatic profile switching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto switch packet limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>設定プロファイル</translation>
+    </message>
+    <message>
+        <source>Auto switch event limit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import</source>
@@ -7970,7 +7970,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Auto Switch Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>自動スイッチフィルタ</translation>
     </message>
     <message>
         <source>copy</source>
@@ -8330,6 +8330,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Window Size (B)</source>
         <translation>ウインドウサイズ(バイト)</translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -11230,7 +11234,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">大文字小文字を区別</translation>
+        <translation>大文字小文字を区別</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
@@ -14256,15 +14260,15 @@ a:hover {
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>一般</translation>
     </message>
     <message>
         <source>Query-Response</source>
-        <translation type="unfinished"></translation>
+        <translation>クエリ-応答</translation>
     </message>
     <message>
         <source>DNS Query-Response Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>DNSクエリ-応答統計</translation>
     </message>
     <message>
         <source>Request Sequences</source>
@@ -14941,42 +14945,6 @@ a:hover {
         <translation>SSRC値が見つかりませんでした</translation>
     </message>
     <message>
-        <source>Install plugin</source>
-        <translation type="vanished">プラグインのインストール</translation>
-    </message>
-    <message>
-        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="vanished">バイナリープラグイン (*%1 *%1.[0-9]*)</translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="vanished">個人プラグインフォルダーから古いプラグインを削除する際のエラー。 最初にWiresharkを閉じて手動で &quot;%1&quot; ファイルを削除する必要があるかもしれません。</translation>
-    </message>
-    <message>
-        <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
-
-Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="vanished">プラグインは現在のユーザとして任意のコードを実行できます。インストール前に信頼できるか確認ください。
-
-引き続き、個人プラグインフォルダにファイル&quot;%1&quot; をインストールしますか？</translation>
-    </message>
-    <message>
-        <source>Failed to create the directory: %1</source>
-        <translation type="vanished">ディレクトリを作成できませんでした: %1</translation>
-    </message>
-    <message>
-        <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="vanished">ファイルがすでに存在します。上書きしますか？</translation>
-    </message>
-    <message>
-        <source>Failed to copy the file to the destination: %1</source>
-        <translation type="vanished">ファイルを宛先へコピーできませんでした: %1</translation>
-    </message>
-    <message>
-        <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="vanished">プラグイン&apos;%1&apos; のインストールは成功しました。 プログラムを再起動して利用できるようにする必要があります。</translation>
-    </message>
-    <message>
         <source>Show or hide the toolbar</source>
         <translation>ツールバーを表示/非表示</translation>
     </message>
@@ -15179,10 +15147,6 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     <message>
         <source> before restarting the capture</source>
         <translation>キャプチャを再スタートする前に</translation>
-    </message>
-    <message>
-        <source>Install Plugin</source>
-        <translation type="vanished">プラグインのインストール</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>

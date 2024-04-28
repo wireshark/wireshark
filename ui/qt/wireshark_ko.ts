@@ -7580,18 +7580,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Path</source>
         <translation>경로</translation>
     </message>
-    <message>
-        <source>Scope</source>
-        <translation type="vanished">범위</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">설명</translation>
-    </message>
-    <message>
-        <source>Homepage</source>
-        <translation type="vanished">홈페이지</translation>
-    </message>
 </context>
 <context>
     <name>PortsModel</name>
@@ -7787,8 +7775,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>이 프로필을 복사합니다.</translation>
     </message>
     <message>
+        <source>The number of packets or events to check for automatic profile switching.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto switch packet limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>설정 프로필</translation>
+    </message>
+    <message>
+        <source>Auto switch event limit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import</source>
@@ -8327,6 +8327,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Window Size (B)</source>
         <translation>윈도 크기(바이트)</translation>
+    </message>
+    <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -14938,42 +14942,6 @@ a:hover {
         <translation>SSRC 값을 찾을 수 없습니다.</translation>
     </message>
     <message>
-        <source>Install plugin</source>
-        <translation type="vanished">플러그인 설치</translation>
-    </message>
-    <message>
-        <source>Binary plugin (*%1 *%1.[0-9]*)</source>
-        <translation type="vanished">바이너리 플러그인 (*%1 *%1.[0-9]*)</translation>
-    </message>
-    <message>
-        <source>Error removing the old plugin from the personal plugin folder. You may need to close Wireshark first and then manually remove the file &quot;%1&quot;.</source>
-        <translation type="vanished">개인 플러그인 폴더에서 오래된 플러그인을 삭제할 수 없습니다. Wireshark를 먼저 끝낸 다음 &quot;%1&quot; 파일을 수동으로 삭제하십시오.</translation>
-    </message>
-    <message>
-        <source>Plugins can execute arbitrary code as the current user. Make sure you trust it before installing.
-
-Continue installing the file &quot;%1&quot; to the personal plugin folder?</source>
-        <translation type="vanished">플러그인은 현재 사용자 권한으로 임의의 코드를 실행할 수 있습니다. 설치하기 전에 신뢰할 수 있는지 여부를 확인하십시오.
-
-개인 플러그인 폴더에 &quot;%1&quot; 파일 설치를 계속 진행하시겠습니까?</translation>
-    </message>
-    <message>
-        <source>Failed to create the directory: %1</source>
-        <translation type="vanished">디렉터리를 생성할 수 없음: %1</translation>
-    </message>
-    <message>
-        <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="vanished">파일이 이미 존재합니다. 덮어쓰시겠습니까?</translation>
-    </message>
-    <message>
-        <source>Failed to copy the file to the destination: %1</source>
-        <translation type="vanished">파일을 대상으로 복사할 수 없음: %1</translation>
-    </message>
-    <message>
-        <source>Plugin &apos;%1&apos; installed successfully. You must restart the program to be able to use it.</source>
-        <translation type="vanished">&apos;%1&apos; 플러그인이 설치되었습니다. 사용하려면 프로그램을 다시 시작하십시오.</translation>
-    </message>
-    <message>
         <source>Show or hide the toolbar</source>
         <translation>도구 모음 표시 또는 숨기기</translation>
     </message>
@@ -15176,10 +15144,6 @@ Continue installing the file &quot;%1&quot; to the personal plugin folder?</sour
     <message>
         <source> before restarting the capture</source>
         <translation> 캡처를 다시 시작하기 전</translation>
-    </message>
-    <message>
-        <source>Install Plugin</source>
-        <translation type="vanished">플러그인 설치</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
