@@ -8055,6 +8055,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Размер окна (Б)</translation>
     </message>
     <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>[no capture file]</source>
         <translation>[нет файла захвата]</translation>
     </message>

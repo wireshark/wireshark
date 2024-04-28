@@ -8010,6 +8010,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>窗口大小 (B)</translation>
     </message>
     <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>[no capture file]</source>
         <translation>[无捕获文件]</translation>
     </message>

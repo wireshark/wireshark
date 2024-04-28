@@ -8059,6 +8059,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>윈도 크기(바이트)</translation>
     </message>
     <message>
+        <source>Unacked (Outstanding) Bytes (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>[no capture file]</source>
         <translation>[캡처 파일 없음]</translation>
     </message>
