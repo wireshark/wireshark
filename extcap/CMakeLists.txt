@@ -385,7 +385,7 @@ if(BUILD_falcodump AND SINSP_FOUND)
 	add_executable(falcodump ${falcodump_FILES})
 	set_extlog_executable_properties(falcodump)
 	target_link_libraries(falcodump ${falcodump_LIBS})
-	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
+	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
 	install(TARGETS falcodump RUNTIME DESTINATION ${LOG_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps falcodump)
 
