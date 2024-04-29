@@ -352,55 +352,19 @@ static const value_string mysql_exec_time_sign_vals[] = {
 	{0, NULL}
 };
 
-#if 0
-/* charset: pre-4.1 used the term 'charset', later changed to 'collation' */
-static const value_string mysql_charset_vals[] = {
-	{1,  "big5"},
-	{2,  "czech"},
-	{3,  "dec8"},
-	{4,  "dos" },
-	{5,  "german1"},
-	{6,  "hp8"},
-	{7,  "koi8_ru"},
-	{8,  "latin1"},
-	{9,  "latin2"},
-	{9,  "swe7 "},
-	{10, "usa7"},
-	{11, "ujis"},
-	{12, "sjis"},
-	{13, "cp1251"},
-	{14, "danish"},
-	{15, "hebrew"},
-	{16, "win1251"},
-	{17, "tis620"},
-	{18, "euc_kr"},
-	{19, "estonia"},
-	{20, "hungarian"},
-	{21, "koi8_ukr"},
-	{22, "win1251ukr"},
-	{23, "gb2312"},
-	{24, "greek"},
-	{25, "win1250"},
-	{26, "croat"},
-	{27, "gbk"},
-	{28, "cp1257"},
-	{29, "latin5"},
-	{0, NULL}
-};
-#endif
-
-
 /* collation codes may change over time, recreate with the following SQL
 
 SELECT CONCAT('  {', ID, ',"', CHARACTER_SET_NAME, ' COLLATE ', COLLATION_NAME, '"},')
 FROM INFORMATION_SCHEMA.COLLATIONS
 ORDER BY ID
-INTO OUTFILE '/tmp/mysql-collations';
+INTO OUTFILE '/var/lib/mysql-files/mysql-collations';
 
-Last Update from MySQL 8.0.20
+Last Update from MySQL 8.0.36
 
 */
 static const value_string mysql_collation_vals[] = {
+	{1,   "big5 COLLATE big5_chinese_ci"},
+	{2,   "latin2 COLLATE latin2_czech_cs"},
 	{3,   "dec8 COLLATE dec8_swedish_ci"},
 	{4,   "cp850 COLLATE cp850_general_ci"},
 	{5,   "latin1 COLLATE latin1_german1_ci"},
@@ -410,21 +374,29 @@ static const value_string mysql_collation_vals[] = {
 	{9,   "latin2 COLLATE latin2_general_ci"},
 	{10,  "swe7 COLLATE swe7_swedish_ci"},
 	{11,  "ascii COLLATE ascii_general_ci"},
+	{12,  "ujis COLLATE ujis_japanese_ci"},
+	{13,  "sjis COLLATE sjis_japanese_ci"},
 	{14,  "cp1251 COLLATE cp1251_bulgarian_ci"},
 	{15,  "latin1 COLLATE latin1_danish_ci"},
 	{16,  "hebrew COLLATE hebrew_general_ci"},
+	{18,  "tis620 COLLATE tis620_thai_ci"},
+	{19,  "euckr COLLATE euckr_korean_ci"},
 	{20,  "latin7 COLLATE latin7_estonian_cs"},
 	{21,  "latin2 COLLATE latin2_hungarian_ci"},
 	{22,  "koi8u COLLATE koi8u_general_ci"},
 	{23,  "cp1251 COLLATE cp1251_ukrainian_ci"},
+	{24,  "gb2312 COLLATE gb2312_chinese_ci"},
 	{25,  "greek COLLATE greek_general_ci"},
 	{26,  "cp1250 COLLATE cp1250_general_ci"},
 	{27,  "latin2 COLLATE latin2_croatian_ci"},
+	{28,  "gbk COLLATE gbk_chinese_ci"},
 	{29,  "cp1257 COLLATE cp1257_lithuanian_ci"},
 	{30,  "latin5 COLLATE latin5_turkish_ci"},
 	{31,  "latin1 COLLATE latin1_german2_ci"},
 	{32,  "armscii8 COLLATE armscii8_general_ci"},
-	{33,  "utf8 COLLATE utf8_general_ci"},
+	{33,  "utf8mb3 COLLATE utf8mb3_general_ci"},
+	{34,  "cp1250 COLLATE cp1250_czech_cs"},
+	{35,  "ucs2 COLLATE ucs2_general_ci"},
 	{36,  "cp866 COLLATE cp866_general_ci"},
 	{37,  "keybcs2 COLLATE keybcs2_general_ci"},
 	{38,  "macce COLLATE macce_general_ci"},
@@ -443,9 +415,15 @@ static const value_string mysql_collation_vals[] = {
 	{51,  "cp1251 COLLATE cp1251_general_ci"},
 	{52,  "cp1251 COLLATE cp1251_general_cs"},
 	{53,  "macroman COLLATE macroman_bin"},
+	{54,  "utf16 COLLATE utf16_general_ci"},
+	{55,  "utf16 COLLATE utf16_bin"},
+	{56,  "utf16le COLLATE utf16le_general_ci"},
 	{57,  "cp1256 COLLATE cp1256_general_ci"},
 	{58,  "cp1257 COLLATE cp1257_bin"},
 	{59,  "cp1257 COLLATE cp1257_general_ci"},
+	{60,  "utf32 COLLATE utf32_general_ci"},
+	{61,  "utf32 COLLATE utf32_bin"},
+	{62,  "utf16le COLLATE utf16le_bin"},
 	{63,  "binary COLLATE binary"},
 	{64,  "armscii8 COLLATE armscii8_bin"},
 	{65,  "ascii COLLATE ascii_bin"},
@@ -459,42 +437,128 @@ static const value_string mysql_collation_vals[] = {
 	{73,  "keybcs2 COLLATE keybcs2_bin"},
 	{74,  "koi8r COLLATE koi8r_bin"},
 	{75,  "koi8u COLLATE koi8u_bin"},
+	{76,  "utf8mb3 COLLATE utf8mb3_tolower_ci"},
 	{77,  "latin2 COLLATE latin2_bin"},
 	{78,  "latin5 COLLATE latin5_bin"},
 	{79,  "latin7 COLLATE latin7_bin"},
 	{80,  "cp850 COLLATE cp850_bin"},
 	{81,  "cp852 COLLATE cp852_bin"},
 	{82,  "swe7 COLLATE swe7_bin"},
-	{83,  "utf8 COLLATE utf8_bin"},
+	{83,  "utf8mb3 COLLATE utf8mb3_bin"},
+	{84,  "big5 COLLATE big5_bin"},
+	{85,  "euckr COLLATE euckr_bin"},
+	{86,  "gb2312 COLLATE gb2312_bin"},
+	{87,  "gbk COLLATE gbk_bin"},
+	{88,  "sjis COLLATE sjis_bin"},
+	{89,  "tis620 COLLATE tis620_bin"},
+	{90,  "ucs2 COLLATE ucs2_bin"},
+	{91,  "ujis COLLATE ujis_bin"},
 	{92,  "geostd8 COLLATE geostd8_general_ci"},
 	{93,  "geostd8 COLLATE geostd8_bin"},
 	{94,  "latin1 COLLATE latin1_spanish_ci"},
+	{95,  "cp932 COLLATE cp932_japanese_ci"},
+	{96,  "cp932 COLLATE cp932_bin"},
+	{97,  "eucjpms COLLATE eucjpms_japanese_ci"},
+	{98,  "eucjpms COLLATE eucjpms_bin"},
 	{99,  "cp1250 COLLATE cp1250_polish_ci"},
-	{192, "utf8 COLLATE utf8_unicode_ci"},
-	{193, "utf8 COLLATE utf8_icelandic_ci"},
-	{194, "utf8 COLLATE utf8_latvian_ci"},
-	{195, "utf8 COLLATE utf8_romanian_ci"},
-	{196, "utf8 COLLATE utf8_slovenian_ci"},
-	{197, "utf8 COLLATE utf8_polish_ci"},
-	{198, "utf8 COLLATE utf8_estonian_ci"},
-	{199, "utf8 COLLATE utf8_spanish_ci"},
-	{200, "utf8 COLLATE utf8_swedish_ci"},
-	{201, "utf8 COLLATE utf8_turkish_ci"},
-	{202, "utf8 COLLATE utf8_czech_ci"},
-	{203, "utf8 COLLATE utf8_danish_ci"},
-	{204, "utf8 COLLATE utf8_lithuanian_ci"},
-	{205, "utf8 COLLATE utf8_slovak_ci"},
-	{206, "utf8 COLLATE utf8_spanish2_ci"},
-	{207, "utf8 COLLATE utf8_roman_ci"},
-	{208, "utf8 COLLATE utf8_persian_ci"},
-	{209, "utf8 COLLATE utf8_esperanto_ci"},
-	{210, "utf8 COLLATE utf8_hungarian_ci"},
-	{211, "utf8 COLLATE utf8_sinhala_ci"},
-	{212, "utf8 COLLATE utf8_german2_ci"},
-	{213, "utf8 COLLATE utf8_croatian_ci"},
-	{214, "utf8 COLLATE utf8_unicode_520_ci"},
-	{215, "utf8 COLLATE utf8_vietnamese_ci"},
-	{223, "utf8 COLLATE utf8_general_mysql500_ci"},
+	{101, "utf16 COLLATE utf16_unicode_ci"},
+	{102, "utf16 COLLATE utf16_icelandic_ci"},
+	{103, "utf16 COLLATE utf16_latvian_ci"},
+	{104, "utf16 COLLATE utf16_romanian_ci"},
+	{105, "utf16 COLLATE utf16_slovenian_ci"},
+	{106, "utf16 COLLATE utf16_polish_ci"},
+	{107, "utf16 COLLATE utf16_estonian_ci"},
+	{108, "utf16 COLLATE utf16_spanish_ci"},
+	{109, "utf16 COLLATE utf16_swedish_ci"},
+	{110, "utf16 COLLATE utf16_turkish_ci"},
+	{111, "utf16 COLLATE utf16_czech_ci"},
+	{112, "utf16 COLLATE utf16_danish_ci"},
+	{113, "utf16 COLLATE utf16_lithuanian_ci"},
+	{114, "utf16 COLLATE utf16_slovak_ci"},
+	{115, "utf16 COLLATE utf16_spanish2_ci"},
+	{116, "utf16 COLLATE utf16_roman_ci"},
+	{117, "utf16 COLLATE utf16_persian_ci"},
+	{118, "utf16 COLLATE utf16_esperanto_ci"},
+	{119, "utf16 COLLATE utf16_hungarian_ci"},
+	{120, "utf16 COLLATE utf16_sinhala_ci"},
+	{121, "utf16 COLLATE utf16_german2_ci"},
+	{122, "utf16 COLLATE utf16_croatian_ci"},
+	{123, "utf16 COLLATE utf16_unicode_520_ci"},
+	{124, "utf16 COLLATE utf16_vietnamese_ci"},
+	{128, "ucs2 COLLATE ucs2_unicode_ci"},
+	{129, "ucs2 COLLATE ucs2_icelandic_ci"},
+	{130, "ucs2 COLLATE ucs2_latvian_ci"},
+	{131, "ucs2 COLLATE ucs2_romanian_ci"},
+	{132, "ucs2 COLLATE ucs2_slovenian_ci"},
+	{133, "ucs2 COLLATE ucs2_polish_ci"},
+	{134, "ucs2 COLLATE ucs2_estonian_ci"},
+	{135, "ucs2 COLLATE ucs2_spanish_ci"},
+	{136, "ucs2 COLLATE ucs2_swedish_ci"},
+	{137, "ucs2 COLLATE ucs2_turkish_ci"},
+	{138, "ucs2 COLLATE ucs2_czech_ci"},
+	{139, "ucs2 COLLATE ucs2_danish_ci"},
+	{140, "ucs2 COLLATE ucs2_lithuanian_ci"},
+	{141, "ucs2 COLLATE ucs2_slovak_ci"},
+	{142, "ucs2 COLLATE ucs2_spanish2_ci"},
+	{143, "ucs2 COLLATE ucs2_roman_ci"},
+	{144, "ucs2 COLLATE ucs2_persian_ci"},
+	{145, "ucs2 COLLATE ucs2_esperanto_ci"},
+	{146, "ucs2 COLLATE ucs2_hungarian_ci"},
+	{147, "ucs2 COLLATE ucs2_sinhala_ci"},
+	{148, "ucs2 COLLATE ucs2_german2_ci"},
+	{149, "ucs2 COLLATE ucs2_croatian_ci"},
+	{150, "ucs2 COLLATE ucs2_unicode_520_ci"},
+	{151, "ucs2 COLLATE ucs2_vietnamese_ci"},
+	{159, "ucs2 COLLATE ucs2_general_mysql500_ci"},
+	{160, "utf32 COLLATE utf32_unicode_ci"},
+	{161, "utf32 COLLATE utf32_icelandic_ci"},
+	{162, "utf32 COLLATE utf32_latvian_ci"},
+	{163, "utf32 COLLATE utf32_romanian_ci"},
+	{164, "utf32 COLLATE utf32_slovenian_ci"},
+	{165, "utf32 COLLATE utf32_polish_ci"},
+	{166, "utf32 COLLATE utf32_estonian_ci"},
+	{167, "utf32 COLLATE utf32_spanish_ci"},
+	{168, "utf32 COLLATE utf32_swedish_ci"},
+	{169, "utf32 COLLATE utf32_turkish_ci"},
+	{170, "utf32 COLLATE utf32_czech_ci"},
+	{171, "utf32 COLLATE utf32_danish_ci"},
+	{172, "utf32 COLLATE utf32_lithuanian_ci"},
+	{173, "utf32 COLLATE utf32_slovak_ci"},
+	{174, "utf32 COLLATE utf32_spanish2_ci"},
+	{175, "utf32 COLLATE utf32_roman_ci"},
+	{176, "utf32 COLLATE utf32_persian_ci"},
+	{177, "utf32 COLLATE utf32_esperanto_ci"},
+	{178, "utf32 COLLATE utf32_hungarian_ci"},
+	{179, "utf32 COLLATE utf32_sinhala_ci"},
+	{180, "utf32 COLLATE utf32_german2_ci"},
+	{181, "utf32 COLLATE utf32_croatian_ci"},
+	{182, "utf32 COLLATE utf32_unicode_520_ci"},
+	{183, "utf32 COLLATE utf32_vietnamese_ci"},
+	{192, "utf8mb3 COLLATE utf8mb3_unicode_ci"},
+	{193, "utf8mb3 COLLATE utf8mb3_icelandic_ci"},
+	{194, "utf8mb3 COLLATE utf8mb3_latvian_ci"},
+	{195, "utf8mb3 COLLATE utf8mb3_romanian_ci"},
+	{196, "utf8mb3 COLLATE utf8mb3_slovenian_ci"},
+	{197, "utf8mb3 COLLATE utf8mb3_polish_ci"},
+	{198, "utf8mb3 COLLATE utf8mb3_estonian_ci"},
+	{199, "utf8mb3 COLLATE utf8mb3_spanish_ci"},
+	{200, "utf8mb3 COLLATE utf8mb3_swedish_ci"},
+	{201, "utf8mb3 COLLATE utf8mb3_turkish_ci"},
+	{202, "utf8mb3 COLLATE utf8mb3_czech_ci"},
+	{203, "utf8mb3 COLLATE utf8mb3_danish_ci"},
+	{204, "utf8mb3 COLLATE utf8mb3_lithuanian_ci"},
+	{205, "utf8mb3 COLLATE utf8mb3_slovak_ci"},
+	{206, "utf8mb3 COLLATE utf8mb3_spanish2_ci"},
+	{207, "utf8mb3 COLLATE utf8mb3_roman_ci"},
+	{208, "utf8mb3 COLLATE utf8mb3_persian_ci"},
+	{209, "utf8mb3 COLLATE utf8mb3_esperanto_ci"},
+	{210, "utf8mb3 COLLATE utf8mb3_hungarian_ci"},
+	{211, "utf8mb3 COLLATE utf8mb3_sinhala_ci"},
+	{212, "utf8mb3 COLLATE utf8mb3_german2_ci"},
+	{213, "utf8mb3 COLLATE utf8mb3_croatian_ci"},
+	{214, "utf8mb3 COLLATE utf8mb3_unicode_520_ci"},
+	{215, "utf8mb3 COLLATE utf8mb3_vietnamese_ci"},
+	{223, "utf8mb3 COLLATE utf8mb3_general_mysql500_ci"},
 	{224, "utf8mb4 COLLATE utf8mb4_unicode_ci"},
 	{225, "utf8mb4 COLLATE utf8mb4_icelandic_ci"},
 	{226, "utf8mb4 COLLATE utf8mb4_latvian_ci"},
@@ -571,6 +635,20 @@ static const value_string mysql_collation_vals[] = {
 	{307,"utf8mb4 COLLATE utf8mb4_ru_0900_as_cs"},
 	{308,"utf8mb4 COLLATE utf8mb4_zh_0900_as_cs"},
 	{309,"utf8mb4 COLLATE utf8mb4_0900_bin"},
+	{310,"utf8mb4 COLLATE utf8mb4_nb_0900_ai_ci"},
+	{311,"utf8mb4 COLLATE utf8mb4_nb_0900_as_cs"},
+	{312,"utf8mb4 COLLATE utf8mb4_nn_0900_ai_ci"},
+	{313,"utf8mb4 COLLATE utf8mb4_nn_0900_as_cs"},
+	{314,"utf8mb4 COLLATE utf8mb4_sr_latn_0900_ai_ci"},
+	{315,"utf8mb4 COLLATE utf8mb4_sr_latn_0900_as_cs"},
+	{316,"utf8mb4 COLLATE utf8mb4_bs_0900_ai_ci"},
+	{317,"utf8mb4 COLLATE utf8mb4_bs_0900_as_cs"},
+	{318,"utf8mb4 COLLATE utf8mb4_bg_0900_ai_ci"},
+	{319,"utf8mb4 COLLATE utf8mb4_bg_0900_as_cs"},
+	{320,"utf8mb4 COLLATE utf8mb4_gl_0900_ai_ci"},
+	{321,"utf8mb4 COLLATE utf8mb4_gl_0900_as_cs"},
+	{322,"utf8mb4 COLLATE utf8mb4_mn_cyrl_0900_ai_ci"},
+	{323,"utf8mb4 COLLATE utf8mb4_mn_cyrl_0900_as_cs"},
 	{0, NULL}
 };
 
@@ -1094,7 +1172,7 @@ static int hf_mysql_salt;
 static int hf_mysql_salt2;
 static int hf_mysql_auth_plugin_length;
 static int hf_mysql_auth_plugin;
-static int hf_mysql_charset;
+static int hf_mysql_collation;
 static int hf_mysql_passwd;
 static int hf_mysql_unused;
 static int hf_mysql_affected_rows;
@@ -1216,7 +1294,7 @@ static int hf_mysql_loaddata_payload;
 
 //static int hf_mariadb_fld_charsetnr;
 static int hf_mariadb_server_language;
-static int hf_mariadb_charset;
+static int hf_mariadb_collation;
 static int hf_mariadb_cap_progress;
 static int hf_mariadb_cap_commulti;
 static int hf_mariadb_cap_bulk;
@@ -1879,18 +1957,18 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(login_tree, conn_data->is_mariadb_server ? hf_mariadb_charset : hf_mysql_charset, tvb, offset, 1, ENC_NA);
-		offset += 1; /* for charset */
+		proto_tree_add_item(login_tree, conn_data->is_mariadb_server ? hf_mariadb_collation : hf_mysql_collation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2; /* for charset */
 
 		if (conn_data->is_mariadb_client){
 			/* 19 bytes unused */
-			proto_tree_add_item(login_tree, hf_mysql_unused, tvb, offset, 19, ENC_NA);
-			offset += 19;
+			proto_tree_add_item(login_tree, hf_mysql_unused, tvb, offset, 18, ENC_NA);
+			offset += 18;
 			offset= mariadb_dissect_caps_or_flags(tvb, offset, FT_UINT32, login_tree, hf_mariadb_extcaps_client, mariadb_extcaps_flags, &conn_data->mariadb_client_ext_caps);
 		} else {
 			/* 23 bytes unused */
-			proto_tree_add_item(login_tree, hf_mysql_unused, tvb, offset, 23, ENC_NA);
-			offset += 23;
+			proto_tree_add_item(login_tree, hf_mysql_unused, tvb, offset, 22, ENC_NA);
+			offset += 22;
 		}
 
 	} else { /* pre-4.1 */
@@ -2333,7 +2411,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		offset += lenstr;
 
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			proto_tree_add_item(req_tree, conn_data->is_mariadb_server ? hf_mariadb_charset : hf_mysql_charset, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(req_tree, conn_data->is_mariadb_server ? hf_mariadb_collation : hf_mysql_collation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2; /* for charset */
 		}
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_OK);
@@ -4735,15 +4813,15 @@ void proto_register_mysql(void)
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"MySQL Max packet", HFILL }},
 
-		{ &hf_mysql_charset,
-		{ "Charset", "mysql.charset",
-		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
-		"MySQL Charset", HFILL }},
+		{ &hf_mysql_collation,
+		{ "Collation", "mysql.collation",
+		FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
+		"MySQL Collation", HFILL }},
 
-		{ &hf_mariadb_charset,
-		{ "Charset", "mariadb.charset",
-		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mariadb_collation_vals_ext, 0x0,
-		"MySQL Charset", HFILL }},
+		{ &hf_mariadb_collation,
+		{ "Collation", "mariadb.collation",
+		FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mariadb_collation_vals_ext, 0x0,
+		"MariaDB Collation", HFILL }},
 
 		{ &hf_mysql_table_name,
 		{ "Table Name", "mysql.table_name",
