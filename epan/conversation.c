@@ -2017,7 +2017,7 @@ find_conversation_deinterlacer(const guint32 frame_num, const address *addr_a, c
 }
 
 conversation_t *
-find_conversation_deinterlacer_pinfo(packet_info *pinfo)
+find_conversation_deinterlacer_pinfo(const packet_info *pinfo)
 {
   conversation_t *conv=NULL;
   guint dr_conv_type; /* deinterlacer conv type */
@@ -2246,7 +2246,7 @@ try_conversation_dissector_by_id(const conversation_type ctype, const guint32 id
 
 /* identifies a conversation ("classic" or deinterlaced) */
 conversation_t *
-find_conversation_strat(packet_info *pinfo, const conversation_type ctype, const guint options)
+find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const guint options)
 {
   conversation_t *conv=NULL;
 
@@ -2267,7 +2267,7 @@ find_conversation_strat(packet_info *pinfo, const conversation_type ctype, const
  *  The frame number and addresses are taken from pinfo.
  */
 conversation_t *
-find_conversation_pinfo(packet_info *pinfo, const guint options)
+find_conversation_pinfo(const packet_info *pinfo, const guint options)
 {
     conversation_t *conv = NULL;
 
@@ -2322,7 +2322,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
  *  The frame number and addresses are taken from pinfo.
  */
 conversation_t *
-find_conversation_pinfo_ro(packet_info *pinfo, const guint options)
+find_conversation_pinfo_ro(const packet_info *pinfo, const guint options)
 {
     conversation_t *conv = NULL;
 

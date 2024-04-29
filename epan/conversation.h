@@ -418,7 +418,7 @@ WS_DLL_PUBLIC conversation_t *find_conversation_deinterlacer(const guint32 frame
  *  and then calls find_conversation_deinterlacer().
  *  The frame number and addresses are taken from pinfo.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_deinterlacer_pinfo(packet_info *pinfo);
+WS_DLL_PUBLIC conversation_t *find_conversation_deinterlacer_pinfo(const packet_info *pinfo);
 
 WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const conversation_type ctype, const guint32 id);
 
@@ -426,12 +426,12 @@ WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const
  *  and returns a conversation according to the runtime deinterlacing strategy.
  *  The frame number and addresses are taken from pinfo.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_strat(packet_info *pinfo, const conversation_type ctype, const guint options);
+WS_DLL_PUBLIC conversation_t *find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const guint options);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const guint options);
+WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(const packet_info *pinfo, const guint options);
 
 /**  A helper function that calls find_conversation() using data from pinfo.
  *  It's a simplified version of find_conversation_pinfo() to avoid
@@ -439,7 +439,7 @@ WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const 
  *  need for displaying packets in packet_list.
  *  The frame number and addresses are taken from pinfo.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_pinfo_ro(packet_info *pinfo, const guint options);
+WS_DLL_PUBLIC conversation_t *find_conversation_pinfo_ro(const packet_info *pinfo, const guint options);
 
 /**
  * A helper function that calls find_conversation() and, if a conversation is
