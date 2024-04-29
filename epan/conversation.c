@@ -1055,6 +1055,28 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 }
 
 conversation_t *
+conversation_new_strat(packet_info *pinfo, const conversation_type ctype, const guint options)
+{
+    conversation_t *conversation = NULL;
+    gboolean is_ordinary_conv = TRUE;
+
+    if(prefs.conversation_deinterlacing_key>0) {
+        conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
+        if(underlying_conv) {
+            is_ordinary_conv = FALSE;
+            conversation = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, ctype,
+                                        pinfo->srcport, pinfo->destport, underlying_conv->conv_index, options);
+        }
+    }
+
+    if(is_ordinary_conv) {
+        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ctype, pinfo->srcport, pinfo->destport, options);
+    }
+
+    return conversation;
+}
+
+conversation_t *
 conversation_new_by_id(const guint32 setup_frame, const conversation_type ctype, const guint32 id)
 {
     conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
@@ -1995,6 +2017,48 @@ find_conversation_deinterlacer(const guint32 frame_num, const address *addr_a, c
 }
 
 conversation_t *
+find_conversation_deinterlacer_pinfo(packet_info *pinfo)
+{
+  conversation_t *conv=NULL;
+  guint dr_conv_type; /* deinterlacer conv type */
+  guint32 dtlc_iface = 0;
+  guint32 dtlc_vlan = 0;
+
+  /* evaluate the execution context: user pref, interface, VLAN */
+  if(prefs.conversation_deinterlacing_key>0) {
+    if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
+       pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+         pinfo->vlan_id>0) {
+
+        dr_conv_type = CONVERSATION_ETH_IV;
+        dtlc_vlan = pinfo->vlan_id;
+      }
+      else {
+        dr_conv_type = CONVERSATION_ETH_IN;
+      }
+      dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
+    }
+    else {
+      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
+         pinfo->vlan_id>0) {
+
+        dr_conv_type = CONVERSATION_ETH_NV;
+        dtlc_vlan = pinfo->vlan_id;
+      }
+      else {
+        dr_conv_type = CONVERSATION_ETH_NN;
+      }
+    }
+
+    conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, dr_conv_type, dtlc_iface, dtlc_vlan , 0);
+  }
+
+  return conv;
+}
+
+conversation_t *
 find_conversation_by_id(const guint32 frame, const conversation_type ctype, const guint32 id)
 {
     conversation_element_t elements[2] = {
@@ -2182,64 +2246,20 @@ try_conversation_dissector_by_id(const conversation_type ctype, const guint32 id
 
 /* identifies a conversation ("classic" or deinterlaced) */
 conversation_t *
-find_conversation_strat(packet_info *pinfo)
+find_conversation_strat(packet_info *pinfo, const conversation_type ctype, const guint options)
 {
-  //conversation_t *conv;
   conversation_t *conv=NULL;
-  guint dr_conv_type; /* deinterlacer conv type */
-  guint32 dtlc_iface = 0;
-  guint32 dtlc_vlan = 0;
-  gboolean is_ordinary_conv = TRUE;
-  conversation_type dd_conv_type; /* deinterlaced conv type */
-
-  dd_conv_type = conversation_pt_to_conversation_type(pinfo->ptype);
 
   if(prefs.conversation_deinterlacing_key>0) {
-    if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
-       pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-
-      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-         pinfo->vlan_id>0) {
-
-        // NOT HANDLED YET dr_conv_type = CONVERSATION_ETH_IV;
-        dr_conv_type = CONVERSATION_ETH_IV;
-        dtlc_vlan = pinfo->vlan_id;
-      }
-      else {
-        dr_conv_type = CONVERSATION_ETH_IN;
-      }
-      dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
-    }
-    else {
-      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-         pinfo->vlan_id>0) {
-
-        // NOT HANDLED YET dr_conv_type = CONVERSATION_ETH_NV;
-        dr_conv_type = CONVERSATION_ETH_NV;
-        dtlc_vlan = pinfo->vlan_id;
-      }
-      else {
-        dr_conv_type = CONVERSATION_ETH_NN;
-      }
-    }
-
-    conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, dr_conv_type, dtlc_iface, dtlc_vlan , 0);
+    conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
     if(underlying_conv) {
-        is_ordinary_conv = FALSE;
-        //conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
-        conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, dd_conv_type, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
+        conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, ctype, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, options);
     }
   }
-
-  if(is_ordinary_conv) {
-      //conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
-      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, dd_conv_type, pinfo->srcport, pinfo->destport, 0);
-      if(!conv) {
-          conv = conversation_new(pinfo->num, &pinfo->src,
-                         &pinfo->dst, CONVERSATION_TCP,
-                         pinfo->srcport, pinfo->destport, 0);
-      }
+  else {
+      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ctype, pinfo->srcport, pinfo->destport, options);
   }
+
   return conv;
 }
 
@@ -2302,7 +2322,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
  *  The frame number and addresses are taken from pinfo.
  */
 conversation_t *
-find_conversation_pinfo_ro(packet_info *pinfo)
+find_conversation_pinfo_ro(packet_info *pinfo, const guint options)
 {
     conversation_t *conv = NULL;
 
@@ -2323,25 +2343,16 @@ find_conversation_pinfo_ro(packet_info *pinfo)
                         pinfo->conv_addr_port_endpoints->port2, 0)) != NULL) {
             DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
                     pinfo->num, conv->last_frame));
-            if (pinfo->num > conv->last_frame) {
-                conv->last_frame = pinfo->num;
-            }
         }
     } else if (pinfo->conv_elements) {
         if ((conv = find_conversation_full(pinfo->num, pinfo->conv_elements)) != NULL) {
             DPRINT(("found previous conversation elements for frame #%u (last_frame=%d)",
                         pinfo->num, conv->last_frame));
-            if (pinfo->num > conv->last_frame) {
-                conv->last_frame = pinfo->num;
-            }
         }
     } else {
-        if ((conv = find_conversation_strat(pinfo)) != NULL) {
+        if ((conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), options)) != NULL) {
             DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
                         pinfo->num, conv->last_frame));
-            if (pinfo->num > conv->last_frame) {
-                conv->last_frame = pinfo->num;
-            }
         }
         /* else: something is either not implemented or not handled,
          * ICMP Type 3/11 are good examples. */

@@ -601,7 +601,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (cap_file_->edt->tree) {
         packet_info *pi = &cap_file_->edt->pi;
         related_packet_delegate_.setCurrentFrame(pi->num);
-        conversation_t *conv = find_conversation_pinfo_ro(pi);
+        conversation_t *conv = find_conversation_pinfo_ro(pi, 0);
         if (conv) {
             related_packet_delegate_.setConversation(conv);
         }

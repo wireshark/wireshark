@@ -375,7 +375,7 @@ static gchar *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo
      * Eventually the endpoint API should support storing multiple
      * endpoints and UDP should be changed to use the endpoint API.
      */
-    conv = find_conversation_strat(pinfo);
+    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0);
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_UDP) &&
@@ -1215,65 +1215,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     pinfo->srcport = udph->uh_sport;
     pinfo->destport = udph->uh_dport;
 
-    /* find(or create if needed) the conversation for this udp session */
-    gboolean is_ordinary_conv = TRUE;
-
-    /* deinterlacing requested */
-    if(prefs.conversation_deinterlacing_key>0) {
-      guint conv_type;
-      guint32 dtlc_iface = 0;
-      guint32 dtlc_vlan = 0;
-
-      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
-         pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-
-        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-           pinfo->vlan_id>0) {
-
-          conv_type = CONVERSATION_ETH_IV;
-          dtlc_vlan = pinfo->vlan_id;
-        }
-        else {
-          conv_type = CONVERSATION_ETH_IN;
-        }
-        dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
-      }
-      else {
-
-        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-           pinfo->vlan_id>0) {
-
-          conv_type = CONVERSATION_ETH_NV;
-          dtlc_vlan = pinfo->vlan_id;
-        }
-        else {
-          conv_type = CONVERSATION_ETH_NN;
-        }
-      }
-      conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, conv_type, dtlc_iface, dtlc_vlan , 0);
-      if(underlying_conv) {
-          is_ordinary_conv = FALSE;
-
-          conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
-          if(!conv) {
-              conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP,
-                                        pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
-          }
-      }
-    }
-
-    /*
-     * When it's not asked to deinterlace, or if deinterlacing failed (no related IP conversation),
-     * just proceed the ordinary way.
-     */
-    if(is_ordinary_conv) {
-
-      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP, pinfo->srcport, pinfo->destport, 0);
-      if(!conv) {
-          conv = conversation_new(pinfo->num, &pinfo->src,
-                         &pinfo->dst, CONVERSATION_UDP,
-                         pinfo->srcport, pinfo->destport, 0);
-      }
+    /* find (and extend) an existing conversation, or create a new one */
+    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0);
+    if(!conv) {
+        conv=conversation_new_strat(pinfo, CONVERSATION_UDP, 0);
     }
 
     udpd = get_udp_conversation_data(conv, pinfo);

@@ -1169,7 +1169,7 @@ gchar *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint
      * Eventually the endpoint API should support storing multiple
      * endpoints and TCP should be changed to use the endpoint API.
      */
-    conv = find_conversation_strat(pinfo);
+    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_TCP) &&
@@ -5637,7 +5637,7 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     int offset = 0;
     struct tcp_analysis *tcpd;
 
-    conversation_t *stratconv = find_conversation_strat(pinfo);
+    conversation_t *stratconv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
     tcpd=get_tcp_conversation_data(stratconv,pinfo);
 
     wscale_pi = proto_tree_add_item(tree, proto_tcp_option_wscale, tvb, offset, -1, ENC_NA);
@@ -7922,68 +7922,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * reusing ports (see issue 15097), as find_or_create_conversation automatically
      * extends the conversation found. This extension is done later.
      */
-    gboolean is_ordinary_conv = TRUE;
 
-    /* deinterlacing requested */
-    if(prefs.conversation_deinterlacing_key>0) {
-      guint conv_type;
-      guint32 dtlc_iface = 0;
-      guint32 dtlc_vlan = 0;
-
-      if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
-         pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-
-        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-           pinfo->vlan_id>0) {
-
-          conv_type = CONVERSATION_ETH_IV;
-          dtlc_vlan = pinfo->vlan_id;
-        }
-        else {
-          conv_type = CONVERSATION_ETH_IN;
-        }
-        dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
-      }
-      else {
-
-        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-           pinfo->vlan_id>0) {
-
-          conv_type = CONVERSATION_ETH_NV;
-          dtlc_vlan = pinfo->vlan_id;
-        }
-        else {
-          conv_type = CONVERSATION_ETH_NN;
-        }
-      }
-      conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, conv_type, dtlc_iface, dtlc_vlan , 0);
-      if(underlying_conv) {
-          is_ordinary_conv = FALSE;
-
-          conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
-          if(!conv) {
-              conv = conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP,
-                                        pinfo->srcport, pinfo->destport, underlying_conv->conv_index, 0);
-              conversation_is_new = TRUE;
-          }
-      }
+    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0);
+    if(!conv) {
+        conv=conversation_new_strat(pinfo, CONVERSATION_TCP, 0);
+        conversation_is_new = TRUE;
     }
 
-    /*
-     * When it's not asked to deinterlace, or if deinterlacing failed (no related IP conversation),
-     * just proceed the ordinary way.
-     */
-    if(is_ordinary_conv) {
-
-      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
-      if(!conv) {
-          conv = conversation_new(pinfo->num, &pinfo->src,
-                         &pinfo->dst, CONVERSATION_TCP,
-                         pinfo->srcport, pinfo->destport, 0);
-        /* we need to know when a conversation is new then we initialize the completeness correctly */
-          conversation_is_new = TRUE;
-      }
-    }
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
     /* If this is a SYN packet, then check if its seq-nr is different
@@ -8017,7 +7962,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if(tcph->th_seq!=tcpd->fwd->base_seq || (tcpd->conversation_completeness & TCP_COMPLETENESS_RST) || (tcpd->conversation_completeness & TCP_COMPLETENESS_FIN)) {
                 if (!(pinfo->fd->visited)) {
 
-                    conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
+                    conv=conversation_new_strat(pinfo, CONVERSATION_TCP, 0);
                     tcpd=get_tcp_conversation_data(conv,pinfo);
 
                     if(!tcpd->ta)
@@ -8095,7 +8040,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* the retrieved conversation might have a different base_seq (issue 16944) */
 
             if (!PINFO_FD_VISITED(pinfo)) {
-                conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
+                conv=conversation_new_strat(pinfo, CONVERSATION_TCP, 0);
                 tcpd=get_tcp_conversation_data(conv,pinfo);
 
                 if(!tcpd->ta)

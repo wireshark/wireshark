@@ -3626,89 +3626,20 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* conversation management */
     conversation_t *conv;
 
-    gboolean is_ordinary_conv = TRUE;
-    /* deinterlacing requested */
-    if(prefs.conversation_deinterlacing_key>0) {
-        guint conv_type;
-        guint32 dtlc_iface = 0;
-        guint32 dtlc_vlan = 0;
-
-        if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
-           pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-
-            if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-               pinfo->vlan_id>0) {
-
-                conv_type = CONVERSATION_ETH_IV;
-                dtlc_vlan = pinfo->vlan_id;
-            }
-            else {
-                conv_type = CONVERSATION_ETH_IN;
-            }
-            dtlc_iface = pinfo->rec->rec_header.packet_header.interface_id;
-        }
-        else {
-
-            if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_VLAN &&
-               pinfo->vlan_id>0) {
-
-                conv_type = CONVERSATION_ETH_NV;
-                dtlc_vlan = pinfo->vlan_id;
-            }
-            else {
-                conv_type = CONVERSATION_ETH_NN;
-            }
-        }
-
-        conversation_t *underlying_conv = find_conversation_deinterlacer(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, conv_type, dtlc_iface, dtlc_vlan, 0);
-        if(underlying_conv) {
-            is_ordinary_conv = FALSE;
-
-            conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, underlying_conv->conv_index, NO_PORT_X);
-            if(!conv) {
-                conversation_new_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6,
-                                                     0, 0, underlying_conv->conv_index, NO_PORTS);
-
-                conv = find_conversation_deinterlaced(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, underlying_conv->conv_index, NO_PORT_X);
-            }
-            else {
-                /*
-                 * while not strictly necessary because there is only 1
-                 * conversation between 2 IPs, we still move the last frame
-                 * indicator as being a usual practice.
-                 */
-                if (!(pinfo->fd->visited)) {
-                    if (pinfo->num > conv->last_frame) {
-                        conv->last_frame = pinfo->num;
-                    }
-                }
-            }
-            ipv6d = get_ipv6_conversation_data(conv, pinfo);
-            if(ipv6d) {
-                iph->ip6_stream = ipv6d->stream;
-
-                pi = proto_tree_add_uint(ipv6_tree, hf_ipv6_stream, tvb, offset, 0, ipv6d->stream);
-                proto_item_set_generated(pi);
-            }
-        }
+    /* find (and extend) an existing conversation, or create a new one */
+    conv = find_conversation_strat(pinfo, CONVERSATION_IPV6, NO_PORT_X);
+    if(!conv) {
+        conv=conversation_new_strat(pinfo, CONVERSATION_IPV6, NO_PORTS);
     }
-
-    /* no deinterlacing asked or possible ( e.g. Linux Cooked Captures ) */
-    if(is_ordinary_conv) {
-        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, NO_PORT_X);
-        if(!conv) {
-            conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_IPV6, 0, 0, NO_PORTS);
-        }
-        else {
-            /*
-             * while not strictly necessary because there is only 1
-             * conversation between 2 IPs, we still move the last frame
-             * indicator as being a usual practice.
-             */
-            if (!(pinfo->fd->visited)) {
-                if (pinfo->num > conv->last_frame) {
-                    conv->last_frame = pinfo->num;
-                }
+    else {
+        /*
+         * while not strictly necessary because there is only 1
+         * conversation between 2 IPs, we still move the last frame
+         * indicator as being a usual practice.
+         */
+        if (!(pinfo->fd->visited)) {
+            if (pinfo->num > conv->last_frame) {
+                conv->last_frame = pinfo->num;
             }
         }
     }

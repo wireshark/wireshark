@@ -322,10 +322,32 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_deinterlaced(const 
     const conversation_type ctype, const guint32 port1, const guint32 port2, const guint32 anchor, const guint options);
 
 /**
+ * Create a deinterlacer conversation, based on two addresses,
+ * a type, and several keys (VLAN, Mac, Interface).
  *
+ * @param setup_frame The first frame in the conversation.
+ * @param addr1 The first address in the identifying tuple.
+ * @param addr2 The second address in the identifying tuple.
+ * @param ctype The conversation type.
+ * @param key1  The first key in the identifying tuple.
+ * @param key2  The second key in the identifying tuple.
+ * @param key3  The third key in the identifying tuple.
+ * @return The new conversation.
  */
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_deinterlacer(const guint32 setup_frame, const address *addr1, const address *addr2,
     const conversation_type ctype, const guint32 key1, const guint32 key2, const guint32 key3);
+
+/**
+ * A helper function for creating conversations according to the runtime deinterlacing strategy,
+ * which means the returned conversation is either a classic (historical) object, or a deinterlaced one.
+ *
+ * @param pinfo Packet info.
+ * @param ctype The conversation type.
+ * @param options NO_ADDR2, NO_PORT2, NO_PORT2_FORCE, or CONVERSATION_TEMPLATE.
+ *        Options except for NO_PORT2 and NO_PORT2_FORCE can be ORed.
+ * @return The new conversation.
+ */
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_strat(packet_info *pinfo, const conversation_type ctype, const guint options);
 
 /**
  * Search for a conversation based on the structure and values of an element list.
@@ -391,13 +413,20 @@ WS_DLL_PUBLIC conversation_t *find_conversation_deinterlaced(const guint32 frame
 WS_DLL_PUBLIC conversation_t *find_conversation_deinterlacer(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const conversation_type ctype, const guint32 key_a, const guint32 key_b, const guint32 key_c);
 
+/**  A wrapper function of find_conversation_deinterlacer() using data from pinfo,
+ *  which evaluates the execution context first (user preference, VLAN, interface,..),
+ *  and then calls find_conversation_deinterlacer().
+ *  The frame number and addresses are taken from pinfo.
+ */
+WS_DLL_PUBLIC conversation_t *find_conversation_deinterlacer_pinfo(packet_info *pinfo);
+
 WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const conversation_type ctype, const guint32 id);
 
 /**  A helper function that calls find_conversation() using data from pinfo,
  *  and returns a conversation according to the runtime deinterlacing strategy.
  *  The frame number and addresses are taken from pinfo.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_strat(packet_info *pinfo);
+WS_DLL_PUBLIC conversation_t *find_conversation_strat(packet_info *pinfo, const conversation_type ctype, const guint options);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
@@ -410,7 +439,7 @@ WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const 
  *  need for displaying packets in packet_list.
  *  The frame number and addresses are taken from pinfo.
  */
-WS_DLL_PUBLIC conversation_t *find_conversation_pinfo_ro(packet_info *pinfo);
+WS_DLL_PUBLIC conversation_t *find_conversation_pinfo_ro(packet_info *pinfo, const guint options);
 
 /**
  * A helper function that calls find_conversation() and, if a conversation is
