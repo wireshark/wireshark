@@ -28,7 +28,7 @@ jobs:
           ninja wireshark_nsis_prep
           ninja wireshark_nsis
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nsis-installer
           path: build/packaging/nsis/wireshark-*-x64.exe

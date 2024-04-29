@@ -48,7 +48,7 @@ jobs:
           mkdir deb
           mv ../*.deb deb
       - name: Upload deb packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: deb
