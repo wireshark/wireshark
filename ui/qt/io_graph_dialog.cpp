@@ -391,6 +391,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
         close_bt->setDefault(true);
     }
 
+    connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &IOGraphDialog::buttonBoxClicked);
+
     ui->automaticUpdateCheckBox->setChecked(prefs.gui_io_graph_automatic_update ? true : false);
 
     ui->enableLegendCheckBox->setChecked(prefs.gui_io_graph_enable_legend ? true : false);
@@ -1494,11 +1496,6 @@ void IOGraphDialog::modelDataChanged(const QModelIndex &index)
     }
 }
 
-void IOGraphDialog::on_resetButton_clicked()
-{
-    resetAxes();
-}
-
 void IOGraphDialog::on_newToolButton_clicked()
 {
     addGraph();
@@ -1661,7 +1658,7 @@ void IOGraphDialog::on_enableLegendCheckBox_toggled(bool checked)
 
 void IOGraphDialog::on_actionReset_triggered()
 {
-    on_resetButton_clicked();
+    resetAxes();
 }
 
 void IOGraphDialog::on_actionZoomIn_triggered()
@@ -1807,6 +1804,17 @@ void IOGraphDialog::on_buttonBox_accepted()
         if (save_ok) {
             mainApp->setLastOpenDirFromFilename(file_name);
         }
+    }
+}
+
+void IOGraphDialog::buttonBoxClicked(QAbstractButton *button)
+{
+    switch (ui->buttonBox->buttonRole(button)) {
+    case QDialogButtonBox::ResetRole:
+        resetAxes();
+        break;
+    default:
+        break;
     }
 }
 

@@ -33,6 +33,7 @@
 
 class QRubberBand;
 class QTimer;
+class QAbstractButton;
 
 class QCPBars;
 class QCPGraph;
@@ -245,7 +246,6 @@ private slots:
     void modelDataChanged(const QModelIndex &index);
     void on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 
-    void on_resetButton_clicked();
     void on_logCheckBox_toggled(bool checked);
     void on_automaticUpdateCheckBox_toggled(bool checked);
     void on_enableLegendCheckBox_toggled(bool checked);
@@ -278,6 +278,7 @@ private slots:
     void on_actionCrosshairs_triggered();
     void on_buttonBox_helpRequested();
     void on_buttonBox_accepted();
+    void buttonBoxClicked(QAbstractButton *button);
 };
 
 #endif // IO_GRAPH_DIALOG_H
