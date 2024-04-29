@@ -68,7 +68,7 @@ jobs:
           msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
         working-directory: build
       - name: Upload Windows packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: build/packaging/nsis/*exe
