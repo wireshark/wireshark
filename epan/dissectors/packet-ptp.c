@@ -3730,7 +3730,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                 for(path_seq_total_length = 0; path_seq_total_length < tlv_length; path_seq_total_length+=8)
                                 {
                                     proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_an_tlv_pathsequence, tvb,
-                                                        PTP_V2_AN_TLV_OFFSET + PTP_AS_AN_TLV_PATH_TRACE_OFFSET + path_seq_total_length,
+                                                        PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_AS_AN_TLV_PATH_TRACE_OFFSET + path_seq_total_length,
                                                         8, ENC_BIG_ENDIAN);
                                 }
 
