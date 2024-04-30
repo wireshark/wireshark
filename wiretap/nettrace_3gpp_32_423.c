@@ -73,7 +73,7 @@ static const unsigned char c_nas_5gs[] = "nas-5gs";
 #define RINGBUFFER_CHUNK_SIZE 1024
 
 #define MAX_FUNCTION_LEN 64
-#define MAX_NAME_LEN 64
+#define MAX_NAME_LEN 128
 #define MAX_PROTO_LEN 16
 #define MAX_DTBL_LEN 32
 
