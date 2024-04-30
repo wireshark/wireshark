@@ -100,13 +100,12 @@ seq_analysis_item_t* sequence_analysis_create_sai_with_addresses(packet_info *pi
     seq_analysis_item_t *sai = NULL;
     char time_str[COL_MAX_LEN];
 
-    if (sainfo->any_addr) {
+    if (!sainfo->any_addr) {
         if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
             sai = g_new0(seq_analysis_item_t, 1);
             copy_address(&(sai->src_addr),&(pinfo->net_src));
             copy_address(&(sai->dst_addr),&(pinfo->net_dst));
         }
-
     } else {
         if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
             sai = g_new0(seq_analysis_item_t, 1);

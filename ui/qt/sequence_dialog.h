@@ -78,13 +78,13 @@ private slots:
     void exportDiagram();
     void layoutAxisLabels();
 
+    void addressChanged(int index);
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionGoToPacket_triggered();
     void on_actionGoToNextPacket_triggered() { goToAdjacentPacket(true); }
     void on_actionGoToPreviousPacket_triggered() { goToAdjacentPacket(false); }
     void on_displayFilterCheckBox_toggled(bool checked);
     void on_flowComboBox_activated(int index);
-    void on_addressComboBox_activated(int index);
     void on_actionMoveRight10_triggered();
     void on_actionMoveLeft10_triggered();
     void on_actionMoveUp10_triggered();

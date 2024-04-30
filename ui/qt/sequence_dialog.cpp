@@ -89,6 +89,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     if (!info_) {
         info_ = new SequenceInfo(sequence_analysis_info_new());
         info_->sainfo()->name = "any";
+        info_->sainfo()->any_addr = true;
     } else {
         info_->ref();
         sequence_analysis_free_nodes(info_->sainfo());
@@ -165,7 +166,15 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     action->setEnabled(false);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
-    ui->addressComboBox->setCurrentIndex(0);
+    ui->addressComboBox->addItem(tr("Any"), QVariant(true));
+    ui->addressComboBox->addItem(tr("Network"), QVariant(false));
+    ui->addressComboBox->setCurrentIndex(ui->addressComboBox->findData(QVariant(true)));
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->addressComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SequenceDialog::addressChanged);
+#else
+    connect(ui->addressComboBox, &QComboBox::currentIndexChanged, this, &SequenceDialog::addressChanged);
+#endif
 
     sequence_items_t item_data;
 
@@ -726,16 +735,15 @@ void SequenceDialog::on_flowComboBox_activated(int index)
     fillDiagram();
 }
 
-void SequenceDialog::on_addressComboBox_activated(int index)
+void SequenceDialog::addressChanged(int)
 {
     if (!info_->sainfo()) return;
 
-    if (index == 0) {
-        info_->sainfo()->any_addr = true;
-    } else {
-        info_->sainfo()->any_addr = false;
+    QVariant data = ui->addressComboBox->currentData();
+    if (data.isValid()) {
+        info_->sainfo()->any_addr = data.toBool();
+        fillDiagram();
     }
-    fillDiagram();
 }
 
 void SequenceDialog::on_actionMoveRight10_triggered()

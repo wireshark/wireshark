@@ -156,16 +156,6 @@
         </item>
         <item>
          <widget class="QComboBox" name="addressComboBox">
-          <item>
-           <property name="text">
-            <string>Any</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Network</string>
-           </property>
-          </item>
          </widget>
         </item>
        </layout>
