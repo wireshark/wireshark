@@ -66,14 +66,14 @@ typedef struct {
     SequenceInfo *info;
 } sequence_items_t;
 
-SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info) :
+SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info, bool voipFeatures) :
     WiresharkDialog(parent, cf),
     ui(new Ui::SequenceDialog),
     info_(info),
     num_items_(0),
     packet_num_(0),
     sequence_w_(1),
-    voipFeaturesEnabled(false)
+    voipFeaturesEnabled(voipFeatures)
 {
     QAction *action;
 
@@ -189,6 +189,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
         close_bt->setDefault(true);
     }
 
+    enableVoIPFeatures();
+
+    // Enable or disable VoIP features before adding the ProgressFrame,
+    // because the layout position depends on whether player_button_ is
+    // visible.
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     loadGeometry(parent.width(), parent.height() * 4 / 5);
@@ -201,10 +206,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
     connect(sp, &QCustomPlot::afterLayout, this, &SequenceDialog::layoutAxisLabels);
-
-    // Button must be enabled by VoIP dialogs
-    player_button_->setVisible(false);
-    player_button_->setEnabled(false);
 }
 
 SequenceDialog::~SequenceDialog()
@@ -215,10 +216,10 @@ SequenceDialog::~SequenceDialog()
 
 void SequenceDialog::enableVoIPFeatures()
 {
-    voipFeaturesEnabled = true;
-    player_button_->setVisible(true);
-    ui->actionSelectRtpStreams->setVisible(true);
-    ui->actionDeselectRtpStreams->setVisible(true);
+    player_button_->setVisible(voipFeaturesEnabled);
+    ui->actionSelectRtpStreams->setVisible(voipFeaturesEnabled);
+    ui->actionDeselectRtpStreams->setVisible(voipFeaturesEnabled);
+    // Buttons and actions are enabled when valid call selected
 }
 
 void SequenceDialog::updateWidgets()

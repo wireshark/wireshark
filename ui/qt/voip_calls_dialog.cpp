@@ -603,7 +603,7 @@ void VoipCallsDialog::showSequence()
         cur_ga_item = gxx_list_next(cur_ga_item);
     }
 
-    SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_);
+    SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_, true);
     // Bypass this dialog and forward signals to parent
     connect(sequence_dialog, SIGNAL(rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *>)));
     connect(sequence_dialog, SIGNAL(rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *>)));
@@ -612,7 +612,6 @@ void VoipCallsDialog::showSequence()
     connect(sequence_dialog, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 
     sequence_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    sequence_dialog->enableVoIPFeatures();
     sequence_dialog->show();
 }
 
