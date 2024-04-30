@@ -129,7 +129,7 @@ static int hf_netlogon_sensitive_data;
 static int hf_netlogon_security_information;
 static int hf_netlogon_dummy;
 static int hf_netlogon_neg_flags;
-/* static int hf_netlogon_neg_flags_80000000; */
+static int hf_netlogon_neg_flags_80000000;
 static int hf_netlogon_neg_flags_40000000;
 static int hf_netlogon_neg_flags_20000000;
 /* static int hf_netlogon_neg_flags_10000000; */
@@ -6623,9 +6623,7 @@ netlogon_dissect_netrlogoncomputeclientdigest_reply(tvbuff_t *tvb, int offset,
 static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 flags,int offset)
 {
     static int * const hf_flags[] = {
-#if 0
         &hf_netlogon_neg_flags_80000000,
-#endif
         &hf_netlogon_neg_flags_40000000,
         &hf_netlogon_neg_flags_20000000,
 #if 0
@@ -6705,6 +6703,42 @@ netlogon_dissect_netrserverauthenticate3_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_neg_flags, NULL);
 #endif
+    ALIGN_TO_4_BYTES;
+
+    flags = tvb_get_letohl (tvb, offset);
+    netlogon_dissect_neg_options(tvb,tree,flags,offset);
+    seen.isseen = FALSE;
+    seen.num = 0;
+    offset +=4;
+    return offset;
+}
+
+static int
+netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, int offset,
+                                                     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+{
+    guint32 flags;
+    offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+                                              pinfo, tree, di, drep);
+    ALIGN_TO_5_BYTES
+
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_REF, "Acct Name", hf_netlogon_acct_name, 0);
+
+    if (di->call_data->flags & DCERPC_IS_NDR64) {
+        ALIGN_TO_4_BYTES
+    } else {
+        ALIGN_TO_2_BYTES
+    }
+
+    offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
+                                                           pinfo, tree, di, drep);
+
+    ALIGN_TO_5_BYTES
+
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_REF, "Computer Name", hf_netlogon_computer_name, 0);
+
     ALIGN_TO_4_BYTES;
 
     flags = tvb_get_letohl (tvb, offset);
@@ -6949,6 +6983,27 @@ netlogon_dissect_netrserverauthenticate2_reply(tvbuff_t *tvb, int offset,
                                                packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     return netlogon_dissect_netrserverauthenticate023_reply(tvb,offset,pinfo,tree,di,drep,2);
+}
+
+static int
+netlogon_dissect_netrserverauthenticatekerberos_reply(tvbuff_t *tvb, int offset,
+                                                      packet_info *pinfo,
+                                                      proto_tree *tree,
+                                                      dcerpc_info *di,
+                                                      guint8 *drep)
+{
+    guint32 flags = 0;
+
+    flags = tvb_get_letohl (tvb, offset);
+    netlogon_dissect_neg_options(tvb,tree,flags,offset);
+    offset +=4;
+    ALIGN_TO_4_BYTES;
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                                   hf_server_rid, NULL);
+    offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
+                              hf_netlogon_rc, NULL);
+
+    return offset;
 }
 
 
@@ -8159,6 +8214,9 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
     { NETLOGON_NETRCHAINSETCLIENTATTRIBUTES, "NetrChainSetClientAttributes",
       netlogon_dissect_netrchainsetclientattributes_rqst,
       netlogon_dissect_netrchainsetclientattributes_reply },
+    { NETLOGON_NETRSERVERAUTHENTICATEKERBEROS, "NetrServerAuthenticateKerberos",
+      netlogon_dissect_netrserverauthenticatekerberos_rqst,
+      netlogon_dissect_netrserverauthenticatekerberos_reply },
     {0, NULL, NULL,  NULL }
 };
 
@@ -9283,10 +9341,8 @@ proto_register_dcerpc_netlogon(void)
           { "Negotiation options", "netlogon.neg_flags", FT_UINT32, BASE_HEX,
             NULL, 0x0, "Negotiation Flags", HFILL }},
 
-#if 0
         { &hf_netlogon_neg_flags_80000000,
-          { "Not used 80000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000000, "Not used", HFILL }},
-#endif
+          { "Supports Kerberos Auth", "ntlmssp.neg_flags.supports_kerberos_auth", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000000, "supports kerberos", HFILL }},
 
         { &hf_netlogon_neg_flags_40000000,
           { "Authenticated RPC supported", "ntlmssp.neg_flags.na4000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000000, NULL, HFILL }},
