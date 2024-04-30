@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Repo Lockdown'
-        uses: dessant/repo-lockdown@v3
+        uses: dessant/repo-lockdown@v4
         with:
           pr-comment: >
             Hi, thank you for your contribution!

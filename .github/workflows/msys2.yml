@@ -16,7 +16,7 @@ jobs:
           update: true
           install: base-devel
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: tools/msys2-setup.sh --install-all --noconfirm
       - name: Build
@@ -38,7 +38,7 @@ jobs:
     needs: msys2-ucrt64
     steps:
       - name: Download installer
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: nsis-installer
           path: downloads

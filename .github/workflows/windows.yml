@@ -13,7 +13,7 @@ jobs:
       WIRESHARK_VERSION_EXTRA: -GithubActionBuild
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Choco install
         run: choco install -y --force --no-progress asciidoctorj xsltproc docbook-bundle nsis winflexbison3 cmake
       - name: Install strawberryperl
@@ -28,7 +28,7 @@ jobs:
           version: 6.2.3
           modules: 'qt5compat'
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
         with:
           vs-version: 16.8
       - name: Set MSVC command prompt
@@ -52,7 +52,7 @@ jobs:
         run: cmake --build . --config RelWithDebInfo --target test-programs
         working-directory: build
       - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
       - name: Install pytest
