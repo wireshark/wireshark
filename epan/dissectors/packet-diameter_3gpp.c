@@ -2365,6 +2365,21 @@ dissect_diameter_3gpp_uva_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 /* 3GPP TS 29.272
+* 7.3.159 MME-Number-for-MT-SMS
+* AVP Code: 1645 MME-Number-for-MT-SMS
+*/
+static int
+dissect_diameter_3gpp_mme_number_for_mt_sms(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    dissect_e164_isdn(tvb, tree, offset, length, E164_ENC_BCD);
+
+    return length;
+}
+
+/* 3GPP TS 29.272
 * 7.3.165 Subscription-Data-Flags
 * AVP Code: 1654 Subscription-Data-Flags
 */
@@ -3141,6 +3156,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 1640 UVA-Flags */
     dissector_add_uint("diameter.3gpp", 1640, create_dissector_handle(dissect_diameter_3gpp_uva_flags, proto_diameter_3gpp));
 
+    /* AVP Code: 1645 MME-Number-for-MT-SMS */
+    dissector_add_uint("diameter.3gpp", 1645, create_dissector_handle(dissect_diameter_3gpp_mme_number_for_mt_sms, proto_diameter_3gpp));
+    
     /* AVP Code: 1654 Subscription-Data-Flags */
     dissector_add_uint("diameter.3gpp", 1654, create_dissector_handle(dissect_diameter_3gpp_subscription_data_flags, proto_diameter_3gpp));
 
