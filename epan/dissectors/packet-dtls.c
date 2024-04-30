@@ -86,6 +86,11 @@ static proto_tree *top_tree;
 #define SRTP_AEAD_AES_128_GCM       0x0007
 #define SRTP_AEAD_AES_256_GCM       0x0008
 
+#define DTLS13_FIXED_MASK 0xE0
+#define DTLS13_C_BIT_MASK 0x10
+#define DTLS13_S_BIT_MASK 0x08
+#define DTLS13_L_BIT_MASK 0x04
+
 static const value_string srtp_protection_profile_vals[] = {
   { SRTP_AES128_CM_HMAC_SHA1_80, "SRTP_AES128_CM_HMAC_SHA1_80" }, /* RFC 5764 */
   { SRTP_AES128_CM_HMAC_SHA1_32, "SRTP_AES128_CM_HMAC_SHA1_32" },
@@ -469,7 +474,12 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (session->last_nontls_frame != 0 &&
       session->last_nontls_frame >= pinfo->num) {
     /* This conversation started at a different protocol and STARTTLS was
-     * used, but this packet comes too early. */
+     * used, but this packet comes too early.
+     * XXX - Does anything use STARTTLS with DTLS? Would we get here anyway,
+     * since we don't call conversation_set_dissector[_from_frame_number] for
+     * DTLS? Regardless, dissect_dtls_heur should check for this 0 and return
+     * FALSE.
+     */
     return 0;
   }
 
@@ -566,6 +576,9 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
    * captured payload length against the remainder of the UDP packet size. */
   guint length = tvb_captured_length(tvb);
   guint offset = 0;
+  unsigned record_length = 0;
+  SslDecryptSession *ssl_session = NULL;
+  SslSession *session = NULL;
 
   if (tvb_reported_length(tvb) == length) {
     /* The entire payload was captured. */
@@ -573,14 +586,54 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       /* Advance offset to the end of the current DTLS record */
       guint8 record_type = tvb_get_guint8(tvb, offset);
 
-      if (record_type == SSL_ID_TLS12_CID) {
-        /* CID length is not embedded in the packet */
-        SslDecryptSession *ssl_session = ssl_get_session_by_cid(tvb, offset + 11);
-        SslSession *session = ssl_session ? &ssl_session->session : NULL;
-        gint is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
-        offset += dtls_cid_length(session, is_from_server);
+      if ((record_type & DTLS13_FIXED_MASK) >> 5 == 1) {
+        offset += 1;
+        /* With the DTLS 1.3 Unified Header, the legacy_record_version
+         * field is encrypted, so our heuristics are weaker. Only accept
+         * the frame if we already have seen DTLS (with the correct CID,
+         * if the CID is included) on the connection.
+         * N.B. - We don't call conversation_set_dissector_from_frame_number
+         * like in packet-tls.c because DTLS is commonly multiplexed with
+         * SRTP/SRTCP/STUN/TURN/ZRTP per RFC 7983. (And now QUIC, RFC 9443.)
+         */
+        if (record_type & DTLS13_C_BIT_MASK) {
+          /* CID length is not embedded in the packet */
+          ssl_session = ssl_get_session_by_cid(tvb, offset);
+          session = ssl_session ? &ssl_session->session : NULL;
+          gint is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
+          offset += dtls_cid_length(session, is_from_server);
+        } else {
+          /* No CID, just look for a session on this conversation. Don't
+           * call ssl_get_session here, as we don't want to allocate a new
+           * session. */
+          conversation_t *conversation = find_or_create_conversation(pinfo);
+          ssl_session = conversation_get_proto_data(conversation, proto_dtls);
+          session = ssl_session ? &ssl_session->session : NULL;
+        }
+        if (session == NULL) {
+          return FALSE;
+        }
+        offset += (record_type & DTLS13_S_BIT_MASK) ? 2 : 1;
+        if (record_type & DTLS13_L_BIT_MASK) {
+          record_length = tvb_get_ntohs(tvb, offset);
+          offset += 2;
+        } else {
+          /* Length not present, so the heuristic is weaker. */
+          record_length = tvb_reported_length_remaining(tvb, offset);
+        }
+      } else {
+        offset += 11;
+        if (record_type == SSL_ID_TLS12_CID) {
+          /* CID length is not embedded in the packet */
+          ssl_session = ssl_get_session_by_cid(tvb, offset);
+          session = ssl_session ? &ssl_session->session : NULL;
+          gint is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
+          offset += dtls_cid_length(session, is_from_server);
+        }
+        record_length = tvb_get_ntohs(tvb, offset);
+        offset += 2;
       }
-      offset += tvb_get_ntohs(tvb, offset + 11) + 13;
+      offset += record_length;
       if (offset == length) {
         dissect_dtls(tvb, pinfo, tree, data);
         return TRUE;
@@ -845,7 +898,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
    * Get the record layer fields of interest
    */
   content_type          = tvb_get_guint8(tvb, offset);
-  if ((content_type & 0xE0) >> 5 == 1) {
+  if ((content_type & DTLS13_FIXED_MASK) >> 5 == 1) {
     /* RFC 9147 s4.1: this is a DTLS 1.3 Unified Header record */
     return dissect_dtls13_record(tvb, pinfo, tree, offset, session,
                                is_from_server, ssl, curr_layer_num_ssl);
@@ -1228,9 +1281,9 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   //guint8 content_type = 0;
 
   hdr_flags = tvb_get_guint8(tvb, hdr_offset);
-  c_bit = (hdr_flags & 0x10) == 0x10;
-  s_bit = (hdr_flags & 0x08) == 0x08;
-  l_bit = (hdr_flags & 0x04) == 0x04;
+  c_bit = (hdr_flags & DTLS13_C_BIT_MASK) == DTLS13_C_BIT_MASK;
+  s_bit = (hdr_flags & DTLS13_S_BIT_MASK) == DTLS13_S_BIT_MASK;
+  l_bit = (hdr_flags & DTLS13_L_BIT_MASK) == DTLS13_L_BIT_MASK;
   //epoch_bits = hdr_flags & 0x03;
   hdr_offset += 1;
 
@@ -2110,6 +2163,9 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
   byte = tvb_get_guint8(tvb, offset);
   if (!ssl_is_valid_content_type(byte))
     {
+      if ((byte & DTLS13_FIXED_MASK) >> 5 == 1) {
+        return 1;
+      }
       return 0;
     }
 
@@ -2488,19 +2544,19 @@ proto_register_dtls(void)
     },
     { &hf_dtls_uni_hdr_fixed,
       { "Fixed bits", "dtls.unified_header.fixed",
-        FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }
+        FT_UINT8, BASE_HEX, NULL, DTLS13_FIXED_MASK, NULL, HFILL }
     },
     { &hf_dtls_uni_hdr_cid,
       { "CID field", "dtls.unified_header.cid",
-        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10, NULL, HFILL }
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), DTLS13_C_BIT_MASK, NULL, HFILL }
     },
     { &hf_dtls_uni_hdr_seq,
       { "Sequence number size", "dtls.unified_header.seq",
-        FT_BOOLEAN, 8, TFS(&dtls_uni_hdr_seq_tfs), 0x08, NULL, HFILL }
+        FT_BOOLEAN, 8, TFS(&dtls_uni_hdr_seq_tfs), DTLS13_S_BIT_MASK, NULL, HFILL }
     },
     { &hf_dtls_uni_hdr_len,
       { "Length field", "dtls.unified_header.length",
-        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04, NULL, HFILL }
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), DTLS13_L_BIT_MASK, NULL, HFILL }
     },
     { &hf_dtls_uni_hdr_epoch,
       { "Epoch lowest-order bits", "dtls.unified_header.epoch",
