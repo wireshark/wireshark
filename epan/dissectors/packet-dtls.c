@@ -942,19 +942,26 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * if we don't already have a version set for this conversation,
    * but this message's version is authoritative (i.e., it's
-   * not client_hello, then save the version to the conversation
-   * structure and print the column version
+   * not client_hello), then save the version to the conversation
+   * structure and print the column version.
    */
   next_byte = tvb_get_guint8(tvb, offset);
   if (session->version == SSL_VER_UNKNOWN) {
     if (version == DTLSV1DOT2_VERSION && content_type == SSL_ID_HANDSHAKE) {
       /*
-       * if the version in the header is DTLS1.2, this may actually be
+       * if the version in the header is DTLS 1.2, this may actually be
        * a DTLS 1.3 handshake; this must be determined from any
-       * supported_versions extension in the hello messages.
+       * supported_versions extension in the hello messages. We'll check
+       * this later in dissect_dtls_handshake, but try to get the column
+       * correct here on the first pass if we can.
        */
-      if (next_byte == SSL_HND_SERVER_HELLO && record_length > 2) {
-        tls_scan_server_hello(tvb, offset + 12, offset + 12 + record_length, &version, NULL);
+      if (next_byte == SSL_HND_SERVER_HELLO && record_length > 12 && tvb_bytes_exist(tvb, offset, 12)) {
+        uint32_t fragment_offset = tvb_get_ntoh24(tvb, offset + 6);
+        uint32_t fragment_length = tvb_get_ntoh24(tvb, offset + 9);
+        if (fragment_offset == 0 && tvb_bytes_exist(tvb, offset + 12, fragment_length)) {
+          /* Only look at the first fragment. */
+          tls_scan_server_hello(tvb, offset + 12, offset + 12 + fragment_length, &version, NULL);
+        }
       }
     }
     ssl_try_set_version(session, ssl, content_type, next_byte, TRUE, version);
