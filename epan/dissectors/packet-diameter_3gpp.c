@@ -3158,7 +3158,7 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1645 MME-Number-for-MT-SMS */
     dissector_add_uint("diameter.3gpp", 1645, create_dissector_handle(dissect_diameter_3gpp_mme_number_for_mt_sms, proto_diameter_3gpp));
-    
+
     /* AVP Code: 1654 Subscription-Data-Flags */
     dissector_add_uint("diameter.3gpp", 1654, create_dissector_handle(dissect_diameter_3gpp_subscription_data_flags, proto_diameter_3gpp));
 
