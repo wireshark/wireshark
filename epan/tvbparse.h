@@ -100,8 +100,6 @@ struct _tvbparse_wanted_t {
                 guint64 u;
                 gdouble f;
             } value;
-            gboolean (*comp)(void*,const void*);
-            void* (*extract)(tvbuff_t*,guint);
         } number;
         enum ftenum ftenum;
         struct {
