@@ -1343,9 +1343,11 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Query");
 
 				/* Query */
+				const guint8 *query_string;
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 4, ENC_BIG_ENDIAN, &string_length);
 				offset += 4;
-				proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+				proto_tree_add_item_ret_string(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA, pinfo->pool, &query_string);
+				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", query_string);
 				offset += string_length;
 
 				/* Query parameters */
@@ -1461,8 +1463,9 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 		switch (opcode) {
 			case CQL_OPCODE_ERROR:
 				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message ERROR");
-
-				proto_tree_add_item(cql_subtree, hf_cql_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+				guint32 error_code;
+				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
+				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (0x%x)", val_to_str(error_code, cql_error_names, "Unknown error code"), error_code);
 				offset += 4;
 
 				/* string  */
@@ -1530,6 +1533,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				}
 
 				proto_tree_add_item_ret_int(cql_subtree, hf_cql_result_kind, tvb, offset, 4, ENC_BIG_ENDIAN, &result_kind);
+				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(result_kind, cql_result_kind_names, "Unknown kind"));
 				offset += 4;
 
 				switch (result_kind) {
@@ -1578,6 +1582,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 							expert_add_info(pinfo, ti, &ei_cql_unexpected_negative_value);
 							return tvb_reported_length(tvb);
 						}
+						col_append_fstr(pinfo->cinfo, COL_INFO, " (%d rows)", result_rows_row_count);
 						offset += 4;
 
 						if (result_rows_columns_count) {
