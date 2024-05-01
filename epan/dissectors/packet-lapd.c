@@ -567,10 +567,10 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 f
 			}
 		}
 	}
-	set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(dstname) + 1, dstname);
-	set_address(&pinfo->src, AT_STRINGZ, (int)strlen(dstname) + 1, dstname);
-	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, srcname);
-	col_set_str(pinfo->cinfo, COL_RES_DL_DST, dstname);
+	set_address(&pinfo->dl_dst, AT_STRINGZ, (int)strlen(dstname) + 1, dstname);
+	set_address(&pinfo->dl_src, AT_STRINGZ, (int)strlen(srcname) + 1, srcname);
+	copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+	copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 
 	if (tree) {
 		proto_item *direction_ti;
