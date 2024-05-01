@@ -1403,7 +1403,7 @@ Dot11DecryptWepMng(
             memset(wep_key, 0, sizeof(wep_key));
             memcpy(try_data, decrypt_data, *decrypt_len);
 
-            /* Costruct the WEP seed: copy the IV in first 3 bytes and then the WEP key (refer to 802-11i-2004, 8.2.1.4.3, pag. 36) */
+            /* Construct the WEP seed: copy the IV in first 3 bytes and then the WEP key (refer to 802-11i-2004, 8.2.1.4.3, pag. 36) */
             memcpy(wep_key, try_data+mac_header_len, DOT11DECRYPT_WEP_IVLEN);
             keylen=tmp_key->KeyData.Wep.WepKeyLen;
             memcpy(wep_key+DOT11DECRYPT_WEP_IVLEN, tmp_key->KeyData.Wep.WepKey, keylen);
@@ -1592,7 +1592,7 @@ Dot11DecryptRsna4WHandshake(
 
     /* TODO consider key-index */
 
-    /* TODO considera Deauthentications */
+    /* TODO consider Deauthentications */
 
     ws_debug("4-way handshake...");
 

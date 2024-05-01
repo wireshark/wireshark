@@ -2803,7 +2803,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				/* add subtree */
 				wimax_cryptographic_suite_list_decoder(tvb_new_subset_length(tvb, offset, tlv_len), pinfo, tlv_tree);
 			break;
-#if 0 /* rserved by IEE 802.16E */
+#if 0 /* reserved by IEE 802.16E */
 			case PKM_ATTR_VERSION:
 				proto_tree_add_item(tree, hf_pkm_msg_version, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;

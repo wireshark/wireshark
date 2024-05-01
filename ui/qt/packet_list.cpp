@@ -1831,7 +1831,7 @@ void PacketList::sectionResized(int col, int, int new_width)
         // visible.
         //
         // Don't set column width when columns changed or setting column
-        // visibility because we may get a sectionReized() from QTreeView
+        // visibility because we may get a sectionResized() from QTreeView
         // with values from a old columns layout.
         //
         // Don't set column width when hiding a column.

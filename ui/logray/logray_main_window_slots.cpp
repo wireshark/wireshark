@@ -385,7 +385,7 @@ void LograyMainWindow::updateRecentActions()
     main_ui_->actionGoAutoScroll->setChecked(recent.capture_auto_scroll);
 }
 
-// Don't connect to this directly. Connect to or emit fiterAction(...) instead.
+// Don't connect to this directly. Connect to or emit filterAction(...) instead.
 void LograyMainWindow::queuedFilterAction(QString action_filter, FilterAction::Action action, FilterAction::ActionType type)
 {
     QString cur_filter, new_filter;

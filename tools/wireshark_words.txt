@@ -414,6 +414,7 @@ datetime
 daysofweek
 dccreq
 dcerpc
+dcname
 dct3trace
 deact
 deactivated
@@ -435,6 +436,7 @@ decapsulation
 decca
 decentralization
 dechunk
+decimals
 decnet
 decompressed
 decompressing
@@ -681,6 +683,7 @@ failover
 falco
 falcodump
 falcosecurity
+fallthru
 fastcom
 fastip
 fastmsg
@@ -719,6 +722,7 @@ frametype
 frcrpt
 freebsd
 frontend
+fruid
 fsctl
 ftenum
 ftype
@@ -748,6 +752,7 @@ getgroupinfo
 getimageinfo
 getnext
 getopt
+getset
 getsetinfo
 getter
 getters
@@ -845,6 +850,7 @@ iface
 ifconfig
 ifdef
 ifname
+iftype
 ikev2
 illuminance
 imeisv
@@ -894,7 +900,10 @@ instantiate
 instantiated
 instantiation
 instdir
+instrmnt
+instrmt
 instrumented
+intcon
 intensities
 interferer
 interleaving
@@ -977,11 +986,13 @@ keyring
 keyset
 keytab
 knxip
+l1sync
 l2cap
 l2vpn
 l3vpn
 laggy
 lanalyzer
+lanka
 latencies
 lbmpdm
 lcgid
@@ -1074,6 +1085,7 @@ metadata
 meteorological
 metermod
 México
+mfgfield
 mgmtmsg
 microapp
 microbit
@@ -1291,6 +1303,7 @@ ontime
 opcode
 opcodes
 opcua
+openfd
 opengl
 openssh
 openssl
@@ -1352,6 +1365,7 @@ pcmax
 pcmaxc
 pcrepattern
 pdcch
+pdelay
 pdsch
 pdustatus
 peeraddr
@@ -1369,6 +1383,7 @@ phasor
 phasors
 phich
 phonebook
+phymod
 physcellid
 picmg
 pinfo
@@ -1574,6 +1589,7 @@ reinitialized
 reinitializing
 reinjected
 reinjection
+reint
 reinvoke
 rekey
 rekeying
@@ -1736,6 +1752,7 @@ sessionid
 sessionkey
 setattr
 setcap
+setkey
 setuid
 severities
 sfiocr
@@ -1751,6 +1768,7 @@ sharkd
 shenzhen
 shomiti
 shortstr
+showtechnic
 shtdn
 siapp
 sidelink
@@ -1880,6 +1898,7 @@ sudan
 superseding
 superset
 suppfeat
+svalidator
 svcparam
 sverige
 svhdx
@@ -2282,6 +2301,7 @@ xetra
 xferext
 xferflags
 xferstatus
+xhtml
 xmlns
 xsltproc
 xtreme

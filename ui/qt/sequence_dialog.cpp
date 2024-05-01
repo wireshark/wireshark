@@ -502,7 +502,7 @@ void SequenceDialog::exportDiagram()
         QCustomPlot *sp = ui->sequencePlot;
         QCPRange old_yrange = sp->yAxis->range();
         QCPRange old_xrange = sp->xAxis2->range();
-        // For the horizonal aspect, we'll display all the nodes.
+        // For the horizontal aspect, we'll display all the nodes.
         // Nodes can excluded by filtering (hiding nodes is in the todo list.)
         // Use the current width of a node as determined by the user zooming
         // with Key_Plus and Key_Minus, multiply that by the number of nodes,
@@ -625,7 +625,7 @@ void SequenceDialog::panAxes(int x_pixels, int y_pixels)
     }
 
     if (sp->yAxis->rangeReversed()) {
-        // For reversed axes, lower still references the mathemathetically
+        // For reversed axes, lower still references the mathematically
         // smaller number than upper, so reverse the direction.
         y_pixels = -y_pixels;
     }

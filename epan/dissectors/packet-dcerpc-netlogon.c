@@ -6314,7 +6314,7 @@ netlogon_dissect_ServerCapabilities(tvbuff_t *tvb, int offset,
     if(parent_tree){
         tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
                                       ett_CAPABILITIES, &item,
-                                      "Capabitilies");
+                                      "Capabilities");
     }
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
