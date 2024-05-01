@@ -2790,12 +2790,12 @@ dissect_zbee_tlvs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
     guint8       length;
     unsigned     recursion_depth = p_get_proto_depth(pinfo, proto_zbee_tlv);
 
-   if (++recursion_depth >= ZBEE_TLV_MAX_RECURSION_DEPTH) {
-      proto_tree_add_expert(tree, pinfo, &ei_zbee_tlv_max_recursion_depth_reached, tvb, 0, 0);
-      return tvb_reported_length_remaining(tvb, offset);
-   }
+    if (++recursion_depth >= ZBEE_TLV_MAX_RECURSION_DEPTH) {
+        proto_tree_add_expert(tree, pinfo, &ei_zbee_tlv_max_recursion_depth_reached, tvb, 0, 0);
+        return offset;
+    }
 
-   p_set_proto_depth(pinfo, proto_zbee_tlv, recursion_depth);
+    p_set_proto_depth(pinfo, proto_zbee_tlv, recursion_depth);
 
     while (tvb_bytes_exist(tvb, offset, ZBEE_TLV_HEADER_LENGTH)) {
         length = tvb_get_guint8(tvb, offset + 1) + 1;
