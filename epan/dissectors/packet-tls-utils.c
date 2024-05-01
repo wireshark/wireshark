@@ -11602,6 +11602,7 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         break;
     case KEX_ECC_SM2: /* GB/T 38636 */
         dissect_ssl3_hnd_srv_keyex_ecc_sm2(hf, tvb, pinfo, tree, offset, offset_end, session->version);
+        break;
     case KEX_SRP_SHA: /* RFC 5054; srp: ServerSRPParams, Signature */
     case KEX_SRP_SHA_DSS:
     case KEX_SRP_SHA_RSA:
