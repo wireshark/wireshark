@@ -210,6 +210,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     loadGeometry(parent.width(), parent.height() * 4 / 5);
 
+    if (cf.isValid() && cf.displayFilter().length() > 0) {
+        ui->displayFilterCheckBox->setChecked(true);
+    }
+
+    connect(ui->displayFilterCheckBox, &QCheckBox::toggled, this, &SequenceDialog::displayFilterCheckBoxToggled);
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(hScrollBarChanged(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vScrollBarChanged(int)));
     connect(sp->xAxis2, SIGNAL(rangeChanged(QCPRange)), this, SLOT(xAxisChanged(QCPRange)));
@@ -719,7 +724,7 @@ void SequenceDialog::goToAdjacentPacket(bool next)
     }
 }
 
-void SequenceDialog::on_displayFilterCheckBox_toggled(bool)
+void SequenceDialog::displayFilterCheckBoxToggled(bool)
 {
     fillDiagram();
 }
