@@ -11518,6 +11518,10 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         break;
     case KEX_DHE_PSK: /* RFC 4279; diffie_hellman_psk: psk_identity, ClientDiffieHellmanPublic */
         /* XXX: implement support for DHE_PSK */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, length,
+                               "DHE_PSK ciphersuites (RFC 4279) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_ECDH_ANON: /* RFC 4492; ec_diffie_hellman: ClientECDiffieHellmanPublic */
     case KEX_ECDH_ECDSA:
@@ -11528,9 +11532,17 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         break;
     case KEX_ECDHE_PSK: /* RFC 5489; ec_diffie_hellman_psk: psk_identity, ClientECDiffieHellmanPublic */
         /* XXX: implement support for ECDHE_PSK */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, length,
+                               "ECDHE_PSK ciphersuites (RFC 5489) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_KRB5: /* RFC 2712; krb5: KerberosWrapper */
         /* XXX: implement support for KRB5 */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, length,
+                               "Kerberos ciphersuites (RFC 2712) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_PSK: /* RFC 4279; psk: psk_identity */
         dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, length);
@@ -11545,6 +11557,10 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case KEX_SRP_SHA_DSS:
     case KEX_SRP_SHA_RSA:
         /* XXX: implement support for SRP_SHA* */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, length,
+                               "SRP_SHA ciphersuites (RFC 5054) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_ECJPAKE: /* https://tools.ietf.org/html/draft-cragie-tls-ecjpake-01 used in Thread Commissioning */
         dissect_ssl3_hnd_cli_keyex_ecjpake(hf, tvb, tree, offset, length);
@@ -11553,7 +11569,8 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         dissect_ssl3_hnd_cli_keyex_ecc_sm2(hf, tvb, tree, offset, length);
         break;
     default:
-        /* XXX: add info message for not supported KEX algo */
+        proto_tree_add_expert(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                              tvb, offset, length);
         break;
     }
 }
@@ -11569,7 +11586,8 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         break;
     case KEX_DH_DSS: /* RFC 5246; not allowed */
     case KEX_DH_RSA:
-        /* XXX: add error on not allowed KEX */
+        proto_tree_add_expert(tree, NULL, &hf->ei.hs_srv_keyex_illegal,
+                              tvb, offset, offset_end - offset);
         break;
     case KEX_DHE_DSS: /* RFC 5246; dhe_dss, dhe_rsa: ServerDHParams, Signature */
     case KEX_DHE_RSA:
@@ -11577,12 +11595,20 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         break;
     case KEX_DHE_PSK: /* RFC 4279; diffie_hellman_psk: psk_identity_hint, ServerDHParams */
         /* XXX: implement support for DHE_PSK */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, offset_end - offset,
+                               "DHE_PSK ciphersuites (RFC 4279) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_ECDH_ANON: /* RFC 4492; ec_diffie_hellman: ServerECDHParams (without signature for anon) */
         dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset, offset_end, session->version, TRUE);
         break;
     case KEX_ECDHE_PSK: /* RFC 5489; psk_identity_hint, ServerECDHParams */
         /* XXX: implement support for ECDHE_PSK */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, offset_end - offset,
+                               "ECDHE_PSK ciphersuites (RFC 5489) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_ECDH_ECDSA: /* RFC 4492; ec_diffie_hellman: ServerECDHParams, Signature */
     case KEX_ECDH_RSA:
@@ -11591,7 +11617,8 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset, offset_end, session->version, FALSE);
         break;
     case KEX_KRB5: /* RFC 2712; not allowed */
-        /* XXX: add error on not allowed KEX */
+        proto_tree_add_expert(tree, NULL, &hf->ei.hs_srv_keyex_illegal,
+                              tvb, offset, offset_end - offset);
         break;
     case KEX_PSK: /* RFC 4279; psk, rsa: psk_identity*/
     case KEX_RSA_PSK:
@@ -11607,12 +11634,17 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
     case KEX_SRP_SHA_DSS:
     case KEX_SRP_SHA_RSA:
         /* XXX: implement support for SRP_SHA* */
+        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                     tvb, offset, offset_end - offset,
+                               "SRP_SHA ciphersuites (RFC 5054) are not implemented, contact Wireshark"
+                               " developers if you want them to be supported");
         break;
     case KEX_ECJPAKE: /* https://tools.ietf.org/html/draft-cragie-tls-ecjpake-01 used in Thread Commissioning */
         dissect_ssl3_hnd_srv_keyex_ecjpake(hf, tvb, tree, offset, offset_end);
         break;
     default:
-        /* XXX: add info message for not supported KEX algo */
+        proto_tree_add_expert(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                              tvb, offset, offset_end - offset);
         break;
     }
 }

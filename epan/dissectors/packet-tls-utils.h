@@ -1175,6 +1175,8 @@ typedef struct ssl_common_dissect {
         expert_field malformed_trailing_data;
 
         expert_field hs_ext_cert_status_undecoded;
+        expert_field hs_ciphersuite_undecoded;
+        expert_field hs_srv_keyex_illegal;
         expert_field resumed;
         expert_field record_length_invalid;
         expert_field decompression_error;
@@ -2790,6 +2792,14 @@ ssl_common_dissect_t name;
     { & name .ei.hs_ext_cert_status_undecoded, \
         { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE, \
         "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
+    }, \
+    { & name .ei.hs_ciphersuite_undecoded, \
+        { prefix ".handshake.ciphersuite.undecoded", PI_UNDECODED, PI_NOTE, \
+        "Ciphersuite not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
+    }, \
+    { & name .ei.hs_srv_keyex_illegal, \
+        { prefix ".handshake.server_keyex_illegal", PI_PROTOCOL, PI_WARN, \
+        "It is not legal to send the ServerKeyExchange message for this ciphersuite", EXPFILL } \
     }, \
     { & name .ei.resumed, \
         { prefix ".resumed", PI_SEQUENCE, PI_NOTE, \
