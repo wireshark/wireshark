@@ -440,6 +440,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ipmi.h
 	packet-ipsec.h
 	packet-ipx.h
+	packet-irdma.h
 	packet-isakmp.h
 	packet-isis.h
 	packet-isis-clv.h
@@ -1359,6 +1360,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipxwan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-irc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-irdma.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-isakmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iscsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-isdn.c
