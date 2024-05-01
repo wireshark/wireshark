@@ -70,6 +70,7 @@ ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWi
 
     offset_normal_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
     offset_field_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.65);
+    ctx_menu_.setToolTipsVisible(true);
 
     window()->winId(); // Required for screenChanged? https://phabricator.kde.org/D20171
     connect(window()->windowHandle(), &QWindow::screenChanged, viewport(), [=](const QScreen *) { viewport()->update(); });

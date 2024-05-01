@@ -770,6 +770,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
     submenu = new QMenu(main_menu_item->title(), ctx_menu);
+    submenu->setToolTipsVisible(true);
     ctx_menu->addMenu(submenu);
 
     QAction * action = submenu->addAction(tr("Summary as Text"));

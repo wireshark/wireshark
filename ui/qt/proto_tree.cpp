@@ -335,6 +335,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     }
 
     submenu = ctx_menu->addMenu(tr("Copy"));
+    submenu->setToolTipsVisible(true);
     submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
     action = submenu->addAction(tr("All Visible Selected Tree Items"), this, SLOT(ctxCopyVisibleItems()));
     action->setProperty("selected_tree", QVariant::fromValue(true));
