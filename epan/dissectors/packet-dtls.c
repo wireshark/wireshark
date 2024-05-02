@@ -507,37 +507,27 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     {
       /* first try to dispatch off the cached version
        * known to be associated with the conversation
+       *
+       * In fact, all versions of DTLS have the same dissector. Note as
+       * we don't set DTLS as the conversation dissector, either
+       * looks_like_dtls() passed in dissect_dtls_heur(), or this has
+       * been set to DTLS explicitly via the port or some other method,
+       * so we already think this is DTLS. We don't expect Continuation
+       * Data over UDP datagrams (unlike TCP segments), but we'll check
+       * the content type in dissect_dtls_record and mark as Continuation
+       * Data if an unknown type, so the only thing calling looks_like_dtls()
+       * here would do is additionally verify the legacy_record_version -
+       * which MUST be ignored for all purposes per RFC 9147.
        */
       switch(session->version) {
       case DTLSV1DOT0_VERSION:
       case DTLSV1DOT0_OPENSSL_VERSION:
       case DTLSV1DOT2_VERSION:
       case DTLSV1DOT3_VERSION:
+      default:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
                                      offset, session, is_from_server,
                                      ssl_session, curr_layer_num_ssl);
-        break;
-
-        /* that failed, so apply some heuristics based
-         * on this individual packet
-         */
-      default:
-        if (looks_like_dtls(tvb, offset))
-          {
-            /* looks like dtls */
-            offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                         offset, session, is_from_server,
-                                         ssl_session, curr_layer_num_ssl);
-          }
-        else
-          {
-            /* looks like something unknown, so lump into
-             * continuation data
-             */
-            offset = tvb_reported_length(tvb);
-            col_append_sep_str(pinfo->cinfo, COL_INFO,
-                               NULL, "Continuation Data");
-          }
         break;
       }
     }
