@@ -3027,7 +3027,9 @@ Dot11DecryptTDLSDeriveKey(
     anonce = &data[offset_fte + 20];
     snonce = &data[offset_fte + 52];
 
-    gcry_md_open (&sha256_handle, GCRY_MD_SHA256, 0);
+    if (gcry_md_open (&sha256_handle, GCRY_MD_SHA256, 0)) {
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
     if (memcmp(anonce, snonce, DOT11DECRYPT_WPA_NONCE_LEN) < 0) {
         gcry_md_write(sha256_handle, anonce, DOT11DECRYPT_WPA_NONCE_LEN);
         gcry_md_write(sha256_handle, snonce, DOT11DECRYPT_WPA_NONCE_LEN);

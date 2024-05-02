@@ -1754,7 +1754,11 @@ static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
 	 * "NIST Special Publication 800-108" section 5.1
 	 * using hmac-sha256.
 	 */
-	gcry_md_open(&hd, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
+	 /* XXX This routine should indicate a success/failure indication, so that the failure of gcry_md_open()
+	  * can be reported to the caller.
+	  */
+	if (gcry_md_open(&hd, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC) != 0)
+            return;
 	gcry_md_setkey(hd, KI, KI_len);
 
 	memset(buf, 0, sizeof(buf));

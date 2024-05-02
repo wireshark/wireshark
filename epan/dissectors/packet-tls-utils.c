@@ -3122,10 +3122,19 @@ ssl_md_reset(SSL_MD* md)
 #define SSL_SHA_CTX gcry_md_hd_t
 #define SSL_MD5_CTX gcry_md_hd_t
 
-static inline void
+static inline gint
 ssl_sha_init(SSL_SHA_CTX* md)
 {
-    gcry_md_open(md,GCRY_MD_SHA1, 0);
+    gcry_error_t  err;
+    const char   *err_str, *err_src;
+    err = gcry_md_open(md, GCRY_MD_SHA1, 0);
+    if (err != 0) {
+        err_str = gcry_strerror(err);
+        err_src = gcry_strsource(err);
+        ssl_debug_printf("ssl_sha_init(): gcry_md_open failed %s/%s", err_str, err_src);
+        return -1;
+    }
+    return 0;
 }
 static inline void
 ssl_sha_update(SSL_SHA_CTX* md, guchar* data, gint len)
@@ -3154,7 +3163,16 @@ ssl_sha_cleanup(SSL_SHA_CTX* md)
 static inline gint
 ssl_md5_init(SSL_MD5_CTX* md)
 {
-    return gcry_md_open(md,GCRY_MD_MD5, 0);
+    gcry_error_t  err;
+    const char   *err_str, *err_src;
+    err = gcry_md_open(md,GCRY_MD_MD5, 0);
+    if (err != 0) {
+        err_str = gcry_strerror(err);
+        err_src = gcry_strsource(err);
+        ssl_debug_printf("ssl_md5_init(): gcry_md_open failed %s/%s", err_str, err_src);
+        return -1;
+    }
+    return 0;
 }
 static inline void
 ssl_md5_update(SSL_MD5_CTX* md, guchar* data, gint len)
@@ -3847,14 +3865,16 @@ tls12_prf(gint md, StringInfo* secret, const gchar* usage,
     return FALSE;
 }
 
-static void
+static bool
 ssl3_generate_export_iv(StringInfo *r1, StringInfo *r2,
                         StringInfo *out, guint out_len)
 {
     SSL_MD5_CTX md5;
     guint8      tmp[16];
 
-    ssl_md5_init(&md5);
+    if (ssl_md5_init(&md5) != 0) {
+        return FALSE;
+    }
     ssl_md5_update(&md5,r1->data,r1->data_len);
     ssl_md5_update(&md5,r2->data,r2->data_len);
     ssl_md5_final(tmp,&md5);
@@ -3863,6 +3883,7 @@ ssl3_generate_export_iv(StringInfo *r1, StringInfo *r2,
     DISSECTOR_ASSERT(out_len <= sizeof(tmp));
     ssl_data_set(out, tmp, out_len);
     ssl_print_string("export iv", out);
+    return TRUE;
 }
 
 static gboolean
@@ -3875,8 +3896,13 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
     gint         i = 0,j;
     guint8       buf[20];
 
-    ssl_sha_init(&sha);
-    ssl_md5_init(&md5);
+    if (ssl_sha_init(&sha) != 0) {
+        return FALSE;
+    }
+    if (ssl_md5_init(&md5) != 0) {
+        ssl_sha_cleanup(&sha);
+        return FALSE;
+    }
     for (off = 0; off < out_len; off += 16) {
         guchar outbuf[16];
         i++;
@@ -3963,12 +3989,14 @@ static gint tls_handshake_hash(SslDecryptSession* ssl, StringInfo* out)
     if (ssl_data_alloc(out, 36) < 0)
         return -1;
 
-    ssl_md5_init(&md5);
+    if (ssl_md5_init(&md5) != 0)
+        return -1;
     ssl_md5_update(&md5,ssl->handshake_data.data,ssl->handshake_data.data_len);
     ssl_md5_final(out->data,&md5);
     ssl_md5_cleanup(&md5);
 
-    ssl_sha_init(&sha);
+    if (ssl_sha_init(&sha) != 0)
+        return -1;
     ssl_sha_update(&sha,ssl->handshake_data.data,ssl->handshake_data.data_len);
     ssl_sha_final(out->data+16,&sha);
     ssl_sha_cleanup(&sha);
@@ -3981,7 +4009,8 @@ static gint tls12_handshake_hash(SslDecryptSession* ssl, gint md, StringInfo* ou
     guint8 tmp[48];
     guint  len;
 
-    ssl_md_init(&mc, md);
+    if (ssl_md_init(&mc, md) != 0)
+        return -1;
     ssl_md_update(&mc,ssl->handshake_data.data,ssl->handshake_data.data_len);
     ssl_md_final(&mc, tmp, &len);
     ssl_md_cleanup(&mc);
@@ -4602,11 +4631,15 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 iv_s.data = _iv_s;
 
                 ssl_debug_printf("%s ssl3_generate_export_iv\n", G_STRFUNC);
-                ssl3_generate_export_iv(&ssl_session->client_random,
-                        &ssl_session->server_random, &iv_c, write_iv_len);
+                if (!ssl3_generate_export_iv(&ssl_session->client_random,
+                             &ssl_session->server_random, &iv_c, write_iv_len)) {
+                    goto fail;
+                }
                 ssl_debug_printf("%s ssl3_generate_export_iv(2)\n", G_STRFUNC);
-                ssl3_generate_export_iv(&ssl_session->server_random,
-                        &ssl_session->client_random, &iv_s, write_iv_len);
+                if (!ssl3_generate_export_iv(&ssl_session->server_random,
+                             &ssl_session->client_random, &iv_s, write_iv_len)) {
+                    goto fail;
+                }
             }
             else{
                 guint8 _iv_block[MAX_BLOCK_SIZE * 2];
@@ -4641,7 +4674,8 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             SSL_MD5_CTX md5;
             ssl_debug_printf("%s MD5(client_random)\n", G_STRFUNC);
 
-            ssl_md5_init(&md5);
+            if (ssl_md5_init(&md5) != 0)
+                goto fail;
             ssl_md5_update(&md5,c_wk,encr_key_len);
             ssl_md5_update(&md5,ssl_session->client_random.data,
                 ssl_session->client_random.data_len);
@@ -4651,7 +4685,8 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             ssl_md5_cleanup(&md5);
             c_wk=_key_c;
 
-            ssl_md5_init(&md5);
+            if (ssl_md5_init(&md5) != 0)
+                goto fail;
             ssl_debug_printf("%s MD5(server_random)\n", G_STRFUNC);
             ssl_md5_update(&md5,s_wk,encr_key_len);
             ssl_md5_update(&md5,ssl_session->server_random.data,
