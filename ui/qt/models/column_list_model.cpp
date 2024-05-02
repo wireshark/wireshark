@@ -335,7 +335,7 @@ void ColumnListModel::populate()
 
 QVariant ColumnListModel::data(const QModelIndex &index, int role) const
 {
-    if (! index.isValid() || index.column() >= store_.count())
+    if (! index.isValid() || index.row() >= store_.count())
         return QVariant();
 
     ListElement ne = store_.at(index.row());
