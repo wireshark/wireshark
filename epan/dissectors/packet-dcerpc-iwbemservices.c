@@ -22,40 +22,40 @@ void proto_register_dcerpc_IWbemServices(void);
 void proto_reg_handoff_dcerpc_IWbemServices(void);
 
 /* Ett declarations */
-static gint ett_IWbemServices_GetObject_orpcthis = -1;
-static gint ett_IWbemServices_GetObject_orpcthat = -1;
-static gint ett_IWbemServices_ExecMethod_orpcthis = -1;
-static gint ett_IWbemServices_ExecMethod_orpcthat = -1;
-static gint ett_dcerpc_IWbemServices = -1;
-static gint ett_IWbemServices_ORPCTHIS = -1;
-static gint ett_IWbemServices_ORPCTHAT = -1;
-static gint ett_IWbemServices_IWbemCallResult = -1;
-static gint ett_IWbemServices_IWbemClassObject = -1;
-static gint ett_IWbemServices_MInterfacePointer = -1;
-static gint ett_IWbemServices_IWbemContext = -1;
+static gint ett_IWbemServices_GetObject_orpcthis;
+static gint ett_IWbemServices_GetObject_orpcthat;
+static gint ett_IWbemServices_ExecMethod_orpcthis;
+static gint ett_IWbemServices_ExecMethod_orpcthat;
+static gint ett_dcerpc_IWbemServices;
+static gint ett_IWbemServices_ORPCTHIS;
+static gint ett_IWbemServices_ORPCTHAT;
+static gint ett_IWbemServices_IWbemCallResult;
+static gint ett_IWbemServices_IWbemClassObject;
+static gint ett_IWbemServices_MInterfacePointer;
+static gint ett_IWbemServices_IWbemContext;
 
 
 /* Header field declarations */
-static gint hf_IWbemServices_ExecMethod_lFlags = -1;
-static gint hf_IWbemServices_ExecMethod_orpcthat = -1;
-static gint hf_IWbemServices_ExecMethod_orpcthis = -1;
-static gint hf_IWbemServices_ExecMethod_strMethodName = -1;
-static gint hf_IWbemServices_ExecMethod_strObjectPath = -1;
-static gint hf_IWbemServices_GetObject_lFlags = -1;
-static gint hf_IWbemServices_GetObject_orpcthat = -1;
-static gint hf_IWbemServices_GetObject_orpcthis = -1;
-static gint hf_IWbemServices_GetObject_pCtx = -1;
-static gint hf_IWbemServices_GetObject_ppCallResult = -1;
-static gint hf_IWbemServices_GetObject_ppObject = -1;
-static gint hf_IWbemServices_GetObject_strObjectPath = -1;
-static gint hf_IWbemServices_IWbemClassObject_count = -1;
-static gint hf_IWbemServices_IWbemClassObject_objects = -1;
-static gint hf_IWbemServices_IWbemContext_intPtr = -1;
-static gint hf_IWbemServices_IWbemContext_u = -1;
-static gint hf_IWbemServices_MInterfacePointer_abData = -1;
-static gint hf_IWbemServices_MInterfacePointer_ulCntData = -1;
-static gint hf_IWbemServices_opnum = -1;
-static gint hf_IWbemServices_werror = -1;
+static gint hf_IWbemServices_ExecMethod_lFlags;
+static gint hf_IWbemServices_ExecMethod_orpcthat;
+static gint hf_IWbemServices_ExecMethod_orpcthis;
+static gint hf_IWbemServices_ExecMethod_strMethodName;
+static gint hf_IWbemServices_ExecMethod_strObjectPath;
+static gint hf_IWbemServices_GetObject_lFlags;
+static gint hf_IWbemServices_GetObject_orpcthat;
+static gint hf_IWbemServices_GetObject_orpcthis;
+static gint hf_IWbemServices_GetObject_pCtx;
+static gint hf_IWbemServices_GetObject_ppCallResult;
+static gint hf_IWbemServices_GetObject_ppObject;
+static gint hf_IWbemServices_GetObject_strObjectPath;
+static gint hf_IWbemServices_IWbemClassObject_count;
+static gint hf_IWbemServices_IWbemClassObject_objects;
+static gint hf_IWbemServices_IWbemContext_intPtr;
+static gint hf_IWbemServices_IWbemContext_u;
+static gint hf_IWbemServices_MInterfacePointer_abData;
+static gint hf_IWbemServices_MInterfacePointer_ulCntData;
+static gint hf_IWbemServices_opnum;
+static gint hf_IWbemServices_werror;
 
 static gint proto_dcerpc_IWbemServices = -1;
 /* Version information */

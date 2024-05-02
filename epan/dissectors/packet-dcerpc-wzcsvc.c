@@ -22,11 +22,11 @@ void proto_register_dcerpc_wzcsvc(void);
 void proto_reg_handoff_dcerpc_wzcsvc(void);
 
 /* Ett declarations */
-static gint ett_dcerpc_wzcsvc = -1;
+static gint ett_dcerpc_wzcsvc;
 
 
 /* Header field declarations */
-static gint hf_wzcsvc_opnum = -1;
+static gint hf_wzcsvc_opnum;
 
 static gint proto_dcerpc_wzcsvc = -1;
 /* Version information */

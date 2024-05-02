@@ -22,27 +22,27 @@ void proto_register_dcerpc_misc(void);
 void proto_reg_handoff_dcerpc_misc(void);
 
 /* Ett declarations */
-static gint ett_dcerpc_misc = -1;
-static gint ett_misc_GUID = -1;
-static gint ett_misc_ndr_syntax_id = -1;
-static gint ett_misc_policy_handle = -1;
-static gint ett_misc_KRB5_EDATA_NTSTATUS = -1;
+static gint ett_dcerpc_misc;
+static gint ett_misc_GUID;
+static gint ett_misc_ndr_syntax_id;
+static gint ett_misc_policy_handle;
+static gint ett_misc_KRB5_EDATA_NTSTATUS;
 
 
 /* Header field declarations */
-static gint hf_misc_GUID_clock_seq = -1;
-static gint hf_misc_GUID_node = -1;
-static gint hf_misc_GUID_time_hi_and_version = -1;
-static gint hf_misc_GUID_time_low = -1;
-static gint hf_misc_GUID_time_mid = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_ntstatus = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown1 = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown2 = -1;
-static gint hf_misc_ndr_syntax_id_if_version = -1;
-static gint hf_misc_ndr_syntax_id_uuid = -1;
-static gint hf_misc_opnum = -1;
-static gint hf_misc_policy_handle_handle_type = -1;
-static gint hf_misc_policy_handle_uuid = -1;
+static gint hf_misc_GUID_clock_seq;
+static gint hf_misc_GUID_node;
+static gint hf_misc_GUID_time_hi_and_version;
+static gint hf_misc_GUID_time_low;
+static gint hf_misc_GUID_time_mid;
+static gint hf_misc_KRB5_EDATA_NTSTATUS_ntstatus;
+static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown1;
+static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown2;
+static gint hf_misc_ndr_syntax_id_if_version;
+static gint hf_misc_ndr_syntax_id_uuid;
+static gint hf_misc_opnum;
+static gint hf_misc_policy_handle_handle_type;
+static gint hf_misc_policy_handle_uuid;
 
 static gint proto_dcerpc_misc = -1;
 /* Version information */

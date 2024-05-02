@@ -22,26 +22,26 @@ void proto_register_dcerpc_IWbemLoginClientIDEx(void);
 void proto_reg_handoff_dcerpc_IWbemLoginClientIDEx(void);
 
 /* Ett declarations */
-static gint ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis = -1;
-static gint ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat = -1;
-static gint ett_dcerpc_IWbemLoginClientIDEx = -1;
-static gint ett_IWbemLoginClientIDEx_ORPCTHIS = -1;
-static gint ett_IWbemLoginClientIDEx_ORPCTHAT = -1;
-static gint ett_IWbemLoginClientIDEx_FILETIME = -1;
+static gint ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
+static gint ett_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat;
+static gint ett_dcerpc_IWbemLoginClientIDEx;
+static gint ett_IWbemLoginClientIDEx_ORPCTHIS;
+static gint ett_IWbemLoginClientIDEx_ORPCTHAT;
+static gint ett_IWbemLoginClientIDEx_FILETIME;
 
 
 /* Header field declarations */
-static gint hf_IWbemLoginClientIDEx_FILETIME_dwHighDateTime = -1;
-static gint hf_IWbemLoginClientIDEx_FILETIME_dwLowDateTime = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcId = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcessCreationTime = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_Reserved = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat = -1;
-static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis = -1;
-static gint hf_IWbemLoginClientIDEx_opnum = -1;
-static gint hf_IWbemLoginClientIDEx_werror = -1;
+static gint hf_IWbemLoginClientIDEx_FILETIME_dwHighDateTime;
+static gint hf_IWbemLoginClientIDEx_FILETIME_dwLowDateTime;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachine;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientMachineFQDN;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcId;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_ClientProcessCreationTime;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_Reserved;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthat;
+static gint hf_IWbemLoginClientIDEx_SetClientInfoEx_orpcthis;
+static gint hf_IWbemLoginClientIDEx_opnum;
+static gint hf_IWbemLoginClientIDEx_werror;
 
 static gint proto_dcerpc_IWbemLoginClientIDEx = -1;
 /* Version information */

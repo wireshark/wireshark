@@ -22,27 +22,27 @@ void proto_register_dcerpc_initshutdown(void);
 void proto_reg_handoff_dcerpc_initshutdown(void);
 
 /* Ett declarations */
-static gint ett_dcerpc_initshutdown = -1;
-static gint ett_initshutdown_initshutdown_ReasonFlags = -1;
+static gint ett_dcerpc_initshutdown;
+static gint ett_initshutdown_initshutdown_ReasonFlags;
 
 
 /* Header field declarations */
-static gint hf_initshutdown_initshutdown_Abort_server = -1;
-static gint hf_initshutdown_initshutdown_InitEx_do_reboot = -1;
-static gint hf_initshutdown_initshutdown_InitEx_force_apps = -1;
-static gint hf_initshutdown_initshutdown_InitEx_hostname = -1;
-static gint hf_initshutdown_initshutdown_InitEx_message = -1;
-static gint hf_initshutdown_initshutdown_InitEx_reason = -1;
-static gint hf_initshutdown_initshutdown_InitEx_timeout = -1;
-static gint hf_initshutdown_initshutdown_Init_do_reboot = -1;
-static gint hf_initshutdown_initshutdown_Init_force_apps = -1;
-static gint hf_initshutdown_initshutdown_Init_hostname = -1;
-static gint hf_initshutdown_initshutdown_Init_message = -1;
-static gint hf_initshutdown_initshutdown_Init_timeout = -1;
-static gint hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_PLANNED = -1;
-static gint hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_USER_DEFINED = -1;
-static gint hf_initshutdown_opnum = -1;
-static gint hf_initshutdown_werror = -1;
+static gint hf_initshutdown_initshutdown_Abort_server;
+static gint hf_initshutdown_initshutdown_InitEx_do_reboot;
+static gint hf_initshutdown_initshutdown_InitEx_force_apps;
+static gint hf_initshutdown_initshutdown_InitEx_hostname;
+static gint hf_initshutdown_initshutdown_InitEx_message;
+static gint hf_initshutdown_initshutdown_InitEx_reason;
+static gint hf_initshutdown_initshutdown_InitEx_timeout;
+static gint hf_initshutdown_initshutdown_Init_do_reboot;
+static gint hf_initshutdown_initshutdown_Init_force_apps;
+static gint hf_initshutdown_initshutdown_Init_hostname;
+static gint hf_initshutdown_initshutdown_Init_message;
+static gint hf_initshutdown_initshutdown_Init_timeout;
+static gint hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_PLANNED;
+static gint hf_initshutdown_initshutdown_ReasonFlags_SHTDN_REASON_FLAG_USER_DEFINED;
+static gint hf_initshutdown_opnum;
+static gint hf_initshutdown_werror;
 
 static gint proto_dcerpc_initshutdown = -1;
 /* Version information */

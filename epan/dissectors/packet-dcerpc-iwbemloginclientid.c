@@ -22,21 +22,21 @@ void proto_register_dcerpc_IWbemLoginClientID(void);
 void proto_reg_handoff_dcerpc_IWbemLoginClientID(void);
 
 /* Ett declarations */
-static gint ett_IWbemLoginClientID_SetClientInfo_orpcthis = -1;
-static gint ett_IWbemLoginClientID_SetClientInfo_orpcthat = -1;
-static gint ett_dcerpc_IWbemLoginClientID = -1;
-static gint ett_IWbemLoginClientID_ORPCTHIS = -1;
-static gint ett_IWbemLoginClientID_ORPCTHAT = -1;
+static gint ett_IWbemLoginClientID_SetClientInfo_orpcthis;
+static gint ett_IWbemLoginClientID_SetClientInfo_orpcthat;
+static gint ett_dcerpc_IWbemLoginClientID;
+static gint ett_IWbemLoginClientID_ORPCTHIS;
+static gint ett_IWbemLoginClientID_ORPCTHAT;
 
 
 /* Header field declarations */
-static gint hf_IWbemLoginClientID_SetClientInfo_lClientProcId = -1;
-static gint hf_IWbemLoginClientID_SetClientInfo_lReserved = -1;
-static gint hf_IWbemLoginClientID_SetClientInfo_orpcthat = -1;
-static gint hf_IWbemLoginClientID_SetClientInfo_orpcthis = -1;
-static gint hf_IWbemLoginClientID_SetClientInfo_wszClientMachine = -1;
-static gint hf_IWbemLoginClientID_opnum = -1;
-static gint hf_IWbemLoginClientID_werror = -1;
+static gint hf_IWbemLoginClientID_SetClientInfo_lClientProcId;
+static gint hf_IWbemLoginClientID_SetClientInfo_lReserved;
+static gint hf_IWbemLoginClientID_SetClientInfo_orpcthat;
+static gint hf_IWbemLoginClientID_SetClientInfo_orpcthis;
+static gint hf_IWbemLoginClientID_SetClientInfo_wszClientMachine;
+static gint hf_IWbemLoginClientID_opnum;
+static gint hf_IWbemLoginClientID_werror;
 
 static gint proto_dcerpc_IWbemLoginClientID = -1;
 /* Version information */

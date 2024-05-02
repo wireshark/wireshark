@@ -1230,7 +1230,7 @@ sub DumpEttDeclaration
 	my ($ett) = @_;
 	my $res = "\n/* Ett declarations */\n";
 	foreach (@$ett) {
-		$res .= "static gint $_ = -1;\n";
+		$res .= "static gint $_;\n";
 	}
 
 	return "$res\n";
@@ -1296,7 +1296,7 @@ sub DumpHfDeclaration($)
 
 	foreach (sort(keys %{$self->{conformance}->{header_fields}}))
 	{
-		$res .= "static gint $_ = -1;\n";
+		$res .= "static gint $_;\n";
 	}
 
 	return "$res\n";

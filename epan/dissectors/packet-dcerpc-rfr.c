@@ -22,20 +22,20 @@ void proto_register_dcerpc_rfr(void);
 void proto_reg_handoff_dcerpc_rfr(void);
 
 /* Ett declarations */
-static gint ett_dcerpc_rfr = -1;
+static gint ett_dcerpc_rfr;
 
 
 /* Header field declarations */
-static gint hf_rfr_MAPISTATUS_status = -1;
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN = -1;
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN = -1;
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN = -1;
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags = -1;
-static gint hf_rfr_RfrGetNewDSA_pUserDN = -1;
-static gint hf_rfr_RfrGetNewDSA_ppszServer = -1;
-static gint hf_rfr_RfrGetNewDSA_ppszUnused = -1;
-static gint hf_rfr_RfrGetNewDSA_ulFlags = -1;
-static gint hf_rfr_opnum = -1;
+static gint hf_rfr_MAPISTATUS_status;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags;
+static gint hf_rfr_RfrGetNewDSA_pUserDN;
+static gint hf_rfr_RfrGetNewDSA_ppszServer;
+static gint hf_rfr_RfrGetNewDSA_ppszUnused;
+static gint hf_rfr_RfrGetNewDSA_ulFlags;
+static gint hf_rfr_opnum;
 
 static gint proto_dcerpc_rfr = -1;
 /* Version information */

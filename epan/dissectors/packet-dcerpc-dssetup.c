@@ -22,35 +22,35 @@ void proto_register_dcerpc_dssetup(void);
 void proto_reg_handoff_dcerpc_dssetup(void);
 
 /* Ett declarations */
-static gint ett_dcerpc_dssetup = -1;
-static gint ett_dssetup_dssetup_DsRoleFlags = -1;
-static gint ett_dssetup_dssetup_DsRolePrimaryDomInfoBasic = -1;
-static gint ett_dssetup_dssetup_DsRoleUpgradeStatus = -1;
-static gint ett_dssetup_dssetup_DsRoleOpStatus = -1;
-static gint ett_dssetup_dssetup_DsRoleInfo = -1;
+static gint ett_dcerpc_dssetup;
+static gint ett_dssetup_dssetup_DsRoleFlags;
+static gint ett_dssetup_dssetup_DsRolePrimaryDomInfoBasic;
+static gint ett_dssetup_dssetup_DsRoleUpgradeStatus;
+static gint ett_dssetup_dssetup_DsRoleOpStatus;
+static gint ett_dssetup_dssetup_DsRoleInfo;
 
 
 /* Header field declarations */
-static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DOMAIN_GUID_PRESENT = -1;
-static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_MIXED_MODE = -1;
-static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_RUNNING = -1;
-static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_UPGRADE_IN_PROGRESS = -1;
-static gint hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_info = -1;
-static gint hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_level = -1;
-static gint hf_dssetup_dssetup_DsRoleInfo_basic = -1;
-static gint hf_dssetup_dssetup_DsRoleInfo_opstatus = -1;
-static gint hf_dssetup_dssetup_DsRoleInfo_upgrade = -1;
-static gint hf_dssetup_dssetup_DsRoleOpStatus_status = -1;
-static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_dns_domain = -1;
-static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain = -1;
-static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain_guid = -1;
-static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_flags = -1;
-static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_forest = -1;
-static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_role = -1;
-static gint hf_dssetup_dssetup_DsRoleUpgradeStatus_previous_role = -1;
-static gint hf_dssetup_dssetup_DsRoleUpgradeStatus_upgrading = -1;
-static gint hf_dssetup_opnum = -1;
-static gint hf_dssetup_werror = -1;
+static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DOMAIN_GUID_PRESENT;
+static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_MIXED_MODE;
+static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_PRIMARY_DS_RUNNING;
+static gint hf_dssetup_dssetup_DsRoleFlags_DS_ROLE_UPGRADE_IN_PROGRESS;
+static gint hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_info;
+static gint hf_dssetup_dssetup_DsRoleGetPrimaryDomainInformation_level;
+static gint hf_dssetup_dssetup_DsRoleInfo_basic;
+static gint hf_dssetup_dssetup_DsRoleInfo_opstatus;
+static gint hf_dssetup_dssetup_DsRoleInfo_upgrade;
+static gint hf_dssetup_dssetup_DsRoleOpStatus_status;
+static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_dns_domain;
+static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain;
+static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_domain_guid;
+static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_flags;
+static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_forest;
+static gint hf_dssetup_dssetup_DsRolePrimaryDomInfoBasic_role;
+static gint hf_dssetup_dssetup_DsRoleUpgradeStatus_previous_role;
+static gint hf_dssetup_dssetup_DsRoleUpgradeStatus_upgrading;
+static gint hf_dssetup_opnum;
+static gint hf_dssetup_werror;
 
 static gint proto_dcerpc_dssetup = -1;
 /* Version information */
