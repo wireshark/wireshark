@@ -292,6 +292,8 @@ static void load_plugins(sinsp &inspector) {
     WS_DIR *dir;
     WS_DIRENT *file;
     char *plugin_paths[] = {
+        // XXX Falco plugins should probably be installed in a path that reflects
+        // the Falco version or its plugin API version.
         g_build_filename(get_plugins_dir(), "falco", NULL),
         g_build_filename(get_plugins_pers_dir(), "falco", NULL)
     };
@@ -970,10 +972,11 @@ int main(int argc, char **argv)
             extcap_base_register_interface(extcap_conf, iter->first.c_str(), "Falco plugin", 147, "USER0");
         }
     } else {
-        ws_warning("No source plugins found.");
+        ws_warning("Unable to load plugins.");
     }
 
     if (g_list_length(extcap_conf->interfaces) < 1) {
+        ws_debug("No source plugins found.");
         goto end;
     }
 

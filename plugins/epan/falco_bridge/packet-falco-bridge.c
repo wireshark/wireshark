@@ -1262,6 +1262,8 @@ proto_register_falcoplugin(void)
     WS_DIR *dir;
     WS_DIRENT *file;
     char *filename;
+    // XXX Falco plugins should probably be installed in a path that reflects
+    // the Falco version or its plugin API version.
     char *spdname = g_build_filename(get_plugins_dir(), "falco", NULL);
     char *ppdname = g_build_filename(get_plugins_pers_dir(), "falco", NULL);
 
