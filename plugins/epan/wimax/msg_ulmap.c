@@ -21,8 +21,9 @@
 #include "wimax_mac.h"
 #include "wimax_bits.h"
 #include "wimax_utils.h"
-
-extern	gboolean include_cor2_changes;
+#if 0
+#include "wimax_prefs.h"
+#endif
 
 static dissector_handle_t ulmap_handle;
 

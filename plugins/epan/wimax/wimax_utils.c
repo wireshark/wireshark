@@ -23,6 +23,7 @@
 #include "wimax-int.h"
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
+#include "wimax_prefs.h"
 
 #include "wimax_utils.h"
 
@@ -30,7 +31,6 @@ extern gint proto_mac_mgmt_msg_rng_req_decoder;
 extern gint proto_mac_mgmt_msg_reg_req_decoder;
 
 extern gint mac_sdu_length;                   /* declared in packet-wmx.c */
-extern gboolean include_cor2_changes;
 
 static gint proto_wimax_utility_decoders;
 static gint ett_wimax_service_flow_encodings;

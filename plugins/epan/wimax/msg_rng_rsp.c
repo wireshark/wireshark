@@ -20,12 +20,10 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
+#include "wimax_prefs.h"
 
 void proto_register_mac_mgmt_msg_rng_rsp(void);
 void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void);
-
-extern gboolean include_cor2_changes;
-
 
 static dissector_handle_t rng_rsp_handle;
 static dissector_handle_t sbc_rsp_handle;

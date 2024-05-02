@@ -24,9 +24,7 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
-
-/* Delete the following variable as soon as possible */
-extern gboolean include_cor2_changes;
+#include "wimax_prefs.h"
 
 void proto_register_mac_mgmt_msg_dcd(void);
 void proto_reg_handoff_mac_mgmt_msg_dcd(void);

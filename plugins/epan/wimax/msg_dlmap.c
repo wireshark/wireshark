@@ -22,8 +22,7 @@
 #include "crc.h"
 #include "wimax_bits.h"
 #include "wimax_utils.h"
-
-extern	gboolean include_cor2_changes;
+#include "wimax_prefs.h"
 
 void proto_register_mac_mgmt_msg_dlmap(void);
 void proto_reg_handoff_mac_mgmt_msg_dlmap(void);

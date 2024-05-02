@@ -19,8 +19,7 @@
 
 #include <epan/packet.h>
 #include "wimax_mac.h"
-
-extern	gboolean include_cor2_changes;
+#include "wimax_prefs.h"
 
 void proto_register_mac_mgmt_msg_pmc_req(void);
 void proto_register_mac_mgmt_msg_pmc_rsp(void);

@@ -24,6 +24,7 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
+#include "wimax_prefs.h"
 
 
 void proto_register_mac_mgmt_msg_sbc(void);
@@ -31,10 +32,6 @@ void proto_reg_handoff_mac_mgmt_msg_sbc(void);
 
 static dissector_handle_t sbc_req_handle;
 static dissector_handle_t sbc_rsp_handle;
-
-/* This is a global variable declared in mac_hd_generic_decoder.c, which determines whether
- *    or not cor2 changes are included */
-extern gboolean include_cor2_changes;
 
 static gint proto_mac_mgmt_msg_sbc_decoder;
 static gint ett_mac_mgmt_msg_sbc_decoder;

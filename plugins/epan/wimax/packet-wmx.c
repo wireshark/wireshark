@@ -23,17 +23,21 @@
 #include "wimax-int.h"
 #include "wimax_tlv.h"
 #include "wimax_utils.h"
+#include "wimax_prefs.h"
 
 void proto_register_wimax(void);
 void proto_reg_handoff_wimax(void);
 
-/* Global variables */
+/*
+ * Global variables
+ *
+ * XXX - are these per-packet state?  If so, they should be made so,
+ * rather than being global.
+ */
 gint	proto_wimax;
 gint8	arq_enabled;
 gint	scheduling_service_type;
 gint	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
-extern	guint global_cid_max_basic;
-extern	bool include_cor2_changes;
 
 address bs_address = ADDRESS_INIT_NONE;
 

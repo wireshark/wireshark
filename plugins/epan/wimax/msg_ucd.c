@@ -24,13 +24,12 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
+#include "wimax_prefs.h"
 
 void proto_register_mac_mgmt_msg_ucd(void);
 void proto_reg_handoff_mac_mgmt_msg_ucd(void);
 
 static dissector_handle_t ucd_handle;
-
-extern gboolean include_cor2_changes;
 
 guint cqich_id_size;		/* Set for CQICH_Alloc_IE */
 

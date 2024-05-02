@@ -21,8 +21,7 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
-
-extern	gboolean include_cor2_changes;
+#include "wimax_prefs.h"
 
 void proto_register_mac_mgmt_msg_dreg_req(void);
 void proto_register_mac_mgmt_msg_dreg_cmd(void);
