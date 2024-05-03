@@ -51,7 +51,7 @@ static dissector_handle_t mac_mgmt_msg_decoder_handle;
 static dissector_handle_t mac_ip_handle;
 
 /* global variables */
-gboolean include_cor2_changes;
+bool include_cor2_changes;
 
 /* Well-known CIDs */
 guint cid_initial_ranging  = 0x0000;
