@@ -51,6 +51,7 @@
 #include <epan/expert.h>
 
 #include <wsutil/802_11-utils.h>
+#include <packet-ieee80211-radiotap-defs.h>
 
 #define IS_ARUBA 0x01
 
@@ -171,7 +172,7 @@ static const value_string peekremote_type_vals[] = {
 #define EXT_FLAGS_BANDWIDTH                     0x00000007
 #define EXT_FLAG_HALF_GI                        0x00000008
 #define EXT_FLAG_FULL_GI                        0x00000010
-#define EXT_FLAGS_GI                            0x00000018
+#define EXT_FLAGS_GI                            0x00200018
 #define EXT_FLAG_AMPDU                          0x00000020
 #define EXT_FLAG_AMSDU                          0x00000040
 #define EXT_FLAG_802_11ac                       0x00000080
@@ -183,7 +184,10 @@ static const value_string peekremote_type_vals[] = {
 #define EXT_FLAG_160MHZ                         0x00040000
 #define EXT_FLAG_EHTFLAG                        0x00080000
 #define EXT_FLAG_320MHZ                         0x00100000
-#define EXT_FLAGS_RESERVED                      0xFFE00000
+#define EXT_FLAG_QUARTER_GI                     0x00200000
+#define EXT_FLAGS_RESERVED                      0xFFC00000
+
+#define EXT_FLAG_SPATIALSTREAMS_SHIFT           14
 
 static int hf_peekremote_band;
 static int hf_peekremote_channel;
@@ -202,6 +206,7 @@ static int hf_peekremote_extflags_future_use;
 static int hf_peekremote_extflags_half_gi;
 static int hf_peekremote_extflags_heflag;
 static int hf_peekremote_extflags_ehtflag;
+static int hf_peekremote_extflags_quarter_gi;
 static int hf_peekremote_extflags_reserved;
 static int hf_peekremote_extflags_shortpreamble;
 static int hf_peekremote_extflags_spatialstreams;
@@ -256,15 +261,27 @@ static int
 dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
   proto_tree *extflags_tree;
-  proto_item *ti_extflags;
+  proto_item *ti_extflags, *item=NULL;
+
+  uint32_t extflags = tvb_get_ntohl(tvb, offset);
 
   ti_extflags = proto_tree_add_item(tree, hf_peekremote_extflags, tvb, offset, 4, ENC_BIG_ENDIAN);
   extflags_tree = proto_item_add_subtree(ti_extflags, ett_peekremote_extflags);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_20mhz_lower, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_20mhz_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_40mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_half_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_full_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  item = proto_tree_add_item(extflags_tree, hf_peekremote_extflags_half_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  if ((extflags & EXT_FLAG_HEFLAG) || (extflags & EXT_FLAG_EHTFLAG)) {
+    proto_item_append_text(item, " (1.6uS)");
+  } else {
+    proto_item_append_text(item, " (0.4uS)");
+  }
+  item = proto_tree_add_item(extflags_tree, hf_peekremote_extflags_full_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  if ((extflags & EXT_FLAG_HEFLAG) || (extflags & EXT_FLAG_EHTFLAG)) {
+    proto_item_append_text(item, " (3.2uS)");
+  } else {
+    proto_item_append_text(item, " (0.8uS)");
+  }
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_ampdu, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_amsdu, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_11ac, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -276,6 +293,10 @@ dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_160mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_ehtflag, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_320mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  if ((extflags & EXT_FLAG_HEFLAG) || (extflags & EXT_FLAG_EHTFLAG)) {
+    item = proto_tree_add_item(extflags_tree, hf_peekremote_extflags_quarter_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(item, " (0.8uS)");
+  }
   proto_tree_add_item(extflags_tree, hf_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
   return 4;
@@ -329,6 +350,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   guint32 extflags;
   guint16 frequency;
   guint16 mcs_index;
+  guint8  nss;
   tvbuff_t *next_tvb;
 
   if (tvb_memeql(tvb, 0, magic, 4) == -1) {
@@ -368,26 +390,99 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (header_size > 9)
         offset += (header_size - 9);
     } else {
+      /* Initialize bandwidth as 20Mhz, overwrite later based on extflags, if needed*/
+      int bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_20;
+      int bandwidth_he  = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_20;
+
       proto_tree_add_item(peekremote_tree, hf_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
       extflags = tvb_get_ntohl(tvb, offset+12);
+      /* Encoded value is NSS - 1 */
+      nss = ((extflags & EXT_FLAG_SPATIALSTREAMS) >> EXT_FLAG_SPATIALSTREAMS_SHIFT) + 1;
+
+      if (extflags & EXT_FLAG_40_MHZ) {
+        bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_40;
+        bandwidth_he = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_40;
+      } else if (extflags & EXT_FLAG_80MHZ) {
+        bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_80;
+        bandwidth_he = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_80;
+      } else if (extflags & EXT_FLAG_160MHZ) {
+        bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_160;
+        bandwidth_he = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_160;
+      }
+
       if (extflags & EXT_FLAG_EHTFLAG) {
         proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
         phdr.phy = PHDR_802_11_PHY_11BE;
-      }
-      else if (extflags & EXT_FLAG_HEFLAG) {
+
+      } else if (extflags & EXT_FLAG_HEFLAG) {
         proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
         phdr.phy = PHDR_802_11_PHY_11AX;
+          if (extflags & EXT_FLAGS_GI) {
+          /* Quarter GI : 0.8uS
+             Half GI    : 1.6uS
+             Full GI    : 3.2uS */
+            phdr.phy_info.info_11ax.has_gi = TRUE;
+            phdr.phy_info.info_11ax.gi = ((extflags & EXT_FLAG_FULL_GI) != 0) ? 2 :
+                                          ((extflags & EXT_FLAG_HALF_GI) != 0) ? 1 :
+                                          0;
+          }
+          phdr.phy_info.info_11ax.has_bwru = TRUE;
+				  phdr.phy_info.info_11ax.bwru = bandwidth_he;
+          phdr.phy_info.info_11ax.has_mcs_index = TRUE;
+          phdr.phy_info.info_11ax.mcs = mcs_index;
+          phdr.phy_info.info_11ax.nsts = nss;
+
       } else {
         if (extflags & EXT_FLAG_802_11ac) {
           proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
           phdr.phy = PHDR_802_11_PHY_11AC;
-        } else {
+          if (extflags & EXT_FLAGS_GI) {
+            /* Half GI     : 0.4uS
+               Full GI     : 0.8uS */
+            phdr.phy_info.info_11ac.has_short_gi = TRUE;
+            phdr.phy_info.info_11ac.short_gi = ((extflags & EXT_FLAG_HALF_GI) != 0);
+          }
+
+          phdr.phy_info.info_11ac.has_bandwidth = TRUE;
+          phdr.phy_info.info_11ac.bandwidth = bandwidth_vht;
+          /* Set FEC/ STBC to defaults to suppress warnings in 80211-radio dissector */
+          phdr.phy_info.info_11ac.has_fec = TRUE;
+          phdr.phy_info.info_11ac.fec     = 0;
+          phdr.phy_info.info_11ac.has_stbc = TRUE;
+          phdr.phy_info.info_11ac.stbc    = 0;
+          /* Peekremote does not have per-user fields, so fill data as if it is SU and for user0 */
+          phdr.phy_info.info_11ac.mcs[0]  = mcs_index;
+          phdr.phy_info.info_11ac.nss[0]  = nss;
+
+        } else { /* 11n */
           proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
           phdr.phy = PHDR_802_11_PHY_11N;
-          phdr.phy_info.info_11n.has_mcs_index = TRUE;
-          phdr.phy_info.info_11n.mcs_index = mcs_index;
+          if (extflags & EXT_FLAGS_GI) {
+            /* Half GI     : 0.4uS
+               Full GI     : 0.8uS */
+            phdr.phy_info.info_11ac.has_short_gi = TRUE;
+            phdr.phy_info.info_11ac.short_gi = ((extflags & EXT_FLAG_HALF_GI) != 0);
+          }
+          phdr.phy_info.info_11n.has_bandwidth = TRUE;
+          if (extflags & EXT_FLAG_40_MHZ) {
+            phdr.phy_info.info_11n.bandwidth = IEEE80211_RADIOTAP_MCS_BW_40;
+          } else {
+            phdr.phy_info.info_11n.bandwidth = IEEE80211_RADIOTAP_MCS_BW_20;
+          }
+          /* Set FEC/ STBC/ Greenfield to defaults to suppress warnings in 80211-radio dissector */
+          phdr.phy_info.info_11n.has_fec      = TRUE;
+          phdr.phy_info.info_11n.fec          = 0;
+          phdr.phy_info.info_11n.has_stbc_streams = TRUE;
+          phdr.phy_info.info_11n.stbc_streams   = 0;
+          phdr.phy_info.info_11n.has_greenfield = TRUE;
+          phdr.phy_info.info_11n.greenfield     = FALSE;
+          phdr.phy_info.info_11n.has_ness       = TRUE;
+          phdr.phy_info.info_11n.ness           = 0;
+
+          phdr.phy_info.info_11n.has_mcs_index  = TRUE;
+          phdr.phy_info.info_11n.mcs_index      = mcs_index;
         }
       }
       offset += 2;
@@ -811,6 +906,11 @@ proto_register_peekremote(void)
     { &hf_peekremote_extflags_320mhz,
       { "320Mhz", "peekremote.extflags.320mhz",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_320MHZ,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_quarter_gi,
+      { "Quarter Guard Interval", "peekremote.extflags.quarter_gi",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_QUARTER_GI,
         NULL, HFILL }
     },
     { &hf_peekremote_extflags_reserved,
