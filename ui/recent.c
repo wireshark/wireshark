@@ -1803,6 +1803,13 @@ recent_get_column_width(int col)
     col_w = g_list_nth_data(recent.col_width_list, col);
     if (col_w) {
         return col_w->width;
+    } else {
+        /* Make sure the recent column list isn't out of sync with the
+         * number of columns (e.g., for a brand new profile.)
+         */
+        for (unsigned colnr = g_list_length(recent.col_width_list); colnr < g_list_length(prefs.col_list); colnr++) {
+            recent_insert_column(colnr);
+        }
     }
 
     return -1;
@@ -1816,6 +1823,17 @@ recent_set_column_width(int col, int width)
     col_w = g_list_nth_data(recent.col_width_list, col);
     if (col_w) {
         col_w->width = width;
+    } else {
+        /* Make sure the recent column list isn't out of sync with the
+         * number of columns (e.g., for a brand new profile.)
+         */
+        for (unsigned colnr = g_list_length(recent.col_width_list); colnr < g_list_length(prefs.col_list); colnr++) {
+            recent_insert_column(colnr);
+        }
+        col_w = g_list_nth_data(recent.col_width_list, col);
+        if (col_w) {
+            col_w->width = width;
+        }
     }
 }
 
@@ -1827,6 +1845,13 @@ recent_get_column_xalign(int col)
     col_w = g_list_nth_data(recent.col_width_list, col);
     if (col_w) {
         return col_w->xalign;
+    } else {
+        /* Make sure the recent column list isn't out of sync with the
+         * number of columns (e.g., for a brand new profile.)
+         */
+        for (unsigned colnr = g_list_length(recent.col_width_list); colnr < g_list_length(prefs.col_list); colnr++) {
+            recent_insert_column(colnr);
+        }
     }
 
     return COLUMN_XALIGN_DEFAULT;
@@ -1840,6 +1865,17 @@ recent_set_column_xalign(int col, char xalign)
     col_w = g_list_nth_data(recent.col_width_list, col);
     if (col_w) {
         col_w->xalign = xalign;
+    } else {
+        /* Make sure the recent column list isn't out of sync with the
+         * number of columns (e.g., for a brand new profile.)
+         */
+        for (unsigned colnr = g_list_length(recent.col_width_list); colnr < g_list_length(prefs.col_list); colnr++) {
+            recent_insert_column(colnr);
+        }
+        col_w = g_list_nth_data(recent.col_width_list, col);
+        if (col_w) {
+            col_w->xalign = xalign;
+        }
     }
 }
 
