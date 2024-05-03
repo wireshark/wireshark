@@ -2587,11 +2587,11 @@ Dot11DecryptFtDerivePtk(
     int hash_algo = Dot11DecryptGetHashAlgoFromAkm(akm);
     uint8_t pmk_r0[DOT11DECRYPT_WPA_PMK_MAX_LEN];
     uint8_t pmk_r1[DOT11DECRYPT_WPA_PMK_MAX_LEN];
-    uint8_t pmk_r0_name[16];
-    uint8_t pmk_r1_name[16];
+    uint8_t pmk_r0_name[16] = {0};
+    uint8_t pmk_r1_name[16] = {0};
     uint8_t ptk_name[16];
-    size_t pmk_r0_len;
-    size_t pmk_r1_len;
+    size_t pmk_r0_len = 0;
+    size_t pmk_r1_len = 0;
     const uint8_t *xxkey = NULL;
     size_t xxkey_len;
     int ptk_len_bits;
