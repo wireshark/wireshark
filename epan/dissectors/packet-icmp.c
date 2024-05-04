@@ -1466,7 +1466,7 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
 	return le_ts;
 }				/* get_best_guess_mstimeofday() */
 
-static gboolean
+static bool
 capture_icmp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	capture_dissector_increment_count(cpinfo, proto_icmp);

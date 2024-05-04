@@ -150,7 +150,7 @@ static const true_false_string tfs_eligible_ineligible = { "Eligible", "Ineligib
 
 #define VLAN_MAX_NESTED_TAGS 20
 
-static gboolean
+static bool
 capture_vlan(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ ) {
   guint16 encap_proto;
   if ( !BYTES_ARE_IN_FRAME(offset,len,5) )

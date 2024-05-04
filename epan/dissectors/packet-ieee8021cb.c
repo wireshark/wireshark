@@ -48,7 +48,7 @@ static gint ett_ieee8021cb;
 
 #define IEEE8021CB_LEN 6
 
-static gboolean
+static bool
 capture_ieee8021cb(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     guint16 encap_proto;

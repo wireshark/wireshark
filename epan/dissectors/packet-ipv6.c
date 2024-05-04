@@ -1022,7 +1022,7 @@ static const value_string apn_id_type_strs[] = {
         { 0, NULL }
 };
 
-static gboolean
+static bool
 capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     guint8 nxt;
@@ -1038,7 +1038,7 @@ capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
     return try_capture_dissector("ip.proto", nxt, pd, offset, len, cpinfo, pseudo_header);
 }
 
-static gboolean
+static bool
 capture_ipv6_exthdr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     guint8 nxt;

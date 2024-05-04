@@ -1079,7 +1079,7 @@ static const range_string tlv_type_rvals[] = {
  *    dissectors, such as tcpdump(8), expect the padding.
  */
 
-static gboolean
+static bool
 capture_radiotap(const guchar * pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 it_len;

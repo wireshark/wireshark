@@ -32,7 +32,7 @@ static gint ett_ap1394;
 
 static dissector_table_t ethertype_subdissector_table;
 
-static gboolean
+static bool
 capture_ap1394(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   guint16    etype;

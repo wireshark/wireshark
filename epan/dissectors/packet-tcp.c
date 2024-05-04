@@ -7767,7 +7767,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
     }
 }
 
-static gboolean
+static bool
 capture_tcp(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     guint16 src_port, dst_port, low_port, high_port;

@@ -192,7 +192,7 @@ fddi_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
   return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static bool
 capture_fddi(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   int fc;

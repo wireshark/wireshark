@@ -605,7 +605,7 @@ prism_rate_return_sig(wmem_allocator_t *scope, guint32 rate_phy1, guint32 rate_p
     return result;
 }
 
-static gboolean
+static bool
 capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint32 cookie;

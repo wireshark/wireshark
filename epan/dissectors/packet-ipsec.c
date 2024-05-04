@@ -1328,7 +1328,7 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
   return esp_icv_len;
 }
 
-static gboolean
+static bool
 capture_ah(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   guint8 nxt;

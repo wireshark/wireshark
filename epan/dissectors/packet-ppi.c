@@ -356,7 +356,7 @@ static reassembly_table ampdu_reassembly_table;
 static bool ppi_ampdu_reassemble = true;
 
 
-static gboolean
+static bool
 capture_ppi(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint32  dlt;

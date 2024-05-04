@@ -166,7 +166,7 @@ static const value_string kiss_frame_types[] = {
 	{ 0, NULL }
 };
 
-static gboolean
+static bool
 capture_ax25_kiss( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	int    l_offset;

@@ -35,7 +35,7 @@ typedef struct _capture_packet_info {
 typedef struct capture_dissector_handle* capture_dissector_handle_t;
 
 /** callback function definition for capture dissectors */
-typedef gboolean (*capture_dissector_t)(const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+typedef bool (*capture_dissector_t)(const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 /* a protocol uses the function to register a capture sub-dissector table
  * @param[in] name Name of capture sub-dissector table.

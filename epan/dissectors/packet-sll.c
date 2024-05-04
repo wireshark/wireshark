@@ -182,7 +182,7 @@ sll_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static bool
 capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 hatype;
@@ -208,7 +208,7 @@ capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
 	return FALSE;
 }
 
-static gboolean
+static bool
 capture_sll2(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 hatype;

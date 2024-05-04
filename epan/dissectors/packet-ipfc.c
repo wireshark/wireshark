@@ -36,7 +36,7 @@ static gint ett_ipfc;
 static dissector_handle_t llc_handle;
 static capture_dissector_handle_t llc_cap_handle;
 
-static gboolean
+static bool
 capture_ipfc (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   if (!BYTES_ARE_IN_FRAME(0, len, 16))

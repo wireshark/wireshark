@@ -74,7 +74,7 @@ static void i2c_prompt(packet_info *pinfo _U_, gchar* result)
 	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Interpret I2C messages as");
 }
 
-static gboolean
+static bool
 capture_i2c_linux(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {

@@ -4196,7 +4196,7 @@ dissect_mpl_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     return body_offset;
 }
 
-static gboolean
+static bool
 capture_icmpv6(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     capture_dissector_increment_count(cpinfo, proto_icmpv6);

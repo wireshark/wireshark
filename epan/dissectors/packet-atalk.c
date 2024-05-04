@@ -1601,7 +1601,7 @@ static const value_string llap_type_vals[] = {
 };
 static value_string_ext llap_type_vals_ext = VALUE_STRING_EXT_INIT(llap_type_vals);
 
-static gboolean
+static bool
 capture_llap(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo _U_, const union wtap_pseudo_header *pseudo_header _U_)
 {
   /* XXX - get its own counter

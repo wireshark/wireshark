@@ -51,7 +51,7 @@ static int hf_enc_flags_reserved;
 static gint ett_enc;
 static gint ett_enc_flag;
 
-static gboolean
+static bool
 capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   guint32 af;

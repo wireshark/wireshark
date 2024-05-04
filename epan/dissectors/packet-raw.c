@@ -34,7 +34,7 @@ static capture_dissector_handle_t ip_cap_handle;
 static capture_dissector_handle_t ipv6_cap_handle;
 static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
-static gboolean
+static bool
 capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   /* So far, the only time we get raw connection types are with Linux and

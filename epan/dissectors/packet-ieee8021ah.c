@@ -72,7 +72,7 @@ static gint ett_ieee8021ad;
 /* FUNCTIONS ************************************************************/
 
 
-static gboolean
+static bool
 capture_ieee8021ah(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint16 encap_proto;

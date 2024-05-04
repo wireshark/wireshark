@@ -54,7 +54,7 @@ static capture_dissector_handle_t null_cap_handle;
 static dissector_handle_t ppp_hdlc_handle;
 static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
-static gboolean
+static bool
 capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
 {
   guint32 null_header;

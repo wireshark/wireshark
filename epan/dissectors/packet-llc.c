@@ -237,7 +237,7 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 	wmem_map_insert(oui_info_table, GUINT_TO_POINTER(oui), new_info);
 }
 
-static gboolean
+static bool
 capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32		oui;
@@ -270,7 +270,7 @@ capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
 	return FALSE;
 }
 
-static gboolean
+static bool
 capture_llc(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int		is_snap;

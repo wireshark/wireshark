@@ -90,7 +90,7 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 capture_bpq( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	int l_offset;

@@ -650,7 +650,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static gboolean
+static bool
 capture_lane(const guchar *pd, int offset _U_,
     int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
@@ -776,7 +776,7 @@ static const value_string ipsilon_type_vals[] = {
   { 0,                NULL }
 };
 
-static gboolean
+static bool
 capture_atm(const guchar *pd, int offset,
     int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
