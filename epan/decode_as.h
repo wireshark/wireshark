@@ -44,9 +44,9 @@ typedef void (*decode_as_populate_list_func)(const gchar *table_name, decode_as_
 typedef void (*decode_as_free_func)(gpointer value);
 
 /** callback function definition: Clear value from dissector table */
-typedef gboolean (*decode_as_reset_func)(const gchar *name, gconstpointer pattern);
+typedef bool (*decode_as_reset_func)(const gchar *name, gconstpointer pattern);
 /** callback function definition: Apply value to dissector table */
-typedef gboolean (*decode_as_change_func)(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
+typedef bool (*decode_as_change_func)(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
 
 /**
 Contains all of the function pointers (typically just 1) that
@@ -108,9 +108,9 @@ WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, c
 /* Walk though the dissector table and provide dissector_handle_t for each item in the table */
 WS_DLL_PUBLIC void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);
 /* Clear a FT_UINT32 value from dissector table list */
-WS_DLL_PUBLIC gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern);
+WS_DLL_PUBLIC bool decode_as_default_reset(const gchar *name, gconstpointer pattern);
 /* Add a FT_UINT32 value to dissector table list */
-WS_DLL_PUBLIC gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
+WS_DLL_PUBLIC bool decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name);
 
 /** List of registered decode_as_t structs.
  * For UI code only. Should not be directly accessed by dissectors.

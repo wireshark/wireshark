@@ -122,7 +122,7 @@ void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_l
     dissector_table_foreach_handle(table_name, decode_proto_add_to_list, &populate);
 }
 
-gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern)
+bool decode_as_default_reset(const gchar *name, gconstpointer pattern)
 {
     switch (get_dissector_table_selector_type(name)) {
     case FT_UINT8:
@@ -130,25 +130,25 @@ gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern)
     case FT_UINT24:
     case FT_UINT32:
         dissector_reset_uint(name, GPOINTER_TO_UINT(pattern));
-        return TRUE;
+        return true;
     case FT_NONE:
         dissector_reset_payload(name);
-        return TRUE;
+        return true;
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
     case FT_STRINGZTRUNC:
         dissector_reset_string(name, (!pattern)?"":(const gchar *) pattern);
-        return TRUE;
+        return true;
     default:
-        return FALSE;
+        return false;
     };
 
-    return TRUE;
+    return true;
 }
 
-gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name _U_)
+bool decode_as_default_change(const gchar *name, gconstpointer pattern, gconstpointer handle, const gchar *list_name _U_)
 {
     const dissector_handle_t dissector = (const dissector_handle_t)handle;
     switch (get_dissector_table_selector_type(name)) {
@@ -157,22 +157,22 @@ gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gcon
     case FT_UINT24:
     case FT_UINT32:
         dissector_change_uint(name, GPOINTER_TO_UINT(pattern), dissector);
-        return TRUE;
+        return true;
     case FT_NONE:
         dissector_change_payload(name, dissector);
-        return TRUE;
+        return true;
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
     case FT_STRINGZTRUNC:
         dissector_change_string(name, (!pattern)?"":(const gchar *) pattern, dissector);
-        return TRUE;
+        return true;
     default:
-        return FALSE;
+        return false;
     };
 
-    return TRUE;
+    return true;
 }
 
 /* Some useful utilities for Decode As */

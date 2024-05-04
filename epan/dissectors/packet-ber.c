@@ -407,18 +407,18 @@ static void ber_populate_list(const gchar *table_name _U_, decode_as_add_to_list
     ber_decode_as_foreach(decode_ber_add_to_list, &populate);
 }
 
-static gboolean ber_decode_as_reset(const char *name _U_, gconstpointer pattern _U_)
+static bool ber_decode_as_reset(const char *name _U_, gconstpointer pattern _U_)
 {
     g_free(decode_as_syntax);
     decode_as_syntax = NULL;
-    return FALSE;
+    return false;
 }
 
-static gboolean ber_decode_as_change(const char *name _U_, gconstpointer pattern _U_, gconstpointer handle _U_, const gchar* list_name)
+static bool ber_decode_as_change(const char *name _U_, gconstpointer pattern _U_, gconstpointer handle _U_, const gchar* list_name)
 {
     g_free(decode_as_syntax);
     decode_as_syntax = g_strdup(list_name);
-    return FALSE;
+    return false;
 }
 
 int

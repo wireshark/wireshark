@@ -978,7 +978,7 @@ decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
 }
 
 /* remove a binding (looking the same way as the given one) */
-static gboolean
+static bool
 decode_dcerpc_binding_reset(const char *name _U_, gconstpointer pattern)
 {
     const decode_dcerpc_bind_values_t *binding = (const decode_dcerpc_bind_values_t *)pattern;
@@ -990,7 +990,7 @@ decode_dcerpc_binding_reset(const char *name _U_, gconstpointer pattern)
                                              binding,
                                              decode_dcerpc_binding_cmp);
     if (le == NULL)
-        return FALSE;
+        return false;
 
     old_binding = (decode_dcerpc_bind_values_t *)le->data;
 
@@ -1000,10 +1000,10 @@ decode_dcerpc_binding_reset(const char *name _U_, gconstpointer pattern)
     free_address(&old_binding->addr_b);
     g_string_free(old_binding->ifname, TRUE);
     g_free(old_binding);
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 dcerpc_decode_as_change(const char *name, gconstpointer pattern, gconstpointer handle, const gchar* list_name)
 {
     const decode_dcerpc_bind_values_t *binding = (const decode_dcerpc_bind_values_t*)pattern;
@@ -1027,7 +1027,7 @@ dcerpc_decode_as_change(const char *name, gconstpointer pattern, gconstpointer h
 
     decode_dcerpc_bindings = g_slist_append (decode_dcerpc_bindings, stored_binding);
 
-    return FALSE;
+    return false;
 }
 
 static const fragment_items dcerpc_frag_items = {
