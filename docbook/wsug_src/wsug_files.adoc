@@ -176,6 +176,7 @@ _/usr/local/etc_.
 |_ss7pcs_|SS7 point code resolution.
 |_subnets_|IPv4 subnet name resolution.
 |_vlans_|VLAN ID name resolution.
+|_wka_|Well-known MAC addresses.
 |===
 
 [discrete]
@@ -317,10 +318,13 @@ a name, it consults the _ethers_ file in the personal configuration
 folder first.  If the address is not found in that file, Wireshark
 consults the _ethers_ file in the system configuration folder.
 
-This file has the same format as the _/etc/ethers_ file on some Unix-like systems.
+This file has a similar format to the _/etc/ethers_ file on some Unix-like systems.
 Each line in these files consists of one hardware address and name separated by
-whitespace. The digits of hardware addresses are separated by colons (:), dashes
-(-) or periods(.). The following are some examples:
+whitespace (tabs or spaces). The hardware addresses are expressed as pairs
+of hexadecimal digits separated by colons (:), dashes (-), or periods(.), with
+the same separator used in the entire address. A `#` can be used to indicate
+a comment that extends to the rest of the line. NIS lookups, as in some
+UNIX-like systems, are not supported. The following are some examples:
 
 ----
 ff-ff-ff-ff-ff-ff    Broadcast
@@ -381,12 +385,17 @@ be translated to a name, and never written by Wireshark.
 manuf::
 +
 --
-At program start, if there is a _manuf_ file in the global configuration folder, it is read.
+At program start, if there is a _manuf_ file in the global configuration
+folder, it is read first.  Then, if there is a _manuf_ file in the personal
+configuration folder, that is read; if there is an entry for a given address
+prefix in both files, the setting in the personal file overrides the entry
+in the global file.
 
 The entries in this file are used to translate MAC address prefixes into short and long manufacturer names.
 Each line consists of a MAC address prefix followed by an abbreviated manufacturer name and the full manufacturer name.
 Prefixes 24 bits long by default and may be followed by an optional length.
-Note that this is not the same format as the _ethers_ file.
+Note that this is not the same format as the _ethers_ file, which does not
+allow prefix lengths.
 
 Examples are:
 
@@ -394,6 +403,15 @@ Examples are:
 00:00:01        Xerox   Xerox Corporation
 00:50:C2:00:30:00/36      Microsof        Microsoft
 ----
+
+In earlier versions of Wireshark, official information from the IEEE
+Registration Authority was distributed in this format as the _manuf_ file
+in the global configuration folder. In current versions of Wireshark, this
+information is compiled into the program to speed startup, but if a file
+is present in the global configuration folder it is still read, and can
+be used to supplement or replace the official data just as the personal
+file does. The compiled-in information can be written out in this format
+as a report with `tshark -G manuf`.
 
 The settings from this file are read in at program start and never written by Wireshark.
 --
@@ -455,7 +473,9 @@ At program start, if there is a _services_ file in the global
 configuration folder, it is read first.  Then, if there is a _services_
 file in the personal configuration folder, that is read; if there is an
 entry for a given port number in both files, the setting in the personal
-hosts file overrides the entry in the global hosts file.
+_services_ file overrides the entry in the global _services_ file.
+The format is that of the standard _services(5)_ file on UNIX-compatible
+systems.
 
 An example is:
 
@@ -463,6 +483,15 @@ An example is:
 mydns       5045/udp     # My own Domain Name Server
 mydns       5045/tcp     # My own Domain Name Server
 ----
+
+In earlier versions of Wireshark, official information from the IANA
+Service Name and Transport Protocol Port Number Registry was distributed
+in this format as the _services_ file in the global configuration folder.
+In current versions of Wireshark, this information is compiled into the
+program to speed startup, but if a file is present in the global configuration
+folder it is still read, and can be used to supplement or replace the official
+data just as the personal file does. The compiled-in information can be
+written out in this format as a report with `tshark -G services`.
 
 The settings from these files are read in at program start and never
 written by Wireshark.
@@ -538,6 +567,20 @@ An example is:
 
 The settings from this file are read in at program start or when changing
 the active profile and are never written by Wireshark.
+--
+
+wka::
++
+--
+At program start, if there is a _wka_ file in the global configuration folder,
+it is read.
+
+The entries in this file are used to translate MAC addresses and MAC address
+prefixes into names. The format is that of the _manuf_ file. This file is
+distributed with Wireshark, and contains data assembled from various non IEEE
+but respected sources.
+
+The settings from this file are read in at program start and never written by Wireshark.
 --
 
 [#ChPluginFolders]
