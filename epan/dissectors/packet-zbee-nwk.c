@@ -1956,7 +1956,7 @@ static tap_packet_status zbee_nwk_endpoint_packet(void *pit, packet_info *pinfo,
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean zbee_nwk_filter_valid(packet_info *pinfo, void *user_data _U_)
+static bool zbee_nwk_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "zbee_nwk");
 }

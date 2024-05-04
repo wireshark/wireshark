@@ -687,7 +687,7 @@ ipv6_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static bool
 ipv6_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "ipv6");

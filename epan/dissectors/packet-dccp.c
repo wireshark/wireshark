@@ -570,7 +570,7 @@ guint32 get_dccp_stream_count(void)
     return dccp_stream_count;
 }
 
-static gboolean
+static bool
 dccp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "dccp");

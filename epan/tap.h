@@ -205,7 +205,7 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   listener that it is about to start [re]reading a capture file or a new capture
  *                   from an interface and that your application should reset any state it has
  *                   in the *tapdata instance.
- * @param tap_packet gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
+ * @param tap_packet tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
  *                   This callback is used whenever a new packet has arrived at the tap and that
  *                   it has passed the filter (if there were a filter).
  *                   The *data structure type is specific to each tap.

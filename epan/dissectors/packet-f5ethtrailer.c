@@ -419,7 +419,7 @@ ptype_to_ipproto(const port_type ptype)
  * @param pinfo   A pointer to the packet info to look at for the L3 data.
  * @return        True if it is valid IP/IPv6, false otherwise
  */
-static gboolean
+static bool
 f5_ip_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     bool is_ip = false;
@@ -440,7 +440,7 @@ f5_ip_conv_valid(packet_info *pinfo, void *user_data _U_)
  * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
  * @return        True if it is valid IP/IPv6 + TCP, false otherwise
  */
-static gboolean
+static bool
 f5_tcp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     bool is_ip  = false;
@@ -462,7 +462,7 @@ f5_tcp_conv_valid(packet_info *pinfo, void *user_data _U_)
  * @param pinfo   A pointer to the packet info to look at for the L3/L4 data.
  * @return        True if it is valid IP/IPv6 + UDP, false otherwise
  */
-static gboolean
+static bool
 f5_udp_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     bool is_ip  = false;

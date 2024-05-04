@@ -327,7 +327,7 @@ GList *cba_pdevs;
 /* as we are a plugin, we cannot get this from libwireshark! */
 const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 
-static gboolean
+static bool
 cba_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);

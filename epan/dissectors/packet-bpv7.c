@@ -2257,7 +2257,7 @@ static tap_packet_status bp_endp_packet(void *pit, packet_info *pinfo, epan_diss
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean bp_filter_valid(packet_info *pinfo, void *user_data _U_) {
+static bool bp_filter_valid(packet_info *pinfo, void *user_data _U_) {
     const bp_bundle_t *bundle = p_get_proto_data(pinfo->pool, pinfo, proto_bp, PROTO_DATA_BUNDLE);
     return bundle != NULL;
 }

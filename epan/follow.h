@@ -38,8 +38,6 @@ typedef union _stream_addr {
 
 struct _follow_info;
 
-typedef gboolean (*follow_print_line_func)(char *, size_t, gboolean, void *);
-
 #define SUBSTREAM_UNUSED	G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)
 
 typedef struct {

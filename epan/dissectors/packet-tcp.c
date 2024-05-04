@@ -1100,7 +1100,7 @@ tcpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static bool
 tcp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "tcp");

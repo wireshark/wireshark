@@ -15134,7 +15134,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 
-static gboolean
+static bool
 pn_io_ar_conv_valid(packet_info *pinfo, void *user_data _U_)
 {
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);

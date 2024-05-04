@@ -6033,7 +6033,7 @@ static tap_packet_status ieee802154_endpoint_packet(void *pit, packet_info *pinf
     return TAP_PACKET_REDRAW;
 }
 
-static gboolean ieee802154_filter_valid(packet_info *pinfo, void *user_data _U_)
+static bool ieee802154_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
     return proto_is_frame_protocol(pinfo->layers, "wpan")
             && ((pinfo->dl_src.type == ieee802_15_4_short_address_type) || (pinfo->dl_src.type == AT_EUI64))

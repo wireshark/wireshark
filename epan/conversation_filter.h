@@ -33,7 +33,7 @@ extern void conversation_filters_init(void);
  * @param user_data User data provided to register_conversation_filter or register_log_conversation_filter.
  * @return TRUE if the packet has a valid conversation filter, FALSE otherwise.
  */
-typedef gboolean (*is_filter_valid_func)(struct _packet_info *pinfo, void *user_data);
+typedef bool (*is_filter_valid_func)(struct _packet_info *pinfo, void *user_data);
 
 /** callback function definition: return the available filter for this packet or NULL if no filter is available,
     Filter needs to be freed after use */

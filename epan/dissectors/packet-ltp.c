@@ -1514,7 +1514,7 @@ ltp_endp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _
 	return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static bool
 ltp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
 	return proto_is_frame_protocol(pinfo->layers, "ltp");

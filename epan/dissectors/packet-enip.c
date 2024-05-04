@@ -1083,7 +1083,7 @@ enip_exp_conv_filter(packet_info *pinfo, void *user_data _U_)
    return buf;
 }
 
-static gboolean cip_connection_conv_valid(packet_info *pinfo, void *user_data)
+static bool cip_connection_conv_valid(packet_info *pinfo, void *user_data)
 {
    return enip_io_conv_valid(pinfo, user_data) || enip_exp_conv_valid(pinfo, user_data);
 }
