@@ -9819,6 +9819,7 @@ static int hf_zbee_zcl_ota_req_node_addr;
 static int hf_zbee_zcl_ota_current_time;
 static int hf_zbee_zcl_ota_request_time;
 static int hf_zbee_zcl_ota_upgrade_time;
+static int hf_zbee_zcl_ota_upgrade_time_utc;
 static int hf_zbee_zcl_ota_data_size;
 static int hf_zbee_zcl_ota_image_data;
 static int hf_zbee_zcl_ota_page_size;
@@ -9989,6 +9990,33 @@ decode_zcl_ota_upgr_time(gchar *s, guint32 value)
 
     return;
 } /*decode_zcl_ota_upgr_time*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      decode_zcl_ota_upgr_time_utc
+ *  DESCRIPTION
+ *    this function decode the upgrade time field when it is UTC time
+ *  PARAMETERS
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+decode_zcl_ota_upgr_time_utc(gchar *s, guint32 value)
+{
+    if (value == ZBEE_ZCL_OTA_TIME_WAIT) {
+        snprintf(s, ITEM_LABEL_LENGTH, "Wait for upgrade command");
+    }
+    else {
+        gchar *tmp;
+        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        tmp = abs_time_secs_to_str(NULL, value, ABSOLUTE_TIME_LOCAL, 1);
+        snprintf(s, ITEM_LABEL_LENGTH, "%s", tmp);
+        wmem_free(NULL, tmp);
+    }
+
+    return;
+} /*decode_zcl_ota_upgr_time_utc*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -10441,6 +10469,8 @@ dissect_zcl_ota_upgradeendreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    uint32_t current_time = 0;
+
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -10453,12 +10483,22 @@ dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
     /* Retrieve 'Current Time' field */
-    proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &current_time);
     *offset += 4;
 
     /* Retrieve 'Upgrade Time' field */
-    proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-    *offset += 4;
+    if (current_time == 0)
+    {
+        /* Upgrade Time is offset time from now */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+    }
+    else
+    {
+        /* Upgrade Time is UTC time */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time_utc, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+    }
 
 } /*dissect_zcl_ota_upgradeendrsp*/
 
@@ -10885,6 +10925,10 @@ void proto_register_zbee_zcl_ota(void)
 
         { &hf_zbee_zcl_ota_upgrade_time,
             { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_upgr_time),
+            0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_upgrade_time_utc,
+            { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time_utc", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_upgr_time_utc),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_data_size,
