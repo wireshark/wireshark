@@ -2621,25 +2621,32 @@ Dot11DecryptFtDerivePtk(
         ws_debug("no xxkey. Skipping");
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
-    dot11decrypt_derive_pmk_r0(xxkey, xxkey_len,
+    if (!dot11decrypt_derive_pmk_r0(xxkey, xxkey_len,
                                ctx->pkt_ssid, ctx->pkt_ssid_len,
                                mdid,
                                r0kh_id, r0kh_id_len,
                                sa->saId.sta, hash_algo,
-                               pmk_r0, &pmk_r0_len, pmk_r0_name);
+                               pmk_r0, &pmk_r0_len, pmk_r0_name)) {
+        /* This can fail for bad size or a bad SHA256 sum. */
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
     DEBUG_DUMP("PMK-R0", pmk_r0, pmk_r0_len, LOG_LEVEL_DEBUG);
     DEBUG_DUMP("PMKR0Name", pmk_r0_name, 16, LOG_LEVEL_DEBUG);
 
-    dot11decrypt_derive_pmk_r1(pmk_r0, pmk_r0_len, pmk_r0_name,
+    if (!dot11decrypt_derive_pmk_r1(pmk_r0, pmk_r0_len, pmk_r0_name,
                                r1kh_id, sa->saId.sta, hash_algo,
-                               pmk_r1, &pmk_r1_len, pmk_r1_name);
+                               pmk_r1, &pmk_r1_len, pmk_r1_name)) {
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
     DEBUG_DUMP("PMK-R1", pmk_r1, pmk_r1_len, LOG_LEVEL_DEBUG);
     DEBUG_DUMP("PMKR1Name", pmk_r1_name, 16, LOG_LEVEL_DEBUG);
 
-    dot11decrypt_derive_ft_ptk(pmk_r1, pmk_r1_len, pmk_r1_name,
+    if (!dot11decrypt_derive_ft_ptk(pmk_r1, pmk_r1_len, pmk_r1_name,
                                snonce, sa->wpa.nonce,
                                sa->saId.bssid, sa->saId.sta, hash_algo,
-                               ptk, *ptk_len, ptk_name);
+                               ptk, *ptk_len, ptk_name)) {
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
     DEBUG_DUMP("PTK", ptk, *ptk_len, LOG_LEVEL_DEBUG);
     return DOT11DECRYPT_RET_SUCCESS;
 }
