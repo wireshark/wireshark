@@ -2141,11 +2141,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>…drukowalny tekst</translation>
+        <translation type="vanished">…drukowalny tekst</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Kopiuj tylko drukowalny tekst z pakietu.</translation>
+        <translation type="vanished">Kopiuj tylko drukowalny tekst z pakietu.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
@@ -2177,6 +2177,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as a Hex Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as UTF-8 Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as UTF-8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as ASCII.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4105,7 +4121,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset</source>
-        <translation>Reset</translation>
+        <translation type="vanished">Reset</translation>
     </message>
     <message>
         <source>Reset Graph</source>

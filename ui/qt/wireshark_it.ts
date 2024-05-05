@@ -2137,11 +2137,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>...come testo stampabile</translation>
+        <translation type="vanished">...come testo stampabile</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Copia solo il testo stampabile nel pacchetto.</translation>
+        <translation type="vanished">Copia solo il testo stampabile nel pacchetto.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
@@ -2174,6 +2174,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>…as a Hex Stream</source>
         <translation>...come un flusso esadecimale</translation>
+    </message>
+    <message>
+        <source>…as UTF-8 Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as UTF-8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as ASCII.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -4098,7 +4114,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Reset</source>
-        <translation>Ripristina</translation>
+        <translation type="vanished">Ripristina</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -7798,11 +7814,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il numero di pacchetti o eventi da verificare per la commutazione automatica del profilo.</translation>
     </message>
     <message>
         <source>Auto switch packet limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Limite pacchetti per commutazione automatica</translation>
     </message>
     <message>
         <source>Configuration Profiles</source>
@@ -7810,7 +7826,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Limite eventi per commutazione automatica</translation>
     </message>
     <message>
         <source>Import</source>
@@ -8359,7 +8375,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte senza ack (eccezionali) (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>

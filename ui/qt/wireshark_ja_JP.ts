@@ -2129,11 +2129,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>印刷可能なテキストとして…</translation>
+        <translation type="vanished">印刷可能なテキストとして…</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>パケット内の印刷可能なテキストだけをコピー</translation>
+        <translation type="vanished">パケット内の印刷可能なテキストだけをコピー</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
@@ -2166,6 +2166,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>…as a Hex Stream</source>
         <translation>16進数ストリームとして…</translation>
+    </message>
+    <message>
+        <source>…as UTF-8 Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as UTF-8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as ASCII.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -4080,7 +4096,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset</source>
-        <translation>リセット</translation>
+        <translation type="vanished">リセット</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -7779,11 +7795,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
-        <translation type="unfinished"></translation>
+        <translation>自動プロファイルスイッチのためのパケットやイベントの数</translation>
     </message>
     <message>
         <source>Auto switch packet limit</source>
-        <translation type="unfinished"></translation>
+        <translation>自動スイッチパケット限度</translation>
     </message>
     <message>
         <source>Configuration Profiles</source>
@@ -7791,7 +7807,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
+        <translation>自動スイッチイベント限度</translation>
     </message>
     <message>
         <source>Import</source>
@@ -8333,7 +8349,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKされていない(未処理の)バイト(B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>

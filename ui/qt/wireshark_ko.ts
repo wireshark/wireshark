@@ -2130,11 +2130,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>출력 가능한 문자열로 복사</translation>
+        <translation type="vanished">출력 가능한 문자열로 복사</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>패킷 내의 출력 가능한 문자열만 복사합니다.</translation>
+        <translation type="vanished">패킷 내의 출력 가능한 문자열만 복사합니다.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
@@ -2167,6 +2167,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>…as a Hex Stream</source>
         <translation>16진수 스트림으로 복사</translation>
+    </message>
+    <message>
+        <source>…as UTF-8 Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as UTF-8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as text, treating as ASCII.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -4081,7 +4097,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Reset</source>
-        <translation>초기화</translation>
+        <translation type="vanished">초기화</translation>
     </message>
     <message>
         <source>Reset Graph</source>
