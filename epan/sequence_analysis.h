@@ -64,12 +64,13 @@ typedef struct _seq_analysis_item {
 
 /** defines the graph analysis structure */
 typedef struct _seq_analysis_info {
-    const char* name;  /**< Name of sequence analysis */
+    const char* name;        /**< Name of sequence analysis */
     gboolean    any_addr;    /**< any addr (DL+net) vs net-only */
     int         nconv;       /**< number of conversations in the list */
     GQueue*     items;       /**< list of seq_analysis_info_t */
     GHashTable *ht;          /**< hash table of seq_analysis_info_t */
-    address nodes[MAX_NUM_NODES]; /**< horizontal node list */
+    address nodes[MAX_NUM_NODES];     /**< horizontal node list */
+    guint8  occurence[MAX_NUM_NODES]; /**< horizontal occurence list 0|1 */
     guint32 num_nodes;       /**< actual number of nodes */
 } seq_analysis_info_t;
 

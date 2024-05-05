@@ -272,6 +272,38 @@ static guint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
     }
 }
 
+/* Same as add_or_get_node() but invoked for conversations where the same address is both used
+ * as src and dst.
+ * The occurence number is tracking how many times this address was seen,
+ * value is 0 for the first occurence, 1 for the second, and we never go higher to not have
+ * too many Y-Axis in the diagram.
+ */
+static guint add_or_get_node_local(seq_analysis_info_t *sainfo, address *node, guint8 occurence) {
+    guint i;
+
+    if (node->type == AT_NONE) return NODE_OVERFLOW;
+
+    for (i=0; i<MAX_NUM_NODES && i < sainfo->num_nodes ; i++) {
+        if ( cmp_address(&(sainfo->nodes[i]), node) == 0 ) {
+
+            /* address is matching, go further by checking the occurence indication */
+            if(sainfo->occurence[i]==occurence) {
+                return i;
+            }
+        }
+    }
+
+    if (i >= MAX_NUM_NODES) {
+        return  NODE_OVERFLOW;
+    }
+    else { /* insert a new entry */
+        sainfo->num_nodes++;
+        copy_address(&(sainfo->nodes[i]), node);
+        sainfo->occurence[i] = occurence;
+        return i;
+    }
+}
+
 struct sainfo_counter {
     seq_analysis_info_t *sainfo;
     int num_items;
@@ -283,8 +315,22 @@ static void sequence_analysis_get_nodes_item_proc(gpointer data, gpointer user_d
     struct sainfo_counter *sc = (struct sainfo_counter *)user_data;
     if (gai->display) {
         (sc->num_items)++;
-        gai->src_node = add_or_get_node(sc->sainfo, &(gai->src_addr));
-        gai->dst_node = add_or_get_node(sc->sainfo, &(gai->dst_addr));
+
+        /* when both addresses are the same, look at the ports indications */
+        if( addresses_equal(&(gai->src_addr), &(gai->dst_addr)) ) {
+            if(gai->port_src < gai->port_dst) {
+                gai->src_node = add_or_get_node_local(sc->sainfo, &(gai->src_addr), 0 );
+                gai->dst_node = add_or_get_node_local(sc->sainfo, &(gai->dst_addr), 1 );
+            }
+            else {
+                gai->src_node = add_or_get_node_local(sc->sainfo, &(gai->src_addr), 1 );
+                gai->dst_node = add_or_get_node_local(sc->sainfo, &(gai->dst_addr), 0 );
+            }
+        }
+        else {
+            gai->src_node = add_or_get_node(sc->sainfo, &(gai->src_addr));
+            gai->dst_node = add_or_get_node(sc->sainfo, &(gai->dst_addr));
+        }
     }
 }
 
