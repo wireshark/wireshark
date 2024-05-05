@@ -9694,7 +9694,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKされていない(未処理の)バイト(B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>

@@ -5660,7 +5660,7 @@ serverdocs	10548/tcp	# Apple Document Sharing Service
 printopia	10631/tcp	# Printopia Serve
 gap		10800/tcp/udp	# Gestor de Acaparamiento para Pocket PCs
 lpdg		10805/tcp/udp	# LUCIA Pareja Data Group
-nbd		10809/tcp	# Linux Network Block Device
+nbd		10809/tcp	# Network Block Device
 nmc-disc	10810/udp	# Nuance Mobile Care Discovery
 helix		10860/tcp/udp	# Helix Client/Server
 bveapi		10880/tcp/udp	# BVEssentials HTTP API
