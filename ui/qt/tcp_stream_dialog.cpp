@@ -184,6 +184,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ctx_menu_.addAction(ui->actionToggleSequenceNumbers);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
     ctx_menu_.addAction(ui->actionCrosshairs);
+    connect(ui->actionCrosshairs, &QAction::triggered, this, &TCPStreamDialog::toggleTracerStyle);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionRoundTripTime);
     ctx_menu_.addAction(ui->actionThroughput);
