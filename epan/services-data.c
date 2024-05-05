@@ -5804,7 +5804,7 @@ static ws_services_entry_t global_tcp_services_table[] = {
     { 10443, "cirrossp",        "CirrosSP Workstation Communication" },
     { 10548, "serverdocs",      "Apple Document Sharing Service" },
     { 10631, "printopia",       "Printopia Serve" },
-    { 10809, "nbd",             "Linux Network Block Device" },
+    { 10809, "nbd",             "Network Block Device" },
     { 10933, "octopustentacle",  "Listen port used by the Octopus Deploy Tentacle deployment agent" },
     { 11103, "origo-sync",      "OrigoDB Server Sync Interface" },
     { 11104, "netapp-icmgmt",   "NetApp Intercluster Management" },
