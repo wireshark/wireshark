@@ -18,6 +18,7 @@
 typedef struct _mate_range mate_range;
 
 struct _mate_range {
+	tvbuff_t *ds_tvb;
 	guint start;
 	guint end;
 };
@@ -643,19 +644,84 @@ static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 	}
 }
 
+static proto_node *
+proto_tree_find_node_from_finfo(proto_tree *tree, field_info *finfo)
+{
+        proto_node *pnode = tree;
+        proto_node *child;
+        proto_node *current;
+
+	if (PNODE_FINFO(pnode) == finfo) {
+		return pnode;
+	}
+
+        child = pnode->first_child;
+        while (child != NULL) {
+                current = child;
+                child   = current->next;
+                if ((pnode = proto_tree_find_node_from_finfo((proto_tree *)current, finfo))) {
+                        return pnode;
+		}
+        }
+
+        return NULL;
+}
+
+/* This returns true if there's no point in searching for the avp among the
+ * ancestor nodes in the tree. That includes if the field is within one
+ * of the ranges, or if the field and all the ranges share the same
+ * data source.
+ */
+static bool
+add_avp(const char *name, field_info *fi, const field_info *ancestor_fi, tmp_pdu_data *data)
+{
+	AVP* avp;
+	char* s;
+	mate_range* curr_range;
+	unsigned start, end;
+	tvbuff_t *ds_tvb;
+	bool all_same_ds = true;
+
+	start = ancestor_fi->start;
+	end = ancestor_fi->start + ancestor_fi->length;
+	ds_tvb = ancestor_fi->ds_tvb;
+
+	for (unsigned j = 0; j < data->ranges->len; j++) {
+
+		curr_range = (mate_range*) g_ptr_array_index(data->ranges,j);
+
+		if (curr_range->ds_tvb == ds_tvb) {
+			if (curr_range->end >= end && curr_range->start <= start) {
+				avp = new_avp_from_finfo(name, fi);
+				if (*dbg_pdu > 4) {
+					s = avp_to_str(avp);
+					dbg_print(dbg_pdu,0,dbg_facility,"add_avp: got %s",s);
+					g_free(s);
+				}
+
+				if (! insert_avp(data->pdu->avpl, avp) ) {
+					delete_avp(avp);
+				}
+				return true;
+			}
+		} else {
+			all_same_ds = false;
+		}
+	}
+
+	return all_same_ds;
+}
+
 static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 	int hfid = *((int*) k);
 	gchar* name = (gchar*) v;
 	tmp_pdu_data* data = (tmp_pdu_data*) p;
 	GPtrArray* fis;
 	field_info* fi;
-	guint i,j;
-	mate_range* curr_range;
+	guint i;
 	guint start;
 	guint end;
-	AVP* avp;
-	gchar* s;
-
+	tvbuff_t *ds_tvb;
 
 	fis = proto_get_finfo_ptr_array(data->tree, hfid);
 
@@ -666,35 +732,33 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 
 			start = fi->start;
 			end = fi->start + fi->length;
+			ds_tvb = fi->ds_tvb;
 
 			dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: found field %s, %i-%i, length %i", fi->hfinfo->abbrev, start, end, fi->length);
 
-			for (j = 0; j < data->ranges->len; j++) {
-
-				curr_range = (mate_range*) g_ptr_array_index(data->ranges,j);
-
-				if (curr_range->end >= end && curr_range->start <= start) {
-					avp = new_avp_from_finfo(name, fi);
-
-					if (*dbg_pdu > 4) {
-						s = avp_to_str(avp);
-						dbg_print(dbg_pdu,0,dbg_facility,"get_pdu_fields: got %s",s);
-						g_free(s);
+			if (!add_avp(name, fi, fi, data)) {
+				/* The field came from a different data source than one of the
+				 * ranges (protocol, transport protocol, payload). Search for
+				 * the tree node with the field and look to see if one of its
+				 * parents is contained within one of the ranges.
+				 * (The field, and the hfis for the ranges, were marked as
+				 * interesting so this should always work, albeit slower than above.)
+				 */
+				for (proto_node *pnode = proto_tree_find_node_from_finfo(data->tree, fi);
+				     pnode; pnode = pnode->parent) {
+					field_info *ancestor_fi = PNODE_FINFO(pnode);
+					if (ancestor_fi && ancestor_fi->ds_tvb != ds_tvb) {
+						/* Only check anew when the data source changes. */
+						ds_tvb = ancestor_fi->ds_tvb;
+						if (add_avp(name, fi, ancestor_fi, data)) {
+							/* Go to next field in fis */
+							break;
+						}
 					}
-
-					if (! insert_avp(data->pdu->avpl,avp) ) {
-						delete_avp(avp);
-					}
-
 				}
 			}
 		}
 	}
-}
-
-static void ptr_array_free(gpointer data, gpointer user_data _U_)
-{
-	g_free(data);
 }
 
 static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto, proto_tree* tree) {
@@ -732,12 +796,13 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	pdu->is_stop = FALSE;
 	pdu->after_release = FALSE;
 
-	data.ranges = g_ptr_array_new();
+	data.ranges = g_ptr_array_new_with_free_func(g_free);
 	data.pdu  = pdu;
 	data.tree = tree;
 
 	/* first we create the proto range */
 	proto_range = g_new(mate_range, 1);
+	proto_range->ds_tvb = proto->ds_tvb;
 	proto_range->start = proto->start;
 	proto_range->end = proto->start + proto->length;
 	g_ptr_array_add(data.ranges,proto_range);
@@ -764,6 +829,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 			if ( range_fi ) {
 				range = (mate_range *)g_malloc(sizeof(*range));
+				range->ds_tvb = range_fi->ds_tvb;
 				range->start = range_fi->start;
 				range->end = range_fi->start + range_fi->length;
 				g_ptr_array_add(data.ranges,range);
@@ -801,6 +867,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 				if ( range_fi ) {
 					range = (mate_range *)g_malloc(sizeof(*range));
+					range->ds_tvb = range_fi->ds_tvb;
 					range->start = range_fi->start;
 					range->end = range_fi->start + range_fi->length;
 					g_ptr_array_add(data.ranges,range);
@@ -819,7 +886,6 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 	apply_transforms(pdu->cfg->transforms,pdu->avpl);
 
-	g_ptr_array_foreach(data.ranges, ptr_array_free, NULL);
 	g_ptr_array_free(data.ranges,TRUE);
 
 	return pdu;
