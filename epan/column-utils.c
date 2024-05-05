@@ -1693,8 +1693,13 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
 
   pinfo->cinfo->col_expr.col_expr[col] = address_type_column_filter_string(addr, is_src);
   /* For address types that have a filter, create a string */
-  if (strlen(pinfo->cinfo->col_expr.col_expr[col]) > 0)
+  if (strlen(pinfo->cinfo->col_expr.col_expr[col]) > 0) {
     address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+  } else {
+    /* For address types that don't, use the internal column FT_STRING hfi */
+    pinfo->cinfo->col_expr.col_expr[col] = proto_registrar_get_nth(col_item->hf_id)->abbrev;
+    (void) g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->columns[col].col_data, COL_MAX_LEN);
+  }
 }
 
 /* ------------------------ */
