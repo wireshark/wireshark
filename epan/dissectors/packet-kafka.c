@@ -285,6 +285,7 @@ static expert_field ei_kafka_bad_decompression_length;
 static expert_field ei_kafka_zero_decompression_length;
 static expert_field ei_kafka_unknown_message_magic;
 static expert_field ei_kafka_pdu_length_mismatch;
+static expert_field ei_kafka_zero_field_length;
 
 typedef gint16 kafka_api_key_t;
 typedef gint16 kafka_api_version_t;
@@ -1017,8 +1018,24 @@ dissect_kafka_array_elements(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                         int count)
 {
     int i;
+    int next_offset;
+
+    // sanity check - we expect at least 1 byte per array item
+    if (tvb_reported_length_remaining(tvb, offset) < count) {
+        expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_array_length);
+        return offset;
+    }
+
     for (i=0; i<count; i++) {
-        offset = func(tvb, pinfo, tree, offset, api_version);
+        next_offset = func(tvb, pinfo, tree, offset, api_version);
+
+        // sanity check - the offset should advance for each field we read
+        if (next_offset == offset) {
+            expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_zero_field_length);
+            break;
+        }
+
+        offset = next_offset;
     }
     return offset;
 }
@@ -11209,6 +11226,8 @@ proto_register_kafka_expert_module(const int proto) {
                     { "kafka.unknown_message_magic", PI_MALFORMED, PI_WARN, "Invalid message magic field", EXPFILL }},
             { &ei_kafka_pdu_length_mismatch,
                     { "kafka.pdu_length_mismatch", PI_MALFORMED, PI_WARN, "Dissected message does not end at the pdu length offset", EXPFILL }},
+            { &ei_kafka_zero_field_length,
+                    { "kafka.zero_field_length", PI_MALFORMED, PI_WARN, "Zero length field", EXPFILL }},
     };
     expert_kafka = expert_register_protocol(proto);
     expert_register_field_array(expert_kafka, ei, array_length(ei));
