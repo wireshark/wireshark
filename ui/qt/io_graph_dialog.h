@@ -232,6 +232,7 @@ private:
 private slots:
     void copyFromProfile(QString filename);
     void updateWidgets();
+    void showContextMenu(const QPoint &pos);
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);

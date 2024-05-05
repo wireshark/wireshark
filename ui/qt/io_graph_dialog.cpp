@@ -464,6 +464,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     ctx_menu_.addAction(ui->actionCrosshairs);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
+    iop->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(iop, &QCustomPlot::customContextMenuRequested, this, &IOGraphDialog::showContextMenu);
+
     iop->xAxis->setLabel(tr("Time (s)"));
 
     iop->setMouseTracking(true);
@@ -1170,19 +1173,16 @@ QRectF IOGraphDialog::getZoomRanges(QRect zoom_rect)
     return zoom_ranges;
 }
 
+void IOGraphDialog::showContextMenu(const QPoint &pos)
+{
+    ctx_menu_.popup(ui->ioPlot->mapToGlobal(pos));
+}
+
 void IOGraphDialog::graphClicked(QMouseEvent *event)
 {
     QCustomPlot *iop = ui->ioPlot;
 
-    if (event->button() == Qt::RightButton) {
-        // XXX We should find some way to get ioPlot to handle a
-        // contextMenuEvent instead.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        ctx_menu_.popup(event->globalPosition().toPoint());
-#else
-        ctx_menu_.popup(event->globalPos());
-#endif
-    } else  if (mouse_drags_) {
+    if (mouse_drags_) {
         if (iop->axisRect()->rect().contains(event->pos())) {
             iop->setCursor(QCursor(Qt::ClosedHandCursor));
         }

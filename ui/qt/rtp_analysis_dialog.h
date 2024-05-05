@@ -117,6 +117,7 @@ private slots:
     void on_actionSaveGraph_triggered();
     void on_buttonBox_helpRequested();
     void showStreamMenu(QPoint pos);
+    void showGraphMenu(const QPoint &pos);
     void graphClicked(QMouseEvent *event);
     void closeTab(int index);
     void rowCheckboxChanged(int checked);

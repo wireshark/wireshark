@@ -167,6 +167,9 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     action->setEnabled(false);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
+    sp->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(sp, &QCustomPlot::customContextMenuRequested, this, &SequenceDialog::showContextMenu);
+
     ui->addressComboBox->addItem(tr("Any"), QVariant(true));
     ui->addressComboBox->addItem(tr("Network"), QVariant(false));
     ui->addressComboBox->setCurrentIndex(ui->addressComboBox->findData(QVariant(true)));
@@ -373,6 +376,11 @@ void SequenceDialog::yAxisChanged(QCPRange range)
     ui->verticalScrollBar->setPageStep(qRound(qreal(range.size()*100.0)));
 }
 
+void SequenceDialog::showContextMenu(const QPoint &pos)
+{
+    ctx_menu_.popup(ui->sequencePlot->mapToGlobal(pos));
+}
+
 void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
     current_rtp_sai_selected_ = NULL;
@@ -395,13 +403,6 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
         switch (event->button()) {
         case Qt::LeftButton:
             on_actionGoToPacket_triggered();
-            break;
-        case Qt::RightButton:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-            ctx_menu_.popup(event->globalPosition().toPoint());
-#else
-            ctx_menu_.popup(event->globalPos());
-#endif
             break;
         default:
             break;

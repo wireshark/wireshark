@@ -69,6 +69,7 @@ private slots:
     void vScrollBarChanged(int value);
     void xAxisChanged(QCPRange range);
     void yAxisChanged(QCPRange range);
+    void showContextMenu(const QPoint &pos);
     void diagramClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
     void mouseWheeled(QWheelEvent *event);

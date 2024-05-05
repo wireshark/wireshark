@@ -192,6 +192,11 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ctx_menu_.addAction(ui->actionWindowScaling);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
+    QCustomPlot *sp = ui->streamPlot;
+
+    sp->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(sp, &QCustomPlot::customContextMenuRequested, this, &TCPStreamDialog::showContextMenu);
+
     graph_.type = graph_type;
     graph_.stream = th_stream;
     findStream();
@@ -229,7 +234,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->showBytesOutCheckBox->setChecked(true);
     ui->showBytesOutCheckBox->blockSignals(false);
 
-    QCustomPlot *sp = ui->streamPlot;
     QCPTextElement *file_title = new QCPTextElement(sp, gchar_free_to_qstring(cf_get_display_name(cap_file_)));
     file_title->setFont(sp->xAxis->labelFont());
     title_ = new QCPTextElement(sp);
@@ -1668,6 +1672,11 @@ QRectF TCPStreamDialog::getZoomRanges(QRect zoom_rect)
     return zoom_ranges;
 }
 
+void TCPStreamDialog::showContextMenu(const QPoint& pos)
+{
+    ctx_menu_.popup(ui->streamPlot->mapToGlobal(pos));
+}
+
 void TCPStreamDialog::graphClicked(QMouseEvent *event)
 {
     QCustomPlot *sp = ui->streamPlot;
@@ -1675,15 +1684,7 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
     // mouse press on graph should reset focus to graph
     sp->setFocus();
 
-    if (event->button() == Qt::RightButton) {
-        // XXX We should find some way to get streamPlot to handle a
-        // contextMenuEvent instead.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        ctx_menu_.popup(event->globalPosition().toPoint());
-#else
-        ctx_menu_.popup(event->globalPos());
-#endif
-    } else  if (mouse_drags_) {
+    if (mouse_drags_) {
         if (sp->axisRect()->rect().contains(event->pos())) {
             sp->setCursor(QCursor(Qt::ClosedHandCursor));
         }

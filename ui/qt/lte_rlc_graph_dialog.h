@@ -82,6 +82,7 @@ private:
     void toggleTracerStyle(bool force_default);
 
 private slots:
+    void showContextMenu(const QPoint &pos);
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);

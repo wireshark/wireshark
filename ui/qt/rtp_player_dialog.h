@@ -146,6 +146,7 @@ private slots:
     void itemEntered(QTreeWidgetItem *item, int column);
     void mouseMovePlot(QMouseEvent *event);
     void mouseMoveUpdate();
+    void showGraphContextMenu(const QPoint &pos);
     void graphClicked(QMouseEvent *event);
     void graphDoubleClicked(QMouseEvent *event);
     void plotClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);

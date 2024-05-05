@@ -278,6 +278,10 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     graph_ctx_menu_.addAction(ui->actionSaveGraph);
 
+    ui->streamGraph->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->streamGraph, &QCustomPlot::customContextMenuRequested, this,
+            &RtpAnalysisDialog::showGraphMenu);
+
     ui->streamGraph->xAxis->setLabel("Arrival Time");
     ui->streamGraph->yAxis->setLabel("Value (ms)");
 
@@ -967,16 +971,14 @@ bool RtpAnalysisDialog::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void RtpAnalysisDialog::graphClicked(QMouseEvent *event)
+void RtpAnalysisDialog::showGraphMenu(const QPoint &pos)
+{
+    graph_ctx_menu_.popup(ui->streamGraph->mapToGlobal(pos));
+}
+
+void RtpAnalysisDialog::graphClicked(QMouseEvent*)
 {
     updateWidgets();
-    if (event->button() == Qt::RightButton) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        graph_ctx_menu_.popup(event->globalPosition().toPoint());
-#else
-        graph_ctx_menu_.popup(event->globalPos());
-#endif
-    }
 }
 
 void RtpAnalysisDialog::clearLayout(QLayout *layout)

@@ -206,6 +206,9 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     graph_ctx_menu_->addAction(ui->actionGoToSetupPacketPlot);
     set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
+    ui->audioPlot->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->audioPlot, &QCustomPlot::customContextMenuRequested, this, &RtpPlayerDialog::showGraphContextMenu);
+
     ui->streamTreeWidget->setMouseTracking(true);
     mouse_update_timer_ = new QTimer(this);
     mouse_update_timer_->setSingleShot(true);
@@ -1157,16 +1160,14 @@ void RtpPlayerDialog::mouseMoveUpdate()
     handleItemHighlight(ti, true);
 }
 
-void RtpPlayerDialog::graphClicked(QMouseEvent *event)
+void RtpPlayerDialog::showGraphContextMenu(const QPoint &pos)
+{
+    graph_ctx_menu_->popup(ui->audioPlot->mapToGlobal(pos));
+}
+
+void RtpPlayerDialog::graphClicked(QMouseEvent*)
 {
     updateWidgets();
-    if (event->button() == Qt::RightButton) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        graph_ctx_menu_->popup(event->globalPosition().toPoint());
-#else
-        graph_ctx_menu_->popup(event->globalPos());
-#endif
-    }
 }
 
 void RtpPlayerDialog::graphDoubleClicked(QMouseEvent *event)

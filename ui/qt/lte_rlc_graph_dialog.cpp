@@ -97,6 +97,9 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     ctx_menu_->addAction(ui->actionSwitchDirection);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_->actions());
 
+    rp->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(rp, &QCustomPlot::customContextMenuRequested, this, &LteRlcGraphDialog::showContextMenu);
+
     // Zero out this struct.
     memset(&graph_, 0, sizeof(graph_));
 
@@ -557,19 +560,16 @@ QRectF LteRlcGraphDialog::getZoomRanges(QRect zoom_rect)
     return zoom_ranges;
 }
 
+void LteRlcGraphDialog::showContextMenu(const QPoint &pos)
+{
+    ctx_menu_->popup(ui->rlcPlot->mapToGlobal(pos));
+}
+
 void LteRlcGraphDialog::graphClicked(QMouseEvent *event)
 {
     QCustomPlot *rp = ui->rlcPlot;
 
-    if (event->button() == Qt::RightButton) {
-        // XXX We should find some way to get rlcPlot to handle a
-        // contextMenuEvent instead.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        ctx_menu_->popup(event->globalPosition().toPoint());
-#else
-        ctx_menu_->popup(event->globalPos());
-#endif
-    } else  if (mouse_drags_) {
+    if (mouse_drags_) {
         if (rp->axisRect()->rect().contains(event->pos())) {
             rp->setCursor(QCursor(Qt::ClosedHandCursor));
         }

@@ -139,6 +139,7 @@ private:
     QRectF getZoomRanges(QRect zoom_rect);
 
 private slots:
+    void showContextMenu(const QPoint &pos);
     void graphClicked(QMouseEvent *event);
     void axisClicked(QCPAxis *axis, QCPAxis::SelectablePart part, QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);

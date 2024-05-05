@@ -228,6 +228,9 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(graphClicked(QMouseEvent*)));
 
     graph_ctx_menu_.addAction(ui->actionSaveGraph);
+    ui->streamGraph->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->streamGraph, &QCustomPlot::customContextMenuRequested, this,
+                &Iax2AnalysisDialog::showGraphMenu);
 
     QStringList header_labels;
     for (int i = 0; i < ui->forwardTreeWidget->columnCount(); i++) {
@@ -1222,16 +1225,14 @@ bool Iax2AnalysisDialog::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void Iax2AnalysisDialog::graphClicked(QMouseEvent *event)
+void Iax2AnalysisDialog::showGraphMenu(const QPoint &pos)
+{
+    graph_ctx_menu_.popup(ui->streamGraph->mapToGlobal(pos));
+}
+
+void Iax2AnalysisDialog::graphClicked(QMouseEvent *)
 {
     updateWidgets();
-    if (event->button() == Qt::RightButton) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        graph_ctx_menu_.popup(event->globalPosition().toPoint());
-#else
-        graph_ctx_menu_.popup(event->globalPos());
-#endif
-    }
 }
 
 void Iax2AnalysisDialog::showStreamMenu(QPoint pos)
