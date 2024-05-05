@@ -48,10 +48,30 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
          * We only know the stream number. Fill in our connection data.
          * We assume that the server response is more interesting.
          */
-        copy_address(&tg->src_address, &tcphdr->ip_dst);
-        tg->src_port = tcphdr->th_dport;
-        copy_address(&tg->dst_address, &tcphdr->ip_src);
-        tg->dst_port = tcphdr->th_sport;
+        bool server_is_src;
+        if (tcphdr->th_flags & TH_SYN) {
+            if (tcphdr->th_flags & TH_ACK) {
+                /* SYN-ACK packet, so the server is the source. */
+                server_is_src = true;
+            } else {
+                /* SYN packet, so the server is the destination. */
+                server_is_src = false;
+            }
+        } else {
+            /* Fallback to assuming the lower numbered port is the server. */
+            server_is_src = tcphdr->th_sport < tcphdr->th_dport;
+        }
+        if (server_is_src) {
+            copy_address(&tg->src_address, &tcphdr->ip_src);
+            tg->src_port = tcphdr->th_sport;
+            copy_address(&tg->dst_address, &tcphdr->ip_dst);
+            tg->dst_port = tcphdr->th_dport;
+        } else {
+            copy_address(&tg->src_address, &tcphdr->ip_dst);
+            tg->src_port = tcphdr->th_dport;
+            copy_address(&tg->dst_address, &tcphdr->ip_src);
+            tg->dst_port = tcphdr->th_sport;
+        }
     }
 
     if (compare_headers(&tg->src_address, &tg->dst_address,
