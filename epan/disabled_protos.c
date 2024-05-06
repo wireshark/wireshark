@@ -173,7 +173,7 @@ skip:
  */
 static void
 save_protos_list(char **pref_path_return, int *errno_return, const char* filename,
-                const char* header_comment, gboolean (*protocol_check)(protocol_t  *protocol))
+                const char* header_comment, bool (*protocol_check)(protocol_t  *protocol))
 {
   gchar       *ff_path, *ff_path_new;
   FILE        *ff;
@@ -503,12 +503,12 @@ proto_disable_proto_by_name(const char *name)
   }
 }
 
-static gboolean disable_proto_list_check(protocol_t  *protocol)
+static bool disable_proto_list_check(protocol_t  *protocol)
 {
     if (proto_is_protocol_enabled(protocol) == FALSE)
-      return TRUE;
+      return true;
 
-    return FALSE;
+    return false;
 }
 
 /************************************************************************
@@ -542,13 +542,13 @@ proto_enable_proto_by_name(const char *name)
   }
 }
 
-static gboolean enable_proto_list_check(protocol_t  *protocol)
+static bool enable_proto_list_check(protocol_t  *protocol)
 {
   if ((proto_is_protocol_enabled_by_default(protocol) == FALSE) &&
       (proto_is_protocol_enabled(protocol) == TRUE))
-    return TRUE;
+    return true;
 
-  return FALSE;
+  return false;
 }
 
 /************************************************************************
