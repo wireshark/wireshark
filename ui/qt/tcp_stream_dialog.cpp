@@ -571,7 +571,8 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
     ts_offset_ = 0;
     seq_offset_ = 0;
-    bool first = true;
+    bool ts_unset = ts_origin_conn_;
+    bool seq_unset = seq_origin_zero_;
     uint64_t bytes_fwd = 0;
     uint64_t bytes_rev = 0;
     int pkts_fwd = 0;
@@ -593,15 +594,29 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
             pkts_fwd++;
         }
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
-        if (first) {
-            if (ts_origin_conn_) ts_offset_ = ts;
-            if (seq_origin_zero_) {
-                if (compareHeaders(seg))
+        if (ts_unset) {
+            ts_offset_ = ts;
+            ts_unset = false;
+        }
+        if (seq_unset) {
+            if (compareHeaders(seg)) {
+                // As with the TCP dissector, if this isn't the SYN or SYN-ACK,
+                // start the relative sequence numbers at 1.
+                if (seg->th_flags & TH_SYN) {
                     seq_offset_ = seg->th_seq;
-                else
-                    seq_offset_ = seg->th_ack;
+                } else {
+                    seq_offset_ = seg->th_seq - 1;
+                }
+                seq_unset = false;
+            } else {
+                // A SYN in the reverse direction does not tell us the base
+                // sequence number, but for other segments (including SYN-ACK)
+                // start the offset at 1, like the TCP dissector.
+                if ((seg->th_flags & TH_SYN) != TH_SYN) {
+                    seq_offset_ -= seg->th_ack - 1;
+                    seq_unset = false;
+                }
             }
-            first = false;
         }
         if (insert) {
             time_stamp_map_.insert(ts - ts_offset_, seg);
@@ -1469,6 +1484,12 @@ void TCPStreamDialog::fillRoundTripTime()
     uint32_t seq_base = 0;
     struct rtt_unack *unack_list = NULL, *u = NULL;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        // XXX - Should this just use seq_offset_? Our comparisons are
+        // wraparound now and should be fine without computing a base
+        // (we're not doing anything to extend sequence numbers to handle
+        // connections longer than 4 GiB), and that would let the user swap.
+        // (We should make clicking the X axis swap seq_origin_zero_ if
+        // bySeqNumber is checked.)
         if (compareHeaders(seg)) {
             seq_base = seg->th_seq;
             break;
@@ -1793,12 +1814,16 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 
         tracer_->setVisible(true);
         packet_num_ = packet_seg->num;
+        // XXX - We should probably change the sequence number displayed by
+        // seq_offset_ but in that case we should also store a base sequence
+        // number for the other direction so the th_ack can also be adjusted
+        // to a relative sequence number.
         hint += tr("%1 %2 (%3s len %4 seq %5 ack %6 win %7)")
                 .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
                 .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
                 .arg(packet_seg->th_seglen)
-                .arg(packet_seg->th_seq)
+                .arg(packet_seg->th_seq) // - seq_offset_)
                 .arg(packet_seg->th_ack)
                 .arg(packet_seg->th_win);
         tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));

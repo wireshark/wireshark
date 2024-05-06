@@ -90,8 +90,14 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         segment->abs_secs  = pinfo->abs_ts.secs;
         segment->abs_usecs = pinfo->abs_ts.nsecs/1000;
         */
-        segment->th_seq    = tcphdr->th_seq;
-        segment->th_ack    = tcphdr->th_ack;
+        /* tcphdr->th_rawseq is always the absolute sequence number.
+         * tcphdr->th_seq is either the relative or absolute sequence number
+         * depending on the TCP dissector preferences.
+         * The TCP stream graphs have their own action / button press to
+         * switch between relative and absolute sequence numbers on the fly.
+         */
+        segment->th_seq    = tcphdr->th_rawseq;
+        segment->th_ack    = tcphdr->th_rawack;
         segment->th_win    = tcphdr->th_win;
         segment->th_flags  = tcphdr->th_flags;
         segment->th_sport  = tcphdr->th_sport;

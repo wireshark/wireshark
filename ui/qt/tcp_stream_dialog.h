@@ -69,7 +69,7 @@ private:
     double ts_offset_;
     bool ts_origin_conn_;
     QMap<double, struct segment *> sequence_num_map_;
-    double seq_offset_;
+    uint32_t seq_offset_;
     bool seq_origin_zero_;
     struct tcp_graph graph_;
     QCPTextElement *title_;
