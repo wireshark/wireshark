@@ -80,7 +80,8 @@ protected:
         CopySelectedValue,
         CopyListAsText,
         CopyListAsCSV,
-        CopyListAsYAML
+        CopyListAsYAML,
+        CopyListAsHTML,
     };
 
     void showWelcome();

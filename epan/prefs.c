@@ -155,6 +155,14 @@ static const enum_val_t gui_selection_style[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t gui_packet_list_copy_format_options_for_keyboard_shortcut[] = {
+    {"TEXT", "Text", COPY_FORMAT_TEXT},
+    {"CSV",  "CSV",  COPY_FORMAT_CSV},
+    {"YAML", "YAML", COPY_FORMAT_YAML},
+    {"HTML", "HTML", COPY_FORMAT_HTML},
+    {NULL, NULL, -1}
+};
+
 /* None : Historical behavior, no deinterlacing */
 #define CONV_DEINT_CHOICE_NONE 0
 /* MI : MAC & Interface */
@@ -3697,6 +3705,16 @@ prefs_register_modules(void)
             " two files per RTP stream."
             ,&prefs.gui_rtp_player_use_disk2);
 
+    prefs_register_enum_preference(gui_layout_module, "gui_packet_list_copy_format_options_for_keyboard_shortcut",
+                                   "Allows text to be copied with selected format",
+                                   "Allows text to be copied with selected format when copied via keyboard",
+                                   (int*)(void*)(&prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut),
+                                   gui_packet_list_copy_format_options_for_keyboard_shortcut, false);
+
+    prefs_register_bool_preference(gui_layout_module, "gui_packet_list_copy_text_with_aligned_columns",
+                                   "Allows text to be copied with aligned columns",
+                                   "Allows text to be copied with aligned columns when copied via menu or keyboard",
+                                   &prefs.gui_packet_list_copy_text_with_aligned_columns);
 
     prefs_register_bool_preference(gui_layout_module, "packet_list_show_related",
                                    "Show Related Packets",
@@ -4393,6 +4411,8 @@ pre_init_prefs(void)
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
     prefs.gui_packet_list_elide_mode = ELIDE_RIGHT;
+    prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut = COPY_FORMAT_TEXT;
+    prefs.gui_packet_list_copy_text_with_aligned_columns = false;
     prefs.gui_packet_list_show_related = true;
     prefs.gui_packet_list_show_minimap = true;
     prefs.gui_packet_list_sortable     = true;

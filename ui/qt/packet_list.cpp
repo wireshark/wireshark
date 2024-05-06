@@ -746,6 +746,9 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     action = submenu->addAction(tr("…as YAML"));
     action->setData(CopyAsYAML);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr("…as HTML"));
+    action->setData(CopyAsHTML);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();
 
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
@@ -961,7 +964,7 @@ void PacketList::keyPressEvent(QKeyEvent *event)
 
     if (event->matches(QKeySequence::Copy))
     {
-        QStringList content;
+        QStringList content, htmlContent;
         if (model() && selectionModel() && selectionModel()->hasSelection())
         {
             QList<int> rows;
@@ -969,19 +972,75 @@ void PacketList::keyPressEvent(QKeyEvent *event)
             foreach(QModelIndex row, selRows)
                 rows.append(row.row());
 
+            QStringList hdr_parts;
+            QList<int> align_parts, size_parts;
+
+            switch (prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut) {
+            case COPY_FORMAT_TEXT:
+            case COPY_FORMAT_HTML:
+                if (prefs.gui_packet_list_copy_text_with_aligned_columns) {
+                    hdr_parts = createHeaderPartsForAligned();
+                    align_parts = createAlignmentPartsForAligned();
+                    size_parts = createSizePartsForAligned(false, hdr_parts, rows);
+                }
+                if (prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut == COPY_FORMAT_HTML) {
+                    htmlContent << createDefaultStyleForHtml();
+                    htmlContent << createOpeningTagForHtml();
+                }
+                break;
+            case COPY_FORMAT_CSV:
+            case COPY_FORMAT_YAML:
+                break;
+            }
+
+            QList<QStringList> entries;
             foreach(int row, rows)
             {
                 QModelIndex idx = model()->index(row, 0);
                 if (! idx.isValid())
                     continue;
 
-                QString entry = createSummaryText(idx, CopyAsText);
-                content << entry;
+                switch (prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut) {
+                case COPY_FORMAT_TEXT:
+                case COPY_FORMAT_HTML:
+                    if (prefs.gui_packet_list_copy_text_with_aligned_columns)
+                        content << createSummaryForAligned(idx, align_parts, size_parts);
+                    else
+                        content << createSummaryText(idx, CopyAsText);
+                    if (prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut == COPY_FORMAT_HTML)
+                        htmlContent << createSummaryForHtml(idx);
+                    break;
+                case COPY_FORMAT_CSV:
+                    content << createSummaryText(idx, CopyAsCSV);
+                    break;
+                case COPY_FORMAT_YAML:
+                    content << createSummaryText(idx, CopyAsYAML);
+                    break;
+                }
             }
         }
 
-        if (content.count() > 0)
-            mainApp->clipboard()->setText(content.join('\n'), QClipboard::Clipboard);
+        if (prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut == COPY_FORMAT_HTML) {
+            // htmlContent will never be empty as they will always have style and table tags
+            QMimeData *mimeData = new QMimeData;
+            htmlContent << createClosingTagForHtml();
+            mimeData->setHtml(htmlContent.join('\n'));
+            mimeData->setText(content.join('\n').append("\n"));
+            mainApp->clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
+        }
+        else {
+            if (content.count() > 0) {
+                QString copy_text;
+                if (prefs.gui_packet_list_copy_format_options_for_keyboard_shortcut == COPY_FORMAT_YAML) {
+                    copy_text = content.join("");
+                }
+                else {
+                    copy_text = content.join("\n");
+	                copy_text += "\n";
+                }
+                mainApp->clipboard()->setText(copy_text);
+            }
+        }
     }
 }
 
@@ -1961,13 +2020,173 @@ QString PacketList::createSummaryText(QModelIndex idx, SummaryCopyType type)
 QString PacketList::createHeaderSummaryText(SummaryCopyType type)
 {
     QStringList col_parts;
-    for (int col = 0; col < packet_list_model_->columnCount(); ++col)
-    {
+    for (int col = 0; col < packet_list_model_->columnCount(); ++col) {
         if (get_column_visible(col)) {
             col_parts << packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
         }
     }
     return joinSummaryRow(col_parts, 0, type);
+}
+
+QStringList PacketList::createHeaderPartsForAligned()
+{
+    QStringList hdr_parts;
+    for (int col = 0; col < packet_list_model_->columnCount(); ++col) {
+        if (get_column_visible(col)) {
+            hdr_parts << packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
+        }
+    }
+    return hdr_parts;
+}
+
+QList<int> PacketList::createAlignmentPartsForAligned()
+{
+    QList<int> align_parts;
+    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        if (get_column_visible(col)) {
+            align_parts << packet_list_model_->data(packet_list_model_->index(0, col), Qt::TextAlignmentRole).toInt();
+        }
+    }
+    return align_parts;
+}
+
+QList<int> PacketList::createSizePartsForAligned(bool useHeader, QStringList hdr_parts, QList<int> rows)
+{
+    QList<int> size_parts;
+
+    for (int i = 0; i < hdr_parts.size(); ++i) {
+        if (useHeader)
+            size_parts << static_cast<int>(hdr_parts.at(i).size());
+        else
+            size_parts << 0;
+    }
+
+    foreach(int row, rows)
+    {
+        QModelIndex idx = model()->index(row, 0);
+        if (! idx.isValid())
+            continue;
+
+        QStringList col_parts;
+        for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+            if (get_column_visible(col)) {
+                col_parts << (packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString());
+            }
+        }
+
+        for (int i = 0; i < col_parts.size(); ++i) {
+            if (col_parts.at(i).size() > size_parts.at(i)) {
+                size_parts[i] = static_cast<int>(col_parts.at(i).size());
+            }
+        }
+        col_parts.clear();
+    }
+
+    return size_parts;
+}
+
+QString PacketList::createHeaderSummaryForAligned(QStringList hdr_parts, QList<int> align_parts, QList<int> size_parts)
+{
+    QString hdr_text;
+    for (int i = 0; i < hdr_parts.size(); ++i) {
+        if (align_parts.at(i) == Qt::AlignLeft) {
+            hdr_text += hdr_parts[i].leftJustified(size_parts.at(i), ' ') + "  ";
+        }
+        else if (align_parts.at(i) == Qt::AlignRight) {
+            hdr_text += hdr_parts[i].rightJustified(size_parts.at(i), ' ') + "  ";
+        }
+    }
+    return QString("-" + hdr_text).trimmed().mid(1);
+}
+
+QString PacketList::createSummaryForAligned(QModelIndex idx, QList<int> align_parts, QList<int> size_parts)
+{
+    if (! idx.isValid())
+        return "";
+
+    QStringList col_parts;
+    int row = idx.row();
+    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        if (get_column_visible(col)) {
+            col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+        }
+    }
+
+    QString col_text;
+    for (int i = 0; i < col_parts.size(); ++i) {
+        if (align_parts.at(i) == Qt::AlignLeft) {
+            col_text += col_parts[i].leftJustified(size_parts.at(i), ' ') + "  ";
+        }
+        else if (align_parts.at(i) == Qt::AlignRight) {
+            col_text += col_parts[i].rightJustified(size_parts.at(i), ' ') + "  ";
+        }
+    }
+
+    return QString("-" + col_text).trimmed().mid(1);
+}
+
+QString PacketList::createDefaultStyleForHtml()
+{
+    QString style_text;
+    style_text = "<style>";
+    QString fontFamily = QString(prefs.gui_font_name).split(",")[0];
+    QString fontSize = QString(prefs.gui_font_name).split(",")[1];
+    style_text += "table{font-family:" + fontFamily + ";font-size:" + fontSize + "pt;}";
+    style_text += "th{background-color:#000000;color:#ffffff;text-align:left;}";
+    style_text += "th,td{padding:" + QString::number(fontSize.toInt() / 2) + "pt}";
+    style_text += "</style>";
+    return style_text;
+}
+
+QString PacketList::createOpeningTagForHtml()
+{
+    return "<table>";
+}
+
+QString PacketList::createHeaderSummaryForHtml()
+{
+    QString hdr_text;
+    hdr_text += "<tr>";
+    for (int col = 0; col < packet_list_model_->columnCount(); ++col) {
+        if (get_column_visible(col)) {
+            hdr_text += "<th>";
+            hdr_text += packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
+            hdr_text += "</th>";
+        }
+    }
+    hdr_text += "</tr>";
+    return hdr_text;
+}
+
+QString PacketList::createSummaryForHtml(QModelIndex idx)
+{
+    if (! idx.isValid())
+        return "";
+
+    int row = idx.row();
+    QString col_text;
+
+    QString bg_color = packet_list_model_->data(packet_list_model_->index(row, 0), Qt::BackgroundRole).toString();
+    QString fg_color = packet_list_model_->data(packet_list_model_->index(row, 0), Qt::ForegroundRole).toString();
+    col_text += "<tr style=\"background-color:" + bg_color + ";color:" + fg_color + ";\">";
+
+    QString alignment[] = {"left", "right", "center", "justify"};
+
+    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        if (get_column_visible(col)) {
+            col_text += "<td style=\"text-align:" + alignment[packet_list_model_->data(packet_list_model_->index(row, col), Qt::TextAlignmentRole).toInt() / 2] + ";\">";
+            col_text += packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+            col_text += "</td>";
+        }
+    }
+
+    col_text += "</tr>";
+    return col_text;
+}
+
+QString PacketList::createClosingTagForHtml()
+{
+    return "</table>";
 }
 
 void PacketList::copySummary()
@@ -1982,9 +2201,45 @@ void PacketList::copySummary()
         return;
     SummaryCopyType copy_type = type.value<SummaryCopyType>();
 
-    QString copy_text = createSummaryText(currentIndex(), copy_type);
-
-    mainApp->clipboard()->setText(copy_text);
+    QString copy_text;
+    if (type == CopyAsText || type == CopyAsHTML) {
+        if (prefs.gui_packet_list_copy_text_with_aligned_columns) {
+            QList<int> rows;
+            rows << currentIndex().row();
+            QStringList hdr_parts;
+            QList<int> align_parts, size_parts;
+            hdr_parts = createHeaderPartsForAligned();
+            align_parts = createAlignmentPartsForAligned();
+            size_parts = createSizePartsForAligned(false, hdr_parts, rows);
+            copy_text = createSummaryForAligned(currentIndex(), align_parts, size_parts);
+        }
+        else {
+            copy_text = createSummaryText(currentIndex(), CopyAsText);
+        }
+        copy_text += "\n";
+        if (type == CopyAsHTML) {
+            QStringList htmlContent;
+            htmlContent << createDefaultStyleForHtml();
+            htmlContent << createOpeningTagForHtml();
+            htmlContent << createSummaryForHtml(currentIndex());
+            htmlContent << createClosingTagForHtml();
+            // htmlContent will never be empty as they will always have
+            // style and table tags
+            QMimeData *mimeData = new QMimeData;
+            mimeData->setHtml(htmlContent.join('\n'));
+            mimeData->setText(copy_text);
+            mainApp->clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
+        }
+        else {
+            mainApp->clipboard()->setText(copy_text);
+        }
+    }
+    else {
+        copy_text = createSummaryText(currentIndex(), copy_type);
+        if (type != CopyAsYAML)
+            copy_text += "\n";
+        mainApp->clipboard()->setText(copy_text);
+    }
 }
 
 // We need to tell when the user has scrolled the packet list, either to

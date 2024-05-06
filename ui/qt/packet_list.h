@@ -46,7 +46,8 @@ public:
     enum SummaryCopyType {
         CopyAsText,
         CopyAsCSV,
-        CopyAsYAML
+        CopyAsYAML,
+        CopyAsHTML
     };
     Q_ENUM(SummaryCopyType)
 
@@ -97,6 +98,18 @@ public:
 
     QString createSummaryText(QModelIndex idx, SummaryCopyType type);
     QString createHeaderSummaryText(SummaryCopyType type);
+
+    QStringList createHeaderPartsForAligned();
+    QList<int> createAlignmentPartsForAligned();
+    QList<int> createSizePartsForAligned(bool useHeader, QStringList hdr_parts, QList<int> rows);
+    QString createHeaderSummaryForAligned(QStringList hdr_parts, QList<int> align_parts, QList<int> size_parts);
+    QString createSummaryForAligned(QModelIndex idx, QList<int> align_parts, QList<int> size_parts);
+
+    QString createDefaultStyleForHtml();
+    QString createOpeningTagForHtml();
+    QString createHeaderSummaryForHtml();
+    QString createSummaryForHtml(QModelIndex idx);
+    QString createClosingTagForHtml();
 
     void resizeAllColumns(bool onlyTimeFormatted = false);
 

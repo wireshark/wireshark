@@ -659,6 +659,7 @@
      <addaction name="actionCopyListAsText"/>
      <addaction name="actionCopyListAsCSV"/>
      <addaction name="actionCopyListAsYAML"/>
+     <addaction name="actionCopyListAsHTML"/>
      <addaction name="separator"/>
      <addaction name="actionCopyAllVisibleItems"/>
      <addaction name="actionCopyAllVisibleSelectedTreeItems"/>
@@ -1368,6 +1369,11 @@
   <action name="actionCopyListAsYAML">
    <property name="text">
     <string>As &amp;YAML</string>
+   </property>
+  </action>
+  <action name="actionCopyListAsHTML">
+   <property name="text">
+    <string>As &amp;HTML</string>
    </property>
   </action>
   <action name="actionCopyAllVisibleItems">
