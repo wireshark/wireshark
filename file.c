@@ -2244,7 +2244,7 @@ typedef enum {
 static psp_return_t
 process_specified_records(capture_file *cf, packet_range_t *range,
         const char *string1, const char *string2, gboolean terminate_is_stop,
-        gboolean (*callback)(capture_file *, frame_data *,
+        bool (*callback)(capture_file *, frame_data *,
             wtap_rec *, Buffer *, void *),
         void *callback_args,
         gboolean show_progress_bar)
@@ -2383,7 +2383,7 @@ typedef struct {
     column_info *cinfo;
 } retap_callback_args_t;
 
-static gboolean
+static bool
 retap_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
         void *argsp)
 {
@@ -2394,7 +2394,7 @@ retap_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
             fdata, args->cinfo);
     epan_dissect_reset(&args->edt);
 
-    return TRUE;
+    return true;
 }
 
 cf_read_status_t
@@ -2537,7 +2537,7 @@ typedef struct {
     epan_dissect_t edt;
 } print_callback_args_t;
 
-static gboolean
+static bool
 print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
         void *argsp)
 {
@@ -2692,11 +2692,11 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
         args->print_formfeed = TRUE;
     }
 
-    return TRUE;
+    return true;
 
 fail:
     epan_dissect_reset(&args->edt);
-    return FALSE;
+    return false;
 }
 
 cf_print_status_t
@@ -2886,7 +2886,7 @@ typedef struct {
     json_dumper jdumper;
 } write_packet_callback_args_t;
 
-static gboolean
+static bool
 write_pdml_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         Buffer *buf, void *argsp)
 {
@@ -2962,7 +2962,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_OK;
 }
 
-static gboolean
+static bool
 write_psml_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         Buffer *buf, void *argsp)
 {
@@ -3046,7 +3046,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_OK;
 }
 
-static gboolean
+static bool
 write_csv_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         Buffer *buf, void *argsp)
 {
@@ -3122,7 +3122,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_OK;
 }
 
-static gboolean
+static bool
 carrays_write_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         Buffer *buf, void *argsp)
 {
@@ -3184,7 +3184,7 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_OK;
 }
 
-static gboolean
+static bool
 write_json_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         Buffer *buf, void *argsp)
 {
@@ -5268,7 +5268,7 @@ typedef struct {
  * Returns TRUE if it succeeds, FALSE otherwise; if it fails, it pops
  * up a message box for the failure.
  */
-static gboolean
+static bool
 save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec,
         Buffer *buf, void *argsp)
 {
