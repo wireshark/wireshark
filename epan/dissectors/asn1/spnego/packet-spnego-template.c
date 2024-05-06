@@ -111,6 +111,7 @@ static int dissect_spnego_NegTokenInit2(bool implicit_tag, tvbuff_t *tvb,
 #define KRB_TOKEN_DELETE_SEC_CONTEXT  0x0201
 #define KRB_TOKEN_TGT_REQ             0x0004
 #define KRB_TOKEN_TGT_REP             0x0104
+#define KRB_TOKEN_IAKERB_PROXY        0x0105
 #define KRB_TOKEN_CFX_GETMIC          0x0404
 #define KRB_TOKEN_CFX_WRAP            0x0405
 
@@ -123,8 +124,9 @@ static const value_string spnego_krb5_tok_id_vals[] = {
   { KRB_TOKEN_DELETE_SEC_CONTEXT, "KRB5_GSS_Delete_sec_context" },
   { KRB_TOKEN_TGT_REQ,            "KERB_TGT_REQUEST" },
   { KRB_TOKEN_TGT_REP,            "KERB_TGT_REPLY" },
+  { KRB_TOKEN_IAKERB_PROXY,       "KRB_TOKEN_IAKERB_PROXY" },
   { KRB_TOKEN_CFX_GETMIC,         "KRB_TOKEN_CFX_GetMic" },
-  { KRB_TOKEN_CFX_WRAP,            "KRB_TOKEN_CFX_WRAP" },
+  { KRB_TOKEN_CFX_WRAP,           "KRB_TOKEN_CFX_WRAP" },
   { 0, NULL}
 };
 
@@ -303,6 +305,11 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id, encrypt_info);
       break;
 
+    case KRB_TOKEN_IAKERB_PROXY:
+      offset = dissect_spnego_IAKERB_HEADER(FALSE, tvb, offset, &asn1_ctx, subtree, -1);
+      krb5_tvb = tvb_new_subset_remaining(tvb, offset);
+      offset += dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
+      break;
     default:
 
       break;
@@ -1449,7 +1456,9 @@ void proto_reg_handoff_spnego(void) {
   gssapi_init_oid("1.2.840.113554.1.2.2.3", proto_spnego_krb5, ett_spnego_krb5,
                   spnego_krb5_handle, spnego_krb5_wrap_handle,
                   "KRB5 - Kerberos 5 - User to User");
-
+  gssapi_init_oid("1.3.6.1.5.2.5", proto_spnego_krb5, ett_spnego_krb5,
+                  spnego_krb5_handle, spnego_krb5_wrap_handle,
+                  "KRB5 - IAKERB");
 }
 
 /*

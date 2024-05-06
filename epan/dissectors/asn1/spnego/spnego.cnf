@@ -199,6 +199,39 @@ NegotiationToken
     }
   }
 
+
+#.FN_BODY IAKERB-HEADER/target-realm
+
+  gint8 ber_class;
+  bool pc;
+  gint32 tag;
+
+  /*
+   * MIT Kerberos sends an IAKERB-HEADER like this:
+   *
+   * <30 2B A1 29 04 27 53 32 2D 57 32 30 31 32 2D 4C 34 2E 53 31 2D 57 32 30>
+   * 0  43: SEQUENCE {
+   * <A1 29 04 27 53 32 2D 57 32 30 31 32 2D 4C 34 2E 53 31 2D 57 32 30 31 32>
+   * 2  41:   [1] {
+   * <04 27 53 32 2D 57 32 30 31 32 2D 4C 34 2E 53 31 2D 57 32 30 31 32 2D 4C>
+   * 4  39:     OCTET STRING 'S2-W2012-L4.S1-W2012-L4.W2012R2-L4.BASE'
+   *    :     }
+   *    :   }
+   */
+
+  get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+  if (ber_class == BER_CLASS_UNI && pc == false && tag == BER_UNI_TAG_OCTETSTRING) {
+     proto_tree_add_text_internal(tree, tvb, offset, 1,
+                                  "target-realm encoded as OCTET STRING: MIT Kerberos?");
+     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_OCTETSTRING,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+  } else {
+     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+  }
+
 #.END
 
 #

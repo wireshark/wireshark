@@ -101,4 +101,21 @@ InnerContextToken ::= ANY
 
 -- END GSS-API DEFINITIONS
 
+
+-- https://datatracker.ietf.org/doc/html/draft-ietf-kitten-iakerb-03#section-3
+--
+-- Note that MIT Kerberos encodes target-realm as OCTET STRING
+--
+IAKERB-HEADER ::= SEQUENCE {
+    -- Note that the tag numbers start at 1, not 0, which would
+    -- be more conventional for Kerberos.
+    target-realm      [1] UTF8String,
+       -- The name of the target realm.
+    cookie            [2] OCTET STRING OPTIONAL,
+       -- Opaque data, if sent by the server,
+       -- MUST be copied by the client verbatim into
+       -- the next IAKRB_PROXY message.
+    ...
+}
+
 END

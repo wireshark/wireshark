@@ -83,6 +83,8 @@ static int hf_spnego_responseToken;               /* T_responseToken */
 static int hf_spnego_mechListMIC_01;              /* T_mechListMIC */
 static int hf_spnego_thisMech;                    /* MechType */
 static int hf_spnego_innerContextToken;           /* InnerContextToken */
+static int hf_spnego_target_realm;                /* T_target_realm */
+static int hf_spnego_cookie;                      /* OCTET_STRING */
 /* named bits */
 static int hf_spnego_ContextFlags_delegFlag;
 static int hf_spnego_ContextFlags_mutualFlag;
@@ -112,6 +114,7 @@ static int ett_spnego_NegTokenInit2;
 static int ett_spnego_ContextFlags;
 static int ett_spnego_NegTokenTarg;
 static int ett_spnego_InitialContextToken_U;
+static int ett_spnego_IAKERB_HEADER;
 
 static expert_field ei_spnego_decrypted_keytype;
 static expert_field ei_spnego_unknown_header;
@@ -392,6 +395,7 @@ dissect_spnego_T_mechListMIC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   }
 
 
+
   return offset;
 }
 
@@ -547,6 +551,60 @@ dissect_spnego_InitialContextToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
   return offset;
 }
 
+
+
+static int
+dissect_spnego_T_target_realm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+  gint8 ber_class;
+  bool pc;
+  gint32 tag;
+
+  /*
+   * MIT Kerberos sends an IAKERB-HEADER like this:
+   *
+   * <30 2B A1 29 04 27 53 32 2D 57 32 30 31 32 2D 4C 34 2E 53 31 2D 57 32 30>
+   * 0  43: SEQUENCE {
+   * <A1 29 04 27 53 32 2D 57 32 30 31 32 2D 4C 34 2E 53 31 2D 57 32 30 31 32>
+   * 2  41:   [1] {
+   * <04 27 53 32 2D 57 32 30 31 32 2D 4C 34 2E 53 31 2D 57 32 30 31 32 2D 4C>
+   * 4  39:     OCTET STRING 'S2-W2012-L4.S1-W2012-L4.W2012R2-L4.BASE'
+   *    :     }
+   *    :   }
+   */
+
+  get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+  if (ber_class == BER_CLASS_UNI && pc == false && tag == BER_UNI_TAG_OCTETSTRING) {
+     proto_tree_add_text_internal(tree, tvb, offset, 1,
+                                  "target-realm encoded as OCTET STRING: MIT Kerberos?");
+     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_OCTETSTRING,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+  } else {
+     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t IAKERB_HEADER_sequence[] = {
+  { &hf_spnego_target_realm , BER_CLASS_CON, 1, 0, dissect_spnego_T_target_realm },
+  { &hf_spnego_cookie       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_spnego_IAKERB_HEADER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IAKERB_HEADER_sequence, hf_index, ett_spnego_IAKERB_HEADER);
+
+  return offset;
+}
+
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -561,6 +619,7 @@ dissect_spnego_InitialContextToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 #define KRB_TOKEN_DELETE_SEC_CONTEXT  0x0201
 #define KRB_TOKEN_TGT_REQ             0x0004
 #define KRB_TOKEN_TGT_REP             0x0104
+#define KRB_TOKEN_IAKERB_PROXY        0x0105
 #define KRB_TOKEN_CFX_GETMIC          0x0404
 #define KRB_TOKEN_CFX_WRAP            0x0405
 
@@ -573,8 +632,9 @@ static const value_string spnego_krb5_tok_id_vals[] = {
   { KRB_TOKEN_DELETE_SEC_CONTEXT, "KRB5_GSS_Delete_sec_context" },
   { KRB_TOKEN_TGT_REQ,            "KERB_TGT_REQUEST" },
   { KRB_TOKEN_TGT_REP,            "KERB_TGT_REPLY" },
+  { KRB_TOKEN_IAKERB_PROXY,       "KRB_TOKEN_IAKERB_PROXY" },
   { KRB_TOKEN_CFX_GETMIC,         "KRB_TOKEN_CFX_GetMic" },
-  { KRB_TOKEN_CFX_WRAP,            "KRB_TOKEN_CFX_WRAP" },
+  { KRB_TOKEN_CFX_WRAP,           "KRB_TOKEN_CFX_WRAP" },
   { 0, NULL}
 };
 
@@ -753,6 +813,11 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id, encrypt_info);
       break;
 
+    case KRB_TOKEN_IAKERB_PROXY:
+      offset = dissect_spnego_IAKERB_HEADER(FALSE, tvb, offset, &asn1_ctx, subtree, -1);
+      krb5_tvb = tvb_new_subset_remaining(tvb, offset);
+      offset += dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
+      break;
     default:
 
       break;
@@ -1901,6 +1966,14 @@ void proto_register_spnego(void) {
       { "innerContextToken", "spnego.innerContextToken_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_spnego_target_realm,
+      { "target-realm", "spnego.target_realm",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "T_target_realm", HFILL }},
+    { &hf_spnego_cookie,
+      { "cookie", "spnego.cookie",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_spnego_ContextFlags_delegFlag,
       { "delegFlag", "spnego.ContextFlags.delegFlag",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -1946,6 +2019,7 @@ void proto_register_spnego(void) {
     &ett_spnego_ContextFlags,
     &ett_spnego_NegTokenTarg,
     &ett_spnego_InitialContextToken_U,
+    &ett_spnego_IAKERB_HEADER,
   };
 
   static ei_register_info ei[] = {
@@ -2001,7 +2075,9 @@ void proto_reg_handoff_spnego(void) {
   gssapi_init_oid("1.2.840.113554.1.2.2.3", proto_spnego_krb5, ett_spnego_krb5,
                   spnego_krb5_handle, spnego_krb5_wrap_handle,
                   "KRB5 - Kerberos 5 - User to User");
-
+  gssapi_init_oid("1.3.6.1.5.2.5", proto_spnego_krb5, ett_spnego_krb5,
+                  spnego_krb5_handle, spnego_krb5_wrap_handle,
+                  "KRB5 - IAKERB");
 }
 
 /*
