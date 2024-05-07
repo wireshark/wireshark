@@ -43,6 +43,7 @@ static int hf_z21_central_state_ex;
 static int hf_z21_systemstate_reserved;
 static int hf_z21_capabilities;
 static int hf_z21_status;
+static int hf_z21_loco_mode;
 static int hf_z21_loco_address;
 static int hf_z21_loco_direction_and_speed;
 static int hf_z21_loco_direction;
@@ -193,14 +194,17 @@ static expert_field ei_z21_invalid_checksum;
  * in the packets. */
 #define Z21_LAN_GET_SERIAL_NUMBER               0x1000
 #define Z21_LAN_LOGOFF                          0x3000
-/* Responses and requests based on the X-BUS protocol are transmittted
+/* Responses and requests based on the X-BUS protocol are transmitted
  * with the Z21-LAN-Header 0x40 and the specific command is indicated
  * with additional bytes inside the data field. */
 #define Z21_LAN_X_BC                            0x4000
+#define Z21_LAN_GET_LOCOMODE                    0x6000
+#define Z21_LAN_SET_LOCOMODE                    0x6100
 #define Z21_LAN_RMBUS_DATACHANGED               0x8000
 #define Z21_LAN_RMBUS_GETDATA                   0x8100
 #define Z21_LAN_RMBUS_PROGRAMMODULE             0x8200
 #define Z21_LAN_SYSTEMSTATE_DATACHANGED         0x8400
+#define Z21_LAN_SYSTEMSTATE_GETDATA             0x8500
 #define Z21_LAN_RAILCOM_DATACHANGED             0x8800
 #define Z21_LAN_RAILCOM_GETDATA                 0x8900
 #define Z21_LAN_LOCONET_Z21_RX                  0xA000
@@ -297,6 +301,7 @@ static const value_string z21_command_vals[] = {
     { Z21_LAN_FAST_CLOCK_DATA,                  "LAN_FAST_CLOCK_DATA" },
     { Z21_LAN_FAST_CLOCK_SETTINGS_GET,          "LAN_FAST_CLOCK_SETTINGS_GET" },
     { Z21_LAN_FAST_CLOCK_SETTINGS_SET,          "LAN_FAST_CLOCK_SETTINGS_SET" },
+    { Z21_LAN_GET_LOCOMODE,                     "LAN_GET_LOCOMODE" },
     { Z21_LAN_GET_SERIAL_NUMBER,                "LAN_GET_SERIAL_NUMBER" },
     { Z21_LAN_LOCONET_DETECTOR,                 "LAN_LOCONET_DETECTOR" },
     { Z21_LAN_LOCONET_DISPATCH_ADDR,            "LAN_LOCONET_DISPATCH_ADDR" },
@@ -309,7 +314,9 @@ static const value_string z21_command_vals[] = {
     { Z21_LAN_RMBUS_DATACHANGED,                "LAN_RMBUS_DATACHANGED" },
     { Z21_LAN_RMBUS_GETDATA,                    "LAN_RMBUS_GETDATA" },
     { Z21_LAN_RMBUS_PROGRAMMODULE,              "LAN_RMBUS_PROGRAMMODULE" },
+    { Z21_LAN_SET_LOCOMODE,                     "LAN_SET_LOCOMODE" },
     { Z21_LAN_SYSTEMSTATE_DATACHANGED,          "LAN_SYSTEMSTATE_DATACHANGED" },
+    { Z21_LAN_SYSTEMSTATE_GETDATA,              "LAN_SYSTEMSTATE_GETDATA" },
     { Z21_LAN_X_BC,                             "LAN_X_xxx" }, /* Unspecified X-Bus command */
     { Z21_LAN_X_BC_PROGRAMMING_MODE,            "LAN_X_BC_PROGRAMMING_MODE" },
     { Z21_LAN_X_BC_STOPPED,                     "LAN_X_BC_STOPPED" },
@@ -356,6 +363,12 @@ static const value_string z21_command_vals[] = {
     { Z21_LAN_X_TURNOUT_INFO,                   "LAN_X_TURNOUT_INFO" },
     { Z21_LAN_X_UNKNOWN_COMMAND,                "LAN_X_UNKNOWN_COMMAND" },
     { Z21_LAN_ZLINK_GET_HWINFO,                 "LAN_ZLINK_GET_HWINFO" },
+    { 0, NULL },
+};
+
+static const value_string z21_loco_mode_vals[] = {
+    { 0, "DCC Format" },
+    { 1, "MM Format" },
     { 0, NULL },
 };
 
@@ -1410,6 +1423,20 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 tvb, offset, datalen-4, ENC_NA);
             offset += datalen-4;
             break;
+        case Z21_LAN_GET_LOCOMODE:
+        case Z21_LAN_SET_LOCOMODE:
+            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = address_bytes & 0x3FFF;
+            proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
+            offset += 2;
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d", addr);
+            if (datalen > 6) {
+                unsigned mode = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint(z21_tree, hf_z21_loco_mode, tvb, offset, 1, mode);
+                offset += 1;
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", Mode: %d", mode);
+            }
+            break;
         }
         if (offset < datalen) {
             /* Just dump all the rest, if any */
@@ -1625,6 +1652,11 @@ proto_register_z21(void)
         { &hf_z21_capability_needs_unlock_code,
           { "Needs unlock code", "z21.capability.needsunlockcode",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_z21_loco_mode,
+          { "Locomotive mode", "z21.locomode",
+            FT_UINT8, BASE_DEC, VALS(z21_loco_mode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_z21_loco_address,
