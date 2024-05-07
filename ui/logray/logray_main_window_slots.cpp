@@ -3045,14 +3045,47 @@ void LograyMainWindow::openStatisticsTreeDialog(const char *abbr)
 // -z io,stat
 void LograyMainWindow::statCommandIOGraph(const char *, void *)
 {
+    showIOGraphDialog(IOG_ITEM_UNIT_PACKETS, QString());
+}
+
+void LograyMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QString yfield)
+{
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+    IOGraphDialog *iog_dialog = nullptr;
     QString displayFilter;
     if (df_edit)
         displayFilter = df_edit->text();
 
-    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter);
-    connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
+    if (!yfield.isEmpty()) {
+        QList<IOGraphDialog *> iographdialogs = findChildren<IOGraphDialog *>();
+        // GeometryStateDialogs aren't parented on Linux and Windows
+        // (see geometry_state_dialog.h), so we search for an
+        // I/O Dialog in all the top level widgets.
+        if (iographdialogs.isEmpty()) {
+            foreach(QWidget *topLevelWidget, mainApp->topLevelWidgets()) {
+                if (qobject_cast<IOGraphDialog*>(topLevelWidget)) {
+                    iographdialogs << qobject_cast<IOGraphDialog*>(topLevelWidget);
+                }
+            }
+        }
+        bool iog_found = false;
+        foreach(iog_dialog, iographdialogs) {
+            if (!iog_dialog->fileClosed()) {
+                iog_found = true;
+                iog_dialog->addGraph(true, displayFilter, value_units, yfield);
+                break;
+            }
+        }
+        if (!iog_found) {
+            iog_dialog = nullptr;
+        }
+    }
+
+    if (iog_dialog == nullptr) {
+        iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, value_units, yfield);
+        connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+        connect(this, &LograyMainWindow::reloadFields, iog_dialog, &IOGraphDialog::reloadFields);
+    }
     iog_dialog->show();
 }
 

@@ -198,6 +198,9 @@ The following features are new (or have been significantly updated) since versio
 
   ** A number of crasher bugs have been fixed.
 
+  ** The protocol tree context menu can open a I/O graph of the currently
+     selected field. wsbuglink:11362[]
+
   ** Smaller intervals can be used, down to 1 microsecond. wsbuglink:13682[]
 
   ** A larger number of I/O Graph item buckets can be used, up to 2^25^

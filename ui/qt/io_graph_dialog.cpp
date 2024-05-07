@@ -347,7 +347,8 @@ static void io_graph_post_update_cb() {
 
 } // extern "C"
 
-IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter) :
+IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter,
+        io_graph_item_unit_t value_units, QString yfield) :
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
     uat_model_(nullptr),
@@ -493,22 +494,23 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     loadProfileGraphs();
     bool filterExists = false;
-    QString graph_name = is_packet_configuration_namespace() ? tr("Filtered packets") : tr("Filtered events");
     if (uat_model_->rowCount() > 0) {
         for (int i = 0; i < uat_model_->rowCount(); i++) {
             createIOGraph(i);
-            if (ioGraphs_.at(i)->filter().compare(displayFilter) == 0)
+            IOGraph *iog = ioGraphs_.at(i);
+            if (iog->filter().compare(displayFilter) == 0 &&
+                    iog->valueUnitField().compare(yfield) == 0 &&
+                    iog->valueUnits() == value_units) {
                 filterExists = true;
+            }
         }
-        if (! filterExists && displayFilter.length() > 0)
-            addGraph(true, graph_name, displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
-                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
     } else {
         addDefaultGraph(true, 0);
         addDefaultGraph(true, 1);
-        if (displayFilter.length() > 0)
-            addGraph(true, graph_name, displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
-                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+    }
+
+    if (! filterExists && (!displayFilter.isEmpty() || !yfield.isEmpty())) {
+        addGraph(true, displayFilter, value_units, yfield);
     }
 
     toggleTracerStyle(true);
@@ -596,6 +598,25 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
         return;
     }
     ui->graphUat->setCurrentIndex(newIndex);
+}
+
+void IOGraphDialog::addGraph(bool checked, QString dfilter, io_graph_item_unit_t value_units, QString yfield)
+{
+    if (uat_model_ == nullptr)
+        return;
+
+    QString graph_name;
+    if (yfield.isEmpty()) {
+        if (!dfilter.isEmpty()) {
+            graph_name = is_packet_configuration_namespace() ? tr("Filtered packets") : tr("Filtered events");
+        } else {
+            graph_name = is_packet_configuration_namespace() ? tr("All packets") : tr("All events");
+        }
+    } else {
+        graph_name = QString(val_to_str_const(value_units, y_axis_vs, "Unknown")).replace("Y Field", yfield);
+    }
+    addGraph(checked, std::move(graph_name), dfilter, ColorUtils::graphColor(uat_model_->rowCount()),
+        IOGraph::psLine, value_units, yfield, DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
 }
 
 void IOGraphDialog::addGraph(bool copy_from_current)

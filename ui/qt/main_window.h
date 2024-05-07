@@ -19,6 +19,7 @@
 
 
 #include "filter_action.h"
+#include "io_graph_action.h"
 
 #include <QMainWindow>
 #include <QSplitter>
@@ -65,6 +66,7 @@ public slots:
     void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);
     virtual void filterPackets(QString, bool) = 0;
     virtual void showPreferencesDialog(QString module_name) = 0;
+    virtual void showIOGraphDialog(io_graph_item_unit_t, QString) = 0;
     void layoutPanes();
     void applyRecentPaneGeometry();
 

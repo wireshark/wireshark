@@ -496,6 +496,7 @@ private slots:
 
     void openStatisticsTreeDialog(const char *abbr);
     void statCommandIOGraph(const char *, void *);
+    void showIOGraphDialog(io_graph_item_unit_t value_units, QString);
 
     void connectTelephonyMenuActions();
 

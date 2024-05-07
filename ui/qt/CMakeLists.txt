@@ -177,7 +177,6 @@ set(WIRESHARK_QT_HEADERS
 	file_set_dialog.h
 	filter_action.h
 	filter_dialog.h
-	filter_dialog.h
 	filter_expression_frame.h
 	firewall_rules_dialog.h
 	follow_stream_action.h
@@ -195,6 +194,7 @@ set(WIRESHARK_QT_HEADERS
 	interface_toolbar_reader.h
 	interface_toolbar.h
 	io_console_dialog.h
+	io_graph_action.h
 	io_graph_dialog.h
 	layout_preferences_frame.h
 	lbm_lbtrm_transport_dialog.h
@@ -451,6 +451,7 @@ set(WIRESHARK_QT_SRC
 	interface_toolbar_reader.cpp
 	interface_toolbar.cpp
 	io_console_dialog.cpp
+	io_graph_action.cpp
 	layout_preferences_frame.cpp
 	lbm_lbtrm_transport_dialog.cpp
 	lbm_lbtru_transport_dialog.cpp

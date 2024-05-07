@@ -26,6 +26,7 @@
 #include <ui/qt/show_packet_bytes_dialog.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/follow_stream_action.h>
+#include <ui/qt/io_graph_action.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/alert_box.h>
 #include <ui/urls.h>
@@ -333,6 +334,8 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
         ctx_menu->addSeparator();
     }
+
+    ctx_menu->addMenu(IOGraphAction::createMenu(finfo->headerInfo(), ctx_menu));
 
     submenu = ctx_menu->addMenu(tr("Copy"));
     submenu->setToolTipsVisible(true);
