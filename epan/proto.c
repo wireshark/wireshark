@@ -2524,6 +2524,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, (length < 4));
 			}
 			break;
+
 		case ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN:
 			/*
 			* Milliseconds, 6 to 8 bytes.
@@ -2578,7 +2579,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			}
 			break;
 
-		case ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN:
+		case ENC_TIME_MP4_SECS|ENC_BIG_ENDIAN:
 			/*
 			 * Classic Mac OS time stamps, big-endian.
 			 * Only supported for absolute times.

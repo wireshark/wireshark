@@ -141,6 +141,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(ENC_T61),
     ENUM(ENC_TIME_CLASSIC_MAC_OS_SECS),
     ENUM(ENC_TIME_MIP6),
+    ENUM(ENC_TIME_MP4_SECS),
     ENUM(ENC_TIME_MSECS),
     ENUM(ENC_TIME_MSEC_NTP),
     ENUM(ENC_TIME_NSECS),

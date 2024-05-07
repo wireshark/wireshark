@@ -299,10 +299,10 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
      */
     time_len = (version==0) ? 4 : 8;
     proto_tree_add_item(tree, hf_mp4_mvhd_creat_time,
-            tvb, offset, time_len, ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN);
+            tvb, offset, time_len, ENC_TIME_MP4_SECS|ENC_BIG_ENDIAN);
     offset += time_len;
     proto_tree_add_item(tree, hf_mp4_mvhd_mod_time,
-            tvb, offset, time_len, ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN);
+            tvb, offset, time_len, ENC_TIME_MP4_SECS|ENC_BIG_ENDIAN);
     offset += time_len;
 
     mvhd_timescale = tvb_get_ntohl (tvb, offset);
@@ -398,10 +398,10 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     time_len = (version==0) ? 4 : 8;
     proto_tree_add_item(tree, hf_mp4_tkhd_creat_time,
-            tvb, offset, time_len, ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN);
+            tvb, offset, time_len, ENC_TIME_MP4_SECS|ENC_BIG_ENDIAN);
     offset += time_len;
     proto_tree_add_item(tree, hf_mp4_tkhd_mod_time,
-            tvb, offset, time_len, ENC_TIME_CLASSIC_MAC_OS_SECS|ENC_BIG_ENDIAN);
+            tvb, offset, time_len, ENC_TIME_MP4_SECS|ENC_BIG_ENDIAN);
     offset += time_len;
 
     proto_tree_add_item(tree, hf_mp4_tkhd_track_id,
