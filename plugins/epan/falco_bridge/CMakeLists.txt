@@ -50,6 +50,12 @@ target_include_directories(falco-bridge SYSTEM PRIVATE
 	${SINSP_INCLUDE_DIRS}
 )
 
+if(WIN32)
+	# libsinsp/dumper.h includes libscap/scap_savefile_api.h, which includes
+	# libscap/scap_zlib.h.
+	target_include_directories(falco-bridge SYSTEM PRIVATE ${ZLIB_INCLUDE_DIR})
+endif()
+
 target_link_libraries(falco-bridge
 	epan
 	${SINSP_LINK_LIBRARIES}
