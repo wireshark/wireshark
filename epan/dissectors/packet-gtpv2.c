@@ -958,6 +958,8 @@ static int gtpv2_tap;
 #define GTPV2_MODIFY_BEARER_RESPONSE     35
 #define GTPV2_DELETE_SESSION_REQUEST     36
 #define GTPV2_DELETE_SESSION_RESPONSE    37
+#define GTPV2_REMOTE_UE_REPORT_NOTIFICATION     40
+#define GTPV2_REMOTE_UE_REPORT_ACKNOWLEDGE    41
 #define GTPV2_MODIFY_BEARER_COMMAND      64
 #define GTPV2_MODIFY_BEARER_FAILURE_INDICATION    65
 #define GTPV2_DELETE_BEARER_COMMAND      66
@@ -973,6 +975,7 @@ static int gtpv2_tap;
 #define GTPV2_IDENTIFICATION_RESPONSE   129
 #define GTPV2_CONTEXT_REQUEST           130
 #define GTPV2_CONTEXT_RESPONSE          131
+#define GTPV2_CONTEXT_ACKNOWLEDGE       132
 #define GTPV2_FORWARD_RELOCATION_REQ    133
 #define GTPV2_FORWARD_RELOCATION_RESP   134
 #define GTPV2_FORWARD_RELOCATION_COMPLETE_NOTIFICATION    135
@@ -984,6 +987,8 @@ static int gtpv2_tap;
 #define GTPV2_CONFIGURATION_TRANSFER_TUNNEL        141
 #define GTPV2_RAN_INFORMATION_RELAY     152
 #define GTPV2_DL_DATA_NOTIF_ACK        177
+#define GTPV2_MODIFY_ACESSS_BEARER_REQUEST      211
+#define GTPV2_MODIFY_ACCESS_BEARER_RESPONSE     212
 
 /* Table 6.1-1: Message types for GTPv2 */
 static const value_string gtpv2_message_type_vals[] = {
@@ -1642,6 +1647,313 @@ value_in_tenth_of_percent_fmt(gchar* s, guint32 v)
     snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v / 10, v);
 }
 
+/* Add Info element on IE types with multiple instances in same group */
+typedef struct _gtpv2_information_element_instance {
+    guint8       message_type;  /* Message type */
+    guint8       parent_ie;     /* Parent group IE for which our IE is in. 0 if on message level */
+    guint8       type;          /* This IE type */
+    guint8       instance;      /* Which Instance */
+    const gchar *info_element;  /* Information element for the IE type */
+} gtpv2_information_element_instance_t;
+
+/* IE types which defines with multiple instances in ch7.2 Tunnel Management Messages and ch7.3 Mobility Management Messages */
+static const gtpv2_information_element_instance_t gtpv2_information_element_instance_vals[] = {
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_F_TEID, 0, "Sender F-TEID for Control Plane" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_F_TEID, 1, "PGW S5/S8 Address for Control Plane or PMIP" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_BEARER_CTX, 0, "Bearer Contexts to be Created" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_BEARER_CTX, 1, "Bearer Contexts to be Removed" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_FQ_CSID, 0, "MME-FQ-CSID" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_FQ_CSID, 2, "ePDG-FQ-CSID" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_FQ_CSID, 3, "TWAN-FQ-CSID" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_LDN, 0, "MME/S4-SGSN LDN" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_LDN, 1, "SGW LDN" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_LDN, 2, "ePDG LDN" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_LDN, 3, "TWAN LDN" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IP_ADDRESS, 0, "UE Local IP Address" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IP_ADDRESS, 1, "H(e)NB Local IP Address" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IP_ADDRESS, 2, "MME/S4-SGSN Identifier" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IP_ADDRESS, 3, "ePDG IP Address" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_PORT_NR, 0, "UE UDP Port" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_PORT_NR, 1, "H(e)NB Local UDP Port" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_PORT_NR, 2, "UE TCP Port" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "TWAN/ePDG Overload Control Info" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_TWAN_IDENTIFIER, 0, "TWAN Identifier" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_TWAN_IDENTIFIER, 1, "WLAN Location Info" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_TWAN_ID_TS, 0, "WLAN Location Timestamp" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_ULI, 0, "User Location Info" },
+    {  GTPV2_CREATE_SESSION_REQUEST, 0, GTPV2_IE_ULI, 1, "User Location Info for SGW" },
+
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_F_TEID, 0, "Sender F-TEID for Control Plane" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_F_TEID, 1, "PGW S5/S8 Address for Control Plane or PMIP" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_BEARER_CTX, 0, "Bearer Contexts to be Created" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_BEARER_CTX, 1, "Bearer Contexts to be Removed" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_FQ_CSID, 0, "PGW-FQ-CSID" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_LDN, 0, "SGW LDN" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_LDN, 1, "PGW LDN" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "PGW APN level Load Control Info" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 2, "SGW node level Load Control Info" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_FQDN, 0, "Charging Gateway Name" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_FQDN, 1, "PGW Node Name" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IE_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IP_ADDRESS, 0, "Charging Gateway Address" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, 0, GTPV2_IP_ADDRESS, 1, "Alternative PGW-C/SMF Address" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_CREATE_SESSION_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 0, "PGW-FQ-CSID" },
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "PGW APN level Load Control Info" },
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 2, "SGW node level Load Control Info" },
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_CREATE_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 1, "New PGW-C/SMF Address" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 2, "New PGW Control Plane IP Address" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 3, "New SGW-C Address" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_GROUP_ID, 0, "Group Id" },
+    {  GTPV2_CREATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_GROUP_ID, 1, "New Group Id" },
+
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 0, "MME-FQ-CSID" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 2, "ePDG-FQ-CSID" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 3, "TWAN-FQ-CSID" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "TWAN/ePDG Overload Control Info" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_IDENTIFIER, 0, "TWAN Identifier" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_IDENTIFIER, 1, "WLAN Location Info" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_ID_TS, 1, "WLAN Location Timestamp" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_PORT_NR, 0, "UE UDP Port" },
+    {  GTPV2_CREATE_BEARER_RESPONSE, 0, GTPV2_IE_PORT_NR, 1, "UE TCP Por" },
+
+    {  GTPV2_BEARER_RESOURCE_COMMAND, 0, GTPV2_EBI, 0, "Linked EPS Bearer ID (LBI)" },
+    {  GTPV2_BEARER_RESOURCE_COMMAND, 0, GTPV2_EBI, 1, "EPS Bearer ID" },
+    {  GTPV2_BEARER_RESOURCE_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_BEARER_RESOURCE_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+
+    {  GTPV2_BEARER_RESOURCE_FAILURE_INDICATION, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_BEARER_RESOURCE_FAILURE_INDICATION, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_BEARER_CTX, 0, "Bearer Contexts to be Modified" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_BEARER_CTX, 1, "Bearer Contexts to be Removed" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 0, "MME-FQ-CSID" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IP_ADDRESS, 0, "H(e)NB Local IP Address" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IP_ADDRESS, 1, "UE Local IP Address" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IP_ADDRESS, 2, "MME/S4-SGSN Identifier" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_PORT_NR, 0, "H(e)NB Local UDP Port" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_PORT_NR, 1, "UE UDP Port" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "ePDG Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_ULI, 0, "User Location Info" },                    /* redundant */
+    {  GTPV2_MODIFY_BEARER_REQUEST, 0, GTPV2_IE_ULI, 1, "User Location Info for SGW" },            /* redundant ? */
+
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_BEARER_CTX, 0, "Bearer Contexts to be Modified" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_BEARER_CTX, 1, "Bearer Contexts to be Removed" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 0, "PGW-FQ-CSID" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_LDN, 0, "SGW LDN" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_LDN, 1, "PGW LDN" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "PGW APN level Load Control Info" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 2, "SGW node level Load Control Info" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_MODIFY_BEARER_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_EBI, 0, "Linked EPS Bearer ID (LBI)" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "TWAN/ePDG Overload Control Info" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_TWAN_IDENTIFIER, 0, "TWAN Identifier" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_TWAN_IDENTIFIER, 1, "WLAN Location Info" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_TWAN_ID_TS, 1, "WLAN Location Timestamp" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_PORT_NR, 0, "UE UDP Port" },
+    {  GTPV2_DELETE_SESSION_REQUEST, 0, GTPV2_IE_PORT_NR, 1, "UE TCP Por" },
+
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_EBI, 0, "Linked EPS Bearer ID (LBI)" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_EBI, 1, "EPS Bearer ID" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 0, "PGW-FQ-CSID" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "PGW APN level Load Control Info" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 2, "SGW node level Load Control Info" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_DELETE_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 1, "New PGW-C/SMF Address" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 2, "New PGW Control Plane IP Address" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 3, "New SGW-C Address" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_GROUP_ID, 0, "Group Id" },
+    {  GTPV2_DELETE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_GROUP_ID, 1, "New Group Id" },
+
+    {  GTPV2_DELETE_SESSION_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_DELETE_SESSION_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "PGW APN level Load Control Info" },
+    {  GTPV2_DELETE_SESSION_RESPONSE, 0, GTPV2_IE_LOAD_CONTROL_INF, 2, "SGW node level Load Control Info" },
+    {  GTPV2_DELETE_SESSION_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_DELETE_SESSION_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_EBI, 0, "Linked EPS Bearer ID (LBI)" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 0, "MME-FQ-CSID" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 2, "ePDG-FQ-CSID" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 3, "TWAN-FQ-CSID" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "TWAN/ePDG Overload Control Info" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_IDENTIFIER, 0, "TWAN Identifier" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_IDENTIFIER, 1, "WLAN Location Info" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_ID_TS, 1, "WLAN Location Timestamp" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_PORT_NR, 0, "UE UDP Port" },
+    {  GTPV2_DELETE_BEARER_RESPONSE, 0, GTPV2_IE_PORT_NR, 1, "UE TCP Por" },
+
+    {  GTPV2_MODIFY_BEARER_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_MODIFY_BEARER_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "TWAN/ePDG Overload Control Info" },
+
+    {  GTPV2_MODIFY_BEARER_FAILURE_INDICATION, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_MODIFY_BEARER_FAILURE_INDICATION, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "SGW node level Load Control Info" },
+
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 0, "PGW-FQ-CSID" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "PGW APN level Load Control Info" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_LOAD_CONTROL_INF, 2, "SGW node level Load Control Info" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "PGW Overload Control Info" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 1, "New PGW-C/SMF Address" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 2, "New PGW Control Plane IP Address" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 3, "New SGW-C Address" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_GROUP_ID, 0, "Group Id" },
+    {  GTPV2_UPDATE_BEARER_REQUEST, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_GROUP_ID, 1, "New Group Id" },
+
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 0, "MME-FQ-CSID" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 1, "SGW-FQ-CSID" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 2, "ePDG-FQ-CSID" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_FQ_CSID, 3, "TWAN-FQ-CSID" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 2, "TWAN/ePDG Overload Control Info" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_IDENTIFIER, 0, "TWAN Identifier" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_IDENTIFIER, 1, "WLAN Location Info" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_TWAN_ID_TS, 1, "WLAN Location Timestamp" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_PORT_NR, 0, "UE UDP Port" },
+    {  GTPV2_UPDATE_BEARER_RESPONSE, 0, GTPV2_IE_PORT_NR, 1, "UE TCP Por" },
+
+    {  GTPV2_DELETE_BEARER_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 0, "MME/S4-SGSN Overload Control Info" },
+    {  GTPV2_DELETE_BEARER_COMMAND, 0, GTPV2_IE_OVERLOAD_CONTROL_INF, 1, "SGW Overload Control Info" },
+
+    {  GTPV2_DELETE_BEARER_FAILURE_INDICATION, 0, GTPV2_IE_LOAD_CONTROL_INF, 0, "PGW node level Load Control Info" },
+    {  GTPV2_DELETE_BEARER_FAILURE_INDICATION, 0, GTPV2_IE_LOAD_CONTROL_INF, 1, "SGW node level Load Control Info" },
+
+    {  GTPV2_MODIFY_ACESSS_BEARER_REQUEST, 0, GTPV2_IE_BEARER_CTX, 0, "Bearer Contexts to be Modified" },
+    {  GTPV2_MODIFY_ACESSS_BEARER_REQUEST, 0, GTPV2_IE_BEARER_CTX, 1, "Bearer Contexts to be Removed" },
+
+    {  GTPV2_MODIFY_ACCESS_BEARER_RESPONSE, 0, GTPV2_IE_BEARER_CTX, 0, "Bearer Contexts to be Modified" },
+    {  GTPV2_MODIFY_ACCESS_BEARER_RESPONSE, 0, GTPV2_IE_BEARER_CTX, 1, "Bearer Contexts to be Removed" },
+
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_F_CONTAINER, 0, "E-UTRAN Transparent Container" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_F_CONTAINER, 1, "UTRAN Transparent Container" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_F_CONTAINER, 2, "BSS Container" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IP_ADDRESS, 0, "HRPD access node S101 IP Address" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IP_ADDRESS, 1, "1xIWS S102 IP Address" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_CAUSE, 0, "S1-AP Cause" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_CAUSE, 1, "RANAP Cause" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_CAUSE, 2, "BSSGP Cause" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_RFSP_INDEX, 0, "Subscribed RFSP Index" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_RFSP_INDEX, 1, "RFSP Index in Use" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_FQDN, 0, "SGW FQDN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_FQDN, 1, "SGSN FQDN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_FQDN, 2, "MME FQDN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 0, "Subscribed Additional RRM Policy Index" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 1, "Additional RRM Policy Index in Use" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 0, "PGW FQDN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 1, "Local Home Network ID" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_SERVICES_AUTHORIZED, 0, "LTE V2X Service Authorized" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_SERVICES_AUTHORIZED, 1, "NR V2X Service Authorized" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_BIT_RATE, 0, "LTE UE Sidelink Aggregate Maximum Bit Rate" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_BIT_RATE, 1, "NR UE Sidelink Aggregate Maximum Bit Rate" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 1, "New PGW-C/SMF Address" },
+
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_BEARER_CTX, 0, "List of Set-up Bearers" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_BEARER_CTX, 1, "List of Set-up RABs" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_BEARER_CTX, 2, "List of Set-up PFCs" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_BEARER_CTX, 2, "List of Set-up Bearers for SCEF PDN Connections" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_CAUSE, 0, "S1-AP Cause" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_CAUSE, 1, "RANAP Cause" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_CAUSE, 2, "BSSGP Cause" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_F_CONTAINER, 0, "E-UTRAN Transparent Container" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_F_CONTAINER, 1, "UTRAN Transparent Container" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_F_CONTAINER, 2, "BSS Container" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_FQDN, 0, "SGSN Node Name" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_FQDN, 1, "MME Node Name" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_IDENTIFIER, 0, "SGSN Identifier" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_IDENTIFIER, 1, "MME Identifier" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_IDENTIFIER, 2, "SGSN Identifier for MT-SMS" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_IDENTIFIER, 3, "MME Identifier for MT-SMS" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_NUMBER, 0, "SGSN Number" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_NUMBER, 1, "MME Number for MT-SMS" },
+    {  GTPV2_FORWARD_RELOCATION_RESP, 0, GTPV2_IE_NODE_NUMBER, 2, "MSC Number" },
+
+    {  GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE, 0, GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT, 0, "Secondary RAT Usage Data Report" },
+    {  GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE, 0, GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT, 1, "Secondary RAT Usage Data Report from NG-RAN" },
+
+    {  GTPV2_CONTEXT_REQUEST, 0, GTPV2_IE_FQDN, 0, "SGSN Node Name" },
+    {  GTPV2_CONTEXT_REQUEST, 0, GTPV2_IE_FQDN, 1, "MME Node Name" },
+    {  GTPV2_CONTEXT_REQUEST, 0, GTPV2_IE_NODE_IDENTIFIER, 0, "SGSN Identifier" },
+    {  GTPV2_CONTEXT_REQUEST, 0, GTPV2_IE_NODE_IDENTIFIER, 1, "MME Identifier" },
+
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IP_ADDRESS, 0, "HRPD access node S101 IP Address" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IP_ADDRESS, 1, "1xIWS S102 IP Address" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_RFSP_INDEX, 0, "Subscribed RFSP Index" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_RFSP_INDEX, 1, "RFSP Index in Use" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_FQDN, 0, "SGW Node Name" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_FQDN, 1, "SGSN Node Name" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_FQDN, 2, "MME Node Name" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_INTEGER_NUMBER, 0, "UE Usage Type" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_INTEGER_NUMBER, 1, "Remaining Running Service Gap Timer" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 0, "Subscribed Additional RRM Policy Index" },
+    {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 1, "Additional RRM Policy Index in Use" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 0, "PGW FQDN" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 1, "Local Home Network ID" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
+
+    {  GTPV2_CONTEXT_ACKNOWLEDGE, 0, GTPV2_IE_NODE_NUMBER, 0, "SGSN Number" },
+    {  GTPV2_CONTEXT_ACKNOWLEDGE, 0, GTPV2_IE_NODE_NUMBER, 1, "MME Number for MT-SMS" },
+    {  GTPV2_CONTEXT_ACKNOWLEDGE, 0, GTPV2_IE_NODE_IDENTIFIER, 0, "SGSN Identifier for MT-SMS" },
+    {  GTPV2_CONTEXT_ACKNOWLEDGE, 0, GTPV2_IE_NODE_IDENTIFIER, 1, "MME Identifier for MT-SMS" },
+
+    {  GTPV2_CONFIGURATION_TRANSFER_TUNNEL, 0, GTPV2_IE_TARGET_ID, 0, "Target eNodeB ID / en-gNB ID / gnB ID" },
+    {  GTPV2_CONFIGURATION_TRANSFER_TUNNEL, 0, GTPV2_IE_TARGET_ID, 1, "Connected Target eNodeB ID" },
+
+    {  0, 0, 0, 0, NULL },
+};
+
+#define NUM_GTPV2_IE_INFO_ELEM_INSTANCES (sizeof(gtpv2_information_element_instance_vals)/sizeof(gtpv2_information_element_instance_t))
 
 /* Code to dissect IE's */
 
@@ -3709,7 +4021,7 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_bearer_ctx);
 
     new_tvb = tvb_new_subset_length(tvb, offset, length);
-    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, 0, message_type, args);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, 0, message_type, args, GTPV2_IE_BEARER_CTX);
 }
 
 /* 8.29 Charging ID */
@@ -5236,7 +5548,7 @@ dissect_gtpv2_PDN_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, 
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PDN_conn);
     new_tvb = tvb_new_subset_length(tvb, offset, length);
 
-    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args, GTPV2_IE_PDN_CONNECTION);
 }
 /*
  * 8.40 PDU Numbers
@@ -7619,7 +7931,7 @@ dissect_gtpv2_overload_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_overload_control_information);
     new_tvb = tvb_new_subset_length(tvb, offset, length);
 
-    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args, GTPV2_IE_OVERLOAD_CONTROL_INF);
 }
 /*
  * 8.112        Load Control Information
@@ -7635,7 +7947,7 @@ dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_load_control_inf);
 
     new_tvb = tvb_new_subset_length(tvb, offset, length);
-    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, 0, message_type, args);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, 0, message_type, args, GTPV2_IE_LOAD_CONTROL_INF);
 }
 /*
  * 8.113        Metric
@@ -7881,7 +8193,7 @@ dissect_gtpv2_scef_pdn_connection(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PDN_conn);
    new_tvb = tvb_new_subset_length(tvb, offset, length);
 
-   dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
+   dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args, GTPV2_IE_SCEF_PDN_CONNECTION);
 
 }
 
@@ -8554,7 +8866,7 @@ dissect_gtpv2_ie_pgw_change_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PGW_change_info);
     new_tvb = tvb_new_subset_length(tvb, offset, length);
 
-    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args, GTPV2_IE_PGW_CHANGE_INFO);
 }
 
 /* 215 PGW FQDN Extendable / 8.146 */
@@ -9055,7 +9367,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
 }
 
 void
-dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset, guint8 message_type, session_args_t * args)
+dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset, guint8 message_type, session_args_t * args, guint8 parent_ie)
 {
     proto_tree *ie_tree;
     proto_item *ti;
@@ -9063,6 +9375,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     guint8      type, instance;
     guint16     length;
     int         i, remaining_length, msg_length;
+    unsigned    info_elem;
     /*
      * Octets   8   7   6   5       4   3   2   1
      *  1       Type
@@ -9113,6 +9426,20 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
             instance = tvb_get_guint8(tvb, offset) & 0x0f;
             proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            /* Add Info element on IE types with multiple instances in same group */
+            if (message_type > 0) {
+                for (info_elem = 0; info_elem < NUM_GTPV2_IE_INFO_ELEM_INSTANCES; info_elem++) {
+                    if (gtpv2_information_element_instance_vals[info_elem].message_type == message_type &&
+                        gtpv2_information_element_instance_vals[info_elem].parent_ie == parent_ie &&
+                        gtpv2_information_element_instance_vals[info_elem].type == type &&
+                        gtpv2_information_element_instance_vals[info_elem].instance == instance)
+                    {
+                        proto_item_append_text(ie_tree, " %s: ", gtpv2_information_element_instance_vals[info_elem].info_element);
+                        break;
+                    }
+                }
+            }
             offset++;
         }
 
@@ -9292,9 +9619,9 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 
     if (p_flag) {
         msg_tvb = tvb_new_subset_length(tvb, 0, msg_length + 4);
-        dissect_gtpv2_ie_common(msg_tvb, pinfo, gtpv2_tree, offset, message_type, args);
+        dissect_gtpv2_ie_common(msg_tvb, pinfo, gtpv2_tree, offset, message_type, args, 0);
     } else {
-        dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type, args);
+        dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type, args, 0);
     }
     /*Use sequence number to track Req/Resp pairs*/
     cause_aux = 16; /* Cause accepted by default. Only used when args is NULL */
