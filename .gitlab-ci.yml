@@ -86,7 +86,7 @@ variables:
 .build-linux:
   stage: build
   tags:
-    - docker
+    - saas-linux-small-amd64
   before_script:
     - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
     - env | grep ^CI | sort
@@ -100,7 +100,7 @@ variables:
 .test-linux:
   stage: test
   tags:
-    - docker
+    - saas-linux-small-amd64
   variables:
     GIT_STRATEGY: none
 
@@ -246,7 +246,7 @@ variables:
   stage: build
   image: registry.gitlab.com/wireshark/wireshark-containers/mingw-dev
   tags:
-    - docker
+    - saas-linux-small-amd64
   cache:
     # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
     key: ${CI_JOB_NAME}-master
