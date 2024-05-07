@@ -2579,9 +2579,9 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			}
 			break;
 
-		case ENC_TIME_MP4_SECS|ENC_BIG_ENDIAN:
+		case ENC_TIME_MP4_FILE_SECS|ENC_BIG_ENDIAN:
 			/*
-			 * Classic Mac OS time stamps, big-endian.
+			 * MP4 file time stamps, big-endian.
 			 * Only supported for absolute times.
 			 */
 			DISSECTOR_ASSERT(!is_relative);

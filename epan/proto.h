@@ -605,7 +605,7 @@ void proto_report_dissector_bug(const char *format, ...)
  *  and the remaining 16 bits indicate the number of 1/65536's of a second
  *  since that second.
  *
- *  ENC_TIME_MP4_SECS - 4-8 bytes, representing a count of seconds since
+ *  ENC_TIME_MP4_FILE_SECS - 4-8 bytes, representing a count of seconds since
  *  January 1, 1904, 00:00:00 UTC.
  */
 #define ENC_TIME_SECS_NSECS          0x00000000
@@ -622,7 +622,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_RFC_3971            0x00000020
 #define ENC_TIME_MSEC_NTP            0x00000022
 #define ENC_TIME_MIP6                0x00000024
-#define ENC_TIME_MP4_SECS            0x00000026
+#define ENC_TIME_MP4_FILE_SECS       0x00000026
 #define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026 /* for backwards source compatibility */
 #define ENC_TIME_NSECS               0x00000028
 #define ENC_TIME_USECS               0x00000030
