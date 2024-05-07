@@ -307,6 +307,7 @@ typedef enum {
     MODE_CCM,       /* AEAD_AES_{128,256}_CCM with 16 byte auth tag */
     MODE_CCM_8,     /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
     MODE_POLY1305,  /* AEAD_CHACHA20_POLY1305 with 16 byte auth tag (RFC 7905) */
+    MODE_ECB, /* ECB: used to perfrom record seq number encryption in DTLSv1.3 */
 } ssl_cipher_mode_t;
 
 /* Explicit and implicit nonce length (RFC 5116 - Section 3.2.1) */
@@ -350,9 +351,12 @@ typedef struct _SslDecoder {
     guchar _mac_key_or_write_iv[48];
     StringInfo mac_key; /* for block and stream ciphers */
     StringInfo write_iv; /* for AEAD ciphers (at least GCM, CCM) */
+    SSL_CIPHER_CTX sn_evp; /* used to decrypt serial number in DTLSv1.3 */
     SSL_CIPHER_CTX evp;
     SslDecompress *decomp;
+    guint64 dtls13_epoch;
     guint64 seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
+    StringInfo dtls13_aad;  /**< Additional Authenticated Data for DTLS 1.3. */
     guint16 epoch;
     SslFlow *flow;
     StringInfo app_traffic_secret;  /**< TLS 1.3 application traffic secret (if applicable), wmem file scope. */
@@ -426,6 +430,7 @@ typedef struct _SslRecordInfo {
     SslFlow *flow;          /**< Flow where this record fragment is a part of.
                                  Can be NULL if this record type may not be fragmented. */
     guint32 seq;            /**< Data offset within the flow. */
+    guint16 dtls13_seq_suffix;   /* < decrypted dtlsv1.3 record number suffix */
     struct _SslRecordInfo* next;
 } SslRecordInfo;
 
@@ -494,6 +499,8 @@ typedef struct _SslSession {
     guint8  server_cid_len;
     gboolean server_cid_len_present;
     gboolean deprecated_cid; /* Set when handshake is using the deprecated CID extension type */
+    guint64 dtls13_current_epoch[2]; /* max epoch (for server and client respectively) */
+    guint64 dtls13_next_seq_num[2]; /* DTLSv1.3 next expected seq number (for server and client respectively) */
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
@@ -813,6 +820,9 @@ tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
 extern void
 tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
                  gboolean is_from_server, TLSRecordType type);
+
+extern int
+dtls13_generate_key_for_epoch(SslDecryptSession *ssl, gboolean is_from_server, guint64 epoch);
 
 extern void
 tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server);

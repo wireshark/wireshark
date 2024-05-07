@@ -64,6 +64,8 @@
  */
 #define IS_GREASE_QUIC(x) ((x) > 27 ? ((((x) - 27) % 31) == 0) : 0)
 
+#define DTLS13_MAX_EPOCH 10
+
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
     { SSLV2_VERSION,        "SSLv2" },
@@ -3245,6 +3247,7 @@ ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
         GCRY_CIPHER_MODE_CCM,
         GCRY_CIPHER_MODE_CCM,
         GCRY_CIPHER_MODE_POLY1305,
+        GCRY_CIPHER_MODE_ECB, /* used for DTLSv1.3 seq number encryption */
     };
     gint err;
     if (algo == -1) {
@@ -4029,10 +4032,12 @@ static gint tls12_handshake_hash(SslDecryptSession* ssl, gint md, StringInfo* ou
  * inlined and removed once support for draft 19 and before is dropped.
  */
 static inline const char *
-tls13_hkdf_label_prefix(guint8 tls13_draft_version)
+tls13_hkdf_label_prefix(SslDecryptSession *ssl_session)
 {
-    if (tls13_draft_version && tls13_draft_version < 20) {
+    if (ssl_session->session.tls13_draft_version && ssl_session->session.tls13_draft_version < 20) {
         return "TLS 1.3, ";
+    } else if (ssl_session->session.version == DTLSV1DOT3_VERSION) {
+        return "dtls13";
     } else {
         return "tls13 ";
     }
@@ -4236,7 +4241,7 @@ ssl_decoder_destroy_cb(wmem_allocator_t *, wmem_cb_event_t, void *);
 
 static SslDecoder*
 ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
-        gint compression, guint8 *mk, guint8 *sk, guint8 *iv, guint iv_length)
+        gint compression, guint8 *mk, guint8 *sk, guint8 *sn_key, guint8 *iv, guint iv_length)
 {
     SslDecoder *dec;
     ssl_cipher_mode_t mode = cipher_suite->mode;
@@ -4267,6 +4272,24 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
         ssl_debug_printf("%s: can't create cipher id:%d mode:%d\n", G_STRFUNC,
             cipher_algo, cipher_suite->mode);
         return NULL;
+    }
+
+    if (cipher_suite->enc != ENC_NULL && sn_key != NULL) {
+        if (cipher_suite->enc == ENC_AES || cipher_suite->enc == ENC_AES256) {
+            mode = MODE_ECB;
+        } else if (cipher_suite->enc == ENC_CHACHA20) {
+            mode = MODE_STREAM;
+        } else {
+            ssl_debug_printf("not supported encryption algorithm for DTLSv1.3\n");
+            return NULL;
+        }
+
+        if (ssl_cipher_init(&dec->sn_evp, cipher_algo, sn_key, NULL, mode) < 0) {
+            ssl_debug_printf("%s: can't create cipher id:%d mode:%d for seq number decryption\n", G_STRFUNC,
+               cipher_algo, MODE_ECB);
+            dec->evp = NULL;
+            return NULL;
+        }
     }
 
     ssl_debug_printf("decoder initialized (digest len %d)\n", ssl_cipher_suite_dig(cipher_suite)->len);
@@ -4460,8 +4483,8 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     guint8     *c_wk = NULL, *s_wk = NULL, *c_mk = NULL, *s_mk = NULL;
     const SslCipherSuite *cipher_suite = ssl_session->cipher_suite;
 
-    /* TLS 1.3 is handled directly in tls13_change_key. */
-    if (ssl_session->session.version == TLSV1DOT3_VERSION) {
+    /* (D)TLS 1.3 is handled directly in tls13_change_key. */
+    if (ssl_session->session.version == TLSV1DOT3_VERSION || ssl_session->session.version == DTLSV1DOT3_VERSION) {
         ssl_debug_printf("%s: detected TLS 1.3. Should not have been called!\n", G_STRFUNC);
         return -1;
     }
@@ -4745,13 +4768,13 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 create_decoders:
     /* create both client and server ciphers*/
     ssl_debug_printf("%s ssl_create_decoder(client)\n", G_STRFUNC);
-    ssl_session->client_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, c_mk, c_wk, c_iv, write_iv_len);
+    ssl_session->client_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, c_mk, c_wk, NULL, c_iv, write_iv_len);
     if (!ssl_session->client_new) {
         ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
         goto fail;
     }
     ssl_debug_printf("%s ssl_create_decoder(server)\n", G_STRFUNC);
-    ssl_session->server_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, s_mk, s_wk, s_iv, write_iv_len);
+    ssl_session->server_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, s_mk, s_wk, NULL, s_iv, write_iv_len);
     if (!ssl_session->server_new) {
         ssl_debug_printf("%s can't init server decoder\n", G_STRFUNC);
         goto fail;
@@ -4778,13 +4801,14 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
 {
     gboolean    success = FALSE;
     guchar     *write_key = NULL, *write_iv = NULL;
+    guchar     *sn_key = NULL;
     SslDecoder *decoder;
     guint       key_length, iv_length;
     int         hash_algo;
     const SslCipherSuite *cipher_suite = ssl_session->cipher_suite;
     int         cipher_algo;
 
-    if (ssl_session->session.version != TLSV1DOT3_VERSION) {
+    if ((ssl_session->session.version != TLSV1DOT3_VERSION) && (ssl_session->session.version != DTLSV1DOT3_VERSION)) {
         ssl_debug_printf("%s only usable for TLS 1.3, not %#x!\n", G_STRFUNC,
                 ssl_session->session.version);
         return FALSE;
@@ -4821,7 +4845,7 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     iv_length = 12;
     ssl_debug_printf("%s key_length %u iv_length %u\n", G_STRFUNC, key_length, iv_length);
 
-    const char *label_prefix = tls13_hkdf_label_prefix(ssl_session->session.tls13_draft_version);
+    const char *label_prefix = tls13_hkdf_label_prefix(ssl_session);
     if (!tls13_hkdf_expand_label(hash_algo, secret, label_prefix, "key", key_length, &write_key)) {
         ssl_debug_printf("%s write_key expansion failed\n", G_STRFUNC);
         return FALSE;
@@ -4831,11 +4855,21 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
         goto end;
     }
 
+    if (ssl_session->session.version == DTLSV1DOT3_VERSION) {
+        if (!tls13_hkdf_expand_label(hash_algo, secret, label_prefix, "sn", key_length, &sn_key)) {
+            ssl_debug_printf("%s sn_key expansion failed\n", G_STRFUNC);
+            goto end;
+        }
+    }
+
     ssl_print_data(is_from_server ? "Server Write Key" : "Client Write Key", write_key, key_length);
     ssl_print_data(is_from_server ? "Server Write IV" : "Client Write IV", write_iv, iv_length);
+    if (ssl_session->session.version == DTLSV1DOT3_VERSION) {
+        ssl_print_data(is_from_server ? "Server Write SN" : "Client Write SN", sn_key, key_length);
+    }
 
     ssl_debug_printf("%s ssl_create_decoder(%s)\n", G_STRFUNC, is_from_server ? "server" : "client");
-    decoder = ssl_create_decoder(cipher_suite, cipher_algo, 0, NULL, write_key, write_iv, iv_length);
+    decoder = ssl_create_decoder(cipher_suite, cipher_algo, 0, NULL, write_key, sn_key, write_iv, iv_length);
     if (!decoder) {
         ssl_debug_printf("%s can't init %s decoder\n", G_STRFUNC, is_from_server ? "server" : "client");
         goto end;
@@ -5195,7 +5229,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         explicit_nonce = in;
         ciphertext = explicit_nonce + EXPLICIT_NONCE_LEN;
         ciphertext_len = inl - EXPLICIT_NONCE_LEN - auth_tag_len;
-    } else if (version == TLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
+    } else if (version == TLSV1DOT3_VERSION || version == DTLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
         if (inl < auth_tag_len) {
             ssl_debug_printf("%s input %d has no space for auth tag %d\n", G_STRFUNC, inl, auth_tag_len);
             return FALSE;
@@ -5218,7 +5252,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         memcpy(nonce, decoder->write_iv.data, IMPLICIT_NONCE_LEN);
         memcpy(nonce + IMPLICIT_NONCE_LEN, explicit_nonce, EXPLICIT_NONCE_LEN);
 
-    } else if (version == TLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
+    } else if (version == TLSV1DOT3_VERSION || version == DTLSV1DOT3_VERSION ||  cipher_mode == MODE_POLY1305) {
         /*
          * Technically the nonce length must be at least 8 bytes, but for
          * AES-GCM, AES-CCM and Poly1305-ChaCha20 the nonce length is exact 12.
@@ -5275,6 +5309,9 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         aad[8] = ct;                        /* TLSCompressed.type */
         phton16(aad + 9, record_version);   /* TLSCompressed.version */
         phton16(aad + 11, ciphertext_len);  /* TLSCompressed.length */
+    } else if (version == DTLSV1DOT3_VERSION) {
+        aad_len = decoder->dtls13_aad.data_len;
+        aad = decoder->dtls13_aad.data;
     } else if (draft_version >= 25 || draft_version == 0) {
         aad_len = 5;
         aad = wmem_alloc(wmem_packet_scope(), aad_len);
@@ -5354,7 +5391,8 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
     ssl_debug_printf("ssl_decrypt_record ciphertext len %d\n", inl);
     ssl_print_data("Ciphertext",in, inl);
 
-    if ((ssl->session.version == TLSV1DOT3_VERSION) != (decoder->cipher_suite->kex == KEX_TLS13)) {
+    if (((ssl->session.version == TLSV1DOT3_VERSION || ssl->session.version == DTLSV1DOT3_VERSION))
+            != (decoder->cipher_suite->kex == KEX_TLS13)) {
         ssl_debug_printf("%s Invalid cipher suite for the protocol version!\n", G_STRFUNC);
         return -1;
     }
@@ -5373,7 +5411,8 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         decoder->cipher_suite->mode == MODE_CCM ||
         decoder->cipher_suite->mode == MODE_CCM_8 ||
         decoder->cipher_suite->mode == MODE_POLY1305 ||
-        ssl->session.version == TLSV1DOT3_VERSION) {
+        ssl->session.version == TLSV1DOT3_VERSION ||
+        ssl->session.version == DTLSV1DOT3_VERSION) {
 
         if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, ignore_mac_failed, in, inl, cid, cidl, out_str, &worklen)) {
             /* decryption failed */
@@ -5676,6 +5715,8 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
     clear_address(&ssl_session->session.srv_addr);
     ssl_session->session.srv_ptype = PT_NONE;
     ssl_session->session.srv_port = 0;
+    ssl_session->session.dtls13_current_epoch[0] = ssl_session->session.dtls13_current_epoch[1] = 0;
+    ssl_session->session.dtls13_next_seq_num[0] = ssl_session->session.dtls13_next_seq_num[1] = 0;
 
     conversation_add_proto_data(conversation, proto_ssl, ssl_session);
     return ssl_session;
@@ -5728,6 +5769,8 @@ void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gboolean is_
         session->server_cert_type = 0;
         /* session->is_session_resumed is already handled in the ServerHello dissection. */
     }
+    session->dtls13_next_seq_num[0] = session->dtls13_next_seq_num[1] = 0;
+    session->dtls13_current_epoch[0] = session->dtls13_current_epoch[1] = 0;
 }
 
 void
@@ -6283,7 +6326,7 @@ tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
     GHashTable *key_map;
     const char *label;
 
-    if (ssl->session.version != TLSV1DOT3_VERSION) {
+    if (ssl->session.version != TLSV1DOT3_VERSION && ssl->session.version != DTLSV1DOT3_VERSION) {
         ssl_debug_printf("%s TLS version %#x is not 1.3\n", G_STRFUNC, ssl->session.version);
         return NULL;
     }
@@ -6383,6 +6426,59 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
     }
 }
 
+int dtls13_generate_key_for_epoch(SslDecryptSession *ssl, gboolean is_from_server, guint64 epoch)
+{
+    /* RFC 8446 Section 7.2:
+     * application_traffic_secret_N+1 =
+     *     HKDF-Expand-Label(application_traffic_secret_N,
+     *                       "traffic upd", "", Hash.length)
+     *
+     * Both application_traffic_secret_N are of the same length (Hash.length).
+     */
+    const SslCipherSuite *cipher_suite = ssl->cipher_suite;
+    SslDecoder *decoder = is_from_server ? ssl->server : ssl->client;
+    const char *hash_name;
+    StringInfo *traffic_0;
+    guchar *tmp_secret;
+    int ret = -1;
+    uint64_t i;
+
+    if (!cipher_suite) {
+        ssl_debug_printf("%s Cannot perform Key Update due to missing info\n", G_STRFUNC);
+        return -1;
+    }
+
+    if (epoch > DTLS13_MAX_EPOCH) {
+        ssl_debug_printf("dtls13: only %d epochs are supported\n", DTLS13_MAX_EPOCH);
+        return -1;
+    }
+
+    /* this can be slow after a lot of KeyUpdate. TODO: cache secrets for the last N epochs. For now limit this to DTLS13_MAX_EPOCH */
+    traffic_0 = tls13_load_secret(ssl, tls_get_master_key_map(TRUE), is_from_server, TLS_SECRET_APP);
+    if (traffic_0 == NULL)
+        return -1;
+
+    hash_name = ssl_cipher_suite_dig(cipher_suite)->name;
+    const guint hash_len = traffic_0->data_len;
+
+    tmp_secret = NULL;
+    for (i = 0; i < epoch - 3; i++) {
+        if (!tls13_hkdf_expand_label(ssl_get_digest_by_name(hash_name), traffic_0,
+                                    tls13_hkdf_label_prefix(ssl),
+                                    "traffic upd", hash_len, &tmp_secret)) {
+            ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
+            return -1;
+        }
+        ssl_data_set(traffic_0, tmp_secret, hash_len);
+    }
+
+    ret = tls13_generate_keys(ssl, traffic_0, is_from_server);
+    if (ret == 0)
+        decoder->dtls13_epoch = epoch;
+
+    return ret;
+}
+
 /**
  * Update to next application data traffic secret for TLS 1.3. The previous
  * secret should have been set by tls13_change_key.
@@ -6420,7 +6516,7 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
         label = "application traffic secret";
     }
     if (!tls13_hkdf_expand_label(hash_algo, app_secret,
-                                 tls13_hkdf_label_prefix(tls13_draft_version),
+                                 tls13_hkdf_label_prefix(ssl),
                                  label, hash_len, &new_secret)) {
         ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
         return;
@@ -8655,7 +8751,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     ti_rnd = proto_tree_add_item(tree, hf->hf.hs_random, tvb, offset, 32, ENC_NA);
 
-    if (session->version != TLSV1DOT3_VERSION) { /* No time on first bytes random with TLS 1.3 */
+    if ((session->version != TLSV1DOT3_VERSION) && (session->version != DTLSV1DOT3_VERSION)) { /* No time on first bytes random with TLS 1.3 */
 
         rnd_tree = proto_item_add_subtree(ti_rnd, hf->ett.hs_random);
         /* show the time */
@@ -10133,7 +10229,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     proto_tree *subtree;
     proto_item *subitem;
     guint32     ticket_len;
-    gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
+    gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION || session->version == DTLSV1DOT3_VERSION;
     guchar      draft_version = session->tls13_draft_version;
     guint32     lifetime_hint;
 
@@ -10323,7 +10419,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
 #endif
 
     /* TLS 1.3: opaque certificate_request_context<0..2^8-1> */
-    if (session->version == TLSV1DOT3_VERSION) {
+    if (session->version == TLSV1DOT3_VERSION || session->version == DTLSV1DOT3_VERSION) {
         guint32 context_length;
         if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &context_length,
                             hf->hf.hs_certificate_request_context_length, 0, G_MAXUINT8)) {
@@ -10337,7 +10433,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         }
     }
 
-    if (session->version != TLSV1DOT3_VERSION && cert_type == CERT_RPK) {
+    if ((session->version != TLSV1DOT3_VERSION && session->version != DTLSV1DOT3_VERSION) && cert_type == CERT_RPK) {
         /* For RPK before TLS 1.3, the single RPK is stored directly without
          * another "certificate_list" field. */
         certificate_list_length = offset_end - offset;
@@ -10401,7 +10497,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         }
 
         /* TLS 1.3: Extension extensions<0..2^16-1> */
-        if (session->version == TLSV1DOT3_VERSION) {
+        if ((session->version == TLSV1DOT3_VERSION || session->version == DTLSV1DOT3_VERSION)) {
             offset = ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
                                                next_offset, SSL_HND_CERTIFICATE,
                                                session, ssl, is_dtls, NULL, NULL);
@@ -10484,7 +10580,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
     proto_tree *subtree;
     guint32     next_offset;
     asn1_ctx_t  asn1_ctx;
-    gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
+    gboolean    is_tls13 = (session->version == TLSV1DOT3_VERSION || session->version == DTLSV1DOT3_VERSION);
     guchar      draft_version = session->tls13_draft_version;
 
     if (!tree)
@@ -11235,6 +11331,7 @@ ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_inf
     case TLSV1DOT2_VERSION:
     case DTLSV1DOT2_VERSION:
     case TLSV1DOT3_VERSION:
+    case DTLSV1DOT3_VERSION:
         tls_dissect_signature_algorithm(hf, tvb, tree, offset, NULL);
         offset += 2;
         break;
