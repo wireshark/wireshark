@@ -61,7 +61,7 @@ variables:
 .build-linux:
   stage: build
   tags:
-    - docker
+    - saas-linux-small-amd64
   after_script:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build obj-*; do [ ! -d "$builddir/run" ] || break; done
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
@@ -71,7 +71,7 @@ variables:
 .test-linux:
   stage: test
   tags:
-    - docker
+    - saas-linux-small-amd64
   variables:
     GIT_STRATEGY: none
 
