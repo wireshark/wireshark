@@ -177,6 +177,7 @@ static const value_string rpc_authdes_namekind[] = {
 
 /* the protocol number */
 static int proto_rpc;
+static int proto_rpc_unknown;
 static int hf_rpc_reqframe;
 static int hf_rpc_repframe;
 static int hf_rpc_lastfrag;
@@ -2592,7 +2593,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		rpc_prog_key = prog;
 		if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(rpc_prog_key))) == NULL) {
 			proto = NULL;
-			proto_id = 0;
+			proto_id = proto_rpc_unknown;
 			ett = 0;
 			progname = "Unknown";
 		}
@@ -4402,6 +4403,7 @@ proto_register_rpc(void)
 	};
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "RPC", "rpc");
+	proto_rpc_unknown = proto_register_protocol("Unknown RPC protocol", "Unknown RPC", "rpc-unknown");
 
 	subdissector_call_table = register_custom_dissector_table("rpc.call", "RPC Call Functions", proto_rpc, rpc_proc_hash, rpc_proc_equal, g_free);
 	subdissector_reply_table = register_custom_dissector_table("rpc.reply", "RPC Reply Functions", proto_rpc, rpc_proc_hash, rpc_proc_equal, g_free);
