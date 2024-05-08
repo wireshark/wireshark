@@ -75,7 +75,7 @@ $X64Archives = @{
     "bcg729/bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
     "brotli/brotli-1.0.9-1-win64ws.zip" = "3f8d24aec8668201994327ff8d8542fe507d1d468a500a1aec50d0415f695aab";
     "c-ares/c-ares-1.27.0-1-x64-windows-ws.zip" = "c9f1fb4836d55ae3aca0be077d2363678454820f9efad5c09371351a8770b5fc";
-    "gnutls/gnutls-3.8.3-1-x64-mingw-dynamic-ws.zip" = "0d8f99029319e1967fd916586eecfd776a9b564614468b233b6eda8bc23ca20d";
+    "gnutls/gnutls-3.8.4-2-x64-mingw-dynamic-ws.zip" = "e875c6c34f633c487ce390e25a4d26a3e27d3dca3f9fdfa1d8fd66026d1e257c";
     "krb5/krb5-1.20.1-1-x64-windows-ws.zip" = "a1e5c582afce6e2f72f0f5bd66df2c0f3cc984532a1da5314fc89d7b7f29cdbf";
     "libgcrypt/libgcrypt-1.10.2-2-x64-mingw-dynamic-ws.zip" = "477cfce91d791b34df75a5ad83626f1ac2ee147eff7965e52266a4fc3da0f920";
     "libilbc/libilbc-2.0.2-4-x64-windows-ws.zip" = "4f35a1ffa03c89bf473f38249282a7867b203988d2b6d3d2f0924764619fd5f5";
@@ -98,11 +98,12 @@ $X64Archives = @{
     "zstd/zstd-1.5.2-1-win64ws.zip" = "d920afe636951cfcf144824d9c075d1f2c13387f4739152fe185fd9c09fc58f2";
 }
 
+
 $Arm64Archives = @{
     "bcg729/bcg729-1.1.1-1-win64armws.zip" = "f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625";
     "brotli/brotli-1.0.9-1-win64armws.zip" = "5ba1b62ebc514d55c3eae85a00ff107e587b6e7cb1275e2d33fcddcd49f8e2af";
     "c-ares/c-ares-1.27.0-1-arm64-windows-ws.zip" = "d96bd88aeed45350b2d14f023bd6d9e5dc63aa3bb0b47da85e4e125d6f74bfcf";
-    "gnutls/gnutls-3.8.3-1-arm64-mingw-dynamic-ws.zip" = "b9f0ee9cfe5012241aa5b9832212ea31408edf9bfc968762a2cfb091202fcc4b";
+    "gnutls/gnutls-3.8.4-2-arm64-mingw-dynamic-ws.zip" = "17f28b4a47857db86d9c3f9b7ba12528c8e6368524314fb0fe5ea9303f1a58f9";
     "krb5/krb5-1.20.1-1-arm64-windows-ws.zip" = "6afe3185ea7621224544683a89d7c724d32bef6f1b552738dbc713ceb2151437";
     "libgcrypt/libgcrypt-1.10.2-2-arm64-mingw-dynamic-ws.zip" = "cd42fa2739a204e129d655e1b0dda83ceb27399812b8b2eccddae4a9ecd8d0ce";
     "libilbc/libilbc-2.0.2-4-arm64-windows-ws.zip" = "00a506cc1aac8a2e31856e463a555d899b5a6ccf376485a124104858ccf0be6d";
