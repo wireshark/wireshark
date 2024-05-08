@@ -154,7 +154,7 @@ TYPE lsa_String "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, dre
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_StringLarge "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_AsciiStringLarge "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
-TYPE lsa_BinaryString "offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
+TYPE lsa_BinaryString "offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
 
 

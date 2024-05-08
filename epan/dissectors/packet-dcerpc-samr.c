@@ -5699,7 +5699,7 @@ samr_dissect_struct_UserInfo18(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo20_parameters);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo20_parameters, 0);
 
 	return offset;
 }
@@ -5984,7 +5984,7 @@ samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_parameters);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_parameters, 0);
 
 	return offset;
 }
@@ -5992,7 +5992,7 @@ samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_UserInfo21_lm_owf_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_lm_owf_password);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_lm_owf_password, 0);
 
 	return offset;
 }
@@ -6000,7 +6000,7 @@ samr_dissect_element_UserInfo21_lm_owf_password(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_UserInfo21_nt_owf_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_nt_owf_password);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_nt_owf_password, 0);
 
 	return offset;
 }
