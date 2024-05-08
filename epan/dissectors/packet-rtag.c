@@ -1,5 +1,5 @@
 /* packet-rtag.c
- * Dissector for IEEE 802.1cb R-TAG tags
+ * Dissector for IEEE 802.1CB R-TAG tags
  * By Stephen Williams <steve.williams@getcruise.com>
  * Copyright 2020-present, Cruise LLC
  *
@@ -25,6 +25,7 @@ static dissector_handle_t rtag_handle;
 static int hf_rtag_reserved;
 static int hf_rtag_sequence;
 static int hf_rtag_protocol;
+static int hf_rtag_trailer;
 static hf_register_info rtag_breakdown[] = {
       { &hf_rtag_reserved,
 	{ "<reserved>", "rtag.reserved",
@@ -43,7 +44,12 @@ static hf_register_info rtag_breakdown[] = {
 	  FT_UINT16, BASE_HEX,
 	  VALS(etype_vals), 0x0,
 	  "Ethertype", HFILL }
-      }
+      },
+      { &hf_rtag_trailer,
+        { "Trailer", "rtag.trailer",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "R-TAG Trailer", HFILL }
+      },
 };
 
 /*
@@ -89,8 +95,8 @@ static int dissect_rtag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       ethertype_data.etype = rtag_protocol;
       ethertype_data.payload_offset = 6;
       ethertype_data.fh_tree = tree;
-      ethertype_data.trailer_id = -1;
-      ethertype_data.fcs_len = -1;
+      ethertype_data.trailer_id = hf_rtag_trailer;
+      ethertype_data.fcs_len = 0;
       call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
 
       return tvb_captured_length(tvb);
