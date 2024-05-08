@@ -105,7 +105,7 @@ interface frstrans
 	/*****************/
 	/* Function 0x04 */
 	typedef enum {
-		FRSTRANS_VERSION_REQUEST_NORNAL_SYNC	= 0x0000,
+		FRSTRANS_VERSION_REQUEST_NORMAL_SYNC	= 0x0000,
 		FRSTRANS_VERSION_REQUEST_SLOW_SYNC	= 0x0001,
 		FRSTRANS_VERSION_REQUEST_SLAVE_SYNC	= 0x0002
 	} frstrans_VersionRequestType;

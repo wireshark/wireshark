@@ -5640,7 +5640,7 @@ SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 				buffer.tvb, buffer_offset, pinfo,
 				buffer.tree, di, drep);
 			/*break;*/
-			goto done; /*Not entirely imeplemented*/
+			goto done; /*Not entirely implemented*/
 		default:
 			proto_tree_add_expert_format( buffer.tree, pinfo, &ei_driver_info_level, buffer.tvb, buffer_offset, -1, "Unknown driver info level %d", level);
 			goto done;

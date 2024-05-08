@@ -681,7 +681,7 @@ void RtpPlayerDialog::fillTappedColumns()
     // true just for first stream
     bool is_first = true;
 
-    // Get all rows, immutable list. Later changes in rows migth reorder them
+    // Get all rows, immutable list. Later changes in rows might reorder them
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->findItems(
         QString("*"), Qt::MatchWrap | Qt::MatchWildcard | Qt::MatchRecursive);
 
@@ -1449,7 +1449,7 @@ void RtpPlayerDialog::on_playButton_clicked()
 #endif
     marker_stream_->start(new AudioSilenceGenerator(marker_stream_));
     // It may happen that stream play is finished before all others are started
-    // therefore we do not use playing_streams_ there, but separate temporarly
+    // therefore we do not use playing_streams_ there, but separate temporarily
     // list. It avoids access element/remove element race condition.
     streams_to_start = playing_streams_;
     for( int i = 0; i<streams_to_start.count(); ++i ) {

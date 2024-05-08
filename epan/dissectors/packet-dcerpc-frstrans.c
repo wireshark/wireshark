@@ -190,7 +190,7 @@ static int frstrans_dissect_element_Update_parent_version(tvbuff_t *tvb _U_, int
 static int frstrans_dissect_element_Update_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int frstrans_dissect_element_Update_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 const value_string frstrans_frstrans_VersionRequestType_vals[] = {
-	{ FRSTRANS_VERSION_REQUEST_NORNAL_SYNC, "FRSTRANS_VERSION_REQUEST_NORNAL_SYNC" },
+	{ FRSTRANS_VERSION_REQUEST_NORMAL_SYNC, "FRSTRANS_VERSION_REQUEST_NORMAL_SYNC" },
 	{ FRSTRANS_VERSION_REQUEST_SLOW_SYNC, "FRSTRANS_VERSION_REQUEST_SLOW_SYNC" },
 	{ FRSTRANS_VERSION_REQUEST_SLAVE_SYNC, "FRSTRANS_VERSION_REQUEST_SLAVE_SYNC" },
 { 0, NULL }
@@ -734,7 +734,7 @@ frstrans_dissect_struct_Update(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 
 /* IDL: enum { */
-/* IDL: 	FRSTRANS_VERSION_REQUEST_NORNAL_SYNC=0x0000, */
+/* IDL: 	FRSTRANS_VERSION_REQUEST_NORMAL_SYNC=0x0000, */
 /* IDL: 	FRSTRANS_VERSION_REQUEST_SLOW_SYNC=0x0001, */
 /* IDL: 	FRSTRANS_VERSION_REQUEST_SLAVE_SYNC=0x0002, */
 /* IDL: } */

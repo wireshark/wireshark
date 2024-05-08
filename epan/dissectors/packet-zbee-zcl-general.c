@@ -15857,7 +15857,7 @@ proto_reg_handoff_zbee_zcl_gp(void)
 #define ZBEE_ZCL_TOUCHLINK_INFO_UNDEFINED       0x20
 #define ZBEE_ZCL_TOUCHLINK_INFO_PROFILE_INTEROP 0x80
 
-/*Touchlink Key Indicies*/
+/*Touchlink Key Indices*/
 #define ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT    0
 #define ZBEE_ZCL_TOUCHLINK_KEYID_MASTER         4
 #define ZBEE_ZCL_TOUCHLINK_KEYID_CERTIFICATION  15

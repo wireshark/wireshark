@@ -27,7 +27,7 @@ extern const value_string frstrans_frstrans_UpdateStatus_vals[];
 int frstrans_dissect_enum_UpdateStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_);
 int frstrans_dissect_struct_VersionVector(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int frstrans_dissect_struct_Update(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-#define FRSTRANS_VERSION_REQUEST_NORNAL_SYNC (0x0000)
+#define FRSTRANS_VERSION_REQUEST_NORMAL_SYNC (0x0000)
 #define FRSTRANS_VERSION_REQUEST_SLOW_SYNC (0x0001)
 #define FRSTRANS_VERSION_REQUEST_SLAVE_SYNC (0x0002)
 extern const value_string frstrans_frstrans_VersionRequestType_vals[];

@@ -287,7 +287,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	 * all features that would be represented by characters that are not present in the string are not supported.
 	 */
 
-	/* Exptect to have :path from HTTP2 here, if not return */
+	/* Expect to have :path from HTTP2 here, if not return */
 	if (proto_is_frame_protocol(pinfo->layers, "http2")) {
 		path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
 		if (!path) {

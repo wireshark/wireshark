@@ -459,6 +459,7 @@ defragmented
 defragmenting
 dehumidification
 deinterleaved
+deletions
 delimit
 delimited
 delimiters
@@ -1000,6 +1001,7 @@ lcids
 lcsap
 leasequery
 legitimisation
+level1login
 libgcrypt
 libiconv
 libndr
@@ -1677,6 +1679,7 @@ rotterdam
 routable
 rowfmt
 rpcap
+rpcsec
 rpmbuild
 rsocket
 rsrvd
@@ -1725,6 +1728,7 @@ sdusize
 sectigo
 sectorization
 sectorized
+seglen
 segmenting
 segno
 selectivity
