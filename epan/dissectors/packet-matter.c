@@ -15,6 +15,8 @@
  *
  * The specification can be freely requested at:
  * https://csa-iot.org/developer-resource/specifications-download-request/
+ *
+ * Comments below reference section numbers of the Matter Core Specification R1.0 (22-27349-001).
  */
 
 #include <config.h>
@@ -70,17 +72,20 @@ static int ett_exchange_flags;
 /* message flags + session ID + security flags + counter */
 #define MATTER_MIN_LENGTH 8
 
+// Section 4.4.1.2
 #define MESSAGE_FLAG_VERSION_MASK       0xF0
 #define MESSAGE_FLAG_HAS_SOURCE         0x04
 #define MESSAGE_FLAG_HAS_DEST_NODE      0x01
 #define MESSAGE_FLAG_HAS_DEST_GROUP     0x02
 #define MESSAGE_FLAG_DSIZ_MASK          0x03
 
+// Section 4.4.1.4
 #define SECURITY_FLAG_HAS_PRIVACY       0x80
 #define SECURITY_FLAG_IS_CONTROL        0x40
 #define SECURITY_FLAG_HAS_EXTENSIONS    0x20
 #define SECURITY_FLAG_SESSION_TYPE_MASK 0x03
 
+// Section 4.4.3.1
 #define EXCHANGE_FLAG_IS_INITIATOR      0x01
 #define EXCHANGE_FLAG_ACK_MSG           0x02
 #define EXCHANGE_FLAG_RELIABILITY       0x04
@@ -142,14 +147,17 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         NULL
     };
 
+    // Section 4.4.1.2
     proto_tree_add_bitmask(matter_tree, tvb, offset, hf_message_flags, ett_message_flags, message_flag_fields, ENC_LITTLE_ENDIAN);
     message_flags = tvb_get_guint8(tvb, offset);
     message_dsiz = (message_flags & MESSAGE_FLAG_DSIZ_MASK);
     offset += 1;
 
+    // Section 4.4.1.3
     proto_tree_add_item_ret_uint(matter_tree, hf_message_session_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &session_id);
     offset += 2;
 
+    // Section 4.4.1.4
     proto_tree_add_bitmask(matter_tree, tvb, offset, hf_message_security_flags, ett_security_flags, message_secflag_fields, ENC_LITTLE_ENDIAN);
     security_flags = tvb_get_guint8(tvb, offset);
     message_session_type = (security_flags & SECURITY_FLAG_SESSION_TYPE_MASK);
@@ -157,6 +165,7 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     // decryption of message privacy is not yet supported,
     // but add an opaque field with the encrypted blob
+    // Section 4.8.3
     if (security_flags & SECURITY_FLAG_HAS_PRIVACY) {
 
         uint32_t privacy_header_length = 4;
@@ -173,13 +182,16 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     } else {
 
+        // Section 4.4.1.5
         proto_tree_add_item(matter_tree, hf_message_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
+
+        // Section 4.4.1.6
         if (message_flags & MESSAGE_FLAG_HAS_SOURCE) {
             proto_tree_add_item(matter_tree, hf_message_src_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
         }
-
+        // Section 4.4.1.7
         if (message_dsiz == MESSAGE_FLAG_HAS_DEST_NODE) {
             proto_tree_add_item(matter_tree, hf_message_dest_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
@@ -190,8 +202,9 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     }
 
-    // "The Unsecured Session SHALL be indicated when both Session Type and Session ID are set to 0."
-    // Secured sessions not yet supported.
+    // Section 4.4.1.4: "The Unsecured Session SHALL be indicated
+    // when both Session Type and Session ID are set to 0."
+    // Secured sessions not yet supported in the dissector.
     if (message_session_type == 0 && session_id == 0) {
         proto_item *payload_item = proto_tree_add_none_format(matter_tree, hf_payload, tvb, offset, -1, "Protocol Payload");
         proto_tree *payload_tree = proto_item_add_subtree(payload_item, ett_payload);
@@ -221,13 +234,16 @@ dissect_matter_payload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pl_tre
         &hf_payload_flag_vendor,
         NULL
     };
+    // Section 4.4.3.1
     proto_tree_add_bitmask(pl_tree, tvb, offset, hf_payload_exchange_flags, ett_exchange_flags, exchange_flag_fields, ENC_LITTLE_ENDIAN);
     exchange_flags = tvb_get_guint8(tvb, offset);
     offset += 1;
 
+    // Section 4.4.3.2
     proto_tree_add_item(pl_tree, hf_payload_protocol_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
+    // Section 4.4.3.3
     proto_tree_add_item(pl_tree, hf_payload_exchange_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
@@ -244,14 +260,17 @@ dissect_matter_payload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pl_tre
         offset += 2;
     }
 
+    // Section 4.4.3.4
     proto_tree_add_item(pl_tree, hf_payload_protocol_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
+    // Section 4.4.3.6
     if (exchange_flags & EXCHANGE_FLAG_ACK_MSG) {
         proto_tree_add_item(pl_tree, hf_payload_ack_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
     }
 
+    // Section 4.4.3.7
     if (exchange_flags & EXCHANGE_FLAG_HAS_SECURED_EXT) {
         uint32_t secured_ext_len = 0;
         proto_tree_add_item_ret_uint(pl_tree, hf_payload_secured_ext_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &secured_ext_len);
