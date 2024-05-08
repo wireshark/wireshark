@@ -16,9 +16,18 @@
 #include <QBrush>
 #include <QDebug>
 
+// XXX - The model accesses the uat_t raw data, but if the raw data
+// is changed outside the model, e.g. by another model on the same UAT
+// or by changing configuration profiles, record_errors and dirty_records
+// don't have the proper length, which leads to accessing an illegal list
+// index. The preference dialog and configuration profile dialogs are modal,
+// which reduces the chance of this, but the I/O Graphs using a UAT invites
+// issues.
+
 UatModel::UatModel(QObject *parent, epan_uat *uat) :
     QAbstractTableModel(parent),
-    uat_(0)
+    uat_(0),
+    applying_(false)
 {
     loadUat(uat);
 }
@@ -47,7 +56,14 @@ void UatModel::loadUat(epan_uat * uat)
 
 void UatModel::reloadUat()
 {
+    // Avoid unnecessarily resetting the model if we're just making
+    // what's on disk match what we have.
+    if (applying_)
+        return;
+
     beginResetModel();
+    record_errors.clear();
+    dirty_records.clear();
     loadUat(uat_);
     endResetModel();
 }
@@ -62,9 +78,15 @@ bool UatModel::applyChanges(QString &error)
             g_free(err);
         }
 
+        applying_ = true;
+        // XXX - Why does this need to call post_update_cb? post_update_cb
+        // is for when the uat_t is updated, e.g. after loading a file.
+        // Saving makes the information on disk match the table records in
+        // memory, but it shouldn't change the uat_t.
         if (uat_->post_update_cb) {
             uat_->post_update_cb();
         }
+        applying_ = false;
         return true;
     }
 

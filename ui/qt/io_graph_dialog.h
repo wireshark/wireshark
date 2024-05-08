@@ -25,6 +25,7 @@
 
 #include <wsutil/str_util.h>
 
+#include <QPointer>
 #include <QIcon>
 #include <QMenu>
 #include <QTextStream>
@@ -168,12 +169,18 @@ public slots:
     void scheduleReplot(bool now = false);
     void scheduleRecalc(bool now = false);
     void scheduleRetap(bool now = false);
-    void modelRowsReset();
     void reloadFields();
 
 protected:
     void keyPressEvent(QKeyEvent *event);
     void reject();
+
+protected slots:
+    void modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
+    void modelRowsReset();
+    void modelRowsInserted(const QModelIndex &parent, int first, int last);
+    void modelRowsRemoved(const QModelIndex &parent, int first, int last);
+    void modelRowsMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destinationParent, int destinationRow);
 
 signals:
     void goToPacket(int packet_num);
@@ -186,7 +193,7 @@ private:
 
     //Model and delegate were chosen over UatFrame because add/remove/copy
     //buttons would need realignment (UatFrame has its own)
-    UatModel *uat_model_;
+    QPointer<UatModel> uat_model_;
     UatDelegate *uat_delegate_;
 
     // XXX - This needs to stay synced with UAT index
@@ -244,7 +251,6 @@ private slots:
 
     void on_intervalComboBox_currentIndexChanged(int index);
     void on_todCheckBox_toggled(bool checked);
-    void modelDataChanged(const QModelIndex &index);
     void on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void on_logCheckBox_toggled(bool checked);

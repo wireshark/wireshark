@@ -157,6 +157,10 @@ static const value_string moving_avg_vs[] = {
 static io_graph_settings_t *iog_settings_;
 static unsigned num_io_graphs_;
 static uat_t *iog_uat_;
+// XXX - Multiple UatModels with the same uat can crash if one is
+// edited, because the underlying uat_t* data changes but the
+// record_errors and dirty_records lists do not.
+static QPointer<UatModel> static_uat_model_;
 
 // y_axis_factor was added in 3.6. Provide backward compatibility.
 static const char *iog_uat_defaults_[] = {
@@ -331,6 +335,14 @@ static void io_graph_free_cb(void* p) {
     g_free(iogs->name);
     g_free(iogs->dfilter);
     g_free(iogs->yfield);
+}
+
+// If the uat changes outside the model, e.g. when changing profiles,
+// we need to tell the UatModel.
+static void io_graph_post_update_cb() {
+    if (static_uat_model_) {
+        static_uat_model_->reloadUat();
+    }
 }
 
 } // extern "C"
@@ -536,15 +548,15 @@ IOGraphDialog::~IOGraphDialog()
 
 void IOGraphDialog::copyFromProfile(QString filename)
 {
-    unsigned orig_data_len = iog_uat_->raw_data->len;
-
     char *err = NULL;
+    // uat_load appends rows to the current UAT, using filename.
+    // We should let the UatModel handle it, and have the UatModel
+    // call beginInsertRows() and endInsertRows(), so that we can
+    // just add the new rows instead of resetting the information.
     if (uat_load(iog_uat_, filename.toUtf8().constData(), &err)) {
         iog_uat_->changed = true;
-        uat_model_->reloadUat();
-        for (unsigned i = orig_data_len; i < iog_uat_->raw_data->len; i++) {
-            createIOGraph(i);
-        }
+        // uat_load calls the post update cb, which reloads the Uat.
+        //uat_model_->reloadUat();
     } else {
         report_failure("Error while loading %s: %s", iog_uat_->name, err);
         g_free(err);
@@ -576,7 +588,6 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
         return;
     }
     ui->graphUat->setCurrentIndex(newIndex);
-    createIOGraph(newIndex.row());
 }
 
 void IOGraphDialog::addGraph(bool copy_from_current)
@@ -594,8 +605,6 @@ void IOGraphDialog::addGraph(bool copy_from_current)
             qDebug() << "Failed to add a new record";
             return;
         }
-        createIOGraph(copyIdx.row());
-
         ui->graphUat->setCurrentIndex(copyIdx);
     } else {
         addDefaultGraph(false);
@@ -607,8 +616,8 @@ void IOGraphDialog::addGraph(bool copy_from_current)
 
 void IOGraphDialog::createIOGraph(int currentRow)
 {
-    // XXX - Should IOGraph have it's own list that has to sync with UAT?
-    ioGraphs_.append(new IOGraph(ui->ioPlot));
+    // XXX - Should IOGraph have its own list that has to sync with UAT?
+    ioGraphs_.insert(currentRow, new IOGraph(ui->ioPlot));
     IOGraph* iog = ioGraphs_[currentRow];
 
     connect(this, SIGNAL(recalcGraphData(capture_file *)), iog, SLOT(recalcGraphData(capture_file *)));
@@ -1357,7 +1366,7 @@ void IOGraphDialog::loadProfileGraphs()
                            io_graph_copy_cb,
                            NULL,
                            io_graph_free_cb,
-                           NULL,
+                           io_graph_post_update_cb,
                            NULL,
                            io_graph_fields);
 
@@ -1369,16 +1378,20 @@ void IOGraphDialog::loadProfileGraphs()
             g_free(err);
             uat_clear(iog_uat_);
         }
+
+        static_uat_model_ = new UatModel(mainApp, iog_uat_);
     }
 
-    uat_model_ = new UatModel(ui->graphUat, iog_uat_);
+    uat_model_ = static_uat_model_;
     uat_delegate_ = new UatDelegate(ui->graphUat);
     ui->graphUat->setModel(uat_model_);
     ui->graphUat->setItemDelegate(uat_delegate_);
 
-    connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(modelDataChanged(QModelIndex)));
-    connect(uat_model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+    connect(uat_model_, &UatModel::dataChanged, this, &IOGraphDialog::modelDataChanged);
+    connect(uat_model_, &UatModel::modelReset, this, &IOGraphDialog::modelRowsReset);
+    connect(uat_model_, &UatModel::rowsInserted, this, &IOGraphDialog::modelRowsInserted);
+    connect(uat_model_, &UatModel::rowsRemoved, this, &IOGraphDialog::modelRowsRemoved);
+    connect(uat_model_, &UatModel::rowsMoved, this, &IOGraphDialog::modelRowsMoved);
 }
 
 // Slots
@@ -1447,9 +1460,76 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
 
 void IOGraphDialog::modelRowsReset()
 {
+    foreach(IOGraph* iog, ioGraphs_) {
+        delete iog;
+    }
+    ioGraphs_.clear();
+
+    for (int i = 0; i < uat_model_->rowCount(); i++) {
+        createIOGraph(i);
+    }
     ui->deleteToolButton->setEnabled(false);
     ui->copyToolButton->setEnabled(false);
     ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
+}
+
+void IOGraphDialog::modelRowsInserted(const QModelIndex &, int first, int last)
+{
+    // first to last is inclusive
+    for (int i = first; i <= last; i++) {
+        createIOGraph(i);
+    }
+}
+
+void IOGraphDialog::modelRowsRemoved(const QModelIndex &, int first, int last)
+{
+    // first to last is inclusive
+    for (int i = first; i <= last; i++) {
+        IOGraph *iog = ioGraphs_.takeAt(i);
+        delete iog;
+    }
+}
+
+void IOGraphDialog::modelRowsMoved(const QModelIndex &source, int sourceStart, int sourceEnd, const QModelIndex &dest, int destinationRow)
+{
+    // The source and destination parent are always the same for UatModel.
+    ws_assert(source == dest);
+    // Either destinationRow < sourceStart, or destinationRow > sourceEnd.
+    // When moving rows down the same parent, the rows are placed _before_
+    // destinationRow, otherwise it's the row to which items are moved.
+    if (destinationRow < sourceStart) {
+        for (int i = 0; i <= sourceEnd - sourceStart; i++) {
+            // When moving up the same parent, moving an earlier
+            // item doesn't change the row.
+            ioGraphs_.move(sourceStart + i, destinationRow + i);
+        }
+    } else {
+        for (int i = 0; i <= sourceEnd - sourceStart; i++) {
+            // When moving down the same parent, moving an earlier
+            // item means the next items move up (so all the moved
+            // rows are always at sourceStart.)
+            ioGraphs_.move(sourceStart, destinationRow + i - 1);
+        }
+    }
+
+    // setting a QCPLayerable to its current layer moves it to the end
+    // as though it were the last added. Do that for all the plottables
+    // starting with the first one that changed, so that the graphs appear
+    // as though they were added in the current order.
+    // (moveToLayer() is the same thing but with a parameter to prepend
+    // instead, which would be faster if we're in the top half of the
+    // list, except that's a protected function. There's no function
+    // to swap layerables in a layer.)
+    IOGraph *iog;
+    for (int row = qMin(sourceStart, destinationRow); row < uat_model_->rowCount(); row++) {
+        iog = ioGraphs_.at(row);
+        if (iog->graph()) {
+            iog->graph()->setLayer(iog->graph()->layer());
+        } else if (iog->bars()) {
+            iog->bars()->setLayer(iog->bars()->layer());
+        }
+    }
+    ui->ioPlot->replot();
 }
 
 void IOGraphDialog::on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex&)
@@ -1475,19 +1555,23 @@ void IOGraphDialog::on_graphUat_currentItemChanged(const QModelIndex &current, c
     }
 }
 
-void IOGraphDialog::modelDataChanged(const QModelIndex &index)
+void IOGraphDialog::modelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &)
 {
     bool recalc = false;
 
-    switch (index.column())
-    {
-    case colYAxis:
-    case colSMAPeriod:
-    case colYAxisFactor:
-        recalc = true;
+    for (int col = topLeft.column(); col <= bottomRight.column(); col++) {
+        switch (col)
+        {
+        case colYAxis:
+        case colSMAPeriod:
+        case colYAxisFactor:
+            recalc = true;
+        }
     }
 
-    syncGraphSettings(index.row());
+    for (int row = topLeft.row(); row <= bottomRight.row(); row++) {
+        syncGraphSettings(row);
+    }
 
     if (recalc) {
         scheduleRecalc(true);
@@ -1505,9 +1589,6 @@ void IOGraphDialog::on_deleteToolButton_clicked()
 {
     const QModelIndex &current = ui->graphUat->currentIndex();
     if (uat_model_ && current.isValid()) {
-        delete ioGraphs_[current.row()];
-        ioGraphs_.remove(current.row());
-
         if (!uat_model_->removeRows(current.row(), 1)) {
             qDebug() << "Failed to remove row";
         }
@@ -1526,10 +1607,6 @@ void IOGraphDialog::on_copyToolButton_clicked()
 void IOGraphDialog::on_clearToolButton_clicked()
 {
     if (uat_model_) {
-        foreach(IOGraph* iog, ioGraphs_) {
-            delete iog;
-        }
-        ioGraphs_.clear();
         uat_model_->clearAll();
     }
 
@@ -1545,28 +1622,7 @@ void IOGraphDialog::on_moveUpwardsToolButton_clicked()
         int current_row = current.row();
         if (current_row > 0){
             // Swap current row with the one above
-            IOGraph* temp = ioGraphs_[current_row - 1];
-            ioGraphs_[current_row - 1] = ioGraphs_[current_row];
-            ioGraphs_[current_row] = temp;
-
             uat_model_->moveRow(current_row, current_row - 1);
-
-            // setting a QCPLayerable to its current layer moves it to the
-            // end as though it were the last added. Do that for all the
-            // elements starting with the first one that changed.
-            // (moveToLayer() is the same thing but with a parameter to prepend
-            // instead, which would be faster if we're in the top half of the
-            // list, except that's a protected function. There's no function
-            // to swap layerables in a layer.)
-            for (int row = current_row - 1; row < uat_model_->rowCount(); row++) {
-                temp = ioGraphs_[row];
-                if (temp->graph()) {
-                    temp->graph()->setLayer(temp->graph()->layer());
-                } else if (temp->bars()) {
-                    temp->bars()->setLayer(temp->bars()->layer());
-                }
-            }
-            ui->ioPlot->replot();
         }
     }
 }
@@ -1579,21 +1635,7 @@ void IOGraphDialog::on_moveDownwardsToolButton_clicked()
         int current_row = current.row();
         if (current_row < uat_model_->rowCount() - 1) {
             // Swap current row with the one below
-            IOGraph* temp = ioGraphs_[current_row + 1];
-            ioGraphs_[current_row + 1] = ioGraphs_[current_row];
-            ioGraphs_[current_row] = temp;
-
             uat_model_->moveRow(current_row, current_row + 1);
-
-            for (int row = current_row; row < uat_model_->rowCount(); row++) {
-                temp = ioGraphs_[row];
-                if (temp->graph()) {
-                    temp->graph()->setLayer(temp->graph()->layer());
-                } else if (temp->bars()) {
-                    temp->bars()->setLayer(temp->bars()->layer());
-                }
-            }
-            ui->ioPlot->replot();
         }
     }
 }

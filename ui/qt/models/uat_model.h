@@ -75,6 +75,7 @@ private:
     void loadUat(uat_t * uat = 0);
 
     epan_uat *uat_;
+    bool applying_;
     QList<bool> dirty_records;
     QList<QMap<int, QString> > record_errors;
 };
