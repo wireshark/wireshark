@@ -237,6 +237,8 @@ private:
     bool graphIsEnabled(int row) const;
 
 private slots:
+    static void applyChanges();
+
     void copyFromProfile(QString filename);
     void updateWidgets();
     void showContextMenu(const QPoint &pos);

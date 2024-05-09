@@ -819,19 +819,24 @@ void IOGraphDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
-void IOGraphDialog::reject()
+void IOGraphDialog::applyChanges()
 {
-    if (!uat_model_)
+    if (!static_uat_model_)
         return;
 
     // Changes to the I/O Graphs settings are always saved,
     // there is no possibility for "rejection".
     QString error;
-    if (uat_model_->applyChanges(error)) {
+    if (static_uat_model_->applyChanges(error)) {
         if (!error.isEmpty()) {
             report_failure("%s", qPrintable(error));
         }
     }
+}
+
+void IOGraphDialog::reject()
+{
+    applyChanges();
 
     QDialog::reject();
 }
@@ -1375,6 +1380,7 @@ void IOGraphDialog::loadProfileGraphs()
         }
 
         static_uat_model_ = new UatModel(mainApp, iog_uat_);
+        connect(mainApp, &MainApplication::profileChanging, IOGraphDialog::applyChanges);
     }
 
     uat_model_ = static_uat_model_;
