@@ -622,6 +622,9 @@ proto_register_tzsp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     tzsp_handle = register_dissector("tzsp", dissect_tzsp, proto_tzsp);
+
+    tzsp_encap_table = register_dissector_table("tzsp.encap", "TZSP Encapsulation Type",
+            proto_tzsp, FT_UINT16, BASE_DEC);
 }
 
 void
@@ -630,8 +633,6 @@ proto_reg_handoff_tzsp(void)
     dissector_add_uint_with_preference("udp.port", UDP_PORT_TZSP, tzsp_handle);
 
     /* Get the data dissector for handling various encapsulation types. */
-    tzsp_encap_table = register_dissector_table("tzsp.encap", "TZSP Encapsulation Type",
-            proto_tzsp, FT_UINT16, BASE_DEC);
     dissector_add_uint("tzsp.encap", TZSP_ENCAP_ETHERNET,           find_dissector("eth_maybefcs"));
     dissector_add_uint("tzsp.encap", TZSP_ENCAP_TOKEN_RING,         find_dissector("tr"));
     dissector_add_uint("tzsp.encap", TZSP_ENCAP_PPP,                find_dissector("ppp_hdlc"));
