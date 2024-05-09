@@ -20,6 +20,8 @@
 int64_t get_io_graph_index(packet_info *pinfo, int interval) {
     nstime_t time_delta;
 
+    ws_return_val_if(interval <= 0, -1);
+
     /*
      * Find in which interval this is supposed to go and store the interval index as idx
      */
