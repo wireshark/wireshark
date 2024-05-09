@@ -13,6 +13,7 @@
 #include "uat_model.h"
 #include <epan/to_str.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <QFont>
 #include <QBrush>
 #include <QDebug>
 
@@ -185,6 +186,15 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         if (errors.contains(index.column())) {
             // TODO is it OK to color cells like this? Maybe some other marker is better?
             return QBrush("pink");
+        }
+        return QVariant();
+    }
+
+    if (role == Qt::FontRole) {
+        if (!g_array_index(uat_->valid_data, bool, index.row())) {
+            QFont font;
+            font.setItalic(!font.italic());
+            return font;
         }
         return QVariant();
     }
