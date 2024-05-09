@@ -191,6 +191,8 @@ fi
 BCG729_VERSION=1.1.1
 # libilbc 3.0.0 & later link with absiel, which is released under Apache 2.0
 ILBC_VERSION=2.0.2
+OPENCORE_AMR_VERSION=0.1.6
+OPENCORE_AMR_SHA256=483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1
 OPUS_VERSION=1.4
 
 # Falco libs (libsinsp and libscap) and their dependencies. Unset for now.
@@ -2347,6 +2349,44 @@ uninstall_ilbc() {
     fi
 }
 
+install_opencore_amr() {
+    if [ "$OPENCORE_AMR_VERSION" ] && [ ! -f opencore-amr-$OPENCORE_AMR_VERSION-done ] ; then
+        echo "Downloading, building, and installing opencore-amr:"
+        [ -f opencore-amr-$OPENCORE_AMR_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://downloads.sourceforge.net/project/opencore-amr/opencore-amr/opencore-amr-$OPENCORE_AMR_VERSION.tar.gz
+        echo "$OPENCORE_AMR_SHA256  opencore-amr-$OPENCORE_AMR_VERSION.tar.gz" | shasum --algorithm 256 --check
+        $no_build && echo "Skipping installation" && return
+        tar -xf opencore-amr-$OPENCORE_AMR_VERSION.tar.gz
+        cd opencore-amr-$OPENCORE_AMR_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
+            ./configure "${CONFIGURE_OPTS[@]}"
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        cd ..
+        touch opencore-amr-$OPENCORE_AMR_VERSION-done
+    fi
+}
+
+uninstall_opencore_amr() {
+    if [ -n "$installed_opencore_amr_version" ] ; then
+        echo "Uninstalling opencore-amr:"
+        cd "opencore-amr-$installed_opencore_amr_version"
+        $DO_MAKE_UNINSTALL
+        make distclean
+        cd ..
+        rm "opencore-amr-$installed_opencore_amr_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "opencore-amr-$installed_opencore_amr_version"
+            rm -rf "opencore-amr-$installed_opencore_amr_version.tar.gz"
+        fi
+
+        installed_opencore_amr_version=""
+    fi
+}
+
 install_opus() {
     if [ "$OPUS_VERSION" -a ! -f opus-$OPUS_VERSION-done ] ; then
         echo "Downloading, building, and installing opus:"
@@ -2779,6 +2819,17 @@ install_all() {
             echo "Requested iLBC version is $ILBC_VERSION"
         fi
         uninstall_ilbc -r
+    fi
+
+    if [ -n "$installed_opencore_amr_version" ] \
+           && [ "$installed_opencore_amr_version" != "$OPENCORE_AMR_VERSION" ] ; then
+        echo "Installed opencore-amr version is $installed_opencore_amr_version"
+        if [ -z "$OPENCORE_AMR_VERSION" ] ; then
+            echo "opencore-amr is not requested"
+        else
+            echo "Requested opencore-amr version is $OPENCORE_AMR_VERSION"
+        fi
+        uninstall_opencore_amr -r
     fi
 
     if [ -n "$installed_opus_version" ] \
@@ -3393,6 +3444,8 @@ install_all() {
 
     install_ilbc
 
+    install_opencore_amr
+
     install_opus
 
     install_brotli
@@ -3439,6 +3492,8 @@ uninstall_all() {
         uninstall_brotli
 
         uninstall_opus
+
+        uninstall_opencore_amr
 
         uninstall_ilbc
 
@@ -3723,6 +3778,7 @@ then
     installed_speexdsp_version=$( ls speexdsp-*-done 2>/dev/null | sed 's/speexdsp-\(.*\)-done/\1/' )
     installed_bcg729_version=$( ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/' )
     installed_ilbc_version=$( ls ilbc-*-done 2>/dev/null | sed 's/ilbc-\(.*\)-done/\1/' )
+    installed_opencore_amr_version=$( ls opencore-amr-*-done 2>/dev/null | sed 's/opencore-amr-\(.*\)-done/\1/' )
     installed_opus_version=$( ls opus-*-done 2>/dev/null | sed 's/opus-\(.*\)-done/\1/' )
     installed_python3_version=$( ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/' )
     installed_brotli_version=$( ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/' )
