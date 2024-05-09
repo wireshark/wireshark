@@ -20,6 +20,8 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
+#include <wsutil/epochs.h>
+
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
@@ -2903,8 +2905,6 @@ dissect_zcl_price_publish_cpp_event(tvbuff_t *tvb, proto_tree *tree, guint *offs
 static void
 dissect_zcl_price_publish_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t credit_payment_due_date;
-    nstime_t credit_payment_date;
     int length;
 
     /* Provider ID */
@@ -2916,9 +2916,7 @@ dissect_zcl_price_publish_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint 
     *offset += 4;
 
     /* Credit Payment Due Date */
-    credit_payment_due_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    credit_payment_due_date.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_price_credit_payment_due_date, tvb, *offset, 4, &credit_payment_due_date);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment_due_date, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Credit Payment Overdue Amount */
@@ -2934,9 +2932,7 @@ dissect_zcl_price_publish_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint 
     *offset += 4;
 
     /* Credit Payment Date */
-    credit_payment_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    credit_payment_date.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_price_credit_payment_date, tvb, *offset, 4, &credit_payment_date);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment_date, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Credit Payment Ref */
@@ -3985,8 +3981,6 @@ dissect_zcl_drlc_cancel_all_load_control_event(tvbuff_t *tvb, proto_tree *tree, 
 static void
 dissect_zcl_drlc_report_event_status(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t event_status_time;
-
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_drlc_report_event_issuer_event_id, tvb,
                         *offset, 4, ENC_LITTLE_ENDIAN);
@@ -3997,9 +3991,7 @@ dissect_zcl_drlc_report_event_status(tvbuff_t *tvb, proto_tree *tree, guint *off
     *offset += 1;
 
     /* Event Status Time */
-    event_status_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    event_status_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_drlc_report_event_event_status_time, tvb, *offset, 4, &event_status_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_drlc_report_event_event_status_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Criticality Level Applied */
@@ -6170,16 +6162,12 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static void
 dissect_zcl_met_get_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t end_time;
-
     /* Interval Channel */
     proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_interval_channel, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* End Time */
-    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    end_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_get_profile_end_time, tvb, *offset, 4, &end_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_end_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Number of Periods */
@@ -6246,7 +6234,6 @@ dissect_zcl_met_request_fast_poll_mode(tvbuff_t *tvb, proto_tree *tree, guint *o
 static void
 dissect_zcl_met_schedule_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
     /* Issue Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -6271,9 +6258,7 @@ dissect_zcl_met_schedule_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 1;
 
     /* Snapshot Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Snapshot Schedule */
@@ -6320,20 +6305,13 @@ dissect_zcl_met_take_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_met_get_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-    nstime_t end_time;
-
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_get_snapshot_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_snapshot_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     if (gPREF_zbee_se_protocol_version >= ZBEE_SE_VERSION_1_2) {
         /* End Time - Introduced from ZCL version 1.2 */
-        end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        end_time.nsecs = 0;
-        proto_tree_add_time(tree, hf_zbee_zcl_met_get_snapshot_end_time, tvb, *offset, 4, &end_time);
+        proto_tree_add_item(tree, hf_zbee_zcl_met_get_snapshot_end_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
         *offset += 4;
     }
 
@@ -6357,16 +6335,12 @@ dissect_zcl_met_get_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_met_start_sampling(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t sample_time;
-
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_met_start_sampling_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Start Sampling Time */
-    sample_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    sample_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_start_sampling_start_sampling_time, tvb, *offset, 4, &sample_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_start_sampling_start_sampling_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Sample Type */
@@ -6392,16 +6366,12 @@ dissect_zcl_met_start_sampling(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_met_get_sampled_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t sample_time;
-
     /* Sample ID */
     proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_sample_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Sample Start Time */
-    sample_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    sample_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_get_sampled_data_sample_start_time, tvb, *offset, 4, &sample_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_sample_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Sample Type */
@@ -6487,9 +6457,6 @@ dissect_zcl_met_reset_load_limit_counter(tvbuff_t *tvb, proto_tree *tree, guint 
 static void
 dissect_zcl_met_change_supply(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t request_time;
-    nstime_t implementation_time;
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -6499,15 +6466,11 @@ dissect_zcl_met_change_supply(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Request Date/Time */
-    request_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    request_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_change_supply_request_date_time, tvb, *offset, 4, &request_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_request_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Implementation Date/Time */
-    implementation_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    implementation_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_change_supply_implementation_date_time, tvb, *offset, 4, &implementation_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_implementation_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Proposed Supple Status */
@@ -6662,7 +6625,7 @@ dissect_zcl_met_request_fast_poll_mode_response(tvbuff_t *tvb, proto_tree *tree,
 
     /* Fast Poll End Time */
     end_time_utc = (guint32)tvb_get_letohl(tvb, *offset);
-    end_time.secs =  end_time_utc + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    end_time.secs =  end_time_utc + EPOCH_DELTA_2000_01_01_00_00_00_UTC;
     end_time.nsecs = 0;
     end_time_string = (const guint8 *)abs_time_to_str(wmem_packet_scope(), &end_time, ABSOLUTE_TIME_UTC, TRUE);
     proto_tree_add_time_format(tree, hf_zbee_zcl_met_request_fast_poll_mode_response_fast_poll_mode_end_time, tvb, *offset, 4, &end_time,
@@ -6729,7 +6692,6 @@ dissect_zcl_met_take_snapshot_response(tvbuff_t *tvb, proto_tree *tree, guint *o
 static void
 dissect_zcl_met_publish_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t snapshot_time;
     gint rem_len;
 
     /* Snapshot ID */
@@ -6737,9 +6699,7 @@ dissect_zcl_met_publish_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Snapshot Time */
-    snapshot_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    snapshot_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_time, tvb, *offset, 4, &snapshot_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Total Snapshots Found */
@@ -6779,7 +6739,6 @@ dissect_zcl_met_publish_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_met_get_sampled_data_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t sample_start_time;
     gint rem_len;
 
     /* Snapshot ID */
@@ -6787,9 +6746,7 @@ dissect_zcl_met_get_sampled_data_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
     *offset += 2;
 
     /* Sample Start Time */
-    sample_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    sample_start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_start_time, tvb, *offset, 4, &sample_start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Sample Type */
@@ -6974,8 +6931,6 @@ dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_met_supply_status_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t implementation_date_time;
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_met_supply_status_response_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -6985,9 +6940,7 @@ dissect_zcl_met_supply_status_response(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Implementation Date/Time */
-    implementation_date_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    implementation_date_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_met_supply_status_response_implementation_date_time, tvb, *offset, 4, &implementation_date_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_supply_status_response_implementation_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Supply Status After Implementation */
@@ -8157,12 +8110,8 @@ dissect_zcl_msg_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 static void
 dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t impl_time;
-
     /* Implementation Date/Time */
-    impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    impl_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_msg_implementation_time, tvb, *offset, 4, &impl_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_msg_implementation_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
 } /* dissect_zcl_msg_cancel_all */
@@ -8177,12 +8126,8 @@ dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t impl_time;
-
     /* Earliest Implementation Time */
-    impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    impl_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_msg_earliest_time, tvb, *offset, 4, &impl_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_msg_earliest_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
 } /* dissect_zcl_msg_get_cancel */
@@ -8198,16 +8143,13 @@ static void
 dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint   msg_len;
-    nstime_t confirm_time;
 
     /* Message ID */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Confirmation Time */
-    confirm_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    confirm_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_msg_confirm_time, tvb, *offset, 4, &confirm_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_msg_confirm_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* (Optional) Confirm Control */
@@ -9521,12 +9463,8 @@ dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static void
 dissect_zcl_pp_select_available_emergency_credit(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Command Issue Date/Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_select_available_emc_cmd_issue_date_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_select_available_emc_cmd_issue_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Originating Device */
@@ -9545,7 +9483,6 @@ static void
 dissect_zcl_pp_change_debt(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8 label_length;
-    nstime_t start_time;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -9569,9 +9506,7 @@ dissect_zcl_pp_change_debt(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Debt Recovery Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_change_debt_recovery_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_recovery_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Debt Recovery Collection Time */
@@ -9601,16 +9536,12 @@ dissect_zcl_pp_change_debt(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_pp_emergency_credit_setup(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_emergency_credit_setup_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_emergency_credit_setup_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_emergency_credit_setup_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Emergency Credit Limit */
@@ -9653,16 +9584,12 @@ dissect_zcl_pp_consumer_top_up(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_pp_credit_adjustment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_credit_adjustment_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_credit_adjustment_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_credit_adjustment_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Credit Adjustment Type */
@@ -9684,8 +9611,6 @@ dissect_zcl_pp_credit_adjustment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_pp_change_payment_mode(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -9695,9 +9620,7 @@ dissect_zcl_pp_change_payment_mode(tvbuff_t *tvb, proto_tree *tree, guint *offse
     *offset += 4;
 
     /* Implementation Date/Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_change_payment_mode_implementation_date_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_implementation_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Proposed Payment Control Configuration */
@@ -9720,19 +9643,12 @@ dissect_zcl_pp_change_payment_mode(tvbuff_t *tvb, proto_tree *tree, guint *offse
 static void
 dissect_zcl_pp_get_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-    nstime_t end_time;
-
     /* Earliest Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_prepay_snapshot_earliest_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_prepay_snapshot_earliest_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Latest End Time */
-    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    end_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_prepay_snapshot_latest_end_time, tvb, *offset, 4, &end_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_prepay_snapshot_latest_end_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Snapshot Offset */
@@ -9755,12 +9671,8 @@ dissect_zcl_pp_get_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offse
 static void
 dissect_zcl_pp_get_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t end_time;
-
     /* Latest End Time */
-    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    end_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_top_up_log_latest_end_time, tvb, *offset, 4, &end_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_top_up_log_latest_end_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Number of Records */
@@ -9793,12 +9705,8 @@ dissect_zcl_pp_set_low_credit_warning_level(tvbuff_t *tvb, proto_tree *tree, gui
 static void
 dissect_zcl_pp_get_debt_repayment_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t end_time;
-
     /* Latest End Time */
-    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    end_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_debt_repayment_log_latest_end_time, tvb, *offset, 4, &end_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_debt_repayment_log_latest_end_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Number of Records */
@@ -9820,8 +9728,6 @@ dissect_zcl_pp_get_debt_repayment_log(tvbuff_t *tvb, proto_tree *tree, guint *of
 static void
 dissect_zcl_pp_set_maximum_credit_limit(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -9831,9 +9737,7 @@ dissect_zcl_pp_set_maximum_credit_limit(tvbuff_t *tvb, proto_tree *tree, guint *
     *offset += 4;
 
     /* Implementation Date/Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_implementation_date_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_implementation_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Maximum Credit Level */
@@ -9855,8 +9759,6 @@ dissect_zcl_pp_set_maximum_credit_limit(tvbuff_t *tvb, proto_tree *tree, guint *
 static void
 dissect_zcl_pp_set_overall_debt_cap(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -9866,9 +9768,7 @@ dissect_zcl_pp_set_overall_debt_cap(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 4;
 
     /* Implementation Date/Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_implementation_date_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_implementation_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Overall Debt Cap */
@@ -9886,7 +9786,6 @@ dissect_zcl_pp_set_overall_debt_cap(tvbuff_t *tvb, proto_tree *tree, guint *offs
 static void
 dissect_zcl_pp_publish_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t snapshot_time;
     gint rem_len;
 
     /* Snapshot ID */
@@ -9894,9 +9793,7 @@ dissect_zcl_pp_publish_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Snapshot Time */
-    snapshot_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    snapshot_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_time, tvb, *offset, 4, &snapshot_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Total Snapshots Found */
@@ -9992,7 +9889,6 @@ dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset
 {
     guint i = 0;
     gint length;
-    nstime_t top_up_time;
     proto_tree *sub_tree;
 
     /* Command Index */
@@ -10018,9 +9914,7 @@ dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset
         *offset += 4;
 
         /* Top Up Time */
-        top_up_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        top_up_time.nsecs = 0;
-        proto_tree_add_time(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_time, tvb, *offset, 4, &top_up_time);
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
         *offset += 4;
 
         /* Set length of subtree */
@@ -10039,7 +9933,6 @@ static void
 dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint i = 0;
-    nstime_t collection_time;
     proto_tree *sub_tree;
 
     /* Command Index */
@@ -10057,9 +9950,7 @@ dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         i++;
 
         /* Collection Time */
-        collection_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        collection_time.nsecs = 0;
-        proto_tree_add_time(sub_tree, hf_zbee_zcl_pp_publish_debt_log_collection_time, tvb, *offset, 4, &collection_time);
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_collection_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
         *offset += 4;
 
         /* Amount Collected */
@@ -10733,7 +10624,6 @@ static void
 dissect_zbee_zcl_energy_management_report_event_status(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     /* Event Control */
-    nstime_t event_status_time;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_issuer_event_id, tvb,
@@ -10745,9 +10635,7 @@ dissect_zbee_zcl_energy_management_report_event_status(tvbuff_t *tvb, proto_tree
     *offset += 1;
 
     /* Event Status Time */
-    event_status_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    event_status_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_energy_management_report_event_event_status_time, tvb, *offset, 4, &event_status_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_event_status_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Criticality Level Applied */
@@ -11362,12 +11250,8 @@ dissect_zbee_zcl_calendar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static void
 dissect_zcl_calendar_get_calendar(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t earliest_start_time;
-
     /* Earliest Start Time */
-    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    earliest_start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_calendar_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_calendar_earliest_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Min Issuer Event ID */
@@ -11470,12 +11354,8 @@ dissect_zcl_calendar_get_seasons(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_calendar_get_special_days(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_calendar_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_calendar_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Number of Events */
@@ -11505,7 +11385,6 @@ dissect_zcl_calendar_get_special_days(tvbuff_t *tvb, proto_tree *tree, guint *of
 static void
 dissect_zcl_calendar_publish_calendar(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
     int length;
 
     /* Provider Id */
@@ -11521,9 +11400,7 @@ dissect_zcl_calendar_publish_calendar(tvbuff_t *tvb, proto_tree *tree, guint *of
     *offset += 4;
 
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_calendar_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_calendar_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Calendar Type */
@@ -11736,7 +11613,6 @@ static void
 dissect_zcl_calendar_publish_special_days(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8   total_special_days_count;
-    nstime_t start_time;
 
     /* Provider Id */
     proto_tree_add_item(tree, hf_zbee_zcl_calendar_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -11751,9 +11627,7 @@ dissect_zcl_calendar_publish_special_days(tvbuff_t *tvb, proto_tree *tree, guint
     *offset += 4;
 
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_calendar_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_calendar_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Calendar Type */
@@ -12239,7 +12113,6 @@ dissect_zbee_zcl_daily_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void
 dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
     int length;
 
     /* Provider Id */
@@ -12255,9 +12128,7 @@ dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, gui
     *offset += 4;
 
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_daily_schedule_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Schedule Type */
@@ -12368,16 +12239,12 @@ dissect_zcl_daily_schedule_cancel_schedule(tvbuff_t *tvb, proto_tree *tree, guin
 static void
 dissect_zcl_daily_schedule_get_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t earliest_start_time;
-
     /* Provider Id */
     proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Earliest Start Time */
-    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    earliest_start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_daily_schedule_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_earliest_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Min Issuer Event ID */
@@ -13319,8 +13186,6 @@ dissect_zcl_device_management_report_event_configuration(proto_tree *tree, tvbuf
 static void
 dissect_zcl_device_management_publish_change_of_tenancy(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    nstime_t impl_date;
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -13334,9 +13199,7 @@ dissect_zcl_device_management_publish_change_of_tenancy(proto_tree *tree, tvbuff
     *offset += 1;
 
     /* Implementation Date/Time */
-    impl_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    impl_date.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_implementation_date, tvb, *offset, 4, &impl_date);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_implementation_date, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Proposed Tenancy Change Control */
@@ -13356,7 +13219,6 @@ dissect_zcl_device_management_publish_change_of_tenancy(proto_tree *tree, tvbuff
 static void
 dissect_zcl_device_management_publish_change_of_supplier(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    nstime_t impl_time;
     gint name_length;
     gint detail_length;
 
@@ -13377,9 +13239,7 @@ dissect_zcl_device_management_publish_change_of_supplier(proto_tree *tree, tvbuf
     *offset += 4;
 
     /* Provider Change Implementation Time */
-    impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    impl_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_implementation_time, tvb, *offset, 4, &impl_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_implementation_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Provider Change Control */
@@ -13406,7 +13266,6 @@ dissect_zcl_device_management_publish_change_of_supplier(proto_tree *tree, tvbuf
 static void
 dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    nstime_t impl_date;
     gint     password_length;
 
     /* Issuer Event ID */
@@ -13414,9 +13273,7 @@ dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tv
     *offset += 4;
 
     /* Implementation Date/Time */
-    impl_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    impl_date.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_device_management_request_new_password_implementation_date, tvb, *offset, 4, &impl_date);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_implementation_date, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Duration in minutes */
@@ -13443,7 +13300,6 @@ dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tv
 static void
 dissect_zcl_device_management_update_site_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    nstime_t siteid_time;
     gint     siteid_length;
 
     /* Issuer Event ID */
@@ -13451,9 +13307,7 @@ dissect_zcl_device_management_update_site_id(proto_tree *tree, tvbuff_t *tvb, gu
     *offset += 4;
 
     /* SiteID Time */
-    siteid_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    siteid_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_device_management_update_site_id_site_id_time, tvb, *offset, 4, &siteid_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_site_id_site_id_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Provider ID */
@@ -13476,7 +13330,6 @@ dissect_zcl_device_management_update_site_id(proto_tree *tree, tvbuff_t *tvb, gu
 static void
 dissect_zcl_device_management_set_event_configuration(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    nstime_t start_time;
     guint8   config_control;
     guint8   number_of_events;
 
@@ -13485,9 +13338,7 @@ dissect_zcl_device_management_set_event_configuration(proto_tree *tree, tvbuff_t
     *offset += 4;
 
     /* Start Date/Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_device_management_set_event_configuration_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Event Configuration */
@@ -13557,7 +13408,6 @@ dissect_zcl_device_management_get_event_configuration(proto_tree *tree, tvbuff_t
 static void
 dissect_zcl_device_management_update_cin(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    nstime_t cin_impl_time;
     gint     customer_id_length;
 
     /* Issuer Event ID */
@@ -13565,9 +13415,7 @@ dissect_zcl_device_management_update_cin(proto_tree *tree, tvbuff_t *tvb, guint 
     *offset += 4;
 
     /* CIN Implementation Time */
-    cin_impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    cin_impl_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_device_management_update_cin_cin_implementation_time, tvb, *offset, 4, &cin_impl_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_cin_cin_implementation_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Provider ID */
@@ -14186,9 +14034,6 @@ dissect_zbee_zcl_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static void
 dissect_zcl_events_get_event_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t    start_time;
-    nstime_t    end_time;
-
     /* Event Control / Log ID */
     proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_event_control_log_id, tvb, *offset, 1, ENC_NA);
     *offset += 1;
@@ -14198,15 +14043,11 @@ dissect_zcl_events_get_event_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 
     /* Start Time */
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_events_get_event_log_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* End Time */
-    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    end_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_events_get_event_log_end_time, tvb, *offset, 4, &end_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_end_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Number of Events */
@@ -14243,7 +14084,6 @@ dissect_zcl_events_clear_event_log_request(tvbuff_t *tvb, proto_tree *tree, guin
 static void
 dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t    event_time;
     gint        length;
 
     if (gPREF_zbee_se_protocol_version >= ZBEE_SE_VERSION_1_2) {
@@ -14257,9 +14097,7 @@ dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 
     /* Event Time */
-    event_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    event_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_events_publish_event_event_time, tvb, *offset, 4, &event_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_event_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Event Control */
@@ -14282,7 +14120,6 @@ static void
 dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     proto_tree* event_log_tree;
-    nstime_t    event_time;
     int         length;
 
     /* Total Number of Matching Events */
@@ -14317,9 +14154,7 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
         *offset += 2;
 
         /* Event Time */
-        event_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        event_time.nsecs = 0;
-        proto_tree_add_time(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_time, tvb, *offset, 4, &event_time);
+        proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
         *offset += 4;
 
         /* Event Data */

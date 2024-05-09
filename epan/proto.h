@@ -607,6 +607,9 @@ void proto_report_dissector_bug(const char *format, ...)
  *
  *  ENC_TIME_MP4_FILE_SECS - 4-8 bytes, representing a count of seconds since
  *  January 1, 1904, 00:00:00 UTC.
+ *
+ *  ENC_TIME_ZBEE_ZCL - 4-8 bytes, representing a count of seconds  since
+ *  January 1, 2000, 00:00:00  UTC.
  */
 #define ENC_TIME_SECS_NSECS          0x00000000
 #define ENC_TIME_TIMESPEC            0x00000000 /* for backwards source compatibility */
@@ -626,6 +629,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026 /* for backwards source compatibility */
 #define ENC_TIME_NSECS               0x00000028
 #define ENC_TIME_USECS               0x00000030
+#define ENC_TIME_ZBEE_ZCL            0x00000032
 
 /*
  * For cases where a string encoding contains a timestamp, use one

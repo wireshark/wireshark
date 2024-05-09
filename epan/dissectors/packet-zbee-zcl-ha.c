@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <wsutil/epochs.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
@@ -1196,7 +1197,7 @@ decode_zcl_appl_stats_utc_time(gchar *s, guint32 value)
         snprintf(s, ITEM_LABEL_LENGTH, "Invalid UTC Time");
     else {
         gchar *utc_time;
-        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
         utc_time = abs_time_secs_to_str (NULL, value, ABSOLUTE_TIME_LOCAL, TRUE);
         snprintf(s, ITEM_LABEL_LENGTH, "%s", utc_time);
         wmem_free(NULL, utc_time);

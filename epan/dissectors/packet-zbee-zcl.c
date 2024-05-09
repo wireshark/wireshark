@@ -20,6 +20,8 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
+#include <wsutil/epochs.h>
+
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-zcl.h"
@@ -2354,7 +2356,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             /* Display UTC */
             utc_time = tvb_get_letohl(tvb, *offset);
             attr_time.secs = utc_time;
-            attr_time.secs += ZBEE_ZCL_NSTIME_UTC_OFFSET;
+            attr_time.secs += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
             attr_time.nsecs = 0;
             proto_item_append_text(tree, ", %s",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
@@ -2536,7 +2538,7 @@ void
 decode_zcl_utc_time(gchar *s, guint32 value)
 {
     gchar *start_time;
-    time_t epoch_time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    time_t epoch_time = (time_t)value + EPOCH_DELTA_2000_01_01_00_00_00_UTC;
     start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_UTC, TRUE);
     snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", start_time, value);
     wmem_free(NULL, start_time);

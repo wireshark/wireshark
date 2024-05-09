@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <wsutil/bits_ctz.h>
+#include <wsutil/epochs.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-zbee.h"
@@ -9930,7 +9931,7 @@ decode_zcl_ota_curr_time(gchar *s, guint32 value)
     }
     else {
         gchar *tmp;
-        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
         tmp = abs_time_secs_to_str(NULL, value, ABSOLUTE_TIME_LOCAL, 1);
         snprintf(s, ITEM_LABEL_LENGTH, "%s", tmp);
         wmem_free(NULL, tmp);
@@ -10009,7 +10010,7 @@ decode_zcl_ota_upgr_time_utc(gchar *s, guint32 value)
     }
     else {
         gchar *tmp;
-        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
         tmp = abs_time_secs_to_str(NULL, value, ABSOLUTE_TIME_LOCAL, 1);
         snprintf(s, ITEM_LABEL_LENGTH, "%s", tmp);
         wmem_free(NULL, tmp);

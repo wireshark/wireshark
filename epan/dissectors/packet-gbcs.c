@@ -29,6 +29,7 @@
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-zcl.h"
 #include "packet-zbee-aps.h"
+#include <wsutil/epochs.h>
 #include <wsutil/time_util.h>
 
 #define gbcs_message_code_names_VALUE_STRING_LIST(XXX) \
@@ -582,11 +583,7 @@ static void dissect_gbcs_gbz_component(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
 
     if (fromdatetime_present) {
-        nstime_t timestamp;
-
-        timestamp.secs = (time_t)tvb_get_ntohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        timestamp.nsecs = 0;
-        proto_tree_add_time(component_tree, hf_gbcs_gbz_from_date_time, tvb, *offset, 4, &timestamp);
+        proto_tree_add_item(component_tree, hf_gbcs_gbz_from_date_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_BIG_ENDIAN);
         *offset += 4;
         component_len -= 4;
     }
@@ -681,7 +678,7 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_ext_const(alert_code, &gbcs_gbz_alert_code_names_ext, "Unknown alert"));
         offset += 2;
 
-        timestamp.secs = (time_t)tvb_get_ntohl(tvb, offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        timestamp.secs = (time_t)tvb_get_ntohl(tvb, offset) + EPOCH_DELTA_2000_01_01_00_00_00_UTC;
         timestamp.nsecs = 0;
         proto_tree_add_time(gbz_tree, hf_gbcs_gbz_timestamp, tvb, offset, 4, &timestamp);
         offset += 4;

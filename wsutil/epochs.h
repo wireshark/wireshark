@@ -64,4 +64,10 @@
  */
 #define EPOCH_DELTA_1601_01_01_00_00_00_UTC UINT64_C(11644473600)
 
+/*
+ * 2000-01-01 00:00:00 UTC.
+ * Used by the Zigbee Zigbee Cluster Library protocol.
+ */
+#define EPOCH_DELTA_2000_01_01_00_00_00_UTC ((unsigned)(((3*365 + 366)*7 + 2*365)*24*3600))
+
 #endif /* __EPOCHS_H__ */

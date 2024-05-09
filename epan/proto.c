@@ -2601,6 +2601,50 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			}
 			break;
 
+		case ENC_TIME_ZBEE_ZCL | ENC_BIG_ENDIAN:
+			/*
+			 * Zigbee ZCL time stamps, big-endian.
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				tmp64secs  = tvb_get_ntoh64(tvb, start);
+				time_stamp->secs = (time_t)(gint64)(tmp64secs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->nsecs = 0;
+			} else if (length == 4) {
+				tmpsecs  = tvb_get_ntohl(tvb, start);
+				time_stamp->secs = (time_t)(gint32)(tmpsecs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->nsecs = 0;
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "a Zigbee ZCL time stamp", length, (length < 4));
+			}
+			break;
+
+		case ENC_TIME_ZBEE_ZCL | ENC_LITTLE_ENDIAN:
+			/*
+			 * Zigbee ZCL time stamps, little-endian.
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				tmp64secs  = tvb_get_letoh64(tvb, start);
+				time_stamp->secs = (time_t)(gint64)(tmp64secs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->nsecs = 0;
+			} else if (length == 4) {
+				tmpsecs  = tvb_get_letohl(tvb, start);
+				time_stamp->secs = (time_t)(gint32)(tmpsecs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->nsecs = 0;
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "a Zigbee ZCL time stamp", length, (length < 4));
+			}
+			break;
+
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;

@@ -2356,14 +2356,10 @@ dissect_zcl_elec_mes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
 */
 static void dissect_zcl_elec_mes_get_measurement_profile_info(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
-
     proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_elec_mes_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_number_of_intervals, tvb, *offset, 1, ENC_NA);
@@ -2403,12 +2399,9 @@ static void dissect_zcl_elec_mes_get_profile_info_response(tvbuff_t *tvb, proto_
 */
 static void dissect_zcl_elec_mes_get_measurement_profile_info_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    nstime_t start_time;
     guint rem_len;
 
-    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-    start_time.nsecs = 0;
-    proto_tree_add_time(tree, hf_zbee_zcl_elec_mes_start_time, tvb, *offset, 4, &start_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_status, tvb, *offset, 1, ENC_NA);
