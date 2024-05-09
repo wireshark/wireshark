@@ -92,6 +92,7 @@ static int hf_z21_loco_info_extensions;
 static int hf_z21_loco_func_switch_type;
 static int hf_z21_loco_func_index;
 static int hf_z21_speed_steps;
+static int hf_z21_hw_type;
 static int hf_z21_firmware_version;
 static int hf_z21_broadcast_flags_driving_switching;
 static int hf_z21_broadcast_flags_rmbus;
@@ -207,6 +208,7 @@ static expert_field ei_z21_invalid_checksum;
  * not comparing the values numerically, just matching them
  * in the packets. */
 #define Z21_LAN_GET_SERIAL_NUMBER               0x1000
+#define Z21_LAN_GET_HWINFO                      0x1A00
 #define Z21_LAN_LOGOFF                          0x3000
 /* Responses and requests based on the X-BUS protocol are transmitted
  * with the Z21-LAN-Header 0x40 and the specific command is indicated
@@ -318,6 +320,7 @@ static const value_string z21_command_vals[] = {
     { Z21_LAN_FAST_CLOCK_SETTINGS_GET,          "LAN_FAST_CLOCK_SETTINGS_GET" },
     { Z21_LAN_FAST_CLOCK_SETTINGS_SET,          "LAN_FAST_CLOCK_SETTINGS_SET" },
     { Z21_LAN_GET_BROADCASTFLAGS,               "LAN_GET_BROADCASTFLAGS" },
+    { Z21_LAN_GET_HWINFO,                       "LAN_GET_HWINFO" },
     { Z21_LAN_GET_LOCOMODE,                     "LAN_GET_LOCOMODE" },
     { Z21_LAN_GET_SERIAL_NUMBER,                "LAN_GET_SERIAL_NUMBER" },
     { Z21_LAN_LOCONET_DETECTOR,                 "LAN_LOCONET_DETECTOR" },
@@ -387,6 +390,21 @@ static const value_string z21_command_vals[] = {
 static const value_string z21_loco_mode_vals[] = {
     { 0, "DCC Format" },
     { 1, "MM Format" },
+    { 0, NULL },
+};
+
+static const value_string z21_hw_type_vals[] = {
+    { 0x00000200, "Z21a" },
+    { 0x00000201, "Z21b" },
+    { 0x00000202, "SmartRail" },
+    { 0x00000203, "z21small" },
+    { 0x00000204, "z21start" },
+    { 0x00000205, "Z21 Single Booster" },
+    { 0x00000206, "Z21 Dual Booster" },
+    { 0x00000211, "Z21 XL Series" },
+    { 0x00000212, "Z21 XL Booster" },
+    { 0x00000301, "Z21 Switch Decoder" },
+    { 0x00000302, "Z21 Signal Decoder" },
     { 0, NULL },
 };
 
@@ -1479,6 +1497,19 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 offset += 4;
             }
             break;
+        case Z21_LAN_GET_HWINFO:
+            if (datalen == 12) {
+                unsigned hwtype = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(z21_tree, hf_z21_hw_type, tvb, offset, 1, hwtype);
+                offset += 4;
+                version = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                buffer = wmem_strdup_printf(pinfo->pool, "%x.%02x",
+                    version >> 8, version & 0xff);
+                proto_tree_add_string(z21_tree, hf_z21_firmware_version,
+                    tvb, offset, 2, buffer);
+                offset += 4;
+            }
+            break;
         }
         if (offset < datalen) {
             /* Just dump all the rest, if any */
@@ -1994,6 +2025,11 @@ proto_register_z21(void)
         { &hf_z21_speed_steps,
           { "Speed steps", "z21.speedsteps",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_z21_hw_type,
+          { "Hardware type", "z21.hwtype",
+            FT_UINT32, BASE_HEX, VALS(z21_hw_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_z21_firmware_version,
