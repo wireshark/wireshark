@@ -323,6 +323,7 @@ static int hf_smb_total_data_len;
 static int hf_smb_data_len;
 static int hf_smb_data_len_low;
 static int hf_smb_data_len_high;
+static int hf_bytes_until_total_data_count;
 static int hf_smb_seek_mode;
 static int hf_smb_data_size;
 static int hf_smb_alloc_size;
@@ -12401,15 +12402,16 @@ dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	return offset;
 }
 
-/* this dissects the SMB_INFO_QUERY_EAS_FROM_LIST and SMB_INFO_QUERY_ALL_EAS
-   as described in 4.2.16.2
+/* this dissects the SMB_INFO_QUERY_EAS_FROM_LIST, SMB_INFO_QUERY_ALL_EAS,
+*  and TRANS2_SET_FILE_INFORMATION as described in 4.2.16.2 and
+*  [MS-CIFS] 2.2.6.9.   This the "EA (Extended Attribute) subtree.
 */
 static int
 dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, bool *trunc)
 {
 	guint8  name_len;
-	guint16 data_len;
+	guint32 data_len;
 	/* EA size */
 
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -13645,9 +13647,6 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	}
 
-	if (trunc) {
-		expert_add_info(pinfo, item, &ei_smb_mal_information_level);
-	}
 	return offset;
 }
 
@@ -14141,6 +14140,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int                   spo    = offset;
 	int                   spc    = 0;
 	guint16               od     = 0, po = 0, pc = 0, dc = 0, pd, dd = 0;
+	guint16               tdc;
 	int                   subcmd = -1;
 	guint32               to;
 	int                   an_len;
@@ -14150,6 +14150,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16               bc;
 	int                   padcnt;
 	gboolean              dissected_trans;
+	proto_item	      *it;
 
 	DISSECTOR_ASSERT(si);
 
@@ -14163,6 +14164,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 2;
 
 		/* total data count , only 16bit integer here*/
+		tdc = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
@@ -14191,10 +14193,22 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_data_offset16, tvb, offset, 2, od);
 		offset += 2;
 
-		/* data disp */
+		/* data displacement (dd)
+		 * The amount of data sent NOT including the data in this packet. If there are more
+		 * data to send per "Total Data Count" (tdc) [MS-CIFS] 2.2.4.46.1, additional
+		 * "TRANS2 Secondary Requests ([MS-CIFS] 2.2.4.46.2) will follow, each increasing dd
+		 * until the tdc is reached (dd + dc = tdc).
+		 */
 		dd = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 		offset += 2;
+
+		if (tdc >= (dc + dd)) {
+			guint16 diff = tdc - (dc + dd);
+			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
+			proto_item_set_generated(it);
+		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u/%u", dd + dc, tdc);
 
 		if (si->cmd == SMB_COM_TRANSACTION2 || si->cmd == SMB_COM_TRANSACTION2_SECONDARY) {
 			guint16 fid;
@@ -14210,13 +14224,14 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		so = offset;
 		sl = 0;
 	} else {
-		/* it is not a secondary request */
+		/* it is NOT a secondary request */
 
 		/* total param count , only a 16 bit integer here*/
 		proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* total data count , only 16bit integer here*/
+		tdc = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
@@ -14259,10 +14274,21 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_param_offset16, tvb, offset, 2, po);
 		offset += 2;
 
-		/* data count */
+		/* Data_Count (dc)
+		 * The amount of data carried in this request. If there are more data to send per
+		 * Total Data Count (tdc) [MS-CIFS] 2.2.4.46.1, TRANS2 Secondary Requests
+		 * ([MS-CIFS] 2.2.4.46.2) will follow, each increasing Data displacement (dd)until
+		 * tdc is reached (dd + dc = tdc).
+		 */
 		dc = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_data_count16, tvb, offset, 2, dc);
 		offset += 2;
+
+		if (tdc >= dc) {
+			guint16 diff = tdc - dc;
+			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
+			proto_item_set_generated(it);
+		}
 
 		/* data offset */
 		od = tvb_get_letohs(tvb, offset);
@@ -14301,6 +14327,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
  					    val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
 							   "Unknown (0x%02x)"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u/%u", dc, tdc);
 
 				if (!si->unidir) {
 					if (!pinfo->fd->visited && si->sip) {
@@ -19308,6 +19335,10 @@ proto_register_smb(void)
 		{ "Data Length High (multiply with 64K)", "smb.data_len_high", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of data, High 16 bits", HFILL }},
 
+	{ &hf_bytes_until_total_data_count,
+		{ "Bytes remaining until TDC", "smb.bytes_until_tdc", FT_UINT16, BASE_DEC,
+		NULL, 0, "Bytes remaining until the total data length is reached", HFILL }},
+
 	{ &hf_smb_seek_mode,
 		{ "Seek Mode", "smb.seek_mode", FT_UINT16, BASE_DEC,
 		VALS(seek_mode_vals), 0, "Seek Mode, what type of seek", HFILL }},
@@ -19633,7 +19664,7 @@ proto_register_smb(void)
 		NULL, 0, "Total number of parameter bytes", HFILL }},
 
 	{ &hf_smb_total_data_count,
-		{ "Total Data Count", "smb.tdc", FT_UINT32, BASE_DEC,
+		{ "Total Data Count", "smb.tdc", FT_UINT16, BASE_DEC,
 		NULL, 0, "Total number of data bytes", HFILL }},
 
 	{ &hf_smb_max_param_count,
