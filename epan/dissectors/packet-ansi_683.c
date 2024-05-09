@@ -966,8 +966,6 @@ for_param_block_val_spc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gui
 /*
  * 4.5.4.3
  */
-static const true_false_string tfs_activate_do_not_activate = { "Activate", "Do not activate" };
-
 static void
 for_param_block_val_spasm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len, guint32 offset)
 {
