@@ -820,6 +820,85 @@ export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, guint8 tag, const gchar *na
  *
  *********************************************************************/
 
+static void
+dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
+                     guint32 record_length, SslSession *session,
+                     proto_tree *dtls_record_tree, gboolean is_from_server,
+                     tvbuff_t *decrypted, SslRecordInfo *record)
+{
+  heur_dtbl_entry_t *hdtbl_entry;
+  proto_item *ti;
+  /* show on info column what we are decoding */
+  col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Application Data");
+
+  /* app_handle discovery is done here instead of dissect_dtls_payload()
+   * because the protocol name needs to be displayed below. */
+  if (!session->app_handle) {
+    /* Unknown protocol handle, ssl_starttls_ack was not called before.
+     * Try to find an appropriate dissection handle and cache it. */
+    dissector_handle_t handle;
+    handle = dissector_get_uint_handle(dtls_associations, pinfo->srcport);
+    handle = handle ? handle : dissector_get_uint_handle(dtls_associations, pinfo->destport);
+    if (handle) session->app_handle = handle;
+  }
+
+  proto_item_set_text(dtls_record_tree,
+                      "%s Record Layer: %s Protocol: %s",
+                      val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
+                      val_to_str_const(SSL_ID_APP_DATA, ssl_31_content_type, "unknown"),
+                      session->app_handle
+                      ? dissector_handle_get_protocol_long_name(session->app_handle)
+                      : "Application Data");
+
+  proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
+                      offset, record_length, ENC_NA);
+
+  if (session->app_handle) {
+    ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_protocol_long_name(session->app_handle));
+    proto_item_set_generated(ti);
+  }
+
+  /* show decrypted data info, if available */
+  if (decrypted) {
+    gboolean  dissected;
+    guint16   saved_match_port;
+    /* try to dissect decrypted data*/
+    ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
+
+    saved_match_port = pinfo->match_uint;
+    if (is_from_server) {
+      pinfo->match_uint = pinfo->srcport;
+    } else {
+      pinfo->match_uint = pinfo->destport;
+    }
+
+    /* find out a dissector using server port*/
+    if (session->app_handle) {
+      ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
+                       (void *)session->app_handle,
+                       dissector_handle_get_dissector_name(session->app_handle));
+      ssl_print_data("decrypted app data", record->plain_data, record->data_len);
+
+      if (have_tap_listener(exported_pdu_tap)) {
+        export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_DISSECTOR_NAME,
+                          dissector_handle_get_dissector_name(session->app_handle));
+      }
+
+      dissected = call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
+    }
+    else {
+      /* try heuristic subdissectors */
+      dissected = dissector_try_heuristic(heur_subdissector_list, decrypted, pinfo, top_tree, &hdtbl_entry, NULL);
+      if (dissected && have_tap_listener(exported_pdu_tap)) {
+        export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_HEUR_DISSECTOR_NAME, hdtbl_entry->short_name);
+      }
+    }
+    pinfo->match_uint = saved_match_port;
+    /* fallback to data dissector */
+    if (!dissected)
+      call_data_dissector(decrypted, pinfo, top_tree);
+    }
+}
 /* Dissect a DTLS record from version 1.2 and below */
 static gint
 dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
@@ -877,7 +956,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   proto_item     *length_pi, *ct_pi;
   tvbuff_t       *decrypted;
   SslRecordInfo  *record = NULL;
-  heur_dtbl_entry_t *hdtbl_entry;
   guint8         *cid = NULL;
   guint8          cid_length;
 
@@ -1093,77 +1171,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       break;
     }
   case SSL_ID_APP_DATA:
-    /* show on info column what we are decoding */
-    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Application Data");
-
-    /* app_handle discovery is done here instead of dissect_dtls_payload()
-     * because the protocol name needs to be displayed below. */
-    if (!session->app_handle) {
-      /* Unknown protocol handle, ssl_starttls_ack was not called before.
-       * Try to find an appropriate dissection handle and cache it. */
-      dissector_handle_t handle;
-      handle = dissector_get_uint_handle(dtls_associations, pinfo->srcport);
-      handle = handle ? handle : dissector_get_uint_handle(dtls_associations, pinfo->destport);
-      if (handle) session->app_handle = handle;
-    }
-
-    proto_item_set_text(dtls_record_tree,
-                        "%s Record Layer: %s Protocol: %s",
-                        val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
-                        val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                        session->app_handle
-                        ? dissector_handle_get_protocol_long_name(session->app_handle)
-                        : "Application Data");
-
-    proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
-                        offset, record_length, ENC_NA);
-
-    if (session->app_handle) {
-      ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_protocol_long_name(session->app_handle));
-      proto_item_set_generated(ti);
-    }
-
-    /* show decrypted data info, if available */
-    if (decrypted)
-      {
-        gboolean  dissected;
-        guint16   saved_match_port;
-        /* try to dissect decrypted data*/
-        ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
-
-        saved_match_port = pinfo->match_uint;
-        if (is_from_server) {
-          pinfo->match_uint = pinfo->srcport;
-        } else {
-          pinfo->match_uint = pinfo->destport;
-        }
-
-        /* find out a dissector using server port*/
-        if (session->app_handle) {
-          ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
-                           (void *)session->app_handle,
-                           dissector_handle_get_dissector_name(session->app_handle));
-          ssl_print_data("decrypted app data", record->plain_data, record->data_len);
-
-          if (have_tap_listener(exported_pdu_tap)) {
-            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_DISSECTOR_NAME,
-                              dissector_handle_get_dissector_name(session->app_handle));
-          }
-
-          dissected = call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
-        }
-        else {
-          /* try heuristic subdissectors */
-          dissected = dissector_try_heuristic(heur_subdissector_list, decrypted, pinfo, top_tree, &hdtbl_entry, NULL);
-          if (dissected && have_tap_listener(exported_pdu_tap)) {
-            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_HEUR_DISSECTOR_NAME, hdtbl_entry->short_name);
-          }
-        }
-        pinfo->match_uint = saved_match_port;
-        /* fallback to data dissector */
-        if (!dissected)
-          call_data_dissector(decrypted, pinfo, top_tree);
-      }
+    dissect_dtls_appdata(tvb, pinfo, offset, record_length, session,
+                         dtls_record_tree, is_from_server, decrypted, record);
     break;
   case SSL_ID_HEARTBEAT:
     /* try to retrieve and use decrypted alert record, if any. */
