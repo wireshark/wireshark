@@ -153,7 +153,7 @@ if (BUILD_wireshark)
 			set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
 		endforeach()
 		set(_all_manifest_contents "${_all_manifest_contents}!endif\n")
-		foreach(_dll ${CARES_DLL} ${PCRE2_RELEASE_DLL} ${GCRYPT_DLLS}
+		foreach(_dll ${AMRNB_DLL} ${CARES_DLL} ${PCRE2_RELEASE_DLL} ${GCRYPT_DLLS}
 				${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLLS} ${LUA_DLL}
 				${LZ4_DLL} ${MINIZIP_DLL} ${NGHTTP2_DLL} ${NGHTTP3_DLL} ${SBC_DLL} ${SMI_DLL}
 				${SNAPPY_DLL} ${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}
@@ -202,7 +202,7 @@ if (BUILD_logray)
 		set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
 	endforeach()
 	set(_all_manifest_contents "${_all_manifest_contents}!endif\n")
-	foreach(_dll ${CARES_DLL} ${PCRE2_RELEASE_DLL} ${GCRYPT_DLLS}
+	foreach(_dll ${AMRNB_DLL} ${CARES_DLL} ${PCRE2_RELEASE_DLL} ${GCRYPT_DLLS}
 			${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLLS} ${LUA_DLL}
 			${LZ4_DLL} ${MINIZIP_DLL} ${NGHTTP2_DLL} ${NGHTTP3_DLL} ${SBC_DLL} ${SMI_DLL}
 			${SNAPPY_DLL} ${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLLS} ${WINSPARKLE_DLL}

@@ -7,7 +7,7 @@
 #  AMRNB_DLL          - (Windows) Name of the amrnb DLL
 
 include( FindWSWinLibs )
-FindWSWinLibs( "opencore-amrnb-.*" "AMRNB_HINTS" )
+FindWSWinLibs( "opencore-amr-.*" "AMRNB_HINTS" )
 
 if (NOT USE_REPOSITORY)
   find_package(PkgConfig)
@@ -23,7 +23,7 @@ find_path( AMRNB_INCLUDE_DIR
 )
 
 find_library( AMRNB_LIBRARY
-  NAMES opencore-amrnb
+  NAMES opencore-amrnb libopencore-amrnb-0
   HINTS
     "${PC_AMRNB_LIBDIRS}"
     "${AMRNB_HINTS}/lib"
@@ -38,14 +38,14 @@ if( AMRNB_FOUND )
   set( AMRNB_LIBRARIES ${AMRNB_LIBRARY} )
   if (WIN32)
     set ( AMRNB_DLL_DIR "${AMRNB_HINTS}/bin"
-      CACHE PATH "Path to amrnb DLL"
+      CACHE PATH "Path to the AMR-NB DLL"
     )
     file( GLOB _amrnb_dll RELATIVE "${AMRNB_DLL_DIR}"
-      "${AMRNB_DLL_DIR}/libamrnb.dll"
+      "${AMRNB_DLL_DIR}/libopencore-amrnb-0.dll"
     )
     set ( AMRNB_DLL ${_amrnb_dll}
       # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "amrnb DLL file name"
+      CACHE FILEPATH "AMR NB-DLL file name"
     )
     mark_as_advanced( AMRNB_DLL_DIR AMRNB_DLL )
   endif()
