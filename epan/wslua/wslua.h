@@ -58,29 +58,64 @@
 #define WSLUA_PREFS_CHANGED "prefs_changed"
 
 /* type conversion macros - lua_Number is a double, so casting isn't kosher; and
-   using Lua's already-available lua_tointeger() and luaL_checkinteger() might be different
-   on different machines; so use these instead please! */
+   using Lua's already-available lua_tointeger() and luaL_checkinteger() might be
+   different on different machines; so use these instead please!
+
+   It can be important to choose the correct version of signed or unsigned
+   conversion macros; don't assume that you can freely convert to the signed
+   or unsigned integer of the same size later:
+
+   On 32-bit Windows x86, Lua 5.2 and earlier must use lua_tounsigned() and
+   luaL_checkunsigned() due to the use of float to integer inlined assembly.
+   (#18367)
+   On ARM, casting from a negative floating point number to an unsigned integer
+   type doesn't perform wraparound conversion in the same way as casting from
+   float to the same size signed integer then to unsigned does, unlike x86[-64].
+   (Commit 15392c324d5eaefcaa298cdee09cd5b40b12e09c)
+
+   On Lua 5.3 and later, numbers are stored as a kind of union between
+   Lua_Number and Lua_Integer. On 5.2 and earlier. all numbers are stored
+   as Lua_Number internally.
+
+   Be careful about using the 64-bit functions, as they convert from double
+   and lose precision at high values. See wslua_int64.c and the types there.
+   TODO: Check if Lua_Integer is 64 bit on Lua 5.3 and later.
+*/
 #define wslua_toint(L,i)       (int)             ( lua_tointeger(L,i) )
-#define wslua_toint32(L,i)     (int32_t)         ( lua_tonumber(L,i) )
+#define wslua_toint32(L,i)     (int32_t)         ( lua_tointeger(L,i) )
 #define wslua_toint64(L,i)     (int64_t)         ( lua_tonumber(L,i) )
-#define wslua_touint(L,i)      (unsigned)        ( lua_tointeger(L,i) )
-#define wslua_touint32(L,i)    (uint32_t)        ( lua_tonumber(L,i) )
 #define wslua_touint64(L,i)    (uint64_t)        ( lua_tonumber(L,i) )
 
 #define wslua_checkint(L,i)    (int)             ( luaL_checkinteger(L,i) )
-#define wslua_checkint32(L,i)  (int32_t)         ( luaL_checknumber(L,i) )
+#define wslua_checkint32(L,i)  (int32_t)         ( luaL_checkinteger(L,i) )
 #define wslua_checkint64(L,i)  (int64_t)         ( luaL_checknumber(L,i) )
-#define wslua_checkuint(L,i)   (unsigned)        ( luaL_checkinteger(L,i) )
-#define wslua_checkuint32(L,i) (uint32_t)        ( luaL_checknumber(L,i) )
 #define wslua_checkuint64(L,i) (uint64_t)        ( luaL_checknumber(L,i) )
 
 #define wslua_optint(L,i,d)    (int)             ( luaL_optinteger(L,i,d) )
-#define wslua_optint32(L,i,d)  (int32_t)         ( luaL_optnumber(L,i,d) )
+#define wslua_optint32(L,i,d)  (int32_t)         ( luaL_optinteger(L,i,d) )
 #define wslua_optint64(L,i,d)  (int64_t)         ( luaL_optnumber(L,i,d) )
-#define wslua_optuint(L,i,d)   (unsigned)        ( luaL_optinteger(L,i,d) )
-#define wslua_optuint32(L,i,d) (uint32_t)        ( luaL_optnumber(L,i,d) )
 #define wslua_optuint64(L,i,d) (uint64_t)        ( luaL_optnumber(L,i,d) )
 
+/**
+ * On Lua 5.3 and later, the unsigned conversions may not be defined
+ * (depending on a compatibility define), and they're just casts if they
+ * are.
+ */
+#if LUA_VERSION_NUM < 503
+#define wslua_touint(L,i)      (unsigned)        ( lua_tounsigned(L,i) )
+#define wslua_touint32(L,i)    (uint32_t)        ( lua_tounsigned(L,i) )
+#define wslua_checkuint(L,i)   (unsigned)        ( luaL_checkunsigned(L,i) )
+#define wslua_checkuint32(L,i) (uint32_t)        ( luaL_checkunsigned(L,i) )
+#define wslua_optuint(L,i,d)   (unsigned)        ( luaL_optunsigned(L,i,d) )
+#define wslua_optuint32(L,i,d) (uint32_t)        ( luaL_optunsigned(L,i,d) )
+#else
+#define wslua_touint(L,i)      (unsigned)        ( lua_tointeger(L,i) )
+#define wslua_touint32(L,i)    (uint32_t)        ( lua_tointeger(L,i) )
+#define wslua_checkuint(L,i)   (unsigned)        ( luaL_checkinteger(L,i) )
+#define wslua_checkuint32(L,i) (uint32_t)        ( luaL_checkinteger(L,i) )
+#define wslua_optuint(L,i,d)   (unsigned)        ( luaL_optinteger(L,i,d) )
+#define wslua_optuint32(L,i,d) (uint32_t)        ( luaL_optinteger(L,i,d) )
+#endif
 
 struct _wslua_tvb {
     tvbuff_t* ws_tvb;
