@@ -662,11 +662,14 @@ char* get_evt_arg_name(void* sinp_evt_info, uint32_t arg_num) {
     return realinfo->params[arg_num].name;
 }
 
-static void add_empty_events(sinsp_span_t *sinsp_span, uint64_t evt_num)
+// Ensure that our caches can index evt_num - 1
+static void ensure_cache_size(sinsp_span_t *sinsp_span, uint64_t evt_num)
 {
     if (evt_num <= sinsp_span->sfe_ptrs.size()) {
+        // Not necessarily an error, e.g. if we're expanding to handle a frame number at EOF
         return;
     }
+    // XXX check for evt_num < 1?
     sinsp_span->sfe_ptrs.resize(evt_num);
     sinsp_span->sfe_lengths.resize(evt_num);
     sinsp_span->sfe_infos.resize(evt_num);
@@ -698,12 +701,6 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, sinsp_evt *evt)
 {
     uint64_t evt_num = evt->get_num();
-
-    // Fill in any gaps
-    if (evt_num > 1 && evt_num - 1 > sinsp_span->sfe_ptrs.size()) {
-        ws_debug("Filling syscall gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num - 1);
-        add_empty_events(sinsp_span, evt_num - 1);
-    }
 
     // libsinsp requires that events be processed in order so we cache our extracted
     // data during the first pass. We don't know how many fields we're going to extract
@@ -820,13 +817,11 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     }
 
     sinsp_span->sfe_slab_offset += sfe_idx;
-    sinsp_span->sfe_ptrs.push_back(sfe_block);
-    sinsp_span->sfe_lengths.push_back(sfe_idx);
-    sinsp_span->sfe_infos.push_back(evt->get_info());
 
-    if (sinsp_span->sfe_ptrs.size() < evt_num) {
-        ws_warning("Unable to fill cache to the proper size (%d vs %u)", (int) sinsp_span->sfe_ptrs.size(), (unsigned) evt_num);
-    }
+    ensure_cache_size(sinsp_span, evt_num);
+    sinsp_span->sfe_ptrs[evt_num - 1] = sfe_block;
+    sinsp_span->sfe_lengths[evt_num - 1] = sfe_idx;
+    sinsp_span->sfe_infos[evt_num - 1] = evt->get_info();
 
     return;
 }
@@ -885,15 +880,6 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
         return false;
     }
 
-    // libsinsp event numbers may or may not be contiguous. Make sure our event cache is at
-    // least as large as the current frame number. add_syscall_event_to_cache will fill in
-    // any gaps with null entries.
-    uint64_t num_events = sinsp_span->inspector.get_num_events();
-    if (num_events > sinsp_span->sfe_ptrs.size()) {
-        ws_debug("Filling sinsp events gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), (unsigned) num_events);
-        add_empty_events(sinsp_span, num_events);
-    }
-
     while (frame_num > sinsp_span->sfe_ptrs.size()) {
         sinsp_evt *evt = NULL;
         try {
@@ -904,12 +890,12 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
                 break;
             case SCAP_UNEXPECTED_BLOCK:
                 ws_debug("Filling unexpected block gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), frame_num);
-                add_empty_events(sinsp_span, frame_num);
+                ensure_cache_size(sinsp_span, frame_num);
                 break;
             case SCAP_EOF:
                 // XXX Should this be an error instead?
                 ws_warning("Filling syscall EOF gap from %d to %u at %u", (int) sinsp_span->sfe_ptrs.size(), frame_num, (unsigned)sinsp_span->inspector.get_bytes_read());
-                add_empty_events(sinsp_span, frame_num);
+                ensure_cache_size(sinsp_span, frame_num);
                 break;
             case SCAP_SUCCESS:
                 add_syscall_event_to_cache(sinsp_span, ssi, evt);
