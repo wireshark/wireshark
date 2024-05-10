@@ -61,11 +61,11 @@ static int hf_payload_secured_ext_length;
 static int hf_payload_secured_ext;
 static int hf_payload_application;
 
-static gint ett_matter;
-static gint ett_message_flags;
-static gint ett_security_flags;
-static gint ett_payload;
-static gint ett_exchange_flags;
+static int ett_matter;
+static int ett_message_flags;
+static int ett_security_flags;
+static int ett_payload;
+static int ett_exchange_flags;
 
 /* message flags + session ID + security flags + counter */
 #define MATTER_MIN_LENGTH 8
@@ -108,14 +108,14 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
     proto_item *ti;
     proto_tree *matter_tree;
-    guint       offset = 0;
+    uint32_t    offset = 0;
 
     /* info extracted from the packet */
-    guint8 message_flags = 0;
-    guint8 security_flags = 0;
-    guint8 message_dsiz = 0;
-    guint8 message_session_type = 0;
-    guint session_id = 0;
+    uint8_t message_flags = 0;
+    uint8_t security_flags = 0;
+    uint8_t message_dsiz = 0;
+    uint8_t message_session_type = 0;
+    uint32_t session_id = 0;
 
     /* Check that the packet is long enough for it to belong to us. */
     if (tvb_reported_length(tvb) < MATTER_MIN_LENGTH)
@@ -159,7 +159,7 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     // but add an opaque field with the encrypted blob
     if (security_flags & SECURITY_FLAG_HAS_PRIVACY) {
 
-        guint privacy_header_length = 4;
+        uint32_t privacy_header_length = 4;
         if (message_flags & MESSAGE_FLAG_HAS_SOURCE) {
             privacy_header_length += 8;
         }
@@ -199,7 +199,7 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         offset += dissect_matter_payload(next_tvb, pinfo, payload_tree);
     } else {
-        guint payload_length = tvb_reported_length_remaining(tvb, offset);
+        uint32_t payload_length = tvb_reported_length_remaining(tvb, offset);
         proto_tree_add_none_format(matter_tree, hf_payload, tvb, offset, payload_length, "Encrypted Payload (%u bytes)", payload_length);
     }
 
@@ -209,9 +209,9 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static int
 dissect_matter_payload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pl_tree)
 {
-    guint offset = 0;
+    uint32_t offset = 0;
 
-    guint8 exchange_flags = 0;
+    uint8_t exchange_flags = 0;
 
     static int* const exchange_flag_fields[] = {
         &hf_payload_flag_initiator,
@@ -253,13 +253,13 @@ dissect_matter_payload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pl_tre
     }
 
     if (exchange_flags & EXCHANGE_FLAG_HAS_SECURED_EXT) {
-        guint secured_ext_len = 0;
+        uint32_t secured_ext_len = 0;
         proto_tree_add_item_ret_uint(pl_tree, hf_payload_secured_ext_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &secured_ext_len);
         offset += 2;
         proto_tree_add_item(pl_tree, hf_payload_secured_ext, tvb, offset, secured_ext_len, ENC_NA);
         offset += secured_ext_len;
     }
-    guint application_length = tvb_reported_length_remaining(tvb, offset);
+    uint32_t application_length = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_bytes_format(pl_tree, hf_payload_application, tvb, offset, application_length, NULL, "Application payload (%u bytes)", application_length);
     offset += application_length;
     return offset;
@@ -417,7 +417,7 @@ proto_register_matter(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_matter,
         &ett_message_flags,
         &ett_security_flags,
