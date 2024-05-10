@@ -50,6 +50,7 @@ static int hf_zabbix_large_uncompressed_length;
 static int hf_zabbix_data;
 static int hf_zabbix_time;
 static int hf_zabbix_agent;
+static int hf_zabbix_agent_commands;
 static int hf_zabbix_agent_config;
 static int hf_zabbix_agent_data;
 static int hf_zabbix_agent_passive;
@@ -61,6 +62,7 @@ static int hf_zabbix_agent_hostinterface;
 static int hf_zabbix_agent_listenipv4;
 static int hf_zabbix_agent_listenipv6;
 static int hf_zabbix_agent_listenport;
+static int hf_zabbix_agent_variant;
 static int hf_zabbix_proxy;
 static int hf_zabbix_proxy_hb;
 static int hf_zabbix_proxy_name;
@@ -202,11 +204,13 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint64_t length;
     uint64_t uncompressed_length;
     uint64_t datalen;
+    int64_t agent_variant = 0;
     int64_t config_revision = -1;
     bool is_compressed;
     bool is_large_packet;
     bool is_too_large = false;
     char *json_str;
+    jsmntok_t *commands_array = NULL;
     jsmntok_t *data_array = NULL;
     jsmntok_t *data_object = NULL;
     const char *agent_name = NULL;
@@ -330,7 +334,9 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      */
     json_str = tvb_get_string_enc(pinfo->pool, next_tvb, offset, (int)datalen, ENC_UTF_8);
     if (CONV_IS_ZABBIX_REQUEST(zabbix_info, pinfo) && !json_validate(json_str, datalen)) {
-        /* The only non-JSON Zabbix request is passive agent, update the conversation data */
+        /* The only non-JSON Zabbix request is passive agent before Zabbix 7.0,
+           update the conversation data
+        */
         ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
     }
     if (IS_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE)) {
@@ -341,7 +347,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             proto_item_set_text(ti, "Zabbix Passive agent response");
             col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive agent response");
         }
-        /* Don't do content-based searches for passive agents */
+        /* Don't do content-based searches for non-JSON passive agents */
         goto show_agent_outputs;
     }
     /* Parse JSON, first get the token count */
@@ -366,14 +372,19 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* First populate common fields */
     version = json_get_string(json_str, tokens, "version");
+    if (json_get_double(json_str, tokens, "variant", &temp_double)) {
+        agent_variant = (int64_t)temp_double;
+    }
     session = json_get_string(json_str, tokens, "session");
     if (json_get_double(json_str, tokens, "config_revision", &temp_double)) {
         config_revision = (int64_t)temp_double;
     }
     request_type = json_get_string(json_str, tokens, "request");
     response_status = json_get_string(json_str, tokens, "response");
+    commands_array = json_get_array(json_str, tokens, "commands");
     data_array = json_get_array(json_str, tokens, "data");
     data_object = json_get_object(json_str, tokens, "data");
+    /* Find the packet type primarily based on "request" field */
     if (request_type) {
         if (strcmp(request_type, "active checks") == 0) {
             /* Active agent requesting configs */
@@ -423,6 +434,12 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 "Zabbix Agent heartbeat from \"%s\"", (agent_name ? agent_name : ZABBIX_UNKNOWN));
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 "Zabbix Agent heartbeat from \"%s\"", (agent_name ? agent_name : ZABBIX_UNKNOWN));
+        }
+        else if (strcmp(request_type, "passive checks") == 0) {
+            /* Passive agent checks since Zabbix 7.0 */
+            ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
+            proto_item_set_text(ti, "Zabbix Request for passive checks");
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Request for passive checks");
         }
         else if (strcmp(request_type, "sender data") == 0) {
             /* Sender/trapper */
@@ -487,6 +504,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Proxy heartbeat from \"%s\"", proxy_name);
         }
     }
+    /* There was no "request" field match, continue with other ways to recognize the packet */
     else if (json_get_object(json_str, tokens, "globalmacro")) {
         /* This is Zabbix server before 6.4 sending configurations to active proxy */
         ADD_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_CONFIG | ZABBIX_T_ACTIVE);
@@ -577,6 +595,10 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 "Zabbix Response for sender data for \"%s\" (%s)", (sender_name ? sender_name : ZABBIX_UNKNOWN), response_status);
         }
+    }
+    else if (version && data_array) {
+        /* This looks like passive agent response in Zabbix 7.0+ */
+        ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
     }
     else if (data_object || data_array) {
         /* No other match above, let's assume this is server sending incremental
@@ -672,6 +694,9 @@ show_agent_outputs:
                 proto_item_append_text(temp_ti, " (from the request)");
             }
         }
+        if (agent_variant) {
+            proto_tree_add_int64(zabbix_tree, hf_zabbix_agent_variant, NULL, 0, 0, agent_variant);
+        }
         if (agent_hb_freq) {
             proto_tree_add_int(zabbix_tree, hf_zabbix_agent_hb_freq, NULL, 0, 0, agent_hb_freq);
         }
@@ -697,6 +722,9 @@ show_agent_outputs:
         }
         if (agent_listenport) {
             proto_tree_add_uint(zabbix_tree, hf_zabbix_agent_listenport, NULL, 0, 0, agent_listenport);
+        }
+        if (commands_array) {
+            proto_tree_add_boolean(zabbix_tree, hf_zabbix_agent_commands, NULL, 0, 0, true);
         }
     }
     else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PROXY)) {
@@ -934,6 +962,11 @@ proto_register_zabbix(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_zabbix_agent_commands,
+            { "Zabbix agent commands", "zabbix.agent.commands",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
+            NULL, HFILL }
+        },
         { &hf_zabbix_agent_config,
             { "Zabbix agent config", "zabbix.agent.config",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
@@ -987,6 +1020,11 @@ proto_register_zabbix(void)
         { &hf_zabbix_agent_listenport,
             { "Agent listen port", "zabbix.agent.listen_port",
             FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_zabbix_agent_variant,
+            { "Agent variant", "zabbix.agent.variant",
+            FT_INT64, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_zabbix_proxy,
