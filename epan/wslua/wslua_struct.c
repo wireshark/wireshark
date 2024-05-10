@@ -406,12 +406,8 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
   WSLUA_RETURN(poscnt + 1); /* The packed binary Lua string, plus any positions due to '=' being used in format. */
 }
 
-/* Decodes an integer from a string struct into a Lua number, based on
- * given endianness and size. If the integer type is signed, this makes
- * the Lua number be +/- correctly as well.
- */
-static lua_Integer getinteger (const char *buff, int endian,
-                        int issigned, int size) {
+static Uinttype decodeinteger (const char *buff, int endian, int size)
+{
   Uinttype l = 0;
   int i;
   if (endian == BIG) {
@@ -426,13 +422,38 @@ static lua_Integer getinteger (const char *buff, int endian,
       l |= (Uinttype)(unsigned char)buff[i];
     }
   }
-  if (!issigned)
-    return (lua_Integer)l;
+  return l;
+}
+
+/* Decodes an integer from a string struct into a lua_Integer, if it fits
+ * without truncation, or a lua_Number, based on given endianness and size.
+ * If the integer type is signed, that is handled correctly as well.
+ * Note for large values of size there can be a loss of precision.
+ */
+static void getinteger (lua_State *L, const char *buff, int endian,
+                        int issigned, int size) {
+  Uinttype l = decodeinteger(buff, endian, size);
+  if (!issigned) {
+    if (size < LUA_INTEGER_SIZE) {
+      /* Fits in a lua_Integer (we need a larger size as lua_Integer
+       * is signed.) */
+      lua_pushinteger(L, (lua_Integer)l);
+    } else {
+      /* Does not fit in a lua_Integer */
+      lua_pushnumber(L, (lua_Number)l);
+    }
+  }
   else {  /* signed format */
     Uinttype mask = (Uinttype)(~((Uinttype)0)) << (size*8 - 1);
     if (l & mask)  /* negative value? */
-      l |= mask;  /* signal extension */
-    return (lua_Integer)(Inttype)l;
+      l |= mask;  /* sign extension */
+    if (size <= LUA_INTEGER_SIZE) {
+      /* Fits in a lua_Integer */
+      lua_pushinteger(L, (lua_Integer)(Inttype)l);
+    } else {
+      /* Does not fit in a lua_Integer */
+      lua_pushnumber(L, (lua_Number)(Inttype)l);
+    }
   }
 }
 
@@ -470,8 +491,7 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
       case 'b': case 'B': case 'h': case 'H':
       case 'l': case 'L': case 'T': case 'i':  case 'I': {  /* integer types */
         int issigned = g_ascii_islower(opt);
-        lua_Integer res = getinteger(data+pos, h.endian, issigned, (int)size);
-        lua_pushinteger(L, res);
+        getinteger(L, data+pos, h.endian, issigned, (int)size);
         break;
       }
       case 'e': {
