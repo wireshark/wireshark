@@ -136,6 +136,9 @@ static const value_string ssl_version_ja4_names[] = {
     { TLSV1DOT1_VERSION,    "11" },
     { TLSV1DOT2_VERSION,    "12" },
     { TLSV1DOT3_VERSION,    "13" },
+    { DTLSV1DOT0_VERSION,   "d1" },
+    { DTLSV1DOT2_VERSION,   "d2" },
+    { DTLSV1DOT3_VERSION,   "d3" },
     { 0x00, NULL }
 };
 
@@ -9925,8 +9928,10 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     if (proto_is_frame_protocol(pinfo->layers,"tcp")) {
         wmem_strbuf_append(ja4_a, "t");
-    } else if (proto_is_frame_protocol(pinfo->layers,"udp")) {
-        wmem_strbuf_append(ja4_a, "u");
+    } else if (proto_is_frame_protocol(pinfo->layers,"quic")) {
+        wmem_strbuf_append(ja4_a, "q");
+    } else if (proto_is_frame_protocol(pinfo->layers,"dtls")) {
+        wmem_strbuf_append(ja4_a, "d");
     }
     wmem_strbuf_append_printf(ja4_a, "%s", val_to_str_const(client_version, ssl_version_ja4_names, "00"));
     wmem_strbuf_append_printf(ja4_a, "%s", ja4_data.server_name_present ? "d" : "i");
