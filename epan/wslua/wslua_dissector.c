@@ -432,7 +432,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         }
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_add_PATTERN)) {
-            int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_add_PATTERN);
+            uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_add_PATTERN);
             dissector_add_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
@@ -505,7 +505,7 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
         }
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
-            int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_set_PATTERN);
+            uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_set_PATTERN);
             dissector_delete_all(dt->name, handle);
             dissector_add_uint(dt->name, port, handle);
         } else {
@@ -569,7 +569,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         dissector_delete_guid(dt->name, &gk, handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_remove_PATTERN)) {
-          int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
+          uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
           dissector_delete_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
@@ -655,7 +655,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
                 handled = true;
             }
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-            int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_try_PATTERN);
+            uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_try_PATTERN);
 
             len = dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
             if (len > 0) {
@@ -709,7 +709,7 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
         guid_key gk = {*guid, 0};
         handle = dissector_get_guid_handle(dt->table,&gk);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
+        uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         handle = dissector_get_uint_handle(dt->table,port);
     }
 
