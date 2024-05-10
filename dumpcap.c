@@ -4823,7 +4823,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
             pcap_src->dropped++;
         } else if (is_data_block(bh->block_type)) {
             /* Count packets for block types that should be dissected, i.e. ones that show up in the packet list. */
-            ws_debug("Wrote a pcapng block type %u of length %d captured on interface %u.",
+            ws_debug("Wrote a pcapng block type 0x%04x of length %d captured on interface %u.",
                    bh->block_type, bh->block_total_length, pcap_src->interface_id);
             capture_loop_wrote_one_packet(pcap_src);
         } else if (bh->block_type == BLOCK_TYPE_SHB && report_capture_filename) {
