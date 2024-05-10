@@ -23,6 +23,8 @@ set(LUA_INCLUDE_DIRS "${_staging_dir}/include")
 set(LUA_LIBRARIES "${_staging_dir}/lib/liblua.a")
 set(LUA_FOUND TRUE CACHE INTERNAL "")
 set(Lua_FOUND TRUE CACHE INTERNAL "")
+# Fresh Lua 5.3+ install always has 64-bit lua_Integers (unlike Lua 5.2)
+set(LUA_INTEGER_SIZE 8 CACHE INTERNAL "Size of lua_Integer")
 
 set(_lua53_cflags "-fPIC")
 if(APPLE)

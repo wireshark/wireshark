@@ -181,6 +181,9 @@
 /* Define to 1 if we have Lua with Unicode for Windows patches. */
 #cmakedefine HAVE_LUA_UNICODE 1
 
+/* The size of the lua_Integer type, if we have Lua. */
+#cmakedefine LUA_INTEGER_SIZE ${LUA_INTEGER_SIZE}
+
 /* Define to use MIT kerberos */
 #cmakedefine HAVE_MIT_KERBEROS 1
 

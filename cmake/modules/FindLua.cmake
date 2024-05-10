@@ -220,6 +220,15 @@ cmake_policy(POP)
 
 IF(Lua_FOUND)
   SET( LUA_INCLUDE_DIRS ${LUA_INCLUDE_DIR} )
+
+  unset(HAVE_LUA_INTEGER_SIZE CACHE)
+  cmake_push_check_state()
+  include(CheckTypeSize)
+  set(CMAKE_REQUIRED_INCLUDES ${LUA_INCLUDE_DIR})
+  set(CMAKE_EXTRA_INCLUDE_FILES "luaconf.h")
+  check_type_size(LUA_INTEGER LUA_INTEGER_SIZE)
+  cmake_pop_check_state()
+
   if (WIN32)
     set ( LUA_DLL_DIR "${LUA_HINTS}" CACHE PATH "Path to Lua DLL")
     file( GLOB _lua_dll RELATIVE "${LUA_DLL_DIR}" "${LUA_DLL_DIR}/lua*.dll")
