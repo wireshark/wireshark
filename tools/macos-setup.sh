@@ -141,7 +141,8 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.8.3
+GNUTLS_VERSION=3.8.4
+GNUTLS_SHA256=2bea4e154794f3f00180fa2a5c51fe8b005ac7a31cd58bd44cdfa7f36ebc3a9b
 if [ "$GNUTLS_VERSION" ]; then
     #
     # We'll be building GnuTLS, so we may need some additional libraries.
@@ -1567,20 +1568,10 @@ install_gnutls() {
         fi
 
         echo "Downloading, building, and installing GnuTLS:"
-        if [[ $GNUTLS_MAJOR_VERSION -ge 3 ]]
-        then
-            #
-            # Starting with GnuTLS 3.x, the tarballs are compressed with
-            # xz rather than bzip2.
-            #
-            [ -f gnutls-$GNUTLS_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.xz"
-            $no_build && echo "Skipping installation" && return
-            xzcat gnutls-$GNUTLS_VERSION.tar.xz | tar xf -
-        else
-            [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.bz2"
-            $no_build && echo "Skipping installation" && return
-            bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf -
-        fi
+        [ -f gnutls-$GNUTLS_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.xz"
+        echo "$GNUTLS_SHA256  gnutls-$GNUTLS_VERSION.tar.xz" | shasum --algorithm 256 --check
+        $no_build && echo "Skipping installation" && return
+        tar -xf gnutls-$GNUTLS_VERSION.tar.xz
         cd gnutls-$GNUTLS_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
             ./configure "${CONFIGURE_OPTS[@]}" --with-included-unistring --disable-guile
