@@ -893,8 +893,7 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
                 ensure_cache_size(sinsp_span, frame_num);
                 break;
             case SCAP_EOF:
-                // XXX Should this be an error instead?
-                ws_warning("Filling syscall EOF gap from %d to %u at %u", (int) sinsp_span->sfe_ptrs.size(), frame_num, (unsigned)sinsp_span->inspector.get_bytes_read());
+                ws_debug("Filling syscall EOF gap from %d to %u at %u", (int) sinsp_span->sfe_ptrs.size(), frame_num, (unsigned)sinsp_span->inspector.get_bytes_read());
                 ensure_cache_size(sinsp_span, frame_num);
                 break;
             case SCAP_SUCCESS:
