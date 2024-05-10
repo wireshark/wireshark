@@ -14208,7 +14208,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
 			proto_item_set_generated(it);
 		}
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u/%u", dd + dc, tdc);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dd + dc, tdc);
 
 		if (si->cmd == SMB_COM_TRANSACTION2 || si->cmd == SMB_COM_TRANSACTION2_SECONDARY) {
 			guint16 fid;
@@ -14327,7 +14327,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
  					    val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
 							   "Unknown (0x%02x)"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u/%u", dc, tdc);
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dc, tdc);
 
 				if (!si->unidir) {
 					if (!pinfo->fd->visited && si->sip) {
