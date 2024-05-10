@@ -917,11 +917,11 @@ File "${SMI_DIR}\share\yang\*.yang"
 !include "custom_mibs.txt"
 !endif
 
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\transum.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\transum.dll"
 
-SetOutPath '$INSTDIR\plugins\epan'
-File "${STAGING_DIR}\plugins\epan\stats_tree.dll.${ABI_VERSION_EPAN}"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
 
 SectionEnd ; "Plugins / Extensions"
 
