@@ -35,6 +35,7 @@
 class QRubberBand;
 class QTimer;
 class QAbstractButton;
+class CopyFromProfileButton;
 
 class QCPBars;
 class QCPGraph;
@@ -164,6 +165,7 @@ public:
     void addGraph(bool copy_from_current = false);
     void addDefaultGraph(bool enabled, int idx = 0);
     void syncGraphSettings(int row);
+    qsizetype graphCount() const;
 
 public slots:
     void scheduleReplot(bool now = false);
@@ -172,6 +174,7 @@ public slots:
     void reloadFields();
 
 protected:
+    void captureFileClosing();
     void keyPressEvent(QKeyEvent *event);
     void reject();
 
@@ -190,6 +193,7 @@ signals:
 
 private:
     Ui::IOGraphDialog *ui;
+    CopyFromProfileButton *copy_profile_bt_;
 
     //Model and delegate were chosen over UatFrame because add/remove/copy
     //buttons would need realignment (UatFrame has its own)

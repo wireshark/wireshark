@@ -394,9 +394,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
-    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, "io_graphs", tr("Copy graphs from another profile."));
-    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
-    connect(copy_button, &CopyFromProfileButton::copyProfile, this, &IOGraphDialog::copyFromProfile);
+    copy_profile_bt_ = new CopyFromProfileButton(this, "io_graphs", tr("Copy graphs from another profile."));
+    ui->buttonBox->addButton(copy_profile_bt_, QDialogButtonBox::ActionRole);
+    connect(copy_profile_bt_, &CopyFromProfileButton::copyProfile, this, &IOGraphDialog::copyFromProfile);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -551,6 +551,9 @@ IOGraphDialog::~IOGraphDialog()
 
 void IOGraphDialog::copyFromProfile(QString filename)
 {
+    if (uat_model_ == nullptr)
+        return;
+
     char *err = NULL;
     // uat_load appends rows to the current UAT, using filename.
     // We should let the UatModel handle it, and have the UatModel
@@ -568,6 +571,8 @@ void IOGraphDialog::copyFromProfile(QString filename)
 
 void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, int y_axis_factor)
 {
+    if (uat_model_ == nullptr)
+        return;
 
     QVariantList newRowData;
     newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
@@ -595,6 +600,9 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
 
 void IOGraphDialog::addGraph(bool copy_from_current)
 {
+    if (uat_model_ == nullptr)
+        return;
+
     const QModelIndex &current = ui->graphUat->currentIndex();
     if (copy_from_current && !current.isValid())
         return;
@@ -677,7 +685,7 @@ void IOGraphDialog::syncGraphSettings(int row)
 {
     IOGraph *iog = ioGraphs_.value(row, Q_NULLPTR);
 
-    if (!uat_model_->index(row, colEnabled).isValid() || !iog)
+    if (!uat_model_ || !uat_model_->index(row, colEnabled).isValid() || !iog)
         return;
 
     bool visible = graphIsEnabled(row);
@@ -719,6 +727,11 @@ void IOGraphDialog::syncGraphSettings(int row)
     }
 }
 
+qsizetype IOGraphDialog::graphCount() const
+{
+    return uat_model_ ? uat_model_->rowCount() : ioGraphs_.size();
+}
+
 void IOGraphDialog::updateWidgets()
 {
     WiresharkDialog::updateWidgets();
@@ -745,6 +758,25 @@ void IOGraphDialog::scheduleRetap(bool now)
 void IOGraphDialog::reloadFields()
 {
     emit reloadValueUnitFields();
+}
+
+void IOGraphDialog::captureFileClosing()
+{
+    // The other buttons will be disabled when the model is set to null.
+    ui->newToolButton->setEnabled(false);
+    ui->intervalComboBox->setEnabled(false);
+    copy_profile_bt_->setEnabled(false);
+    if (uat_model_)
+        applyChanges();
+    // It would be nice to keep the information in the UAT about the graphs
+    // visible in a read-only state after closing, but if the view is just
+    // disabled, updating the model from elsewhere (e.g., other dialogs)
+    // will still change it, so we'd need to copy the information into
+    // a new model.
+    uat_model_ = nullptr;
+    ui->graphUat->setModel(nullptr);
+    ui->graphUat->setVisible(false);
+    WiresharkDialog::captureFileClosing();
 }
 
 void IOGraphDialog::keyPressEvent(QKeyEvent *event)
@@ -835,7 +867,8 @@ void IOGraphDialog::applyChanges()
 
 void IOGraphDialog::reject()
 {
-    applyChanges();
+    if (uat_model_)
+        applyChanges();
 
     QDialog::reject();
 }
@@ -945,7 +978,7 @@ IOGraph *IOGraphDialog::currentActiveGraph() const
     }
 
     //if no currently selected item, go with first item enabled
-    for (int row = 0; row < uat_model_->rowCount(); row++)
+    for (int row = 0; row < graphCount(); row++)
     {
         if (graphIsEnabled(row)) {
             return ioGraphs_.value(row, NULL);
@@ -957,8 +990,13 @@ IOGraph *IOGraphDialog::currentActiveGraph() const
 
 bool IOGraphDialog::graphIsEnabled(int row) const
 {
-    Qt::CheckState state = static_cast<Qt::CheckState>(uat_model_->data(uat_model_->index(row, colEnabled), Qt::CheckStateRole).toInt());
-    return state == Qt::Checked;
+    if (uat_model_) {
+        Qt::CheckState state = static_cast<Qt::CheckState>(uat_model_->data(uat_model_->index(row, colEnabled), Qt::CheckStateRole).toInt());
+        return state == Qt::Checked;
+    } else {
+        IOGraph* iog = ioGraphs_.value(row, nullptr);
+        return (iog && iog->visible());
+    }
 }
 
 // Scan through our graphs and gather information.
@@ -1084,14 +1122,12 @@ void IOGraphDialog::updateLegend()
     iop->yAxis->setLabel(QString());
 
     // Find unique labels
-    if (uat_model_ != NULL) {
-        for (int row = 0; row < uat_model_->rowCount(); row++) {
-            IOGraph *iog = ioGraphs_.value(row, Q_NULLPTR);
-            if (graphIsEnabled(row) && iog) {
-                QString label(iog->valueUnitLabel());
-                vu_label_set.insert(label);
-                format_units_set.insert(iog->formatUnits());
-            }
+    for (int row = 0; row < graphCount(); row++) {
+        IOGraph *iog = ioGraphs_.value(row, Q_NULLPTR);
+        if (graphIsEnabled(row) && iog) {
+            QString label(iog->valueUnitLabel());
+            vu_label_set.insert(label);
+            format_units_set.insert(iog->formatUnits());
         }
     }
 
@@ -1135,13 +1171,11 @@ void IOGraphDialog::updateLegend()
     iop->legend->insertRow(0);
     iop->legend->addElement(0, 0, legendTitle);
 
-    if (uat_model_ != NULL) {
-        for (int row = 0; row < uat_model_->rowCount(); row++) {
-            IOGraph *iog = ioGraphs_.value(row, Q_NULLPTR);
-            if (iog) {
-                if (graphIsEnabled(row)) {
-                    iog->addToLegend();
-                }
+    for (int row = 0; row < graphCount(); row++) {
+        IOGraph *iog = ioGraphs_.value(row, Q_NULLPTR);
+        if (iog) {
+            if (graphIsEnabled(row)) {
+                iog->addToLegend();
             }
         }
     }
@@ -1876,17 +1910,15 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
     int max_interval = 0;
 
     stream << "\"Interval start\"";
-    if (uat_model_ != NULL) {
-        for (int row = 0; row < uat_model_->rowCount(); row++) {
-            if (graphIsEnabled(row) && ioGraphs_[row] != NULL) {
-                activeGraphs.append(ioGraphs_[row]);
-                if (max_interval < ioGraphs_[row]->maxInterval()) {
-                    max_interval = ioGraphs_[row]->maxInterval();
-                }
-                QString name = ioGraphs_[row]->name().toUtf8();
-                name = QString("\"%1\"").arg(name.replace("\"", "\"\""));  // RFC 4180
-                stream << "," << name;
+    for (int row = 0; row < graphCount(); row++) {
+        if (graphIsEnabled(row) && ioGraphs_[row] != NULL) {
+            activeGraphs.append(ioGraphs_[row]);
+            if (max_interval < ioGraphs_[row]->maxInterval()) {
+                max_interval = ioGraphs_[row]->maxInterval();
             }
+            QString name = ioGraphs_[row]->name().toUtf8();
+            name = QString("\"%1\"").arg(name.replace("\"", "\"\""));  // RFC 4180
+            stream << "," << name;
         }
     }
 

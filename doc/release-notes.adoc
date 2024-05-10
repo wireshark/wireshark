@@ -240,6 +240,10 @@ The following features are new (or have been significantly updated) since versio
   ** Pending graph changes are saved when changing profiles with the
      I/O Graphs dialog open.
 
+  ** I/O Graph dialog windows for closed capture files are no longer affected
+     by changing the list of graphs (either in that dialogs or in other dialogs
+     for the currently open file.)
+
   ** Temporary graphs that have just been added and will not be saved
      unless the configuration has changed are more clearly marked with
      italics.
