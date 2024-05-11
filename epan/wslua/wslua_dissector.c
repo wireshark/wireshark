@@ -213,6 +213,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     dt->table = (type == FT_NONE) ?
         register_decode_as_next_proto(proto_id, name, ui_name, NULL) :
         register_dissector_table(name, ui_name, proto_id, type, base);
+    dt->heur_list = NULL;
     dt->name = g_strdup(name);
     dt->ui_name = g_strdup(ui_name);
     dt->created = TRUE;
@@ -228,7 +229,11 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 }
 
 WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
-    /* Creates a new heuristic `DissectorTable` for your dissector's use. Returns true iff table was created successfully. */
+    /* Creates a new heuristic `DissectorTable` for your dissector's use. Returns true if table was created successfully.
+     * XXX - Currently it always returns nil.
+
+       @since 4.2.0
+     */
 #define WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME 1 /* The short name of the table. Use lower-case alphanumeric, dot, and/or underscores. */
 #define WSLUA_ARG_DissectorTable_heuristic_new_PROTO 2 /* The <<lua_class_Proto,`Proto`>> object that uses this dissector table. */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME);
@@ -242,7 +247,29 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
         return 0;
     }
 
-    register_heur_dissector_list(name, proto_id);
+    DissectorTable dt;
+    dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
+    dt->table = NULL;
+    dt->heur_list = register_heur_dissector_list(name, proto_id);
+    dt->name = g_strdup(name);
+    dt->ui_name = g_strdup(name);
+    dt->created = TRUE;
+    dt->expired = FALSE;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
+    lua_pushstring(L, name);
+    pushDissectorTable(L, dt);
+    lua_settable(L, -3);
+
+#if 0
+    /* Return nil because this is not a regular DissectorTable that could
+     * be used with _try, _set, _add, etc., and so we need to build checks
+     * into the functions similar to File and CaptureInfo so that it
+     * doesn't get used as one. However, not returning it means that it
+     * doesn't get properly garbage collected. */
+    pushDissectorTable(L, dt);
+    WSLUA_RETURN(1); /* The newly created DissectorTable. */
+#endif
     return 0;
 }
 
@@ -347,6 +374,7 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
     if (table) {
         DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
         dt->table = table;
+        dt->heur_list = NULL;
         dt->name = g_strdup(name);
         dt->ui_name = NULL;
         dt->created = FALSE;
@@ -770,7 +798,12 @@ int wslua_deregister_dissector_tables(lua_State* L) {
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
         DissectorTable dt = checkDissectorTable(L, -1);
         if (dt->created) {
-            deregister_dissector_table(dt->name);
+            if (dt->table) {
+                deregister_dissector_table(dt->name);
+            }
+            if (dt->heur_list) {
+                deregister_heur_dissector_list(dt->name);
+            }
         }
     }
 

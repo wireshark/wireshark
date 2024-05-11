@@ -195,8 +195,12 @@ typedef struct _wslua_proto_t {
     gboolean expired;
 } wslua_proto_t;
 
+/* a "DissectorTable" object can be different things under the hood,
+ * since its heuristic_new() can create a heur_dissector_list_t that
+ * needs to be deregistered. */
 struct _wslua_distbl_t {
     dissector_table_t table;
+    heur_dissector_list_t heur_list;
     const gchar* name;
     const gchar* ui_name;
     gboolean created;

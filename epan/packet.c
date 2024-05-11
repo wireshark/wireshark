@@ -3165,6 +3165,17 @@ register_heur_dissector_list(const char *name, const int proto)
 	return sub_dissectors;
 }
 
+void
+deregister_heur_dissector_list(const char *name)
+{
+	heur_dissector_list_t sub_dissectors = find_heur_dissector_list(name);
+	if (sub_dissectors == NULL) {
+		return;
+	}
+
+	g_hash_table_remove(heur_dissector_lists, name);
+}
+
 /*
  * Register dissectors by name; used if one dissector always calls a
  * particular dissector, or if it bases the decision of which dissector
@@ -3429,7 +3440,6 @@ deregister_dissector(const char *name)
 	g_hash_table_remove(registered_dissectors, name);
 	g_hash_table_remove(depend_dissector_lists, name);
 	g_hash_table_foreach(depend_dissector_lists, remove_depend_dissector_ghfunc, (gpointer)name);
-	g_hash_table_remove(heur_dissector_lists, name);
 
 	destroy_dissector_handle(handle);
 }
