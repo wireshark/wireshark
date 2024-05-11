@@ -13502,7 +13502,7 @@ dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   TRANS2_QUERY_FILE_INFORMATION*/
 static int
 dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-    proto_item *item, int offset, guint16 *bcp, smb_info_t *si)
+    proto_item *item _U_, int offset, guint16 *bcp, smb_info_t *si)
 {
 	bool        trunc = false;
 
