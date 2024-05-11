@@ -33,7 +33,7 @@ do and is done in four easy steps;
 1, We need tap.h so just add '#include <epan/tap.h>' (preceded by packet.h) to
 the includes.
 
-2, We need a tap handler so just add 'static int <protocol>_tap = -1;'
+2, We need a tap handler so just add 'static int <protocol>_tap;'
 
 3, Down in proto_register_<protocol>() you need to add
 '<protocol>_tap = register_tap("<protocol>");'

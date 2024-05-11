@@ -2780,7 +2780,7 @@ typedef struct {
 } my_entry_t;
 
 /* Registered protocol number */
-static int my_proto = -1;
+static int my_proto;
 
 /********************* in the dissector routine *********************/
 
