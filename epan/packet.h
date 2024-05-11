@@ -475,7 +475,7 @@ typedef struct heur_dtbl_entry {
 /** A protocol uses this function to register a heuristic sub-dissector list.
  *  Call this in the parent dissectors proto_register function.
  *
- * @param name the name of this protocol
+ * @param name a unique short name for the list
  * @param ui_name the name used in the user interface
  * @param proto the value obtained when registering the protocol
  */
@@ -494,6 +494,9 @@ WS_DLL_PUBLIC const char *heur_dissector_list_get_description(heur_dissector_lis
  * @param proto the value obtained when registering the protocol
  */
 WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name, const int proto);
+
+/** Deregister a heuristic dissector list by unique short name. */
+void deregister_heur_dissector_list(const char *name);
 
 typedef void (*DATFunc_heur) (const gchar *table_name,
     struct heur_dtbl_entry *entry, gpointer user_data);

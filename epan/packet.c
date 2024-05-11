@@ -3254,6 +3254,17 @@ register_heur_dissector_list(const char *name, const int proto)
 	return register_heur_dissector_list_with_description(name, NULL, proto);
 }
 
+void
+deregister_heur_dissector_list(const char *name)
+{
+	heur_dissector_list_t sub_dissectors = find_heur_dissector_list(name);
+	if (sub_dissectors == NULL) {
+		return;
+	}
+
+	g_hash_table_remove(heur_dissector_lists, name);
+}
+
 const char *
 heur_dissector_list_get_description(heur_dissector_list_t list)
 {
@@ -3528,7 +3539,6 @@ deregister_dissector(const char *name)
 	g_hash_table_remove(registered_dissectors, name);
 	g_hash_table_remove(depend_dissector_lists, name);
 	g_hash_table_foreach(depend_dissector_lists, remove_depend_dissector_ghfunc, (gpointer)name);
-	g_hash_table_remove(heur_dissector_lists, name);
 
 	destroy_dissector_handle(handle);
 }

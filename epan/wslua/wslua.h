@@ -224,8 +224,12 @@ typedef struct _wslua_proto_t {
     bool expired;
 } wslua_proto_t;
 
+/* a "DissectorTable" object can be different things under the hood,
+ * since its heuristic_new() can create a heur_dissector_list_t that
+ * needs to be deregistered. */
 struct _wslua_distbl_t {
     dissector_table_t table;
+    heur_dissector_list_t heur_list;
     const char* name;
     const char* ui_name;
     bool created;
