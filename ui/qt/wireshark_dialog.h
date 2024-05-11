@@ -113,7 +113,14 @@ protected:
      * @brief Check to see if the user has closed (and not minimized) the dialog.
      * @return true if the dialog has been closed, false otherwise.
      */
-    bool dialogClosed() { return dialog_closed_; }
+    bool dialogClosed() const { return dialog_closed_; }
+
+    /**
+     * @brief Check to see if we're currently retapping. If this is positive,
+     * tapping will fail in process_specified_records.
+     * @return The current retap depth. (In current implementation, 0 or 1.)
+     */
+    int retapDepth() const { return retap_depth_; }
 
     /**
      * @brief Called when the capture file is about to close. This can be
