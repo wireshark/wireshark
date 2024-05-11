@@ -70,7 +70,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_CALIPSO                  0x07    /* 00 0 00111 =   7 */
 #define IP6OPT_SMF_DPD                  0x08    /* 00 0 01000 =   8 */
 #define IP6OPT_PDM                      0x0F    /* 00 0 01111 =  15 */
-#define IP6OPT_APN6                     0x13    /* 00 0 10003 =  19 */
+#define IP6OPT_APN6                     0x13    /* 00 0 10011 =  19 */
 #define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
 #define IP6OPT_RPL                      0x23    /* 00 1 00011 =  35 */
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
