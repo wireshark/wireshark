@@ -4,8 +4,8 @@
  *
  * For documentation of this protocol, see:
  *
- * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/
- * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/
+ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/
+ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/
  * https://gitlab.com/wireshark/wireshark/-/wikis/SMB2
  *
  * If you edit this file, keep the wiki updated as well.
@@ -276,6 +276,8 @@ static int hf_smb2_next_offset;
 static int hf_smb2_negotiate_context_type;
 static int hf_smb2_negotiate_context_data_length;
 static int hf_smb2_negotiate_context_offset;
+static int hf_smb2_negotiate_context_reserved;
+static int hf_smb2_negotiate_context_reserved2;
 static int hf_smb2_negotiate_context_count;
 static int hf_smb2_hash_alg_count;
 static int hf_smb2_hash_algorithm;
@@ -811,6 +813,10 @@ static gint ett_smb2_fscc_refs_snapshot_query_delta_buffer;
 
 static expert_field ei_smb2_invalid_length;
 static expert_field ei_smb2_bad_response;
+static expert_field ei_smb2_bad_negprot_negotiate_context_count;
+static expert_field ei_smb2_bad_negprot_negotiate_context_offset;
+static expert_field ei_smb2_bad_negprot_reserved;
+static expert_field ei_smb2_bad_negprot_reserved2;
 static expert_field ei_smb2_invalid_getinfo_offset;
 static expert_field ei_smb2_invalid_getinfo_size;
 static expert_field ei_smb2_empty_getinfo_buffer;
@@ -5539,9 +5545,10 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 {
 	guint16 dc;
 	guint16 i;
+	proto_item *nco_item, *ncc_item;
 	gboolean supports_smb_3_10 = FALSE;
 	guint32 nco;
-	guint16 ncc;
+	guint32 ncc;
 	proto_item *hash_item = NULL;
 	smb2_saved_info_t *ssi = si->saved;
 
@@ -5588,13 +5595,11 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	offset += 16;
 
 	/* negotiate context offset */
-	nco = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_negotiate_context_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	nco_item = proto_tree_add_item_ret_uint(tree, hf_smb2_negotiate_context_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nco);
 	offset += 4;
 
 	/* negotiate context count */
-	ncc = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_negotiate_context_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	ncc_item = proto_tree_add_item_ret_uint(tree, hf_smb2_negotiate_context_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ncc);
 	offset += 2;
 
 	/* reserved */
@@ -5612,7 +5617,28 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	}
 
 	if (!supports_smb_3_10) {
-		ncc = 0;
+		/*
+		 * XXX - if 3.10 or later isn't supported, those fields
+		 * should be dissected as an 8-byte ClientStartTime field...
+		 * ...which should always be set to zero by the
+		 * client and ignored by the server.  Doing that would
+		 * require that we look ahead and scan the dialect list
+		 * but what if that's either cut off by a snapshot
+		 * length or missing due to the packet being malformed
+		 * or not reassembled or...?
+		 *
+		 * [MS-SMB2] says 3.11, but 3.10 is deprecated, and
+		 * it appears to work the same way in this regard
+		 * as 3.11.
+		 */
+		if (ncc != 0) {
+			expert_add_info(pinfo, ncc_item, &ei_smb2_bad_negprot_negotiate_context_count);
+			ncc = 0;
+		}
+		if (nco != 0) {
+			expert_add_info(pinfo, nco_item, &ei_smb2_bad_negprot_negotiate_context_offset);
+			nco = 0;
+		}
 	}
 
 	if (nco != 0) {
@@ -5639,7 +5665,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	offset_length_buffer_t s_olb;
 	guint16 i;
 	guint32 nco;
-	guint16 ncc;
+	guint32 ncc;
 	gboolean continue_dissection;
 	proto_item *hash_item = NULL;
 	smb2_saved_info_t *ssi = si->saved;
@@ -5669,9 +5695,14 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	switch (si->status) {
 	/* buffer code */
-	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
-	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
-		if (!continue_dissection) return offset;
+	case 0x00000000:
+		offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+		break;
+
+	default:
+		offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection)
+			return offset;
 	}
 
 	/* security mode, skip second byte */
@@ -5683,9 +5714,28 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	/* negotiate context count */
-	ncc = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_negotiate_context_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	/* negotiate context count/reserved */
+	/*
+	 * If 3.10 or later isn't the chosen dialect, this field
+	 * should be dissected as a reserved field
+	 * ...which should always be set to zero by the
+	 * client and ignored by the server.
+	 *
+	 * [MS-SMB2] says 3.11, but 3.10 is deprecated, and
+	 * it appears to work the same way in this regard
+	 * as 3.11.
+	 */
+	if (si->conv->dialect >= SMB2_DIALECT_310) {
+		proto_tree_add_item_ret_uint(tree, hf_smb2_negotiate_context_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ncc);
+	} else {
+		proto_item *reserved_item;
+
+		reserved_item = proto_tree_add_item_ret_uint(tree, hf_smb2_negotiate_context_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ncc);
+		if (ncc != 0) {
+			expert_add_info(pinfo, reserved_item, &ei_smb2_bad_negprot_reserved);
+			ncc = 0;
+		}
+	}
 	offset += 2;
 
 	/* server GUID */
@@ -5721,9 +5771,28 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* the security blob itself */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &s_olb, si, dissect_smb2_secblob);
 
-	/* negotiate context offset */
-	nco = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_negotiate_context_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	/* negotiate context offset/reserved2 */
+	/*
+	 * If 3.10 or later isn't the chosen dialect, this field
+	 * should be dissected as a reserved field
+	 * ...which should always be set to zero by the
+	 * client and ignored by the server.
+	 *
+	 * [MS-SMB2] says 3.11, but 3.10 is deprecated, and
+	 * it appears to work the same way in this regard
+	 * as 3.11.
+	 */
+	if (si->conv->dialect >= SMB2_DIALECT_310) {
+		proto_tree_add_item_ret_uint(tree, hf_smb2_negotiate_context_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nco);
+	} else {
+		proto_item *reserved2_item;
+
+		reserved2_item = proto_tree_add_item_ret_uint(tree, hf_smb2_negotiate_context_reserved2, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nco);
+		if (nco != 0) {
+			expert_add_info(pinfo, reserved2_item, &ei_smb2_bad_negprot_reserved2);
+			nco = 0;
+		}
+	}
 	offset += 4;
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
@@ -12666,8 +12735,18 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_negotiate_context_reserved2,
+			{ "Reserved2", "smb2.negotiate_context.reserved2", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_negotiate_context_count,
 			{ "NegotiateContextCount", "smb2.negotiate_context.count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_negotiate_context_reserved,
+			{ "Reserved", "smb2.negotiate_context.reserved", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -14717,6 +14796,10 @@ proto_register_smb2(void)
 	static ei_register_info ei[] = {
 		{ &ei_smb2_invalid_length, { "smb2.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
 		{ &ei_smb2_bad_response, { "smb2.bad_response", PI_MALFORMED, PI_ERROR, "Bad response", EXPFILL }},
+		{ &ei_smb2_bad_negprot_negotiate_context_count, { "smb2.bad_negprot_negotiate_context_count", PI_MALFORMED, PI_ERROR, "Negotiate Protocol request NegotiateContextCount is nonzero without SMB 3.11 support", EXPFILL }},
+		{ &ei_smb2_bad_negprot_negotiate_context_offset, { "smb2.bad_negprot_negotiate_context_offset", PI_MALFORMED, PI_ERROR, "Negotiate Protocol request NegotiateContextOffset is nonzero without SMB 3.11 support", EXPFILL }},
+		{ &ei_smb2_bad_negprot_reserved, { "smb2.bad_negprot_reserved", PI_MALFORMED, PI_ERROR, "Negotiate Protocol response Reserved is nonzero", EXPFILL }},
+		{ &ei_smb2_bad_negprot_reserved2, { "smb2.bad_negprot_reserved2", PI_MALFORMED, PI_ERROR, "Negotiate Protocol response Reserved2 is nonzero", EXPFILL }},
 		{ &ei_smb2_invalid_getinfo_offset, { "smb2.invalid_getinfo_offset", PI_MALFORMED, PI_ERROR, "Input buffer offset isn't past the fixed data in the message", EXPFILL }},
 		{ &ei_smb2_invalid_getinfo_size, { "smb2.invalid_getinfo_size", PI_MALFORMED, PI_ERROR, "Input buffer length goes past the end of the message", EXPFILL }},
 		{ &ei_smb2_empty_getinfo_buffer, { "smb2.empty_getinfo_buffer", PI_PROTOCOL, PI_WARN, "Input buffer length is empty for a quota request", EXPFILL }},
