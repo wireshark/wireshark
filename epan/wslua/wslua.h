@@ -81,13 +81,6 @@
 #define wslua_optguint32(L,i,d) (guint32)         ( luaL_optnumber(L,i,d) )
 #define wslua_optguint64(L,i,d) (guint64)         ( luaL_optnumber(L,i,d) )
 
-#if LUA_VERSION_NUM < 503
-#define WSLUA_PUSHINTEGER(L, i) lua_pushnumber(L, i)
-#define WSLUA_PUSHINTEGER_WITH_CAST(L, i) lua_pushnumber(L, (lua_Number)i)
-#else
-#define WSLUA_PUSHINTEGER(L, i) lua_pushinteger(L, i)
-#define WSLUA_PUSHINTEGER_WITH_CAST(L, i) lua_pushinteger(L, (lua_Integer)i)
-#endif
 
 struct _wslua_tvb {
     tvbuff_t* ws_tvb;

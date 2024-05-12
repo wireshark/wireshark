@@ -107,7 +107,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
        are normal conditions and possibly don't need the Lua traceback. */
     if (error) { WSLUA_ERROR(Dissector_call,error); }
 
-    WSLUA_PUSHINTEGER_WITH_CAST(L,len);
+    lua_pushinteger(L,(lua_Integer)len);
     WSLUA_RETURN(1); /* Number of bytes dissected.  Note that some dissectors always return number of bytes in incoming buffer, so be aware. */
 }
 
@@ -646,7 +646,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 
     if (error) { WSLUA_ERROR(DissectorTable_try,error); }
 
-    WSLUA_PUSHINTEGER_WITH_CAST(L,len);
+    lua_pushinteger(L,(lua_Integer)len);
     WSLUA_RETURN(1); /* Number of bytes dissected.  Note that some dissectors always return number of bytes in incoming buffer, so be aware. */
 }
 
