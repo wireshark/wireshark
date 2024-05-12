@@ -37,6 +37,9 @@ raw byte addressing, and the layer modifier.
 Custom output fields for `tshark -e` can also be defined using any
 valid field expression.
 
+Many improvements and fixes to the graphing dialogs, including
+I/O Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
@@ -168,7 +171,7 @@ The following features are new (or have been significantly updated) since versio
 * The Resolved Addresses dialog only shows what addresses and ports are
   present in the file (not including information from static files), and
   selected rows or the entire table can be saved or copied to the clipboard
-  in several formats.
+  in several formats. wsbuglink:16419[]
 
 * When capturing files in multiple file mode, a pattern that places the date and time
   before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
@@ -181,6 +184,119 @@ The following features are new (or have been significantly updated) since versio
 
 * The "Find Packet" dialog can search backwards, and find additional occurrences
   of a string, hex value, or regular expression in a single frame.
+
+* When using "Go To Packet" with an undisplayed frame, the window goes to
+  nearest displayed frame (by number.) wsbuglink:2988[]
+
+* A number of graphs using QCustomPlot ("I/O Graphs", "Flow Graph",
+  "TCP Stream Graphs", and "RTP Player") are more responsive during
+  mouse moves, especially on Linux when Wayland is used.
+
+* Improvments to the "I/O Graphs" dialog:
+
+  ** A number of crasher bugs have been fixed.
+
+  ** Smaller intervals can be used, down to 1 microsecond. wsbuglink:13682[]
+
+  ** A larger number of I/O Graph item buckets can be used, up to 2^25^
+     items. wsbuglink:8460[]
+
+  ** The memory usage has been improved, the size of an item has been
+     reduced from 152 bytes to 88 bytes.
+
+  ** When the Y field or Y axis changes, the graph displays the new graph
+     correctly, retapping if necessary, instead of displaying information
+     based on stale data.
+
+  ** The graph is smarter about choosing whether to retap (expensive),
+     recalculate (moderately intensive), or replot (cheap) in order to
+     display the newly chosen options correctly with the least amout of
+     calculations. For instance, a graph that has previously been
+     plotted and is disabled and then reenabled without any other changes
+     will not require a new retap. wsbuglink:15822[]
+
+  ** LOAD graphs are graphed properly again. wsbuglink:18450[]
+
+  ** The I/O Graph y-axis has human readable units with SI prefixes.
+     wsbuglink:12827[]
+
+  ** I/O Graph bar widths are scaled to the size of the interval.
+
+  ** I/O Graph bar border colors are a slightly darker color than that
+     of the graph itself, instead of always black. wsbuglink:17422[]
+
+  ** The correct width of times that appear on the graph are used when
+     automatically resetting the axes.
+
+  ** The precision of the interval time shown in the hint message depends
+     on the interval.
+
+  ** The tracer follows the currently selected row on the table of graphs,
+     and does not appear on an invisible graph.
+
+  ** The tracer moves to the frame selected in the main window.
+     wsbuglink:12909[]
+
+  ** Pending graph changes are saved when changing profiles with the
+     I/O Graphs dialog open.
+
+  ** Temporary graphs that have just been added and will not be saved
+     unless the configuration has changed are more clearly marked with
+     italics.
+
+  ** When Time of Day is selected on the graph, the absolute time is
+     copied to the CSV instead of relative time. wsbuglink:13717[]
+
+  ** The graph layer order and order in the legend always matches the
+     order in the table, and the legend appears properly. wsbuglink:13854[]
+
+  ** Graphs with both lines and data point symbols are treated as line
+     graphs, not scatter plots, for purposes of displaying zero values.
+
+  ** Logarithmic ticks are used when the Y-scale is logarithmic.
+
+  ** The graph crosshairs context menu option works.
+
+  ** The graph is more responsive to mouse moves, especially on Linux Wayland
+
+* Improvements to the Sequence Diagram (Flow Graph / VoIP Calls):
+
+  ** When exporting the graph as an image, the entire graph is shown,
+     up to 1000 items (which can be changed in preferences), instead
+     of only what was visible on-screen. wsbuglink:13504[]
+
+  ** Endpoints that share a same address now have two distinct nodes
+     with a line between them. wsbuglink:12038[]
+
+  ** Tooltips are shown for elided comments
+
+  ** The scroll direction via keyboard is no longer reversed. wsbuglink:12932[]
+
+  ** The column widths are fixed, instead of resizing slightly depending
+     on the visible entries. wsbuglink:12931[]
+
+  ** The Y-axis labels stay in the correct position without having to
+     click Reset.
+
+  ** The progress bar appears correctly in the Flow Graph (non VoIP Calls.)
+
+  ** The behavior of the "Any" and "Network" combobox is corrected.
+     wsbuglink:19818[]
+
+  ** "Limit to Display Filter" is checked if a display filter is applied
+     when the Flow Graph is opened, per the documentation.
+
+
+* TCP Stream Graphs:
+
+  ** A better decision is made about which side is the server and thus
+     the initially chosen direction in the graph.
+
+  ** The Window Scaling graph axis labels are corrected and show both graphs.
+
+  ** The graph crosshairs context menu option works.
+
+  ** Switching between relative and absolute sequence numbers works again.
 
 * The included Lua version has been updated to 5.4. While most Lua dissectors
   should continue to work (the lua_bitop library has been patched to work with
