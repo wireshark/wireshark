@@ -152,7 +152,7 @@ static int File_read_number (lua_State *L, FILE_T ft) {
     buff[buff_end] = '\0';
 
     if (buff_end > 0 && num_digits > 0 && sscanf(buff, "%lf", &d) == 1) {
-        lua_pushnumber(L, d);
+        WSLUA_PUSHINTEGER(L, d);
         return 1;
     }
     else {
