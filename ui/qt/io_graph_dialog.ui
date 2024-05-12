@@ -525,6 +525,11 @@
    <header>widgets/tabnav_tree_view.h</header>
   </customwidget>
   <customwidget>
+   <class>ResizeHeaderView</class>
+   <extends>QHeaderView</extends>
+   <header>widgets/resize_header_view.h</header>
+  </customwidget>
+  <customwidget>
    <class>StockIconToolButton</class>
    <extends>QToolButton</extends>
    <header>widgets/stock_icon_tool_button.h</header>

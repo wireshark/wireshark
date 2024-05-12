@@ -48,6 +48,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/qcp_axis_ticker_si.h
 	widgets/qcp_string_legend_item.h
 	widgets/range_syntax_lineedit.h
+	widgets/resize_header_view.h
 	widgets/resolved_addresses_view.h
 	widgets/rtp_audio_graph.h
 	widgets/splash_overlay.h
@@ -313,6 +314,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/qcp_axis_ticker_si.cpp
 	widgets/qcp_string_legend_item.cpp
 	widgets/range_syntax_lineedit.cpp
+	widgets/resize_header_view.cpp
 	widgets/resolved_addresses_view.cpp
 	widgets/rtp_audio_graph.cpp
 	widgets/splash_overlay.cpp

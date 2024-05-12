@@ -257,6 +257,9 @@ The following features are new (or have been significantly updated) since versio
 
   ** The graph crosshairs context menu option works.
 
+  ** The columns on the table of graphs can be all resized at once via
+     the header context menu. wsbuglink:18102[]
+
   ** The graph is more responsive to mouse moves, especially on Linux Wayland
 
 * Improvements to the Sequence Diagram (Flow Graph / VoIP Calls):

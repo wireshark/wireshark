@@ -523,6 +523,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     loadSplitterState(ui->splitter);
 
     //XXX - resize columns?
+    //ui->graphUat->header()->resizeSections(QHeaderView::ResizeToContents);
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
@@ -1393,6 +1394,8 @@ void IOGraphDialog::loadProfileGraphs()
     uat_delegate_ = new UatDelegate(ui->graphUat);
     ui->graphUat->setModel(uat_model_);
     ui->graphUat->setItemDelegate(uat_delegate_);
+
+    ui->graphUat->setHeader(new ResizeHeaderView(Qt::Horizontal, ui->graphUat));
 
     connect(uat_model_, &UatModel::dataChanged, this, &IOGraphDialog::modelDataChanged);
     connect(uat_model_, &UatModel::modelReset, this, &IOGraphDialog::modelRowsReset);

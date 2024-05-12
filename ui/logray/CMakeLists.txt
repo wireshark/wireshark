@@ -47,6 +47,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/qcp_axis_ticker_si.h
 	../qt/widgets/qcp_string_legend_item.h
 	../qt/widgets/range_syntax_lineedit.h
+	../qt/widgets/resize_header_view.h
 	../qt/widgets/resolved_addresses_view.h
 	../qt/widgets/splash_overlay.h
 	../qt/widgets/stock_icon_tool_button.h
@@ -278,6 +279,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/qcp_axis_ticker_si.cpp
 	../qt/widgets/qcp_string_legend_item.cpp
 	../qt/widgets/range_syntax_lineedit.cpp
+	../qt/widgets/resize_header_view.cpp
 	../qt/widgets/resolved_addresses_view.cpp
 	../qt/widgets/splash_overlay.cpp
 	../qt/widgets/stock_icon_tool_button.cpp
