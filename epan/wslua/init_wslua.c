@@ -1404,6 +1404,7 @@ void wslua_init(register_cb cb, void *client_data) {
     int file_count = 1;
     static bool first_time = true;
     int i;
+    int error;
 
     static hf_register_info hf[] = {
         { &hf_wslua_fake,
@@ -1728,7 +1729,28 @@ void wslua_init(register_cb cb, void *client_data) {
     lua_tree = NULL;
     lua_tvb = NULL;
 
-    Proto_commit(L);
+    /* Unfortunately, by waiting to register the hfi and ei now, Lua
+     * can't figure out which file had the error and provide a traceback,
+     * so no special error handler.
+     */
+    lua_pushcfunction(L, Proto_commit);
+    error = lua_pcall(L, 0, 0, 0);
+    if (error) {
+        switch (error) {
+            case LUA_ERRRUN:
+                report_failure("Lua: Error initializing protocols:\n%s", lua_tostring(L, -1));
+                break;
+            case LUA_ERRMEM:
+                report_failure("Lua: Error initializing protocols: out of memory");
+                break;
+            case LUA_ERRERR:
+                report_failure("Lua: Error initializing protocols: error while retrieving error message");
+                break;
+            default:
+                report_failure("Lua: Error initializing protocols: unknown error %d", error);
+                break;
+        }
+    }
 
     first_time = false;
 }
