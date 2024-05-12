@@ -2128,14 +2128,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>16進数ダンプとしてパケットバイト列をコピー</translation>
     </message>
     <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">印刷可能なテキストとして…</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">パケット内の印刷可能なテキストだけをコピー</translation>
-    </message>
-    <message>
         <source>…as MIME Data</source>
         <translation>MIMEデータとして...</translation>
     </message>
@@ -2169,19 +2161,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as UTF-8 Text</source>
-        <translation type="unfinished"></translation>
+        <translation>…UTF-8テキストとして</translation>
     </message>
     <message>
         <source>Copy packet bytes as text, treating as UTF-8.</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8として扱ってパケットバイト列をテキストとしてコピーします</translation>
     </message>
     <message>
         <source>…as ASCII Text</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII形式テキストとして…</translation>
     </message>
     <message>
         <source>Copy packet bytes as text, treating as ASCII.</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII形式として扱ってパケットバイト列をテキストとしてコピーします</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -4095,10 +4087,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>凡例を有効化</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">リセット</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>グラフをリセット</translation>
     </message>
@@ -4470,6 +4458,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>クリックしてグラフの割合を選びます</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

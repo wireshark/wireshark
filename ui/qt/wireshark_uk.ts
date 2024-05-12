@@ -4062,10 +4062,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">Скинути</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Скинути Зміни До Діаграми</translation>
     </message>
@@ -4437,6 +4433,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Клікніть, щоб виділити частину графіку.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

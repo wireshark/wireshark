@@ -157,6 +157,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(ENC_TIME_TIMEVAL),
     ENUM(ENC_TIME_TOD),
     ENUM(ENC_TIME_USECS),
+    ENUM(ENC_TIME_ZBEE_ZCL),
     ENUM(ENC_UCS_2),
     ENUM(ENC_UCS_4),
     ENUM(ENC_UTF_16),

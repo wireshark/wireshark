@@ -4103,10 +4103,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">Återställ</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Återställ grafen</translation>
     </message>
@@ -4478,6 +4474,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Klicka för att välja en del av grafen.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

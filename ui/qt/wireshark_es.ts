@@ -4064,10 +4064,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">Restablecer</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Restablecer gráfica</translation>
     </message>
@@ -4439,6 +4435,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Clic para seleccionar una parte de la gráfica.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

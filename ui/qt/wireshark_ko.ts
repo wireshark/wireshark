@@ -2129,14 +2129,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>16진수 덤프 형식으로 패킷 바이트를 복사합니다.</translation>
     </message>
     <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">출력 가능한 문자열로 복사</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">패킷 내의 출력 가능한 문자열만 복사합니다.</translation>
-    </message>
-    <message>
         <source>…as MIME Data</source>
         <translation>MIME 데이터로 복사</translation>
     </message>
@@ -4096,10 +4088,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>범례 활성화</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">초기화</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>그래프 초기화</translation>
     </message>
@@ -4471,6 +4459,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>클릭하여 그래프의 부분을 선택하십시오.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

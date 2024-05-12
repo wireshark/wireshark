@@ -2140,14 +2140,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kopiuj bajty pakietu jako Hex.</translation>
     </message>
     <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">…drukowalny tekst</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Kopiuj tylko drukowalny tekst z pakietu.</translation>
-    </message>
-    <message>
         <source>…as MIME Data</source>
         <translation>…jako dane MIME</translation>
     </message>
@@ -4120,10 +4112,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Włącz legendę</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">Reset</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Resetuj wykres</translation>
     </message>
@@ -4495,6 +4483,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Kliknij by wybrać obszar wykresu.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

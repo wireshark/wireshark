@@ -2136,14 +2136,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Paketbytes als Hex Dump kopieren</translation>
     </message>
     <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">…als druckbarer Text</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Nur den druckbaren Text im Paket kopieren.</translation>
-    </message>
-    <message>
         <source>…as MIME Data</source>
         <translation>...als MIME Daten</translation>
     </message>
@@ -4113,10 +4105,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Legende einschalten</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">Zurücksetzen</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Graph zurücksetzen</translation>
     </message>
@@ -4488,6 +4476,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Klicken um einen Teil des Graphen auszuwählen.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>

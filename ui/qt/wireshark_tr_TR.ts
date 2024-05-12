@@ -2129,14 +2129,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Paket baytlarını hex dökümü olarak kopyalayın.</translation>
     </message>
     <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">…Yazdırılabilir Metin Olarak</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Yalnızca paketteki yazdırılabilir metni kopyalayın.</translation>
-    </message>
-    <message>
         <source>…as MIME Data</source>
         <translation>…MIME Verisi</translation>
     </message>
@@ -4096,10 +4088,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="vanished">Sıfırla</translation>
-    </message>
-    <message>
         <source>Reset Graph</source>
         <translation>Grafiği Sıfırla</translation>
     </message>
@@ -4471,6 +4459,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Grafiğin bir bölümünü seçmek için tıklayın.</translation>
+    </message>
+    <message>
+        <source>%1 Intervals </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
