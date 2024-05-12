@@ -515,9 +515,9 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
         if ( g_str_equal(prefs_p->name,name) ) {
             switch (prefs_p->type) {
                 case PREF_BOOL: lua_pushboolean(L, prefs_p->value.b); break;
-                case PREF_UINT: lua_pushinteger(L,(lua_Integer)prefs_p->value.u); break;
+                case PREF_UINT: lua_pushnumber(L,(lua_Number)prefs_p->value.u); break;
                 case PREF_STRING: lua_pushstring(L,prefs_p->value.s); break;
-                case PREF_ENUM: lua_pushinteger(L,(lua_Integer)prefs_p->value.e); break;
+                case PREF_ENUM: lua_pushnumber(L,(lua_Number)prefs_p->value.e); break;
                 case PREF_RANGE:
                     {
                     char *push_str = range_convert_range(NULL, prefs_p->value.r);

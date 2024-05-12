@@ -326,7 +326,7 @@ wslua_filehandler_seek_read_packet(wtap *wth, gint64 seek_off, wtap_rec *rec, Bu
     fp = push_File(L, wth->random_fh);
     fc = push_CaptureInfo(L, wth, FALSE);
     fi = push_FrameInfo(L, rec, buf);
-    lua_pushinteger(L, (lua_Integer)seek_off);
+    lua_pushnumber(L, (lua_Number)seek_off);
 
     switch ( lua_pcall(L,4,1,1) ) {
         case 0:
@@ -474,7 +474,7 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 
     INIT_FILEHANDLER_ROUTINE(can_write_encap,WTAP_ERR_UNWRITABLE_ENCAP,NULL,NULL);
 
-    lua_pushinteger(L, encap);
+    lua_pushnumber(L, encap);
 
     switch ( lua_pcall(L,1,1,1) ) {
         case 0:
@@ -842,7 +842,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     fh->registered = TRUE;
     registered_file_handlers = g_slist_prepend(registered_file_handlers, fh);
 
-    lua_pushinteger(L, fh->file_type);
+    lua_pushnumber(L, fh->file_type);
 
     WSLUA_RETURN(1); /* the new type number for this file reader/write */
 }
@@ -1207,7 +1207,7 @@ WSLUA_ATTRIBUTE_GET(FileHandler,supported_comment_types,{ \
             break;\
         } \
     } \
-    lua_pushinteger(L, (lua_Integer)supported_comment_types); \
+    lua_pushnumber(L, (lua_Number)supported_comment_types); \
 });
 WSLUA_ATTRIBUTE_SET(FileHandler,supported_comment_types, { \
     guint supported_comment_types; \

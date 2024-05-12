@@ -432,7 +432,7 @@ static int Lpcre2_jit_compile (lua_State *L) {
 #define SET_INFO_FIELD(L,ud,what,name,valtype) { \
   valtype val; \
   if (0 == pcre2_pattern_info (ud->pr, what, &val)) { \
-    lua_pushinteger (L, val); \
+    lua_pushnumber (L, val); \
     lua_setfield (L, -2, name); \
   } \
 }

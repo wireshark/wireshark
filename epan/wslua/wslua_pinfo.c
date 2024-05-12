@@ -308,7 +308,7 @@ static int Pinfo_get_match(lua_State *L) {
     if (pinfo->ws_pinfo->match_string) {
         lua_pushstring(L,pinfo->ws_pinfo->match_string);
     } else {
-        lua_pushinteger(L,(lua_Integer)(pinfo->ws_pinfo->match_uint));
+        lua_pushnumber(L,(lua_Number)(pinfo->ws_pinfo->match_uint));
     }
 
     return 1;

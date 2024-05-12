@@ -410,7 +410,7 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
  * given endianness and size. If the integer type is signed, this makes
  * the Lua number be +/- correctly as well.
  */
-static lua_Integer getinteger (const gchar *buff, int endian,
+static lua_Number getinteger (const gchar *buff, int endian,
                         int issigned, int size) {
   Uinttype l = 0;
   int i;
@@ -427,12 +427,12 @@ static lua_Integer getinteger (const gchar *buff, int endian,
     }
   }
   if (!issigned)
-    return (lua_Integer)l;
+    return (lua_Number)l;
   else {  /* signed format */
     Uinttype mask = (Uinttype)(~((Uinttype)0)) << (size*8 - 1);
     if (l & mask)  /* negative value? */
       l |= mask;  /* signal extension */
-    return (lua_Integer)(Inttype)l;
+    return (lua_Number)(Inttype)l;
   }
 }
 
@@ -470,8 +470,8 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
       case 'b': case 'B': case 'h': case 'H':
       case 'l': case 'L': case 'T': case 'i':  case 'I': {  /* integer types */
         int issigned = g_ascii_islower(opt);
-        lua_Integer res = getinteger(data+pos, h.endian, issigned, (int)size);
-        lua_pushinteger(L, res);
+        lua_Number res = getinteger(data+pos, h.endian, issigned, (int)size);
+        lua_pushnumber(L, res);
         break;
       }
       case 'e': {

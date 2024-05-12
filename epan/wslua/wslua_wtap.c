@@ -85,7 +85,7 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
     if (filetype == -1)
         lua_pushnil(LS);
     else
-        lua_pushinteger(LS,filetype);
+        lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for the file type with that name, or nil if there is no such file type. */
 }
 
@@ -96,7 +96,7 @@ WSLUA_FUNCTION wslua_wtap_pcap_file_type_subtype(lua_State* LS) {
     @since 3.2.12, 3.4.4
     */
     lua_Number filetype = wtap_pcap_file_type_subtype();
-    lua_pushinteger(LS,filetype);
+    lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for pcap files. */
 }
 
@@ -107,7 +107,7 @@ WSLUA_FUNCTION wslua_wtap_pcap_nsec_file_type_subtype(lua_State* LS) {
     @since 3.2.12, 3.4.4
     */
     lua_Number filetype = wtap_pcap_nsec_file_type_subtype();
-    lua_pushinteger(LS,filetype);
+    lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for nanosecond-resolution pcap files. */
 }
 
@@ -118,7 +118,7 @@ WSLUA_FUNCTION wslua_wtap_pcapng_file_type_subtype(lua_State* LS) {
     @since 3.2.12, 3.4.4
     */
     lua_Number filetype = wtap_pcapng_file_type_subtype();
-    lua_pushinteger(LS,filetype);
+    lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for pcapng files. */
 }
 
@@ -148,7 +148,7 @@ extern void wslua_init_wtap_filetypes(lua_State* LS) {
          * it.
          */
         lua_pushstring(LS, entry->name);
-        lua_pushinteger(LS, entry->ft);
+        lua_pushnumber(LS, entry->ft);
         /*
          * The -3 is the index, relative to the top of the stack, of
          * the table; the two elements on top of it are the ft and

@@ -34,18 +34,18 @@ def get_tap_info(tap_name, header_file, struct_name, enum_types):
     types = {
         'gchar[]': 'lua_pushstring(L,(const char*)v->STR);',
         'gchar*': 'lua_pushstring(L,(const char*)v->STR);',
-        'guint': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'guint8': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'guint16': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'guint32': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'gint': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'gint8': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'gint16': 'lua_pushinteger(L,(lua_Integer)v->STR);',
-        'gint32': 'lua_pushinteger(L,(lua_Integer)v->STR);',
+        'guint': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'guint8': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'guint16': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'guint32': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'gint': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'gint8': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'gint16': 'lua_pushnumber(L,(lua_Number)v->STR);',
+        'gint32': 'lua_pushnumber(L,(lua_Number)v->STR);',
         'gboolean': 'lua_pushboolean(L,(int)v->STR);',
         'address': '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, &(v->STR)); pushAddress(L,a); }',
         'address*': '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, v->STR); pushAddress(L,a); }',
-        'int': 'lua_pushinteger(L,(lua_Integer)v->STR);',
+        'int': 'lua_pushnumber(L,(lua_Number)v->STR);',
         'nstime_t': 'lua_pushnumber(L,(lua_Number)nstime_to_sec(&(v->STR)));',
         'nstime_t*': 'lua_pushnumber(L,(lua_Number)nstime_to_sec(v->STR));',
     }
@@ -79,7 +79,7 @@ def get_tap_info(tap_name, header_file, struct_name, enum_types):
     for enum in enum_types:
         m = re.search(fr'typedef\s+enum[^{{]*{{([^}}]*)}}[\s\n]*{enum}[\s\n]*;', buf, flags=re.DOTALL)
         if m:
-            types[enum] = f'lua_pushinteger(L,(lua_Integer)v->STR); /* {enum} */'
+            types[enum] = f'lua_pushnumber(L,(lua_Number)v->STR); /* {enum} */'
             econsts = m.group(1).splitlines()
             econsts = [re.sub(r'\s+', '', item) for item in econsts]
             econsts = [re.sub(',', '', item) for item in econsts]
@@ -183,9 +183,9 @@ def main():
         c_body += f'\n\t/*\n\t * {enum}\n\t */\n\tlua_newtable(L);\n'
         for econst in enums[enum]:
             c_body += f'''\
-	lua_pushinteger(L,(lua_Integer){econst});
+	lua_pushnumber(L,(lua_Number){econst});
 	lua_setglobal(L,"{econst}");
-	lua_pushinteger(L,(lua_Integer){econst});
+	lua_pushnumber(L,(lua_Number){econst});
 	lua_pushstring(L,"{econst}");
 	lua_settable(L,-3);
 '''
