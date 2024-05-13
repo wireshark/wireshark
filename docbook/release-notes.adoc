@@ -34,18 +34,31 @@ wsbuglink:17779[]
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2024-07[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+* wssalink:2024-07[]
+MONGO dissector infinite loop.
+wsbuglink:19726[].
 // cveidlink:2024-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.2: xxx
-// Fixed in release-4.0: xxx
-// Fixed in release-3.6: xxx
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-125
+// Fixed in master: 38c0efcee8, 9ab952b964
+// Fixed in release-4.2: e9965fe303, cb267b4e52
+// Fixed in release-4.0: dd5b3b36d3e
+// Fixed in release-3.6: 40ed7e814bc
+// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:H
+// CWE-835
+// * Fuzz job crash: fuzz-2024-03-30-7212.pcap. wsbuglink:19726[].
+
+* wssalink:2024-08[]
+The editcap command line utility could crash when chopping bytes from the beginning of a packet.
+// wsbuglink:19724[].
+// cveidlink:2024-xxx[].
+// Fixed in master: 7c744e7933
+// Fixed in release-4.2: 3911c7b7d2
+// Fixed in release-4.0: c10a98d2669
+// Fixed in release-3.6: 683166c81bc
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
+// CWE-762
+// * The "handle_chopping" function in "editcap.c:2595" has a heap overflow vulnerability. wsbuglink:19724[].
 
 The following bugs have been fixed:
 
@@ -53,6 +66,16 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
+
+* Flow Graph scrolls in the wrong direction vertically when pressing Up/Down wsbuglink:12932[].
+
+* TCP Stream Window Scaling not working in version 2.6.1 and later wsbuglink:15016[].
+
+* TCP stream graphs (Window scaling) axis display is confusing wsbuglink:17425[].
+
+* LUA get_dissector does not give the correct dissector under 32-bit version wsbuglink:18367[].
+
+* Lua: Segfault when registering a field or expert info twice wsbuglink:19194[].
 
 === New and Updated Features
 
@@ -70,9 +93,15 @@ There are no new protocols in this release.
 
 // There are no updated protocols in this release.
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.22.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.23.. | ag packet- | sort -u)
 [commaize]
 --
+DOCSIS MAC MGMT
+FC FZS
+IPARS
+MONGO
+PTP
+TIPC
 --
 
 === New and Updated Capture File Support
