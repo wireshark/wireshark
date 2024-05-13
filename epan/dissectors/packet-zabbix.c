@@ -48,6 +48,7 @@ static int hf_zabbix_large_length;
 static int hf_zabbix_large_reserved;
 static int hf_zabbix_large_uncompressed_length;
 static int hf_zabbix_data;
+static int hf_zabbix_error;
 static int hf_zabbix_time;
 static int hf_zabbix_agent;
 static int hf_zabbix_agent_commands;
@@ -93,6 +94,7 @@ static range_t *zabbix_port_range;
 
 static const guint8 ZABBIX_HDR_SIGNATURE[] = "ZBXD";
 static const char ZABBIX_UNKNOWN[] = "<unknown>";
+static const char ZABBIX_ZBX_NOTSUPPORTED[] = "ZBX_NOTSUPPORTED";
 
 typedef struct _zabbix_conv_info_t {
     guint32 req_framenum;
@@ -210,6 +212,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     bool is_large_packet;
     bool is_too_large = false;
     char *json_str;
+    char *passive_agent_data_str = NULL;
     jsmntok_t *commands_array = NULL;
     jsmntok_t *data_array = NULL;
     jsmntok_t *data_object = NULL;
@@ -330,7 +333,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /*
      * Note that json_str is modified when using json_get_xxx() functions below!
-     * So don't use it to anything else (make a wmem_strdup() if needed)
+     * So don't use it to anything else (make a wmem_strdup() if needed, see below)
      */
     json_str = tvb_get_string_enc(pinfo->pool, next_tvb, offset, (int)datalen, ENC_UTF_8);
     if (CONV_IS_ZABBIX_REQUEST(zabbix_info, pinfo) && !json_validate(json_str, datalen)) {
@@ -347,6 +350,8 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             proto_item_set_text(ti, "Zabbix Passive agent response");
             col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive agent response");
         }
+        /* Make a copy of the data string for later use */
+        passive_agent_data_str = wmem_strndup(pinfo->pool, json_str, (size_t)datalen);
         /* Don't do content-based searches for non-JSON passive agents */
         goto show_agent_outputs;
     }
@@ -772,8 +777,22 @@ show_agent_outputs:
     if (session) {
         proto_tree_add_string(zabbix_tree, hf_zabbix_session, NULL, 0, 0, session);
     }
-    /* Show also the full JSON (or passive agent request/response) */
-    proto_tree_add_item(zabbix_tree, hf_zabbix_data, next_tvb, 0, (int)datalen, ENC_UTF_8);
+    /* Show also the full JSON, or pre-7.0 passive agent request/response (or error message).
+     * Note that ZABBIX_ZBX_NOTSUPPORTED does not include the \0 that is in the
+     * protocol specification! Therefore +1/-1's are present
+     */
+    if (passive_agent_data_str &&
+        strlen(passive_agent_data_str) >= strlen(ZABBIX_ZBX_NOTSUPPORTED) &&
+        strncmp(passive_agent_data_str, ZABBIX_ZBX_NOTSUPPORTED, strlen(ZABBIX_ZBX_NOTSUPPORTED)) == 0) {
+        /* Pre-7.0 passive agent error, first ZBX_NOTSUPPORTED\0 and then the error message */
+        proto_tree_add_item(zabbix_tree, hf_zabbix_data,
+            next_tvb, 0, (int)strlen(ZABBIX_ZBX_NOTSUPPORTED)+1, ENC_UTF_8);
+        proto_tree_add_item(zabbix_tree, hf_zabbix_error,
+            next_tvb, (int)strlen(ZABBIX_ZBX_NOTSUPPORTED)+1, (int)datalen-(int)strlen(ZABBIX_ZBX_NOTSUPPORTED)-1, ENC_UTF_8);
+    } else {
+        /* JSON or pre-7.0 passive agent without error */
+        proto_tree_add_item(zabbix_tree, hf_zabbix_data, next_tvb, 0, (int)datalen, ENC_UTF_8);
+    }
 
 final_outputs:
 
@@ -929,6 +948,11 @@ proto_register_zabbix(void)
         },
         { &hf_zabbix_data,
             { "Data", "zabbix.data",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_zabbix_error,
+            { "Error message", "zabbix.error",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
