@@ -446,7 +446,7 @@ macOS Arm Package:
     - mkdir build
     - cd build
   script:
-    - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3/lib/cmake
+    - export CMAKE_PREFIX_PATH="/usr/local/Qt-5.15.3/lib/cmake:/usr/local/lua-5.2"
     - export PATH="$PATH:$HOME/bin"
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # XXX - Move this to a separate DENABLE_PCAP=OFF job?
@@ -497,7 +497,7 @@ macOS Intel Package:
     - wireshark-macos-intel-package
   retry: 1
   script:
-    - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3/lib/cmake
+    - export CMAKE_PREFIX_PATH="/usr/local/Qt-5.15.3/lib/cmake:/usr/local/lua-5.2"
     - export PATH="$PATH:$HOME/bin"
     - perl tools/make-version.pl --set-release
     - mkdir build
