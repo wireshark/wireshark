@@ -641,6 +641,7 @@ Documentation:
           aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
         done
       fi
+    - mv -v ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ../..
   after_script:
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
   artifacts:
