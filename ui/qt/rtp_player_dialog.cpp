@@ -401,13 +401,13 @@ RtpPlayerDialog::~RtpPlayerDialog()
 {
     std::lock_guard<std::mutex> lock(init_mutex_);
     if (pinstance_ != nullptr) {
-        cleanupMarkerStream();
         for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
             QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
             RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
             if (audio_stream)
                 delete audio_stream;
         }
+        cleanupMarkerStream();
         delete ui;
         pinstance_ = nullptr;
     }
@@ -1310,7 +1310,9 @@ void RtpPlayerDialog::playFinished(RtpAudioStream *stream, QAudio::Error error)
     }
     playing_streams_.removeOne(stream);
     if (playing_streams_.isEmpty()) {
-        marker_stream_->stop();
+        if (marker_stream_) {
+            marker_stream_->stop();
+        }
         updateWidgets();
     }
 }
