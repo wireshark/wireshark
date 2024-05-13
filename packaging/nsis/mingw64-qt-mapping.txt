@@ -24,7 +24,9 @@
 "lib/qt6/plugins/multimedia/windowsmediaplugin.dll" "multimedia/windowsmediaplugin.dll"
 "lib/qt6/plugins/networkinformation/qnetworklistmanager.dll" "networkinformation/qnetworklistmanager.dll"
 "lib/qt6/plugins/platforms/qwindows.dll" "platforms/qwindows.dll"
+# 6.7 renamed QWindowsVistaStylePlugin to QModernWindowsStylePlugin
 "lib/qt6/plugins/styles/qwindowsvistastyle.dll" "styles/qwindowsvistastyle.dll"
+"lib/qt6/plugins/styles/qmodernwindowsstyle.dll" "styles/qmodernwindowsstyle.dll"
 "lib/qt6/plugins/tls/qcertonlybackend.dll" "tls/qcertonlybackend.dll"
 "lib/qt6/plugins/tls/qopensslbackend.dll" "tls/qopensslbackend.dll"
 "lib/qt6/plugins/tls/qschannelbackend.dll" "tls/qschannelbackend.dll"

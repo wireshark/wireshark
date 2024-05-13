@@ -90,6 +90,12 @@ with open(args.outfile, 'w') as f:
         path = path.strip('"')
         if args.sysroot:
             path = os.path.join(args.sysroot, path)
+            if args.mapping and not os.path.isfile(path):
+                # This hack is because Qt 6.7 renamed QWindowsVistaStylePlugin
+                # to QModernWindowsStylePlugin. (This explicit mapping because
+                # windeployqt6 doesn't work well with cross-compiling is
+                # brittle.)
+                continue
         file_path = 'File "{}"'.format(path)
         print(file_path, file=f)
 
