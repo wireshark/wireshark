@@ -906,6 +906,7 @@ static const value_string ieee80211_supported_rates_vals[] = {
   { 0xE0, "48(B)" },
   { 0xEC, "54(B)" },
   /* BSS membership selector */
+  { 0xFA, "HE PHY" },
   { 0xFB, "SAE Hash to Element Only" },
   { 0xFC, "EPD" }, /* 802.11ak */
   { 0xFD, "GLK" }, /* 802.11ak */
