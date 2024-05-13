@@ -767,7 +767,7 @@ int Proto_commit(lua_State* L) {
 
             // XXX this will leak resources.
             if (f->hfid != -2) {
-                return luaL_error(L,"fields can be registered only once");
+                return luaL_error(L,"%s is already registered; fields can be registered only once", f->abbrev);
             }
 
             f->hfid = -1;
@@ -802,7 +802,7 @@ int Proto_commit(lua_State* L) {
             eiri.eiinfo.summary  = e->text;
 
             if (e->ids.ei != EI_INIT_EI || e->ids.hf != -2) {
-                return luaL_error(L,"expert fields can be registered only once");
+                return luaL_error(L,"%s is already registered; expert fields can be registered only once", e->abbrev);
             }
 
             e->ids.hf = -1;
