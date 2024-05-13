@@ -472,7 +472,7 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
 
     proto_tree_add_item(tree, hf_srt_km_resv1, tvb, baseoff + 3, 1, ENC_NA);
 
-    const value_string kk_desc[] = {
+    static const value_string kk_desc[] = {
         { 0, "No SEK is provided - invalid KM" },
         { 1, "Even key is provided" },
         { 2, "Odd key is provided" },
@@ -484,7 +484,7 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
     proto_tree_add_uint_format_value(tree, hf_srt_km_kk, tvb, baseoff + 3, 1,
         u8bits, "%u (%s)", (u8bits & SRT_KM_KK_MASK), try_val_to_str(u8bits & SRT_KM_KK_MASK, kk_desc));
 
-    const value_string cipher_desc[] = {
+    static const value_string cipher_desc[] = {
         { 0, "None or KEKI indexed crypto context" },
         { 1, "AES-ECB (reserved, not supported)" },
         { 2, "AES-CTR" },
@@ -500,7 +500,7 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
 
     proto_tree_add_item(tree, hf_srt_km_auth, tvb, baseoff + 9, 1, ENC_BIG_ENDIAN);
 
-    const value_string se_desc[] = {
+    static const value_string se_desc[] = {
         { 0, "Unspecified" },
         { 1, "MPEG2-TS/UDP" },
         { 2, "MPEG2-TS/SRT" },

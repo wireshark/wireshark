@@ -128,7 +128,7 @@ static const char * lacp_state_flags_to_str(wmem_allocator_t *scope, guint32 val
 {
     wmem_strbuf_t *buf = wmem_strbuf_new(scope, "");
     const unsigned int flags_count = 8;
-    const char first_letters[] = "EFDCSGSA";
+    static const char first_letters[] = "EFDCSGSA";
     unsigned int i;
 
     for (i = 0; i < flags_count; i++) {

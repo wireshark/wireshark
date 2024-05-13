@@ -947,7 +947,7 @@ static const gint _ipv6_opt_type_hdr[][2] = {
 static inline gint
 ipv6_opt_type_hdr(gint type)
 {
-    const gint (*p)[2] = _ipv6_opt_type_hdr;
+    static const gint (*p)[2] = _ipv6_opt_type_hdr;
 
     for (; (*p)[1] != IPv6_OPT_HDR_ANY; p++) {
         if ((*p)[0] == type) {

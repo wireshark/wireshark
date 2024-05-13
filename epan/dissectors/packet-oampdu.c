@@ -1938,7 +1938,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint8    pir_subtype;
     guint8    rr_byte;
 
-    const guint8 oui_cl[] = {OUI_CL_0, OUI_CL_1, OUI_CL_2};
+    static const guint8 oui_cl[] = {OUI_CL_0, OUI_CL_1, OUI_CL_2};
 
     proto_item *oui_item;
     proto_item *event_item;

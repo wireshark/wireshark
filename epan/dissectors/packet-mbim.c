@@ -3882,9 +3882,9 @@ mbim_dissect_set_pin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
 static void
 mbim_dissect_pin_list_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    const char *pin_list[10] = { "PIN 1", "PIN 2", "Device SIM PIN", "Device First SIM PIN", "Network PIN",
-                                 "Network Subset PIN", "Service Provider PIN", "Corporate PIN", "Subsidy Lock",
-                                 "Custom"};
+    static const char *pin_list[10] = { "PIN 1", "PIN 2", "Device SIM PIN", "Device First SIM PIN", "Network PIN",
+                                        "Network Subset PIN", "Service Provider PIN", "Corporate PIN", "Subsidy Lock",
+                                        "Custom"};
     guint i;
     guint32 length;
     proto_tree *subtree;

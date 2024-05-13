@@ -140,7 +140,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     gint                      localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
-    const guint8              unknown_bd_addr[6] = {0, 0, 0, 0, 0, 0};
+    static const guint8       unknown_bd_addr[6] = {0};
     const guint8             *src_bd_addr = &unknown_bd_addr[0];
     const gchar              *src_name = "";
     const gchar              *src_addr_name = "";

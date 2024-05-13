@@ -598,7 +598,7 @@ static gint dissect_parameter_transport_rtps_type(
                 const gchar *title_tree = "Source address";
                 gchar addr[COL_MAX_LEN];
                 ws_in6_addr addr_raw;
-                const guint8 bytes_zeroed[12] = {0};
+                static const guint8 bytes_zeroed[12] = {0};
                 tvb_get_ipv6(tvb, OFFSET_TO_VAL, &addr_raw);
 
                 /* shared memory pid or address? */
@@ -751,7 +751,7 @@ static gint dissect_parameter_transport_rtps_type(
                 const gchar *title_tree = "Destination address";
                 gchar addr[COL_MAX_LEN];
                 ws_in6_addr addr_raw;
-                const guint8 bytes_zeroed[12] = {0};
+                static const guint8 bytes_zeroed[12] = {0};
                 tvb_get_ipv6(tvb, OFFSET_TO_VAL, &addr_raw);
 
                 /* shared memory pid or address? */

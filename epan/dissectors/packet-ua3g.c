@@ -3851,7 +3851,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                 }
 
                                 if (length >= 1) {
-                                    int * const capability_info[] = {
+                                    static int * const capability_info[] = {
                                         &hf_ua3g_unsolicited_msg_capability_info_vpn,
                                         &hf_ua3g_unsolicited_msg_capability_info_ipsec,
                                         &hf_ua3g_unsolicited_msg_capability_info_dtls,

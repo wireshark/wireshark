@@ -1165,7 +1165,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         break;
     case DIAM_APPID_3GPP_S6T:
     {
-        int* const flags[] = {
+        static int * const flags[] = {
             &hf_diameter_3gpp_feature_list_s6t_spare_b31_b10,
             &hf_diameter_3gpp_feature_list_s6t_flags_bit9,
             &hf_diameter_3gpp_feature_list_s6t_flags_bit8,

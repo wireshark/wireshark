@@ -2605,9 +2605,9 @@ static gboolean is_padded(tvbuff_t *tvb, gint captured_len, gint first_pad_offse
 /* Experimental approach based upon the one used for PPP */
 static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    const guint8 at_magic1[2] = {0x0d, 0x0a};
-    const guint8 at_magic2[3] = {0x0d, 0x0d, 0x0a};
-    const guint8 at_magic3[2] = {0x41, 0x54}; /* 'A' 'T' */
+    static const guint8 at_magic1[2] = {0x0d, 0x0a};
+    static const guint8 at_magic2[3] = {0x0d, 0x0d, 0x0a};
+    static const guint8 at_magic3[2] = {0x41, 0x54}; /* 'A' 'T' */
     gint len, allwd_chars_len;
     tvbuff_t *tvb_no_padding;
 

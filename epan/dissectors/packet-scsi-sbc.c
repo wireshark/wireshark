@@ -1008,7 +1008,7 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     guint32     lba, block_len;
     guint64     totalSizeBytes64;
     double      totalSizeBytes, totalSizeAbbrev;
-    const char* binaryPrefixes[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
+    static const char* binaryPrefixes[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
     gint        idx = 0;
 
     if (!tree)

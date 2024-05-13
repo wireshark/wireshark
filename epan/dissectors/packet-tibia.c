@@ -2692,7 +2692,7 @@ proto_register_tibia(void)
     xteakeys = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     /* TODO best way to store this in source? */
-    const char sexp[] =
+    static const char sexp[] =
         "(private-key (rsa"
         "(n #9b646903b45b07ac956568d87353bd7165139dd7940703b03e6dd079399661b4a837aa60561d7ccb9452fa0080594909882ab5bca58a1a1b35f8b1059b72b1212611c6152ad3dbb3cfbee7adc142a75d3d75971509c321c5c24a5bd51fd460f01b4e15beb0de1930528a5d3f15c1e3cbf5c401d6777e10acaab33dbe8d5b7ff5#)"
         "(e #010001#)"

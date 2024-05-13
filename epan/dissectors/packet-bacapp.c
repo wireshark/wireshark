@@ -8509,7 +8509,7 @@ fPropertyIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
     guint32      lvt;
     guint        tag_len;
     proto_tree  *subtree;
-    const gchar *label = "Property Identifier";
+    static const gchar *label = "Property Identifier";
 
     propertyIdentifier = 0; /* global Variable */
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
@@ -10732,7 +10732,7 @@ fVendorIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint        tag_len;
     proto_item  *ti;
     proto_tree  *subtree;
-    const gchar *label = "Vendor ID";
+    static const gchar *label = "Vendor ID";
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (fUnsigned32(tvb, offset + tag_len, lvt, &val))
@@ -10767,7 +10767,7 @@ fRestartReason(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
     guint        tag_len;
     proto_item  *ti;
     proto_tree  *subtree;
-    const gchar *label = "Restart Reason";
+    static const gchar *label = "Restart Reason";
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (fUnsigned32(tvb, offset + tag_len, lvt, &val))
@@ -16565,13 +16565,13 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     gint8       ack = 0;
 
     /* Strings for BACnet Statistics */
-    const gchar errstr[]       = "ERROR: ";
-    const gchar rejstr[]       = "REJECTED: ";
-    const gchar abortstr[]     = "ABORTED: ";
-    const gchar sackstr[]      = " (SimpleAck)";
-    const gchar cackstr[]      = " (ComplexAck)";
-    const gchar uconfsreqstr[] = " (Unconfirmed Service Request)";
-    const gchar confsreqstr[]  = " (Confirmed Service Request)";
+    static const gchar errstr[]       = "ERROR: ";
+    static const gchar rejstr[]       = "REJECTED: ";
+    static const gchar abortstr[]     = "ABORTED: ";
+    static const gchar sackstr[]      = " (SimpleAck)";
+    static const gchar cackstr[]      = " (ComplexAck)";
+    static const gchar uconfsreqstr[] = " (Unconfirmed Service Request)";
+    static const gchar confsreqstr[]  = " (Confirmed Service Request)";
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
     col_clear(pinfo->cinfo, COL_INFO);

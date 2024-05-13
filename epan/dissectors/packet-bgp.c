@@ -2033,6 +2033,8 @@ static const true_false_string tfs_manually_auto_derived = { "manually derived",
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
 
+static const guint8 rd_zero[BGP_ROUTE_DISTINGUISHER_SIZE] = {0};
+
 static int proto_bgp;
 
 /* BGP header field initialisation */
@@ -4377,8 +4379,6 @@ decode_mp_next_hop_vpn_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
 {
     proto_item    *ti;
     const char    *rd_string;
-    const guint8   rd_zero[] = {0x00, 0x00, 0x00, 0x00,
-                                0x00, 0x00, 0x00, 0x00 };
 
     switch (nhlen) {
         case (BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv4_LEN):
@@ -4444,8 +4444,6 @@ decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet
 {
     proto_item    *ti;
     const char    *rd_string;
-    const guint8   rd_zero[] = {0x00, 0x00, 0x00, 0x00,
-                                0x00, 0x00, 0x00, 0x00 };
     ws_in6_addr    ipv6_addr;
     char           ipv6_buffer[WS_INET6_ADDRSTRLEN];
 

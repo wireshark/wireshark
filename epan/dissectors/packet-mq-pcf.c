@@ -191,11 +191,11 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
     guint32 uDig;
     guint32 _offset = offset;
 
-    const char sMaxLst[] = " Max # of List reached. DECODE interrupted   (actual %u of %u)";
-    const char sPrmLn0[] = " MQPrm[%3u] has a zero length. DECODE Failed (MQPrm Count: %u)";
-    const char sHdrLne[] = " MQPrm[%3u] PCF Header not enough remaining bytes in pdu. DECODE Failed (MQPrm Count: %u)";
-    const char sMaxPrm[] = " Max # of Parm reached. DECODE interrupted   (actual %u of %u)";
-    const char sPrmCnt[] = " Cnt=-1 and Length(%u) < 16. DECODE interrupted for elem %u";
+    static const char *sMaxLst = " Max # of List reached. DECODE interrupted   (actual %u of %u)";
+    static const char *sPrmLn0 = " MQPrm[%3u] has a zero length. DECODE Failed (MQPrm Count: %u)";
+    static const char *sHdrLne = " MQPrm[%3u] PCF Header not enough remaining bytes in pdu. DECODE Failed (MQPrm Count: %u)";
+    static const char *sMaxPrm = " Max # of Parm reached. DECODE interrupted   (actual %u of %u)";
+    static const char *sPrmCnt = " Cnt=-1 and Length(%u) < 16. DECODE interrupted for elem %u";
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;

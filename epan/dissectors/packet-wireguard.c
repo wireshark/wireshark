@@ -360,7 +360,7 @@ wg_mac1_key(const wg_qqword *static_public, wg_qqword *mac_key_out)
 {
     gcry_md_hd_t hd;
     if (gcry_md_open(&hd, GCRY_MD_BLAKE2S_256, 0) == 0) {
-        const char wg_label_mac1[] = "mac1----";
+        static const char wg_label_mac1[] = "mac1----";
         gcry_md_write(hd, wg_label_mac1, strlen(wg_label_mac1));
         gcry_md_write(hd, static_public->data, sizeof(wg_qqword));
         memcpy(mac_key_out->data, gcry_md_read(hd, 0), sizeof(wg_qqword));

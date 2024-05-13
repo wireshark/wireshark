@@ -2931,7 +2931,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
         switch (spice_info->channel_type) {
             case SPICE_CHANNEL_PLAYBACK:
                 {
-                int * const playback_cap[] = {
+                static int * const playback_cap[] = {
                     &hf_playback_cap_celt_0_5_1,
                     &hf_playback_cap_volume,
                     &hf_playback_cap_latency,
@@ -2947,7 +2947,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                 break;
             case SPICE_CHANNEL_MAIN:
                 {
-                int * const main_cap[] = {
+                static int * const main_cap[] = {
                     &hf_main_cap_semi_migrate,
                     &hf_main_cap_vm_name_uuid, /*Note: only relevant for client. TODO: dissect only for client */
                     &hf_main_cap_agent_connected_tokens,
@@ -2963,7 +2963,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                 break;
             case SPICE_CHANNEL_DISPLAY:
                 {
-                int * const display_cap[] = {
+                static int * const display_cap[] = {
                     &hf_display_cap_sized_stream,
                     &hf_display_cap_monitors_config,
                     &hf_display_cap_composite,
@@ -2996,7 +2996,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                 break;
             case SPICE_CHANNEL_RECORD:
                 {
-                int * const record_cap[] = {
+                static int * const record_cap[] = {
                     &hf_record_cap_celt,
                     &hf_record_cap_volume,
                     &hf_record_cap_opus,

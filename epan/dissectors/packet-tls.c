@@ -1322,7 +1322,7 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         return FALSE;
     }
 
-    const guint16 tls13_ciphers[] = {
+    static const guint16 tls13_ciphers[] = {
         0x1301, /* TLS_AES_128_GCM_SHA256 */
         0x1302, /* TLS_AES_256_GCM_SHA384 */
         0x1303, /* TLS_CHACHA20_POLY1305_SHA256 */

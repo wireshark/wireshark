@@ -2235,7 +2235,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
         {   0, NULL }
     };
 
-    const guint8 allzero[] = { 0x00, 0x00, 0x00 };
+    static const guint8 allzero[] = { 0x00, 0x00, 0x00 };
     guint num_bcs = 0;
 
     mpls_tree = proto_tree_add_subtree(tree, tvb, offset, length,

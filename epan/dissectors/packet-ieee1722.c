@@ -868,7 +868,7 @@ static int dissect_1722_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint       subtype = 0;
     gint        offset = 0;
     int         dissected_size;
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_svfield,
         &hf_1722_verfield,
         NULL
@@ -1014,7 +1014,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint       numSourcePackets = 0;
     guint       i = 0;
     guint       j = 0;
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_61883_mrfield,
         &hf_1722_61883_gvfield,
         &hf_1722_61883_tvfield,
@@ -1469,12 +1469,12 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint       format = 0;
     guint       i = 0;
     guint       j = 0;
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_aaf_mrfield,
         &hf_1722_aaf_tvfield,
         NULL
     };
-    int * const fields_pcm[] = {
+    static int * const fields_pcm[] = {
         &hf_1722_aaf_sparse_timestamp,
         &hf_1722_aaf_evtfield,
         NULL
@@ -1701,13 +1701,13 @@ static int dissect_1722_cvf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint32     datalen, format, format_subtype = 0;
     proto_tree *ti_format, *ti_datalen;
 
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_cvf_mrfield,
         &hf_1722_cvf_tvfield,
         NULL
     };
 
-    int * const fields_cvf[] = {
+    static int * const fields_cvf[] = {
         &hf_1722_cvf_marker_bit,
         &hf_1722_cvf_evtfield,
         NULL
@@ -1716,7 +1716,7 @@ static int dissect_1722_cvf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* The PTV field is only defined for the H264 subtype,
      * reserved for others.
      */
-    int * const fields_h264[] = {
+    static int * const fields_h264[] = {
         &hf_1722_cvf_h264_ptvfield,
         &hf_1722_cvf_marker_bit,
         &hf_1722_cvf_evtfield,
@@ -1895,13 +1895,13 @@ static int dissect_1722_crf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint        offset = 1;
     guint       datalen = 0;
     guint       j = 0;
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_crf_mrfield,
         &hf_1722_crf_fsfield,
         &hf_1722_crf_tufield,
         NULL
     };
-    int * const pull_frequency[] = {
+    static int * const pull_frequency[] = {
         &hf_1722_crf_pull,
         &hf_1722_crf_base_frequency,
         NULL
@@ -2044,7 +2044,7 @@ static int dissect_1722_ntscf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint       captured_length = tvb_captured_length(tvb);
     gint        captured_payload_length;
 
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_ntscf_rfield,
         NULL,
     };
@@ -2525,19 +2525,19 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
                                     : IEEE_1722_ACF_CAN_HEADER_SIZE;
 
 
-    int * const fields[] = {
+    static int * const fields[] = {
         &hf_1722_can_mtvfield,
         &hf_1722_can_fdffield,
         NULL,
     };
 
-    int * const can_std_flags[] = {
+    static int * const can_std_flags[] = {
         &hf_1722_can_rtrfield,
         &hf_1722_can_efffield,
         NULL
     };
 
-    int * const can_fd_flags[] = {
+    static int * const can_fd_flags[] = {
         &hf_1722_can_efffield,
         &hf_1722_can_brsfield,
         &hf_1722_can_esifield,
