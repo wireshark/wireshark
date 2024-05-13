@@ -481,7 +481,7 @@ QModelIndex UatModel::copyRow(QModelIndex original)
     checkRow(newRow);
     dirty_records.insert(newRow, true);
 
-    // the UAT record has been created, now it is filled with the infromation
+    // the UAT record has been created, now it is filled with the information
     const void *src_record = UAT_INDEX_PTR(uat_, original.row());
     void *dst_record = UAT_INDEX_PTR(uat_, newRow);
     // insertRows always initializes the record with empty value. Before copying

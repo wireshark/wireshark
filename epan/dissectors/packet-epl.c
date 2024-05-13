@@ -1625,14 +1625,14 @@ static gint hf_epl_asnd_nmtcommand_nmtdna_newnn;
 static gint hf_epl_asnd_nmtcommand_nmtdna_leasetime;
 
 
-/*Asynchronuous SDO Sequence Layer*/
+/*Asynchronous SDO Sequence Layer*/
 static gint hf_epl_asnd_sdo_seq;
 static gint hf_epl_asnd_sdo_seq_receive_sequence_number;
 static gint hf_epl_asnd_sdo_seq_receive_con;
 static gint hf_epl_asnd_sdo_seq_send_sequence_number;
 static gint hf_epl_asnd_sdo_seq_send_con;
 
-/*Asynchronuous SDO Command Layer*/
+/*Asynchronous SDO Command Layer*/
 static gint hf_epl_asnd_sdo_cmd;
 static gint hf_epl_asnd_sdo_cmd_transaction_id;
 static gint hf_epl_asnd_sdo_cmd_response;
@@ -1896,7 +1896,7 @@ add_object_mapping(wmem_array_t *arr, struct object_mapping *mapping)
 {
 	/* let's check if this overwrites an existing mapping */
 	guint i, len;
-	/* A bit ineffecient (looping backwards would be better), but it's acyclic anyway */
+	/* A bit inefficient (looping backwards would be better), but it's acyclic anyway */
 	struct object_mapping *old = get_object_mappings(arr, &len);
 	for (i = 0; i < len; i++)
 	{
@@ -3801,7 +3801,7 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	free_key(key);
 	item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_seq, tvb,  offset, 5, ENC_NA);
 	sod_seq_tree = proto_item_add_subtree(item, ett_epl_sdo_sequence_layer);
-	/* Asynchronuous SDO Sequence Layer */
+	/* Asynchronous SDO Sequence Layer */
 	seq_recv = tvb_get_guint8(tvb, offset);
 
 	proto_tree_add_uint(sod_seq_tree, hf_epl_asnd_sdo_seq_receive_sequence_number, tvb, offset, 1, seq_recv);
@@ -3933,7 +3933,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 				/* the SDO response can contain several abort codes for multiple transfers */
 				while (remlength > 0)
 				{
-					/* TODO enchance Index and SubIndex with string representation */
+					/* TODO enhance Index and SubIndex with string representation */
 					proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 					offset += 2;
 
@@ -4140,7 +4140,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 			/* set the fragmented flag */
 			pinfo->fragmented = TRUE;
 
-			/* get payloade size */
+			/* get payload size */
 			payload_length = tvb_reported_length_remaining(tvb, offset);
 			/* if the frame is the last frame */
 			if(segmented == EPL_ASND_SDO_CMD_SEGMENTATION_TRANSFER_COMPLETE)
@@ -4197,7 +4197,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 					cmd_payload = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, offset, payload_length,0,
 															"Reassembled: %d bytes total (%d bytes in this frame)",frag_msg->len,payload_length);
 					payload_tree = proto_item_add_subtree(cmd_payload, ett_epl_asnd_sdo_data_reassembled);
-					/* add the reassembley fields */
+					/* add the reassembly fields */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 					proto_tree_add_uint_format_value(payload_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, 0, 0,
 									payload_length, "%d bytes (over all fragments)", frag_msg->len);
@@ -4381,7 +4381,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 
 			offsetincrement = tvb_get_letohl(tvb, offset);
 
-			/* the data is aligned in 4-byte increments, therfore maximum padding is 3 */
+			/* the data is aligned in 4-byte increments, therefore maximum padding is 3 */
 			padding = tvb_get_guint8 ( tvb, offset + 7 ) & 0x03;
 
 			/* An offset increment of zero usually indicates, that we are at the end
@@ -5120,7 +5120,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 			fragmentId = (guint32)((((guint32)epl_segmentation.src)<<16)+epl_segmentation.dest);
 			/* set the fragmented flag */
 			pinfo->fragmented = TRUE;
-			/* get payloade size */
+			/* get payload size */
 			payload_length = tvb_reported_length_remaining(tvb, offset);
 			/* if the frame is the last frame */
 			if(segmented == EPL_ASND_SDO_CMD_SEGMENTATION_TRANSFER_COMPLETE)
@@ -5158,7 +5158,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 					cmd_payload = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, offset, payload_length,0,
 															"Reassembled: %d bytes total (%d bytes in this frame)",frag_msg->len,payload_length);
 					payload_tree = proto_item_add_subtree(cmd_payload, ett_epl_asnd_sdo_data_reassembled);
-					/* add the reassembley fields */
+					/* add the reassembly fields */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 					proto_tree_add_uint_format_value(payload_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, 0, 0,
 									payload_length, "%d bytes (over all fragments)", frag_msg->len);
@@ -6349,7 +6349,7 @@ proto_register_epl(void)
 	proto_epl = proto_register_protocol("Ethernet POWERLINK", "EPL", "epl");
 
 	/* subdissector code */
-	heur_epl_subdissector_list = register_heur_dissector_list_with_description("epl", "Data encapsuated in EPL", proto_epl);
+	heur_epl_subdissector_list = register_heur_dissector_list_with_description("epl", "Data encapsulated in EPL", proto_epl);
 	heur_epl_data_subdissector_list = register_heur_dissector_list_with_description("epl_data", "EPL Data", proto_epl);
 	epl_asnd_dissector_table = register_dissector_table("epl.asnd",
 		"Manufacturer specific ASND service", proto_epl, FT_UINT8, BASE_DEC /*, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE*/);

@@ -5596,7 +5596,7 @@ void proto_register_zbncp(void)
          {"Beacon Order", "zbncp.data.becon_order", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_superframe_order,
-         {"Superframe Order", "zbncp.data.supeframe_order", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+         {"Superframe Order", "zbncp.data.superframe_order", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_battery_life_ext,
          {"Battery Life Extension", "zbncp.data.battery_life_ext", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},

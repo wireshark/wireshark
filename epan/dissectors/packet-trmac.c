@@ -633,7 +633,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_group_address32,
-		{ "Group Address",			"trmac.group_addres32s", FT_UINT32, BASE_HEX, NULL, 0x0,
+		{ "Group Address",			"trmac.group_address32s", FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_group_address_ether,

@@ -192,7 +192,7 @@ The following features are new (or have been significantly updated) since versio
   "TCP Stream Graphs", and "RTP Player") are more responsive during
   mouse moves, especially on Linux when Wayland is used.
 
-* Improvments to the "I/O Graphs" dialog:
+* Improvements to the "I/O Graphs" dialog:
 
   ** A number of crasher bugs have been fixed.
 

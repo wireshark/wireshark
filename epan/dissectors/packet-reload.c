@@ -1463,7 +1463,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     iceextensions_length = tvb_get_ntohs(tvb, offset+local_offset+icecandidates_offset+icecandidate_offset);
     icecandidate_offset += iceextensions_length + 2;
 
-    /* icecandidate_offset is now equal to the length of this icecandicate */
+    /* icecandidate_offset is now equal to the length of this icecandidate */
     if (icecandidates_offset + icecandidate_offset > icecandidates_length) {
       expert_add_info_format(pinfo, ti_icecandidates, &ei_reload_truncated_field, "Truncated IceCandidate");
       break;
@@ -1983,7 +1983,7 @@ dissect_signature(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 o
   ti_signature = proto_tree_add_item(tree,
                                      hf_reload_signature, tvb, offset,
                                      2 +/* SignatureAndHashAlgorithm */
-                                     1 + 2 + signeridentityvalue_length +/* SignatureIdenty length*/
+                                     1 + 2 + signeridentityvalue_length +/* SignatureIdentity length */
                                      2 + signaturevalue_length,
                                      ENC_NA);
 

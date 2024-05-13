@@ -646,7 +646,7 @@ static gint ett_mswsp_msg_creusewhere;
 
 static struct vtype_data *vType_get_type(guint16 t);
 
-/* converstation related data */
+/* conversation related data */
 struct rows_data {
 	guint32 ulclientbase;
 	guint32 cbreserved;
@@ -662,7 +662,7 @@ struct message_data {
 	union {
 		struct CPMSetBindingsIn bindingsin;/* CPMBindingIn request */
 		struct rows_data rowsin; /*CPMGetRowsIn request*/
-		guint32 version; /*CPMConnectIn requst/respose */
+		guint32 version; /*CPMConnectIn request/respose */
 	} content;
 };
 

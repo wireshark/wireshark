@@ -71,6 +71,7 @@ amperes
 anacap
 analyzers
 analyzes
+andxoffset
 annexc
 annotation
 annotations
@@ -367,6 +368,7 @@ convs
 coord
 Coord3D
 coords
+coprocessor
 copycss
 copyfile
 corba
@@ -717,6 +719,7 @@ fortinet
 fpiur
 fprintf
 fraghdr
+fragmenter
 framenum
 framenumber
 frametype
@@ -834,6 +837,7 @@ huffman
 hutchison
 hysteresis
 hytec
+ibsdh
 icmpv
 icount
 idempotent
@@ -1002,6 +1006,7 @@ lcsap
 leasequery
 legitimisation
 level1login
+libcap
 libgcrypt
 libiconv
 libndr
@@ -1021,6 +1026,7 @@ literals
 lithionics
 lnpdqp
 locamation
+locoinfof
 logcat
 loghans
 loginack
@@ -1945,6 +1951,7 @@ Telefónica
 Teléfonos
 telekom
 telematic
+telematics
 telenor
 teletex
 telfonica
@@ -2159,6 +2166,7 @@ unrecovered
 unregister
 unregistration
 unreportable
+unres
 unresolvable
 unresponded
 unroutable
