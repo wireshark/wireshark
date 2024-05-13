@@ -22,9 +22,45 @@ If you or your organization would like to contribute or become a sponsor, please
 
 If you are upgrading Wireshark 4.2.0 or 4.2.1 on Windows you will need to https://www.wireshark.org/download.html[download and install] Wireshark {wireshark-version} or later by hand.
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2024-07[]
+* wssalink:2024-07[]
+MONGO and ZigBee TLV dissector infinite loops.
+wsbuglink:19726[].
+// cveidlink:2024-xxx[].
+// Fixed in master: 38c0efcee8, 9ab952b964
+// Fixed in release-4.2: e9965fe303, cb267b4e52
+// Fixed in release-4.0: dd5b3b36d3e
+// Fixed in release-3.6: 40ed7e814bc
+// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:H
+// CWE-835
+// * Fuzz job crash: fuzz-2024-03-30-7212.pcap. wsbuglink:19726[].
+
+* wssalink:2024-08[]
+The editcap command line utility could crash when chopping bytes from the beginning of a packet.
+// wsbuglink:19724[].
+// cveidlink:2024-xxx[].
+// Fixed in master: 7c744e7933
+// Fixed in release-4.2: 3911c7b7d2
+// Fixed in release-4.0: c10a98d2669
+// Fixed in release-3.6: 683166c81bc
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
+// CWE-762
+// * The "handle_chopping" function in "editcap.c:2595" has a heap overflow vulnerability. wsbuglink:19724[].
+
+* wssalink:2024-09[]
+The editcap command line utility could crash when injecting secrets while writing multiple files.
+wsbuglink:19784[].
+// cveidlink:2024-xxx[].
+// Fixed in master: be3550b3b1
+// Fixed in release-4.2: 32bde22d9b
+// Fixed in release-4.0: f6cb547426d
+// Fixed in release-3.6: xxx
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
+// CWE-416
+// * The "wtap_block_foreach_option" function on wiretap/file_access.c:2693 has a SEGV vulnerability. wsbuglink:19784[].
+
+// * wssalink:2024-10[]
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2024-xxx[].
@@ -42,6 +78,26 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
+* Flow Graph scrolls in the wrong direction vertically when pressing Up/Down. wsbuglink:12932[].
+* TCP Stream Window Scaling not working in version 2.6.1 and later. wsbuglink:15016[].
+* TCP stream graphs (Window scaling) axis display is confusing. wsbuglink:17425[].
+* LUA get_dissector does not give the correct dissector under 32-bit version. wsbuglink:18367[].
+* Lua: Segfault when registering a field or expert info twice. wsbuglink:19194[].
+* SSH can not decrypt when KEX is curve25519-sha256@libssh.org. wsbuglink:19240[].
+* Wireshark crash related to Lua `DissectorTable.heuristic_new()` wsbuglink:19603[].
+* MATE fails to extract HTTP2 User-Agent header. wsbuglink:19619[].
+* Fuzz job issue: fuzz-2024-02-29-7169.pcap. wsbuglink:19679[].
+* Fuzz job issue: fuzz-2024-03-02-7158.pcap. wsbuglink:19684[].
+* Problem to Decode 5GC-N7 HTTP  for payload Application/JSON. wsbuglink:19723[].
+* Copying data as C String produces incorrect string. wsbuglink:19735[].
+* Incorrect decoding of supported Tx HE-MCS. wsbuglink:19737[].
+* reordercap: Fix packet reordering with multiple IDB's not at the beginning of a pcapng file. wsbuglink:19740[].
+* Wrong EPB lengths written if existing pcapng file has epb_hash options. wsbuglink:19766[].
+* On Windows, Export Displayed Packets dialog does not have "include depended upon packets" checkbox. wsbuglink:19772[].
+* vnd.3gpp.sms binary payload NOT decoded inside HTTP2 5GC. wsbuglink:19773[].
+* NAS 5G message container dissection. wsbuglink:19793[].
+* Incorrect interpretation of algorithm name in packet-tls-utils.c. wsbuglink:19801[].
+
 === New and Updated Features
 
 There are no new or updated features in this release.
@@ -58,18 +114,50 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.4.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.5.. | ag packet- | sort -u)
 [commaize]
 --
+5co_legacy
+5co_rap
+BT Mesh
+CQL
+DOCSIS MAC MGMT
+E.212
+EPL
+FC FZS
+GQUIC
+GRPC
+GSM RP
+HTTP2
+ICMPv6
+IEEE 1905
+IEEE 802.11
+IPARS
+JSON-3GPP
+LAPD
+LLDP
+MATE
+MONGO
+NAS 5GS
+NR-RRC
+PER
+PFCP
+PTP
+QUIC
+SSH
+TIPC
+ZBD
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+pcapng
+--
 
 === Updated File Format Decoding Support
 
