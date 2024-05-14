@@ -772,6 +772,8 @@ Fedora MinGW Build:
 
 Clang + Code Checks:
   extends: .build-ubuntu
+  tags:
+    - saas-linux-medium-amd64
   rules: !reference [.if-merge-request]
   needs: [ 'Commit Check' ]
   script:
