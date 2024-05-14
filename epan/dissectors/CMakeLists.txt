@@ -2273,17 +2273,15 @@ install(FILES ${DISSECTOR_PUBLIC_HEADERS}
 	EXCLUDE_FROM_ALL
 )
 
-set(CHECKAPI_FILE_LIST "${CMAKE_CURRENT_BINARY_DIR}/files.txt")
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
-file(WRITE "${CHECKAPI_FILE_LIST}" "${DISSECTOR_FILES}" ";" "${CORBA_IDL_DISSECTOR_SRC}")
 CHECKAPI(
 	NAME
 	  dissectors
 	SWITCHES
 	  --group dissectors-prohibited
 	  --group dissectors-restricted:5 --summary-group dissectors-restricted
-	  --file ${CHECKAPI_FILE_LIST}
 	SOURCES
+	  ${ALL_DISSECTOR_SRC}
 	  ${DISSECTOR_SUPPORT_SRC}
 	  ${DISSECTOR_HEADERS}
 )
