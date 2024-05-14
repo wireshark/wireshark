@@ -100,14 +100,19 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     TRY {
         len = call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         /* XXX Are we sure about this??? is this the right/only thing to catch */
-    } CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+    } CATCH_NONFATAL_ERRORS {
         show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
         error = GET_MESSAGE ? GET_MESSAGE : "Malformed frame";
     } ENDTRY;
 
-    /* XXX: Some exceptions, like FragmentBoundsError and ScsiBoundsError,
-       are normal conditions and possibly don't need the Lua traceback. */
-    if (error) { WSLUA_ERROR(Dissector_call,error); }
+    /* XXX: Some exceptions, like ScsiBoundsError are normal conditions and
+     * possibly don't need the Lua traceback. */
+    if (error) {
+        WSLUA_ERROR(Dissector_call,error);
+        /* XXX: If we are catching the exception and not rethrowing it,
+         * do we really want to return 0 here for bytes dissected?
+         */
+    }
 
     lua_pushinteger(L,(lua_Integer)len);
     WSLUA_RETURN(1); /* Number of bytes dissected.  Note that some dissectors always return number of bytes in incoming buffer, so be aware. */
