@@ -86,7 +86,8 @@ CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
 # claimed to build faster than make.
 # Comment it out if you don't want it.
 #
-NINJA_VERSION=${NINJA_VERSION-1.10.2}
+NINJA_VERSION=${NINJA_VERSION-1.12.1}
+NINJA_SHA256=89a287444b5b3e98f88a945afa50ce937b8ffd1dcc59c555ad9b1baf855298c9
 
 #
 # The following libraries and tools are required even to build only TShark.
@@ -527,17 +528,18 @@ uninstall_libtool() {
 }
 
 install_ninja() {
-    if [ "$NINJA_VERSION" -a ! -f ninja-$NINJA_VERSION-done ] ; then
+    if [ "$NINJA_VERSION" ] && [ ! -f "ninja-$NINJA_VERSION-done" ] ; then
         echo "Downloading and installing Ninja:"
         #
         # Download the zipball, unpack it, and move the binary to
         # $installation_prefix/bin.
         #
-        [ -f ninja-mac-v$NINJA_VERSION.zip ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" ninja-mac-v$NINJA_VERSION.zip https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-mac.zip
+        [ -f "ninja-mac-v$NINJA_VERSION.zip" ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" "ninja-mac-v$NINJA_VERSION.zip" https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-mac.zip
+        echo "$NINJA_SHA256  ninja-mac-v$NINJA_VERSION.zip" | shasum --algorithm 256 --check
         $no_build && echo "Skipping installation" && return
-        unzip ninja-mac-v$NINJA_VERSION.zip
+        unzip "ninja-mac-v$NINJA_VERSION.zip"
         sudo mv ninja "$installation_prefix/bin"
-        touch ninja-$NINJA_VERSION-done
+        touch "ninja-$NINJA_VERSION-done"
     fi
 }
 
@@ -545,9 +547,9 @@ uninstall_ninja() {
     if [ -n "$installed_ninja_version" ]; then
         echo "Uninstalling Ninja:"
         $DO_RM "$installation_prefix/bin/ninja"
-        rm ninja-$installed_ninja_version-done
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            rm -f ninja-mac-v$installed_ninja_version.zip
+        rm "ninja-$installed_ninja_version-done"
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            rm -f "ninja-mac-v$installed_ninja_version.zip"
         fi
 
         installed_ninja_version=""
