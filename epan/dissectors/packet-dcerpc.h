@@ -416,7 +416,7 @@ typedef struct _dcerpc_sub_dissector {
 
 /* registration function for subdissectors */
 WS_DLL_PUBLIC
-void dcerpc_init_uuid (int proto, int ett, e_guid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs, int opnum_hf);
+void dcerpc_init_uuid (int proto, int ett, e_guid_t *uuid, guint16 ver, const dcerpc_sub_dissector *procs, int opnum_hf);
 WS_DLL_PUBLIC
 void dcerpc_init_from_handle(int proto, e_guid_t *uuid, guint16 ver, dissector_handle_t guid_handle);
 WS_DLL_PUBLIC
@@ -424,11 +424,11 @@ const char *dcerpc_get_proto_name(e_guid_t *uuid, guint16 ver);
 WS_DLL_PUBLIC
 int dcerpc_get_proto_hf_opnum(e_guid_t *uuid, guint16 ver);
 WS_DLL_PUBLIC
-dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_guid_t *uuid, guint16 ver);
+const dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_guid_t *uuid, guint16 ver);
 
 /* Create a opnum, name value_string from a subdissector list */
 
-value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
+value_string *value_string_from_subdissectors(const dcerpc_sub_dissector *sd);
 
 /* Decode As... functionality */
 /* remove all bindings */
@@ -450,7 +450,7 @@ typedef struct _dcerpc_uuid_value {
     int proto_id;
     int ett;
     const gchar *name;
-    dcerpc_sub_dissector *procs;
+    const dcerpc_sub_dissector *procs;
     int opnum_hf;
 } dcerpc_uuid_value;
 

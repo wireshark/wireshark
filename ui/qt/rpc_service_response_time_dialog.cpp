@@ -383,7 +383,7 @@ void RpcServiceResponseTimeDialog::provideParameterData()
 
         guid_key *dkey = dce_name_to_uuid_key_[program_name];
         uint16_t version = (uint16_t) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
-        dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), version);
+        const dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), version);
         if (!procs) return;
 
         dcerpcstat_tap_data_t *dtap_data = g_new0(dcerpcstat_tap_data_t, 1);

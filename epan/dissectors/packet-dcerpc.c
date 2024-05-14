@@ -1430,7 +1430,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     dcerpc_dissector_data_t* dissector_data = (dcerpc_dissector_data_t*)data;
     const gchar          *name     = NULL;
-    dcerpc_sub_dissector *proc;
+    const dcerpc_sub_dissector *proc;
     int (*volatile sub_dissect)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep) = NULL;
     proto_item           *pi, *sub_item;
     proto_tree           *sub_tree;
@@ -1695,7 +1695,7 @@ dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_
 
 void
 dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
-                 dcerpc_sub_dissector *procs, int opnum_hf)
+                 const dcerpc_sub_dissector *procs, int opnum_hf)
 {
     guid_key   *key         = (guid_key *)g_malloc(sizeof (*key));
     dcerpc_uuid_value *value       = (dcerpc_uuid_value *)g_malloc(sizeof (*value));
@@ -1785,7 +1785,7 @@ dcerpc_get_proto_hf_opnum(e_guid_t *uuid, guint16 ver)
 /* Create a value_string consisting of DCERPC opnum and name from a
    subdissector array. */
 
-value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd)
+value_string *value_string_from_subdissectors(const dcerpc_sub_dissector *sd)
 {
     value_string *vs     = NULL;
     int           i;
@@ -1814,7 +1814,7 @@ again:
 /* Function to find the subdissector table of a registered protocol
  * or NULL if the protocol/version is not known to wireshark.
  */
-dcerpc_sub_dissector *
+const dcerpc_sub_dissector *
 dcerpc_get_proto_sub_dissector(e_guid_t *uuid, guint16 ver)
 {
     guid_key    key;
@@ -2023,7 +2023,7 @@ dcerpcstat_init(struct register_srt* srt, GArray* srt_array)
     dcerpcstat_tap_data_t* tap_data = (dcerpcstat_tap_data_t*)get_srt_table_param_data(srt);
     srt_stat_table *dcerpc_srt_table;
     int i, hf_opnum;
-    dcerpc_sub_dissector *procs;
+    const dcerpc_sub_dissector *procs;
 
     DISSECTOR_ASSERT(tap_data);
 
@@ -2102,7 +2102,7 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
     guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
     int major, minor;
     guint16 ver;
-    dcerpc_sub_dissector *procs;
+    const dcerpc_sub_dissector *procs;
 
     if (sscanf(opt_arg, ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n",
            &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos) == 13)
