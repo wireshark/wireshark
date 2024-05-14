@@ -171,7 +171,7 @@ if [ $INSTALL_TEST_DEPS -ne 0 ] ; then
 fi
 
 if [ $INSTALL_LOGRAY -ne 0 ] ; then
-    FALCO_LIBS_VERSION=0.14.3
+    FALCO_LIBS_VERSION=0.17.1
     if [ "$FALCO_LIBS_VERSION" ] && [ ! -f "falco-libs-$FALCO_LIBS_VERSION-done" ] ; then
         echo "Downloading, building, and installing libsinsp and libscap:"
         [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || curl -L -O --remote-header-name "https://github.com/falcosecurity/libs/archive/refs/tags/$FALCO_LIBS_VERSION.tar.gz"

@@ -44,14 +44,14 @@ typedef struct ss_plugin_info ss_plugin_info;
 
 #include "sinsp-span.h"
 
-#include <sinsp.h>
+#include <libsinsp/sinsp.h>
 
 typedef struct sinsp_source_info_t {
     sinsp_plugin *source;
     std::vector<const filter_check_info *> syscall_filter_checks;
     std::vector<const filtercheck_field_info *> syscall_filter_fields;
-    std::vector<gen_event_filter_check *> syscall_event_filter_checks;  // Same size as syscall_filter_fields
-    std::vector<sinsp_syscall_category_e> field_to_category;            // Same size as syscall_filter_fields
+    std::vector<std::unique_ptr<sinsp_filter_check>> syscall_event_filter_checks;   // Same size as syscall_filter_fields
+    std::vector<sinsp_syscall_category_e> field_to_category;                        // Same size as syscall_filter_fields
     sinsp_evt *evt;
     uint8_t *evt_storage;
     size_t evt_storage_size;
@@ -294,7 +294,7 @@ const filtercheck_field_info proc_lineage_event_fields[] = {
 };
 
 void add_arg_event(uint32_t arg_number,
-        sinsp_filter_factory* filter_factory,
+        sinsp_span_t *sinsp_span,
         sinsp_source_info_t *ssi,
         sinsp_syscall_category_e args_syscall_category) {
 
@@ -305,18 +305,18 @@ void add_arg_event(uint32_t arg_number,
     std::string fname = "evt.arg[" + std::to_string(arg_number) + "]";
 
     const filtercheck_field_info *ffi = &args_event_fields[arg_number];
-    gen_event_filter_check *gefc = filter_factory->new_filtercheck(fname.c_str());
-    if (!gefc) {
+    std::unique_ptr<sinsp_filter_check> sfc = sinsp_span->filter_checks.new_filter_check_from_fldname(fname.c_str(), &sinsp_span->inspector, true);
+    if (!sfc) {
         ws_error("cannot find expected Falco field evt.arg");
     }
-    gefc->parse_field_name(fname.c_str(), true, false);
+    sfc->parse_field_name(fname.c_str(), true, false);
     ssi->field_to_category.push_back(args_syscall_category);
-    ssi->syscall_event_filter_checks.push_back(gefc);
+    ssi->syscall_event_filter_checks.push_back(std::move(sfc));
     ssi->syscall_filter_fields.push_back(ffi);
 }
 
-void create_args_source(sinsp_source_info_t *ssi,
-    sinsp_filter_factory* filter_factory,
+void create_args_source(sinsp_span_t *sinsp_span,
+    sinsp_source_info_t *ssi,
     const filter_check_info* fci) {
     g_args_fci.m_name = "args";
     sinsp_syscall_category_e args_syscall_category = filtercheck_name_to_category(g_args_fci.m_name);
@@ -324,7 +324,7 @@ void create_args_source(sinsp_source_info_t *ssi,
     g_args_fci = *fci;
 
     for (uint32_t i = 0; i < 32; i++) {
-        add_arg_event(i, filter_factory, ssi, args_syscall_category);
+        add_arg_event(i, sinsp_span, ssi, args_syscall_category);
     }
     ssi->syscall_filter_checks.push_back(&g_args_fci);
 }
@@ -337,14 +337,14 @@ void add_lineage_field(std::string basefname,
         sinsp_syscall_category_e args_syscall_category) {
     std::string fname = basefname + "[" + std::to_string(ancestor_number) + "]";
     const filtercheck_field_info *ffi = &proc_lineage_event_fields[(ancestor_number - 1) * N_PROC_LINEAGE_ENTRY_FIELDS + field_number];
-    gen_event_filter_check *gefc = filter_factory->new_filtercheck(fname.c_str());
-    if (!gefc) {
+    std::unique_ptr<sinsp_filter_check> sfc = filter_factory->new_filtercheck(fname.c_str());
+    if (!sfc) {
         ws_error("cannot find expected Falco field evt.arg");
     }
 
-    gefc->parse_field_name(fname.c_str(), true, false);
+    sfc->parse_field_name(fname.c_str(), true, false);
     ssi->field_to_category.push_back(args_syscall_category);
-    ssi->syscall_event_filter_checks.push_back(gefc);
+    ssi->syscall_event_filter_checks.push_back(std::move(sfc));
     ssi->syscall_filter_fields.push_back(ffi);
 }
 
@@ -406,7 +406,6 @@ void reorder_syscall_fields(std::vector<const filter_check_info*>* all_syscall_f
 void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr) {
     sinsp_source_info_t *ssi = new sinsp_source_info_t();
 
-    std::shared_ptr<gen_event_filter_factory> factory(new sinsp_filter_factory(NULL, sinsp_span->filter_checks));
     sinsp_filter_factory filter_factory(&sinsp_span->inspector, sinsp_span->filter_checks);
     std::vector<const filter_check_info*> all_syscall_fields;
 
@@ -423,7 +422,7 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
             // This creates a meta-filtercheck for the events arguments and it register its fields.
             // We do it before the process filtercheck because we want to have it exactly in the position
             // after event and before process.
-            create_args_source(ssi, &filter_factory, fci);
+            create_args_source(sinsp_span, ssi, fci);
         } else if (fci->m_name == "fd") {
             // This creates a meta-filtercheck for process lineage.
             // We do it before the fd filtercheck because we want it to be between the proc and fd trees.
@@ -440,8 +439,8 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                     continue;
                 }
 
-                gen_event_filter_check *gefc = filter_factory.new_filtercheck(ffi->m_name);
-                if (!gefc) {
+                std::unique_ptr<sinsp_filter_check> sfc = filter_factory.new_filtercheck(ffi->m_name);
+                if (!sfc) {
                     continue;
                 }
                 if (strcmp(ffi->m_name, "evt.category") == 0) {
@@ -453,9 +452,9 @@ void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t *
                 if (strcmp(ffi->m_name, "proc.pid") == 0) {
                     ssi->proc_id_idx = (uint16_t) ssi->syscall_filter_fields.size();
                 }
-                gefc->parse_field_name(ffi->m_name, true, false);
+                sfc->parse_field_name(ffi->m_name, true, false);
                 ssi->field_to_category.push_back(syscall_category);
-                ssi->syscall_event_filter_checks.push_back(gefc);
+                ssi->syscall_event_filter_checks.push_back(std::move(sfc));
                 ssi->syscall_filter_fields.push_back(ffi);
             }
         }
@@ -735,8 +734,8 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
 
     // First check for internal events.
     // XXX We should skip this if "Show internal events" is enabled.
-    auto gefc = ssi->syscall_event_filter_checks[ssi->evt_category_idx];
-    if (!gefc->extract(evt, values, false) || values.size() < 1) {
+    auto sfc = ssi->syscall_event_filter_checks[ssi->evt_category_idx].get();
+    if (!sfc->extract(evt, values, false) || values.size() < 1) {
         return;
     }
     if (strcmp((const char *) values[0].ptr, "internal") == 0) {
@@ -744,9 +743,9 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     }
 
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
-        gefc = ssi->syscall_event_filter_checks[fc_idx];
+        sfc = ssi->syscall_event_filter_checks[fc_idx].get();
         values.clear();
-        if (!gefc->extract(evt, values, false) || values.size() < 1) {
+        if (!sfc->extract(evt, values, false) || values.size() < 1) {
             continue;
         }
         auto ffi = ssi->syscall_filter_fields[fc_idx];

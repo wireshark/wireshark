@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#include <sinsp.h>
+#include <libsinsp/sinsp.h>
 #include <plugin_manager.h>
 
 #include <scap_engines.h>

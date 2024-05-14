@@ -37,7 +37,7 @@ if(NOT SINSP_FOUND)
   find_path(_sinsp_include_dirs NO_CACHE
     NAMES libsinsp/sinsp.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
-    PATH_SUFFIXES falcosecurity/userspace
+    PATH_SUFFIXES falcosecurity
     /usr/include
     /usr/local/include
   )
@@ -48,7 +48,7 @@ if(NOT SINSP_FOUND)
   find_path(_scap_include_dir NO_CACHE
     NAMES scap.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
-    PATH_SUFFIXES falcosecurity/userspace/libscap
+    PATH_SUFFIXES falcosecurity/libscap
     /usr/include
     /usr/local/include
   )
