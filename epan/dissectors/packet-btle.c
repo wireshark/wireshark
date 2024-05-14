@@ -2516,7 +2516,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     key[3].length = 1;
                     key[3].key = &pinfo->num;
-                    wmem_tree_insert32_array(periodic_adv_info_tree, key, connection_parameter_info);
+                    wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
                 }
 
                 sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
