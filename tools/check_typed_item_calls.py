@@ -1729,7 +1729,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     # Find (and sanity-check) string_strings
     string_strings = findStringStrings(filename, macros, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
-        for name in range_strings:
+        for name in string_strings:
             string_strings[name].extraChecks()
 
 

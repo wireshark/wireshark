@@ -8656,19 +8656,19 @@ static const value_string zbee_zcl_commissioning_attr_names[] = {
 
 /* Server Commands Received */
 static const value_string zbee_zcl_commissioning_srv_rx_cmd_names[] = {
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE,                         "Commissioning" },
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS,                "Commissioning" },
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS,             "Commissioning" },
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS,               "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE,                         "Commissioning - Restart Device" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS,                "Commissioning - Save Startup Parameters" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS,             "Commissioning - Restore Startup Parameters" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS,               "Commissioning - Reset Startup Parameters" },
     { 0, NULL }
 };
 
 /* Server Commands Generated */
 static const value_string zbee_zcl_commissioning_srv_tx_cmd_names[] = {
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE_RESPONSE,                "Commissioning" },
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS_RESPONSE,       "Commissioning" },
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS_RESPONSE,    "Commissioning" },
-    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS_RESPONSE,      "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE_RESPONSE,                "Commissioning - Restart Device Response" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS_RESPONSE,       "Commissioning - Save Startup Parameters Response" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS_RESPONSE,    "Commissioning - Startup Parameters Response" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS_RESPONSE,      "Commissioning - Reset Startup Parameters Response" },
     { 0, NULL }
 };
 
