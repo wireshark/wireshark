@@ -14,9 +14,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-__We do not ship official 32-bit Windows packages for Wireshark 4.0 and later__.
-If you need to use Wireshark on that platform, we recommend using the latest 3.6 release.
-wsbuglink:17779[]
+// __We do not ship official 32-bit Windows packages for Wireshark 4.0 and later__.
+// If you need to use Wireshark on that platform, we recommend using the latest 3.6 release.
+// wsbuglink:17779[]
 
 // * The Windows installers now ship with Qt 5.12.2.
 // They previously shipped with Qt 6.2.3.
@@ -26,43 +26,7 @@ wsbuglink:17779[]
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
-
-* wssalink:2024-07[]
-MONGO and ZigBee TLV dissector infinite loops.
-wsbuglink:19726[].
-cveidlink:2024-4854[].
-// Fixed in master: 38c0efcee8, 9ab952b964
-// Fixed in release-4.2: e9965fe303, cb267b4e52
-// Fixed in release-4.0: dd5b3b36d3e
-// Fixed in release-3.6: 40ed7e814bc
-// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:H
-// CWE-835
-// * Fuzz job crash: fuzz-2024-03-30-7212.pcap. wsbuglink:19726[].
-
-* wssalink:2024-08[]
-The editcap command line utility could crash when chopping bytes from the beginning of a packet.
-wsbuglink:19724[].
-cveidlink:2024-4853[].
-// Fixed in master: 7c744e7933
-// Fixed in release-4.2: 3911c7b7d2
-// Fixed in release-4.0: c10a98d2669
-// Fixed in release-3.6: 683166c81bc
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
-// CWE-762
-// * The "handle_chopping" function in "editcap.c:2595" has a heap overflow vulnerability. wsbuglink:19724[].
-
-* wssalink:2024-09[]
-The editcap command line utility could crash when injecting secrets while writing multiple files.
-wsbuglink:19782[].
-cveidlink:2024-4855[].
-// Fixed in master: be3550b3b1
-// Fixed in release-4.2: 32bde22d9b
-// Fixed in release-4.0: f6cb547426d
-// Fixed in release-3.6: xxx
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
-// CWE-416
-// * The "wtap_block_foreach_option" function on wiretap/file_access.c:2693 has a SEGV vulnerability. wsbuglink:19784[].
+// The following vulnerabilities have been fixed:
 
 The following bugs have been fixed:
 
@@ -70,15 +34,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
-
-* Flow Graph scrolls in the wrong direction vertically when pressing Up/Down. wsbuglink:12932[].
-* TCP Stream Window Scaling not working in version 2.6.1 and later. wsbuglink:15016[].
-* TCP stream graphs (Window scaling) axis display is confusing. wsbuglink:17425[].
-* LUA get_dissector does not give the correct dissector under 32-bit version. wsbuglink:18367[].
-* Lua: Segfault when registering a field or expert info twice. wsbuglink:19194[].
-* SSH can not decrypt when KEX is curve25519-sha256@libssh.org. wsbuglink:19240[].
-* Win64 4.1.0rc0: Crash in Capture Options after closing Manage Interfaces. wsbuglink:19287[].
-* NAS 5G message container dissection. wsbuglink:19793[].
 
 === New and Updated Features
 
@@ -96,16 +51,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.15.. | ag packet- | sort -u)
 [commaize]
 --
-5co_legacy
-DOCSIS MAC MGMT
-FC FZS
-GQUIC
-IPARS
-MONGO
-NAS-5GS
-PTP
-SSH
-TIPC
 --
 
 === New and Updated Capture File Support
@@ -139,6 +84,7 @@ There is no updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-4.0.15.html[Wireshark 4.0.15]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.14.html[Wireshark 4.0.14]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.13.html[Wireshark 4.0.13]
 * https://www.wireshark.org/docs/relnotes/wireshark-4.0.12.html[Wireshark 4.0.12]
