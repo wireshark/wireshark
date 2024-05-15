@@ -925,6 +925,80 @@ create_ntlmssp_v1_key(const guint8 *serverchallenge, const guint8 *clientchallen
                          sessionkey[14] & 0xFF, sessionkey[15] & 0xFF);
 }
 
+/*
+ * Create an NTLMSSP anonymous key
+ */
+static void
+create_ntlmssp_anon_key(guint8 *sessionkey, const  guint8 *encryptedsessionkey, int flags,
+                        ntlmssp_header_t *ntlmssph,
+                        packet_info *pinfo, proto_tree *ntlmssp_tree)
+{
+  guint8            lm_challenge_response[24] = { 0, };
+  guint8            sessionbasekey[NTLMSSP_KEY_LEN] = { 0, };
+  guint8            keyexchangekey[NTLMSSP_KEY_LEN] = { 0, };
+  gcry_cipher_hd_t  rc4_handle;
+
+  memset(sessionkey, 0, NTLMSSP_KEY_LEN);
+
+  get_keyexchange_key(keyexchangekey, sessionbasekey, lm_challenge_response, flags);
+  if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
+  {
+    if(encryptedsessionkey){
+      memcpy(sessionkey, encryptedsessionkey, NTLMSSP_KEY_LEN);
+    }
+    if (!gcry_cipher_open(&rc4_handle, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
+      if (!gcry_cipher_setkey(rc4_handle, keyexchangekey, NTLMSSP_KEY_LEN)) {
+        gcry_cipher_decrypt(rc4_handle, sessionkey, NTLMSSP_KEY_LEN, NULL, 0);
+      }
+      gcry_cipher_close(rc4_handle);
+    }
+  }
+  else
+  {
+    memcpy(sessionkey, keyexchangekey, NTLMSSP_KEY_LEN);
+  }
+  memcpy(ntlmssph->session_key, sessionkey, NTLMSSP_KEY_LEN);
+
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_auth_nthash,
+                         "NTLM authenticated using ANONYMOUS ZERO NTHASH");
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_sessionbasekey,
+                         "NTLM Anonymous BaseSessionKey ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         sessionbasekey[0] & 0xFF,  sessionbasekey[1] & 0xFF,
+                         sessionbasekey[2] & 0xFF,  sessionbasekey[3] & 0xFF,
+                         sessionbasekey[4] & 0xFF,  sessionbasekey[5] & 0xFF,
+                         sessionbasekey[6] & 0xFF,  sessionbasekey[7] & 0xFF,
+                         sessionbasekey[8] & 0xFF,  sessionbasekey[9] & 0xFF,
+                         sessionbasekey[10] & 0xFF, sessionbasekey[11] & 0xFF,
+                         sessionbasekey[12] & 0xFF, sessionbasekey[13] & 0xFF,
+                         sessionbasekey[14] & 0xFF, sessionbasekey[15] & 0xFF);
+  if (memcmp(sessionbasekey, sessionkey, NTLMSSP_KEY_LEN) == 0) {
+    return;
+  }
+  expert_add_info_format(pinfo, proto_tree_get_parent(ntlmssp_tree),
+                         &ei_ntlmssp_sessionkey,
+                         "NTLMSSP SessionKey Anonymous ("
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         "%02x%02x%02x%02x"
+                         ")",
+                         sessionkey[0] & 0xFF,  sessionkey[1] & 0xFF,
+                         sessionkey[2] & 0xFF,  sessionkey[3] & 0xFF,
+                         sessionkey[4] & 0xFF,  sessionkey[5] & 0xFF,
+                         sessionkey[6] & 0xFF,  sessionkey[7] & 0xFF,
+                         sessionkey[8] & 0xFF,  sessionkey[9] & 0xFF,
+                         sessionkey[10] & 0xFF, sessionkey[11] & 0xFF,
+                         sessionkey[12] & 0xFF, sessionkey[13] & 0xFF,
+                         sessionkey[14] & 0xFF, sessionkey[15] & 0xFF);
+}
+
 void
 ntlmssp_create_session_key(packet_info *pinfo,
                            proto_tree *tree,
@@ -977,6 +1051,15 @@ ntlmssp_create_session_key(packet_info *pinfo,
                           ntlmssph,
                           pinfo,
                           tree);
+  }
+  else if (ntlm_response->length == 0 && lm_response->length == 0)
+  {
+    create_ntlmssp_anon_key(sessionkey,
+                            encryptedsessionkey,
+                            flags,
+                            ntlmssph,
+                            pinfo,
+                            tree);
   }
 }
 
