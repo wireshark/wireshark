@@ -1,0 +1,451 @@
+commit 16edfde2983
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 15:36:37 2024 -0400
+
+    Qt: Fix RTP Player crash
+
+    marker_stream_ might not exist when playFinished is called.
+    In particular, deleting the RtpAudioStreams might cause
+    playFinished to be called when the audio streams delete
+    their audio output in certain cases, such as if they are
+    paused. (The behavior might be slightly different on Qt6,
+    where QAudioSink is used vs. Qt5 where QAudioOutput is used.)
+
+    Fix #19596
+
+    (backported from commit 7698e03ba13e2e9966c84fbd800f8ab6c25983ef)
+
+commit 3c2446f0530
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 15:56:14 2024 -0700
+
+    Prep for 3.6.23
+
+commit b44c335f34c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 12:01:53 2024 -0700
+
+    GitLab CI: Try to add back Lua on macOS
+
+    (cherry picked from commit c637058453301194616396b94fe7d63e20e6e6bf)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 9839209c736
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 13:38:04 2024 +0000
+
+    wslua: Fix segfault when registering a field / ei twice
+
+    We need to call Proto_commit as a protected function so that
+    errors don't call wslua_panic and abort, but instead are handled
+    gracefully.
+
+    Fix #19194
+
+    (cherry picked from commit 70a3c9f82913d6c70ddc57d19976f80a676c9c56)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4dab28672d1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 12 09:21:46 2024 +0000
+
+    [Automatic update for 2024-05-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d38c970f5d0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri May 10 21:27:20 2024 +0000
+
+    Lua: Fix DissectorTable on certain Lua versions (e.g., 32 bit)
+
+    The port value is a uint32_t. Calling checkinteger and implicitly
+    casting to an unsigned integer later does not give the correct
+    result on a Lua install where Lua_Integer is 32 bit for unsigned
+    integers greater than INT32_MAX. Lua will truncate to the integer
+    range (sometimes by using inline assembly, sometimes explicitly.)
+
+    Note that Lua_Integer can 32 bit on 64 bit platforms; it can also
+    be 64 bit on 32 bit platforms.
+
+    Fix #18367
+
+    (backported from commit 4049ea7e6c4009158cbf91b0bf3300759d2106d6)
+
+    (cherry picked from commit 949aa570f39e5a773a1ecdecbf92e2682064b90d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0eca0500130
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue May 7 06:38:31 2024 -0400
+
+    gitlab-ci: Remove docker tag from jobs
+
+    The small SaaS runner on Linux had the docker (plus all other tags)
+    removed, causing all the jobs with that tag to get stuck.
+
+    https://about.gitlab.com/blog/2023/08/15/removing-tags-from-small-saas-runner-on-linux/
+    https://docs.gitlab.com/ee/update/deprecations.html#removal-of-tags-from-small-saas-runners-on-linux
+    (backported from commit a0e399e5c3edd06cfc78fe41f8959f4c556045be)
+
+commit 0d886b0e08c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 5 09:21:28 2024 +0000
+
+    [Automatic update for 2024-05-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 524e12d58c0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu May 2 23:30:06 2024 +0000
+
+    Qt: Fix an typo of row vs count in columnListModel
+
+    The size of the internal store is the number of model rows (which
+    are the packet list columns), not the number of model columns (which
+    are the parameter types for the packet list columns). This caused data
+    not to appear for the later parameter types when the number of packet
+    list columns were small. More of a difference in the current branch
+    because width and alignment are also shown in preferences, so it
+    has effects at the default number of columns.
+
+    Related to #19821 (but not sufficient.)
+
+    (cherry picked from commit 704fe87abd1e83a3451ba4abb2001ef7349d5c71)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 245f06bec4c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 30 12:57:24 2024 -0700
+
+    GitHub CI: Try to fix Qt5 discovery
+
+    Add a CMAKE_PREFIX_PATH for Qt5. Install "qt@5" in Homebrew instead of
+    "qt5".
+
+    [skip ci]
+
+    (cherry picked from commit e504d55ff7211d164abadbebf4aa81f8c1609162)
+
+    Conflicts:
+            tools/macos-setup-brew.sh
+
+commit 091edf5e0af
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 29 01:52:02 2024 +0000
+
+    ptp: multiple tlv_pathsequence in announce message
+
+    (cherry picked from commit 7ef8501c347d4336a1cb62b4b312f8c93b92efff)
+
+    32b82d47 Update file packet-ptp.c
+    746c18cf ptp: multiple tlv_pathsequence in announce message
+
+    Co-authored-by: Chuck Craft <bubbasnmp@gmail.com>
+
+commit ddb48586f9a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 18:41:27 2024 +0000
+
+    ipars: Fix truncation warning
+
+    MAX_EOM_MSG_SIZE is defined to be too small for the value placed in
+    for an unknown type.
+
+    epan/dissectors/packet-ipars.c:130:29: error: 'snprintf' will always be truncated; specified size is 16, but format string expands to at least 24 [-Werror,-Wformat-truncation]
+      130 |                 default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
+
+    (cherry picked from commit 4320031c97b3528bc96ab5d366bab8b7fdb2a243)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a1e619794cc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 17:35:35 2024 +0000
+
+    wslua: Fix integer validation signedness
+
+    The C Standard (any revision) 6.3.1.4 Real ﬂoating and integer,
+    in a footnote says:
+    "The remaindering operation performed when a value of integer type is
+    converted to unsigned type need not be performed when a value of real
+    ﬂoating type is converted to unsigned type."
+
+    Since a Lua_Number is a float type, converting a (possibly negative)
+    float to an unsigned type and then to a signed type is undefined
+    behvavior, and doesn't necessarily produce the same result as converting
+    the float to a signed integer type directly. On x86 and x86-64 it
+    has the same result, but it's permissible to instead first cast the float
+    to the nearest unsigned integer value (i.e. 0), so that the end result
+    is 0 instead on negative.
+
+    On the ARM architecture this is what seems to happen:
+
+    https://embeddeduse.com/2013/08/25/casting-a-negative-float-to-an-unsigned-int/
+    https://github.com/mavlink/mavlink/issues/2073#issuecomment-2080103820
+
+    (Compilers can warn about this, but it's perhaps difficult to get the
+    only the right subset of conversion warnings.)
+
+    Therefore, when adding a signed integer field, we must use
+    wslua_checkgint32.
+
+    (backported from commit 15392c324d5eaefcaa298cdee09cd5b40b12e09c)
+
+    (cherry picked from commit 4dadd9b029f9d4b189099f2431f4f3c7dc2e9f29)
+
+    Co-authored-by: Dan <DanOfTheRoses@gmail.com>
+
+commit 907f25b94bc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 28 09:19:39 2024 +0000
+
+    [Automatic update for 2024-04-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1f602f7158c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 26 01:27:52 2024 +0000
+
+    Qt: Fix flow graph scroll direction via keyboard
+
+    The y (time) axis is range reversed. QCP reversed ranges still
+    have the mathematically smaller element in lower and the larger
+    in upper, so reverse the direction of movement in panAxes.
+
+    Also fix the keyboard right arrow allowing the graph to be scrolled
+    to right farther than the QScrollBar allows, into extra empty space.
+
+    Fix #12932
+
+    (cherry picked from commit cc4c931b4a3a3d481aeb9ea320e5fb5e31ca0f70)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit bfc95305e15
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 25 15:18:18 2024 +0000
+
+    Qt: Fix Window scaling graph axis labels
+
+    Commit 259a3e508f37bb3c9b6d18cdacf7a18aa6dbd8f8 added a graph
+    of the congestion window to the Window Scale graph, but didn't
+    update the axes now that the window has two graphs.
+
+    Fix #17425. Fix #15016
+
+    (cherry picked from commit 259bbbff2a5257319ff69aa32cc377fc501eb022)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4675ee04e6b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 23 13:27:56 2024 -0700
+
+    GitLab CI: after_script updates
+
+    In GitLab 17 and later, after_script will run when a job is cancelled.
+    Update our various jobs accordingly.
+
+    (cherry picked from commit e03a58958e065c7e2dc7e15a90978fa5d57edcf6)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit dda2b3b811b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 18:39:23 2024 -0700
+
+    fcfzs: fix calculation of the number of fill bytes.
+
+    If a name length is a multiple of 4, no padding is required to make what
+    follows be on a 4-byte boundary.  Only use 4 - (len % 4) to calculate
+    the padding if len isn't a multiple of 4.
+
+    (cherry picked from commit e8b256c9a0f427b8dc2387ab02a47dc8c2f687e0)
+
+commit a5b22c94b31
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 09:16:38 2024 +0000
+
+    tipc: fix byte count.
+
+    Use the value used as the number of bytes in an atom to determine
+    whether that number is singular or plural; don't use some other
+    unrelated value.
+
+    (cherry picked from commit aea66ddc3336a095e6201b633a78014bd3af3a1d)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit b78d9fef999
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 06:55:59 2024 +0000
+
+    tipc: fix padding after bearer instance string.
+
+    Presumably if the length of the string is a multiple of 4, it needs zero
+    byts of padding to put the next item on a 4-byte boundary.  This means
+    that (4 - (length % 4)) is not the right formula - a check for whether
+    there's any padding must be done first.
+
+    (cherry picked from commit cda7c030e1eafdca22028d1d8c87e484bba37555)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 94420bf4c80
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 21 09:20:18 2024 +0000
+
+    [Automatic update for 2024-04-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 8b99c63168a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Apr 20 11:16:49 2024 -0700
+
+    pcapio: fix a check for idb_filter size.
+
+    The filter string in the idb_filter option has a maximum length of
+    UINT16_MAX - 1, because the maximum size of an option bodyis UINT16_MAX,
+    and the first byte of the option contains the filter type.
+
+    The code to write the filter did the right check; the code to count the
+    idb_filter option length checked against UINT16_MAX.  Fix that.
+
+    While we're at it, fix a comment.
+
+    (backported from commit d277ecdb3ff7d04e7f64566f21409b3f1359eb2f)
+
+commit 41489b27daa
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 19 00:36:04 2024 +0000
+
+    WSCBOR: Add checks for length and NULL
+
+    Additional checks for NULL and length before calling
+    tvb_new_subset_length() or proto_tree_add_item()
+
+    Related to #17890 case 8
+
+    (cherry picked from commit 0fd55dbf54da66330eeaabee57cb8fdd11ed41c3)
+
+    Co-authored-by: Uli Heilmeier <uh@heilmeier.eu>
+
+commit 1fa48b1153a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 14 09:20:40 2024 +0000
+
+    [Automatic update for 2024-04-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit da9ad92e097
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 7 09:18:57 2024 +0000
+
+    [Automatic update for 2024-04-07]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c3aa45fb859
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 31 12:10:56 2024 -0700
+
+    wslua: put the example of use for treeitem:add at the right level.
+
+    It should be a subsection of the entry for treeitem:add, which means it
+    must be a level *5* header.
+
+    (cherry picked from commit 7b6e196c4117010c04d911021c16b37c454a4f19)
+
+commit f2761328bc9
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 31 10:51:30 2024 -0700
+
+    wslua: fix the documentation for Tvb:reported_length_remaining.
+
+    Use the WSLUA_OPTARG_xxx convention for it optional offset argument, so
+    that the documentation generation process properly documents it.
+
+    (cherry picked from commit 62bc594401f64317d4e2a66de726ca615cf0263b)
+
+commit 683166c81bc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 29 09:42:44 2024 -0400
+
+    editcap: Don't memmove more than allocated in the buffer
+
+    When moving from the begining with a beginning offset specified,
+    don't run off the end. Subtract the source memory area's full offset
+    from the beginning of the buffer from the capture length.
+
+    Fix #19724
+
+    (cherry picked from commit 7c744e7933794b09e7af4d9703194ad0b01be282)
+
+commit 5a1b131efdf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 31 09:20:17 2024 +0000
+
+    [Automatic update for 2024-03-31]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 40ed7e814bc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 30 08:07:26 2024 -0400
+
+    Mongo: Ensure the offset advances
+
+    The MongoDB Wire Protocol uses _signed_ 32 bit integers for lengths.
+    dissect_bson_document checks for bogus values and ensures that a
+    non-negative (and at least 5) size is returned, but we need to make
+    sure to use that return value instead of trusting the value read
+    from the packet in dissect_op_msg_section.
+
+    Fix #19726
+
+    (cherry picked from commit 38c0efcee8d22d922e446888b268effc3ccf725f)
+
+commit c7f49708f22
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Mar 29 22:31:04 2024 -0700
+
+    macos-setup: Add a warning about a comparomised version of XZ.
+
+    [skip ci]
+
+    (cherry picked from commit 75b1ffe1190de3843de3cd756a6b16200a967cd8)
+
+commit 6c0913c9c35
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 29 10:27:10 2024 -0700
+
+    GQUIC+DOCSIS MAC MGMT: Recursion updates
+
+    Make our recursion checks consistent with other dissectors.
+
+    (cherry picked from commit 119a385ba271a51ea35579b25dc0025ff450577c)
+
+commit 34b3823a676
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 28 11:35:19 2024 -0700
+
+    Release notes: This will be the final 3.6 release
+
+commit e3c0ad45f41
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 27 14:43:15 2024 -0700
+
+    Version: 3.6.22 → 3.6.23
+
+    [skip ci]

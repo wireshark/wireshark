@@ -18,7 +18,7 @@ This is expected to be the final release of the 3.6 branch.
 
 This is also the final release with support for 32-bit Windows.
 Updates will no longer be available after May 22, 2024 for that platform.
-wsbuglink:17779[]
+wsbuglink:17779[].
 
 // The Windows installers now ship with Npcap 1.60.
 // They previously shipped with Npcap 1.55.
@@ -37,9 +37,9 @@ wsbuglink:17779[]
 The following vulnerabilities have been fixed:
 
 * wssalink:2024-07[]
-MONGO dissector infinite loop.
+MONGO and ZigBee TLV dissector infinite loops.
 wsbuglink:19726[].
-// cveidlink:2024-xxx[].
+cveidlink:2024-4854[].
 // Fixed in master: 38c0efcee8, 9ab952b964
 // Fixed in release-4.2: e9965fe303, cb267b4e52
 // Fixed in release-4.0: dd5b3b36d3e
@@ -50,8 +50,8 @@ wsbuglink:19726[].
 
 * wssalink:2024-08[]
 The editcap command line utility could crash when chopping bytes from the beginning of a packet.
-// wsbuglink:19724[].
-// cveidlink:2024-xxx[].
+wsbuglink:19724[].
+cveidlink:2024-4853[].
 // Fixed in master: 7c744e7933
 // Fixed in release-4.2: 3911c7b7d2
 // Fixed in release-4.0: c10a98d2669
@@ -76,6 +76,8 @@ The following bugs have been fixed:
 * LUA get_dissector does not give the correct dissector under 32-bit version wsbuglink:18367[].
 
 * Lua: Segfault when registering a field or expert info twice wsbuglink:19194[].
+
+* RTP Player triggers crash on dialog close if one or more streams were muted partway through playback. wsbuglink:19596[].
 
 === New and Updated Features
 
