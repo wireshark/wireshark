@@ -1465,6 +1465,7 @@ static void seskey_list_free_cb(void *r)
 }
 
 static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey,
+				    guint *out_seskey_len,
 				    guint8 *out_s2ckey16,
 				    guint8 *out_c2skey16,
 				    guint8 *out_s2ckey32,
@@ -1492,14 +1493,17 @@ static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_seskey,
 	for (i = 0; i < num_seskey_list; i++) {
 		const smb2_seskey_field_t *p = &seskey_list[i];
 		if (memcmp(&sesid_le, p->id, SMB_SESSION_ID_SIZE) == 0) {
-			memset(out_seskey, 0, NTLMSSP_KEY_LEN);
+			*out_seskey_len = 0;
+			memset(out_seskey, 0, NTLMSSP_KEY_LEN*2);
 			memset(out_s2ckey16, 0, AES_KEY_SIZE);
 			memset(out_c2skey16, 0, AES_KEY_SIZE);
 			memset(out_s2ckey32, 0, AES_KEY_SIZE*2);
 			memset(out_c2skey32, 0, AES_KEY_SIZE*2);
 
-			if (p->seskey_len != 0)
+			if (p->seskey_len > 0 && p->seskey_len <= NTLMSSP_KEY_LEN*2) {
 				memcpy(out_seskey, p->seskey, p->seskey_len);
+				*out_seskey_len = p->seskey_len;
+			}
 			if (p->s2ckey_len == AES_KEY_SIZE)
 				memcpy(out_s2ckey16, p->s2ckey, p->s2ckey_len);
 			if (p->s2ckey_len == AES_KEY_SIZE*2)
@@ -1696,7 +1700,9 @@ smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb
 		ses->fids = wmem_map_new(wmem_file_scope(), smb2_fid_info_hash, smb2_fid_info_equal);
 		ses->files = wmem_map_new(wmem_file_scope(), smb2_eo_files_hash, smb2_eo_files_equal);
 
-		seskey_find_sid_key(id, ses->session_key,
+		seskey_find_sid_key(id,
+				    ses->session_key,
+				    &ses->session_key_len,
 				    ses->client_decryption_key16,
 				    ses->server_decryption_key16,
 				    ses->client_decryption_key32,
@@ -1748,7 +1754,7 @@ smb2_add_session_info(proto_tree *ses_tree, proto_item *ses_item, tvbuff_t *tvb,
 static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
 			 const guint8 *Label, guint32 Label_len,
 			 const guint8 *Context, guint32 Context_len,
-			 guint8 KO[16], guint32 KO_len)
+			 guint8 *KO, guint32 KO_len)
 {
 	gcry_md_hd_t  hd     = NULL;
 	guint8        buf[4];
@@ -3817,7 +3823,7 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 		return;
 
 	/* otherwise, generate them from session key, if it's there */
-	if (!has_seskey)
+	if (!has_seskey || ses->session_key_len == 0)
 		return;
 
 	/* generate decryption keys */
@@ -3852,7 +3858,7 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
 					    ses->server_decryption_key16, 16);
 			smb2_key_derivation(ses->session_key,
-					    NTLMSSP_KEY_LEN,
+					    ses->session_key_len,
 					    "SMBC2SCipherKey", 16,
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
 					    ses->server_decryption_key32, 32);
@@ -3864,7 +3870,7 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
 					    ses->client_decryption_key16, 16);
 			smb2_key_derivation(ses->session_key,
-					    NTLMSSP_KEY_LEN,
+					    ses->session_key_len,
 					    "SMBS2CCipherKey", 16,
 					    ses->preauth_hash, SMB2_PREAUTH_HASH_SIZE,
 					    ses->client_decryption_key32, 32);
@@ -3974,8 +3980,9 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				si->session->domain_name = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
 				si->session->host_name = wmem_strdup(wmem_file_scope(), ntlmssph->host_name);
 				/* don't overwrite session key from preferences */
-				if (memcmp(si->session->session_key, zeros, SMB_SESSION_ID_SIZE) == 0) {
+				if (memcmp(si->session->session_key, zeros, NTLMSSP_KEY_LEN) == 0) {
 					memcpy(si->session->session_key, ntlmssph->session_key, NTLMSSP_KEY_LEN);
+					si->session->session_key_len = NTLMSSP_KEY_LEN;
 				}
 				si->session->auth_frame = pinfo->num;
 			}
