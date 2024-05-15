@@ -1100,8 +1100,9 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   ssl_debug_printf("dissect_dtls_record: content_type %d epoch %d seq %"PRIu64"\n", content_type, epoch, sequence_number);
 
   /* try to decrypt record on the first pass, if possible. Store decrypted
-   * record for later usage (without having to decrypt again). */
-  if (ssl) {
+   * record for later usage (without having to decrypt again).
+   * DTLSv1.3 records are decrypted from dissect_dtls13_record */
+  if (ssl && (ssl->session.version != DTLSV1DOT3_VERSION)) {
     decrypt_dtls_record(tvb, pinfo, offset, ssl, content_type, version, record_length, curr_layer_num_ssl, cid, cid_length);
   }
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
@@ -1227,35 +1228,50 @@ dtls13_load_keys_from_epoch(SslDecryptSession *session, gboolean is_from_server,
   if (dec && dec->dtls13_epoch == epoch)
     return 0;
 
+  /* The DTLS dissector does not support decrypting packets from epoch < N once
+   * it decrypted a packet from epoch N.  In order to do that, the dissector
+   * needs to maintain the expected next sequence number per epoch. The added
+   * complexity makes it not worthwhile. */
+  if (dec && dec->dtls13_epoch > epoch) {
+    ssl_debug_printf("%s: refuse to load past epoch %" PRIu64"\n", G_STRFUNC, epoch);
+    return 0;
+  }
+
+  /* double check that we increment the epoch by one after hs */
+  if (dec && dec->dtls13_epoch != 0 && epoch != dec->dtls13_epoch + 1)
+    return 0;
+
   master_key_map = tls_get_master_key_map(TRUE);
   if (master_key_map == NULL) {
     ssl_debug_printf("dtls13_load_keys_from_epoch: no master key map\n");
     return -1;
   }
 
-  /* KeyUpdate is not supported (yet). This means that epoch bits == epoch */
   switch (epoch)
   {
   case 1:
     secret_type = TLS_SECRET_0RTT_APP;
+    tls13_change_key(session, master_key_map, is_from_server, secret_type);
     break;
   case 2:
     secret_type = TLS_SECRET_HANDSHAKE;
+    tls13_change_key(session, master_key_map, is_from_server, secret_type);
     break;
   case 3:
     secret_type = TLS_SECRET_APP;
+    tls13_change_key(session, master_key_map, is_from_server, secret_type);
     break;
   default:
-    return dtls13_generate_key_for_epoch(session, is_from_server, epoch);
+    tls13_key_update(session, is_from_server);
     break;
   }
 
-  tls13_change_key(session, master_key_map, is_from_server, secret_type);
   if (is_from_server && session->server) {
     session->server->dtls13_epoch = epoch;
   } else if (session->client) {
     session->client->dtls13_epoch = epoch;
   }
+
   return 0;
 }
 
@@ -1267,16 +1283,25 @@ dtls13_load_keys_from_epoch(SslDecryptSession *session, gboolean is_from_server,
  * and a mask as input. It finds the closest number to the expected sequence number that
  * has the lower bits equal to @seq_low_bits.
  * @param expected_seq_number The expected sequence number.
- * @param seq_low_bits The low bits of the sequence number.
- * @param mask The mask used to extract the low bits of the sequence number.
+ * @param seq_low_bits The low bits of the sequence number (encrypted).
+ * @param len The length of @enc_seq_low_bits.
+ * @param dec_mask The decryption mask for @enc_seq_low_bits.
  * @return The reconstructed dequeued sequence number.
  */
 static guint64 dtls13_reconstruct_seq_number(guint64 expected_seq_number, guint16 seq_low_bits,
-                                             guint16 mask)
+                                             int len, uint8_t *dec_mask)
 {
   guint16 expected_low_bits;
   guint64 c1, c2, d1, d2;
+  guint16 mask;
 
+  /* we just need 1 or 2 bytes of the xor mask */
+  if (len == 1) {
+    dec_mask[1] = 0;
+  }
+  seq_low_bits ^= (dec_mask[0] << 8 | dec_mask[1]);
+
+  mask = (len == 2) ? 0xffff : 0xff;
   expected_low_bits = expected_seq_number & mask;
   c1 = (expected_seq_number & ~(mask)) | seq_low_bits;
 
@@ -1335,20 +1360,159 @@ static int dtls13_get_record_number_xor_mask(SslDecoder *dec, const uint8_t *cip
   return -1;
 }
 
+static gboolean dtls13_create_aad(tvbuff_t *tvb, SslDecryptSession *ssl, gboolean is_from_server, guint8 hdr_flags, guint32 hdr_off, guint32 hdr_size,
+                                  guint64 sequence_number, guint16 dtls_record_length)
+{
+  unsigned int cid_length = 0;
+  SslDecoder *dec = NULL;
+  int seq_length;
+
+  if (is_from_server && ssl->server) {
+    dec = ssl->server;
+  } else if (ssl->client) {
+    dec = ssl->client;
+  }
+  if (!dec)
+    return FALSE;
+
+  dec->seq = sequence_number;
+  dec->dtls13_aad.data = wmem_realloc(wmem_file_scope(), dec->dtls13_aad.data, hdr_size);
+  dec->dtls13_aad.data_len = hdr_size;
+  dec->dtls13_aad.data[0] = hdr_flags;
+  cid_length = 0;
+
+  seq_length = 1;
+  if (hdr_flags & DTLS13_S_BIT_MASK)
+    seq_length = 2;
+  if (hdr_flags & DTLS13_C_BIT_MASK) {
+    /* total - 1 byte for hdr flag, 1 or 2 byte for seq suffix, 0 or 2 bytes for len */
+    cid_length = hdr_size - 1 - seq_length;
+    if (hdr_flags & DTLS13_L_BIT_MASK)
+      cid_length -= 2;
+    DISSECTOR_ASSERT(cid_length < hdr_size);
+    memcpy(&dec->dtls13_aad.data[1], tvb_get_ptr(tvb, hdr_off + 1, cid_length), cid_length);
+  }
+
+  if (seq_length == 2) {
+    phton16(&dec->dtls13_aad.data[1 + cid_length], sequence_number);
+  } else {
+    dec->dtls13_aad.data[1 + cid_length] = sequence_number;
+  }
+  if (hdr_flags & DTLS13_L_BIT_MASK) {
+      phton16(&dec->dtls13_aad.data[1 + cid_length + seq_length], dtls_record_length);
+  }
+
+  return TRUE;
+}
+
 static gboolean dtls13_decrypt_unified_record(tvbuff_t *tvb, packet_info *pinfo, guint32 hdr_off, uint32_t hdr_size,
                                               uint8_t hdr_flags, gboolean is_from_server,
                                               SslDecryptSession *ssl, guint32 dtls_record_length, guint8 curr_layer_num_ssl,
-                                              uint16_t seq_suffix)
+                                              uint16_t seq_suffix, uint8_t seq_length)
 {
   uint8_t mask[DTLS13_RECORD_NUMBER_MASK_SZ];
-  uint64_t epoch, curr_max_epoch;
   uint64_t sequence_number;
-  uint32_t cid_length;
-  uint8_t seq_length;
-  SslDecoder *dec;
+  SslDecoder *dec = NULL;
+  gboolean success;
+
+  if (is_from_server && ssl->server) {
+    dec = ssl->server;
+  } else if (ssl->client) {
+    dec = ssl->client;
+  }
+
+  if (dec == NULL) {
+    ssl_debug_printf("dissect_dtls13_record: no decoder available\n");
+    return FALSE;
+  }
+
+  if (dtls13_get_record_number_xor_mask(dec, tvb_get_ptr(tvb, hdr_off + hdr_size, DTLS13_RECORD_NUMBER_MASK_SZ), mask) != 0) {
+    ssl_debug_printf("dissect_dtls13_record: can't get record number mask\n");
+    return FALSE;
+  }
+
+  sequence_number = dtls13_reconstruct_seq_number(ssl->session.dtls13_next_seq_num[is_from_server], seq_suffix, seq_length, mask);
+
+  /* setup parameter for decryption of this packet */
+  if (!dtls13_create_aad(tvb, ssl, is_from_server, hdr_flags, hdr_off, hdr_size, sequence_number, dtls_record_length)) {
+    ssl_debug_printf("%s: can't create AAD\n", G_STRFUNC);
+    return FALSE;
+  }
+
+  /* CID is already included in dtls13_add, there is no need to add it here */
+  success = decrypt_dtls_record(tvb, pinfo, hdr_off + hdr_size, ssl, 0, ssl->session.version, dtls_record_length, curr_layer_num_ssl, NULL, 0);
+  if (sequence_number >= ssl->session.dtls13_next_seq_num[is_from_server]) {
+    ssl->session.dtls13_next_seq_num[is_from_server] = sequence_number + 1;
+  }
+
+  return success;
+}
+
+/**
+ * Try to guess the early data cipher using trial decryption. based on decrypt_tls13_early_data.
+ * Requires Libgcrypt 1.6 or newer for verifying that decryption is successful.
+ */
+static gboolean
+dtls13_decrypt_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 hdr_off, guint32 hdr_size, guint8 hdr_flags,
+                          guint16 record_length, SslDecryptSession *ssl,
+                          guint8 curr_layer_num_ssl, guint16 seq_suffix, guint8 seq_length)
+{
+  StringInfo *secret;
+
+  static const guint16 tls13_ciphers[] = {
+      0x1301, /* TLS_AES_128_GCM_SHA256 */
+      0x1302, /* TLS_AES_256_GCM_SHA384 */
+      0x1303, /* TLS_CHACHA20_POLY1305_SHA256 */
+      0x1304, /* TLS_AES_128_CCM_SHA256 */
+      0x1305, /* TLS_AES_128_CCM_8_SHA256 */
+  };
+
+  gboolean success = FALSE;
+
+  ssl_debug_printf("Trying early data encryption, first record / trial decryption: %s\n",
+                  !(ssl->state & SSL_SEEN_0RTT_APPDATA) ? "true" : "false");
+
+
+  secret = tls13_load_secret(ssl, tls_get_master_key_map(TRUE), FALSE, TLS_SECRET_0RTT_APP);
+  if (!secret) {
+      ssl_debug_printf("Missing secrets, early data decryption not possible!\n");
+      return FALSE;
+  }
+
+  for (guint i = 0; i < G_N_ELEMENTS(tls13_ciphers); i++) {
+      guint16 cipher = tls13_ciphers[i];
+
+      ssl_debug_printf("Performing early data trial decryption, cipher = %#x\n", cipher);
+      ssl->session.cipher = cipher;
+      ssl->cipher_suite = ssl_find_cipher(cipher);
+      if (!tls13_generate_keys(ssl, secret, FALSE)) {
+          /* Unable to create cipher (old Libgcrypt) */
+          continue;
+      }
+
+      success = dtls13_decrypt_unified_record(tvb, pinfo, hdr_off, hdr_size, hdr_flags, FALSE, ssl, record_length, curr_layer_num_ssl, seq_suffix, seq_length);
+      if (success) {
+          /* update epoch number to decrypt other 0RTT packets */
+          ssl->client->dtls13_epoch = 1;
+          ssl_debug_printf("Early data decryption succeeded, cipher = %#x\n", cipher);
+          break;
+      }
+  }
+  if (!success) {
+      ssl_debug_printf("Trial decryption of early data failed!\n");
+  }
+  return success;
+}
+
+static gboolean dtls13_setup_keys(uint8_t hdr_flags, gboolean is_from_server, SslDecryptSession *ssl, guint32 dtls_record_length,
+                                  gboolean *first_early_data)
+{
+  uint64_t epoch, curr_max_epoch;
 
   epoch = (hdr_flags & DTLS13_HDR_EPOCH_BIT_MASK);
-  seq_length = (hdr_flags & DTLS13_L_BIT_MASK) ? 2 : 1;
+
+  if (first_early_data != NULL)
+    *first_early_data = FALSE;
 
   /* DTLSv1.3 minimum payload is 16 bytes */
   if (dtls_record_length < 16) {
@@ -1381,65 +1545,30 @@ static gboolean dtls13_decrypt_unified_record(tvbuff_t *tvb, packet_info *pinfo,
       return FALSE;
   }
 
+  /* early data */
+  if (epoch == 1) {
+    if (ssl->session.dtls13_current_epoch[is_from_server] > 1) {
+      ssl_debug_printf("%s: early data received after encrypted HS, abort decryption\n", G_STRFUNC);
+      return FALSE;
+    }
+    if (!ssl->has_early_data) {
+      ssl_debug_printf("%s: early data received but not advertised in CH extensions, abort decryption\n", G_STRFUNC);
+      return FALSE;
+    }
+    /* first early data packet, need to go into trial decryption */
+    if (!(ssl->client && (ssl->client->dtls13_epoch == 1))) {
+      if (first_early_data != NULL)
+        *first_early_data = TRUE;
+      return TRUE;
+    }
+  }
+
   if (dtls13_load_keys_from_epoch(ssl, is_from_server, epoch) < 0) {
       ssl_debug_printf("dtls13: can't load keys\n");
       return FALSE;
   }
 
-  dec = NULL;
-  if (is_from_server && ssl->server) {
-    dec = ssl->server;
-  } else if (ssl->client) {
-    dec = ssl->client;
-  }
-  if (dec == NULL) {
-    ssl_debug_printf("dissect_dtls13_record: no decoder available\n");
-    return FALSE;
-  }
-  if (dtls13_get_record_number_xor_mask(dec, tvb_get_ptr(tvb, hdr_off + hdr_size, DTLS13_RECORD_NUMBER_MASK_SZ), mask) != 0) {
-    ssl_debug_printf("dissect_dtls13_record: can't get record number mask\n");
-    return FALSE;
-  }
-
-  /* we just need 1 or 2 bytes of the xor mask */
-  if (seq_length == 1) {
-    mask[1] = 0;
-  }
-  memset(&mask[2], 0, sizeof(mask) - 2);
-  sequence_number = seq_suffix;
-  sequence_number ^= (mask[0] << 8 | mask[1]);
-
-  sequence_number = dtls13_reconstruct_seq_number(ssl->session.dtls13_next_seq_num[is_from_server],
-                                                  sequence_number, (seq_length == 1) ? 0xff : 0xffff);
-
-  if (sequence_number >= ssl->session.dtls13_next_seq_num[is_from_server]) {
-    ssl->session.dtls13_next_seq_num[is_from_server] = sequence_number + 1;
-  }
-
-  /* setup parameter for decryption of this packet */
-  dec->seq = sequence_number;
-  dec->dtls13_aad.data = wmem_alloc(wmem_packet_scope(), hdr_size);
-  dec->dtls13_aad.data_len = hdr_size;
-  dec->dtls13_aad.data[0] = hdr_flags;
-
-  cid_length = 0;
-  if (hdr_flags & DTLS13_C_BIT_MASK) {
-    /* total - 1 byte for hdr flag and 1 byte for seq suffix */
-    cid_length = hdr_size - 1 - seq_length;
-    if (hdr_flags & DTLS13_L_BIT_MASK)
-      cid_length -= 2;
-    DISSECTOR_ASSERT(cid_length < hdr_size);
-    memcpy(&dec->dtls13_aad.data[1], tvb_get_ptr(tvb, hdr_off + 1, cid_length), cid_length);
-  }
-  if (seq_length == 2)
-      dec->dtls13_aad.data[1 + cid_length] = (sequence_number >> 8) & 0xff;
-  dec->dtls13_aad.data[2 + cid_length] = sequence_number & 0xff;
-  if (hdr_flags & DTLS13_L_BIT_MASK) {
-      phton16(&dec->dtls13_aad.data[3 + cid_length], dtls_record_length);
-  }
-
-  /* CID is already included in dtls13_add, there is no need to add it here */
-  return decrypt_dtls_record(tvb, pinfo, hdr_off + hdr_size, ssl, 0, ssl->session.version, dtls_record_length, curr_layer_num_ssl, NULL, 0);
+  return TRUE;
 }
 
 /* Dissect a DTLS record from version 1.3 */
@@ -1515,6 +1644,8 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   guint16 seq_suffix;
   tvbuff_t *decrypted = NULL;
   SslRecordInfo *record = NULL;
+  gboolean success;
+  gboolean is_first_early_data;
 
   hdr_flags = tvb_get_guint8(tvb, hdr_offset);
   c_bit = (hdr_flags & DTLS13_C_BIT_MASK) == DTLS13_C_BIT_MASK;
@@ -1589,7 +1720,15 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   if (ssl) {
-    dtls13_decrypt_unified_record(tvb, pinfo, hdr_start, hdr_offset - hdr_start, hdr_flags, is_from_server, ssl, dtls_record_length, curr_layer_num_ssl, seq_suffix);
+    success = dtls13_setup_keys(hdr_flags, is_from_server, ssl, dtls_record_length, &is_first_early_data);
+    if (success) {
+      if (!is_from_server && is_first_early_data) {
+        /* try to decrypt early data */
+        dtls13_decrypt_early_data(tvb, pinfo, hdr_start, hdr_offset - hdr_start, hdr_flags, dtls_record_length, ssl, curr_layer_num_ssl, seq_suffix, seq_length);
+      } else {
+        dtls13_decrypt_unified_record(tvb, pinfo, hdr_start, hdr_offset - hdr_start, hdr_flags, is_from_server, ssl, dtls_record_length, curr_layer_num_ssl, seq_suffix, seq_length);
+      }
+    }
   }
 
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
@@ -1712,6 +1851,29 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+static void
+dtls13_maybe_increase_max_epoch(SslDecryptSession *ssl, gboolean is_from_server)
+{
+  SslDecoder *dec;
+
+  if (ssl == NULL)
+    return;
+
+  if (is_from_server)
+    dec = ssl->server;
+  else
+    dec = ssl->client;
+
+  if (dec == NULL)
+    return;
+
+  /* be sure to increment from the current epoch just once, and to increment
+   * again only after the new epoch was seen. This assures that the dissector
+   * can always compute the next epoch, and avoid that duplicate packets wrongly
+   * increment the max epoch multiple times. */
+  if (dec->dtls13_epoch == ssl->session.dtls13_current_epoch[is_from_server])
+    ssl->session.dtls13_current_epoch[is_from_server]++;
+}
 
 /* dissects the handshake protocol, filling the tree */
 static void
@@ -2020,6 +2182,12 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                       &dtls_hfs);
             if (ssl) {
                 tls_save_crandom(ssl, tls_get_master_key_map(FALSE));
+                /* force DTLSv1.3 version if early data is seen */
+                if (ssl->has_early_data) {
+                  session->version = DTLSV1DOT3_VERSION;
+                  ssl->state |= SSL_VERSION;
+                  ssl_debug_printf("%s forcing version 0x%04X -> state 0x%02X\n", G_STRFUNC, DTLSV1DOT3_VERSION, ssl->state);
+                }
             }
             break;
 
@@ -2113,7 +2281,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_KEY_UPDATE:
             tls13_dissect_hnd_key_update(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0);
             if (ssl && ssl->session.version == DTLSV1DOT3_VERSION) {
-              ssl->session.dtls13_current_epoch[is_from_server]++;
+              dtls13_maybe_increase_max_epoch(ssl, is_from_server);
             }
             break;
           case SSL_HND_ENCRYPTED_EXTS:

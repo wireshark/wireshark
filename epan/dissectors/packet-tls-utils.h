@@ -821,9 +821,6 @@ extern void
 tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
                  gboolean is_from_server, TLSRecordType type);
 
-extern int
-dtls13_generate_key_for_epoch(SslDecryptSession *ssl, gboolean is_from_server, guint64 epoch);
-
 extern void
 tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server);
 

@@ -4287,11 +4287,16 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
         if (ssl_cipher_init(&dec->sn_evp, cipher_algo, sn_key, NULL, mode) < 0) {
             ssl_debug_printf("%s: can't create cipher id:%d mode:%d for seq number decryption\n", G_STRFUNC,
                cipher_algo, MODE_ECB);
+            ssl_cipher_cleanup(&dec->evp);
             dec->evp = NULL;
             return NULL;
         }
+    } else {
+        dec->sn_evp = NULL;
     }
 
+    dec->dtls13_aad.data = NULL;
+    dec->dtls13_aad.data_len = 0;
     ssl_debug_printf("decoder initialized (digest len %d)\n", ssl_cipher_suite_dig(cipher_suite)->len);
     return dec;
 }
@@ -4303,6 +4308,8 @@ ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U
 
     if (dec->evp)
         ssl_cipher_cleanup(&dec->evp);
+    if (dec->sn_evp)
+      ssl_cipher_cleanup(&dec->sn_evp);
 
 #ifdef HAVE_ZLIB
     if (dec->decomp != NULL && dec->decomp->compression == 1 /* DEFLATE */)
@@ -4891,6 +4898,8 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
 end:
     wmem_free(NULL, write_key);
     wmem_free(NULL, write_iv);
+    if (sn_key)
+        wmem_free(NULL, sn_key);
     return success;
 }
 /* (Pre-)master secrets calculations }}} */
@@ -6424,59 +6433,6 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
             app_secret->data_len = 0;
         }
     }
-}
-
-int dtls13_generate_key_for_epoch(SslDecryptSession *ssl, gboolean is_from_server, guint64 epoch)
-{
-    /* RFC 8446 Section 7.2:
-     * application_traffic_secret_N+1 =
-     *     HKDF-Expand-Label(application_traffic_secret_N,
-     *                       "traffic upd", "", Hash.length)
-     *
-     * Both application_traffic_secret_N are of the same length (Hash.length).
-     */
-    const SslCipherSuite *cipher_suite = ssl->cipher_suite;
-    SslDecoder *decoder = is_from_server ? ssl->server : ssl->client;
-    const char *hash_name;
-    StringInfo *traffic_0;
-    guchar *tmp_secret;
-    int ret = -1;
-    uint64_t i;
-
-    if (!cipher_suite) {
-        ssl_debug_printf("%s Cannot perform Key Update due to missing info\n", G_STRFUNC);
-        return -1;
-    }
-
-    if (epoch > DTLS13_MAX_EPOCH) {
-        ssl_debug_printf("dtls13: only %d epochs are supported\n", DTLS13_MAX_EPOCH);
-        return -1;
-    }
-
-    /* this can be slow after a lot of KeyUpdate. TODO: cache secrets for the last N epochs. For now limit this to DTLS13_MAX_EPOCH */
-    traffic_0 = tls13_load_secret(ssl, tls_get_master_key_map(TRUE), is_from_server, TLS_SECRET_APP);
-    if (traffic_0 == NULL)
-        return -1;
-
-    hash_name = ssl_cipher_suite_dig(cipher_suite)->name;
-    const guint hash_len = traffic_0->data_len;
-
-    tmp_secret = NULL;
-    for (i = 0; i < epoch - 3; i++) {
-        if (!tls13_hkdf_expand_label(ssl_get_digest_by_name(hash_name), traffic_0,
-                                    tls13_hkdf_label_prefix(ssl),
-                                    "traffic upd", hash_len, &tmp_secret)) {
-            ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
-            return -1;
-        }
-        ssl_data_set(traffic_0, tmp_secret, hash_len);
-    }
-
-    ret = tls13_generate_keys(ssl, traffic_0, is_from_server);
-    if (ret == 0)
-        decoder->dtls13_epoch = epoch;
-
-    return ret;
 }
 
 /**
