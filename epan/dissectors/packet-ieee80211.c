@@ -33350,7 +33350,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 6;
 
-  /* Get and isolate the phy channel witdth set */
+  /* Get and isolate the phy channel width set */
   phy_channel_width_set = tvb_get_guint8(tvb, offset) >> 1;
   /* Save this info so we can refer to it later. It might need to be global */
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, HE_CHANNEL_WIDTH_KEY,
@@ -40548,7 +40548,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_S1G_KEY, GINT_TO_POINTER(isS1G));
 
-  /* Handling for one-one mapping between assocations and conversations */
+  /* Handling for one-one mapping between associations and conversations */
   if (!pinfo->fd->visited) {
     p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
                      GUINT_TO_POINTER(association_counter));

@@ -1734,7 +1734,7 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
   if (decrypted)
   {
-    /* on first pass add seq suffix decryped info */
+    /* on first pass add seq suffix decrypted info */
     if (ssl) {
       if (is_from_server && ssl->server) {
         record->dtls13_seq_suffix = ssl->server->seq;

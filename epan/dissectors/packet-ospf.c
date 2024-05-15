@@ -528,7 +528,7 @@ static const value_string ext_pfx_tlv_af_vals[] = {
     {0, NULL}
 };
 
-/* OSPF Externded Prefix Sub-TLV Registry */
+/* OSPF Extended Prefix Sub-TLV Registry */
 #define SR_STLV_SID_LABEL                 1
 #define SR_STLV_PREFIX_SID                2
 
@@ -1185,7 +1185,7 @@ static int * const bf_v2_options_lsa7[] = {
     &hf_ospf_v2_options_mt,
     NULL
 };
-/* Structures for handling the bitfield of the Options field of Optional Router Capabilites LSA (RFC4970). */
+/* Structures for handling the bitfield of the Options field of Optional Router Capabilities LSA (RFC4970). */
 static int * const bf_ri_options[] = {
     &hf_ospf_ri_options_grc,
     &hf_ospf_ri_options_grh,
@@ -2422,7 +2422,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                         break;
                     }
 
-                    /* stlv_len shound range from 4 to 36 bytes */
+                    /* stlv_len should range from 4 to 36 bytes */
                     num_bcs = (stlv_len - 4)/4;
 
                     if(num_bcs>8) {

@@ -68,6 +68,7 @@ ampdu
 amperage
 ampere
 amperes
+amsdu
 anacap
 analyzers
 analyzes
@@ -95,6 +96,7 @@ arcnet
 arduino
 arfcn
 arista
+armscii
 aruba
 ascii
 asciidoc
@@ -234,6 +236,7 @@ cardbus
 carrierfreq
 carrierid
 casio
+categorization
 categorizes
 cattp
 cblock
@@ -413,6 +416,7 @@ datarate
 dataset
 datastate
 datetime
+datum
 daysofweek
 dccreq
 dcerpc
@@ -521,6 +525,7 @@ dhcpv
 diagdata
 dialed
 dialup
+differentiator
 diffie
 Digicel
 digitizer
@@ -563,6 +568,7 @@ drbid
 drdynvc
 droppable
 dsmcc
+dstmode
 dstport
 dtwin
 dumpcap
@@ -649,6 +655,7 @@ España
 esperanto
 essar
 estonia
+ethcm
 etheraddr
 ethercat
 ethers
@@ -749,6 +756,7 @@ gendc
 gentoo
 geoip
 geonw
+geostd
 geran
 getattr
 getentrybyname
@@ -854,6 +862,7 @@ ieee80211
 iface
 ifconfig
 ifdef
+ifindex
 ifname
 iftype
 ikev2
@@ -980,6 +989,7 @@ kbytes
 kchip
 keepalive
 kerberos
+keybcs
 keydes
 keygen
 keyid
@@ -991,6 +1001,8 @@ keyring
 keyset
 keytab
 knxip
+krb5kdc
+krb5krb
 l1sync
 l2cap
 l2vpn
@@ -1014,6 +1026,7 @@ libnl
 libpcap
 libsmi
 licmgr
+lidaddr
 linearity
 linkaddr
 linkcss
@@ -1024,6 +1037,7 @@ linux
 list1
 literals
 lithionics
+llcgprs
 lnpdqp
 locamation
 locoinfof
@@ -1040,6 +1054,7 @@ loopback
 loran
 lossy
 lscap
+ltype
 lucent
 luminaire
 luminance
@@ -1077,6 +1092,7 @@ mcptt
 mcsset
 measurability
 measurements
+measx
 mediaone
 medion
 megabit
@@ -1286,6 +1302,7 @@ octetstring
 oextcap
 ofdma
 offloadability
+ofpacpt
 ofpat
 ofpbac
 ofpbfc
@@ -1293,6 +1310,7 @@ ofpbic
 ofpbmc
 ofpbrc
 ofpet
+ofpfmfc
 ofpgmfc
 ofpmf
 ofpmmfc
@@ -1519,6 +1537,7 @@ randomizer
 randpkt
 raster
 rctxinfo
+rdeth
 rdpudp
 rdtci
 reachability
@@ -1565,6 +1584,7 @@ reconnection
 recurse
 recurses
 recursively
+redefinition
 redelivered
 redelivery
 redir
@@ -1734,6 +1754,7 @@ sdusize
 sectigo
 sectorization
 sectorized
+secur
 seglen
 segmenting
 segno
@@ -1785,6 +1806,7 @@ sidelink
 signaal
 signaling
 signon
+simplestatusbit
 simulcast
 singulation
 sistemas
@@ -1873,6 +1895,7 @@ subdoc
 subelem
 subelement
 subelements
+subelt
 subframes
 subfunc
 subhd
@@ -1914,6 +1937,7 @@ sverige
 svhdx
 switchinfo
 symantec
+symbl
 symlink
 synchronizer
 synchronizing
@@ -1930,6 +1954,7 @@ sysmac
 systemd
 tablemod
 tabular
+taiwan
 tanzania
 tclas
 tcpdump
@@ -1972,6 +1997,7 @@ timeout
 timeslot
 timestamp
 timestamps
+timetag
 timezone
 tipcv
 tlvlen
@@ -2254,6 +2280,7 @@ virtio
 virtualization
 virtualized
 vlans
+vldbentry
 vmware
 vnode
 vocoder
