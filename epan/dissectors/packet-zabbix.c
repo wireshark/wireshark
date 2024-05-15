@@ -132,6 +132,7 @@ typedef struct _zabbix_conv_info_t {
 #define ZABBIX_T_CONFIG             0x00000080
 #define ZABBIX_T_DATA               0x00000100
 #define ZABBIX_T_HEARTBEAT          0x00000200
+#define ZABBIX_T_LEGACY             0x00000400   /* pre-7.0 non-JSON protocol */
 
 #define ADD_ZABBIX_T_FLAGS(flags)       (zabbix_info->oper_flags |= (flags))
 #define CLEAR_ZABBIX_T_FLAGS(flags)     (zabbix_info->oper_flags &= (0xffff-(flags)))
@@ -336,13 +337,21 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * So don't use it to anything else (make a wmem_strdup() if needed, see below)
      */
     json_str = tvb_get_string_enc(pinfo->pool, next_tvb, offset, (int)datalen, ENC_UTF_8);
-    if (CONV_IS_ZABBIX_REQUEST(zabbix_info, pinfo) && !json_validate(json_str, datalen)) {
-        /* The only non-JSON Zabbix request is passive agent before Zabbix 7.0,
-           update the conversation data
-        */
-        ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
-    }
-    if (IS_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE)) {
+    /* First check if this is a pre-7.0 passive agent.
+     * Note that even pre-7.0 passive agent *responses* can be JSON, so don't just check
+     * for JSON validation but check the conversation data!
+     */
+    if (
+        !json_validate(json_str, datalen) ||
+        (
+            CONV_IS_ZABBIX_RESPONSE(zabbix_info, pinfo) &&
+            IS_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE | ZABBIX_T_LEGACY)
+        )
+    ) {
+        /* The only non-JSON Zabbix request/response is passive agent before Zabbix 7.0,
+         * ensure the conversation data is set, then set the texts
+         */
+        ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE | ZABBIX_T_LEGACY);
         if (CONV_IS_ZABBIX_REQUEST(zabbix_info, pinfo)) {
             proto_item_set_text(ti, "Zabbix Passive agent request");
             col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive agent request");
@@ -350,9 +359,9 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             proto_item_set_text(ti, "Zabbix Passive agent response");
             col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive agent response");
         }
-        /* Make a copy of the data string for later use */
+        /* Make a copy of the data string for later error message lookup use */
         passive_agent_data_str = wmem_strndup(pinfo->pool, json_str, (size_t)datalen);
-        /* Don't do content-based searches for non-JSON passive agents */
+        /* Don't do content-based searches for pre-7.0 passive agents */
         goto show_agent_outputs;
     }
     /* Parse JSON, first get the token count */
@@ -604,6 +613,8 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     else if (version && data_array) {
         /* This looks like passive agent response in Zabbix 7.0+ */
         ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
+        proto_item_set_text(ti, "Zabbix Response for passive checks");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Response for passive checks");
     }
     else if (data_object || data_array) {
         /* No other match above, let's assume this is server sending incremental
