@@ -1,0 +1,710 @@
+commit dc59c79dace
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 15:55:55 2024 -0700
+
+    Prep for 4.0.15
+
+commit 4d0747ca24b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 22:08:13 2024 +0000
+
+    Qt: Fix RTP Player crash
+
+    marker_stream_ might not exist when playFinished is called.
+    In particular, deleting the RtpAudioStreams might cause
+    playFinished to be called when the audio streams delete
+    their audio output in certain cases, such as if they are
+    paused. (The behavior might be slightly different on Qt6,
+    where QAudioSink is used vs. Qt5 where QAudioOutput is used.)
+
+    Fix #19596
+
+    (cherry picked from commit 7698e03ba13e2e9966c84fbd800f8ab6c25983ef)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c1f00ff04b1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 12:01:53 2024 -0700
+
+    GitLab CI: Try to add back Lua on macOS
+
+    (cherry picked from commit c637058453301194616396b94fe7d63e20e6e6bf)
+
+commit a7bfe9d3e3e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 20:09:14 2024 +0000
+
+    GitLab CI: Switch the openSUSE builds to 15.5
+
+    (cherry picked from commit a274d763df69d2a3d91f6478f6deb29c0c039952)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9bef621cfae
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 13:37:40 2024 +0000
+
+    wslua: Fix segfault when registering a field / ei twice
+
+    We need to call Proto_commit as a protected function so that
+    errors don't call wslua_panic and abort, but instead are handled
+    gracefully.
+
+    Fix #19194
+
+    (cherry picked from commit 70a3c9f82913d6c70ddc57d19976f80a676c9c56)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ea41493a45c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 12 09:22:27 2024 +0000
+
+    [Automatic update for 2024-05-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f119c8a5734
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri May 10 21:27:01 2024 +0000
+
+    Lua: Fix DissectorTable on certain Lua versions (e.g., 32 bit)
+
+    The port value is a uint32_t. Calling checkinteger and implicitly
+    casting to an unsigned integer later does not give the correct
+    result on a Lua install where Lua_Integer is 32 bit for unsigned
+    integers greater than INT32_MAX. Lua will truncate to the integer
+    range (sometimes by using inline assembly, sometimes explicitly.)
+
+    Note that Lua_Integer can 32 bit on 64 bit platforms; it can also
+    be 64 bit on 32 bit platforms.
+
+    Fix #18367
+
+    (backported from commit 4049ea7e6c4009158cbf91b0bf3300759d2106d6)
+
+    (cherry picked from commit 949aa570f39e5a773a1ecdecbf92e2682064b90d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c1a72338639
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 8 14:17:01 2024 -0700
+
+    Windows: Upgrade GnuTLS to 3.8.4
+
+    (cherry picked from commit b119b9d6010f7ec0210f83297df365c2e1dec1ae)
+
+    Conflicts:
+            tools/win-setup.ps1
+
+commit f0271f28575
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 7 16:48:37 2024 -0700
+
+    Windows: Upgrade nghttp2 to 1.61.0
+
+    (cherry picked from commit fe51f8424f9a5dcae514745b919b6139c3c568fd)
+
+    Conflicts:
+            tools/win-setup.ps1
+
+commit 8fb2a8e24cb
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue May 7 06:38:31 2024 -0400
+
+    gitlab-ci: Remove docker tag from jobs
+
+    The small SaaS runner on Linux had the docker (plus all other tags)
+    removed, causing all the jobs with that tag to get stuck.
+
+    https://about.gitlab.com/blog/2023/08/15/removing-tags-from-small-saas-runner-on-linux/
+    https://docs.gitlab.com/ee/update/deprecations.html#removal-of-tags-from-small-saas-runners-on-linux
+    (backported from commit a0e399e5c3edd06cfc78fe41f8959f4c556045be)
+
+commit 694f36e00ea
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 5 09:22:06 2024 +0000
+
+    [Automatic update for 2024-05-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 427d5b0793d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu May 2 23:29:47 2024 +0000
+
+    Qt: Fix an typo of row vs count in columnListModel
+
+    The size of the internal store is the number of model rows (which
+    are the packet list columns), not the number of model columns (which
+    are the parameter types for the packet list columns). This caused data
+    not to appear for the later parameter types when the number of packet
+    list columns were small. More of a difference in the current branch
+    because width and alignment are also shown in preferences, so it
+    has effects at the default number of columns.
+
+    Related to #19821 (but not sufficient.)
+
+    (cherry picked from commit 704fe87abd1e83a3451ba4abb2001ef7349d5c71)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7ccf05b51f2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed May 1 01:57:16 2024 +0000
+
+    Qt: Fix ProgressFrame location in non-VoIP Flow Graph
+
+    ProgressFrame::addToButtonBox examines the button box layout to
+    determine where to add itself. Changing the visibility of the
+    RTP player button redoes the layout and upsets the positioning
+    of the frame. This leaves the ProgressFrame dangling in the far
+    left of the ButtonBox, on top of the Help button.
+
+    SequenceDialog only determines whether it's a VoIP Calls dialog or
+    a non-VoIP Flow Graph when initially instantiated (there's no call
+    to disable it), so add the VoIP parameter to the constructor and
+    set the visibility appropriately before adding the ProgressFrame
+    instead of having the VoIP Calls Dialog call an extra public method.
+
+    (cherry picked from commit a95dec6ef9612d80598547a346825639e16c4e51)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e8cafa35884
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 30 23:21:44 2024 +0000
+
+    Qt: Use afterLayout signal for Flow Graph y axis labels
+
+    For the Sequence Dialog (Flow Graph / VOIP Calls), we place
+    text labels for the two y-axes (Time and Comment) above the
+    axes, which is not a normally supported position, so we
+    manually place it. The position of the labels depends on the
+    axis rectangle sizes and positions.
+
+    QCustomPlot 2.1.0 added a new QCustomPlot::afterLayout signal
+    that is extremely helpful for situations like this. It is
+    called immediately before the draw step in a replot, or before
+    printing happens, and can put the labels in the correct position
+    after any change.
+
+    This is a little more reliable than our previous solution, which
+    sometimes left the labels out of position, needing to be fixed
+    by manually pushing the Reset button.
+
+    (cherry picked from commit 84fe646b78d62dcc5540d7a2950a06b0f86de0e7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e504d55ff72
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 30 12:57:24 2024 -0700
+
+    GitHub CI: Try to fix Qt5 discovery
+
+    Add a CMAKE_PREFIX_PATH for Qt5. Install "qt@5" in Homebrew instead of
+    "qt5".
+
+    [skip ci]
+
+commit 30866f449fd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 29 01:51:43 2024 +0000
+
+    ptp: multiple tlv_pathsequence in announce message
+
+    (cherry picked from commit 7ef8501c347d4336a1cb62b4b312f8c93b92efff)
+
+    32b82d47 Update file packet-ptp.c
+    746c18cf ptp: multiple tlv_pathsequence in announce message
+
+    Co-authored-by: Chuck Craft <bubbasnmp@gmail.com>
+
+commit 69b8f8d8ad3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 18:41:09 2024 +0000
+
+    ipars: Fix truncation warning
+
+    MAX_EOM_MSG_SIZE is defined to be too small for the value placed in
+    for an unknown type.
+
+    epan/dissectors/packet-ipars.c:130:29: error: 'snprintf' will always be truncated; specified size is 16, but format string expands to at least 24 [-Werror,-Wformat-truncation]
+      130 |                 default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
+
+    (cherry picked from commit 4320031c97b3528bc96ab5d366bab8b7fdb2a243)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d9cdb0ea319
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 17:35:14 2024 +0000
+
+    wslua: Fix integer validation signedness
+
+    The C Standard (any revision) 6.3.1.4 Real ﬂoating and integer,
+    in a footnote says:
+    "The remaindering operation performed when a value of integer type is
+    converted to unsigned type need not be performed when a value of real
+    ﬂoating type is converted to unsigned type."
+
+    Since a Lua_Number is a float type, converting a (possibly negative)
+    float to an unsigned type and then to a signed type is undefined
+    behvavior, and doesn't necessarily produce the same result as converting
+    the float to a signed integer type directly. On x86 and x86-64 it
+    has the same result, but it's permissible to instead first cast the float
+    to the nearest unsigned integer value (i.e. 0), so that the end result
+    is 0 instead on negative.
+
+    On the ARM architecture this is what seems to happen:
+
+    https://embeddeduse.com/2013/08/25/casting-a-negative-float-to-an-unsigned-int/
+    https://github.com/mavlink/mavlink/issues/2073#issuecomment-2080103820
+
+    (Compilers can warn about this, but it's perhaps difficult to get the
+    only the right subset of conversion warnings.)
+
+    Therefore, when adding a signed integer field, we must use
+    wslua_checkgint32.
+
+    (backported from commit 15392c324d5eaefcaa298cdee09cd5b40b12e09c)
+
+    (cherry picked from commit 4dadd9b029f9d4b189099f2431f4f3c7dc2e9f29)
+
+    Co-authored-by: Dan <DanOfTheRoses@gmail.com>
+
+commit 2a8e2ca0ccc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 28 09:20:41 2024 +0000
+
+    [Automatic update for 2024-04-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 6919428180d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 26 11:36:16 2024 +0000
+
+    5co-legacy: Use ITEM_LABEL_LENGTH for snprintf in CF_FUNCs
+
+    In particular, one case leads to a format truncation warning on
+    recent versions of clang.
+
+    (cherry picked from commit 2056120ddce063850acb5cfd207dce724093c83e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3c19c40acf0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 26 01:26:58 2024 +0000
+
+    Qt: Fix flow graph scroll direction via keyboard
+
+    The y (time) axis is range reversed. QCP reversed ranges still
+    have the mathematically smaller element in lower and the larger
+    in upper, so reverse the direction of movement in panAxes.
+
+    Also fix the keyboard right arrow allowing the graph to be scrolled
+    to right farther than the QScrollBar allows, into extra empty space.
+
+    Fix #12932
+
+    (cherry picked from commit cc4c931b4a3a3d481aeb9ea320e5fb5e31ca0f70)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b88f399e4ac
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 25 15:18:02 2024 +0000
+
+    Qt: Fix Window scaling graph axis labels
+
+    Commit 259a3e508f37bb3c9b6d18cdacf7a18aa6dbd8f8 added a graph
+    of the congestion window to the Window Scale graph, but didn't
+    update the axes now that the window has two graphs.
+
+    Fix #17425. Fix #15016
+
+    (cherry picked from commit 259bbbff2a5257319ff69aa32cc377fc501eb022)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 2b03b4938fe
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 24 10:56:02 2024 +0000
+
+    SSH: Handle "curve25519-sha256@libssh.org" KEX name
+
+    As RFC 8731 notes, 'The "curve25519-sha256" key exchange method is
+    identical to the "curve25519-sha256@libssh.org" key exchange method
+    created by Aris Adamantiadis and implemented in libssh and OpenSSH.'
+
+    Handle the other name in ssh_kex_hash_type. It is already accounted
+    for in other functions.
+
+    Fix #19240
+
+    (cherry picked from commit 6966cdb73e6f5dc2e6a03136b07b8ed59c7ff65a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0b89ec4b286
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 23 13:27:56 2024 -0700
+
+    GitLab CI: after_script updates
+
+    In GitLab 17 and later, after_script will run when a job is cancelled.
+    Update our various jobs accordingly.
+
+    (cherry picked from commit e03a58958e065c7e2dc7e15a90978fa5d57edcf6)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 7696a34f3ff
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Apr 23 02:28:45 2024 +0000
+
+    fcfzs: fix calculation of the number of fill bytes.
+
+    If a name length is a multiple of 4, no padding is required to make what
+    follows be on a 4-byte boundary.  Only use 4 - (len % 4) to calculate
+    the padding if len isn't a multiple of 4.
+
+    (cherry picked from commit e8b256c9a0f427b8dc2387ab02a47dc8c2f687e0)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 3caf50edf4b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Apr 22 16:14:04 2024 +0000
+
+    NAS 5GS: fix dissection of NAS message container IE
+
+    Take into consideration the outer NAS message security header before
+    trying to dissect the IE.
+
+    Closes #19793
+
+    (cherry picked from commit ab3511c5977d0dd483d1d7e3d741940a12eaacc4)
+
+    Conflicts:
+            epan/dissectors/packet-nas_5gs.c
+
+    (cherry picked from commit 98fa3eff88a530ae4a190556867a57812d473fda)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit ecbf9430514
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 09:16:03 2024 +0000
+
+    tipc: fix byte count.
+
+    Use the value used as the number of bytes in an atom to determine
+    whether that number is singular or plural; don't use some other
+    unrelated value.
+
+    (cherry picked from commit aea66ddc3336a095e6201b633a78014bd3af3a1d)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 1c61540d73d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 06:55:16 2024 +0000
+
+    tipc: fix padding after bearer instance string.
+
+    Presumably if the length of the string is a multiple of 4, it needs zero
+    byts of padding to put the next item on a 4-byte boundary.  This means
+    that (4 - (length % 4)) is not the right formula - a check for whether
+    there's any padding must be done first.
+
+    (cherry picked from commit cda7c030e1eafdca22028d1d8c87e484bba37555)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 781553f8d75
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 21 09:20:29 2024 +0000
+
+    [Automatic update for 2024-04-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 58e1b410637
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Apr 20 11:16:49 2024 -0700
+
+    pcapio: fix a check for idb_filter size.
+
+    The filter string in the idb_filter option has a maximum length of
+    UINT16_MAX - 1, because the maximum size of an option bodyis UINT16_MAX,
+    and the first byte of the option contains the filter type.
+
+    The code to write the filter did the right check; the code to count the
+    idb_filter option length checked against UINT16_MAX.  Fix that.
+
+    While we're at it, fix a comment.
+
+    (backported from commit d277ecdb3ff7d04e7f64566f21409b3f1359eb2f)
+
+commit ca9110b9d74
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 20 13:57:53 2024 -0400
+
+    update symbols to keep Debian happy
+
+commit f6cb547426d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 20 13:15:16 2024 +0000
+
+    editcap, libwiretap: Don't use array of initial DSBs after freeing
+
+    wtap_dump_close frees the passed in GArray of initial DSBs, used
+    by editcap for injecting DSBs from a file or list of files.
+
+    Add functions to increment and decrement the reference count of
+    an array of wtap blocks. Dereference the block of initial DSBs
+    in wtap_dump_close() instead of freeing it. In editcap, before
+    closing the dump file in cases where we intend to open a new
+    file (e.g., with a maximum time value or a maximum packet count),
+    reference the block.
+
+    Fix #19782, #19783, #19784.
+
+    (cherry picked from commit be3550b3b138f39bebb87ac0b8490e75fc8cc847)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ea7c70de2f3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 14 09:21:13 2024 +0000
+
+    [Automatic update for 2024-04-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit d651f10c824
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 10 12:16:02 2024 -0400
+
+    Qt: Hide export dissections dialog when accepting
+
+    When the Export Dissections Dialog is accepted but starts to
+    try to save the files, hide it. It will close itself after the
+    export is done (which deletes it), but in the meantime the
+    exporting from a large file can take a long time. Hiding the
+    dialog allows the user to cancel the save with the Progress Dialog
+    on the main window. Leaving the dialog visible allowed the user
+    to click "Cancel" on the dialog, which didn't cancel the save
+    (still up to the progress dialog), but did delete the dialog on
+    close, resulting in a crash when the export did finish.
+
+    This is for Linux and macOS, and matches the behavior of the native
+    Windows dialog, which already hides itself when Save is clicked.
+
+    (cherry picked from commit e84adf41da08c60ff329f3e91bb948e2e1e33753)
+
+commit e7a511097bc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 10 10:28:45 2024 -0400
+
+    Qt: Fix crash when closing TimeShiftDialog before redissection done
+
+    Commit f67eccedd9836e6ced1f57ae9889f57a5400a3d7 made it so that
+    the TimeShiftDialog doesn't have a nested event loop with exec.
+    That's good, but that means that an AutoConnection between
+    TimeShiftDialog::timeShifted and PacketList::applyTimeShift is a
+    DirectConnection, which means that TimeShiftDialog::applyTimeShift
+    waits for the packet list redissection to finish before the function
+    calls enableWidgets and returns.
+
+    The user can close the Time Shift Dialog while the packet list
+    redissection is still ongoing. As the TimeShiftDialog is also now
+    DeleteOnClose, this means that when the redissection finishes (or
+    is canceled via ProgressDialog) the TimeShiftDialog will try to update
+    its widgets after they've been deleted, causing a crash.
+
+    To prevent, make the connection between the TimeShiftDialog and
+    the PacketList a Qt::QueuedConnection.
+
+    (cherry picked from commit ea70c16e05d0f1f0779bec6e89153a67d07d6cfa)
+
+commit b9d7838ebf4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 7 16:57:23 2024 -0400
+
+    Qt: Work around Qt6 dataChanged pessimization
+
+    A change in Qt 6.0 makes QAbstractItemView::dataChanged, when called
+    with multiple indices, determine exactly how much of the viewport
+    rectangle is covered by the changed indices and only update that much
+    of the viewport instead of always updating the entire viewport. This
+    reduces CPU load when multiple indices, but not enough to span the
+    entire viewport, are updated at once.
+    ( https://codereview.qt-project.org/c/qt/qtbase/+/285280
+      https://bugreports.qt.io/browse/QTBUG-58580
+    )
+
+    Unfortunately, if the number of indices is very large (much larger
+    than the total number of indices that can possibly be displayed in
+    the viewport), computing the union of the intersecting rectangle takes
+    orders of magnitude longer than unconditionally updating the whole
+    viewport. ( https://bugreports.qt.io/browse/QTBUG-124173 )
+
+    When the packetListModel wants to indicate that all packets may have
+    changed, this makes dataChanged scale linearly with the total number of
+    rows/frames, whereas updating the viewport only scaled with the size of
+    the viewport but was unaffected by undisplayed packets. The calculation
+    is unnecessary because we know the entire viewport is affected. On a
+    sample modern workstation, measurements showed dataChanged taking 1 s
+    with 1.4 M packets and 9 s with 12 M packets. This signal can be issued
+    quite often, e.g. if IP address lookup (DNS or MaxMindIP) is enabled, it
+    can be issued once per second at the packet_data_timer expiration for
+    some period of time as idle dissection occurs when opening the file.
+
+    Instead of issuing dataChanged, we can issue layoutAboutToBeChanged()
+    (in practice a no-op) and layoutChanged(), which causes the QTreeView
+    to clear all information about its view items (d->viewItems.clear() in
+    QTreeView::doItemsLayout), but without clearing the current and selected
+    row (unlike [begin|end]ResetModel.) This takes the same 5-8 ms in the
+    same test procedure as above in both the 1.4 M and 12 M packet tests.
+
+    Improves #19486 considerably on Qt 6.
+
+    (cherry picked from commit 5abfe91cc164d873e56c6f24a313b93b7d883a9e)
+
+commit 49d03f5253c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 7 09:20:02 2024 +0000
+
+    [Automatic update for 2024-04-07]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 16a169fce5b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 27 14:47:52 2023 -0700
+
+    Qt: Fix ManageInterfacesDialog cleanup
+
+    Handle our ManageInterfacesDialog cleanup tasks inside our destructor.
+    If we try to handle them in on_buttonBox_accepted we run into a race
+    condition with WA_DeleteOnClose.
+
+    Fixes #19287
+
+    (cherry picked from commit 2d55e5672b07a8a102024e0af66e821bba51213b)
+
+commit 33075b0b482
+Author: Michal Ruprich <mruprich@redhat.com>
+Date:   Tue Mar 7 10:11:33 2023 +0100
+
+    Converting QByteArray to const char *
+
+    (cherry picked from commit 34d3f122d375ce5805c484e62411784e076c0e28)
+
+commit f5c557ccae8
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 31 12:10:56 2024 -0700
+
+    wslua: put the example of use for treeitem:add at the right level.
+
+    It should be a subsection of the entry for treeitem:add, which means it
+    must be a level *5* header.
+
+    (cherry picked from commit 7b6e196c4117010c04d911021c16b37c454a4f19)
+
+commit cfbd925010e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 31 10:51:30 2024 -0700
+
+    wslua: fix the documentation for Tvb:reported_length_remaining.
+
+    Use the WSLUA_OPTARG_xxx convention for it optional offset argument, so
+    that the documentation generation process properly documents it.
+
+    (cherry picked from commit 62bc594401f64317d4e2a66de726ca615cf0263b)
+
+commit c10a98d2669
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 29 09:42:44 2024 -0400
+
+    editcap: Don't memmove more than allocated in the buffer
+
+    When moving from the begining with a beginning offset specified,
+    don't run off the end. Subtract the source memory area's full offset
+    from the beginning of the buffer from the capture length.
+
+    Fix #19724
+
+    (cherry picked from commit 7c744e7933794b09e7af4d9703194ad0b01be282)
+
+commit 85646499649
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 31 09:20:20 2024 +0000
+
+    [Automatic update for 2024-03-31]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit dd5b3b36d3e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 30 08:07:26 2024 -0400
+
+    Mongo: Ensure the offset advances
+
+    The MongoDB Wire Protocol uses _signed_ 32 bit integers for lengths.
+    dissect_bson_document checks for bogus values and ensures that a
+    non-negative (and at least 5) size is returned, but we need to make
+    sure to use that return value instead of trusting the value read
+    from the packet in dissect_op_msg_section.
+
+    Fix #19726
+
+    (cherry picked from commit 38c0efcee8d22d922e446888b268effc3ccf725f)
+
+commit 3826922eab4
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Mar 29 22:31:04 2024 -0700
+
+    macos-setup: Add a warning about a comparomised version of XZ.
+
+    [skip ci]
+
+    (cherry picked from commit 75b1ffe1190de3843de3cd756a6b16200a967cd8)
+
+commit 6333a228bc5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 29 10:27:10 2024 -0700
+
+    GQUIC+DOCSIS MAC MGMT: Recursion updates
+
+    Make our recursion checks consistent with other dissectors.
+
+    (cherry picked from commit 119a385ba271a51ea35579b25dc0025ff450577c)
+
+commit 93744719c33
+Author: Dominic Pearson <dsp@technoanimal.net>
+Date:   Thu Mar 28 15:07:40 2024 +0100
+
+    cpu_info: fix missing decl in else macro block
+
+    (cherry picked from commit 318e8d3161ac23a7f486a74500d4d2b05403a58a)
+
+commit 3d5d473659c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 27 14:42:19 2024 -0700
+
+    Version: 4.0.14 → 4.0.15
+
+    [skip ci]

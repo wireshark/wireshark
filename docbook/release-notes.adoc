@@ -21,17 +21,17 @@ wsbuglink:17779[]
 // * The Windows installers now ship with Qt 5.12.2.
 // They previously shipped with Qt 6.2.3.
 
-If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you might have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
-wsbuglink:18734[].
+// If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you might have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
+// wsbuglink:18734[].
 
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
 * wssalink:2024-07[]
-MONGO dissector infinite loop.
+MONGO and ZigBee TLV dissector infinite loops.
 wsbuglink:19726[].
-// cveidlink:2024-xxx[].
+cveidlink:2024-4854[].
 // Fixed in master: 38c0efcee8, 9ab952b964
 // Fixed in release-4.2: e9965fe303, cb267b4e52
 // Fixed in release-4.0: dd5b3b36d3e
@@ -42,8 +42,8 @@ wsbuglink:19726[].
 
 * wssalink:2024-08[]
 The editcap command line utility could crash when chopping bytes from the beginning of a packet.
-// wsbuglink:19724[].
-// cveidlink:2024-xxx[].
+wsbuglink:19724[].
+cveidlink:2024-4853[].
 // Fixed in master: 7c744e7933
 // Fixed in release-4.2: 3911c7b7d2
 // Fixed in release-4.0: c10a98d2669
@@ -54,8 +54,8 @@ The editcap command line utility could crash when chopping bytes from the beginn
 
 * wssalink:2024-09[]
 The editcap command line utility could crash when injecting secrets while writing multiple files.
-wsbuglink:19784[].
-// cveidlink:2024-xxx[].
+wsbuglink:19782[].
+cveidlink:2024-4855[].
 // Fixed in master: be3550b3b1
 // Fixed in release-4.2: 32bde22d9b
 // Fixed in release-4.0: f6cb547426d
