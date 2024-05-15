@@ -1,4 +1,20 @@
 /* packet-macmgmt.c
+ *
+ * Relevant DOCSIS specifications:
+ * - DOCSIS MAC and Upper Layer Protocols Interface:
+ *   - CM-SP-MULPIv4.0: https://www.cablelabs.com/specifications/CM-SP-MULPIv4.0
+ *   - CM-SP-MULPIv3.1: https://www.cablelabs.com/specifications/CM-SP-MULPIv3.1
+ *   - CM-SP-MULPIv3.0: https://www.cablelabs.com/specifications/CM-SP-MULPIv3.0
+ *   - CM-SP-RFIv2.0  : https://www.cablelabs.com/specifications/radio-frequency-interface-specification-2
+ *   - CM-SP-RFIv1.1  : https://www.cablelabs.com/specifications/radio-frequency-interface-specification
+ *   - SP-RFI         : https://www.cablelabs.com/specifications/radio-frequency-interface-specification-3
+ *
+ * - DOCSIS Security (BPKM):
+ *   - CM-SP-SECv4.0: https://www.cablelabs.com/specifications/CM-SP-SECv4.0
+ *   - CM-SP-SECv3.1: https://www.cablelabs.com/specifications/CM-SP-SECv3.1
+ *   - CM-SP-SECv3.0: https://www.cablelabs.com/specifications/CM-SP-SECv3.0
+ *   - CM-SP-BPI+   : https://www.cablelabs.com/specifications/baseline-privacy-plus-interface-specification
+ *
  * Routines for DOCSIS MAC Management Header dissection
  * Routines for Upstream Channel Change dissection
  * Routines for Ranging Message dissection
@@ -250,9 +266,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 
 
 
-/* BPKM Attributes defined in:
- * http://www.cablemodem.com/downloads/specs/SP-BPI+_I10-030730.pdf
- */
+/* BPKM Attributes */
 #define BPKM_RESERVED 0
 #define BPKM_SERIAL_NUM 1
 #define BPKM_MANUFACTURER_ID 2
