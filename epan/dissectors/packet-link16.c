@@ -56,6 +56,7 @@ static const value_string Link16_Label_Strings[] = {
 };
 
 /* Viasat, Inc., (2012), Link 16 Network Participant Group and Message Card, accessed from <http://www.viasat.com/files/assets/assets/Link16_NPG_Message_Card_100112a.pdf> on 15 April 2013. */
+/* SyntheSys (2021), Link 16 Messages, accessed from <https://resources.synthesys.co.uk/defence/datasheet-link-16-message-table.pdf> on 15 May 2024. */
 #define MKPAIR(a, b) (((b) << 5) | (a))
 static const value_string Link16_Message_Strings[] = {
     { MKPAIR(0, 0), "Initial Entry" },
@@ -73,6 +74,7 @@ static const value_string Link16_Message_Strings[] = {
     { MKPAIR(1, 4), "Communication Status" },
     { MKPAIR(1, 5), "Net Control Initialization" },
     { MKPAIR(1, 6), "Needline Participation Group Assignment" },
+    { MKPAIR(1, 7), "Fine Pulse Count Report" },
     { MKPAIR(2, 0), "Indirect Interface Unit PPLI" },
     { MKPAIR(2, 2), "Air PPLI" },
     { MKPAIR(2, 3), "Surface PPLI" },
@@ -88,7 +90,8 @@ static const value_string Link16_Message_Strings[] = {
     { MKPAIR(3, 6), "Space Track" },
     { MKPAIR(3, 7), "Electronic Warfare Product Information" },
     { MKPAIR(5, 4), "Acoustic Bearing and Range" },
-    { MKPAIR(6, 0), "Amplification" },
+    { MKPAIR(6, 0), "Track/Point Amplification" },
+    { MKPAIR(6, 1), "Personnel Recovery Amplification" },
     { MKPAIR(7, 0), "Track Management" },
     { MKPAIR(7, 1), "Data Update Request" },
     { MKPAIR(7, 2), "Correlation" },
@@ -100,12 +103,14 @@ static const value_string Link16_Message_Strings[] = {
     { MKPAIR(8, 0), "Unit Designator" },
     { MKPAIR(8, 1), "Mission Correlator Change" },
     { MKPAIR(9, 0), "Command" },
+    { MKPAIR(9, 1), "Engagement Coordination" },
+    { MKPAIR(9, 2), "ECCM Coordination" },
     { MKPAIR(10, 2), "Engagement Status" },
     { MKPAIR(10, 3), "Handover" },
     { MKPAIR(10, 5), "Controlling Unit Report" },
     { MKPAIR(10, 6), "Pairing" },
-    { MKPAIR(11, 0), "From the Weapon" },
-    { MKPAIR(11, 1), "To the Weapon" },
+    { MKPAIR(11, 0), "Weapon Response/Status" },
+    { MKPAIR(11, 1), "Weapon Directive" },
     { MKPAIR(11, 2), "Weapon Coordination" },
     { MKPAIR(12, 0), "Mission Assignment" },
     { MKPAIR(12, 1), "Vector" },
@@ -122,8 +127,11 @@ static const value_string Link16_Message_Strings[] = {
     { MKPAIR(13, 5), "Land Platform and System Status" },
     { MKPAIR(14, 0), "Parametric Information" },
     { MKPAIR(14, 2), "Electronic Warfare Control / Coordination" },
+    { MKPAIR(14, 3), "ECM Management" },
     { MKPAIR(15, 0), "Threat Warning" },
-    { MKPAIR(16, 0), "Imagery" },
+    { MKPAIR(16, 0), "Imager Transfer" },
+    { MKPAIR(16, 1), "Route Change" },
+    { MKPAIR(16, 2), "Global Area Reference System" },
     { MKPAIR(17, 0), "Weather Over target" },
     { MKPAIR(28, 0), "U.S. National 1 (Army)" },
     { MKPAIR(28, 1), "U.S. National 2 (Navy)" },
@@ -140,25 +148,32 @@ static const value_string Link16_Message_Strings[] = {
 };
 
 /* Viasat, Inc., (2012), Link 16 Network Participant Group and Message Card, accessed from <http://www.viasat.com/files/assets/assets/Link16_NPG_Message_Card_100112a.pdf> on 15 April 2013. */
+/* SyntheSys (2021), Network Participation Groups (NPGs), accessed from <https://resources.synthesys.co.uk/defence/datasheet-network-participation-groups-table.pdf> on 15 May 2024. */
 const value_string Link16_NPG_Strings[] = {
     { 1, "Initial Entry" },
     { 2, "RTT-A" },
     { 3, "RTT-B" },
     { 4, "Network Management" },
-    { 5, "PPLI and Status" },
-    { 6, "PPLI and Status" },
+    { 5, "PPLI and Status A" },
+    { 6, "PPLI and Status B" },
     { 7, "Surveillance" },
     { 8, "Mission Management/Weapons Coordination" },
     { 9, "Control" },
+    { 10, "Electronic Warfare" },
     { 11, "Image Transfer" },
     { 12, "Voice A" },
     { 13, "Voice B" },
+    { 14, "Indirect PPLI" },
     { 18, "Network Enabled Weapons" },
     { 19, "Fighter-to-Fighter A" },
     { 20, "Fighter-to-Fighter B" },
     { 21, "Engagement Coordination" },
+    { 24, "Bomb Hit Indication" },
     { 27, "Joint Net PPLI" },
     { 28, "Distributed Network Management" },
+    { 29, "Residual Messages" },
+    { 30, "IJMS Position and Status" },
+    { 31, "Other IJMS Message" },
     { 0, NULL },
 };
 
