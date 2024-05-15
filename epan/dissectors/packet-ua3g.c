@@ -3658,6 +3658,7 @@ static const value_string str_unsolicited_msg_hard_config_ram[] = {
     {0, NULL}
 };
 
+/* TODO: these values are clearly wrong - needs to fit into 2 bits */
 static const value_string str_unsolicited_msg_subtype[] = {
     {0x03, "2x40"},
     {0x04, "1x20"},
@@ -3682,6 +3683,8 @@ static const value_string str_unsolicited_msg_hard_design[] = {
     {0x06, "Alpha"},
     {0, NULL}
 };
+
+/* TODO: these values are clearly wrong - needs to fit into 2 bits */
 static const value_string str_unsolicited_msg_hard_subtype[] = {
     {0x06, "2x40"},
     {0x07, "1x20"},
