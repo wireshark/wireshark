@@ -1,0 +1,1506 @@
+commit 7263aefcb0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 15:55:35 2024 -0700
+
+    Prep for 4.2.5
+
+commit e02689beb6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 22:06:46 2024 +0000
+
+    Qt: Fix RTP Player crash
+
+    marker_stream_ might not exist when playFinished is called.
+    In particular, deleting the RtpAudioStreams might cause
+    playFinished to be called when the audio streams delete
+    their audio output in certain cases, such as if they are
+    paused. (The behavior might be slightly different on Qt6,
+    where QAudioSink is used vs. Qt5 where QAudioOutput is used.)
+
+    Fix #19596
+
+    (cherry picked from commit 7698e03ba13e2e9966c84fbd800f8ab6c25983ef)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8be6839369
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 13:07:00 2024 -0700
+
+    GitLab CI: Fix a couple of separators
+
+commit 01a8f70b09
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Oct 18 20:59:53 2023 -0400
+
+    GitLab CI: Switch the openSUSE builds to 15.5
+
+    (cherry picked from commit a274d763df69d2a3d91f6478f6deb29c0c039952)
+
+commit 1b9e1eccc8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 12:41:37 2024 -0700
+
+    GitLab CI: Quote a variable
+
+commit c637058453
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 13 12:01:53 2024 -0700
+
+    GitLab CI: Try to add back Lua on macOS
+
+commit 9118420bb8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 14:52:45 2024 +0000
+
+    Packaging: Get MinGW cross-compiling working with Qt 6.7
+
+    Qt 6.7 renamed QWindowsVistaStylePlugin to QModernWindowsStylePlugin.
+    We have an explicit mapping because windeployqt6 doesn't work well
+    with cross-compiling. Skip files that don't exist, since only one
+    of the Windows plugin files will exist.
+
+    (cherry picked from commit 169392ce60ebf3d1fdc090ebf08ecdb313edb145)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e93ac94572
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 13:37:23 2024 +0000
+
+    wslua: Fix segfault when registering a field / ei twice
+
+    We need to call Proto_commit as a protected function so that
+    errors don't call wslua_panic and abort, but instead are handled
+    gracefully.
+
+    Fix #19194
+
+    (cherry picked from commit 70a3c9f82913d6c70ddc57d19976f80a676c9c56)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7f380a2a9d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 13:06:21 2024 +0000
+
+    GitLab CI: Fix the Documentation job artifacts
+
+    (cherry picked from commit 674e79c29e8144bb61ef4b3248be9fcb33c8dc9b)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8c1ba39798
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 13 12:35:29 2024 +0000
+
+    GitLab CI: Install ruby-dev in the Documentation job
+
+    (cherry picked from commit 520fb7848ec713eadd9a0b149197d793789e9c52)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit 235136144c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun May 12 08:53:46 2024 -0400
+
+    Revert "Lua: Replace lua_pushnumber with lua_pushinteger where apropriate."
+
+    This reverts commit 8cac5932f79b87deda26480769a266ff344036e6.
+
+commit f12b53ac0f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun May 12 08:53:24 2024 -0400
+
+    Revert "wslua: Fix support for Lua 5.1 and 5.2 on 32bit"
+
+    This reverts commit f8fd960cb8f5378c8ab6b20b4bc7f0b73498d057.
+
+commit 4ed940da8c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun May 12 08:53:11 2024 -0400
+
+    Revert "Lua: Revert a mistaken change to lua_pushinteger"
+
+    This reverts commit f2dc894cb2e50668a3f80bfdffed1932f8e35459.
+
+commit a88ec0adc0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 12 09:26:48 2024 +0000
+
+    [Automatic update for 2024-05-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e8d6cf7c66
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat May 11 13:12:25 2024 +0000
+
+    lua: Deregister heuristic lists added via heuristic_new on reload
+
+    Heuristic dissectors lists don't necessarily (and don't usually)
+    have the name of a given dissector handle.
+
+    There's still a leak when reloading plugins because the created
+    heuristic dissector list isn't returned to the caller. That also
+    means there's no way of knowing if it succeeded, and using the
+    heuristic list involves calling proto:register_heuristic with
+    the name, but rather than calling a function on a returned
+    object.
+
+    Fix #19603
+
+    (backported from commit 2b2b032af2bdb33345534db33445a2aad24c6217)
+
+commit 0711fa7b1e
+Author: mistral13 <mistral@gmx.ch>
+Date:   Wed Oct 11 22:17:50 2023 +0200
+
+    btmesh: Various fixes from master
+
+    1. Register the company ID as big endian.
+    2. The pinfo column of the own (lua-)dissector was overwritten
+       by the btmesh dissector.
+    3. Output of the own (lua-)dissector as root-tree element.
+
+    Fixed some code indent while already visiting this file.
+
+    Ping #19388
+
+    (cherry picked from commit d3fab19401caf09e2e65047d2843db9d3caf2131)
+    (cherry picked from commit 50f322ec1702f4ce0e2d94a19509a82b3fb3df24)
+    (cherry picked from commit 38d05ad97a4a2158b834f973a5b6a034c78edc7b)
+    (cherry picked from commit a4527fa0418605318c8986bc8947a606e72043a9)
+
+commit 949aa570f3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri May 10 10:42:03 2024 -0400
+
+    Lua: Fix DissectorTable on certain Lua versions (e.g., 32 bit)
+
+    The port value is a uint32_t. Calling checkinteger and implicitly
+    casting to an unsigned integer later does not give the correct
+    result on a Lua install where Lua_Integer is 32 bit for unsigned
+    integers greater than INT32_MAX. Lua will truncate to the integer
+    range (sometimes by using inline assembly, sometimes explicitly.)
+
+    Note that Lua_Integer can 32 bit on 64 bit platforms; it can also
+    be 64 bit on 32 bit platforms.
+
+    Fix #18367
+
+    (backported from commit 4049ea7e6c4009158cbf91b0bf3300759d2106d6)
+
+commit f2dc894cb2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri May 10 10:08:00 2024 -0400
+
+    Lua: Revert a mistaken change to lua_pushinteger
+
+    The value read from a file here is allowed to be a floating point number,
+    it should not be pushed as a Lua_Integer.
+
+    (backported from commit 1428fe28e663c8c6057d583d336b84014f169de1)
+
+commit 077104f6dc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 8 14:17:01 2024 -0700
+
+    Windows: Upgrade GnuTLS to 3.8.4
+
+    (cherry picked from commit b119b9d6010f7ec0210f83297df365c2e1dec1ae)
+
+commit 6ab3e8ed88
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu May 9 14:08:33 2024 +0000
+
+    GitLab CI: Remove LUA_FIND_VERSIONS ANY
+
+    That was added briefly but support removed in
+    commit 759c0feab351de2b20946ececf2949ab52592ccd and it
+    results in Lua not being found.
+
+    (cherry picked from commit eccf1104d6e310eaf78a0bf063425179c81a7150)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 38c5a89ac4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 7 16:48:37 2024 -0700
+
+    Windows: Upgrade nghttp2 to 1.61.0
+
+    (cherry picked from commit fe51f8424f9a5dcae514745b919b6139c3c568fd)
+
+commit 5e96f900a9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue May 7 06:38:31 2024 -0400
+
+    gitlab-ci: Remove docker tag from jobs
+
+    The small SaaS runner on Linux had the docker (plus all other tags)
+    removed, causing all the jobs with that tag to get stuck.
+
+    https://about.gitlab.com/blog/2023/08/15/removing-tags-from-small-saas-runner-on-linux/
+    https://docs.gitlab.com/ee/update/deprecations.html#removal-of-tags-from-small-saas-runners-on-linux
+    (backported from commit a0e399e5c3edd06cfc78fe41f8959f4c556045be)
+
+commit 94ac8729f3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun May 5 13:59:27 2024 +0000
+
+    MATE: Handle fields that are in different data sources
+
+    In addition to the start and end offset locations, store a pointer to
+    the data source tvb in each mate_range. The start and end offsets
+    are only relevant within a data source.
+
+    If a field has a data source different from one of the protocol,
+    transport protocol, or payload ranges, search in the tree for the
+    ancestor nodes of the field, and see if an ancestor is located within
+    one of the ranges.
+
+    In order to workaround #17877 (non-visible items can't change length
+    after being added to the tree, which affects most protocols), set
+    the tree as visible similar to done with a number of Lua postdissectors
+    that need all fields. Unfortunately this is overkill that hurts
+    performance.
+
+    Fix #19619
+
+    (cherry picked from commit 4ec5c7f78f9af35b2cebe92c4dd7eab033a1aa82)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 48c0364590
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 5 09:25:22 2024 +0000
+
+    [Automatic update for 2024-05-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit cb267b4e52
+Author: Martin Nyhus <martin@nyhus.dev>
+Date:   Wed May 1 17:17:06 2024 +0200
+
+    ZigBee TLV: fix infinite loop in deeply nested packets
+
+    When analyzing a packet that hits the recursion limit returning the
+    remaining length of the buffer would allow backtracking, setting up an
+    infinite loop if the packet is constructed correctly and the code would
+    fail by hitting the too many items check.
+
+    Since dissect_zbee_tlvs doesn't know the length of the value it is
+    dissecting it can't pretend to have consumed all of it. Most of the
+    callers of this function eventually check for bytes that weren't
+    consumed so returning offset (i.e. no bytes consumed) makes the value
+    get treated as unknown bytes.
+
+    Input to fuzzshark_zbee_beacon that triggered this:
+    fb 03 49 ff 49 eb 49 ff 49 ff 49 eb 49 ff
+
+    (cherry picked from commit 9ab952b9641bb07d796499487e8d8691d52a6902)
+
+commit 37c53eab86
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu May 2 23:29:30 2024 +0000
+
+    Qt: Fix an typo of row vs count in columnListModel
+
+    The size of the internal store is the number of model rows (which
+    are the packet list columns), not the number of model columns (which
+    are the parameter types for the packet list columns). This caused data
+    not to appear for the later parameter types when the number of packet
+    list columns were small. More of a difference in the current branch
+    because width and alignment are also shown in preferences, so it
+    has effects at the default number of columns.
+
+    Related to #19821 (but not sufficient.)
+
+    (cherry picked from commit 704fe87abd1e83a3451ba4abb2001ef7349d5c71)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a338e8117c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed May 1 11:41:24 2024 +0000
+
+    LAPD: Set source address
+
+    The destination and source address are both being set to the
+    destination value. This causes the normal all source Flow Graph
+    (as opposed to the one created by the VoIP Calls Dialog) to have
+    empty lines.
+
+    Set the dl_src and dl_dst addresses using the AT_STRINGZ address
+    instead of col_set_str so that it works for both the Resolved and
+    Unresolved columns, and set the src and dst addresses as shallow
+    copies of those.
+
+    Fixup 7ac827fd74cf7b1eac80d54b5ce0001f15a587e3
+
+    (cherry picked from commit 1da57b5ad536acd1d138d363825bc7aad7ad1f4b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8b916c603e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 30 23:20:17 2024 +0000
+
+    Qt: Fix ProgressFrame location in non-VoIP Flow Graph
+
+    ProgressFrame::addToButtonBox examines the button box layout to
+    determine where to add itself. Changing the visibility of the
+    RTP player button redoes the layout and upsets the positioning
+    of the frame. This leaves the ProgressFrame dangling in the far
+    left of the ButtonBox, on top of the Help button.
+
+    SequenceDialog only determines whether it's a VoIP Calls dialog or
+    a non-VoIP Flow Graph when initially instantiated (there's no call
+    to disable it), so add the VoIP parameter to the constructor and
+    set the visibility appropriately before adding the ProgressFrame
+    instead of having the VoIP Calls Dialog call an extra public method.
+
+    (cherry picked from commit a95dec6ef9612d80598547a346825639e16c4e51)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a862720a7e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 30 22:41:28 2024 +0000
+
+    Qt: Use afterLayout signal for Flow Graph y axis labels
+
+    For the Sequence Dialog (Flow Graph / VOIP Calls), we place
+    text labels for the two y-axes (Time and Comment) above the
+    axes, which is not a normally supported position, so we
+    manually place it. The position of the labels depends on the
+    axis rectangle sizes and positions.
+
+    QCustomPlot 2.1.0 added a new QCustomPlot::afterLayout signal
+    that is extremely helpful for situations like this. It is
+    called immediately before the draw step in a replot, or before
+    printing happens, and can put the labels in the correct position
+    after any change.
+
+    This is a little more reliable than our previous solution, which
+    sometimes left the labels out of position, needing to be fixed
+    by manually pushing the Reset button.
+
+    (cherry picked from commit 84fe646b78d62dcc5540d7a2950a06b0f86de0e7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 51a925ce40
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 29 01:45:43 2024 +0000
+
+    ptp: multiple tlv_pathsequence in announce message
+
+    (cherry picked from commit 7ef8501c347d4336a1cb62b4b312f8c93b92efff)
+
+    32b82d47 Update file packet-ptp.c
+    746c18cf ptp: multiple tlv_pathsequence in announce message
+
+    Co-authored-by: Chuck Craft <bubbasnmp@gmail.com>
+
+commit 42e3b84e31
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 21:16:17 2024 +0000
+
+    GitLab CI: Fix the Documentation job
+
+    Remove a duplicate `cd`. Use the same pattern for the guides when
+    zipping and copying.
+
+    (cherry picked from commit 4f8f52dea0db04dfefaefcba47e8ba16b2d29e2e)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit d705e804ed
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 18:40:52 2024 +0000
+
+    ipars: Fix truncation warning
+
+    MAX_EOM_MSG_SIZE is defined to be too small for the value placed in
+    for an unknown type.
+
+    epan/dissectors/packet-ipars.c:130:29: error: 'snprintf' will always be truncated; specified size is 16, but format string expands to at least 24 [-Werror,-Wformat-truncation]
+      130 |                 default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
+
+    (cherry picked from commit 4320031c97b3528bc96ab5d366bab8b7fdb2a243)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f2b9b7b582
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 28 17:38:21 2024 +0000
+
+    c-ares: Suppress deprecation warnings
+
+    c-ares 1.28.0 emits deprecation warnings by default for certain
+    functions. We will try to move away from those functions, but
+    suppress the warnings by default.
+
+    It's possible for recent versions of c-ares to be built without
+    thread safety and threading support, and it can only be checked
+    at runtime. We will probably have to fallback to using deprecated
+    functions on recent versions of c-ares if threading is not available
+    even if and when we switch to using event threads, so disable the
+    warning.
+
+    Ping #19763
+
+    (cherry picked from commit e1a6557d34ff45073e3e75923bf3f6521ebc2b16)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4dadd9b029
+Author: Dan <DanOfTheRoses@gmail.com>
+Date:   Fri Apr 26 21:49:40 2024 -0500
+
+    wslua: Fix integer validation signedness
+
+    The C Standard (any revision) 6.3.1.4 Real ﬂoating and integer,
+    in a footnote says:
+    "The remaindering operation performed when a value of integer type is
+    converted to unsigned type need not be performed when a value of real
+    ﬂoating type is converted to unsigned type."
+
+    Since a Lua_Number is a float type, converting a (possibly negative)
+    float to an unsigned type and then to a signed type is undefined
+    behvavior, and doesn't necessarily produce the same result as converting
+    the float to a signed integer type directly. On x86 and x86-64 it
+    has the same result, but it's permissible to instead first cast the float
+    to the nearest unsigned integer value (i.e. 0), so that the end result
+    is 0 instead on negative.
+
+    On the ARM architecture this is what seems to happen:
+
+    https://embeddeduse.com/2013/08/25/casting-a-negative-float-to-an-unsigned-int/
+    https://github.com/mavlink/mavlink/issues/2073#issuecomment-2080103820
+
+    (Compilers can warn about this, but it's perhaps difficult to get the
+    only the right subset of conversion warnings.)
+
+    Therefore, when adding a signed integer field, we must use
+    wslua_checkgint32.
+
+    (backported from commit 15392c324d5eaefcaa298cdee09cd5b40b12e09c)
+
+commit af5546f31d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 28 09:25:05 2024 +0000
+
+    [Automatic update for 2024-04-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e63cbbb720
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 26 13:15:27 2024 +0000
+
+    5co-rap: Use ITEM_LABEL_LENGTH for snprintf in CF_FUNCs
+
+    At least one case cases a format truncation warning in recent
+    versions of clang.
+
+    (cherry picked from commit f1dd3bf4f2c95571e854d3e35536021ba9aa053d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 43225b77d8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 26 11:35:25 2024 +0000
+
+    5co-legacy: Use ITEM_LABEL_LENGTH for snprintf in CF_FUNCs
+
+    In particular, one case leads to a format truncation warning on
+    recent versions of clang.
+
+    (cherry picked from commit 2056120ddce063850acb5cfd207dce724093c83e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 21d3008eb0
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Sun Apr 21 19:42:46 2024 +0200
+
+    PER: When showing internal bitfields handle integer values.
+
+    (cherry picked from commit f0462182da63155ffde38d51da7dbedc9fd2d0a6)
+
+commit ae4f2529db
+Author: Niels Widger <niels@qacafe.com>
+Date:   Tue Apr 23 12:27:43 2024 +0000
+
+    sharkd: Fix SIP follow filter returned in "frame" command
+
+    `sip_follow_conv_filter` uses its `edt` argument to determine the
+    `sip.Call-ID == "<call-id>"` value to return as the conversation
+    filter.  If `edt` is `NULL`, a fallback filter of `sip.Call-ID` is
+    returned.
+
+    `sharkd`'s `frame` method returns the SIP filter returned by
+    `sip_follow_conv_filter` for SIP conversations in a `filter` field of
+    its `fol` object array.  These fields are emitted by
+    `sharkd_follower_visit_layers_cb`, which uses `get_follow_conv_func`
+    to retrieve `sip_follow_conv_filter`.  Previously,
+    `sharkd_follower_visit_layers_cb` always passed `NULL` as the `edt`
+    argument to the function returned by `get_follow_conv_func`, therefore
+    `sip_follow_conv_filter` always saw a `edt=NULL` and was not able to
+    output a specific `sip.Call-ID` filter, even if one was otherwise be
+    available.
+
+    This commit updates `sharkd_follower_visit_layers_cb` to instead pass
+    the `edt` argument that is available as the `edt` argument to its
+    caller, `sharkd_session_process_frame_cb`.
+
+    (cherry picked from commit 9778cc82207520547e22c39f11ca3c1ac52c8aea)
+
+    Co-authored-by: Niels Widger <niels@qacafe.com>
+
+commit f8fd960cb8
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Sat Apr 20 18:57:17 2024 +0200
+
+    wslua: Fix support for Lua 5.1 and 5.2 on 32bit
+
+    Add macros to use lua_pushnumber for Lua 5.1/5.2 and lua_pushinteger for Lua 5.3/5.4
+    based on change proposal by Stig Bjørlykke.
+
+    Ping #10881
+
+    Follow up for commit 8cac5932f79b87deda26480769a266ff344036e6.
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 91e4bbf5cb
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 26 01:26:04 2024 +0000
+
+    Qt: Fix flow graph scroll direction via keyboard
+
+    The y (time) axis is range reversed. QCP reversed ranges still
+    have the mathematically smaller element in lower and the larger
+    in upper, so reverse the direction of movement in panAxes.
+
+    Also fix the keyboard right arrow allowing the graph to be scrolled
+    to right farther than the QScrollBar allows, into extra empty space.
+
+    Fix #12932
+
+    (cherry picked from commit cc4c931b4a3a3d481aeb9ea320e5fb5e31ca0f70)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4e70db8cf0
+Author: Yaniv Michael Kaul <yaniv.kaul@scylladb.com>
+Date:   Thu Apr 25 16:46:21 2024 +0300
+
+    Release-4.2: CQL: take into account NULL and unset values
+
+    From https://gitlab.com/wireshark/wireshark/-/commit/291822a25cfaf54a3556c19d5d47af7efb1bdf48 to stable branch.
+
+    Signed-off-by: Yaniv Kaul <mykaul@gmail.com>
+
+commit a4d779fbbb
+Author: Yaniv Michael Kaul <yaniv.kaul@scylladb.com>
+Date:   Thu Apr 25 16:28:19 2024 +0300
+
+    Release-4.2: CQL: fix show paging state first
+
+    Brings to release 4.2 a single fix from https://gitlab.com/wireshark/wireshark/-/commit/161b9809b17c394e025453b5accdd9733eee3ee7 :
+    If Has_more_pages flag is set, then paging_state field should be the first to apper in the metadata, before the (optional) global_table_spec
+
+    Signed-off-by: Yaniv Kaul <mykaul@gmail.com>
+
+commit c193bcea08
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 25 15:17:47 2024 +0000
+
+    Qt: Fix Window scaling graph axis labels
+
+    Commit 259a3e508f37bb3c9b6d18cdacf7a18aa6dbd8f8 added a graph
+    of the congestion window to the Window Scale graph, but didn't
+    update the axes now that the window has two graphs.
+
+    Fix #17425. Fix #15016
+
+    (cherry picked from commit 259bbbff2a5257319ff69aa32cc377fc501eb022)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 47199b51b9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 25 14:39:26 2024 +0000
+
+    TLS: SM3 and SM2 are not in TLS (Signature|Hash)Algorithm registries
+
+    These two value strings are only for displaying the contents of the
+    two octets contained in a signature_algorithms extension as a TLS 1.2
+    SignatureAndHashAlgorithm. (As opposed to displaying it as a TLS 1.3
+    SignatureScheme where the two octets do not necessarily separately
+    indicate signature and hash.)
+
+    SM3 and SM2 are not assigned in those registries, are not supported in
+    TLS 1.2 (RFC 8998), and if they were would not receive the values chosen
+    here.
+
+    Add a comment explaining why even though RFC 8422 registered ED25519
+    and ED448 to the TLS 1.2 SignatureAlgorithm and HashAlgorithm registries
+    we don't add it to the value strings for those. (It would take more
+    complicated processing to avoid confusion, and for little gain.)
+
+    Fix #19801
+
+    (cherry picked from commit ea5ed37426c9489b66ea32cec818d68c584a5a85)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit dc29e276dd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 25 11:04:41 2024 +0000
+
+    E212: update MNC information
+
+    Update MNC information from the 15 November 2013 release of
+    Mobile Network Codes (MNC) for the international identification
+    plan for public networks and subscriptions
+    (According to Recommendation ITU-T E.212 (09/2016))
+
+    https://www.itu.int/pub/T-SP-E.212B-2023
+    https://www.itu.int/pub/T-SP-OB.1280
+
+    Fix #19800
+
+    (cherry picked from commit a2eaaa4e8804189ef50406fb6b2783d492367949)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 22a9b5ab5d
+Author: Gian Lorenzo Meocci <gianlorenzo.meocci@athonet.com>
+Date:   Wed Apr 24 09:37:25 2024 +0200
+
+    fix pfcp outer header desc
+
+commit 52d644b084
+Author: Niels Widger <niels@qacafe.com>
+Date:   Wed Apr 24 12:26:07 2024 +0000
+
+    sharkd: Improve sub-stream support in "frame" and "follow" methods
+
+    Add new optional `sub_stream` input argument to `sharkd`'s `follow`
+    method which, if given, specifies the sub-stream index number to
+    follow (e.g. for HTTP/2 or QUIC streams).  If no `sub_stream` argument
+    is given, all sub-streams are followed (by using the special
+    `SUBSTREAM_UNUSED` sub-stream index value).
+
+    Add new `followers` output field to `sharkd`'s `frame` method which
+    contains an array of objects each containing `protocol`, `filter`,
+    `stream` and (for HTTP/2 or QUIC streams) `sub_stream` fields.  A new
+    `followers` array was added to the response instead of adding the
+    stream and sub-stream indices to the existing `fol` field due to
+    backwards-compatibility issues.  The `fol` field is an array of string
+    arrays, each subarray containing the same values as the `protocol` and
+    `filter` fields in the new `followers` array, i.e.:
+
+        "fol": [["TCP", "tcp.stream eq 0"], ["TLS", "tcp.stream eq 0"]]
+
+    which makes adding new, possibly optional, fields difficult.  The
+    `fol` field should be considered deprecated, any new fields should be
+    added to `followers`.  The new `followers` field is an array of
+    objects, making adding new fields down the road simple:
+
+        "followers": [{"protocol": "TCP", "filter": "tcp.stream eq 0"}, {"protocol": "TLS", "filter": "tcp.stream eq 0"}]
+
+    Updated existing and added new `sharkd` unit tests to validate
+    behavior of new fields/arguments.
+
+    (cherry picked from commit 289a159042e3b81c2c135031dd4da9590aea848e)
+
+    Co-authored-by: Niels Widger <niels@qacafe.com>
+
+commit 15b77707dd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 24 22:41:03 2024 +0000
+
+    github/workflow: fix macos
+
+    For macos-latest runner on Github using macos14 on arm there is only Python
+    >= 3.11 available.
+
+    We have to install pytest and dmgbuild manually
+
+    (cherry picked from commit f186f44a711b1ba831173238c49a8e280697ae1e)
+
+    Co-authored-by: Uli Heilmeier <uh@heilmeier.eu>
+
+commit 06a5e5c445
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 24 10:55:41 2024 +0000
+
+    SSH: Handle "curve25519-sha256@libssh.org" KEX name
+
+    As RFC 8731 notes, 'The "curve25519-sha256" key exchange method is
+    identical to the "curve25519-sha256@libssh.org" key exchange method
+    created by Aris Adamantiadis and implemented in libssh and OpenSSH.'
+
+    Handle the other name in ssh_kex_hash_type. It is already accounted
+    for in other functions.
+
+    Fix #19240
+
+    (cherry picked from commit 6966cdb73e6f5dc2e6a03136b07b8ed59c7ff65a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1a88d0c734
+Author: Christian Krump <christian.krump@br-automation.com>
+Date:   Tue Apr 23 10:58:35 2024 +0200
+
+    EPLv2: modified limitation of valid SDO segment size
+
+    (cherry picked from commit a9f783600fc787ce891f1eda8e242793cc436fc8)
+
+commit 585a3dc48c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 23 13:27:56 2024 -0700
+
+    GitLab CI: after_script updates
+
+    In GitLab 17 and later, after_script will run when a job is cancelled.
+    Update our various jobs accordingly.
+
+    (cherry picked from commit e03a58958e065c7e2dc7e15a90978fa5d57edcf6)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 0c45a5d772
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 23 03:03:28 2024 +0000
+
+    lldpd: move hf_lldp_tlv_enable_system_cap* to capabilities_enabled_tree
+
+    (cherry picked from commit e267bfdd88a7fe190f52906ac98a3b03035c580f)
+
+    Co-authored-by: Paul Donald <newtwen+github@gmail.com>
+
+commit c8a21a6d58
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Apr 23 02:28:05 2024 +0000
+
+    fcfzs: fix calculation of the number of fill bytes.
+
+    If a name length is a multiple of 4, no padding is required to make what
+    follows be on a 4-byte boundary.  Only use 4 - (len % 4) to calculate
+    the padding if len isn't a multiple of 4.
+
+    (cherry picked from commit e8b256c9a0f427b8dc2387ab02a47dc8c2f687e0)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 0b80c5ab9e
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Apr 22 15:52:00 2024 +0200
+
+    icmpv6: Do not add time string when lifetime is infinity
+
+    Do not convert the lifetime value to string when the value
+    is used for infinity.
+
+    (cherry picked from commit 1a40e22a0095056cc4397e07d7b95ce74587a65b)
+
+commit 8e515cac2e
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Apr 22 12:17:29 2024 +0000
+
+    NR-RRC: Remove version from SIB dissector table name.
+
+    (cherry picked from commit e40ec77006f159f816038e5295851f0caf218a7a)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 98fa3eff88
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Apr 22 15:40:52 2024 +0200
+
+    NAS 5GS: fix dissection of NAS message container IE
+
+    Take into consideration the outer NAS message security header before
+    trying to dissect the IE.
+
+    Closes #19793
+
+    (cherry picked from commit ab3511c5977d0dd483d1d7e3d741940a12eaacc4)
+
+    Conflicts:
+            epan/dissectors/packet-nas_5gs.c
+
+commit 6ed87c1638
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Apr 22 13:14:34 2024 +0000
+
+    QUIC: handle connection migrations for zero length CIDs
+
+    In Quic Connection Migrations are possible even without source
+    connection IDs. Currently, after connection migration Wireshark fails to
+    associate answers with zero length CIDs for the new address to the
+    original connection.
+
+    After migration when the client sends data from the new IP
+    the connection data needs to be associated with the new conversation.
+    So when the server answers and the connection is identified by the
+    conversation a connection is found.
+
+    (cherry picked from commit 95a9fc5c0fa569cc7c5026f0ef235736b99848eb)
+
+    Co-authored-by: Max Schrötter <mail@schrc3b6.de>
+
+commit c77f142c0e
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Sun Apr 21 18:34:09 2024 +0000
+
+    NR-RRC: Add callable dissectors for SIB messages
+
+    Add callable dissectors for SIB messages.
+    Add dis table
+    Fix column display for single SIB message.
+
+    (cherry picked from commit dfec2284f34dae9ee515539d5ce5bb9f14762e3c)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 77ccc7ece0
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 09:15:13 2024 +0000
+
+    tipc: fix byte count.
+
+    Use the value used as the number of bytes in an atom to determine
+    whether that number is singular or plural; don't use some other
+    unrelated value.
+
+    (cherry picked from commit aea66ddc3336a095e6201b633a78014bd3af3a1d)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 207981eb13
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Apr 22 06:54:31 2024 +0000
+
+    tipc: fix padding after bearer instance string.
+
+    Presumably if the length of the string is a multiple of 4, it needs zero
+    byts of padding to put the next item on a 4-byte boundary.  This means
+    that (4 - (length % 4)) is not the right formula - a check for whether
+    there's any padding must be done first.
+
+    (cherry picked from commit cda7c030e1eafdca22028d1d8c87e484bba37555)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 05e9eeef13
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 21 09:25:15 2024 +0000
+
+    [Automatic update for 2024-04-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit fc290d976e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Apr 20 18:58:25 2024 +0000
+
+    pcapio: fix a check for idb_filter size.
+
+    The filter string in the idb_filter option has a maximum length of
+    UINT16_MAX - 1, because the maximum size of an option bodyis UINT16_MAX,
+    and the first byte of the option contains the filter type.
+
+    The code to write the filter did the right check; the code to count the
+    idb_filter option length checked against UINT16_MAX.  Fix that.
+
+    While we're at it, fix a comment.
+
+    (cherry picked from commit d277ecdb3ff7d04e7f64566f21409b3f1359eb2f)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 32bde22d9b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Apr 20 13:04:27 2024 +0000
+
+    editcap, libwiretap: Don't use array of initial DSBs after freeing
+
+    wtap_dump_close frees the passed in GArray of initial DSBs, used
+    by editcap for injecting DSBs from a file or list of files.
+
+    Add functions to increment and decrement the reference count of
+    an array of wtap blocks. Dereference the block of initial DSBs
+    in wtap_dump_close() instead of freeing it. In editcap, before
+    closing the dump file in cases where we intend to open a new
+    file (e.g., with a maximum time value or a maximum packet count),
+    reference the block.
+
+    Fix #19782, #19783, #19784.
+
+    (cherry picked from commit be3550b3b138f39bebb87ac0b8490e75fc8cc847)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b8d61cd977
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Apr 20 12:12:00 2024 +0000
+
+    GSM RP: fix dissection of SMS in 5G Nf interface
+
+    Closes #19773
+
+    (cherry picked from commit 9dffc3834ea0f7439a2e2d2f55350b6d5e2596c5)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit a7661fd568
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 18 15:37:18 2024 +0000
+
+    Windows: Add include depended upon packets checkbox
+
+    Non-Windows already has this checkbox.
+
+    The vast majority of the time users do want dependent packets
+    so that reassembly, etc. works. Occasionally they don't (e.g.,
+    perhaps to exclude retransmitted segments or duplicates), but
+    the primary use of this checkbox is helping users understand why
+    extra packets are included so they don't think it's in error.
+
+    We might want to get rid of the special Windows dialogs. They
+    use a deprecated API, but the newer API is more difficult to customize.
+    The Qt common dialogs are better than the GTK+ file dialogs at the
+    time we started to use the Windows dialogs.
+
+    Follow up to dcc9cbffefe0598eadec11cbc1869943a26219c5
+    Fix #19772
+
+    (cherry picked from commit 90d7ecf6971b89a918f61d95a9bce77d74f8cb64)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit bd26249852
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Apr 19 06:50:41 2024 +0000
+
+    Zigbee Direct: Fixed UUID mismatch with join, pjoin & leave characteristics
+
+    (cherry picked from commit 8b802bffd12e3bbd80bb6e6e501309bb7fee8124)
+
+    Co-authored-by: Cole Wu <chw@exegin.com>
+
+commit 0e5038cf89
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Thu Apr 18 11:13:55 2024 +0000
+
+    ieee80211: Fix typo in display filters
+
+    (cherry picked from commit d4da04f8ee47f12cb737601fdbf2be48e881303c)
+
+    Co-authored-by: WFA-achuang <achuang@wi-fi.org>
+
+commit d4526a807b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 18 11:56:00 2024 +0000
+
+    Qt: Fix removing ignored packets from selected range
+
+    Correctly remove ignored packets from the selected packet
+    range on non-Windows, which for some reason has never done this.
+    The Windows dialog has.
+
+    (cherry picked from commit 317177d1d079a1054f2b8935c30c376d67dd7eb5)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4d63d194ba
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 16 09:05:40 2024 -0400
+
+    pcapng: fix writing hash options
+
+    Since compute_block_option_size() and our option writing routines
+    already add needed padding, we don't need to compute the size
+    with padding in pcapng_compute_packet_hash_option_size(). That allows
+    us to use it both when computing the option size for the total
+    block size, and in the writing routine, for consistency.
+
+    Fix some errors where the type octet was not being included in
+    the bytes written for both one type of packet verdict, and for
+    packet hash. Also an error where the packet verdict option was
+    written with the queue option type.
+
+    Fix a possible buffer overrun for the fixed length hash types
+    when the hash length is wrong. We have a few different options
+    about how to handle hashes with bogus length - omit, write what
+    we have, truncate (if we have extra bytes) or err. Add some
+    comments regarding the options; for now, choose reporting an
+    error.
+
+    Fix #19766
+
+    (backported from commit b36749f56a4b2a9f1931aa0ab472dbf7420a75e3)
+
+commit 9c5c64b4cb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 15 16:06:46 2024 -0700
+
+    pcapng: Fix logging
+
+    WS_LOG_DOMAIN must be defined after including config.h and before
+    including wslog.h.
+
+    (cherry picked from commit 09b83c0ecee60641439b67ed5931714492ae38c1)
+
+commit b822d573e0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 14 09:25:33 2024 +0000
+
+    [Automatic update for 2024-04-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 2ece4fa7dc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 12 07:19:12 2024 -0400
+
+    ieee1905: Fix bit ordering of HE-MCS set
+
+    The Tx Rx HE MCS Support field in IEEE 1905 is reordered from
+    802.11ax into big-endian order (which is already done), but that
+    shouldn't change which bit is considered the LSB (which is the
+    Max HE-MCS For 1 SS) and which is the MSB (Max HE-MCS for 8 SS).
+
+    Fix #19737
+
+    (cherry picked from commit 179bf05a4d4e64427fa7e7805f1d4e134874cca8)
+
+commit cee6caf8ea
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 10 12:16:02 2024 -0400
+
+    Qt: Hide export dissections dialog when accepting
+
+    When the Export Dissections Dialog is accepted but starts to
+    try to save the files, hide it. It will close itself after the
+    export is done (which deletes it), but in the meantime the
+    exporting from a large file can take a long time. Hiding the
+    dialog allows the user to cancel the save with the Progress Dialog
+    on the main window. Leaving the dialog visible allowed the user
+    to click "Cancel" on the dialog, which didn't cancel the save
+    (still up to the progress dialog), but did delete the dialog on
+    close, resulting in a crash when the export did finish.
+
+    This is for Linux and macOS, and matches the behavior of the native
+    Windows dialog, which already hides itself when Save is clicked.
+
+    (cherry picked from commit e84adf41da08c60ff329f3e91bb948e2e1e33753)
+
+commit 7fb337faf8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 10 10:28:45 2024 -0400
+
+    Qt: Fix crash when closing TimeShiftDialog before redissection done
+
+    Commit f67eccedd9836e6ced1f57ae9889f57a5400a3d7 made it so that
+    the TimeShiftDialog doesn't have a nested event loop with exec.
+    That's good, but that means that an AutoConnection between
+    TimeShiftDialog::timeShifted and PacketList::applyTimeShift is a
+    DirectConnection, which means that TimeShiftDialog::applyTimeShift
+    waits for the packet list redissection to finish before the function
+    calls enableWidgets and returns.
+
+    The user can close the Time Shift Dialog while the packet list
+    redissection is still ongoing. As the TimeShiftDialog is also now
+    DeleteOnClose, this means that when the redissection finishes (or
+    is canceled via ProgressDialog) the TimeShiftDialog will try to update
+    its widgets after they've been deleted, causing a crash.
+
+    To prevent, make the connection between the TimeShiftDialog and
+    the PacketList a Qt::QueuedConnection.
+
+    (cherry picked from commit ea70c16e05d0f1f0779bec6e89153a67d07d6cfa)
+
+commit 799735b9c0
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Mar 22 18:23:07 2024 +0100
+
+    BLF: Fixing Flags Decoding in FlexRayRcvMessage(Ex) (BUGFIX)
+
+    Flags should have been in the  FrameFlags byte.
+
+    (cherry picked from commit 823b49f6c338ddc0e99315e05e3e3fb5c557456c)
+
+commit 6288f7c592
+Author: Giovanni Musto <giovanni.musto@partner.italdesign.it>
+Date:   Wed Dec 13 14:26:36 2023 +0100
+
+    BLF: Fix BLF_OBJTYPE_CAN_FD_ERROR_64 not decoded as error
+
+    (cherry picked from commit 7b4d667f306c4ffb6c181280bdb47d01826eb3e6)
+
+commit 1c7dbe91da
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Nov 18 14:53:33 2023 -0800
+
+    blf: expand a comment.
+
+    Give more details on how the amount of padding between log container
+    objects is not an obvious "padd the object's size to a multiple of
+    <power of 2> bytes".
+
+    [skip ci]
+
+    (cherry picked from commit 8c22a6cc0240123750347173acef964a3909da34)
+
+commit 559a6f89f7
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Nov 18 11:27:26 2023 -0800
+
+    blf: check the validity of the header length field.
+
+    (cherry picked from commit 3e296c041f233b6605f4004bec7e4be1acd34b70)
+
+commit 13bcc043a4
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Nov 18 01:02:04 2023 -0800
+
+    blf: add more error checks.
+
+    Check for invalid lengths in headers.
+
+    Have blf_scan_file_for_logcontainers() provide error codes and messages
+    on errors, and, if it fails, clean up and return an error when opening a
+    file.
+
+    Always check for errors from file_seek().
+
+    (cherry picked from commit ae5c7ff41bdd031f7d29151501f42bfcc68d662d)
+
+commit 91e1ec23d7
+Author: Giovanni Musto <giovanni.musto@partner.italdesign.it>
+Date:   Mon Oct 23 09:30:29 2023 +0200
+
+    BLF: Extract FDF, BRS and ESI flags
+
+    (cherry picked from commit c0f287ad69e05ceb8c71a5f7100cd7c59b3835ae)
+
+commit 058ca16704
+Author: Yingjie Deng <17322619133@163.com>
+Date:   Thu Apr 11 01:26:26 2024 +0800
+
+    fix: Hmac Missing
+
+    The peer->mac Algorithm is not should set NULL here. The above
+    ssh_decryption_set_cipher_id function takes peer->enc, and set
+    peer->cipher to NULL in else case, the peer->cipher is the field of
+    struct ssh_peer_data, but not have corresponding field with peer->mac in
+    struct ssh_peer_data.So I just delete it in else case.
+
+    (cherry picked from commit a2a911ea1a0adeb5a93f7cf4fd786ca0fdd0c820)
+
+commit a31b9964e6
+Author: Giovanni Musto <giovanni.musto@partner.italdesign.it>
+Date:   Tue Oct 17 09:36:17 2023 +0200
+
+    BLF: Fix LIN parsing
+
+    LIN was broken because its payload was treated as a variable length field, while it is always 8 bytes
+    Fix DLC parsing to allow only 8 bytes instead of 15
+    Fix ID parsing to take only the lower 6 bits
+    Parse checksum field
+
+    (cherry picked from commit 7bf7a136766fb20132d1b9cc550f661dc70ab2d2)
+
+commit eaf7d424a7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 7 16:57:23 2024 -0400
+
+    Qt: Work around Qt6 dataChanged pessimization
+
+    A change in Qt 6.0 makes QAbstractItemView::dataChanged, when called
+    with multiple indices, determine exactly how much of the viewport
+    rectangle is covered by the changed indices and only update that much
+    of the viewport instead of always updating the entire viewport. This
+    reduces CPU load when multiple indices, but not enough to span the
+    entire viewport, are updated at once.
+    ( https://codereview.qt-project.org/c/qt/qtbase/+/285280
+      https://bugreports.qt.io/browse/QTBUG-58580
+    )
+
+    Unfortunately, if the number of indices is very large (much larger
+    than the total number of indices that can possibly be displayed in
+    the viewport), computing the union of the intersecting rectangle takes
+    orders of magnitude longer than unconditionally updating the whole
+    viewport. ( https://bugreports.qt.io/browse/QTBUG-124173 )
+
+    When the packetListModel wants to indicate that all packets may have
+    changed, this makes dataChanged scale linearly with the total number of
+    rows/frames, whereas updating the viewport only scaled with the size of
+    the viewport but was unaffected by undisplayed packets. The calculation
+    is unnecessary because we know the entire viewport is affected. On a
+    sample modern workstation, measurements showed dataChanged taking 1 s
+    with 1.4 M packets and 9 s with 12 M packets. This signal can be issued
+    quite often, e.g. if IP address lookup (DNS or MaxMindIP) is enabled, it
+    can be issued once per second at the packet_data_timer expiration for
+    some period of time as idle dissection occurs when opening the file.
+
+    Instead of issuing dataChanged, we can issue layoutAboutToBeChanged()
+    (in practice a no-op) and layoutChanged(), which causes the QTreeView
+    to clear all information about its view items (d->viewItems.clear() in
+    QTreeView::doItemsLayout), but without clearing the current and selected
+    row (unlike [begin|end]ResetModel.) This takes the same 5-8 ms in the
+    same test procedure as above in both the 1.4 M and 12 M packet tests.
+
+    Improves #19486 considerably on Qt 6.
+
+    (cherry picked from commit 5abfe91cc164d873e56c6f24a313b93b7d883a9e)
+
+commit e51f5bf24d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 7 09:24:53 2024 +0000
+
+    [Automatic update for 2024-04-07]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 31188b669e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 4 20:27:45 2024 -0400
+
+    reordercap: Handle IDBs in the middle of the file
+
+    We can read IDBs (and other non packet blocks) in the
+    middle of the file, so init the dump parameters after
+    reading all the frames. This will move the IDBs (and NRBs
+    and DSBs) to the start of the new output file (which might
+    have to happen if they're out of order.)
+
+    Note: Files with multiple Section Header Blocks probably still
+    aren't handled correctly, because the IDB number might need to be
+    rewritten (though we have some of that information after
+    commit 8ebde1309d0cc0335e32cff8c7112dc98c05d5ed)
+
+    Fix #19740
+
+    (cherry picked from commit 0c637a2b5ebaf6bf24f406e5e01a39860d4a4daa)
+
+commit f47c873dd8
+Author: mverkleij <mail@mverkleij.nl>
+Date:   Fri Mar 15 14:43:29 2024 +0100
+
+    Fix reordercap -n flag generating empty output file
+
+    (cherry picked from commit ef64dcf32879353f02057ada93c0b0add78cad3c)
+    (cherry picked from commit e6ad1f677ea970b85d08066135cd8ec10d23075c)
+
+commit b6ba652b5b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 4 07:12:45 2024 -0400
+
+    Qt: Ensure Copy Bytes as C String is a valid C string
+
+    Use octal escapes padded to three digits instead of hex escapes.
+    An octal escape is limited to three digits by definition, whereas
+    hex escape sequence are not limited, which causes problems if
+    a hex escape is followed by a (non escaped) possible hex character.
+
+    Escape double quotes and backslash. Use the simple escapes of
+    non printable characters too (optional, but looks nicer.)
+
+    This possibly could go in wsutil as another ws_escape method, but
+    the fix needs to be backported to 4.2 so let's not introduce a
+    new public function yet.
+
+    Fix #19735
+
+    (cherry picked from commit 7130e33d30acb871538e540054ef8293912ed33a)
+
+commit 5a58585792
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Wed Jan 17 10:02:25 2024 +0100
+
+    LUA: allow conversion from string to uint64 in any base
+
+    This is handy when you want to specify a mask in hex format
+
+    (cherry picked from commit 534cc08ebc9fb82b965cefdf164ae02da3827f4d)
+
+commit e067aa55f3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 31 12:10:56 2024 -0700
+
+    wslua: put the example of use for treeitem:add at the right level.
+
+    It should be a subsection of the entry for treeitem:add, which means it
+    must be a level *5* header.
+
+    (cherry picked from commit 7b6e196c4117010c04d911021c16b37c454a4f19)
+
+commit 48288a29db
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 31 10:51:30 2024 -0700
+
+    wslua: fix the documentation for Tvb:reported_length_remaining.
+
+    Use the WSLUA_OPTARG_xxx convention for it optional offset argument, so
+    that the documentation generation process properly documents it.
+
+    (cherry picked from commit 62bc594401f64317d4e2a66de726ca615cf0263b)
+
+commit 3911c7b7d2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 29 09:42:44 2024 -0400
+
+    editcap: Don't memmove more than allocated in the buffer
+
+    When moving from the begining with a beginning offset specified,
+    don't run off the end. Subtract the source memory area's full offset
+    from the beginning of the buffer from the capture length.
+
+    Fix #19724
+
+    (cherry picked from commit 7c744e7933794b09e7af4d9703194ad0b01be282)
+
+commit 1f0bc61bbc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 31 09:24:23 2024 +0000
+
+    [Automatic update for 2024-03-31]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e9965fe303
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Mar 30 08:07:26 2024 -0400
+
+    Mongo: Ensure the offset advances
+
+    The MongoDB Wire Protocol uses _signed_ 32 bit integers for lengths.
+    dissect_bson_document checks for bogus values and ensures that a
+    non-negative (and at least 5) size is returned, but we need to make
+    sure to use that return value instead of trusting the value read
+    from the packet in dissect_op_msg_section.
+
+    Fix #19726
+
+    (cherry picked from commit 38c0efcee8d22d922e446888b268effc3ccf725f)
+
+commit 17bff1a32f
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Mar 29 22:31:04 2024 -0700
+
+    macos-setup: Add a warning about a comparomised version of XZ.
+
+    [skip ci]
+
+    (cherry picked from commit 75b1ffe1190de3843de3cd756a6b16200a967cd8)
+
+commit 8a7dc8c440
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Mar 28 19:46:56 2024 -0400
+
+    JSON-3GPP: Handle 5GC over HTTP/1.1 (OAI), don't create HTTP/2 sessions
+
+    http2_get_header_value currently, by calling get_http2_session,
+    always creates HTTP/2 conversation data on the current conversation.
+    This confuses the HTTP dissector if HTTP/2 is not actually present,
+    so guard it with proto_is_frame_protocol.
+
+    Also, despite 3GPP TS 29.500 saying that the service based interfaces
+    use HTTP/2 only, OAI (and perhaps other implementations) have options
+    to use HTTP/1.1, so try to handle that case as well.
+
+    Fix #19723
+
+    (backported from commit 8285e802241abb25c62d6fc71b17ce16175c151b)
+
+commit 47517b2cdd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 5 07:50:09 2024 -0500
+
+    http2: Return header value decoded from US-ASCII
+
+    Per the discussion in RFCs 9113 and 8187, decode field values
+    from US-ASCII (replacing characters outside the range, i.e.
+    obs-text, with UTF-8 replacement characters) before returning them
+    in http2_get_header_value. This is what all current dissectors
+    need, and reduces the chances of adding unvalided text (non UTF-8)
+    to the tree.
+
+    Make a note that dissectors may need to perform additional decoding,
+    e.g. percent decoding or decoding according to RFC 8187.
+
+    There may at some point be dissectors that need access to the raw
+    bytes as opaque data (which is discouraged by the RFCs), at which
+    point we could have an additional function to access that.
+
+    Fix #19684
+
+    (cherry picked from commit 674e35bd62777e006fd41229c4c6583022d912f9)
+
+commit 9ad30bc466
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 29 10:27:10 2024 -0700
+
+    GQUIC+DOCSIS MAC MGMT: Recursion updates
+
+    Make our recursion checks consistent with other dissectors.
+
+    (cherry picked from commit 119a385ba271a51ea35579b25dc0025ff450577c)
+
+commit 4e707387de
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Feb 29 19:26:23 2024 -0500
+
+    gRPC: Add separate dissector handles for gRPC Web and Web Text
+
+    Rather than registering one gRPC dissector handle to three
+    flavors of gRPC and then figuring out which one got called
+    by inspecting pinfo->match_string, register different dissectors
+    with descriptions to each type, so we know which dissector was
+    called.
+
+    This especially avoids assertions when a dissector is set via
+    Decode As, or via the stream ID table (even though the stream
+    ID table won't put the gRPC dissector into the special
+    streaming "reassembly as you go" mode, instead falling back
+    to the standard HTTP/2 reassemble at the end mode.)
+
+    Also, if we have the (bidirectional) streaming mode set for
+    the stream ID but we don't have a streaming subdissector handle
+    for the (unidirectional) content type, set it to the data handle
+    to avoid an assertion. We could possibly try to set it to the
+    content type used in the other direction, but that has potential
+    issues.
+
+    Fix #19679
+
+    (cherry picked from commit febcf46bbc4ff7e16c5cff609dc0c733b9e652a3)
+
+commit 196cc0d624
+Author: Dominic Pearson <dsp@technoanimal.net>
+Date:   Thu Mar 28 15:07:40 2024 +0100
+
+    cpu_info: fix missing decl in else macro block
+
+    (cherry picked from commit 318e8d3161ac23a7f486a74500d4d2b05403a58a)
+
+commit c9f47f9ff5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 27 14:40:37 2024 -0700
+
+    Version: 4.2.4 → 4.2.5
+
+    [skip ci]
