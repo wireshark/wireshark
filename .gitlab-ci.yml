@@ -126,7 +126,7 @@ variables:
     - export DEB_BUILD_OPTIONS="nocheck parallel=$(( $(getconf _NPROCESSORS_ONLN) + 2 ))"
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
-    - NUM_COMMITS=$(curl $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/commits | jq length)
+    - NUM_COMMITS=$(curl --silent $CI_API_V4_URL/projects/$CI_MERGE_REQUEST_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/commits | jq length)
     - echo "$NUM_COMMITS commit(s) in this MR"
     - mkdir build
     - cd build
@@ -225,8 +225,6 @@ variables:
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
     - ccache --show-stats
-    - NUM_COMMITS=$(curl $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/commits | jq length)
-    - echo "$NUM_COMMITS commit(s) in this MR"
     - mkdir build
     - cd build
   script:
