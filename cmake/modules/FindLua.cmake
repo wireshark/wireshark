@@ -184,7 +184,7 @@ find_library(LUA_LIBRARY
   HINTS
     ${LUA_HINTS}
     ENV LUA_DIR
-  PATH_SUFFIXES lib
+  PATH_SUFFIXES lib ${_lua_library_names}
 )
 unset(_lua_library_names)
 
