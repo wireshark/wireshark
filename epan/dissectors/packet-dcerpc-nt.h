@@ -158,6 +158,11 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset,
 		   packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, guint8 *drep, guint32 options, int hf_index);
 int
+dissect_ndr_nt_PSID_cb(tvbuff_t *tvb, int offset,
+		       packet_info *pinfo, proto_tree *parent_tree,
+		       dcerpc_info *di, guint8 *drep,
+		       dcerpc_callback_fnct_t *callback, void *callback_args);
+int
 dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 		    packet_info *pinfo, proto_tree *parent_tree,
 		    dcerpc_info *di, guint8 *drep);
