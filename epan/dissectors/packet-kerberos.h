@@ -99,6 +99,26 @@ typedef struct _enc_key_t {
 	int fd_num; /* remember where we learned a key */
 	guint id; /* a unique id of the key, relative to fd_num */
 	char id_str[KRB_MAX_ID_STR_LEN+1];
+	/* EncTicketPart_key */
+	bool is_ticket_key;
+	/*
+	 * for now taken from dissect_krb5_PAC_UPN_DNS_INFO,
+	 * we could also use dissect_krb5_PAC_LOGON_INFO if needed
+	 *
+	 * in future we could get device_sid from
+	 * dissect_krb5_PAC_DEVICE_INFO, but for now
+	 * we have it always as NULL...
+	 *
+	 * We remember these from the PAC and
+	 * attach it to EncTicketPart_key so it
+	 * might be valid if is_ticket_key is true.
+	 */
+	struct {
+		const char *account_name;
+		const char *account_domain;
+		const char *account_sid;
+		const char *device_sid;
+	} pac_names;
 	struct _enc_key_t	*same_list;
 	guint num_same;
 	struct _enc_key_t	*src1;

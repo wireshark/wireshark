@@ -126,6 +126,7 @@ typedef struct {
 #ifdef HAVE_KERBEROS
 	enc_key_t *last_decryption_key;
 	enc_key_t *last_added_key;
+	enc_key_t *current_ticket_key;
 	tvbuff_t *last_ticket_enc_part_tvb;
 #endif
 	gint save_encryption_key_parent_hf_index;
@@ -892,7 +893,20 @@ save_EncTicketPart_key(tvbuff_t *tvb, int offset, int length,
 		       int parent_hf_index,
 		       int hf_index)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
 	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+
+	if (actx->pinfo->fd->visited) {
+		return;
+	}
+
+	if (private_data->last_added_key == NULL) {
+		return;
+	}
+
+	private_data->current_ticket_key = private_data->last_added_key;
+	private_data->current_ticket_key->is_ticket_key = true;
 }
 
 static void
@@ -3378,6 +3392,7 @@ dissect_krb5_decrypt_ticket_data (bool imp_tag _U_, tvbuff_t *tvb, int offset, a
 	if(plaintext){
 		kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 		tvbuff_t *last_ticket_enc_part_tvb = private_data->last_ticket_enc_part_tvb;
+		enc_key_t *current_ticket_key = private_data->current_ticket_key;
 		tvbuff_t *child_tvb;
 		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
 
@@ -3385,7 +3400,9 @@ dissect_krb5_decrypt_ticket_data (bool imp_tag _U_, tvbuff_t *tvb, int offset, a
 		add_new_data_source(actx->pinfo, child_tvb, "Krb5 Ticket");
 
 		private_data->last_ticket_enc_part_tvb = child_tvb;
+		private_data->current_ticket_key = NULL;
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+		private_data->current_ticket_key = current_ticket_key;
 		private_data->last_ticket_enc_part_tvb = last_ticket_enc_part_tvb;
 	}
 	return offset;
@@ -4195,12 +4212,16 @@ static int * const hf_krb_pac_upn_flags_fields[] = {
 static int
 dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
+#ifdef HAVE_KERBEROS
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+#endif /* HAVE_KERBEROS */
 	proto_item *item;
 	proto_tree *tree;
 	guint16 dns_offset, dns_len;
 	guint16 upn_offset, upn_len;
 	guint16 samaccountname_offset = 0, samaccountname_len = 0;
 	guint16 objectsid_offset = 0, objectsid_len = 0;
+	char *sid_str = NULL;
 	guint32 flags;
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_upn_dns_info, tvb, offset, -1, ENC_NA);
@@ -4261,8 +4282,37 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	if (objectsid_offset != 0 && objectsid_len != 0) {
 		tvbuff_t *sid_tvb;
 		sid_tvb=tvb_new_subset_length(tvb, objectsid_offset, objectsid_len);
-		dissect_nt_sid(sid_tvb, 0, tree, "objectSid", NULL, -1);
+		dissect_nt_sid(sid_tvb, 0, tree, "objectSid", &sid_str, -1);
 	}
+
+#ifdef HAVE_KERBEROS
+	if (private_data->current_ticket_key != NULL) {
+		enc_key_t *ek = private_data->current_ticket_key;
+
+		if (samaccountname_offset != 0 && samaccountname_len != 0) {
+			ek->pac_names.account_name = tvb_get_string_enc(wmem_epan_scope(),
+									tvb,
+									samaccountname_offset,
+									samaccountname_len,
+									ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		} else {
+			ek->pac_names.account_name = tvb_get_string_enc(wmem_epan_scope(),
+									tvb,
+									upn_offset,
+									upn_len,
+									ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		}
+		ek->pac_names.account_domain = tvb_get_string_enc(wmem_epan_scope(),
+								  tvb,
+								  dns_offset,
+								  dns_len,
+								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		if (sid_str != NULL) {
+			ek->pac_names.account_sid = wmem_strdup(wmem_epan_scope(),
+								sid_str);
+		}
+	}
+#endif /* HAVE_KERBEROS */
 
 	return dns_offset;
 }
