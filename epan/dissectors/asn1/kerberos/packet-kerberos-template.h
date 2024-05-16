@@ -96,6 +96,8 @@ typedef struct _enc_key_t {
 	char id_str[KRB_MAX_ID_STR_LEN+1];
 	/* EncTicketPart_key */
 	bool is_ticket_key;
+	/* EncAPRepPart_subkey */
+	bool is_ap_rep_key;
 	/*
 	 * for now taken from dissect_krb5_PAC_UPN_DNS_INFO,
 	 * we could also use dissect_krb5_PAC_LOGON_INFO if needed
@@ -105,6 +107,14 @@ typedef struct _enc_key_t {
 	 * We remember these from the PAC and
 	 * attach it to EncTicketPart_key so it
 	 * might be valid if is_ticket_key is true.
+	 *
+	 * When learning a EncAPRepPart_subkey
+	 * we copy the details from the EncTicketPart_key,
+	 * so when is_ap_rep_key is true we may also have it.
+	 *
+	 * So application protocols like SMB2 could use the
+	 * is_ap_rep_key=true key details in order to identify
+	 * the authenticated user.
 	 */
 	struct {
 		const char *account_name;

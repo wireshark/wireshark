@@ -875,6 +875,22 @@ save_EncAPRepPart_subkey(tvbuff_t *tvb, int offset, int length,
 		return;
 	}
 
+	private_data->last_added_key->is_ap_rep_key = true;
+
+	if (private_data->last_decryption_key != NULL &&
+	    private_data->last_decryption_key->is_ticket_key)
+	{
+		enc_key_t *ak = private_data->last_added_key;
+		enc_key_t *tk = private_data->last_decryption_key;
+
+		/*
+		 * The enc_key_t structures and their strings
+		 * in pac_names are all allocated on wmem_epan_scope(),
+		 * so we don't need to copy the content.
+		 */
+		ak->pac_names = tk->pac_names;
+	}
+
 	kerberos_key_map_insert(kerberos_app_session_keys, private_data->last_added_key);
 }
 
