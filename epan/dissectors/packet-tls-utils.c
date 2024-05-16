@@ -11198,7 +11198,7 @@ dissect_ssl3_hnd_cli_keyex_rsa_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 /* Used in Diffie-Hellman PSK cipher suites */
 static void
 dissect_ssl3_hnd_cli_keyex_dhe_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                  proto_tree *tree, guint32 offset, guint32 length)
+                                   proto_tree *tree, guint32 offset, guint32 length)
 {
     /*
      *  struct {
@@ -11214,6 +11214,27 @@ dissect_ssl3_hnd_cli_keyex_dhe_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, 2 + identity_len);
     dissect_ssl3_hnd_cli_keyex_dh(hf, tvb, tree, offset + 2 + identity_len, length - 2 - identity_len);
+}
+
+/* Used in EC Diffie-Hellman PSK cipher suites */
+static void
+dissect_ssl3_hnd_cli_keyex_ecdh_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                    proto_tree *tree, guint32 offset, guint32 length)
+{
+    /*
+     *  struct {
+     *      select (KeyExchangeAlgorithm) {
+     *          case ec_diffie_hellman_psk:
+     *              opaque psk_identity<0..2^16-1>;
+     *              ClientECDiffieHellmanPublic public;
+     *      } exchange_keys;
+     *  } ClientKeyExchange;
+     */
+
+    guint identity_len = tvb_get_ntohs(tvb, offset);
+
+    dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, 2 + identity_len);
+    dissect_ssl3_hnd_cli_keyex_ecdh(hf, tvb, tree, offset + 2 + identity_len, length - 2 - identity_len);
 }
 
 /* Used in EC J-PAKE cipher suites */
@@ -11559,6 +11580,27 @@ dissect_ssl3_hnd_srv_keyex_dhe_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb, pack
     dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, pinfo, tree, offset + 2 + hint_len, offset_end, 0, TRUE);
 }
 
+/* Used in EC Diffie-Hellman PSK cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_ecdh_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    /*
+     *  struct {
+     *      select (KeyExchangeAlgorithm) {
+     *          case ec_diffie_hellman_psk:
+     *              opaque psk_identity_hint<0..2^16-1>;
+     *              ServerECDHParams params;
+     *      };
+     *  } ServerKeyExchange;
+     */
+
+    guint hint_len = tvb_get_ntohs(tvb, offset);
+
+    dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, 2 + hint_len);
+    dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset + 2 + hint_len, offset_end, 0, TRUE);
+}
+
 /* Used in EC J-PAKE cipher suites */
 static void
 dissect_ssl3_hnd_srv_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -11662,11 +11704,7 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         dissect_ssl3_hnd_cli_keyex_ecdh(hf, tvb, tree, offset, length);
         break;
     case KEX_ECDHE_PSK: /* RFC 5489; ec_diffie_hellman_psk: psk_identity, ClientECDiffieHellmanPublic */
-        /* XXX: implement support for ECDHE_PSK */
-        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
-                                     tvb, offset, length,
-                               "ECDHE_PSK ciphersuites (RFC 5489) are not implemented, contact Wireshark"
-                               " developers if you want them to be supported");
+        dissect_ssl3_hnd_cli_keyex_ecdh_psk(hf, tvb, tree, offset, length);
         break;
     case KEX_KRB5: /* RFC 2712; krb5: KerberosWrapper */
         /* XXX: implement support for KRB5 */
@@ -11731,11 +11769,7 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset, offset_end, session->version, TRUE);
         break;
     case KEX_ECDHE_PSK: /* RFC 5489; psk_identity_hint, ServerECDHParams */
-        /* XXX: implement support for ECDHE_PSK */
-        proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
-                                     tvb, offset, offset_end - offset,
-                               "ECDHE_PSK ciphersuites (RFC 5489) are not implemented, contact Wireshark"
-                               " developers if you want them to be supported");
+        dissect_ssl3_hnd_srv_keyex_ecdh_psk(hf, tvb, pinfo, tree, offset, offset_end);
         break;
     case KEX_ECDH_ECDSA: /* RFC 4492; ec_diffie_hellman: ServerECDHParams, Signature */
     case KEX_ECDH_RSA:
