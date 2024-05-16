@@ -4065,8 +4065,9 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	proto_item *item;
 	proto_tree *tree;
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	static dcerpc_info di;      /* fake dcerpc_info struct */
-	static dcerpc_call_value call_data;
+	/* fake dcerpc_info struct */
+	dcerpc_call_value call_data = { .flags = 0, };
+	dcerpc_info di = { .ptype = UINT8_MAX, .call_data = &call_data, };
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_logon_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_logon_info);
@@ -4077,10 +4078,6 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	offset = dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
 
 	/* the PAC_LOGON_INFO blob */
-	/* fake whatever state the dcerpc runtime support needs */
-	di.conformant_run=0;
-	/* we need di->call_data->flags.NDR64 == 0 */
-	di.call_data=&call_data;
 	init_ndr_pointer_list(&di);
 	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
 									netlogon_dissect_PAC_LOGON_INFO, NDR_POINTER_UNIQUE,
@@ -4157,8 +4154,9 @@ dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int
 	proto_item *item;
 	proto_tree *tree;
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	static dcerpc_info di;      /* fake dcerpc_info struct */
-	static dcerpc_call_value call_data;
+	/* fake dcerpc_info struct */
+	dcerpc_call_value call_data = { .flags = 0, };
+	dcerpc_info di = { .ptype = UINT8_MAX, .call_data = &call_data, };
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_s4u_delegation_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_s4u_delegation_info);
@@ -4168,12 +4166,7 @@ dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int
 	 */
 	offset = dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
 
-
 	/* the S4U_DELEGATION_INFO blob. See [MS-PAC] */
-	/* fake whatever state the dcerpc runtime support needs */
-	di.conformant_run=0;
-	/* we need di->call_data->flags.NDR64 == 0 */
-	di.call_data=&call_data;
 	init_ndr_pointer_list(&di);
 	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
 									netlogon_dissect_PAC_S4U_DELEGATION_INFO, NDR_POINTER_UNIQUE,
@@ -4294,8 +4287,9 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 	proto_item *item;
 	proto_tree *tree;
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	static dcerpc_info di;      /* fake dcerpc_info struct */
-	static dcerpc_call_value call_data;
+	/* fake dcerpc_info struct */
+	dcerpc_call_value call_data = { .flags = 0, };
+	dcerpc_info di = { .ptype = UINT8_MAX, .call_data = &call_data, };
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_device_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_device_info);
@@ -4306,10 +4300,6 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 	offset = dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
 
 	/* the PAC_DEVICE_INFO blob */
-	/* fake whatever state the dcerpc runtime support needs */
-	di.conformant_run=0;
-	/* we need di->call_data->flags.NDR64 == 0 */
-	di.call_data=&call_data;
 	init_ndr_pointer_list(&di);
 	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
 				     netlogon_dissect_PAC_DEVICE_INFO, NDR_POINTER_UNIQUE,
