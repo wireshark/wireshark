@@ -4334,12 +4334,22 @@ dissect_krb5_PAC_CLIENT_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int 
 static int
 dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
+#ifdef HAVE_KERBEROS
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	const char *device_sid = NULL;
+#endif /* HAVE_KERBEROS */
 	proto_item *item;
 	proto_tree *tree;
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 	/* fake dcerpc_info struct */
 	dcerpc_call_value call_data = { .flags = 0, };
 	dcerpc_info di = { .ptype = UINT8_MAX, .call_data = &call_data, };
+
+#ifdef HAVE_KERBEROS
+	if (private_data->current_ticket_key != NULL) {
+		call_data.private_data = &device_sid;
+	}
+#endif /* HAVE_KERBEROS */
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_device_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_device_info);
@@ -4355,6 +4365,18 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 				     netlogon_dissect_PAC_DEVICE_INFO, NDR_POINTER_UNIQUE,
 				     "PAC_DEVICE_INFO:", -1);
 	free_ndr_pointer_list(&di);
+
+#ifdef HAVE_KERBEROS
+	if (private_data->current_ticket_key != NULL) {
+		enc_key_t *ek = private_data->current_ticket_key;
+
+		/*
+		 * netlogon_dissect_PAC_DEVICE_INFO allocated on
+		 * wmem_epan_scope() for us
+		 */
+		ek->pac_names.device_sid = device_sid;
+	}
+#endif /* HAVE_KERBEROS */
 
 	return offset;
 }

@@ -105,9 +105,7 @@ typedef struct _enc_key_t {
 	 * for now taken from dissect_krb5_PAC_UPN_DNS_INFO,
 	 * we could also use dissect_krb5_PAC_LOGON_INFO if needed
 	 *
-	 * in future we could get device_sid from
-	 * dissect_krb5_PAC_DEVICE_INFO, but for now
-	 * we have it always as NULL...
+	 * we get device_sid from dissect_krb5_PAC_DEVICE_INFO if available.
 	 *
 	 * We remember these from the PAC and
 	 * attach it to EncTicketPart_key so it
