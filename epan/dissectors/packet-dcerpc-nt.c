@@ -1469,7 +1469,10 @@ static int
 dissect_ndr_nt_SID_hf_through_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_ndr_nt_SID_with_options(tvb, offset, pinfo, tree,
+						 di, drep,
+						 CB_STR_ITEM_LEVELS(2),
+						 di->hf_index);
 
 	return offset;
 }
@@ -1486,7 +1489,7 @@ dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 	int old_offset=offset;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
-			ett_nt_sid_pointer, &item, "SID pointer:");
+			ett_nt_sid_pointer, &item, "SID pointer");
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_nt_SID_hf_through_ptr, NDR_POINTER_UNIQUE,
