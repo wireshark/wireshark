@@ -2155,6 +2155,76 @@ netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+struct device_sid_callback_args {
+    const char **device_sid_ptr;
+    guint32 user_rid;
+    const char *domain_sid;
+    const char *device_sid;
+};
+
+static void device_sid_callback_fnct(packet_info *pinfo _U_,
+                                     proto_tree *tree _U_,
+                                     proto_item *item _U_,
+                                     dcerpc_info *di,
+                                     tvbuff_t *tvb _U_,
+                                     int start_offset _U_,
+                                     int end_offset _U_,
+                                     void *callback_args)
+{
+    struct device_sid_callback_args *args =
+        (struct device_sid_callback_args *)callback_args;
+    dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+    const char *p = NULL;
+    ptrdiff_t len;
+
+    if (di->ptype != UINT8_MAX) {
+        return;
+    }
+
+    if (dcv == NULL) {
+        return;
+    }
+
+    if (args == NULL) {
+        return;
+    }
+
+    args->domain_sid = (const char *)dcv->private_data;
+    if (args->domain_sid == NULL) {
+        /* this should not happen... */
+        return;
+    }
+
+    len = strnlen(args->domain_sid, 64);
+
+    /* remove any debug info after the sid */
+    p = memchr(args->domain_sid, ' ', len);
+    if (p != NULL) {
+        ptrdiff_t mlen = p - args->domain_sid;
+        if (mlen < len) {
+            len = mlen;
+        }
+    }
+    p = memchr(args->domain_sid, '(', len);
+    if (p != NULL) {
+        ptrdiff_t mlen = p - args->domain_sid;
+        if (mlen < len) {
+            len = mlen;
+        }
+    }
+
+    /*
+     * we know we're called dissect_krb5_PAC_DEVICE_INFO
+     * so we should allocate the device_sid on wmem_epan_scope()
+     */
+    args->device_sid = wmem_strdup_printf(wmem_epan_scope(),
+                                          "%*.*s-%" PRIu32 "",
+                                          (int)len, (int)len,
+                                          args->domain_sid,
+                                          args->user_rid);
+    *args->device_sid_ptr = args->device_sid;
+}
+
 /*
  * IDL typedef struct {
  * IDL   long UserId;
@@ -2173,13 +2243,28 @@ netlogon_dissect_PAC_DEVICE_INFO(tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
                                  dcerpc_info *di, guint8 *drep)
 {
+    dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+    struct device_sid_callback_args *args = NULL;
+    guint32 *user_rid_ptr = NULL;
+
+    if (dcv && di->ptype == UINT8_MAX && dcv->private_data) {
+        args = wmem_new0(pinfo->pool, struct device_sid_callback_args);
+        /*
+         * dissect_krb5_PAC_DEVICE_INFO passes
+         * a pointer to const char *device_sid
+         */
+        args->device_sid_ptr = dcv->private_data;
+        user_rid_ptr = &args->user_rid;
+    }
+
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_user_rid, NULL);
+                                hf_netlogon_user_rid, user_rid_ptr);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_group_rid, NULL);
 
-    offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
+    offset = dissect_ndr_nt_PSID_cb(tvb, offset, pinfo, tree, di, drep,
+                                    device_sid_callback_fnct, args);
 
     offset = netlogon_dissect_GROUP_MEMBERSHIPS(tvb, offset,
                               pinfo, tree, di, drep,
