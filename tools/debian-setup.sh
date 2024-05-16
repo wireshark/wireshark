@@ -96,6 +96,7 @@ then
 fi
 
 BASIC_LIST="
+	cmake
 	flex
 	g++
 	gcc
@@ -174,19 +175,25 @@ ADDITIONAL_LIST="
 	ccache
 	doxygen
 	git
+	libbrotli-dev
 	libcap-dev
+	libgnutls28-dev
 	libkrb5-dev
-	liblua5.3-dev
 	liblz4-dev
+	libmaxminddb-dev
 	libminizip-dev
+	libnghttp2-dev
 	libnl-3-dev
 	libnl-cli-3-dev
 	libopencore-amrnb-dev
+	libopus-dev
 	libparse-yapp-perl
 	libsbc-dev
+	libssh-gcrypt-dev
 	libsmi2-dev
 	libsnappy-dev
 	libspandsp-dev
+	libsystemd-dev
 	libxml2-dev
 	libzstd-dev
 	ninja-build
@@ -220,72 +227,30 @@ TESTDEPS_LIST="
 	gdb
 	python3-pytest
 	python3-pytest-xdist
+	softhsm2
 	"
 
 # apt-get update must be called before calling add_package
 # otherwise available packages appear as unavailable
 apt-get update || exit 2
 
-# cmake3 3.5.1: Ubuntu 14.04
-# cmake >= 3.5: Debian >= jessie-backports, Ubuntu >= 16.04
-add_package BASIC_LIST cmake3 ||
-BASIC_LIST="$BASIC_LIST cmake"
-
-# Debian >= wheezy-backports, Ubuntu >= 16.04
-add_package ADDITIONAL_LIST libnghttp2-dev ||
-echo "libnghttp2-dev is unavailable" >&2
+# Lua 5.4: Debian >= bullseye, Ubuntu >= 22.04 (jammy)
+# Lua 5.3: Debian >= buster, Ubuntu >= 20.04 (focal)
+add_package ADDITIONAL_LIST liblua5.4-dev ||
+ADDITIONAL_LIST="$ADDITIONAL_LIST liblua5.3-dev"
 
 # Debian >= bookworm, Ubuntu >= 22.04
 add_package ADDITIONAL_LIST libnghttp3-dev ||
 echo "libnghttp3-dev is unavailable" >&2
 
-# libssh-gcrypt-dev: Debian >= jessie, Ubuntu >= 16.04
-# libssh-dev (>= 0.6): Debian >= jessie, Ubuntu >= 14.04
-add_package ADDITIONAL_LIST libssh-gcrypt-dev ||
-add_package ADDITIONAL_LIST libssh-dev ||
-echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
-
-# libgnutls28-dev: Debian >= wheezy-backports, Ubuntu >= 12.04
-add_package ADDITIONAL_LIST libgnutls28-dev ||
-echo "libgnutls28-dev is unavailable" >&2
-
-# Debian >= jessie-backports, Ubuntu >= 16.04
-add_package ADDITIONAL_LIST libmaxminddb-dev ||
-echo "libmaxminddb-dev is unavailable" >&2
-
-# Debian >= stretch-backports, Ubuntu >= 16.04
-add_package ADDITIONAL_LIST libbrotli-dev ||
-echo "libbrotli-dev is unavailable" >&2
-
-# libsystemd-journal-dev: Ubuntu 14.04
-# libsystemd-dev: Ubuntu >= 16.04
-add_package ADDITIONAL_LIST libsystemd-dev ||
-add_package ADDITIONAL_LIST libsystemd-journal-dev ||
-echo "libsystemd-dev is unavailable"
-
 # ilbc library from http://www.deb-multimedia.org
 add_package ADDITIONAL_LIST libilbc-dev ||
 echo "libilbc-dev is unavailable"
 
-# opus library libopus-dev
-add_package ADDITIONAL_LIST libopus-dev ||
-    echo "libopus-dev is unavailable"
-
+# Debian >= bullseye, Ubuntu >= 22.04 (jammy)
 # bcg729 library libbcg729-dev
 add_package ADDITIONAL_LIST libbcg729-dev ||
     echo "libbcg729-dev is unavailable"
-
-# softhsm2 2.0.0: Ubuntu 16.04
-# softhsm2 2.2.0: Debian >= jessie-backports, Ubuntu 18.04
-# softhsm2 >= 2.4.0: Debian >= buster, Ubuntu >= 18.10
-if ! add_package TESTDEPS_LIST softhsm2 '>= 2.3.0'; then
-	if add_package TESTDEPS_LIST softhsm2; then
-		# If SoftHSM 2.3.0 is unavailble, install p11tool.
-		TESTDEPS_LIST="$TESTDEPS_LIST gnutls-bin"
-	else
-		echo "softhsm2 is unavailable" >&2
-	fi
-fi
 
 ACTUAL_LIST=$BASIC_LIST
 
