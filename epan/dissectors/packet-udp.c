@@ -553,7 +553,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8 curr_layer_num = pinfo->curr_layer_num;
     heur_dtbl_entry_t *hdtbl_entry;
     exp_pdu_data_t *exp_pdu_data;
-    proto_tree* tree = proto_tree_get_root(udp_tree);
+    proto_tree* tree = proto_tree_get_parent_tree(udp_tree);
 
     /* populate per packet data variable */
     udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_udp, pinfo->curr_layer_num);
