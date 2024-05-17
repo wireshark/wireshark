@@ -96,12 +96,13 @@ Description: network traffic analyzer - graphical interface
  packets off the wire. Wireshark can decode too many protocols to list
  here.
 
+# We override the binary version, so use the source version here.
 Package: logray
 Build-Profiles: <pkg.wireshark.logray>
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         wireshark-common (= ${binary:Version}),
+         wireshark-common (= ${source:Version}),
          libfalcosecurity0t64,
          libqt6svg6
 # Recommends: libqt6multimedia6

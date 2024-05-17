@@ -59,3 +59,38 @@ _Description: Removal of the wireshark group failed
  being a system group, so purging wireshark-common did not remove it.
  .
  If the group is no longer needed, please remove it manually.
+
+Template: logray/install-setuid
+Type: boolean
+Default: false
+_Description: Should non-superusers be able to capture system calls?
+ The falcodump external capture utility (extcap) can be installed in a
+ way that allows members of the "scap" system group to capture system
+ calls. This is recommended over the alternative of running Logray
+ directly as root, because less of the code will run with elevated
+ privileges.
+ .
+ For more detailed information please see
+ /usr/share/doc/wireshark-common/README.Debian.
+ .
+ Enabling this feature may be a security risk, so it is disabled by
+ default. If in doubt, it is suggested to leave it disabled.
+
+Template: logray/addgroup-failed
+Type: error
+_Description: Creating the "scap" system group failed
+ The "scap" group does not exist, and creating it failed, so
+ Logray cannot be configured to capture system calls as an unprivileged
+ user.
+ .
+ Please create the "scap" system group and try configuring
+ logray again.
+
+Template: logray/group-is-user-group
+Type: error
+_Description: The "scap" group is a system group
+ The "scap" group exists as a user group, but the preferred
+ configuration is for it to be created as a system group.
+ .
+ As a result, purging logray will not remove the "scap"
+ group, but everything else should work properly.

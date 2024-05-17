@@ -14,6 +14,15 @@ endif
 
 include /usr/share/dpkg/pkg-info.mk
 
+# Fetch our Logray version. This is pretty janky, but will have to do for now.
+PROJECT_MAJOR_VERSION = $(shell grep '^set(PROJECT_MAJOR_VERSION' CMakeLists.txt | sed -e 's/set.* //' -e 's/)//')
+PROJECT_MINOR_VERSION = $(shell grep '^set(PROJECT_MINOR_VERSION' CMakeLists.txt | sed -e 's/set.* //' -e 's/)//')
+PROJECT_PATCH_VERSION = $(shell grep '^set(PROJECT_PATCH_VERSION' CMakeLists.txt | sed -e 's/set.* //' -e 's/)//')
+LOG_PROJECT_MAJOR_VERSION = $(shell grep '^set(LOG_PROJECT_MAJOR_VERSION' CMakeLists.txt | sed -e 's/set.* //' -e 's/)//')
+LOG_PROJECT_MINOR_VERSION = $(shell grep '^set(LOG_PROJECT_MINOR_VERSION' CMakeLists.txt | sed -e 's/set.* //' -e 's/)//')
+LOG_PROJECT_PATCH_VERSION = $(shell grep '^set(LOG_PROJECT_PATCH_VERSION' CMakeLists.txt | sed -e 's/set.* //' -e 's/)//')
+LOGRAY_VERSION = $(shell echo $(DEB_VERSION) | sed -e "s/$(PROJECT_MAJOR_VERSION)\.$(PROJECT_MINOR_VERSION)\.$(PROJECT_PATCH_VERSION)/$(LOG_PROJECT_MAJOR_VERSION)\.$(LOG_PROJECT_MINOR_VERSION)\.$(LOG_PROJECT_PATCH_VERSION)/")
+
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
@@ -41,6 +50,8 @@ override_dh_auto_configure:
 		-DBUILD_xxx2deb=ON \
 		-DBUILD_corbaidl2wrs=ON \
 		$(CONFIGURE_SWITCHES)
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
+		debian/logray.postinst.in > debian/logray.postinst
 
 override_dh_auto_build:
 	# Ignore warnings from asn2wrs.py about duplicate field names.
@@ -94,3 +105,7 @@ override_dh_makeshlibs:
 		echo "$$lib $$major $$package (= $(DEB_VERSION))"  > debian/$$package.shlibs; \
 	done
 	dh_makeshlibs
+
+override_dh_gencontrol:
+	dh_gencontrol
+	dh_gencontrol -plogray -- -v$(LOGRAY_VERSION)
