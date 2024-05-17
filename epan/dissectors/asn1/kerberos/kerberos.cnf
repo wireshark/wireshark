@@ -296,6 +296,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   case KERBEROS_PA_SPAKE:
     offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SPAKE);
     break;
+  case KERBEROS_PA_SRP:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_KRB5_SRP_PA_APPLICATIONS);
+    break;
   default:
     offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
     break;

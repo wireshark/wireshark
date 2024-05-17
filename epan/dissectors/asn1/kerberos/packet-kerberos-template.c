@@ -187,6 +187,11 @@ static int dissect_kerberos_KrbFastReq(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 static int dissect_kerberos_KrbFastResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_FastOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 #endif
+static int dissect_kerberos_KRB5_SRP_PA_ANNOUNCE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_KRB5_SRP_PA_INIT(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_KRB5_SRP_PA_SERVER_CHALLENGE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_KRB5_SRP_PA_CLIENT_RESPONSE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_KRB5_SRP_PA_SERVER_VERIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static bool krb_desegment = true;
@@ -3369,6 +3374,64 @@ static const true_false_string tfs_gss_flags_dce_style = {
 	"DCE-STYLE",
 	"Not using DCE-STYLE"
 };
+
+static int dissect_kerberos_KRB5_SRP_PA_APPLICATIONS(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	proto_item *pi1 = proto_item_get_parent(actx->created_item);
+	proto_item *pi2 = proto_item_get_parent(pi1);
+	gint8 ber_class;
+	bool pc;
+	gint32 tag;
+
+	/*
+	 * dissect_ber_octet_string_wcb() always passes
+	 * implicit_tag=FALSE, offset=0 and hf_index=-1
+	 */
+	ws_assert(implicit_tag == FALSE);
+	ws_assert(offset == 0);
+	ws_assert(hf_index <= 0);
+
+	get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+	if (ber_class != BER_CLASS_APP) {
+		if (kerberos_private_is_kdc_req(private_data)) {
+			goto unknown;
+		}
+		if (private_data->errorcode != KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED) {
+			goto unknown;
+		}
+
+		proto_item_append_text(pi1, " KRB5_SRP_PA_ANNOUNCE");
+		proto_item_append_text(pi2, ": KRB5_SRP_PA_ANNOUNCE");
+		return dissect_kerberos_KRB5_SRP_PA_ANNOUNCE(implicit_tag, tvb, offset, actx, tree, hf_index);
+	}
+
+	switch (tag) {
+	case 0:
+		proto_item_append_text(pi1, " KRB5_SRP_PA_INIT");
+		proto_item_append_text(pi2, ": KRB5_SRP_PA_INIT");
+		return dissect_kerberos_KRB5_SRP_PA_INIT(implicit_tag, tvb, offset, actx, tree, hf_index);
+	case 1:
+		proto_item_append_text(pi1, " KRB5_SRP_PA_SERVER_CHALLENGE");
+		proto_item_append_text(pi2, ": KRB5_SRP_PA_SERVER_CHALLENGE");
+		return dissect_kerberos_KRB5_SRP_PA_SERVER_CHALLENGE(implicit_tag, tvb, offset, actx, tree, hf_index);
+	case 2:
+		proto_item_append_text(pi1, " KRB5_SRP_PA_CLIENT_RESPONSE");
+		proto_item_append_text(pi2, ": KRB5_SRP_PA_CLIENT_RESPONSE");
+		return dissect_kerberos_KRB5_SRP_PA_CLIENT_RESPONSE(implicit_tag, tvb, offset, actx, tree, hf_index);
+	case 3:
+		proto_item_append_text(pi1, " KRB5_SRP_PA_SERVER_VERIFIER");
+		proto_item_append_text(pi2, ": KRB5_SRP_PA_SERVER_VERIFIER");
+		return dissect_kerberos_KRB5_SRP_PA_SERVER_VERIFIER(implicit_tag, tvb, offset, actx, tree, hf_index);
+	default:
+		break;
+	}
+
+unknown:
+	proto_item_append_text(pi1, " KRB5_SRP_PA_UNKNOWN: ber_class:%u ber_pc=%u ber_tag:%"PRIu32"", ber_class, pc, tag);
+	proto_item_append_text(pi2, ": KRB5_SRP_PA_UNKNOWN");
+	return tvb_reported_length_remaining(tvb, offset);
+}
 
 #ifdef HAVE_KERBEROS
 static guint8 *

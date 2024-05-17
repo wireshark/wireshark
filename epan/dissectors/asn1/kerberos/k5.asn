@@ -124,6 +124,7 @@ PADATA-TYPE ::= INTEGER {
 	pA-SUPPORTED-ETYPES(165),	-- [MS-KILE]
 	pA-EXTENDED-ERROR(166),		-- [MS-KILE]
 	pA-PAC-OPTIONS(167),		-- [MS-KILE]
+	pA-SRP(250),			-- (lha@apple.com)
 	pA-PROV-SRV-LOCATION(-1)	-- 0xffffffff (gint32)0xFF) packetcable stuff
 }
 
@@ -310,7 +311,8 @@ ERROR-CODE ::= INTEGER {
 	eRR-REVOCATION-STATUS-UNKNOWN(73),
 	eRR-REVOCATION-STATUS-UNAVAILABLE(74),
 	eRR-CLIENT-NAME-MISMATCH(75),
-	eRR-KDC-NAME-MISMATCH(76)
+	eRR-KDC-NAME-MISMATCH(76),
+	eRR-KDC-MORE-PREAUTH-DATA-REQUIRED(91)
 }
 
 -- this is sugar to make something ASN1 does not have: unsigned
@@ -885,6 +887,40 @@ PA-KERB-KEY-LIST-REP-Key ::= EncryptionKey
 
 PA-KERB-KEY-LIST-REP ::= SEQUENCE OF PA-KERB-KEY-LIST-REP-Key
 
+--
+-- [SRP]
+-- https://github.com/apple-oss-distributions/Heimdal/blob/main/doc/standardisation/draft-srp.txt
+-- https://github.com/apple-oss-distributions/Heimdal/blob/main/lib/asn1/krb5.asn1
+--
+
+KRB5-SRP-GROUP ::= INTEGER {
+	kRB5-SRP-GROUP-INVALID(0),
+	kRB5-SRP-GROUP-RFC5054-4096-PBKDF2-SHA512(1)
+}
+
+KRB5-SRP-PA ::= SEQUENCE {
+	group		[0] KRB5-SRP-GROUP,
+	salt		[1] OCTET STRING,
+	iterations	[2] UInt32
+}
+
+KRB5-SRP-PA-ANNOUNCE ::= SEQUENCE {
+	groups		[0] SET OF KRB5-SRP-PA,		-- allowed groups and their salt
+	as-req		[1] Checksum			-- an unkeyed checksum of the AS-REQ using
+							-- an non weak checksum type that the KDC support
+							-- given the list of etype from the client
+}
+
+KRB5-SRP-PA-INIT ::= [APPLICATION 0] SEQUENCE  {
+	group	[0] UInt32,
+	a	[1] OCTET STRING
+}
+
+KRB5-SRP-PA-SERVER-CHALLENGE ::= [APPLICATION 1] OCTET STRING -- b
+
+KRB5-SRP-PA-CLIENT-RESPONSE ::= [APPLICATION 2] OCTET STRING -- m
+
+KRB5-SRP-PA-SERVER-VERIFIER ::= [APPLICATION 3] OCTET STRING -- hamk
 
 END
 
