@@ -17,6 +17,8 @@
 #include "cfile.h"
 #include <wsutil/ws_assert.h>
 
+#include <epan/epan_dissect.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
