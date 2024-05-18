@@ -22,6 +22,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/reassemble.h>
+#include <wsutil/str_util.h>
 #include "packet-tcp.h"
 
 void proto_register_iec60870_104(void);
@@ -35,11 +38,14 @@ void proto_reg_handoff_iec60870_5_103(void);
 
 void proto_register_iec60870_asdu(void);
 
+static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
 static dissector_handle_t iec60870_asdu_handle;
 static dissector_handle_t iec60870_104_handle;
 static dissector_handle_t iec60870_101_handle;
 static dissector_handle_t iec60870_5_103_handle;
 
+static reassembly_table iec60870_reassemble_table;
 
 /* the asdu header structure */
 struct asduheader {
@@ -404,7 +410,7 @@ static const td_asdu_length asdu_length [] = {
 	{  M_EP_TD_1,	10 },
 	{  M_EP_TE_1,	11 },
 	{  M_EP_TF_1,	11 },
-	{  S_IT_TC_1,    0 },
+	{  S_IT_TC_1,   14 },
 	{  C_SC_NA_1,	 1 },
 	{  C_DC_NA_1,	 1 },
 	{  C_RC_NA_1,	 1 },
@@ -649,6 +655,73 @@ static const value_string qrp_r_types[] = {
 	{ 0, NULL }
 };
 
+static const range_string usr_types[] = {
+	{ 0,	0,	"(Unknown)" },
+	{ 1,	1,	"Default" },
+	{ 2,	65535,	"Chosen by the controlling station" },
+	{ 0, 0, NULL }
+};
+
+static const range_string mal_types[] = {
+	{ 0,	0,	"(not used)" },
+	{ 1,	1,	"HMAC SHA-1 truncated to 4 octets (serial)" },
+	{ 2,	2,	"HMAC SHA-1 truncated to 10 octets (networked)" },
+	{ 3,	3,	"HMAC-SHA-256 truncated to 8 octets (serial)" },
+	{ 4,	3,	"HMAC-SHA-256 truncated to 16 octets (networked)" },
+	{ 128,	255,	"(vendor-specific choice)" },
+	{ 0, 0, NULL }
+};
+
+static const value_string rsc_types[] = {
+	{ 0,		"(not used)" },
+	{ 1,		"CRITICAL" },
+	{ 0, NULL }
+};
+
+static const range_string kwa_types[] = {
+	{ 0,	0,	"(not used)" },
+	{ 1,	1,	"AES-128 Key Wrap Algorithm" },
+	{ 2,	2,	"AES-256 Key Wrap Algorithm" },
+	{ 128,	255,	"(vendor-specific choice)" },
+	{ 0, 0, NULL }
+};
+
+static const value_string kst_types[] = {
+	{ 0,		"(not used)" },
+	{ 1,		"OK" },
+	{ 2,		"NOT INIT" },
+	{ 3,		"COMM FAIL" },
+	{ 4,		"AUTH FAIL" },
+	{ 0, NULL }
+};
+
+static const range_string hal_types[] = {
+	{ 0,	0,	"No MAC value in this message" },
+	{ 1,	1,	"HMAC SHA-1 truncated to 4 octets (serial)" },
+	{ 2,	2,	"HMAC SHA-1 truncated to 10 octets (networked)" },
+	{ 3,	3,	"HMAC-SHA-256 truncated to 8 octets (serial)" },
+	{ 4,	3,	"HMAC-SHA-256 truncated to 16 octets (networked)" },
+	{ 128,	255,	"(vendor-specific choice)" },
+	{ 0, 0, NULL }
+};
+
+static const range_string error_codes[] = {
+	{ 0,	0,	"(not used)" },
+	{ 1,	1,	"Authentication failed" },
+	{ 2,	2,	"Unexpected reply" },
+	{ 3,	3,	"No reply" },
+	{ 4,	4,	"Aggressive Mode not permitted" },
+	{ 5,	5,	"MAC algorithm not permitted" },
+	{ 6,	6,	"Key Wrap algorithm not permitted" },
+	{ 7,	7,	"Authorization failed" },
+	{ 8,	8,	"Update Key Change Method not permitted" },
+	{ 9,	9,	"Invalid Signature" },
+	{ 10,	10,	"Invalid Certification Data" },
+	{ 11,	11,	"Unknown User" },
+	{ 128, 255,	"(vendor-specific choice)"},
+	{ 0, 0, NULL }
+};
+
 static const true_false_string tfs_blocked_not_blocked = { "Blocked", "Not blocked" };
 static const true_false_string tfs_substituted_not_substituted = { "Substituted", "Not Substituted" };
 static const true_false_string tfs_not_topical_topical = { "Not Topical", "Topical" };
@@ -737,6 +810,38 @@ static int hf_qpm;
 static int hf_qpm_kpa;
 static int hf_qpm_lpc;
 static int hf_qpm_pop;
+static int hf_asn;
+static int hf_usr;
+static int hf_iec60870_segment_data;
+static int hf_mal;
+static int hf_rsc;
+static int hf_asn_fin;
+static int hf_asn_fir;
+static int hf_csq;
+static int hf_ksq;
+static int hf_kwa;
+static int hf_kst;
+static int hf_hln;
+static int hf_hal;
+static int hf_cln;
+static int hf_wkl;
+static int hf_prcd_raw_data;
+static int hf_hmac_raw_data;
+static int hf_wkd_raw_data;
+static int hf_aid;
+static int hf_err;
+static int hf_etm;
+static int hf_etm_ms;
+static int hf_etm_min;
+static int hf_etm_iv;
+static int hf_etm_hour;
+static int hf_etm_su;
+static int hf_etm_day;
+static int hf_etm_dow;
+static int hf_etm_month;
+static int hf_etm_year;
+static int hf_eln;
+static int hf_error_text;
 static int hf_coi;
 static int hf_coi_r;
 static int hf_coi_i;
@@ -757,6 +862,7 @@ static int hf_asdu_bitstring;
 static int hf_asdu_float;
 static int hf_asdu_normval;
 static int hf_asdu_scalval;
+static int hf_asdu_tsc;
 static int hf_asdu_raw_data;
 
 static gint ett_apci;
@@ -775,6 +881,10 @@ static gint ett_coi;
 static gint ett_qcc;
 static gint ett_cp24time;
 static gint ett_cp56time;
+static gint ett_etm;
+
+static gint ett_iec60870_segment;
+static gint ett_iec60870_segments;
 
 static expert_field ei_iec104_short_asdu;
 static expert_field ei_iec104_apdu_min_len;
@@ -795,6 +905,35 @@ static int hf_iec60870_101_ctrl_func_sec_to_pri;
 static int hf_iec60870_101_linkaddr;
 static int hf_iec60870_101_checksum;
 static int hf_iec60870_101_stopchar;
+
+static int hf_iec60870_segments = -1;
+static int hf_iec60870_segment = -1;
+static int hf_iec60870_segment_overlap = -1;
+static int hf_iec60870_segment_overlap_conflict = -1;
+static int hf_iec60870_segment_multiple_tails = -1;
+static int hf_iec60870_segment_too_long_segment = -1;
+static int hf_iec60870_segment_error = -1;
+static int hf_iec60870_segment_count = -1;
+static int hf_iec60870_reassembled_in = -1;
+static int hf_iec60870_reassembled_length = -1;
+
+static const fragment_items iec60870_frag_items = {
+  &ett_iec60870_segment,
+  &ett_iec60870_segments,
+  &hf_iec60870_segments,
+  &hf_iec60870_segment,
+  &hf_iec60870_segment_overlap,
+  &hf_iec60870_segment_overlap_conflict,
+  &hf_iec60870_segment_multiple_tails,
+  &hf_iec60870_segment_too_long_segment,
+  &hf_iec60870_segment_error,
+  &hf_iec60870_segment_count,
+  &hf_iec60870_reassembled_in,
+  &hf_iec60870_reassembled_length,
+  /* Reassembled data field */
+  NULL,
+  "segments"
+};
 
 /* Initialize the subtree pointers */
 static gint ett_iec60870_101;
@@ -1094,22 +1233,22 @@ static void get_CP24Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_heade
 {
 	guint16 ms;
 	guint8 min;
-	nstime_t datetime;
+	nstime_t nstime;
 	proto_item* ti;
 	proto_tree* cp24time_tree;
 
 	ms = tvb_get_letohs(tvb, *offset);
-	datetime.nsecs = (ms % 1000) * 1000000;
-	datetime.secs = ms / 1000;
+	nstime.nsecs = (ms % 1000) * 1000000;
+	nstime.secs = ms / 1000;
 	(*offset) += 2;
 
 	min = tvb_get_guint8(tvb, *offset);
-	datetime.secs += (min & 0x3F) * 60;
+	nstime.secs += (min & 0x3F) * 60;
 	(*offset)++;
 
 	(*offset) -= 3;
 
-	ti = proto_tree_add_time(iec104_header_tree, hf_cp24time, tvb, *offset, 3, &datetime);
+	ti = proto_tree_add_time(iec104_header_tree, hf_cp24time, tvb, *offset, 3, &nstime);
 	cp24time_tree = proto_item_add_subtree(ti, ett_cp24time);
 
 	proto_tree_add_item(cp24time_tree, hf_cp24time_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -1420,6 +1559,16 @@ static void get_SVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
 }
 
 /* ====================================================================
+   TSC: Test sequence counter
+   ==================================================================== */
+static void get_TSC(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_asdu_tsc, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+}
+
+/* ====================================================================
    "FLT": Short floating point number
    ==================================================================== */
 static void get_FLT(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
@@ -1577,6 +1726,287 @@ static void get_QPM(tvbuff_t* tvb, guint8* offset, proto_tree* iec104_header_tre
 }
 
 /* ====================================================================
+    USR: User Number
+   ==================================================================== */
+static void get_USR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_usr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+}
+
+/* ====================================================================
+    MAL: MAC algorithm
+   ==================================================================== */
+static void get_MAL(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_mal, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    RSC: Reason for challenge
+   ==================================================================== */
+static void get_RSC(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_rsc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    CSQ: Challenge sequence number
+   ==================================================================== */
+static void get_CSQ(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_csq, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 4;
+}
+
+/* ====================================================================
+    KSQ: Key change sequence number
+   ==================================================================== */
+static void get_KSQ(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_ksq, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 4;
+}
+
+/* ====================================================================
+    KWA: Key wrap algorithm
+   ==================================================================== */
+static void get_KWA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_kwa, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    KST: Key status
+   ==================================================================== */
+static void get_KST(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_kst, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    HLN: MAC length
+   ==================================================================== */
+static guint16 get_HLN(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint16 value = tvb_get_letohs(tvb, *offset);
+
+	proto_tree_add_item(iec104_header_tree, hf_hln, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+	return value;
+}
+
+/* ====================================================================
+    HAL: MAC algorithm
+   ==================================================================== */
+static guint8 get_HAL(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint8 hal = tvb_get_guint8(tvb, *offset);
+	proto_tree_add_item(iec104_header_tree, hf_hal, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+	switch (hal)
+	{
+		case 3: /* HMAC-SHA-256 truncated to 8 octets (serial) */
+			return 8;
+		case 4: /* HMAC-SHA-256 truncated to 16 octets (networked) */
+			return 16;
+		case 6: /* AES-GMAC (output is 12 octets) */
+			return 12;
+	}
+	return 0;
+}
+
+/* ====================================================================
+    CLN: Challenge data length
+   ==================================================================== */
+static guint16 get_CLN(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint16 value = tvb_get_letohs(tvb, *offset);
+
+	proto_tree_add_item(iec104_header_tree, hf_cln, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+	return value;
+}
+
+/* ====================================================================
+    WKL: Wrapped key data length
+   ==================================================================== */
+static guint16 get_WKL(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint16 value = tvb_get_letohs(tvb, *offset);
+
+	proto_tree_add_item(iec104_header_tree, hf_wkl, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+	return value;
+}
+
+/* ====================================================================
+    Pseudo-random challenge data
+   ==================================================================== */
+static void get_PRCD(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree, gint length)
+{
+	proto_tree_add_item(iec104_header_tree, hf_prcd_raw_data, tvb, *offset, length, ENC_NA);
+	(*offset) += length;
+}
+
+/* ====================================================================
+    MAC value
+   ==================================================================== */
+static void get_HMAC(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree, gint length)
+{
+	if (length)
+	{
+		proto_tree_add_item(iec104_header_tree, hf_hmac_raw_data, tvb, *offset, length, ENC_NA);
+		(*offset) += length;
+	}
+}
+
+/* ====================================================================
+    Wrapped key data
+   ==================================================================== */
+static void get_WKD(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree, gint length)
+{
+	proto_tree_add_item(iec104_header_tree, hf_wkd_raw_data, tvb, *offset, length, ENC_NA);
+	(*offset) += length;
+}
+
+/* ====================================================================
+    AID: Association ID
+   ==================================================================== */
+static void get_AID(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_aid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+}
+
+/* ====================================================================
+    ERR: Error code
+   ==================================================================== */
+static void get_ERR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_tree_add_item(iec104_header_tree, hf_err, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
+    ETM: Error time stamp (7-octet binary time)
+   ==================================================================== */
+static void get_ETM(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint16 ms;
+	guint8 value;
+	guint8 su;
+	struct tm tm;
+	nstime_t  datetime;
+	proto_item* ti;
+	proto_tree* etm_tree;
+
+	ms = tvb_get_letohs(tvb, *offset);
+	tm.tm_sec = ms / 1000;
+	datetime.nsecs = (ms % 1000) * 1000000;
+	(*offset) += 2;
+
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_min = value & 0x3F;
+	(*offset)++;
+
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_hour = value & 0x1F;
+	su = value & 0x80;
+	(*offset)++;
+
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_mday = value & 0x1F;
+	(*offset)++;
+
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_mon = (value & 0x0F) - 1;
+	(*offset)++;
+
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_year = value & 0x7F;
+	if (tm.tm_year < 70)
+		tm.tm_year += 100;
+
+	(*offset)++;
+
+	if (su)
+		tm.tm_isdst = 1;
+	else
+		tm.tm_isdst = -1; /* there's no info on whether DST was in force; assume it's
+				   * the same as currently */
+
+	datetime.secs = mktime(&tm);
+
+	(*offset) -= 7;
+
+	ti = proto_tree_add_time(iec104_header_tree, hf_etm, tvb, *offset, 7, &datetime);
+	etm_tree = proto_item_add_subtree(ti, ett_etm);
+
+	proto_tree_add_item(etm_tree, hf_etm_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
+
+	proto_tree_add_item(etm_tree, hf_etm_min, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(etm_tree, hf_etm_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+
+	proto_tree_add_item(etm_tree, hf_etm_hour, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(etm_tree, hf_etm_su, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+
+	proto_tree_add_item(etm_tree, hf_etm_day, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(etm_tree, hf_etm_dow, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+
+	proto_tree_add_item(etm_tree, hf_etm_month, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+
+	proto_tree_add_item(etm_tree, hf_etm_year, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset)++;
+}
+
+/* ====================================================================
+    ELN: Error length
+   ==================================================================== */
+static guint16 get_ELN(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	guint16 value = tvb_get_letohs(tvb, *offset);
+	proto_tree_add_item(iec104_header_tree, hf_eln, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+
+	(*offset) += 2;
+	return value;
+}
+
+/* ====================================================================
+    Error text
+   ==================================================================== */
+static void get_ErrorText(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree, gint length)
+{
+	if (length)
+	{
+		proto_tree_add_item(iec104_header_tree, hf_error_text, tvb, *offset, length, ENC_UTF_8 | ENC_NA);
+		(*offset) += length;
+	}
+}
+
+/* ====================================================================
     COI: Cause of initialisation
    ==================================================================== */
 static void get_COI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
@@ -1650,9 +2080,139 @@ static guint get_iec104apdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 	return (guint)(tvb_reported_length(tvb));
 }
 
+/* Dissect reassembled extended IEC60870-5-7 secure authentication ASDUs */
+// NOLINTNEXTLINE(misc-no-recursion)
+static int dissect_iec60870_asdu_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *it_segment_tree, guint8 type_id, struct asdu_parms* parms)
+{
+	guint Len = tvb_reported_length(tvb);
+	guint8 offset = 0;
+	guint8 i, encapsulated_type, encapsulated_length;
+	guint16 j;
+	tvbuff_t *encapsulated_tvb = NULL;
+
+	switch (type_id) {
+		case S_CH_NA_1: /* 81    authentication challenge */
+			get_CSQ(tvb, &offset, it_segment_tree);
+			get_USR(tvb, &offset, it_segment_tree);
+			get_MAL(tvb, &offset, it_segment_tree);
+			get_RSC(tvb, &offset, it_segment_tree);
+			j = get_CLN(tvb, &offset, it_segment_tree);
+			get_PRCD(tvb, &offset, it_segment_tree, j);
+			break;
+		case S_RP_NA_1: /* 82    authentication reply */
+			get_CSQ(tvb, &offset, it_segment_tree);
+			get_USR(tvb, &offset, it_segment_tree);
+			j = get_HLN(tvb, &offset, it_segment_tree);
+			get_HMAC(tvb, &offset, it_segment_tree, j);
+			break;
+		case S_AR_NA_1: /* 83    Aggressive mode authentication request */
+			encapsulated_type = tvb_get_guint8(tvb, offset);
+			encapsulated_length = 1 + 1 + parms->cot_len + parms->asdu_addr_len + parms->ioa_len + get_TypeIdLength(encapsulated_type);
+			encapsulated_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, encapsulated_length);
+			dissect_iec60870_asdu(encapsulated_tvb, pinfo, it_segment_tree, parms);
+			offset = tvb_reported_length(encapsulated_tvb);
+			get_CSQ(tvb, &offset, it_segment_tree);
+			get_USR(tvb, &offset, it_segment_tree);
+			get_HMAC(tvb, &offset, it_segment_tree, tvb_reported_length_remaining(tvb, offset));
+			break;
+		case S_KS_NA_1: /* 85    session key status */
+			get_KSQ(tvb, &offset, it_segment_tree);
+			get_USR(tvb, &offset, it_segment_tree);
+			get_KWA(tvb, &offset, it_segment_tree);
+			get_KST(tvb, &offset, it_segment_tree);
+			i = get_HAL(tvb, &offset, it_segment_tree);
+			j = get_CLN(tvb, &offset, it_segment_tree);
+			get_PRCD(tvb, &offset, it_segment_tree, j);
+			get_HMAC(tvb, &offset, it_segment_tree, i);
+			break;
+		case S_KC_NA_1: /* 86    session key change */
+			get_KSQ(tvb, &offset, it_segment_tree);
+			get_USR(tvb, &offset, it_segment_tree);
+			j = get_WKL(tvb, &offset, it_segment_tree);
+			get_WKD(tvb, &offset, it_segment_tree, j);
+			break;
+		case S_ER_NA_1: /* 87    Authentication error */
+			get_CSQ(tvb, &offset, it_segment_tree);
+			get_USR(tvb, &offset, it_segment_tree);
+			get_AID(tvb, &offset, it_segment_tree);
+			get_ERR(tvb, &offset, it_segment_tree);
+			get_ETM(tvb, &offset, it_segment_tree);
+			j = get_ELN(tvb, &offset, it_segment_tree);
+			get_ErrorText(tvb, &offset, it_segment_tree, j);
+			break;
+		default:
+			proto_tree_add_item(it_segment_tree, hf_ioa, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+			offset += 3;
+
+			if (Len - offset > 0)
+				proto_tree_add_item(it_segment_tree, hf_asdu_raw_data, tvb, offset, Len - offset, ENC_NA);
+			offset = Len;
+
+			break;
+	}
+	/* check correct apdu length */
+	if (Len != offset) {
+		expert_add_info(pinfo, it_segment_tree, &ei_iec104_apdu_invalid_len);
+		return offset;
+	}
+
+	return Len;
+}
+
+/* Handle segmentation of IEC60870-5-7 secure authentication APDUs */
+// NOLINTNEXTLINE(misc-no-recursion)
+static void dissect_iec60870_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 *offset, guint8 typeId, struct asdu_parms* parms)
+{
+	guint32 msg_seqid = 0;
+
+	gboolean final_segment = tvb_get_bits(tvb, (*offset << 3) + 0, 1, ENC_LITTLE_ENDIAN) == 1;
+
+	proto_tree_add_item(tree, hf_asn_fin, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_asn_fir, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_asn, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+
+	tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, *offset);
+	guint32 fragment_length = tvb_captured_length(next_tvb);
+	if (!final_segment) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " [ASDU fragment, %u byte%s]",
+				fragment_length, plurality(fragment_length, "", "s"));
+	} else {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " EOA");
+	}
+
+	fragment_head *fd_head = fragment_add_seq_next(&iec60870_reassemble_table, next_tvb, 0, pinfo,msg_seqid, NULL,
+						       fragment_length, !final_segment);
+
+	if (fd_head && fd_head->next) {
+		/* don't use -1 if fragment length is zero (throws Exception) */
+		proto_tree_add_bytes_format(tree, hf_iec60870_segment_data, tvb, *offset, (fragment_length) ? -1 : 0,
+					    NULL, "ASDU segment data (%u byte%s)", fragment_length,
+					    plurality(fragment_length, "", "s"));
+
+		if (final_segment) {
+			next_tvb = process_reassembled_data(next_tvb, *offset, pinfo,
+							    "Reassembled ASDU", fd_head,
+							    &iec60870_frag_items, NULL, tree);
+		} else if (pinfo->num != fd_head->reassembled_in) {
+			/* Add a "Reassembled in" link if not reassembled in this frame */
+			proto_tree_add_uint(tree, *(iec60870_frag_items.hf_reassembled_in),
+					    next_tvb, 0, 0, fd_head->reassembled_in);
+		}
+		pinfo->fragmented = !final_segment;
+	}
+
+	if (final_segment) {
+		dissect_iec60870_asdu_segment(next_tvb, pinfo, tree, typeId, parms);
+	}
+
+	*offset += tvb_captured_length_remaining(tvb, *offset);
+}
 
 /* Is is called twice: For 'Packet List' and for 'Packet Details' */
 /* This dissection is shared by the IEC '101 and '104 dissectors */
+// NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint Len = tvb_reported_length(tvb);
@@ -1714,11 +2274,13 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* Information object address */
 	/* Support both 16 and 24-bit IOA addresses */
 	/* Don't increment offset, as we'll want to be at this position later */
-	if (parms->ioa_len == 3) {
-		asduh.IOA = tvb_get_letoh24(tvb, offset);
-	}
-	else if (parms->ioa_len == 2) {
-		asduh.IOA = tvb_get_letohs(tvb, offset);
+	if (asduh.TypeId < S_CH_NA_1 || asduh.TypeId > S_UC_NA_1) {
+		if (parms->ioa_len == 3) {
+			asduh.IOA = tvb_get_letoh24(tvb, offset);
+		}
+		else if (parms->ioa_len == 2) {
+			asduh.IOA = tvb_get_letohs(tvb, offset);
+		}
 	}
 
 	cause_str = val_to_str(asduh.TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>");
@@ -1781,6 +2343,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case M_IT_NA_1:
 		case M_IT_TA_1:
 		case M_IT_TB_1:
+		case S_IT_TC_1:
 		case C_SC_NA_1:
 		case C_DC_NA_1:
 		case C_RC_NA_1:
@@ -1800,6 +2363,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case C_CI_NA_1:
 		case C_CS_NA_1:
 		case C_RP_NA_1:
+		case C_TS_TA_1:
 		case P_ME_NA_1:
 		case P_ME_NB_1:
 		case P_ME_NC_1:
@@ -1959,6 +2523,11 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					get_BCR(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
+				case S_IT_TC_1: /* 41   Integrated totals containing time tagged security statistics */
+					get_AID(tvb, &offset, trSignal);
+					get_BCR(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
 				case C_SC_NA_1: /* 45	Single command */
 					get_SCO(tvb, &offset, trSignal);
 					break;
@@ -2029,6 +2598,10 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case C_RP_NA_1: /* 105   reset process command  */
 					get_QRP(tvb, &offset, trSignal);
 					break;
+				case C_TS_TA_1: /* 107   test command with time tag CP56Time2a */
+					get_TSC(tvb, &offset, trSignal);
+					get_CP56Time(tvb, &offset, trSignal);
+					break;
 				case P_ME_NA_1: /* 110   Parameter of measured value, normalized value */
 					get_NVA(tvb, &offset, trSignal);
 					get_QPM(tvb, &offset, trSignal);
@@ -2045,6 +2618,18 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					break;
 				} /* end 'switch (asduh.TypeId)' */
 			} /* end 'for(i = 0; i < dui.asdu_vsq_no_of_obj; i++)' */
+			break;
+		case S_CH_NA_1: /* 81    authentication challenge */
+		case S_RP_NA_1: /* 82    authentication reply */
+		case S_AR_NA_1: /* 83    Aggressive mode authentication request */
+		case S_KS_NA_1: /* 85    session key status */
+		case S_KC_NA_1: /* 86    session key change */
+		case S_ER_NA_1: /* 87    Authentication error */
+			dissect_iec60870_segment(tvb, pinfo, it104tree, &offset, asduh.TypeId, parms);
+			break;
+		case S_KR_NA_1: /* 84    Session key status request */
+			proto_tree_add_item(it104tree, hf_usr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
 			break;
 		default:
 			proto_tree_add_item(it104tree, hf_ioa, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -2584,6 +3169,134 @@ proto_register_iec60870_asdu(void)
 		  { "POP", "iec60870_asdu.qpm.pop", FT_UINT8, BASE_DEC, VALS(qpm_pop_types), 0x80,
 		    "QPM POP", HFILL } },
 
+		{ &hf_asn,
+		  { "ASDU Segment Sequence Number (ASN)", "iec60870_asdu.asn", FT_UINT8, BASE_DEC, NULL, 0x3F,
+		    "ASDU Segment Sequence Number", HFILL }},
+
+		{ &hf_asn_fin,
+		  { "Final segment (FIN)", "iec60870_asdu.asn.fin", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+		    "Final segment", HFILL }},
+
+		{ &hf_asn_fir,
+		  { "First segment (FIR)", "iec60870_asdu.asn.fir", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+		    "First segment", HFILL }},
+
+		{ &hf_iec60870_segment_data,
+		   { "ASDU segment data", "iec60870_asdu.segment_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+		     NULL, HFILL }},
+
+		{ &hf_usr,
+		  { "User number (USR)", "iec60870_asdu.usr", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(usr_types), 0,
+		    "User number", HFILL }},
+
+		{ &hf_mal,
+		  { "MAC algorithm (MAL)", "iec60870_asdu.mal", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(mal_types), 0,
+		    "MAC algorithm", HFILL }},
+
+		{ &hf_rsc,
+		  { "Reason for challenge (RSC)", "iec60870_asdu.rsc", FT_UINT8, BASE_DEC, VALS(rsc_types), 0,
+		    "Reason for challenge", HFILL }},
+
+		{ &hf_csq,
+		  { "Challenge sequence number (CSQ)", "iec60870_asdu.csq", FT_UINT32, BASE_DEC, NULL, 0,
+		    "Challenge sequence number", HFILL }},
+
+		{ &hf_ksq,
+		  { "Key change sequence number (KSQ)", "iec60870_asdu.ksq", FT_UINT32, BASE_DEC, NULL, 0,
+		    "Key change sequence number", HFILL }},
+
+		{ &hf_kwa,
+		  { "Key wrap algorithm (KWA)", "iec60870_asdu.kwa", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(kwa_types), 0,
+		    "Key wrap algorithm", HFILL }},
+
+		{ &hf_kst,
+		  { "Key status (KST)", "iec60870_asdu.kst", FT_UINT8, BASE_DEC, VALS(kst_types), 0,
+		    "Key status", HFILL }},
+
+		{ &hf_hln,
+		  { "MAC length (HLN)", "iec60870_asdu.hln", FT_UINT16, BASE_DEC, NULL, 0,
+		    "MAC length", HFILL }},
+
+		{ &hf_hal,
+		  { "MAC algorithm (HAL)", "iec60870_asdu.hal", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(hal_types), 0,
+		    "MAC algorithm", HFILL }},
+
+		{ &hf_cln,
+		  { "Challenge data length (CLN)", "iec60870_asdu.cln", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Challenge data length", HFILL }},
+
+		{ &hf_wkl,
+		  { "Wrapped key data length (CLN)", "iec60870_asdu.wkl", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Wrapped key data length", HFILL }},
+
+		{ &hf_prcd_raw_data,
+		  { "Pseudo-random challenge data", "iec60870_asdu.challenge_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_hmac_raw_data,
+		  { "HMAC value", "iec60870_asdu.hmac", FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_wkd_raw_data,
+		  { "Wrapped key data", "iec60870_asdu.wkd", FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_aid,
+		  { "Association ID (AID)", "iec60870_asdu.aid", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Association ID", HFILL }},
+
+		{ &hf_err,
+		  { "Error code (ERR)", "iec60870_asdu.err", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(error_codes), 0,
+		    "Error code", HFILL }},
+
+		{ &hf_etm,
+		  { "Error time stamp (ETM)", "iec60870_asdu.etm", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
+		    "Error time stamp", HFILL }},
+
+		{ &hf_etm_ms,
+		  { "MS", "iec60870_asdu.etm.ms", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Error time stamp milliseconds", HFILL }},
+
+		{ &hf_etm_min,
+		  { "Min", "iec60870_asdu.etm.min", FT_UINT8, BASE_DEC, NULL, 0x3F,
+		    "Error time stamp minutes", HFILL }},
+
+		{ &hf_etm_iv,
+		  { "IV", "iec60870_asdu.etm.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
+		    "Error time stamp invalid", HFILL }},
+
+		{ &hf_etm_hour,
+		  { "Hour", "iec60870_asdu.etm.hour", FT_UINT8, BASE_DEC, NULL, 0x1F,
+		    "Error time stamp hours", HFILL }},
+
+		{ &hf_etm_su,
+		  { "SU", "iec60870_asdu.etm.su", FT_BOOLEAN, 8, TFS(&tfs_local_dst), 0x80,
+		    "Error time stamp summer time", HFILL }},
+
+		{ &hf_etm_day,
+		  { "Day", "iec60870_asdu.etm.day", FT_UINT8, BASE_DEC, NULL, 0x1F,
+		    "Error time stamp day", HFILL }},
+
+		{ &hf_etm_dow,
+		  { "DOW", "iec60870_asdu.etm.dow", FT_UINT8, BASE_DEC, NULL, 0xE0,
+		    "Error time stamp day of week", HFILL }},
+
+		{ &hf_etm_month,
+		  { "Month", "iec60870_asdu.etm.month", FT_UINT8, BASE_DEC, NULL, 0x0F,
+		    "Error time stamp month", HFILL }},
+
+		{ &hf_etm_year,
+		  { "Year", "iec60870_asdu.etm.year", FT_UINT8, BASE_DEC, NULL, 0x7F,
+		    "Error time stamp year", HFILL }},
+
+		{ &hf_eln,
+		  { "Error length (ELN)", "iec60870_asdu.eln", FT_UINT16, BASE_DEC, NULL, 0,
+		    "Error length", HFILL }},
+
+		{ &hf_error_text,
+		  { "Error text", "iec60870_asdu.error_text", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Error txt", HFILL }},
+
 		{ &hf_coi,
 		  { "COI", "iec60870_asdu.coi", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
@@ -2660,9 +3373,54 @@ proto_register_iec60870_asdu(void)
 		  { "Value", "iec60870_asdu.scalval", FT_INT16, BASE_DEC, NULL, 0x0,
 		    "Scaled value", HFILL }},
 
+		{ &hf_asdu_tsc,
+		  { "TSC", "iec60870_asdu.tsc", FT_UINT16, BASE_DEC, NULL, 0x0,
+	            "Test sequence counter", HFILL }},
+
 		{ &hf_asdu_raw_data,
 		  { "Raw Data", "iec60870_asdu.rawdata", FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Information object raw data", HFILL }},
+
+		{ &hf_iec60870_segments,
+		  { "ASDU Segments", "iec60870_asdu.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_iec60870_segment,
+		  { "ASDU Segment", "iec60870_asdu.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_iec60870_segment_overlap,
+		  { "Segment overlap", "iec60870_asdu.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Segment overlaps with other segments", HFILL }},
+
+		{ &hf_iec60870_segment_overlap_conflict,
+		  { "Conflicting data in segment overlap", "iec60870_asdu.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Overlapping segments contained conflicting data", HFILL }},
+
+		{ &hf_iec60870_segment_multiple_tails,
+		  { "Multiple tail segments found", "iec60870_asdu.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Several tails were found when reassembling the packet", HFILL }},
+
+		{ &hf_iec60870_segment_too_long_segment,
+		  { "Segment too long", "iec60870_asdu.segment.toolongsegment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Segment contained data past end of packet", HFILL }},
+
+		{ &hf_iec60870_segment_error,
+		  { "Reassembly error", "iec60870_asdu.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    "Reassembly error due to illegal segments", HFILL }},
+
+		{ &hf_iec60870_segment_count,
+		  { "Segment count", "iec60870_asdu.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_iec60870_reassembled_in,
+		   { "Reassembled ASDU in frame", "iec60870_asdu.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		     "This ASDU packet is reassembled in this frame", HFILL }},
+
+		{ &hf_iec60870_reassembled_length,
+		  { "Reassembled ASDU length", "iec60870_asdu.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "The total length of the reassembled payload", HFILL }},
+
 	};
 
 	static gint *ett_as[] = {
@@ -2680,7 +3438,10 @@ proto_register_iec60870_asdu(void)
 		&ett_coi,
 		&ett_qcc,
 		&ett_cp24time,
-		&ett_cp56time
+		&ett_cp56time,
+		&ett_etm,
+		&ett_iec60870_segment,
+		&ett_iec60870_segments
 	};
 
 	static ei_register_info ei[] = {
@@ -2702,6 +3463,7 @@ proto_register_iec60870_asdu(void)
 	expert_iec60870 = expert_register_protocol(proto_iec60870_asdu);
 	expert_register_field_array(expert_iec60870, ei, array_length(ei));
 
+	reassembly_table_register(&iec60870_reassemble_table, &addresses_ports_reassembly_table_functions);
 }
 
 /* The registration hand-off routine */
