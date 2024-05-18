@@ -39,6 +39,11 @@ public:
     // XXX Unlike the entire QWidget API, parent is mandatory here.
     explicit WiresharkDialog(QWidget &parent, CaptureFile &capture_file);
 
+    /**
+     * @brief true if the file has been closed, false otherwise.
+     */
+    bool fileClosed() const { return file_closed_; }
+
 protected:
     virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
     virtual void accept();
@@ -103,10 +108,7 @@ protected:
      */
     virtual void removeTapListeners();
 
-    /**
-     * @brief true if the file has been closed, false otherwise.
-     */
-    // XXX Needs a getter?
+    // XXX - Move this to private, have subclasses use the getter?
     bool file_closed_;
 
     /**
