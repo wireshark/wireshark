@@ -10575,7 +10575,7 @@ nspi_dissect_NspiResolveNamesW_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 
-static dcerpc_sub_dissector nspi_dissectors[] = {
+static const dcerpc_sub_dissector nspi_dissectors[] = {
 	{ 0, "NspiBind",
 	   nspi_dissect_NspiBind_request, nspi_dissect_NspiBind_response},
 	{ 1, "NspiUnbind",

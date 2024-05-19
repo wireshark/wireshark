@@ -15138,7 +15138,7 @@ samr_dissect_ChangePasswordUser4_request(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 
-static dcerpc_sub_dissector samr_dissectors[] = {
+static const dcerpc_sub_dissector samr_dissectors[] = {
 	{ 0, "Connect",
 	   samr_dissect_Connect_request, samr_dissect_Connect_response},
 	{ 1, "Close",

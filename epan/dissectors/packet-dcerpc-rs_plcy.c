@@ -33,7 +33,7 @@ static e_guid_t uuid_dcerpc_rs_plcy = {
 
 static guint16 ver_dcerpc_rs_plcy = 1;
 
-static dcerpc_sub_dissector dcerpc_rs_plcy_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_rs_plcy_dissectors[] = {
 	{ 0,  "rs_properties_get_info",       NULL, NULL },
 	{ 1,  "rs_properties_set_info ",      NULL, NULL },
 	{ 2,  "rs_policy_get_info",           NULL, NULL },

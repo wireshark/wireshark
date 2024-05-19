@@ -440,7 +440,7 @@ misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 
-static dcerpc_sub_dissector misc_dissectors[] = {
+static const dcerpc_sub_dissector misc_dissectors[] = {
 	{ 0, NULL, NULL, NULL }
 };
 

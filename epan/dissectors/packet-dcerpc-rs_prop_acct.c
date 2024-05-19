@@ -29,7 +29,7 @@ static e_guid_t uuid_rs_prop_acct = { 0x68097130, 0xde43, 0x11ca, { 0xa5, 0x54, 
 static guint16  ver_rs_prop_acct = 1;
 
 
-static dcerpc_sub_dissector rs_prop_acct_dissectors[] = {
+static const dcerpc_sub_dissector rs_prop_acct_dissectors[] = {
 	{ 0, "rs_prop_acct_add",	     NULL, NULL },
 	{ 1, "rs_prop_acct_delete",	     NULL, NULL },
 	{ 2, "rs_prop_acct_rename",	     NULL, NULL },

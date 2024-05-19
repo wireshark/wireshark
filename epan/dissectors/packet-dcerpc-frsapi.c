@@ -40,7 +40,7 @@ static e_guid_t uuid_dcerpc_frsapi = {
 static guint16 ver_dcerpc_frsapi = 1;
 
 
-static dcerpc_sub_dissector dcerpc_frsapi_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_frsapi_dissectors[] = {
 	{  FRSAPI_VERIFY_PROMOTION,          "VerifyPromotion",        NULL, NULL },
 	{  FRSAPI_PROMOTION_STATUS,          "PromotionStatus",        NULL, NULL },
 	{  FRSAPI_START_DEMOTION,            "StartDemotion",          NULL, NULL },

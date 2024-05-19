@@ -31,7 +31,7 @@ static guint16  ver_icl_rpc = 1;
 
 
 
-static dcerpc_sub_dissector icl_rpc_dissectors[] = {
+static const dcerpc_sub_dissector icl_rpc_dissectors[] = {
 	{ 0, "DFSTRACE_GetSetInfo", NULL, NULL },
 	{ 1, "DFSTRACE_SetSetInfo", NULL, NULL },
 	{ 2, "DFSTRACE_GetLogInfo", NULL, NULL },

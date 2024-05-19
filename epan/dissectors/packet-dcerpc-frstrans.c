@@ -2558,7 +2558,7 @@ frstrans_dissect_FRSTRANS_RDC_GET_FILE_DATA_ASYNC_request(tvbuff_t *tvb _U_, int
 }
 
 
-static dcerpc_sub_dissector frstrans_dissectors[] = {
+static const dcerpc_sub_dissector frstrans_dissectors[] = {
 	{ 0, "CheckConnectivity",
 	   frstrans_dissect_CheckConnectivity_request, frstrans_dissect_CheckConnectivity_response},
 	{ 1, "EstablishConnection",

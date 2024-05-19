@@ -32,7 +32,7 @@ static e_guid_t uuid_roverride = { 0x5d978990, 0x4851, 0x11ca, { 0x99, 0x37, 0x0
 static guint16  ver_roverride = 1;
 
 
-static dcerpc_sub_dissector roverride_dissectors[] = {
+static const dcerpc_sub_dissector roverride_dissectors[] = {
 	{ 0, "roverride_get_login_info",        NULL, NULL},
 	{ 1, "roverride_check_passwd",          NULL, NULL},
 	{ 2, "roverride_is_passwd_overridden",  NULL, NULL},

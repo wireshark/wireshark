@@ -35,7 +35,7 @@ static e_guid_t uuid_rs_bind =
 static guint16 ver_rs_bind = 2;
 
 
-static dcerpc_sub_dissector rs_bind_dissectors[] = {
+static const dcerpc_sub_dissector rs_bind_dissectors[] = {
   {0, "get_update_site", NULL, NULL},
   {0, NULL, NULL, NULL},
 

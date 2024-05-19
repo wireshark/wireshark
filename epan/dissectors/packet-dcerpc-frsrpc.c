@@ -3462,7 +3462,7 @@ frsrpc_dissect_FRSRPC_VERIFY_PROMOTION_PARENT_EX_request(tvbuff_t *tvb _U_, int 
 }
 
 
-static dcerpc_sub_dissector frsrpc_dissectors[] = {
+static const dcerpc_sub_dissector frsrpc_dissectors[] = {
 	{ 0, "FrsSendCommPkt",
 	   frsrpc_dissect_FrsSendCommPkt_request, frsrpc_dissect_FrsSendCommPkt_response},
 	{ 1, "FrsVerifyPromotionParent",

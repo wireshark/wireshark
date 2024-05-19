@@ -1132,7 +1132,7 @@ atsvc_dissect_JobGetInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 
-static dcerpc_sub_dissector atsvc_dissectors[] = {
+static const dcerpc_sub_dissector atsvc_dissectors[] = {
 	{ 0, "JobAdd",
 	   atsvc_dissect_JobAdd_request, atsvc_dissect_JobAdd_response},
 	{ 1, "JobDel",

@@ -4553,7 +4553,7 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 
 
 /* sub dissector table of ICBAAccoMgt / ICBAAccoMgt2 interface */
-static dcerpc_sub_dissector ICBAAccoMgt_dissectors[] = {
+static const dcerpc_sub_dissector ICBAAccoMgt_dissectors[] = {
     { 0, "QueryInterface",      NULL, NULL },
     { 1, "AddRef",              NULL, NULL },
     { 2, "Release",             NULL, NULL },
@@ -4581,7 +4581,7 @@ static dcerpc_sub_dissector ICBAAccoMgt_dissectors[] = {
 
 
 /* sub dissector table of ICBAAccoCallback interface */
-static dcerpc_sub_dissector ICBAAccoCallback_dissectors[] = {
+static const dcerpc_sub_dissector ICBAAccoCallback_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -4594,7 +4594,7 @@ static dcerpc_sub_dissector ICBAAccoCallback_dissectors[] = {
 
 
 /* sub dissector table of ICBAAccoServer interface */
-static dcerpc_sub_dissector ICBAAccoServer_dissectors[] = {
+static const dcerpc_sub_dissector ICBAAccoServer_dissectors[] = {
     { 0, "QueryInterface",    NULL, NULL },
     { 1, "AddRef",            NULL, NULL },
     { 2, "Release",           NULL, NULL },
@@ -4612,7 +4612,7 @@ static dcerpc_sub_dissector ICBAAccoServer_dissectors[] = {
 
 
 /* sub dissector table of ICBAAccoServerSRT interface (stage 2 only) */
-static dcerpc_sub_dissector ICBAAccoServerSRT_dissectors[] = {
+static const dcerpc_sub_dissector ICBAAccoServerSRT_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -4628,7 +4628,7 @@ static dcerpc_sub_dissector ICBAAccoServerSRT_dissectors[] = {
 
 
 /* sub dissector table of ICBAAccoSync interface */
-static dcerpc_sub_dissector ICBAAccoSync_dissectors[] = {
+static const dcerpc_sub_dissector ICBAAccoSync_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },

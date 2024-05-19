@@ -6946,7 +6946,7 @@ SpoolssGetPrinterDriverPackagePath_r(tvbuff_t *tvb, int offset,
  * List of subdissectors for this pipe.
  */
 
-static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_ENUMPRINTERS, "EnumPrinters",
 	  SpoolssEnumPrinters_q, SpoolssEnumPrinters_r },
 	{ SPOOLSS_OPENPRINTER, "OpenPrinter",

@@ -45487,7 +45487,7 @@ mapi_dissect_EcDoAsyncConnectEx_request(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 
-static dcerpc_sub_dissector mapi_dissectors[] = {
+static const dcerpc_sub_dissector mapi_dissectors[] = {
 	{ 0, "EcDoConnect",
 	   mapi_dissect_EcDoConnect_request, mapi_dissect_EcDoConnect_response},
 	{ 1, "EcDoDisconnect",

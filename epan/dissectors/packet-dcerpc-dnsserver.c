@@ -3013,7 +3013,7 @@ dnsserver_dissect_DnssrvUpdateRecord2_request(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static dcerpc_sub_dissector dnsserver_dissectors[] = {
+static const dcerpc_sub_dissector dnsserver_dissectors[] = {
 	{ 0, "DnssrvOperation",
 	   dnsserver_dissect_DnssrvOperation_request, dnsserver_dissect_DnssrvOperation_response},
 	{ 1, "DnssrvQuery",

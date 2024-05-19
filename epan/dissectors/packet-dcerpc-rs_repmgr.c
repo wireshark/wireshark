@@ -33,7 +33,7 @@ static e_guid_t uuid_rs_repmgr =
 static guint16 ver_rs_repmgr = 2;
 
 
-static dcerpc_sub_dissector rs_repmgr_dissectors[] = {
+static const dcerpc_sub_dissector rs_repmgr_dissectors[] = {
   {0, "get_info_and_creds",   NULL, NULL},
   {1, "init",                 NULL, NULL},
   {2, "init_done",            NULL, NULL},

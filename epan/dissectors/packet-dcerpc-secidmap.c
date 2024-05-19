@@ -32,7 +32,7 @@ static guint16  ver_secidmap = 1;
 
 
 
-static dcerpc_sub_dissector secidmap_dissectors[] = {
+static const dcerpc_sub_dissector secidmap_dissectors[] = {
 	{ 0, "parse_name",	 NULL, NULL},
 	{ 1, "gen_name",	 NULL, NULL},
 	{ 2, "avoid_cn_bug",	 NULL, NULL},

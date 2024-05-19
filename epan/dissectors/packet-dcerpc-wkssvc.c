@@ -10082,7 +10082,7 @@ wkssvc_dissect_NetrEnumerateComputerNames_request(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static dcerpc_sub_dissector wkssvc_dissectors[] = {
+static const dcerpc_sub_dissector wkssvc_dissectors[] = {
 	{ 0, "NetWkstaGetInfo",
 	   wkssvc_dissect_NetWkstaGetInfo_request, wkssvc_dissect_NetWkstaGetInfo_response},
 	{ 1, "NetWkstaSetInfo",

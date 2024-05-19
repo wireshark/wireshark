@@ -23160,7 +23160,7 @@ clusapi_dissect_AddGroupToGroupSetEx_request(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static dcerpc_sub_dissector clusapi_dissectors[] = {
+static const dcerpc_sub_dissector clusapi_dissectors[] = {
 	{ 0, "OpenCluster",
 	   clusapi_dissect_OpenCluster_request, clusapi_dissect_OpenCluster_response},
 	{ 1, "CloseCluster",

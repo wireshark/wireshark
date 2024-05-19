@@ -1117,7 +1117,7 @@ dissect_ICBAGroupError_GroupError_resp(tvbuff_t *tvb, int offset,
 
 
 /* sub dissector table of ICBAPhysicalDevice / ICBAPhysicalDevice2 interface */
-static dcerpc_sub_dissector ICBAPhysicalDevice_dissectors[] = {
+static const dcerpc_sub_dissector ICBAPhysicalDevice_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1142,7 +1142,7 @@ static dcerpc_sub_dissector ICBAPhysicalDevice_dissectors[] = {
 
 
 /* sub dissector table of ICBABrowse / ICBABrowse2 interface */
-static dcerpc_sub_dissector ICBABrowse_dissectors[] = {
+static const dcerpc_sub_dissector ICBABrowse_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1162,7 +1162,7 @@ static dcerpc_sub_dissector ICBABrowse_dissectors[] = {
 
 
 /* sub dissector table of ICBAPersist / ICBAPersist2 interface */
-static dcerpc_sub_dissector ICBAPersist_dissectors[] = {
+static const dcerpc_sub_dissector ICBAPersist_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1181,7 +1181,7 @@ static dcerpc_sub_dissector ICBAPersist_dissectors[] = {
 
 /* sub dissector table of ICBAPhysicalDevicePC interface */
 /* (local COM interface, not to be called over network) */
-static dcerpc_sub_dissector ICBAPhysicalDevicePC_dissectors[] = {
+static const dcerpc_sub_dissector ICBAPhysicalDevicePC_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1199,7 +1199,7 @@ static dcerpc_sub_dissector ICBAPhysicalDevicePC_dissectors[] = {
 
 
 /* sub dissector table of ICBAPhysicalDevicePCEvent interface */
-static dcerpc_sub_dissector ICBAPhysicalDevicePCEvent_dissectors[] = {
+static const dcerpc_sub_dissector ICBAPhysicalDevicePCEvent_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1211,7 +1211,7 @@ static dcerpc_sub_dissector ICBAPhysicalDevicePCEvent_dissectors[] = {
 
 
 /* sub dissector table of ICBALogicalDevice / ICBALogicalDevice2 interface */
-static dcerpc_sub_dissector ICBALogicalDevice_dissectors[] = {
+static const dcerpc_sub_dissector ICBALogicalDevice_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1238,7 +1238,7 @@ static dcerpc_sub_dissector ICBALogicalDevice_dissectors[] = {
 
 
 /* sub dissector table of ICBAState interface */
-static dcerpc_sub_dissector ICBAState_dissectors[] = {
+static const dcerpc_sub_dissector ICBAState_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1259,7 +1259,7 @@ static dcerpc_sub_dissector ICBAState_dissectors[] = {
 
 
 /* sub dissector table of ICBAStateEvent interface */
-static dcerpc_sub_dissector ICBAStateEvent_dissectors[] = {
+static const dcerpc_sub_dissector ICBAStateEvent_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1270,7 +1270,7 @@ static dcerpc_sub_dissector ICBAStateEvent_dissectors[] = {
 
 
 /* sub dissector table of ICBATime interface */
-static dcerpc_sub_dissector ICBATime_dissectors[] = {
+static const dcerpc_sub_dissector ICBATime_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1287,7 +1287,7 @@ static dcerpc_sub_dissector ICBATime_dissectors[] = {
 
 
 /* sub dissector table of ICBAGroupError interface */
-static dcerpc_sub_dissector ICBAGroupError_dissectors[] = {
+static const dcerpc_sub_dissector ICBAGroupError_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1305,7 +1305,7 @@ static dcerpc_sub_dissector ICBAGroupError_dissectors[] = {
 
 
 /* sub dissector table of ICBAGroupErrorEvent interface */
-static dcerpc_sub_dissector ICBAGroupErrorEvent_dissectors[] = {
+static const dcerpc_sub_dissector ICBAGroupErrorEvent_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1316,7 +1316,7 @@ static dcerpc_sub_dissector ICBAGroupErrorEvent_dissectors[] = {
 
 
 /* sub dissector table of ICBARTAuto interface */
-static dcerpc_sub_dissector ICBARTAuto_dissectors[] = {
+static const dcerpc_sub_dissector ICBARTAuto_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },
@@ -1338,7 +1338,7 @@ static dcerpc_sub_dissector ICBARTAuto_dissectors[] = {
 /* the interface ICBASystemProperties will NOT be seen on the ethernet */
 /* sub dissector table of ICBASystemProperties interface (stage 2 only) */
 /* (usually not called over network, no dissecting needed) */
-static dcerpc_sub_dissector ICBASystemProperties_dissectors[] = {
+static const dcerpc_sub_dissector ICBASystemProperties_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef",         NULL, NULL },
     { 2, "Release",        NULL, NULL },

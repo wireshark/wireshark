@@ -884,7 +884,7 @@ IWbemLevel1Login_dissect_NTLMLogin_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 
-static dcerpc_sub_dissector IWbemLevel1Login_dissectors[] = {
+static const dcerpc_sub_dissector IWbemLevel1Login_dissectors[] = {
 	{ 0, "iwbemlevel1login_opnum0",
 	   IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_request, IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_response},
 	{ 1, "iwbemlevel1login_opnum1",

@@ -364,7 +364,7 @@ wzcsvc_dissect_GetWZCDbLogRecord_request(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 
-static dcerpc_sub_dissector wzcsvc_dissectors[] = {
+static const dcerpc_sub_dissector wzcsvc_dissectors[] = {
 	{ 0, "EnumInterfaces",
 	   wzcsvc_dissect_EnumInterfaces_request, wzcsvc_dissect_EnumInterfaces_response},
 	{ 1, "QueryInterface",

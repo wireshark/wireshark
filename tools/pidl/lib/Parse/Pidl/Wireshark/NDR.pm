@@ -1339,7 +1339,7 @@ sub DumpFunctionTable($)
 {
 	my $if = shift;
 
-	my $res = "static dcerpc_sub_dissector $if->{NAME}\_dissectors[] = {\n";
+	my $res = "static const dcerpc_sub_dissector $if->{NAME}\_dissectors[] = {\n";
 	foreach (@{$if->{FUNCTIONS}}) {
 		my $fn_name = $_->{NAME};
 		$fn_name =~ s/^$if->{NAME}_//;

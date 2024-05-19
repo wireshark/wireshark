@@ -127,7 +127,7 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector krb5rpc_dissectors[] = {
+static const dcerpc_sub_dissector krb5rpc_dissectors[] = {
   {0, "rsec_krb5rpc_sendto_kdc", krb5rpc_dissect_sendto_kdc_rqst,
    krb5rpc_dissect_sendto_kdc_resp},
   {0, NULL, NULL, NULL},

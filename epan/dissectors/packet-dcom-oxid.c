@@ -256,7 +256,7 @@ dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 /* XXX - some dissectors still need to be done */
-static dcerpc_sub_dissector oxid_dissectors[] = {
+static const dcerpc_sub_dissector oxid_dissectors[] = {
     { 0, "ResolveOxid", NULL, NULL },
     { 1, "SimplePing", dissect_oxid_simple_ping_rqst, dissect_oxid_simple_ping_resp },
     { 2, "ComplexPing", dissect_oxid_complex_ping_rqst, dissect_oxid_complex_ping_resp },

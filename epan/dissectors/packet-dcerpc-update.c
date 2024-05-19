@@ -33,7 +33,7 @@ static e_guid_t uuid_dce_update =
 static guint16 ver_dce_update = 4;
 
 
-static dcerpc_sub_dissector dce_update_dissectors[] = {
+static const dcerpc_sub_dissector dce_update_dissectors[] = {
   {0, "UPDATE_GetServerInterfaces", NULL, NULL},
   {1, "UPDATE_FetchInfo", NULL, NULL},
   {2, "UPDATE_FetchFile", NULL, NULL},

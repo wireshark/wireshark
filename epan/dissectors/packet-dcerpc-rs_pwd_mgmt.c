@@ -33,7 +33,7 @@ static e_guid_t uuid_rs_pwd_mgmt =
 static guint16 ver_rs_pwd_mgmt = 1;
 
 
-static dcerpc_sub_dissector rs_pwd_mgmt_dissectors[] = {
+static const dcerpc_sub_dissector rs_pwd_mgmt_dissectors[] = {
   {0, "lookup",                  NULL, NULL},
   {1, "replace",                 NULL, NULL},
   {2, "get_access",              NULL, NULL},

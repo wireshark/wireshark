@@ -1054,7 +1054,7 @@ dissect_browser_browserr_server_enum_ex_reply(tvbuff_t *tvb, int offset,
 /*
   IDL }
 */
-static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
 	{ BROWSER_BROWSERR_SERVER_ENUM, "BrowserrServerEnum",
 		dissect_browser_browserr_server_enum_rqst,
 		dissect_browser_browserr_server_enum_reply },

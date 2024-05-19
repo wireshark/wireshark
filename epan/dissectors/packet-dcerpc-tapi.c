@@ -169,7 +169,7 @@ dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset,
 /*
   IDL }
 */
-static dcerpc_sub_dissector dcerpc_tapi_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_tapi_dissectors[] = {
 	{ TAPI_CLIENT_ATTACH, "ClientAttach",
 		dissect_tapi_client_attach_rqst,
 		dissect_tapi_client_attach_reply },

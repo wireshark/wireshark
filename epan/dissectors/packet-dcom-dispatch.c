@@ -490,7 +490,7 @@ dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
 
 
 /* sub dissector table of IDispatch interface */
-static dcerpc_sub_dissector dispatch_dissectors[] = {
+static const dcerpc_sub_dissector dispatch_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },

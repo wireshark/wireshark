@@ -33,7 +33,7 @@ static e_guid_t uuid_ftserver = { 0x4d37f2dd, 0xed43, 0x0004, { 0x02, 0xc0, 0x37
 static guint16  ver_ftserver = 4;
 
 
-static dcerpc_sub_dissector ftserver_dissectors[] = {
+static const dcerpc_sub_dissector ftserver_dissectors[] = {
 	{  0, "CreateTrans",         NULL, NULL },
 	{  1, "AbortTrans",          NULL, NULL },
 	{  2, "DeleteTrans",         NULL, NULL },

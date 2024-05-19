@@ -80,7 +80,7 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector rpriv_dissectors[] = {
+static const dcerpc_sub_dissector rpriv_dissectors[] = {
 	{ 0, "get_ptgt", NULL,NULL},
 	{ 1, "become_delegate", NULL, NULL},
 	{ 2, "become_impersonator", NULL, NULL},

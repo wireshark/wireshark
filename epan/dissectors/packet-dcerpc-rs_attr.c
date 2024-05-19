@@ -32,7 +32,7 @@ static e_guid_t uuid_rs_attr = { 0xa71fc1e8, 0x567f, 0x11cb, { 0x98, 0xa0, 0x08,
 static guint16  ver_rs_attr;
 
 
-static dcerpc_sub_dissector rs_attr_dissectors[] = {
+static const dcerpc_sub_dissector rs_attr_dissectors[] = {
 	{ 0, "rs_attr_cursor_init",      NULL, NULL},
 	{ 1, "rs_attr_lookup_by_id",     NULL, NULL},
 	{ 2, "rs_attr_lookup_no_expand", NULL, NULL},

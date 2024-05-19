@@ -1211,7 +1211,7 @@ IWbemServices_dissect_ExecMethod_request(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 
-static dcerpc_sub_dissector IWbemServices_dissectors[] = {
+static const dcerpc_sub_dissector IWbemServices_dissectors[] = {
 	{ 0, "iwbemservices_opnum0",
 	   IWbemServices_dissect_iwbemservices_opnum0_request, IWbemServices_dissect_iwbemservices_opnum0_response},
 	{ 1, "iwbemservices_opnum1",

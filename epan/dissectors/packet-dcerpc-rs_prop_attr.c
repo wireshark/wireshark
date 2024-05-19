@@ -33,7 +33,7 @@ static e_guid_t uuid_rs_prop_attr =
 static guint16 ver_rs_prop_attr = 1;
 
 
-static dcerpc_sub_dissector rs_prop_attr_dissectors[] = {
+static const dcerpc_sub_dissector rs_prop_attr_dissectors[] = {
   {0, "update", NULL, NULL},
   {1, "delete", NULL, NULL},
   {0, NULL, NULL, NULL}

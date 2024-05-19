@@ -19133,7 +19133,7 @@ drsuapi_dissect_ReadNgcKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 
-static dcerpc_sub_dissector drsuapi_dissectors[] = {
+static const dcerpc_sub_dissector drsuapi_dissectors[] = {
 	{ 0, "DsBind",
 	   drsuapi_dissect_DsBind_request, drsuapi_dissect_DsBind_response},
 	{ 1, "DsUnbind",

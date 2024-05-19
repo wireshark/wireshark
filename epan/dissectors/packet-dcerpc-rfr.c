@@ -448,7 +448,7 @@ rfr_dissect_RfrGetFQDNFromLegacyDN_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 
-static dcerpc_sub_dissector rfr_dissectors[] = {
+static const dcerpc_sub_dissector rfr_dissectors[] = {
 	{ 0, "RfrGetNewDSA",
 	   rfr_dissect_RfrGetNewDSA_request, rfr_dissect_RfrGetNewDSA_response},
 	{ 1, "RfrGetFQDNFromLegacyDN",

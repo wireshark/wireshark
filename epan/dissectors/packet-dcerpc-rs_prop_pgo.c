@@ -33,7 +33,7 @@ static e_guid_t uuid_rs_prop_pgo =
 static guint16 ver_rs_prop_pgo = 1;
 
 
-static dcerpc_sub_dissector rs_prop_pgo_dissectors[] = {
+static const dcerpc_sub_dissector rs_prop_pgo_dissectors[] = {
   {0, "add",               NULL, NULL},
   {1, "rename",            NULL, NULL},
   {2, "replace",           NULL, NULL},

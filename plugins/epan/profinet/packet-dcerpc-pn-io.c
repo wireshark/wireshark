@@ -15217,7 +15217,7 @@ pn_io_ar_conv_data_filter(packet_info *pinfo, void *user_data _U_)
 
 
 /* the PNIO dcerpc interface table */
-static dcerpc_sub_dissector pn_io_dissectors[] = {
+static const dcerpc_sub_dissector pn_io_dissectors[] = {
     { 0, "Connect",       dissect_IPNIO_rqst,       dissect_IPNIO_resp },
     { 1, "Release",       dissect_IPNIO_rqst,       dissect_IPNIO_resp },
     { 2, "Read",          dissect_IPNIO_rqst,       dissect_IPNIO_Read_resp },

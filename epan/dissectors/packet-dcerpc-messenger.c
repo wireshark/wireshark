@@ -77,7 +77,7 @@ messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 
-static dcerpc_sub_dissector dcerpc_messenger_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_messenger_dissectors[] = {
 	{0, "NetrSendMessage",
 		messenger_dissect_send_message_rqst,
 		messenger_dissect_send_message_reply },

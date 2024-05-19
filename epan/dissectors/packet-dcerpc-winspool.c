@@ -9177,7 +9177,7 @@ iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_request(tvbuff_t
 }
 
 
-static dcerpc_sub_dissector iremotewinspool_dissectors[] = {
+static const dcerpc_sub_dissector iremotewinspool_dissectors[] = {
 	{ 0, "winspool_AsyncOpenPrinter",
 	   iremotewinspool_dissect_winspool_AsyncOpenPrinter_request, iremotewinspool_dissect_winspool_AsyncOpenPrinter_response},
 	{ 1, "winspool_AsyncAddPrinter",

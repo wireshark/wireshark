@@ -1454,7 +1454,7 @@ witness_dissect_RegisterEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 
-static dcerpc_sub_dissector witness_dissectors[] = {
+static const dcerpc_sub_dissector witness_dissectors[] = {
 	{ 0, "GetInterfaceList",
 	   witness_dissect_GetInterfaceList_request, witness_dissect_GetInterfaceList_response},
 	{ 1, "Register",

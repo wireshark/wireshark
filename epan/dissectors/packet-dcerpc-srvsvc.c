@@ -19437,7 +19437,7 @@ srvsvc_dissect_NETRSERVERTRANSPORTDELEX_request(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static dcerpc_sub_dissector srvsvc_dissectors[] = {
+static const dcerpc_sub_dissector srvsvc_dissectors[] = {
 	{ 0, "NetCharDevEnum",
 	   srvsvc_dissect_NetCharDevEnum_request, srvsvc_dissect_NetCharDevEnum_response},
 	{ 1, "NetCharDevGetInfo",

@@ -870,7 +870,7 @@ dssetup_dissect_DsRoleAbortDownlevelServerUpgrade_request(tvbuff_t *tvb _U_, int
 }
 
 
-static dcerpc_sub_dissector dssetup_dissectors[] = {
+static const dcerpc_sub_dissector dssetup_dissectors[] = {
 	{ 0, "DsRoleGetPrimaryDomainInformation",
 	   dssetup_dissect_DsRoleGetPrimaryDomainInformation_request, dssetup_dissect_DsRoleGetPrimaryDomainInformation_response},
 	{ 1, "DsRoleDnsNameToFlatName",

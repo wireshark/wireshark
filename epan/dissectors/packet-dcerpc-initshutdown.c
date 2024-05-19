@@ -471,7 +471,7 @@ initshutdown_dissect_InitEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 
-static dcerpc_sub_dissector initshutdown_dissectors[] = {
+static const dcerpc_sub_dissector initshutdown_dissectors[] = {
 	{ 0, "Init",
 	   initshutdown_dissect_Init_request, initshutdown_dissect_Init_response},
 	{ 1, "Abort",

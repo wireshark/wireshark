@@ -271,7 +271,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 
 
 /* sub dissector table of IRemUnknown interface */
-static dcerpc_sub_dissector remunk_dissectors[] = {
+static const dcerpc_sub_dissector remunk_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },
@@ -283,7 +283,7 @@ static dcerpc_sub_dissector remunk_dissectors[] = {
 };
 
 /* sub dissector table of IRemUnknown2 interface */
-static dcerpc_sub_dissector remunk2_dissectors[] = {
+static const dcerpc_sub_dissector remunk2_dissectors[] = {
     { 0, "QueryInterface", NULL, NULL },
     { 1, "AddRef", NULL, NULL },
     { 2, "Release", NULL, NULL },

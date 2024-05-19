@@ -2889,7 +2889,7 @@ proto_register_butc(void)
         proto_register_subtree_array(ett, array_length(ett));
 }
 
-static dcerpc_sub_dissector function_dissectors[] = {
+static const dcerpc_sub_dissector function_dissectors[] = {
 
 
 /* INCLUDED FILE : ETH_FT */

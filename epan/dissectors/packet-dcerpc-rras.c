@@ -38,7 +38,7 @@ static e_guid_t uuid_dcerpc_rras = {
 static guint16 ver_dcerpc_rras;
 
 
-static dcerpc_sub_dissector dcerpc_rras_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_rras_dissectors[] = {
 	{ RRAS_ADMIN_SERVER_GETINFO,
 		"MprAdminServerGetInfo", NULL, NULL },
 	{ RRAS_ADMIN_CONNECTION_ENUM,

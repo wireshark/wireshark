@@ -32,7 +32,7 @@ static e_guid_t uuid_rs_replist = { 0x850446b0, 0xe95b, 0x11CA, { 0xad, 0x90, 0x
 static guint16  ver_rs_replist = 2;
 
 
-static dcerpc_sub_dissector rs_replist_dissectors[] = {
+static const dcerpc_sub_dissector rs_replist_dissectors[] = {
 	{ 0, "rs_replist_add_replica",     NULL, NULL},
 	{ 1, "rs_replist_replace_replica", NULL, NULL},
 	{ 2, "rs_replist_delete_replica",  NULL, NULL},

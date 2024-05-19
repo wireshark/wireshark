@@ -4679,7 +4679,7 @@ winreg_dissect_DeleteKeyEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 
-static dcerpc_sub_dissector winreg_dissectors[] = {
+static const dcerpc_sub_dissector winreg_dissectors[] = {
 	{ 0, "OpenHKCR",
 	   winreg_dissect_OpenHKCR_request, winreg_dissect_OpenHKCR_response},
 	{ 1, "OpenHKCU",

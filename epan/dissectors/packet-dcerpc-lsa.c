@@ -15861,7 +15861,7 @@ lsarpc_dissect_lsa_lsaRSetForestTrustInformation2_request(tvbuff_t *tvb _U_, int
 }
 
 
-static dcerpc_sub_dissector lsarpc_dissectors[] = {
+static const dcerpc_sub_dissector lsarpc_dissectors[] = {
 	{ 0, "lsa_Close",
 	   lsarpc_dissect_lsa_Close_request, lsarpc_dissect_lsa_Close_response},
 	{ 1, "lsa_Delete",

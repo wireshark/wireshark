@@ -64,7 +64,7 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector rs_misc_dissectors[] = {
+static const dcerpc_sub_dissector rs_misc_dissectors[] = {
 	{ 0, "login_get_info", rs_misc_dissect_login_get_info_rqst, NULL},
 	{ 1, "wait_until_consistent", NULL, NULL},
 	{ 2, "check_consistency", NULL, NULL},

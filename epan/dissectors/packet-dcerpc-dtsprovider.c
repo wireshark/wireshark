@@ -32,7 +32,7 @@ static e_guid_t uuid_dtsprovider = { 0xbfca1238, 0x628a, 0x11c9, { 0xa0, 0x73, 0
 static guint16  ver_dtsprovider = 1;
 
 
-static dcerpc_sub_dissector dtsprovider_dissectors[] = {
+static const dcerpc_sub_dissector dtsprovider_dissectors[] = {
 	{ 0, "ContactProvider", NULL, NULL},
 	{ 1, "ServerRequestProviderTime", NULL, NULL},
 	{ 0, NULL, NULL, NULL }

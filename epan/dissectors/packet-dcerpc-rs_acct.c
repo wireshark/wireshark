@@ -90,7 +90,7 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector rs_acct_dissectors[] = {
+static const dcerpc_sub_dissector rs_acct_dissectors[] = {
 	{ 0, "add",	     NULL,				NULL},
 	{ 1, "delete",	     NULL,				NULL},
 	{ 2, "rename",	     NULL,				NULL},

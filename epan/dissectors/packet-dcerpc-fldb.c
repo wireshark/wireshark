@@ -1452,7 +1452,7 @@ fldb_dissect_replaceentry_rqst (tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector fldb_dissectors[] = {
+static const dcerpc_sub_dissector fldb_dissectors[] = {
   {0, "GetEntryByID", fldb_dissect_getentrybyid_rqst,
    fldb_dissect_getentrybyid_resp},
   {1, "GetEntryByName", fldb_dissect_getentrybyname_rqst,

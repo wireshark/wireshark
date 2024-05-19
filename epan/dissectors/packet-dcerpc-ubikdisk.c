@@ -32,7 +32,7 @@ static e_guid_t uuid_ubikdisk = { 0x4d37f2dd, 0xed43, 0x0002, { 0x02, 0xc0, 0x37
 static guint16  ver_ubikdisk = 4;
 
 
-static dcerpc_sub_dissector ubikdisk_dissectors[] = {
+static const dcerpc_sub_dissector ubikdisk_dissectors[] = {
 	{  0, "Begin", NULL, NULL},
 	{  1, "Commit", NULL, NULL},
 	{  2, "Lock", NULL, NULL},

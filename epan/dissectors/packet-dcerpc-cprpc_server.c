@@ -31,7 +31,7 @@ static e_guid_t uuid_cprpc_server = { 0x4885772c, 0xc6d3, 0x11ca, { 0x84, 0xc6, 
 static guint16  ver_cprpc_server = 1;
 
 
-static dcerpc_sub_dissector cprpc_server_dissectors[] = {
+static const dcerpc_sub_dissector cprpc_server_dissectors[] = {
 	{ 0, "dnscp_server", NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };

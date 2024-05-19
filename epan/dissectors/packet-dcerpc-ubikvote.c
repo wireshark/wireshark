@@ -32,7 +32,7 @@ static e_guid_t uuid_ubikvote = { 0x4d37f2dd, 0xed43, 0x0003, { 0x02, 0xc0, 0x37
 static guint16  ver_ubikvote = 4;
 
 
-static dcerpc_sub_dissector ubikvote_dissectors[] = {
+static const dcerpc_sub_dissector ubikvote_dissectors[] = {
 	{ 0, "Beacon",              NULL, NULL},
 	{ 1, "Debug",               NULL, NULL},
 	{ 2, "SDebug",              NULL, NULL},

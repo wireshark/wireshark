@@ -379,7 +379,7 @@ IWbemLoginClientIDEx_dissect_SetClientInfoEx_request(tvbuff_t *tvb _U_, int offs
 }
 
 
-static dcerpc_sub_dissector IWbemLoginClientIDEx_dissectors[] = {
+static const dcerpc_sub_dissector IWbemLoginClientIDEx_dissectors[] = {
 	{ 0, "iwbemloginclientidex_opnum0",
 	   IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_request, IWbemLoginClientIDEx_dissect_iwbemloginclientidex_opnum0_response},
 	{ 1, "iwbemloginclientidex_opnum1",

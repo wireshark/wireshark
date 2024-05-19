@@ -34,7 +34,7 @@ static guint16  ver_cds_clerkserver = 1;
 
 
 
-static dcerpc_sub_dissector cds_clerkserver_dissectors[] = {
+static const dcerpc_sub_dissector cds_clerkserver_dissectors[] = {
 	{  0, "AddReplica",             NULL, NULL},
 	{  1, "AllowClearinghouses",    NULL, NULL},
 	{  2, "Combine",                NULL, NULL},

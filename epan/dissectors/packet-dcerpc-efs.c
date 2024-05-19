@@ -1143,7 +1143,7 @@ efs_dissect_EfsRpcDuplicateEncryptionInfoFile_request(tvbuff_t *tvb _U_, int off
 }
 
 
-static dcerpc_sub_dissector efs_dissectors[] = {
+static const dcerpc_sub_dissector efs_dissectors[] = {
 	{ 0, "EfsRpcOpenFileRaw",
 	   efs_dissect_EfsRpcOpenFileRaw_request, efs_dissect_EfsRpcOpenFileRaw_response},
 	{ 1, "EfsRpcReadFileRaw",

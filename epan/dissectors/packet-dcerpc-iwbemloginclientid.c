@@ -283,7 +283,7 @@ IWbemLoginClientID_dissect_SetClientInfo_request(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static dcerpc_sub_dissector IWbemLoginClientID_dissectors[] = {
+static const dcerpc_sub_dissector IWbemLoginClientID_dissectors[] = {
 	{ 0, "iwbemloginclientid_opnum0",
 	   IWbemLoginClientID_dissect_iwbemloginclientid_opnum0_request, IWbemLoginClientID_dissect_iwbemloginclientid_opnum0_response},
 	{ 1, "iwbemloginclientid_opnum1",

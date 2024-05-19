@@ -651,7 +651,7 @@ epm_dissect_ept_lookup_handle_free_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector epm_dissectors[] = {
+static const dcerpc_sub_dissector epm_dissectors[] = {
     { 0, "Insert",
         epm_dissect_ept_insert_rqst,
         epm_dissect_ept_insert_resp },

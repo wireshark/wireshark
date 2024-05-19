@@ -1177,7 +1177,7 @@ dissect_remsysact_remotegetclassobject_resp(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static dcerpc_sub_dissector ISystemActivator_dissectors[] = {
+static const dcerpc_sub_dissector ISystemActivator_dissectors[] = {
     { 0, "QueryInterfaceIRemoteSCMActivator", NULL, NULL },
     { 1, "AddRefIRemoteISCMActivator", NULL, NULL },
     { 2, "ReleaseIRemoteISCMActivator", NULL, NULL },

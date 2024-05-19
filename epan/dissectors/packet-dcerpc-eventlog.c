@@ -2116,7 +2116,7 @@ eventlog_dissect_FlushEventLog_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 
-static dcerpc_sub_dissector eventlog_dissectors[] = {
+static const dcerpc_sub_dissector eventlog_dissectors[] = {
 	{ 0, "ClearEventLogW",
 	   eventlog_dissect_ClearEventLogW_request, eventlog_dissect_ClearEventLogW_response},
 	{ 1, "BackupEventLogW",

@@ -38,7 +38,7 @@ static e_guid_t uuid_dcerpc_pnp = {
 static guint16 ver_dcerpc_pnp = 1;
 
 
-static dcerpc_sub_dissector dcerpc_pnp_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_pnp_dissectors[] = {
 	{ PNP_DISCONNECT, "PNP_Disconnect", NULL, NULL },
 	{ PNP_CONNECT, "PNP_Connect", NULL, NULL },
 	{ PNP_GET_VERSION, "PNP_GetVersion", NULL, NULL },

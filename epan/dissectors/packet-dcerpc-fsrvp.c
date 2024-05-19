@@ -1067,7 +1067,7 @@ fsrvp_dissect_PrepareShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 
-static dcerpc_sub_dissector fsrvp_dissectors[] = {
+static const dcerpc_sub_dissector fsrvp_dissectors[] = {
 	{ 0, "GetSupportedVersion",
 	   fsrvp_dissect_GetSupportedVersion_request, fsrvp_dissect_GetSupportedVersion_response},
 	{ 1, "SetContext",

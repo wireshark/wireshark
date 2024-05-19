@@ -33,7 +33,7 @@ static e_guid_t uuid_bossvr = { 0x4d37f2dd, 0xed43, 0x0000, { 0x02, 0xc0, 0x37, 
 static guint16  ver_bossvr;
 
 
-static dcerpc_sub_dissector bossvr_dissectors[] = {
+static const dcerpc_sub_dissector bossvr_dissectors[] = {
 	{  0, "GetServerStatus", NULL, NULL},
 	{  1, "CreateBnode", NULL, NULL},
 	{  2, "DeleteBnode", NULL, NULL},

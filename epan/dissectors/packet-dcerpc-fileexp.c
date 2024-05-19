@@ -3870,7 +3870,7 @@ static int
   return offset;
 }
 
-static dcerpc_sub_dissector fileexp_dissectors[] = {
+static const dcerpc_sub_dissector fileexp_dissectors[] = {
   { 0,  "SetContext",          fileexp_dissect_setcontext_rqst,          fileexp_dissect_setcontext_resp} ,
   { 1,  "LookupRoot",          fileexp_dissect_lookuproot_rqst,          fileexp_dissect_lookuproot_resp} ,
   { 2,  "FetchData",           fileexp_dissect_fetchdata_rqst,           fileexp_dissect_fetchdata_resp} ,

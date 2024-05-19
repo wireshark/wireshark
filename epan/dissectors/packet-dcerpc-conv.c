@@ -134,7 +134,7 @@ conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector conv_dissectors[] = {
+static const dcerpc_sub_dissector conv_dissectors[] = {
 	{ 0, "who_are_you",
 	  conv_dissect_who_are_you_rqst, conv_dissect_who_are_you_resp },
 	{ 1, "who_are_you2",

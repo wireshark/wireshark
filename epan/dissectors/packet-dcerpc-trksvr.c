@@ -40,7 +40,7 @@ static e_guid_t uuid_dcerpc_trksvr = {
 
 static guint16 ver_dcerpc_trksvr = 1;
 
-static dcerpc_sub_dissector dcerpc_trksvr_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_trksvr_dissectors[] = {
 	{ 0, "LnkSvrMessage",
 		NULL,
 		NULL },

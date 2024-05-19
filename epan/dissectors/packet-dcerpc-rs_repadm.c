@@ -34,7 +34,7 @@ static guint16  ver_rs_repadm = 1;
 
 
 
-static dcerpc_sub_dissector rs_repadm_dissectors[] = {
+static const dcerpc_sub_dissector rs_repadm_dissectors[] = {
 	{ 0, "stop",              NULL, NULL},
 	{ 1, "maint",             NULL, NULL},
 	{ 2, "mkey",              NULL, NULL},

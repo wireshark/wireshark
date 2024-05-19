@@ -870,7 +870,7 @@ mdssvc_dissect_close_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 }
 
 
-static dcerpc_sub_dissector mdssvc_dissectors[] = {
+static const dcerpc_sub_dissector mdssvc_dissectors[] = {
 	{ 0, "open",
 	   mdssvc_dissect_open_request, mdssvc_dissect_open_response},
 	{ 1, "unknown1",

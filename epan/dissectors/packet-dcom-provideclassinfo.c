@@ -54,7 +54,7 @@ static int dissect_IProvideClassInfo_GetClassInfo_resp(tvbuff_t *tvb, int offset
 }
 
 /* sub dissector table of IProvideClassInfo interface */
-static dcerpc_sub_dissector provideclassinfo_dissectors[] = {
+static const dcerpc_sub_dissector provideclassinfo_dissectors[] = {
     {3, "GetClassInfo", dissect_IProvideClassInfo_GetClassInfo_rqst, dissect_IProvideClassInfo_GetClassInfo_resp},
     {0, NULL, NULL, NULL},
 };

@@ -33,7 +33,7 @@ static e_guid_t uuid_rs_prop_acl =
 static guint16 ver_rs_prop_acl = 1;
 
 
-static dcerpc_sub_dissector rs_prop_acl_dissectors[] = {
+static const dcerpc_sub_dissector rs_prop_acl_dissectors[] = {
   {0, "replace", NULL, NULL},
   {0, NULL, NULL, NULL}
 };

@@ -31,7 +31,7 @@ static e_guid_t uuid_dtsstime_req = { 0x019ee420, 0x682d, 0x11c9, { 0xa6, 0x07, 
 static guint16  ver_dtsstime_req = 1;
 
 
-static dcerpc_sub_dissector dtsstime_req_dissectors[] = {
+static const dcerpc_sub_dissector dtsstime_req_dissectors[] = {
 	{ 0, "ClerkRequestTime",  NULL, NULL},
 	{ 1, "ServerRequestTime", NULL, NULL},
 	{ 0, NULL, NULL, NULL }

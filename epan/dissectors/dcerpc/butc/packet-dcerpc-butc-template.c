@@ -59,7 +59,7 @@ ETH_ETTARR
         proto_register_subtree_array(ett, array_length(ett));
 }
 
-static dcerpc_sub_dissector function_dissectors[] = {
+static const dcerpc_sub_dissector function_dissectors[] = {
 ETH_FT
 	{ 0, NULL, NULL, NULL },
 };

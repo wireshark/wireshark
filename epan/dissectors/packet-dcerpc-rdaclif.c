@@ -33,7 +33,7 @@ static e_guid_t uuid_rdaclif =
 static guint16 ver_rdaclif = 1;
 
 
-static dcerpc_sub_dissector rdaclif_dissectors[] = {
+static const dcerpc_sub_dissector rdaclif_dissectors[] = {
   {0, "lookup",                  NULL, NULL},
   {1, "replace",                 NULL, NULL},
   {2, "get_access",              NULL, NULL},

@@ -8155,7 +8155,7 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
 
 /* Subdissectors */
 
-static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
+static const dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
     { NETLOGON_NETRLOGONUASLOGON, "NetrLogonUasLogon",
       netlogon_dissect_netrlogonuaslogon_rqst,
       netlogon_dissect_netrlogonuaslogon_reply },

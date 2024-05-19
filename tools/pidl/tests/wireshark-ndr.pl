@@ -241,7 +241,7 @@ static gint hf_bla;
 is(DumpFunctionTable({
 			NAME => "someif",
 			FUNCTIONS => [ { NAME => "fn1", OPNUM => 3 }, { NAME => "someif_fn2", OPNUM => 2 } ] }),
-'static dcerpc_sub_dissector someif_dissectors[] = {
+'static const dcerpc_sub_dissector someif_dissectors[] = {
 	{ 3, "fn1",
 	   someif_dissect_fn1_request, someif_dissect_fn1_response},
 	{ 2, "fn2",

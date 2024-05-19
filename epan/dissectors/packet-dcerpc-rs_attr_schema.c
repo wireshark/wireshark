@@ -32,7 +32,7 @@ static e_guid_t uuid_rs_attr_schema =
 static guint16 ver_rs_attr_schema;
 
 
-static dcerpc_sub_dissector rs_attr_schema_dissectors[] = {
+static const dcerpc_sub_dissector rs_attr_schema_dissectors[] = {
   {0, "create_entry",   NULL, NULL},
   {1, "delete_entry",   NULL, NULL},
   {2, "update_entry",   NULL, NULL},

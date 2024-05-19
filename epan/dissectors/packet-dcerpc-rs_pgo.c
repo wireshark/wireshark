@@ -1469,7 +1469,7 @@ rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector rs_pgo_dissectors[] = {
+static const dcerpc_sub_dissector rs_pgo_dissectors[] = {
   {0, "add", rs_pgo_dissect_add_rqst, rs_pgo_dissect_add_resp},
   {1, "delete", rs_pgo_dissect_delete_rqst, rs_pgo_dissect_delete_resp},
   {2, "replace", rs_pgo_dissect_replace_rqst, rs_pgo_dissect_replace_resp},

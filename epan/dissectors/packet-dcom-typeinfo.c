@@ -808,7 +808,7 @@ int dissect_ITypeInfo_GetTypeAttr_resp(tvbuff_t *tvb, int offset,
 }
 
 /* sub dissector table of ITypeInfo interface */
-static dcerpc_sub_dissector typeinfo_dissectors[] = {
+static const dcerpc_sub_dissector typeinfo_dissectors[] = {
     {3, "GetTypeAttr", dissect_ITypeInfo_GetTypeAttr_rqst, dissect_ITypeInfo_GetTypeAttr_resp},
     {4, "GetTypeComp", NULL, NULL},
     {5, "GetFuncDesc", dissect_ITypeInfo_GetFuncDesc_rqst, dissect_ITypeInfo_GetFuncDesc_resp},

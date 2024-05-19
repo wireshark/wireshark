@@ -187,7 +187,7 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 }
 
 
-static dcerpc_sub_dissector remact_dissectors[] = {
+static const dcerpc_sub_dissector remact_dissectors[] = {
 	{ 0, "RemoteActivation", dissect_remact_remote_activation_rqst, dissect_remact_remote_activation_resp },
 	{ 0, NULL, NULL, NULL },
 };

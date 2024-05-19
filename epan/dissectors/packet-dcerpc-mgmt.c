@@ -52,7 +52,7 @@ mgmtrpc_dissect_inq_princ_name_request(tvbuff_t *tvb, int offset, packet_info *p
 
 
 
-static dcerpc_sub_dissector mgmt_dissectors[] = {
+static const dcerpc_sub_dissector mgmt_dissectors[] = {
 	{ 0, "rpc__mgmt_inq_if_ids", NULL, NULL },
 	{ 1, "rpc__mgmt_inq_stats", NULL, NULL },
 	{ 2, "rpc__mgmt_is_server_listening", NULL, NULL },

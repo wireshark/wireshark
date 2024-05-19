@@ -31,7 +31,7 @@ static e_guid_t uuid_cds_solicit = { 0xd5579459, 0x8bca, 0x11ca, { 0xb7, 0x71, 0
 static guint16  ver_cds_solicit = 1;
 
 
-static dcerpc_sub_dissector cds_solicit_dissectors[] = {
+static const dcerpc_sub_dissector cds_solicit_dissectors[] = {
 	{ 0, "cds_Solicit",       NULL, NULL},
 	{ 1, "cds_Advertise",     NULL, NULL},
 	{ 2, "cds_SolicitServer", NULL, NULL},

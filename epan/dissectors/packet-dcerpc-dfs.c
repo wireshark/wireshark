@@ -4747,7 +4747,7 @@ netdfs_dissect_dfs_SetInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 
-static dcerpc_sub_dissector netdfs_dissectors[] = {
+static const dcerpc_sub_dissector netdfs_dissectors[] = {
 	{ 0, "dfs_GetManagerVersion",
 	   netdfs_dissect_dfs_GetManagerVersion_request, netdfs_dissect_dfs_GetManagerVersion_response},
 	{ 1, "dfs_Add",

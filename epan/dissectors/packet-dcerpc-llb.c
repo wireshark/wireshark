@@ -33,7 +33,7 @@ static e_guid_t uuid_llb =
 static guint16 ver_llb = 4;
 
 
-static dcerpc_sub_dissector llb_dissectors[] = {
+static const dcerpc_sub_dissector llb_dissectors[] = {
   {0, "insert", NULL, NULL},
   {1, "delete", NULL, NULL},
   {2, "lookup", NULL, NULL},

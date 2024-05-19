@@ -25,7 +25,7 @@ static gint ett_taskschedulerservice;
 static int proto_taskschedulerservice;
 
 /* sub dissector table of ITaskSchedulerService interface */
-static dcerpc_sub_dissector taskschedulerservice_dissectors[] = {
+static const dcerpc_sub_dissector taskschedulerservice_dissectors[] = {
     /* Just map operations for now. Payloads are encrypted due to PKT_PRIVACY */
     {0, "SchRpcHighestVersion", NULL, NULL},
     {1, "SchRpcRegisterTask", NULL, NULL},

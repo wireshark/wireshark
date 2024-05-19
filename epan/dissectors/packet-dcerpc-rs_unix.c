@@ -31,7 +31,7 @@ static e_guid_t uuid_rs_unix = { 0x361993c0, 0xb000, 0x0000, { 0x0d, 0x00, 0x00,
 static guint16  ver_rs_unix = 1;
 
 
-static dcerpc_sub_dissector rs_unix_dissectors[] = {
+static const dcerpc_sub_dissector rs_unix_dissectors[] = {
 	{ 0, "getpwents", NULL, NULL },
 	{ 0, NULL, NULL, NULL },
 };

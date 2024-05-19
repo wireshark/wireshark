@@ -8768,7 +8768,7 @@ svcctl_dissect_GetSharedServiceDirectory_request(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static dcerpc_sub_dissector svcctl_dissectors[] = {
+static const dcerpc_sub_dissector svcctl_dissectors[] = {
 	{ 0, "CloseServiceHandle",
 	   svcctl_dissect_CloseServiceHandle_request, svcctl_dissect_CloseServiceHandle_response},
 	{ 1, "ControlService",

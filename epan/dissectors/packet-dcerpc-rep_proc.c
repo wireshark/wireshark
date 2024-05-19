@@ -32,7 +32,7 @@ static e_guid_t uuid_rep_proc = { 0x4d37f2dd, 0xed43, 0x0005, { 0x02, 0xc0, 0x37
 static guint16  ver_rep_proc = 4;
 
 
-static dcerpc_sub_dissector rep_proc_dissectors[] = {
+static const dcerpc_sub_dissector rep_proc_dissectors[] = {
 	{ 0, "CheckReplicationConfig",    NULL, NULL },
 	{ 1, "AllCheckReplicationConfig", NULL, NULL },
 	{ 2, "KeepFilesAlive",            NULL , NULL},
