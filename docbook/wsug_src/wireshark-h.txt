@@ -1,4 +1,4 @@
-Wireshark 3.6.23 (v3.6.23rc0-4-g40ed7e814bce)
+Wireshark 3.6.24 (v3.6.23-3-gbc8c65d72036)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
