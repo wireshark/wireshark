@@ -8813,6 +8813,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
 </context>
 <context>
+    <name>ResizeHeaderView</name>
+    <message>
+        <source>Resize all %1 to contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ResolvedAddressesDialog</name>
     <message>
         <source>Dialog</source>

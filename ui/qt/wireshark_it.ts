@@ -4479,7 +4479,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>%1 Intervals </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 intervalli</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -8885,6 +8885,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>milliseconds</source>
         <translation>millisecondi</translation>
+    </message>
+</context>
+<context>
+    <name>ResizeHeaderView</name>
+    <message>
+        <source>Resize all %1 to contents</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

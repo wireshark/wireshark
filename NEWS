@@ -32,6 +32,9 @@ Wireshark 4.3.0 Release Notes
   Custom output fields for `tshark -e` can also be defined using any
   valid field expression.
 
+  Many improvements and fixes to the graphing dialogs, including I/O
+  Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -170,7 +173,7 @@ Wireshark 4.3.0 Release Notes
      • The Resolved Addresses dialog only shows what addresses and ports
        are present in the file (not including information from static
        files), and selected rows or the entire table can be saved or
-       copied to the clipboard in several formats.
+       copied to the clipboard in several formats. Issue 16419[8]
 
      • When capturing files in multiple file mode, a pattern that places
        the date and time before the index number can be used (e.g.,
@@ -187,13 +190,142 @@ Wireshark 4.3.0 Release Notes
        additional occurrences of a string, hex value, or regular
        expression in a single frame.
 
+     • When using "Go To Packet" with an undisplayed frame, the window
+       goes to nearest displayed frame (by number.) Issue 2988[9]
+
+     • A number of graphs using QCustomPlot ("I/O Graphs", "Flow Graph",
+       "TCP Stream Graphs", and "RTP Player") are more responsive during
+       mouse moves, especially on Linux when Wayland is used.
+
+     • Improvements to the "I/O Graphs" dialog:
+
+        • A number of crasher bugs have been fixed.
+
+        • Smaller intervals can be used, down to 1 microsecond. Issue
+       13682[10]
+
+        • A larger number of I/O Graph item buckets can be used, up to
+       225 items. Issue 8460[11]
+
+        • The memory usage has been improved, the size of an item has
+       been reduced from 152 bytes to 88 bytes.
+
+        • When the Y field or Y axis changes, the graph displays the new
+       graph correctly, retapping if necessary, instead of displaying
+       information based on stale data.
+
+        • The graph is smarter about choosing whether to retap
+       (expensive), recalculate (moderately intensive), or replot
+       (cheap) in order to display the newly chosen options correctly
+       with the least amout of calculations. For instance, a graph that
+       has previously been plotted and is disabled and then reenabled
+       without any other changes will not require a new retap. Issue
+       15822[12]
+
+        • LOAD graphs are graphed properly again. Issue 18450[13]
+
+        • The I/O Graph y-axis has human readable units with SI
+       prefixes. Issue 12827[14]
+
+        • I/O Graph bar widths are scaled to the size of the interval.
+
+        • I/O Graph bar border colors are a slightly darker color than
+       that of the graph itself, instead of always black. Issue
+       17422[15]
+
+        • The correct width of times that appear on the graph are used
+       when automatically resetting the axes.
+
+        • The precision of the interval time shown in the hint message
+       depends on the interval.
+
+        • The tracer follows the currently selected row on the table of
+       graphs, and does not appear on an invisible graph.
+
+        • The tracer moves to the frame selected in the main window.
+       Issue 12909[16]
+
+        • Pending graph changes are saved when changing profiles with
+       the I/O Graphs dialog open.
+
+        • I/O Graph dialog windows for closed capture files are no
+       longer affected by changing the list of graphs (either in that
+       dialogs or in other dialogs for the currently open file.)
+
+        • Temporary graphs that have just been added and will not be
+       saved unless the configuration has changed are more clearly
+       marked with italics.
+
+        • When Time of Day is selected on the graph, the absolute time
+       is copied to the CSV instead of relative time. Issue 13717[17]
+
+        • The graph layer order and order in the legend always matches
+       the order in the table, and the legend appears properly. Issue
+       13854[18]
+
+        • Graphs with both lines and data point symbols are treated as
+       line graphs, not scatter plots, for purposes of displaying zero
+       values.
+
+        • Logarithmic ticks are used when the Y-scale is logarithmic.
+
+        • The graph crosshairs context menu option works.
+
+        • The columns on the table of graphs can be all resized at once
+       via the header context menu. Issue 18102[19]
+
+        • The graph is more responsive to mouse moves, especially on
+       Linux Wayland
+
+     • Improvements to the Sequence Diagram (Flow Graph / VoIP Calls):
+
+        • When exporting the graph as an image, the entire graph is
+       shown, up to 1000 items (which can be changed in preferences),
+       instead of only what was visible on-screen. Issue 13504[20]
+
+        • Endpoints that share a same address now have two distinct
+       nodes with a line between them. Issue 12038[21]
+
+        • Tooltips are shown for elided comments
+
+        • The scroll direction via keyboard is no longer reversed. Issue
+       12932[22]
+
+        • The column widths are fixed, instead of resizing slightly
+       depending on the visible entries. Issue 12931[23]
+
+        • The Y-axis labels stay in the correct position without having
+       to click Reset.
+
+        • The progress bar appears correctly in the Flow Graph (non VoIP
+       Calls.)
+
+        • The behavior of the "Any" and "Network" combobox is corrected.
+       Issue 19818[24]
+
+        • "Limit to Display Filter" is checked if a display filter is
+       applied when the Flow Graph is opened, per the documentation.
+
+     • TCP Stream Graphs:
+
+        • A better decision is made about which side is the server and
+       thus the initially chosen direction in the graph.
+
+        • The Window Scaling graph axis labels are corrected and show
+       both graphs.
+
+        • The graph crosshairs context menu option works.
+
+        • Switching between relative and absolute sequence numbers works
+       again.
+
      • The included Lua version has been updated to 5.4. While most Lua
        dissectors should continue to work (the lua_bitop library has
        been patched to work with Lua 5.3 and 5.4, in addition to the
        native Lua support for bit operations present in those versions),
        different versions of Lua are not guaranteed to be compatible. If
-       a Lua dissector has issues, check the manuals for Lua 5.4[8], Lua
-       5.3[9], and Lua 5.2[10] for incompatibilities and suggested
+       a Lua dissector has issues, check the manuals for Lua 5.4[25],
+       Lua 5.3[26], and Lua 5.2[27] for incompatibilities and suggested
        workarounds. Note that features marked as deprecated in one
        version are removed in the subsequent version without additional
        notice, so it can be worth checking the manual for previous
@@ -245,7 +377,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[11] on the Wireshark web site.
+   be found on the download page[28] on the Wireshark web site.
 
  File Locations
 
@@ -260,24 +392,24 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[12] and on the
+  Community support is available on Wireshark’s Q&A site[29] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[13].
+  for all of Wireshark’s mailing lists can be found on the web site[30].
 
-  Bugs and feature requests can be reported on the issue tracker[14].
+  Bugs and feature requests can be reported on the issue tracker[31].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[15].
+  SharkFest[32].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[16].
+  at wiresharkfoundation.org[33].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[17].
+  A complete FAQ is available on the Wireshark web site[34].
 
  References
 
@@ -288,13 +420,30 @@ Wireshark 4.3.0 Release Notes
    5. https://gitlab.com/wireshark/wireshark/-/issues/18588
    6. https://gitlab.com/wireshark/wireshark/-/issues/19076
    7. https://gitlab.com/wireshark/wireshark/-/issues/17484
-   8. https://www.lua.org/manual/5.4/manual.html#8
-   9. https://www.lua.org/manual/5.3/manual.html#8
-  10. https://www.lua.org/manual/5.2/manual.html#8
-  11. https://www.wireshark.org/download.html
-  12. https://ask.wireshark.org/
-  13. https://www.wireshark.org/lists/
-  14. https://gitlab.com/wireshark/wireshark/-/issues
-  15. https://sharkfest.wireshark.org
-  16. https://wiresharkfoundation.org
-  17. https://www.wireshark.org/faq.html
+   8. https://gitlab.com/wireshark/wireshark/-/issues/16419
+   9. https://gitlab.com/wireshark/wireshark/-/issues/2988
+  10. https://gitlab.com/wireshark/wireshark/-/issues/13682
+  11. https://gitlab.com/wireshark/wireshark/-/issues/8460
+  12. https://gitlab.com/wireshark/wireshark/-/issues/15822
+  13. https://gitlab.com/wireshark/wireshark/-/issues/18450
+  14. https://gitlab.com/wireshark/wireshark/-/issues/12827
+  15. https://gitlab.com/wireshark/wireshark/-/issues/17422
+  16. https://gitlab.com/wireshark/wireshark/-/issues/12909
+  17. https://gitlab.com/wireshark/wireshark/-/issues/13717
+  18. https://gitlab.com/wireshark/wireshark/-/issues/13854
+  19. https://gitlab.com/wireshark/wireshark/-/issues/18102
+  20. https://gitlab.com/wireshark/wireshark/-/issues/13504
+  21. https://gitlab.com/wireshark/wireshark/-/issues/12038
+  22. https://gitlab.com/wireshark/wireshark/-/issues/12932
+  23. https://gitlab.com/wireshark/wireshark/-/issues/12931
+  24. https://gitlab.com/wireshark/wireshark/-/issues/19818
+  25. https://www.lua.org/manual/5.4/manual.html#8
+  26. https://www.lua.org/manual/5.3/manual.html#8
+  27. https://www.lua.org/manual/5.2/manual.html#8
+  28. https://www.wireshark.org/download.html
+  29. https://ask.wireshark.org/
+  30. https://www.wireshark.org/lists/
+  31. https://gitlab.com/wireshark/wireshark/-/issues
+  32. https://sharkfest.wireshark.org
+  33. https://wiresharkfoundation.org
+  34. https://www.wireshark.org/faq.html

@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2024.04.20
- * Date:    2024-04-20 03:15:02
+ * Version: 2024.05.14
+ * Date:    2024-05-14 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -28793,7 +28793,7 @@ static pci_id_t const pci_vid_1923[] = {
 }; /* pci_vid_1923[] */
 
 static pci_id_t const pci_vid_1924[] = {
-{0x1924, 0xFFFF, 0xFFFF, 0xFFFF, "Solarflare Communications(0x1924)"},
+{0x1924, 0xFFFF, 0xFFFF, 0xFFFF, "AMD Solarflare(0x1924)"},
 {0x1924, 0x0703, 0xFFFF, 0xFFFF, "SFC4000 rev A net [Solarstorm](0x0703)"},
 {0x1924, 0x0703, 0x10B8, 0x0102, "SMC10GPCIe-10BT (A2) [TigerCard](0x10B8-0x0102)"},
 {0x1924, 0x0703, 0x10B8, 0x0103, "SMC10GPCIe-10BT (A3) [TigerCard](0x10B8-0x0103)"},

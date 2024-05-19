@@ -8885,6 +8885,13 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
 </context>
 <context>
+    <name>ResizeHeaderView</name>
+    <message>
+        <source>Resize all %1 to contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ResolvedAddressesDialog</name>
     <message>
         <source>Dialog</source>

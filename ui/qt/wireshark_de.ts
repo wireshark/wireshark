@@ -8888,6 +8888,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
+    <name>ResizeHeaderView</name>
+    <message>
+        <source>Resize all %1 to contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ResolvedAddressesDialog</name>
     <message>
         <source>Dialog</source>
