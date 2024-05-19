@@ -766,8 +766,10 @@ void IOGraphDialog::captureFileClosing()
     ui->newToolButton->setEnabled(false);
     ui->intervalComboBox->setEnabled(false);
     copy_profile_bt_->setEnabled(false);
-    if (uat_model_)
+    if (uat_model_) {
         applyChanges();
+        disconnect(uat_model_, nullptr, this, nullptr);
+    }
     // It would be nice to keep the information in the UAT about the graphs
     // visible in a read-only state after closing, but if the view is just
     // disabled, updating the model from elsewhere (e.g., other dialogs)
