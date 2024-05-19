@@ -1251,7 +1251,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xCCAC, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
-    /* https://tools.ietf.org/html/draft-ietf-tls-ecdhe-psk-aead */
+    /* RFC 8442 */
     { 0xD001, "TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256" },
     { 0xD002, "TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384" },
     { 0xD003, "TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256" },
@@ -2794,6 +2794,10 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xccac:
     case 0xe418:
     case 0xe419:
+    case 0xd001:
+    case 0xd002:
+    case 0xd003:
+    case 0xd005:
         return KEX_ECDHE_PSK;
     case 0xc010:
     case 0xc011:
@@ -3657,6 +3661,10 @@ static const SslCipherSuite cipher_suites[]={
     {0xCCAC,KEX_ECDHE_PSK,      ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {0xCCAD,KEX_DHE_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {0xCCAE,KEX_RSA_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xD001,KEX_ECDHE_PSK,      ENC_AES,        DIG_SHA256, MODE_GCM},       /* TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256 */
+    {0xD002,KEX_ECDHE_PSK,      ENC_AES256,     DIG_SHA384, MODE_GCM},       /* TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384 */
+    {0xD003,KEX_ECDHE_PSK,      ENC_AES,        DIG_SHA256, MODE_CCM_8},     /* TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256 */
+    {0xD005,KEX_ECDHE_PSK,      ENC_AES,        DIG_SHA256, MODE_CCM},       /* TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256 */
     /* GM */
     {0xe001,KEX_ECDHE_SM2,      ENC_SM1,        DIG_SM3,    MODE_CBC},        /* ECDHE_SM1_SM3 */
     {0xe003,KEX_ECC_SM2,        ENC_SM1,        DIG_SM3,    MODE_CBC},        /* ECC_SM1_SM3 */
