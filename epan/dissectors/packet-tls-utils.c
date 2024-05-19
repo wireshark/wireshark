@@ -11098,8 +11098,8 @@ dissect_ssl3_hnd_cli_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static void
-dissect_ssl3_hnd_cli_keyex_dh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                              proto_tree *tree, guint32 offset, guint32 length)
+dissect_ssl3_hnd_cli_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 length)
 {
     gint        yc_len;
     proto_tree *ssl_dh_tree;
@@ -11150,14 +11150,14 @@ dissect_ssl3_hnd_cli_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 /* Used in PSK cipher suites */
-static void
+static guint32
 dissect_ssl3_hnd_cli_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset, guint32 length)
+                               proto_tree *tree, guint32 offset)
 {
     guint        identity_len;
     proto_tree *ssl_psk_tree;
 
-    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
                                  hf->ett.keyex_params, NULL, "PSK Client Params");
     /* identity */
     identity_len = tvb_get_ntohs(tvb, offset);
@@ -11165,6 +11165,9 @@ dissect_ssl3_hnd_cli_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_client_keyex_identity, tvb,
                         offset + 2, identity_len, ENC_NA);
+
+    proto_item_set_len(ssl_psk_tree, 2 + identity_len);
+    return 2 + identity_len;
 }
 
 /* Used in RSA PSK cipher suites */
@@ -11210,10 +11213,8 @@ dissect_ssl3_hnd_cli_keyex_dhe_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *  } ClientKeyExchange;
      */
 
-    guint identity_len = tvb_get_ntohs(tvb, offset);
-
-    dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, 2 + identity_len);
-    dissect_ssl3_hnd_cli_keyex_dh(hf, tvb, tree, offset + 2 + identity_len, length - 2 - identity_len);
+    guint32 psk_len = dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset);
+    dissect_ssl3_hnd_cli_keyex_dhe(hf, tvb, tree, offset + psk_len, length - psk_len);
 }
 
 /* Used in EC Diffie-Hellman PSK cipher suites */
@@ -11231,10 +11232,8 @@ dissect_ssl3_hnd_cli_keyex_ecdh_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *  } ClientKeyExchange;
      */
 
-    guint identity_len = tvb_get_ntohs(tvb, offset);
-
-    dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, 2 + identity_len);
-    dissect_ssl3_hnd_cli_keyex_ecdh(hf, tvb, tree, offset + 2 + identity_len, length - 2 - identity_len);
+    guint32 psk_len = dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset);
+    dissect_ssl3_hnd_cli_keyex_ecdh(hf, tvb, tree, offset + psk_len, length - psk_len);
 }
 
 /* Used in EC J-PAKE cipher suites */
@@ -11536,27 +11535,25 @@ dissect_ssl3_hnd_srv_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
 }
 
 /* Used in RSA PSK and PSK cipher suites */
-static void
+static guint32
 dissect_ssl3_hnd_srv_keyex_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset, guint32 length)
+                               proto_tree *tree, guint32 offset)
 {
     guint        hint_len;
     proto_tree *ssl_psk_tree;
 
-    hint_len = tvb_get_ntohs(tvb, offset);
-    if ((2 + hint_len) != length) {
-        /* Lengths don't line up (wasn't what we expected?) */
-        return;
-    }
-
-    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+    ssl_psk_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
                                  hf->ett.keyex_params, NULL, "PSK Server Params");
 
     /* hint */
+    hint_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_server_keyex_hint_len, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_psk_tree, hf->hf.hs_server_keyex_hint, tvb,
                         offset + 2, hint_len, ENC_NA);
+
+    proto_item_set_len(ssl_psk_tree, 2 + hint_len);
+    return 2 + hint_len;
 }
 
 /* Used in Diffie-Hellman PSK cipher suites */
@@ -11574,10 +11571,8 @@ dissect_ssl3_hnd_srv_keyex_dhe_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb, pack
      *  } ServerKeyExchange;
      */
 
-    guint hint_len = tvb_get_ntohs(tvb, offset);
-
-    dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, 2 + hint_len);
-    dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, pinfo, tree, offset + 2 + hint_len, offset_end, 0, TRUE);
+    guint32 psk_len = dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset);
+    dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, pinfo, tree, offset + psk_len, offset_end, 0, TRUE);
 }
 
 /* Used in EC Diffie-Hellman PSK cipher suites */
@@ -11595,10 +11590,8 @@ dissect_ssl3_hnd_srv_keyex_ecdh_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
      *  } ServerKeyExchange;
      */
 
-    guint hint_len = tvb_get_ntohs(tvb, offset);
-
-    dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, 2 + hint_len);
-    dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset + 2 + hint_len, offset_end, 0, TRUE);
+    guint32 psk_len = dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset);
+    dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset + psk_len, offset_end, 0, TRUE);
 }
 
 /* Used in EC J-PAKE cipher suites */
@@ -11691,7 +11684,7 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case KEX_DH_RSA:
     case KEX_DHE_DSS:
     case KEX_DHE_RSA:
-        dissect_ssl3_hnd_cli_keyex_dh(hf, tvb, tree, offset, length);
+        dissect_ssl3_hnd_cli_keyex_dhe(hf, tvb, tree, offset, length);
         break;
     case KEX_DHE_PSK: /* RFC 4279; diffie_hellman_psk: psk_identity, ClientDiffieHellmanPublic */
         dissect_ssl3_hnd_cli_keyex_dhe_psk(hf, tvb, tree, offset, length);
@@ -11714,7 +11707,7 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                " developers if you want them to be supported");
         break;
     case KEX_PSK: /* RFC 4279; psk: psk_identity */
-        dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset, length);
+        dissect_ssl3_hnd_cli_keyex_psk(hf, tvb, tree, offset);
         break;
     case KEX_RSA: /* RFC 5246; rsa: EncryptedPreMasterSecret */
         dissect_ssl3_hnd_cli_keyex_rsa(hf, tvb, tree, offset, length, session);
@@ -11781,11 +11774,11 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         proto_tree_add_expert(tree, NULL, &hf->ei.hs_srv_keyex_illegal,
                               tvb, offset, offset_end - offset);
         break;
-    case KEX_PSK: /* RFC 4279; psk, rsa: psk_identity*/
+    case KEX_PSK: /* RFC 4279; psk, rsa: psk_identity */
     case KEX_RSA_PSK:
-        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, offset_end - offset);
+        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset);
         break;
-    case KEX_RSA: /* only allowed if the public key in the server certificate is longer than 512 bits*/
+    case KEX_RSA: /* only allowed if the public key in the server certificate is longer than 512 bits */
         dissect_ssl3_hnd_srv_keyex_rsa(hf, tvb, pinfo, tree, offset, offset_end, session->version);
         break;
     case KEX_ECC_SM2: /* GB/T 38636 */
