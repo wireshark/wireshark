@@ -1853,6 +1853,10 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
     }
     /* Parse application payload. */
+    /* This is a uint8_t, but tvb_reported_length might be larger; e.g.,
+     * SCOP over TCP, presumably with errors. It's bogus either way; perhaps
+     * we should warn.
+     */
     packet.payload_len = tvb_reported_length(tvb) - offset - packet.mic_size;
     /* Ensure that the payload exists. */
     if (packet.payload_len <= 0) {
@@ -1883,13 +1887,15 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         return offset;
     }
     if (packet.security_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
-        dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, packet.payload_len);
         gp_decrypted = FALSE;
 
-        for (GSList_i = zbee_gp_keyring; GSList_i && !gp_decrypted; GSList_i = g_slist_next(GSList_i)) {
-            gp_decrypted = zbee_gp_decrypt_payload(&packet, enc_buffer, offset - packet.payload_len -
-                packet.mic_size, dec_buffer, packet.payload_len, packet.mic_size,
-                ((key_record_t *)(GSList_i->data))->key);
+        if (tvb_captured_length(tvb) >= tvb_reported_length(tvb)) {
+            dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, packet.payload_len);
+            for (GSList_i = zbee_gp_keyring; GSList_i && !gp_decrypted; GSList_i = g_slist_next(GSList_i)) {
+                gp_decrypted = zbee_gp_decrypt_payload(&packet, enc_buffer, offset - packet.payload_len -
+                    packet.mic_size, dec_buffer, packet.payload_len, packet.mic_size,
+                    ((key_record_t *)(GSList_i->data))->key);
+            }
         }
 
         if (gp_decrypted) {
