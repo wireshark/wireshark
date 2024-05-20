@@ -39,6 +39,8 @@ struct segment {
 
     uint32_t th_seq;
     uint32_t th_ack;
+    uint32_t th_rawseq;
+    uint32_t th_rawack;
     uint16_t th_flags;
     uint32_t th_win;   /* make it 32 bits so we can handle some scaling */
     uint32_t th_seglen;

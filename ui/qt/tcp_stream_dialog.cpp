@@ -572,7 +572,10 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
     ts_offset_ = 0;
     seq_offset_ = 0;
     bool ts_unset = ts_origin_conn_;
-    bool seq_unset = seq_origin_zero_;
+    // seq_origin_zero_ defaults to true. It really means something like
+    // "use relative or absolute depending on the TCP dissector preferences".
+    // If it's false, then calculate the offset to convert to the other.
+    bool seq_unset = !seq_origin_zero_;
     uint64_t bytes_fwd = 0;
     uint64_t bytes_rev = 0;
     int pkts_fwd = 0;
@@ -600,12 +603,16 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
         }
         if (seq_unset) {
             if (compareHeaders(seg)) {
-                // As with the TCP dissector, if this isn't the SYN or SYN-ACK,
-                // start the relative sequence numbers at 1.
-                if (seg->th_flags & TH_SYN) {
-                    seq_offset_ = seg->th_seq;
+                if (seg->th_seq != seg->th_rawseq) {
+                    seq_offset_ = seg->th_seq - seg->th_rawseq;
                 } else {
-                    seq_offset_ = seg->th_seq - 1;
+                    // As with the TCP dissector, if this isn't the SYN or SYN-ACK,
+                    // start the relative sequence numbers at 1.
+                    if (seg->th_flags & TH_SYN) {
+                        seq_offset_ = seg->th_seq;
+                    } else {
+                        seq_offset_ = seg->th_seq - 1;
+                    }
                 }
                 seq_unset = false;
             } else {
@@ -613,7 +620,11 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
                 // sequence number, but for other segments (including SYN-ACK)
                 // start the offset at 1, like the TCP dissector.
                 if ((seg->th_flags & TH_SYN) != TH_SYN) {
-                    seq_offset_ -= seg->th_ack - 1;
+                    if (seg->th_seq != seg->th_rawseq) {
+                        seq_offset_ = seg->th_seq - seg->th_rawseq;
+                    } else {
+                        seq_offset_ -= seg->th_ack - 1;
+                    }
                     seq_unset = false;
                 }
             }

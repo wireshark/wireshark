@@ -93,11 +93,20 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         /* tcphdr->th_rawseq is always the absolute sequence number.
          * tcphdr->th_seq is either the relative or absolute sequence number
          * depending on the TCP dissector preferences.
+         * The sack entries are also either the relative or absolute sequence
+         * number depending on the TCP dissector preferences.
          * The TCP stream graphs have their own action / button press to
-         * switch between relative and absolute sequence numbers on the fly.
+         * switch between relative and absolute sequence numbers on the fly;
+         * if the TCP dissector hasn't calculated the relative sequence numbers,
+         * the tap will do so. (XXX - The calculation is cheap enough that we
+         * could do it here and store the offsets at the graph level to save
+         * memory. The TCP dissector could include its calculated base seq in
+         * the tap information to ensure consistency.)
          */
-        segment->th_seq    = tcphdr->th_rawseq;
-        segment->th_ack    = tcphdr->th_rawack;
+        segment->th_seq    = tcphdr->th_seq;
+        segment->th_ack    = tcphdr->th_ack;
+        segment->th_rawseq = tcphdr->th_rawseq;
+        segment->th_rawack = tcphdr->th_rawack;
         segment->th_win    = tcphdr->th_win;
         segment->th_flags  = tcphdr->th_flags;
         segment->th_sport  = tcphdr->th_sport;
