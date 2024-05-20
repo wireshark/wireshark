@@ -9,6 +9,7 @@
  */
 
 #include <config.h>
+#include <wsutil/array.h>
 
 #include "win32-utils.h"
 
@@ -198,7 +199,7 @@ win32strexception(DWORD exception)
         { EXCEPTION_STACK_OVERFLOW, "Stack overflow" },
         { 0, NULL }
     };
-#define N_EXCEPTIONS    (sizeof exceptions / sizeof exceptions[0])
+#define N_EXCEPTIONS    array_length(exceptions)
 
     for (size_t i = 0; i < N_EXCEPTIONS; i++) {
         if (exceptions[i].code == exception)

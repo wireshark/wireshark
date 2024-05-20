@@ -259,7 +259,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, char **err_info)
         WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
         WTAP_ENCAP_IEEE_802_11_WITH_RADIO
     };
-    #define NUM_PEEKTAGGED_ENCAPS (sizeof peektagged_encap / sizeof peektagged_encap[0])
+    #define NUM_PEEKTAGGED_ENCAPS array_length(peektagged_encap)
     peektagged_t *peektagged;
 
     if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info)) {

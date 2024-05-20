@@ -11017,8 +11017,7 @@ BACnetPropertyStatesEnums[] = {
     {  59, BACnetAuditLevel },
     {  60, BACnetAuditOperation }
 };
-#define BACnetPropertyStatesEnums_Size \
-    (sizeof(BACnetPropertyStatesEnums) / sizeof(BACnetPropertyStatesEnums[0]))
+#define BACnetPropertyStatesEnums_Size array_length(BACnetPropertyStatesEnums)
 
 static guint
 fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)

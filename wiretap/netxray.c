@@ -179,7 +179,7 @@ struct netxray_hdr {
  *  that captype be?
  */
 static const double TpS[] = { 1e6, 1193000.0, 1193182.0 };
-#define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
+#define NUM_NETXRAY_TIMEUNITS array_length(TpS)
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD.
@@ -204,7 +204,7 @@ static const double TpS[] = { 1e6, 1193000.0, 1193182.0 };
  *   correct TpS values for the 'gigpod' captype).
  */
 static const double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
-#define NUM_NETXRAY_TIMEUNITS_GIGPOD (sizeof TpS_gigpod / sizeof TpS_gigpod[0])
+#define NUM_NETXRAY_TIMEUNITS_GIGPOD array_length(TpS_gigpod)
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_OTHERPOD.
@@ -212,7 +212,7 @@ static const double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
  *   correct TpS values for the 'otherpod' captype).
  */
 static const double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 };
-#define NUM_NETXRAY_TIMEUNITS_OTHERPOD (sizeof TpS_otherpod / sizeof TpS_otherpod[0])
+#define NUM_NETXRAY_TIMEUNITS_OTHERPOD array_length(TpS_otherpod)
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_OTHERPOD2.
@@ -220,7 +220,7 @@ static const double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 };
  *   correct TpS values for the 'otherpod2' captype).
  */
 static const double TpS_otherpod2[] = { 1e6, 0.0, 0.0 };
-#define NUM_NETXRAY_TIMEUNITS_OTHERPOD2 (sizeof TpS_otherpod2 / sizeof TpS_otherpod2[0])
+#define NUM_NETXRAY_TIMEUNITS_OTHERPOD2 array_length(TpS_otherpod2)
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD2.
@@ -228,7 +228,7 @@ static const double TpS_otherpod2[] = { 1e6, 0.0, 0.0 };
  *   correct TpS values for the 'gigpod2' captype).
  */
 static const double TpS_gigpod2[] = { 1e9, 0.0, 20000000.0 };
-#define NUM_NETXRAY_TIMEUNITS_GIGPOD2 (sizeof TpS_gigpod2 / sizeof TpS_gigpod2[0])
+#define NUM_NETXRAY_TIMEUNITS_GIGPOD2 array_length(TpS_gigpod2)
 
 /* Version number strings. */
 static const char vers_1_0[] = {
@@ -466,7 +466,7 @@ netxray_open(wtap *wth, int *err, char **err_info)
 						/* Wireless WAN with radio information */
 		WTAP_ENCAP_UNKNOWN		/* IrDA */
 	};
-	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
+	#define NUM_NETXRAY_ENCAPS array_length(netxray_encap)
 	int file_encap;
 	unsigned isdn_type = 0;
 	netxray_t *netxray;
@@ -1699,7 +1699,7 @@ static const struct {
 	{ WTAP_ENCAP_FDDI, 2 },			/* -> NDIS FDDI */
 	{ WTAP_ENCAP_FDDI_BITSWAPPED, 2 },	/* -> NDIS FDDI */
 };
-#define NUM_WTAP_ENCAPS_1_1 (sizeof wtap_encap_1_1 / sizeof wtap_encap_1_1[0])
+#define NUM_WTAP_ENCAPS_1_1 array_length(wtap_encap_1_1)
 
 static int
 wtap_encap_to_netxray_1_1_encap(int encap)
@@ -1897,7 +1897,7 @@ static const struct {
 	{ WTAP_ENCAP_LAPB, 3 },			/* -> NDIS WAN */
 	{ WTAP_ENCAP_SDLC, 3 },			/* -> NDIS WAN */
 };
-#define NUM_WTAP_ENCAPS_2_0 (sizeof wtap_encap_2_0 / sizeof wtap_encap_2_0[0])
+#define NUM_WTAP_ENCAPS_2_0 array_length(wtap_encap_2_0)
 
 static int
 wtap_encap_to_netxray_2_0_encap(int encap)

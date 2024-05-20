@@ -118,7 +118,7 @@ struct cLLog_private
 /***********************************************************************************************************************
  * Private definitions
  **********************************************************************************************************************/
-#define HEADER_LINE_PARSE_MAPPING_LENGTH ( sizeof( headerLineParseMapping ) / sizeof( headerLineParseMapping[ 0 ] ) )
+#define HEADER_LINE_PARSE_MAPPING_LENGTH array_length(headerLineParseMapping)
 #define MAX_LOG_LINE_LENGTH 200
 #define TIME_STAMP_STRING_MAX_LENGTH ( sizeof( "YYYY/MM/DDThh:mm:ss.kkk" ) )
 #define TIME_STAMP_STRING_STRIPPED_MAX_LENGTH ( sizeof( "YYYYMMDDhhmmsskkk" ) )

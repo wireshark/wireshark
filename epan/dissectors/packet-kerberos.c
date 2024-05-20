@@ -2344,7 +2344,6 @@ encode_krb5_enc_tkt_part(const krb5_enc_tkt_part *rep, krb5_data **code);
 static int
 keytype_for_cksumtype(krb5_cksumtype checksum)
 {
-#define _ARRAY_SIZE(X) (sizeof(X) / sizeof((X)[0]))
 	static const int keytypes[] = {
 		18,
 		17,
@@ -2352,7 +2351,7 @@ keytype_for_cksumtype(krb5_cksumtype checksum)
 	};
 	guint i;
 
-	for (i = 0; i < _ARRAY_SIZE(keytypes); i++) {
+	for (i = 0; i < array_length(keytypes); i++) {
 		krb5_cksumtype checksumtype = 0;
 		krb5_error_code ret;
 

@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <string.h>
 #include <wiretap/file_wrappers.h>
+#include <wsutil/array.h>
 #include "candump_priv.h"
 
 extern void *CandumpParserAlloc(void *(*mallocProc)(size_t));
@@ -62,7 +63,7 @@ DIAG_ON_LEMON()
     (void)yyminor;
 
 #ifdef CANDUMP_DEBUG
-    const int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+    const int n = array_length(yyTokenName);
     candump_debug_printf("%s: got token: %s\n", G_STRFUNC, yyTokenName[yymajor]);
     for (int i = 0; i < n; ++i) {
         int a = yy_find_shift_action((YYCODETYPE)i, yypParser->yytos->stateno);

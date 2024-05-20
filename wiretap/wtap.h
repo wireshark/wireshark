@@ -1709,7 +1709,7 @@ struct supported_option_type {
 };
 
 #define OPTION_TYPES_SUPPORTED(option_type_array) \
-    sizeof option_type_array / sizeof option_type_array[0], option_type_array
+    array_length(option_type_array), option_type_array
 
 #define NO_OPTIONS_SUPPORTED \
     0, NULL
@@ -1735,7 +1735,7 @@ struct supported_block_type {
 };
 
 #define BLOCKS_SUPPORTED(block_type_array) \
-    sizeof block_type_array / sizeof block_type_array[0], block_type_array
+    array_length(block_type_array), block_type_array
 
 struct file_type_subtype_info {
     /**

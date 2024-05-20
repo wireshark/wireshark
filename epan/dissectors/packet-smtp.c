@@ -208,7 +208,7 @@ static const struct {
   { "XEXCH50", 7 }              /* Microsoft Exchange */
 };
 
-#define NCOMMANDS       (sizeof commands / sizeof commands[0])
+#define NCOMMANDS       array_length(commands)
 
 /* The following were copied from RFC 2821 */
 static const value_string response_codes_vs[] = {

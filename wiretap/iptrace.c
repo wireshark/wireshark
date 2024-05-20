@@ -800,7 +800,7 @@ wtap_encap_ift(unsigned int  ift)
 /* 0x24 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ARCNETPLUS */
 /* 0x25 */	WTAP_ENCAP_ATM_PDUS,	/* IFT_ATM */
 	};
-	#define NUM_IFT_ENCAPS (sizeof ift_encap / sizeof ift_encap[0])
+	#define NUM_IFT_ENCAPS array_length(ift_encap)
 
 	if (ift < NUM_IFT_ENCAPS) {
 		return ift_encap[ift];

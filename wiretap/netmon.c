@@ -202,7 +202,7 @@ static const int netmon_encap[] = {
 	WTAP_ENCAP_UNKNOWN,	/* NDIS Wireless WAN */
 	WTAP_ENCAP_UNKNOWN	/* NDIS IrDA */
 };
-#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
+#define NUM_NETMON_ENCAPS array_length(netmon_encap)
 
 /*
  * Special link-layer types.
@@ -1580,7 +1580,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
 	4,		/* WTAP_ENCAP_ATM_PDUS -> NDIS WAN (*NOT* ATM!) */
 };
-#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+#define NUM_WTAP_ENCAPS array_length(wtap_encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */

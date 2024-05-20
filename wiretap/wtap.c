@@ -1500,7 +1500,7 @@ static const char *wtap_errlist[] = {
 	/* WTAP_ERR_TIME_STAMP_NOT_SUPPORTED */
 	"We don't support writing that record's time stamp to that file type",
 };
-#define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
+#define	WTAP_ERRLIST_SIZE	array_length(wtap_errlist)
 
 const char *
 wtap_strerror(int err)

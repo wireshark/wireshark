@@ -16,6 +16,7 @@
 #include <winsock2.h>
 #endif
 
+#include <wsutil/array.h>
 #include <wsutil/file_util.h>
 
 #include "wtap_opttypes.h"

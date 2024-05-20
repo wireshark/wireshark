@@ -56,13 +56,13 @@ Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
 static const char dbs_etherwatch_hdr_magic[]  =
 { 'E', 'T', 'H', 'E', 'R', 'W', 'A', 'T', 'C', 'H', ' '};
 #define DBS_ETHERWATCH_HDR_MAGIC_SIZE  \
-        (sizeof dbs_etherwatch_hdr_magic  / sizeof dbs_etherwatch_hdr_magic[0])
+        array_length(dbs_etherwatch_hdr_magic)
 
 /* Magic text for start of packet */
 static const char dbs_etherwatch_rec_magic[]  =
 {'F', 'r', 'o', 'm', ' '};
 #define DBS_ETHERWATCH_REC_MAGIC_SIZE \
-    (sizeof dbs_etherwatch_rec_magic  / sizeof dbs_etherwatch_rec_magic[0])
+    array_length(dbs_etherwatch_rec_magic)
 
 /*
  * Default packet size - maximum normal Ethernet packet size, without an

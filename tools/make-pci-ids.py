@@ -37,6 +37,8 @@ CODE_PREFIX = """\
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "wsutil/array.h"
+
 #include "pci-ids.h"
 
 typedef struct
@@ -73,7 +75,7 @@ const char *pci_id_str(uint16_t vid, uint16_t did, uint16_t svid, uint16_t ssid)
     pci_vid_index_t const *index_ptr;
     pci_id_t const *ids_ptr;
 
-    index_ptr = bsearch(&vid, pci_vid_index, sizeof pci_vid_index / sizeof pci_vid_index[0], sizeof pci_vid_index[0], vid_search);
+    index_ptr = bsearch(&vid, pci_vid_index, array_length(pci_vid_index), sizeof pci_vid_index[0], vid_search);
 
     if(index_ptr == NULL)
         return not_found;

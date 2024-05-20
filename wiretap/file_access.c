@@ -179,7 +179,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "EMS file", false, "ems" },
 };
 
-#define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
+#define	N_FILE_TYPE_EXTENSIONS	array_length(file_type_extensions_base)
 
 static const struct file_extension_info* file_type_extensions;
 
@@ -432,7 +432,7 @@ static const struct open_info open_info_base[] = {
  * for anything else, because the size of the actual array will change if
  * Lua scripts register a new file reader.
  */
-#define N_OPEN_INFO_ROUTINES  ((sizeof open_info_base / sizeof open_info_base[0]))
+#define N_OPEN_INFO_ROUTINES  array_length(open_info_base)
 
 static GArray *open_info_arr;
 

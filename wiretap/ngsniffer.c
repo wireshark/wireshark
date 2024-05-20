@@ -457,7 +457,7 @@ static const uint32_t Psec[] = {
 				/* XXX - Sniffer doc says 0.08 usecs = 80000 psecs */
 	  100000		/* 0.1 usecs = 100000 psecs */
 };
-#define NUM_NGSNIFF_TIMEUNITS (sizeof Psec / sizeof Psec[0])
+#define NUM_NGSNIFF_TIMEUNITS array_length(Psec)
 
 /* Information for a compressed Sniffer data stream. */
 typedef struct {
@@ -572,7 +572,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_ATM_PDUS
 	};
-	#define NUM_NGSNIFF_ENCAPS (sizeof sniffer_encap / sizeof sniffer_encap[0])
+	#define NUM_NGSNIFF_ENCAPS array_length(sniffer_encap)
 	struct tm tm;
 	int64_t current_offset;
 	ngsniffer_t *ngsniffer;
@@ -2048,7 +2048,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_IP_OVER_FC -> unsupported */
 	7,		/* WTAP_ENCAP_PPP_WITH_PHDR -> Internetwork analyzer (synchronous) FIXME ! */
 };
-#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+#define NUM_WTAP_ENCAPS array_length(wtap_encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */

@@ -676,7 +676,7 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     print(f'''    int uidx = tid2uidx[templateid - {min_templateid}];
     DISSECTOR_ASSERT_CMPINT(uidx, >=, 0);
-    DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, (sizeof usages / sizeof usages[0]));
+    DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, array_length(usages));
 ''', file=o)
 
     print(f'''    int old_fidx = 0;
@@ -689,9 +689,9 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *t = root;
     while (top) {{
         DISSECTOR_ASSERT_CMPINT(fidx, >=, 0);
-        DISSECTOR_ASSERT_CMPUINT(((size_t)fidx), <, (sizeof fields / sizeof fields[0]));
+        DISSECTOR_ASSERT_CMPUINT(((size_t)fidx), <, array_length(fields));
         DISSECTOR_ASSERT_CMPINT(uidx, >=, 0);
-        DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, (sizeof usages / sizeof usages[0]));
+        DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, array_length(usages));
 
         switch (fields[fidx].type) {{
             case ETI_EOF:
@@ -713,7 +713,7 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 break;
             case ETI_VAR_STRUCT:
             case ETI_STRUCT:
-                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, sizeof counter / sizeof counter[0]);
+                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, array_length(counter));
                 repeats = fields[fidx].type == ETI_VAR_STRUCT ? counter[fields[fidx].counter_off] : 1;
                 if (repeats) {{
                     --repeats;
@@ -754,14 +754,14 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 ++uidx;
                 break;
             case ETI_VAR_STRING:
-                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, sizeof counter / sizeof counter[0]);
+                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, array_length(counter));
                 proto_tree_add_item(t, hf_{proto}[fields[fidx].field_handle_idx], tvb, off, counter[fields[fidx].counter_off], ENC_ASCII);
                 off += counter[fields[fidx].counter_off];
                 ++fidx;
                 ++uidx;
                 break;
             case ETI_COUNTER:
-                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, sizeof counter / sizeof counter[0]);
+                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, array_length(counter));
                 DISSECTOR_ASSERT_CMPUINT(fields[fidx].size, <=, 2);
                 {{
                     switch (fields[fidx].size) {{
@@ -1014,7 +1014,7 @@ proto_reg_handoff_{proto}(void)
         56500, // Snapshot    Boerse Frankfurt SIMU
         56501  // Incremental Boerse Frankfurt SIMU
     }};
-    for (unsigned i = 0; i < sizeof ports / sizeof ports[0]; ++i)
+    for (unsigned i = 0; i < array_length(ports); ++i)
         dissector_add_uint("udp.port", ports[i], {proto}_handle);''', file=o)
     print('}', file=o)
 

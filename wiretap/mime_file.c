@@ -97,7 +97,7 @@ static const mime_files_t magic_files[] = {
 	{ rtpdump_magic, sizeof(rtpdump_magic) },
 };
 
-#define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
+#define	N_MAGIC_TYPES	array_length(magic_files)
 
 static int mime_file_type_subtype = -1;
 

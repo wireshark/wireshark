@@ -697,7 +697,7 @@ static const struct {
 	 * the "linktype_value" field of "pcap_to_wtap_map[]".
 	 */
 };
-#define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
+#define NUM_PCAP_ENCAPS array_length(pcap_to_wtap_map)
 
 int
 wtap_pcap_encap_to_wtap_encap(int encap)

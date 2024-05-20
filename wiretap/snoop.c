@@ -211,7 +211,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, char **err_info)
 		WTAP_ENCAP_UNKNOWN,	/* 100BaseT (but that's just Ethernet) */
 		WTAP_ENCAP_IP_OVER_IB_SNOOP,	/* Infiniband */
 	};
-	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
+	#define NUM_SNOOP_ENCAPS array_length(snoop_encap)
 	#define SNOOP_PRIVATE_BIT 0x80000000
 	static const int snoop_private_encap[] = {
 		WTAP_ENCAP_UNKNOWN,	/* Not Used */
@@ -223,7 +223,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, char **err_info)
 		WTAP_ENCAP_UNKNOWN,	/* IPMP stub interface */
 		WTAP_ENCAP_UNKNOWN,	/* 6to4 Tunnel Link */
 	};
-	#define NUM_SNOOP_PRIVATE_ENCAPS (sizeof snoop_private_encap / sizeof snoop_private_encap[0])
+	#define NUM_SNOOP_PRIVATE_ENCAPS array_length(snoop_private_encap)
 	static const int shomiti_encap[] = {
 		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
@@ -246,7 +246,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, char **err_info)
 		WTAP_ENCAP_IEEE_802_11_WITH_RADIO, /* IEEE 802.11 with Radio Header */
 		WTAP_ENCAP_ETHERNET,	/* 10 Gigabit Ethernet */
 	};
-	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
+	#define NUM_SHOMITI_ENCAPS array_length(shomiti_encap)
 	int file_encap;
 	int64_t saved_offset;
 	snoop_t *snoop;
@@ -815,7 +815,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
 	0x12,		/* WTAP_ENCAP_ATM_PDUS -> DL_IPATM */
 };
-#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+#define NUM_WTAP_ENCAPS array_length(wtap_encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */

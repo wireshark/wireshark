@@ -116,7 +116,7 @@ static bool parse_ems_line(FILE_T fh, ems_msg_t* ems_msg) {
     char line[MAX_EMS_LINE_LEN];
     int i;
 
-    if (!file_gets(line, sizeof(line) / sizeof(line[0]), fh)) {
+    if (!file_gets(line, array_length(line), fh)) {
         return false;
     }
 

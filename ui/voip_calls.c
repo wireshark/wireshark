@@ -4043,7 +4043,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
             g_free(callsinfo->to_identity);
             callsinfo->to_identity =  g_strdup(si->calledParty);
         }
-        if ((si->callState > 0) && (si->callState < (sizeof(skinny_tap_voip_state)/sizeof(skinny_tap_voip_state[0]))))
+        if ((si->callState > 0) && (si->callState < array_length(skinny_tap_voip_state)))
             callsinfo->call_state = skinny_tap_voip_state[si->callState];
 
         callsinfo->stop_fd = pinfo->fd;

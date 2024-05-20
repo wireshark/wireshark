@@ -489,7 +489,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
          &hf_icq_description,
          &hf_icq_url,
     };
-#define N_URL_FIELDS    (sizeof url_field_descr / sizeof url_field_descr[0])
+#define N_URL_FIELDS    array_length(url_field_descr)
     static int * const email_field_descr[] = {
          &hf_icq_nickname,
          &hf_icq_first_name,
@@ -498,7 +498,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
          &hf_icq_unknown,
          &hf_icq_text,
     };
-#define N_EMAIL_FIELDS  (sizeof email_field_descr / sizeof email_field_descr[0])
+#define N_EMAIL_FIELDS  array_length(email_field_descr)
     static int * const auth_req_field_descr[] = {
          &hf_icq_nickname,
          &hf_icq_first_name,
@@ -507,14 +507,14 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
          &hf_icq_unknown,
          &hf_icq_reason,
     };
-#define N_AUTH_REQ_FIELDS   (sizeof auth_req_field_descr / sizeof auth_req_field_descr[0])
+#define N_AUTH_REQ_FIELDS   array_length(auth_req_field_descr)
     static int * const user_added_field_descr[] = {
          &hf_icq_nickname,
          &hf_icq_first_name,
          &hf_icq_last_name,
          &hf_icq_email,
     };
-#define N_USER_ADDED_FIELDS (sizeof user_added_field_descr / sizeof user_added_field_descr[0])
+#define N_USER_ADDED_FIELDS array_length(user_added_field_descr)
 
     msgType = tvb_get_letohs(tvb, offset);
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, size, ett_icq_body_parts, NULL,

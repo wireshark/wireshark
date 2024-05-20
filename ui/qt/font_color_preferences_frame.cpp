@@ -15,6 +15,7 @@
 #include <ui_font_color_preferences_frame.h>
 #include <ui/qt/utils/color_utils.h>
 #include "main_application.h"
+#include "wsutil/array.h"
 
 #include <functional>
 #include <QFontDialog>
@@ -28,7 +29,7 @@ static const char *font_pangrams_[] = {
     QT_TRANSLATE_NOOP("FontColorPreferencesFrame", "Example GIF query packets have jumbo window sizes"),
     QT_TRANSLATE_NOOP("FontColorPreferencesFrame", "Lazy badgers move unique waxy jellyfish packets")
 };
-const int num_font_pangrams_ = (sizeof font_pangrams_ / sizeof font_pangrams_[0]);
+const int num_font_pangrams_ = array_length(font_pangrams_);
 
 FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     QFrame(parent),

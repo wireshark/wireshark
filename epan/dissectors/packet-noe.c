@@ -609,7 +609,7 @@ static guint utf8_properties[] = {
     ((OPCODE_C_ime_context       << 8) | OPCODE_P_A_name         )
 };
 
-#define N_UTF8_PROPERTIES (sizeof utf8_properties / sizeof utf8_properties[0])
+#define N_UTF8_PROPERTIES array_length(utf8_properties)
 #define UTF8_PROPERTY_SIZE (sizeof utf8_properties[0])
 
 static guint bool_properties[] = {
@@ -676,7 +676,7 @@ static guint bool_properties[] = {
     ((OPCODE_C_ime_context       << 8) | OPCODE_P_A_enable           )
 };
 
-#define N_BOOL_PROPERTIES (sizeof bool_properties / sizeof bool_properties[0])
+#define N_BOOL_PROPERTIES array_length(bool_properties)
 #define BOOL_PROPERTY_SIZE (sizeof bool_properties[0])
 
 /*-----------------------------------------------------------------------------

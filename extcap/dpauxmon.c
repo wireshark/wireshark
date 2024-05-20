@@ -17,6 +17,7 @@
 
 #include "extcap-base.h"
 
+#include <wsutil/array.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -387,12 +388,10 @@ static struct genl_cmd cmds[] = {
 	},
 };
 
-#define ARRAY_SIZE(X) (sizeof(X) / sizeof((X)[0]))
-
 static struct genl_ops ops = {
 	.o_name = "dpauxmon",
 	.o_cmds = cmds,
-	.o_ncmds = ARRAY_SIZE(cmds),
+	.o_ncmds = array_length(cmds),
 };
 
 struct nl_sock *sock;

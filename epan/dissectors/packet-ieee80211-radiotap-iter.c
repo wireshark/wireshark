@@ -61,7 +61,7 @@ static const struct radiotap_align_size rtap_namespace_sizes[] = {
 
 static const struct ieee80211_radiotap_namespace radiotap_ns = {
 	rtap_namespace_sizes,
-	(int)(sizeof(rtap_namespace_sizes) / sizeof(rtap_namespace_sizes[0])),
+	(int)array_length(rtap_namespace_sizes),
 	0,
 	0
 };

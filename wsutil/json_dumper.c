@@ -19,6 +19,7 @@
 #include "json_dumper.h"
 #include <math.h>
 
+#include <wsutil/array.h>
 #include <wsutil/wslog.h>
 
 /*
@@ -50,7 +51,7 @@ static const char *json_dumper_element_type_names[] = {
     [JSON_DUMPER_TYPE_ARRAY] = "array",
     [JSON_DUMPER_TYPE_BASE64] = "base64"
 };
-#define NUM_JSON_DUMPER_ELEMENT_TYPE_NAMES (sizeof json_dumper_element_type_names / sizeof json_dumper_element_type_names[0])
+#define NUM_JSON_DUMPER_ELEMENT_TYPE_NAMES array_length(json_dumper_element_type_names)
 
 #define JSON_DUMPER_FLAGS_ERROR     (1 << 16)   /* Output flag: an error occurred. */
 

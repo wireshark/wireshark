@@ -3529,7 +3529,7 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
     int uidx = tid2uidx[templateid - 13001];
     DISSECTOR_ASSERT_CMPINT(uidx, >=, 0);
-    DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, (sizeof usages / sizeof usages[0]));
+    DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, array_length(usages));
 
     int old_fidx = 0;
     int old_uidx = 0;
@@ -3541,9 +3541,9 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *t = root;
     while (top) {
         DISSECTOR_ASSERT_CMPINT(fidx, >=, 0);
-        DISSECTOR_ASSERT_CMPUINT(((size_t)fidx), <, (sizeof fields / sizeof fields[0]));
+        DISSECTOR_ASSERT_CMPUINT(((size_t)fidx), <, array_length(fields));
         DISSECTOR_ASSERT_CMPINT(uidx, >=, 0);
-        DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, (sizeof usages / sizeof usages[0]));
+        DISSECTOR_ASSERT_CMPUINT(((size_t)uidx), <, array_length(usages));
 
         switch (fields[fidx].type) {
             case ETI_EOF:
@@ -3565,7 +3565,7 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 break;
             case ETI_VAR_STRUCT:
             case ETI_STRUCT:
-                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, sizeof counter / sizeof counter[0]);
+                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, array_length(counter));
                 repeats = fields[fidx].type == ETI_VAR_STRUCT ? counter[fields[fidx].counter_off] : 1;
                 if (repeats) {
                     --repeats;
@@ -3606,14 +3606,14 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 ++uidx;
                 break;
             case ETI_VAR_STRING:
-                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, sizeof counter / sizeof counter[0]);
+                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, array_length(counter));
                 proto_tree_add_item(t, hf_eobi[fields[fidx].field_handle_idx], tvb, off, counter[fields[fidx].counter_off], ENC_ASCII);
                 off += counter[fields[fidx].counter_off];
                 ++fidx;
                 ++uidx;
                 break;
             case ETI_COUNTER:
-                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, sizeof counter / sizeof counter[0]);
+                DISSECTOR_ASSERT_CMPUINT(fields[fidx].counter_off, <, array_length(counter));
                 DISSECTOR_ASSERT_CMPUINT(fields[fidx].size, <=, 2);
                 {
                     switch (fields[fidx].size) {
@@ -4356,6 +4356,6 @@ proto_reg_handoff_eobi(void)
         56500, // Snapshot    Boerse Frankfurt SIMU
         56501  // Incremental Boerse Frankfurt SIMU
     };
-    for (unsigned i = 0; i < sizeof ports / sizeof ports[0]; ++i)
+    for (unsigned i = 0; i < array_length(ports); ++i)
         dissector_add_uint("udp.port", ports[i], eobi_handle);
 }

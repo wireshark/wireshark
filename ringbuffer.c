@@ -52,6 +52,7 @@
 #endif
 
 #include "ringbuffer.h"
+#include <wsutil/array.h>
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_ZLIB
@@ -100,7 +101,7 @@ CleanupOldCap(gchar* name)
     g_mutex_lock(&rb_data.mutex);
 
     /* Delete pending delete file */
-    for (i = 0; i < sizeof(rb_data.oldnames) / sizeof(rb_data.oldnames[0]); i++) {
+    for (i = 0; i < array_length(rb_data.oldnames); i++) {
         if (rb_data.oldnames[i] != NULL) {
             ws_unlink(rb_data.oldnames[i]);
             if (ws_stat64(rb_data.oldnames[i], &statb) != 0) {
@@ -113,7 +114,7 @@ CleanupOldCap(gchar* name)
     if (name) {
         /* push the current file to pending list if it failed to delete */
         if (ws_stat64(name, &statb) == 0) {
-            for (i = 0; i < sizeof(rb_data.oldnames) / sizeof(rb_data.oldnames[0]); i++) {
+            for (i = 0; i < array_length(rb_data.oldnames); i++) {
                 if (rb_data.oldnames[i] == NULL) {
                     rb_data.oldnames[i] = g_strdup(name);
                     break;

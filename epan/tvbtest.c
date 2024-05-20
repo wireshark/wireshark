@@ -18,6 +18,7 @@
 #include "tvbuff.h"
 #include "proto.h"
 #include "exceptions.h"
+#include "wsutil/array.h"
 #include "wsutil/pint.h"
 
 #include <ws_diag_control.h>
@@ -766,7 +767,7 @@ zstd_tests (void) {
 
 	};
 
-	for (size_t i = 0; i < sizeof tests / sizeof tests[0]; i++) {
+	for (size_t i = 0; i < array_length(tests); i++) {
 		zstd_testcase *t = tests + i;
 
 		printf ("ZSTD test: %s ... begin\n", t->desc);

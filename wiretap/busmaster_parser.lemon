@@ -16,6 +16,7 @@
 #include <string.h>
 #include <wireshark.h>
 #include <wiretap/file_wrappers.h>
+#include <wsutil/array.h>
 #include "busmaster_priv.h"
 
 extern void *BusmasterParserAlloc(void *(*mallocProc)(size_t));
@@ -62,7 +63,7 @@ DIAG_ON_LEMON()
     (void)yyminor;
 
 #ifdef BUSMASTER_DEBUG
-    const int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+    const int n = array_length(yyTokenName);
     busmaster_debug_printf("%s: got token: %s\n", G_STRFUNC, yyTokenName[yymajor]);
     for (int i = 0; i < n; ++i) {
         int a = yy_find_shift_action((YYCODETYPE)i, yypParser->yytos->stateno);

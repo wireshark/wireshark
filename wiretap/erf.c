@@ -116,7 +116,7 @@ static const struct {
   { 99,       WTAP_ENCAP_ERF }, /*this type added so WTAP_ENCAP_ERF will work and then be treated at ERF->ERF*/
 };
 
-#define NUM_ERF_ENCAPS (sizeof erf_to_wtap_map / sizeof erf_to_wtap_map[0])
+#define NUM_ERF_ENCAPS array_length(erf_to_wtap_map)
 
 #define ERF_META_TAG_HEADERLEN 4
 #define ERF_META_TAG_TOTAL_ALIGNED_LENGTH(taglength)  ((((uint32_t)taglength + 0x3U) & ~0x3U) + ERF_META_TAG_HEADERLEN)

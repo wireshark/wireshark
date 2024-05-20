@@ -392,7 +392,7 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
         break;
       }
       case '=': {
-        if (poscnt < (int)(sizeof(posBuf)/sizeof(posBuf[0])))
+        if (poscnt < (int)array_length(posBuf))
           posBuf[poscnt++] = (int)totalsize + 1;
         break;
       }

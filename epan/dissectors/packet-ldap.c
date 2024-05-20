@@ -1427,7 +1427,7 @@ dissect_ldap_AuthenticationChoice(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   ldap_do_protocolop(actx->pinfo);
 
-  if((branch > -1) && (branch < (gint)(sizeof AuthenticationChoice_choice/sizeof AuthenticationChoice_choice[0])))
+  if((branch > -1) && (branch < (gint)array_length(AuthenticationChoice_choice)))
     auth = AuthenticationChoice_choice[branch].value;
 
   valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%u)");

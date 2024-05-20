@@ -1685,7 +1685,7 @@ control_proc_start(tvbuff_t *tvb,
 
         if (proc_info && proc_info->proc_opcode == opcode) {
             proto_item *sub_item;
-            for (guint i = 1; i < sizeof(proc_info->frames)/sizeof(proc_info->frames[0]); i++) {
+            for (guint i = 1; i < array_length(proc_info->frames); i++) {
                 if (proc_info->frames[i]) {
                     sub_item = proto_tree_add_uint(btle_tree, hf_response_in_frame, tvb, 0, 0, proc_info->frames[i]);
                     proto_item_set_generated(sub_item);

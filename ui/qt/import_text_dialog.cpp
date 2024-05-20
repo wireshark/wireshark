@@ -125,7 +125,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
         {"Plain bin", ENCODING_PLAIN_BIN},
         {"Base 64", ENCODING_BASE64}
     };
-    for (i = 0; i < (int) (sizeof(encodings) / sizeof(encodings[0])); ++i) {
+    for (i = 0; i < (int)array_length(encodings); ++i) {
         ti_ui_->dataEncodingComboBox->addItem(encodings[i].name, QVariant(encodings[i].id));
     }
 

@@ -481,7 +481,7 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info
         } else {
             if (foffset & 0x80000000){
                 foffset = 0x7FFFFFFF & foffset;
-                if (foffset < (sizeof(stringDictionary)/sizeof(stringDictionary[0]))){
+                if (foffset < array_length(stringDictionary)){
                     proto_item_set_text(sub_tree, "%s: %s", proto_registrar_get_name(hfindex), stringDictionary[foffset]);
                 } else {
                     proto_item_set_text(sub_tree, "%s: Unknown Index %d", proto_registrar_get_name(hfindex), hfindex);

@@ -81,7 +81,7 @@ static const gchar *GEARMAN_MGR_CMDS[] = {
   "version"
 };
 
-static const int GEARMAN_MGR_CMDS_COUNT = sizeof(GEARMAN_MGR_CMDS)/sizeof(GEARMAN_MGR_CMDS[0]);
+static const int GEARMAN_MGR_CMDS_COUNT = array_length(GEARMAN_MGR_CMDS);
 
 typedef enum
 {

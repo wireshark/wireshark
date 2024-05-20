@@ -70,7 +70,7 @@ static const key_value clock_map[] = {
     {PT_H263,       90000},
 };
 
-#define NUM_CLOCK_VALUES (sizeof clock_map / sizeof clock_map[0])
+#define NUM_CLOCK_VALUES array_length(clock_map)
 
 static uint32_t
 get_clock_rate(uint32_t key)
@@ -139,7 +139,7 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
     {"telephone-event",  8000}, /* [RFC4733] */
 };
 
-#define NUM_DYN_CLOCK_VALUES (sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
+#define NUM_DYN_CLOCK_VALUES array_length(mimetype_and_clock_map)
 
 static uint32_t
 get_dyn_pt_clock_rate(const char *payload_type_str)

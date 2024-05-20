@@ -297,7 +297,7 @@ void add_arg_event(uint32_t arg_number,
         sinsp_source_info_t *ssi,
         sinsp_syscall_category_e args_syscall_category) {
 
-    if (arg_number >= sizeof(args_event_fields) / sizeof(args_event_fields[0])) {
+    if (arg_number >= array_length(args_event_fields)) {
         ws_error("falco event has too many arguments (%" PRIu32 ")", arg_number);
     }
 
@@ -352,7 +352,7 @@ void add_lineage_events(uint32_t ancestor_number,
         sinsp_source_info_t *ssi,
         sinsp_syscall_category_e args_syscall_category) {
 
-    if (ancestor_number >= sizeof(proc_lineage_event_fields) / sizeof(proc_lineage_event_fields[0]) / N_PROC_LINEAGE_ENTRY_FIELDS) {
+    if (ancestor_number >= array_length(proc_lineage_event_fields) / N_PROC_LINEAGE_ENTRY_FIELDS) {
         ws_error("falco lineage mismatch (%" PRIu32 ")", ancestor_number);
     }
 

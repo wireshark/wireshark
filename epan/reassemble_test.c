@@ -3268,7 +3268,7 @@ main(int argc _U_, char **argv _U_)
     set_address(&pinfo.dst,AT_IPv4,4,dst);
 
     /*************************************************************************/
-    for(i=0; i < sizeof(tests)/sizeof(tests[0]); i++ ) {
+    for(i=0; i < array_length(tests); i++ ) {
         /* re-init the fragment tables */
         reassembly_table_init(&test_reassembly_table,
                               &addresses_reassembly_table_functions);

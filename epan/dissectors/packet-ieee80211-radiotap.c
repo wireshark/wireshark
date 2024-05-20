@@ -4114,7 +4114,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				bw = tvb_get_guint8(tvb, offset + 3) & IEEE80211_RADIOTAP_VHT_BW_MASK;
 				phdr.phy_info.info_11ac.has_bandwidth = TRUE;
 				phdr.phy_info.info_11ac.bandwidth = bw;
-				if (bw < sizeof(ieee80211_vht_bw2rate_index)/sizeof(ieee80211_vht_bw2rate_index[0]))
+				if (bw < array_length(ieee80211_vht_bw2rate_index))
 					bandwidth = ieee80211_vht_bw2rate_index[bw];
 				else
 					can_calculate_rate = FALSE; /* unknown bandwidth */

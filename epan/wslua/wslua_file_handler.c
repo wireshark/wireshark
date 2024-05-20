@@ -669,7 +669,7 @@ static const struct supported_block_type block_type_proto[] = {
 	{ WTAP_BLOCK_FT_SPECIFIC_EVENT, BLOCK_NOT_SUPPORTED, 0, NULL }
 };
 
-#define NUM_LISTED_BLOCK_TYPES (sizeof block_type_proto / sizeof block_type_proto[0])
+#define NUM_LISTED_BLOCK_TYPES array_length(block_type_proto)
 
 WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     /* Creates a new FileHandler */

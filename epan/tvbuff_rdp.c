@@ -16,6 +16,7 @@
 #include <epan/tvbuff.h>
 #include <epan/proto.h>
 #include <epan/tvbuff_rdp.h>
+#include <wsutil/array.h>
 
 enum {
 	ZGFX_SEGMENTED_SINGLE = 0xe0,
@@ -377,13 +378,13 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 			// 10 - match
 			ismatch = true;
 			tokens = ZGFX_MATCH_TABLE;
-			ntokens = sizeof(ZGFX_MATCH_TABLE) / sizeof(ZGFX_MATCH_TABLE[0]);
+			ntokens = array_length(ZGFX_MATCH_TABLE);
 			inPrefix = 2;
 		} else {
 			// 11 - literal
 			ismatch = false;
 			tokens = ZGFX_LITERAL_TABLE;
-			ntokens = sizeof(ZGFX_LITERAL_TABLE) / sizeof(ZGFX_LITERAL_TABLE[0]);
+			ntokens = array_length(ZGFX_LITERAL_TABLE);
 			inPrefix = 3;
 		}
 

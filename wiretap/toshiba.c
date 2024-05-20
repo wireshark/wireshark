@@ -80,11 +80,11 @@ OFFSET 0001-0203-0405-0607-0809-0A0B-0C0D-0E0F 0123456789ABCDEF LEN=222
 /* Magic text to check for toshiba-ness of file */
 static const char toshiba_hdr_magic[]  =
 { 'T', ' ', 'O', ' ', 'S', ' ', 'H', ' ', 'I', ' ', 'B', ' ', 'A' };
-#define TOSHIBA_HDR_MAGIC_SIZE  (sizeof toshiba_hdr_magic  / sizeof toshiba_hdr_magic[0])
+#define TOSHIBA_HDR_MAGIC_SIZE  array_length(toshiba_hdr_magic)
 
 /* Magic text for start of packet */
 static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
-#define TOSHIBA_REC_MAGIC_SIZE  (sizeof toshiba_rec_magic  / sizeof toshiba_rec_magic[0])
+#define TOSHIBA_REC_MAGIC_SIZE  array_length(toshiba_rec_magic)
 
 static bool toshiba_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 	int *err, char **err_info, int64_t *data_offset);

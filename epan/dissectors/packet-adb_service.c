@@ -157,7 +157,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             guint32               data_length;
             continuation_data_t  *continuation_data;
 
-            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= sizeof(key) / sizeof(key[0]), "Tree session key is too small");
+            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= array_length(key), "Tree session key is too small");
             for (i_key = 0; i_key < adb_service_data->session_key_length; i_key += 1) {
                 key[i_key].length = 1;
                 key[i_key].key = &adb_service_data->session_key[i_key];
@@ -225,7 +225,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         } else if (g_str_has_prefix(service, "framebuffer:")) {
             framebuffer_data_t  *framebuffer_data = NULL;
 
-            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= sizeof(key) / sizeof(key[0]), "Tree session key is too small");
+            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= array_length(key), "Tree session key is too small");
             for (i_key = 0; i_key < adb_service_data->session_key_length; i_key += 1) {
                 key[i_key].length = 1;
                 key[i_key].key = &adb_service_data->session_key[i_key];
@@ -402,7 +402,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             gint         logcat_length = 0;
             fragment_t  *fragment;
 
-            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= sizeof(key) / sizeof(key[0]), "Tree session key is too small");
+            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= array_length(key), "Tree session key is too small");
             for (i_key = 0; i_key < adb_service_data->session_key_length; i_key += 1) {
                 key[i_key].length = 1;
                 key[i_key].key = &adb_service_data->session_key[i_key];
@@ -490,7 +490,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                     } else {
 
                         if (!pinfo->fd->visited) {
-                            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 2 <= sizeof(key) / sizeof(key[0]), "Tree session key is too small");
+                            DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 2 <= array_length(key), "Tree session key is too small");
                             for (i_key = 0; i_key < adb_service_data->session_key_length; i_key += 1) {
                                 key[i_key].length = 1;
                                 key[i_key].key = &adb_service_data->session_key[i_key];

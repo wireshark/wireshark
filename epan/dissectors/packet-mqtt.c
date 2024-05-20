@@ -791,7 +791,7 @@ static void dissect_mqtt_reason_code(proto_tree *mqtt_tree, tvbuff_t *tvb, guint
     &hf_mqtt_reason_code_auth
   };
 
-  if (mqtt_msg_type < (sizeof hf_rcode / sizeof hf_rcode[0]))
+  if (mqtt_msg_type < array_length(hf_rcode))
   {
     const int *hfindex = hf_rcode[mqtt_msg_type];
     if (hfindex)
