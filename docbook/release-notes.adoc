@@ -34,19 +34,18 @@ wsbuglink:17779[].
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2024-09[]
-The editcap command line utility could crash when injecting secrets while writing multiple files.
-wsbuglink:19782[].
-cveidlink:2024-4855[].
-// Fixed in master: be3550b3b1
-// Fixed in release-4.2: 32bde22d9b
-// Fixed in release-4.0: f6cb547426d
-// Fixed in release-3.6: 00bc42b4cfe
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
-// CWE-416
-// * The "wtap_block_foreach_option" function on wiretap/file_access.c:2693 has a SEGV vulnerability. wsbuglink:19784[].
+// * wssalink:2024-10[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2024-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.2: xxx
+// Fixed in release-4.0: xxx
+// Fixed in release-3.6: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-125
 
 The following bugs have been fixed:
 
@@ -54,8 +53,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
-
-* Wireshark crashes on exit when using `wmem_register_callback` in a plugin wsbuglink:19579[].
 
 === New and Updated Features
 
@@ -73,7 +70,7 @@ There are no new protocols in this release.
 
 There are no updated protocols in this release.
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.23.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.25.. | ag packet- | sort -u)
 // [commaize]
 // --
 // --
