@@ -8118,6 +8118,58 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         tcppd->tcp_snd_manual_analysis = pinfo->fd->tcp_snd_manual_analysis;
     }
 
+    /* We have have the absolute sequence numbers (we would have thrown an
+     * exception if not) and tcpd, so set relative sequence numbers now. */
+
+    /* XXX - Why not in an error packet? */
+    if (tcpd != NULL && !pinfo->flags.in_error_pkt) {
+        /* initialize base_seq numbers if needed */
+        if (!(pinfo->fd->visited)) {
+            /* if this is the first segment for this list we need to store the
+             * base_seq
+             * We use TCP_S_SAW_SYN/SYNACK to distinguish between client and server
+             *
+             * Start relative seq and ack numbers at 1 if this
+             * is not a SYN packet. This makes the relative
+             * seq/ack numbers to be displayed correctly in the
+             * event that the SYN or SYN/ACK packet is not seen
+             * (this solves bug 1542)
+             */
+            if( !(tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET)) {
+                if(tcph->th_flags & TH_SYN) {
+                    tcpd->fwd->base_seq = tcph->th_seq;
+                    tcpd->fwd->static_flags |= (tcph->th_flags & TH_ACK) ? TCP_S_SAW_SYNACK : TCP_S_SAW_SYN;
+                }
+                else {
+                    tcpd->fwd->base_seq = tcph->th_seq-1;
+                }
+                tcpd->fwd->static_flags |= TCP_S_BASE_SEQ_SET;
+            }
+
+            /* Only store reverse sequence if this isn't the SYN
+             * There's no guarantee that the ACK field of a SYN
+             * contains zeros; get the ISN from the first segment
+             * with the ACK bit set instead (usually the SYN/ACK).
+             *
+             * If the SYN and SYN/ACK were received out-of-order,
+             * the ISN is ack-1. If we missed the SYN/ACK, but got
+             * the last ACK of the 3WHS, the ISN is ack-1. For all
+             * other packets the ISN is unknown, so ack-1 is
+             * as good a guess as ack.
+             */
+            if( !(tcpd->rev->static_flags & TCP_S_BASE_SEQ_SET) && (tcph->th_flags & TH_ACK) ) {
+                tcpd->rev->base_seq = tcph->th_ack-1;
+                tcpd->rev->static_flags |= TCP_S_BASE_SEQ_SET;
+            }
+        }
+        if (tcp_analyze_seq && tcp_relative_seq) {
+            tcph->th_seq -= tcpd->fwd->base_seq;
+            if (tcph->th_flags & TH_ACK) {
+                tcph->th_ack -= tcpd->rev->base_seq;
+            }
+        }
+    }
+
     /*
      * If we've been handed an IP fragment, we don't know how big the TCP
      * segment is, so don't do anything that requires that we know that.
@@ -8151,56 +8203,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             pi = proto_tree_add_uint(ti, hf_tcp_len, tvb, 0, 0, tcph->th_seglen);
             proto_item_set_generated(pi);
 
-            /* initialize base_seq numbers */
-            if(!(pinfo->fd->visited) && tcpd) {
-                /* if this is the first segment for this list we need to store the
-                 * base_seq
-                 * We use TCP_S_SAW_SYN/SYNACK to distinguish between client and server
-                 *
-                 * Start relative seq and ack numbers at 1 if this
-                 * is not a SYN packet. This makes the relative
-                 * seq/ack numbers to be displayed correctly in the
-                 * event that the SYN or SYN/ACK packet is not seen
-                 * (this solves bug 1542)
-                 */
-                if( !(tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET)) {
-                    if(tcph->th_flags & TH_SYN) {
-                        tcpd->fwd->base_seq = tcph->th_seq;
-                        tcpd->fwd->static_flags |= (tcph->th_flags & TH_ACK) ? TCP_S_SAW_SYNACK : TCP_S_SAW_SYN;
-                    }
-                    else {
-                        tcpd->fwd->base_seq = tcph->th_seq-1;
-                    }
-                    tcpd->fwd->static_flags |= TCP_S_BASE_SEQ_SET;
-                }
-
-                /* Only store reverse sequence if this isn't the SYN
-                 * There's no guarantee that the ACK field of a SYN
-                 * contains zeros; get the ISN from the first segment
-                 * with the ACK bit set instead (usually the SYN/ACK).
-                 *
-                 * If the SYN and SYN/ACK were received out-of-order,
-                 * the ISN is ack-1. If we missed the SYN/ACK, but got
-                 * the last ACK of the 3WHS, the ISN is ack-1. For all
-                 * other packets the ISN is unknown, so ack-1 is
-                 * as good a guess as ack.
-                 */
-                if( !(tcpd->rev->static_flags & TCP_S_BASE_SEQ_SET) && (tcph->th_flags & TH_ACK) ) {
-                    tcpd->rev->base_seq = tcph->th_ack-1;
-                    tcpd->rev->static_flags |= TCP_S_BASE_SEQ_SET;
-                }
-            }
-
             /* handle TCP seq# analysis parse all new segments we see */
             if(tcp_analyze_seq) {
                 if(!(pinfo->fd->visited)) {
-                    tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd, tcppd);
-                }
-                if(tcpd && tcp_relative_seq) {
-                    (tcph->th_seq) -= tcpd->fwd->base_seq;
-                    if (tcph->th_flags & TH_ACK) {
-                        (tcph->th_ack) -= tcpd->rev->base_seq;
-                    }
+                    tcp_analyze_sequence_number(pinfo, tcph->th_rawseq, tcph->th_rawack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd, tcppd);
                 }
             }
 
