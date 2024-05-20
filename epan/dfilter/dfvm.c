@@ -12,6 +12,7 @@
 #include "dfvm.h"
 
 #include <ftypes/ftypes.h>
+#include <wsutil/array.h>
 #include <wsutil/ws_assert.h>
 
 static void

@@ -4415,8 +4415,6 @@ static const value_string dce_error_vals[] = {
     { 0, NULL }
 };
 
-#define array_length(x) (sizeof x / sizeof x[0])
-
 value_string_ext dce_error_vals_ext = VALUE_STRING_EXT_INIT(dce_error_vals);
 
 /*

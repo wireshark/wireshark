@@ -18,6 +18,7 @@
 #include <inttypes.h>
 #include <errno.h>
 
+#include <wsutil/array.h>
 #include <wsutil/bits_ctz.h>
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/sign_ext.h>

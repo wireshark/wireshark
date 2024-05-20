@@ -12,6 +12,7 @@
 #define __PACKET_H__
 #include <wireshark.h>
 
+#include <wsutil/array.h>
 #include <wiretap/wtap_opttypes.h>
 #include "proto.h"
 #include "tvbuff.h"
@@ -37,9 +38,6 @@ struct epan_range;
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
-
-/* Useful when you have an array whose size you can tell at compile-time */
-#define array_length(x)	(sizeof x / sizeof x[0])
 
 /* Check whether the "len" bytes of data starting at "offset" is
  * entirely inside the captured data for this packet. */

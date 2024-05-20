@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <epan/packet.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
@@ -28,6 +27,7 @@
 #include <epan/prefs.h>
 #include <epan/print.h>
 #include <epan/charsets.h>
+#include <wsutil/array.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>

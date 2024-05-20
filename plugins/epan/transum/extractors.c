@@ -11,7 +11,7 @@
  */
 #include "config.h"
 #include <epan/prefs.h>
-#include <epan/packet.h>
+#include <wsutil/array.h>
 #include "extractors.h"
 
 /*

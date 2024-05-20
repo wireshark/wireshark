@@ -17,13 +17,12 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wsutil/array.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include "ui/failure_message.h"
-
-#define array_length(x)	(sizeof x / sizeof x[0])
 
 #define INVALID_LEN 1
 #define WRITE_ERROR 2

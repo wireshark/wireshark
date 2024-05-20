@@ -2926,11 +2926,6 @@ WS_DLL_PUBLIC gboolean tree_expanded(int tree_type);
 /** Sets if subtrees of that type are to be expanded. */
 WS_DLL_PUBLIC void tree_expanded_set(int tree_type, gboolean value);
 
-/** glib doesn't have g_ptr_array_len of all things!*/
-#ifndef g_ptr_array_len
-#define g_ptr_array_len(a)      ((a)?(a)->len:0)
-#endif
-
 WS_DLL_PUBLIC int
 hfinfo_bitshift(const header_field_info *hfinfo);
 

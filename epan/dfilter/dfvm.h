@@ -11,7 +11,6 @@
 #define DFVM_H
 
 #include <wsutil/regex.h>
-#include <epan/proto.h>
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "drange.h"

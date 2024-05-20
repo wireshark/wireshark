@@ -272,11 +272,6 @@ extern int wtap_num_file_types;
     }
 #endif
 
-/* glib doesn't have g_ptr_array_len of all things!*/
-#ifndef g_ptr_array_len
-#define g_ptr_array_len(a)      ((a)->len)
-#endif
-
 /*
  * Read a given number of bytes from a file into a buffer or, if
  * buf is NULL, just discard them.

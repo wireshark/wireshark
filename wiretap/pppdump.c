@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include <wsutil/array.h>
 #include <wsutil/ws_assert.h>
 
 /*

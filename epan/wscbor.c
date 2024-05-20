@@ -13,7 +13,7 @@
  */
 #include "config.h"
 
-#include <epan/packet.h>
+#include <wsutil/array.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <stdio.h>
