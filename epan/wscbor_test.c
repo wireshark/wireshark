@@ -43,6 +43,7 @@ example_s ex_uint = {1, (const guint8 *)"\x01", 1, 1, CBOR_TYPE_UINT, 1};
 example_s ex_nint = {1, (const guint8 *)"\x20", 1, 1, CBOR_TYPE_NEGINT, 0};
 example_s ex_bstr = {3, (const guint8 *)"\x42\x68\x69", 1, 3, CBOR_TYPE_BYTESTRING, 2};
 example_s ex_bstr_indef = {6, (const guint8 *)"\x5F\x41\x68\x41\x69\xFF", 1, 6, CBOR_TYPE_BYTESTRING, 0};
+example_s ex_bstr_indef_empty = {2, (const guint8 *)"\x5F\xFF", 1, 2, CBOR_TYPE_BYTESTRING, 0};
 example_s ex_tstr = {3, (const guint8 *)"\x62\x68\x69", 1, 3, CBOR_TYPE_STRING, 2};
 example_s ex_tstr_indef = {6, (const guint8 *)"\x7F\x61\x68\x61\x69\xFF", 1, 6, CBOR_TYPE_STRING, 0};
 example_s ex_false = {1, (const guint8 *)"\xF4", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_FALSE};
@@ -62,7 +63,7 @@ static const example_s * all_examples[] = {
     &ex_uint, &ex_nint,
     &ex_bstr, &ex_bstr_indef,
     &ex_tstr, &ex_tstr_indef,
-    &ex_false, &ex_true, &ex_null, &ex_undef, &ex_break
+    &ex_false, &ex_true, &ex_null, &ex_undef, &ex_break, &ex_bstr_indef_empty
 };
 
 /*
