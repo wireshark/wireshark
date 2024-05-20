@@ -22,7 +22,6 @@
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
-#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
 #include <epan/introspection.h>
@@ -190,11 +189,15 @@ int get_hf_wslua_text(void) {
 
 #if LUA_VERSION_NUM >= 502
 // Attach the lua traceback to the proto_tree
-static int dissector_traceback(lua_State *LS) {
+static int dissector_error_handler(lua_State *LS) {
     // Entering, stack: [ error_handler, dissector, errmsg ]
 
     proto_item *tb_item;
     proto_tree *tb_tree;
+
+    // Add the expert info Lua error message
+    proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
+            "Lua Error: %s", lua_tostring(LS,-1));
 
     // Create a new proto sub_tree for the traceback
     tb_item = proto_tree_add_text_internal(lua_tree->tree, lua_tvb, 0, 0, "Lua Traceback");
@@ -265,26 +268,24 @@ static int dissector_traceback(lua_State *LS) {
     g_free(tb_string);
 
     // Return the same original error message
-    return -1;
+    return -2;
 }
-#endif
+
+#else
 
 static int dissector_error_handler(lua_State *LS) {
-    int ret = -1;
     // Entering, stack: [ error_handler, dissector, errmsg ]
     proto_tree_add_expert_format(lua_tree->tree, lua_pinfo, &ei_lua_error, lua_tvb, 0, 0,
             "Lua Error: %s", lua_tostring(LS,-1));
 
-#if LUA_VERSION_NUM >= 502
-    ret += dissector_traceback(LS);
-#endif
-
     // Return the same error message
-    return ret;
+    return -1;
 }
 
+#endif
+
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
-    volatile int consumed_bytes = tvb_captured_length(tvb);
+    int consumed_bytes = tvb_captured_length(tvb);
     tvbuff_t *saved_lua_tvb = lua_tvb;
     packet_info *saved_lua_pinfo = lua_pinfo;
     struct _wslua_treeitem *saved_lua_tree = lua_tree;
@@ -299,97 +300,55 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     // set the stack top be index 0
     lua_settop(L,0);
 
-    /*
-     * This function is called inside packet-frame.c or file-file.c in a
-     * TRY block. lua_pcall() and lua_error() use setjmp()/longjmp(),
-     * and so does the kazlib portable exception handling.
-     *
-     * A Wireshark exception thrown inside a pcall'ed function will
-     * longjmp out of all the Lua cleanup functions. In certain cases
-     * a subsequent lua_error() will then cause an attempt to longjmp()
-     * the wrong way on the stack (because the chain of error handlers
-     * wasn't cleaned up), which is undefined behavior. Even without that,
-     * jumping out means that the number of C functions on the stack
-     * isn't decremented, eventually leading to "C stack overflow" errors
-     * and our Lua state stopping functioning.
-     *
-     * So we create a new Lua "thread" (shared global environment,
-     * independent stack, used for coroutines) and use it synchronously,
-     * and let it get garbage collected. We nest the Wireshark and Lua
-     * TRY and catch either type of errors.
-     */
-
-    // L stack: [ thread LS ] LS stack: [ ]
-    lua_State *LS = lua_newthread(L);
-
-    // After call, LS stack: [ error_handler_func ]
-    lua_pushcfunction(LS, dissector_error_handler);
+    // After call, stack: [ error_handler_func ]
+    lua_pushcfunction(L, dissector_error_handler);
 
     // Push the dissectors table onto the the stack
     // After call, stack: [ error_handler_func, dissectors_table ]
-    lua_rawgeti(LS, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
 
     // Push a copy of the current_proto string onto the stack
     // After call, stack: [ error_handler_func, dissectors_table, current_proto ]
-    lua_pushstring(LS, pinfo->current_proto);
+    lua_pushstring(L, pinfo->current_proto);
 
     // dissectors_table[current_proto], a dissector, goes into the stack
     // The key (current_proto) is popped off the stack.
     // After call, stack: [ error_handler_func, dissectors_table, dissector ]
-    lua_gettable(LS, -2);
+    lua_gettable(L, -2);
 
     // We don't need the dissectors_table in the stack
     // After call, stack: [ error_handler_func, dissector ]
-    lua_remove(LS,2);
-
-    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
+    lua_remove(L,2);
 
     // Is the dissector a function?
-    if (lua_isfunction(LS,2)) {
+    if (lua_isfunction(L,2)) {
 
         // After call, stack: [ error_handler_func, dissector, tvb ]
-        push_Tvb(LS,tvb);
+        push_Tvb(L,tvb);
         // After call, stack: [ error_handler_func, dissector, tvb, pinfo ]
-        push_Pinfo(LS,pinfo);
+        push_Pinfo(L,pinfo);
         // After call, stack: [ error_handler_func, dissector, tvb, pinfo, TreeItem ]
-        lua_tree = push_TreeItem(LS, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+        lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
         proto_item_set_hidden(lua_tree->item);
 
-        TRY {
-            if ( lua_pcall(LS, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
-                // do nothing; the traceback error message handler function does everything
-            } else {
+        if  ( lua_pcall(L, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
+            // do nothing; the traceback error message handler function does everything
+        } else {
 
-                /* if the Lua dissector reported the consumed bytes, pass it to our caller */
-                if (lua_isnumber(LS, -1)) {
-                    /* we got the consumed bytes or the missing bytes as a negative number */
-                    consumed_bytes = wslua_toint(LS, -1);
-                    lua_pop(LS, 1);
-                }
+            /* if the Lua dissector reported the consumed bytes, pass it to our caller */
+            if (lua_isnumber(L, -1)) {
+                /* we got the consumed bytes or the missing bytes as a negative number */
+                consumed_bytes = wslua_toint(L, -1);
+                lua_pop(L, 1);
             }
-        } CATCH5(ContainedBoundsError, ReportedBoundsError, DissectorError,
-                OutOfMemoryError, ReassemblyError) {
-            /* These indicate something wrong enough that a traceback is
-             * likely useful. BoundsError, FragmentBoundsError, and
-             * ScsiBoundsError are "normal" and not necessarily indicative
-             * of malformed packets or dissector errors.
-             */
-            dissector_traceback(LS);
-            RETHROW;
-        } FINALLY {
-            /* Any saved functions have to be unreferenced before the new
-             * thread is garbage collected, as they depend on it.
-             */
-            clear_outstanding_FuncSavers();
-            /* Ensure that the new thread is removed from L's stack, which
-             * should cause it to be garbage collected. */
-            lua_settop(L,0);
-        } ENDTRY;
+        }
 
     } else {
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                     "Lua Error: did not find the %s dissector in the dissectors table", pinfo->current_proto);
     }
+
+    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
     lua_pinfo = saved_lua_pinfo;
     lua_tree = saved_lua_tree;
@@ -407,7 +366,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
  * @return true if the packet was recognized by the sub-dissector (stop dissection here)
  */
 gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
-    volatile bool result = false;
+    bool result = false;
     tvbuff_t *saved_lua_tvb = lua_tvb;
     packet_info *saved_lua_pinfo = lua_pinfo;
     struct _wslua_treeitem *saved_lua_tree = lua_tree;
@@ -431,13 +390,11 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
 
     lua_settop(L,0);
 
-    lua_State *LS = lua_newthread(L);
-
     /* get the table of all lua heuristic dissector lists */
-    lua_rawgeti(LS, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
 
     /* get the table inside that, for the lua heuristic dissectors of the requested heur list */
-    if (!wslua_get_table(LS, -1, pinfo->heur_list_name)) {
+    if (!wslua_get_table(L, -1, pinfo->heur_list_name)) {
         /* this shouldn't happen */
         lua_settop(L,0);
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
@@ -446,7 +403,7 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     }
 
     /* get the table inside that, for the specific lua heuristic dissector */
-    if (!wslua_get_field(LS,-1,pinfo->current_proto)) {
+    if (!wslua_get_field(L,-1,pinfo->current_proto)) {
         /* this shouldn't happen */
         lua_settop(L,0);
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
@@ -456,11 +413,11 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     }
 
     /* remove the table of all lists (the one in the registry) */
-    lua_remove(LS,1);
+    lua_remove(L,1);
     /* remove the heur_list_name heur list table */
-    lua_remove(LS,1);
+    lua_remove(L,1);
 
-    if (!lua_isfunction(LS,-1)) {
+    if (!lua_isfunction(L,-1)) {
         /* this shouldn't happen */
         lua_settop(L,0);
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
@@ -468,47 +425,28 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
         return false;
     }
 
-    push_Tvb(LS,tvb);
-    push_Pinfo(LS,pinfo);
-    lua_tree = push_TreeItem(LS, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+    push_Tvb(L,tvb);
+    push_Pinfo(L,pinfo);
+    lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
     proto_item_set_hidden(lua_tree->item);
 
-    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
-
-    TRY {
-        if ( lua_pcall(LS,3,1,0) ) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
-                    "Lua Error: error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(LS,-1));
-            lua_settop(LS,0);
-        } else {
-            if (lua_isboolean(LS, -1) || lua_isnil(LS, -1)) {
-                result = lua_toboolean(LS, -1);
-            } else if (lua_type(LS, -1) == LUA_TNUMBER) {
-                result = lua_tointeger(LS, -1) != 0 ? true : false;
-            } else {
-                proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
-                        "Lua Error: invalid return value from Lua %s heuristic dissector", pinfo->current_proto);
-            }
-            lua_pop(LS, 1);
-        }
-    } CATCH5(ContainedBoundsError, ReportedBoundsError, DissectorError,
-            OutOfMemoryError, ReassemblyError) {
-        /* These indicate something wrong enough that a traceback is
-         * likely useful. BoundsError, FragmentBoundsError, and
-         * ScsiBoundsError are "normal" and not necessarily indicative
-         * of malformed packets or dissector errors.
-         */
-        dissector_traceback(LS);
-        RETHROW;
-    } FINALLY {
-        /* Any saved functions have to be unreferenced before the new
-         * thread is garbage collected, as they depend on it.
-         */
-        clear_outstanding_FuncSavers();
-        /* Ensure that the new thread is removed from L's stack, which
-         * should cause it to be garbage collected. */
+    if  ( lua_pcall(L,3,1,0) ) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                "Lua Error: error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L,-1));
         lua_settop(L,0);
-    } ENDTRY;
+    } else {
+        if (lua_isboolean(L, -1) || lua_isnil(L, -1)) {
+            result = lua_toboolean(L, -1);
+        } else if (lua_type(L, -1) == LUA_TNUMBER) {
+            result = lua_tointeger(L,-1) != 0 ? true : false;
+        } else {
+            proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                    "Lua Error: invalid return value from Lua %s heuristic dissector", pinfo->current_proto);
+        }
+        lua_pop(L, 1);
+    }
+
+    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
     lua_pinfo = saved_lua_pinfo;
     lua_tree = saved_lua_tree;
