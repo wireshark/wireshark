@@ -92,15 +92,15 @@ static expert_field ei_zabbix_json_error;
 /* Other dissector-specifics */
 static range_t *zabbix_port_range;
 
-static const guint8 ZABBIX_HDR_SIGNATURE[] = "ZBXD";
+static const char ZABBIX_HDR_SIGNATURE[] = "ZBXD";
 static const char ZABBIX_UNKNOWN[] = "<unknown>";
 static const char ZABBIX_ZBX_NOTSUPPORTED[] = "ZBX_NOTSUPPORTED";
 
 typedef struct _zabbix_conv_info_t {
-    guint32 req_framenum;
+    uint32_t req_framenum;
     nstime_t req_timestamp;
     uint16_t oper_flags;         /* ZABBIX_T_XXX macros below */
-    const guint8 *host_name;
+    const char *host_name;
 } zabbix_conv_info_t;
 
 #define ZABBIX_HDR_MIN_LEN          13              /* When not large packet */
@@ -227,7 +227,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     const char *request_type = NULL;
     const char *response_status = NULL;
     const char *version = NULL;
-    gdouble temp_double;
+    double temp_double;
     tvbuff_t *next_tvb;
     zabbix_conv_info_t *zabbix_info;
     static int* const flagbits[] = {
@@ -828,7 +828,7 @@ final_outputs:
     /* Add length to the Zabbix tree text */
     proto_item_append_text(ti, ", Len=%u", (unsigned)length);
     /* Add/set Info column texts */
-    const gchar *info_text = col_get_text(pinfo->cinfo, COL_INFO);
+    const char *info_text = col_get_text(pinfo->cinfo, COL_INFO);
     if (!info_text || !strlen(info_text)) {
         /* Info column is still empty, set the default text */
         if (CONV_IS_ZABBIX_REQUEST(zabbix_info, pinfo)) {
@@ -1143,7 +1143,7 @@ proto_register_zabbix(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_zabbix,
     };
 
