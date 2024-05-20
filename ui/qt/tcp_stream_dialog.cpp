@@ -300,7 +300,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sack2_eb_->setDataPlottable(sack2_graph_);
 
     // RWin graph - displays upper extent of RWIN advertised on reverse packets
-    rwin_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
+    rwin_graph_ = sp->addGraph();
     rwin_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
 
@@ -927,6 +927,7 @@ void TCPStreamDialog::fillTcptrace()
     sack_eb_->setData(sack_span);
     sack2_graph_->setData(sack2_time, sack2_center, true);
     sack2_eb_->setData(sack2_span);
+    rwin_graph_->setValueAxis(sp->yAxis);
     rwin_graph_->setData(ackrwin_time, rwin, true);
     dup_ack_graph_->setData(dup_ack_time, dup_ack, true);
     zero_win_graph_->setData(zero_win_time, zero_win, true);
@@ -1615,6 +1616,7 @@ void TCPStreamDialog::fillWindowScale()
      * the exact value and select?
      */
     base_graph_->setData(cwnd_time, cwnd_size);
+    rwin_graph_->setValueAxis(sp->yAxis2);
     rwin_graph_->setData(rel_time, win_size);
     sp->yAxis->setLabel(cwnd_label_);
 
