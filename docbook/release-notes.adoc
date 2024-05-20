@@ -34,7 +34,19 @@ wsbuglink:17779[].
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
+
+* wssalink:2024-09[]
+The editcap command line utility could crash when injecting secrets while writing multiple files.
+wsbuglink:19782[].
+cveidlink:2024-4855[].
+// Fixed in master: be3550b3b1
+// Fixed in release-4.2: 32bde22d9b
+// Fixed in release-4.0: f6cb547426d
+// Fixed in release-3.6: 00bc42b4cfe
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:L
+// CWE-416
+// * The "wtap_block_foreach_option" function on wiretap/file_access.c:2693 has a SEGV vulnerability. wsbuglink:19784[].
 
 The following bugs have been fixed:
 
@@ -42,6 +54,8 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
+
+* Wireshark crashes on exit when using `wmem_register_callback` in a plugin wsbuglink:19579[].
 
 === New and Updated Features
 
@@ -57,12 +71,12 @@ There are no new protocols in this release.
 
 === Updated Protocol Support
 
-// There are no updated protocols in this release.
+There are no updated protocols in this release.
 // Add one protocol per line between the -- delimiters.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.6.23.. | ag packet- | sort -u)
-[commaize]
---
---
+// [commaize]
+// --
+// --
 
 === New and Updated Capture File Support
 
@@ -90,6 +104,7 @@ There is no updated file format support in this release.
 This document only describes the changes introduced in Wireshark {wireshark-version}.
 You can find release notes for prior versions at the following locations:
 
+* https://www.wireshark.org/docs/relnotes/wireshark-3.6.24.html[Wireshark 3.6.24]
 * https://www.wireshark.org/docs/relnotes/wireshark-3.6.23.html[Wireshark 3.6.23]
 * https://www.wireshark.org/docs/relnotes/wireshark-3.6.22.html[Wireshark 3.6.22]
 * https://www.wireshark.org/docs/relnotes/wireshark-3.6.21.html[Wireshark 3.6.21]

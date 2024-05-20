@@ -1,0 +1,96 @@
+commit 8c01c2b49ce
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun May 19 11:33:11 2024 +0000
+
+    pcap: Update link_type_vals
+
+    (cherry picked from commit 17fcdb4735113b155994254cc10ce733b82c00e2)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 9b93276b56c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 19 09:21:53 2024 +0000
+
+    [Automatic update for 2024-05-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 8277ec1209f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun May 19 11:25:54 2024 +0000
+
+    Epan: Cleanup plugins only after all possible calls are made
+
+    Since wmem has a facility to register for callbacks on 'free all' and
+    destruction of the indicated allocator, a plugin can have such callback
+    registered when epan is going through its cleanup before the program
+    exists. Therefore the unloading of plugins has to be done after the
+    registered callbacks from wmem to the plugins are made.
+
+    Fixes #19579
+
+    (cherry picked from commit 84669b184de6f3e9b2e70dfe73a2dccae1dd4592)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit af221e84bd8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 10 10:28:45 2024 -0400
+
+    Qt: Fix crash when closing TimeShiftDialog before redissection done
+
+    Commit f67eccedd9836e6ced1f57ae9889f57a5400a3d7 made it so that
+    the TimeShiftDialog doesn't have a nested event loop with exec.
+    That's good, but that means that an AutoConnection between
+    TimeShiftDialog::timeShifted and PacketList::applyTimeShift is a
+    DirectConnection, which means that TimeShiftDialog::applyTimeShift
+    waits for the packet list redissection to finish before the function
+    calls enableWidgets and returns.
+
+    The user can close the Time Shift Dialog while the packet list
+    redissection is still ongoing. As the TimeShiftDialog is also now
+    DeleteOnClose, this means that when the redissection finishes (or
+    is canceled via ProgressDialog) the TimeShiftDialog will try to update
+    its widgets after they've been deleted, causing a crash.
+
+    To prevent, make the connection between the TimeShiftDialog and
+    the PacketList a Qt::QueuedConnection.
+
+    (backport from commit ea70c16e05d0f1f0779bec6e89153a67d07d6cfa)
+
+commit bc8c65d7203
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu May 16 08:26:16 2024 -0400
+
+    debian: Update symbols for last commit
+
+    Commit 00bc42b4cfe4b59ced0c1b79bd39d2b8db1c68cf
+
+commit 00bc42b4cfe
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 19 09:47:45 2024 -0400
+
+    editcap, libwiretap: Don't use array of initial DSBs after freeing
+
+    wtap_dump_close frees the passed in GArray of initial DSBs, used
+    by editcap for injecting DSBs from a file or list of files.
+
+    Add functions to increment and decrement the reference count of
+    an array of wtap blocks. Dereference the block of initial DSBs
+    in wtap_dump_close() instead of freeing it. In editcap, before
+    closing the dump file in cases where we intend to open a new
+    file (e.g., with a maximum time value or a maximum packet count),
+    reference the block.
+
+    Fix #19782, #19783, #19784.
+
+    (backported from commit be3550b3b138f39bebb87ac0b8490e75fc8cc847)
+
+commit 54a81c17979
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 15 12:56:23 2024 -0700
+
+    Version: 3.6.23 → 3.6.24
+
+    [skip ci]
