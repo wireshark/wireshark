@@ -1,22 +1,24 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the wireshark package.
-# 
+#
 # Translators:
 # Martin Sin <martin.sin@zshk.cz>, 2009
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
-"POT-Creation-Date: 2017-08-06 18:31-0400\n"
+"POT-Creation-Date: 2024-05-20 18:25+0000\n"
 "PO-Revision-Date: 2017-09-22 06:50+0000\n"
 "Last-Translator: Gerald Combs <gerald@wireshark.org>\n"
-"Language-Team: Czech (http://www.transifex.com/wireshark/wireshark/language/cs/)\n"
+"Language-Team: Czech (http://www.transifex.com/wireshark/wireshark/language/"
+"cs/)\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: cs\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
+"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #. Type: boolean
 #. Description
@@ -29,26 +31,39 @@ msgstr "Mohou obyčejní uživatelé zachytávat pakety?"
 #: ../templates:2001
 msgid ""
 "Dumpcap can be installed in a way that allows members of the \"wireshark\" "
-"system group to capture packets. This is recommended over the alternative of"
-" running Wireshark/Tshark directly as root, because less of the code will "
-"run with elevated privileges."
-msgstr "Dumpcap můžete nainstalovat tak, že budou moci zachytávat pakety pouze členové skupiny „wireshark“. Tento způsob zachytávání paketů pomocí Wireshark/Tshark se obecně doporučuje. Druhou možností je spuštění programu přímo pod superuživatelem, to ovšem nelze doporučit, protože je pak pod tímto uživatelem spuštěna větší část potencionálně nebezpečného kódu."
+"system group to capture packets. This is recommended over the alternative of "
+"running Wireshark/Tshark directly as root, because less of the code will run "
+"with elevated privileges."
+msgstr ""
+"Dumpcap můžete nainstalovat tak, že budou moci zachytávat pakety pouze "
+"členové skupiny „wireshark“. Tento způsob zachytávání paketů pomocí "
+"Wireshark/Tshark se obecně doporučuje. Druhou možností je spuštění programu "
+"přímo pod superuživatelem, to ovšem nelze doporučit, protože je pak pod "
+"tímto uživatelem spuštěna větší část potencionálně nebezpečného kódu."
 
 #. Type: boolean
 #. Description
-#: ../templates:2001
+#. Type: boolean
+#. Description
+#: ../templates:2001 ../templates:7001
 msgid ""
-"For more detailed information please see /usr/share/doc/wireshark-"
-"common/README.Debian."
-msgstr "Pro více informací se prosím podívejte na /usr/share/doc/wireshark-common/README.Debian."
+"For more detailed information please see /usr/share/doc/wireshark-common/"
+"README.Debian."
+msgstr ""
+"Pro více informací se prosím podívejte na /usr/share/doc/wireshark-common/"
+"README.Debian."
 
 #. Type: boolean
 #. Description
-#: ../templates:2001
+#. Type: boolean
+#. Description
+#: ../templates:2001 ../templates:7001
 msgid ""
 "Enabling this feature may be a security risk, so it is disabled by default. "
 "If in doubt, it is suggested to leave it disabled."
-msgstr "Povolení této možnosti může být bezpečnostním rizikem a tak je ve výchozím nastavení vypnuté. Jste-li na pochybách, doporučuje se nechat volbu vypnutou."
+msgstr ""
+"Povolení této možnosti může být bezpečnostním rizikem a tak je ve výchozím "
+"nastavení vypnuté. Jste-li na pochybách, doporučuje se nechat volbu vypnutou."
 
 #. Type: error
 #. Description
@@ -127,12 +142,84 @@ msgstr ""
 #. Description
 #: ../templates:6001
 msgid ""
-"However, on this system the wireshark group is a user group instead of being"
-" a system group, so purging wireshark-common did not remove it."
+"However, on this system the wireshark group is a user group instead of being "
+"a system group, so purging wireshark-common did not remove it."
 msgstr ""
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid "If the group is no longer needed, please remove it manually."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+#, fuzzy
+#| msgid "Should non-superusers be able to capture packets?"
+msgid "Should non-superusers be able to capture system calls?"
+msgstr "Mohou obyčejní uživatelé zachytávat pakety?"
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+#, fuzzy
+#| msgid ""
+#| "Dumpcap can be installed in a way that allows members of the "
+#| "\"wireshark\" system group to capture packets. This is recommended over "
+#| "the alternative of running Wireshark/Tshark directly as root, because "
+#| "less of the code will run with elevated privileges."
+msgid ""
+"The falcodump external capture utility (extcap) can be installed in a way "
+"that allows members of the \"scap\" system group to capture system calls. "
+"This is recommended over the alternative of running Logray directly as root, "
+"because less of the code will run with elevated privileges."
+msgstr ""
+"Dumpcap můžete nainstalovat tak, že budou moci zachytávat pakety pouze "
+"členové skupiny „wireshark“. Tento způsob zachytávání paketů pomocí "
+"Wireshark/Tshark se obecně doporučuje. Druhou možností je spuštění programu "
+"přímo pod superuživatelem, to ovšem nelze doporučit, protože je pak pod "
+"tímto uživatelem spuštěna větší část potencionálně nebezpečného kódu."
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid "Creating the \"scap\" system group failed"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid ""
+"The \"scap\" group does not exist, and creating it failed, so Logray cannot "
+"be configured to capture system calls as an unprivileged user."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid ""
+"Please create the \"scap\" system group and try configuring logray again."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:9001
+msgid "The \"scap\" group is a system group"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:9001
+msgid ""
+"The \"scap\" group exists as a user group, but the preferred configuration "
+"is for it to be created as a system group."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:9001
+msgid ""
+"As a result, purging logray will not remove the \"scap\" group, but "
+"everything else should work properly."
 msgstr ""

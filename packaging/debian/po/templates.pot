@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
-"POT-Creation-Date: 2017-08-06 18:31-0400\n"
+"POT-Creation-Date: 2024-05-20 18:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,9 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:2001
+#. Type: boolean
+#. Description
+#: ../templates:2001 ../templates:7001
 msgid ""
 "For more detailed information please see /usr/share/doc/wireshark-common/"
 "README.Debian."
@@ -43,7 +45,9 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:2001
+#. Type: boolean
+#. Description
+#: ../templates:2001 ../templates:7001
 msgid ""
 "Enabling this feature may be a security risk, so it is disabled by default. "
 "If in doubt, it is suggested to leave it disabled."
@@ -134,4 +138,63 @@ msgstr ""
 #. Description
 #: ../templates:6001
 msgid "If the group is no longer needed, please remove it manually."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid "Should non-superusers be able to capture system calls?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid ""
+"The falcodump external capture utility (extcap) can be installed in a way "
+"that allows members of the \"scap\" system group to capture system calls. "
+"This is recommended over the alternative of running Logray directly as root, "
+"because less of the code will run with elevated privileges."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid "Creating the \"scap\" system group failed"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid ""
+"The \"scap\" group does not exist, and creating it failed, so Logray cannot "
+"be configured to capture system calls as an unprivileged user."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:8001
+msgid ""
+"Please create the \"scap\" system group and try configuring logray again."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:9001
+msgid "The \"scap\" group is a system group"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:9001
+msgid ""
+"The \"scap\" group exists as a user group, but the preferred configuration "
+"is for it to be created as a system group."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../templates:9001
+msgid ""
+"As a result, purging logray will not remove the \"scap\" group, but "
+"everything else should work properly."
 msgstr ""

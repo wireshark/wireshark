@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the wireshark package.
-# 
+#
 # Translators:
 # Göran Uddeborg <goeran@uddeborg.se>, 2017
 # Martin Ågren <martin.agren@gmail.com>, 2009-2010
@@ -9,14 +9,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
-"POT-Creation-Date: 2017-08-06 18:31-0400\n"
+"POT-Creation-Date: 2024-05-20 18:25+0000\n"
 "PO-Revision-Date: 2017-11-27 22:17+0000\n"
 "Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
-"Language-Team: Swedish (http://www.transifex.com/wireshark/wireshark/language/sv/)\n"
+"Language-Team: Swedish (http://www.transifex.com/wireshark/wireshark/"
+"language/sv/)\n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Type: boolean
@@ -30,26 +31,38 @@ msgstr "Ska icke-superanvändare kunna fånga paket?"
 #: ../templates:2001
 msgid ""
 "Dumpcap can be installed in a way that allows members of the \"wireshark\" "
-"system group to capture packets. This is recommended over the alternative of"
-" running Wireshark/Tshark directly as root, because less of the code will "
-"run with elevated privileges."
-msgstr "Dumpcap kan installeras på ett sätt som tillåter medlemmar i systemgruppen \"wireshark\" att fånga paket. Detta rekommenderas framför alternativet, att köra Wireshark/Tshark direkt som root, eftersom en mindre del av koden kommer köras med utökade rättigheter."
+"system group to capture packets. This is recommended over the alternative of "
+"running Wireshark/Tshark directly as root, because less of the code will run "
+"with elevated privileges."
+msgstr ""
+"Dumpcap kan installeras på ett sätt som tillåter medlemmar i systemgruppen "
+"\"wireshark\" att fånga paket. Detta rekommenderas framför alternativet, att "
+"köra Wireshark/Tshark direkt som root, eftersom en mindre del av koden "
+"kommer köras med utökade rättigheter."
 
 #. Type: boolean
 #. Description
-#: ../templates:2001
+#. Type: boolean
+#. Description
+#: ../templates:2001 ../templates:7001
 msgid ""
-"For more detailed information please see /usr/share/doc/wireshark-"
-"common/README.Debian."
-msgstr "Se /usr/share/doc/wireshark-common/README.Debian för mer detaljerad information."
+"For more detailed information please see /usr/share/doc/wireshark-common/"
+"README.Debian."
+msgstr ""
+"Se /usr/share/doc/wireshark-common/README.Debian för mer detaljerad "
+"information."
 
 #. Type: boolean
 #. Description
-#: ../templates:2001
+#. Type: boolean
+#. Description
+#: ../templates:2001 ../templates:7001
 msgid ""
 "Enabling this feature may be a security risk, so it is disabled by default. "
 "If in doubt, it is suggested to leave it disabled."
-msgstr "Att aktivera denna funktion kan vara en säkerhetsrisk, så den är avaktiverad som standard. Vid tvivel rekommenderas att den lämnas avaktiverad."
+msgstr ""
+"Att aktivera denna funktion kan vara en säkerhetsrisk, så den är avaktiverad "
+"som standard. Vid tvivel rekommenderas att den lämnas avaktiverad."
 
 #. Type: error
 #. Description
@@ -63,7 +76,9 @@ msgstr "Att skapa systemgruppen wireshark misslyckades"
 msgid ""
 "The wireshark group does not exist, and creating it failed, so Wireshark "
 "cannot be configured to capture traffic as an unprivileged user."
-msgstr "Gruppen wireshark finns inte, och att skapa den misslyckades, så Wireshark kan inte konfigureras att fånga trafik som en opriviligierad användare."
+msgstr ""
+"Gruppen wireshark finns inte, och att skapa den misslyckades, så Wireshark "
+"kan inte konfigureras att fånga trafik som en opriviligierad användare."
 
 #. Type: error
 #. Description
@@ -71,7 +86,8 @@ msgstr "Gruppen wireshark finns inte, och att skapa den misslyckades, så Wiresh
 msgid ""
 "Please create the wireshark system group and try configuring wireshark-"
 "common again."
-msgstr "Skapa systemgruppen wireshark och försök konfigurera wireshark-common igen."
+msgstr ""
+"Skapa systemgruppen wireshark och försök konfigurera wireshark-common igen."
 
 #. Type: error
 #. Description
@@ -85,7 +101,9 @@ msgstr "Gruppen wireshark är en systemgrupp"
 msgid ""
 "The wireshark group exists as a user group, but the preferred configuration "
 "is for it to be created as a system group."
-msgstr "Gruppen wireshark finns som en användargrupp, men den rekommenderade konfigurationen är att den skapas som sen systemgrupp."
+msgstr ""
+"Gruppen wireshark finns som en användargrupp, men den rekommenderade "
+"konfigurationen är att den skapas som sen systemgrupp."
 
 #. Type: error
 #. Description
@@ -93,7 +111,9 @@ msgstr "Gruppen wireshark finns som en användargrupp, men den rekommenderade ko
 msgid ""
 "As a result, purging wireshark-common will not remove the wireshark group, "
 "but everything else should work properly."
-msgstr "Som ett resultat kommer rensning av wireshark-common inte ta bort gruppen wireshark, men allt annat skall fungera normalt."
+msgstr ""
+"Som ett resultat kommer rensning av wireshark-common inte ta bort gruppen "
+"wireshark, men allt annat skall fungera normalt."
 
 #. Type: error
 #. Description
@@ -107,7 +127,10 @@ msgstr "Att sätta förmågor för dumpcap misslyckades"
 msgid ""
 "The attempt to use Linux capabilities to grant packet-capturing privileges "
 "to the dumpcap binary failed. Instead, it has had the set-user-id bit set."
-msgstr "Försöket att använda Linux förmågor (capabilities) för att ge rättigheter att fånga paket till programmet dumpcap misslyckades.  Istället har det fått set-user-id-biten satt."
+msgstr ""
+"Försöket att använda Linux förmågor (capabilities) för att ge rättigheter "
+"att fånga paket till programmet dumpcap misslyckades.  Istället har det fått "
+"set-user-id-biten satt."
 
 #. Type: error
 #. Description
@@ -122,18 +145,121 @@ msgid ""
 "When the wireshark-common package is configured to allow non-superusers to "
 "capture packets the postinst script of wireshark-common creates the "
 "wireshark group as a system group."
-msgstr "När paketet wireshark-common är konfigurerat för att tillåta andra än superanvändaren att fånga paket skapara postinst-skriptet i wireshark-common gruppen wireshark som en systemgrupp."
+msgstr ""
+"När paketet wireshark-common är konfigurerat för att tillåta andra än "
+"superanvändaren att fånga paket skapara postinst-skriptet i wireshark-common "
+"gruppen wireshark som en systemgrupp."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid ""
-"However, on this system the wireshark group is a user group instead of being"
-" a system group, so purging wireshark-common did not remove it."
-msgstr "Dock är gruppen wireshark en användargrupp på detta system istället för en systemgrupp, så att rensa bort wireshark-common tog inte bort den."
+"However, on this system the wireshark group is a user group instead of being "
+"a system group, so purging wireshark-common did not remove it."
+msgstr ""
+"Dock är gruppen wireshark en användargrupp på detta system istället för en "
+"systemgrupp, så att rensa bort wireshark-common tog inte bort den."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid "If the group is no longer needed, please remove it manually."
 msgstr "Om gruppen inte behövs längre, ta då bort den manuellt."
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+#, fuzzy
+#| msgid "Should non-superusers be able to capture packets?"
+msgid "Should non-superusers be able to capture system calls?"
+msgstr "Ska icke-superanvändare kunna fånga paket?"
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+#, fuzzy
+#| msgid ""
+#| "Dumpcap can be installed in a way that allows members of the "
+#| "\"wireshark\" system group to capture packets. This is recommended over "
+#| "the alternative of running Wireshark/Tshark directly as root, because "
+#| "less of the code will run with elevated privileges."
+msgid ""
+"The falcodump external capture utility (extcap) can be installed in a way "
+"that allows members of the \"scap\" system group to capture system calls. "
+"This is recommended over the alternative of running Logray directly as root, "
+"because less of the code will run with elevated privileges."
+msgstr ""
+"Dumpcap kan installeras på ett sätt som tillåter medlemmar i systemgruppen "
+"\"wireshark\" att fånga paket. Detta rekommenderas framför alternativet, att "
+"köra Wireshark/Tshark direkt som root, eftersom en mindre del av koden "
+"kommer köras med utökade rättigheter."
+
+#. Type: error
+#. Description
+#: ../templates:8001
+#, fuzzy
+#| msgid "Creating the wireshark system group failed"
+msgid "Creating the \"scap\" system group failed"
+msgstr "Att skapa systemgruppen wireshark misslyckades"
+
+#. Type: error
+#. Description
+#: ../templates:8001
+#, fuzzy
+#| msgid ""
+#| "The wireshark group does not exist, and creating it failed, so Wireshark "
+#| "cannot be configured to capture traffic as an unprivileged user."
+msgid ""
+"The \"scap\" group does not exist, and creating it failed, so Logray cannot "
+"be configured to capture system calls as an unprivileged user."
+msgstr ""
+"Gruppen wireshark finns inte, och att skapa den misslyckades, så Wireshark "
+"kan inte konfigureras att fånga trafik som en opriviligierad användare."
+
+#. Type: error
+#. Description
+#: ../templates:8001
+#, fuzzy
+#| msgid ""
+#| "Please create the wireshark system group and try configuring wireshark-"
+#| "common again."
+msgid ""
+"Please create the \"scap\" system group and try configuring logray again."
+msgstr ""
+"Skapa systemgruppen wireshark och försök konfigurera wireshark-common igen."
+
+#. Type: error
+#. Description
+#: ../templates:9001
+#, fuzzy
+#| msgid "The wireshark group is a system group"
+msgid "The \"scap\" group is a system group"
+msgstr "Gruppen wireshark är en systemgrupp"
+
+#. Type: error
+#. Description
+#: ../templates:9001
+#, fuzzy
+#| msgid ""
+#| "The wireshark group exists as a user group, but the preferred "
+#| "configuration is for it to be created as a system group."
+msgid ""
+"The \"scap\" group exists as a user group, but the preferred configuration "
+"is for it to be created as a system group."
+msgstr ""
+"Gruppen wireshark finns som en användargrupp, men den rekommenderade "
+"konfigurationen är att den skapas som sen systemgrupp."
+
+#. Type: error
+#. Description
+#: ../templates:9001
+#, fuzzy
+#| msgid ""
+#| "As a result, purging wireshark-common will not remove the wireshark "
+#| "group, but everything else should work properly."
+msgid ""
+"As a result, purging logray will not remove the \"scap\" group, but "
+"everything else should work properly."
+msgstr ""
+"Som ett resultat kommer rensning av wireshark-common inte ta bort gruppen "
+"wireshark, men allt annat skall fungera normalt."
