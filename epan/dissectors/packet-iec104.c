@@ -667,7 +667,7 @@ static const range_string mal_types[] = {
 	{ 1,	1,	"HMAC SHA-1 truncated to 4 octets (serial)" },
 	{ 2,	2,	"HMAC SHA-1 truncated to 10 octets (networked)" },
 	{ 3,	3,	"HMAC-SHA-256 truncated to 8 octets (serial)" },
-	{ 4,	3,	"HMAC-SHA-256 truncated to 16 octets (networked)" },
+	{ 4,	4,	"HMAC-SHA-256 truncated to 16 octets (networked)" },
 	{ 128,	255,	"(vendor-specific choice)" },
 	{ 0, 0, NULL }
 };
@@ -700,7 +700,7 @@ static const range_string hal_types[] = {
 	{ 1,	1,	"HMAC SHA-1 truncated to 4 octets (serial)" },
 	{ 2,	2,	"HMAC SHA-1 truncated to 10 octets (networked)" },
 	{ 3,	3,	"HMAC-SHA-256 truncated to 8 octets (serial)" },
-	{ 4,	3,	"HMAC-SHA-256 truncated to 16 octets (networked)" },
+	{ 4,	4,	"HMAC-SHA-256 truncated to 16 octets (networked)" },
 	{ 128,	255,	"(vendor-specific choice)" },
 	{ 0, 0, NULL }
 };
