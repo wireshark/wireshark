@@ -3719,7 +3719,7 @@ void proto_reg_handoff_rlc_lte(void)
     ip_handle              = find_dissector_add_dependency("ip", proto_rlc_lte);
     lte_rrc_mcch           = find_dissector_add_dependency("lte_rrc.mcch", proto_rlc_lte);
     lte_rrc_ul_ccch        = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_rlc_lte);
-    lte_rrc_dl_ccch        = find_dissector_add_dependency("lte_rrc.dl_dcch", proto_rlc_lte);
+    lte_rrc_dl_ccch        = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_rlc_lte);
     lte_rrc_bcch_bch       = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_rlc_lte);
     lte_rrc_bcch_dl_sch    = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_rlc_lte);
     lte_rrc_pcch           = find_dissector_add_dependency("lte_rrc.pcch", proto_rlc_lte);
