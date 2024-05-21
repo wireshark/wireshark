@@ -2214,6 +2214,8 @@ static const value_string opcode_vals[] = {
     {0x1B, "Handle Value Notification"},
     {0x1D, "Handle Value Indication"},
     {0x1E, "Handle Value Confirmation"},
+    {0x20, "Read Multiple Variable Request"},
+    {0x21, "Read Multiple Variable Response"},
     {0x52, "Write Command"},
     {0xD2, "Signed Write Command"},
     {0x0, NULL}
@@ -4295,6 +4297,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
       case 0x13: /* Write Response */
       case 0x17: /* Prepare Write Response */
       case 0x19: /* Execute Write Response */
+      case 0x21: /* Read Multiple Variable Response */
       case 0x1E: /* Handle Value Confirmation */
           if (request_data->opcode == opcode - 1)
               return request_data;
@@ -4328,6 +4331,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     case 0x13: /* Write Response */
     case 0x17: /* Prepare Write Response */
     case 0x19: /* Execute Write Response */
+    case 0x21: /* Read Multiple Variable Response */
     case 0x1E: /* Handle Value Confirmation */
         if (request_data->opcode == opcode -1)
             return request_data;
@@ -4350,6 +4354,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     case 0x16: /* Prepare Write Request */
     case 0x18: /* Execute Write Request */
     case 0x1D: /* Handle Value Indication */
+    case 0x20: /* Read Multiple Variable Request */
         /* This should never happen */
     default:
         return NULL;
@@ -11317,6 +11322,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x0e: /* Multiple Read Request */
+    case 0x20: /* Read Multiple Variable Request */
         if(tvb_reported_length_remaining(tvb, offset) < 4) {
             expert_add_info(pinfo, main_item, &ei_btatt_handle_too_few);
             break;
@@ -11343,12 +11349,37 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x0f: /* Multiple Read Response */
+    case 0x21: /* Read Multiple Variable Response */
         if (request_data && request_data->opcode == (opcode - 1)) {
             guint  i_handle;
 
-            for (i_handle = 0; i_handle < request_data->parameters.read_multiple.number_of_handles; i_handle += 1) {
-                dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, request_data->parameters.read_multiple.handle[i_handle], opcode);
-                offset = dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), request_data->parameters.read_multiple.handle[i_handle], uuid, &att_data);
+            if (opcode == 0x0f) {
+                for (i_handle = 0; i_handle < request_data->parameters.read_multiple.number_of_handles; i_handle += 1) {
+                    dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, request_data->parameters.read_multiple.handle[i_handle], opcode);
+                    offset = dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), request_data->parameters.read_multiple.handle[i_handle], uuid, &att_data);
+                }
+            } else {
+                i_handle = 0;
+                /* Read Multiple Variable Response */
+                for (;;) {
+                    gint remain = tvb_reported_length_remaining(tvb, offset);
+                    guint16 length;
+                    if (remain < 2)
+                        break;
+                    length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    offset+=2;
+                    if (length <= 0)
+                        continue;
+                    remain-=2;
+                    if (remain < length)
+                        break;
+
+                    dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, request_data->parameters.read_multiple.handle[i_handle], opcode);
+                    dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, length, request_data->parameters.read_multiple.handle[i_handle], uuid, &att_data);
+
+                    i_handle++;
+                    offset += length;
+                }
             }
         } else {
             proto_tree_add_item(main_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
