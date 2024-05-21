@@ -887,6 +887,7 @@ class Item:
         self.hf = hf
         self.filter = filter
         self.label = label
+        self.blurb = blurb
         self.mask = mask
         self.strings = strings
         self.mask_exact_width = mask_exact_width
@@ -925,6 +926,7 @@ class Item:
         if check_label:
             self.check_label(label, 'label')
             #self.check_label(blurb, 'blurb')
+            self.check_blurb_vs_label()
 
         # Optionally check that mask bits are contiguous
         if check_mask:
@@ -994,6 +996,34 @@ class Item:
         if self.item_type != 'FT_NONE' and label.endswith(':'):
             print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'ends with an unnecessary colon')
             warnings_found += 1
+
+    def check_blurb_vs_label(self):
+        global warnings_found
+        if self.blurb == "NULL":
+            return
+
+        # Is the label longer than the blurb?
+        # Generated dissectors tend to write the type into the blurb field...
+        #if len(self.label) > len(self.blurb):
+        #    print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- label longer than blurb!!!")
+
+        # Is the blurb just the label in a different order?
+        label_words = self.label.lower().split(' ')
+        label_words.sort()
+        blurb_words = self.blurb.lower().split(' ')
+        blurb_words.sort()
+
+        # Subset - often happens when part specific to that field is dropped
+        if set(label_words) > set(blurb_words):
+            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- words in blurb is subset of label!!!")
+            warnings_found += 1
+
+        # Just a re-ordering (but may also contain capitalization changes.)
+        if blurb_words == label_words:
+            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- Blurb is just label re-ordered!!!")
+            warnings_found += 1
+
+        # TODO: could have item know protocol name(s) from file this item was found in, and complain if blurb is just prot-name + label ?
 
 
     def set_mask_value(self, macros):

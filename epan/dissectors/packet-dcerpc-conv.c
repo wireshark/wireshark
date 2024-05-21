@@ -171,7 +171,7 @@ proto_register_conv (void)
 	{ &hf_conv_who_are_you2_resp_seq,
 	    {"Sequence Number", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_conv_who_are_you2_resp_casuuid,
-	    {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }}
+	    {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -7906,7 +7906,7 @@ proto_register_acn(void)
     { &hf_acn_reciprocal_channel,
       { "Reciprocal Channel Number", "acn.reciprocal_channel",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-        "Reciprocal Channel", HFILL }
+        NULL, HFILL }
     },
     /* Refuse Code */
     { &hf_acn_refuse_code,

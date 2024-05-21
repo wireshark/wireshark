@@ -19549,7 +19549,7 @@ proto_register_netflow(void)
         {&hf_pie_ixia_udpAppResponseTime,
          {"UDP Average Application Response Time (us)", "cflow.pie.ixia.udpAppResponseTime",
          FT_UINT32, BASE_DEC, NULL, 0x0,
-         "Average UDP Application Response Time (us)", HFILL}
+         NULL, HFILL}
         },
 
         /* ixia, 3054 / 285 */

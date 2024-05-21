@@ -497,7 +497,7 @@ proto_register_btmesh_proxy(void)
         { &hf_btmesh_proxy_fragments,
             { "Reassembled Proxy Payload Fragments", "btmproxy.fragments",
                 FT_NONE, BASE_NONE, NULL, 0x0,
-                "Proxy Payload Fragments", HFILL }
+                NULL, HFILL }
         },
         { &hf_btmesh_proxy_fragment,
             { "Proxy Payload Fragment", "btmproxy.fragment",

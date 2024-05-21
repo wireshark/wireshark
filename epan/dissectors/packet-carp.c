@@ -166,17 +166,17 @@ void proto_register_carp(void)
         { &hf_carp_ver_type,
           {"CARP message version and type", "carp.typever",
            FT_UINT8, BASE_DEC, NULL, 0x0,
-           "CARP version and type", HFILL }},
+           NULL, HFILL }},
 
         { &hf_carp_version,
           {"CARP protocol version", "carp.version",
            FT_UINT8, BASE_DEC, NULL, CARP_VERSION_MASK,
-           "CARP version", HFILL }},
+           NULL, HFILL }},
 
         { &hf_carp_type,
           {"CARP packet type", "carp.type",
            FT_UINT8, BASE_DEC, VALS(carp_type_vals), CARP_TYPE_MASK,
-           "CARP type", HFILL }},
+           NULL, HFILL }},
 
         { &hf_carp_vhid,
           {"Virtual Host ID", "carp.vhid",

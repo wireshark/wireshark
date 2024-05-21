@@ -459,7 +459,7 @@ proto_register_btmesh_pbadv(void)
         { &hf_btmesh_gpp_fragments,
             { "Reassembled Generic Provisioning Payload Fragments", "pbadv.gen_prov.gpp.fragments",
                 FT_NONE, BASE_NONE, NULL, 0x0,
-                "Generic Provisioning Payload Fragments", HFILL }
+                NULL, HFILL }
         },
         { &hf_btmesh_gpp_fragment,
             { "Generic Provisioning Payload Fragment", "pbadv.gen_prov.gpp.fragment",

@@ -160,7 +160,7 @@ proto_register_bootparams(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_bootparams_hostaddr, {
 			"Client Address", "bootparams.hostaddr", FT_IPv4, BASE_NONE,
-			NULL, 0, "Address", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_bootparams_routeraddr, {
 			"Router Address", "bootparams.routeraddr", FT_IPv4, BASE_NONE,
 			NULL, 0, NULL, HFILL }},

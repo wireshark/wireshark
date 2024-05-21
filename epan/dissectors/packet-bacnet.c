@@ -1272,13 +1272,13 @@ proto_register_bacnet(void)
 			{ "Termination Time Value (seconds)",
 			"bacnet.term_time_value",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Termination Time Value", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_netno_status,
 			{ "Network number status (enumerated)",
 			"bacnet.netno_status",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Network number status", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_wrapper_control,
 			{ "Wrapper control",

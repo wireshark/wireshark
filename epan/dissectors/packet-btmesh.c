@@ -8721,7 +8721,7 @@ proto_register_btmesh(void)
         { &hf_btmesh_segmented_access_fragments,
             { "Reassembled Segmented Access Message Fragments", "btmesh.segmented.access.fragments",
                 FT_NONE, BASE_NONE, NULL, 0x0,
-                "Segmented Access Message Fragments", HFILL }
+                NULL, HFILL }
         },
         { &hf_btmesh_segmented_access_fragment,
             { "Segmented Access Message Fragment", "btmesh.segmented.access.fragment",

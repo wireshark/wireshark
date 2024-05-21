@@ -1515,7 +1515,7 @@ proto_register_canopen(void)
         { &hf_canopen_sdo_cmd_toggle,
           { "Toggle bit", "canopen.sdo.toggle",
             FT_UINT8, BASE_DEC, NULL, 0x10,
-            "toggle", HFILL }},
+            NULL, HFILL }},
         { &hf_canopen_sdo_cmd_updown_n,
           { "Non-data bytes", "canopen.sdo.n",
             FT_UINT8, BASE_DEC, NULL, 0x0E,

@@ -83,7 +83,7 @@ proto_register_cimetrics(void)
 		{ &hf_cimetrics_mstp_value,
 		  { "8-bit value", "cimetrics.mstp_value",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "value", HFILL }
+		    NULL, HFILL }
 		}
 	};
 	static hf_register_info hf2[] = {

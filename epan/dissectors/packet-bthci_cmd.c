@@ -6972,12 +6972,12 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_transmit_bandwidth,
           {"Tx Bandwidth (bytes/s)", "bthci_cmd.tx_bandwidth",
            FT_UINT32, BASE_DEC, NULL, 0x0,
-           "Tx Bandwidth", HFILL}
+           NULL, HFILL}
         },
         { &hf_bthci_cmd_receive_bandwidth,
           {"Rx Bandwidth (bytes/s)", "bthci_cmd.rx_bandwidth",
            FT_UINT32, BASE_DEC, NULL, 0x0,
-           "Rx Bandwidth", HFILL}
+           NULL, HFILL}
         },
         { &hf_bthci_cmd_max_latency_ms,
           {"Max. Latency (ms)", "bthci_cmd.max_latency_ms",

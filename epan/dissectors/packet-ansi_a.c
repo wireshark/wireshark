@@ -10838,7 +10838,7 @@ proto_register_ansi_a(void)
         { &hf_ansi_a_pdsn_ip_addr,
             { "PDSN IP Address", "ansi_a_bsmap.pdsn_ip_addr",
             FT_IPv4, BASE_NONE, NULL, 0,
-            "IP Address", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_s_pdsn_ip_addr,
             { "Source PDSN Address", "ansi_a_bsmap.s_pdsn_ip_addr",

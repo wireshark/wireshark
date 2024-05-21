@@ -1006,12 +1006,12 @@ proto_register_btrfcomm(void)
         { &hf_mcc_cmd,
           { "MCC Command Type", "btrfcomm.mcc.cmd",
             FT_UINT8, BASE_HEX, VALS(vs_ctl), 0xFC,
-            "Command Type", HFILL}
+            NULL, HFILL}
         },
         { &hf_frame_type,
           { "Frame type", "btrfcomm.frame_type",
             FT_UINT8, BASE_HEX, VALS(vs_frame_type), 0xEF,
-            "Command/Response flag", HFILL}
+            NULL, HFILL}
         },
         { &hf_acknowledgement_timer_t1,
           { "Acknowledgement Timer T1", "btrfcomm.acknowledgement_timer_t1",
@@ -1057,27 +1057,27 @@ proto_register_btrfcomm(void)
         { &hf_msc_fc,
           { "Flow Control (FC)", "btrfcomm.msc.fc",
             FT_UINT8, BASE_HEX, NULL, 0x02,
-            "Flow Control", HFILL}
+            NULL, HFILL}
         },
         { &hf_msc_rtc,
           { "Ready To Communicate (RTC)", "btrfcomm.msc.rtc",
             FT_UINT8, BASE_HEX, NULL, 0x04,
-            "Ready To Communicate", HFILL}
+            NULL, HFILL}
         },
         { &hf_msc_rtr,
           { "Ready To Receive (RTR)", "btrfcomm.msc.rtr",
             FT_UINT8, BASE_HEX, NULL, 0x08,
-            "Ready To Receive", HFILL}
+            NULL, HFILL}
         },
         { &hf_msc_ic,
           { "Incoming Call Indicator (IC)", "btrfcomm.msc.ic",
             FT_UINT8, BASE_HEX, NULL, 0x40,
-            "Incoming Call Indicator", HFILL}
+            NULL, HFILL}
         },
         { &hf_msc_dv,
           { "Data Valid (DV)", "btrfcomm.msc.dv",
             FT_UINT8, BASE_HEX, NULL, 0x80,
-            "Data Valid", HFILL}
+            NULL, HFILL}
         },
         { &hf_msc_l,
           { "Length of break in units of 200ms", "btrfcomm.msc.bl",

@@ -8756,7 +8756,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_n1_pucch_an,
 			{ "N1 PUCCH AN", "nfapi.n1.pucch.an",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"N1 PUCCH", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nfapi_bandwidth_configuration,
 			{ "Bandwidth configuration", "nfapi.bw.configuration",
@@ -8841,7 +8841,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_prach_cat_m_root_sequence_index,
 			{ "PRACH CAT-M Root sequence Index", "nfapi.prach.cat_m.root.sequence.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"PRACH Root sequence Index", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nfapi_prach_cat_m_zero_correlation_zone_configuration,
 			{ "PRACH CAT-M Zero correlation zone configuration", "nfapi.prach.cat_m.zero.correlation.zone.configuration",
@@ -9800,7 +9800,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_epdcch_prb_index,
 			{ "EPDCCH PRB Index", "nfapi.epdcch.prb.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"PRB Index", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nfapi_epdcch_resource_assignment_flag,
 			{ "EPDCCH Resource assignment flag", "nfapi.epdcch.resource.assignment.flag",

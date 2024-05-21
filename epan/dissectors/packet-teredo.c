@@ -349,7 +349,7 @@ proto_register_teredo(void)
 		{ &hf_teredo_orig,
 		{ "Teredo Origin Indication header", "teredo.orig",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
-		  "Teredo Origin Indication", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_teredo_orig_port,
 		{ "Origin UDP port", "teredo.orig.port",
