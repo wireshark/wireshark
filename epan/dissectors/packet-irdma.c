@@ -826,7 +826,7 @@ dissect_irdmaep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     /* Find or create conversation for this packet */
     conv = find_conversation(pinfo->num, &group_addr, &group_addr,
-                             ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
+                             CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
 
     /* If first time through the packets and conversation exists but message
        is a CONNREQ, check if we really should be starting a new conversation
@@ -844,7 +844,7 @@ dissect_irdmaep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if (!conv)
         {
         conv = conversation_new(pinfo->num, &group_addr, &group_addr,
-                                ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
+                                CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
         epd = init_irdmaep_conversation_data(pinfo);
         conversation_add_proto_data(conv, proto_irdmaep, epd);
         }

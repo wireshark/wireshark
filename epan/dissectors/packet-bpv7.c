@@ -2214,7 +2214,7 @@ static tap_packet_status bp_conv_packet(void *pct, packet_info *pinfo, epan_diss
         0, 0,
         1, pinfo->fd->pkt_len,
         &pinfo->rel_ts, &pinfo->abs_ts,
-        &bp_ct_dissector_info, ENDPOINT_NONE
+        &bp_ct_dissector_info, CONVERSATION_NONE
     );
 
     return TAP_PACKET_REDRAW;

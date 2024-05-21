@@ -1458,7 +1458,7 @@ ltp_conv_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	copy_address_shallow(othaddr, &ltp_addr_receiver);
 
 	add_conversation_table_data(hash, src, dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-			&ltp_ct_dissector_info, ENDPOINT_NONE);
+			&ltp_ct_dissector_info, CONVERSATION_NONE);
 
 	return TAP_PACKET_REDRAW;
 }
