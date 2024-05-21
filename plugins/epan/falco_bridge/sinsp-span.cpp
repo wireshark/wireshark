@@ -21,6 +21,7 @@
 #include <epan/dfilter/dfilter-translator.h>
 #include <epan/wmem_scopes.h>
 
+#include <wsutil/array.h>
 #include <wsutil/unicode-utils.h>
 
 #ifdef _MSC_VER
