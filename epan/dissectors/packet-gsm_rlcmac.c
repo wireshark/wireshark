@@ -2255,7 +2255,7 @@ CSN_ChoiceElement_t IA_EGPRS_Choice[] =
 static const
 CSN_DESCR_BEGIN(IA_EGPRS_t)
   M_UINT       (IA_EGPRS_t,  UnionType,  1, &hf_ia_egprs_uniontype ),
-  M_CHOICE     (IA_EGPRS_t, UnionType, IA_EGPRS_Choice, ElementsOf(IA_EGPRS_Choice)),
+  M_CHOICE     (IA_EGPRS_t, UnionType, IA_EGPRS_Choice, array_length(IA_EGPRS_Choice)),
 CSN_DESCR_END  (IA_EGPRS_t)
 
 static const
@@ -2411,7 +2411,7 @@ CSN_ChoiceElement_t PacketPollingID[] =
 
 static const
 CSN_DESCR_BEGIN(PacketPollingID_t)
-  M_CHOICE     (PacketPollingID_t, UnionType, PacketPollingID, ElementsOf(PacketPollingID), &hf_packet_polling_id_choice),
+  M_CHOICE     (PacketPollingID_t, UnionType, PacketPollingID, array_length(PacketPollingID), &hf_packet_polling_id_choice),
 CSN_DESCR_END  (PacketPollingID_t)
 
 static const
@@ -2493,7 +2493,7 @@ CSN_DESCR_BEGIN(PBCCH_Description_t)/*SI13*/
   M_UINT       (PBCCH_Description_t,  TSC, 3, &hf_tsc),
   M_UINT       (PBCCH_Description_t,  TN,  3, &hf_pbcch_description_tn),
 
-  M_CHOICE     (PBCCH_Description_t, UnionType, SI13_PBCCH_Description_Channel, ElementsOf(SI13_PBCCH_Description_Channel), &hf_pbcch_description_choice),
+  M_CHOICE     (PBCCH_Description_t, UnionType, SI13_PBCCH_Description_Channel, array_length(SI13_PBCCH_Description_Channel), &hf_pbcch_description_choice),
 CSN_DESCR_END  (PBCCH_Description_t)
 
 static const
@@ -2811,7 +2811,7 @@ CSN_ChoiceElement_t MS_RA_capability_value_Choice[] =
 
 static const
 CSN_DESCR_BEGIN(MS_RA_capability_value_t)
-  M_CHOICE     (MS_RA_capability_value_t, IndexOfAccTech, MS_RA_capability_value_Choice, ElementsOf(MS_RA_capability_value_Choice), &hf_ms_ra_capability_value_choice),
+  M_CHOICE     (MS_RA_capability_value_t, IndexOfAccTech, MS_RA_capability_value_Choice, array_length(MS_RA_capability_value_Choice), &hf_ms_ra_capability_value_choice),
 CSN_DESCR_END  (MS_RA_capability_value_t)
 
 /*
@@ -2859,7 +2859,7 @@ CSN_ChoiceElement_t MultibandChoice[] =
 #if 0
 static const
 CSN_DESCR_BEGIN(Multiband_t)
-  M_CHOICE     (Multiband_t, Multiband, MultibandChoice, ElementsOf(MultibandChoice)),
+  M_CHOICE     (Multiband_t, Multiband, MultibandChoice, array_length(MultibandChoice)),
 CSN_DESCR_END  (Multiband_t)
 #endif
 
@@ -2985,7 +2985,7 @@ CSN_ChoiceElement_t PacketResourceRequestID[] =
 
 static const
 CSN_DESCR_BEGIN(PacketResourceRequestID_t)
-  M_CHOICE     (PacketResourceRequestID_t, UnionType, PacketResourceRequestID, ElementsOf(PacketResourceRequestID), &hf_packet_resource_request_id_choice),
+  M_CHOICE     (PacketResourceRequestID_t, UnionType, PacketResourceRequestID, array_length(PacketResourceRequestID), &hf_packet_resource_request_id_choice),
 CSN_DESCR_END  (PacketResourceRequestID_t)
 
 static const
@@ -3856,7 +3856,7 @@ CSN_ChoiceElement_t PacketUplinkID[] =
 
 static const
 CSN_DESCR_BEGIN(PacketUplinkID_t)
-  M_CHOICE     (PacketUplinkID_t, UnionType, PacketUplinkID, ElementsOf(PacketUplinkID), &hf_packet_uplink_id_choice),
+  M_CHOICE     (PacketUplinkID_t, UnionType, PacketUplinkID, array_length(PacketUplinkID), &hf_packet_uplink_id_choice),
 CSN_DESCR_END  (PacketUplinkID_t)
 
 static const
@@ -3988,7 +3988,7 @@ CSN_ChoiceElement_t PacketDownlinkID[] =
 
 static const
 CSN_DESCR_BEGIN(PacketDownlinkID_t)
-  M_CHOICE     (PacketDownlinkID_t, UnionType, PacketDownlinkID, ElementsOf(PacketDownlinkID), &hf_packet_downlink_id_choice),
+  M_CHOICE     (PacketDownlinkID_t, UnionType, PacketDownlinkID, array_length(PacketDownlinkID), &hf_packet_downlink_id_choice),
 CSN_DESCR_END  (PacketDownlinkID_t)
 
 static const
@@ -4134,7 +4134,7 @@ CSN_DESCR_END         (PUAN_Fixed_Uplink_Allocation_t)
 
 static const
 CSN_DESCR_BEGIN       (EC_Packet_Uplink_Ack_Nack_fai0_t)
-  M_CHOICE_IL         (EC_Packet_Uplink_Ack_Nack_fai0_t, EC_AckNack_Description_Type, EC_AckNack_Description_Type_Dependent_Contents, ElementsOf(EC_AckNack_Description_Type_Dependent_Contents), &hf_ec_acknack_description),
+  M_CHOICE_IL         (EC_Packet_Uplink_Ack_Nack_fai0_t, EC_AckNack_Description_Type, EC_AckNack_Description_Type_Dependent_Contents, array_length(EC_AckNack_Description_Type_Dependent_Contents), &hf_ec_acknack_description),
 
   M_TYPE              (EC_Packet_Uplink_Ack_Nack_fai0_t, PUAN_Fixed_Uplink_Allocation, PUAN_Fixed_Uplink_Allocation_t),
   M_UINT              (EC_Packet_Uplink_Ack_Nack_fai0_t, RESEGMENT, 1, &hf_resegment),
@@ -4176,7 +4176,7 @@ CSN_DESCR_BEGIN       (EC_Packet_Uplink_Ack_Nack_t)
   M_UINT              (EC_Packet_Uplink_Ack_Nack_t, USED_DL_COVERAGE_CLASS, 2, &hf_used_dl_coverage_class),
   M_UINT              (EC_Packet_Uplink_Ack_Nack_t, UPLINK_TFI, 5, &hf_uplink_tfi),
 
-  M_CHOICE_IL         (EC_Packet_Uplink_Ack_Nack_t, Final_Ack_Indicator, PUAN_FAI_Value_Dependent_Contents, ElementsOf(PUAN_FAI_Value_Dependent_Contents), &hf_final_ack_indication),
+  M_CHOICE_IL         (EC_Packet_Uplink_Ack_Nack_t, Final_Ack_Indicator, PUAN_FAI_Value_Dependent_Contents, array_length(PUAN_FAI_Value_Dependent_Contents), &hf_final_ack_indication),
 
   M_NEXT_EXIST        (EC_Packet_Uplink_Ack_Nack_t, Exist_EC_Packet_Timing_Advance, 1, &hf_ec_packet_timing_advance_exist),
   M_TYPE              (EC_Packet_Uplink_Ack_Nack_t, EC_Packet_Timing_Advance, EC_Packet_Timing_Advance_t),
@@ -4365,7 +4365,7 @@ CSN_DESCR_BEGIN       (EC_Packet_Downlink_Ack_Nack_t)
   M_UINT              (EC_Packet_Downlink_Ack_Nack_t, MESSAGE_TYPE, 5, &hf_ec_ul_message_type),
   M_UINT              (EC_Packet_Downlink_Ack_Nack_t, DOWNLINK_TFI, 5, &hf_downlink_tfi),
   M_UINT              (EC_Packet_Downlink_Ack_Nack_t, MS_OUT_OF_MEMORY, 1, &hf_egprs_pd_acknack_ms_out_of_memory),
-  M_CHOICE_IL         (EC_Packet_Downlink_Ack_Nack_t, Final_Ack_Indicator, PDAN_FAI_Value_Dependent_Contents, ElementsOf(PDAN_FAI_Value_Dependent_Contents), &hf_final_ack_indication),
+  M_CHOICE_IL         (EC_Packet_Downlink_Ack_Nack_t, Final_Ack_Indicator, PDAN_FAI_Value_Dependent_Contents, array_length(PDAN_FAI_Value_Dependent_Contents), &hf_final_ack_indication),
 
   M_NEXT_EXIST        (EC_Packet_Downlink_Ack_Nack_t, Exist_EC_Channel_Quality_Report, 2, &hf_ec_channel_quality_report_exist),
   M_TYPE              (EC_Packet_Downlink_Ack_Nack_t, EC_Channel_Quality_Report, EC_Channel_Quality_Report_t),
@@ -4587,7 +4587,7 @@ CSN_ChoiceElement_t PacketPowerControlTimingAdvanceID[] =
 
 static const
 CSN_DESCR_BEGIN(PacketPowerControlTimingAdvanceID_t)
-  M_CHOICE     (PacketPowerControlTimingAdvanceID_t, UnionType, PacketPowerControlTimingAdvanceID, ElementsOf(PacketPowerControlTimingAdvanceID), &hf_ppc_timing_advance_id_choice),
+  M_CHOICE     (PacketPowerControlTimingAdvanceID_t, UnionType, PacketPowerControlTimingAdvanceID, array_length(PacketPowerControlTimingAdvanceID), &hf_ppc_timing_advance_id_choice),
 CSN_DESCR_END  (PacketPowerControlTimingAdvanceID_t)
 
 static const
@@ -4887,7 +4887,7 @@ CSN_ChoiceElement_t RejectID[] =
 
 static const
 CSN_DESCR_BEGIN(RejectID_t)
-  M_CHOICE     (RejectID_t, UnionType, RejectID, ElementsOf(RejectID), &hf_reject_id_choice),
+  M_CHOICE     (RejectID_t, UnionType, RejectID, array_length(RejectID), &hf_reject_id_choice),
 CSN_DESCR_END  (RejectID_t)
 
 static const
@@ -4919,7 +4919,7 @@ CSN_ChoiceElement_t PacketCellChangeOrderID[] =
 
 static const
 CSN_DESCR_BEGIN(PacketCellChangeOrderID_t)
-  M_CHOICE     (PacketCellChangeOrderID_t, UnionType, PacketCellChangeOrderID, ElementsOf(PacketCellChangeOrderID), &hf_packet_cell_change_order_id_choice),
+  M_CHOICE     (PacketCellChangeOrderID_t, UnionType, PacketCellChangeOrderID, array_length(PacketCellChangeOrderID), &hf_packet_cell_change_order_id_choice),
 CSN_DESCR_END  (PacketCellChangeOrderID_t)
 
 #if 0
@@ -6537,7 +6537,7 @@ CSN_ChoiceElement_t PNCDContainer[] =
 
 static const
 CSN_DESCR_BEGIN(PNCDContainer_t)
-  M_CHOICE     (PNCDContainer_t, UnionType, PNCDContainer, ElementsOf(PNCDContainer), &hf_pncd_container_choice),
+  M_CHOICE     (PNCDContainer_t, UnionType, PNCDContainer, array_length(PNCDContainer), &hf_pncd_container_choice),
 CSN_DESCR_END  (PNCDContainer_t)
 
 static const
@@ -6898,7 +6898,7 @@ CSN_ChoiceElement_t AdditionalMsRadAccessCapID[] =
 
 static const
 CSN_DESCR_BEGIN(AdditionalMsRadAccessCapID_t)
-  M_CHOICE     (AdditionalMsRadAccessCapID_t, UnionType, AdditionalMsRadAccessCapID, ElementsOf(AdditionalMsRadAccessCapID), &hf_additional_ms_rad_access_cap_id_choice),
+  M_CHOICE     (AdditionalMsRadAccessCapID_t, UnionType, AdditionalMsRadAccessCapID, array_length(AdditionalMsRadAccessCapID), &hf_additional_ms_rad_access_cap_id_choice),
 CSN_DESCR_END  (AdditionalMsRadAccessCapID_t)
 
 
@@ -7474,7 +7474,7 @@ static const MT_Strings_t szMT_Uplink[] = {
 static const char*
 MT_DL_TextGet(guint8 mt)
 {
-  if (mt < ElementsOf(szMT_Downlink))
+  if (mt < array_length(szMT_Downlink))
   {
     return szMT_Downlink[mt];
   }
@@ -7487,7 +7487,7 @@ MT_DL_TextGet(guint8 mt)
 static const char*
 MT_UL_TextGet(guint8 mt)
 {
-  if (mt < ElementsOf(szMT_Uplink))
+  if (mt < array_length(szMT_Uplink))
   {
     return szMT_Uplink[mt];
   }

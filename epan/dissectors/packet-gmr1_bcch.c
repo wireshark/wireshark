@@ -912,7 +912,7 @@ static const
 CSN_DESCR_BEGIN(SystemInformation1_t)
   M_TYPE_LABEL (SystemInformation1_t, Block_Header, SI1_Block_Header_t, "Block Header"),
   M_TYPE_LABEL (SystemInformation1_t, Segment1A, Segment1A_t, "Segment 1A"),
-  M_CHOICE_IL  (SystemInformation1_t, SegmentType, SI1_SegmentChoice, ElementsOf(SI1_SegmentChoice), &hf_si1_segment_choice),
+  M_CHOICE_IL  (SystemInformation1_t, SegmentType, SI1_SegmentChoice, array_length(SI1_SegmentChoice), &hf_si1_segment_choice),
 CSN_DESCR_END  (SystemInformation1_t)
 
 	/* System Information type 2 - [1] 10.1.32 */
@@ -938,7 +938,7 @@ CSN_ChoiceElement_t SI2_SegmentChoice[] =
 static const
 CSN_DESCR_BEGIN(SystemInformation2_t)
   M_TYPE_LABEL (SystemInformation2_t, Block_Header, SI2_Block_Header_t, "Block Header"),
-  M_CHOICE_IL  (SystemInformation2_t, SegmentType, SI2_SegmentChoice, ElementsOf(SI2_SegmentChoice), &hf_si1_segment_choice),
+  M_CHOICE_IL  (SystemInformation2_t, SegmentType, SI2_SegmentChoice, array_length(SI2_SegmentChoice), &hf_si1_segment_choice),
 CSN_DESCR_END  (SystemInformation2_t)
 
 
