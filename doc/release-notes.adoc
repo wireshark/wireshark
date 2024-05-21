@@ -256,6 +256,8 @@ The following features are new (or have been significantly updated) since versio
   ** When Time of Day is selected on the graph, the absolute time is
      copied to the CSV instead of relative time. wsbuglink:13717[]
 
+  ** The graphs can be reordered via drag and drop. wsbuglink:13855[]
+
   ** The graph layer order and order in the legend always matches the
      order in the table, and the legend appears properly. wsbuglink:13854[]
 

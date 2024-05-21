@@ -70,10 +70,6 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |
             QAbstractItemView::CurrentChanged | QAbstractItemView::AnyKeyPressed);
 
-    // Need to add uat_move or uat_insert to the UAT API.
-    ui->uatTreeView->setDragEnabled(false);
-//    qDebug() << "FIX Add drag reordering to UAT dialog";
-
     // Do NOT start editing the first column for the first item
     ui->uatTreeView->setCurrentIndex(QModelIndex());
 }

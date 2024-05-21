@@ -72,7 +72,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="TabnavTreeView" name="graphUat">
+     <widget class="RowMoveTreeView" name="graphUat">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -520,9 +520,9 @@
    <header>widgets/elided_label.h</header>
   </customwidget>
   <customwidget>
-   <class>TabnavTreeView</class>
+   <class>RowMoveTreeView</class>
    <extends>QTreeView</extends>
-   <header>widgets/tabnav_tree_view.h</header>
+   <header>widgets/rowmove_tree_view.h</header>
   </customwidget>
   <customwidget>
    <class>ResizeHeaderView</class>

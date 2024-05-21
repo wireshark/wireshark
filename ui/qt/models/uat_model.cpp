@@ -114,17 +114,19 @@ bool UatModel::revertChanges(QString &error)
 
 Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
 {
+    Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+    flags |= Qt::ItemIsDropEnabled;
+
     if (!index.isValid())
-        return Qt::ItemFlags();
+        return flags;
 
     uat_field_t *field = &uat_->fields[index.column()];
 
-    Qt::ItemFlags flags = QAbstractTableModel::flags(index);
     if (field->mode == PT_TXTMOD_BOOL)
     {
         flags |= Qt::ItemIsUserCheckable;
     }
-    flags |= Qt::ItemIsEditable;
+    flags |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
     return flags;
 }
 
@@ -507,20 +509,52 @@ QModelIndex UatModel::copyRow(QModelIndex original)
     return index(newRow, 0, QModelIndex());
 }
 
-bool UatModel::moveRow(int src_row, int dst_row)
+bool UatModel::moveRowPrivate(int src_row, int dst_row)
 {
-    if (src_row < 0 || src_row >= rowCount() || dst_row < 0 || dst_row >= rowCount())
-        return false;
+    if (src_row == dst_row)
+        return true;
 
-    int dst = src_row < dst_row ? dst_row + 1 : dst_row;
-
-    beginMoveRows(QModelIndex(), src_row, src_row, QModelIndex(), dst);
     uat_move_index(uat_, src_row, dst_row);
     record_errors.move(src_row, dst_row);
     dirty_records.move(src_row, dst_row);
     uat_->changed = true;
-    endMoveRows();
 
+    return true;
+}
+
+bool UatModel::moveRow(int src_row, int dst_row)
+{
+    return moveRows(QModelIndex(), src_row, 1, QModelIndex(), dst_row);
+}
+
+bool UatModel::moveRows(const QModelIndex &, int sourceRow, int count, const QModelIndex &, int destinationChild)
+{
+    if (sourceRow < 0 || sourceRow >= rowCount() || destinationChild < 0 || destinationChild >= rowCount() || count < 0)
+        return false;
+
+    if (count == 0)
+        return true;
+
+    // beginMoveRows checks this
+    if (sourceRow <= destinationChild && destinationChild <= sourceRow + count - 1)
+        return false;
+
+    if (destinationChild < sourceRow) {
+        if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(), destinationChild)) {
+            return false;
+        }
+        for (int i = 0; i < count; i++) {
+            moveRowPrivate(sourceRow + i, destinationChild + i);
+        }
+    } else {
+        if (!beginMoveRows(QModelIndex(), sourceRow, sourceRow + count - 1, QModelIndex(), destinationChild + 1)) {
+            return false;
+        }
+        for (int i = 0; i < count; i++) {
+            moveRowPrivate(sourceRow, destinationChild);
+        }
+    }
+    endMoveRows();
     return true;
 }
 
@@ -575,4 +609,21 @@ QList<int> UatModel::checkRow(int row)
         }
     }
     return changed;
+}
+
+Qt::DropActions UatModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+bool UatModel::dropMimeData(const QMimeData *, Qt::DropAction, int, int, const QModelIndex &)
+{
+    // We could implement MimeData using uat_fld_tostr (or a new function
+    // that just gives the entire string) although it would be nice for
+    // uat_load_str to be able to load at a specified index, or else have
+    // a function to produce a UAT record from a string. Or we could use
+    // something else. However, for now we really just want internal moves.
+    // Supporting drop actions and rejecting drops still allows our row
+    // moving view's InternalMove to work.
+    return false;
 }

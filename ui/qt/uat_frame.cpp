@@ -63,8 +63,6 @@ UatFrame::UatFrame(QWidget *parent) :
     // start editing as soon as the field is selected or when typing starts
     ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |
             QAbstractItemView::CurrentChanged | QAbstractItemView::AnyKeyPressed);
-
-    // XXX - Need to add uat_move or uat_insert to the UAT API for drag/drop
 }
 
 UatFrame::~UatFrame()

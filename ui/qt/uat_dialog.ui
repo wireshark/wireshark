@@ -12,7 +12,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="TabnavTreeView" name="uatTreeView"/>
+    <widget class="RowMoveTreeView" name="uatTreeView"/>
    </item>
    <item>
     <widget class="QLabel" name="hintLabel">
@@ -144,9 +144,9 @@
    <header>widgets/elided_label.h</header>
   </customwidget>
   <customwidget>
-   <class>TabnavTreeView</class>
+   <class>RowMoveTreeView</class>
    <extends>QTreeView</extends>
-   <header>widgets/tabnav_tree_view.h</header>
+   <header>widgets/rowmove_tree_view.h</header>
   </customwidget>
   <customwidget>
    <class>StockIconToolButton</class>

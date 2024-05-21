@@ -1573,7 +1573,7 @@ void IOGraphDialog::modelRowsMoved(const QModelIndex &source, int sourceStart, i
             // When moving down the same parent, moving an earlier
             // item means the next items move up (so all the moved
             // rows are always at sourceStart.)
-            ioGraphs_.move(sourceStart, destinationRow + i - 1);
+            ioGraphs_.move(sourceStart, destinationRow - 1);
         }
     }
 

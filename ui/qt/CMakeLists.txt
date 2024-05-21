@@ -50,6 +50,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/range_syntax_lineedit.h
 	widgets/resize_header_view.h
 	widgets/resolved_addresses_view.h
+	widgets/rowmove_tree_view.h
 	widgets/rtp_audio_graph.h
 	widgets/splash_overlay.h
 	widgets/stock_icon_tool_button.h
@@ -316,6 +317,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/range_syntax_lineedit.cpp
 	widgets/resize_header_view.cpp
 	widgets/resolved_addresses_view.cpp
+	widgets/rowmove_tree_view.cpp
 	widgets/rtp_audio_graph.cpp
 	widgets/splash_overlay.cpp
 	widgets/stock_icon_tool_button.cpp

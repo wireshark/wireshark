@@ -23,6 +23,7 @@
 
 class UatModel : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     UatModel(QObject *parent, uat_t *uat = 0);
     UatModel(QObject *parent, QString tableName);
@@ -42,9 +43,13 @@ public:
     QModelIndex appendEntry(QVariantList row);
 
     QModelIndex copyRow(QModelIndex original);
-    bool moveRow(int src_row, int dst_row);
 
-    bool moveRow(const QModelIndex &sourceParent, int sourceRow, const QModelIndex &destinationParent, int destinationChild);
+    bool moveRow(int src_row, int dst_row);
+    bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild);
+
+    //Drag & drop functionality
+    Qt::DropActions supportedDropActions() const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
     void reloadUat();
     bool hasErrors() const;
@@ -73,6 +78,7 @@ private:
     bool checkField(int row, int col, char **error) const;
     QList<int> checkRow(int row);
     void loadUat(uat_t * uat = 0);
+    bool moveRowPrivate(int src_row, int dst_row);
 
     epan_uat *uat_;
     bool applying_;
