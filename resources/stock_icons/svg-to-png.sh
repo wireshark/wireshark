@@ -30,7 +30,7 @@ set_source_svgs() {
     esac
     ONE_X_SVG=${out_icon}.svg
     TWO_X_SVG=${out_icon}@2x.svg
-    if [ ! -f ${TWO_X_SVG} ] ; then
+    if [ ! -f "${TWO_X_SVG}" ] ; then
         TWO_X_SVG=$ONE_X_SVG
     fi
 }
@@ -111,7 +111,7 @@ for SIZE in 14x14 16x16 24x14 24x24 ; do
 
         set_source_svgs "$ICON"
 
-        if [ ! -f ${ONE_X_SVG} ] ; then
+        if [ ! -f "${ONE_X_SVG}" ] ; then
             >&2 echo "Skipping ${ONE_X_SVG}"
             continue
         fi
@@ -119,14 +119,14 @@ for SIZE in 14x14 16x16 24x14 24x24 ; do
         ONE_X_PNG=${ICON}.png
         TWO_X_PNG=${ICON}@2x.png
 
-        if [ $ONE_X_SVG -nt "$ONE_X_PNG" ] ; then
+        if [ "$ONE_X_SVG" -nt "$ONE_X_PNG" ] ; then
             # shellcheck disable=SC2086
             inkscape $COMMON_ARGS $ONE_X_ARGS \
                 --file="$PWD/$ONE_X_SVG" --export-png="$PWD/$ONE_X_PNG" || exit 1
             QRC_FILES="${QRC_FILES} ${SIZE_DIR}/${ONE_X_PNG}"
         fi
 
-        if [ $TWO_X_SVG -nt "$TWO_X_PNG" ] ; then
+        if [ "$TWO_X_SVG" -nt "$TWO_X_PNG" ] ; then
             # shellcheck disable=SC2086
             inkscape $COMMON_ARGS $TWO_X_ARGS \
                 --file="$PWD/$TWO_X_SVG" --export-png="$PWD/$TWO_X_PNG" || exit 1
