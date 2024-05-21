@@ -3171,15 +3171,15 @@ proto_register_iec60870_asdu(void)
 
 		{ &hf_asn,
 		  { "ASDU Segment Sequence Number (ASN)", "iec60870_asdu.asn", FT_UINT8, BASE_DEC, NULL, 0x3F,
-		    "ASDU Segment Sequence Number", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_asn_fin,
 		  { "Final segment (FIN)", "iec60870_asdu.asn.fin", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
-		    "Final segment", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_asn_fir,
 		  { "First segment (FIR)", "iec60870_asdu.asn.fir", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
-		    "First segment", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_iec60870_segment_data,
 		   { "ASDU segment data", "iec60870_asdu.segment_data", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -3187,47 +3187,47 @@ proto_register_iec60870_asdu(void)
 
 		{ &hf_usr,
 		  { "User number (USR)", "iec60870_asdu.usr", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(usr_types), 0,
-		    "User number", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_mal,
 		  { "MAC algorithm (MAL)", "iec60870_asdu.mal", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(mal_types), 0,
-		    "MAC algorithm", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_rsc,
 		  { "Reason for challenge (RSC)", "iec60870_asdu.rsc", FT_UINT8, BASE_DEC, VALS(rsc_types), 0,
-		    "Reason for challenge", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_csq,
 		  { "Challenge sequence number (CSQ)", "iec60870_asdu.csq", FT_UINT32, BASE_DEC, NULL, 0,
-		    "Challenge sequence number", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_ksq,
 		  { "Key change sequence number (KSQ)", "iec60870_asdu.ksq", FT_UINT32, BASE_DEC, NULL, 0,
-		    "Key change sequence number", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_kwa,
 		  { "Key wrap algorithm (KWA)", "iec60870_asdu.kwa", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(kwa_types), 0,
-		    "Key wrap algorithm", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_kst,
 		  { "Key status (KST)", "iec60870_asdu.kst", FT_UINT8, BASE_DEC, VALS(kst_types), 0,
-		    "Key status", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_hln,
 		  { "MAC length (HLN)", "iec60870_asdu.hln", FT_UINT16, BASE_DEC, NULL, 0,
-		    "MAC length", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_hal,
 		  { "MAC algorithm (HAL)", "iec60870_asdu.hal", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(hal_types), 0,
-		    "MAC algorithm", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_cln,
 		  { "Challenge data length (CLN)", "iec60870_asdu.cln", FT_UINT16, BASE_DEC, NULL, 0,
-		    "Challenge data length", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_wkl,
 		  { "Wrapped key data length (CLN)", "iec60870_asdu.wkl", FT_UINT16, BASE_DEC, NULL, 0,
-		    "Wrapped key data length", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_prcd_raw_data,
 		  { "Pseudo-random challenge data", "iec60870_asdu.challenge_data", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -3243,15 +3243,15 @@ proto_register_iec60870_asdu(void)
 
 		{ &hf_aid,
 		  { "Association ID (AID)", "iec60870_asdu.aid", FT_UINT16, BASE_DEC, NULL, 0,
-		    "Association ID", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_err,
 		  { "Error code (ERR)", "iec60870_asdu.err", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(error_codes), 0,
-		    "Error code", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_etm,
 		  { "Error time stamp (ETM)", "iec60870_asdu.etm", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
-		    "Error time stamp", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_etm_ms,
 		  { "MS", "iec60870_asdu.etm.ms", FT_UINT16, BASE_DEC, NULL, 0,
@@ -3291,11 +3291,11 @@ proto_register_iec60870_asdu(void)
 
 		{ &hf_eln,
 		  { "Error length (ELN)", "iec60870_asdu.eln", FT_UINT16, BASE_DEC, NULL, 0,
-		    "Error length", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_error_text,
 		  { "Error text", "iec60870_asdu.error_text", FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Error txt", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_coi,
 		  { "COI", "iec60870_asdu.coi", FT_UINT8, BASE_HEX, NULL, 0,

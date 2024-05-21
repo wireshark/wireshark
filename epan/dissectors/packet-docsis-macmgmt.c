@@ -7703,7 +7703,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_ucd_symbol_rate,
      {"Symbol Rate (ksym/sec)", "docsis_ucd.symrate",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Symbol Rate", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_ucd_frequency,
      {"Frequency (Hz)", "docsis_ucd.freq",
@@ -8018,7 +8018,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_burst_guard_time,
      {"Guard Time Size (Symbol Times)", "docsis_ucd.burst.guardtime",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Guard Time Size", HFILL}
+      NULL, HFILL}
     },
     {&hf_docsis_burst_last_cw_len,
      {"Last Codeword Length", "docsis_ucd.burst.last_cw_len",
@@ -8293,12 +8293,12 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_rngrsp_timing_adj,
      {"Timing Adjust (6.25us/64)", "docsis_rngrsp.timingadj",
       FT_INT32, BASE_DEC, NULL, 0x0,
-      "Timing Adjust", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_power_adj,
      {"Power Level Adjust (0.25dB units)", "docsis_rngrsp.poweradj",
       FT_INT8, BASE_DEC, NULL, 0x0,
-      "Power Level Adjust", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_freq_adj,
      {"Offset Freq Adjust (Hz)", "docsis_rngrsp.freqadj",
@@ -8318,7 +8318,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_rngrsp_down_freq_over,
      {"Downstream Frequency Override (Hz)", "docsis_rngrsp.freq_over",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Downstream Frequency Override", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_upstream_ch_over,
      {"Upstream Channel ID Override", "docsis_rngrsp.chid_override",
@@ -8331,14 +8331,14 @@ proto_register_docsis_mgmt (void)
       NULL, HFILL}
      },
     {&hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier,
-     {"Multiplier of the default T4 Timeout (the valid range is 1-10)", "docsis_rngrsp.t4_timeout_multiplier",
+     {"Multiplier of the default T4 Timeout", "docsis_rngrsp.t4_timeout_multiplier",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "T4 Timeout Multiplier", HFILL}
+      "T4 Timeout Multiplier (the valid range is 1-10)", HFILL}
      },
     {&hf_docsis_rngrsp_dynamic_range_window_upper_edge,
-     {"Dynamic Range Window Upper Edge (in units of 0.25 db below the max allowable setting)", "docsis_rngrsp.dynamic_range_window_upper_edge",
+     {"Dynamic Range Window Upper Edge", "docsis_rngrsp.dynamic_range_window_upper_edge",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Dynamic Range Window Upper EDGE", HFILL}
+      "Dynamic Range Window Upper EDGE (in units of 0.25 db below the max allowable setting)", HFILL}
      },
     {&hf_docsis_rngrsp_tlv_unknown,
      {"Unknown TLV", "docsis_rngrsp.tlv.unknown",

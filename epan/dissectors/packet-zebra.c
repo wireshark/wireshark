@@ -2626,7 +2626,7 @@ proto_register_zebra(void)
 		{ &hf_zebra_routeridaddress,
 		  { "Router ID address",	"zebra.routerIDAddress",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "Router ID", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_zebra_routeridmask,
 		  { "Router ID mask",	"zebra.routerIDMask",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,

@@ -1015,12 +1015,12 @@ class Item:
 
         # Subset - often happens when part specific to that field is dropped
         if set(label_words) > set(blurb_words):
-            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- words in blurb is subset of label!!!")
+            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- words in blurb are subset of label words")
             warnings_found += 1
 
         # Just a re-ordering (but may also contain capitalization changes.)
         if blurb_words == label_words:
-            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- Blurb is just label re-ordered!!!")
+            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- blurb words are label words (re-ordered?)")
             warnings_found += 1
 
         # TODO: could have item know protocol name(s) from file this item was found in, and complain if blurb is just prot-name + label ?

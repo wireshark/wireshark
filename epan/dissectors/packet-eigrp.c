@@ -3031,12 +3031,12 @@ proto_register_eigrp(void)
         { &hf_eigrp_extdata_flag_ext,
           { "Route is External", "eigrp.opaque.flag.ext",
             FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_EXT,
-            "External route", HFILL }
+            NULL, HFILL }
         },
         { &hf_eigrp_extdata_flag_cd,
           { "Route is Candidate Default", "eigrp.opaque.flag.cd",
             FT_BOOLEAN, 8, NULL, EIGRP_OPAQUE_CD,
-            "Candidate-Default route", HFILL }
+            NULL, HFILL }
         },
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

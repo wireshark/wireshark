@@ -3959,57 +3959,57 @@ proto_register_e212(void)
     { &hf_E212_mnc,
         { "Mobile Network Code (MNC)","e212.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_lai,
         { "Mobile Network Code (MNC)","e212.lai.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_rai,
         { "Mobile Network Code (MNC)","e212.rai.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_sai,
         { "Mobile Network Code (MNC)","e212.sai.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_cgi,
         { "Mobile Network Code (MNC)","e212.cgi.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_ecgi,
         { "Mobile Network Code (MNC)","e212.ecgi.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_tai,
         { "Mobile Network Code (MNC)","e212.tai.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_nrcgi,
         { "Mobile Network Code (MNC)","e212.nrcgi.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_5gstai,
         { "Mobile Network Code (MNC)","e212.5gstai.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_gummei,
         { "Mobile Network Code (MNC)","e212.gummei.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
     { &hf_E212_mnc_guami,
         { "Mobile Network Code (MNC)","e212.guami.mnc",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Mobile network code", HFILL }
+        NULL, HFILL }
     },
 #if 0
     { &hf_E212_msin,

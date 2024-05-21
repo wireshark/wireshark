@@ -11160,7 +11160,7 @@ proto_register_gtp(void)
         {&hf_gtp_ext_flow_label,
          { "Flow Label Data I", "gtp.ext_flow_label",
            FT_UINT16, BASE_HEX, NULL, 0,
-           "Flow label data", HFILL}
+           NULL, HFILL}
         },
         {&hf_gtp_ext_id,
          { "Extension identifier", "gtp.ext_id",
@@ -12007,12 +12007,12 @@ proto_register_gtp(void)
         {&hf_gtp_sapi,
          { "PS Handover XID SAPI", "gtp.ps_handover_xid_sapi",
            FT_UINT8, BASE_DEC, NULL, 0x0F,
-           "SAPI", HFILL}
+           NULL, HFILL}
         },
         {&hf_gtp_xid_par_len,
          { "PS Handover XID parameter length", "gtp.ps_handover_xid_par_len",
            FT_UINT8, BASE_DEC, NULL, 0x0,
-           "XID parameter length", HFILL}
+           NULL, HFILL}
         },
         {&hf_gtp_rep_act_type,
          { "Action", "gtp.ms_inf_chg_rep_act",

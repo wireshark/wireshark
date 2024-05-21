@@ -4621,7 +4621,7 @@ void proto_register_dmp (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_ack_reason,
       { "Ack Reason", "dmp.ack_reason", FT_UINT8, BASE_DEC,
-        VALS (ack_reason), 0x0, "Reason", HFILL } },
+        VALS (ack_reason), 0x0, NULL, HFILL } },
     { &hf_ack_diagnostic,
       { "Ack Diagnostic", "dmp.ack_diagnostic", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },

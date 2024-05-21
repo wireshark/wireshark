@@ -2744,23 +2744,23 @@ proto_register_unistim(void){
       },
       { &hf_basic_switch_query_attr,
         {"Query Basic Manager Attributes","unistim.basic.attrs",FT_BOOLEAN,
-         8,NULL,BASIC_QUERY_ATTRIBUTES,"Basic Query Attributes",HFILL}
+         8,NULL,BASIC_QUERY_ATTRIBUTES,NULL,HFILL}
       },
       { &hf_basic_switch_query_opts,
         {"Query Basic Manager Options","unistim.basic.opts",FT_BOOLEAN,
-         8,NULL,BASIC_QUERY_OPTIONS,"Basic Query Options",HFILL}
+         8,NULL,BASIC_QUERY_OPTIONS,NULL,HFILL}
       },
       { &hf_basic_switch_query_fw,
         {"Query Basic Switch Firmware","unistim.basic.fw",FT_BOOLEAN,
-         8,NULL,BASIC_QUERY_FW,"Basic Query Firmware",HFILL}
+         8,NULL,BASIC_QUERY_FW,NULL,HFILL}
       },
       { &hf_basic_switch_query_hw_id,
         {"Query Basic Manager Hardware ID","unistim.basic.hwid",FT_BOOLEAN,
-         8,NULL,BASIC_QUERY_HW_ID,"Basic Query Hardware ID",HFILL}
+         8,NULL,BASIC_QUERY_HW_ID,NULL,HFILL}
       },
       { &hf_basic_switch_query_it_type,
         {"Query Basic Manager Phone Type","unistim.basic.type",FT_BOOLEAN,
-         8,NULL,BASIC_QUERY_IT_TYPE,"Basic Query Phone Type",HFILL}
+         8,NULL,BASIC_QUERY_IT_TYPE,NULL,HFILL}
       },
       { &hf_basic_switch_query_prod_eng_code,
         {"Query Basic Manager Prod Eng Code","unistim.basic.code",FT_BOOLEAN,

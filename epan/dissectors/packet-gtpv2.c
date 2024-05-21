@@ -9889,7 +9889,7 @@ void proto_register_gtpv2(void)
         {&hf_gtpv2_rac,
          { "Routing Area Code (RAC)", "gtpv2.rac",
            FT_UINT8, BASE_DEC, NULL, 0,
-           "Routing Area Code", HFILL}
+           NULL, HFILL}
         },
 
         { &hf_gtpv2_rnc_id,

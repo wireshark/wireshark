@@ -44219,12 +44219,12 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_fst_action_code,
       {"FST Action Code", "wlan.fst.action_code",
        FT_UINT8, BASE_HEX, VALS(ff_fst_action_flags), 0,
-       "Action Code", HFILL }},
+       NULL, HFILL }},
 
     {&hf_ieee80211_ff_robust_av_streaming_action_code,
      {"Robust AV Streaming Action Code", "wlan.robust_av_streaming.action_code",
       FT_UINT8, BASE_HEX, VALS(ff_robust_av_streaming_action_flags), 0,
-      "Action Code", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_llt,
       {"Link Loss Timeout", "wlan.fst.llt",

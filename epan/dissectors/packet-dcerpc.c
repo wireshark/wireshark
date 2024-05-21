@@ -7057,7 +7057,7 @@ proto_register_dcerpc(void)
 
         { &hf_dcerpc_fragments,
           { "Reassembled DCE/RPC Fragments", "dcerpc.fragments", FT_NONE, BASE_NONE,
-            NULL, 0x0, "DCE/RPC Fragments", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_dcerpc_fragment,
           { "DCE/RPC Fragment", "dcerpc.fragment", FT_FRAMENUM, BASE_NONE,

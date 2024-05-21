@@ -4277,7 +4277,7 @@ proto_register_dnp3(void)
     { &hf_dnp3_al_func,
       { "Application Layer Function Code", "dnp3.al.func",
         FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_func_vals_ext, DNP3_AL_FUNC,
-        "Application Function Code", HFILL }
+        NULL, HFILL }
     },
 
     { &hf_dnp3_al_iin,
