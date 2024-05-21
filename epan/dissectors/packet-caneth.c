@@ -92,7 +92,6 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     proto_tree *can_tree;
     proto_item *ti;
-    guint32     data_len;
     guint32     raw_can_id;
     gint8       ext_flag;
     gint8       rtr_flag;
@@ -117,20 +116,22 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     can_info.id |= (ext_flag ? CAN_EFF_FLAG : 0) | (rtr_flag ? CAN_RTR_FLAG : 0);
+    can_info.fd = CAN_TYPE_CAN_CLASSIC;
+    can_info.bus_id = 0; /* see get_bus_id in packet-socketcan.c? */
 
-    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_len, tvb, CAN_DLC_OFFSET, 1, ENC_NA, &data_len);
+    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_len, tvb, CAN_DLC_OFFSET, 1, ENC_NA, &can_info.len);
     proto_tree_add_item(can_tree, hf_caneth_can_extflag, tvb, CAN_EXT_FLAG_OFFSET, 1, ENC_NA);
     proto_tree_add_item(can_tree, hf_caneth_can_rtrflag, tvb, CAN_RTR_FLAG_OFFSET, 1, ENC_NA);
 
-    next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, data_len);
+    next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
 
     if (!socketcan_call_subdissectors(next_tvb, pinfo, tree, &can_info, FALSE)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
-    if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET + data_len) > 0)
+    if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET + can_info.len) > 0)
     {
-        proto_tree_add_item(can_tree, hf_caneth_can_padding, tvb, CAN_DATA_OFFSET + data_len, -1, ENC_NA);
+        proto_tree_add_item(can_tree, hf_caneth_can_padding, tvb, CAN_DATA_OFFSET + can_info.len, -1, ENC_NA);
     }
     return tvb_captured_length(tvb);
 }
