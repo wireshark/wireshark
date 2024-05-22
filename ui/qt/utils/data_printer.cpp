@@ -104,7 +104,13 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
         break;
     case DP_UTF8Text:
         // This automatically compensates for invalid UTF-8 in the input
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_OFF(stringop-overread)
+#endif
         clipboard_text += QString::fromUtf8(printData);
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_ON(stringop-overread)
+#endif
         break;
     case DP_ASCIIText:
         // Copy valid 7-bit printable ASCII bytes, skip the rest
