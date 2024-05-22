@@ -1091,7 +1091,7 @@ dissect_tape_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_tape_model, offset, NULL);
 
-	/* device capabilites */
+	/* device capabilities */
 	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
 			dissect_tape_dev_cap, hf_ndmp_tape_dev_cap);
 
@@ -1119,7 +1119,7 @@ dissect_scsi_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_scsi_model, offset, NULL);
 
-	/* device capabilites */
+	/* device capabilities */
 	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
 			dissect_tape_dev_cap, hf_ndmp_tape_dev_cap);
 

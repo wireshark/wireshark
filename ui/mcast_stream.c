@@ -38,7 +38,7 @@ int32_t mcast_stream_trigger         =     50; /* limit for triggering the burst
 int32_t mcast_stream_bufferalarm     =  10000; /* limit for triggering the buffer alarm (in bytes) */
 uint16_t mcast_stream_burstint       =    100; /* burst interval in ms */
 int32_t mcast_stream_emptyspeed      =   5000; /* outgoing speed for single stream (kbps)*/
-int32_t mcast_stream_cumulemptyspeed = 100000; /* outgoiong speed for all streams (kbps)*/
+int32_t mcast_stream_cumulemptyspeed = 100000; /* outgoing speed for all streams (kbps)*/
 
 /* sliding window and buffer usage */
 static int32_t buffsize = (int)((double)MAX_SPEED * 100 / 1000) * 2;
@@ -88,7 +88,7 @@ mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
     g_list_free(tapinfo->strinfo_list);
     tapinfo->strinfo_list = NULL;
 
-    /* XYZ and why does the line below causes a crach? */
+    /* XYZ and why does the line below causes a crash? */
     /*g_free(tapinfo->allstreams->element.buff);*/
     g_free(tapinfo->allstreams);
     tapinfo->allstreams = NULL;

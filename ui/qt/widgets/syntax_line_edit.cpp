@@ -84,7 +84,7 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     QColor deprecated_bg = ColorUtils::fromColorT(&prefs.gui_text_deprecated);
     QColor deprecated_fg = ColorUtils::contrastingTextColor(deprecated_bg);
 
-    // Try to matche QLineEdit's placeholder text color (which sets the
+    // Try to match QLineEdit's placeholder text color (which sets the
     // alpha channel to 50%, which doesn't work in style sheets).
     // Setting the foreground color lets us avoid yet another background
     // color preference and should hopefully make things easier to

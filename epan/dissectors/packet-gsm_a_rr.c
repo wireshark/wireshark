@@ -4922,7 +4922,7 @@ de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
         }
         else
         {
-            /* non-hopping RF channel configuraion */
+            /* non-hopping RF channel configuration */
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+5, 1, ENC_NA);
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_single_channel_arfcn, tvb, (curr_offset<<3)+6, 10, ENC_NA);
             curr_offset = curr_offset + 2;

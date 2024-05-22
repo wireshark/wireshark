@@ -1412,7 +1412,7 @@ static const value_string dnp3_al_sa_err_vals[] = {
   { 2,  "Unexpected Response"                      },
   { 3,  "No response"                              },
   { 4,  "Aggressive Mode not supported"            },
-  { 5,  "MAC Algorithm not supproted"              },
+  { 5,  "MAC Algorithm not supported"              },
   { 6,  "Key Wrap Algorithm not supported"         },
   { 7,  "Authorization failed"                     },
   { 8,  "Update Key Change Method not permitted"   },

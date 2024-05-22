@@ -38,7 +38,7 @@
 
 /* packet reassembly */
 static reassembly_table msg_reassembly_table;
-/* end packet reassebly */
+/* end packet reassembly */
 
 /* Initialize the protocol and registered fields */
 static int proto_btatt;
@@ -10811,7 +10811,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint              mtu;
 /* desegmentation stuff */
 //    int deseg_offset = 0;
-/*end desgementation stuff */
+/*end desegmentation stuff */
     memset(&uuid, 0, sizeof uuid);
 
     bluetooth_data = (bluetooth_data_t *) data;

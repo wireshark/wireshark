@@ -519,7 +519,7 @@ static const ext_value_string target_vals[] = {
     {   { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 0, NULL },
 };
 
-/* This table must map tagets from "target_vals" to profile */
+/* This table must map targets from "target_vals" to profile */
 static const gint target_to_profile[] = {
     PROFILE_FTP,
     PROFILE_PBAP,

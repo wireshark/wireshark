@@ -435,7 +435,7 @@ QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
 
     if (prof->status != PROF_STAT_DEFAULT && ! prof->is_global)
     {
-        /* Highlights errorneous line */
+        /* Highlights erroneous line */
         if (checkInvalid(index) || checkIfDeleted(index) || checkDuplicate(index) || ! checkNameValidity(prof->name))
             return ColorUtils::fromColorT(&prefs.gui_text_invalid);
 

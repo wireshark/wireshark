@@ -1825,7 +1825,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
             value = tvb_get_ntohl (tvb, offset);
           }
         } else {
-          /* Characterts [A-Z0-9] only */
+          /* Characters [A-Z0-9] only */
           if ((key & 0xE0) == 0xC0) {        /* bit 7-4: 110x */
             length = 4;
             bytes = 3;
@@ -3367,7 +3367,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo,
     offset += len;
 
     if ((dmp.notif_type == ON) && (on_typex < 0x03)) {
-      /* ACP127 Receipient */
+      /* ACP127 Recipient */
       len = tvb_strsize (tvb, offset);
       tf = proto_tree_add_uint_format (notif_tree, hf_notif_acp127,
                                        tvb, offset, len, len,

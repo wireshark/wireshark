@@ -167,7 +167,7 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
         global_dissect_options.disable_heur_slist = g_slist_append(global_dissect_options.disable_heur_slist, optarg_str_p);
         break;
-    case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disableed by default) */
+    case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
         global_dissect_options.enable_protocol_slist = g_slist_append(global_dissect_options.enable_protocol_slist, optarg_str_p);
         break;
     case LONGOPT_ONLY_PROTOCOLS: /* enable dissection of these comma separated protocols only */
