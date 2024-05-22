@@ -6277,7 +6277,7 @@ static const value_string nas_5gs_common_elem_strings[] = {
 };
 value_string_ext nas_5gs_common_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_common_elem_strings);
 
-#define NUM_NAS_5GS_COMMON_ELEM (sizeof(nas_5gs_common_elem_strings)/sizeof(value_string))
+#define NUM_NAS_5GS_COMMON_ELEM array_length(nas_5gs_common_elem_strings)
 gint ett_nas_5gs_common_elem[NUM_NAS_5GS_COMMON_ELEM];
 
 
@@ -6521,7 +6521,7 @@ static const value_string nas_5gs_mm_elem_strings[] = {
 };
 value_string_ext nas_5gs_mm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_mm_elem_strings);
 
-#define NUM_NAS_5GS_MM_ELEM (sizeof(nas_5gs_mm_elem_strings)/sizeof(value_string))
+#define NUM_NAS_5GS_MM_ELEM array_length(nas_5gs_mm_elem_strings)
 gint ett_nas_5gs_mm_elem[NUM_NAS_5GS_MM_ELEM];
 
 guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -6720,7 +6720,7 @@ static const value_string nas_5gs_sm_elem_strings[] = {
 };
 value_string_ext nas_5gs_sm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_sm_elem_strings);
 
-#define NUM_NAS_5GS_SM_ELEM (sizeof(nas_5gs_sm_elem_strings)/sizeof(value_string))
+#define NUM_NAS_5GS_SM_ELEM array_length(nas_5gs_sm_elem_strings)
 gint ett_nas_5gs_sm_elem[NUM_NAS_5GS_SM_ELEM];
 
 guint16(*nas_5gs_sm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -9603,7 +9603,7 @@ static const value_string nas_5gs_updp_elem_strings[] = {
 };
 value_string_ext nas_5gs_updp_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_elem_strings);
 
-#define NUM_NAS_5GS_UPDP_ELEM (sizeof(nas_5gs_updp_elem_strings)/sizeof(value_string))
+#define NUM_NAS_5GS_UPDP_ELEM array_length(nas_5gs_updp_elem_strings)
 gint ett_nas_5gs_updp_elem[NUM_NAS_5GS_UPDP_ELEM];
 
 guint16(*nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
@@ -9807,7 +9807,7 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
 
 static value_string_ext nas_5gs_mm_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_mm_message_type_vals);
 
-#define NUM_NAS_5GS_MM_MSG (sizeof(nas_5gs_mm_message_type_vals)/sizeof(value_string))
+#define NUM_NAS_5GS_MM_MSG array_length(nas_5gs_mm_message_type_vals)
 static gint ett_nas_5gs_mm_msg[NUM_NAS_5GS_MM_MSG];
 static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
     nas_5gs_mm_registration_req,                /* 0x41    Registration request */
@@ -9911,7 +9911,7 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
 };
 static value_string_ext nas_5gs_sm_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_sm_message_type_vals);
 
-#define NUM_NAS_5GS_SM_MSG (sizeof(nas_5gs_sm_message_type_vals)/sizeof(value_string))
+#define NUM_NAS_5GS_SM_MSG array_length(nas_5gs_sm_message_type_vals)
 static gint ett_nas_5gs_sm_msg[NUM_NAS_5GS_SM_MSG];
 
 static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
@@ -9971,7 +9971,7 @@ static const value_string nas_5gs_updp_msg_strings[] = {
 };
 static value_string_ext nas_5gs_updp_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_msg_strings);
 
-#define NUM_NAS_5GS_UPDP_MSG (sizeof(nas_5gs_updp_msg_strings)/sizeof(value_string))
+#define NUM_NAS_5GS_UPDP_MSG array_length(nas_5gs_updp_msg_strings)
 static gint ett_nas_5gs_updp_msg[NUM_NAS_5GS_UPDP_MSG];
 
 static void(*nas_5gs_updp_msg_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len) = {

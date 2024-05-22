@@ -775,7 +775,7 @@ static proto_tree *g_tree;
 static gint is_uplink;
 static guint8 epc_test_loop_mode;
 
-#define NUM_GSM_DTAP_ELEM (sizeof(gsm_dtap_elem_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_ELEM array_length(gsm_dtap_elem_strings)
 gint ett_gsm_dtap_elem[NUM_GSM_DTAP_ELEM];
 
 /*
@@ -6644,7 +6644,7 @@ dtap_tp_epc_update_ue_location_information(tvbuff_t *tvb, proto_tree *tree, pack
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
 
-#define NUM_GSM_DTAP_MSG_GCC (sizeof(gsm_a_dtap_msg_gcc_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_GCC array_length(gsm_a_dtap_msg_gcc_strings)
 static gint ett_gsm_dtap_msg_gcc[NUM_GSM_DTAP_MSG_GCC];
 static void (*dtap_msg_gcc[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_gcc_imm_setup,         /* IMMEDIATE SETUP */
@@ -6659,7 +6659,7 @@ static void (*dtap_msg_gcc[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     NULL,                       /* NONE */
 };
 
-#define NUM_GSM_DTAP_MSG_BCC (sizeof(gsm_a_dtap_msg_bcc_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_BCC array_length(gsm_a_dtap_msg_bcc_strings)
 static gint ett_gsm_dtap_msg_bcc[NUM_GSM_DTAP_MSG_BCC];
 static void (*dtap_msg_bcc[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_bcc_imm_setup,         /* IMMEDIATE SETUP */
@@ -6675,7 +6675,7 @@ static void (*dtap_msg_bcc[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     NULL,                       /* NONE */
 };
 
-#define NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_MM array_length(gsm_a_dtap_msg_mm_strings)
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_mm_imsi_det_ind,       /* IMSI Detach Indication */
@@ -6704,7 +6704,7 @@ static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     NULL,                       /* NONE */
 };
 
-#define NUM_GSM_DTAP_MSG_CC (sizeof(gsm_a_dtap_msg_cc_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_CC array_length(gsm_a_dtap_msg_cc_strings)
 static gint ett_gsm_dtap_msg_cc[NUM_GSM_DTAP_MSG_CC];
 static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_cc_alerting,           /* Alerting */
@@ -6745,7 +6745,7 @@ static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     NULL,                       /* NONE */
 };
 
-#define NUM_GSM_DTAP_MSG_SMS (sizeof(gsm_a_dtap_msg_sms_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_SMS array_length(gsm_a_dtap_msg_sms_strings)
 static gint ett_gsm_dtap_msg_sms[NUM_GSM_DTAP_MSG_SMS];
 static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_sms_cp_data,  /* CP-DATA */
@@ -6754,7 +6754,7 @@ static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
     NULL,              /* NONE */
 };
 
-#define NUM_GSM_DTAP_MSG_SS (sizeof(gsm_a_dtap_msg_ss_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_SS array_length(gsm_a_dtap_msg_ss_strings)
 static gint ett_gsm_dtap_msg_ss[NUM_GSM_DTAP_MSG_SS];
 static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_cc_release_complete, /* Release Complete */
@@ -6763,7 +6763,7 @@ static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     NULL,                     /* NONE */
 };
 
-#define NUM_GSM_DTAP_MSG_TP (sizeof(gsm_a_dtap_msg_tp_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_TP array_length(gsm_a_dtap_msg_tp_strings)
 static gint ett_gsm_dtap_msg_tp[NUM_GSM_DTAP_MSG_TP];
 static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     dtap_tp_close_tch_loop_cmd,                                /* CLOSE TCH LOOP CMD */

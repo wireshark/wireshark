@@ -399,21 +399,21 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* The following values represent the size of their valuestring arrays */
 
-#define RAS_MSG_TYPES (sizeof(h225_RasMessage_vals) / sizeof(value_string))
-#define CS_MSG_TYPES (sizeof(T_h323_message_body_vals) / sizeof(value_string))
+#define RAS_MSG_TYPES array_length(h225_RasMessage_vals)
+#define CS_MSG_TYPES array_length(T_h323_message_body_vals)
 
-#define GRJ_REASONS (sizeof(GatekeeperRejectReason_vals) / sizeof(value_string))
-#define RRJ_REASONS (sizeof(RegistrationRejectReason_vals) / sizeof(value_string))
-#define URQ_REASONS (sizeof(UnregRequestReason_vals) / sizeof(value_string))
-#define URJ_REASONS (sizeof(UnregRejectReason_vals) / sizeof(value_string))
-#define ARJ_REASONS (sizeof(AdmissionRejectReason_vals) / sizeof(value_string))
-#define BRJ_REASONS (sizeof(BandRejectReason_vals) / sizeof(value_string))
-#define DRQ_REASONS (sizeof(DisengageReason_vals) / sizeof(value_string))
-#define DRJ_REASONS (sizeof(DisengageRejectReason_vals) / sizeof(value_string))
-#define LRJ_REASONS (sizeof(LocationRejectReason_vals) / sizeof(value_string))
-#define IRQNAK_REASONS (sizeof(InfoRequestNakReason_vals) / sizeof(value_string))
-#define REL_CMP_REASONS (sizeof(h225_ReleaseCompleteReason_vals) / sizeof(value_string))
-#define FACILITY_REASONS (sizeof(FacilityReason_vals) / sizeof(value_string))
+#define GRJ_REASONS array_length(GatekeeperRejectReason_vals)
+#define RRJ_REASONS array_length(RegistrationRejectReason_vals)
+#define URQ_REASONS array_length(UnregRequestReason_vals)
+#define URJ_REASONS array_length(UnregRejectReason_vals)
+#define ARJ_REASONS array_length(AdmissionRejectReason_vals)
+#define BRJ_REASONS array_length(BandRejectReason_vals)
+#define DRQ_REASONS array_length(DisengageReason_vals)
+#define DRJ_REASONS array_length(DisengageRejectReason_vals)
+#define LRJ_REASONS array_length(LocationRejectReason_vals)
+#define IRQNAK_REASONS array_length(InfoRequestNakReason_vals)
+#define REL_CMP_REASONS array_length(h225_ReleaseCompleteReason_vals)
+#define FACILITY_REASONS array_length(FacilityReason_vals)
 
 /* TAP STAT INFO */
 typedef enum
@@ -450,10 +450,10 @@ static guint other_idx;
 static void h225_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "H.225 Messages and Message Reasons";
-  int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(h225_stat_fields);
   stat_tap_table *table;
   int row_idx = 0, msg_idx;
-  stat_tap_table_item_type items[sizeof(h225_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(h225_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -847,8 +847,8 @@ void proto_register_h225(void) {
     h225_stat_reset,
     NULL,
     NULL,
-    sizeof(h225_stat_fields)/sizeof(stat_tap_table_item), h225_stat_fields,
-    sizeof(h225_stat_params)/sizeof(tap_param), h225_stat_params,
+    array_length(h225_stat_fields), h225_stat_fields,
+    array_length(h225_stat_params), h225_stat_params,
     NULL,
     0
   };

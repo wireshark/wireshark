@@ -1245,7 +1245,7 @@ dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, pro
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-       if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
+       if (parameter_id < array_length(required_length_map) &&
                 required_length_map[parameter_id] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
@@ -1322,7 +1322,7 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
+        if (parameter_id < array_length(required_length_map) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
@@ -1420,7 +1420,7 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
+        if (parameter_id < array_length(required_length_map) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
@@ -1578,7 +1578,7 @@ dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, pro
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (parameter_id >= 0x41 && (guint8)(parameter_id - 0x41) < (sizeof(required_length_map)/sizeof(gint)) &&
+        if (parameter_id >= 0x41 && (guint8)(parameter_id - 0x41) < array_length(required_length_map) &&
                 required_length_map[parameter_id - 0x41] != -1 &&
                 required_length_map[parameter_id - 0x41] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
@@ -1643,7 +1643,7 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if ((parameter_id < 0x41) && (parameter_id < (sizeof(required_length_map)/sizeof(gint))) &&
+        if ((parameter_id < 0x41) && (parameter_id < array_length(required_length_map)) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
 
@@ -1651,7 +1651,7 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
             expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
-        } else if ((parameter_id >= 0x41) && ((guint8)(parameter_id - 0x41) < (sizeof(required_length_map_gpp)/sizeof(gint))) &&
+        } else if ((parameter_id >= 0x41) && ((guint8)(parameter_id - 0x41) < array_length(required_length_map_gpp)) &&
                 required_length_map[parameter_id - 0x41] != -1 &&
                 required_length_map[parameter_id - 0x41] != parameter_length) {
 

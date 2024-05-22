@@ -4132,175 +4132,175 @@ static dissector_handle_t snmp_handle;
 static const WASSP_SUBTLV_DECODER_INFO_t wassp_decr_info[TAB_MAX] =
 {
 	/*CONFIG_GLOBAL_BLOCK  */
-	{"WASSP Global Config", &ett_wassp_global_config_block, sizeof(tlvGlobalConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvGlobalConfigTable},
+	{"WASSP Global Config", &ett_wassp_global_config_block, array_length(tlvGlobalConfigTable), tlvGlobalConfigTable},
 	/*CONFIG_ERROR_BLOCK */
-	{"WASSP Config Error", &ett_wassp_config_error_block, sizeof(tlvGlobalConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvGlobalConfigTable},
+	{"WASSP Config Error", &ett_wassp_config_error_block, array_length(tlvGlobalConfigTable), tlvGlobalConfigTable},
 	/*TAB_CONFIG_MODIFIED */
-	{"WASSP Config Modified", &ett_wassp_config_modified_block, sizeof(tlvGlobalConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvGlobalConfigTable},
+	{"WASSP Config Modified", &ett_wassp_config_modified_block, array_length(tlvGlobalConfigTable), tlvGlobalConfigTable},
 	/*RADIO_CONFIG_BLOCK */
-	{"WASSP Radio Configure", &ett_wassp_radio_config_block, sizeof(tlvRadioConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvRadioConfigTable},
+	{"WASSP Radio Configure", &ett_wassp_radio_config_block, array_length(tlvRadioConfigTable), tlvRadioConfigTable},
 	/*VNS_CONFIG_BLOCK */
-	{"WASSP VNS Configure", &ett_wassp_vns_config_block, sizeof(tlvVnsConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvVnsConfigTable},
+	{"WASSP VNS Configure", &ett_wassp_vns_config_block, array_length(tlvVnsConfigTable), tlvVnsConfigTable},
 	/*MU_RF_STATS_BLOCK */
-	{"WASSP MU RF Stats", &ett_wassp_mu_rf_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP MU RF Stats", &ett_wassp_mu_rf_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*AP_STATS_BLOCK */
-	{"WASSP RU RF Stats", &ett_wassp_ap_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP RU RF Stats", &ett_wassp_ap_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*STATS_MU_BLOCK */
-	{"WASSP MU Stats", &ett_wassp_mu_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP MU Stats", &ett_wassp_mu_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*TAB_STATS_RADIO */
-	{"WASSP Radio Stats", &ett_wassp_radio_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP Radio Stats", &ett_wassp_radio_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*TAB_STATS_ETH */
-	{"WASSP Ethernet Stats", &ett_wassp_ether_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP Ethernet Stats", &ett_wassp_ether_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*TAB_STATS_WDS */
-	{"WASSP Wds Stats", &ett_wassp_wds_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP Wds Stats", &ett_wassp_wds_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*TAB_STATS_DOT1x */
-	{"WASSP Dot1x Stats", &ett_wassp_dot1x_stats_block, sizeof(tlvBeastConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvBeastConfigTable},
+	{"WASSP Dot1x Stats", &ett_wassp_dot1x_stats_block, array_length(tlvBeastConfigTable), tlvBeastConfigTable},
 	/*TAB_CONFIG_FILTER */
-	{"WASSP Filter Config", &ett_wassp_filter_config_block, sizeof(tlvFilterConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvFilterConfigTable},
+	{"WASSP Filter Config", &ett_wassp_filter_config_block, array_length(tlvFilterConfigTable), tlvFilterConfigTable},
 	/*TAB_STATS_VNS */
-	{"WASSP VNS Status", &ett_wassp_vns_stats_block, sizeof(tlvVnsStatusTable) / sizeof(TLV_PARSER_ENTRY), tlvVnsStatusTable},
+	{"WASSP VNS Status", &ett_wassp_vns_stats_block, array_length(tlvVnsStatusTable), tlvVnsStatusTable},
 	/*TAB_CONFIG_RADIUS_SERVER */
-	{"WASSP Radius Server Config", &ett_wassp_radius_server_config_block, sizeof(tlvRadiusServerConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvRadiusServerConfigTable},
+	{"WASSP Radius Server Config", &ett_wassp_radius_server_config_block, array_length(tlvRadiusServerConfigTable), tlvRadiusServerConfigTable},
 	/*TAB_CONFIG_SITE */
-	{"WASSP Site Config", &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"WASSP Site Config", &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 	/*TAB_CONFIG_POLICY */
-	{"WASSP Policy Config", &ett_wassp_policy_config_block, sizeof(tlvPolicyConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvPolicyConfigTable},
+	{"WASSP Policy Config", &ett_wassp_policy_config_block, array_length(tlvPolicyConfigTable), tlvPolicyConfigTable},
 	/*TAB_CONFIG_COS */
-	{"WASSP Class of Service Configuration", &ett_wassp_cos_config_block, sizeof(tlvCosConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvCosConfigTable},
+	{"WASSP Class of Service Configuration", &ett_wassp_cos_config_block, array_length(tlvCosConfigTable), tlvCosConfigTable},
 	/*TAB_CONFIG_LOC_BASE_LP */
-	{"WASSP LocalBase Lookup", &ett_wassp_localbase_lookup_block, sizeof(tlvLocationBaseLookUpTable) / sizeof(TLV_PARSER_ENTRY), tlvLocationBaseLookUpTable},
+	{"WASSP LocalBase Lookup", &ett_wassp_localbase_lookup_block, array_length(tlvLocationBaseLookUpTable), tlvLocationBaseLookUpTable},
 	/*TAB_CONFIG_RADIUS */
-	{"WASSP Radius Config", &ett_wassp_radius_config_block, sizeof(tlvRadiusConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvRadiusConfigTable},
+	{"WASSP Radius Config", &ett_wassp_radius_config_block, array_length(tlvRadiusConfigTable), tlvRadiusConfigTable},
 	/*EVENT_BLOCK */
-	{"WASSP Event Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP Event Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SSS_MU_BLOCK */
-	{"WASSP SSS MU Block",  &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP SSS MU Block",  &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_EID_MU_BLOCK */
-	{"WASSP EID MU Block",  &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP EID MU Block",  &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*BULK_MU_BLOCK */
-	{"WASSP BULK MU Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP BULK MU Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*MU_BLOCK */
-	{"WASSP MU Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP MU Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*BULK_VNS_BLOCK */
-	{"WASSP BULK VNS Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP BULK VNS Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*VNS_BLOCK */
-	{"WASSP VNS Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP VNS Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SIAPP_PMK_BLOCK */
-	{"SIAPP PMK Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"SIAPP PMK Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SIAPP_RADIO_CONFIG_BLOCK */
-	{"SIAPP Radio Config Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"SIAPP Radio Config Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SIAPP_MU_STATS_BLOCK */
-	{"SIAPP MU STATS Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"SIAPP MU STATS Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SIAPP_THIN_BLOCK */
-	{"SIAPP THIN Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"SIAPP THIN Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SIAPP_BLOCK */
-	{"SIAPP  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"SIAPP  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_ASSOC_SSID_ARRAY*/
-	{"Assoc SSID array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Assoc SSID array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_ASSOC_SSID_BLOCK*/
-	{"Assoc SSID  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Assoc SSID  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_AP_LIST_BLOCK*/
-	{"AP list  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"AP list  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_AP_LIST_ARRAY*/
-	{"AP list array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"AP list array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SCAN_PROFILE_BLOCK*/
-	{"Scan profile  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Scan profile  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_DEF_ARRAY*/
-	{"Threat def array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Threat def array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_DEF_BLOCK*/
-	{"Thread def  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread def  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_PATTERN_ARRAY*/
-	{"Thread pattern array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread pattern array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_PATTERN_BLOCK*/
-	{"Thread pattern  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread pattern  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SURVEILLANCE_DATA_ARRAY,*/
-	{"Surveillance Data Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Surveillance Data Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_SURVEILLANCE_DATA_BLOCK,*/
-	{"Surveillance Data  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Surveillance Data  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_DATA_ARRAY,*/
-	{"Thread Data Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread Data Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_DATA_BLOCK,*/
-	{"Thread Data  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread Data  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_CLASSIFY_ARRAY,*/
-	{"Thread Classify Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread Classify Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_THREAT_CLASSIFY_BLOCK,*/
-	{"Thread Classify  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Thread Classify  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_USER_CLASSIFY_ARRAY,*/
-	{"User Classify Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"User Classify Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_USER_CLASSIFY_BLOCK,*/
-	{"User Classify  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"User Classify  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MU_EVENT_ARRAY,  */
-	{"MU Event Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MU Event Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MU_EVENT_BLOCK,*/
-	{"MU Event  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MU Event  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_COUNTRY_ARRAY,*/
-	{"Country Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Country Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_COUNTRY_BLOCK,*/
-	{"Country  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Country  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_LOCATOR_LOC_BLOCK,*/
-	{"Locator LOC  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Locator LOC  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_LOCATOR_LOC_ARRAY,*/
-	{"Locator LOC Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Locator LOC Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_RSS_DATA_ARRAY,*/
-	{"RSS Data  Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"RSS Data  Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_RSS_DATA_BLOCK,*/
-	{"RSS Data  Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"RSS Data  Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MCAST_FILTER_BLOCK, */
-	{"MCAST Filter Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MCAST Filter Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MCAST_FILTER_BLOCK_ENTRY */
-	{"MCAST Filter Block Entry", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MCAST Filter Block Entry", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MU_SESSION_ARRAY,*/
-	{"MU Session Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MU Session Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MU_SESSION_BLOCK,*/
-	{"MU Session Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MU Session Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_DETECTED_ROGUE_ARRAY,*/
-	{"Detected Rogue Array", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Detected Rogue Array", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_DETECTED_ROGUE_BLOCK,*/
-	{"Detected Rogue Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Detected Rogue Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_FILTER_RULES_EXT_BLOCK */
-	{"Filter Rule Ext Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Filter Rule Ext Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_APP_POLICY_FIXED_BLOCK */
-	{"App Policy Fixed Block", &ett_wassp_app_policy_fixed_block, sizeof(tlvAppPolicyFixedTable) / sizeof(TLV_PARSER_ENTRY), tlvAppPolicyFixedTable},
+	{"App Policy Fixed Block", &ett_wassp_app_policy_fixed_block, array_length(tlvAppPolicyFixedTable), tlvAppPolicyFixedTable},
 	/*TAB_V_FILTER_RULES_EXT_BLOCK */
-	{"FilterRules Ext Block", &ett_wassp_filter_ext_config_block, sizeof(tlvFilterRuleExtConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvFilterRuleExtConfigTable},
+	{"FilterRules Ext Block", &ett_wassp_filter_ext_config_block, array_length(tlvFilterRuleExtConfigTable), tlvFilterRuleExtConfigTable},
 	/*TAB_V_SITE_FILTER_RULES_EXT_BLOCK */
-	{"Site FilterRules Ext Block", &ett_wassp_site_filter_config_block, sizeof(tlvSiteFilterRuleExtConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteFilterRuleExtConfigTable},
+	{"Site FilterRules Ext Block", &ett_wassp_site_filter_config_block, array_length(tlvSiteFilterRuleExtConfigTable), tlvSiteFilterRuleExtConfigTable},
 	/*TAB_APP_POLICY_ENTRY_BLOCK */
-	{"App Policy Entry Block", &ett_wassp_app_policy_entry_block, sizeof(tlvAppPolicyEntryTable) / sizeof(TLV_PARSER_ENTRY), tlvAppPolicyEntryTable},
+	{"App Policy Entry Block", &ett_wassp_app_policy_entry_block, array_length(tlvAppPolicyEntryTable), tlvAppPolicyEntryTable},
 	/*TAB_11U_ANQP_BLOCK,  */
-	{"11u Config Block", &ett_wassp_11u_config_entry_block, sizeof(tlv11U_ANQP_blockTable) / sizeof(TLV_PARSER_ENTRY), tlv11U_ANQP_blockTable},
+	{"11u Config Block", &ett_wassp_11u_config_entry_block, array_length(tlv11U_ANQP_blockTable), tlv11U_ANQP_blockTable},
 	/*TAB_HS2_BLOCK,   */
-	{"HS2 config Block", &ett_wassp_hs2_config_entry_block, sizeof(tlvHS2_blockTable) / sizeof(TLV_PARSER_ENTRY), tlvHS2_blockTable},
+	{"HS2 config Block", &ett_wassp_hs2_config_entry_block, array_length(tlvHS2_blockTable), tlvHS2_blockTable},
 	/*TAB_RU_ACK_RADIO_CONFIG,*/
-	{"WASSP RU Ack Radio Configure", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"WASSP RU Ack Radio Configure", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_MU_APPL_STATS_BLOCK */
-	{"MU Appl Stats Block", &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"MU Appl Stats Block", &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_EXTAPP_CONF_BLOCK */
-	{"Extend AppControl Config Block", &ett_wassp_extapp_config_entry_block, sizeof(tlvExtapp_conf_blockTable) / sizeof(TLV_PARSER_ENTRY), tlvExtapp_conf_blockTable},
+	{"Extend AppControl Config Block", &ett_wassp_extapp_config_entry_block, array_length(tlvExtapp_conf_blockTable), tlvExtapp_conf_blockTable},
 	/*TAB_V_CP_CONFIG_BLOCK */
-	{"CP Config Block", &ett_wassp_vns_config_block, sizeof(tlvVnsConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvVnsConfigTable},
+	{"CP Config Block", &ett_wassp_vns_config_block, array_length(tlvVnsConfigTable), tlvVnsConfigTable},
 	/*TAB_TOPOLOGY_ARRAY_BLOCK */
-	{"Topology Array Block",  &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Topology Array Block",  &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_TOPOLOGY_STRUCT_BLOCK */
-	{"Topology Struct Block",   &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Topology Struct Block",   &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_FILTER_CONFIG_STRUCT_BLOCK */
-	{"Filter Config Struct Block",   &ett_wassp_eid_main_tlv_block, sizeof(tlvMainTable) / sizeof(TLV_PARSER_ENTRY), tlvMainTable},
+	{"Filter Config Struct Block",   &ett_wassp_eid_main_tlv_block, array_length(tlvMainTable), tlvMainTable},
 	/*TAB_S_TOPOLOGY_ARRAY_BLOCK, */
-	{"Site Topology Array Block",  &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"Site Topology Array Block",  &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 	/*TAB_S_TOPOLOGY_STRUCT_BLOCK,*/
-	{"Site Topology Struct Block",  &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"Site Topology Struct Block",  &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 	/*TAB_S_TOPO_MCAST_FILTER_CONFIG_BLOCK,*/
-	{"Site Topology Mcast Filter Config Struct Block",  &ett_wassp_s_topo_m_filter_entry_block, sizeof(tlvSTopoMcastFilterBlock) / sizeof(TLV_PARSER_ENTRY), tlvSTopoMcastFilterBlock},
+	{"Site Topology Mcast Filter Config Struct Block",  &ett_wassp_s_topo_m_filter_entry_block, array_length(tlvSTopoMcastFilterBlock), tlvSTopoMcastFilterBlock},
 	/*TAB_S_TOPO_MCAST_FILTER_RULES_EXT_BLOCK,*/
-	{"Site Topology Mcast Filter Rule Ext Block",  &ett_wassp_s_topo_m_filter_ext_entry_block, sizeof(tlvSTopoMcastFilterRuleBlock) / sizeof(TLV_PARSER_ENTRY), tlvSTopoMcastFilterRuleBlock},
+	{"Site Topology Mcast Filter Rule Ext Block",  &ett_wassp_s_topo_m_filter_ext_entry_block, array_length(tlvSTopoMcastFilterRuleBlock), tlvSTopoMcastFilterRuleBlock},
 	/*TAB_NAC_SERVER_CONFIG_ARRAY,*/
-	{"NAC service config array",  &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"NAC service config array",  &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 	/*TAB_NAC_SERVER_CONFIG_BLOCK,*/
-	{"NAC service config Block",  &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"NAC service config Block",  &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 	/*TAB_NAC_WEB_AUTH_USER_GROUP_ARRAY,*/
-	{"NAC WEB auth user group config array",  &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"NAC WEB auth user group config array",  &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 	/*TAB_NAC_WEB_AUTH_USER_GROUP_BLOCK,*/
-	{"NAC WEB auth user group  Block",  &ett_wassp_site_config_block, sizeof(tlvSiteConfigTable) / sizeof(TLV_PARSER_ENTRY), tlvSiteConfigTable},
+	{"NAC WEB auth user group  Block",  &ett_wassp_site_config_block, array_length(tlvSiteConfigTable), tlvSiteConfigTable},
 };
 
 

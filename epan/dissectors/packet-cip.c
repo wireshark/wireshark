@@ -4471,7 +4471,7 @@ static cip_service_info_t cip_obj_spec_service_table[] = {
 static cip_service_info_t* cip_get_service_cip(guint32 class_id, guint8 service_id)
 {
    return cip_get_service_one_table(&cip_obj_spec_service_table[0],
-      sizeof(cip_obj_spec_service_table) / sizeof(cip_service_info_t),
+      array_length(cip_obj_spec_service_table),
       class_id,
       service_id);
 }
@@ -4489,10 +4489,10 @@ typedef struct attribute_val_array {
 */
 
 static attribute_val_array_t all_attribute_vals[] = {
-   {sizeof(cip_attribute_vals)/sizeof(attribute_info_t), cip_attribute_vals},
-   {sizeof(enip_attribute_vals)/sizeof(attribute_info_t), enip_attribute_vals},
-   {sizeof(cip_safety_attribute_vals)/sizeof(attribute_info_t), cip_safety_attribute_vals},
-   {sizeof(cip_motion_attribute_vals)/sizeof(attribute_info_t), cip_motion_attribute_vals},
+   {array_length(cip_attribute_vals), cip_attribute_vals},
+   {array_length(enip_attribute_vals), enip_attribute_vals},
+   {array_length(cip_safety_attribute_vals), cip_safety_attribute_vals},
+   {array_length(cip_motion_attribute_vals), cip_motion_attribute_vals},
 };
 
 attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute)
@@ -4511,7 +4511,7 @@ attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attrib
       { 0, TRUE, 7, -1, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
    };
 
-   for (i = 0; i < sizeof(all_attribute_vals)/sizeof(attribute_val_array_t); i++)
+   for (i = 0; i < array_length(all_attribute_vals); i++)
    {
       att_array = &all_attribute_vals[i];
       for (j = 0; j < att_array->size; j++)
@@ -4530,7 +4530,7 @@ attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attrib
    /* Check against common class attributes. */
    if (instance == 0)
    {
-      for (i = 0; i < sizeof(class_attribute_vals) / sizeof(attribute_info_t); i++)
+      for (i = 0; i < array_length(class_attribute_vals); i++)
       {
          pattr = &class_attribute_vals[i];
          if (pattr->attribute == attribute)
@@ -6889,7 +6889,7 @@ static void build_get_attr_all_table(void)
 
    cip_gaa_hashtable = wmem_map_new(wmem_epan_scope(), cip_gaa_hash, cip_gaa_equal);
 
-   for (i = 0; i < sizeof(all_attribute_vals)/sizeof(attribute_val_array_t); i++)
+   for (i = 0; i < array_length(all_attribute_vals); i++)
    {
       att_array = &all_attribute_vals[i];
       for (j = 0; j < att_array->size; j++)

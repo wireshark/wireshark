@@ -772,7 +772,7 @@ static expert_field ei_gsm_a_ie_length_too_short;
 
 sccp_assoc_info_t* sccp_assoc;
 
-#define NUM_GSM_COMMON_ELEM (sizeof(gsm_common_elem_strings)/sizeof(value_string))
+#define NUM_GSM_COMMON_ELEM array_length(gsm_common_elem_strings)
 gint ett_gsm_common_elem[NUM_GSM_COMMON_ELEM];
 
 
@@ -3604,14 +3604,14 @@ static stat_tap_table_item gsm_a_stat_fields[] = {
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "%d"},
     {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-25s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}
-    };
+};
 
 static void gsm_a_stat_init(stat_tap_table_ui* new_stat, const char *table_title, const value_string *msg_strings)
 {
-    int num_fields = sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item);
+    int num_fields = array_length(gsm_a_stat_fields);
     stat_tap_table* table;
     guint i;
-    stat_tap_table_item_type items[sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type items[array_length(gsm_a_stat_fields)];
 
     items[IEI_COLUMN].type = TABLE_ITEM_UINT;
     items[MSG_NAME_COLUMN].type = TABLE_ITEM_STRING;
@@ -4819,8 +4819,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4835,8 +4835,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4851,8 +4851,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4867,8 +4867,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4883,8 +4883,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4899,8 +4899,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4915,8 +4915,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4931,8 +4931,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4947,8 +4947,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };
@@ -4963,8 +4963,8 @@ proto_register_gsm_a_common(void)
         gsm_a_stat_reset,
         gsm_a_stat_free_table_item,
         NULL,
-        sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item), gsm_a_stat_fields,
-        sizeof(gsm_a_stat_params)/sizeof(tap_param), gsm_a_stat_params,
+        array_length(gsm_a_stat_fields), gsm_a_stat_fields,
+        array_length(gsm_a_stat_params), gsm_a_stat_params,
         NULL,
         0
     };

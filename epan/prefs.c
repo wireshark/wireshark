@@ -5474,7 +5474,7 @@ deprecated_heur_dissector_pref(char *pref_name, const char *value)
     heur_dtbl_entry_t* heuristic;
 
 
-    for (i = 0; i < sizeof(heur_prefs)/sizeof(struct heur_pref_name); i++)
+    for (i = 0; i < array_length(heur_prefs); i++)
     {
         if (strcmp(pref_name, heur_prefs[i].pref_name) == 0)
         {
@@ -5510,7 +5510,7 @@ deprecated_enable_dissector_pref(char *pref_name, const char *value)
     unsigned int i;
     int proto_id;
 
-    for (i = 0; i < sizeof(dissector_prefs)/sizeof(struct dissector_pref_name); i++)
+    for (i = 0; i < array_length(dissector_prefs); i++)
     {
         if (strcmp(pref_name, dissector_prefs[i].pref_name) == 0)
         {
@@ -5764,7 +5764,7 @@ deprecated_port_pref(char *pref_name, const char *value)
         }
     }
 
-    for (i = 0; i < sizeof(port_range_prefs)/sizeof(struct port_pref_name); i++)
+    for (i = 0; i < array_length(port_range_prefs); i++)
     {
         if (strcmp(pref_name, port_range_prefs[i].pref_name) == 0)
         {
@@ -5813,7 +5813,7 @@ deprecated_port_pref(char *pref_name, const char *value)
         }
     }
 
-    for (i = 0; i < sizeof(tpkt_subdissector_port_prefs)/sizeof(struct port_pref_name); i++)
+    for (i = 0; i < array_length(tpkt_subdissector_port_prefs); i++)
     {
         if (strcmp(pref_name, tpkt_subdissector_port_prefs[i].pref_name) == 0)
         {
@@ -5834,7 +5834,7 @@ deprecated_port_pref(char *pref_name, const char *value)
         }
     }
 
-    for (i = 0; i < sizeof(obsolete_prefs)/sizeof(struct obsolete_pref_name); i++)
+    for (i = 0; i < array_length(obsolete_prefs); i++)
     {
         if (strcmp(pref_name, obsolete_prefs[i].pref_name) == 0)
         {

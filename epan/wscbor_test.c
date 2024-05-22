@@ -19,6 +19,7 @@
 #include "wscbor.h"
 #include <epan/wmem_scopes.h>
 #include <epan/exceptions.h>
+#include <wsutil/array.h>
 #include <wsutil/wmem/wmem_list.h>
 #include <wsutil/wmem/wmem_map.h>
 
@@ -78,7 +79,7 @@ static const example_s * all_examples[] = {
 static void
 wscbor_test_chunk_read_simple(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -106,7 +107,7 @@ wscbor_test_chunk_read_simple_tags(void)
     const guint8 *const tags = (const guint8 *)"\xC1\xD8\xC8";
     tvbuff_t *tvb_tags = tvb_new_real_data(tags, 3, 3);
 
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -198,7 +199,7 @@ wscbor_test_chunk_read_invalid(void)
 static void
 wscbor_test_is_indefinite_break(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -229,7 +230,7 @@ static void
 wscbor_test_skip_next_item_simple(void)
 {
     // skip simple items
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -278,7 +279,7 @@ wscbor_test_skip_next_item_multiple(void)
 static void
 wscbor_test_require_major_type(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -304,7 +305,7 @@ wscbor_test_require_major_type(void)
 static void
 wscbor_test_require_boolean_simple(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -335,7 +336,7 @@ wscbor_test_require_boolean_simple(void)
 static void
 wscbor_test_require_int64_simple(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -373,7 +374,7 @@ wscbor_test_require_int64_overflow(void)
     const example_s * examples[] = {
         &ex_uint_overflow, &ex_nint_overflow,
     };
-    for (size_t ex_ix = 0; ex_ix < (sizeof(examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(examples); ++ex_ix) {
         const example_s *ex = examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -410,7 +411,7 @@ wscbor_test_require_int64_overflow(void)
 static void
 wscbor_test_require_tstr_simple(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -449,7 +450,7 @@ wscbor_test_require_tstr_short(void)
     tvbuff_t *tvb = NULL;
     wscbor_chunk_t *chunk = NULL;
 
-    for (size_t ex_ix = 0; ex_ix < (sizeof(examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(examples); ++ex_ix) {
         const example_s *ex = examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -481,7 +482,7 @@ wscbor_test_require_tstr_short(void)
 static void
 wscbor_test_require_bstr_simple(void)
 {
-    for (size_t ex_ix = 0; ex_ix < (sizeof(all_examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(all_examples); ++ex_ix) {
         const example_s *ex = all_examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -526,7 +527,7 @@ wscbor_test_require_bstr_short(void)
     wscbor_chunk_t *chunk = NULL;
     tvbuff_t *val = NULL;
 
-    for (size_t ex_ix = 0; ex_ix < (sizeof(examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(examples); ++ex_ix) {
         const example_s *ex = examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 
@@ -569,7 +570,7 @@ wscbor_test_require_bstr_overflow(void)
     const example_s * examples[] = {
         &ex_bstr_overflow,
     };
-    for (size_t ex_ix = 0; ex_ix < (sizeof(examples) / sizeof(example_s*)); ++ex_ix) {
+    for (size_t ex_ix = 0; ex_ix < array_length(examples); ++ex_ix) {
         const example_s *ex = examples[ex_ix];
         printf("simple #%zu\n", ex_ix);
 

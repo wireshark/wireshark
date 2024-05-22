@@ -605,7 +605,7 @@ static const value_string ansi_fwd_ms_info_rec_str[] =
     { ANSI_FWD_MS_INFO_REC_ERTI,                "Extended Record Type International" },
     { 0, NULL }
 };
-#define NUM_FWD_MS_INFO_REC (sizeof(ansi_fwd_ms_info_rec_str)/sizeof(value_string))
+#define NUM_FWD_MS_INFO_REC array_length(ansi_fwd_ms_info_rec_str)
 static gint ett_ansi_fwd_ms_info_rec[NUM_FWD_MS_INFO_REC];
 
 /*
@@ -692,7 +692,7 @@ static const value_string ansi_rev_ms_info_rec_str[] =
     { ANSI_REV_MS_INFO_REC_ERTI,                "Extended Record Type International" },
     { 0, NULL }
 };
-#define NUM_REV_MS_INFO_REC (sizeof(ansi_rev_ms_info_rec_str)/sizeof(value_string))
+#define NUM_REV_MS_INFO_REC array_length(ansi_rev_ms_info_rec_str)
 static gint ett_ansi_rev_ms_info_rec[NUM_REV_MS_INFO_REC];
 
 /*
@@ -7131,8 +7131,8 @@ typedef enum
 elem_idx_t;
 static elem_idx_t ansi_a_elem_1_max = (elem_idx_t) 0;
 
-#define MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
-#define MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
+#define MAX_IOS401_NUM_ELEM_1 array_length(ansi_a_ios401_elem_1_strings)
+#define MAX_IOS501_NUM_ELEM_1 array_length(ansi_a_ios501_elem_1_strings)
 static gint ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
 static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p) =
 {
@@ -10047,8 +10047,8 @@ dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
-#define ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
+#define ANSI_A_IOS401_BSMAP_NUM_MSG array_length(ansi_a_ios401_bsmap_strings)
+#define ANSI_A_IOS501_BSMAP_NUM_MSG array_length(ansi_a_ios501_bsmap_strings)
 static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
 static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p) =
 {
@@ -10117,8 +10117,8 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL        /* NONE */
 };
 
-#define ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
-#define ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
+#define ANSI_A_IOS401_DTAP_NUM_MSG array_length(ansi_a_ios401_dtap_strings)
+#define ANSI_A_IOS501_DTAP_NUM_MSG array_length(ansi_a_ios501_dtap_strings)
 static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
 static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p) =
 {
@@ -10584,10 +10584,10 @@ static stat_tap_table_item dtap_stat_fields[] =
 static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
 {
     const char *table_name = "ANSI A-I/F DTAP Statistics";
-    int num_fields = sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item);
+    int num_fields = array_length(dtap_stat_fields);
     stat_tap_table *table;
     int i = 0;
-    stat_tap_table_item_type items[sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type items[array_length(dtap_stat_fields)];
 
     items[IEI_COLUMN].type = TABLE_ITEM_UINT;
     items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
@@ -10671,10 +10671,10 @@ static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RI
 static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
 {
     const char *table_name = "ANSI A-I/F BSMAP Statistics";
-    int num_fields = sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item);
+    int num_fields = array_length(bsmap_stat_fields);
     stat_tap_table *table;
     int i = 0;
-    stat_tap_table_item_type items[sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type items[array_length(bsmap_stat_fields)];
 
     items[IEI_COLUMN].type = TABLE_ITEM_UINT;
     items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
@@ -12786,7 +12786,7 @@ proto_register_ansi_a(void)
         ansi_a_stat_reset,
         NULL,
         NULL,
-        sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item), dtap_stat_fields,
+        array_length(dtap_stat_fields), dtap_stat_fields,
         0, NULL,
         NULL,
         0
@@ -12802,7 +12802,7 @@ proto_register_ansi_a(void)
         ansi_a_stat_reset,
         NULL,
         NULL,
-        sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item), bsmap_stat_fields,
+        array_length(bsmap_stat_fields), bsmap_stat_fields,
         0, NULL,
         NULL,
         0
