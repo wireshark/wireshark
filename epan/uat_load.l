@@ -473,7 +473,7 @@ uat_load(uat_t *uat, const char *filename, char **errx)
 }
 
 bool
-uat_load_str(uat_t *uat, char *entry, char **err)
+uat_load_str(uat_t *uat, const char *entry, char **err)
 {
 	yyscan_t scanner;
 	uat_load_scanner_state_t state;

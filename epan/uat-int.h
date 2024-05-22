@@ -126,7 +126,11 @@ bool uat_save(uat_t *uat, char **error);
 void uat_load_all(void);
 
 /**
- * Dump given UAT record to string in form, which can be later loaded with uat_load_str().
+ * Dump given UAT record to string in form which can be later loaded with uat_load_str().
+ * XXX - In fact this only dumps a single field. To produce the format for
+ * uat_load_str(), join all the fields as CSV records, escaping and double-
+ * quoting field types other than PT_TXTMOD_HEXBYTES. Perhaps we should have
+ * a function that dumps the entire record.
  */
 WS_DLL_PUBLIC
 char *uat_fld_tostr(void *rec, uat_field_t *f);

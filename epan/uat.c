@@ -276,14 +276,15 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
 
     switch(f->mode) {
         case PT_TXTMOD_NONE:
-        case PT_TXTMOD_STRING:
         case PT_TXTMOD_ENUM:
         case PT_TXTMOD_BOOL:
         case PT_TXTMOD_FILENAME:
         case PT_TXTMOD_DIRECTORYNAME:
         case PT_TXTMOD_DISPLAY_FILTER:
-        case PT_TXTMOD_COLOR:
         case PT_TXTMOD_PROTO_FIELD:
+        case PT_TXTMOD_COLOR:
+        case PT_TXTMOD_STRING:
+        case PT_TXTMOD_DISSECTOR:
             out = g_strndup(ptr, len);
             break;
         case PT_TXTMOD_HEXBYTES: {
@@ -292,9 +293,7 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
 
             for (i=0; i<len;i++) g_string_append_printf(s, "%.2X", ((const uint8_t*)ptr)[i]);
 
-            out = g_strdup(s->str);
-
-            g_string_free(s, true);
+            out = g_string_free(s, false);
             break;
         }
         default:

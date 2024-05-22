@@ -335,7 +335,7 @@ bool uat_load(uat_t* uat_in, const char *filename, char** err);
  *
  * @return true on success, false on failure.
  */
-bool uat_load_str(uat_t* uat_in, char* entry, char** err);
+bool uat_load_str(uat_t* uat_in, const char* entry, char** err);
 
 /** Given a UAT name or filename, find its pointer.
  *
