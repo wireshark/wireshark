@@ -4191,22 +4191,25 @@ sharkd_followers_visit_layers_cb(const void *key _U_, void *value, void *user_da
     const int proto_id = get_follow_proto_id(follower);
 
     guint stream;
-    guint sub_stream = (guint) SUBSTREAM_UNUSED;
+    guint sub_stream;
 
     if (proto_is_frame_protocol(pi->layers, proto_get_protocol_filter_name(proto_id)))
     {
         const char *layer_proto = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
         char *follow_filter;
 
-        follow_filter = get_follow_conv_func(follower)(edt, pi, (guint *) &stream, (guint *) &sub_stream);
+        follow_filter = get_follow_conv_func(follower)(edt, pi, &stream, &sub_stream);
 
         sharkd_json_object_open(NULL);
         sharkd_json_value_string("protocol", layer_proto);
         sharkd_json_value_string("filter", follow_filter);
-        sharkd_json_value_anyf("stream", "%d", stream);
-        if (sub_stream != (guint) SUBSTREAM_UNUSED)
+        if (get_follow_stream_count_func(follower) != NULL)
         {
-            sharkd_json_value_anyf("sub_stream", "%d", sub_stream);
+            sharkd_json_value_anyf("stream", "%u", stream);
+        }
+        if (get_follow_sub_stream_id_func(follower) != NULL)
+        {
+            sharkd_json_value_anyf("sub_stream", "%u", sub_stream);
         }
         sharkd_json_object_close();
 
