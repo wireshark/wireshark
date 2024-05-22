@@ -21,10 +21,18 @@
 // name: DFTranslator
 static GHashTable *registered_translators_;
 
+static void cleanup_hash_table_key(gpointer data)
+{
+    g_free(data);
+}
+
 bool register_dfilter_translator(const char *translator_name, DFTranslator translator)
 {
     if (!registered_translators_) {
-        registered_translators_ = g_hash_table_new(g_str_hash, g_str_equal);
+        registered_translators_ = g_hash_table_new_full(g_str_hash,
+                                                        g_str_equal,
+                                                        cleanup_hash_table_key,
+                                                        NULL);
     }
     return g_hash_table_insert(registered_translators_, g_strdup(translator_name), translator);
 }
@@ -46,6 +54,7 @@ char **get_dfilter_translator_list(void)
     GList *key_l = g_list_sort(g_hash_table_get_keys(registered_translators_), (GCompareFunc)g_ascii_strcasecmp);
     size_t key_count = g_list_length(key_l);
     if (key_count < 1) {
+        g_list_free(key_l);
         return NULL;
     }
 
@@ -56,6 +65,7 @@ char **get_dfilter_translator_list(void)
     }
     translator_list[key_count] = NULL;
 
+    g_list_free(key_l);
     return translator_list;
 }
 
