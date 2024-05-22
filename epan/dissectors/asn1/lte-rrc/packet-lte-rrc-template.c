@@ -3116,32 +3116,23 @@ static guint32 drx_lookup_onDurationTimer(guint32 idx)
 {
   static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200};
 
-  if (idx < (sizeof(vals)/sizeof(guint32))) {
-    return vals[idx];
-  }
-  return (sizeof(vals)/(sizeof(guint32)) - 1);
+  return vals[MIN(idx, array_length(vals) - 1)];
 }
 
 static guint32 drx_lookup_inactivityTimer(guint32 idx)
 {
   static const guint32 vals[] = {
-    1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200,300, 500,750,1280,1920,2560,0
+    1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200,300,500,750,1280,1920,2560,0
   };
 
-  if (idx < (sizeof(vals)/sizeof(guint32))) {
-    return vals[idx];
-  }
-  return (sizeof(vals)/(sizeof(guint32)) - 1);
+  return vals[MIN(idx, array_length(vals) - 1)];
 }
 
 static guint32 drx_lookup_retransmissionTimer(guint32 idx)
 {
   static const guint32 vals[] = {1,2,4,6,8,16,24,33};
 
-  if (idx < (sizeof(vals)/sizeof(guint32))) {
-    return vals[idx];
-  }
-  return (sizeof(vals)/(sizeof(guint32)) - 1);
+  return vals[MIN(idx, array_length(vals) - 1)];
 }
 
 static guint32 drx_lookup_longCycle(guint32 idx)
@@ -3150,10 +3141,7 @@ static guint32 drx_lookup_longCycle(guint32 idx)
     10,20,32,40,64,80,128,160,256,320,512,640,1024,1280,2048,2560
   };
 
-  if (idx < (sizeof(vals)/sizeof(guint32))) {
-    return vals[idx];
-  }
-  return (sizeof(vals)/(sizeof(guint32)) - 1);
+  return vals[MIN(idx, array_length(vals) - 1)];
 }
 
 static guint32 drx_lookup_longCycle_v1130(guint32 idx)
@@ -3162,10 +3150,7 @@ static guint32 drx_lookup_longCycle_v1130(guint32 idx)
     60,70
   };
 
-  if (idx < (sizeof(vals)/sizeof(guint32))) {
-    return vals[idx];
-  }
-  return (sizeof(vals)/(sizeof(guint32)) - 1);
+  return vals[MIN(idx, array_length(vals) - 1)];
 }
 
 
@@ -3175,10 +3160,7 @@ static guint32 drx_lookup_shortCycle(guint32 idx)
     2,5,8,10,16,20,32,40,64,80,128,160,256,320,512,640
   };
 
-  if (idx < (sizeof(vals)/sizeof(guint32))) {
-    return vals[idx];
-  }
-  return (sizeof(vals)/(sizeof(guint32)) - 1);
+  return vals[MIN(idx, array_length(vals) - 1)];
 }
 
 static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
