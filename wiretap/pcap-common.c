@@ -1478,7 +1478,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	 * extension headers.
 	 */
 	if (pseudo_header->erf.phdr.type & 0x80) {
-		int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+		int i = 0, max = array_length(pseudo_header->erf.ehdr_list);
 		uint8_t erf_exhdr[8];
 		uint8_t type;
 
@@ -1619,7 +1619,7 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	 * Now write out the extension headers.
 	 */
 	if (pseudo_header->erf.phdr.type & 0x80) {
-		int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+		int i = 0, max = array_length(pseudo_header->erf.ehdr_list);
 		uint8_t erf_exhdr[8];
 		uint8_t type;
 
@@ -2757,7 +2757,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		 * add in the lengths of the extension headers.
 		 */
 		if (pseudo_header->erf.phdr.type & 0x80) {
-			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+			int i = 0, max = array_length(pseudo_header->erf.ehdr_list);
 			uint8_t erf_exhdr[8];
 			uint8_t type;
 

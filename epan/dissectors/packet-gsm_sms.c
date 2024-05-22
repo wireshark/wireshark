@@ -2836,7 +2836,7 @@ dis_msg_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 }
 
 #if 0
-#define NUM_MSGS (sizeof(msg_type_strings)/sizeof(value_string))
+#define NUM_MSGS array_length(msg_type_strings)
 static gint ett_msgs[NUM_MSGS];
 #endif
 

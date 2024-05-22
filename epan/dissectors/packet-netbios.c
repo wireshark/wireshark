@@ -1104,7 +1104,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	hdr_len = tvb_get_letohs(tvb, offset + NB_LENGTH);
 	command = tvb_get_guint8( tvb, offset + NB_COMMAND);
 					/* limit command so no table overflows */
-	command = MIN( command, sizeof( dissect_netb)/ sizeof(void *));
+	command = MIN(command, array_length(dissect_netb));
 
 		/* print command name */
 	command_name = val_to_str_ext(command, &cmd_vals_ext, "Unknown (0x%02x)");
@@ -1140,7 +1140,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	}
 
 					/* if command in table range */
-	if ( command < sizeof( dissect_netb)/ sizeof(void *)) {
+	if ( command < array_length(dissect_netb)) {
 
 					/* branch to handle commands */
 		session_id = (dissect_netb[ command])( tvb, pinfo, offset, netb_tree);

@@ -1740,7 +1740,7 @@ static const value_string gmr1_msg_rr_strings[] = {
 };
 
 
-#define NUM_GMR1_MSG_RR (sizeof(gmr1_msg_rr_strings) / sizeof(value_string))
+#define NUM_GMR1_MSG_RR array_length(gmr1_msg_rr_strings)
 static gint ett_msg_rr[NUM_GMR1_MSG_RR];
 
 	/* same order as gmr1_msg_rr_strings */

@@ -3977,7 +3977,7 @@ static stat_tap_table_item rpc_prog_stat_fields[] = {
 static void rpc_prog_stat_init(stat_tap_table_ui* new_stat)
 {
 	const char *table_name = "ONC-RPC Program Statistics";
-	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
+	int num_fields = array_length(rpc_prog_stat_fields);
 	stat_tap_table *table;
 
 	table = stat_tap_find_table(new_stat, table_name);
@@ -3997,7 +3997,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)rciv_ptr;
-	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
+	int num_fields = array_length(rpc_prog_stat_fields);
 	nstime_t delta;
 	double delta_s = 0.0;
 	guint call_count;
@@ -4022,7 +4022,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 
 	if (!found) {
 		/* Add a new row */
-		stat_tap_table_item_type items[sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item)];
+		stat_tap_table_item_type items[array_length(rpc_prog_stat_fields)];
 		memset(items, 0, sizeof(items));
 
 		items[PROGRAM_NAME_COLUMN].type = TABLE_ITEM_STRING;
@@ -4396,8 +4396,8 @@ proto_register_rpc(void)
 		rpc_prog_stat_reset,
 		rpc_prog_stat_free_table_item,
 		NULL,
-		sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item), rpc_prog_stat_fields,
-		sizeof(rpc_prog_stat_params)/sizeof(tap_param), rpc_prog_stat_params,
+		array_length(rpc_prog_stat_fields), rpc_prog_stat_fields,
+		array_length(rpc_prog_stat_params), rpc_prog_stat_params,
 		NULL,
 		0
 	};

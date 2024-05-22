@@ -634,7 +634,7 @@ main(int argc, char *argv[])
             case 'R':        /* Read file filter */
             case 'Y':        /* Read file filter */
                 /* Read and display filters are the same for rawshark */
-                if(n_rfilters < (int) sizeof(rfilters) / (int) sizeof(rfilters[0])) {
+                if(n_rfilters < (int)array_length(rfilters)) {
                     rfilters[n_rfilters++] = ws_optarg;
                 }
                 else {

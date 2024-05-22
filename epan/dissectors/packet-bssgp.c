@@ -3896,7 +3896,7 @@ static const value_string bssgp_elem_strings[] = {
 };
 value_string_ext bssgp_elem_strings_ext = VALUE_STRING_EXT_INIT(bssgp_elem_strings);
 
-#define NUM_BSSGP_ELEM (sizeof(bssgp_elem_strings)/sizeof(value_string))
+#define NUM_BSSGP_ELEM array_length(bssgp_elem_strings)
 gint ett_bssgp_elem[NUM_BSSGP_ELEM];
 
 
@@ -6663,7 +6663,7 @@ static const value_string bssgp_msg_strings[] = {
 };
 static value_string_ext bssgp_msg_strings_ext = VALUE_STRING_EXT_INIT(bssgp_msg_strings);
 
-#define NUM_BSSGP_MSG (sizeof(bssgp_msg_strings)/sizeof(value_string))
+#define NUM_BSSGP_MSG array_length(bssgp_msg_strings)
 static gint ett_bssgp_msg[NUM_BSSGP_MSG];
 static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
 /* 0x00 to 0x10 */

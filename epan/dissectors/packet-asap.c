@@ -684,10 +684,10 @@ static stat_tap_table_item asap_stat_fields[] = {
 static void asap_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "ASAP Statistics";
-  int num_fields = sizeof(asap_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(asap_stat_fields);
   stat_tap_table *table;
   int i = 0;
-  stat_tap_table_item_type items[sizeof(asap_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(asap_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -950,8 +950,8 @@ proto_register_asap(void)
     asap_stat_reset,
     NULL,
     NULL,
-    sizeof(asap_stat_fields)/sizeof(stat_tap_table_item), asap_stat_fields,
-    sizeof(asap_stat_params)/sizeof(tap_param), asap_stat_params,
+    array_length(asap_stat_fields), asap_stat_fields,
+    array_length(asap_stat_params), asap_stat_params,
     NULL,
     0
   };

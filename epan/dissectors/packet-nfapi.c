@@ -7677,10 +7677,10 @@ static const tlv_t* look_up_tlv(int tag_id)
 {
 	const tlv_t* tlv = NULL;
 
-	static const gint num_configuration_tags = sizeof(configuration_tags) / sizeof(tlv_t);
-	static const gint num_nfapi_tags = sizeof(nfapi_tags) / sizeof(tlv_t);
-	static const gint num_p7_tags = sizeof(p7_tags) / sizeof(tlv_t);
-	static const gint num_p4_tags = sizeof(p4_tags) / sizeof(tlv_t);
+	static const gint num_configuration_tags = array_length(configuration_tags);
+	static const gint num_nfapi_tags = array_length(nfapi_tags);
+	static const gint num_p7_tags = array_length(p7_tags);
+	static const gint num_p4_tags = array_length(p4_tags);
 
 	if (tag_id >= 0x0000 && tag_id <= (0x0000 + num_configuration_tags - 1)) // 0x0133)
 	{

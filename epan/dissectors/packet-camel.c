@@ -8206,10 +8206,10 @@ static stat_tap_table_item camel_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_
 static void camel_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "CAMEL Message Counters";
-  int num_fields = sizeof(camel_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(camel_stat_fields);
   stat_tap_table *table;
   int i;
-  stat_tap_table_item_type items[sizeof(camel_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(camel_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -10705,8 +10705,8 @@ void proto_register_camel(void) {
     camel_stat_reset,
     camel_stat_free_table_item,
     NULL,
-    sizeof(camel_stat_fields)/sizeof(stat_tap_table_item), camel_stat_fields,
-    sizeof(camel_stat_params)/sizeof(tap_param), camel_stat_params,
+    array_length(camel_stat_fields), camel_stat_fields,
+    array_length(camel_stat_params), camel_stat_params,
     NULL,
     0
   };

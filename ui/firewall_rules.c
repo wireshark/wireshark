@@ -24,6 +24,7 @@
 
 #include <glib.h>
 
+#include <wsutil/array.h>
 #include "epan/address.h"
 
 #include "firewall_rules.h"
@@ -85,7 +86,7 @@ static fw_product products[] = {
     { "Windows Firewall (netsh new syntax)", "", "#",
         NULL, NULL, sf_netsh_port_new, sf_netsh_ipv4_port_new, false }
 };
-#define NUM_PRODS (sizeof(products) / sizeof(fw_product))
+#define NUM_PRODS array_length(products)
 
 
 size_t firewall_product_count(void)

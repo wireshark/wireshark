@@ -1252,7 +1252,7 @@ static expert_field ei_gsm_a_rr_missing_mandatory_element;
 static dissector_handle_t rrlp_dissector;
 
 
-#define NUM_GSM_RR_ELEM (sizeof(gsm_rr_elem_strings)/sizeof(value_string))
+#define NUM_GSM_RR_ELEM array_length(gsm_rr_elem_strings)
 gint ett_gsm_rr_elem[NUM_GSM_RR_ELEM];
 
 typedef enum
@@ -1323,7 +1323,7 @@ typedef enum
 }
 rr_rest_octets_elem_idx_t;
 
-#define NUM_GSM_RR_REST_OCTETS_ELEM (sizeof(gsm_rr_rest_octets_elem_strings)/sizeof(const char*))
+#define NUM_GSM_RR_REST_OCTETS_ELEM array_length(gsm_rr_rest_octets_elem_strings)
 gint ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 
 /* True/False flags specifically for gsm_rr_csn_flag */
@@ -11822,7 +11822,7 @@ dtap_rr_ec_dl_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 }
 
-#define NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_RR array_length(gsm_a_dtap_msg_rr_strings)
 static gint ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
 static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     NULL,       /* Reserved */
@@ -12242,7 +12242,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 
-#define NUM_GSM_DTAP_EC_CCCH_MSG_RR (sizeof(gsm_a_dtap_msg_rr_ec_ccch_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_EC_CCCH_MSG_RR array_length(gsm_a_dtap_msg_rr_ec_ccch_strings)
 static gint ett_gsm_dtap_ec_ccch_msg_rr[NUM_GSM_DTAP_EC_CCCH_MSG_RR];
 static void (*dtap_msg_rr_ec_ccch_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
   dtap_rr_ec_imm_ass_type_2,                  /* EC-Immediate Assignment Type 2 */
@@ -12342,7 +12342,7 @@ const value_string gsm_a_rr_short_pd_msg_strings[] = {
     {    0, NULL }
 };
 
-#define NUM_GSM_SACCH_MSG_RR (sizeof(gsm_a_rr_short_pd_msg_strings)/sizeof(value_string))
+#define NUM_GSM_SACCH_MSG_RR array_length(gsm_a_rr_short_pd_msg_strings)
 static gint ett_gsm_sacch_msg_rr[NUM_GSM_SACCH_MSG_RR];
 static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
     NULL,                       /* System Information Type 10 */

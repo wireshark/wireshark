@@ -1837,7 +1837,7 @@ tele_param_tp_failure_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_ansi_637_tele_tp_failure_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
-#define NUM_TELE_PARAM (sizeof(ansi_tele_param_strings)/sizeof(value_string))
+#define NUM_TELE_PARAM array_length(ansi_tele_param_strings)
 static gint ett_ansi_637_tele_param[NUM_TELE_PARAM];
 static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p) = {
     tele_param_msg_id,                  /* Message Identifier */
@@ -2261,7 +2261,7 @@ trans_param_bearer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_,
     dissector_try_uint(tele_dissector_table, ansi_637_trans_tele_id, tele_tvb, pinfo, g_tree);
 }
 
-#define NUM_TRANS_PARAM (sizeof(ansi_trans_param_strings)/sizeof(value_string))
+#define NUM_TRANS_PARAM array_length(ansi_trans_param_strings)
 static gint ett_ansi_637_trans_param[NUM_TRANS_PARAM];
 static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len) = {
     trans_param_tele_id,                /* Teleservice Identifier */
@@ -2276,7 +2276,7 @@ static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, pro
     NULL,                               /* NONE */
 };
 
-#define NUM_TRANS_MSG_TYPE (sizeof(ansi_trans_msg_type_strings)/sizeof(value_string))
+#define NUM_TRANS_MSG_TYPE array_length(ansi_trans_msg_type_strings)
 static gint ett_ansi_637_trans_msg[NUM_TRANS_MSG_TYPE];
 
 /* GENERIC IS-637 DISSECTOR FUNCTIONS */
@@ -3342,7 +3342,7 @@ proto_reg_handoff_ansi_637(void)
      *
      * to add teleservices, modify 'ansi_tele_id_strings'
      */
-    for (i=0; i < ((sizeof(ansi_tele_id_strings)/sizeof(value_string))-1); i++)
+    for (i = 0; i < array_length(ansi_tele_id_strings) - 1; i++)
     {
         /*
          * ANSI MAP dissector will push out teleservice ids

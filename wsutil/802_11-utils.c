@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "802_11-utils.h"
+#include <wsutil/array.h>
 
 typedef struct freq_cvt_s {
     unsigned fmin;         /* Minimum frequency in MHz */
@@ -41,7 +42,7 @@ static freq_cvt_t freq_cvt[] = {
     { 4910, 4980, 182, false },
 };
 
-#define NUM_FREQ_CVT (sizeof(freq_cvt) / sizeof(freq_cvt_t))
+#define NUM_FREQ_CVT array_length(freq_cvt)
 #define MAX_CHANNEL(fc) ( (int) ((fc.fmax - fc.fmin) / FREQ_STEP) + fc.cmin )
 
 /*

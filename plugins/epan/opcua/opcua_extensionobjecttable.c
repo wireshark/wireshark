@@ -167,21 +167,20 @@ ExtensionObjectParserEntry g_arExtensionObjectParserTable[] = {
     { OpcUaId_ProgramDiagnosticDataType_Encoding_DefaultBinary, parseProgramDiagnosticDataType, "ProgramDiagnosticDataType" },
     { OpcUaId_Annotation_Encoding_DefaultBinary, parseAnnotation, "Annotation" },
 };
-const int g_NumTypes = sizeof(g_arExtensionObjectParserTable) / sizeof(ExtensionObjectParserEntry);
 
 /** Dispatch all extension objects to a special parser function. */
 void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int TypeId)
 {
-    gint    iOffset = *pOffset;
-    int     indx = 0;
-    int     bFound = 0;
-    gint32  iLen = 0;
+    gint     iOffset = *pOffset;
+    unsigned indx = 0;
+    int      bFound = 0;
+    gint32   iLen = 0;
 
     /* get the length of the body */
     iLen = tvb_get_letohl(tvb, iOffset);
     iOffset += 4;
 
-    while (indx < g_NumTypes)
+    while (indx < array_length(g_arExtensionObjectParserTable))
     {
         if (g_arExtensionObjectParserTable[indx].iRequestId == TypeId)
         {

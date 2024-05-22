@@ -150,7 +150,7 @@ static const value_string gsm_a_bsslap_msg_strings[] = {
     { 0,            NULL }
 };
 
-#define NUM_GSM_BSSLAP_ELEM (sizeof(gsm_bsslap_elem_strings)/sizeof(value_string))
+#define NUM_GSM_BSSLAP_ELEM array_length(gsm_bsslap_elem_strings)
 gint ett_gsm_bsslap_elem[NUM_GSM_BSSLAP_ELEM];
 
 /*
@@ -541,7 +541,7 @@ elem_fcn bsslap_elem_fcn[] = {
     NULL,            /* NONE */
 };
 
-#define NUM_GSM_BSSLAP_MSG (sizeof(gsm_a_bsslap_msg_strings)/sizeof(value_string))
+#define NUM_GSM_BSSLAP_MSG array_length(gsm_a_bsslap_msg_strings)
 static gint ett_gsm_bsslap_msg[NUM_GSM_BSSLAP_MSG];
 
 /* 4.2.2 TA Response ETSI TS 148 071 V7.2.0 (2007-06) */

@@ -751,8 +751,7 @@ static char * lbmsrs_tag_find(packet_info * pinfo)
 
 /*Utility functions*/
 static const gchar *getFrameTypeName(const guint64 frame_type) {
-    for (size_t i = 0; i < sizeof(rSocketFrameTypeNames) / sizeof(value_string);
-        i++) {
+    for (size_t i = 0; i < array_length(rSocketFrameTypeNames); i++) {
         if (rSocketFrameTypeNames[i].value == frame_type) {
             return rSocketFrameTypeNames[i].strptr;
         }

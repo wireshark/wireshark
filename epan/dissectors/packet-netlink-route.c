@@ -703,11 +703,11 @@ static int
 dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *info _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int byte_size)
 {
 	proto_tree* rxerr_subtree;
-	const gint rxerr_hfs_len = (sizeof(linkstat_rxerr_hfs) / sizeof(int *));
+	const gint rxerr_hfs_len = array_length(linkstat_rxerr_hfs);
 	proto_tree* txerr_subtree;
-	const gint txerr_hfs_len = (sizeof(linkstat_txerr_hfs) / sizeof(int *));
+	const gint txerr_hfs_len = array_length(linkstat_txerr_hfs);
 
-	for (size_t i = 0; i < (sizeof(linkstat_root_hfs) / sizeof(int *)); i++) {
+	for (size_t i = 0; i < array_length(linkstat_root_hfs); i++) {
 		proto_tree_add_item(tree, *linkstat_root_hfs[i], tvb, offset, byte_size, nl_data->encoding);
 		offset += byte_size;
 	}

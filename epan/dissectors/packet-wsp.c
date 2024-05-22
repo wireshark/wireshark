@@ -5574,11 +5574,11 @@ static void wsp_stat_init(stat_tap_table_ui* new_stat)
 {
     const char *pt_table_name = "PDU Types";
     const char *sc_table_name = "Status Codes";
-    int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
+    int num_fields = array_length(wsp_stat_fields);
     stat_tap_table *pt_table;
-    stat_tap_table_item_type pt_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type pt_items[array_length(wsp_stat_fields)];
     stat_tap_table *sc_table;
-    stat_tap_table_item_type sc_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type sc_items[array_length(wsp_stat_fields)];
     int table_idx;
 
     pt_table = stat_tap_find_table(new_stat, pt_table_name);
@@ -7355,8 +7355,8 @@ proto_register_sir(void)
         wsp_stat_reset,
         wsp_stat_free_table_item,
         NULL,
-        sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item), wsp_stat_fields,
-        sizeof(wsp_stat_params)/sizeof(tap_param), wsp_stat_params,
+        array_length(wsp_stat_fields), wsp_stat_fields,
+        array_length(wsp_stat_params), wsp_stat_params,
         NULL,
         0
     };

@@ -2718,10 +2718,10 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
 static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "GSM MAP Operation Statistics";
-  int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(gsm_map_stat_fields);
   stat_tap_table* table;
   guint i;
-  stat_tap_table_item_type items[sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(gsm_map_stat_fields)];
 
   memset(items, 0, sizeof(items));
 
@@ -3393,8 +3393,8 @@ void proto_register_gsm_map(void) {
     gsm_map_stat_reset,
     gsm_map_stat_free_table_item,
     NULL,
-    sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item), gsm_map_stat_fields,
-    sizeof(gsm_map_stat_params)/sizeof(tap_param), gsm_map_stat_params,
+    array_length(gsm_map_stat_fields), gsm_map_stat_fields,
+    array_length(gsm_map_stat_params), gsm_map_stat_params,
     NULL,
     0
   };

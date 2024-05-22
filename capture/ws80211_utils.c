@@ -1165,7 +1165,7 @@ const char *ws80211_get_helper_path(void)
 	if (!airpcap_conf_path && RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\AirPcap"), 0, KEY_QUERY_VALUE|KEY_WOW64_32KEY, &h_key) == ERROR_SUCCESS) {
 		DWORD reg_ret;
 		TCHAR airpcap_dir_utf16[MAX_PATH];
-		DWORD ad_size = sizeof(airpcap_dir_utf16)/sizeof(TCHAR);
+		DWORD ad_size = array_length(airpcap_dir_utf16);
 
 		reg_ret = RegQueryValueEx(h_key, NULL, NULL, NULL,
 				(LPBYTE) &airpcap_dir_utf16, &ad_size);

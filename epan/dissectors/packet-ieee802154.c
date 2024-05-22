@@ -3874,7 +3874,7 @@ dissect_802154_tsch_timeslot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             hf_ieee802154_tsch_timeslot_max_ack,
         };
         unsigned int i;
-        for (i = 0; i < sizeof(timeslot_fields)/sizeof(timeslot_fields[1]); i++) {
+        for (i = 0; i < array_length(timeslot_fields); i++) {
             proto_tree_add_item(subtree, timeslot_fields[i], tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }

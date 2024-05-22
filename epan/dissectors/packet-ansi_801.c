@@ -227,7 +227,7 @@ static const value_string for_req_type_strings[] = {
 	{ 7,	"Request Cancellation" },
 	{ 0, NULL },
 };
-#define	NUM_FOR_REQ_TYPE (sizeof(for_req_type_strings)/sizeof(value_string))
+#define	NUM_FOR_REQ_TYPE array_length(for_req_type_strings)
 static gint ett_for_req_type[NUM_FOR_REQ_TYPE];
 
 static const value_string for_rsp_type_strings[] = {
@@ -246,7 +246,7 @@ static const value_string for_rsp_type_strings[] = {
 	{ 12,	"Provide GPS Satellite Health Information" },
 	{ 0, NULL },
 };
-#define	NUM_FOR_RSP_TYPE (sizeof(for_rsp_type_strings)/sizeof(value_string))
+#define	NUM_FOR_RSP_TYPE array_length(for_rsp_type_strings)
 static gint ett_for_rsp_type[NUM_FOR_RSP_TYPE];
 
 
@@ -261,7 +261,7 @@ static const value_string rev_rsp_type_strings[] = {
 	{ 7,	"Provide Cancellation Acknowledgement" },
 	{ 0, NULL },
 };
-#define	NUM_REV_RSP_TYPE (sizeof(rev_rsp_type_strings)/sizeof(value_string))
+#define	NUM_REV_RSP_TYPE array_length(rev_rsp_type_strings)
 static gint ett_rev_rsp_type[NUM_REV_RSP_TYPE];
 
 /*
@@ -283,7 +283,7 @@ static const value_string rev_req_type_strings[] = {
 	{ 12,	"Request GPS Satellite Health Information" },
 	{ 0, NULL },
 };
-#define	NUM_REV_REQ_TYPE (sizeof(rev_req_type_strings)/sizeof(value_string))
+#define	NUM_REV_REQ_TYPE array_length(rev_req_type_strings)
 static gint ett_rev_req_type[NUM_REV_REQ_TYPE];
 
 static const value_string regulatory_services_indicator_vals[] = {

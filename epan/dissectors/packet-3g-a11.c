@@ -507,11 +507,6 @@ static const value_string a11_rohc_profile_vals[] =
 };
 static value_string_ext a11_rohc_profile_vals_ext = VALUE_STRING_EXT_INIT(a11_rohc_profile_vals);
 
-#define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))
-
-#define RADIUS_VENDOR_SPECIFIC 26
-#define SKIP_HDR_LEN 6
-
 /* decode MSID from SSE */
 
 /* MSID is encoded in Binary Coded Decimal format

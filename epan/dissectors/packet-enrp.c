@@ -888,10 +888,10 @@ static stat_tap_table_item enrp_stat_fields[] = {
 static void enrp_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "NetPerfMeter Statistics";
-  int num_fields = sizeof(enrp_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(enrp_stat_fields);
   stat_tap_table *table;
   int i = 0;
-  stat_tap_table_item_type items[sizeof(enrp_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(enrp_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -1171,8 +1171,8 @@ proto_register_enrp(void)
     enrp_stat_reset,
     NULL,
     NULL,
-    sizeof(enrp_stat_fields)/sizeof(stat_tap_table_item), enrp_stat_fields,
-    sizeof(enrp_stat_params)/sizeof(tap_param), enrp_stat_params,
+    array_length(enrp_stat_fields), enrp_stat_fields,
+    array_length(enrp_stat_params), enrp_stat_params,
     NULL,
     0
   };

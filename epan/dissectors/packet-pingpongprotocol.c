@@ -192,10 +192,10 @@ static stat_tap_table_item pingpongprotocol_stat_fields[] = {
 static void pingpongprotocol_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "PingPongProtocol Statistics";
-  int num_fields = sizeof(pingpongprotocol_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(pingpongprotocol_stat_fields);
   stat_tap_table *table;
   int i = 0;
-  stat_tap_table_item_type items[sizeof(pingpongprotocol_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(pingpongprotocol_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -421,8 +421,8 @@ proto_register_pingpongprotocol(void)
     pingpongprotocol_stat_reset,
     NULL,
     NULL,
-    sizeof(pingpongprotocol_stat_fields)/sizeof(stat_tap_table_item), pingpongprotocol_stat_fields,
-    sizeof(pingpongprotocol_stat_params)/sizeof(tap_param), pingpongprotocol_stat_params,
+    array_length(pingpongprotocol_stat_fields), pingpongprotocol_stat_fields,
+    array_length(pingpongprotocol_stat_params), pingpongprotocol_stat_params,
     NULL,
     0
   };

@@ -445,7 +445,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   hdr_version     = tvb_get_letohl(tvb, 4);
   hdr_opcode      = tvb_get_letohl(tvb, 8);
 
-  for (i = 0; i < sizeof(skinny_opcode_map)/sizeof(skinny_opcode_map_t) ; i++) {
+  for (i = 0; i < array_length(skinny_opcode_map); i++) {
     if (skinny_opcode_map[i].opcode == hdr_opcode) {
       opcode_entry = &skinny_opcode_map[i];
     }

@@ -7420,10 +7420,10 @@ static stat_tap_table_item dhcp_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_L
 static void dhcp_stat_init(stat_tap_table_ui* new_stat)
 {
 	const char *table_name = "DHCP Statistics";
-	int num_fields = sizeof(dhcp_stat_fields)/sizeof(stat_tap_table_item);
+	int num_fields = array_length(dhcp_stat_fields);
 	stat_tap_table *table;
 	int i = 0;
-	stat_tap_table_item_type items[sizeof(dhcp_stat_fields)/sizeof(stat_tap_table_item)];
+	stat_tap_table_item_type items[array_length(dhcp_stat_fields)];
 
 	table = stat_tap_find_table(new_stat, table_name);
 	if (table) {
@@ -10399,8 +10399,8 @@ proto_register_dhcp(void)
 		dhcp_stat_reset,
 		NULL,
 		NULL,
-		sizeof(dhcp_stat_fields)/sizeof(stat_tap_table_item), dhcp_stat_fields,
-		sizeof(dhcp_stat_params)/sizeof(tap_param), dhcp_stat_params,
+		array_length(dhcp_stat_fields), dhcp_stat_fields,
+		array_length(dhcp_stat_params), dhcp_stat_params,
 		NULL,
 		0
 	};

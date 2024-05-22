@@ -93,7 +93,7 @@ static int proto_json;
 
 static proto_tree *g_tree;
 
-#define	NUM_GSM_RP_ELEM (sizeof(gsm_rp_elem_strings)/sizeof(value_string))
+#define	NUM_GSM_RP_ELEM array_length(gsm_rp_elem_strings)
 gint ett_gsm_rp_elem[NUM_GSM_RP_ELEM];
 
 /*
@@ -398,7 +398,7 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
-#define	NUM_GSM_RP_MSG (sizeof(gsm_rp_msg_strings)/sizeof(value_string))
+#define	NUM_GSM_RP_MSG array_length(gsm_rp_msg_strings)
 static gint ett_gsm_rp_msg[NUM_GSM_RP_MSG];
 static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	rp_data_ms_n,	/* RP-DATA (MS to Network) */

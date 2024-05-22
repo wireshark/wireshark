@@ -3161,7 +3161,7 @@ static const value_string for_msg_type_strings[] = {
     { 23,       "MMS Download Request" },
     { 0, NULL }
 };
-#define NUM_FOR_MSGS (sizeof(for_msg_type_strings)/sizeof(value_string))
+#define NUM_FOR_MSGS array_length(for_msg_type_strings)
 static void (*ansi_683_for_msg_fcn[])(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len, guint32 offset) = {
     msg_config_req,             /* Configuration Request */
     msg_download_req,           /* Download Request */
@@ -3217,7 +3217,7 @@ static const value_string rev_msg_type_strings[] = {
     { 23,       "MMS Download Response" },
     { 0, NULL }
 };
-#define NUM_REV_MSGS (sizeof(rev_msg_type_strings)/sizeof(value_string))
+#define NUM_REV_MSGS array_length(rev_msg_type_strings)
 static void (*ansi_683_rev_msg_fcn[])(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len, guint32 offset) = {
     msg_config_rsp,             /* Configuration Response */
     msg_download_rsp,           /* Download Response */

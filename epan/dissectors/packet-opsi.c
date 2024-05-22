@@ -410,7 +410,7 @@ static opsi_attribute_handle_t opsi_attributes[] = {
 	"OPSI application name attribute", &ett_opsi_application_name, &hf_opsi_application_name_att, decode_string_attribute },
 
 };
-#define OPSI_ATTRIBUTES_COUNT (sizeof(opsi_attributes)/sizeof(opsi_attribute_handle_t))
+#define OPSI_ATTRIBUTES_COUNT array_length(opsi_attributes)
 
 /* Desegmentation of OPSI (over TCP) */
 static bool opsi_desegment = true;

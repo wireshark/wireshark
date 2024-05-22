@@ -3507,8 +3507,8 @@ dissect_qnet6_kif(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint *
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "QNET_KIF");
   for (p = qnet6_kif_msgtype_vals;
-       p < qnet6_kif_msgtype_vals +
-       sizeof(qnet6_kif_msgtype_vals) / sizeof(value_string); p++)
+       p < qnet6_kif_msgtype_vals + array_length(qnet6_kif_msgtype_vals);
+       p++)
     {
       if (p->value ==(khdr.msgtype & QNET_KIF_MSGTYPE_MASK))
         {

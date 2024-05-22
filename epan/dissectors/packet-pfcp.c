@@ -10627,7 +10627,7 @@ static const pfcp_ie_t pfcp_ies[] = {
     { NULL },                                                        /* End of List */
 };
 
-#define NUM_PFCP_IES (sizeof(pfcp_ies)/sizeof(pfcp_ie_t))
+#define NUM_PFCP_IES array_length(pfcp_ies)
 /* Set up the array to hold "etts" for each IE*/
 gint ett_pfcp_elem[NUM_PFCP_IES-1];
 

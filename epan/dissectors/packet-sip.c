@@ -5813,10 +5813,10 @@ static const char *resp_table_name = "SIP Responses";
 static void sip_stat_init(stat_tap_table_ui* new_stat)
 {
     /* XXX Should we have a single request + response table instead? */
-    int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
+    int num_fields = array_length(sip_stat_fields);
     stat_tap_table *req_table;
     stat_tap_table *resp_table;
-    stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type items[array_length(sip_stat_fields)];
     guint i;
 
     // These values are fixed for all entries.
@@ -7549,8 +7549,8 @@ void proto_register_sip(void)
       sip_stat_reset,
       sip_stat_free_table_item,
       NULL,
-      sizeof(sip_stat_fields)/sizeof(stat_tap_table_item), sip_stat_fields,
-      sizeof(sip_stat_params)/sizeof(tap_param), sip_stat_params,
+      array_length(sip_stat_fields), sip_stat_fields,
+      array_length(sip_stat_params), sip_stat_params,
       NULL,
       0
     };

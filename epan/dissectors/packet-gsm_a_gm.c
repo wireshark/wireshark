@@ -646,7 +646,7 @@ static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Prot
 
 static const unit_name_string units_message_messages = { " message", " messages" };
 
-#define	NUM_GSM_GM_ELEM (sizeof(gsm_gm_elem_strings)/sizeof(value_string))
+#define	NUM_GSM_GM_ELEM array_length(gsm_gm_elem_strings)
 gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
 
 static const gchar *pdp_str[2]={ "PDP-INACTIVE", "PDP-ACTIVE" };
@@ -8268,7 +8268,7 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
-#define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_GMM array_length(gsm_a_dtap_msg_gmm_strings)
 static gint ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
 static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
 	dtap_gmm_attach_req,		/* Attach Request */
@@ -8297,7 +8297,7 @@ static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
 	NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_SM (sizeof(gsm_a_dtap_msg_sm_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_SM array_length(gsm_a_dtap_msg_sm_strings)
 static gint ett_gsm_dtap_msg_sm[NUM_GSM_DTAP_MSG_SM];
 static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
 	dtap_sm_act_pdp_req,		/* Activate PDP Context Request */

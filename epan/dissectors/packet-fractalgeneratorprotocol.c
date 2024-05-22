@@ -227,10 +227,10 @@ static stat_tap_table_item fgp_stat_fields[] = {
 static void fgp_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "FractalGeneratorProtocol Statistics";
-  int num_fields = sizeof(fgp_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(fgp_stat_fields);
   stat_tap_table *table;
   int i = 0;
-  stat_tap_table_item_type items[sizeof(fgp_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(fgp_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -464,8 +464,8 @@ proto_register_fractalgeneratorprotocol(void)
     fgp_stat_reset,
     NULL,
     NULL,
-    sizeof(fgp_stat_fields)/sizeof(stat_tap_table_item), fgp_stat_fields,
-    sizeof(fgp_stat_params)/sizeof(tap_param), fgp_stat_params,
+    array_length(fgp_stat_fields), fgp_stat_fields,
+    array_length(fgp_stat_params), fgp_stat_params,
     NULL,
     0
   };

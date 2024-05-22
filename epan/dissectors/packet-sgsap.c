@@ -684,7 +684,7 @@ static const value_string sgsap_elem_strings[] = {
 };
 value_string_ext sgsap_elem_strings_ext = VALUE_STRING_EXT_INIT(sgsap_elem_strings);
 
-#define NUM_SGSAP_ELEM (sizeof(sgsap_elem_strings)/sizeof(value_string))
+#define NUM_SGSAP_ELEM array_length(sgsap_elem_strings)
 gint ett_sgsap_elem[NUM_SGSAP_ELEM];
 #if 0
 This enum has been moved to packet-gsm_a_common to
@@ -1432,7 +1432,7 @@ static const value_string sgsap_msg_strings[] = {
 };
 static value_string_ext sgsap_msg_strings_ext = VALUE_STRING_EXT_INIT(sgsap_msg_strings);
 
-#define NUM_SGSAP_MSG (sizeof(sgsap_msg_strings)/sizeof(value_string))
+#define NUM_SGSAP_MSG array_length(sgsap_msg_strings)
 static gint ett_sgsap_msg[NUM_SGSAP_MSG];
 static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     sgsap_paging_req,           /* 0x01,    "SGsAP-PAGING-REQUEST"  8.14 */

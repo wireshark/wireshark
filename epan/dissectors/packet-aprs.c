@@ -474,7 +474,7 @@ dst_code_lookup( guint8 ch )
 	guint indx;
 
 	indx = 0;
-	while ( indx < ( sizeof( dst_code ) / sizeof( mic_e_dst_code_table_s ) )
+	while (indx < array_length(dst_code)
 			&& dst_code[ indx ].key != ch
 			&& dst_code[ indx ].key > 0 )
 		indx++;

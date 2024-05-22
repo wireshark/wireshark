@@ -264,7 +264,7 @@ static dissector_handle_t bssmap_le_handle;
 
 static proto_tree *g_tree;
 
-#define	NUM_GSM_BSSMAP_LE_ELEM (sizeof(gsm_bssmap_le_elem_strings)/sizeof(value_string))
+#define	NUM_GSM_BSSMAP_LE_ELEM array_length(gsm_bssmap_le_elem_strings)
 gint ett_gsm_bssmap_le_elem[NUM_GSM_BSSMAP_LE_ELEM];
 
 /*
@@ -728,7 +728,7 @@ be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
  */
 
 
-#define	NUM_GSM_BSSMAP_LE_MSG (sizeof(gsm_bssmap_le_msg_strings)/sizeof(value_string))
+#define	NUM_GSM_BSSMAP_LE_MSG array_length(gsm_bssmap_le_msg_strings)
 static gint ett_gsm_bssmap_le_msg[NUM_GSM_BSSMAP_LE_MSG];
 
 /*

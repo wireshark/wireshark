@@ -223,10 +223,10 @@ static stat_tap_table_item ssprotocol_stat_fields[] = {
 static void ssprotocol_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "ScriptingServiceProtocol Statistics";
-  int num_fields = sizeof(ssprotocol_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(ssprotocol_stat_fields);
   stat_tap_table *table;
   int i = 0;
-  stat_tap_table_item_type items[sizeof(ssprotocol_stat_fields)/sizeof(stat_tap_table_item)];
+  stat_tap_table_item_type items[array_length(ssprotocol_stat_fields)];
 
   table = stat_tap_find_table(new_stat, table_name);
   if (table) {
@@ -454,8 +454,8 @@ proto_register_ssprotocol(void)
     ssprotocol_stat_reset,
     NULL,
     NULL,
-    sizeof(ssprotocol_stat_fields)/sizeof(stat_tap_table_item), ssprotocol_stat_fields,
-    sizeof(ssprotocol_stat_params)/sizeof(tap_param), ssprotocol_stat_params,
+    array_length(ssprotocol_stat_fields), ssprotocol_stat_fields,
+    array_length(ssprotocol_stat_params), ssprotocol_stat_params,
     NULL,
     0
   };

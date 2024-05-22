@@ -33,6 +33,7 @@
 #include <signal.h>
 #include <errno.h>
 
+#include <wsutil/array.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
@@ -1210,7 +1211,7 @@ relinquish_privs_except_capture(void)
 
     if (started_with_special_privs()) {
         cap_value_t cap_list[2] = { CAP_NET_ADMIN, CAP_NET_RAW };
-        int cl_len = sizeof(cap_list) / sizeof(cap_value_t);
+        int cl_len = array_length(cap_list);
 
         cap_t caps = cap_init();    /* all capabilities initialized to off */
 

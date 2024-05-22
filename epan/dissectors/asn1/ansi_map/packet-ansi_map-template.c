@@ -4427,10 +4427,10 @@ static stat_tap_table_item stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "
 static void ansi_map_stat_init(stat_tap_table_ui* new_stat)
 {
     const char *table_name = "ANSI MAP Operation Statistics";
-    int num_fields = sizeof(stat_fields)/sizeof(stat_tap_table_item);
+    int num_fields = array_length(stat_fields);
     stat_tap_table *table;
     int i = 0;
-    stat_tap_table_item_type items[sizeof(stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table_item_type items[array_length(stat_fields)];
 
     table = stat_tap_find_table(new_stat, table_name);
     if (table) {
@@ -5422,7 +5422,7 @@ void proto_register_ansi_map(void) {
         ansi_map_stat_reset,
         NULL,
         NULL,
-        sizeof(stat_fields)/sizeof(stat_tap_table_item), stat_fields,
+        array_length(stat_fields), stat_fields,
         0, NULL,
         NULL,
         0

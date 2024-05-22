@@ -12,6 +12,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <wsutil/array.h>
+
 #include "introspection-enums.c"
 
 const ws_enum_t *epan_inspect_enums(void)
@@ -22,7 +24,7 @@ const ws_enum_t *epan_inspect_enums(void)
 size_t epan_inspect_enums_count(void)
 {
     /* Exclude null terminator */
-    return sizeof(all_enums)/sizeof(ws_enum_t) - 1;
+    return array_length(all_enums) - 1;
 }
 
 const ws_enum_t *epan_inspect_enums_bsearch(const char *needle)

@@ -49,7 +49,7 @@ static ecm_interpretation tab_ecm_inter[] = {
 	{CA_SYSTEM_ID_MIKEY, CA_SYSTEM_ID_MIKEY_PROTO, NULL, -1}
 };
 
-#define ECM_INTERPRETATION_SIZE (sizeof(tab_ecm_inter)/sizeof(ecm_interpretation))
+#define ECM_INTERPRETATION_SIZE array_length(tab_ecm_inter)
 
 static int dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);

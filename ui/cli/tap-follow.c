@@ -448,7 +448,7 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
   }
   else
   {
-    for (ii = 0; ii < sizeof cli_follow_info->addr/sizeof *cli_follow_info->addr; ii++)
+    for (ii = 0; ii < array_length(cli_follow_info->addr); ii++)
     {
       if (sscanf(*opt_argp, ADDRv6_FMT, addr, &cli_follow_info->port[ii], &len) == 2)
       {

@@ -176,8 +176,8 @@ look_for_dissector(char* protocol_name, packet_direction_t direction, pseudo_hdr
 
     element_ptr = (lookup_dissector_element_t*)bsearch((void*)protocol_name,
         (void*)dissector_lookup_table,
-        sizeof(dissector_lookup_table) / sizeof(lookup_dissector_element_t),
-        sizeof(lookup_dissector_element_t),
+        array_length(dissector_lookup_table),
+        sizeof dissector_lookup_table[0],
         dissector_element_compare);
     if (element_ptr != NULL) {
         if (direction == UPLINK)
@@ -209,8 +209,8 @@ update_dissector_name(const char* protocol_name, packet_direction_t direction, c
 
     element_ptr = (lookup_dissector_element_t*)bsearch((void*)protocol_name,
         (void*)dissector_lookup_table,
-        sizeof(dissector_lookup_table) / sizeof(lookup_dissector_element_t),
-        sizeof(lookup_dissector_element_t),
+        array_length(dissector_lookup_table),
+        sizeof dissector_lookup_table[0],
         dissector_element_compare);
     if (element_ptr != NULL) {
         if (direction == UPLINK)

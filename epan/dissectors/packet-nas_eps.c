@@ -662,7 +662,7 @@ calc_bitrate_ext2(guint8 value) {
     return return_value;
 }
 
-#define NUM_NAS_EPS_COMMON_ELEM (sizeof(nas_eps_common_elem_strings)/sizeof(value_string))
+#define NUM_NAS_EPS_COMMON_ELEM array_length(nas_eps_common_elem_strings)
 gint ett_nas_eps_common_elem[NUM_NAS_EPS_COMMON_ELEM];
 
 /*
@@ -941,7 +941,7 @@ static const value_string nas_emm_elem_strings[] = {
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
 
-#define NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
+#define NUM_NAS_EMM_ELEM array_length(nas_emm_elem_strings)
 gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 
 #if 0
@@ -4482,7 +4482,7 @@ static const value_string nas_esm_elem_strings[] = {
 };
 value_string_ext nas_esm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_esm_elem_strings);
 
-#define NUM_NAS_ESM_ELEM (sizeof(nas_esm_elem_strings)/sizeof(value_string))
+#define NUM_NAS_ESM_ELEM array_length(nas_esm_elem_strings)
 gint ett_nas_eps_esm_elem[NUM_NAS_ESM_ELEM];
 
 guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -6560,7 +6560,7 @@ nas_esm_data_transport(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
 
-#define NUM_NAS_MSG_ESM (sizeof(nas_msg_esm_strings)/sizeof(value_string))
+#define NUM_NAS_MSG_ESM array_length(nas_msg_esm_strings)
 static gint ett_nas_msg_esm[NUM_NAS_MSG_ESM];
 static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
     nas_esm_act_def_eps_bearer_ctx_req, /* Activate default EPS bearer context request*/
@@ -6611,7 +6611,7 @@ get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 
 
 
-#define NUM_NAS_MSG_EMM (sizeof(nas_msg_emm_strings)/sizeof(value_string))
+#define NUM_NAS_MSG_EMM array_length(nas_msg_emm_strings)
 static gint ett_nas_msg_emm[NUM_NAS_MSG_EMM];
 static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
     nas_emm_attach_req,         /* Attach request */

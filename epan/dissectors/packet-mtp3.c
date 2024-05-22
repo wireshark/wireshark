@@ -836,7 +836,7 @@ static stat_tap_table_item mtp3_stat_fields[] = {
 static void mtp3_stat_init(stat_tap_table_ui* new_stat)
 {
   const char *table_name = "MTP3 Statistics";
-  int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
+  int num_fields = array_length(mtp3_stat_fields);
   stat_tap_table *table;
 
   table = stat_tap_find_table(new_stat, table_name);
@@ -900,8 +900,8 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   if (!found) {
     /* Add a new row */
     /* XXX The old version added a row per SI. */
-    int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table_item_type items[sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item)];
+    int num_fields = array_length(mtp3_stat_fields);
+    stat_tap_table_item_type items[array_length(mtp3_stat_fields)];
     char str[256];
     const char *sis;
     char *col_str;
@@ -1092,8 +1092,8 @@ proto_register_mtp3(void)
     mtp3_stat_reset,
     mtp3_stat_free_table_item,
     NULL,
-    sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item), mtp3_stat_fields,
-    sizeof(mtp3_stat_params)/sizeof(tap_param), mtp3_stat_params,
+    array_length(mtp3_stat_fields), mtp3_stat_fields,
+    array_length(mtp3_stat_params), mtp3_stat_params,
     NULL,
     0
   };

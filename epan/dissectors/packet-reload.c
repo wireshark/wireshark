@@ -716,8 +716,7 @@ static kind_t * getKindFromId(guint32 id) {
 
   /* then pre-defined kinds */
   {
-    guint npredefinedkinds = sizeof(predefined_kinds) / sizeof(kind_t);
-    for (i = 0; i < npredefinedkinds; i++) {
+    for (i = 0; i < array_length(predefined_kinds); i++) {
       if (id == predefined_kinds[i].id) {
         return (predefined_kinds+i);
       }
@@ -2884,7 +2883,7 @@ static int dissect_dmflag(tvbuff_t *tvb, proto_tree *tree, guint16 offset) {
   ti_local = proto_tree_add_item(tree, hf_reload_dmflags, tvb, offset, 8, ENC_BIG_ENDIAN);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_dmflags);
 
-  for (i=0; i<(sizeof(reload_dmflag_items)/sizeof(gint *)); i++) {
+  for (i = 0; i < array_length(reload_dmflag_items); i++) {
     if (reload_dmflag_items[i] != NULL) {
       proto_tree_add_bits_item(local_tree, *(reload_dmflag_items[i]), tvb, bit_offset+63-i, 1, ENC_BIG_ENDIAN);
     }

@@ -679,7 +679,7 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
   struct wtap_erf_eth_hdr eth_hdr;
   uint32_t skiplen = 0;
   int     i       = 0;
-  int     max     = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+  int     max     = array_length(pseudo_header->erf.ehdr_list);
   erf_t *priv = (erf_t*)wth->priv;
   int    interface_id;
 

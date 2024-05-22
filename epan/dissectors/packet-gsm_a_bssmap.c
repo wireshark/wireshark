@@ -1066,7 +1066,7 @@ typedef enum
 bssmap_elem_idx_t;
 #endif
 
-#define NUM_GSM_BSSMAP_ELEM (sizeof(gsm_bssmap_elem_strings)/sizeof(value_string))
+#define NUM_GSM_BSSMAP_ELEM array_length(gsm_bssmap_elem_strings)
 gint ett_gsm_bssmap_elem[NUM_GSM_BSSMAP_ELEM];
 
 /*
@@ -5083,7 +5083,7 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
     NULL,   /* NONE */
 };
 
-#define NUM_BSS_ELEMENT_FCNS   (int)(sizeof(bssmap_bss_to_bss_element_fcn)/(sizeof bssmap_bss_to_bss_element_fcn[0]))
+#define NUM_BSS_ELEMENT_FCNS   (int)array_length(bssmap_bss_to_bss_element_fcn)
 
 static guint16
 be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -7382,7 +7382,7 @@ bssmap_lcls_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 
 #endif
-#define NUM_GSM_BSSMAP_MSG (int)(sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
+#define NUM_GSM_BSSMAP_MSG (int)array_length(gsm_a_bssmap_msg_strings)
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 
 static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {

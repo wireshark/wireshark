@@ -109,7 +109,6 @@ ParserEntry g_arParserTable[] = {
     { OpcUaId_TestStackExRequest_Encoding_DefaultBinary, parseTestStackExRequest },
     { OpcUaId_TestStackExResponse_Encoding_DefaultBinary, parseTestStackExResponse },
 };
-const int g_NumServices = sizeof(g_arParserTable) / sizeof(ParserEntry);
 
 /** Service type table */
 const value_string g_requesttypes[] = {
@@ -285,9 +284,9 @@ const value_string g_requesttypes[] = {
 /** Dispatch all services to a special parser function. */
 void dispatchService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int ServiceId)
 {
-    int indx = 0;
+    unsigned indx = 0;
 
-    while (indx < g_NumServices)
+    while (indx < array_length(g_arParserTable))
     {
         if (g_arParserTable[indx].iRequestId == ServiceId)
         {

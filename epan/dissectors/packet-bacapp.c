@@ -7116,7 +7116,7 @@ fGetMaxAPDUSize(guint8 idx)
     /* check the size of the Array, deliver either the entry
        or the first entry if idx is outside of the array (bug 3736 comment#7) */
 
-    if ((idx & 0x0f) >= (gint)(sizeof(MaxAPDUSize)/sizeof(guint)))
+    if ((idx & 0x0f) >= (gint)array_length(MaxAPDUSize))
         return MaxAPDUSize[0];
     else
         return MaxAPDUSize[idx & 0x0f];

@@ -2432,7 +2432,7 @@ static cip_service_info_t enip_obj_spec_service_table[] = {
 cip_service_info_t* cip_get_service_enip(guint32 class_id, guint8 service_id)
 {
    return cip_get_service_one_table(&enip_obj_spec_service_table[0],
-      sizeof(enip_obj_spec_service_table) / sizeof(cip_service_info_t),
+      array_length(enip_obj_spec_service_table),
       class_id,
       service_id);
 }

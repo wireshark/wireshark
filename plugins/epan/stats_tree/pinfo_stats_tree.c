@@ -77,15 +77,13 @@ static void uat_plen_record_free_cb(void*r) {
 }
 
 static void uat_plen_record_post_update_cb(void) {
-	guint i, num_default;
+	guint i;
 	uat_plen_record_t rec;
 
 	/* If there are no records, create default list */
 	if (num_plen_uat == 0) {
-		num_default = sizeof(default_range)/sizeof(range_t);
-
 		/* default values for packet lengths */
-		for (i = 0; i < num_default; i++)
+		for (i = 0; i < array_length(default_range); i++)
 		{
 			rec.packet_range = &default_range[i];
 			uat_add_record(plen_uat, &rec, TRUE);

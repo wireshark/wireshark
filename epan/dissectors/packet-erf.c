@@ -2284,7 +2284,7 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   guint8      type;
   guint8      has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
   int         i        = 0;
-  int         max      = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+  int         max      = array_length(pinfo->pseudo_header->erf.ehdr_list);
 
   guint64     host_id        = ERF_META_HOST_ID_IMPLICIT;
   guint8      source_id      = 0;
@@ -2424,7 +2424,7 @@ guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {
       return NULL;
 
   has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
-  max      = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+  max      = array_length(pinfo->pseudo_header->erf.ehdr_list);
 
 
   while(has_more && (i < max)) {

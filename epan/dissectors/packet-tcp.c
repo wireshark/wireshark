@@ -6711,7 +6711,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             guint i;
 
             col_append_str(pinfo->cinfo, COL_INFO, " SCPS[");
-            for (i = 0; i < sizeof(capvecs)/sizeof(struct capvec); i++) {
+            for (i = 0; i < array_length(capvecs); i++) {
                 if (capvector & capvecs[i].mask) {
                     proto_item_append_text(tf, "%s%s", anyflag ? ", " : " (",
                                            capvecs[i].str);
