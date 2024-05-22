@@ -76,6 +76,7 @@ set(WMEM_FILES
 set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
 	adler32.h
+	array.h
 	base32.h
 	bits_count_ones.h
 	bits_ctz.h
