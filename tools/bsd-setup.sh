@@ -21,7 +21,7 @@
 print_usage() {
 	printf "\\nUtility to setup a bsd-based system for Wireshark Development.\\n"
 	printf "The basic usage installs the needed software\\n\\n"
-	printf "Usage: $0 [--install-optional] [...other options...]\\n"
+	printf "Usage: %s [--install-optional] [...other options...]\\n" "$0"
 	printf "\\t--install-optional: install optional software as well\\n"
 	printf "\\t[other]: other options are passed as-is to pkg manager.\\n"
 }
@@ -44,7 +44,7 @@ for arg; do
 done
 
 # Check if the user is root
-if [ $(id -u) -ne 0 ]
+if [ "$(id -u)" -ne 0 ]
 then
 	echo "You must be root."
 	exit 1
@@ -76,7 +76,7 @@ ADDITIONAL_LIST="\
 #	pngcrush"
 
 # Guess which package manager we will use
-PM=`which pkgin 2> /dev/null || which pkg 2> /dev/null || which pkg_add 2> /dev/null`
+PM=$( which pkgin 2> /dev/null || which pkg 2> /dev/null || which pkg_add 2> /dev/null )
 
 case $PM in
 	*/pkgin)
@@ -101,6 +101,7 @@ echo "Using $PM ($PM_SEARCH)"
 
 # Adds package $2 to list variable $1 if the package is found
 add_package() {
+	# shellcheck disable=SC3043
 	local list="$1" pkgname="$2"
 
 	# fail if the package is not known
@@ -176,7 +177,7 @@ echo "libilbc is unavailable"
 
 # Add OS-specific required/optional packages
 # Those not listed don't require additions.
-case `uname` in
+case $( uname ) in
 	FreeBSD | NetBSD)
 		add_package ADDITIONAL_LIST libgcrypt || echo "libgcrypt is unavailable"
 		;;
@@ -190,6 +191,7 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
+# shellcheck disable=SC2086
 $PM $PM_OPTIONS $ACTUAL_LIST $OPTIONS
 if [ ! $? ]
 then
@@ -198,5 +200,5 @@ fi
 
 if [ $ADDITIONAL -eq 0 ]
 then
-	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
+	printf "\\n*** Optional packages not installed. Rerun with --install-optional to have them.\\n"
 fi

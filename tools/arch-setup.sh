@@ -118,6 +118,7 @@ then
 fi
 
 # Partial upgrades are unsupported.
+# shellcheck disable=SC2086
 pacman --sync --refresh --sysupgrade --needed $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ $ADDITIONAL -eq 0 ]
