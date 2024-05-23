@@ -13,7 +13,7 @@
 #include <wsutil/ws_assert.h>
 
 /* Keep track of ftype_t's via their ftenum number */
-ftype_t* type_list[FT_NUM_TYPES];
+const ftype_t* type_list[FT_NUM_TYPES];
 
 /* Initialize the ftype module. */
 void
@@ -59,7 +59,7 @@ ftypes_register_pseudofields(void)
 
 /* Each ftype_t is registered via this function */
 void
-ftype_register(enum ftenum ftype, ftype_t *ft)
+ftype_register(enum ftenum ftype, const ftype_t *ft)
 {
 	/* Check input */
 	ws_assert(ftype < FT_NUM_TYPES);
@@ -150,7 +150,7 @@ ftype_similar_types(const enum ftenum ftype_a, const enum ftenum ftype_b)
 const char*
 ftype_name(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 	const char *s = "(null)";
 
 	FTYPE_LOOKUP(ftype, ft);
@@ -210,7 +210,7 @@ ftype_name(enum ftenum ftype)
 const char*
 ftype_pretty_name(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 	const char *s = "(null)";
 
 	FTYPE_LOOKUP(ftype, ft);
@@ -270,7 +270,7 @@ ftype_pretty_name(enum ftenum ftype)
 int
 ftype_wire_size(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->wire_size;
@@ -279,7 +279,7 @@ ftype_wire_size(enum ftenum ftype)
 bool
 ftype_can_length(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->len ? true : false;
@@ -288,7 +288,7 @@ ftype_can_length(enum ftenum ftype)
 bool
 ftype_can_slice(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->slice ? true : false;
@@ -297,7 +297,7 @@ ftype_can_slice(enum ftenum ftype)
 bool
 ftype_can_eq(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->compare != NULL;
@@ -306,7 +306,7 @@ ftype_can_eq(enum ftenum ftype)
 bool
 ftype_can_cmp(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->compare != NULL;
@@ -315,7 +315,7 @@ ftype_can_cmp(enum ftenum ftype)
 bool
 ftype_can_bitwise_and(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->bitwise_and ? true : false;
@@ -324,7 +324,7 @@ ftype_can_bitwise_and(enum ftenum ftype)
 bool
 ftype_can_unary_minus(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->unary_minus != NULL;
@@ -333,7 +333,7 @@ ftype_can_unary_minus(enum ftenum ftype)
 bool
 ftype_can_add(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->add != NULL;
@@ -342,7 +342,7 @@ ftype_can_add(enum ftenum ftype)
 bool
 ftype_can_subtract(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->subtract != NULL;
@@ -351,7 +351,7 @@ ftype_can_subtract(enum ftenum ftype)
 bool
 ftype_can_multiply(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->multiply != NULL;
@@ -360,7 +360,7 @@ ftype_can_multiply(enum ftenum ftype)
 bool
 ftype_can_divide(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->divide != NULL;
@@ -369,7 +369,7 @@ ftype_can_divide(enum ftenum ftype)
 bool
 ftype_can_modulo(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->modulo != NULL;
@@ -378,7 +378,7 @@ ftype_can_modulo(enum ftenum ftype)
 bool
 ftype_can_contains(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->contains ? true : false;
@@ -387,7 +387,7 @@ ftype_can_contains(enum ftenum ftype)
 bool
 ftype_can_matches(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->matches ? true : false;
@@ -396,7 +396,7 @@ ftype_can_matches(enum ftenum ftype)
 bool
 ftype_can_is_zero(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->is_zero ? true : false;
@@ -405,7 +405,7 @@ ftype_can_is_zero(enum ftenum ftype)
 bool
 ftype_can_is_negative(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->is_negative ? true : false;
@@ -414,7 +414,7 @@ ftype_can_is_negative(enum ftenum ftype)
 bool
 ftype_can_val_to_sinteger(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	/* We first convert to 64 bit and then check for overflow. */
@@ -424,7 +424,7 @@ ftype_can_val_to_sinteger(enum ftenum ftype)
 bool
 ftype_can_val_to_uinteger(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	/* We first convert to 64 bit and then check for overflow. */
@@ -434,7 +434,7 @@ ftype_can_val_to_uinteger(enum ftenum ftype)
 bool
 ftype_can_val_to_sinteger64(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->val_to_sinteger64 ? true : false;
@@ -443,7 +443,7 @@ ftype_can_val_to_sinteger64(enum ftenum ftype)
 bool
 ftype_can_val_to_uinteger64(enum ftenum ftype)
 {
-	ftype_t	*ft;
+	const ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->val_to_uinteger64 ? true : false;
@@ -456,7 +456,7 @@ fvalue_t*
 fvalue_new(ftenum_t ftype)
 {
 	fvalue_t		*fv;
-	ftype_t			*ft;
+	const ftype_t		*ft;
 	FvalueNewFunc		new_value;
 
 	fv = g_slice_new(fvalue_t);
@@ -496,7 +496,7 @@ fvalue_dup(const fvalue_t *fv_orig)
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype)
 {
-	ftype_t			*ft;
+	const ftype_t		*ft;
 	FvalueNewFunc		new_value;
 
 	FTYPE_LOOKUP(ftype, ft);

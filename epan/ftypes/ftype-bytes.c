@@ -622,7 +622,7 @@ void
 ftype_register_bytes(void)
 {
 
-	static ftype_t bytes_type = {
+	static const ftype_t bytes_type = {
 		FT_BYTES,			/* ftype */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -661,7 +661,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t uint_bytes_type = {
+	static const ftype_t uint_bytes_type = {
 		FT_UINT_BYTES,		/* ftype */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -700,7 +700,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t ax25_type = {
+	static const ftype_t ax25_type = {
 		FT_AX25,			/* ftype */
 		FT_AX25_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -739,7 +739,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t vines_type = {
+	static const ftype_t vines_type = {
 		FT_VINES,			/* ftype */
 		FT_VINES_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -778,7 +778,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t ether_type = {
+	static const ftype_t ether_type = {
 		FT_ETHER,			/* ftype */
 		FT_ETHER_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -817,7 +817,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t oid_type = {
+	static const ftype_t oid_type = {
 		FT_OID,			/* ftype */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -856,7 +856,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t rel_oid_type = {
+	static const ftype_t rel_oid_type = {
 		FT_REL_OID,			/* ftype */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -895,7 +895,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t system_id_type = {
+	static const ftype_t system_id_type = {
 		FT_SYSTEM_ID,			/* ftype */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
@@ -934,7 +934,7 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t fcwwn_type = {
+	static const ftype_t fcwwn_type = {
 		FT_FCWWN,			/* ftype */
 		FT_FCWWN_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */

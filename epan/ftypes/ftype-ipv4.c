@@ -172,7 +172,7 @@ void
 ftype_register_ipv4(void)
 {
 
-	static ftype_t ipv4_type = {
+	static const ftype_t ipv4_type = {
 		FT_IPv4,			/* ftype */
 		4,				/* wire_size */
 		NULL,				/* new_value */

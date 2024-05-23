@@ -153,7 +153,7 @@ void
 ftype_register_double(void)
 {
 
-	static ftype_t float_type = {
+	static const ftype_t float_type = {
 		FT_FLOAT,			/* ftype */
 		0,				/* wire_size */
 		double_fvalue_new,		/* new_value */
@@ -192,7 +192,7 @@ ftype_register_double(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t double_type = {
+	static const ftype_t double_type = {
 		FT_DOUBLE,			/* ftype */
 		0,				/* wire_size */
 		double_fvalue_new,		/* new_value */

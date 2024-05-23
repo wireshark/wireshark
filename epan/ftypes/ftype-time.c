@@ -683,7 +683,7 @@ void
 ftype_register_time(void)
 {
 
-	static ftype_t abstime_type = {
+	static const ftype_t abstime_type = {
 		FT_ABSOLUTE_TIME,		/* ftype */
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
@@ -721,7 +721,7 @@ ftype_register_time(void)
 		time_divide,			/* divide */
 		NULL,				/* modulo */
 	};
-	static ftype_t reltime_type = {
+	static const ftype_t reltime_type = {
 		FT_RELATIVE_TIME,		/* ftype */
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */

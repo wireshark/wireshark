@@ -952,7 +952,7 @@ be carefour when comparing: 1e == 10e-1 == 10e-2 == ... (solution: compare only 
 Example: 114 is 0x0072
 
 */
-    static ftype_t sfloat_type = {
+    static const ftype_t sfloat_type = {
         FT_IEEE_11073_SFLOAT,                 /* ftype */
         2,                                    /* wire_size */
 
@@ -1018,7 +1018,7 @@ Example: 36.4 is 0xFF00016C
 
 */
 
-    static ftype_t float_type = {
+    static const ftype_t float_type = {
         FT_IEEE_11073_FLOAT,                  /* ftype */
         4,                                    /* wire_size */
 

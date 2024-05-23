@@ -104,7 +104,7 @@ void
 ftype_register_guid(void)
 {
 
-    static ftype_t guid_type = {
+    static const ftype_t guid_type = {
         FT_GUID,              /* ftype */
         GUID_LEN,            /* wire_size */
         NULL,                /* new_value */

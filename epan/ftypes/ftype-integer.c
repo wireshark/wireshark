@@ -984,7 +984,7 @@ eui64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, i
 void
 ftype_register_integers(void)
 {
-	static ftype_t char_type = {
+	static const ftype_t char_type = {
 		FT_CHAR,			/* ftype */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1022,7 +1022,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint8_type = {
+	static const ftype_t uint8_type = {
 		FT_UINT8,			/* ftype */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1060,7 +1060,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint16_type = {
+	static const ftype_t uint16_type = {
 		FT_UINT16,			/* ftype */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1098,7 +1098,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint24_type = {
+	static const ftype_t uint24_type = {
 		FT_UINT24,			/* ftype */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1136,7 +1136,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint32_type = {
+	static const ftype_t uint32_type = {
 		FT_UINT32,			/* ftype */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1174,7 +1174,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint40_type = {
+	static const ftype_t uint40_type = {
 		FT_UINT40,			/* ftype */
 		5,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1212,7 +1212,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint48_type = {
+	static const ftype_t uint48_type = {
 		FT_UINT48,			/* ftype */
 		6,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1250,7 +1250,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint56_type = {
+	static const ftype_t uint56_type = {
 		FT_UINT56,			/* ftype */
 		7,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1288,7 +1288,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t uint64_type = {
+	static const ftype_t uint64_type = {
 		FT_UINT64,			/* ftype */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1326,7 +1326,7 @@ ftype_register_integers(void)
 		uint64_divide,			/* divide */
 		uint64_modulo,			/* modulo */
 	};
-	static ftype_t int8_type = {
+	static const ftype_t int8_type = {
 		FT_INT8,			/* ftype */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1364,7 +1364,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int16_type = {
+	static const ftype_t int16_type = {
 		FT_INT16,			/* ftype */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1402,7 +1402,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int24_type = {
+	static const ftype_t int24_type = {
 		FT_INT24,			/* ftype */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1440,7 +1440,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int32_type = {
+	static const ftype_t int32_type = {
 		FT_INT32,			/* ftype */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1478,7 +1478,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int40_type = {
+	static const ftype_t int40_type = {
 		FT_INT40,			/* ftype */
 		5,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1516,7 +1516,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int48_type = {
+	static const ftype_t int48_type = {
 		FT_INT48,			/* ftype */
 		6,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1554,7 +1554,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int56_type = {
+	static const ftype_t int56_type = {
 		FT_INT56,			/* ftype */
 		7,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1592,7 +1592,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t int64_type = {
+	static const ftype_t int64_type = {
 		FT_INT64,			/* ftype */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
@@ -1630,7 +1630,7 @@ ftype_register_integers(void)
 		sint64_divide,			/* divide */
 		sint64_modulo,			/* modulo */
 	};
-	static ftype_t boolean_type = {
+	static const ftype_t boolean_type = {
 		FT_BOOLEAN,			/* ftype */
 		0,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1669,7 +1669,7 @@ ftype_register_integers(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t ipxnet_type = {
+	static const ftype_t ipxnet_type = {
 		FT_IPXNET,			/* ftype */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1708,7 +1708,7 @@ ftype_register_integers(void)
 		NULL,				/* modulo */
 	};
 
-	static ftype_t framenum_type = {
+	static const ftype_t framenum_type = {
 		FT_FRAMENUM,			/* ftype */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
@@ -1747,7 +1747,7 @@ ftype_register_integers(void)
 		uint64_modulo,			/* modulo */
 	};
 
-	static ftype_t eui64_type = {
+	static const ftype_t eui64_type = {
 		FT_EUI64,			/* ftype */
 		FT_EUI64_LEN,			/* wire_size */
 		int64_fvalue_new,		/* new_value */

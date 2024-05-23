@@ -200,7 +200,7 @@ void
 ftype_register_string(void)
 {
 
-	static ftype_t string_type = {
+	static const ftype_t string_type = {
 		FT_STRING,			/* ftype */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
@@ -238,7 +238,7 @@ ftype_register_string(void)
 		NULL,				/* divide */
 		NULL,				/* modulo */
 	};
-	static ftype_t stringz_type = {
+	static const ftype_t stringz_type = {
 		FT_STRINGZ,			/* ftype */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
@@ -276,7 +276,7 @@ ftype_register_string(void)
 		NULL,				/* divide */
 		NULL,				/* modulo */
 	};
-	static ftype_t uint_string_type = {
+	static const ftype_t uint_string_type = {
 		FT_UINT_STRING,		/* ftype */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
@@ -314,7 +314,7 @@ ftype_register_string(void)
 		NULL,				/* divide */
 		NULL,				/* modulo */
 	};
-	static ftype_t stringzpad_type = {
+	static const ftype_t stringzpad_type = {
 		FT_STRINGZPAD,			/* ftype */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
@@ -352,7 +352,7 @@ ftype_register_string(void)
 		NULL,				/* divide */
 		NULL,				/* modulo */
 	};
-	static ftype_t stringztrunc_type = {
+	static const ftype_t stringztrunc_type = {
 		FT_STRINGZTRUNC,		/* ftype */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */

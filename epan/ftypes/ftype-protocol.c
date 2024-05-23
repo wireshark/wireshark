@@ -369,7 +369,7 @@ void
 ftype_register_tvbuff(void)
 {
 
-	static ftype_t protocol_type = {
+	static const ftype_t protocol_type = {
 		FT_PROTOCOL,			/* ftype */
 		0,				/* wire_size */
 		value_new,			/* new_value */

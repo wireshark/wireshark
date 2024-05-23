@@ -202,7 +202,7 @@ is_zero(const fvalue_t *fv_a)
 void
 ftype_register_ipv6(void)
 {
-	static ftype_t ipv6_type = {
+	static const ftype_t ipv6_type = {
 		FT_IPv6,			/* ftype */
 		FT_IPv6_LEN,			/* wire_size */
 		NULL,				/* new_value */

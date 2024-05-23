@@ -15,7 +15,7 @@
 #include <epan/packet.h>
 
 struct _fvalue_t {
-	ftype_t	*ftype;
+	const ftype_t	*ftype;
 	union {
 		/* Put a few basic types in here */
 		uint64_t		uinteger64;
@@ -33,7 +33,7 @@ struct _fvalue_t {
 	} value;
 };
 
-extern ftype_t* type_list[FT_NUM_TYPES];
+extern const ftype_t* type_list[FT_NUM_TYPES];
 
 /* Given an ftenum number, return an ftype_t* */
 #define FTYPE_LOOKUP(ftype, result)		\
@@ -163,7 +163,7 @@ struct _ftype_t {
 	FvalueBinaryOp		modulo;
 };
 
-void ftype_register(enum ftenum ftype, ftype_t *ft);
+void ftype_register(enum ftenum ftype, const ftype_t *ft);
 
 void ftype_register_bytes(void);
 void ftype_register_double(void);
