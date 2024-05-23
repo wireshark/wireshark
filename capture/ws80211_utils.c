@@ -20,6 +20,8 @@ SPDX-License-Identifier: ISC
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <wsutil/array.h>
+
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 #include <string.h>
 #include <errno.h>
