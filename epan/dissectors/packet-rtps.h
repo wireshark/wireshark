@@ -56,8 +56,14 @@ typedef struct _endpoint_guid {
 
 /* Process a submessage: used in packet-rtps-processed.c */
 extern void dissect_rtps_submessages(
-    tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtps_tree,
-    guint16 version, guint16 vendor_id, endpoint_guid *guid);
+    tvbuff_t *tvb,
+    int offset,
+    packet_info *pinfo,
+    proto_tree *rtps_tree,
+    guint16 version,
+    guint16 vendor_id,
+    endpoint_guid *guid,
+    bool dissecting_encrypted_submessage);
 
 /* Information that the RTPS-VT protocol passes to RTPS-PROC */
 struct rtpsvt_data {

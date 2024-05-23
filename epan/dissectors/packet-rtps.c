@@ -57,6 +57,7 @@
 #include <wsutil/crc32.h>
 #include <wsutil/str_util.h>
 #include <gcrypt.h>
+#include <uat.h>
 
 void proto_register_rtps(void);
 void proto_reg_handoff_rtps(void);
@@ -96,6 +97,7 @@ void proto_reg_handoff_rtps(void);
 #define KEY_HAS_VALUE_NUM_ELEMENTS                    16
 #define NTPTIME_T_NUM_ELEMENTS                        2
 #define SEQUENCE_NUMBER_T_NUM_ELEMENTS                2
+#define SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH 16 /* bytes. */
 
 typedef struct _union_member_mapping {
     guint64 union_type_id;
@@ -256,11 +258,12 @@ static guint rtps_max_batch_samples_dissected = 16;
 static guint rtps_max_data_type_elements = DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE;
 static guint rtps_max_array_data_type_elements = DISSECTION_INFO_ARRAY_MAX_ELEMENTS_DEFAULT_VALUE;
 static bool enable_topic_info = true;
-static bool enable_rtps_reassembly;
-static bool enable_user_data_dissection;
+static bool enable_rtps_reassembly = false;
+static bool enable_user_data_dissection = false;
 static bool enable_max_array_data_type_elements = true;
 static bool enable_max_data_type_elements = true;
-static bool enable_rtps_crc_check;
+static bool enable_rtps_crc_check = false;
+static bool enable_rtps_psk_decryption = false;
 static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/
@@ -1047,9 +1050,14 @@ static int hf_rtps_param_builtin_endpoint_qos;
 static int hf_rtps_secure_dataheader_transformation_kind;
 static int hf_rtps_secure_dataheader_transformation_key_revision_id;
 static int hf_rtps_secure_dataheader_transformation_key_id;
+static int hf_rtps_secure_dataheader_passphrase_id;
+static int hf_rtps_secure_dataheader_passphrase_key_id;
 static int hf_rtps_secure_dataheader_init_vector_suffix;
 static int hf_rtps_secure_dataheader_session_id;
 static int hf_rtps_secure_datatag_plugin_sec_tag;
+static int hf_rtps_secure_datatag_plugin_sec_tag_key;
+static int hf_rtps_secure_datatag_plugin_sec_tag_common_mac;
+static int hf_rtps_secure_datatag_plugin_specific_macs_len;
 static int hf_rtps_pgm;
 static int hf_rtps_pgm_dst_participant_guid;
 static int hf_rtps_pgm_dst_endpoint_guid;
@@ -1058,6 +1066,7 @@ static int hf_rtps_source_participant_guid;
 static int hf_rtps_message_identity_source_guid;
 static int hf_rtps_pgm_message_class_id;
 static int hf_rtps_pgm_data_holder_class_id;
+static int hf_rtps_secure_session_key;
 /* static int hf_rtps_pgm_data_holder_stringseq_size; */
 /* static int hf_rtps_pgm_data_holder_stringseq_name; */
 /* static int hf_rtps_pgm_data_holder_long_long; */
@@ -1321,12 +1330,14 @@ static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted
 static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted;
 static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid;
 static int hf_rtps_param_plugin_endpoint_security_attributes_mask;
+static int hf_rtps_flag_participant_security_attribute_flag_key_psk_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected;
 static int hf_rtps_flag_participant_security_attribute_flag_key_revisions_enabled;
 static int hf_rtps_flag_participant_security_attribute_flag_is_valid;
 static int hf_rtps_param_participant_security_attributes_mask;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_psk_encrypted;
 static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_encrypted;
 static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_encrypted;
 static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_encrypted;
@@ -1432,6 +1443,7 @@ static gint ett_rtps_type_enum_constant;
 static gint ett_rtps_type_bound_list;
 static gint ett_rtps_secure_payload_tree;
 static gint ett_rtps_secure_dataheader_tree;
+static gint ett_rtps_secure_transformation_kind;
 static gint ett_rtps_pgm_data;
 static gint ett_rtps_message_identity;
 static gint ett_rtps_related_message_identity;
@@ -1460,6 +1472,8 @@ static gint ett_rtps_data_encapsulation_options;
 static gint ett_rtps_decompressed_serialized_data;
 static gint ett_rtps_instance_transition_data;
 static gint ett_rtps_crypto_algorithm_requirements;
+static gint ett_rtps_decrypted_payload;
+static gint ett_rtps_secure_postfix_tag_list_item;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error;
 static expert_field ei_rtps_checksum_check_error;
@@ -1475,6 +1489,7 @@ static expert_field ei_rtps_sm_octets_to_next_header_not_zero;
 static expert_field ei_rtps_pid_type_csonsistency_invalid_size;
 static expert_field ei_rtps_uncompression_error;
 static expert_field ei_rtps_value_too_large;
+static expert_field ei_rtps_invalid_psk;
 
 /***************************************************************************/
 /* Value-to-String Tables */
@@ -2504,6 +2519,7 @@ static int* const ENDPOINT_SECURITY_INFO_FLAGS[] = {
 
 static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid,                 /* Bit 31 */
+  &hf_rtps_flag_participant_security_attribute_flag_key_psk_protected,            /* Bit 4 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted,  /* Bit 2 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,         /* Bit 1 */
   &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted,     /* Bit 0 */
@@ -2511,6 +2527,7 @@ static int* const PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
 };
 static int* const PARTICIPANT_SECURITY_INFO_FLAGS[] = {
   &hf_rtps_flag_participant_security_attribute_flag_is_valid,                     /* Bit 31 */
+  &hf_rtps_flag_plugin_participant_security_attribute_flag_is_psk_encrypted,      /* Bit 6 */
   &hf_rtps_flag_participant_security_attribute_flag_key_revisions_enabled,        /* Bit 3 */
   &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,      /* Bit 2 */
   &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,       /* Bit 1 */
@@ -2682,6 +2699,7 @@ static int* const HEADER_EXTENSION_MASK_FLAGS[] = {
 #define RTPS_DATA_SESSION_FINAL_PROTODATA_KEY   2
 #define RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY    3
 #define RTPS_ROOT_MESSAGE_KEY                   4
+#define RTPS_DECRYPTION_INFO_KEY                5
 
 #define RTPS_CHECKSUM_MAX_LEN                   16
 
@@ -2785,7 +2803,6 @@ static dissection_info reader_guid_dissection_info;
 static dissection_info value_dissection_info;
 */
 
-
 static const fragment_items rtps_frag_items = {
     &ett_rtps_fragment,
     &ett_rtps_fragments,
@@ -2802,6 +2819,738 @@ static const fragment_items rtps_frag_items = {
     &hf_rtps_reassembled_data,
     "RTPS fragments"
 };
+
+/******************************************************************************/
+/*                         PRE-SHARED KEY DECODING FUNCTIONALITY              */
+/******************************************************************************/
+#define RTPS_HMAC_256_BUFFER_SIZE_BYTES 32
+
+typedef struct {
+  guint32 host_id;
+  guint32 app_id;
+  guint32 instance_id;
+} rtps_guid_prefix_t;
+
+typedef enum {
+  CRYPTO_ALGORITHM_NONE = CRYPTO_TRANSFORMATION_KIND_NONE,
+  CRYPTO_ALGORITHM_AES128_GMAC = CRYPTO_TRANSFORMATION_KIND_AES128_GMAC,
+  CRYPTO_ALGORITHM_AES128_GCM = CRYPTO_TRANSFORMATION_KIND_AES128_GCM,
+  CRYPTO_ALGORITHM_AES256_GMAC = CRYPTO_TRANSFORMATION_KIND_AES256_GMAC,
+  CRYPTO_ALGORITHM_AES256_GCM = CRYPTO_TRANSFORMATION_KIND_AES256_GCM
+} rtps_encryption_algorithm_t;
+
+#define RTPS_SECURITY_INIT_VECTOR_LEN 12
+typedef struct {
+  rtps_guid_prefix_t guid_prefix;
+  bool try_psk_decryption;
+  guint32 session_id;
+  guint32 transformation_key;
+  rtps_encryption_algorithm_t algorithm;
+  guint8 init_vector[RTPS_SECURITY_INIT_VECTOR_LEN];
+  guint32 psk_index;
+} rtps_current_packet_decryption_info_t;
+
+typedef struct {
+  guint32 value;
+  gboolean ignore;
+} rtps_psk_options_entry_uint32_string_t;
+
+typedef struct {
+  char *passphrase_secret;
+
+  char *passphrase_id_in;
+  rtps_psk_options_entry_uint32_string_t passphrase_id;
+
+  char *host_id_in;
+  rtps_psk_options_entry_uint32_string_t host_id;
+
+  char *app_id_in;
+  rtps_psk_options_entry_uint32_string_t app_id;
+
+  char *instance_id_in;
+  rtps_psk_options_entry_uint32_string_t instance_id;
+
+} rtps_psk_options_entry_t;
+
+/* PSK table options in RTPS protocol options */
+typedef struct  {
+  rtps_psk_options_entry_t *entries;
+  guint size;
+} rtps_psk_options_t;
+
+static rtps_psk_options_t rtps_psk_options = { NULL, 0 };
+
+/*
+ * The table presented to the user has five columns: psk_index_str, psk,
+ * host_id, app_id, and instance_id. Decoding of the RTPS message using the
+ * pre-shared key will only take place if there is a match in the host_id,
+ * app_id, instance_id, and psk_index. These fields do not require a match if
+ * the user leaves them empty or containing only the '*' wildcard character
+ * (note that the the psk secret passphrase must always match). Ignoring all the
+ * previuos fields will result in an attempt to decode the RTPS message
+ * regardless of the GUID or the PSK index.
+ */
+UAT_CSTRING_CB_DEF(
+    rtps_psk_table_entry_field, passphrase_id_in,
+    rtps_psk_options_entry_t)
+UAT_CSTRING_CB_DEF(
+    rtps_psk_table_entry_field, passphrase_secret,
+    rtps_psk_options_entry_t)
+UAT_CSTRING_CB_DEF(
+    rtps_psk_table_entry_field, host_id_in,
+    rtps_psk_options_entry_t)
+UAT_CSTRING_CB_DEF(
+    rtps_psk_table_entry_field, app_id_in,
+    rtps_psk_options_entry_t)
+UAT_CSTRING_CB_DEF(
+    rtps_psk_table_entry_field, instance_id_in,
+    rtps_psk_options_entry_t)
+
+static uat_field_t rtps_psk_table_field_array[] = {
+    UAT_FLD_CSTRING(
+        rtps_psk_table_entry_field, passphrase_id_in,
+        "Passphrase Id",
+        "Integer identifying the secret. "
+        "Use the '*' character to match any Id."),
+    UAT_FLD_CSTRING(
+        rtps_psk_table_entry_field, passphrase_secret,
+        "Passphrase Secret",
+        "Seed used to derive the pre-shared secret key"),
+    UAT_FLD_CSTRING(
+        rtps_psk_table_entry_field, host_id_in,
+        "Host ID (Hex)",
+        "Limit the decoding to RTPS messages coming from the specified GUID."
+        "Leave the field empty or use the '*' character to match any GUID."),
+    UAT_FLD_CSTRING(
+        rtps_psk_table_entry_field, app_id_in,
+        "App ID (Hex)",
+        "Limit the decoding to RTPS messages coming from the specified GUID."
+        "Leave the field empty or use the '*' character to match any GUID."),
+    UAT_FLD_CSTRING(
+        rtps_psk_table_entry_field, instance_id_in,
+        "Instance ID (Hex)",
+        "Limit the decoding to RTPS messages coming from the specified GUID."
+        "Leave the field empty or use the '*' character to match any GUID."),
+    UAT_END_FIELDS
+};
+
+static void *rtps_psk_options_copy_entry(
+    void *destination,
+    const void *source,
+    size_t length _U_)
+{
+  const rtps_psk_options_entry_t *src = source;
+  rtps_psk_options_entry_t *dest = destination;
+
+  dest->passphrase_secret = g_strdup(src->passphrase_secret);
+
+  dest->passphrase_id = src->passphrase_id;
+  dest->passphrase_id_in = g_strdup(src->passphrase_id_in);
+
+  dest->host_id = src->host_id;
+  dest->host_id_in = g_strdup(src->host_id_in);
+
+  dest->app_id = src->app_id;
+  dest->app_id_in = g_strdup(src->app_id_in);
+
+  dest->instance_id = src->instance_id;
+  dest->instance_id_in = g_strdup(src->instance_id_in);
+
+  return dest;
+}
+
+static void rtps_psk_options_free_entry(void *record)
+{
+  rtps_psk_options_entry_t *entry = record;
+
+  g_free(entry->passphrase_secret);
+  entry->passphrase_secret = NULL;
+
+  g_free(entry->passphrase_id_in);
+  entry->passphrase_id_in = NULL;
+
+  g_free(entry->host_id_in);
+  entry->host_id_in = NULL;
+
+  g_free(entry->app_id_in);
+  entry->app_id_in = NULL;
+
+  g_free(entry->instance_id_in);
+  entry->instance_id_in = NULL;
+  return;
+}
+
+static bool rtps_psk_options_entry_uint32_string_validate(
+    char **error_string,
+    rtps_psk_options_entry_uint32_string_t *out,
+    char *in,
+    const char *field_name)
+{
+  if (in == NULL || strlen(in) == 0 || in[0] == '*') {
+    out->ignore = true;
+  } else {
+    if (!ws_strtou32(in, NULL, &out->value)) {
+      *error_string = g_strdup_printf(
+          "The '%s'  field must be either the '*' wildcard character, or a "
+          "valid integer.",
+          field_name);
+      return false;
+    }
+  }
+  return true;
+}
+
+static bool rtps_psk_options_update_entry(void *record, char **error_string)
+{
+  size_t PASSPHRASE_MAX_LENGTH = 512; /* fixed by specification. */
+  rtps_psk_options_entry_t *entry = record;
+  size_t passphrase_length = 0;
+
+  /* Validation of the Passphrase Id. */
+  if (!rtps_psk_options_entry_uint32_string_validate(
+      error_string,
+      &entry->passphrase_id,
+      entry->passphrase_id_in,
+      "Passphrase Id")) {
+    return false;
+  }
+
+  /* Validation of the Passphrase Secret. */
+  if (entry->passphrase_secret == NULL) {
+    *error_string = g_strdup("The 'Passphrase Secret' field can't be empty");
+    return false;
+  }
+  g_strstrip(entry->passphrase_secret);
+
+  passphrase_length = strlen(entry->passphrase_secret);
+  if (passphrase_length == 0) {
+    *error_string = g_strdup("The 'Passphrase Secret' field can't be empty");
+    return false;
+  }
+  if (passphrase_length > (PASSPHRASE_MAX_LENGTH - 1)) {
+    *error_string = g_strdup_printf(
+            "The 'Passphrase Secret' field has %zu characters length. "
+            "It cannot be larger than %zu characters.",
+            passphrase_length,
+            PASSPHRASE_MAX_LENGTH - 1); /* last byte is for null character. */
+    return false;
+  }
+
+  /* Validation of the Host Id. */
+  if (!rtps_psk_options_entry_uint32_string_validate(
+      error_string,
+      &entry->host_id,
+      entry->host_id_in,
+      "Host Id")) {
+    return false;
+  }
+
+  /* Validation of the App Id. */
+  if (!rtps_psk_options_entry_uint32_string_validate(
+      error_string,
+      &entry->app_id,
+      entry->app_id_in,
+      "App Id")) {
+    return false;
+  }
+
+  /* Validation of the Instance Id. */
+  if (!rtps_psk_options_entry_uint32_string_validate(
+      error_string,
+      &entry->instance_id,
+      entry->instance_id_in,
+      "Instance Id")) {
+    return false;
+  }
+
+  return true;
+}
+/* End of PSK table options */
+
+static void rtps_current_packet_decryption_info_reset(
+    rtps_current_packet_decryption_info_t *info)
+{
+  rtps_guid_prefix_t guid_prefix_zero = {0, 0, 0};
+
+  info->guid_prefix = guid_prefix_zero;
+  info->try_psk_decryption = false;
+  info->session_id = 0;
+  info->transformation_key = 0;
+  info->algorithm = CRYPTO_ALGORITHM_NONE;
+  memset(info->init_vector, 0, RTPS_SECURITY_INIT_VECTOR_LEN);
+  info->psk_index = 0;
+  return;
+}
+
+/*  ----------------------- PSK Session Key Generation ---------------------- */
+/*
+ * The session key is calculated as follows:
+ *   HMAC-SHA256(
+ *       master_sender_key,
+ *       "SessionKey" | master_sender_salt | session_id)
+ *
+ * This is implemented in rtps_psk_generate_session_key.
+ *
+ * Each component of the above formula can be obtained as follows:
+ *
+ * - master_sender_key and master_sender_salt 32 bytes element computed from:
+ *     HMAC-SHA256(prk_key, <derivation_suffix> | 0x01)
+ *
+ *       - prk_key: Implemented in rtps_psk_generate_prk_key.
+ *           HMAC-SHA256(public_salt_for_master_key, preshared_secret_key)
+ *
+ *             - public_salt_for_master_key (256 bits): Implemented in
+ *               rtps_generate_public_salt.
+ *                 concatenate(
+ *                     <prk_prefix> (64 bits),
+ *                     <sender_key_id> (32 bits),
+ *                     RTPS header (160 bits))
+ *             - preshared_secret_key: Secret key given by the user in the
+ *               dialog.
+ *
+ *   Where <derivation_suffix> is equal to "master sender key derivation" for
+ *   the master_sender_key and "master salt derivation" for the
+ *   master_sender_salt.
+ *
+ *   Where <prk_prefix> is equal to "PSK-SKEY" for the master_sender_key and
+ *   "PSK-SALT" for the master_sender_salt.
+ *
+ *   Where <sender_key_id> is sent in the transformation_key_id field of the
+ *   crypto header (only when the message is encoded using PSK).
+ *
+ *   This is implemented in rtps_psk_generate_master_sender.
+ *
+ * - session_id: We can read the session_id from the crypto header of the
+ *   SRTPS_PREFIX submessage.
+ *   Note: The session_id is a counter starting at zero and increased by one
+ *   every time we have encoded a specific number of messages.
+ */
+static bool rtps_psk_generate_master_sender(
+    guint8 *output,
+    bool is_salt,
+    const char* preshared_secret_key,
+    guint32 sender_key_id,
+    tvbuff_t *rtps_header_tvb,
+    gint rtps_header_tvb_offset);
+
+static gcry_error_t rtps_util_generate_hmac_sha256(
+    void *output,
+    const void *key,
+    const void *data,
+    size_t datalen);
+
+/**
+ * @brief Generate the session key that will be used to decrypt PSK-encoded RTPS
+ * messages. It requires the pre-shared secret key known and given by the user,
+ * the RTPS header, and two fields (sender key id and session id) sent on the
+ * wire.
+ */
+static bool rtps_psk_generate_session_key(
+    packet_info *pinfo,
+    const char *preshared_secret_key,
+    guint32 sender_key_id,
+    guint32 session_id,
+    guint8 *buffer)
+{
+  const char *sessionKeyString = "SessionKey";
+  rtps_tvb_field* rtps_root = NULL;
+  guint8 sender_key[RTPS_HMAC_256_BUFFER_SIZE_BYTES];
+  /*
+   * Must be big enough to fit the sessionKeyString, the master sender key and
+   * the session id.
+   */
+  guint8 input[50];
+  size_t offset = 0;
+
+  rtps_root = (rtps_tvb_field*) p_get_proto_data(
+      pinfo->pool,
+      pinfo,
+      proto_rtps,
+      RTPS_ROOT_MESSAGE_KEY);
+  if (rtps_root == NULL || buffer == NULL) {
+    return false;
+  }
+
+  memcpy(input, sessionKeyString, strlen(sessionKeyString));
+  offset += strlen(sessionKeyString);
+
+  if (!rtps_psk_generate_master_sender(
+        input + offset,
+        true, /* is_salt. */
+        preshared_secret_key,
+        sender_key_id,
+        rtps_root->tvb,
+        rtps_root->tvb_offset)) {
+    return false;
+  }
+  offset += RTPS_HMAC_256_BUFFER_SIZE_BYTES;
+
+  memcpy(
+      input + offset,
+      &session_id,
+      sizeof(guint32));
+  offset += sizeof(guint32);
+
+  if (!rtps_psk_generate_master_sender(
+        sender_key,
+        false, /* is_salt. */
+        preshared_secret_key,
+        sender_key_id,
+        rtps_root->tvb,
+        rtps_root->tvb_offset)) {
+    return false;
+  }
+
+  return rtps_util_generate_hmac_sha256(
+      buffer,
+      sender_key,
+      input,
+      offset) == GPG_ERR_NO_ERROR;
+}
+
+static bool rtps_psk_generate_prk_key(
+    guint8 *output,
+    const char *prefix,
+    const char *preshared_secret_key,
+    guint32 sender_key_id,
+    tvbuff_t *rtps_header_tvb,
+    gint rtps_header_tvb_offset);
+
+/**
+ * @brief Generate the master sender key or master sender salt (depending on the
+ * is_salt parameter) that will be used to derive the session key.
+ */
+static bool rtps_psk_generate_master_sender(
+    guint8 *output,
+    bool is_salt,
+    const char* preshared_secret_key,
+    guint32 sender_key_id,
+    tvbuff_t *rtps_header_tvb,
+    gint rtps_header_tvb_offset)
+{
+  const char *prk_prefix = is_salt ? "PSK-SALT" : "PSK-SKEY";
+  const char *suffix = is_salt ?
+      "master salt derivation" :
+      "master sender key derivation";
+  guint8 prk_key[RTPS_HMAC_256_BUFFER_SIZE_BYTES];
+  /* Must be big enough to fit the largest suffix and the 0x1 constant byte. */
+  guint8 input[50];
+
+  if (!rtps_psk_generate_prk_key(
+      prk_key,
+      prk_prefix,
+      preshared_secret_key,
+      sender_key_id,
+      rtps_header_tvb,
+      rtps_header_tvb_offset)) {
+    return false;
+  }
+
+  memcpy(input, suffix, strlen(suffix));
+  input[strlen(suffix)] = 0x1; /* Fixed value. */
+
+  return rtps_util_generate_hmac_sha256(
+      output,
+      prk_key,
+      input,
+      strlen(suffix) + 1) == GPG_ERR_NO_ERROR;
+}
+
+static void rtps_generate_public_salt(
+    guint8 *output,
+    const char *prefix,
+    guint32 sender_key_id,
+    tvbuff_t *rtps_header_tvb,
+    gint rtps_header_tvb_offset);
+
+/**
+ * @brief Compute the Pseudo-Random Key; an intermediate step to get the
+ * master sender. This function computes:
+ *   HMAC-SHA256(
+ *       concatenate(prefix, sender_key_id. rtps_header),
+ *       preshared_secret_key)
+ */
+static bool rtps_psk_generate_prk_key(
+    guint8 *output,
+    const char *prefix,
+    const char *preshared_secret_key,
+    guint32 sender_key_id,
+    tvbuff_t *rtps_header_tvb,
+    gint rtps_header_tvb_offset)
+{
+  gcry_error_t error = GPG_ERR_NO_ERROR;
+  guint8 public_salt[RTPS_HMAC_256_BUFFER_SIZE_BYTES];
+
+  rtps_generate_public_salt(
+      public_salt,
+      prefix,
+      sender_key_id,
+      rtps_header_tvb,
+      rtps_header_tvb_offset);
+
+  error = rtps_util_generate_hmac_sha256(
+      output,
+      public_salt,
+      preshared_secret_key,
+      strlen(preshared_secret_key));
+  return error == GPG_ERR_NO_ERROR;
+}
+
+/**
+ * @brief Generates the public salt that can be used to derive the prk_key
+ * and prk_salt Pseudo-Random Keys.
+ *
+ * It does the concatenation of:
+ *   concatenate(
+ *     <8-byte prefix>,
+ *     <4-byte sender's key id>,
+ *     <20-byte RTPS header>)
+ * So output must be a 32-byte buffer (i.e. RTPS_HMAC_256_BUFFER_SIZE_BYTES).
+ */
+static void rtps_generate_public_salt(
+    guint8 *output,
+    const char *prefix,
+    guint32 sender_key_id,
+    tvbuff_t *rtps_header_tvb,
+    gint rtps_header_tvb_offset)
+{
+  size_t offset = 0;
+
+  /* Copy the 8-byte prefix. */
+  memcpy(output, prefix, strlen(prefix));
+  offset += strlen(prefix);
+
+  /* Copy the 4-byte sender's key id. */
+  memcpy(output + offset, &sender_key_id, sizeof(guint32));
+  offset += sizeof(guint32);
+
+  /* Copy the 20-byte RTPS header. */
+  tvb_memcpy(
+      rtps_header_tvb,
+      output + offset,
+      rtps_header_tvb_offset,
+      20); /* RTPS HEADER SIZE. */
+
+  return;
+}
+
+/**
+ * @brief Compute the HMAC-SHA256 of the data using the key.
+ * This function is required to derive the PSK session key.
+ */
+static gcry_error_t rtps_util_generate_hmac_sha256(
+    void *output,
+    const void *key,
+    const void *data,
+    size_t datalen)
+{
+  gcry_mac_hd_t hmac;
+  gcry_error_t error = GPG_ERR_NO_ERROR;
+  size_t OUTPUT_SIZE = RTPS_HMAC_256_BUFFER_SIZE_BYTES;
+
+  error = gcry_mac_open(&hmac, GCRY_MAC_HMAC_SHA256, 0, NULL);
+  if (error != GPG_ERR_NO_ERROR) {
+      gcry_mac_close(hmac);
+      return error;
+  }
+
+  error = gcry_mac_setkey(hmac, key, RTPS_HMAC_256_BUFFER_SIZE_BYTES);
+  if (error != GPG_ERR_NO_ERROR) {
+    gcry_mac_close(hmac);
+    return error;
+  }
+
+  error = gcry_mac_write(hmac, data, datalen);
+  if (error != GPG_ERR_NO_ERROR) {
+    gcry_mac_close(hmac);
+    return error;
+  }
+
+  error = gcry_mac_read(hmac, output, &OUTPUT_SIZE);
+  if (error != GPG_ERR_NO_ERROR) {
+    gcry_mac_close(hmac);
+          fprintf (stderr, "Failure: %s/%s\n",
+              gcry_strsource (error),
+              gcry_strerror (error));
+    return error;
+  }
+
+  gcry_mac_close(hmac);
+  return error;
+}
+/*  ------------------------------------------------------------------------- */
+
+/**
+ * @brief Translate between the RTPS and gcrypt types.
+ */
+static int rtps_encryption_algorithm_to_gcry_enum(
+    rtps_encryption_algorithm_t rtps_enum_in,
+    int *gcry_cipher_mode_out)
+{
+  if (gcry_cipher_mode_out == NULL) {
+    return -1;
+  }
+  switch(rtps_enum_in) {
+    case CRYPTO_ALGORITHM_AES128_GMAC:
+      *gcry_cipher_mode_out = GCRY_CIPHER_MODE_CCM;
+      return GCRY_CIPHER_AES128;
+    case CRYPTO_ALGORITHM_AES128_GCM:
+      *gcry_cipher_mode_out = GCRY_CIPHER_MODE_GCM;
+      return GCRY_CIPHER_AES128;
+    case CRYPTO_ALGORITHM_AES256_GMAC:
+      *gcry_cipher_mode_out = GCRY_CIPHER_MODE_CCM;
+      return GCRY_CIPHER_AES256;
+    case CRYPTO_ALGORITHM_AES256_GCM:
+      *gcry_cipher_mode_out = GCRY_CIPHER_MODE_GCM;
+      return GCRY_CIPHER_AES256;
+    case CRYPTO_ALGORITHM_NONE:
+    default:
+      *gcry_cipher_mode_out = GCRY_CIPHER_MODE_NONE;
+      return GCRY_CIPHER_NONE;
+  }
+}
+
+static gcry_error_t rtps_util_decrypt_data(
+    guint8 *encrypted_data,
+    size_t encrypted_data_size,
+    guint8 *key,
+    guint8 *init_vector,
+    guint8 *tag,
+    rtps_encryption_algorithm_t algorithm)
+{
+  gcry_error_t err = GPG_ERR_NO_ERROR;
+  gcry_cipher_hd_t cipher_hd;
+  int encription_algo;
+  int encription_mode = 0;
+
+  encription_algo = rtps_encryption_algorithm_to_gcry_enum(
+      algorithm,
+      &encription_mode);
+
+  err = gcry_cipher_open(
+      &cipher_hd,
+      encription_algo,
+      encription_mode,
+      0);
+  if (err != GPG_ERR_NO_ERROR) {
+      ws_warning(
+          "GCRY: cipher open %s/%s\n",
+          gcry_strsource(err),
+          gcry_strerror(err));
+      return err;
+  }
+
+  err = gcry_cipher_setkey(cipher_hd, key, RTPS_HMAC_256_BUFFER_SIZE_BYTES);
+  if (err != GPG_ERR_NO_ERROR) {
+      ws_warning(
+          "GCRY: setkey %s/%s\n",
+          gcry_strsource(err),
+          gcry_strerror(err));
+      gcry_cipher_close(cipher_hd);
+      return err;
+  }
+
+  if (init_vector != NULL) {
+    err = gcry_cipher_setiv(
+        cipher_hd,
+        init_vector,
+        RTPS_SECURITY_INIT_VECTOR_LEN);
+    if (err != GPG_ERR_NO_ERROR) {
+        ws_warning(
+            "GCRY: setiv %s/%s\n",
+            gcry_strsource(err),
+            gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return err;
+    }
+  }
+
+  err = gcry_cipher_decrypt(
+      cipher_hd,
+      encrypted_data,
+      encrypted_data_size,
+      NULL,
+      0);
+  if (err != GPG_ERR_NO_ERROR) {
+      ws_warning(
+          "GCRY: encrypt %s/%s\n",
+          gcry_strsource(err),
+          gcry_strerror(err));
+      gcry_cipher_close(cipher_hd);
+      return err;
+  }
+
+  if (tag != NULL) {
+    err = gcry_cipher_checktag(cipher_hd, tag, SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH);
+    if (err != GPG_ERR_NO_ERROR) {
+      ws_warning(
+          "GCRY: Decryption (checktag) failed: %s/%s\n",
+          gcry_strsource(err),
+          gcry_strerror(err));
+    }
+  }
+
+  gcry_cipher_close(cipher_hd);
+  return err;
+}
+
+/**
+ * @brief Generates the session key and uses it to decrypt the secure payload.
+ * The decripted payload is stored in an allocated buffer using the allocator
+ * passed as parameter.
+ */
+static guint8 *rtps_decrypt_secure_payload(
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    gint offset,
+    size_t secure_payload_len,
+    guint8 *preshared_secret_key,
+    guint8 *init_vector,
+    rtps_encryption_algorithm_t algorithm,
+    guint32 transformation_key,
+    guint32 session_id,
+    guint8 *tag,
+    guint8 *session_key_output,
+    gcry_error_t* error,
+    wmem_allocator_t *allocator)
+{
+  guint8 *secure_body_ptr;
+
+  if (!rtps_psk_generate_session_key(
+      pinfo,
+      preshared_secret_key,
+      transformation_key,
+      session_id,
+      session_key_output)) {
+    return NULL;
+  }
+
+  secure_body_ptr = wmem_alloc0(allocator, secure_payload_len);
+  if (secure_body_ptr == NULL) {
+    return NULL;
+  }
+
+  tvb_memcpy(tvb, secure_body_ptr, offset, secure_payload_len);
+
+  *error = rtps_util_decrypt_data(
+      secure_body_ptr,
+      secure_payload_len,
+      session_key_output,
+      init_vector,
+      tag,
+      algorithm);
+
+  /*
+   * Free the allocated memory if the decryption goes wrong or if the content is
+   * not healthy.
+   */
+  if (*error != GPG_ERR_NO_ERROR) {
+    wmem_free(allocator, secure_body_ptr);
+    secure_body_ptr = NULL;
+  }
+  return secure_body_ptr;
+}
+/******************************************************************************/
 
 static const true_false_string tfs_little_big_endianness = { "Little-Endian", "Big-Endian" };
 
@@ -13237,47 +13986,302 @@ static void dissect_RTI_CRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
       proto_tree_add_item(tree, hf_rtps_sm_rti_crc_result, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
-static void dissect_SECURE(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
-                guint8 flags, const guint encoding _U_, int octets_to_next_header,
-                proto_tree *tree, guint16 vendor_id _U_) {
+/**
+ * @brief Do a forward search for the begining of the tags section in the
+ * SRTPS POSTFIX/SEC POSTFIX submessage.
+ */
+static gint rtps_util_look_for_secure_tag(
+    tvbuff_t *tvb,
+    gint offset)
+{
+  gint submessage_offset = offset;
+  guint8 submessage_id = 0;
+  gint tvb_remaining_len = tvb_reported_length_remaining(tvb, offset);
+  gint submessage_len = 0;
 
+  while (tvb_remaining_len > 4) {
+    submessage_id = tvb_get_guint8(tvb, submessage_offset);
+    submessage_len = tvb_get_guint16(
+        tvb,
+        submessage_offset + 2,
+        ENC_LITTLE_ENDIAN);
+    tvb_remaining_len -= submessage_len;
+    if (submessage_id == SUBMESSAGE_SRTPS_POSTFIX
+        || submessage_id == SUBMESSAGE_SEC_POSTFIX) {
+      return submessage_offset + 4;
+    }
+    submessage_offset += submessage_len;
+    tvb_remaining_len -= submessage_len;
+  }
+  return -1;
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+static void dissect_SECURE(
+    tvbuff_t *tvb,
+    packet_info *pinfo _U_,
+    gint offset,
+    guint8 flags,
+    const guint encoding _U_,
+    int octets_to_next_header,
+    proto_tree *tree,
+    guint16 vendor_id _U_,
+    endpoint_guid *guid,
+    bool dissecting_encrypted_submessage)
+{
  /* *********************************************************************** */
  /* *                          SECURE SUBMESSAGE                          * */
  /* *********************************************************************** */
  /* 0...2...........7...............15.............23...............31
-    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    * | SECURE SUBMSG |X|X|X|X|X|X|S|E|      octetsToNextHeader       |
-    * +---------------+---------------+---------------+---------------+
-    * |                    long transformationKind                    |
-    * +---------------+---------------+---------------+---------------+
-    * |                                                               |
-    * +                  octet transformationId[8]                    +
-    * |                                                               |
-    * +---------------+---------------+---------------+---------------+
-    * |                                                               |
-    * +                     octet secure_data[]                       +
-    * |                                                               |
-    * +---------------+---------------+---------------+---------------+
+  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  * | SECURE SUBMSG |X|X|X|X|X|X|S|E|      octetsToNextHeader       |
+  * +---------------+---------------+---------------+---------------+
+  * |                    long transformationKind                    |
+  * +---------------+---------------+---------------+---------------+
+  * |                                                               |
+  * +                  octet transformationId[8]                    +
+  * |                                                               |
+  * +---------------+---------------+---------------+---------------+
+  * |                                                               |
+  * +                     octet secure_data[]                       +
+  * |                                                               |
+  * +---------------+---------------+---------------+---------------+
+  */
+  proto_tree * payload_tree;
+  guint local_encoding;
+  gint secure_body_len = 0;
+  rtps_current_packet_decryption_info_t *decryption_info;
+  gint initial_offset = offset;
+
+  proto_tree_add_bitmask_value(
+      tree,
+      tvb,
+      offset + 1,
+      hf_rtps_sm_flags,
+      ett_rtps_flags,
+      SECURE_FLAGS,
+      flags);
+  local_encoding = ((flags & FLAG_E) != 0) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+
+  proto_tree_add_item(
+      tree,
+      hf_rtps_sm_octets_to_next_header,
+      tvb,
+      offset + 2,
+      2,
+      local_encoding);
+  offset += 4;
+
+  payload_tree = proto_tree_add_subtree_format(
+      tree,
+      tvb,
+      offset,
+      octets_to_next_header,
+      ett_rtps_secure_payload_tree,
+      NULL,
+      "Secured payload");
+
+  proto_tree_add_item(
+      payload_tree,
+      hf_rtps_secure_secure_data_length,
+      tvb,
+      offset,
+      4,
+      ENC_BIG_ENDIAN);
+  offset += 4;
+
+  secure_body_len = octets_to_next_header - 4;
+  proto_tree_add_item(
+      payload_tree,
+      hf_rtps_secure_secure_data,
+      tvb,
+      offset,
+      octets_to_next_header - 4,
+      local_encoding);
+
+  decryption_info = (rtps_current_packet_decryption_info_t *)
+      p_get_proto_data(
+          pinfo->pool,
+          pinfo,
+          proto_rtps,
+          RTPS_DECRYPTION_INFO_KEY);
+
+  if (!enable_rtps_psk_decryption
+      || decryption_info == NULL
+      || !decryption_info->try_psk_decryption) {
+    return;
+  }
+
+  if (dissecting_encrypted_submessage) {
+    /*
+     * This should never happen.
+     * If an RTPS message is encrypted with a pre-shared key, then the dissector
+     * will use this function to decrypt the SEC_BODY submessage and attempt to
+     * dissect it by calling dissect_rtps_submessages. The
+     * dissecting_encrypted_submessage parameter makes sure that the recursion
+     * is not infinite. However, this is not really possible because pre-shared
+     * key encryption takes only place at the RTPS message level; there
+     * shouldn't be another pre-shared key encoded SEC_BODY submessage at this
+     * point. Clang complains about the recursion because it doesn't have the
+     * information about the RTPS protocol. We ignore the warning with the
+     * NOLINTNEXTLINE suppression (misc-no-recursion argument) above each
+     * affected function.
+     */
+    return;
+  }
+
+  for (guint entry_idx = 0; entry_idx < rtps_psk_options.size; entry_idx++) {
+    guint8 *decrypted_data = NULL;
+    guint8 session_key[RTPS_HMAC_256_BUFFER_SIZE_BYTES];
+    guint8 *tag = NULL;
+    gint tag_offset = 0;
+    gcry_error_t error = GPG_ERR_NO_ERROR;
+    /* Iterate all entries in the PSK table of the RTPS protocol options */
+    rtps_psk_options_entry_t *entry = &rtps_psk_options.entries[entry_idx];
+    /* Check if each field is equal or the ignore options are enabled */
+    gboolean host_id_mismatch = !entry->host_id.ignore
+        && entry->host_id.value != decryption_info->guid_prefix.host_id;
+    gboolean host_app_mismatch = !entry->app_id.ignore
+        && entry->app_id.value != decryption_info->guid_prefix.app_id;
+    gboolean host_instance_mismatch = !entry->instance_id.ignore
+        && entry->instance_id.value != decryption_info->guid_prefix.instance_id;
+    gboolean psk_index_mismatch = !entry->passphrase_id.ignore
+        && entry->passphrase_id.value != decryption_info->psk_index;
+
+    /*
+    * We proceed to decryption only if host, app and instance ids are equals
+    * (or ignored).
     */
-    proto_tree * payload_tree;
-    guint local_encoding;
-    proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, SECURE_FLAGS, flags);
-    local_encoding = ((flags & FLAG_E) != 0) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+    if (host_id_mismatch
+        || host_app_mismatch
+        || host_instance_mismatch
+        || psk_index_mismatch) {
+      continue;
+    }
 
-    proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset + 2, 2, local_encoding);
+    /*
+     * When decrypting with PSKs there is only one tag in the SRTPS POSTFIX/SEC
+     * POSTFIX submessage. The offset is the one until the next submessage.
+     * The 4 constant is the sum of submessage_id(1 byte)
+     * + flags (1 byte) + octects to the next submessage(2 bytes)
+     */
+    tag_offset = rtps_util_look_for_secure_tag(
+        tvb,
+        initial_offset + octets_to_next_header + 4);
+    if (tag_offset > 0) {
+      tag = tvb_memdup(
+          wmem_packet_scope(),
+          tvb,
+          tag_offset,
+          SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH);
+    }
 
-    offset += 4;
+    /* Decrypt the payload */
+    decrypted_data = rtps_decrypt_secure_payload(
+        tvb,
+        pinfo,
+        offset,
+        (size_t) secure_body_len,
+        entry->passphrase_secret,
+        decryption_info->init_vector,
+        decryption_info->algorithm,
+        decryption_info->transformation_key,
+        decryption_info->session_id,
+        tag,
+        session_key,
+        &error,
+        wmem_packet_scope());
+    error = gpg_err_code(error);
+    if (error == GPG_ERR_NO_ERROR) {
+      tvbuff_t *decrypted_tvb = NULL;
+      /*
+       * Each byte becomes two hexadecimal characters.
+       * We also add one for the NUL terminator, which we will add manually
+       * because bytes_to_hexstr does not add it.
+       */
+      char session_key_hexadecimal_representation[
+          RTPS_HMAC_256_BUFFER_SIZE_BYTES * 2 + 1];
+      char *session_key_nul_terminator_ptr = NULL;
+      rtps_guid_prefix_t guid_backup = decryption_info->guid_prefix;
 
-    payload_tree = proto_tree_add_subtree_format(tree, tvb, offset, octets_to_next_header,
-                   ett_rtps_secure_payload_tree, NULL, "Secured payload");
+      /* Add the decrypted payload as a generated tvb */
+      decrypted_tvb = tvb_new_real_data(
+          decrypted_data,
+          (guint) secure_body_len,
+          secure_body_len);
+      tvb_set_child_real_data_tvbuff(tvb, decrypted_tvb);
+      session_key_nul_terminator_ptr = bytes_to_hexstr(
+          session_key_hexadecimal_representation,
+          session_key,
+          RTPS_HMAC_256_BUFFER_SIZE_BYTES);
+      *session_key_nul_terminator_ptr = '\0';
 
-    proto_tree_add_item(payload_tree, hf_rtps_secure_secure_data_length, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
+      proto_tree* decrypted_subtree = NULL;
+      decrypted_subtree = proto_tree_add_subtree_format(
+          payload_tree,
+          decrypted_tvb,
+          offset,
+          secure_body_len,
+          ett_rtps_decrypted_payload,
+          NULL,
+          "Decrypted Payload (Passphrase Secret: \"%s\", "
+          "Passphrase ID: %d Session Key: %s)",
+          entry->passphrase_secret,
+          entry->passphrase_id.value,
+          session_key_hexadecimal_representation);
+      add_new_data_source(pinfo, decrypted_tvb, "Decrypted Data");
+      proto_item_set_generated(decrypted_subtree);
 
-    proto_tree_add_item(payload_tree, hf_rtps_secure_secure_data, tvb,
-                            offset, octets_to_next_header-4, local_encoding);
+      /*
+       * Reset the content of the decryption info except the guid. This way we
+       * avoid interefering in possible decription inside the secure payload.
+       */
+      rtps_current_packet_decryption_info_reset(decryption_info);
+      decryption_info->guid_prefix = guid_backup;
 
+      dissect_rtps_submessages(
+          decrypted_tvb,
+          0,
+          pinfo,
+          decrypted_subtree,
+          0x0200,
+          vendor_id,
+          guid,
+          true /* dissecting_encrypted_submessage. */);
+      break;
+    } else if (error == GPG_ERR_CHECKSUM) {
+      /* Wrong PSK */
+      proto_tree_add_expert_format(
+          payload_tree,
+          pinfo,
+          &ei_rtps_invalid_psk,
+          tvb,
+          offset,
+          octets_to_next_header,
+          "Bad %s tag check. " \
+          "Possibly wrong passphrase secret (\"%s\") or malformed packet",
+          val_to_str(
+            decryption_info->algorithm,
+            secure_transformation_kind,
+            "Unknown algorithm"),
+          entry->passphrase_secret);
+      break;
+    } else {
+      /* General error. Displaying GCRY error output */
+      proto_tree_add_expert_format(
+          payload_tree,
+          pinfo,
+          &ei_rtps_invalid_psk,
+          tvb,
+          offset,
+          octets_to_next_header,
+          "Unable to decrypt content with passphrase secret (\"%s\"). %s: %s",
+          entry->passphrase_secret,
+          gcry_strsource(error),
+          gcry_strerror(error));
+      break;
+    }
+  }
 }
 
 static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
@@ -13311,10 +14315,24 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
      * +---------------+---------------+---------------+---------------+
      */
   proto_tree * sec_data_header_tree;
+  int flags_offset = offset + 1;
+  int session_id_offset = 0;
+  int transformation_key_offset = 0;
+  int algorithm_offset = 0;
+  int init_vector_offset = 0;
+  int psk_index_offset_three_bytes = 0;
+  int psk_index_offset_fourth_byte = 0;
+  guint32 psk_index = 0;
+  proto_item *passphrase_id_item = NULL;
+  guint flags_byte = 0;
+  gboolean is_psk_protected = FALSE;
+  proto_item *transformation_kind_item = NULL;
 
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags,
           ett_rtps_flags, SECURE_PREFIX_FLAGS, flags);
 
+  flags_byte = tvb_get_guint8(tvb, flags_offset);
+  is_psk_protected = (flags_byte & 0x04) != 0;
   proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset + 2,
           2, encoding);
   offset += 4;
@@ -13327,62 +14345,226 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
    * - 1 byte: Transformation Kind
    * A single byte is enough for Transformation Kind since it only has five possible values (0-4).
    */
+  psk_index_offset_three_bytes = offset;
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_key_revision_id, tvb,
           offset, 3, ENC_BIG_ENDIAN);
   offset += 3;
 
+  algorithm_offset = offset;
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_kind, tvb,
           offset, 1, ENC_BIG_ENDIAN);
-  offset += 1;
 
+  offset += 1;
+  transformation_key_offset = offset;
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_key_id, tvb,
           offset, 4, ENC_NA);
-  offset += 4;
 
+  offset += 3;
+  if (is_psk_protected) {
+    proto_tree *transformation_kind_tree;
+    /* PSK index is the last byte of the transformation kind */
+    psk_index_offset_fourth_byte = offset;
+    transformation_kind_tree = proto_item_add_subtree(
+        transformation_kind_item,
+        ett_rtps_secure_transformation_kind);
+    proto_tree_add_item(
+        transformation_kind_tree,
+        hf_rtps_secure_dataheader_passphrase_key_id,
+        tvb,
+        psk_index_offset_fourth_byte,
+        1,
+        ENC_NA);
+  }
+  offset += 1;
+  session_id_offset = offset;
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_session_id, tvb,
           offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
+  init_vector_offset = session_id_offset;
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_init_vector_suffix, tvb,
           offset, octets_to_next_header-12, ENC_NA);
+
+  if (is_psk_protected) {
+    guint8 *psk_index_bytes = (guint8*) &psk_index;
+    tvb_memcpy(tvb, &psk_index_bytes[1], psk_index_offset_three_bytes, 3);
+    tvb_memcpy(tvb, psk_index_bytes, psk_index_offset_fourth_byte, 1);
+    passphrase_id_item = proto_tree_add_uint(
+        sec_data_header_tree,
+        hf_rtps_secure_dataheader_passphrase_id,
+        tvb,
+        0,
+        0,
+        psk_index);
+    proto_item_set_generated(passphrase_id_item);
+  }
+
+  /*
+   * If PSK decryption is enabled, then store the session id, init vector and
+   * transformation key for using them later during the session key generation.
+   */
+  if (is_psk_protected && enable_rtps_psk_decryption) {
+    rtps_current_packet_decryption_info_t *decryption_info =
+        (rtps_current_packet_decryption_info_t *) p_get_proto_data(
+              pinfo->pool,
+              pinfo,
+              proto_rtps,
+              RTPS_DECRYPTION_INFO_KEY);
+    if (decryption_info == NULL) {
+      return;
+    }
+
+    decryption_info->try_psk_decryption = true;
+    decryption_info->algorithm = tvb_get_guint8(tvb, algorithm_offset);
+
+    /* Copy the bytes as they are. Without considering the endianess */
+    tvb_memcpy(
+        tvb,
+        &decryption_info->session_id,
+        session_id_offset,
+        sizeof(guint32));
+    tvb_memcpy(
+        tvb,
+        &decryption_info->init_vector,
+        init_vector_offset,
+        RTPS_SECURITY_INIT_VECTOR_LEN);
+    tvb_memcpy(
+        tvb,
+        &decryption_info->transformation_key,
+        transformation_key_offset,
+        sizeof(guint32));
+
+    /*
+     * PSK index is the composition of the three bytes of the transformation key
+     * revision Id and the byte of the transformation id.
+     */
+    decryption_info->psk_index = psk_index;
+  }
 }
 
-static void dissect_SECURE_POSTFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
-                guint8 flags, const guint encoding, int octets_to_next_header,
-                proto_tree *tree, guint16 vendor_id _U_) {
+static void dissect_SECURE_POSTFIX(
+    tvbuff_t *tvb,
+    packet_info *pinfo _U_,
+    gint offset,
+    guint8 flags,
+    const guint encoding,
+    int octets_to_next_header,
+    proto_tree *tree,
+    guint16 vendor_id _U_)
+{
     /*
-     * MIG_RTPS_SECURE_RTPS_POSTFIX and MIG_RTPS_SECURE_POSTFIX share the same serialization:
-     * 0...2...........8...............16.............24...............32
-     * +---------------+---------------+---------------+---------------+
-     * | 0x34 / 0x32   |X|X|X|X|X|X|X|E|        octetsToNextHeader     |
-     * +---------------+---------------+---------------+---------------+
-     * |                                                               |
-     * +                SecureDataTag sec_data_tag                     +
-     * |                                                               |
-     * +---------------+---------------+---------------+---------------+
+     * MIG_RTPS_SECURE_RTPS_POSTFIX and MIG_RTPS_SECURE_POSTFIX share the same
+     * serialization:
+     *  0...2...........8...............16.............24...............32
+     *  +---------------+---------------+---------------+---------------+
+     *  | 0x34 / 0x32   |X|X|X|X|X|X|X|E|        octetsToNextHeader     |
+     *  +---------------+---------------+---------------+---------------+
+     *  |                                                               |
+     *  +                SecureDataTag sec_data_tag                     +
+     *  |                                                               |
+     *  +---------------+---------------+---------------+---------------+
      *
      * where SecureDataTag is:
      *  0...2...........8...............16.............24...............32
-     * +---------------+---------------+---------------+---------------+
-     * |                                                               |
-     * ~                 octet plugin_sec_tag[]                        ~
-     * |                                                               |
-     * +---------------+---------------+---------------+---------------+
-     */
-  proto_tree * sec_data_tag_tree;
+     *  +---------------+---------------+---------------+---------------+
+     *  |                                                               |
+     *  ~                 octet plugin_sec_tag[]                        ~
+     *  |                                                               |
+     *  +---------------+---------------+---------------+---------------+
+     *
+     * and plugin_sec_tag is:
+     *  0...2...........8...............16.............24...............32
+    *   +---------------+---------------+---------------+---------------+
+    *   ~ octet[16] plugin_sec_tag.common_mac                           ~
+    *   +---------------+---------------+---------------+---------------+
+    *   + plugin_sec_tag.receiver_specific_macs:                        |
+    *   |   long plugin_sec_tag.receiver_specific_macs.length = N       |
+    *   +---------------+---------------+---------------+---------------+
+    *   | octet[4] receiver_specific_macs[0].receiver_mac_key_id        |
+    *   | octet[16] receiver_specific_macs[0].receiver_mac              |
+    *   +---------------+---------------+---------------+---------------+
+    *   | . . .                                                         |
+    *   +---------------+---------------+---------------+---------------+
+    *   | octet[4] receiver_specific_macs[N-1].receiver_mac_key_id      |
+    *   | octet[16] receiver_specific_macs[N-1].receiver_mac            |
+    *   +---------------+---------------+---------------+---------------+
+    */
+  gint specific_macs_num = 0;
 
+  ++offset;
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags,
             ett_rtps_flags, SECURE_POSTFIX_FLAGS, flags);
 
-  proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset + 2,
+  ++offset;
+  proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset,
             2, encoding);
+  offset += 2;
+  proto_tree_add_item(
+      tree,
+      hf_rtps_secure_datatag_plugin_sec_tag_common_mac,
+      tvb,
+      offset,
+      SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH,
+      encoding);
+  offset += SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH;
+  /*
+   * The receiver-specific mac length is encoded in big endian (regardless of
+   * the submessage flags), as per the Security specification.
+   */
+  proto_tree_add_item(
+      tree,
+      hf_rtps_secure_datatag_plugin_specific_macs_len,
+      tvb,
+      offset,
+      4,
+      ENC_BIG_ENDIAN);
+  specific_macs_num = tvb_get_gint32(tvb, offset, ENC_BIG_ENDIAN);
   offset += 4;
 
-  sec_data_tag_tree = proto_tree_add_subtree_format(tree, tvb, offset, octets_to_next_header,
-            ett_rtps_secure_dataheader_tree, NULL, "Secure Data Tag");
+  /* Dissect specific macs */
+  if (specific_macs_num > 0) {
+    gint RECEIVER_SPECIFIC_MAC_KEY_LENGTH = 4; /* bytes. */
+    gint secure_tags_list_member_size =
+        RECEIVER_SPECIFIC_MAC_KEY_LENGTH + SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH;
 
-  proto_tree_add_item(sec_data_tag_tree, hf_rtps_secure_datatag_plugin_sec_tag, tvb,
-            offset, octets_to_next_header, encoding);
+    proto_tree *sec_data_tag_tree = NULL;
+    sec_data_tag_tree = proto_tree_add_subtree_format(
+        tree,
+        tvb,
+        offset,
+        octets_to_next_header,
+        ett_rtps_secure_dataheader_tree,
+        NULL,
+        "Receiver Specific Macs");
+    for (gint tag_counter = 0; tag_counter < specific_macs_num; tag_counter++) {
+      proto_tree *tag_tree = NULL;
+      gint tag_offset = tag_counter * secure_tags_list_member_size;
+
+      tag_tree = proto_tree_add_subtree_format(
+          sec_data_tag_tree,
+          tvb,
+          offset + tag_offset,
+          secure_tags_list_member_size,
+          ett_rtps_secure_postfix_tag_list_item,
+          NULL,
+          "Receiver Specific Mac[%d]",
+          tag_counter);
+      proto_tree_add_item(
+          tag_tree,
+          hf_rtps_secure_datatag_plugin_sec_tag,
+          tvb,
+          offset + tag_offset,
+          SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH,
+          encoding);
+      proto_tree_add_item(
+          tag_tree,
+          hf_rtps_secure_datatag_plugin_sec_tag_key,
+          tvb,
+          offset + tag_offset + SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH,
+          RECEIVER_SPECIFIC_MAC_KEY_LENGTH,
+          encoding);
+    }
+  }
 }
 /*
  * 0...2...........7...............15.............23...............31
@@ -13445,16 +14627,27 @@ static void dissect_UDP_WAN_BINDING_PING(tvbuff_t *tvb, packet_info *pinfo _U_, 
     }
 }
 
-static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
-                                           const guint encoding, guint8 submessageId, guint16 vendor_id, gint octets_to_next_header,
-                                           proto_tree *rtps_submessage_tree, proto_item *submessage_item,
-                                           endpoint_guid * guid, endpoint_guid * dst_guid)
+// NOLINTNEXTLINE(misc-no-recursion)
+static gboolean dissect_rtps_submessage_v2(
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    gint offset,
+    guint8 flags,
+    const guint encoding,
+    guint8 submessageId,
+    guint16 vendor_id,
+    gint octets_to_next_header,
+    proto_tree *rtps_submessage_tree,
+    proto_item *submessage_item,
+    endpoint_guid *guid,
+    endpoint_guid *dst_guid,
+    bool dissecting_encrypted_submessage)
 {
   switch (submessageId)
   {
-  case SUBMESSAGE_HEADER_EXTENSION:
-    dissect_HEADER_EXTENSION(tvb, pinfo, offset, flags, encoding, rtps_submessage_tree, octets_to_next_header, vendor_id);
-    break;
+    case SUBMESSAGE_HEADER_EXTENSION:
+      dissect_HEADER_EXTENSION(tvb, pinfo, offset, flags, encoding, rtps_submessage_tree, octets_to_next_header, vendor_id);
+      break;
     case SUBMESSAGE_DATA_FRAG:
       dissect_DATA_FRAG(tvb, pinfo, offset, flags, encoding,
           octets_to_next_header, rtps_submessage_tree, vendor_id, guid);
@@ -13527,8 +14720,17 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
       }
       break;
     case SUBMESSAGE_SEC_BODY:
-      dissect_SECURE(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
-                                rtps_submessage_tree, vendor_id);
+      dissect_SECURE(
+          tvb,
+          pinfo,
+          offset,
+          flags,
+          encoding,
+          octets_to_next_header,
+          rtps_submessage_tree,
+          vendor_id,
+          guid,
+          dissecting_encrypted_submessage);
       break;
     case SUBMESSAGE_SEC_PREFIX:
     case SUBMESSAGE_SRTPS_PREFIX:
@@ -13694,6 +14896,32 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guid.host_id = tvb_get_ntohl(tvb, offset+8);
     guid.app_id = tvb_get_ntohl(tvb, offset+12);
     guid.instance_id = tvb_get_ntohl(tvb, offset+16);
+
+    /*
+     * If decription is enabled, store the guid prefix to be used later in the
+     * dissect_SECURE and dissect_SECURE_PREFIX functions.
+     */
+    if (enable_rtps_psk_decryption) {
+      rtps_current_packet_decryption_info_t *decryption_info = wmem_alloc(
+          wmem_packet_scope(),
+          sizeof(rtps_current_packet_decryption_info_t));
+      if (decryption_info == NULL) {
+        return FALSE;
+      }
+
+      rtps_current_packet_decryption_info_reset(decryption_info);
+      decryption_info->guid_prefix.host_id = guid.host_id;
+      decryption_info->guid_prefix.app_id = guid.app_id;
+      decryption_info->guid_prefix.instance_id = guid.instance_id;
+
+      p_set_proto_data(
+          pinfo->pool,
+          pinfo,
+          proto_rtps,
+          RTPS_DECRYPTION_INFO_KEY,
+          (gpointer*) decryption_info);
+    }
+
     guid.fields_present = GUID_HAS_HOST_ID|GUID_HAS_APP_ID|GUID_HAS_INSTANCE_ID;
     /* If the packet uses TCP we need top store the participant GUID to get the domainId later
      * For that operation the member fields_present is not required and is not affected by
@@ -13823,7 +15051,15 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* offset behind RTPS's Header (need to be set in case tree=NULL)*/
   offset += ((version < 0x0200) ? 16 : 20);
 
-  dissect_rtps_submessages(tvb, offset, pinfo, rtps_tree, version, vendor_id, &guid);
+  dissect_rtps_submessages(
+      tvb,
+      offset,
+      pinfo,
+      rtps_tree,
+      version,
+      vendor_id,
+      &guid,
+      false /* dissecting_encrypted_submessage. */);
 
   /* If TCP there's an extra OOB byte at the end of the message */
   /* TODO: What to do with it? */
@@ -13851,10 +15087,16 @@ void append_submessage_col_info(packet_info* pinfo, submessage_col_info* current
   }
 }
 
-
+// NOLINTNEXTLINE(misc-no-recursion)
 void dissect_rtps_submessages(
-    tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtps_tree,
-    guint16 version, guint16 vendor_id, endpoint_guid *guid)
+    tvbuff_t *tvb,
+    int offset,
+    packet_info *pinfo,
+    proto_tree *rtps_tree,
+    guint16 version,
+    guint16 vendor_id,
+    endpoint_guid *guid,
+    bool dissecting_encrypted_submessage)
 {
   guint8 submessageId, flags;
   int sub_hf;
@@ -13928,9 +15170,20 @@ void dissect_rtps_submessages(
                                     octets_to_next_header, rtps_submessage_tree,
                                     ti, guid, &dst_guid)) {
       if ((version < 0x0200) ||
-          !dissect_rtps_submessage_v2(tvb, pinfo, offset, flags, encoding, submessageId,
-                                      vendor_id, octets_to_next_header, rtps_submessage_tree,
-                                      ti, guid, &dst_guid)) {
+          !dissect_rtps_submessage_v2(
+              tvb,
+              pinfo,
+              offset,
+              flags,
+              encoding,
+              submessageId,
+              vendor_id,
+              octets_to_next_header,
+              rtps_submessage_tree,
+              ti,
+              guid,
+              &dst_guid,
+              dissecting_encrypted_submessage)) {
         proto_tree_add_uint(rtps_submessage_tree, hf_rtps_sm_flags,
                               tvb, offset + 1, 1, flags);
         proto_tree_add_uint(rtps_submessage_tree,
@@ -16603,6 +17856,10 @@ void proto_register_rtps(void) {
         "Key Revisions Enabled", "rtps.flag.security.info.key_revisions_enabled",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
     },
+    { &hf_rtps_flag_participant_security_attribute_flag_key_psk_protected,{
+    "RTPS Pre-Shared Key Protected", "rtps.flag.security.info.participant_psk_protected",
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }
+    },
     { &hf_rtps_flag_participant_security_attribute_flag_is_valid,{
         "Mask Valid", "rtps.flag.security.info.participant_mask_valid",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }
@@ -16637,6 +17894,10 @@ void proto_register_rtps(void) {
     { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_origin_encrypted,{
         "Liveliness Origin Encrypted", "rtps.flag.security.info.plugin_participant_liveliness_origin_encrypted",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_psk_encrypted,{
+    "RTPS Pre-Shared Key Encrypted", "rtps.flag.security.info.plugin_participant_psk_encrypted",
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }
     },
     { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid,{
         "Mask Valid", "rtps.flag.security.info.plugin_participant_mask_valid",
@@ -16688,6 +17949,16 @@ void proto_register_rtps(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
+    { &hf_rtps_secure_dataheader_passphrase_id, {
+        "Passphrase Id", "rtps.secure.data_header.passphrase_id",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_secure_dataheader_passphrase_key_id, {
+            "Passphrase Key Id", "rtps.secure.data_header.passphrase_key_id",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+    },
     { &hf_rtps_secure_dataheader_init_vector_suffix, {
         "Plugin Secure Header", "rtps.secure.data_header.init_vector_suffix",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -16699,8 +17970,25 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
     { &hf_rtps_secure_datatag_plugin_sec_tag, {
-        "Plugin Secure Tag", "rtps.secure.data_tag.plugin_sec_tag",
+        "Receiver-Specific Mac",
+        "rtps.secure.data_tag.receiver_specific_mac",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_secure_datatag_plugin_sec_tag_key, {
+        "Receiver-Specific Mac Key Id",
+        "rtps.secure.data_tag.receiver_specific_macs_key_id",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_secure_datatag_plugin_sec_tag_common_mac, {
+      "Plugin Secure Tag Common Mac", "rtps.secure.data_tag.common_mac",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_secure_datatag_plugin_specific_macs_len, {
+        "Plugin Secure Tag Receiver-Specific Macs Length", "rtps.secure.data_tag.specific_macs_len",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_rtps_srm_service_id,
@@ -16753,6 +18041,10 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_secure_secure_data,
       { "Secure Data", "rtps.secure.secure_data",
+        FT_BYTES, BASE_NONE, NULL, 0, "The user data transferred in a secure payload", HFILL }
+    },
+    { &hf_rtps_secure_session_key,
+      { "[Session Key]", "rtps.secure.session_key",
         FT_BYTES, BASE_NONE, NULL, 0, "The user data transferred in a secure payload", HFILL }
     },
     { &hf_rtps_pgm, {
@@ -17170,6 +18462,7 @@ void proto_register_rtps(void) {
     &ett_rtps_type_bound_list,
     &ett_rtps_secure_payload_tree,
     &ett_rtps_secure_dataheader_tree,
+    &ett_rtps_secure_transformation_kind,
     &ett_rtps_pgm_data,
     &ett_rtps_message_identity,
     &ett_rtps_related_message_identity,
@@ -17198,7 +18491,9 @@ void proto_register_rtps(void) {
     &ett_rtps_data_encapsulation_options,
     &ett_rtps_decompressed_serialized_data,
     &ett_rtps_instance_transition_data,
-    &ett_rtps_crypto_algorithm_requirements
+    &ett_rtps_crypto_algorithm_requirements,
+    &ett_rtps_decrypted_payload,
+    &ett_rtps_secure_postfix_tag_list_item
   };
 
   static ei_register_info ei[] = {
@@ -17216,10 +18511,12 @@ void proto_register_rtps(void) {
      { &ei_rtps_uncompression_error, { "rtps.uncompression_error", PI_PROTOCOL, PI_WARN, "Unable to uncompress the compressed payload.", EXPFILL }},
      { &ei_rtps_value_too_large, { "rtps.value_too_large", PI_MALFORMED, PI_ERROR, "Length value goes past the end of the packet", EXPFILL }},
      { &ei_rtps_checksum_check_error, { "rtps.checksum_error", PI_CHECKSUM, PI_ERROR, "Error: Unexpected checksum", EXPFILL }},
+     { &ei_rtps_invalid_psk, { "rtps.psk_decryption_error", PI_UNDECODED, PI_ERROR, "Unable to decrypt content using PSK", EXPFILL }}
   };
 
   module_t *rtps_module;
   expert_module_t *expert_rtps;
+  uat_t * rtps_psk_uat;
 
   proto_rtps = proto_register_protocol("Real-Time Publish-Subscribe Wire Protocol", "RTPS", "rtps");
   proto_register_field_array(proto_rtps, hf, array_length(hf));
@@ -17229,59 +18526,112 @@ void proto_register_rtps(void) {
 
   /* Registers the control in the preference panel */
   rtps_module = prefs_register_protocol(proto_rtps, NULL);
-  prefs_register_uint_preference(rtps_module, "max_batch_samples_dissected",
-            "Max samples dissected for DATA_BATCH",
-            "Specifies the maximum number of samples dissected in "
-            "a DATA_BATCH submessage. Increasing this value may affect "
-            "performances if the trace has a lot of big batched samples.",
-            10, &rtps_max_batch_samples_dissected);
+  prefs_register_uint_preference(
+      rtps_module,
+      "max_batch_samples_dissected",
+      "Max samples dissected for DATA_BATCH",
+      "Specifies the maximum number of samples dissected in a DATA_BATCH "
+          "submessage. Increasing this value may affect performance if the "
+          "trace has a lot of big batched samples.",
+      10,
+      &rtps_max_batch_samples_dissected);
 
-  prefs_register_bool_preference(rtps_module, "enable_max_dissection_info_elements",
-            "Limit the number of elements dissected in structs",
-            "Enabling this option may affect "
-            "performance if the trace has messages with large Data Types.",
-            &enable_max_data_type_elements);
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_max_dissection_info_elements",
+      "Limit the number of elements dissected in structs",
+      "Enabling this option may affect performance if the trace has messages "
+          "with large Data Types.",
+      &enable_max_data_type_elements);
 
-  prefs_register_uint_preference(rtps_module, "max_dissection_info_elements",
-            "Max Dissection info elements shown in structs",
-            "Specifies the maximum number of Data Type elements dissected. "
-            "Increasing this value may affect "
-            "performance if the trace has messages with large Data Types.",
-            10, &rtps_max_data_type_elements);
+  prefs_register_uint_preference(
+      rtps_module,
+      "max_dissection_info_elements",
+      "Max Dissection info elements shown in structs",
+      "Specifies the maximum number of Data Type elements dissected. "
+          "Increasing this value may affect performance if the trace has "
+          "messages with large Data Types.",
+      10,
+      &rtps_max_data_type_elements);
 
-  prefs_register_bool_preference(rtps_module, "enable_max_dissection_array_elements",
-            "Limit the number of elements dissected in arrays or sequences",
-            "Disabling this option may affect "
-            "performance if the trace has messages with large arrays or sequences.",
-            &enable_max_array_data_type_elements);
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_max_dissection_array_elements",
+      "Limit the number of elements dissected in arrays or sequences",
+      "Disabling this option may affect performance if the trace has messages "
+          "with large arrays or sequences.",
+      &enable_max_array_data_type_elements);
 
-  prefs_register_uint_preference(rtps_module, "max_dissection_array_elements",
-            "Max Dissection elements shown in arrays or sequences",
-            "Specifies the maximum number of Data Type elements dissected in arrays or sequences. "
-            "Increasing this value may affect "
-            "performance if the trace has messages with large Data Types.",
-            10, &rtps_max_array_data_type_elements);
+  prefs_register_uint_preference(
+      rtps_module,
+      "max_dissection_array_elements",
+      "Max Dissection elements shown in arrays or sequences",
+      "Specifies the maximum number of Data Type elements dissected in arrays or sequences. "
+          "Increasing this value may affect "
+          "performance if the trace has messages with large Data Types.",
+      10,
+      &rtps_max_array_data_type_elements);
 
-  prefs_register_bool_preference(rtps_module, "enable_topic_info",
-              "Enable Topic Information",
-              "Shows the Topic Name and Type Name of the samples. "
-              "Note: this can considerably increase the dissection time",
-              &enable_topic_info);
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_topic_info",
+      "Enable Topic Information",
+      "Shows the Topic Name and Type Name of the samples. "
+          "Note: this can considerably increase the dissection time.",
+      &enable_topic_info);
 
-  prefs_register_bool_preference(rtps_module, "enable_user_data_dissection",
-              "Enable User Data Dissection (based on Type Object)",
-              "Dissects the user data if the Type Object is propagated in Discovery.",
-              &enable_user_data_dissection);
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_user_data_dissection",
+      "Enable User Data Dissection (based on Type Object)",
+      "Dissects the user data if the Type Object is propagated in Discovery.",
+      &enable_user_data_dissection);
 
-  prefs_register_bool_preference(rtps_module, "enable_rtps_reassembly",
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_rtps_reassembly",
       "Enable RTPS Reassembly",
       "Enables the reassembly of DATA_FRAG submessages.",
       &enable_rtps_reassembly);
 
-prefs_register_bool_preference(rtps_module, "enable_rtps_checksum_check",
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_rtps_checksum_check",
       "Enable RTPS Checksum check (Only CRC-32C and MD5 supported)",
-      "Detects the RTPS packets with invalid checksums (Only CRC-32C and MD5 supported)",
+      "Detects the RTPS packets with invalid checksums (Only CRC-32C and MD5 "
+      "supported)",
       &enable_rtps_crc_check);
+
+  prefs_register_bool_preference(
+      rtps_module,
+      "enable_rtps_psk_decryption",
+      "Enable RTPS PSK decryption",
+      "Decode RTPS messages protected with a pre-shared key",
+      &enable_rtps_psk_decryption);
+
+  rtps_psk_uat = uat_new(
+      "RTPS GUID-PSK",
+      sizeof(rtps_psk_options_entry_t),
+      "RTPS PSK Keys",
+      TRUE,
+      &rtps_psk_options.entries,
+      &rtps_psk_options.size,
+      0x00000001,
+      NULL,
+      rtps_psk_options_copy_entry,
+      rtps_psk_options_update_entry,
+      rtps_psk_options_free_entry,
+      NULL,
+      NULL,
+      rtps_psk_table_field_array);
+
+  prefs_register_uat_preference(
+      rtps_module,
+      "psk_keys",
+      "Pre-shared keys",
+      "List of pre-shared keys that will be used to decode RTPS messages if"
+      " the previous option is enabled",
+      rtps_psk_uat);
 
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
           proto_rtps, FT_STRING, STRING_CASE_SENSITIVE);
