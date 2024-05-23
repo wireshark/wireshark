@@ -1018,10 +1018,9 @@ the DNS response in the current frame:
 http && ip.dst eq ${dns.a}
 ----
 
-The notation of field references is similar to that of
-<<ChDisplayFilterMacrosSection,macros>> but they are syntactically
-distinct. Field references, like other complex filters, make excellent
-use cases for <<ChWorkDefineFilterMacrosSection,macros>>,
+The notation of field references is similar to that of macros but they are
+syntactically distinct. Field references, like other complex filters, make
+excellent use cases for <<ChWorkDefineFilterMacrosSection,macros>>,
 <<ChWorkDefineFilterSection,saved filters>>, and
 <<ChCustFilterButtons,filter buttons>>
 
@@ -1193,6 +1192,7 @@ Closes the dialog without saving any changes.
 
 === Defining And Saving Filter Macros
 
+Display Filter Macros are a mechanism to create shortcuts for complex filters.
 You can define a filter macro with Wireshark and label it for later use.
 This can save time in remembering and retyping some of the more complex filters
 you use.
@@ -1212,7 +1212,46 @@ image::images/ws-filter-macros.png[{screenshot-attrs}]
 
 . To save your modifications, click the btn:[OK] button in the bottom-right corner of the <<FilterMacrosDialog>>.
 
-To learn more about display filter macro syntax, see <<ChDisplayFilterMacrosSection>>.
+==== Display Filter Macros syntax
+
+Display filter macros are invoked with the macro name and a number of
+input arguments. There are several supported syntaxes.
+
+The `Macro Name` must consist of ASCII alphanumerics or the '_' character.
+(Note that the presence of a '.' character would indicate a
+<<_field_references,field reference>>.)
+
+The `Macro Expression` is replacement text for the macro name. It substitutes
+$1, $2, $3, ... with the input arguments.
+
+For example, defining a display filter macro named _$$tcp_conv$$_ whose text is
+
+----
+(ip.src == $1 and ip.dst == $2 and tcp.srcport == $3 and tcp.dstport == $4)
+or (ip.src == $2 and ip.dst == $1 and tcp.srcport == $4 and tcp.dstport == $3)
+----
+
+would allow to use a display filter like
+
+----
+$tcp_conv(10.1.1.2,10.1.1.3,1200,1400)
+----
+
+or alternatively
+
+----
+${tcp_conv:10.1.1.2;10.1.1.3;1200;1400}
+----
+
+or
+
+----
+${tcp_conv;10.1.1.2;10.1.1.3;1200;1400}
+----
+
+instead of typing the whole filter. Both notations are equivalent. Once defined, a macro can
+be used in <<ChWorkDefineFilterSection,saved display (but not
+capture) filters>> and <<ChCustFilterButtons,filter buttons>>.
 
 [#ChWorkFindPacketSection]
 

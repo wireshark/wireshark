@@ -364,6 +364,33 @@ If the global __dfilters__ file exists, it is used only if the personal
 __dfilters__ file does not exist; global and personal display filters are
 not merged.
 --
+
+Display Filter Macros::
++
+--
+The __dmacros__ files contain system-wide and personal display filter macros.
+Each line contains one filter, starting with the string displayed in the
+dialog box in quotation marks, followed by the macro expression itself:
+
+  "private_ipv6" ipv6 && $1 == fc00::/7
+  "private_ethernet" $1[0] & 0x0F == 2
+  "private_ipv4" $1 == 192.168.0.0/16 or $1 == 172.16.0.0/12 or $1 == 10.0.0.0/8
+
+The global __dmacros__ file uses the same directory as the
+global preferences file.
+
+The personal __dmacros__ file uses the same directory as the
+personal preferences file.  It is written through the Analyze:Display
+Filter Macros dialog.
+
+If the global __dmacros__ file exists, it is used only if the personal
+__dmacros__ file does not exist; global and personal display filters are
+not merged.
+
+Prior to Wireshark 4.4, a __dfilter_macros__ file with a somewhat different
+syntax was used. That file is looked for at startup if a __dmacros__ file is
+not found and used to migrate to the new format.
+--
 // end::gui[]
 
 Color Filters (Coloring Rules)::

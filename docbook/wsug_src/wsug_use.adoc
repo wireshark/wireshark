@@ -581,6 +581,12 @@ macros. You can name filter macros, and you can save them for future
 use.
 See <<ChWorkDefineFilterMacrosSection>>.
 
+|menu:Display Filter Expression...[]    ||
+Shows a dialog box that allows you to build a display filter expression
+to apply. This shows possible fields and their applicable relations and
+values, and allows you to search by name and description.
+See <<ChWorkFilterAddExpressionSection>>.
+
 |menu:Apply as Column[]             |kbd:[Shift+Ctrl+I]|
 Adds the selected protocol item in the packet details pane as a column
 to the packet list.

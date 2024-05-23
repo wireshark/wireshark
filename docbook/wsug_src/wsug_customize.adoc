@@ -287,8 +287,8 @@ wireshark -o mgcp.display_dissect_tree:TRUE -o mgcp.udp.callagent_port:2627
 You can get a list of all available preference strings from the
 preferences file. See <<AppFiles>> for details.
 
-User access tables can be overridden using “uat,” followed by
-the UAT file name and a valid record for the file:
+<<ChUserTable,User Accessible Tables>> can be overridden using “uat,”
+followed by the UAT file name and a valid record for the file:
 
 ----
 wireshark -o "uat:user_dlts:\"User 0 (DLT=147)\",\"http\",\"0\",\"\",\"0\",\"\""
@@ -757,6 +757,8 @@ The interface list can always be populated after Wireshark is started via menu:C
 Selecting _Disable external capture interfaces_ prevents Wireshark from spawning extcap programs to list off their capture interfaces.
 This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
 
+[#ChCustPrefsExpertSection]
+
 ==== Expert Items
 
 These preferences allow you to modify the severity set for expert items.
@@ -816,6 +818,8 @@ The _Filter Expression_ is the <<ChWorkBuildDisplayFilterSection,display filter 
 
 The _Comment_ is the comment text which appears in a bubble when the mouse hovers over the button.
 
+[#ChCustPrefsNameSection]
+
 ==== Name Resolution
 
 These preferences allow you to configure which numeric identifiers in protocols are translated into human readable text.
@@ -861,6 +865,8 @@ The _SMI (MIB and PIB) modules_ btn:[Edit...] button provides access to the dial
 
 The _MaxMind database directories_ btn:[Edit...] button provides access to the dialog to manage the directories where the MaxMind database files can be found. See <<ChMaxMindDbPaths>>.
 
+[#ChCustPrefsProtocolsSection]
+
 ==== Protocols
 
 Wireshark supports quite a few protocols, which is reflected in the long list of child entries of the “Protocols” pane.
@@ -898,6 +904,8 @@ same payload but have a different value for their VLAN Tag, a MAC Address, or we
 if the respective deinterlacing key is activated.
 
 The preference _The max number of hashes to keep in memory for determining duplicate frames_ allows you to set how large the set of frames to consider for duplication is.
+
+[#ChCustPrefsRSASection]
 
 ==== RSA Keys
 
@@ -976,49 +984,13 @@ Configuration files stored in each profile include:
 
 * Display Filters (dfilters) (<<ChWorkDefineFilterSection>>)
 
+* Display Filter Macros (dmacros) (<<ChWorkDefineFilterMacrosSection>>)
+
 * Coloring Rules (colorfilters) (<<ChCustColorizationSection>>)
 
 * Disabled Protocols (disabled_protos) (<<ChAdvEnabledProtocols>>)
 
-* User Accessible Tables:
-+
---
-* Custom HTTP headers (custom_http_header_fields)
-
-* Custom IMF headers (imf_header_fields)
-
-* Custom LDAP AttributeValue types (custom_ldap_attribute_types)
-
-* Display Filter Macros (dfilter_macros) (<<ChDisplayFilterMacrosSection>>)
-
-* ESS Category Attributes (ess_category_attributes)
-  (<<ChEssCategoryAttributes>>)
-
-* MaxMind Database Paths (maxmind_db_paths) (<<ChMaxMindDbPaths>>)
-
-* IEEE 802.11 WLAN Decryption Keys (80211_keys) (<<Ch80211Keys>>)
-
-* IKEv2 decryption table (ikev2_decryption_table) (<<ChIKEv2DecryptionSection>>)
-
-* K12 Protocols (k12_protos) (<<ChK12ProtocolsSection>>)
-
-* Object Identifier Names and Associated Syntaxes (<<ChObjectIdentifiers>>)
-
-* PRES Users Context List (pres_context_list) (<<ChPresContextList>>)
-
-* SCCP Users Table (sccp_users) (<<ChSccpUsers>>)
-
-* SNMP Enterprise Specific Trap Types (snmp_specific_traps)
-  (<<ChSNMPEnterpriseSpecificTrapTypes>>)
-
-* SNMP Users (snmp_users) (<<ChSNMPUsersSection>>)
-
-* User DLTs Table (user_dlts) (<<ChUserDLTsSection>>)
-
-* Protobuf Search Paths (protobuf_search_paths) (<<ChProtobufSearchPaths>>)
-
-* Protobuf UDP Message Types (protobuf_udp_message_types) (<<ChProtobufUDPMessageTypes>>)
---
+* Most User Accessible Tables (<<ChUserTable>>)
 
 * Changed dissector assignments (__decode_as_entries__), which can be set in the “Decode
   As...” dialog box (<<ChAdvDecodeAs>>).
@@ -1091,59 +1063,87 @@ Manually changing your profile will disable this behavior until you open a diffe
 
 [#ChUserTable]
 
-=== User Table
+=== User Accessible Tables
 
-The User Table editor is used for managing various tables in Wireshark. Its main
-dialog works very similarly to that of <<ChCustColorizationSection>>.
+User Accessible Tables are a type of preference table which may be
+associated with particular <<ChCustPrefsProtocolsSection,protocols>> or
+with the application as a whole.
 
-[#ChDisplayFilterMacrosSection]
+User Accessible Tables have a common editor dialog which works as described
+in <<ChCustPrefsExpertSection>> and <<ChCustFilterButtons>>. Note that
+the name of the file appears in the lower right corner of the dialog.
 
-=== Display Filter Macros
+The files are saved in a CSV format, where values are either double quoted
+ASCII strings (using C-style backslash escapes for non-printable characters)
+or unquoted hexstrings, depending on the field type. They can be edited directly
+when Wireshark is not running, though this is discouraged. Entries can
+also be appended to the table by passing an appropriate CSV formatted
+record string <<ChCustCommandLine,on the command line>>.
 
-Display Filter Macros are a mechanism to create shortcuts for complex filters.
-For example, defining a display filter macro named _$$tcp_conv$$_ whose text is
+// There's a number of newer dissector UATs that aren't mentioned here
+// and could use help sections.
 
-----
-(ip.src == $1 and ip.dst == $2 and tcp.srcport == $3 and tcp.dstport == $4)
-or (ip.src == $2 and ip.dst == $1 and tcp.srcport == $4 and tcp.dstport == $3)
-----
+Most UATs are stored in the
+<<ChCustConfigProfilesSection,configuration profile>>:
 
-would allow to use a display filter like
+--
+* Custom HTTP headers (custom_http_header_fields)
 
-----
-$tcp_conv(10.1.1.2,10.1.1.3,1200,1400)
-----
+* Custom IMF headers (imf_header_fields)
 
-or alternatively
+* Custom LDAP AttributeValue types (custom_ldap_attribute_types)
 
-----
-${tcp_conv:10.1.1.2;10.1.1.3;1200;1400}
-----
+* <<ChCustFilterButtons,Display Filter Buttons>> (dfilter_buttons)
 
-or
+* <<ChWorkDefineFilterMacrosSection,Display Filter Macros>> (dfilter_macros), prior to Wireshark 4.4
 
-----
-${tcp_conv;10.1.1.2;10.1.1.3;1200;1400}
-----
+* <<ChCustPrefsNameSection,DNS Servers>> (addr_resolve_dns_servers)
 
-instead of typing the whole filter. Both notations are equivalent. Once defined, a macro can
-be used in <<ChWorkDefineFilterSection,saved display (but not
-capture) filters>> and <<ChCustFilterButtons,filter buttons>>.
+* <<ChEssCategoryAttributes,ESS Category Attributes>> (ess_category_attributes)
 
-Display Filter Macros can be managed by selecting menu:Analyze[Display Filter Macros] from
-the menu.  The table has the following fields:
+* <<ChCustPrefsExpertSection,Expert Item Severity>> (expert_severity)
 
-Macro Name::
-The name of the macro. The name must consist of ASCII alphanumerics or
-the '_' character. (Note that the presence of a '.' character would
-indicate a <<_field_references,field reference>>.)
+* <<Ch80211Keys,IEEE 802.11 WLAN Decryption Keys>> (80211_keys)
 
-Macro Expression::
-The replacement text for the macro it uses $1, $2, $3, ... as the input arguments.
+* <<ChIKEv2DecryptionSection,IKEv2 decryption table>> (ikev2_decryption_table)
+
+* <<ChStatIOGraphs,I/O Graphs>> (io_graphs)
+
+* <<ChK12ProtocolsSection,K12 Protocols>> (k12_protos)
+
+* <<ChObjectIdentifiers,Object Identifier Names and Associated Syntaxes>> ()
+
+* <<ChStatPacketLengths,Packet Lengths>> (packet_lengths)
+
+* <<ChPresContextList,PRES Users Context List>> (pres_context_list)
+
+* <<ChSccpUsers,SCCP Users Table>> (sccp_users)
+
+* <<ChSNMPEnterpriseSpecificTrapTypes,SNMP Enterprise Specific Trap Types>> (snmp_specific_traps)
+
+* <<ChSNMPUsersSection,SNMP Users>> (snmp_users)
+
+* <<ChUserDLTsSection,User DLTs Table>> (user_dlts)
+
+* <<ChProtobufSearchPaths,Protobuf Search Paths>> (protobuf_search_paths)
+
+* <<ChProtobufUDPMessageTypes,Protobuf UDP Message Types>> (protobuf_udp_message_types)
+--
+
+Other UATs are stored in the personal configuration directory and are
+common to all profiles:
+
+--
+* <<ChMaxMindDbPaths,MaxMind Database Paths>> (maxmind_db_paths)
+
+* <<ChCustPrefsRSASection,RSA Private Keys>> (rsa_keys) and <<ChCustPrefsRSASection,PKCS #11 Provider Libraries>> (pkcs11_libs)
+
+* <<ChCustPrefsNameSection,SMI Modules>> (smi_modules) and <<ChCustPrefsNameSection,SMI Paths>> (smi_paths)
+--
 
 [#ChEssCategoryAttributes]
 
-=== ESS Category Attributes
+==== ESS Category Attributes
 
 Wireshark uses this table to map ESS Security Category attributes to textual representations.  The values to put in this table are usually found in an http://www.xmlspif.org/[XML SPIF], which is used for defining security labels.
 
@@ -1161,7 +1161,7 @@ The textual representation for the value.
 
 [#ChMaxMindDbPaths]
 
-=== MaxMind Database Paths
+==== MaxMind Database Paths
 
 If your copy of Wireshark supports https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use their databases to match IP addresses to countries, cites, autonomous system numbers, and other bits of information.
 Some databases are https://dev.maxmind.com/geoip/geoip2/geolite2/[available at no cost for registered users], while others require a licensing fee.
@@ -1188,7 +1188,7 @@ databases in April 2018.
 
 [#Ch80211Keys]
 
-=== IEEE 802.11 WLAN Decryption Keys
+==== IEEE 802.11 WLAN Decryption Keys
 
 Wireshark can decrypt WEP and WPA/WPA2/WPA3 in pre-shared (or personal) mode,
 as well as in enterprise mode. Security improvements in more recent 802.11
@@ -1198,7 +1198,7 @@ all traffic to a given access point with a single known password and SSID.
 You can add decryption keys using Wireshark's IEEE 802.11 preferences.
 Up to 64 keys are supported.
 
-==== Adding Keys
+===== Adding Keys
 
 Go to menu:Edit[Preferences >Protocols >IEEE 802.11], or, from the pop-up menu
 in the "Packet List" or "Packet Details" pane from a frame that contains IEEE
@@ -1292,7 +1292,7 @@ This will open the decryption key management window. As shown in the window you 
 Selecting **None** disables decryption. Selecting **Wireshark** uses Wireshark's built-in decryption features. **Driver** will pass the keys on to the [AirPcap](/AirPcap) adapter so that 802.11 traffic is decrypted before it's passed on to Wireshark. Driver mode only supports WEP keys.
 ////
 
-==== Gotchas
+===== Gotchas
 
 Along with decryption keys there are other preference settings that affect decryption.
 
@@ -1300,7 +1300,7 @@ Along with decryption keys there are other preference settings that affect decry
 
   - You may have to toggle *Assume Packets Have FCS* and *Ignore the Protection bit* depending on how your 802.11 driver delivers frames.
 
-===== Capturing the 4-way Handshake
+====== Capturing the 4-way Handshake
 
 WPA and WPA2 use keys derived from an EAPOL handshake, which occurs when a machine joins a Wi-Fi network, to encrypt traffic. Unless **all four** handshake packets are present for the session you're trying to decrypt, Wireshark won't be able to decrypt the traffic. You can use the display filter **eapol** to locate EAPOL packets in your capture.
 
@@ -1310,7 +1310,7 @@ If a TK is provided as a key, then the EAPOL 4-way handshake is not necessary,
 as the TK is what the handshake derives. However, all available TKs will be
 tried agi
 
-===== Too Many Associations
+====== Too Many Associations
 
 WPA and WPA2 use individual keys for each device. Wireshark is able to handle
 up to 256 active associations, which should be enough in most circumstances.
@@ -1331,7 +1331,7 @@ then decoding suddenly fail on the new file after Wireshark is restarted or keys
 are edited. If decoding suddenly stops working on a capture make sure the needed
 EAPOL packets are still in it.
 
-===== WPA/WPA2 Enterprise/Rekeys
+====== WPA/WPA2 Enterprise/Rekeys
 
 As long as you can somehow extract the PMK from either the client or the Radius
 Server and configure the key (as PSK) all supported Wireshark versions will decode
@@ -1345,7 +1345,7 @@ Decrypting IEEE 802.11r Fast BSS Transition roaming requires capturing
 reassociation frames for similar reasons, and is supported by recent
 Wireshark versions.
 
-===== WPA3 Per-Connection Decryption
+====== WPA3 Per-Connection Decryption
 
 In WPA3, a different PMK is used for each connection in order to achieve forward
 secrecy. Capturing the 4-way handshake and knowing the network password is not
@@ -1355,7 +1355,7 @@ with the `-d -K` flags) and use this as the decryption key in Wireshark. Even
 then, the decryption will only work for packets between that client and access
 point, not for all devices on that network.
 
-===== TKs and Performance
+====== TKs and Performance
 
 The TKs are the actual transient keys used to encrypt packets, which are derived
 during the handshake. If known, they can decrypt packets without having the
@@ -1373,7 +1373,7 @@ the performance impact is slight.
 
 [#ChIKEv2DecryptionSection]
 
-=== IKEv2 decryption table
+==== IKEv2 decryption table
 
 Wireshark can decrypt Encrypted Payloads of IKEv2 (Internet Key Exchange version
 2) packets if necessary information is provided. Note that you can decrypt only
@@ -1421,7 +1421,10 @@ Integrity algorithm of the IKE_SA.
 
 [#ChObjectIdentifiers]
 
-=== Object Identifiers
+==== Object Identifiers
+
+// This table appears under the BER dissector, perhaps it should be moved
+// to the "Name Resolution" preference section?
 
 Many protocols that use ASN.1 use Object Identifiers (OIDs) to uniquely identify
 certain pieces of information. In many cases, they are used in an extension
@@ -1453,7 +1456,7 @@ of the syntaxes that Wireshark already knows about (e.g., “PrintableString”)
 
 [#ChPresContextList]
 
-=== PRES Users Context List
+==== PRES Users Context List
 
 Wireshark uses this table to map a presentation context identifier to a given
 object identifier when the capture does not contain a PRES package with a
@@ -1472,7 +1475,7 @@ protocol that is carried over this association.
 
 [#ChSccpUsers]
 
-=== SCCP users Table
+==== SCCP users Table
 
 Wireshark uses this table to map specific protocols to a certain DPC/SSN
 combination for SCCP.
@@ -1495,7 +1498,7 @@ The protocol that is carried over this association
 
 [#ChSNMPSMIModules]
 
-=== SMI (MIB and PIB) Modules
+==== SMI (MIB and PIB) Modules
 
 If your copy of Wireshark supports libSMI, you can specify a list of MIB and PIB
 modules here. The COPS and SNMP dissectors can use them to resolve OIDs.
@@ -1505,7 +1508,7 @@ The name of the module, e.g., IF-MIB.
 
 [#ChSNMPSMIPaths]
 
-=== SMI (MIB and PIB) Paths
+==== SMI (MIB and PIB) Paths
 
 If your copy of Wireshark supports libSMI, you can specify one or more paths to
 MIB and PIB modules here.
@@ -1517,7 +1520,7 @@ here.
 
 [#ChSNMPEnterpriseSpecificTrapTypes]
 
-=== SNMP Enterprise Specific Trap Types
+==== SNMP Enterprise Specific Trap Types
 
 Wireshark uses this table to map specific-trap values to user defined
 descriptions in a Trap PDU. The description is shown in the packet details
@@ -1539,7 +1542,7 @@ The description to show in the packet details.
 
 [#ChSNMPUsersSection]
 
-=== SNMP users Table
+==== SNMP users Table
 
 Wireshark uses this table to verify authentication and to decrypt encrypted
 SNMPv3 packets.
@@ -1578,7 +1581,7 @@ as _\x5C_ or _\x5c_.
 
 [#ChK12ProtocolsSection]
 
-=== Tektronix K12xx/15 RF5 protocols Table
+==== Tektronix K12xx/15 RF5 protocols Table
 
 The Tektronix K12xx/15 rf5 file format uses helper files (*.stk) to identify the
 various protocols that are used by a certain interface. Wireshark doesn’t read
@@ -1601,7 +1604,7 @@ sscop:nbap, ...)
 
 [#ChUserDLTsSection]
 
-=== User DLTs dissector table
+==== User DLTs dissector table
 
 When a pcap file uses one of the user DLTs (147 to 162) Wireshark uses this
 table to know which dissector(s) to use for each user DLT.
@@ -1632,7 +1635,7 @@ The name of the trailer dissector to be used (uses “data” as default).
 
 [#ChProtobufSearchPaths]
 
-=== Protobuf Search Paths
+==== Protobuf Search Paths
 
 The
 https://developers.google.com/protocol-buffers/docs/encoding[binary wire format]
@@ -1669,7 +1672,7 @@ files, that may cause unnecessary memory use.
 
 [#ChProtobufUDPMessageTypes]
 
-=== Protobuf UDP Message Types
+==== Protobuf UDP Message Types
 
 If the payload of UDP on certain ports is Protobuf encoding, Wireshark use this table
 to know which Protobuf message type should be used to parsing the data on the specified
