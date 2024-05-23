@@ -853,6 +853,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-beacon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-proxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmcap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-btp-matter.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btrfcomm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btsdp.c

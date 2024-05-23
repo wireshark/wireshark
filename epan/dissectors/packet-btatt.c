@@ -2150,6 +2150,7 @@ static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
 static dissector_handle_t btmesh_proxy_handle;
 
 static dissector_table_t att_handle_dissector_table;
+static dissector_table_t att_service_dissector_table;
 
 static gint hf_btatt_fragments;
 static gint hf_btatt_fragment;
@@ -2220,38 +2221,6 @@ static const value_string opcode_vals[] = {
     {0xD2, "Signed Write Command"},
     {0x0, NULL}
 };
-
-#define ATT_OPCODE_ERROR_RESPONSE               0x01
-#define ATT_OPCODE_EXCHANGE_MTU_REQUEST         0x02
-#define ATT_OPCODE_EXCHANGE_MTU_RESPONSE        0x03
-#define ATT_OPCODE_FIND_INFORMATION_REQUEST     0x04
-#define ATT_OPCODE_FIND_INFORMATION_RESPONSE    0x05
-#define ATT_OPCODE_FIND_BY_TYPE_VALUE_REQUEST   0x06
-#define ATT_OPCODE_FIND_BY_TYPE_VALUE_RESPONSE  0x07
-
-#define ATT_OPCODE_READ_BY_TYPE_REQUEST         0x08
-#define ATT_OPCODE_READ_BY_TYPE_RESPONSE        0x09
-#define ATT_OPCODE_READ_REQUEST                 0x0A
-#define ATT_OPCODE_READ_RESPONSE                0x0B
-#define ATT_OPCODE_READ_BLOB_REQUEST            0x0C
-#define ATT_OPCODE_READ_BLOB_RESPONSE           0x0D
-#define ATT_OPCODE_READ_MULTIPLE_REQUEST        0x0E
-#define ATT_OPCODE_READ_MULTIPLE_RESPONSE       0x0F
-#define ATT_OPCODE_READ_BY_GROUP_TYPE_REQUEST   0x10
-#define ATT_OPCODE_READ_BY_GROUP_TYPE_RESPONSE  0x11
-
-#define ATT_OPCODE_WRITE_REQUEST                0x12
-#define ATT_OPCODE_WRITE_RESPONSE               0x13
-#define ATT_OPCODE_WRITE_PREPARE_REQUEST        0x16
-#define ATT_OPCODE_WRITE_PREPARE_RESPONSE       0x17
-#define ATT_OPCODE_WRITE_EXECUTE_REQUEST        0x18
-#define ATT_OPCODE_WRITE_EXECUTE_RESPONSE       0x19
-#define ATT_OPCODE_WRITE_COMMAND                0x52
-#define ATT_OPCODE_WRITE_SIGNED_COMMAND         0xD2
-
-#define ATT_OPCODE_HANDLE_VALUE_NOTIFICATION    0x1B
-#define ATT_OPCODE_HANDLE_VALUE_INDICATION      0x1D
-#define ATT_OPCODE_HANDLE_VALUE_CONFIRMATION    0x1E
 
 #define GATT_SERVICE_GENERIC_ACCESS_PROFILE         0x1800
 #define GATT_SERVICE_GENERIC_ATTRIBUTE_PROFILE      0x1801
@@ -4443,8 +4412,8 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, guint32 handle,
     }
 }
 
-static bluetooth_uuid_t
-get_bluetooth_uuid_from_handle(packet_info *pinfo, guint32 handle, guint8 opcode,
+bluetooth_uuid_t
+get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, guint32 handle, guint8 opcode,
     bluetooth_data_t *bluetooth_data)
 {
     wmem_tree_key_t  key[5];
@@ -4580,7 +4549,7 @@ static void col_append_info_by_handle(packet_info *pinfo, guint16 handle, guint8
 
     service_uuid = get_service_uuid_from_handle(pinfo, handle, opcode, bluetooth_data);
     characteristic_uuid = get_characteristic_uuid_from_handle(pinfo, handle, opcode, bluetooth_data);
-    uuid = get_bluetooth_uuid_from_handle(pinfo, handle, opcode, bluetooth_data);
+    uuid = get_gatt_bluetooth_uuid_from_handle(pinfo, handle, opcode, bluetooth_data);
 
 
     if (!memcmp(&service_uuid, &uuid, sizeof(uuid))) {
@@ -4643,7 +4612,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
 
     service_uuid = get_service_uuid_from_handle(pinfo, (guint16) handle, opcode, bluetooth_data);
     characteristic_uuid = get_characteristic_uuid_from_handle(pinfo, (guint16) handle, opcode, bluetooth_data);
-    attribute_uuid = get_bluetooth_uuid_from_handle(pinfo, (guint16) handle, opcode, bluetooth_data);
+    attribute_uuid = get_gatt_bluetooth_uuid_from_handle(pinfo, (guint16) handle, opcode, bluetooth_data);
 
     proto_item_append_text(handle_item, " (");
     if (memcmp(&service_uuid, &attribute_uuid, sizeof(attribute_uuid))) {
@@ -4881,6 +4850,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     DISSECTOR_ASSERT(att_data);
 
     bluetooth_data = att_data->bluetooth_data;
+    att_data->handle = handle;
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE) == NULL) {
         guint16 *value_data;
@@ -4902,6 +4872,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
     }
+
+    service_uuid = get_service_uuid_from_handle(pinfo, handle, att_data->opcode, bluetooth_data);
+    offset = dissector_try_uint_new(att_service_dissector_table, service_uuid.bt_uuid, tvb, pinfo, tree, TRUE, att_data);
+    if (offset == tvb_captured_length(tvb))
+        return old_offset + offset;
+
     /* hier wird subddisector aufgerufen */
     /* dort wird auch von einem neuen PAket ausgegangen, was es natürlich nicht ist, darum fehelern und kein subddisector aufgerufen*/
     if (dissector_try_string(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pinfo->pool, &uuid), tvb, pinfo, tree, att_data))
@@ -4914,8 +4890,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         return old_offset + tvb_captured_length(tvb);
     }
-
-    service_uuid = get_service_uuid_from_handle(pinfo, handle, att_data->opcode, bluetooth_data);
 
     switch (uuid.bt_uuid) {
     case 0x2800: /* GATT Primary Service Declaration */
@@ -17490,6 +17464,7 @@ proto_register_btatt(void)
     btatt_handle = register_dissector("btatt", dissect_btatt, proto_btatt);
 
     att_handle_dissector_table = register_dissector_table("btatt.handle", "BT ATT Handle", proto_btatt, FT_UINT16, BASE_HEX);
+    att_service_dissector_table = register_dissector_table("btatt.service", "BT ATT Service", proto_btatt, FT_UINT16, BASE_HEX);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btatt, hf, array_length(hf));
