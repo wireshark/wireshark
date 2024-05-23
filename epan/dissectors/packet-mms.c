@@ -1374,13 +1374,13 @@ static int * const ReportedOptFlds_bits[] = {
 
 static int
 dissect_mms_ReportedOptFlds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-    tvbuff_t *parameter_tvb;
+    tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     ReportedOptFlds_bits, 10, hf_index, ett_mms_ReportedOptFlds,
                                     &parameter_tvb);
 
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if(mms_priv && parameter_tvb){
         mms_priv->reported_optflds = tvb_get_ntohs(parameter_tvb,0);
     }
 
@@ -1498,13 +1498,14 @@ dissect_mms_Unsigned32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-        tvbuff_t *parameter_tvb;
-        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    tvbuff_t *parameter_tvb = NULL;
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
 
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
                                             actx, tree, tvb, offset, hf_index,
                                             &parameter_tvb);
 
+    if (parameter_tvb) {
         if (hf_index == hf_mms_domainId) {
                 private_data_add_moreCinfo_id(actx,parameter_tvb);
         }
@@ -1544,6 +1545,7 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                     mms_priv->vmd_specific = IEC61850_8_1_RPT;
             }
         }
+    }
 
 
   return offset;
@@ -2487,7 +2489,7 @@ static int * const mms_iec61850_chec_bits[] = {
     &hf_mms_iec61850_check_b0,
     NULL
 };
-    tvbuff_t *parameter_tvb;
+    tvbuff_t *parameter_tvb = NULL;
     proto_tree *sub_tree;
 
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;

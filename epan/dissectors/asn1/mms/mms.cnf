@@ -537,10 +537,11 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
         private_data_add_moreCinfo_float(actx, tvb);
 
 #.FN_BODY Identifier VAL_PTR= &parameter_tvb
-        tvbuff_t *parameter_tvb;
-        mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
+    tvbuff_t *parameter_tvb = NULL;
+    mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
 
 %(DEFAULT_BODY)s
+    if (parameter_tvb) {
         if (hf_index == hf_mms_domainId) {
                 private_data_add_moreCinfo_id(actx,parameter_tvb);
         }
@@ -580,6 +581,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
                     mms_priv->vmd_specific = IEC61850_8_1_RPT;
             }
         }
+    }
 
 #.FN_BODY InformationReport/listOfAccessResult
 
@@ -759,7 +761,7 @@ static int * const mms_iec61850_chec_bits[] = {
     &hf_mms_iec61850_check_b0,
     NULL
 };
-    tvbuff_t *parameter_tvb;
+    tvbuff_t *parameter_tvb = NULL;
     proto_tree *sub_tree;
 
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
@@ -803,10 +805,10 @@ static int * const mms_iec61850_chec_bits[] = {
     }
 
 #.FN_BODY ReportedOptFlds VAL_PTR= &parameter_tvb
-    tvbuff_t *parameter_tvb;
+    tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
-    if(mms_priv){
+    if(mms_priv && parameter_tvb){
         mms_priv->reported_optflds = tvb_get_ntohs(parameter_tvb,0);
     }
 
