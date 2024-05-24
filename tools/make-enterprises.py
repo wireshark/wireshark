@@ -31,19 +31,19 @@ FORMERLY_PATTERN = r" \(((formerly|previously) .*)\)"
 LOOKUP_FUNCTION = r"""
 const char* global_enterprises_lookup(uint32_t value)
 {
-    if (value > table.max_idx) {
+    if (value >= array_length(table)) {
         return NULL;
     }
-    else return table.values[value];
+    return table[value];
 }
 """
 
 DUMP_FUNCTION = r"""
 void global_enterprises_dump(FILE *fp)
 {
-    for (size_t idx = 0; idx <= table.max_idx; idx++) {
-        if (table.values[idx] != NULL) {
-            fprintf(fp, "%zu\t%s\n", idx, table.values[idx]);
+    for (size_t idx = 0; idx < array_length(table); idx++) {
+        if (table[idx] != NULL) {
+            fprintf(fp, "%zu\t%s\n", idx, table[idx]);
         }
     }
 }
@@ -100,30 +100,23 @@ class CFile:
         # Include header files
         self.f.write('#include "config.h"\n\n')
         self.f.write('#include <stddef.h>\n')
+        self.f.write('#include <wsutil/array.h>\n')
         self.f.write('#include "enterprises.h"\n')
         self.f.write('\n\n')
 
     def __del__(self):
-        self.f.write('typedef struct\n')
-        self.f.write('{\n')
-        self.f.write('    uint32_t max_idx;\n')
-        self.f.write('    const char* values[' + str(self.highest_num+1) + '];\n')
-        self.f.write('} global_enterprises_table_t;\n\n')
-
         # Write static table
-        self.f.write('static global_enterprises_table_t table =\n')
+        self.f.write('static const char * const table[] =\n')
         self.f.write('{\n')
         # Largest index
-        self.f.write('    ' + str(self.highest_num) + ',\n')
-        self.f.write('    {\n')
         # Entries (read from dict)
         for n in range(0, self.highest_num+1):
             if n not in self.mappings:
                 # There are some gaps, write a NULL entry so can lookup by index
-                line = '        NULL'
+                line = '    NULL'
             else:
-                line = '        "' + self.mappings[n] + '"'
-            # Add coma.
+                line = '    "' + self.mappings[n] + '"'
+            # Add comma.
             if n < self.highest_num:
                 line += ','
             # Add number as aligned comment.
@@ -132,8 +125,6 @@ class CFile:
             self.f.write(line+'\n')
 
         # End of array
-        self.f.write('    }\n')
-        # End of struct
         self.f.write('};\n')
         print('Re-generated', self.filename)
 
