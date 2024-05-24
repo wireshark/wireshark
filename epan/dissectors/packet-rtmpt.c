@@ -51,6 +51,10 @@
 *
 *          https://rtmp.veriskope.com/pdf/video_file_format_spec_v10.pdf
 *
+*   For Enhanced RTMP, see:
+*
+*          https://veovera.org/docs/enhanced/enhanced-rtmp-v2.pdf
+*
 *   Default TCP port is 1935
 */
 
@@ -102,18 +106,32 @@ static int hf_rtmpt_function_call;
 static int hf_rtmpt_function_response;
 
 static int hf_rtmpt_audio_control;
+static int hf_rtmpt_audio_multitrack_control;
+static int hf_rtmpt_audio_is_ex_header;
 static int hf_rtmpt_audio_format;
 static int hf_rtmpt_audio_rate;
 static int hf_rtmpt_audio_size;
 static int hf_rtmpt_audio_type;
+static int hf_rtmpt_audio_packet_type;
+static int hf_rtmpt_audio_multitrack_type;
+static int hf_rtmpt_audio_multitrack_packet_type;
+static int hf_rtmpt_audio_fourcc;
+static int hf_rtmpt_audio_track_id;
+static int hf_rtmpt_audio_track_length;
 static int hf_rtmpt_audio_data;
 
 static int hf_rtmpt_video_control;
+static int hf_rtmpt_video_multitrack_control;
 static int hf_rtmpt_video_is_ex_header;
 static int hf_rtmpt_video_type;
+static int hf_rtmpt_video_command;
 static int hf_rtmpt_video_format;
 static int hf_rtmpt_video_packet_type;
+static int hf_rtmpt_video_multitrack_type;
+static int hf_rtmpt_video_multitrack_packet_type;
 static int hf_rtmpt_video_fourcc;
+static int hf_rtmpt_video_track_id;
+static int hf_rtmpt_video_track_length;
 static int hf_rtmpt_video_data;
 
 static int hf_rtmpt_tag_type;
@@ -132,6 +150,10 @@ static gint ett_rtmpt_body;
 static gint ett_rtmpt_ucm;
 static gint ett_rtmpt_audio_control;
 static gint ett_rtmpt_video_control;
+static gint ett_rtmpt_audio_multitrack_control;
+static gint ett_rtmpt_audio_multitrack_track;
+static gint ett_rtmpt_video_multitrack_control;
+static gint ett_rtmpt_video_multitrack_track;
 static gint ett_rtmpt_tag;
 static gint ett_rtmpt_tag_data;
 
@@ -196,7 +218,14 @@ static guint rtmpt_default_chunk_size = 128;
 #define RTMPT_UCM_PING_REQUEST        0x06
 #define RTMPT_UCM_PING_RESPONSE       0x07
 
-#define RTMPT_IS_EX_HEADER            0x80
+#define RTMPT_IS_EX_AUDIO_HEADER      0x90
+#define RTMPT_IS_EX_VIDEO_HEADER      0x80
+#define RTMPT_IS_PACKET_TYPE_METADATA 0x04
+#define RTMPT_IS_FRAME_TYPE_COMMAND   0x05
+#define RTMPT_IS_AUDIO_MULTITRACK     0x05
+#define RTMPT_IS_VIDEO_MULTITRACK     0x06
+#define RTMPT_IS_ONETRACK             0x00
+#define RTMPT_IS_MANYTRACKSMANYCODECS 0x02
 
 #define RTMPT_TEXT_RTMP_HEADER        "RTMP Header"
 #define RTMPT_TEXT_RTMP_BODY          "RTMP Body"
@@ -273,6 +302,21 @@ static const value_string rtmpt_audio_codecs[] = {
         { 0, NULL }
 };
 
+static const value_string rtmpt_audio_packet_types[] = {
+        { 0,                                "PacketTypeSequenceStart" },
+        { 1,                                "PacketTypeCodedFrames" },
+        { 4,                                "PacketTypeMultichannelConfig" },
+        { 5,                                "PacketTypeMultitrack" },
+        { 0, NULL }
+};
+
+static const value_string rtmpt_av_multitrack_types[] = {
+        { 0,                                "AvMultitrackTypeOneTrack" },
+        { 1,                                "AvMultitrackTypeManyTracks" },
+        { 2,                                "AvMultitrackTypeManyTracksManyCodecs" },
+        { 0, NULL }
+};
+
 static const value_string rtmpt_audio_rates[] = {
         { 0,                                "5.5 kHz" },
         { 1,                                "11 kHz" },
@@ -303,6 +347,13 @@ static const value_string rtmpt_video_types[] = {
         { 0, NULL }
 };
 
+/* From Enhanced RTMP */
+static const value_string rtmpt_video_commands[] = {
+        { 0,                                "StartSeek" },
+        { 1,                                "EndSeek" },
+        { 0, NULL }
+};
+
 /* from FLV v10.1 section E.4.3.1 */
 static const value_string rtmpt_video_codecs[] = {
         {  2,                               "Sorensen H.263" },
@@ -325,6 +376,7 @@ static const value_string rtmpt_video_packet_types[] = {
         { 3,                                "PacketTypeCodedFramesX" },
         { 4,                                "PacketTypeMetadata" },
         { 5,                                "PacketTypeMPEG2TSSequenceStart" },
+        { 6,                                "PacketTypeMultitrack" },
         { 0, NULL }
 };
 
@@ -1629,61 +1681,201 @@ static void
 dissect_rtmpt_body_audio(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
         guint8      iCtl;
+        guint8      iAudioMultitrackCtl;
+        guint8      iAudioTrackId;
+        guint32     iAudioTrackLength;
         proto_item *ai;
         proto_tree *at;
+        bool        isAudioMultitrack = false;
+        bool        isOneTrack = false;
+        bool        isManyTracksManyCodecs = false;
+        bool        processAudioBody = true;
 
         iCtl = tvb_get_guint8(tvb, offset);
-        ai = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_audio_control, tvb, offset, 1, iCtl,
-                                        "Control: 0x%02x (%s %s %s %s)", iCtl,
-                                        val_to_str_const((iCtl & 0xf0)>>4, rtmpt_audio_codecs, "Unknown codec"),
-                                        val_to_str_const((iCtl & 0x0c)>>2, rtmpt_audio_rates, "Unknown rate"),
-                                        val_to_str_const((iCtl & 0x02)>>1, rtmpt_audio_sizes, "Unknown sample size"),
-                                        val_to_str_const(iCtl & 0x01, rtmpt_audio_types, "Unknown channel count"));
+        if ((iCtl & RTMPT_IS_EX_AUDIO_HEADER) == RTMPT_IS_EX_AUDIO_HEADER) {
+                ai = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_audio_packet_type, tvb, offset, 1, iCtl,
+                        "Control: 0x%02x (%s)", iCtl,
+                        val_to_str_const((iCtl & 0xf), rtmpt_audio_packet_types, "Reserved audio packet type"));
+                at = proto_item_add_subtree(ai, ett_rtmpt_audio_control);
 
-        at = proto_item_add_subtree(ai, ett_rtmpt_audio_control);
-        proto_tree_add_uint(at, hf_rtmpt_audio_format, tvb, offset, 1, iCtl);
-        proto_tree_add_uint(at, hf_rtmpt_audio_rate, tvb, offset, 1, iCtl);
-        proto_tree_add_uint(at, hf_rtmpt_audio_size, tvb, offset, 1, iCtl);
-        proto_tree_add_uint(at, hf_rtmpt_audio_type, tvb, offset, 1, iCtl);
-        proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_data, tvb, offset+1, -1, ENC_NA);
+                proto_tree_add_uint(at, hf_rtmpt_audio_is_ex_header, tvb, offset, 1, iCtl);
+                proto_tree_add_uint(at, hf_rtmpt_audio_packet_type, tvb, offset, 1, iCtl);
+                offset += 1;
+
+                isAudioMultitrack = (iCtl & 0xf) == RTMPT_IS_AUDIO_MULTITRACK;
+                if (isAudioMultitrack) {
+                        iAudioMultitrackCtl = tvb_get_guint8(tvb, offset);
+                        ai = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_audio_multitrack_control, tvb, offset, 1, iAudioMultitrackCtl,
+                                "Audio Multitrack Control: 0x%02x (%s %s)", iAudioMultitrackCtl,
+                                val_to_str_const((iAudioMultitrackCtl & 0x0f), rtmpt_av_multitrack_types, "Reserved av multitrack type"),
+                                val_to_str_const((iAudioMultitrackCtl & 0xf0) >> 4, rtmpt_audio_packet_types, "Reserved audio packet type"));
+                        at = proto_item_add_subtree(ai, ett_rtmpt_audio_multitrack_control);
+                        proto_tree_add_uint(at, hf_rtmpt_audio_multitrack_packet_type, tvb, offset, 1, iAudioMultitrackCtl);
+                        proto_tree_add_uint(at, hf_rtmpt_audio_multitrack_type, tvb, offset, 1, iAudioMultitrackCtl);
+                        offset += 1;
+
+                        isOneTrack = (iAudioMultitrackCtl & 0x0f) == RTMPT_IS_ONETRACK;
+                        isManyTracksManyCodecs = (iAudioMultitrackCtl & 0x0f) == RTMPT_IS_MANYTRACKSMANYCODECS;
+                        if (!isManyTracksManyCodecs) {
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_fourcc, tvb, offset, 4, ENC_ASCII);
+                                offset += 4;
+                        }
+                } else {
+                        proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_fourcc, tvb, offset, 4, ENC_ASCII);
+                        offset += 4;
+                }
+
+                while(processAudioBody && tvb_reported_length_remaining(tvb, offset) > 0) {
+                        if (isAudioMultitrack) {
+                                iAudioTrackId = tvb_get_guint8(tvb, offset);
+                                ai = proto_tree_add_uint(rtmpt_tree, hf_rtmpt_audio_track_id, tvb, offset, 1, iAudioTrackId);
+                                at = proto_item_add_subtree(ai, ett_rtmpt_audio_multitrack_track);
+                                offset += 1;
+                                if (isManyTracksManyCodecs) {
+                                        proto_tree_add_item(at, hf_rtmpt_audio_fourcc, tvb, offset, 4, ENC_ASCII);
+                                        offset += 4;
+                                }
+                                if (!isOneTrack) {
+                                        iAudioTrackLength = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
+                                        proto_tree_add_uint(at, hf_rtmpt_audio_track_length, tvb, offset, 3, iAudioTrackLength);
+                                        offset += 3;
+                                        proto_tree_add_item(at, hf_rtmpt_audio_data, tvb, offset, -1, ENC_NA);
+                                        offset += iAudioTrackLength;
+                                } else {
+                                        proto_tree_add_item(at, hf_rtmpt_audio_data, tvb, offset, -1, ENC_NA);
+                                        processAudioBody = false;
+                                }
+                        } else {
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_data, tvb, offset, -1, ENC_NA);
+                                processAudioBody = false;
+                        }
+                }
+        } else {
+                ai = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_audio_control, tvb, offset, 1, iCtl,
+                        "Control: 0x%02x (%s %s %s %s)", iCtl,
+                        val_to_str_const((iCtl & 0xf0) >> 4, rtmpt_audio_codecs, "Unknown codec"),
+                        val_to_str_const((iCtl & 0x0c) >> 2, rtmpt_audio_rates, "Unknown rate"),
+                        val_to_str_const((iCtl & 0x02) >> 1, rtmpt_audio_sizes, "Unknown sample size"),
+                        val_to_str_const(iCtl & 0x01, rtmpt_audio_types, "Unknown channel count"));
+
+                at = proto_item_add_subtree(ai, ett_rtmpt_audio_control);
+                proto_tree_add_uint(at, hf_rtmpt_audio_format, tvb, offset, 1, iCtl);
+                proto_tree_add_uint(at, hf_rtmpt_audio_rate, tvb, offset, 1, iCtl);
+                proto_tree_add_uint(at, hf_rtmpt_audio_size, tvb, offset, 1, iCtl);
+                proto_tree_add_uint(at, hf_rtmpt_audio_type, tvb, offset, 1, iCtl);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_data, tvb, offset + 1, -1, ENC_NA);
+        }
 }
 
 static void
 dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
         guint8      iCtl;
+        guint8      iMultitrackCtl;
+        guint8      iVideoCommand;
+        guint8      iVideoFrameType;
+        guint8      iVideoPacketType;
+        guint8      iAvMultitrackType;
+        guint8      iVideoTrackId;
+        guint32     iVideoTrackLength;
         proto_item *vi;
         proto_tree *vt;
+        bool        isVideoMultitrack = false;
+        bool        isOneTrack = false;
+        bool        isManyTracksManyCodecs = false;
+        bool        processVideoBody = true;
 
         iCtl = tvb_get_guint8(tvb, offset);
+        iVideoFrameType = (iCtl & 0x70) >> 4;
 
         /*
-         * https://raw.githubusercontent.com/veovera/enhanced-rtmp/main/enhanced-rtmp.pdf
+         * https://veovera.org/docs/enhanced/enhanced-rtmp-v2.pdf
          */
-        if (iCtl & RTMPT_IS_EX_HEADER) {
-            vi = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_video_control, tvb, offset, 1, iCtl,
-                                            "Control: 0x%02x (%s %s)", iCtl,
-                                            val_to_str_const((iCtl & 0x70)>>4, rtmpt_video_types, "Reserved frame type"),
-                                            val_to_str_const(iCtl & 0x0f, rtmpt_video_packet_types, "Reserved packet type"));
+        if (iCtl & RTMPT_IS_EX_VIDEO_HEADER) {
+                iVideoPacketType = iCtl & 0x0f;
+                isVideoMultitrack = iVideoPacketType == RTMPT_IS_VIDEO_MULTITRACK;
 
-            vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
-            proto_tree_add_uint(vt, hf_rtmpt_video_is_ex_header, tvb, offset, 1, iCtl);
-            proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
-            proto_tree_add_uint(vt, hf_rtmpt_video_packet_type, tvb, offset, 1, iCtl);
+                vi = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_video_control, tvb, offset, 1, iCtl,
+                                "Control: 0x%02x (%s %s)", iCtl,
+                                val_to_str_const(iVideoFrameType, rtmpt_video_types, "Reserved frame type"),
+                                val_to_str_const(iVideoPacketType, rtmpt_video_packet_types, "Reserved packet type"));
+                vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
+                proto_tree_add_uint(vt, hf_rtmpt_video_is_ex_header, tvb, offset, 1, iCtl);
+                proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
+                proto_tree_add_uint(vt, hf_rtmpt_video_packet_type, tvb, offset, 1, iCtl);
+                offset += 1;
 
-            proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_fourcc, tvb, offset+1, 4, ENC_ASCII);
-            proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset+5, -1, ENC_NA);
+                if (iVideoPacketType != RTMPT_IS_PACKET_TYPE_METADATA && iVideoFrameType == RTMPT_IS_FRAME_TYPE_COMMAND) {
+                        iVideoCommand = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_uint(vt, hf_rtmpt_video_command, tvb, offset, 1, iVideoCommand);
+                        offset += 1;
+                        processVideoBody = false;
+                } else if (isVideoMultitrack) {
+                        iMultitrackCtl = tvb_get_guint8(tvb, offset);
+                        iAvMultitrackType = (iMultitrackCtl >> 4) & 0xf;
+                        vi = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_video_multitrack_control, tvb, offset, 1, iMultitrackCtl,
+                                "Video Multitrack Control: 0x%02x (%s %s)", iMultitrackCtl,
+                                val_to_str_const(iAvMultitrackType, rtmpt_av_multitrack_types, "Reserved av multitrack type"),
+                                val_to_str_const(iMultitrackCtl & 0xf, rtmpt_video_packet_types, "Reserved video packet type"));
+                        vt = proto_item_add_subtree(vi, ett_rtmpt_video_multitrack_control);
+                        proto_tree_add_uint(vt, hf_rtmpt_video_multitrack_type, tvb, offset, 1, iMultitrackCtl);
+                        proto_tree_add_uint(vt, hf_rtmpt_video_multitrack_packet_type, tvb, offset, 1, iMultitrackCtl);
+                        offset += 1;
+
+                        isOneTrack = (iAvMultitrackType & 0x0f) == RTMPT_IS_ONETRACK;
+                        isManyTracksManyCodecs = (iAvMultitrackType & 0x0f) == RTMPT_IS_MANYTRACKSMANYCODECS;
+                        if (!isManyTracksManyCodecs) {
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_fourcc, tvb, offset, 4, ENC_ASCII);
+                                offset += 4;
+                        }
+                } else {
+                        proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_fourcc, tvb, offset, 4, ENC_ASCII);
+                        offset += 4;
+                }
+
+                while (processVideoBody && tvb_reported_length_remaining(tvb, offset) > 0){
+                        if (isVideoMultitrack) {
+                                iVideoTrackId = tvb_get_guint8(tvb, offset);
+                                vi = proto_tree_add_uint(rtmpt_tree, hf_rtmpt_video_track_id, tvb, offset, 1, iVideoTrackId);
+                                vt = proto_item_add_subtree(vi, ett_rtmpt_video_multitrack_track);
+                                if (isManyTracksManyCodecs) {
+                                        proto_tree_add_item(vt, hf_rtmpt_video_fourcc, tvb, offset, 4, ENC_ASCII);
+                                        offset += 4;
+                                }
+                                offset += 1;
+                                if (!isOneTrack) {
+                                        iVideoTrackLength = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
+                                        proto_tree_add_uint(vt, hf_rtmpt_video_track_length, tvb, offset, 3, iVideoTrackLength);
+                                        offset += 3;
+                                        proto_tree_add_item(vt, hf_rtmpt_video_data, tvb, offset, iVideoTrackLength, ENC_NA);
+                                        offset += iVideoTrackLength;
+                                } else {
+                                        proto_tree_add_item(vt, hf_rtmpt_video_data, tvb, offset, -1, ENC_NA);
+                                        processVideoBody = false;
+                                }
+                        } else {
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset, -1, ENC_NA);
+                                processVideoBody = false;
+                        }
+                }
         } else {
             vi = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_video_control, tvb, offset, 1, iCtl,
                                             "Control: 0x%02x (%s %s)", iCtl,
-                                            val_to_str_const((iCtl & 0xf0)>>4, rtmpt_video_types, "Reserved frame type"),
+                                            val_to_str_const(iVideoFrameType, rtmpt_video_types, "Reserved frame type"),
                                             val_to_str_const(iCtl & 0x0f, rtmpt_video_codecs, "Unknown codec"));
 
             vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
             proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
             proto_tree_add_uint(vt, hf_rtmpt_video_format, tvb, offset, 1, iCtl);
+            offset += 1;
 
-            proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset+1, -1, ENC_NA);
+            if (iVideoFrameType == RTMPT_IS_FRAME_TYPE_COMMAND) {
+                    iVideoCommand = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(vt, hf_rtmpt_video_command, tvb, offset, 1, iCtl);
+                    offset += 1;
+            } else {
+                    proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset, -1, ENC_NA);
+            }
         }
 }
 
@@ -2741,57 +2933,113 @@ proto_register_rtmpt(void)
 
 /* Audio packets */
                 { &hf_rtmpt_audio_control,
-                  { "Audio control", "rtmpt.audio.control", FT_UINT8, BASE_HEX,
-                    NULL, 0x0, "RTMPT Audio control", HFILL }},
+                  { "Control", "rtmpt.audio.control", FT_UINT8, BASE_HEX,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_rtmpt_audio_is_ex_header,
+                  { "IsExAudioHeader", "rtmpt.audio.is_ex_header", FT_UINT8, BASE_DEC,
+                    NULL, 0x90, "RTMPT IsExHeader flag introduced in enhanced RTMP", HFILL } },
+
+                { &hf_rtmpt_audio_multitrack_control,
+                  { "Audio multitrack control", "rtmpt.audio.multitrack.control", FT_UINT8, BASE_HEX,
+                    NULL, 0x0, NULL, HFILL } },
+
+                { &hf_rtmpt_audio_multitrack_type,
+                  { "Audio multitrack type", "rtmpt.audio.multitrack.type", FT_UINT8, BASE_HEX,
+                    VALS(rtmpt_av_multitrack_types), 0x0f, NULL, HFILL } },
+
+                { &hf_rtmpt_audio_multitrack_packet_type,
+                  { "Audio multitrack packet type", "rtmpt.audio.multitrack.track.packet_type", FT_UINT8, BASE_HEX,
+                    VALS(rtmpt_audio_packet_types), 0xf0, NULL, HFILL } },
+
+                { &hf_rtmpt_audio_packet_type,
+                  { "Audio packet type", "rtmpt.audio.packet_type", FT_UINT8, BASE_HEX,
+                    VALS(rtmpt_audio_packet_types), 0x0f, NULL, HFILL } },
+
+                { &hf_rtmpt_audio_fourcc,
+                  { "FourCC", "rtmpt.audio.fourcc", FT_STRING, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL } },
+
+                { &hf_rtmpt_audio_track_id,
+                  { "Track ID", "rtmpt.audio.multitrack.track.id", FT_UINT8, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL } },
+
+                { &hf_rtmpt_audio_track_length,
+                  { "Track length", "rtmpt.audio.multitrack.track.length", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL } },
 
                 { &hf_rtmpt_audio_format,
                   { "Format", "rtmpt.audio.format", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_audio_codecs), 0xf0, "RTMPT Audio format", HFILL }},
+                    VALS(rtmpt_audio_codecs), 0xf0, NULL, HFILL }},
 
                 { &hf_rtmpt_audio_rate,
                   { "Sample rate", "rtmpt.audio.rate", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_audio_rates), 0x0c, "RTMPT Audio sample rate", HFILL }},
+                    VALS(rtmpt_audio_rates), 0x0c, NULL, HFILL }},
 
                 { &hf_rtmpt_audio_size,
                   { "Sample size", "rtmpt.audio.size", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_audio_sizes), 0x02, "RTMPT Audio sample size", HFILL }},
+                    VALS(rtmpt_audio_sizes), 0x02, NULL, HFILL }},
 
                 { &hf_rtmpt_audio_type,
                   { "Channels", "rtmpt.audio.type", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_audio_types), 0x01, "RTMPT Audio channel count", HFILL }},
+                    VALS(rtmpt_audio_types), 0x01, NULL, HFILL }},
 
                 { &hf_rtmpt_audio_data,
                   { "Audio data", "rtmpt.audio.data", FT_BYTES, BASE_NONE,
-                    NULL, 0x0, "RTMPT Audio data", HFILL }},
+                    NULL, 0x0, NULL, HFILL }},
 
 /* Video packets */
                 { &hf_rtmpt_video_control,
-                  { "Video control", "rtmpt.video.control", FT_UINT8, BASE_HEX,
-                    NULL, 0x0, "RTMPT Video control", HFILL }},
+                  { "Control", "rtmpt.video.control", FT_UINT8, BASE_HEX,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_rtmpt_video_multitrack_control,
+                  { "Video multitrack control", "rtmpt.video.multitrack.control", FT_UINT8, BASE_HEX,
+                    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_rtmpt_video_is_ex_header,
-                  { "IsExHeader", "rtmpt.video.is_ex_header", FT_UINT8, BASE_DEC,
+                  { "IsExVideoHeader", "rtmpt.video.is_ex_header", FT_UINT8, BASE_DEC,
                     NULL, 0x80, "RTMPT IsExHeader flag introduced in enhanced RTMP", HFILL }},
 
                 { &hf_rtmpt_video_type,
-                  { "Type", "rtmpt.video.type", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_video_types), 0x70, "RTMPT Video type", HFILL }},
+                  { "Video type", "rtmpt.video.type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_video_types), 0x70, NULL, HFILL }},
+
+                { &hf_rtmpt_video_command,
+                  { "Video command", "rtmpt.video.command", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_video_commands), 0x0, NULL, HFILL}},
 
                 { &hf_rtmpt_video_format,
                   { "Format", "rtmpt.video.format", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_video_codecs), 0x0f, "RTMPT Video format", HFILL }},
+                    VALS(rtmpt_video_codecs), 0x0f, NULL, HFILL }},
 
                 { &hf_rtmpt_video_packet_type,
-                  { "Packet Type", "rtmpt.video.packet_type", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_video_packet_types), 0x0f, "RTMPT Video packet type", HFILL }},
+                  { "Video packet type", "rtmpt.video.packet_type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_video_packet_types), 0x0f, NULL, HFILL }},
+
+                { &hf_rtmpt_video_multitrack_type,
+                  { "Video multitrack type", "rtmpt.video.multitrack.type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_av_multitrack_types), 0xf0, NULL, HFILL } },
+
+                { &hf_rtmpt_video_multitrack_packet_type,
+                  { "Video multitrack packet type", "rtmpt.video.multitrack.packet_type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_video_packet_types), 0x0f, NULL, HFILL } },
 
                 { &hf_rtmpt_video_fourcc,
                   { "FourCC", "rtmpt.video.fourcc", FT_STRING, BASE_NONE,
-                    NULL, 0x0, "RTMPT Video fourCC", HFILL }},
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_rtmpt_video_track_id,
+                  { "Track ID", "rtmpt.video.multitrack.track.id", FT_UINT8, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL } },
+
+                { &hf_rtmpt_video_track_length,
+                  { "Track length", "rtmpt.video.multitrack.track.length", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL } },
 
                 { &hf_rtmpt_video_data,
                   { "Video data", "rtmpt.video.data", FT_BYTES, BASE_NONE,
-                    NULL, 0x0, "RTMPT Video data", HFILL }},
+                    NULL, 0x0, NULL, HFILL }},
 
 /* Aggregate packets */
                 { &hf_rtmpt_tag_type,
@@ -2826,6 +3074,10 @@ proto_register_rtmpt(void)
                 &ett_rtmpt_ucm,
                 &ett_rtmpt_audio_control,
                 &ett_rtmpt_video_control,
+                &ett_rtmpt_audio_multitrack_control,
+                &ett_rtmpt_audio_multitrack_track,
+                &ett_rtmpt_video_multitrack_control,
+                &ett_rtmpt_video_multitrack_track,
                 &ett_rtmpt_tag,
                 &ett_rtmpt_tag_data
         };
