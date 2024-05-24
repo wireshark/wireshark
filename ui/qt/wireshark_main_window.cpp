@@ -1910,7 +1910,13 @@ bool WiresharkMainWindow::testCaptureFileClose(QString before_what, FileCloseCon
              */
             discard_button->setFocus();
 #endif
-
+            /*
+             * On Windows, if multiple Wireshark processes are open, another
+             * application has focus, and "Close all [Wireshark] windows" is
+             * chosen from the taskbar, we need to activate the window to
+             * at least flash the taskbar (#16309).
+             */
+            activateWindow();
             msg_dialog.exec();
             /* According to the Qt doc:
              * when using QMessageBox with custom buttons, exec() function returns an opaque value.
