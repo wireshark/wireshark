@@ -132,7 +132,7 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
          */
         hide();
         cf_print_status_t status;
-        QString file_name = selected[0];
+        QString file_name = QDir::toNativeSeparators(selected[0]);
 
         /* Fill in our print (and export) args */
 

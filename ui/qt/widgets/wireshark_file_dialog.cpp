@@ -43,6 +43,15 @@ WiresharkFileDialog::WiresharkFileDialog(QWidget *parent, const QString &caption
 #endif
 }
 
+QString WiresharkFileDialog::selectedNativePath() const
+{
+    if (selectedFiles().isEmpty()) {
+        // The API implies this can't happen
+        return QString();
+    }
+    return QDir::toNativeSeparators(selectedFiles().at(0));
+}
+
 QString WiresharkFileDialog::getExistingDirectory(QWidget *parent, const QString &caption, const QString &dir, Options options)
 {
 #ifdef Q_OS_WIN
@@ -52,7 +61,7 @@ QString WiresharkFileDialog::getExistingDirectory(QWidget *parent, const QString
 #ifdef Q_OS_WIN
     revert_thread_per_monitor_v2_awareness(da_ctx);
 #endif
-    return ed;
+    return QDir::toNativeSeparators(ed);
 }
 
 QString WiresharkFileDialog::getOpenFileName(QWidget *parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, Options options)
@@ -64,7 +73,7 @@ QString WiresharkFileDialog::getOpenFileName(QWidget *parent, const QString &cap
 #ifdef Q_OS_WIN
     revert_thread_per_monitor_v2_awareness(da_ctx);
 #endif
-    return ofn;
+    return QDir::toNativeSeparators(ofn);
 }
 
 QString WiresharkFileDialog::getSaveFileName(QWidget *parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, Options options)
@@ -76,5 +85,5 @@ QString WiresharkFileDialog::getSaveFileName(QWidget *parent, const QString &cap
 #ifdef Q_OS_WIN
     revert_thread_per_monitor_v2_awareness(da_ctx);
 #endif
-    return sfn;
+    return QDir::toNativeSeparators(sfn);
 }

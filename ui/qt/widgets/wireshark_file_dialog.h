@@ -15,6 +15,11 @@
 /**
  * @brief The WiresharkFileDialog class
  *
+ * Qt uses '/' as a universal path separator and converts to native path
+ * separators, i.e., '\' on Windows, only immediately before displaying a
+ * path to a user. This class can return the path with native path
+ * separators.
+ *
  * Qt <= 5.9 supports setting old (Windows 8.1) per-monitor DPI awareness
  * via Qt:AA_EnableHighDpiScaling. We do this in main.cpp. In order for
  * native dialogs to be rendered correctly we need to set per-monitor
@@ -23,13 +28,15 @@
  * we need to revert our thread context when we're done.
  * The class functions below are simple wrappers around their QFileDialog
  * equivalents that set PMv2 awareness before showing native dialogs on
- * Windows and resets it afterward.
+ * Windows and resets it afterward. They also return the result with native
+ * directory separators on Windows.
  */
 
 class WiresharkFileDialog : public QFileDialog
 {
 public:
     WiresharkFileDialog(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
+    QString selectedNativePath() const;
     static QString getExistingDirectory(QWidget *parent = Q_NULLPTR, const QString &caption = QString(), const QString &dir = QString(), Options options = ShowDirsOnly);
     static QString getOpenFileName(QWidget *parent = Q_NULLPTR, const QString &caption = QString(), const QString &dir = QString(), const QString &filter = QString(), QString *selectedFilter = Q_NULLPTR, Options options = Options());
     static QString getSaveFileName(QWidget *parent = Q_NULLPTR, const QString &caption = QString(), const QString &dir = QString(), const QString &filter = QString(), QString *selectedFilter = Q_NULLPTR, Options options = Options());

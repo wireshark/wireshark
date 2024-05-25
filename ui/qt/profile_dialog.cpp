@@ -24,6 +24,7 @@
 #include "main_application.h"
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/simple_dialog.h>
+#include <ui/qt/widgets/wireshark_file_dialog.h>
 
 #include <QBrush>
 #include <QDir>
@@ -34,7 +35,6 @@
 #include <QUrl>
 #include <QComboBox>
 #include <QLineEdit>
-#include <QFileDialog>
 #include <QStandardPaths>
 #include <QKeyEvent>
 #include <QMenu>
@@ -615,7 +615,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
         return;
     }
 
-    QString zipFile = QFileDialog::getSaveFileName(this, tr("Select zip file for export"), openDialogInitialDir(), tr("Zip File (*.zip)"));
+    QString zipFile = WiresharkFileDialog::getSaveFileName(this, tr("Select zip file for export"), openDialogInitialDir(), tr("Zip File (*.zip)"));
 
     if (zipFile.length() > 0)
     {
@@ -646,7 +646,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
 
 void ProfileDialog::importFromZip()
 {
-    QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), openDialogInitialDir(), tr("Zip File (*.zip)"));
+    QString zipFile = WiresharkFileDialog::getOpenFileName(this, tr("Select zip file for import"), openDialogInitialDir(), tr("Zip File (*.zip)"));
 
     QFileInfo fi(zipFile);
     if (! fi.exists())
@@ -662,7 +662,7 @@ void ProfileDialog::importFromZip()
 
 void ProfileDialog::importFromDirectory()
 {
-    QString importDir = QFileDialog::getExistingDirectory(this, tr("Select directory for import"), openDialogInitialDir());
+    QString importDir = WiresharkFileDialog::getExistingDirectory(this, tr("Select directory for import"), openDialogInitialDir());
 
     QFileInfo fi(importDir);
     if (! fi.isDir())

@@ -43,10 +43,11 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
 
+#include <ui/qt/widgets/wireshark_file_dialog.h>
+
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QMessageBox>
-#include <QFileDialog>
 
 // The GTK+ counterpart uses tap_param_dlg, which we don't use. If we
 // need tap parameters we should probably create a TapParameterDialog
@@ -548,7 +549,7 @@ void TapParameterDialog::on_actionSaveAs_triggered()
 #ifdef Q_OS_WIN
     HANDLE da_ctx = set_thread_per_monitor_v2_awareness();
 #endif
-    QFileDialog SaveAsDialog(this, mainApp->windowTitleString(tr("Save Statistics As…")),
+    WiresharkFileDialog SaveAsDialog(this, mainApp->windowTitleString(tr("Save Statistics As…")),
                                                             get_open_dialog_initial_dir());
     SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
                                     "Comma separated values (*.csv);;"
@@ -582,7 +583,7 @@ void TapParameterDialog::on_actionSaveAs_triggered()
     }
 
     // Get selected filename and add extension of necessary
-    QString file_name = SaveAsDialog.selectedFiles()[0];
+    QString file_name = SaveAsDialog.selectedNativePath();
     if (!file_name.endsWith(file_ext, Qt::CaseInsensitive)) {
         file_name.append(file_ext);
     }

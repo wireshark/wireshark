@@ -593,7 +593,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type, QString &dis
     }
 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
-        file_name = selectedFiles()[0];
+        file_name = selectedNativePath();
         type = open_info_name_to_type(qPrintable(format_type_.currentText()));
         display_filter.append(display_filter_edit_->text());
 
@@ -626,7 +626,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         int file_type;
 
-        file_name = selectedFiles()[0];
+        file_name = selectedNativePath();
         file_type = selectedFileType();
         /* Is the file type bogus? */
         if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
@@ -676,7 +676,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         int file_type;
 
-        file_name = selectedFiles()[0];
+        file_name = selectedNativePath();
         file_type = selectedFileType();
         /* Is the file type bogus? */
         if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
@@ -711,7 +711,7 @@ int CaptureFileDialog::merge(QString &file_name, QString &display_filter) {
     resize(width() * WIDTH_SCALE_FACTOR, height() * HEIGHT_SCALE_FACTOR + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
-        file_name.append(selectedFiles()[0]);
+        file_name.append(selectedNativePath());
         display_filter.append(display_filter_edit_->text());
 
         return QDialog::Accepted;
