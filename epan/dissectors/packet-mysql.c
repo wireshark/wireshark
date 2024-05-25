@@ -2456,14 +2456,19 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 					offset = mysql_field_add_lestring(tvb, offset, query_attrs_tree, hf_mysql_query_attribute_value, encoding);
 				}
 			}
-		} else if ((conn_data->clnt_caps_ext == 0) && (conn_data->srv_caps_ext == 0)){
-			// No server/client capabilities, probably in the middle of a conversation
-			// As the query isn't likely to start with 0x00 this probably means these are
-			// query attributes we need to skip
-			if (tvb_get_guint8(tvb, offset) == 0)
-				offset += 2;
 		}
 		lenstr = my_tvb_strsize(tvb, offset);
+		// A query string of less than 2 doesn't make sense, this is *likely* to be a case where
+		// we don't have the capability flags from the login/greeting and are missing MYSQL_CAPS_QA
+		// Note that MYSQL_CAPS_QA is only used on recent MySQL and only if both the client and server
+		// set it, so assuming this is set when we don't have the login/greeting will break many other
+		// cases.
+		//
+		// If this is the case we skip 2 bytes and try again.
+		if (lenstr < 2) {
+			offset += 2;
+			lenstr = my_tvb_strsize(tvb, offset);
+		}
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, my_frame_data->encoding_client);
 		if (mysql_showquery) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",
@@ -3256,8 +3261,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
 
 		/* 4.1+ protocol only: 2 bytes number of warnings */
-		if ((conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU)
-			|| ((conn_data->clnt_caps == 0) && (conn_data->srv_caps == 0))) {
+		if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
 			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			lenstr = tvb_get_ntohs(tvb, offset);
 			offset += 2;
@@ -3294,12 +3298,6 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			}
 		}
 	} else {
-		if ((tvb_reported_length_remaining(tvb, offset) > 0)
-			&& ((conn_data->clnt_caps == 0) && (conn_data->srv_caps == 0))) {
-			// No client or server capabilities to work with, Let's try to skip over session state
-			offset += tvb_get_fle(tvb, tree, offset, &lenstr, NULL);
-		}
-
 		/* optional: message string */
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
 			if(lenstr > (guint64)tvb_reported_length_remaining(tvb, offset))
@@ -4335,6 +4333,15 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		conn_data->stmts = wmem_tree_new(wmem_file_scope());
 		conn_data->encoding_client = ENC_UTF_8;
 		conn_data->encoding_results = ENC_UTF_8;
+
+		// Client and server capability flags
+		// Set in case the conversation doesn't start with greeting/login
+		conn_data->clnt_caps = MYSQL_CAPS_CU;    // CLIENT_PROTOCOL_41
+		conn_data->clnt_caps_ext = MYSQL_CAPS_DE // CLIENT_DEPRECATE_EOF
+			^ MYSQL_CAPS_ST;                 // CLIENT_SESSION_TRACK
+		conn_data->srv_caps = MYSQL_CAPS_CU;     // CLIENT_PROTOCOL_41
+		conn_data->srv_caps_ext = MYSQL_CAPS_DE; // CLIENT_DEPRECATE_EOF
+
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
