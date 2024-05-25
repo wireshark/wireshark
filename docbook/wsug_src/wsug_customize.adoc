@@ -1174,9 +1174,18 @@ Database pathname::
 This specifies a directory containing MaxMind data files. Any files
 ending with _.mmdb_ will be automatically loaded.
 
-The locations for your data files are up to you, but `/usr/share/GeoIP`
-and `/var/lib/GeoIP` are common on Linux and `C:\ProgramData\GeoIP`,
-`C:\Program Files\Wireshark\GeoIP` might be good choices on Windows.
+By default Wireshark will always search for data files in
+`/usr/share/GeoIP` and `/var/lib/GeoIP` on non-Windows platforms
+and in `C:\ProgramData\GeoIP` and `C:\GeoIP` on Windows. You can
+put any additional search paths here, e.g. `C:\Program Files\Wireshark\GeoIP`
+might be a good choice on Windows.
+
+[NOTE]
+====
+While the default search paths are not listed in the user table, they
+are in the list viewable by opening menu:Help[About Wireshark] and
+selecting the "Folders" tab.
+====
 
 [#ChGeoIPDbPaths]
 
