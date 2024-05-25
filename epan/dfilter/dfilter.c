@@ -661,6 +661,7 @@ struct stnode *dfilter_get_syntax_tree(const char *text)
 
 	bool ok = dfwork_parse(expanded_text, dfs);
 	if (!ok || !dfs->st_root) {
+		g_free(expanded_text);
 		dfsyntax_free(dfs);
 		return NULL;
 	}
@@ -668,9 +669,11 @@ struct stnode *dfilter_get_syntax_tree(const char *text)
 	dfw = dfwork_new(expanded_text, dfs->flags);
 	dfw->st_root = dfs->st_root;
 	dfs->st_root = NULL;
+	g_free(expanded_text);
 	dfsyntax_free(dfs);
 
 	if (!dfw_semcheck(dfw)) {
+		dfwork_free(dfw);
 		return NULL;
 	}
 
