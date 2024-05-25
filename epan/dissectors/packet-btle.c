@@ -648,6 +648,7 @@ typedef struct _connection_info_t {
     guint32  interface_id;
     guint32  adapter_id;
     guint32  access_address;
+    guint32  crc_init;
 
     guint8   master_bd_addr[6];
     guint8   slave_bd_addr[6];
@@ -2252,6 +2253,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             break;
         case 0x05: /* CONNECT_IND */
+        {
+            guint32 connect_ind_crc_init;
+
             offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, src_bd_addr);
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, dst_bd_addr);
 
@@ -2282,7 +2286,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             connection_access_address = tvb_get_letohl(tvb, offset);
             offset += 4;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN, &connect_ind_crc_init);
             offset += 3;
 
             item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_value);
@@ -2332,6 +2336,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 connection_info->interface_id   = interface_id;
                 connection_info->adapter_id     = adapter_id;
                 connection_info->access_address = connection_access_address;
+                connection_info->crc_init       = connect_ind_crc_init;
 
                 memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
                 memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
@@ -2354,6 +2359,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             break;
+        }
         case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
         case 0x08: /* AUX_CONNECT_RSP */
         {
@@ -4324,10 +4330,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        if ((crc_status == CRC_INDETERMINATE) &&
-            btle_context && btle_context->connection_info_valid) {
+        if ((crc_status == CRC_INDETERMINATE) && connection_info) {
             /* the surrounding context has provided CRCInit */
-            crc_init = btle_context->connection_info.CRCInit;
+            crc_init = connection_info->crc_init;
             crc_status = CRC_CAN_BE_CALCULATED;
         }
     } else if (btle_pdu_type == BTLE_PDU_TYPE_BROADCASTISO) {

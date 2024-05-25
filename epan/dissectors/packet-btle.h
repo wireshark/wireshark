@@ -18,20 +18,6 @@
  * These structures are meant to support the provision of contextual
  * metadata to the BTLE dissector.
  */
-typedef struct {
-    guint64 InitA;
-    guint64 AdvA;
-    guint32 LinkAA;
-    guint32 CRCInit;
-    guint8  WinSize;
-    guint16 WinOffset;
-    guint16 Interval;
-    guint16 Latency;
-    guint16 Timeout;
-    guint64 ChM;
-    guint8  Hop;
-    guint8  SCA;
-} btle_CONNECT_REQ_t;
 
 typedef enum {
     E_AA_NO_COMMENT = 0,
@@ -56,8 +42,6 @@ typedef enum {
 
 typedef struct {
     btle_AA_category_t aa_category;
-    btle_CONNECT_REQ_t connection_info;
-    guint connection_info_valid: 1;
     guint crc_checked_at_capture: 1;
     guint crc_valid_at_capture: 1;
     guint mic_checked_at_capture: 1;
