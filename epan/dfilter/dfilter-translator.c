@@ -88,6 +88,7 @@ const char *translate_dfilter(const char *translator_name, const char *dfilter)
 
     GString *translated_filter = g_string_new("");
     bool res = translator(root_node, translated_filter);
+    stnode_free(root_node);
 
     return g_string_free(translated_filter, !res);
 }
