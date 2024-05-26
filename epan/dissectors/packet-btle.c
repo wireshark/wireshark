@@ -1937,6 +1937,48 @@ guess_btle_pdu_type_from_access(guint32 interface_id,
     return BTLE_PDU_TYPE_DATA;
 }
 
+static const btle_context_t * get_btle_context(packet_info *pinfo,
+                                               void *data,
+                                               guint32 *adapter_id_out,
+                                               guint32 *interface_id_out)
+{
+    const btle_context_t * btle_context = NULL;
+    bluetooth_data_t *bluetooth_data = NULL;
+    ubertooth_data_t *ubertooth_data = NULL;
+
+    wmem_list_frame_t * list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+    if (list_data) {
+        gint previous_proto = GPOINTER_TO_INT(wmem_list_frame_data(list_data));
+
+        if ((previous_proto == proto_btle_rf)||(previous_proto == proto_nordic_ble)) {
+            btle_context = (const btle_context_t *) data;
+            bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
+        } else if (previous_proto == proto_bluetooth) {
+            bluetooth_data = (bluetooth_data_t *) data;
+        }
+
+        if (bluetooth_data && bluetooth_data->previous_protocol_data_type == BT_PD_UBERTOOTH_DATA) {
+            ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
+        }
+    }
+
+    if (bluetooth_data)
+        *interface_id_out = bluetooth_data->interface_id;
+    else if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        *interface_id_out = pinfo->rec->rec_header.packet_header.interface_id;
+    else
+        *interface_id_out = HCI_INTERFACE_DEFAULT;
+
+    if (ubertooth_data)
+        *adapter_id_out = ubertooth_data->bus_id << 8 | ubertooth_data->device_address;
+    else if (bluetooth_data)
+        *adapter_id_out = bluetooth_data->adapter_id;
+    else
+        *adapter_id_out = HCI_ADAPTER_DEFAULT;
+
+    return btle_context;
+}
+
 static gint
 dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1953,35 +1995,20 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
     wmem_tree_key_t        key[5], ae_had_key[4];
-    guint32                interface_id;
-    guint32                adapter_id;
+
     guint32                connection_access_address;
     guint32                frame_number;
 
-    const btle_context_t  *btle_context   = NULL;
-    bluetooth_data_t      *bluetooth_data = NULL;
-    ubertooth_data_t      *ubertooth_data = NULL;
-    gint                   previous_proto;
-    wmem_list_frame_t     *list_data;
     proto_item            *item;
     guint                  item_value;
     guint8                 btle_pdu_type = BTLE_PDU_TYPE_UNKNOWN;
 
-    list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-    if (list_data) {
-        previous_proto = GPOINTER_TO_INT(wmem_list_frame_data(list_data));
-
-        if ((previous_proto == proto_btle_rf)||(previous_proto == proto_nordic_ble)) {
-            btle_context = (const btle_context_t *) data;
-            bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
-        } else if (previous_proto == proto_bluetooth) {
-            bluetooth_data = (bluetooth_data_t *) data;
-        }
-
-        if (bluetooth_data && bluetooth_data->previous_protocol_data_type == BT_PD_UBERTOOTH_DATA) {
-            ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
-        }
-    }
+    guint32                interface_id;
+    guint32                adapter_id;
+    const btle_context_t *btle_context = get_btle_context(pinfo,
+                                                          data,
+                                                          &adapter_id,
+                                                          &interface_id);
 
     src_bd_addr = (guint8 *) wmem_alloc(pinfo->pool, 6);
     dst_bd_addr = (guint8 *) wmem_alloc(pinfo->pool, 6);
@@ -2014,20 +2041,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(btle_tree, hf_coding_indicator, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
-
-    if (bluetooth_data)
-        interface_id = bluetooth_data->interface_id;
-    else if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
-        interface_id = pinfo->rec->rec_header.packet_header.interface_id;
-    else
-        interface_id = HCI_INTERFACE_DEFAULT;
-
-    if (ubertooth_data)
-        adapter_id = ubertooth_data->bus_id << 8 | ubertooth_data->device_address;
-    else if (bluetooth_data)
-        adapter_id = bluetooth_data->adapter_id;
-    else
-        adapter_id = HCI_ADAPTER_DEFAULT;
 
     frame_number = pinfo->num;
 
