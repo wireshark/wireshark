@@ -311,7 +311,9 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'BASE_SHOW_UTF_8_PRINTABLE',
                                             'dhcp_secs_endian',
                                             'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA',
-                                            'xl_encoding'
+                                            'xl_encoding',
+                                            'my_frame_data->encoding_client', 'my_frame_data->encoding_results'
+
                                           }:
                                 global warnings_found
 
@@ -1861,7 +1863,7 @@ if args.all_checks:
     args.mask_exact_width = True
     args.consecutive = True
     args.check_bitmask_fields = True
-    #args.label = True
+    args.label = True
     args.label_vs_filter = True
     args.extra_value_string_checks
 
