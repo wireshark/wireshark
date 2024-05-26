@@ -1495,6 +1495,45 @@ dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btl
     return offset;
 }
 
+static gint
+dissect_crc(tvbuff_t *tvb,
+            proto_tree *btle_tree,
+            gint offset,
+            packet_info *pinfo,
+            guint32 length,
+            const connection_info_t *connection_info,
+            const btle_context_t *btle_context,
+            guint32 access_address)
+{
+    /* BT spec Vol 6, Part B, Section 1.2: CRC is big endian and bits in byte are flipped */
+    guint32 packet_crc = reverse_bits_per_byte(tvb_get_ntoh24(tvb, offset));
+    proto_item *sub_item = proto_tree_add_uint(btle_tree, hf_crc, tvb, offset, 3, packet_crc);
+
+    if (btle_context && btle_context->crc_checked_at_capture) {
+        if (!btle_context->crc_valid_at_capture) {
+            expert_add_info(pinfo, sub_item, &ei_crc_incorrect);
+        }
+    } else if ((access_address == ACCESS_ADDRESS_ADVERTISING) || connection_info)  {
+        /* CRC can be calculated */
+        guint32 crc_init;
+
+        if (access_address == ACCESS_ADDRESS_ADVERTISING) {
+            crc_init = 0x555555;
+        } else {
+            crc_init = connection_info->crc_init;
+        }
+
+        guint32 crc = btle_crc(tvb, length, crc_init);
+        if (packet_crc != crc) {
+            expert_add_info(pinfo, sub_item, &ei_crc_incorrect);
+        }
+    } else {
+        expert_add_info(pinfo, sub_item, &ei_crc_cannot_be_determined);
+    }
+
+    return 3;
+}
+
 /* Checks if it is possible to add the frame at the given index
  * to the given control procedure context.
  *
@@ -1918,12 +1957,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32                adapter_id;
     guint32                connection_access_address;
     guint32                frame_number;
-    enum {CRC_INDETERMINATE,
-          CRC_CAN_BE_CALCULATED,
-          CRC_INCORRECT,
-          CRC_CORRECT} crc_status = CRC_INDETERMINATE;
-    guint32      crc_init = 0x555555; /* default to advertising channel's value */
-    guint32      packet_crc;
+
     const btle_context_t  *btle_context   = NULL;
     bluetooth_data_t      *bluetooth_data = NULL;
     ubertooth_data_t      *ubertooth_data = NULL;
@@ -1951,10 +1985,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     src_bd_addr = (guint8 *) wmem_alloc(pinfo->pool, 6);
     dst_bd_addr = (guint8 *) wmem_alloc(pinfo->pool, 6);
-
-    if (btle_context && btle_context->crc_checked_at_capture) {
-        crc_status = btle_context->crc_valid_at_capture ? CRC_CORRECT : CRC_INCORRECT;
-    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LE LL");
 
@@ -2020,12 +2050,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint8       header, pdu_type;
         gboolean     ch_sel_valid = FALSE, tx_add_valid = FALSE, rx_add_valid = FALSE;
         gboolean     is_periodic_adv = FALSE;
-
-        if (crc_status == CRC_INDETERMINATE &&
-            access_address == ACCESS_ADDRESS_ADVERTISING) {
-            /* Advertising channel CRCs can aways be calculated, because CRCInit is always known. */
-            crc_status = CRC_CAN_BE_CALCULATED;
-        }
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -4329,12 +4353,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_item_set_generated(item);
             }
         }
-
-        if ((crc_status == CRC_INDETERMINATE) && connection_info) {
-            /* the surrounding context has provided CRCInit */
-            crc_init = connection_info->crc_init;
-            crc_status = CRC_CAN_BE_CALCULATED;
-        }
     } else if (btle_pdu_type == BTLE_PDU_TYPE_BROADCASTISO) {
         broadcastiso_connection_info_t *broadcastiso_connection_info = NULL;
         guint32      seed_access_address = access_address & 0x0041ffff;
@@ -4450,32 +4468,25 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
     } else {
-        /* Unknown physical channel PDU type */
+        /* Unknown physical channel PDU type. Assume CRC size is 3 bytes */
         if (tvb_reported_length_remaining(tvb, offset) > 3) {
                 proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                offset += tvb_reported_length_remaining(tvb, offset) - 3;
+                length = tvb_reported_length_remaining(tvb, offset) - 3;
+                offset += length;
+        } else {
+            /* Length is unknown. */
+            length = 0;
         }
     }
 
-    /* BT spec Vol 6, Part B, Section 1.2: CRC is big endian and bits in byte are flipped */
-    packet_crc = reverse_bits_per_byte(tvb_get_ntoh24(tvb, offset));
-    sub_item = proto_tree_add_uint(btle_tree, hf_crc, tvb, offset, 3, packet_crc);
-    offset += 3;
-    if (crc_status == CRC_CAN_BE_CALCULATED) {
-        guint32 crc = btle_crc(tvb, length, crc_init);
-        crc_status = (packet_crc == crc) ? CRC_CORRECT : CRC_INCORRECT;
-    }
-    switch(crc_status) {
-    case CRC_INDETERMINATE:
-        expert_add_info(pinfo, sub_item, &ei_crc_cannot_be_determined);
-        break;
-    case CRC_INCORRECT:
-        expert_add_info(pinfo, sub_item, &ei_crc_incorrect);
-        break;
-    case CRC_CORRECT:
-    default:
-        break;
-    }
+    offset += dissect_crc(tvb,
+                          btle_tree,
+                          offset,
+                          pinfo,
+                          length,
+                          connection_info,
+                          btle_context,
+                          access_address);
 
     return offset;
 }
