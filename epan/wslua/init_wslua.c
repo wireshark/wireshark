@@ -1227,6 +1227,20 @@ static int lua_funnel_console_eval(const char *console_input,
         }
     }
 
+    // For any new Protos, register their ProtoFields and ProtoExperts with epan
+    lua_pushcfunction(L, Proto_commit);
+    lcode = lua_pcall(L, 0, 0, 0);
+    if (lcode != LUA_OK) {
+        /* Error initializing new ProtoFields */
+        if (error_hint)
+            *error_hint = ws_strdup_printf("error initialzing protocol fields: %s", lua_error_msg(lcode));
+        /* If we have an error message return it. */
+        if (error_ptr && !lua_isnil(L, -1)) {
+            *error_ptr = g_strdup(lua_tostring(L, -1));
+        }
+        return 1;
+    }
+
     // Maintain stack discipline
     if (lua_gettop(L) != curr_top) {
         ws_critical("Expected stack top == %d, have %d", curr_top, lua_gettop(L));

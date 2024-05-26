@@ -430,11 +430,61 @@ static int Proto_get_fields(lua_State* L) {
     return 1;
 }
 
+static bool Proto_append_ProtoField(Proto proto, ProtoField f) {
+
+    if (f->hfid != -2) {
+        // Already registered
+        return false;
+    }
+    hf_register_info hfri = { NULL, { NULL, NULL, FT_NONE, 0, NULL, 0, NULL, HFILL } };
+    int*   ettp = NULL;
+    ettp = &(f->ett);
+
+    hfri.p_id = &(f->hfid);
+    hfri.hfinfo.name = f->name;
+    hfri.hfinfo.abbrev = f->abbrev;
+    hfri.hfinfo.type = f->type;
+    hfri.hfinfo.display = f->base;
+    hfri.hfinfo.strings = VALS(f->vs);
+    hfri.hfinfo.bitmask = f->mask;
+    hfri.hfinfo.blurb = f->blob;
+
+    f->hfid = -1;
+    g_array_append_val(proto->hfa,hfri);
+    g_array_append_val(proto->etta,ettp);
+
+    return true;
+}
+
 static int Proto_set_fields(lua_State* L) {
     Proto proto = checkProto(L,1);
 #define FIELDS_TABLE 2
 #define NEW_TABLE 3
 #define NEW_FIELD 3
+
+    /*
+     * XXX - This is a "setter", but it really appends any ProtoFields to
+     * the Lua Table without removing any existing ones.
+     */
+
+    if (proto->hfa) {
+        /* This Proto's ProtoFields were already registered in Proto_commit.
+         * Deregister the existing array with epan so we can add new ones.
+         * (Appending to the GArray and registering only the new ones would
+         * have a use-after-free, for reasons mentioned in proto.c )
+         * XXX - What is the reason for waiting and registering all
+         * at once in Proto_commit instead of doing it here every time?
+         */
+        if (proto->hfa->len) {
+            proto_add_deregistered_data(g_array_free(proto->hfa,false));
+        } else {
+            g_array_free(proto->hfa,true);
+        }
+        /* No need for deferred deletion of subtree indexes */
+        g_array_free(proto->etta,true);
+        proto->hfa  = g_array_new(true,true,sizeof(hf_register_info));
+        proto->etta = g_array_new(true,true,sizeof(int*));
+    }
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
     lua_insert(L,FIELDS_TABLE);
@@ -442,6 +492,16 @@ static int Proto_set_fields(lua_State* L) {
     if( lua_istable(L,NEW_TABLE)) {
         for (lua_pushnil(L); lua_next(L, NEW_TABLE); ) {
             if (isProtoField(L,5)) {
+                if (proto->hfa) {
+                    ProtoField f = toProtoField(L,5);
+                    // XXX this will leak resources on error
+                    // If this continued and registered the field array, it
+                    // wouldn't leak. We could perhaps print a warning or even
+                    // err after registration.
+                    if (!Proto_append_ProtoField(proto, f)) {
+                        return luaL_error(L,"%s is already registered; fields can be registered only once", f->abbrev);
+                    }
+                }
                 /* luaL_ref returns a reference. lua_next will return not
                  * just occupied entries in the table, but also references
                  * used to store unused/deleted entries in the hash table
@@ -474,6 +534,16 @@ static int Proto_set_fields(lua_State* L) {
             }
         }
     } else if (isProtoField(L,NEW_FIELD)){
+        if (proto->hfa) {
+            ProtoField f = toProtoField(L,NEW_FIELD);
+            // XXX this will leak resources on error
+            // If this continued and registered the field array, it wouldn't
+            // leak. We could perhaps print a warning or even err after
+            // registration.
+            if (!Proto_append_ProtoField(proto, f)) {
+                return luaL_error(L,"%s is already registered; fields can be registered only once", f->abbrev);
+            }
+        }
         lua_pushvalue(L, NEW_FIELD);
         luaL_ref(L,FIELDS_TABLE);
 
@@ -481,7 +551,12 @@ static int Proto_set_fields(lua_State* L) {
         return luaL_error(L,"either a ProtoField or an array of protofields");
     }
 
-    /* XXX - I don't think this is necessary. */
+    if (proto->hfa && proto->hfa->len) {
+        /* register the proto fields */
+        proto_register_field_array(proto->hfid,&g_array_index(proto->hfa, hf_register_info, 0),proto->hfa->len);
+        proto_register_subtree_array(&g_array_index(proto->etta, int*, 0),proto->etta->len);
+    }
+
     lua_pushvalue(L, 3);
 
     return 1;
@@ -494,11 +569,49 @@ static int Proto_get_experts(lua_State* L) {
     return 1;
 }
 
+static bool Proto_append_ProtoExpert(Proto proto, ProtoExpert e) {
+
+    if (e->ids.ei != EI_INIT_EI || e->ids.hf != -2) {
+        return false;
+    }
+    ei_register_info eiri = { NULL, { NULL, 0, 0, NULL, EXPFILL } };
+
+    eiri.ids             = &(e->ids);
+    eiri.eiinfo.name     = e->abbrev;
+    eiri.eiinfo.group    = e->group;
+    eiri.eiinfo.severity = e->severity;
+    eiri.eiinfo.summary  = e->text;
+
+    e->ids.hf = -1;
+    g_array_append_val(proto->eia,eiri);
+
+    return true;
+}
+
 static int Proto_set_experts(lua_State* L) {
     Proto proto = checkProto(L,1);
 #define EI_TABLE 2
 #define NEW_TABLE 3
 #define NEW_FIELD 3
+
+    /*
+     * XXX - This is a "setter", but it really appends any ProtoExperts to
+     * the Lua Table without removing any existing ones.
+     */
+
+    if (proto->eia) {
+        /* This Proto's ProtoExperts were already registered in Proto_commit.
+         * Deregister the existing array with epan so we can add new ones.
+         * XXX - What is the reason for waiting and registering all at
+         * at once in Proto_commit instead of doing it here every time?
+         */
+        if (proto->eia && proto->eia->len) {
+            proto_add_deregistered_data(g_array_free(proto->eia,false));
+        } else {
+            g_array_free(proto->eia,true);
+        }
+        proto->eia  = g_array_new(true,true,sizeof(ei_register_info));
+    }
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
     lua_insert(L,EI_TABLE);
@@ -506,12 +619,26 @@ static int Proto_set_experts(lua_State* L) {
     if( lua_istable(L,NEW_TABLE)) {
         for (lua_pushnil(L); lua_next(L, NEW_TABLE); ) {
             if (isProtoExpert(L,5)) {
+                if (proto->eia) {
+                    ProtoExpert e = toProtoExpert(L, NEW_FIELD);
+
+                    if (!Proto_append_ProtoExpert(proto, e)) {
+                        return luaL_error(L,"%s is already registered; expert fields can be registered only once", e->abbrev);
+                    }
+                }
                 luaL_ref(L,EI_TABLE);
             } else if (! lua_isnil(L,5) ) {
                 return luaL_error(L,"only ProtoExperts should be in the table");
             }
         }
     } else if (isProtoExpert(L,NEW_FIELD)){
+        if (proto->eia) {
+            ProtoExpert e = toProtoExpert(L, NEW_FIELD);
+
+            if (!Proto_append_ProtoExpert(proto, e)) {
+                return luaL_error(L,"%s is already registered; expert fields can be registered only once", e->abbrev);
+            }
+        }
         lua_pushvalue(L, NEW_FIELD);
         luaL_ref(L,EI_TABLE);
 
@@ -724,15 +851,20 @@ int Proto_commit(lua_State* L) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
 
     /* for each registered Proto protocol do... */
-    for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 2)) {
+    for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
         /* lua_next() pop'ed the nil, pushed a table entry key at index=2, with value at index=3.
            In our case, the key is the Proto's name, and the value is the Proto object.
-           At next iteration, the value (Proto object) and ProtoExperts table will be pop'ed due
-           to lua_pop(L, 2), and when lua_next() returns 0 (no more table entries), it will have
+           At next iteration, the value (Proto object) will be pop'ed due
+           to lua_pop(L, 1), and when lua_next() returns 0 (no more table entries), it will have
            pop'ed the final key itself, leaving just the protocols_table_ref table on the stack.
          */
         Proto proto = checkProto(L,3);
         int*   ettp = NULL;
+
+        if (proto->hfa) {
+            /* This proto's ProtoFields were already registered. */
+            continue;
+        }
 
         proto->hfa  = g_array_new(true,true,sizeof(hf_register_info));
         proto->etta = g_array_new(true,true,sizeof(int*));
@@ -751,26 +883,14 @@ int Proto_commit(lua_State* L) {
                 continue;
             }
             ProtoField f = checkProtoField(L,6);
-            hf_register_info hfri = { NULL, { NULL, NULL, FT_NONE, 0, NULL, 0, NULL, HFILL } };
-            ettp = &(f->ett);
 
-            hfri.p_id = &(f->hfid);
-            hfri.hfinfo.name = f->name;
-            hfri.hfinfo.abbrev = f->abbrev;
-            hfri.hfinfo.type = f->type;
-            hfri.hfinfo.display = f->base;
-            hfri.hfinfo.strings = VALS(f->vs);
-            hfri.hfinfo.bitmask = f->mask;
-            hfri.hfinfo.blurb = f->blob;
-
-            // XXX this will leak resources.
-            if (f->hfid != -2) {
+            // XXX this will leak resources on error
+            // If this continued and registered the field array, it wouldn't
+            // leak. We could perhaps print a warning or even err after
+            // registration.
+            if (!Proto_append_ProtoField(proto, f)) {
                 return luaL_error(L,"%s is already registered; fields can be registered only once", f->abbrev);
             }
-
-            f->hfid = -1;
-            g_array_append_val(proto->hfa,hfri);
-            g_array_append_val(proto->etta,ettp);
         }
 
         /* register the proto fields */
@@ -791,25 +911,16 @@ int Proto_commit(lua_State* L) {
                 continue;
             }
             ProtoExpert e = checkProtoExpert(L,6);
-            ei_register_info eiri = { NULL, { NULL, 0, 0, NULL, EXPFILL } };
-
-            eiri.ids             = &(e->ids);
-            eiri.eiinfo.name     = e->abbrev;
-            eiri.eiinfo.group    = e->group;
-            eiri.eiinfo.severity = e->severity;
-            eiri.eiinfo.summary  = e->text;
-
-            if (e->ids.ei != EI_INIT_EI || e->ids.hf != -2) {
+            if (!Proto_append_ProtoExpert(proto, e)) {
                 return luaL_error(L,"%s is already registered; expert fields can be registered only once", e->abbrev);
             }
-
-            e->ids.hf = -1;
-            g_array_append_val(proto->eia,eiri);
         }
 
         expert_register_field_array(proto->expert_module, (ei_register_info*)(void*)proto->eia->data, proto->eia->len);
 
-        /* Proto object and ProtoFields table will be pop'ed by lua_pop(L, 2) in for statement */
+        lua_pop(L,1); /* pop the table of ProtoExperts */
+
+        /* Proto object will be pop'ed by lua_pop(L, 1) in for statement */
     }
 
     lua_pop(L,1); /* pop the protocols_table_ref */
