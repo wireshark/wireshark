@@ -396,7 +396,7 @@ char* wslua_get_actual_filename(const char* fname) {
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
     /*
     Loads a Lua file and compiles it into a Lua chunk, similar to the standard
-    https://www.lua.org/manual/5.1/manual.html#pdf-loadfile[loadfile]
+    https://www.lua.org/manual/5.4/manual.html#pdf-loadfile[loadfile]
     but searches additional directories.
     The search order is the current directory, followed by the user's
     https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration]
@@ -443,7 +443,7 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 WSLUA_FUNCTION wslua_dofile(lua_State* L) {
     /*
     Loads a Lua file and executes it as a Lua chunk, similar to the standard
-    https://www.lua.org/manual/5.1/manual.html#pdf-dofile[dofile]
+    https://www.lua.org/manual/5.4/manual.html#pdf-dofile[dofile]
     but searches additional directories.
     The search order is the current directory, followed by the user's
     https://www.wireshark.org/docs/wsug_html_chunked/ChAppFilesConfigurationSection.html[personal configuration]
