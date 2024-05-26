@@ -572,6 +572,9 @@ WSLUA_META Proto_meta[] = {
 int Proto_register(lua_State* L) {
     WSLUA_REGISTER_CLASS_WITH_ATTRS(Proto);
 
+    if (outstanding_FuncSavers != NULL) {
+        g_ptr_array_unref(outstanding_FuncSavers);
+    }
     outstanding_FuncSavers = g_ptr_array_new();
 
     lua_newtable(L);

@@ -1169,6 +1169,9 @@ int TreeItem_register(lua_State *L) {
     int* etts[] = { &wslua_ett };
     wslua_ett = -1; /* Reset to support reload Lua plugins */
     WSLUA_REGISTER_CLASS_WITH_ATTRS(TreeItem);
+    if (outstanding_TreeItem != NULL) {
+        g_ptr_array_unref(outstanding_TreeItem);
+    }
     outstanding_TreeItem = g_ptr_array_new();
     proto_register_subtree_array(etts,1);
     return 0;

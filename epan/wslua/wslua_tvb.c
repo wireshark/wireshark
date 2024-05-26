@@ -321,6 +321,9 @@ WSLUA_META Tvb_meta[] = {
 
 int Tvb_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Tvb);
+    if (outstanding_Tvb != NULL) {
+        g_ptr_array_unref(outstanding_Tvb);
+    }
     outstanding_Tvb = g_ptr_array_new();
     return 0;
 }
@@ -1475,6 +1478,9 @@ WSLUA_META TvbRange_meta[] = {
 };
 
 int TvbRange_register(lua_State* L) {
+    if (outstanding_TvbRange != NULL) {
+        g_ptr_array_unref(outstanding_TvbRange);
+    }
     outstanding_TvbRange = g_ptr_array_new();
     WSLUA_REGISTER_CLASS(TvbRange);
     return 0;

@@ -766,9 +766,15 @@ WSLUA_META Field_meta[] = {
 
 int Field_register(lua_State* L) {
 
+    if (wanted_fields != NULL) {
+        g_ptr_array_unref(wanted_fields);
+    }
     wanted_fields = g_ptr_array_new();
 
     WSLUA_REGISTER_CLASS_WITH_ATTRS(Field);
+    if (outstanding_FieldInfo != NULL) {
+        g_ptr_array_unref(outstanding_FieldInfo);
+    }
     outstanding_FieldInfo = g_ptr_array_new();
 
     return 0;

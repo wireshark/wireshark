@@ -238,6 +238,9 @@ WSLUA_META Column_meta[] = {
 
 int Column_register(lua_State *L) {
     WSLUA_REGISTER_CLASS(Column);
+    if (outstanding_Column != NULL) {
+        g_ptr_array_unref(outstanding_Column);
+    }
     outstanding_Column = g_ptr_array_new();
     return 0;
 }
@@ -415,6 +418,9 @@ WSLUA_META Columns_meta[] = {
 
 int Columns_register(lua_State *L) {
     WSLUA_REGISTER_META(Columns);
+    if (outstanding_Columns != NULL) {
+        g_ptr_array_unref(outstanding_Columns);
+    }
     outstanding_Columns = g_ptr_array_new();
     return 0;
 }
