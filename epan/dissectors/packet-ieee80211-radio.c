@@ -91,6 +91,11 @@ static int hf_wlan_radio_ifs;
 static int hf_wlan_radio_start_tsf;
 static int hf_wlan_radio_end_tsf;
 static int hf_wlan_zero_length_psdu_type;
+static int hf_wlan_radio_11be_user;
+static int hf_wlan_radio_11be_sta_id;
+static int hf_wlan_radio_11be_mcs;
+static int hf_wlan_radio_11be_nsts;
+
 
 static expert_field ei_wlan_radio_assumed_short_preamble;
 static expert_field ei_wlan_radio_assumed_non_greenfield;
@@ -255,13 +260,14 @@ static const int ieee80211_vht_bw2rate_index[] = {
   /* 160Mhz total */ 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-struct mcs_vht_info {
+struct mcs_info {
   const char *modulation;
   const char *coding_rate;
   float data_bits_per_symbol; /* assuming 20MHz / 52 subcarriers */
 };
 
-static const struct mcs_vht_info ieee80211_vhtinfo[MAX_MCS_VHT_INDEX+1] = {
+#define EHT_MAX_MCS   14
+static const struct mcs_info ieee80211_mcsinfo[EHT_MAX_MCS] = {
   /* MCS  0  */
   { "BPSK",  "1/2", 26 },
   /* MCS  1  */
@@ -281,7 +287,15 @@ static const struct mcs_vht_info ieee80211_vhtinfo[MAX_MCS_VHT_INDEX+1] = {
   /* MCS  8  */
   { "256-QAM", "3/4", 312 },
   /* MCS  9  */
-  { "256-QAM", "5/6", (float)(1040/3.0) }
+  { "256-QAM", "5/6", (float)(1040/3.0) },
+  /* MCS  10  */
+  { "1024-QAM", "3/4", 390 },
+  /* MCS  11  */
+  { "1024-QAM", "5/6", (float)(1300/3.0) },
+  /* MCS  12  */
+  { "4096-QAM", "3/4", 468 },
+  /* MCS  13  */
+  { "4096-QAM", "5/6", 520 }
 };
 
 /* map a bandwidth index to the number of data subcarriers */
@@ -382,7 +396,7 @@ static const struct mcs_vht_valid ieee80211_vhtvalid[MAX_MCS_VHT_INDEX+1] = {
  */
 static float ieee80211_vhtrate(int mcs_index, guint bandwidth_index, gboolean short_gi)
 {
-    return (float)(ieee80211_vhtinfo[mcs_index].data_bits_per_symbol * subcarriers[bandwidth_index] / (short_gi ? 3.6 : 4.0) / 52.0);
+    return (float)(ieee80211_mcsinfo[mcs_index].data_bits_per_symbol * subcarriers[bandwidth_index] / (short_gi ? 3.6 : 4.0) / 52.0);
 }
 
 /*
@@ -514,6 +528,7 @@ static float ieee80211_he_ofdm_rate(guint nsts, guint mcs, guint bw, guint gi)
   return rate;
 }
 
+
 /*
  * HE MU OFDMA MCS rate table converted from http://mcsindex.com/
  * indexed by (NSTS,MCS,RU,GI)
@@ -641,10 +656,53 @@ static float ieee80211_he_mu_ofdma_rate(guint nsts, guint mcs, guint ru, guint g
   return rate;
 }
 
+/*
+ * EHT MCS rate table converted from http://mcsindex.net
+ * indexed by (MCS,BW,GI)
+ * Covering only upto 4x996-tone-RU/320MHz, Additional RUs and Punctured modes not added yet.
+ * For higher # of spatial streams, the rate will be computed based on the 1SS rates below.
+ * The resultant error in rate computation remains within a maximum of +/- 0.5 Mbps from corresponding static table rates.
+ */
+#define EHT_MAX_NSTS  8
+#define EHT_MAX_BW    IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994 + 1
+#define EHT_MAX_GI    3
+static float eht_mcs_tab[EHT_MAX_MCS][EHT_MAX_BW][EHT_MAX_GI] = {
+      /*    ru-26                  |     ru-52                  |     ru-106                 |     ru-242 / 20 MHz        |    ru-484 / 40 MHz         |    ru-996 / 80 MHz         |     2 * ru-996 / 160 MHz      |    4 * ru-996 / 320 MHz  */
+      {{    0.9f,    0.8f,    0.8f},{    1.8f,    1.7f,    1.5f},{    3.8f,    3.5f,    3.2f},{    8.6f,    8.1f,    7.3f},{   17.2f,   16.3f,   14.6f},{   36.0f,   34.0f,   30.6f},{    72.1f,    68.1f,    61.3f},{   144.1f,   136.1f,   122.5f}},
+      {{    1.8f,    1.7f,    1.5f},{    3.5f,    3.3f,    3.0f},{    7.5f,    7.1f,    6.4f},{   17.2f,   16.3f,   14.6f},{   34.4f,   32.5f,   29.3f},{   72.1f,   68.1f,   61.3f},{   144.1f,   136.1f,   122.5f},{   288.2f,   272.2f,   245.0f}},
+      {{    2.6f,    2.5f,    2.3f},{    5.3f,    5.0f,    4.5f},{   11.3f,   10.6f,    9.6f},{   25.8f,   24.4f,   21.9f},{   51.6f,   48.8f,   43.9f},{  108.1f,  102.1f,   91.9f},{   216.2f,   204.2f,   183.8f},{   432.4f,   408.3f,   367.5f}},
+      {{    3.5f,    3.3f,    3.0f},{    7.1f,    6.7f,    6.0f},{   15.0f,   14.2f,   12.8f},{   34.4f,   32.5f,   29.3f},{   68.8f,   65.0f,   58.5f},{  144.1f,  136.1f,  122.5f},{   288.2f,   272.2f,   245.0f},{   576.5f,   544.4f,   490.0f}},
+      {{    5.3f,    5.0f,    4.5f},{   10.6f,   10.0f,    9.0f},{   22.5f,   21.3f,   19.1f},{   51.6f,   48.8f,   43.9f},{  103.2f,   97.5f,   87.8f},{  216.2f,  204.2f,  183.8f},{   432.4f,   408.3f,   367.5f},{   864.7f,   816.7f,   735.0f}},
+      {{    7.1f,    6.7f,    6.0f},{   14.1f,   13.3f,   12.0f},{   30.0f,   28.3f,   25.5f},{   68.8f,   65.0f,   58.5f},{  137.6f,  130.0f,  117.0f},{  288.2f,  272.2f,  245.0f},{   576.5f,   544.4f,   490.0f},{  1152.9f,  1088.9f,   980.0f}},
+      {{    7.9f,    7.5f,    6.8f},{   15.9f,   15.0f,   13.5f},{   33.8f,   31.9f,   28.7f},{   77.4f,   73.1f,   65.8f},{  154.9f,  146.3f,  131.6f},{  324.3f,  306.3f,  275.6f},{   648.5f,   612.5f,   551.3f},{  1297.1f,  1225.0f,  1102.5f}},
+      {{    8.8f,    8.3f,    7.5f},{   17.6f,   16.7f,   15.0f},{   37.5f,   35.4f,   31.9f},{   86.0f,   81.3f,   73.1f},{  172.1f,  162.5f,  146.3f},{  360.3f,  340.3f,  306.3f},{   720.6f,   680.6f,   612.5f},{  1441.2f,  1361.1f,  1225.0f}},
+      {{   10.6f,   10.0f,    9.0f},{   21.2f,   20.0f,   18.0f},{   45.0f,   42.5f,   38.3f},{  103.2f,   97.5f,   87.8f},{  206.5f,  195.0f,  175.5f},{  432.4f,  408.3f,  367.5f},{   864.7f,   816.7f,   735.0f},{  1729.4f,  1633.3f,  1470.0f}},
+      {{   11.8f,   11.1f,   10.0f},{   23.5f,   22.2f,   20.0f},{   50.0f,   47.2f,   42.5f},{  114.7f,  108.3f,   97.5f},{  229.4f,  216.7f,  195.0f},{  480.4f,  453.7f,  408.3f},{   960.8f,   907.4f,   816.7f},{  1921.6f,  1814.8f,  1633.3f}},
+      {{   13.2f,   12.5f,   11.3f},{   26.5f,   25.0f,   22.5f},{   56.3f,   53.1f,   47.8f},{  129.0f,  121.9f,  109.7f},{  258.1f,  243.8f,  219.4f},{  540.4f,  510.4f,  459.4f},{  1080.9f,  1020.8f,   918.8f},{  2161.8f,  2041.7f,  1837.5f}},
+      {{   14.7f,   13.9f,   12.5f},{   29.4f,   27.8f,   25.0f},{   62.5f,   59.0f,   53.1f},{  143.4f,  135.4f,  121.9f},{  286.8f,  270.8f,  243.8f},{  600.5f,  567.1f,  510.4f},{  1201.0f,  1134.3f,  1020.8f},{  2402.0f,  2268.5f,  2041.7f}},
+      {{   15.9f,   15.0f,   13.5f},{   31.8f,   30.0f,   27.0f},{   67.5f,   63.8f,   57.4f},{  154.9f,  146.3f,  131.6f},{  309.7f,  292.5f,  263.3f},{  648.5f,  612.5f,  551.3f},{  1297.1f,  1225.0f,  1102.5f},{  2594.1f,  2450.0f,  2205.0f}},
+      {{   17.6f,   16.7f,   15.0f},{   35.3f,   33.3f,   30.0f},{   75.0f,   70.8f,   63.8f},{  172.1f,  162.5f,  146.3f},{  344.1f,  325.0f,  292.5f},{  720.6f,  680.6f,  612.5f},{  1441.2f,  1361.1f,  1225.0f},{  2882.4f,  2722.2f,  2450.0f}}
+};
+
+
+/*
+ * Calculates 802.11be EHT  data rate corresponding to a given 802.11be MCS index,
+ * ru-size/bandwidth, guard interval and number of spatial streams.
+ */
+static float ieee80211_eht_rate(guint nsts, guint mcs, guint bw, guint gi)
+{
+  float rate=0.0;
+  if ( ((nsts-1) < EHT_MAX_NSTS) && (mcs < EHT_MAX_MCS) && (bw < EHT_MAX_BW) && (gi < EHT_MAX_GI) ) {
+    rate = eht_mcs_tab[mcs][bw][gi] * nsts;
+  }
+  return rate;
+}
+
 static gint ett_wlan_radio;
 static gint ett_wlan_radio_11ac_user;
 static gint ett_wlan_radio_duration;
 static gint ett_wlan_radio_aggregate;
+static gint ett_wlan_radio_11be_user;
 
 /* previous frame details, for aggregate detection */
 struct previous_frame_info {
@@ -1031,8 +1089,8 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                 proto_item_append_text(it, " (invalid)");
               } else {
                 proto_item_append_text(it, " (%s %s)",
-                  ieee80211_vhtinfo[info_ac->mcs[i]].modulation,
-                  ieee80211_vhtinfo[info_ac->mcs[i]].coding_rate);
+                  ieee80211_mcsinfo[info_ac->mcs[i]].modulation,
+                  ieee80211_mcsinfo[info_ac->mcs[i]].coding_rate);
               }
 
               proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nss, tvb, 0, 0, info_ac->nss[i]);
@@ -1092,6 +1150,69 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
           }
         }
       }
+      break;
+      case PHDR_802_11_PHY_11BE:
+      {
+        struct ieee_802_11be *info_11be = &phy_info->info_11be;
+        int i;
+        can_calculate_rate = true;
+        /*for each user*/
+        for (i = 0; i < info_11be->num_users; i++) {
+          guint nsts = info_11be->user[i].nsts;;
+          guint bw_idx = 0;
+          /* Do we have all the fields needed to compute rate ?*/
+          if (!info_11be->has_gi || !info_11be->user[i].nsts_known || !nsts)
+          {
+            can_calculate_rate = false;
+          }
+          if (!info_11be->has_bandwidth && (!info_11be->has_ru_mru_size ||
+               info_11be->has_ru_mru_size > IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994)) {
+            can_calculate_rate = false;
+          }
+
+          if (info_11be->has_bandwidth) {
+            /* 20,40,80,160 and 320MHz overlap with mcs table index for ru-242 and above.
+             * So add the offset.
+             * Punctured modes not considered yet. */
+            bw_idx = info_11be->bandwidth + IEEE80211_RADIOTAP_EHT_RU_242;
+          } else {
+            bw_idx = info_11be->ru_mru_size;
+          }
+          proto_item *it;
+          proto_tree *user_tree;
+
+          it = proto_tree_add_item(radio_tree, hf_wlan_radio_11be_user, tvb, 0, 0, ENC_NA);
+          proto_item_append_text(it, " %d: MCS %u", i, info_11be->user[i].mcs);
+          user_tree = proto_item_add_subtree(it, ett_wlan_radio_11be_user);
+
+          it = proto_tree_add_uint(user_tree, hf_wlan_radio_11be_mcs, tvb, 0, 0,
+                  info_11be->user[i].mcs);
+          if (info_11be->user[i].mcs > EHT_MAX_MCS) {
+            proto_item_append_text(it, " (invalid)");
+          } else {
+            proto_item_append_text(it, " (%s %s)",
+              ieee80211_mcsinfo[info_11be->user[i].mcs].modulation,
+              ieee80211_mcsinfo[info_11be->user[i].mcs].coding_rate);
+          }
+
+          proto_tree_add_uint(user_tree, hf_wlan_radio_11be_nsts, tvb, 0, 0, nsts);
+
+          /*
+            * If we can calculate the data rate for this user, do so.
+            */
+          if (can_calculate_rate && info_11be->user[i].mcs <= EHT_MAX_MCS &&
+              nsts <= EHT_MAX_NSTS) {
+            data_rate = ieee80211_eht_rate(nsts, info_11be->user[i].mcs, bw_idx, info_11be->gi);
+            if (data_rate != 0.0f) {
+              //have_data_rate = TRUE;
+              proto_tree_add_float_format_value(user_tree, hf_wlan_radio_data_rate, tvb, 0, 0,
+                        data_rate,
+                        "%.1f Mb/s",
+                        data_rate);
+            }
+          }
+        } // for (i = 0; i < info_11be->num_users; i++)
+      } // case PHDR_802_11_PHY_11BE:
       break;
     }
   }
@@ -1659,6 +1780,22 @@ void proto_register_ieee80211_radio(void)
      {"Partial AID", "wlan_radio.11ac.paid", FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_wlan_radio_11be_user,
+     {"User", "wlan_radio.11be.user", FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_11be_sta_id,
+     {"Sta ID", "wlan_radio.11be.sta_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Station ID", HFILL }},
+
+    {&hf_wlan_radio_11be_nsts,
+     {"Space-time streams", "wlan_radio.11be.nsts", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Number of Space-time streams", HFILL }},
+
+    {&hf_wlan_radio_11be_mcs,
+     {"MCS index", "wlan_radio.11be.mcs", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Modulation and Coding Scheme index", HFILL }},
+
     {&hf_wlan_radio_data_rate,
      {"Data rate", "wlan_radio.data_rate", FT_FLOAT, BASE_NONE, NULL, 0,
       "Speed at which this frame was sent/received", HFILL }},
@@ -1758,7 +1895,8 @@ void proto_register_ieee80211_radio(void)
     &ett_wlan_radio,
     &ett_wlan_radio_11ac_user,
     &ett_wlan_radio_duration,
-    &ett_wlan_radio_aggregate
+    &ett_wlan_radio_aggregate,
+    &ett_wlan_radio_11be_user,
   };
 
   static ei_register_info ei[] = {

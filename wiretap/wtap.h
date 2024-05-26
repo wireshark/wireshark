@@ -764,6 +764,41 @@ struct ieee_802_11ax {
     uint8_t  gi:2;           /* Guard Interval */
 };
 
+/*
+ * 802.11be (EHT).
+ */
+struct ieee_802_11be_user_info {
+    unsigned sta_id_known:1;
+    unsigned mcs_known:1;
+    unsigned coding_known:1;
+    unsigned rsv_known:1;
+    unsigned nsts_known:1;
+    unsigned bf_known:1;
+    unsigned spatial_config_known:1;
+    unsigned data_for_this_user:1;
+    unsigned sta_id:11;
+    unsigned ldpc_coding:1;
+    unsigned mcs:4;
+    unsigned nsts:4;
+    unsigned rsv:1;
+    unsigned beamform:1;
+    unsigned rsv2:2;
+};
+
+struct ieee_802_11be {
+    /* Which of this information is present? */
+    unsigned has_ru_mru_size:1;
+    unsigned has_gi:1;
+    unsigned has_bandwidth:1;
+
+    uint8_t  bandwidth;
+    uint8_t  ru_mru_size:4;  /* RU/MRU allocation */
+    uint8_t  gi:2;           /* Guard Interval */
+    uint8_t  num_users;
+    struct ieee_802_11be_user_info user[4]; /* Adding info for only upto 4 users */
+};
+
+
 union ieee_802_11_phy_info {
     struct ieee_802_11_fhss info_11_fhss;
     struct ieee_802_11b info_11b;
@@ -773,6 +808,7 @@ union ieee_802_11_phy_info {
     struct ieee_802_11ac info_11ac;
     struct ieee_802_11ad info_11ad;
     struct ieee_802_11ax info_11ax;
+    struct ieee_802_11be info_11be;
 };
 
 struct ieee_802_11_phdr {

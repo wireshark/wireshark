@@ -393,6 +393,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       /* Initialize bandwidth as 20Mhz, overwrite later based on extflags, if needed*/
       int bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_20;
       int bandwidth_he  = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_20;
+      int bandwidth_eht  = IEEE80211_RADIOTAP_USIG_BW_20;
 
       proto_tree_add_item(peekremote_tree, hf_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
@@ -404,35 +405,57 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (extflags & EXT_FLAG_40_MHZ) {
         bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_40;
         bandwidth_he = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_40;
+        bandwidth_eht = IEEE80211_RADIOTAP_USIG_BW_40;
       } else if (extflags & EXT_FLAG_80MHZ) {
         bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_80;
         bandwidth_he = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_80;
+        bandwidth_eht = IEEE80211_RADIOTAP_USIG_BW_80;
       } else if (extflags & EXT_FLAG_160MHZ) {
         bandwidth_vht = IEEE80211_RADIOTAP_VHT_BW_160;
         bandwidth_he = IEEE80211_RADIOTAP_HE_DATA_BANDWIDTH_RU_160;
+        bandwidth_eht = IEEE80211_RADIOTAP_USIG_BW_160;
+      } else if (extflags & EXT_FLAG_320MHZ) {
+         bandwidth_eht = IEEE80211_RADIOTAP_USIG_BW_320_1;
       }
 
       if (extflags & EXT_FLAG_EHTFLAG) {
         proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
         phdr.phy = PHDR_802_11_PHY_11BE;
+        if (extflags & EXT_FLAGS_GI) {
+        /* Quarter GI  : 0.8uS
+            Half GI    : 1.6uS
+            Full GI    : 3.2uS */
+          phdr.phy_info.info_11be.has_gi = TRUE;
+          phdr.phy_info.info_11be.gi = ((extflags & EXT_FLAG_FULL_GI) != 0) ? 2 :
+                                        ((extflags & EXT_FLAG_HALF_GI) != 0) ? 1 :
+                                        0;
+        }
+        phdr.phy_info.info_11be.has_bandwidth = TRUE;
+        phdr.phy_info.info_11be.bandwidth     = bandwidth_eht;
+        /* Peekremote does not have per-user fields, so fill data as if it is SU and for user0 */
+        phdr.phy_info.info_11be.num_users = 1;
+        phdr.phy_info.info_11be.user[0].mcs_known  = true;
+        phdr.phy_info.info_11be.user[0].mcs   = mcs_index;
+        phdr.phy_info.info_11be.user[0].nsts_known = true;
+        phdr.phy_info.info_11be.user[0].nsts  = nss;
 
       } else if (extflags & EXT_FLAG_HEFLAG) {
         proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
         phdr.phy = PHDR_802_11_PHY_11AX;
-          if (extflags & EXT_FLAGS_GI) {
-          /* Quarter GI : 0.8uS
-             Half GI    : 1.6uS
-             Full GI    : 3.2uS */
-            phdr.phy_info.info_11ax.has_gi = TRUE;
-            phdr.phy_info.info_11ax.gi = ((extflags & EXT_FLAG_FULL_GI) != 0) ? 2 :
-                                          ((extflags & EXT_FLAG_HALF_GI) != 0) ? 1 :
-                                          0;
-          }
-          phdr.phy_info.info_11ax.has_bwru = TRUE;
-				  phdr.phy_info.info_11ax.bwru = bandwidth_he;
-          phdr.phy_info.info_11ax.has_mcs_index = TRUE;
-          phdr.phy_info.info_11ax.mcs = mcs_index;
-          phdr.phy_info.info_11ax.nsts = nss;
+        if (extflags & EXT_FLAGS_GI) {
+        /* Quarter GI  : 0.8uS
+            Half GI    : 1.6uS
+            Full GI    : 3.2uS */
+          phdr.phy_info.info_11ax.has_gi = TRUE;
+          phdr.phy_info.info_11ax.gi = ((extflags & EXT_FLAG_FULL_GI) != 0) ? 2 :
+                                        ((extflags & EXT_FLAG_HALF_GI) != 0) ? 1 :
+                                        0;
+        }
+        phdr.phy_info.info_11ax.has_bwru = TRUE;
+        phdr.phy_info.info_11ax.bwru = bandwidth_he;
+        phdr.phy_info.info_11ax.has_mcs_index = TRUE;
+        phdr.phy_info.info_11ax.mcs = mcs_index;
+        phdr.phy_info.info_11ax.nsts = nss;
 
       } else {
         if (extflags & EXT_FLAG_802_11ac) {

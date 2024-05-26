@@ -547,6 +547,15 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_USIG_BSS_COLOR                       0x01F80000
 #define IEEE80211_RADIOTAP_USIG_TXOP                            0xFE000000
 
+/* IEEE80211_RADIOTAP_USIG_BW encoding*/
+#define IEEE80211_RADIOTAP_USIG_BW_SHIFT                        27
+#define IEEE80211_RADIOTAP_USIG_BW_20                           0x0
+#define IEEE80211_RADIOTAP_USIG_BW_40                           0x1
+#define IEEE80211_RADIOTAP_USIG_BW_80                           0x2
+#define IEEE80211_RADIOTAP_USIG_BW_160                          0x3
+#define IEEE80211_RADIOTAP_USIG_BW_320_1                        0x4
+#define IEEE80211_RADIOTAP_USIG_BW_320_2                        0x5
+
 #define IEEE80211_RADIOTAP_USIG_1_B20_B24                       0x0000001F
 #define IEEE80211_RADIOTAP_USIG_1_B25                           0x00000020
 #define IEEE80211_RADIOTAP_USIG_2_B0_B1                         0x000000C0
@@ -590,5 +599,32 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_EHT_TB_RU_ALLOCATION_KNOWN           0x01000000
 #define IEEE80211_RADIOTAP_EHT_PRIMARY_80MHZ_CHANNEL_POS_KNOWN  0x02000000
 #define IEEE80211_RADIOTAP_EHT_RESERVED_FC                      0xFC000000
+
+/* EHT Data 0*/
+#define IEEE80211_RADIOTAP_EHT_GI_MASK                          0x00000180
+#define IEEE80211_RADIOTAP_EHT_GI_SHIFT                         7
+
+/* EHT Data 1*/
+#define IEEE80211_RADIOTAP_EHT_RU_MRU_SIZE_MASK                 0x0000001F
+#define IEEE80211_RADIOTAP_EHT_RU_MRU_SIZE_SHIFT                0
+
+/* IEEE80211_RADIOTAP_EHT_RU_MRU_SIZE encoding*/
+#define IEEE80211_RADIOTAP_EHT_RU_26                            0
+#define IEEE80211_RADIOTAP_EHT_RU_52                            0x1
+#define IEEE80211_RADIOTAP_EHT_RU_106                           0x2
+#define IEEE80211_RADIOTAP_EHT_RU_242                           0x3
+#define IEEE80211_RADIOTAP_EHT_RU_484                           0x4
+#define IEEE80211_RADIOTAP_EHT_RU_996                           0x5
+#define IEEE80211_RADIOTAP_EHT_RU_2_TIMES_996                   0x6
+#define IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994                   0x7
+#define IEEE80211_RADIOTAP_EHT_RU_52_PLUS_26                    0x8
+#define IEEE80211_RADIOTAP_EHT_RU_106_PLUS_26                   0x9
+/* Punctured modes, additional RUs*/
+#define IEEE80211_RADIOTAP_EHT_RU_484_PLUS_242                  0xA
+#define IEEE80211_RADIOTAP_EHT_RU_996_PLUS_484                  0xB
+#define IEEE80211_RADIOTAP_EHT_RU_996_PLUS_484_242              0xC
+#define IEEE80211_RADIOTAP_EHT_RU_2_TIMES_996_PLUS_484          0xD
+#define IEEE80211_RADIOTAP_EHT_RU_3_TIMES_996                   0xE
+#define IEEE80211_RADIOTAP_EHT_RU_3_TIMES_996_PLUS_484          0xF
 
 #endif				/* IEEE80211_RADIOTAP_H */

@@ -575,6 +575,27 @@ static int hf_radiotap_eht_ui_beamforming_not_known;
 static int hf_radiotap_eht_ui_spatial_config;
 static int hf_radiotap_eht_ui_rsvd1;
 
+
+static const value_string eht_data_ru_mru_size_vals[] = {
+	{ IEEE80211_RADIOTAP_EHT_RU_26, "26-tone RU" },
+	{ IEEE80211_RADIOTAP_EHT_RU_52, "52-tone RU" },
+	{ IEEE80211_RADIOTAP_EHT_RU_106, "106-tone RU" },
+	{ IEEE80211_RADIOTAP_EHT_RU_242, "242-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_484, "484-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_996, "996-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_2_TIMES_996, "2x996-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994, "4x996-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_52_PLUS_26, "52+26-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_106_PLUS_26, "106+26-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_484_PLUS_242, "484+242-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_996_PLUS_484, "996+484-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_996_PLUS_484_242, "996+484+242-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_2_TIMES_996_PLUS_484, "2x996+484-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_3_TIMES_996, "3x996-tone RU"},
+	{ IEEE80211_RADIOTAP_EHT_RU_3_TIMES_996_PLUS_484, "3x996+484-tone RU"},
+	{ 0,  NULL}
+};
+
 /* S1G */
 static int hf_radiotap_s1g_known;
 static int hf_radiotap_s1g_s1g_ppdu_format_known;
@@ -2030,6 +2051,9 @@ dissect_radiotap_u_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	guint8 ul_dl = 0;
 	guint8 type_and_comp = 0;
 	guint32 mask;
+	gboolean bw_known = FALSE;
+	struct ieee_802_11be *info_11be = &phdr->phy_info.info_11be;
+	guint32 usig_common = tvb_get_letohs(tvb, offset);
 
 	phdr->phy = PHDR_802_11_PHY_11BE;
 
@@ -2044,6 +2068,12 @@ dissect_radiotap_u_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			       hf_radiotap_u_sig_common,
 			       ett_radiotap_u_sig_common,
 			       usig_common_headers, ENC_LITTLE_ENDIAN);
+
+	bw_known = usig_common & IEEE80211_RADIOTAP_USIG_BW_KNOWN;
+	if (bw_known) {
+		info_11be->has_bandwidth = true;
+		info_11be->bandwidth = (usig_common & IEEE80211_RADIOTAP_USIG_BW) >> IEEE80211_RADIOTAP_USIG_BW_SHIFT;
+	}
 	offset += 4;
 
 	/*
@@ -2177,8 +2207,17 @@ static int * const eht_known_headers[] = {
 #define EHT_USER_INFO_BEAMFORMING_KNOWN           0x20
 #define EHT_USER_INFO_SPATIAL_CONFIGURATION_KNOWN 0x40
 
+#define EHT_USER_INFO_STA_ID_MASK                0x0007FF00
+#define EHT_USER_INFO_STA_ID_SHIFT               8
+
+#define EHT_USER_INFO_MCS_MASK                   0x00F00000
+#define EHT_USER_INFO_MCS_SHIFT                  20
+
+#define EHT_USER_INFO_NSS_MASK                   0x0F000000
+#define EHT_USER_INFO_NSS_SHIFT                  24
+
 static void
-dissect_eht_user_info(proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_eht_user_info(proto_tree *tree, tvbuff_t *tvb, int offset, struct ieee_802_11be *info_11be)
 {
 	proto_item *item = NULL;
 	proto_tree *sub_tree = NULL;
@@ -2207,6 +2246,11 @@ dissect_eht_user_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 	if (known & EHT_USER_INFO_STA_ID_KNOWN) {
 		proto_tree_add_item(sub_tree, hf_radiotap_eht_ui_sta_id, tvb,
 			    offset, 4, ENC_LITTLE_ENDIAN);
+		if (info_11be->num_users < 4) {
+			info_11be->user[info_11be->num_users].sta_id_known = true;
+			info_11be->user[info_11be->num_users].sta_id =
+							(known & EHT_USER_INFO_STA_ID_MASK) >> EHT_USER_INFO_STA_ID_SHIFT;
+		}
 	} else {
 		item = proto_tree_add_item(sub_tree,
 				hf_radiotap_eht_ui_sta_id_not_known, tvb,
@@ -2225,6 +2269,11 @@ dissect_eht_user_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 	if (known & EHT_USER_INFO_MCS_KNOWN) {
 		proto_tree_add_item(sub_tree, hf_radiotap_eht_ui_mcs, tvb,
 			    offset, 4, ENC_LITTLE_ENDIAN);
+		if (info_11be->num_users < 4) {
+			info_11be->user[info_11be->num_users].mcs_known = true;
+			info_11be->user[info_11be->num_users].mcs =
+						(known & EHT_USER_INFO_MCS_MASK) >> EHT_USER_INFO_MCS_SHIFT;
+		}
 	} else {
 		item = proto_tree_add_item(sub_tree,
 				hf_radiotap_eht_ui_mcs_not_known, tvb,
@@ -2236,6 +2285,11 @@ dissect_eht_user_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 	if (known & EHT_USER_INFO_NSS_KNOWN) {
 		proto_tree_add_item(sub_tree, hf_radiotap_eht_ui_nss, tvb,
 			    offset, 4, ENC_LITTLE_ENDIAN);
+		if (info_11be->num_users < 4) {
+			info_11be->user[info_11be->num_users].nsts_known = true;
+			info_11be->user[info_11be->num_users].nsts =
+						((known & EHT_USER_INFO_NSS_MASK) >> EHT_USER_INFO_NSS_SHIFT) + 1;
+		}
 	} else {
 		item = proto_tree_add_item(sub_tree,
 				hf_radiotap_eht_ui_nss_not_known, tvb,
@@ -2270,7 +2324,7 @@ dissect_eht_user_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 	proto_tree_add_item(sub_tree, hf_radiotap_eht_ui_rsvd1, tvb,
 			    offset, 4, ENC_LITTLE_ENDIAN);
-
+	info_11be->num_users ++;
 }
 
 static void
@@ -2285,8 +2339,13 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	guint16 len = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 	proto_item *data = NULL, *item = NULL;
 	proto_tree *sub_tree = NULL, *user_info_tree = NULL;
+	gboolean data_ru_mru_size_known = FALSE;
+	gboolean gi_known = FALSE;
+	guint32 data0;
+	guint32 data1;
 
 	phdr->phy = PHDR_802_11_PHY_11BE;
+	struct ieee_802_11be *info_11be = &phdr->phy_info.info_11be;
 
 	eht_tree = proto_tree_add_subtree(tree, tvb, offset, len,
 					  ett_radiotap_eht, NULL,
@@ -2325,6 +2384,7 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_item(sub_tree,
 				hf_radiotap_eht_data0_gi,
 				tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				gi_known = true;
 	} else {
 		item = proto_tree_add_item(sub_tree,
 				hf_radiotap_eht_data0_gi_not_known,
@@ -2413,6 +2473,12 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_item_append_text(item, " (Not known)");
 	}
 
+	data0 = tvb_get_letohs(tvb, offset);
+	if (gi_known) {
+		info_11be->has_gi = true;
+		info_11be->gi = (data0 & IEEE80211_RADIOTAP_EHT_GI_MASK) >> IEEE80211_RADIOTAP_EHT_GI_SHIFT;
+	}
+
 	offset += 4;
 
 	ru_alloc_1_known = (tvb_get_letohl(tvb, offset) >> 22) & 0x01;
@@ -2426,6 +2492,7 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_item(sub_tree,
 				    hf_radiotap_eht_data1_ru_mru_size,
 				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		data_ru_mru_size_known = true;
 	} else {
 		item = proto_tree_add_item(sub_tree,
 				hf_radiotap_eht_data1_ru_mru_size_not_known,
@@ -2472,6 +2539,11 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			hf_radiotap_eht_data1_primary_80_mhz_chan_pos_not_known,
 			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(item, " (Not known)");
+	}
+	data1 = tvb_get_letohs(tvb, offset);
+	if (data_ru_mru_size_known) {
+		info_11be->has_ru_mru_size = true;
+		info_11be->ru_mru_size = (data1 & IEEE80211_RADIOTAP_EHT_RU_MRU_SIZE_MASK);
 	}
 
 	offset += 4;
@@ -2795,12 +2867,13 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /*
          * Now, are there any user-info entries?
          */
+	info_11be->num_users = 0;
 	if (tvb_captured_length_remaining(tvb, offset) && len > 0) {
 		user_info_tree = proto_tree_add_subtree(eht_tree, tvb, offset,
 			4, ett_radiotap_eht_user_info, NULL,
 			"User Info");
 		while (tvb_captured_length_remaining(tvb, offset) && len > 0) {
-			dissect_eht_user_info(user_info_tree, tvb, offset);
+			dissect_eht_user_info(user_info_tree, tvb, offset, info_11be);
 			offset += 4;
 			len -= 4;
 		}
@@ -6662,7 +6735,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_eht_data1_ru_mru_size,
 		 {"RU/MRU Size",
 		  "radiotap.eht.data_1.ru_mru_size",
-		  FT_UINT32, BASE_DEC, NULL, 0x0000001F, NULL, HFILL }},
+		  FT_UINT32, BASE_DEC, VALS(eht_data_ru_mru_size_vals), 0x0000001F, NULL, HFILL }},
 
 		{&hf_radiotap_eht_data1_ru_mru_size_not_known,
 		 {"RU/MRU Size",
