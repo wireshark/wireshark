@@ -4377,6 +4377,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Packets</source>
         <translation>Todos los paquetes</translation>
     </message>
@@ -6746,6 +6754,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
 </context>
 <context>
+    <name>MainWindow</name>
+    <message>
+        <source>Display filter as %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -8709,6 +8724,46 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Browse…</source>
         <translation type="unfinished">Explorar…</translation>
+    </message>
+    <message>
+        <source>PACKETS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BYTES</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BITS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>COUNT FRAMES</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>COUNT FIELDS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SUM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MAX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AVERAGE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LOAD</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

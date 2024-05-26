@@ -25,6 +25,10 @@ Wireshark 4.3.0 Release Notes
   Display filter functions can be implemented as runtime-loadable C
   plugins.
 
+  Display filters can be translated to pcap filters using "Copy ›
+  Display filter as pcap filter" if each display filter field has a
+  corresponding pcap filter equivalent.
+
   Custom columns can be defined using any valid field expression, such
   as display filter functions, slices, arithmetic calculations, logical
   tests, raw byte addressing, and the layer modifier.
@@ -201,11 +205,14 @@ Wireshark 4.3.0 Release Notes
 
         • A number of crasher bugs have been fixed.
 
+        • The protocol tree context menu can open a I/O graph of the
+       currently selected field. Issue 11362[10]
+
         • Smaller intervals can be used, down to 1 microsecond. Issue
-       13682[10]
+       13682[11]
 
         • A larger number of I/O Graph item buckets can be used, up to
-       225 items. Issue 8460[11]
+       225 items. Issue 8460[12]
 
         • The memory usage has been improved, the size of an item has
        been reduced from 152 bytes to 88 bytes.
@@ -220,18 +227,18 @@ Wireshark 4.3.0 Release Notes
        with the least amout of calculations. For instance, a graph that
        has previously been plotted and is disabled and then reenabled
        without any other changes will not require a new retap. Issue
-       15822[12]
+       15822[13]
 
-        • LOAD graphs are graphed properly again. Issue 18450[13]
+        • LOAD graphs are graphed properly again. Issue 18450[14]
 
         • The I/O Graph y-axis has human readable units with SI
-       prefixes. Issue 12827[14]
+       prefixes. Issue 12827[15]
 
         • I/O Graph bar widths are scaled to the size of the interval.
 
         • I/O Graph bar border colors are a slightly darker color than
        that of the graph itself, instead of always black. Issue
-       17422[15]
+       17422[16]
 
         • The correct width of times that appear on the graph are used
        when automatically resetting the axes.
@@ -243,7 +250,7 @@ Wireshark 4.3.0 Release Notes
        graphs, and does not appear on an invisible graph.
 
         • The tracer moves to the frame selected in the main window.
-       Issue 12909[16]
+       Issue 12909[17]
 
         • Pending graph changes are saved when changing profiles with
        the I/O Graphs dialog open.
@@ -257,11 +264,13 @@ Wireshark 4.3.0 Release Notes
        marked with italics.
 
         • When Time of Day is selected on the graph, the absolute time
-       is copied to the CSV instead of relative time. Issue 13717[17]
+       is copied to the CSV instead of relative time. Issue 13717[18]
+
+        • The graphs can be reordered via drag and drop. Issue 13855[19]
 
         • The graph layer order and order in the legend always matches
        the order in the table, and the legend appears properly. Issue
-       13854[18]
+       13854[20]
 
         • Graphs with both lines and data point symbols are treated as
        line graphs, not scatter plots, for purposes of displaying zero
@@ -272,7 +281,7 @@ Wireshark 4.3.0 Release Notes
         • The graph crosshairs context menu option works.
 
         • The columns on the table of graphs can be all resized at once
-       via the header context menu. Issue 18102[19]
+       via the header context menu. Issue 18102[21]
 
         • The graph is more responsive to mouse moves, especially on
        Linux Wayland
@@ -281,18 +290,18 @@ Wireshark 4.3.0 Release Notes
 
         • When exporting the graph as an image, the entire graph is
        shown, up to 1000 items (which can be changed in preferences),
-       instead of only what was visible on-screen. Issue 13504[20]
+       instead of only what was visible on-screen. Issue 13504[22]
 
         • Endpoints that share a same address now have two distinct
-       nodes with a line between them. Issue 12038[21]
+       nodes with a line between them. Issue 12038[23]
 
         • Tooltips are shown for elided comments
 
         • The scroll direction via keyboard is no longer reversed. Issue
-       12932[22]
+       12932[24]
 
         • The column widths are fixed, instead of resizing slightly
-       depending on the visible entries. Issue 12931[23]
+       depending on the visible entries. Issue 12931[25]
 
         • The Y-axis labels stay in the correct position without having
        to click Reset.
@@ -301,7 +310,7 @@ Wireshark 4.3.0 Release Notes
        Calls.)
 
         • The behavior of the "Any" and "Network" combobox is corrected.
-       Issue 19818[24]
+       Issue 19818[26]
 
         • "Limit to Display Filter" is checked if a display filter is
        applied when the Flow Graph is opened, per the documentation.
@@ -324,8 +333,8 @@ Wireshark 4.3.0 Release Notes
        been patched to work with Lua 5.3 and 5.4, in addition to the
        native Lua support for bit operations present in those versions),
        different versions of Lua are not guaranteed to be compatible. If
-       a Lua dissector has issues, check the manuals for Lua 5.4[25],
-       Lua 5.3[26], and Lua 5.2[27] for incompatibilities and suggested
+       a Lua dissector has issues, check the manuals for Lua 5.4[27],
+       Lua 5.3[28], and Lua 5.2[29] for incompatibilities and suggested
        workarounds. Note that features marked as deprecated in one
        version are removed in the subsequent version without additional
        notice, so it can be worth checking the manual for previous
@@ -377,7 +386,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[28] on the Wireshark web site.
+   be found on the download page[30] on the Wireshark web site.
 
  File Locations
 
@@ -392,24 +401,24 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[29] and on the
+  Community support is available on Wireshark’s Q&A site[31] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[30].
+  for all of Wireshark’s mailing lists can be found on the web site[32].
 
-  Bugs and feature requests can be reported on the issue tracker[31].
+  Bugs and feature requests can be reported on the issue tracker[33].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[32].
+  SharkFest[34].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[33].
+  at wiresharkfoundation.org[35].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[34].
+  A complete FAQ is available on the Wireshark web site[36].
 
  References
 
@@ -422,28 +431,30 @@ Wireshark 4.3.0 Release Notes
    7. https://gitlab.com/wireshark/wireshark/-/issues/17484
    8. https://gitlab.com/wireshark/wireshark/-/issues/16419
    9. https://gitlab.com/wireshark/wireshark/-/issues/2988
-  10. https://gitlab.com/wireshark/wireshark/-/issues/13682
-  11. https://gitlab.com/wireshark/wireshark/-/issues/8460
-  12. https://gitlab.com/wireshark/wireshark/-/issues/15822
-  13. https://gitlab.com/wireshark/wireshark/-/issues/18450
-  14. https://gitlab.com/wireshark/wireshark/-/issues/12827
-  15. https://gitlab.com/wireshark/wireshark/-/issues/17422
-  16. https://gitlab.com/wireshark/wireshark/-/issues/12909
-  17. https://gitlab.com/wireshark/wireshark/-/issues/13717
-  18. https://gitlab.com/wireshark/wireshark/-/issues/13854
-  19. https://gitlab.com/wireshark/wireshark/-/issues/18102
-  20. https://gitlab.com/wireshark/wireshark/-/issues/13504
-  21. https://gitlab.com/wireshark/wireshark/-/issues/12038
-  22. https://gitlab.com/wireshark/wireshark/-/issues/12932
-  23. https://gitlab.com/wireshark/wireshark/-/issues/12931
-  24. https://gitlab.com/wireshark/wireshark/-/issues/19818
-  25. https://www.lua.org/manual/5.4/manual.html#8
-  26. https://www.lua.org/manual/5.3/manual.html#8
-  27. https://www.lua.org/manual/5.2/manual.html#8
-  28. https://www.wireshark.org/download.html
-  29. https://ask.wireshark.org/
-  30. https://www.wireshark.org/lists/
-  31. https://gitlab.com/wireshark/wireshark/-/issues
-  32. https://sharkfest.wireshark.org
-  33. https://wiresharkfoundation.org
-  34. https://www.wireshark.org/faq.html
+  10. https://gitlab.com/wireshark/wireshark/-/issues/11362
+  11. https://gitlab.com/wireshark/wireshark/-/issues/13682
+  12. https://gitlab.com/wireshark/wireshark/-/issues/8460
+  13. https://gitlab.com/wireshark/wireshark/-/issues/15822
+  14. https://gitlab.com/wireshark/wireshark/-/issues/18450
+  15. https://gitlab.com/wireshark/wireshark/-/issues/12827
+  16. https://gitlab.com/wireshark/wireshark/-/issues/17422
+  17. https://gitlab.com/wireshark/wireshark/-/issues/12909
+  18. https://gitlab.com/wireshark/wireshark/-/issues/13717
+  19. https://gitlab.com/wireshark/wireshark/-/issues/13855
+  20. https://gitlab.com/wireshark/wireshark/-/issues/13854
+  21. https://gitlab.com/wireshark/wireshark/-/issues/18102
+  22. https://gitlab.com/wireshark/wireshark/-/issues/13504
+  23. https://gitlab.com/wireshark/wireshark/-/issues/12038
+  24. https://gitlab.com/wireshark/wireshark/-/issues/12932
+  25. https://gitlab.com/wireshark/wireshark/-/issues/12931
+  26. https://gitlab.com/wireshark/wireshark/-/issues/19818
+  27. https://www.lua.org/manual/5.4/manual.html#8
+  28. https://www.lua.org/manual/5.3/manual.html#8
+  29. https://www.lua.org/manual/5.2/manual.html#8
+  30. https://www.wireshark.org/download.html
+  31. https://ask.wireshark.org/
+  32. https://www.wireshark.org/lists/
+  33. https://gitlab.com/wireshark/wireshark/-/issues
+  34. https://sharkfest.wireshark.org
+  35. https://wiresharkfoundation.org
+  36. https://www.wireshark.org/faq.html
