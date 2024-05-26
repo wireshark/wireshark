@@ -247,7 +247,7 @@ FolderListModel::FolderListModel(QObject * parent):
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */
-    QStringList maxMindDbPaths = QString(maxmind_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
+    QStringList maxMindDbPaths = gchar_free_to_qstring(maxmind_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
     foreach(QString path, maxMindDbPaths)
         appendRow(QStringList() << tr("MaxMind DB path") << path.trimmed() << tr("MaxMind DB database search path"));
 #endif

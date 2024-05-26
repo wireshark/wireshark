@@ -66,7 +66,8 @@ WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv6(const ws
 /**
  * Get all configured paths
  *
- * @return String with all paths separated by a path separator
+ * @return String with all paths separated by a path separator. The string
+ * must be freed.
  */
 WS_DLL_PUBLIC gchar *maxmind_db_get_paths(void);
 
