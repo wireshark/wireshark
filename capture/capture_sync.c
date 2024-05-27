@@ -840,15 +840,17 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             /* Add a name for the interface, to put into an IDB. */
             argv = sync_pipe_add_arg(argv, &argc, "--ifname");
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);
-            if (interface_opts->descr != NULL)
-            {
-                /* Add a description for the interface, to put into an IDB. */
-                argv = sync_pipe_add_arg(argv, &argc, "--ifdescr");
-                argv = sync_pipe_add_arg(argv, &argc, interface_opts->descr);
-            }
         }
         else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);
+
+        if (interface_opts->descr != NULL)
+        {
+            /* Add a description for the interface to put into an IDB and
+             * use for the temporary filename. */
+            argv = sync_pipe_add_arg(argv, &argc, "--ifdescr");
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts->descr);
+        }
 
         if (interface_opts->cfilter != NULL && strlen(interface_opts->cfilter) != 0) {
             argv = sync_pipe_add_arg(argv, &argc, "-f");
