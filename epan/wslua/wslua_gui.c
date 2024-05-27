@@ -78,7 +78,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     * MENU_STAT_CONVERSATION_LIST: menu:Statistics[Conversation List]
     * MENU_STAT_ENDPOINT_LIST: menu:Statistics[Endpoint List]
     * MENU_STAT_RESPONSE_TIME: menu:Statistics[Service Response Time]
-    * MENU_STAT_RSERPOOL = menu:Statistics[Reliable Server Pooling (RSerPool)]
+    * MENU_STAT_RSERPOOL: menu:Statistics[Reliable Server Pooling (RSerPool)]
     * MENU_STAT_TELEPHONY: menu:Telephony[]
     * MENU_STAT_TELEPHONY_ANSI: menu:Telephony[ANSI]
     * MENU_STAT_TELEPHONY_GSM: menu:Telephony[GSM]
@@ -90,7 +90,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
 
     Valid log (Logray) items are:
     * MENU_LOG_ANALYZE_UNSORTED: menu:Analyze[]
-    * MENU_LOG_STAT_UNSORTED = 16
+    * MENU_LOG_STAT_UNSORTED: menu:Statistics[]
 
     The following are deprecated and shouldn't be used in new code:
     * MENU_ANALYZE_UNSORTED, superseded by MENU_PACKET_ANALYZE_UNSORTED
