@@ -2706,6 +2706,13 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
         switch (menu_group) {
         case REGISTER_PACKET_ANALYZE_GROUP_UNSORTED:
         case REGISTER_PACKET_STAT_GROUP_UNSORTED:
+        case REGISTER_STAT_GROUP_GENERIC:
+            // XXX - The Lua documentation claims that ANALYZE_GROUP_UNSORTED
+            // is under the Analyze menu, and STAT_GROUP_GENERIC and
+            // PACKET_STAT_GROUP_UNSORTED are distinguished by whether they
+            // go before the separator in the group of non protocol-specific
+            // actions or after the separator with the protocol-specific
+            // actions. We currently put them all in the same place.
             main_ui_->menuStatistics->insertAction(
                             main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
                             action);
@@ -2780,6 +2787,7 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
         switch (menu_group) {
         case REGISTER_PACKET_ANALYZE_GROUP_UNSORTED:
         case REGISTER_PACKET_STAT_GROUP_UNSORTED:
+        case REGISTER_STAT_GROUP_GENERIC:
             main_ui_->menuStatistics->removeAction(action);
             break;
         case REGISTER_STAT_GROUP_RESPONSE_TIME:
