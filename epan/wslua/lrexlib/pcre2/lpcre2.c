@@ -519,14 +519,9 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_newtable (L);
   lua_pushliteral (L, "access denied");
   lua_setfield (L, -2, "__metatable");
-#if LUA_VERSION_NUM == 501
-  luaL_register (L, NULL, chartables_meta);
-  lua_rawseti (L, LUA_ENVIRONINDEX, INDEX_CHARTABLES_META);
-#else
   lua_pushvalue(L, -3);
   luaL_setfuncs (L, chartables_meta, 1);
   lua_rawseti (L, -3, INDEX_CHARTABLES_META);
-#endif
 
   /* create a table for connecting "chartables" userdata to "regex" userdata */
   lua_newtable (L);
@@ -534,11 +529,7 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_setfield (L, -2, "__mode");
   lua_pushvalue (L, -1);            /* setmetatable (tb, tb) */
   lua_setmetatable (L, -2);
-#if LUA_VERSION_NUM == 501
-  lua_rawseti (L, LUA_ENVIRONINDEX, INDEX_CHARTABLES_LINK);
-#else
   lua_rawseti (L, -3, INDEX_CHARTABLES_LINK);
-#endif
 
   return 1;
 }

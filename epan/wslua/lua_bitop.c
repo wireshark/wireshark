@@ -36,11 +36,7 @@ static UBits barg(lua_State *L, int idx)
 {
   BitNum bn;
   UBits b;
-#if LUA_VERSION_NUM < 502
-  bn.n = lua_tonumber(L, idx);
-#else
   bn.n = luaL_checknumber(L, idx);
-#endif
 #if defined(LUA_NUMBER_DOUBLE) || defined(LUA_FLOAT_DOUBLE)
   bn.n += 6755399441055744.0;  /* 2^52+2^51 */
 #ifdef SWAPPED_DOUBLE
@@ -60,11 +56,6 @@ static UBits barg(lua_State *L, int idx)
 #error "A 'float' lua_Number type is incompatible with this library"
 #else
 #error "Unknown number type, check LUA_NUMBER_*, LUA_FLOAT_*, LUA_INT_* in luaconf.h"
-#endif
-#if LUA_VERSION_NUM < 502
-  if (b == 0 && !lua_isnumber(L, idx)) {
-    luaL_typerror(L, idx, "number");
-  }
 #endif
   return b;
 }
@@ -168,13 +159,9 @@ DIAG_OFF(unreachable-code)
 DIAG_ON(unreachable-code)
     luaL_error(L, "bit library self-test failed (%s)", msg);
   }
-#if LUA_VERSION_NUM < 502
-  luaL_register(L, "bit", bit_funcs);
-  return 1;
-#else
+
   luaL_newlib(L, bit_funcs);
   lua_setglobal(L, "bit"); /* added for wireshark */
   return 0; /* changed from 1 to 0 for wireshark, since lua_setglobal now pops the table */
-#endif
 }
 

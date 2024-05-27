@@ -200,11 +200,6 @@ static int File_read_line(lua_State *L, FILE_T ft) {
  */
 #define WSLUA_BUFFERSIZE 1024
 
-/* Lua 5.1 used lua_objlen() instead of lua_rawlen() */
-#if LUA_VERSION_NUM == 501
-#define lua_rawlen lua_objlen
-#endif
-
 /**
  * Reads some data and returns the number of bytes read.
  * The actual data (possibly an empty string) is pushed on the Lua stack.

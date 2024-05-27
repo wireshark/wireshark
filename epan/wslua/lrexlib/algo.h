@@ -39,11 +39,7 @@ static int gmatch_exec     (TUserdata *ud, TArgExec *argE);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 
-#if LUA_VERSION_NUM == 501
-#  define ALG_ENVIRONINDEX LUA_ENVIRONINDEX
-#else
-#  define ALG_ENVIRONINDEX lua_upvalueindex(1)
-#endif
+#define ALG_ENVIRONINDEX lua_upvalueindex(1)
 
 #ifndef ALG_CHARSIZE
 #  define ALG_CHARSIZE 1
@@ -134,18 +130,7 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
                   lua_typename (L, type));
     argE->text = (const char*) lua_touserdata (L, -1);
     lua_pop (L, 1);
-#if LUA_VERSION_NUM == 501
-    if (luaL_callmeta (L, pos, "__len")) {
-      if (lua_type (L, -1) != LUA_TNUMBER)
-        luaL_argerror (L, pos, "subject's length is not a number");
-      argE->textlen = lua_tointeger (L, -1);
-      lua_pop (L, 1);
-    }
-    else
-      argE->textlen = lua_objlen (L, pos);
-#else
     argE->textlen = luaL_len (L, pos);
-#endif
   }
 }
 
@@ -745,27 +730,16 @@ static int algm_exec (lua_State *L) {
 static void alg_register (lua_State *L, const luaL_Reg *r_methods,
                           const luaL_Reg *r_functions, const char *name) {
   /* Create a new function environment to serve as a metatable for methods. */
-#if LUA_VERSION_NUM == 501
-  lua_newtable (L);
-  lua_pushvalue (L, -1);
-  lua_replace (L, LUA_ENVIRONINDEX);
-  luaL_register (L, NULL, r_methods);
-#else
   luaL_newmetatable(L, REX_TYPENAME);
   lua_pushvalue(L, -1);
   luaL_setfuncs (L, r_methods, 1);
-#endif
   lua_pushvalue(L, -1); /* mt.__index = mt */
   lua_setfield(L, -2, "__index");
 
   /* Register functions. */
   lua_createtable(L, 0, 8);
-#if LUA_VERSION_NUM == 501
-  luaL_register (L, NULL, r_functions);
-#else
   lua_pushvalue(L, -2);
   luaL_setfuncs (L, r_functions, 1);
-#endif
 #ifdef REX_CREATEGLOBALVAR
   lua_pushvalue(L, -1);
   lua_setglobal(L, REX_LIBNAME);
