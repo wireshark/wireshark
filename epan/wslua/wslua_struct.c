@@ -131,7 +131,7 @@
     * `++(++' to stop assigning items, and `++)++' start assigning (padding when packing).
     * `++=++' to return the current position / offset.
 
-  [NOTE]
+  [IMPORTANT]
   ====
   Using `i`, `I`, `h`, `H`, `l`, `L`, `f`, and `T` is strongly discouraged, as those sizes
     are system-dependent. Use the explicitly sized variants instead, such as `i4` or `E`.
@@ -139,6 +139,17 @@
   Unpacking of `i`/`I` is done to a Lua number, a double-precision floating point,
     so unpacking a 64-bit field (`i8`/`I8`) will lose precision.
     Use `e`/`E` to unpack into a Wireshark `Int64`/`UInt64` object instead.
+  ====
+
+  [NOTE]
+  ====
+  Lua 5.3 and later provides several built-in functions for struct unpacking and packing:
+  https://www.lua.org/manual/5.4/manual.html#pdf-string.pack[string.pack],
+  https://www.lua.org/manual/5.4/manual.html#pdf-string.packsize[string.packsize], and
+  https://www.lua.org/manual/5.4/manual.html#pdf-string.unpack[string.unpack].
+  You can use those as well, but note that the
+  https://www.lua.org/manual/5.4/manual.html#6.4.2[format string] conversion elements
+  are slightly different, and they do not support the Wireshark `Int64`/`UInt64` objects.
   ====
  */
 

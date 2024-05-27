@@ -13,8 +13,9 @@ Lua is a powerful light-weight programming language designed for extending
 applications. Wireshark contains an embedded Lua interpreter which can
 be used to write dissectors, taps, and capture file readers and writers.
 Wireshark versions 4.2.x and earlier support Lua 5.1 and 5.2, and newer
-versions support Lua 5.3, and 5.4. All versions support the
-Lua BitOp library.
+versions support Lua 5.3 and 5.4. The Lua BitOp library is bundled with
+all version of Wireshark; Lua 5.3 and later also have native support for
+https://www.lua.org/manual/5.4/manual.html#3.4.2[bitwise operators].
 
 If Lua is enabled, Wireshark will first try to load a file named `init.lua`
 from the global link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins directory_].

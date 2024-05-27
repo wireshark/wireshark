@@ -25,7 +25,7 @@ either expressed or implied, of the FreeBSD Project.
     /*
     WSLUA_MODULE Int64 Handling 64-bit Integers
 
-    Lua uses one single number representation which can be chosen at compile time and since it is often set to IEEE 754 double precision floating point, one cannot store 64 bit integers with full precision.
+    Lua uses one single number representation, which is chosen at compile time, and since it is often set to IEEE 754 double precision floating point, one cannot store 64 bit integers with full precision.
 
     Lua numbers are stored as floating point (doubles) internally, not integers; thus while they can represent incredibly large numbers, above 2^53 they lose integral precision -- they can't represent every whole integer value.
     For example if you set a lua variable to the number 9007199254740992 and tried to increment it by 1, you'd get the same number because it can't represent 9007199254740993 (only the even number 9007199254740994).
@@ -38,9 +38,6 @@ either expressed or implied, of the FreeBSD Project.
     For example 'my64num = my64num + 1' will work even if 'my64num' is a <<lua_class_Int64,`Int64`>> or <<lua_class_UInt64,`UInt64`>> object.
     Note that comparison operators ('==','$$<=$$','>', etc.) will not work with plain numbers -- only other Int64/UInt64 objects.
     This is a limitation of Lua itself, in terms of how it handles operator overloading.
-
-    // Previous to Wireshark release 1.11, Int64 and UInt64 could only be created by tvbrange:int64() or tvbrange:le_int64(), or tvbrange:uint64() or tvbrange:le_uint64() or tvbrange:bitfield(), and had only a couple functions (the metamethods tostring() and concat()).
-    // All of the functions on this page are only available starting in Wireshark 1.11 and higher.
 
     [WARNING]
     ====
@@ -78,6 +75,16 @@ either expressed or implied, of the FreeBSD Project.
     -- Bad. Leads to inconsistent results across platforms
     local masked = mynum:band(0xFFFFFFFF00000000)
     ----
+
+    [NOTE]
+    ====
+    Lua 5.3 and later adds a second number representation for integers, which is also chosen at compile time. It is usually a 64-bit signed integer type, even on 32-bit platforms.
+    (Lua 5.2 and earlier have an integer type, but this is not used for storing numbers, only for casting, and on 32-bit platforms is 32-bits wide.)
+    Wireshark 4.4 and later will use the Lua integer type where possible, but as storing
+    64-bit unsigned integers in a Lua Integer can result in signed number overflow, `UInt64`
+    is still necessary. `Int64` is also still available for use.
+    ====
+
     */
 
 #define LUATYPE64_STRING_SIZE 21  /* string to hold 18446744073709551615 */
