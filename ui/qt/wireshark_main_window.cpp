@@ -2731,6 +2731,12 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
         case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
             main_ui_->menuMTP3->addAction(action);
             break;
+        case REGISTER_STAT_GROUP_TELEPHONY_SCTP:
+            // XXX - There are two SCTP menus, under Analyze and Telephony,
+            // that have the same default actions. The default actions from
+            // Analyze are copied to the PacketList context menu.
+            main_ui_->menuTelephonySCTP->addAction(action);
+            break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
             // Allow the creation of submenus. Mimics the behavior of
@@ -2796,6 +2802,9 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
             break;
         case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
             main_ui_->menuMTP3->removeAction(action);
+            break;
+        case REGISTER_STAT_GROUP_TELEPHONY_SCTP:
+            main_ui_->menuTelephonySCTP->removeAction(action);
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
