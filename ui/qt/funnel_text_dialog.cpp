@@ -57,17 +57,17 @@ void FunnelTextDialog::reject()
         close_cb_(close_cb_data_);
     }
 
-    QHash<QObject *, funnel_bt_t*>::iterator i;
-    for (i = text_button_to_funnel_button_.begin(); i != text_button_to_funnel_button_.end(); ++i) {
-        funnel_bt_t *funnel_button = i.value();
-        if (funnel_button->free_data_fcn) {
-            funnel_button->free_data_fcn(funnel_button->data);
-        }
-        if (funnel_button->free_fcn) {
-            funnel_button->free_fcn(funnel_button);
+    for (const auto& button : ui->buttonBox->buttons()) {
+        funnel_bt_t *funnel_button = text_button_to_funnel_button_.take(qobject_cast<QObject*>(button));
+        if (funnel_button != nullptr) {
+            if (funnel_button->free_data_fcn) {
+                funnel_button->free_data_fcn(funnel_button->data);
+            }
+            if (funnel_button->free_fcn) {
+                funnel_button->free_fcn(funnel_button);
+            }
         }
     }
-    text_button_to_funnel_button_.clear();
 
     disconnect();
     deleteLater();
