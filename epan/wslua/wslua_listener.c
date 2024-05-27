@@ -15,6 +15,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSLUA
 
 /* WSLUA_MODULE Listener Post-Dissection Packet Analysis */
 
