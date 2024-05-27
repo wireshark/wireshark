@@ -85,8 +85,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     * MENU_STAT_TELEPHONY_3GPP_UU: menu:Telephony[3GPP Uu]
     * MENU_STAT_TELEPHONY_MTP3: menu:Telephony[MTP3]
     * MENU_STAT_TELEPHONY_SCTP: menu:Telephony[SCTP]
-    * MENU_ANALYZE: menu:Analyze[]
-    * MENU_ANALYZE_CONVERSATION: menu:Analyze[Conversation Filter]
+    * MENU_ANALYZE_CONVERSATION_FILTER: menu:Analyze[Conversation Filter]
     * MENU_TOOLS_UNSORTED: menu:Tools[]
 
     Valid log (Logray) items are:
