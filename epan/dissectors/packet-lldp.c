@@ -274,6 +274,7 @@ static int hf_ieee_802_3_mdi_power_pse_pair;
 static int hf_ieee_802_3_mdi_power_class;
 static int hf_ieee_802_3_mdi_power_type;
 static int hf_ieee_802_3_mdi_power_source;
+static int hf_ieee_802_3_mdi_power_pd4pid;
 static int hf_ieee_802_3_mdi_power_priority;
 static int hf_ieee_802_3_mdi_requested_power;
 static int hf_ieee_802_3_mdi_allocated_power;
@@ -291,6 +292,7 @@ static int hf_ieee_802_3_bt_ds_pwr_class_ext_b;
 static int hf_ieee_802_3_bt_pwr_class_ext;
 static int hf_ieee_802_3_bt_system_setup;
 static int hf_ieee_802_3_bt_power_type_ext;
+static int hf_ieee_802_3_bt_power_pd_load;
 static int hf_ieee_802_3_bt_pse_maximum_available_power_value;
 static int hf_ieee_802_3_bt_autoclass;
 static int hf_ieee_802_3_bt_pse_autoclass_support;
@@ -930,6 +932,7 @@ static const value_string power_type_802_3[] = {
 };
 
 static const true_false_string tfs_ieee_802_3_pse_pd = { "PSE", "PD" };
+static const true_false_string tfs_ieee_802_3_pd_load = { "Isolated", "Not isolated" };
 static const true_false_string tfs_unknown_defined = { "Unknown", "Defined" };
 
 /* Power Type */
@@ -3212,6 +3215,9 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		}
 		}
 
+		/* Determine PD 4PID flag */
+		proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_pd4pid, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 		/* Determine power priority */
 		proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3255,6 +3261,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_bt_system_setup);
 
 			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_power_type_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_power_pd_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset+=1;
 
 			proto_tree_add_item(tree, hf_ieee_802_3_bt_pse_maximum_available_power_value, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5805,7 +5812,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_mdi_power_priority,
 			{ "Power Priority", "lldp.ieee.802_3.mdi_power_priority", FT_UINT8, BASE_DEC,
-			VALS(media_power_priority), 0x0F, "Reserved", HFILL }
+			VALS(media_power_priority), 0x03, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_pd4pid,
+			{ "PD 4PID", "lldp.ieee.802_3.mdi_power_pd4pid", FT_BOOLEAN, 8,
+			TFS(&tfs_supported_not_supported), 0x4, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_mdi_requested_power,
 			{ "PD Requested Power Value", "lldp.ieee.802_3.mdi_pde_requested", FT_UINT16, BASE_CUSTOM,
@@ -5866,6 +5877,10 @@ proto_register_lldp(void)
 		{ &hf_ieee_802_3_bt_power_type_ext,
 			{ "Power Type Ext", "lldp.ieee.802_3.bt_power_type_ext", FT_UINT8, BASE_DEC,
 			NULL, 0x0E, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_power_pd_load,
+			{ "PD Load", "lldp.ieee.802_3.bt_power.pd_load", FT_BOOLEAN, 8,
+			TFS(&tfs_ieee_802_3_pd_load), 0x1, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_pse_maximum_available_power_value,
 			{ "PSE Maximum Available Power Value", "lldp.ieee.802_3.bt_pse_maximum_available_power_value", FT_UINT16, BASE_DEC,
