@@ -224,17 +224,17 @@ void proto_register_vrrp(void)
         { &hf_vrrp_ver_type,
             {"VRRP message version and type", "vrrp.typever",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
-                "VRRP version and type", HFILL }},
+                NULL, HFILL }},
 
         { &hf_vrrp_version,
             {"VRRP protocol version", "vrrp.version",
                 FT_UINT8, BASE_DEC, NULL, VRRP_VERSION_MASK,
-                "VRRP version", HFILL }},
+                NULL, HFILL }},
 
         { &hf_vrrp_type,
             {"VRRP packet type", "vrrp.type",
                 FT_UINT8, BASE_DEC, VALS(vrrp_type_vals), VRRP_TYPE_MASK,
-                "VRRP type", HFILL }},
+                NULL, HFILL }},
 
         { &hf_vrrp_virt_rtr_id,
             {"Virtual Rtr ID", "vrrp.virt_rtr_id",

@@ -2373,7 +2373,7 @@ proto_register_mle(void)
       { "Link Metrics Sub TLV",
         "mle.tlv.link_sub_tlv",
         FT_UINT8, BASE_DEC,  VALS(mle_tlv_link_param_vals), 0x0,
-        "Link Sub TLV",
+        NULL,
         HFILL
       }
     },

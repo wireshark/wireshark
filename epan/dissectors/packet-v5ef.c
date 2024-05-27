@@ -144,7 +144,7 @@ proto_register_v5ef(void)
 
 	{ &hf_v5ef_address,
 	  { "Address Field", "v5ef.address", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	"Address", HFILL }},
+		NULL, HFILL }},
 
 	{ &hf_v5ef_eah,
 	  { "EAH", "v5ef.eah", FT_UINT16, BASE_DEC, NULL, V5EF_EAH,

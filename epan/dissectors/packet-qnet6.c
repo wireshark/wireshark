@@ -4366,7 +4366,7 @@ proto_register_qnet6(void)
       "QNET6 connection sequence number", HFILL}
     },
     {&hf_qnet6_l4_qos_qos_type,
-     {"Sos_type", "qnet6.qos.qos_type",
+     {"Qos_type", "qnet6.qos.qos_type",
       FT_UINT16, BASE_DEC, VALS(qnet6_qos_type_vals), 0,
       "QNET6 qos type", HFILL}
     },
@@ -5278,12 +5278,12 @@ proto_register_qnet6(void)
       "_IO_XFLAG_DIR_EXTRA_HINT", HFILL}
     },
     {&hf_qnet6_kif_msg_io_read_xtypes_14,
-     {"Nonblock", "qnet6.kif.msgsend.msg.read.xtypes0-7",
+     {"Nonblock", "qnet6.kif.msgsend.msg.read.xtypes14",
       FT_UINT32, BASE_HEX, NULL, 0x4000,
       "_IO_XFLAG_NONBLOCK", HFILL}
     },
     {&hf_qnet6_kif_msg_io_read_xtypes_15,
-     {"Block", "qnet6.kif.msgsend.msg.read.xtypes0-7",
+     {"Block", "qnet6.kif.msgsend.msg.read.xtypes15",
       FT_UINT32, BASE_HEX, NULL, 0x8000,
       "_IO_XFLAG_BLOCK", HFILL}
     },
@@ -5334,12 +5334,12 @@ proto_register_qnet6(void)
       "_IO_XFLAG_DIR_EXTRA_HINT", HFILL}
     },
     {&hf_qnet6_kif_msg_io_write_xtypes_14,
-     {"Nonblock", "qnet6.kif.msgsend.msg.write.xtypes0-7",
+     {"Nonblock", "qnet6.kif.msgsend.msg.write.xtypes14",
       FT_UINT32, BASE_HEX, NULL, 0x00004000,
       "_IO_XFLAG_NONBLOCK", HFILL}
     },
     {&hf_qnet6_kif_msg_io_write_xtypes_15,
-     {"Block", "qnet6.kif.msgsend.msg.write.xtypes0-7",
+     {"Block", "qnet6.kif.msgsend.msg.write.xtypes15",
       FT_UINT32, BASE_HEX, NULL, 0x00008000,
       "_IO_XFLAG_BLOCK", HFILL}
     },

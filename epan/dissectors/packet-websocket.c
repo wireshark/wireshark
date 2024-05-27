@@ -941,7 +941,7 @@ proto_register_websocket(void)
     { &hf_ws_fragments,
       { "Reassembled websocket Fragments", "websocket.fragments",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "Fragments", HFILL }
+      NULL, HFILL }
     },
     { &hf_ws_fragment,
       { "Websocket Fragment", "websocket.fragment",

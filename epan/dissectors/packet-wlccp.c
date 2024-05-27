@@ -3646,7 +3646,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_tlv_reserved_bit,
 		  { "Reserved bits", "wlccp.tlv_reserved_bit",
 		    FT_UINT16, BASE_DEC, NULL,
-		    TLV_F_RESVD, "Reserved", HFILL }
+		    TLV_F_RESVD, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_tlv_request_flag,

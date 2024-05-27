@@ -6299,7 +6299,7 @@ void proto_register_wassp(void)
 			&hf_wassp_data_frag,
 			{
 				"Wassp Data Fragmentation", "wassp.data_frag", FT_BOOLEAN, 6,  NULL,
-				0x2, "Data Fragmentation", HFILL
+				0x2, NULL, HFILL
 			}
 		},
 		{
@@ -6343,7 +6343,7 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_data_header,
 			{
 				"Wassp MU Data Header", "wassp.mu_data_header", FT_BYTES, BASE_NONE, NULL,
-				0x0, "MU Data Header", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6422,7 +6422,7 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_netflow_header,
 			{
 				"Wassp MU Data NetFlow Header", "wassp.mu_data_netflow_header", FT_BYTES, BASE_NONE, NULL,
-				0x0, "MU Data NetFlow Header", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6697,7 +6697,7 @@ void proto_register_wassp(void)
 			&hf_wassp_fragment_count,
 			{
 				"WASSP Fragment count", "wassp.fragment.count", FT_UINT32, BASE_DEC, NULL,
-				0x0, "Fragment Count", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6725,14 +6725,14 @@ void proto_register_wassp(void)
 			&hf_wassp_tlv_unknown,
 			{
 				"WASSP unknown tlv", "wassp.tlv.unknown", FT_UINT32, BASE_DEC, NULL,
-				0x0, "Unknown tlv", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_wassp_tlv_invalid,
 			{
 				"WASSP invalid tlv", "wassp.tlv.invalid", FT_UINT32, BASE_DEC, NULL,
-				0x0, "Invalid tlv", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6774,7 +6774,7 @@ void proto_register_wassp(void)
 			&hf_wassp_flag_1b,
 			{
 				"Flag (1 byte)", "wassp.flag.1b", FT_UINT8, BASE_HEX, NULL,
-				0x0, "Flag", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6788,7 +6788,7 @@ void proto_register_wassp(void)
 			&hf_cos_tos,
 			{
 				"COS Tos", "wassp.cos_tos", FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Tos", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -6809,14 +6809,14 @@ void proto_register_wassp(void)
 			&hf_filter_tos_maskbit_priority,
 			{
 				"Mask bit and Priority", "wassp.mask_bit", FT_UINT8,  BASE_CUSTOM,  CF_FUNC(maskbit_priority_print),
-				0xff, "Mask bit", HFILL
+				0xff, NULL, HFILL
 			}
 		},
 		{
 			&hf_wassp_priority,
 			{
 				"Priority bit", "wassp.priority", FT_BOOLEAN, 8, NULL,
-				0xff, "Priority", HFILL
+				0xff, NULL, HFILL
 			}
 		},
 		{
@@ -6830,21 +6830,21 @@ void proto_register_wassp(void)
 			&hf_cos_rateid,
 			{
 				"COS In&Out Rate Id", "wassp.rate_id", FT_UINT8,  BASE_CUSTOM,  CF_FUNC(cos_rate_id_print),
-				0x0, "Cos In&Out Rate Id", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_wassp_filter_rule,
 			{
 				"WASSP Filter Rule", "wassp.filter.rule", FT_BYTES, BASE_NONE, NULL,
-				0x0, "Filter Rule", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_wassp_filter_flag,
 			{
 				"WASSP Filter Flag", "wassp.filter.flag", FT_UINT32, BASE_HEX, NULL,
-				0x0, "Filter Flag", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{
@@ -6879,7 +6879,7 @@ void proto_register_wassp(void)
 			&hf_wassp_macaddr_mask,
 			{
 				"MAC address mask", "wassp.mac_address.mask", FT_ETHER, BASE_NONE, NULL,
-				0x0, "MAC mask", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{

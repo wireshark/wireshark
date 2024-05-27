@@ -2872,7 +2872,7 @@ proto_register_rlc(void)
         },
         { &hf_rlc_ctrl_type,
           { "Control PDU Type", "rlc.ctrl_pdu_type",
-            FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0, "PDU Type", HFILL }
+            FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0, NULL, HFILL }
         },
         { &hf_rlc_r1,
           { "Reserved 1", "rlc.r1",
@@ -2912,7 +2912,7 @@ proto_register_rlc(void)
         },
         { &hf_rlc_frags,
           { "Reassembled Fragments", "rlc.fragments",
-            FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL }
+            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_rlc_frag,
           { "RLC Fragment", "rlc.fragment",
