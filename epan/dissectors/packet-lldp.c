@@ -922,12 +922,86 @@ static const value_string power_class_802_3[] = {
 	{ 0, NULL }
 };
 
+/* 802.3bt Extended Power Class */
+static const value_string power_class_ext_802_3_bt[] = {
+	{  1,	"Class 1" },
+	{  2,	"Class 2" },
+	{  3,	"Class 3" },
+	{  4,	"Class 4" },
+	{  5,	"Class 5" },
+	{  6,	"Class 6" },
+	{  7,	"Class 7" },
+	{  8,	"Class 8" },
+	{ 15,	"Dual signature" },
+	{ 0, NULL }
+};
+
+/* 802.3 Power Pair */
+static const value_string power_pair_802_3[] = {
+	{ 1,	"Signal" },
+	{ 2,	"Spare" },
+	{ 0, NULL }
+};
+
+/* 802.3bt extended powering pairs */
+static const value_string power_pairs_ext_802_3_bt[] = {
+	{ 0,	"Ignore" },
+	{ 1,	"Alternative A" },
+	{ 2,	"Alternative B" },
+	{ 3,	"Both alternatives" },
+	{ 0, NULL }
+};
+
 /* 802.3 Power Type */
 static const value_string power_type_802_3[] = {
 	{ 0,	"Type 2 PSE Device" },
 	{ 1,	"Type 2 PD Device" },
 	{ 2,	"Type 1 PSE Device" },
 	{ 3,	"Type 1 PD Device" },
+	{ 0, NULL }
+};
+
+/* 802.3bt Extended Power Type */
+static const value_string power_type_ext_802_3_bt[] = {
+	{ 0,	"Type 3 PSE Device" },
+	{ 1,	"Type 4 PSE Device" },
+	{ 2,	"Type 3 single-signature PD Device" },
+	{ 3,	"Type 3 dual-signature PD Device" },
+	{ 4,	"Type 4 single-signature PD Device" },
+	{ 5,	"Type 4 dual-signature PD Device" },
+	{ 6,	"Reserved/Ignore" },
+	{ 7,	"Reserved/Ignore" },
+	{ 0, NULL }
+};
+
+/* 802.3bt Dual-signature Extended Power Class Mode A|B */
+static const value_string power_type_ext_mode_ab_802_3_bt[] = {
+	{ 0,	"Reserved/Ignore" },
+	{ 1,	"Class 1" },
+	{ 2,	"Class 2" },
+	{ 3,	"Class 3" },
+	{ 4,	"Class 4" },
+	{ 5,	"Class 5" },
+	{ 6,	"Reserved/Ignore" },
+	{ 7,	"Single-signature or 2-pair PD" },
+	{ 0, NULL }
+};
+
+/* 802.3bt extended PSE powering status */
+static const value_string pse_powering_status_802_3_bt[] = {
+	{ 0,	"Ignore" },
+	{ 1,	"2-pair" },
+	{ 2,	"4-pair single-signature" },
+	{ 3,	"4-pair dual-signature" },
+	{ 0, NULL }
+};
+
+/* 802.3bt extended PD powering status */
+static const value_string pd_powered_status_802_3_bt[] = {
+	{ 0,	"Ignore" },
+	{ 1,	"Single-signature PD" },
+	{ 2,	"2-pair dual-signature PD" },
+	{ 3,	"4-pair dual-signature PD" },
 	{ 0, NULL }
 };
 
@@ -5796,7 +5870,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_mdi_power_pse_pair,
 			{ "PSE Power Pair", "lldp.ieee.802_3.mdi_pse_pair", FT_UINT8, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }
+			VALS(power_pair_802_3), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_mdi_power_class,
 			{ "Power Class", "lldp.ieee.802_3.mdi_power_class", FT_UINT8, BASE_DEC,
@@ -5848,27 +5922,27 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_bt_pse_powering_status,
 			{ "PSE Powering Status", "lldp.ieee.802_3.bt_pse_powering_status", FT_UINT16, BASE_DEC,
-			NULL, 0xC000, NULL, HFILL }
+			VALS(pse_powering_status_802_3_bt), 0xC000, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_pd_powered_status,
 			{ "PD Powered Status", "lldp.ieee.802_3.bt_pd_powered_status", FT_UINT16, BASE_DEC,
-			NULL, 0x3000, NULL, HFILL }
+			VALS(pd_powered_status_802_3_bt), 0x3000, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_pse_power_pairs_ext,
 			{ "PSE Power Pairs ext", "lldp.ieee.802_3.bt_pse_power_pairs_ext", FT_UINT16, BASE_DEC,
-			NULL, 0x0C00, NULL, HFILL }
+			VALS(power_pairs_ext_802_3_bt), 0x0C00, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pwr_class_ext_a,
 			{ "DS Pwr Class Ext A", "lldp.ieee.802_3.bt_ds_pwr_class_ext_a", FT_UINT16, BASE_DEC,
-			NULL, 0x0380, NULL, HFILL }
+			VALS(power_type_ext_mode_ab_802_3_bt), 0x0380, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pwr_class_ext_b,
 			{ "DS Pwr Class Ext B", "lldp.ieee.802_3.bt_ds_pwr_class_ext_b", FT_UINT16, BASE_DEC,
-			NULL, 0x0070, NULL, HFILL }
+			VALS(power_type_ext_mode_ab_802_3_bt), 0x0070, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_pwr_class_ext,
 			{ "Pwr Class Ext", "lldp.ieee.802_3.bt_pwr_class_ext_", FT_UINT16, BASE_DEC,
-			NULL, 0x000F, NULL, HFILL }
+			VALS(power_class_ext_802_3_bt), 0x000F, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_system_setup,
 			{ "System Setup", "lldp.ieee.802_3.bt_system_setup", FT_UINT8, BASE_HEX,
@@ -5876,7 +5950,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_bt_power_type_ext,
 			{ "Power Type Ext", "lldp.ieee.802_3.bt_power_type_ext", FT_UINT8, BASE_DEC,
-			NULL, 0x0E, NULL, HFILL }
+			VALS(power_type_ext_802_3_bt), 0x0E, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_power_pd_load,
 			{ "PD Load", "lldp.ieee.802_3.bt_power.pd_load", FT_BOOLEAN, 8,
