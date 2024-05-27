@@ -5827,20 +5827,20 @@ proto_register_lldp(void)
 			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_a,
-			{ "DS PD Requested Power Value Mode A", "lldp.ieee.802_3.bt_ds_pd_requested_power_value_mode_a", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "DS PD Requested Power Value Mode A", "lldp.ieee.802_3.bt_ds_pd_requested_power_value_mode_a", FT_UINT16, BASE_CUSTOM,
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_b,
-			{ "DS PD Requested Power Value Mode B", "lldp.ieee.802_3.bt_ds_pd_requested_power_value_mode_b", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "DS PD Requested Power Value Mode B", "lldp.ieee.802_3.bt_ds_pd_requested_power_value_mode_b", FT_UINT16, BASE_CUSTOM,
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_a,
-			{ "DS PSE Allocated Power Value Alt A", "lldp.ieee.802_3.bt_ds_pse_allocated_power_value_alt_a", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "DS PSE Allocated Power Value Alt A", "lldp.ieee.802_3.bt_ds_pse_allocated_power_value_alt_a", FT_UINT16, BASE_CUSTOM,
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_b,
-			{ "DS PSE Allocated Power Value Alt B", "lldp.ieee.802_3.bt_ds_pse_allocated_power_value_alt_b", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "DS PSE Allocated Power Value Alt B", "lldp.ieee.802_3.bt_ds_pse_allocated_power_value_alt_b", FT_UINT16, BASE_CUSTOM,
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_power_status,
 			{ "Power Status", "lldp.ieee.802_3.bt_power_status", FT_UINT16, BASE_HEX,
@@ -5883,8 +5883,8 @@ proto_register_lldp(void)
 			TFS(&tfs_ieee_802_3_pd_load), 0x1, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_pse_maximum_available_power_value,
-			{ "PSE Maximum Available Power Value", "lldp.ieee.802_3.bt_pse_maximum_available_power_value", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "PSE Maximum Available Power Value", "lldp.ieee.802_3.bt_pse_maximum_available_power_value", FT_UINT16, BASE_CUSTOM,
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_autoclass,
 			{ "Autoclass", "lldp.ieee.802_3.bt_autoclass", FT_UINT8, BASE_HEX,
