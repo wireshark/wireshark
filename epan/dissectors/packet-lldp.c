@@ -1398,12 +1398,6 @@ static const value_string profinet_port3_status_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string profinet_port3_status_OnOff[] = {
-	{ 0,	"OFF" },
-	{ 1,	"ON" },
-	{ 0,	NULL }
-};
-
 static const value_string profinet_port3_status_PreambleLength[] = {
 	{ 0,	"Seven octets" },
 	{ 1,	"One octet" },
@@ -6330,8 +6324,8 @@ proto_register_lldp(void)
 		},
 		/* class3_port state got some new BITs */
 		{ &hf_profinet_class3_port_status_Fragmentation,
-			{ "RTClass3_PortStatus.Fragmentation",	"lldp.profinet.rtc3_port_status.fragmentation", FT_UINT16, BASE_HEX,
-			VALS(profinet_port3_status_OnOff), 0x1000, NULL, HFILL }
+			{ "RTClass3_PortStatus.Fragmentation",	"lldp.profinet.rtc3_port_status.fragmentation", FT_BOOLEAN, 16,
+			TFS(&tfs_on_off), 0x1000, NULL, HFILL }
 		},
 		{ &hf_profinet_class3_port_status_reserved,
 			{ "RTClass3_PortStatus.reserved",	"lldp.profinet.rtc3_port_status.reserved", FT_UINT16, BASE_HEX,
