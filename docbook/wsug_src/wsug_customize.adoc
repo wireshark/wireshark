@@ -1143,7 +1143,7 @@ common to all profiles:
 
 [#ChEssCategoryAttributes]
 
-==== ESS Category Attributes
+=== ESS Category Attributes
 
 Wireshark uses this table to map ESS Security Category attributes to textual representations.  The values to put in this table are usually found in an http://www.xmlspif.org/[XML SPIF], which is used for defining security labels.
 
@@ -1161,7 +1161,7 @@ The textual representation for the value.
 
 [#ChMaxMindDbPaths]
 
-==== MaxMind Database Paths
+=== MaxMind Database Paths
 
 If your copy of Wireshark supports https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use their databases to match IP addresses to countries, cites, autonomous system numbers, and other bits of information.
 Some databases are https://dev.maxmind.com/geoip/geoip2/geolite2/[available at no cost for registered users], while others require a licensing fee.
@@ -1197,7 +1197,7 @@ databases in April 2018.
 
 [#Ch80211Keys]
 
-==== IEEE 802.11 WLAN Decryption Keys
+=== IEEE 802.11 WLAN Decryption Keys
 
 Wireshark can decrypt WEP and WPA/WPA2/WPA3 in pre-shared (or personal) mode,
 as well as in enterprise mode. Security improvements in more recent 802.11
@@ -1207,7 +1207,7 @@ all traffic to a given access point with a single known password and SSID.
 You can add decryption keys using Wireshark's IEEE 802.11 preferences.
 Up to 64 keys are supported.
 
-===== Adding Keys
+==== Adding Keys
 
 Go to menu:Edit[Preferences >Protocols >IEEE 802.11], or, from the pop-up menu
 in the "Packet List" or "Packet Details" pane from a frame that contains IEEE
@@ -1301,7 +1301,7 @@ This will open the decryption key management window. As shown in the window you 
 Selecting **None** disables decryption. Selecting **Wireshark** uses Wireshark's built-in decryption features. **Driver** will pass the keys on to the [AirPcap](/AirPcap) adapter so that 802.11 traffic is decrypted before it's passed on to Wireshark. Driver mode only supports WEP keys.
 ////
 
-===== Gotchas
+==== Gotchas
 
 Along with decryption keys there are other preference settings that affect decryption.
 
@@ -1309,7 +1309,7 @@ Along with decryption keys there are other preference settings that affect decry
 
   - You may have to toggle *Assume Packets Have FCS* and *Ignore the Protection bit* depending on how your 802.11 driver delivers frames.
 
-====== Capturing the 4-way Handshake
+===== Capturing the 4-way Handshake
 
 WPA and WPA2 use keys derived from an EAPOL handshake, which occurs when a machine joins a Wi-Fi network, to encrypt traffic. Unless **all four** handshake packets are present for the session you're trying to decrypt, Wireshark won't be able to decrypt the traffic. You can use the display filter **eapol** to locate EAPOL packets in your capture.
 
@@ -1319,7 +1319,7 @@ If a TK is provided as a key, then the EAPOL 4-way handshake is not necessary,
 as the TK is what the handshake derives. However, all available TKs will be
 tried agi
 
-====== Too Many Associations
+===== Too Many Associations
 
 WPA and WPA2 use individual keys for each device. Wireshark is able to handle
 up to 256 active associations, which should be enough in most circumstances.
@@ -1340,7 +1340,7 @@ then decoding suddenly fail on the new file after Wireshark is restarted or keys
 are edited. If decoding suddenly stops working on a capture make sure the needed
 EAPOL packets are still in it.
 
-====== WPA/WPA2 Enterprise/Rekeys
+===== WPA/WPA2 Enterprise/Rekeys
 
 As long as you can somehow extract the PMK from either the client or the Radius
 Server and configure the key (as PSK) all supported Wireshark versions will decode
@@ -1354,7 +1354,7 @@ Decrypting IEEE 802.11r Fast BSS Transition roaming requires capturing
 reassociation frames for similar reasons, and is supported by recent
 Wireshark versions.
 
-====== WPA3 Per-Connection Decryption
+===== WPA3 Per-Connection Decryption
 
 In WPA3, a different PMK is used for each connection in order to achieve forward
 secrecy. Capturing the 4-way handshake and knowing the network password is not
@@ -1364,7 +1364,7 @@ with the `-d -K` flags) and use this as the decryption key in Wireshark. Even
 then, the decryption will only work for packets between that client and access
 point, not for all devices on that network.
 
-====== TKs and Performance
+===== TKs and Performance
 
 The TKs are the actual transient keys used to encrypt packets, which are derived
 during the handshake. If known, they can decrypt packets without having the
@@ -1382,7 +1382,7 @@ the performance impact is slight.
 
 [#ChIKEv2DecryptionSection]
 
-==== IKEv2 decryption table
+=== IKEv2 decryption table
 
 Wireshark can decrypt Encrypted Payloads of IKEv2 (Internet Key Exchange version
 2) packets if necessary information is provided. Note that you can decrypt only
@@ -1430,7 +1430,7 @@ Integrity algorithm of the IKE_SA.
 
 [#ChObjectIdentifiers]
 
-==== Object Identifiers
+=== Object Identifiers
 
 // This table appears under the BER dissector, perhaps it should be moved
 // to the "Name Resolution" preference section?
@@ -1465,7 +1465,7 @@ of the syntaxes that Wireshark already knows about (e.g., “PrintableString”)
 
 [#ChPresContextList]
 
-==== PRES Users Context List
+=== PRES Users Context List
 
 Wireshark uses this table to map a presentation context identifier to a given
 object identifier when the capture does not contain a PRES package with a
@@ -1484,7 +1484,7 @@ protocol that is carried over this association.
 
 [#ChSccpUsers]
 
-==== SCCP users Table
+=== SCCP users Table
 
 Wireshark uses this table to map specific protocols to a certain DPC/SSN
 combination for SCCP.
@@ -1507,7 +1507,7 @@ The protocol that is carried over this association
 
 [#ChSNMPSMIModules]
 
-==== SMI (MIB and PIB) Modules
+=== SMI (MIB and PIB) Modules
 
 If your copy of Wireshark supports libSMI, you can specify a list of MIB and PIB
 modules here. The COPS and SNMP dissectors can use them to resolve OIDs.
@@ -1517,7 +1517,7 @@ The name of the module, e.g., IF-MIB.
 
 [#ChSNMPSMIPaths]
 
-==== SMI (MIB and PIB) Paths
+=== SMI (MIB and PIB) Paths
 
 If your copy of Wireshark supports libSMI, you can specify one or more paths to
 MIB and PIB modules here.
@@ -1529,7 +1529,7 @@ here.
 
 [#ChSNMPEnterpriseSpecificTrapTypes]
 
-==== SNMP Enterprise Specific Trap Types
+=== SNMP Enterprise Specific Trap Types
 
 Wireshark uses this table to map specific-trap values to user defined
 descriptions in a Trap PDU. The description is shown in the packet details
@@ -1551,7 +1551,7 @@ The description to show in the packet details.
 
 [#ChSNMPUsersSection]
 
-==== SNMP users Table
+=== SNMP users Table
 
 Wireshark uses this table to verify authentication and to decrypt encrypted
 SNMPv3 packets.
@@ -1590,7 +1590,7 @@ as _\x5C_ or _\x5c_.
 
 [#ChK12ProtocolsSection]
 
-==== Tektronix K12xx/15 RF5 protocols Table
+=== Tektronix K12xx/15 RF5 protocols Table
 
 The Tektronix K12xx/15 rf5 file format uses helper files (*.stk) to identify the
 various protocols that are used by a certain interface. Wireshark doesn’t read
@@ -1613,7 +1613,7 @@ sscop:nbap, ...)
 
 [#ChUserDLTsSection]
 
-==== User DLTs dissector table
+=== User DLTs dissector table
 
 When a pcap file uses one of the user DLTs (147 to 162) Wireshark uses this
 table to know which dissector(s) to use for each user DLT.
@@ -1644,7 +1644,7 @@ The name of the trailer dissector to be used (uses “data” as default).
 
 [#ChProtobufSearchPaths]
 
-==== Protobuf Search Paths
+=== Protobuf Search Paths
 
 The
 https://developers.google.com/protocol-buffers/docs/encoding[binary wire format]
@@ -1681,7 +1681,7 @@ files, that may cause unnecessary memory use.
 
 [#ChProtobufUDPMessageTypes]
 
-==== Protobuf UDP Message Types
+=== Protobuf UDP Message Types
 
 If the payload of UDP on certain ports is Protobuf encoding, Wireshark use this table
 to know which Protobuf message type should be used to parsing the data on the specified
