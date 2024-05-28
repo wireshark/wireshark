@@ -3904,8 +3904,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 	guint8 subType;
 	guint32 offset = 0;
 	proto_item	*tf = NULL;
-	guint16 class2_PortStatus;
-	guint16 class3_PortStatus;
+	guint32 class3_PortStatus;
 	guint32 port_rx_delay_local;
 	guint32 port_rx_delay_remote;
 	guint32 port_tx_delay_local;
@@ -3972,16 +3971,13 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 	}
 	case 2:		/* LLDP_PNIO_PORTSTATUS */
 	{
-		class2_PortStatus = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_profinet_class2_port_status, tvb, offset, 2, class2_PortStatus);
+		proto_tree_add_item(tree, hf_profinet_class2_port_status, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
-		class3_PortStatus = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_profinet_class3_port_status, tvb, offset, 2, class3_PortStatus);
-		proto_tree_add_uint(tree, hf_profinet_class3_port_status_reserved, tvb, offset, 2, class3_PortStatus);
-		proto_tree_add_item(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_uint(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, class3_PortStatus);
+		proto_tree_add_item(tree, hf_profinet_class3_port_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_profinet_class3_port_status_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, ENC_BIG_ENDIAN, &class3_PortStatus);
+		proto_tree_add_item(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-		class3_PortStatus = class3_PortStatus & 0x7;
 		col_append_fstr(pinfo->cinfo, COL_INFO, "RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
 		/*offset+=2;*/
 		break;
