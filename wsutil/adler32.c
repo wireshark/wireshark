@@ -12,6 +12,9 @@
 
 #include <wsutil/adler32.h>
 
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
 #include <string.h>
 
 #define BASE 65521 /* largest prime smaller than 65536 */
@@ -19,6 +22,9 @@
 /*--- update_adler32 --------------------------------------------------------*/
 uint32_t update_adler32(uint32_t adler, const uint8_t *buf, size_t len)
 {
+#ifdef HAVE_ZLIB
+  return (uint32_t)adler32(adler, buf, len);
+#else
   uint32_t s1 = adler & 0xffff;
   uint32_t s2 = (adler >> 16) & 0xffff;
   size_t n;
@@ -28,6 +34,7 @@ uint32_t update_adler32(uint32_t adler, const uint8_t *buf, size_t len)
     s2 = (s2 + s1)     % BASE;
   }
   return (s2 << 16) + s1;
+#endif
 }
 
 /*--- adler32 ---------------------------------------------------------------*/
