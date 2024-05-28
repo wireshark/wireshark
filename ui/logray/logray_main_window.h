@@ -302,6 +302,7 @@ private slots:
      */
     void startCapture(QStringList);
     void startCapture();
+    void pushLiveCaptureInProgress();
     void popLiveCaptureInProgress();
     void stopCapture();
 

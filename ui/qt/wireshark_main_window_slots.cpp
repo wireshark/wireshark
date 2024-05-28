@@ -508,8 +508,8 @@ void WiresharkMainWindow::queuedFilterAction(QString action_filter, FilterAction
 #ifdef HAVE_LIBPCAP
 void WiresharkMainWindow::captureCapturePrepared(capture_session *session) {
     setTitlebarForCaptureInProgress();
-
     setWindowIcon(mainApp->captureIcon());
+    pushLiveCaptureInProgress();
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -528,6 +528,7 @@ void WiresharkMainWindow::captureCaptureUpdateStarted(capture_session *session) 
        switching to the next multiple file. */
     setTitlebarForCaptureInProgress();
     setWindowIcon(mainApp->captureIcon());
+    pushLiveCaptureInProgress();
 
     bool handle_toolbars = (session->session_will_restart ? false : true);
     setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
@@ -929,24 +930,6 @@ void WiresharkMainWindow::startCapture(QStringList interfaces) {
     info_data_.ui.ui = this;
     if (capture_start(&global_capture_opts, NULL, &cap_session_, &info_data_,
                       main_window_update)) {
-        capture_options *capture_opts = cap_session_.capture_opts;
-        GString *interface_names;
-
-        /* Add "interface name<live capture in progress>" on main status bar */
-        interface_names = get_iface_list_string(capture_opts, 0);
-        if (strlen(interface_names->str) > 0) {
-            g_string_append(interface_names, ":");
-        }
-        g_string_append(interface_names, " ");
-
-        mainApp->popStatus(WiresharkApplication::FileStatus);
-        QString msg = QString("%1<live capture in progress>").arg(interface_names->str);
-        QString msgtip = QString("to file: ");
-        if (capture_opts->save_file)
-            msgtip += capture_opts->save_file;
-        mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
-        g_string_free(interface_names, true);
-
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
         QByteArray filter_ba;
@@ -986,6 +969,28 @@ DIAG_ON(stringop-overread)
     }
 #else // HAVE_LIBPCAP
     Q_UNUSED(interfaces)
+#endif // HAVE_LIBPCAP
+}
+
+void WiresharkMainWindow::pushLiveCaptureInProgress() {
+#ifdef HAVE_LIBPCAP
+    capture_options *capture_opts = cap_session_.capture_opts;
+    GString *interface_names;
+
+    /* Add "interface name<live capture in progress>" on main status bar */
+    interface_names = get_iface_list_string(capture_opts, 0);
+    if (strlen(interface_names->str) > 0) {
+        g_string_append(interface_names, ":");
+    }
+    g_string_append(interface_names, " ");
+
+    mainApp->popStatus(WiresharkApplication::FileStatus);
+    QString msg = QString("%1<live capture in progress>").arg(interface_names->str);
+    QString msgtip = QString("to file: ");
+    if (capture_opts->save_file)
+        msgtip += capture_opts->save_file;
+    mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
+    g_string_free(interface_names, true);
 #endif // HAVE_LIBPCAP
 }
 
