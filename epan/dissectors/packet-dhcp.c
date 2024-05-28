@@ -1422,7 +1422,7 @@ static const string_string option242_avaya_static_vals[] = {
 /* Re-define structure.	 Values to be updated by dhcp_init_protocol */
 static struct opt_info dhcp_opt[DHCP_OPT_NUM];
 
-static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
+static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /*   0 */ { "Padding",					none, &hf_dhcp_option_padding },
 /*   1 */ { "Subnet Mask",				ipv4, &hf_dhcp_option_subnet_mask },
 /*   2 */ { "Time Offset",				time_in_s_secs, &hf_dhcp_option_time_offset },
@@ -1750,7 +1750,7 @@ UAT_CSTRING_CB_DEF(uat_dhcp_records, text, uat_dhcp_record_t)
 UAT_VS_DEF(uat_dhcp_records, ftype, uat_dhcp_record_t, enum field_type, special, "string")
 
 
-static struct opt_info* dhcp_get_opt(unsigned int idx)
+static const struct opt_info* dhcp_get_opt(unsigned int idx)
 {
 	if(idx>=DHCP_OPT_NUM)
 		return NULL;
@@ -1784,7 +1784,7 @@ struct basic_types_hfs {
 static int
 dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
 			 enum field_type ftype, int offset, int total_len,
-			 gint *hf, struct basic_types_hfs* hf_default)
+			 gint *hf, const struct basic_types_hfs* hf_default)
 {
 	int	i, left;
 	int	consumed = 0;
@@ -1957,9 +1957,9 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 static int
 dissect_dhcpopt_basic_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	struct opt_info *opt;
+	const struct opt_info *opt;
 	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		&hf_dhcp_option_value,
 		&hf_dhcp_option_value_ip_address,
 		&hf_dhcp_option_value_ip_address,
@@ -1987,7 +1987,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	     int eoff, gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
 	     const guint8 **vendor_class_id_p, guint8 *overload_p)
 {
-	struct opt_info *opt;
+	const struct opt_info *opt;
 	guchar		 code = tvb_get_guint8(tvb, voff);
 	int		 optlen;
 	int		 i, consumed;
@@ -3473,7 +3473,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	proto_tree *o82_v_tree, *o82_sub_tree;
 	int 	clsuboptoff, clsubopt_end;
 
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		&hf_dhcp_option82_value,
 		&hf_dhcp_option82_value_ip_address,
 		&hf_dhcp_option82_value_ip_address,
@@ -3491,7 +3491,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		int id;
 		struct opt_info info;
 	};
-	static struct opt82_info o82_opt[]= {
+	static const struct opt82_info o82_opt[]= {
 		{0, {"nop", bytes, &hf_dhcp_option82_padding}},	/* dummy */
 		{1, {"Agent Circuit ID", bytes, &hf_dhcp_option82_agent_circuit_id}}, /* [RFC3046] */
 		{2, {"Agent Remote ID", bytes, &hf_dhcp_option82_agent_remote_id}}, /* [RFC3046] */
@@ -3712,7 +3712,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	guint32	    boot_server_ip_count;
 	guint32	    boot_menu_length;
 
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		NULL,
 		&hf_dhcp_option43_value_ip_address,
 		&hf_dhcp_option43_value_ip_address,
@@ -3734,7 +3734,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		NULL
 	};
 
-	static struct opt_info o43pxeclient_opt[]= {
+	static const struct opt_info o43pxeclient_opt[]= {
 		/* 0 */ {"nop", special, &hf_dhcp_option43_pxeclient_padding},	/* dummy */
 		/* 1 */ {"PXE mtftp IP", ipv4_list, &hf_dhcp_option43_pxeclient_mtftp_ip},
 		/* 2 */ {"PXE mtftp client port", val_u_le_short, &hf_dhcp_option43_pxeclient_mtftp_client_port},
@@ -4445,7 +4445,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	proto_tree *o43cl_v_tree;
 	proto_item *vti;
 
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		&hf_dhcp_option43_value,
 		NULL,
 		NULL,
@@ -4459,7 +4459,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		NULL
 	};
 
-	static struct opt_info o43cablelabs_opt[]= {
+	static const struct opt_info o43cablelabs_opt[]= {
 		/*  0 */ {"nop", special, &hf_dhcp_option43_cl_padding},	/* dummy */
 		/*  1 */ {"Suboption Request List", string, &hf_dhcp_option43_cl_suboption_request_list},
 		/*  2 */ {"Device Type", string, &hf_dhcp_option43_cl_device_type},
@@ -5360,7 +5360,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree *o63_v_tree;
 	proto_item *vti, *ti;
 
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		NULL,
 		&hf_dhcp_option63_value_ip_address,
 		&hf_dhcp_option63_value_ip_address,
@@ -5374,7 +5374,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		NULL
 	};
 
-	static struct opt_info o63_opt[]= {
+	static const struct opt_info o63_opt[]= {
 		/* 0 */ {"",none,NULL},
 		/* 1 */ {"NWIP does not exist on subnet",presence,NULL},
 		/* 2 */ {"NWIP exists in options area",presence,NULL},
@@ -5461,7 +5461,7 @@ dissect_vendor_tr111_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_item *vti, *ti;
 	guint8 subopt, subopt_len;
 
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		NULL,
 		NULL,
 		NULL,
@@ -5479,7 +5479,7 @@ dissect_vendor_tr111_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	   Page 10.
 	*/
 
-	static struct opt_info o125_tr111_opt[]= {
+	static const struct opt_info o125_tr111_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
 		/* 1 */ {"DeviceManufacturerOUI",  oui,    &hf_dhcp_option125_tr111_device_manufacturer_oui},
 		/* 2 */ {"DeviceSerialNumber",     string, &hf_dhcp_option125_tr111_device_serial_number},
@@ -5564,7 +5564,7 @@ dissect_vendor_cl_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *o125_v_tree;
 	proto_item *vti;
 
-	struct basic_types_hfs default_hfs = {
+	static const struct basic_types_hfs default_hfs = {
 		&hf_dhcp_option125_value,
 		&hf_dhcp_option125_value_ip_address,
 		&hf_dhcp_option125_value_ip_address,
@@ -5578,7 +5578,7 @@ dissect_vendor_cl_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		NULL
 	};
 
-	static struct opt_info o125_cl_opt[]= {
+	static const struct opt_info o125_cl_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
 		/* 1 */ {"Option Request = ", bytes, &hf_dhcp_option125_cl_option_request},
 		/* 2 */ {"TFTP Server Addresses : ", ipv4_list, &hf_dhcp_option125_cl_tftp_server_addresses},
