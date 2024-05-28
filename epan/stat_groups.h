@@ -21,7 +21,12 @@ extern "C" {
 
 /*
  * Menu statistics group definitions. Used by ui/qt/tap_parameter_dialog.h
- * and ui/gtk/tap_param_dlg.h.
+ * and by epan/wslua/init_wslua.c
+ *
+ * REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER and
+ * REGISTER_STAT_GROUP_[CONVERSATION|ENDPOINT]_LIST are unused and present
+ * for historical reasons. To register members to those menus, use
+ * epan/conversation_filter.h and epan/conversation_table.h, respectively.
  *
  * XXX - stats should be able to register additional menu groups, although
  * the question then would be "in what order should they appear in the menu?"
@@ -30,11 +35,11 @@ extern "C" {
 /*! Statistics groups. Used for UI menu layout. */
 typedef enum register_stat_group_e {
     REGISTER_PACKET_ANALYZE_GROUP_UNSORTED,     /*!< Unsorted packet analysis */
-    REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /*!< Conversation filters. Unused? */
+    REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /*!< Conversation filters. Unused. */
     REGISTER_PACKET_STAT_GROUP_UNSORTED,        /*!< Unsorted packet statistics */
     REGISTER_STAT_GROUP_GENERIC,                /*!< Generic statistics, not specific to a protocol */
-    REGISTER_STAT_GROUP_CONVERSATION_LIST,      /*!< Member of the conversation list */
-    REGISTER_STAT_GROUP_ENDPOINT_LIST,          /*!< Member of the endpoint list */
+    REGISTER_STAT_GROUP_CONVERSATION_LIST,      /*!< Member of the conversation list. Unused. */
+    REGISTER_STAT_GROUP_ENDPOINT_LIST,          /*!< Member of the endpoint list. Unused. */
     REGISTER_STAT_GROUP_RESPONSE_TIME,          /*!< Member of the service response time list */
     REGISTER_STAT_GROUP_RSERPOOL,               /*!< Member of the RSerPool list */
     REGISTER_STAT_GROUP_TELEPHONY,              /*!< Telephony specific */

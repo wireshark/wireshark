@@ -366,11 +366,8 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
 
     menu_groups_ = QList<register_stat_group_t>()
             << REGISTER_PACKET_ANALYZE_GROUP_UNSORTED
-            << REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER
             << REGISTER_PACKET_STAT_GROUP_UNSORTED
             << REGISTER_STAT_GROUP_GENERIC
-            << REGISTER_STAT_GROUP_CONVERSATION_LIST
-            << REGISTER_STAT_GROUP_ENDPOINT_LIST
             << REGISTER_STAT_GROUP_RESPONSE_TIME
             << REGISTER_STAT_GROUP_RSERPOOL
             << REGISTER_STAT_GROUP_TELEPHONY
