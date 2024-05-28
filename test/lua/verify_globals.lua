@@ -15,61 +15,27 @@ local filter = {
     -- differences in Lua versions
     "_VERSION",
     "package.config",
-
-    -- differences caused by changes in wireshark 1.11
-    "NSTime",
-    "Proto",
-    'Listener["<metatable>"].__index',
-    ".__index"
+    "utf8.charpattern" -- some versions allow overlong encodings
  }
 
 -- the following items don't have to exist
 local ignore = {
-    -- not sure why this was removed in wireshark 1.11, but it was
-    "TreeItem.set_expert_flags",
-
-    -- in Lua 5.1 only
-    "debug.getfenv",
-    "debug.setfenv",
-    "gcinfo",
-    "getfenv",
-    "io.gfind",
-    "setfenv",
-    "loadstring", -- call load with a string argument
-    "math.log10", -- call math.log with second argument
-    "math.mod",
-    "module",
-    "newproxy",
-    "package.loaders", -- renamed package.searchers
-    "package.seeall", -- used with module
-    "string.gfind",
-    "table.foreach",
-    "table.foreachi",
-    "table.getn",
-    "table.maxn",
-    "table.setn",
-    "unpack", -- replaced by table.unpack
-
-    -- in Lua 5.2+ only
-    "bit32",
-    "debug.getuservalu",
-    "debug.setuservalu",
-    "debug.upvalueid",
-    "debug.upvaluejoin",
-    "package.searchers",
-    "package.searchpath",
-    "rawlen",
-    "table.pack",
-    "table.unpack",
-
-    -- removed in Lua 5.3
+    -- deprecated in Lua 5.3, removed in Lua 5.4
+    -- but might appear in 5.4 with 5.3 backwards compatibility mode
+    "bit32", -- 5.3+ has bitwise operators, we include BitOp
     "math.atan2", -- use math.atan with two arguments
     "math.cosh",
+    "math.log10", -- call math.log with second argument
     "math.sinh",
     "math.tanh",
     "math.pow", -- use x^y
     "math.frexp",
     "math.ldexp", -- use x * 2.0^exp
+
+    -- new in Lua 5.4
+    "coroutine.close",
+    "debug.setcstacklimit", -- function that existed in 5.4.1, stub-only in 5.4.2+
+    "warn"
 }
 
 

@@ -260,7 +260,7 @@ class TestWslua:
         '''wslua globals'''
         check_lua_script('verify_globals.lua', empty_pcap, True,
             '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, ''),
-            '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, 'globals_2.2.txt'),
+            '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, 'globals_4.4.txt'),
         )
 
     def test_wslua_struct(self, check_lua_script):

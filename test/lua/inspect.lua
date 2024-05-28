@@ -416,9 +416,6 @@ function inspect.marshal(inString, options)
     inString = "return " .. inString
   end
 
-  -- loadstring was removed after Lua 5.1, load given a string
-  -- argument does the same thing
-  local load = (_VERSION == "Lua 5.1") and loadstring or load
   local t = assert(load(inString))()
 
   removeIndex(t)
