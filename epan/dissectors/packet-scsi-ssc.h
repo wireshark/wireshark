@@ -44,7 +44,7 @@
 #define SCSI_SSC_ERASE_16                       0x93
 
 extern int hf_scsi_ssc_opcode;
-extern scsi_cdb_table_t scsi_ssc_table[256];
+extern const scsi_cdb_table_t scsi_ssc_table[256];
 WS_DLL_PUBLIC value_string_ext scsi_ssc_vals_ext;
 
 #endif

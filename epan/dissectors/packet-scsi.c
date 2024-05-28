@@ -2780,9 +2780,9 @@ static gint scsi_def_devtype = SCSI_DEV_SBC;
 
 
 typedef struct _cmdset_t {
-    int                 hf_opcode;
-    value_string_ext   *cdb_vals_ext;
-    scsi_cdb_table_t   *cdb_table;
+    int                     hf_opcode;
+    value_string_ext       *cdb_vals_ext;
+    const scsi_cdb_table_t *cdb_table;
 } cmdset_t;
 
 static cmdset_t *get_cmdset_data(wmem_allocator_t *pool, itlq_nexus_t *itlq, itl_nexus_t *itl);
@@ -5867,7 +5867,7 @@ dissect_scsi_snsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-static scsi_cdb_table_t spc[256] = {
+static const scsi_cdb_table_t spc[256] = {
     /*SPC 0x00*/{dissect_spc_testunitready},
     /*SPC 0x01*/{NULL},
     /*SPC 0x02*/{NULL},

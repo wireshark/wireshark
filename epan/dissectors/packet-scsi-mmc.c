@@ -1324,7 +1324,7 @@ static const value_string scsi_track_mode_vals[] = {
 };
 static value_string_ext scsi_track_mode_vals_ext = VALUE_STRING_EXT_INIT(scsi_track_mode_vals);
 
-scsi_cdb_table_t scsi_mmc_table[256] = {
+const scsi_cdb_table_t scsi_mmc_table[256] = {
 /*SPC 0x00*/{dissect_spc_testunitready},
 /*MMC 0x01*/{NULL},
 /*MMC 0x02*/{NULL},

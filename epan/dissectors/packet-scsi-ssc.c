@@ -941,7 +941,7 @@ static const value_string scsi_ssc_vals[] = {
 value_string_ext scsi_ssc_vals_ext = VALUE_STRING_EXT_INIT(scsi_ssc_vals);
 
 
-scsi_cdb_table_t scsi_ssc_table[256] = {
+const scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SPC 0x00*/{dissect_spc_testunitready},
 /*SSC 0x01*/{dissect_ssc_rewind},
 /*SSC 0x02*/{NULL},

@@ -34,7 +34,7 @@ const attribute_page_numbers_t *
 osd_lookup_attribute(guint32 page, guint32 number);
 
 extern int hf_scsi_osd_opcode;
-extern scsi_cdb_table_t scsi_osd_table[256];
+extern const scsi_cdb_table_t scsi_osd_table[256];
 WS_DLL_PUBLIC value_string_ext scsi_osd_vals_ext;
 
 #endif

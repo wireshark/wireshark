@@ -12,7 +12,7 @@
 #define __PACKET_SCSI_MMC_H_
 
 extern int hf_scsi_mmc_opcode;
-extern scsi_cdb_table_t scsi_mmc_table[256];
+extern const scsi_cdb_table_t scsi_mmc_table[256];
 
 WS_DLL_PUBLIC value_string_ext scsi_mmc_vals_ext;
 

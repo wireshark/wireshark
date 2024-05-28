@@ -3413,7 +3413,7 @@ static const value_string scsi_osd_vals[] = {
 };
 value_string_ext scsi_osd_vals_ext = VALUE_STRING_EXT_INIT(scsi_osd_vals);
 
-scsi_cdb_table_t scsi_osd_table[256] = {
+const scsi_cdb_table_t scsi_osd_table[256] = {
 /*OSD 0x00*/{NULL},
 /*OSD 0x01*/{NULL},
 /*OSD 0x02*/{NULL},
