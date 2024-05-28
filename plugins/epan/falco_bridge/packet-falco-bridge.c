@@ -239,8 +239,8 @@ const char *
 stnode_op_to_string(stnode_op_t op) {
     switch (op) {
     case STNODE_OP_NOT:         return "!";
-    case STNODE_OP_AND:         return "&&";
-    case STNODE_OP_OR:          return "||";
+    case STNODE_OP_AND:         return "and";
+    case STNODE_OP_OR:          return "or";
     case STNODE_OP_ANY_EQ:      return "=";
     case STNODE_OP_ALL_NE:      return "!=";
     case STNODE_OP_GT:          return ">";
@@ -303,6 +303,10 @@ bool visit_dfilter_node(stnode_t *node, stnode_op_t parent_bool_op, GString *fal
         }
 
         if (left && right) {
+            if ((op == STNODE_OP_ANY_EQ || op == STNODE_OP_ALL_NE) && stnode_type_id(right) != STTYPE_FVALUE) {
+                // XXX Not yet supported; need to add a version check.
+                return false;
+            }
             bool add_parens = (op == STNODE_OP_AND || op == STNODE_OP_OR) && op != parent_bool_op && parent_bool_op != STNODE_OP_UNINITIALIZED;
             if (add_parens) {
                 g_string_append_c(falco_rule, '(');
