@@ -415,6 +415,10 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 	length = tvb_reported_length(tvb);
 
+	if(!(pinfo->srcport == ADWIN_CONFIGURATION_PORT
+		|| pinfo->destport == ADWIN_CONFIGURATION_PORT))
+		return 0;
+
 	if (!(length == UDPStatusLENGTH
 	       || length == UDPExtStatusLENGTH
 	       || length == UDPMessageLENGTH
