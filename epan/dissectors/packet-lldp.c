@@ -3978,7 +3978,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 		class3_PortStatus = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status, tvb, offset, 2, class3_PortStatus);
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status_reserved, tvb, offset, 2, class3_PortStatus);
-		proto_tree_add_uint(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, class3_PortStatus);
+		proto_tree_add_item(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, class3_PortStatus);
 
 		class3_PortStatus = class3_PortStatus & 0x7;
@@ -6235,7 +6235,7 @@ proto_register_lldp(void)
 			VALS(civic_address_type_values), 0x0, "Unknown", HFILL }
 		},
 		{ &hf_media_civic_addr_len,
-			{ "CA Length", "lldp.media.civic.length", FT_UINT8, BASE_DEC,
+			{ "CA Length", "lldp.media.civic.addr_length", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_civic_addr_value,
