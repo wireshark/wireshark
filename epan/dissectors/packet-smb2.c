@@ -10386,7 +10386,7 @@ static const char *decode_smb2_name(guint16 cmd)
 	return smb2_cmd_vals[cmd & 0xFF].strptr;
 }
 
-static smb2_function smb2_dissector[256] = {
+static const smb2_function smb2_dissector[256] = {
   /* 0x00 NegotiateProtocol*/
 	{dissect_smb2_negotiate_protocol_request,
 	 dissect_smb2_negotiate_protocol_response},

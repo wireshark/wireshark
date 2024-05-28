@@ -17242,7 +17242,7 @@ typedef struct _smb_function {
 	int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, smb_info_t *si);
 } smb_function;
 
-static smb_function smb_dissector[256] = {
+static const smb_function smb_dissector[256] = {
 	/* 0x00 Create Dir*/                 {dissect_old_dir_request            , dissect_empty},
 	/* 0x01 Delete Dir*/                 {dissect_old_dir_request            , dissect_empty},
 	/* 0x02 Open File*/                  {dissect_open_file_request          , dissect_open_file_response},
