@@ -794,6 +794,11 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
                 sfe->res.u64 = *(uint64_t *)values[0].ptr;
                 break;
             case PT_CHARBUF:
+                if (*values[0].ptr == '\0') {
+                    // XXX libsinsp 0.14.1 sometimes returns garbage / large length values for empty strings.
+                    // ws_warning("charbuf value length %u should be 0", values[0].len);
+                    values[0].len = 0;
+                }
                 if (values[0].len < SFE_SMALL_BUF_SIZE) {
                     // XXX We need to convert this to valid UTF-8
                     g_strlcpy(sfe->res.small_str, (const char *) values[0].ptr, SFE_SMALL_BUF_SIZE);
