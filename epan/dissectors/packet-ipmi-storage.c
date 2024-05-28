@@ -694,7 +694,7 @@ rq5b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static ipmi_cmd_t cmd_storage[] = {
+static const ipmi_cmd_t cmd_storage[] = {
 	/* FRU Device Commands */
 	{ 0x10, rq10, rs10, NULL, NULL, "Get FRU Inventory Area Info", 0 },
 	{ 0x11, rq11, rs11, cc11, NULL, "Read FRU Data", 0 },

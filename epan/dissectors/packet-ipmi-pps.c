@@ -17,7 +17,7 @@
 
 void proto_register_ipmi_pps(void);
 
-static ipmi_cmd_t cmd_pps[] = {
+static const ipmi_cmd_t cmd_pps[] = {
 	{ 0x00, IPMI_TBD,   NULL, NULL, "[PPS OEM] Get Status", 0 },
 	{ 0x01, IPMI_TBD,   NULL, NULL, "[PPS OEM] Get Serial Interface Properties", 0 },
 	{ 0x02, IPMI_TBD,   NULL, NULL, "[PPS OEM] Set Serial Interface Properties", 0 },

@@ -675,7 +675,7 @@ rs0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_chs_0f_counter, tvb, 1, 4, ENC_LITTLE_ENDIAN);
 }
 
-static ipmi_cmd_t cmd_chassis[] = {
+static const ipmi_cmd_t cmd_chassis[] = {
 	/* Chassis commands */
 	{ 0x00, NULL, rs00, NULL, NULL, "Get Chassis Capabilities", 0 },
 	{ 0x01, NULL, rs01, NULL, NULL, "Get Chassis Status", 0 },

@@ -423,7 +423,7 @@ add_request(ipmi_packet_data_t * data, const ipmi_header_t * hdr)
 }
 
 static void
-add_command_info(packet_info *pinfo, ipmi_cmd_t * cmd,
+add_command_info(packet_info *pinfo, const ipmi_cmd_t * cmd,
 		gboolean resp, guint8 cc_val, const char * cc_str, gboolean broadcast)
 {
 	if (resp) {
@@ -441,7 +441,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	ipmi_packet_data_t * data;
 	ipmi_netfn_t * cmd_list;
-	ipmi_cmd_t * cmd;
+	const ipmi_cmd_t * cmd;
 	proto_item * ti;
 	proto_tree * cmd_tree = NULL, * tmp_tree;
 	guint8 prev_level, cc_val;
@@ -1109,7 +1109,7 @@ ipmi_netfn_setdesc(guint32 netfn, const char *desc, guint32 siglen)
 void
 ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 		const guint8 *sig, guint32 siglen, const char *desc,
-		ipmi_cmd_t *cmdtab, guint32 cmdtablen)
+		const ipmi_cmd_t *cmdtab, guint32 cmdtablen)
 {
 	struct ipmi_netfn_root *inr;
 	ipmi_netfn_t *inh;
@@ -1174,10 +1174,10 @@ ipmi_getnetfn(guint32 netfn, const guint8 *sig)
 	return NULL;
 }
 
-ipmi_cmd_t *
+const ipmi_cmd_t *
 ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd)
 {
-	static ipmi_cmd_t ipmi_cmd_unknown = {
+	static const ipmi_cmd_t ipmi_cmd_unknown = {
 		0x00,		/* Code */
 		ipmi_notimpl,	/* request */
 		ipmi_notimpl,	/* response */
@@ -1186,7 +1186,7 @@ ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd)
 		"Unknown command",
 		0		/* flag */
 	};
-	ipmi_cmd_t *ic;
+	const ipmi_cmd_t *ic;
 	size_t i, len;
 
 	if (nf) {
@@ -1291,7 +1291,7 @@ ipmi_fmt_percent(gchar *s, guint32 v)
 }
 
 const char *
-ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd)
+ipmi_get_completion_code(guint8 completion, const ipmi_cmd_t *cmd)
 {
 	static const value_string std_completion_codes[] = {
 		{ 0x00, "Command Completed Normally" },

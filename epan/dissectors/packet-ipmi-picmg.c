@@ -2112,7 +2112,7 @@ rs34(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	static const guint8 sig = 0;
 	static int * const byte3[] = { &hf_ipmi_picmg_34_percentage, NULL };
 	guint8 v;
-	ipmi_cmd_t *c;
+	const ipmi_cmd_t *c;
 
 	v = tvb_get_guint8(tvb, 0);
 	c = ipmi_getcmd(ipmi_getnetfn(IPMI_GROUP_REQ, &sig), v);
@@ -2602,7 +2602,7 @@ rs48(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
-static ipmi_cmd_t cmd_picmg[] = {
+static const ipmi_cmd_t cmd_picmg[] = {
 	/* AdvancedTCA Commands */
 	{ 0x00, NULL, rs00, NULL, NULL, "[ATCA] Get PICMG Properties", 0 },
 	{ 0x01, rq01, rs01, NULL, NULL, "[ATCA] Get Address Info", 0 },

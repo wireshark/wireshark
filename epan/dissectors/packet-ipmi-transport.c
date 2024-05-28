@@ -2533,7 +2533,7 @@ static const value_string cc33[] = {
 	{ 0, NULL }
 };
 
-static ipmi_cmd_t cmd_transport[] = {
+static const ipmi_cmd_t cmd_transport[] = {
 	/* LAN Device Commands */
 	{ 0x01, rq01, NULL, cc01, NULL, "Set LAN Configuration Parameters", 0 },
 	{ 0x02, rq02, rs02, cc02, NULL, "Get LAN Configuration Parameters", CMD_CALLRQ },

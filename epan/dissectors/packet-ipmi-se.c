@@ -2805,7 +2805,7 @@ static const value_string cc30[] = {
 	{ 0, NULL }
 };
 
-static ipmi_cmd_t cmd_se[] = {
+static const ipmi_cmd_t cmd_se[] = {
 	/* Event commands */
 	{ 0x00, rq00, NULL, NULL, NULL, "Set Event Receiver", 0 },
 	{ 0x01, NULL, rs01, NULL, NULL, "Get Event Receiver", 0 },

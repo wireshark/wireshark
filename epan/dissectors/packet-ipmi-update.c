@@ -17,7 +17,7 @@
 
 void proto_register_ipmi_update(void);
 
-static ipmi_cmd_t cmd_update[] = {
+static const ipmi_cmd_t cmd_update[] = {
 	{ 0x00, IPMI_TBD,   NULL, NULL, "[PPS OEM] Upgrade Status", 0 },
 	{ 0x01, IPMI_TBD,   NULL, NULL, "[PPS OEM] Upgrade Start", 0 },
 	{ 0x02, IPMI_TBD,   NULL, NULL, "[PPS OEM] Upgrade Prepare", 0 },

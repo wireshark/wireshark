@@ -20,7 +20,7 @@ void proto_register_ipmi_bridge(void);
 /* Bridge commands are not implemented (yet) */
 
 
-static ipmi_cmd_t cmd_bridge[] = {
+static const ipmi_cmd_t cmd_bridge[] = {
   /* Bridge management commands (ICMB) */
   { 0x00, IPMI_TBD,   NULL, NULL, "[ICMB] Get Bridge State", 0 },
   { 0x01, IPMI_TBD,   NULL, NULL, "[ICMB] Set Bridge State", 0 },

@@ -961,7 +961,7 @@ static const value_string cc62[] = {
 	{ 0, NULL }
 };
 
-static ipmi_cmd_t cmd_app[] = {
+static const ipmi_cmd_t cmd_app[] = {
 	/* IPM Device Global Commands */
 	{ 0x01, NULL, rs01, NULL, NULL, "Get Device ID", 0 },
 	{ 0x02, NULL, NULL, NULL, NULL, "Cold Reset", 0 },

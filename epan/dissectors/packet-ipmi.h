@@ -107,7 +107,7 @@ typedef struct ipmi_netfn_handler {
 	const char *desc;
 	guint oem_selector;
 	const guint8 *sig;
-	ipmi_cmd_t *cmdtab;
+	const ipmi_cmd_t *cmdtab;
 	guint32 cmdtablen;
 } ipmi_netfn_t;
 
@@ -142,14 +142,14 @@ void ipmi_fmt_percent(gchar *, guint32);
 /* Registrar for subparsers */
 void ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 		const guint8 *sig, guint32 siglen, const char *desc,
-		ipmi_cmd_t *cmdtab, guint32 cmdtablen);
+		const ipmi_cmd_t *cmdtab, guint32 cmdtablen);
 
 /* Lookup routines */
 guint32 ipmi_getsiglen(guint32 netfn);
 const char *ipmi_getnetfnname(wmem_allocator_t *pool, guint32 netfn, ipmi_netfn_t *nf);
 ipmi_netfn_t *ipmi_getnetfn(guint32 netfn, const guint8 *sig);
-ipmi_cmd_t *ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd);
-const char *ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd);
+const ipmi_cmd_t *ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd);
+const char *ipmi_get_completion_code(guint8 completion, const ipmi_cmd_t *cmd);
 
 /* Used for sub-registrars (ipmi_*.c) */
 extern gint proto_ipmi;

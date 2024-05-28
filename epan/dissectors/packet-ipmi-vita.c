@@ -1264,7 +1264,7 @@ cmd44_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 /* Array of VITA 46.11 command descriptors.
 */
-static ipmi_cmd_t cmd_vita[] = {
+static const ipmi_cmd_t cmd_vita[] = {
 	{ 0x00, NULL,		cmd00_rs,	NULL, NULL, "[VITA] Get VSO Capabilities", 0 },
 	{ 0x01, cmd01_rq,	cmd01_rs,	NULL, NULL, "[VITA] Get Chassis Address Table Info", 0 },
 	{ 0x02, NULL,		cmd02_rs,	NULL, NULL, "[VITA] Get Chassis Identifier", 0 },
