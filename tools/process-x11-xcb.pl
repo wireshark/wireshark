@@ -1651,7 +1651,7 @@ sub xcb_start {
     %enum_name = ();
     %type_name = ();
 
-    print $error "static const char *$header"."_errors[] = {\n";
+    print $error "static const char * const $header"."_errors[] = {\n";
 }
 
 sub xcb {
@@ -1692,7 +1692,7 @@ sub xcb {
         say $impl '';
     }
 
-    print $impl "static x11_reply_info $reply_name"."[] = {\n";
+    print $impl "static const x11_reply_info $reply_name"."[] = {\n";
     foreach my $e (sort {$a <=> $b} keys %reply) {
         print $impl "    { $e, $header$reply{$e}_Reply },\n";
     }

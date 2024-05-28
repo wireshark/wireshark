@@ -4894,7 +4894,7 @@ static const value_string bigreq_extension_minor[] = {
 static const x11_event_info bigreq_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info bigreq_replies[] = {
+static const x11_reply_info bigreq_replies[] = {
     { 0, bigreqEnable_Reply },
     { 0, NULL }
 };
@@ -5433,7 +5433,7 @@ static const value_string composite_extension_minor[] = {
 static const x11_event_info composite_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info composite_replies[] = {
+static const x11_reply_info composite_replies[] = {
     { 0, compositeQueryVersion_Reply },
     { 7, compositeGetOverlayWindow_Reply },
     { 0, NULL }
@@ -5559,7 +5559,7 @@ static const value_string damage_extension_minor[] = {
 static const x11_event_info damage_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info damage_replies[] = {
+static const x11_reply_info damage_replies[] = {
     { 0, damageQueryVersion_Reply },
     { 0, NULL }
 };
@@ -5815,7 +5815,7 @@ static const value_string dbe_extension_minor[] = {
 static const x11_event_info dbe_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info dbe_replies[] = {
+static const x11_reply_info dbe_replies[] = {
     { 0, dbeQueryVersion_Reply },
     { 6, dbeGetVisualInfo_Reply },
     { 7, dbeGetBackBufferAttributes_Reply },
@@ -6020,7 +6020,7 @@ static const value_string dpms_extension_minor[] = {
 static const x11_event_info dpms_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info dpms_replies[] = {
+static const x11_reply_info dpms_replies[] = {
     { 0, dpmsGetVersion_Reply },
     { 1, dpmsCapable_Reply },
     { 2, dpmsGetTimeouts_Reply },
@@ -6535,7 +6535,7 @@ static const x11_event_info dri2_events[] = {
     { "dri2-InvalidateBuffers", dri2InvalidateBuffers },
     { NULL, NULL }
 };
-static x11_reply_info dri2_replies[] = {
+static const x11_reply_info dri2_replies[] = {
     { 0, dri2QueryVersion_Reply },
     { 1, dri2Connect_Reply },
     { 2, dri2Authenticate_Reply },
@@ -6924,7 +6924,7 @@ static const value_string dri3_extension_minor[] = {
 static const x11_event_info dri3_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info dri3_replies[] = {
+static const x11_reply_info dri3_replies[] = {
     { 0, dri3QueryVersion_Reply },
     { 1, dri3Open_Reply },
     { 3, dri3BufferFromPixmap_Reply },
@@ -7026,7 +7026,7 @@ static const value_string ge_extension_minor[] = {
 static const x11_event_info ge_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info ge_replies[] = {
+static const x11_reply_info ge_replies[] = {
     { 0, geQueryVersion_Reply },
     { 0, NULL }
 };
@@ -9890,7 +9890,7 @@ static const x11_event_info glx_events[] = {
     { "glx-BufferSwapComplete", glxBufferSwapComplete },
     { NULL, NULL }
 };
-static x11_reply_info glx_replies[] = {
+static const x11_reply_info glx_replies[] = {
     { 5, glxMakeCurrent_Reply },
     { 6, glxIsDirect_Reply },
     { 7, glxQueryVersion_Reply },
@@ -10982,7 +10982,7 @@ static const x11_generic_event_info present_generic_events[] = {
         {   0, NULL },
 };
 
-static x11_reply_info present_replies[] = {
+static const x11_reply_info present_replies[] = {
     { 0, presentQueryVersion_Reply },
     { 4, presentQueryCapabilities_Reply },
     { 0, NULL }
@@ -12463,7 +12463,7 @@ static const x11_event_info randr_events[] = {
     { "randr-Notify", randrNotify },
     { NULL, NULL }
 };
-static x11_reply_info randr_replies[] = {
+static const x11_reply_info randr_replies[] = {
     { 0, randrQueryVersion_Reply },
     { 2, randrSetScreenConfig_Reply },
     { 5, randrGetScreenInfo_Reply },
@@ -12926,7 +12926,7 @@ static const value_string record_extension_minor[] = {
 static const x11_event_info record_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info record_replies[] = {
+static const x11_reply_info record_replies[] = {
     { 0, recordQueryVersion_Reply },
     { 4, recordGetContext_Reply },
     { 5, recordEnableContext_Reply },
@@ -13652,7 +13652,7 @@ static const value_string render_extension_minor[] = {
 static const x11_event_info render_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info render_replies[] = {
+static const x11_reply_info render_replies[] = {
     { 0, renderQueryVersion_Reply },
     { 1, renderQueryPictFormats_Reply },
     { 2, renderQueryPictIndexValues_Reply },
@@ -14106,7 +14106,7 @@ static const value_string res_extension_minor[] = {
 static const x11_event_info res_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info res_replies[] = {
+static const x11_reply_info res_replies[] = {
     { 0, resQueryVersion_Reply },
     { 1, resQueryClients_Reply },
     { 2, resQueryClientResources_Reply },
@@ -14415,7 +14415,7 @@ static const value_string screensaver_extension_minor[] = {
 static const x11_event_info screensaver_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info screensaver_replies[] = {
+static const x11_reply_info screensaver_replies[] = {
     { 0, screensaverQueryVersion_Reply },
     { 1, screensaverQueryInfo_Reply },
     { 0, NULL }
@@ -14665,7 +14665,7 @@ static const value_string shape_extension_minor[] = {
 static const x11_event_info shape_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info shape_replies[] = {
+static const x11_reply_info shape_replies[] = {
     { 0, shapeQueryVersion_Reply },
     { 5, shapeQueryExtents_Reply },
     { 7, shapeInputSelected_Reply },
@@ -14923,7 +14923,7 @@ static const value_string shm_extension_minor[] = {
 static const x11_event_info shm_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info shm_replies[] = {
+static const x11_reply_info shm_replies[] = {
     { 0, shmQueryVersion_Reply },
     { 4, shmGetImage_Reply },
     { 7, shmCreateSegment_Reply },
@@ -15337,7 +15337,7 @@ static const x11_event_info sync_events[] = {
     { "sync-AlarmNotify", syncAlarmNotify },
     { NULL, NULL }
 };
-static x11_reply_info sync_replies[] = {
+static const x11_reply_info sync_replies[] = {
     { 0, syncInitialize_Reply },
     { 1, syncListSystemCounters_Reply },
     { 5, syncQueryCounter_Reply },
@@ -15516,7 +15516,7 @@ static const value_string xc_misc_extension_minor[] = {
 static const x11_event_info xc_misc_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xc_misc_replies[] = {
+static const x11_reply_info xc_misc_replies[] = {
     { 0, xc_miscGetVersion_Reply },
     { 1, xc_miscGetXIDRange_Reply },
     { 2, xc_miscGetXIDList_Reply },
@@ -15705,7 +15705,7 @@ static const value_string xevie_extension_minor[] = {
 static const x11_event_info xevie_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xevie_replies[] = {
+static const x11_reply_info xevie_replies[] = {
     { 0, xevieQueryVersion_Reply },
     { 1, xevieStart_Reply },
     { 2, xevieEnd_Reply },
@@ -16093,7 +16093,7 @@ static const value_string xf86dri_extension_minor[] = {
 static const x11_event_info xf86dri_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xf86dri_replies[] = {
+static const x11_reply_info xf86dri_replies[] = {
     { 0, xf86driQueryVersion_Reply },
     { 1, xf86driQueryDirectRenderingCapable_Reply },
     { 2, xf86driOpenConnection_Reply },
@@ -17032,7 +17032,7 @@ static const value_string xf86vidmode_extension_minor[] = {
 static const x11_event_info xf86vidmode_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xf86vidmode_replies[] = {
+static const x11_reply_info xf86vidmode_replies[] = {
     { 0, xf86vidmodeQueryVersion_Reply },
     { 1, xf86vidmodeGetModeLine_Reply },
     { 4, xf86vidmodeGetMonitor_Reply },
@@ -17709,7 +17709,7 @@ static const x11_event_info xfixes_events[] = {
     { "xfixes-CursorNotify", xfixesCursorNotify },
     { NULL, NULL }
 };
-static x11_reply_info xfixes_replies[] = {
+static const x11_reply_info xfixes_replies[] = {
     { 0, xfixesQueryVersion_Reply },
     { 4, xfixesGetCursorImage_Reply },
     { 19, xfixesFetchRegion_Reply },
@@ -18032,7 +18032,7 @@ static const value_string xinerama_extension_minor[] = {
 static const x11_event_info xinerama_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xinerama_replies[] = {
+static const x11_reply_info xinerama_replies[] = {
     { 0, xineramaQueryVersion_Reply },
     { 1, xineramaGetState_Reply },
     { 2, xineramaGetScreenCount_Reply },
@@ -21380,7 +21380,7 @@ static const x11_generic_event_info xinput_generic_events[] = {
         {   0, NULL },
 };
 
-static x11_reply_info xinput_replies[] = {
+static const x11_reply_info xinput_replies[] = {
     { 1, xinputGetExtensionVersion_Reply },
     { 2, xinputListInputDevices_Reply },
     { 3, xinputOpenDevice_Reply },
@@ -27413,7 +27413,7 @@ static const x11_event_info xkb_events[] = {
     { "xkb-ExtensionDeviceNotify", xkbExtensionDeviceNotify },
     { NULL, NULL }
 };
-static x11_reply_info xkb_replies[] = {
+static const x11_reply_info xkb_replies[] = {
     { 0, xkbUseExtension_Reply },
     { 4, xkbGetState_Reply },
     { 6, xkbGetControls_Reply },
@@ -28098,7 +28098,7 @@ static const x11_event_info xprint_events[] = {
     { "xprint-AttributNotify", xprintAttributNotify },
     { NULL, NULL }
 };
-static x11_reply_info xprint_replies[] = {
+static const x11_reply_info xprint_replies[] = {
     { 0, xprintPrintQueryVersion_Reply },
     { 1, xprintPrintGetPrinterList_Reply },
     { 4, xprintPrintGetContext_Reply },
@@ -28808,7 +28808,7 @@ static const value_string xselinux_extension_minor[] = {
 static const x11_event_info xselinux_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xselinux_replies[] = {
+static const x11_reply_info xselinux_replies[] = {
     { 0, xselinuxQueryVersion_Reply },
     { 2, xselinuxGetDeviceCreateContext_Reply },
     { 4, xselinuxGetDeviceContext_Reply },
@@ -29010,7 +29010,7 @@ static const value_string xtest_extension_minor[] = {
 static const x11_event_info xtest_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xtest_replies[] = {
+static const x11_reply_info xtest_replies[] = {
     { 0, xtestGetVersion_Reply },
     { 1, xtestCompareCursor_Reply },
     { 0, NULL }
@@ -29817,7 +29817,7 @@ static const x11_event_info xv_events[] = {
     { "xv-PortNotify", xvPortNotify },
     { NULL, NULL }
 };
-static x11_reply_info xv_replies[] = {
+static const x11_reply_info xv_replies[] = {
     { 0, xvQueryExtension_Reply },
     { 1, xvQueryAdaptors_Reply },
     { 2, xvQueryEncodings_Reply },
@@ -30172,7 +30172,7 @@ static const value_string xvmc_extension_minor[] = {
 static const x11_event_info xvmc_events[] = {
     { NULL, NULL }
 };
-static x11_reply_info xvmc_replies[] = {
+static const x11_reply_info xvmc_replies[] = {
     { 0, xvmcQueryVersion_Reply },
     { 1, xvmcListSurfaceTypes_Reply },
     { 2, xvmcCreateContext_Reply },

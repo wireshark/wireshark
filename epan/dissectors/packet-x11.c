@@ -3310,7 +3310,7 @@ typedef struct x11_generic_event_info {
 } x11_generic_event_info;
 
 static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order),
-                        const char **errors,
+                        const char * const *errors,
                         const x11_event_info *event_info,
                         const x11_generic_event_info *genevent_info,
                         const x11_reply_info *reply_info)
@@ -3409,14 +3409,14 @@ static void tryGenericExtensionEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void register_extension(x11_conv_data_t *state, value_string *vals_p,
     int major_opcode, unsigned int first_event, unsigned int first_error)
 {
-      const char **error_string;
+      const char * const *error_string;
       x11_event_info *event_info;
       x11_reply_info *reply_info;
       int i;
 
       vals_p->value = major_opcode;
 
-      error_string = (const char **)wmem_map_lookup(error_table, vals_p->strptr);
+      error_string = (const char * const *)wmem_map_lookup(error_table, vals_p->strptr);
       while (error_string && *error_string && first_error <= LastExtensionError) {
             /* store string of extension error */
             for (i = 0; i <= LastExtensionError; i++) {
