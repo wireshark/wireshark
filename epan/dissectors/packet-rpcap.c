@@ -1504,7 +1504,7 @@ proto_register_rpcap (void)
         NULL, 0x0, "Statistics reply data", HFILL } },
     { &hf_ifrecv,
       { "Received by kernel filter", "rpcap.ifrecv", FT_UINT32, BASE_DEC,
-        NULL, 0x0, "Received by kernel", HFILL } },
+        NULL, 0x0, NULL, HFILL } },
     { &hf_ifdrop,
       { "Dropped by network interface", "rpcap.ifdrop", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },

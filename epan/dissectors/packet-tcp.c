@@ -9224,7 +9224,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_segments,
         { "Reassembled TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
-            "TCP Segments", HFILL }},
+            NULL, HFILL }},
 
         { &hf_tcp_reassembled_in,
         { "Reassembled PDU in frame", "tcp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

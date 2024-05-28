@@ -2594,7 +2594,7 @@ proto_register_sna(void)
 		{ &hf_sna_th_vr_cwi,
 		  { "Virtual Route Change Window Indicator", "sna.th.vr_cwi",
 		    FT_UINT16, BASE_DEC, VALS(sna_th_vr_cwi_vals), 0x8000,
-		    "Change Window Indicator", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_th_tg_nonfifo_ind,
 		  { "Transmission Group Non-FIFO Indicator",
@@ -2604,7 +2604,7 @@ proto_register_sna(void)
 		{ &hf_sna_th_vr_sqti,
 		  { "Virtual Route Sequence and Type Indicator", "sna.th.vr_sqti",
 		    FT_UINT16, BASE_HEX, VALS(sna_th_vr_sqti_vals), 0x3000,
-		    "Route Sequence and Type", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_th_tg_snf,
 		  { "Transmission Group Sequence Number Field", "sna.th.tg_snf",
@@ -2631,7 +2631,7 @@ proto_register_sna(void)
 		{ &hf_sna_th_vr_snf_send,
 		  { "Virtual Route Send Sequence Number Field",
 		    "sna.th.vr_snf_send", FT_UINT16, BASE_DEC, NULL, 0x0fff,
-		    "Send Sequence Number Field", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_th_dsaf,
 		  { "Destination Subarea Address Field", "sna.th.dsaf",
@@ -3207,12 +3207,12 @@ proto_register_sna(void)
 		{ &hf_sna_xid_3_gener_bind,
 		  { "Whole BIND PIU generated indicator",
 		    "sna.xid.type3.gener_bind", FT_BOOLEAN, 16, NULL, 0x2000,
-		    "Whole BIND PIU generated", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_recve_bind,
 		  { "Whole BIND PIU required indicator",
 		    "sna.xid.type3.recve_bind", FT_BOOLEAN, 16, NULL, 0x1000,
-		    "Whole BIND PIU required", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_actpu,
 		  { "ACTPU suppression indicator", "sna.xid.type3.actpu",
@@ -3250,12 +3250,12 @@ proto_register_sna(void)
 		{ &hf_sna_xid_3_asend_bind,
 		  { "Adaptive BIND pacing support as sender",
 		    "sna.xid.type3.asend_bind", FT_BOOLEAN, 8, NULL, 0x80,
-		    "Pacing support as sender", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_arecv_bind,
 		  { "Adaptive BIND pacing support as receiver",
 		    "sna.xid.type3.asend_recv", FT_BOOLEAN, 8, NULL, 0x40,
-		    "Pacing support as receive", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_quiesce,
 		  { "Quiesce TG Request",

@@ -4745,7 +4745,7 @@ proto_register_tls(void)
         { &hf_tls_segments,
           { "Reassembled TLS segments", "tls.segments",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "TLS Segments", HFILL }},
+            NULL, HFILL }},
 
         { &hf_tls_reassembled_in,
           { "Reassembled PDU in frame", "tls.reassembled_in",

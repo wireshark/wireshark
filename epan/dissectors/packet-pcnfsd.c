@@ -369,7 +369,7 @@ proto_register_pcnfsd(void)
                 NULL, 0, NULL, HFILL }},
         { &hf_pcnfsd_status, {
                 "Reply Status", "pcnfsd.status", FT_UINT32, BASE_DEC,
-                NULL, 0, "Status", HFILL }},
+                NULL, 0, NULL, HFILL }},
         { &hf_pcnfsd_uid, {
                 "User ID", "pcnfsd.uid", FT_UINT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},

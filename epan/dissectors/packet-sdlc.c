@@ -133,7 +133,7 @@ proto_register_sdlc(void)
 	static hf_register_info hf[] = {
 		{ &hf_sdlc_address,
 		  { "Address Field", "sdlc.address", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "Address", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sdlc_control,
 		  { "Control Field", "sdlc.control", FT_UINT16, BASE_HEX,

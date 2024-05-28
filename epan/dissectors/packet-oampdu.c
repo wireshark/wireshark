@@ -2709,7 +2709,7 @@ proto_register_oampdu(void)
         { &hf_oampdu_variable_width,
             { "Variable Width",    "oampdu.variable.width",
                 FT_UINT8,    BASE_DEC,    NULL,    0x0,
-                "Width", HFILL }},
+                NULL, HFILL }},
 
         { &hf_oampdu_variable_indication,
             { "Variable indication",    "oampdu.variable.indication",
@@ -2719,7 +2719,7 @@ proto_register_oampdu(void)
         { &hf_oampdu_variable_value,
             { "Variable Value",    "oampdu.variable.value",
                 FT_BYTES,    BASE_NONE,    NULL,    0x0,
-                "Value", HFILL }},
+                NULL, HFILL }},
 
         /* Loopback Control definitions*/
         { &hf_oampdu_lpbk,

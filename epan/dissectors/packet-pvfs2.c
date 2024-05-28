@@ -3332,11 +3332,11 @@ proto_register_pvfs(void)
 
 		{ &hf_pvfs_b_size,
 			{ "Size of bstream (if applicable)", "pvfs.b_size", FT_UINT64,
-				BASE_DEC, NULL, 0, "Size of bstream", HFILL }},
+				BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_k_size,
 			{ "Number of keyvals (if applicable)", "pvfs.k_size", FT_UINT64,
-				BASE_DEC, NULL, 0, "Number of keyvals", HFILL }},
+				BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_id_gen_t,
 			{ "id_gen_t", "pvfs.id_gen_t", FT_UINT64, BASE_DEC,

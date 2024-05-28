@@ -5538,7 +5538,7 @@ proto_register_quic(void)
         { &hf_quic_fragments,
           { "Reassembled QUIC STREAM Data Fragments", "quic.fragments",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "QUIC STREAM Data Fragments", HFILL }
+            NULL, HFILL }
         },
         { &hf_quic_reassembled_in,
           { "Reassembled PDU in frame", "quic.reassembled_in",

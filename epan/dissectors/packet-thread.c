@@ -4897,7 +4897,7 @@ proto_register_thread_nwd(void)
         { "Service Data SRP Dataset Identifier",
             "thread_nwd.tlv.service.srp_dataset_identifier",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "SRP Dataset Identifier",
+            NULL,
             HFILL }
         },
 

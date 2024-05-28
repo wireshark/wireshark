@@ -286,10 +286,10 @@ proto_register_sebek(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_ppid, {
 			"Parent Process ID", "sebek.ppid", FT_UINT32, BASE_DEC,
-			NULL, 0, "Process ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_inode, {
 			"Inode ID", "sebek.inode", FT_UINT32, BASE_DEC,
-			NULL, 0, "Process ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_data, {
 			"Data", "sebek.data", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},

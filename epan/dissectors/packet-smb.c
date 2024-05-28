@@ -19239,11 +19239,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_mac_file_count,
 	  { "Root File Count", "smb.file.count", FT_UINT32, BASE_DEC,
-	    NULL, 0, "File Count", HFILL}},
+	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_dir_count,
 	  { "Root Directory Count", "smb.dir.count", FT_UINT32, BASE_DEC,
-	    NULL, 0, "Directory Count", HFILL}},
+	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_sup,
 	  { "Mac Support Flags", "smb.mac", FT_UINT32, BASE_HEX,
@@ -20130,7 +20130,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_sec_desc_len,
 		{ "NT Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
-		NULL, 0, "Security Descriptor Length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_nt_qsd,
 		{ "Security Information", "smb.nt_qsd", FT_UINT32, BASE_HEX,

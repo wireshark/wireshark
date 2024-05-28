@@ -5841,7 +5841,7 @@ proto_register_ssh(void)
         { &hf_ssh_segments,
           { "Reassembled SSH segments", "ssh.segments",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "SSH Segments", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ssh_segment,
           { "SSH segment", "ssh.segment",

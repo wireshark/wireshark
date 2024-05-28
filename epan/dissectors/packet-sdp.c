@@ -2988,7 +2988,7 @@ proto_register_sdp(void)
         { &hf_email,
             { "E-mail Address (e)", "sdp.email",
               FT_STRING, BASE_NONE, NULL, 0x0,
-              "E-mail Address", HFILL }
+              NULL, HFILL }
         },
         { &hf_phone,
             { "Phone Number (p)", "sdp.phone",
@@ -3037,13 +3037,13 @@ proto_register_sdp(void)
         },
         { &hf_media,
             { "Media Description, name and address (m)",
-              "sdp.media", FT_STRING, BASE_NONE, NULL,
-              0x0, NULL, HFILL }
+              "sdp.media", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
         },
         { &hf_media_title,
             { "Media Title (i)", "sdp.media_title",
               FT_STRING, BASE_NONE, NULL, 0x0,
-              "Media Title", HFILL }
+              NULL, HFILL }
         },
         { &hf_unknown,
             { "Unknown", "sdp.unknown",

@@ -816,7 +816,7 @@ proto_register_stt(void)
         { &hf_segments,
           { "Reassembled STT Segments", "stt.segments",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "STT Segments", HFILL
+            NULL, HFILL
           },
         },
         { &hf_reassembled_in,
