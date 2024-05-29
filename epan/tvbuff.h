@@ -1064,6 +1064,10 @@ WS_DLL_PUBLIC gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
 
 /* From tvbuff_zlib.c */
 
+WS_DEPRECATED_X("Use tvb_uncompress_zlib instead")
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
+    int comprlen);
+
 /**
  * Uncompresses a zlib compressed packet inside a tvbuff at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
@@ -1073,15 +1077,19 @@ WS_DLL_PUBLIC gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
  * chain of another tvbuffer to avoid a memory leak. Consider using
  * tvb_child_uncompress to simplify memory management.
  */
-WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_zlib(tvbuff_t *tvb, const int offset,
     int comprlen);
+
+WS_DEPRECATED_X("Use tvb_child_uncompress_zlib instead")
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
+    const int offset, int comprlen);
 
 /**
  * Uncompresses a zlib compressed packet inside a tvbuff at offset with
  * length comprlen.  Returns an uncompressed tvbuffer attached to parent if
  * uncompression succeeded or NULL if uncompression failed.
  */
-WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
 
 /* From tvbuff_brotli.c */

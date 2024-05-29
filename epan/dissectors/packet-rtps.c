@@ -6147,7 +6147,7 @@ static void rtps_add_zlib_compressed_typeobject(proto_tree *tree, packet_info * 
   proto_tree *decompressed_type_object_subtree;
 
   compressed_type_object_subset = tvb_new_subset_length(tvb, offset, decompressed_size);
-  decompressed_data_child_tvb = tvb_child_uncompress(tvb, compressed_type_object_subset, 0, compressed_size);
+  decompressed_data_child_tvb = tvb_child_uncompress_zlib(tvb, compressed_type_object_subset, 0, compressed_size);
   if (decompressed_data_child_tvb) {
     decompressed_type_object_subtree = proto_tree_add_subtree(tree, decompressed_data_child_tvb,
       0, 0, ett_rtps_decompressed_type_object, NULL, "[Uncompressed type object]");
@@ -6648,7 +6648,7 @@ tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
     /* If ZLIB is available always try to decompress. */
     *tried_to_decompress = TRUE;
     uncompressed_tvb = tvb_new_subset_length_caplen(tvb, offset, compressed_size, -1);
-    uncompressed_tvb = tvb_child_uncompress(uncompressed_tvb, uncompressed_tvb, 0, compressed_size);
+    uncompressed_tvb = tvb_child_uncompress_zlib(uncompressed_tvb, uncompressed_tvb, 0, compressed_size);
 #else
     *tried_to_decompress = FALSE;
 #endif

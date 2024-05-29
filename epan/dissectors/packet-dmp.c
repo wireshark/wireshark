@@ -3119,7 +3119,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   } else if (len > 0 && (dmp.body_format == FREE_TEXT ||
                          dmp.body_format == FREE_TEXT_SUBJECT)) {
     if (compr_alg == ALGORITHM_ZLIB) {
-      if ((body_tvb = tvb_child_uncompress (tvb, tvb, offset, len)) != NULL) {
+      if ((body_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, len)) != NULL) {
         body_len = tvb_captured_length (body_tvb);
         add_new_data_source (pinfo, body_tvb, "Uncompressed User data");
         tf = proto_tree_add_item (message_tree, hf_message_body_data,

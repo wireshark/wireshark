@@ -5118,7 +5118,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     if (rem_len <= 0)
       return 8;
 
-    payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, rem_len);
+    payload_tvb = tvb_child_uncompress_zlib(tvb, tvb, GIOP_HEADER_SIZE, rem_len);
     if (payload_tvb) {
       add_new_data_source (pinfo, payload_tvb, "decompressed Content");
     } else {

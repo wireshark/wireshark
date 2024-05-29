@@ -12487,7 +12487,7 @@ add_body_fields(guint32 header_opcode,
             ptvcursor_add(ptv, hf_woww_client_seed, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_client_proof, 20, ENC_NA);
             ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
-            compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
+            compressed_tvb = tvb_uncompress_zlib(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
                 ptv = ptvcursor_new(wmem_packet_scope(), tree, compressed_tvb, 0);
@@ -13097,7 +13097,7 @@ add_body_fields(guint32 header_opcode,
             if (category == GM_TICKET_TYPE_BEHAVIOR_HARASSMENT) {
                 ptvcursor_add(ptv, hf_woww_chat_data_line_count, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
-                compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
+                compressed_tvb = tvb_uncompress_zlib(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
                 if (compressed_tvb != NULL) {
                     ptvcursor_t* old_ptv = ptv;
                     ptv = ptvcursor_new(wmem_packet_scope(), tree, compressed_tvb, 0);
@@ -13918,7 +13918,7 @@ add_body_fields(guint32 header_opcode,
         case CMSG_UPDATE_ACCOUNT_DATA:
             ptvcursor_add(ptv, hf_woww_account_data_type, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
-            compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
+            compressed_tvb = tvb_uncompress_zlib(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
                 ptv = ptvcursor_new(wmem_packet_scope(), tree, compressed_tvb, 0);
@@ -16368,7 +16368,7 @@ add_body_fields(guint32 header_opcode,
             break;
         case SMSG_COMPRESSED_MOVES:
             ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
-            compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
+            compressed_tvb = tvb_uncompress_zlib(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
                 ptv = ptvcursor_new(wmem_packet_scope(), tree, compressed_tvb, 0);
@@ -16449,7 +16449,7 @@ add_body_fields(guint32 header_opcode,
             break;
         case SMSG_COMPRESSED_UPDATE_OBJECT:
             ptvcursor_add(ptv, hf_woww_decompressed_size, 4, ENC_LITTLE_ENDIAN);
-            compressed_tvb = tvb_uncompress(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
+            compressed_tvb = tvb_uncompress_zlib(ptvcursor_tvbuff(ptv), ptvcursor_current_offset(ptv), offset_packet_end - ptvcursor_current_offset(ptv));
             if (compressed_tvb != NULL) {
                 ptvcursor_t* old_ptv = ptv;
                 ptv = ptvcursor_new(wmem_packet_scope(), tree, compressed_tvb, 0);

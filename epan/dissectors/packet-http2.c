@@ -2951,7 +2951,7 @@ dissect_http2_data_full_body(tvbuff_t *tvb, packet_info *pinfo, http2_session_t*
 
         tvbuff_t *uncompressed_tvb = NULL;
         if (uncompression == BODY_UNCOMPRESSION_ZLIB) {
-            uncompressed_tvb = tvb_child_uncompress(tvb, tvb, 0, datalen);
+            uncompressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, 0, datalen);
         } else if (uncompression == BODY_UNCOMPRESSION_BROTLI) {
             uncompressed_tvb = tvb_child_uncompress_brotli(tvb, tvb, 0, datalen);
         }

@@ -227,7 +227,7 @@ mcpe_dissect_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         ti = proto_tree_add_item(tree, hf_mcpe_login_data, tvb,
                                  offset, item_size, ENC_NA);
 
-        login_tvb = tvb_child_uncompress(tvb, tvb, offset, comp_length);
+        login_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comp_length);
         if (login_tvb) {
             guint32 decomp_length;
             proto_tree *login_tree;
@@ -292,7 +292,7 @@ mcpe_dissect_batch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         ti = proto_tree_add_item(tree, hf_mcpe_batch_body, tvb,
                                  offset, item_size, ENC_NA);
 
-        batch_tvb = tvb_child_uncompress(tvb, tvb, offset, comp_length);
+        batch_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comp_length);
         if (batch_tvb) {
             guint32 decomp_length;
             proto_tree *batch_tree;

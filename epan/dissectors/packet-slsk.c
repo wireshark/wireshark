@@ -463,7 +463,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
           if (slsk_decompress == TRUE){
 
-            tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
+            tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
               proto_tree_add_expert(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset, -1);
@@ -575,7 +575,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
           if (slsk_decompress == TRUE){
 
-            tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
+            tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
               ti = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
@@ -1030,7 +1030,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
           if (slsk_decompress == TRUE){
 
-            tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
+            tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
             if (uncompr_tvb == NULL) {
               proto_tree_add_expert(slsk_tree, pinfo, &ei_slsk_zlib_decompression_failed, tvb, offset, -1);

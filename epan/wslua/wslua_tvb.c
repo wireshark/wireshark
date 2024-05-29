@@ -1275,12 +1275,14 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     return 0;
 }
 
-WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
-    /* Given a <<lua_class_TvbRange,`TvbRange`>> containing zlib compressed data, decompresses the data and returns a new <<lua_class_TvbRange,`TvbRange`>> containing the uncompressed data. */
-#define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
+WSLUA_METHOD TvbRange_uncompress_zlib(lua_State* L) {
+    /* Given a <<lua_class_TvbRange,`TvbRange`>> containing zlib compressed data, decompresses the data and returns a new <<lua_class_TvbRange,`TvbRange`>> containing the uncompressed data.
+     @since 4.3.0
+     */
+#define WSLUA_ARG_TvbRange_uncompress_zlib_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
 #ifdef HAVE_ZLIB
-    const char* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_NAME,"Uncompressed");
+    const char* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_zlib_NAME,"Uncompressed");
     tvbuff_t *uncompr_tvb;
 #endif
 
@@ -1292,7 +1294,7 @@ WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
     }
 
 #ifdef HAVE_ZLIB
-    uncompr_tvb = tvb_child_uncompress(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
+    uncompr_tvb = tvb_child_uncompress_zlib(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
     if (uncompr_tvb) {
        add_new_data_source (lua_pinfo, uncompr_tvb, name);
        if (push_TvbRange(L,uncompr_tvb,0,tvb_captured_length(uncompr_tvb))) {
@@ -1304,6 +1306,12 @@ WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
 #endif
 
     return 0;
+}
+
+WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
+    /* Given a <<lua_class_TvbRange,`TvbRange`>> containing zlib compressed data, decompresses the data and returns a new <<lua_class_TvbRange,`TvbRange`>> containing the uncompressed data. Deprecated; use tvbrange:uncompress_zlib() instead. */
+#define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
+    return TvbRange_uncompress_zlib(L);
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
@@ -1465,6 +1473,7 @@ WSLUA_METHODS TvbRange_methods[] = {
     WSLUA_CLASS_FNREG(TvbRange,le_ustringz),
     WSLUA_CLASS_FNREG(TvbRange,ustringz),
     WSLUA_CLASS_FNREG(TvbRange,uncompress),
+    WSLUA_CLASS_FNREG(TvbRange,uncompress_zlib),
     WSLUA_CLASS_FNREG(TvbRange,raw),
     { NULL, NULL }
 };

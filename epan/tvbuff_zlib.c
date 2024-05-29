@@ -35,7 +35,7 @@
 #define TVB_Z_MAX_BUFSIZ 1048576 * 10
 
 tvbuff_t *
-tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
+tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 {
 	gint       err;
 	guint      bytes_out      = 0;
@@ -303,19 +303,31 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 }
 #else
 tvbuff_t *
-tvb_uncompress(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
+tvb_uncompress_zlib(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
 {
 	return NULL;
 }
 #endif
 
 tvbuff_t *
-tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
 {
-	tvbuff_t *new_tvb = tvb_uncompress(tvb, offset, comprlen);
+	tvbuff_t *new_tvb = tvb_uncompress_zlib(tvb, offset, comprlen);
 	if (new_tvb)
 		tvb_set_child_real_data_tvbuff (parent, new_tvb);
 	return new_tvb;
+}
+
+tvbuff_t *
+tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
+{
+	return tvb_uncompress_zlib(tvb, offset, comprlen);
+}
+
+tvbuff_t *
+tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+{
+	return tvb_child_uncompress_zlib(parent, tvb, offset, comprlen);
 }
 
 /*

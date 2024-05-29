@@ -1731,7 +1731,7 @@ decompress_none(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, guint32 lengt
 static gboolean
 decompress_gzip(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, tvbuff_t **decompressed_tvb, int *decompressed_offset)
 {
-    *decompressed_tvb = tvb_child_uncompress(tvb, tvb, offset, length);
+    *decompressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, length);
     *decompressed_offset = 0;
     if (*decompressed_tvb) {
         return TRUE;

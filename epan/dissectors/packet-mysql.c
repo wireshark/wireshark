@@ -4584,7 +4584,7 @@ dissect_mysql_compressed_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 #endif
 		case MYSQL_COMPRESS_ALG_ZLIB:
 		default:
-			next_tvb = tvb_child_uncompress(tvb, tvb, offset, clen);
+			next_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, clen);
 			break;
 		}
 		if (next_tvb) {

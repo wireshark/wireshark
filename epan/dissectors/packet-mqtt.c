@@ -739,7 +739,7 @@ static gboolean mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree
   {
     if (message_decode_entry->msg_decoding == MSG_DECODING_COMPRESSED)
     {
-      msg_tvb = tvb_child_uncompress(msg_tvb, msg_tvb, 0, tvb_reported_length(msg_tvb));
+      msg_tvb = tvb_child_uncompress_zlib(msg_tvb, msg_tvb, 0, tvb_reported_length(msg_tvb));
       if (msg_tvb)
       {
         add_new_data_source(pinfo, msg_tvb, "Uncompressed Message");

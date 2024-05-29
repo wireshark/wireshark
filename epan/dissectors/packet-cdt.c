@@ -219,7 +219,7 @@ dissect_cdt_CompressedContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
     return offset;
   }
 
-  next_tvb = tvb_child_uncompress (tvb, compr_tvb, 0, tvb_reported_length (compr_tvb));
+  next_tvb = tvb_child_uncompress_zlib(tvb, compr_tvb, 0, tvb_reported_length (compr_tvb));
 
   if (next_tvb == NULL) {
     proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_uncompress_content,

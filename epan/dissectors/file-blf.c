@@ -565,7 +565,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             if (comp_method == BLF_COMPRESSION_NONE) {
                 sub_tvb = tvb_new_subset_length(tvb, offset, offset_orig + obj_length - offset);
             } else {
-                sub_tvb = tvb_child_uncompress(tvb, tvb, offset, offset_orig + obj_length - offset);
+                sub_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, offset_orig + obj_length - offset);
                 if (sub_tvb) {
                     add_new_data_source(pinfo, sub_tvb, "Decompressed Data");
                 }

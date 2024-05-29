@@ -3103,7 +3103,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 			    data_len, ENC_NA);
 
 #ifdef HAVE_ZLIB
-	uncomp_tvb = tvb_child_uncompress(tvb, tvb, *offset, data_len);
+	uncomp_tvb = tvb_child_uncompress_zlib(tvb, tvb, *offset, data_len);
 
 	if(uncomp_tvb != NULL) {
 		add_new_data_source(pinfo, uncomp_tvb,

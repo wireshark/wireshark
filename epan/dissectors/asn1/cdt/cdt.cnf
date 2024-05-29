@@ -76,7 +76,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
     return offset;
   }
 
-  next_tvb = tvb_child_uncompress (tvb, compr_tvb, 0, tvb_reported_length (compr_tvb));
+  next_tvb = tvb_child_uncompress_zlib(tvb, compr_tvb, 0, tvb_reported_length (compr_tvb));
 
   if (next_tvb == NULL) {
     proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_uncompress_content,

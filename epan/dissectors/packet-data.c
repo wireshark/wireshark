@@ -71,7 +71,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			proto_tree_add_item(data_tree, hf_data_data, data_tvb, 0, bytes, ENC_NA);
 
 			if (uncompress_data) {
-				uncompr_tvb = tvb_child_uncompress(data_tvb, data_tvb, 0, tvb_reported_length(data_tvb));
+				uncompr_tvb = tvb_child_uncompress_zlib(data_tvb, data_tvb, 0, tvb_reported_length(data_tvb));
 
 				if (uncompr_tvb) {
 					uncompr_len = tvb_reported_length(uncompr_tvb);

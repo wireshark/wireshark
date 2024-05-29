@@ -792,7 +792,7 @@ dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, guint offset, pro
   case MONGO_COMPRESSOR_ZLIB: {
     tvbuff_t* compressed_tvb = NULL;
 
-    compressed_tvb = tvb_child_uncompress(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+    compressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
     if (compressed_tvb) {
       add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");

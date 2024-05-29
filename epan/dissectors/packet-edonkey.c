@@ -2857,7 +2857,7 @@ static int dissect_kademlia_udp_compressed_message(guint8 msg_type,
     tvbuff_t *tvbraw = NULL;
 
 
-    tvbraw = tvb_child_uncompress(tvb, tvb, offset, length);
+    tvbraw = tvb_child_uncompress_zlib(tvb, tvb, offset, length);
 
     if (tvbraw) {
         guint32 raw_length;
@@ -2949,7 +2949,7 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
              * stream.
              */
             message_name = val_to_str_const(msg_type, edonkey_tcp_msgs, "Unknown");
-            tvbraw = tvb_child_uncompress(tvb, tvb, offset+1, msg_len-1);
+            tvbraw = tvb_child_uncompress_zlib(tvb, tvb, offset+1, msg_len-1);
             if (tvbraw) {
               dissector = dissect_edonkey_tcp_message;
               break;

@@ -305,7 +305,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* ... but don't do any content-based inspection, just skip to the end */
         goto final_outputs;
     } else if (is_compressed) {
-        next_tvb = tvb_uncompress(tvb, offset, tvb_reported_length_remaining(tvb, offset));
+        next_tvb = tvb_uncompress_zlib(tvb, offset, tvb_reported_length_remaining(tvb, offset));
         if (next_tvb) {
             tvb_set_child_real_data_tvbuff(tvb, next_tvb);
             add_new_data_source(pinfo, next_tvb, "Uncompressed data");

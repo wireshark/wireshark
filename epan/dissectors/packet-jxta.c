@@ -2050,7 +2050,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 dissected = call_dissector(tls_handle, tvb, pinfo, tree);
             }
         } else if (0 == strcmp("application/gzip", mediatype)) {
-            tvbuff_t *uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
+            tvbuff_t *uncomp_tvb = tvb_child_uncompress_zlib(tvb, tvb, 0, tvb_captured_length(tvb));
 
             if( NULL != uncomp_tvb ) {
                 add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");

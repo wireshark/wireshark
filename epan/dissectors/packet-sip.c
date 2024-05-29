@@ -4723,7 +4723,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             (!strncmp(content_encoding_parameter_str, "gzip", 4) ||
              !strncmp(content_encoding_parameter_str,"deflate",7))){
             /* The body is gzip:ed */
-            next_tvb = tvb_child_uncompress(tvb, tvb, offset,  datalen);
+            next_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset,  datalen);
             if (next_tvb) {
                 add_new_data_source(pinfo, next_tvb, "gunzipped data");
                 if(sip_tree) {

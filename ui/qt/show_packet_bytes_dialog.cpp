@@ -598,7 +598,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 
     case DecodeAsCompressed:
     {
-        tvbuff *uncompr_tvb = tvb_uncompress(finfo_->ds_tvb, start, length);
+        tvbuff *uncompr_tvb = tvb_uncompress_zlib(finfo_->ds_tvb, start, length);
         if (uncompr_tvb) {
             bytes = tvb_get_ptr(uncompr_tvb, 0, -1);
             field_bytes_ = QByteArray((const char *)bytes, tvb_reported_length(uncompr_tvb));

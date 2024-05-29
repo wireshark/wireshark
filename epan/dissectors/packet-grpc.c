@@ -290,7 +290,7 @@ dissect_grpc_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pin
     if (compressed_flag & GRPC_COMPRESSED) {
         if (can_uncompress_body(compression_method)) {
             proto_item *compressed_proto_item = NULL;
-            tvbuff_t *uncompressed_tvb = tvb_child_uncompress(tvb, tvb, offset, message_length);
+            tvbuff_t *uncompressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, message_length);
 
             proto_tree *compressed_entity_tree = proto_tree_add_subtree_format(
                 grpc_tree, tvb, offset, message_length, ett_grpc_encoded_entity,

@@ -295,7 +295,7 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return tvb_captured_length(tvb);
         }
 
-        tvbuff_t *inflated_tvb = tvb_child_uncompress(decrypted_tvb, decrypted_tvb, 14, decrypted_len - 14);
+        tvbuff_t *inflated_tvb = tvb_child_uncompress_zlib(decrypted_tvb, decrypted_tvb, 14, decrypted_len - 14);
         if (inflated_tvb == NULL)
             return tvb_captured_length(tvb);
         add_new_data_source(pinfo, inflated_tvb, "Inflated data");
