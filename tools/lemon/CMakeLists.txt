@@ -12,6 +12,8 @@ add_executable(lemon lemon.c)
 if(DEFINED LEMON_C_COMPILER)
 	set(CMAKE_C_COMPILER "${LEMON_C_COMPILER}")
 	set(CMAKE_C_FLAGS "")
+	set(CMAKE_EXE_LINKER_FLAGS "")
+	set(CMAKE_SYSROOT "")
 endif()
 
 # To keep lemon.c as close to upstream as possible disable all warnings
