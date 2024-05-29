@@ -1512,6 +1512,7 @@ static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x05, 0, mysql_dissect_exec_double },
 	{ 0x06, 0, mysql_dissect_exec_null },
 	{ 0x07, 0, mysql_dissect_exec_datetime },
+	{ 0x07, 1, mysql_dissect_exec_datetime },
 	{ 0x08, 0, mysql_dissect_exec_longlong },
 	{ 0x08, 1, mysql_dissect_exec_unsigned_longlong },
 	{ 0x0a, 0, mysql_dissect_exec_datetime },
