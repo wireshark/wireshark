@@ -725,7 +725,10 @@ static const value_string sprt_payload_frame_state[] = {
     { 0, NULL }
 };
 
-
+/* Fix for SPRT Parser Crash (Gitlab Issue #19559)
+RTP Version is the first 2 bits of the first octet in the UDP payload */
+#define RTP_VERSION(octet)	((octet) >> 6)
+static dissector_handle_t rtp_handle;
 
 /* look for a conversation & return the associated data */
 static struct _sprt_conversation_info* find_sprt_conversation_data(packet_info *pinfo)
@@ -1342,6 +1345,19 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* ack fields */
     /*guint16 tcn;*/
     /*guint16 sqn;*/
+
+    /* Fix for SPRT Parser Crash (Gitlab Issue #19559)
+     * XXX - heuristic to check for misidentified packets.
+     */
+
+    guint8 octet1;
+    unsigned int version;
+    octet1 = tvb_get_guint8(tvb, offset);
+    version = RTP_VERSION( octet1 );
+
+    if (version == 2){
+            return call_dissector(rtp_handle,tvb,pinfo,tree);
+    }
 
     /* Get conversation data, or create it if not found */
     p_conv_data = find_sprt_conversation_data(pinfo);
@@ -3417,6 +3433,8 @@ proto_register_sprt(void)
 void
 proto_reg_handoff_sprt(void)
 {
+    rtp_handle = find_dissector_add_dependency("rtp", proto_sprt);
+
     dissector_add_for_decode_as_with_preference("udp.port", sprt_handle);
 
     heur_dissector_add( "udp", dissect_sprt_heur, "SPRT over UDP", "sprt_udp", proto_sprt, HEURISTIC_ENABLE);
