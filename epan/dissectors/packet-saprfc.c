@@ -408,21 +408,20 @@ static int hf_saprfc_payload;
 static gint ett_saprfc;
 
 /* Expert info */
+#if 0
 static expert_field ei_saprfc_invalid_table_structure_length = EI_INIT;
 static expert_field ei_saprfc_invalid_table_content_length = EI_INIT;
 static expert_field ei_saprfc_mismatching_table_row_width = EI_INIT;
+#endif
 static expert_field ei_saprfc_item_length_invalid = EI_INIT;
 static expert_field ei_saprfc_unknown_item = EI_INIT;
 
 
 /* Global table reassembling preference */
-static gboolean global_saprfc_table_reassembly = TRUE;
-
-/* Global port preference */
-static range_t *global_saprfc_port_range;
+static bool global_saprfc_table_reassembly = TRUE;
 
 /* Global highlight preference */
-static gboolean global_saprfc_highlight_items = TRUE;
+static bool global_saprfc_highlight_items = TRUE;
 
 /* Protocol handles for both external and internal dissectors */
 static dissector_handle_t saprfc_handle;
@@ -698,6 +697,7 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 		/* Check if it's an End of message */
 		if (item_id1==0x0c){
 			item_value_length = 0;
+			break; /* ? */
 
 		/* Otherwise follow dissection */
 		} else {
@@ -1273,9 +1273,11 @@ proto_register_saprfc(void)
 
 	/* Register the expert info */
 	static ei_register_info ei[] = {
+#if 0
 		{ &ei_saprfc_invalid_table_structure_length, { "saprfc.table.structure.length.invalid", PI_MALFORMED, PI_WARN, "The structure item payload is not long enough to parse the reported number of fields", EXPFILL }},
 		{ &ei_saprfc_invalid_table_content_length, { "saprfc.table.content.length.invalid", PI_MALFORMED, PI_WARN, "The table content length is not large enough to read the expected amount of data from", EXPFILL }},
 		{ &ei_saprfc_mismatching_table_row_width, { "saprfc.table.lengths.mismatching", PI_MALFORMED, PI_WARN, "The row width reported in table metadata and field metadata does not match", EXPFILL }},
+#endif
 		{ &ei_saprfc_item_length_invalid, { "saprfc.item.value.invalid_length", PI_MALFORMED, PI_WARN, "The item length is invalid", EXPFILL }},
 		{ &ei_saprfc_unknown_item, { "saprfc.item.unknown", PI_UNDECODED, PI_WARN, "The RFC item has a unknown type that is not dissected", EXPFILL }},
 	};
@@ -1310,13 +1312,12 @@ proto_register_saprfc(void)
 void
 proto_reg_handoff_saprfc(void)
 {
-	static range_t *saprfc_port_range;
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 
 	if (!initialized) {
 		saprfc_handle = create_dissector_handle(dissect_saprfc, proto_saprfc);
 		saprfcinternal_handle = create_dissector_handle(dissect_saprfc_internal, proto_saprfc);
-		initialized = TRUE;
+		initialized = true;
 	}
 
 	dissector_add_uint_range_with_preference("tcp.port", SAPRFC_PORT_RANGE, saprfc_handle);
