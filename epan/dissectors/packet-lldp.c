@@ -3973,9 +3973,9 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 	{
 		proto_tree_add_item(tree, hf_profinet_class2_port_status, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
-		proto_tree_add_item(tree, hf_profinet_class3_port_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_profinet_class3_port_status, tvb, offset, 2, ENC_BIG_ENDIAN, &class3_PortStatus);
 		proto_tree_add_item(tree, hf_profinet_class3_port_status_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item_ret_uint(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, ENC_BIG_ENDIAN, &class3_PortStatus);
+		proto_tree_add_item(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
