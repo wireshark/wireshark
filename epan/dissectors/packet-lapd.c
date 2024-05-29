@@ -659,7 +659,7 @@ proto_register_lapd(void)
 
 		{ &hf_lapd_address,
 		  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0,
-		    "Address", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_lapd_sapi,
 		  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,

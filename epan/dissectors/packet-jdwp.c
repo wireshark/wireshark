@@ -614,7 +614,7 @@ proto_register_jdwp(void)
 
   static hf_register_info hf[] = {
     { &hf_jdwp_type,
-      { "Packet Type", "jdwp.type", FT_STRING, BASE_NONE, NULL, 0x0, "Type",
+      { "Packet Type", "jdwp.type", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
         HFILL }
     },
     { &hf_jdwp_length,

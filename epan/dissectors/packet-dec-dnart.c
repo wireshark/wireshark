@@ -1274,7 +1274,7 @@ proto_register_dec_rt(void)
         { &hf_dec_ctl_msgs,
           { "Routing control message",        "dec_dna.rt.msg_type",
             FT_UINT8,    BASE_HEX,    VALS(rt_msg_type_vals),    0xe,
-            "Routing control", HFILL }},
+            NULL, HFILL }},
         { &hf_dec_ctl_msg_hdr,
           { "Routing control message",    "dec_dna.rt.msg_type",
             FT_UINT8,    BASE_HEX,    VALS(rt_msg_type_vals),    0xe,

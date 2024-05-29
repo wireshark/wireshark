@@ -3665,7 +3665,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_hc_value,
           { "Hop Count Value", "ldp.msg.tlv.hc.value", FT_UINT8, BASE_DEC,
-            NULL, 0x0, "Hop Count", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_ldp_tlv_pv_lsrid,
           { "LSR Id", "ldp.msg.tlv.pv.lsrid", FT_IPv4, BASE_NONE,
@@ -3709,7 +3709,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_sess_atm_lr,
           { "Number of ATM Label Ranges", "ldp.msg.tlv.sess.atm.lr", FT_UINT8, BASE_DEC,
-            NULL, 0x3C, "Number of Label Ranges", HFILL }},
+            NULL, 0x3C, NULL, HFILL }},
 
         { &hf_ldp_tlv_sess_atm_dir,
           { "Directionality", "ldp.msg.tlv.sess.atm.dir", FT_BOOLEAN, 8,
@@ -3737,7 +3737,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_sess_fr_lr,
           { "Number of Frame Relay Label Ranges", "ldp.msg.tlv.sess.fr.lr", FT_UINT8, BASE_DEC,
-            NULL, 0x3C, "Number of Label Ranges", HFILL }},
+            NULL, 0x3C, NULL, HFILL }},
 
         { &hf_ldp_tlv_sess_fr_dir,
           { "Directionality", "ldp.msg.tlv.sess.fr.dir", FT_BOOLEAN, 8,
@@ -3881,7 +3881,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_returned_msg_ubit,
           { "Returned Message Unknown bit", "ldp.msg.tlv.returned.msg.ubit", FT_BOOLEAN, 8,
-            TFS(&ldp_message_ubit), 0x80, "Message Unknown bit", HFILL }},
+            TFS(&ldp_message_ubit), 0x80, NULL, HFILL }},
 
         { &hf_ldp_tlv_returned_msg_type,
           { "Returned Message Type", "ldp.msg.tlv.returned.msg.type", FT_UINT16, BASE_HEX,

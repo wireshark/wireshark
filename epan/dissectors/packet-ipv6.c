@@ -4322,7 +4322,7 @@ proto_register_ipv6(void)
         { &hf_ipv6_opt,
             { "IPv6 Option", "ipv6.opt",
                 FT_NONE, BASE_NONE, NULL, 0x0,
-                "Option", HFILL }
+                NULL, HFILL }
         },
         { &hf_ipv6_opt_type,
             { "Type", "ipv6.opt.type",

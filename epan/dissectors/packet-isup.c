@@ -11668,12 +11668,12 @@ proto_register_isup(void)
     { &hf_nsap_ipv4_addr,
       { "IWFA IPv4 Address", "nsap.ipv4_addr",
         FT_IPv4, BASE_NONE, NULL, 0x0,
-        "IPv4 address", HFILL }},
+        NULL, HFILL }},
 
     { &hf_nsap_ipv6_addr,
       { "IWFA IPv6 Address", "nsap.ipv6_addr",
         FT_IPv6, BASE_NONE, NULL, 0x0,
-        "IPv6 address", HFILL}},
+        NULL, HFILL}},
 
     { &hf_iana_icp,
       { "IANA ICP",  "nsap.iana_icp",

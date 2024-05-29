@@ -408,7 +408,7 @@ proto_register_lapdm(void)
 
         { &hf_lapdm_address,
           { "Address Field", "lapdm.address_field", FT_UINT8, BASE_HEX, NULL, 0x0,
-            "Address", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lapdm_ea,
           { "EA", "lapdm.ea", FT_UINT8, BASE_DEC, VALS(lapdm_ea_vals), LAPDM_EA,

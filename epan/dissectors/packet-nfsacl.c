@@ -538,7 +538,7 @@ proto_register_nfsacl(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_aclent, {
 			"ACL Entry", "nfsacl.aclent", FT_NONE, BASE_NONE,
-			NULL, 0, "ACL", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_aclent_type, {
 			"Type", "nfsacl.aclent.type", FT_UINT32, BASE_DEC,
 			VALS(names_nfsacl_aclent_type), 0, NULL, HFILL }},

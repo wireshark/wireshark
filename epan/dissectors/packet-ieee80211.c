@@ -44813,7 +44813,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_block_ack_params_buffer_size,
      {"Number of Buffers (1 Buffer = 2304 Bytes)", "wlan.fixed.baparams.buffersize",
       FT_UINT16, BASE_DEC, NULL, 0xFFC0,
-      "Number of Buffers", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_timeout,
      {"Block Ack Timeout", "wlan.fixed.batimeout",

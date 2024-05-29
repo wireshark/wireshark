@@ -699,7 +699,7 @@ proto_register_h263_data(void)
 				BASE_HEX,
 				NULL,
 				0x0,
-				"Group of Block Start Code", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -735,7 +735,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Split screen indicator", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -747,7 +747,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Document camera indicator", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -759,7 +759,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Full Picture Freeze Release", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -771,7 +771,7 @@ proto_register_h263_data(void)
 				BASE_HEX,
 				VALS(h263_srcformat_vals),
 				0x0,
-				"Source Format", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -783,7 +783,7 @@ proto_register_h263_data(void)
 				BASE_HEX,
 				VALS(ext_srcformat_vals),
 				0x0,
-				"Source Format", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -795,7 +795,7 @@ proto_register_h263_data(void)
 				BASE_DEC,
 				VALS(h263_ufep_vals),
 				0x0,
-				"Update Full Extended PTYPE", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -807,7 +807,7 @@ proto_register_h263_data(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Optional Part of PLUSPTYPE", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -819,7 +819,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&picture_coding_type_flg),
 				0x0,
-				"Picture Coding Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -831,7 +831,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Optional Unrestricted Motion Vector mode", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -843,7 +843,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Optional Syntax-based Arithmetic Coding mode", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -855,7 +855,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Optional Advanced Prediction mode", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -867,7 +867,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&PB_frames_mode_flg),
 				0x0,
-				"Optional PB-frames mode", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -891,7 +891,7 @@ proto_register_h263_data(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Quantizer Information (PQUANT)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -903,7 +903,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&tfs_on_off),
 				0x0,
-				"Continuous Presence Multipoint and Video Multiplex (CPM)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -915,7 +915,7 @@ proto_register_h263_data(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Picture Sub-Bitstream Indicator (PSBI)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -927,7 +927,7 @@ proto_register_h263_data(void)
 				BASE_DEC,
 				VALS(picture_type_code_vals),
 				0x0,
-				"Picture Type Code", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -939,7 +939,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				TFS(&custom_pcf_flg),
 				0x0,
-				"Custom PCF", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -951,7 +951,7 @@ proto_register_h263_data(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Extra Insertion Information (PEI)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -963,7 +963,7 @@ proto_register_h263_data(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Supplemental Enhancement Information (PSUPP)", HFILL
+				NULL, HFILL
 			}
 		},
 		{

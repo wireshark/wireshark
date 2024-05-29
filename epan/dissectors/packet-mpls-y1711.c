@@ -342,7 +342,7 @@ proto_register_mpls_y1711(void)
             &hf_mpls_y1711_defect_location,
             {
                 "Defect Location (AS)", "mpls_y1711.defect_location",
-                FT_UINT32, BASE_DEC, NULL, 0x0, "Defect Location", HFILL
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
             }
         },
         {

@@ -5448,7 +5448,7 @@ void proto_register_mysql(void)
 		{ &hf_mysql_binlog_event_header_event_type,
 		{ "Binlog Event Type", "mysql.binlog.event_header.event_type",
 		  FT_UINT8, BASE_DEC, VALS(mysql_binlog_event_type_vals), 0x0,
-		  "event type", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_mysql_binlog_event_header_server_id,
 		{ "Server ID", "mysql.binlog.event_header.server_id",
@@ -5493,7 +5493,7 @@ void proto_register_mysql(void)
 		{ &hf_mysql_binlog_hb_event_filename,
 		{ "Binlog Filename", "mysql.binlog.hb_event.filename",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-		"filename", HFILL }},
+		NULL, HFILL }},
 
 		{ &hf_mysql_binlog_hb_event_log_position,
 		{ "Binlog Position", "mysql.binlog.hb_event.log_position",

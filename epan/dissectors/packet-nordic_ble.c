@@ -809,7 +809,7 @@ proto_register_nordic_ble(void)
         { &hf_nordic_ble_payload_length,
             { "Length of payload", "nordic_ble.plen",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Payload length", HFILL }
+                NULL, HFILL }
         },
         { &hf_nordic_ble_protover,
             { "Protocol version", "nordic_ble.protover",

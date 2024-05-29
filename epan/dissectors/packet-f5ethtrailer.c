@@ -3907,7 +3907,7 @@ proto_register_f5ethtrailer(void)
         },
         { &hf_peer_rtdom,
           { "Peer remote or local route domain", "f5ethtrailer.peerrtdom", FT_UINT16,
-            BASE_DEC, NULL, 0x0, "Peer route domain", HFILL }
+            BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_peer_remote_port,
           { "Peer remote port", "f5ethtrailer.peerremoteport", FT_UINT16, BASE_DEC,
@@ -3919,7 +3919,7 @@ proto_register_f5ethtrailer(void)
         },
         { &hf_peer_port,
           { "Peer remote or local port", "f5ethtrailer.peerport", FT_UINT16, BASE_DEC,
-            NULL, 0x0, "Peer port", HFILL }
+            NULL, 0x0, NULL, HFILL }
         },
         { &hf_peer_nopeer,
           { "No peer connection information", "f5ethtrailer.nopeer", FT_NONE, BASE_NONE,

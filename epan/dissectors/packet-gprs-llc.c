@@ -1223,12 +1223,12 @@ proto_register_llcgprs(void)
 
 		{ &hf_llcgprs_rbyte,
 		  { "R Bitmap Bits", "llcgprs.sackrbits", FT_UINT8, BASE_HEX,
-		    NULL, 0xFF, "R Bitmap", HFILL }},
+		    NULL, 0xFF, NULL, HFILL }},
 
 		/* XID Parameter Parsing Info */
 		{ &hf_llcgprs_xid_xl,
 		  { "XL Bit", "llcgprs.xidxl", FT_UINT8, BASE_HEX,
-		    NULL, 0x80, "XL", HFILL }},
+		    NULL, 0x80, NULL, HFILL }},
 
 		{ &hf_llcgprs_xid_type,
 		  { "Type", "llcgprs.xidtype", FT_UINT8, BASE_DEC,

@@ -2147,17 +2147,17 @@ void proto_register_dvb_s2_modeadapt(void)
         {&hf_dvb_s2_modeadapt_acm_fecframe, {
                 "FEC frame size", "dvb-s2_modeadapt.acmcmd.fecframe",
                 FT_BOOLEAN, 8, TFS(&tfs_modeadapt_fecframe), DVB_S2_MODEADAPT_FECFRAME_MASK,
-                "FEC", HFILL}
+                NULL, HFILL}
         },
         {&hf_dvb_s2_modeadapt_acm_pilot, {
                 "Pilots configuration", "dvb-s2_modeadapt.acmcmd.pilots",
                 FT_BOOLEAN, 8, TFS(&tfs_on_off), DVB_S2_MODEADAPT_PILOTS_MASK,
-                "Pilots", HFILL}
+                NULL, HFILL}
         },
         {&hf_dvb_s2_modeadapt_acm_modcod, {
                 "Modcod indicator", "dvb-s2_modeadapt.acmcmd.modcod",
                 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &modeadapt_modcods_ext, DVB_S2_MODEADAPT_MODCODS_MASK,
-                "Modcod", HFILL}
+                NULL, HFILL}
         },
         {&hf_dvb_s2_modeadapt_acm_modcod_s2x, {
                 "Modcod indicator", "dvb-s2_modeadapt.acmcmd.modcod",
