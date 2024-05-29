@@ -1276,7 +1276,7 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
-    /* Obtain an uncompressed <<lua_class_TvbRange,`TvbRange`>> from a <<lua_class_TvbRange,`TvbRange`>> */
+    /* Given a <<lua_class_TvbRange,`TvbRange`>> containing zlib compressed data, decompresses the data and returns a new <<lua_class_TvbRange,`TvbRange`>> containing the uncompressed data. */
 #define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
 #ifdef HAVE_ZLIB
