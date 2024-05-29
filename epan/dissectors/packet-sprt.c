@@ -1343,6 +1343,23 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /*guint16 tcn;*/
     /*guint16 sqn;*/
 
+    /* Get conversation data, or create it if not found */
+    p_conv_data = find_sprt_conversation_data(pinfo);
+    if (!p_conv_data)
+    {
+        sprt_add_address(pinfo,
+            &pinfo->src, pinfo->srcport,
+            0,
+            "SPRT stream",
+            pinfo->num);
+        p_conv_data = find_sprt_conversation_data(pinfo);
+        if (!p_conv_data) {
+            // This shouldn't happen; likely a new RTP conversation was set up
+            // after this frame but with a setup frame before this one.
+            return 0;
+        }
+    }
+
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPRT");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1396,18 +1413,6 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     seqnum = word1 & 0x3FFF;
 
     noa = (tvb_get_ntohs(tvb, offset + 4) & 0xC000) >> 14;
-
-    /* Get conversation data, or create it if not found */
-    p_conv_data = find_sprt_conversation_data(pinfo);
-    if (!p_conv_data)
-    {
-        sprt_add_address(pinfo,
-            &pinfo->src, pinfo->srcport,
-            0,
-            "SPRT stream",
-            pinfo->num);
-        p_conv_data = find_sprt_conversation_data(pinfo);
-    }
 
     proto_tree_add_item(sprt_tree, hf_sprt_header_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sprt_tree, hf_sprt_subsession_id, tvb, offset, 1, ENC_BIG_ENDIAN);
