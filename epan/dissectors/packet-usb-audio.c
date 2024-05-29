@@ -195,6 +195,19 @@ static int hf_ac_if_clksel_controls_clksel;
 static int hf_ac_if_clksel_controls_rsv;
 static int hf_ac_if_clksel_clockselector;
 static int hf_as_if_desc_subtype;
+static int hf_ac_if_extunit_id;
+static int hf_ac_if_extunit_code;
+static int hf_ac_if_extunit_nrpins;
+static int hf_ac_if_extunit_sourceid;
+static int hf_ac_if_extunit_nrchannels;
+static int hf_ac_if_extunit_bmchannelconfig;
+static int hf_ac_if_extunit_channelnames;
+static int hf_ac_if_extunit_bmcontrols;
+static int hf_ac_if_extunit_bmcontrols_enable_ctrl;
+static int hf_ac_if_extunit_bmcontrols_cluster_ctrl;
+static int hf_ac_if_extunit_bmcontrols_underflow_ctrl;
+static int hf_ac_if_extunit_bmcontrols_overflowflow_ctrl;
+static int hf_ac_if_extunit_iext;
 static int hf_as_if_gen_term_link;
 static int hf_as_if_gen_delay;
 static int hf_as_if_gen_wformattag;
@@ -376,6 +389,8 @@ static gint ett_ac_if_mu_channelconfig;
 static gint ett_ac_if_clksrc_attr;
 static gint ett_ac_if_clksrc_controls;
 static gint ett_ac_if_clksel_controls;
+static gint ett_ac_if_extunit_bmchannelconfig;
+static gint ett_ac_if_extunit_bmcontrols;
 static gint ett_as_if_gen_controls;
 static gint ett_as_if_gen_formats;
 static gint ett_as_if_gen_bmchannelconfig;
@@ -1590,6 +1605,93 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ac_if_extension_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                             proto_tree *tree, usb_conv_info_t *usb_conv_info)
+{
+    gint offset_start;
+    guint8 nrinpins;
+    offset_start = offset;
+
+    static int * const v2_channels[] = {
+        &hf_as_if_gen_bmchannelconfig_d0,
+        &hf_as_if_gen_bmchannelconfig_d1,
+        &hf_as_if_gen_bmchannelconfig_d2,
+        &hf_as_if_gen_bmchannelconfig_d3,
+        &hf_as_if_gen_bmchannelconfig_d4,
+        &hf_as_if_gen_bmchannelconfig_d5,
+        &hf_as_if_gen_bmchannelconfig_d6,
+        &hf_as_if_gen_bmchannelconfig_d7,
+        &hf_as_if_gen_bmchannelconfig_d8,
+        &hf_as_if_gen_bmchannelconfig_d9,
+        &hf_as_if_gen_bmchannelconfig_d10,
+        &hf_as_if_gen_bmchannelconfig_d11,
+        &hf_as_if_gen_bmchannelconfig_d12,
+        &hf_as_if_gen_bmchannelconfig_d13,
+        &hf_as_if_gen_bmchannelconfig_d14,
+        &hf_as_if_gen_bmchannelconfig_d15,
+        &hf_as_if_gen_bmchannelconfig_d16,
+        &hf_as_if_gen_bmchannelconfig_d17,
+        &hf_as_if_gen_bmchannelconfig_d18,
+        &hf_as_if_gen_bmchannelconfig_d19,
+        &hf_as_if_gen_bmchannelconfig_d20,
+        &hf_as_if_gen_bmchannelconfig_d21,
+        &hf_as_if_gen_bmchannelconfig_d22,
+        &hf_as_if_gen_bmchannelconfig_d23,
+        &hf_as_if_gen_bmchannelconfig_d24,
+        &hf_as_if_gen_bmchannelconfig_d25,
+        &hf_as_if_gen_bmchannelconfig_d26,
+        &hf_as_if_gen_bmchannelconfig_rsv,
+        &hf_as_if_gen_bmchannelconfig_d31,
+        NULL
+    };
+    static int *const eu_bmcontrols[] = {
+        &hf_ac_if_extunit_bmcontrols_enable_ctrl,
+        &hf_ac_if_extunit_bmcontrols_cluster_ctrl,
+        &hf_ac_if_extunit_bmcontrols_underflow_ctrl,
+        &hf_ac_if_extunit_bmcontrols_overflowflow_ctrl,
+        NULL
+    };
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        set_entity_type(usb_conv_info, tvb_get_guint8(tvb, offset), USB_AUDIO_ENTITY_EXTENSION_UNIT);
+    }
+    proto_tree_add_item(tree, hf_ac_if_extunit_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ac_if_extunit_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ac_if_extunit_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nrinpins = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    while (nrinpins) {
+        proto_tree_add_item(tree, hf_ac_if_extunit_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        nrinpins--;
+        offset += 1;
+    }
+
+    proto_tree_add_item(tree, hf_ac_if_extunit_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    // TODO:
+    // desc_tree = proto_tree_add_subtree(tree, tvb, offset, ???)
+    // offset += dissect_as_if_general_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_extunit_bmchannelconfig, ett_ac_if_extunit_bmchannelconfig, v2_channels, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ac_if_extunit_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_extunit_bmcontrols, ett_ac_if_extunit_bmcontrols, eu_bmcontrols, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_extunit_iext, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset - offset_start;
+}
+
+static gint
 dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
@@ -2123,6 +2225,9 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case AC_SUBTYPE_CLOCK_SELECTOR:
                 bytes_dissected += dissect_ac_if_clock_selector(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                break;
+            case AC_SUBTYPE_EXTENSION_UNIT:
+                bytes_dissected += dissect_ac_if_extension_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             default:
                 break;
@@ -3169,6 +3274,48 @@ proto_register_usb_audio(void)
         { &hf_ac_if_clksel_clockselector,
             { "String descriptor index", "usbaudio.ac_if_clksel.iClockSelector",
               FT_UINT8, BASE_DEC, NULL, 0x0, "iClockSelector", HFILL }},
+
+        { &hf_ac_if_extunit_id,
+            { "Extension Unit", "usbaudio.ac_if_extunit.bUnitID",
+              FT_UINT8, BASE_DEC, NULL, 0x0, "bUnitID", HFILL }},
+        { &hf_ac_if_extunit_code,
+            { "Extension Code", "usbaudio.ac_if_extunit.wExtensionCode", FT_UINT16,
+             BASE_HEX, NULL, 0x00, "wExtensionCode", HFILL }},
+        { &hf_ac_if_extunit_nrpins,
+            {"Number of Input Pins", "usbaudio.ac_if_extunit.bNrInPins",
+             FT_UINT8, BASE_DEC, NULL, 0x0, "bNrInPins", HFILL }},
+        { &hf_ac_if_extunit_sourceid,
+            {"Unit or Terminal Entity", "usbaudio.ac_if_extunit.baSourceID",
+             FT_UINT8, BASE_DEC, NULL, 0x0, "baSourceID", HFILL }},
+        { &hf_ac_if_extunit_nrchannels,
+            {"Number Channels", "usbaudio.ac_if_extunit.bNrChannels",
+             FT_UINT8, BASE_DEC, NULL, 0x0, "bNrChannels", HFILL }},
+        { &hf_ac_if_extunit_bmchannelconfig,
+            {"Channel Config", "usbaudio.ac_if_extunit.bmChannelConfig",
+             FT_UINT32, BASE_HEX, NULL, 0x0, "bmChannelConfig", HFILL }},
+        // TODO: add channel config vars
+        { &hf_ac_if_extunit_channelnames,
+            {"Channel Names", "usbaudio.ac_if_extunit.iChannelNames",
+             FT_UINT8, BASE_DEC, NULL, 0x0, "iChannelNames", HFILL }},
+        { &hf_ac_if_extunit_bmcontrols,
+            {"Controls", "usbaudio.ac_if_extunit.bmControls",
+             FT_UINT8, BASE_HEX, NULL, 0x0, "bmControls", HFILL }},
+        { &hf_ac_if_extunit_bmcontrols_enable_ctrl,
+            {"Enable Control", "usbaudio.ac_if_extunit.bmControls.enableCtrl",
+             FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+        { &hf_ac_if_extunit_bmcontrols_cluster_ctrl,
+            {"Cluster Control", "usbaudio.ac_if_extunit.bmControls.clusterCtrl",
+             FT_UINT8, BASE_HEX, NULL, 0x0C, NULL, HFILL }},
+        { &hf_ac_if_extunit_bmcontrols_underflow_ctrl,
+            {"Underflow Control", "usbaudio.ac_if_extunit.bmControls.underflowCtrl",
+             FT_UINT8, BASE_HEX, NULL, 0x30, NULL, HFILL }},
+        { &hf_ac_if_extunit_bmcontrols_overflowflow_ctrl,
+            {"Overflow Control", "usbaudio.ac_if_extunit.bmControls.overflowCtrl",
+             FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+        { &hf_ac_if_extunit_iext,
+            {"Extension", "usbaudio.ac_if_extunit.iExtension",
+             FT_UINT8, BASE_DEC, NULL, 0x0, "iExtension", HFILL }},
+
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x0, "bDescriptorSubtype", HFILL }},
