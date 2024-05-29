@@ -111,7 +111,7 @@ static int hf_smb_sig;
 static int hf_smb_response_to;
 static int hf_smb_time;
 static int hf_smb_response_in;
-static int hf_smb_continuation_to;
+static int hf_smb_continuation_of;
 static int hf_smb_nt_status;
 static int hf_smb_error_class;
 static int hf_smb_error_code;
@@ -14140,7 +14140,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int                   spo    = offset;
 	int                   spc    = 0;
 	guint16               od     = 0, po = 0, pc = 0, dc = 0, pd, dd = 0;
-	guint16               tdc;
+	guint16               tdc    = 0;
 	int                   subcmd = -1;
 	guint32               to;
 	int                   an_len;
@@ -14196,19 +14196,20 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* data displacement (dd)
 		 * The amount of data sent NOT including the data in this packet. If there are more
 		 * data to send per "Total Data Count" (tdc) [MS-CIFS] 2.2.4.46.1, additional
-		 * "TRANS2 Secondary Requests ([MS-CIFS] 2.2.4.46.2) will follow, each increasing dd
+		 * "TRANS2 Secondary Requests" ([MS-CIFS] 2.2.4.46.2) will follow, each increasing dd
 		 * until the tdc is reached (dd + dc = tdc).
 		 */
 		dd = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 		offset += 2;
 
-		if (tdc >= (dc + dd)) {
+		if (tdc && tdc >= dc ) {
 			guint16 diff = tdc - (dc + dd);
 			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
 			proto_item_set_generated(it);
 		}
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dd + dc, tdc);
+		if (tdc)
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dd + dc, tdc);
 
 		if (si->cmd == SMB_COM_TRANSACTION2 || si->cmd == SMB_COM_TRANSACTION2_SECONDARY) {
 			guint16 fid;
@@ -14284,7 +14285,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_data_count16, tvb, offset, 2, dc);
 		offset += 2;
 
-		if (tdc >= dc) {
+		if (tdc && tdc >= dc) {
 			guint16 diff = tdc - dc;
 			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
 			proto_item_set_generated(it);
@@ -14327,7 +14328,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
  					    val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
 							   "Unknown (0x%02x)"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dc, tdc);
+				if (tdc)
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dc, tdc);
 
 				if (!si->unidir) {
 					if (!pinfo->fd->visited && si->sip) {
@@ -14559,9 +14561,12 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			if (!dissected_trans)
 				dissect_trans_data(s_tvb, p_tvb, d_tvb, tree);
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO,
-					"[transact continuation]");
+
+		} else if (tdc)	{
+			/* We don't have a flag or info in a struct that identifies this as a
+			 * "transact continuation" packet, so we shouldn't include it in COL_INFO
+			 * until some way is found. */
+			col_append_fstr(pinfo->cinfo, COL_INFO,	", Data: %u of %u", dc + dd, tdc);
 		}
 	}
 
@@ -16971,10 +16976,24 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_uint(tree, hf_smb_data_offset16, tvb, offset, 2, od);
 	offset += 2;
 
-	/* data disp */
+	/* data displacement
+	 * The amount of data sent NOT including the data in this packet. If there are more
+	 * data to send per "Total Data Count", transact continuation packets will follow
+	 * until the td is reached (dd + dc = td).
+	*/
 	dd = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 	offset += 2;
+
+	if (td && td >= dc + dd ) {
+		guint16 diff = td - (dc + dd);
+		item = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
+		proto_item_set_generated(item);
+	}
+	if (td && t2i) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+			", Data: %u of %u", dc + dd, td);
+	}
 
 	/* setup count */
 	sc = tvb_get_guint8(tvb, offset);
@@ -17172,12 +17191,6 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			/* This one is safe to call for s_tvb == p_tvb == d_tvb == NULL */
 			dissect_trans_data(s_tvb, p_tvb, d_tvb, tree);
 		}
-	}
-
-
-	if ( (p_tvb == 0) && (d_tvb == 0) ) {
-		col_append_str(pinfo->cinfo, COL_INFO,
-				       "[transact continuation]");
 	}
 
 	pinfo->fragmented = save_fragmented;
@@ -18135,7 +18148,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			case SMB_COM_TRANSACTION_SECONDARY:
 			case SMB_COM_TRANSACTION2_SECONDARY:
 			case SMB_COM_NT_TRANSACT_SECONDARY:
-				tmp_item = proto_tree_add_uint(htree, hf_smb_continuation_to,
+				tmp_item = proto_tree_add_uint(htree, hf_smb_continuation_of,
 						    tvb, 0, 0, sip->frame_req);
 				proto_item_set_generated(tmp_item);
 				break;
@@ -18148,7 +18161,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			case SMB_COM_TRANSACTION_SECONDARY:
 			case SMB_COM_TRANSACTION2_SECONDARY:
 			case SMB_COM_NT_TRANSACT_SECONDARY:
-				proto_tree_add_uint_format_value(htree, hf_smb_continuation_to, tvb, 0, 0, 0, "<unknown frame>");
+				proto_tree_add_uint_format_value(htree, hf_smb_continuation_of, tvb, 0, 0, 0, "<unknown frame>");
 				break;
 			}
 		}
@@ -18227,7 +18240,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si->ct->matched, new_key, sip);
 						/* We remove the entry for unmatched since we have found a match.
-						 * We have to do this since the MID value wraps so quickly (effective only 10 bits)
+						 * We have to do this since the MID value wraps so quickly
 						 * and if there is packetloss in the trace (maybe due to large holes
 						 * created by a sniffer device not being able to keep up
 						 * with the line rate.
@@ -18237,12 +18250,17 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						 * 3, -> Request  MID:5 (missing from capture)
 						 * 4, <- Response MID:5
 						 * We DON'T want #4 to be presented as a response to #1
+						 * *** However, since all 16 bits are used for the MID except
+						 * 0xFFFF (MS-CIFS 2.2.1.6.2), the MID-PIDs would have to be 65534
+						 * apart, and the PIDs would also have to match, so the likelihood
+						 * of mismatches seems low.
 						 */
 						g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 					} else {
 						/* We have already seen another response to this MID.
-						   Since the MID in reality is only something like 10 bits
-						   this probably means that we just have a MID that is being
+						   The MID is 16 bits all of which are used except for 0xFFFF.
+						   See MS-CIFS 2.2.1.6.2.
+						   This probably means that we just have a MID that is being
 						   reused due to the small MID space and that this is a new
 						   command we did not see the original request for.
 						*/
@@ -18565,9 +18583,9 @@ proto_register_smb(void)
 		{ "Response in", "smb.response_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "The response to this packet is in this packet", HFILL }},
 
-	{ &hf_smb_continuation_to,
-		{ "Continuation to", "smb.continuation_to", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, "This packet is a continuation to the packet in this frame", HFILL }},
+	{ &hf_smb_continuation_of,
+		{ "Continuation of", "smb.continuation_of", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "This packet is a continuation of the packet in this frame", HFILL }},
 
 	{ &hf_smb_nt_status,
 		{ "NT Status", "smb.nt_status", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
