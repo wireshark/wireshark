@@ -1422,7 +1422,7 @@ const value_string tls13_key_update_request[] = {
 /* https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
 /* Note that the TLS 1.3 SignatureScheme registry reserves all values
  * with first octet 0x00-0x06 and all values with second octet 0x00-0x03
- * for backwards compatiblilty with TLS 1.2 SignatureAndHashAlgorithm.
+ * for backwards compatibility with TLS 1.2 SignatureAndHashAlgorithm.
  *
  * RFC 8422 and RFC 9189 add official support in TLS 1.2 for some algorithms
  * originally defined for TLS 1.3, and extend the TLS SignatureAlgorithm

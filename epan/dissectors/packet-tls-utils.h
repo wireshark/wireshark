@@ -307,7 +307,7 @@ typedef enum {
     MODE_CCM,       /* AEAD_AES_{128,256}_CCM with 16 byte auth tag */
     MODE_CCM_8,     /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
     MODE_POLY1305,  /* AEAD_CHACHA20_POLY1305 with 16 byte auth tag (RFC 7905) */
-    MODE_ECB, /* ECB: used to perfrom record seq number encryption in DTLSv1.3 */
+    MODE_ECB, /* ECB: used to perform record seq number encryption in DTLSv1.3 */
 } ssl_cipher_mode_t;
 
 /* Explicit and implicit nonce length (RFC 5116 - Section 3.2.1) */
@@ -2292,7 +2292,7 @@ ssl_common_dissect_t name;
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_len_old,                       \
-      { "Length", prefix ".quic.parameter.lengt.old",                   \
+      { "Length", prefix ".quic.parameter.length.old",                  \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
@@ -2607,7 +2607,7 @@ ssl_common_dissect_t name;
         "A list of extensions that the client must take into consideration when generating a ClientHello message", HFILL } \
     },                                                                  \
     { & name .hf.ech_hpke_keyconfig,                                    \
-      { "HKPE Key Config", prefix ".ech.hpke.keyconfig",                \
+      { "HPKE Key Config", prefix ".ech.hpke.keyconfig",                \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
         "HPKE Key Config", HFILL }                                      \
     },                                                                  \
@@ -2649,12 +2649,12 @@ ssl_common_dissect_t name;
     { & name .hf.ech_hpke_keyconfig_cipher_suite_kdf_id,                \
       { "KDF Id", prefix ".ech.hpke.keyconfig.cipher_suite.kdf_id",     \
         FT_UINT16, BASE_DEC, VALS(kdf_id_type_vals), 0x0,               \
-        "HKPE KDF Id", HFILL }                                          \
+        "HPKE KDF Id", HFILL }                                          \
     },                                                                  \
     { & name .hf.ech_hpke_keyconfig_cipher_suite_aead_id,               \
       { "AEAD Id", prefix ".ech.hpke.keyconfig.cipher_suite.aead_id",   \
         FT_UINT16, BASE_DEC, VALS(aead_id_type_vals), 0x0,              \
-        "HKPE AEAD Id", HFILL }                                         \
+        "HPKE AEAD Id", HFILL }                                         \
     },                                                                  \
     { & name .hf.ech_clienthello_type,                                  \
       { "Client Hello type", prefix ".ech.client_hello_type",           \
