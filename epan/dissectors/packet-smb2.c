@@ -392,7 +392,7 @@ static int hf_windows_sockaddr_in6_addr;
 static int hf_windows_sockaddr_in6_scope_id;
 static int hf_smb2_ioctl_network_interface_next_offset;
 static int hf_smb2_ioctl_network_interface_index;
-static int hf_smb2_ioctl_network_interface_rss_queue_count;
+static int hf_smb2_ioctl_network_interface_reserved;
 static int hf_smb2_ioctl_network_interface_capabilities;
 static int hf_smb2_ioctl_network_interface_capability_rss;
 static int hf_smb2_ioctl_network_interface_capability_rdma;
@@ -7643,8 +7643,8 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 	offset += 4;
 
-	/* rss queue count */
-	proto_tree_add_item(sub_tree, hf_smb2_ioctl_network_interface_rss_queue_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	/* reserved (was rss queue count for release 38 and 39) */
+	proto_tree_add_item(sub_tree, hf_smb2_ioctl_network_interface_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* link speed */
@@ -13289,9 +13289,9 @@ proto_register_smb2(void)
 			NULL, 0, "The index of the interface", HFILL }
 		},
 
-		{ &hf_smb2_ioctl_network_interface_rss_queue_count,
-			{ "RSS Queue Count", "smb2.ioctl.network_interfaces.rss_queue_count", FT_UINT32, BASE_DEC,
-			NULL, 0, "The RSS queue count", HFILL }
+		{ &hf_smb2_ioctl_network_interface_reserved,
+			{ "Reserved", "smb2.ioctl.network_interfaces.reserved", FT_UINT32, BASE_DEC,
+			NULL, 0, "Was RSS Queue Count", HFILL }
 		},
 
 		{ &hf_smb2_ioctl_network_interface_capabilities,
