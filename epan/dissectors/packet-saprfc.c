@@ -747,11 +747,11 @@ dissect_saprfc_monitor_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint8 opcode;
 
 	opcode = tvb_get_guint8(tvb, offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Command=%s", val_to_str(opcode, saprfc_monitor_cmd_values, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Command=%s", val_to_str_const(opcode, saprfc_monitor_cmd_values, "Unknown"));
 
 	proto_tree_add_item(tree, hf_saprfc_monitor_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 	//offset+=1;
-	proto_item_append_text(tree, ", Command=%s", val_to_str(opcode, saprfc_monitor_cmd_values, "Unknown"));
+	proto_item_append_text(tree, ", Command=%s", val_to_str_const(opcode, saprfc_monitor_cmd_values, "Unknown"));
 
 	switch (opcode){
 		// TODO: Dissect RFC monitor command opcodes
@@ -769,13 +769,13 @@ dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	version = tvb_get_guint8(tvb, offset);
 	reqtype = tvb_get_guint8(tvb, offset + 1);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "APPC Version=%u, Request Type=%s", version, val_to_str(reqtype, saprfc_header_reqtype_values, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "APPC Version=%u, Request Type=%s", version, val_to_str_const(reqtype, saprfc_header_reqtype_values, "Unknown"));
 
 	/* Add the APPC header subtree */
 	header = proto_tree_add_item(tree, hf_saprfc_header, tvb, offset, 28, ENC_NA);
 	header_tree = proto_item_add_subtree(header, ett_saprfc);
 
-	proto_item_append_text(header, ", Version=%u, Request Type=%s", version, val_to_str(reqtype, saprfc_header_reqtype_values, "Unknown"));
+	proto_item_append_text(header, ", Version=%u, Request Type=%s", version, val_to_str_const(reqtype, saprfc_header_reqtype_values, "Unknown"));
 
 	proto_tree_add_item(header_tree, hf_saprfc_header_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -961,7 +961,7 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		return tvb_reported_length(tvb);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Version=%u, Request Type=%s", version, val_to_str(req_type, saprfc_reqtype_values, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Version=%u, Request Type=%s", version, val_to_str_const(req_type, saprfc_reqtype_values, "Unknown"));
 
 	/* Add the main saprfc subtree */
 	saprfc = proto_tree_add_item(tree, proto_saprfc, tvb, 0, -1, ENC_NA);
@@ -970,7 +970,7 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	/* Dissect common fields */
 	proto_tree_add_item(saprfc_tree, hf_saprfc_version, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
 	proto_tree_add_item(saprfc_tree, hf_saprfc_reqtype, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
-	proto_item_append_text(saprfc_tree, ", Version=%u, Request Type=%s", version, val_to_str(req_type, saprfc_reqtype_values, "Unknown"));
+	proto_item_append_text(saprfc_tree, ", Version=%u, Request Type=%s", version, val_to_str_const(req_type, saprfc_reqtype_values, "Unknown"));
 
 	/* Dissect the remaining based on the version and request type */
 	switch (req_type){
