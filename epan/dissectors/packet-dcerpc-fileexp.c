@@ -4096,7 +4096,7 @@ proto_register_fileexp (void)
     { &hf_fileexp_objectuuid,
       { "Object uuid", "fileexp.objectuuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
-        "UUID", HFILL}
+        NULL, HFILL}
     },
     { &hf_fileexp_owner,
       { "Owner", "fileexp.owner",
@@ -4146,7 +4146,7 @@ proto_register_fileexp (void)
     { &hf_fileexp_typeuuid,
       { "Type uuid", "fileexp.typeuuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
-        "UUID", HFILL}
+        NULL, HFILL}
     },
     { &hf_fileexp_volid_hi,
       { "Vol id hi", "fileexp.volid_hi",
@@ -4371,7 +4371,7 @@ proto_register_fileexp (void)
     { &hf_fileexp_storestatus_typeuuid,
       { "Store status type uuid", "fileexp.storestatus_typeuuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
-        "UUID", HFILL}
+        NULL, HFILL}
     },
     { &hf_fileexp_l_end_pos,
       { "l_end_pos", "fileexp.l_end_pos",
@@ -4606,12 +4606,12 @@ proto_register_fileexp (void)
     { &hf_fileexp_afsacl_defaultcell_uuid,
       { "Default Cell UUID", "fileexp.defaultcell_uuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
-        "UUID", HFILL}
+        NULL, HFILL}
     },
     { &hf_fileexp_afsuuid_uuid,
       { "AFS UUID", "fileexp.uuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
-        "UUID", HFILL}
+        NULL, HFILL}
     },
     { &hf_fileexp_gettime_syncdispersion,
       { "GetTime Syncdispersion", "fileexp.gettime_syncdispersion",

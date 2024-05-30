@@ -7984,7 +7984,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_form_left_margin,
 		  { "Left margin", "spoolss.form.left", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Left", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_top_margin,
 		  { "Top", "spoolss.form.top", FT_UINT32,
@@ -8299,7 +8299,7 @@ proto_register_dcerpc_spoolss(void)
 		  { "Default (9x/ME only)",
 		    "spoolss.printer_attributes.default",FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_default),
-		    PRINTER_ATTRIBUTE_DEFAULT, "Default", HFILL }},
+		    PRINTER_ATTRIBUTE_DEFAULT, NULL, HFILL }},
 
 		{ &hf_printer_attributes_shared,
 		  { "Shared", "spoolss.printer_attributes.shared", FT_BOOLEAN,
@@ -8344,13 +8344,13 @@ proto_register_dcerpc_spoolss(void)
 		  { "Work offline (9x/ME only)",
 		    "spoolss.printer_attributes.work_offline", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_work_offline),
-		    PRINTER_ATTRIBUTE_WORK_OFFLINE, "Work offline", HFILL }},
+		    PRINTER_ATTRIBUTE_WORK_OFFLINE, NULL, HFILL }},
 
 		{ &hf_printer_attributes_enable_bidi,
 		  { "Enable bidi (9x/ME only)",
 		    "spoolss.printer_attributes.enable_bidi", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_enable_bidi),
-		    PRINTER_ATTRIBUTE_ENABLE_BIDI, "Enable bidi", HFILL }},
+		    PRINTER_ATTRIBUTE_ENABLE_BIDI, NULL, HFILL }},
 
 		{ &hf_printer_attributes_raw_only,
 		  { "Raw only", "spoolss.printer_attributes.raw_only",
