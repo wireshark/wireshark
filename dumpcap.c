@@ -4264,8 +4264,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     }
     /* create stop conditions */
     if (capture_opts->has_autostop_filesize) {
-        if (capture_opts->autostop_filesize > (((guint32)INT_MAX + 1) / 1000)) {
-            capture_opts->autostop_filesize = ((guint32)INT_MAX + 1) / 1000;
+        if (capture_opts->autostop_filesize > UINT32_C(2000000000)) {
+            capture_opts->autostop_filesize = UINT32_C(2000000000);
         }
     }
     if (capture_opts->has_autostop_duration) {

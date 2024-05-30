@@ -194,7 +194,8 @@ were written.
 __value__ kB.  If this option is used together with the -b option, Wireshark
 will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
-2 GiB.
+2 TB, although you might have problems viewing the file in the GUI before then if
+the number of packets exceeds 2^31^ (2147483648).
 
 *packets*:__value__ Stop writing to a capture file after it contains __value__
 packets. Acts the same as *-c*<capture packet count>.
@@ -235,7 +236,9 @@ parameter takes exactly one criterion; to specify two criteria, each must be
 preceded by the *-b* option.
 
 *filesize*:__value__ switch to the next file after it reaches a size of
-__value__ kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+__value__ kB.  Note that the filesize is limited to a maximum value of 2 TB,
+although you might have problems viewing the file in the GUI before then if
+the number of packets exceeds 2^31^ (2147483648).
 
 *interval*:__value__ switch to the next file when the time is an exact
 multiple of __value__ seconds.
@@ -2189,7 +2192,9 @@ __Update list of packets in real time__ option is checked.
 The __Next file every ...  megabyte(s)__ check box and fields lets
 you specify that a switch to a next file should be done
 if the specified filesize is reached.  You can also select the appropriate
-unit, but beware that the filesize has a maximum of 2 GiB.
+unit, but beware that the filesize has a maximum of 2 TB, and you might have
+problems viewing the file in the GUI before then if the number of packets
+exceeds 2^31^ (2147483648).
 The check box is forced to be checked, as "multiple files" mode requires a
 file size to be specified.
 

@@ -331,12 +331,6 @@
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
             </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
             <property name="value">
              <number>1</number>
             </property>
@@ -384,9 +378,6 @@
             </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="minimum">
-             <number>1</number>
             </property>
             <property name="maximum">
              <number>1000000</number>
@@ -440,9 +431,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
             </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="minimum">
-             <number>1</number>
             </property>
             <property name="maximum">
              <number>1000000</number>
@@ -577,9 +565,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
           <widget class="QSpinBox" name="RbSpinBox">
            <property name="wrapping">
             <bool>true</bool>
-           </property>
-           <property name="minimum">
-            <number>2</number>
            </property>
            <property name="maximum">
             <number>65535</number>
@@ -867,9 +852,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
             </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="maximum">
-             <number>2147483647</number>
             </property>
             <property name="value">
              <number>1</number>

@@ -175,6 +175,11 @@ The following features are new (or have been significantly updated) since versio
   selected rows or the entire table can be saved or copied to the clipboard
   in several formats. wsbuglink:16419[]
 
+* When capturing a file, the maximum filesize at which to stop, or to switch
+  files in multiple file mode, can be 2 TB, up from 2GiB. Note that you may
+  have problems when the number of packets gets larger than 2^31^ or 2^32^,
+  though that is also true when no limit is set.
+
 * When capturing files in multiple file mode, a pattern that places the date and time
   before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
   foo_00001_20240714110102.pcap). This causes filenames to sort in chronological order

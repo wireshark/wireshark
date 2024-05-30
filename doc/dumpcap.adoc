@@ -92,7 +92,7 @@ were written.
 *filesize*:__value__ Stop writing to a capture file after it reaches a size of
 __value__ kB. If this option is used together with the -b option, dumpcap will
 stop writing to the current capture file and switch to the next one if filesize
-is reached.  Note that the filesize is limited to a maximum value of 2 GiB.
+is reached.  Note that the filesize is limited to a maximum value of 2 TB.
 
 *packets*:__value__ Stop writing to a capture file after __value__ packets
 have been written. Acts the same as *-c* <capture packet count>.
@@ -134,7 +134,7 @@ parameter takes exactly one criterion; to specify two criterion, each must be
 preceded by the *-b* option.
 
 *filesize*:__value__ switch to the next file after it reaches a size of
-__value__ kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+__value__ kB.  Note that the filesize is limited to a maximum value of 2 TB.
 
 *interval*:__value__ switch to the next file when the time is an exact
 multiple of __value__ seconds.  For example, use 3600 to switch to a new file

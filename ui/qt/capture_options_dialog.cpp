@@ -248,6 +248,27 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->tempDirBrowseButton, SIGNAL(clicked()), this, SLOT(tempDirBrowseButtonClicked()));
 
+    // Ring buffer minimums (all 1 except # of files)
+    ui->PktSpinBox->setMinimum(1);
+    ui->MBSpinBox->setMinimum(1);
+    ui->SecsSpinBox->setMinimum(1);
+    ui->IntervalSecsSpinBox->setMinimum(1);
+    ui->RbSpinBox->setMinimum(2);
+
+    // Autostop minimums
+    ui->stopPktSpinBox->setMinimum(1);
+    ui->stopFilesSpinBox->setMinimum(1);
+    ui->stopMBSpinBox->setMinimum(1);
+    ui->stopSecsSpinBox->setMinimum(1);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->MBComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CaptureOptionsDialog::MBComboBoxIndexChanged);
+    connect(ui->stopMBComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CaptureOptionsDialog::stopMBComboBoxIndexChanged);
+#else
+    connect(ui->MBComboBox, &QComboBox::currentIndexChanged, this, &CaptureOptionsDialog::MBComboBoxIndexChanged);
+    connect(ui->stopMBComboBox, &QComboBox::currentIndexChanged, this, &CaptureOptionsDialog::stopMBComboBoxIndexChanged);
+#endif
+
     ui->tabWidget->setCurrentIndex(0);
 
     updateWidgets();
@@ -569,6 +590,36 @@ void CaptureOptionsDialog::itemDoubleClicked(QTreeWidgetItem *item, int column)
     }
 
     default:
+        break;
+    }
+}
+
+void CaptureOptionsDialog::MBComboBoxIndexChanged(int index)
+{
+    switch (index) {
+    case 0: // kilobytes
+        ui->MBSpinBox->setMaximum(2000000000);
+        break;
+    case 1: // megabytes
+        ui->MBSpinBox->setMaximum(2000000);
+        break;
+    case 2: // gigabytes
+        ui->MBSpinBox->setMaximum(2000);
+        break;
+    }
+}
+
+void CaptureOptionsDialog::stopMBComboBoxIndexChanged(int index)
+{
+    switch (index) {
+    case 0: // kilobytes
+        ui->stopMBSpinBox->setMaximum(2000000000);
+        break;
+    case 1: // megabytes
+        ui->stopMBSpinBox->setMaximum(2000000);
+        break;
+    case 2: // gigabytes
+        ui->stopMBSpinBox->setMaximum(2000);
         break;
     }
 }
@@ -1052,17 +1103,17 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
              global_capture_opts.autostop_filesize = ui->MBSpinBox->value();
              int index = ui->MBComboBox->currentIndex();
              switch (index) {
-             case 1: if (global_capture_opts.autostop_filesize > 2000) {
+             case 1: if (global_capture_opts.autostop_filesize > 2000000) {
                  QMessageBox::warning(this, tr("Error"),
-                                          tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
+                                          tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB."));
                  return false;
                  } else {
                      global_capture_opts.autostop_filesize *= 1000;
                  }
                  break;
-             case 2: if (global_capture_opts.autostop_filesize > 2) {
+             case 2: if (global_capture_opts.autostop_filesize > 2000) {
                      QMessageBox::warning(this, tr("Error"),
-                                              tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
+                                              tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB."));
                      return false;
                      } else {
                          global_capture_opts.autostop_filesize *= 1000000;
@@ -1091,17 +1142,17 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
             global_capture_opts.autostop_filesize = ui->stopMBSpinBox->value();
             int index = ui->stopMBComboBox->currentIndex();
             switch (index) {
-            case 1: if (global_capture_opts.autostop_filesize > 2000) {
+            case 1: if (global_capture_opts.autostop_filesize > 2000000) {
                 QMessageBox::warning(this, tr("Error"),
-                                         tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
+                                         tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB."));
                 return false;
                 } else {
                     global_capture_opts.autostop_filesize *= 1000;
                 }
                 break;
-            case 2: if (global_capture_opts.autostop_filesize > 2) {
+            case 2: if (global_capture_opts.autostop_filesize > 2000) {
                     QMessageBox::warning(this, tr("Error"),
-                                             tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
+                                             tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB."));
                     return false;
                     } else {
                         global_capture_opts.autostop_filesize *= 1000000;

@@ -95,6 +95,8 @@ private slots:
     void itemDoubleClicked(QTreeWidgetItem *item, int column);
     void changeEvent(QEvent* event);
     void tempDirBrowseButtonClicked();
+    void MBComboBoxIndexChanged(int index);
+    void stopMBComboBoxIndexChanged(int index);
 
 signals:
     void startCapture();

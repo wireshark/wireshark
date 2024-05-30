@@ -191,7 +191,8 @@ will stop writing to the current capture file and switch to the next one if
 filesize is reached.  When reading a capture file, *TShark* will stop reading
 the file after the number of bytes read exceeds this number (the complete
 packet  will be read, so more bytes than this number may be read).  Note that
-the filesize is limited to a maximum value of 2 GiB.
+the filesize is limited to a maximum value of 2 TB, although you might have
+problems before then if the number of packets exceeds exceeds 2^32^ (4294967296).
 
 *packets*:__value__ switch to the next file after it contains __value__
 packets.
@@ -243,7 +244,9 @@ parameter takes exactly one criterion; to specify two criterion, each must be
 preceded by the *-b* option.
 
 *filesize*:__value__ switch to the next file after it reaches a size of
-__value__ kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+__value__ kB.  Note that the filesize is limited to a maximum value of 2 TB,
+although you might have problems before then if the number of packets exceeds
+exceeds 2^32^ (4294967296).
 
 *interval*:__value__ switch to the next file when the time is an exact
 multiple of __value__ seconds.  For example, use 3600 to switch to a new file
