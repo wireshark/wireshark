@@ -58,51 +58,51 @@ then
 	exit 1
 fi
 
-BASIC_LIST="base-devel \
-	bcg729 \
-	brotli \
-	c-ares \
-	cmake \
-	git \
-	glib2 \
-	gnutls \
-	krb5 \
-	libcap \
-	libgcrypt \
-	libilbc \
-	libmaxminddb \
-	libnghttp2 \
-	libnghttp3 \
-	libnl \
-	libpcap \
-	libssh \
-	libxml2 \
-	lua53 \
-	lz4 \
-	minizip \
-	ninja \
-	pcre2 \
-	python \
-	qt6-base \
-	qt6-multimedia \
-	qt6-tools \
-	qt6-5compat \
-	sbc \
-	snappy \
-	spandsp \
-	speexdsp \
-	zlib \
+BASIC_LIST="base-devel
+	bcg729
+	brotli
+	c-ares
+	cmake
+	git
+	glib2
+	gnutls
+	krb5
+	libcap
+	libgcrypt
+	libilbc
+	libmaxminddb
+	libnghttp2
+	libnghttp3
+	libnl
+	libpcap
+	libssh
+	libxml2
+	lua53
+	lz4
+	minizip
+	ninja
+	pcre2
+	python
+	qt6-base
+	qt6-multimedia
+	qt6-tools
+	qt6-5compat
+	sbc
+	snappy
+	spandsp
+	speexdsp
+	zlib
 	zstd"
 
-ADDITIONAL_LIST="asciidoctor \
-	ccache \
-	docbook-xml \
-	docbook-xsl \
-	doxygen \
-	libxslt \
+ADDITIONAL_LIST="asciidoctor
+	ccache
+	docbook-xml
+	docbook-xsl
+	doxygen
+	libxslt
 	perl"
 
-TESTDEPS_LIST="python-pytest \
+TESTDEPS_LIST="python-pytest
 	python-pytest-xdist"
 
 ACTUAL_LIST=$BASIC_LIST
