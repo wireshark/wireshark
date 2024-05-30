@@ -324,6 +324,11 @@ The following features are new (or have been significantly updated) since versio
   deprecated in one version are removed in the subsequent version without
   additional notice, so it can be worth checking the manual for previous versions.
 
+* Lua functions have been added to decompress and decode TvbRanges with other
+  compression types besides zlib, such as Brotli, Snappy, Zstd, and others,
+  matching the support in the C API. tvbrange:uncompress() has been deprecated
+  for tvbrange:uncompress_zlib().
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in
