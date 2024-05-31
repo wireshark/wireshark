@@ -131,16 +131,16 @@ register_follow_t* get_follow_by_proto_id(const int proto_id)
   return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_get_protocol_short_name(protocol), 0);
 }
 
-void follow_iterate_followers(wmem_foreach_func func, gpointer user_data)
+void follow_iterate_followers(wmem_foreach_func func, void *user_data)
 {
     wmem_tree_foreach(registered_followers, func, user_data);
 }
 
-gchar* follow_get_stat_tap_string(register_follow_t* follower)
+char* follow_get_stat_tap_string(register_follow_t* follower)
 {
     GString *cmd_str = g_string_new("follow,");
     g_string_append(cmd_str, proto_get_protocol_filter_name(follower->proto_id));
-    return g_string_free(cmd_str, FALSE);
+    return g_string_free(cmd_str, false);
 }
 
 /* here we are going to try and reconstruct the data portion of a TCP
@@ -162,7 +162,7 @@ follow_reset_stream(follow_info_t* info)
     for (cur = info->payload; cur; cur = g_list_next(cur)) {
         follow_record = (follow_record_t *)cur->data;
         if(follow_record->data)
-            g_byte_array_free(follow_record->data, TRUE);
+            g_byte_array_free(follow_record->data, true);
 
         g_free(follow_record);
     }
@@ -173,14 +173,14 @@ follow_reset_stream(follow_info_t* info)
     for (cur = info->fragments[0]; cur; cur = g_list_next(cur)) {
         follow_record = (follow_record_t *)cur->data;
         if(follow_record->data) {
-            g_byte_array_free(follow_record->data, TRUE);
+            g_byte_array_free(follow_record->data, true);
         }
         g_free(follow_record);
     }
     for (cur = info->fragments[1]; cur; cur = g_list_next(cur)) {
         follow_record = (follow_record_t *)cur->data;
         if(follow_record->data) {
-            g_byte_array_free(follow_record->data, TRUE);
+            g_byte_array_free(follow_record->data, true);
         }
         g_free(follow_record);
     }
@@ -231,9 +231,9 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
     }
 
     if (addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
-        follow_record->is_server = FALSE;
+        follow_record->is_server = false;
     else
-        follow_record->is_server = TRUE;
+        follow_record->is_server = true;
 
     /* update stream counter */
     follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;

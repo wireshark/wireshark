@@ -32,18 +32,18 @@ typedef enum {
 } show_stream_t;
 
 typedef union _stream_addr {
-  guint32 ipv4;
+  uint32_t ipv4;
   ws_in6_addr ipv6;
 } stream_addr;
 
 struct _follow_info;
 
-#define SUBSTREAM_UNUSED	G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)
+#define SUBSTREAM_UNUSED	UINT64_C(0xFFFFFFFFFFFFFFFF)
 
 typedef struct {
-    gboolean is_server;
-    guint32 packet_num;
-    guint32 seq; /* TCP only */
+    bool is_server;
+    uint32_t packet_num;
+    uint32_t seq; /* TCP only */
     nstime_t abs_ts; /**< Packet absolute time stamp */
     GByteArray *data;
 } follow_record_t;
@@ -52,26 +52,26 @@ typedef struct _follow_info {
     show_stream_t   show_stream;
     char            *filter_out_filter;
     GList           *payload;   /* "follow_record_t" entries, in reverse order. */
-    guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
-    guint32         seq[2]; /* TCP only */
+    unsigned        bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
+    uint32_t        seq[2]; /* TCP only */
     GList           *fragments[2]; /* TCP only */
-    guint           client_port;
-    guint           server_port;
+    unsigned        client_port;
+    unsigned        server_port;
     address         client_ip;
     address         server_ip;
     void*           gui_data;
-    guint64         substream_id;  /**< Sub-stream; used only by HTTP2 and QUIC */
+    uint64_t        substream_id;  /**< Sub-stream; used only by HTTP2 and QUIC */
 } follow_info_t;
 
 struct register_follow;
 typedef struct register_follow register_follow_t;
 
-typedef gchar* (*follow_conv_filter_func)(epan_dissect_t *edt, packet_info *pinfo, guint *stream, guint *sub_stream);
-typedef gchar* (*follow_index_filter_func)(guint stream, guint sub_stream);
-typedef gchar* (*follow_address_filter_func)(address* src_addr, address* dst_addr, int src_port, int dst_port);
-typedef gchar* (*follow_port_to_display_func)(wmem_allocator_t *allocator, guint port);
-typedef guint32 (*follow_stream_count_func)(void);
-typedef bool (*follow_sub_stream_id_func)(guint stream, guint sub_stream, gboolean le, guint *sub_stream_out);
+typedef char* (*follow_conv_filter_func)(epan_dissect_t *edt, packet_info *pinfo, unsigned *stream, unsigned *sub_stream);
+typedef char* (*follow_index_filter_func)(unsigned stream, unsigned sub_stream);
+typedef char* (*follow_address_filter_func)(address* src_addr, address* dst_addr, int src_port, int dst_port);
+typedef char* (*follow_port_to_display_func)(wmem_allocator_t *allocator, unsigned port);
+typedef uint32_t (*follow_stream_count_func)(void);
+typedef bool (*follow_sub_stream_id_func)(unsigned stream, unsigned sub_stream, bool le, unsigned *sub_stream_out);
 
 WS_DLL_PUBLIC
 void register_follow_stream(const int proto_id, const char* tap_listener,
@@ -152,8 +152,8 @@ WS_DLL_PUBLIC follow_stream_count_func get_follow_stream_count_func(register_fol
 
 /** Provide function that, for given stream and sub stream ids, searches for
  * the first sub stream id less than or equal (or greater than or equal) the
- * given sub stream id present on the given stream id. Returns TRUE and the
- * sub stream id found, or FALSE.
+ * given sub stream id present on the given stream id. Returns true and the
+ * sub stream id found, or false.
  * This is used by the GUI to select valid sub stream numbers, e.g. when
  * incrementing or decrementing the sub stream ID widget.
  * This function should be NULL if the follower does not have sub streams.
@@ -174,7 +174,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
  * @param func action to be performed on all converation tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void follow_iterate_followers(wmem_foreach_func func, gpointer user_data);
+WS_DLL_PUBLIC void follow_iterate_followers(wmem_foreach_func func, void *user_data);
 
 /** Generate -z stat (tap) name for a follower
  * Currently used only by TShark
@@ -182,7 +182,7 @@ WS_DLL_PUBLIC void follow_iterate_followers(wmem_foreach_func func, gpointer use
  * @param follower [in] Registered follower
  * @return A tap data handler
  */
-WS_DLL_PUBLIC gchar* follow_get_stat_tap_string(register_follow_t* follower);
+WS_DLL_PUBLIC char* follow_get_stat_tap_string(register_follow_t* follower);
 
 /** Clear payload, fragments, counters, addresses, and ports of follow_info_t
  * for retapping. (Does not clear substream_id, which is used for selecting
