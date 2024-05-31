@@ -93,7 +93,7 @@ public:
      *
      * @see ATapModelCallback
      */
-    void setProtocolInfo(QString tableName, TrafficTypesList * trafficList, GList ** recentColumnList, ATapModelCallback createModel);
+    void setProtocolInfo(QString tableName, TrafficTypesList * trafficList, GList ** recentList, GList ** recentColumnList, ATapModelCallback createModel);
 
     /**
      * @brief Set the Delegate object for the tab. It will apply for all
@@ -220,6 +220,7 @@ private:
     QMap<int, int> _tabs;
     ATapModelCallback _createModel;
     ATapCreateDelegate _createDelegate;
+    GList ** _recentList;
     GList ** _recentColumnList;
 
     bool _disableTaps;

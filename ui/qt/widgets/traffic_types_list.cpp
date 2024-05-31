@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include <epan/conversation_table.h>
+#include <epan/prefs.h>
 
 #include <ui/qt/widgets/traffic_types_list.h>
 
@@ -152,6 +153,11 @@ bool TrafficTypesModel::setData(const QModelIndex &idx, const QVariant &value, i
 
     _allTaps[idx.row()].setChecked(value.toInt() == Qt::Checked);
 
+    // When updating the tabs, save the current selection, it will be restored below
+    GList *selected_tab = g_list_first(*_recentList);
+    int rct_protoId = proto_get_id_by_short_name((const char *)selected_tab->data);
+    char *rct_title = g_strdup(proto_get_protocol_short_name(find_protocol_by_id(rct_protoId)));
+
     QList<int> selected;
     prefs_clear_string_list(*_recentList);
     *_recentList = NULL;
@@ -159,11 +165,17 @@ bool TrafficTypesModel::setData(const QModelIndex &idx, const QVariant &value, i
     for (int cnt = 0; cnt < _allTaps.count(); cnt++) {
         if (_allTaps[cnt].checked()) {
             int protoId = _allTaps[cnt].protocol();
-            selected.append(protoId);
-            char *title = g_strdup(proto_get_protocol_short_name(find_protocol_by_id(protoId)));
-            *_recentList = g_list_append(*_recentList, title);
+            if(protoId != rct_protoId) {
+                selected.append(protoId);
+                char *title = g_strdup(proto_get_protocol_short_name(find_protocol_by_id(protoId)));
+                *_recentList = g_list_append(*_recentList, title);
+            }
         }
     }
+
+    // restore the selection by prepending it to the recent list
+    selected.prepend(rct_protoId);
+    *_recentList = g_list_prepend(*_recentList, rct_title);
 
     emit protocolsChanged(selected);
 

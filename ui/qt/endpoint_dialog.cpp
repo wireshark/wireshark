@@ -69,7 +69,7 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf) :
 {
     trafficList()->setProtocolInfo(table_name_, &(recent.endpoint_tabs));
 
-    trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.endpoint_tabs_columns), &createModel);
+    trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.endpoint_tabs), &(recent.endpoint_tabs_columns), &createModel);
     trafficTab()->setFilter(cf.displayFilter());
 
     connect(trafficTab(), &TrafficTab::filterAction, this, &EndpointDialog::filterAction);
@@ -110,6 +110,27 @@ void EndpointDialog::tabChanged(int idx)
 #else
     Q_UNUSED(idx);
 #endif
+
+
+    // By default we'll open the last known opened tab from the Profile
+    GList *selected_tab = NULL;
+
+    if (!file_closed_) {
+        QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
+        if (!proto_id.isNull()) {
+
+            for (GList * endTab = recent.endpoint_tabs; endTab; endTab = endTab->next) {
+                int protoId = proto_get_id_by_short_name((const char *)endTab->data);
+                if ((protoId > -1) && (protoId==proto_id.toInt())) {
+                    selected_tab = endTab;
+                }
+            }
+
+            // move the selected tab at the head
+            recent.endpoint_tabs = g_list_remove_link(recent.endpoint_tabs, selected_tab);
+            recent.endpoint_tabs = g_list_prepend(recent.endpoint_tabs, selected_tab->data);
+        }
+    }
 
     TrafficTableDialog::currentTabChanged();
 }

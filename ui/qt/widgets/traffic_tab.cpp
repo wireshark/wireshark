@@ -78,7 +78,7 @@ TrafficTab::TrafficTab(QWidget * parent) :
 TrafficTab::~TrafficTab()
 {}
 
-void TrafficTab::setProtocolInfo(QString tableName, TrafficTypesList * trafficList, GList ** recentColumnList, ATapModelCallback createModel)
+void TrafficTab::setProtocolInfo(QString tableName, TrafficTypesList * trafficList, GList ** recentList, GList ** recentColumnList, ATapModelCallback createModel)
 {
     setTabBasename(tableName);
 
@@ -86,6 +86,7 @@ void TrafficTab::setProtocolInfo(QString tableName, TrafficTypesList * trafficLi
     if (createModel)
         _createModel = createModel;
 
+    _recentList = recentList;
     _recentColumnList = recentColumnList;
 
     setOpenTabs(trafficList->protocols(true));
@@ -260,6 +261,9 @@ void TrafficTab::insertProtoTab(int protoId, bool emitSignals)
     if (tabId >= 0)
         tabBar()->setTabData(tabId, storage);
 
+    // Identify the last known opened tab
+    GList *selected_tab = g_list_first(*_recentList);
+    int lastOpened_protoId = proto_get_id_by_short_name((const char *)selected_tab->data);
 
     /* We reset the correct tab idxs. That operations is costly, but it is only
      * called during this operation and ensures, that other operations do not
@@ -268,6 +272,11 @@ void TrafficTab::insertProtoTab(int protoId, bool emitSignals)
     for (int idx = 0; idx < count(); idx++) {
         TabData tabData = qvariant_cast<TabData>(tabBar()->tabData(idx));
         _tabs.insert(tabData.protoId(), idx);
+    }
+
+    // Restore the last known opened tab
+    if(lastOpened_protoId == protoId) {
+        setCurrentIndex(tabId);
     }
 
     if (emitSignals) {

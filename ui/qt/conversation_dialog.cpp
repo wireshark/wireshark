@@ -71,7 +71,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
 {
     trafficList()->setProtocolInfo(table_name_, &(recent.conversation_tabs));
 
-    trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.conversation_tabs_columns), &createModel);
+    trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.conversation_tabs), &(recent.conversation_tabs_columns), &createModel);
     trafficTab()->setDelegate(&createDelegate);
     trafficTab()->setDelegate(&createDelegate);
     trafficTab()->setFilter(cf.displayFilter());
@@ -148,6 +148,9 @@ void ConversationDialog::graphTcp()
 
 void ConversationDialog::tabChanged(int)
 {
+    // By default we'll open the last known opened tab from the Profile
+    GList *selected_tab = NULL;
+
     bool follow = false;
     bool graph = false;
 
@@ -155,6 +158,17 @@ void ConversationDialog::tabChanged(int)
         QVariant proto_id = trafficTab()->currentItemData(ATapDataModel::PROTO_ID);
         if (!proto_id.isNull()) {
             follow = (get_follow_by_proto_id(proto_id.toInt()) != nullptr);
+
+            for (GList * endTab = recent.conversation_tabs; endTab; endTab = endTab->next) {
+                int protoId = proto_get_id_by_short_name((const char *)endTab->data);
+                if ((protoId > -1) && (protoId==proto_id.toInt())) {
+                    selected_tab = endTab;
+                }
+            }
+
+            // move the selected tab at the head
+            recent.conversation_tabs = g_list_remove_link(recent.conversation_tabs, selected_tab);
+            recent.conversation_tabs = g_list_prepend(recent.conversation_tabs, selected_tab->data);
         }
         int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
         switch(endpointType) {
