@@ -1083,7 +1083,7 @@ proto_register_mtp3(void)
   };
 
   static stat_tap_table_ui mtp3_stat_table = {
-    REGISTER_STAT_GROUP_TELEPHONY_MTP3,
+    REGISTER_TELEPHONY_GROUP_MTP3,
     "MTP3 Statistics",
     "mtp3",
     "mtp3,msus",

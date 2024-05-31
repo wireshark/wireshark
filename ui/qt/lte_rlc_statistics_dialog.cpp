@@ -1082,7 +1082,7 @@ lte_rlc_statistics_init(const char *args, void*)
 }
 
 static stat_tap_ui lte_rlc_statistics_ui = {
-    REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
+    REGISTER_TELEPHONY_GROUP_3GPP_UU,
     QT_TRANSLATE_NOOP("LteRlcStatisticsDialog", "RLC Statistics"),
     "rlc-3gpp,stat",            // cli_string
     lte_rlc_statistics_init,

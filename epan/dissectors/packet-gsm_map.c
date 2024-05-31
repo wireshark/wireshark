@@ -32715,7 +32715,7 @@ void proto_register_gsm_map(void) {
   };
 
   static stat_tap_table_ui gsm_map_stat_table = {
-    REGISTER_STAT_GROUP_TELEPHONY_GSM,
+    REGISTER_TELEPHONY_GROUP_GSM,
     "MAP Operation",
     "gsm_map",
     "gsm_map,operation",

@@ -370,12 +370,12 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
             << REGISTER_STAT_GROUP_GENERIC
             << REGISTER_STAT_GROUP_RESPONSE_TIME
             << REGISTER_STAT_GROUP_RSERPOOL
-            << REGISTER_STAT_GROUP_TELEPHONY
-            << REGISTER_STAT_GROUP_TELEPHONY_ANSI
-            << REGISTER_STAT_GROUP_TELEPHONY_GSM
-            << REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU
-            << REGISTER_STAT_GROUP_TELEPHONY_MTP3
-            << REGISTER_STAT_GROUP_TELEPHONY_SCTP
+            << REGISTER_TELEPHONY_GROUP_UNSORTED
+            << REGISTER_TELEPHONY_GROUP_ANSI
+            << REGISTER_TELEPHONY_GROUP_GSM
+            << REGISTER_TELEPHONY_GROUP_3GPP_UU
+            << REGISTER_TELEPHONY_GROUP_MTP3
+            << REGISTER_TELEPHONY_GROUP_SCTP
             << REGISTER_TOOLS_GROUP_UNSORTED;
 
     setWindowIcon(mainApp->normalIcon());
@@ -2720,22 +2720,22 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
         case REGISTER_STAT_GROUP_RSERPOOL:
             main_ui_->menuRSerPool->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY:
+        case REGISTER_TELEPHONY_GROUP_UNSORTED:
             main_ui_->menuTelephony->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
+        case REGISTER_TELEPHONY_GROUP_ANSI:
             main_ui_->menuANSI->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_GSM:
+        case REGISTER_TELEPHONY_GROUP_GSM:
             main_ui_->menuGSM->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU:
+        case REGISTER_TELEPHONY_GROUP_3GPP_UU:
             main_ui_->menuLTE->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
+        case REGISTER_TELEPHONY_GROUP_MTP3:
             main_ui_->menuMTP3->addAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_SCTP:
+        case REGISTER_TELEPHONY_GROUP_SCTP:
             // XXX - There are two SCTP menus, under Analyze and Telephony,
             // that have the same default actions. The default actions from
             // Analyze are copied to the PacketList context menu.
@@ -2793,22 +2793,22 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
         case REGISTER_STAT_GROUP_RSERPOOL:
             main_ui_->menuRSerPool->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY:
+        case REGISTER_TELEPHONY_GROUP_UNSORTED:
             main_ui_->menuTelephony->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
+        case REGISTER_TELEPHONY_GROUP_ANSI:
             main_ui_->menuANSI->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_GSM:
+        case REGISTER_TELEPHONY_GROUP_GSM:
             main_ui_->menuGSM->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU:
+        case REGISTER_TELEPHONY_GROUP_3GPP_UU:
             main_ui_->menuLTE->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
+        case REGISTER_TELEPHONY_GROUP_MTP3:
             main_ui_->menuMTP3->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY_SCTP:
+        case REGISTER_TELEPHONY_GROUP_SCTP:
             main_ui_->menuTelephonySCTP->removeAction(action);
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
@@ -2841,12 +2841,12 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
 void WiresharkMainWindow::addDynamicMenus()
 {
     // Manual additions
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU, main_ui_->actionTelephonyLteMacStatistics);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU, main_ui_->actionTelephonyLteRlcStatistics);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU, main_ui_->actionTelephonyLteRlcGraph);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_MTP3, main_ui_->actionTelephonyMtp3Summary);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY, main_ui_->actionTelephonySipFlows);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_GSM, main_ui_->actionTelephonyGsmMapSummary);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_3GPP_UU, main_ui_->actionTelephonyLteMacStatistics);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_3GPP_UU, main_ui_->actionTelephonyLteRlcStatistics);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_3GPP_UU, main_ui_->actionTelephonyLteRlcGraph);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_MTP3, main_ui_->actionTelephonyMtp3Summary);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_UNSORTED, main_ui_->actionTelephonySipFlows);
 
     // Fill in each menu
     foreach(register_stat_group_t menu_group, menu_groups_) {
@@ -2857,16 +2857,16 @@ void WiresharkMainWindow::addDynamicMenus()
     // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
     // We've added a placeholder in order to make sure some menus are visible.
     // Hide them as needed.
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_TELEPHONY_GROUP_ANSI).length() > 0) {
         main_ui_->actionTelephonyANSIPlaceholder->setVisible(false);
     }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_TELEPHONY_GROUP_GSM).length() > 0) {
         main_ui_->actionTelephonyGSMPlaceholder->setVisible(false);
     }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_TELEPHONY_GROUP_3GPP_UU).length() > 0) {
         main_ui_->actionTelephonyLTEPlaceholder->setVisible(false);
     }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_TELEPHONY_GROUP_MTP3).length() > 0) {
         main_ui_->actionTelephonyMTP3Placeholder->setVisible(false);
     }
 }

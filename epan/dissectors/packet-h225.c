@@ -11600,7 +11600,7 @@ void proto_register_h225(void) {
   };
 
   static stat_tap_table_ui h225_stat_table = {
-    REGISTER_STAT_GROUP_TELEPHONY,
+    REGISTER_TELEPHONY_GROUP_UNSORTED,
     "H.225",
     PFNAME,
     "h225,counter",

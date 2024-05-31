@@ -7346,7 +7346,7 @@ proto_register_sir(void)
     };
 
     static stat_tap_table_ui wsp_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY,
+        REGISTER_TELEPHONY_GROUP_UNSORTED,
         "WAP-WSP Packet Counter",
         "wsp",
         "wsp,stat",

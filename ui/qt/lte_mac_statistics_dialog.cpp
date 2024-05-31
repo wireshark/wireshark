@@ -954,7 +954,7 @@ lte_mac_statistics_init(const char *args, void*) {
 }
 
 static stat_tap_ui lte_mac_statistics_ui = {
-    REGISTER_STAT_GROUP_TELEPHONY_3GPP_UU,
+    REGISTER_TELEPHONY_GROUP_3GPP_UU,
     QT_TRANSLATE_NOOP("LteMacStatisticsDialog", "MAC Statistics"),
     "mac-3gpp,stat",             // cli_string
     lte_mac_statistics_init,

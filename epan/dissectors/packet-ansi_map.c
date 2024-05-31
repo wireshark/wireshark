@@ -19399,7 +19399,7 @@ void proto_register_ansi_map(void) {
 
     /* TAP STAT INFO */
     static stat_tap_table_ui stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_ANSI,
+        REGISTER_TELEPHONY_GROUP_ANSI,
         "Map Operation Statistics",
         "ansi_map",
         "ansi_map",

@@ -4810,7 +4810,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_bssmap_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface BSSMAP",
         "gsm_a",
         "gsm_a,bssmap",
@@ -4826,7 +4826,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_mm_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP Mobility Management",
         "gsm_a",
         "gsm_a,dtap_mm",
@@ -4842,7 +4842,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_rr_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP Radio Resource Management",
         "gsm_a",
         "gsm_a,dtap_rr",
@@ -4858,7 +4858,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_cc_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP Call Control",
         "gsm_a",
         "gsm_a,dtap_cc",
@@ -4874,7 +4874,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_gmm_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP GPRS Mobility Management",
         "gsm_a",
         "gsm_a,dtap_gmm",
@@ -4890,7 +4890,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_sm_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP GPRS Session Management",
         "gsm_a",
         "gsm_a,dtap_sm",
@@ -4906,7 +4906,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_sms_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP Short Message Service",
         "gsm_a",
         "gsm_a,dtap_sms",
@@ -4922,7 +4922,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_tp_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP Special Conformance Testing Functions",
         "gsm_a",
         "gsm_a,dtap_tp",
@@ -4938,7 +4938,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_dtap_ss_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface DTAP Supplementary Services",
         "gsm_a",
         "gsm_a,dtap_ss",
@@ -4954,7 +4954,7 @@ proto_register_gsm_a_common(void)
     };
 
     static stat_tap_table_ui gsm_a_sacch_rr_stat_table = {
-        REGISTER_STAT_GROUP_TELEPHONY_GSM,
+        REGISTER_TELEPHONY_GROUP_GSM,
         "A-Interface SACCH",
         "gsm_a",
         "gsm_a,dtap_sacch",

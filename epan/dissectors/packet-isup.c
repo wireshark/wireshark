@@ -12283,7 +12283,7 @@ proto_register_isup(void)
   /* Register the stats_tree */
   stats_tree_cfg *st_config = stats_tree_register("isup", "isup_msg", "_ISUP Messages",
                                  0, msg_stats_tree_packet, msg_stats_tree_init, NULL);
-  stats_tree_set_group(st_config, REGISTER_STAT_GROUP_TELEPHONY);
+  stats_tree_set_group(st_config, REGISTER_TELEPHONY_GROUP_UNSORTED);
 }
 
 

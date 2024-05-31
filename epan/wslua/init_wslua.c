@@ -995,8 +995,10 @@ add_menu_group_symbol(const char *name, int value)
     lua_pushinteger(L, value);
     char *str = g_strdup(name);
     char *s = strstr(str, "_GROUP_");
-    if (s == NULL)
+    if (s == NULL) {
+        g_free(str);
         return;
+    }
     *s = '\0';
     s += strlen("_GROUP_");
     char *str2 = ws_strdup_printf("MENU_%s_%s", str, s);
@@ -1137,6 +1139,18 @@ static void wslua_add_deprecated(void)
     lua_setglobal(L, "MENU_STAT_RESPONSE");
     lua_getglobal(L, "MENU_PACKET_STAT_UNSORTED");
     lua_setglobal(L, "MENU_STAT_UNSORTED");
+    lua_getglobal(L, "MENU_TELEPHONY_UNSORTED");
+    lua_setglobal(L, "MENU_STAT_TELEPHONY");
+    lua_getglobal(L, "MENU_TELEPHONY_ANSI");
+    lua_setglobal(L, "MENU_STAT_TELEPHONY_ANSI");
+    lua_getglobal(L, "MENU_TELEPHONY_GSM");
+    lua_setglobal(L, "MENU_STAT_TELEPHONY_GSM");
+    lua_getglobal(L, "MENU_TELEPHONY_3GPP_UU");
+    lua_setglobal(L, "MENU_STAT_TELEPHONY_3GPP_UU");
+    lua_getglobal(L, "MENU_TELEPHONY_MTP3");
+    lua_setglobal(L, "MENU_STAT_TELEPHONY_MTP3");
+    lua_getglobal(L, "MENU_TELEPHONY_SCTP");
+    lua_setglobal(L, "MENU_STAT_TELEPHONY_SCTP");
 
     /* deprecated function names */
     lua_getglobal(L, "Dir");

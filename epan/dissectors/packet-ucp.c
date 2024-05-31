@@ -2905,7 +2905,7 @@ proto_reg_handoff_ucp(void)
     /* Tapping setup */
     stats_tree_cfg *st_config = stats_tree_register("ucp", "ucp_messages", "_UCP Messages", 0,
                         ucp_stats_tree_per_packet, ucp_stats_tree_init, NULL);
-    stats_tree_set_group(st_config, REGISTER_STAT_GROUP_TELEPHONY);
+    stats_tree_set_group(st_config, REGISTER_TELEPHONY_GROUP_UNSORTED);
 }
 
 /*

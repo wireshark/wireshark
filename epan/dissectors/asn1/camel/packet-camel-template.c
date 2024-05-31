@@ -1512,7 +1512,7 @@ void proto_register_camel(void) {
   };
 
   static stat_tap_table_ui camel_stat_table = {
-    REGISTER_STAT_GROUP_TELEPHONY_GSM,
+    REGISTER_TELEPHONY_GROUP_GSM,
     "CAMEL Messages and Response Status",
     PSNAME,
     "camel,counter",

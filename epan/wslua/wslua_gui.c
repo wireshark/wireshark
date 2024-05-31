@@ -77,12 +77,12 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     * MENU_STAT_GENERIC: menu:Statistics[], first section
     * MENU_STAT_RESPONSE_TIME: menu:Statistics[Service Response Time]
     * MENU_STAT_RSERPOOL: menu:Statistics[Reliable Server Pooling (RSerPool)]
-    * MENU_STAT_TELEPHONY: menu:Telephony[]
-    * MENU_STAT_TELEPHONY_ANSI: menu:Telephony[ANSI]
-    * MENU_STAT_TELEPHONY_GSM: menu:Telephony[GSM]
-    * MENU_STAT_TELEPHONY_3GPP_UU: menu:Telephony[3GPP Uu]
-    * MENU_STAT_TELEPHONY_MTP3: menu:Telephony[MTP3]
-    * MENU_STAT_TELEPHONY_SCTP: menu:Telephony[SCTP]
+    * MENU_TELEPHONY_UNSORTED: menu:Telephony[]
+    * MENU_TELEPHONY_ANSI: menu:Telephony[ANSI]
+    * MENU_TELEPHONY_GSM: menu:Telephony[GSM]
+    * MENU_TELEPHONY_3GPP_UU: menu:Telephony[3GPP Uu]
+    * MENU_TELEPHONY_MTP3: menu:Telephony[MTP3]
+    * MENU_TELEPHONY_SCTP: menu:Telephony[SCTP]
     * MENU_TOOLS_UNSORTED: menu:Tools[]
 
     Valid log (Logray) items are:
@@ -99,6 +99,12 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     * MENU_STAT_ENDPOINT, superseded by MENU_STAT_ENDPOINT_LIST
     * MENU_STAT_RESPONSE, superseded by MENU_STAT_RESPONSE_TIME
     * MENU_STAT_UNSORTED, superseded by MENU_PACKET_STAT_UNSORTED
+    * MENU_STAT_TELEPHONY, superseded by MENU_TELEPHONY_UNSORTED
+    * MENU_STAT_TELEPHONY_ANSI, superseded by MENU_TELEPHONY_ANSI
+    * MENU_STAT_TELEPHONY_GSM, superseded by MENU_TELEPHONY_GSM
+    * MENU_STAT_TELEPHONY_3GPP_UU, superseded by MENU_TELEPHONY_3GPP_UU
+    * MENU_STAT_TELEPHONY_MTP3, superseded by MENU_TELEPHONY_MTP3
+    * MENU_STAT_TELEPHONY_SCTP, superseded by MENU_TELEPHONY_SCTP
  */
 
     const char* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);

@@ -7540,7 +7540,7 @@ void proto_register_sip(void)
     };
 
     static stat_tap_table_ui sip_stat_table = {
-      REGISTER_STAT_GROUP_TELEPHONY,
+      REGISTER_TELEPHONY_GROUP_UNSORTED,
       "SIP Statistics",
       "sip",
       "sip,stat",
