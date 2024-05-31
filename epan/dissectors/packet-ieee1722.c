@@ -249,6 +249,18 @@ typedef struct _ieee1722_seq_data_t {
 #define IEEE_1722_ACF_TYPE_SENSOR_BRIEF                 0x09
 #define IEEE_1722_ACF_TYPE_AECP                         0x0A
 #define IEEE_1722_ACF_TYPE_ANCILLARY                    0x0B
+#define IEEE_1722_ACF_TYPE_GISF                         0x0C
+#define IEEE_1722_ACF_TYPE_BYTE_BUS                     0x0D
+#define IEEE_1722_ACF_TYPE_BYTE_BUS_BRIEF               0x0E
+#define IEEE_1722_ACF_TYPE_I2C                          0x0F
+#define IEEE_1722_ACF_TYPE_I2C_BRIEF                    0x10
+#define IEEE_1722_ACF_TYPE_CAN_XL                       0x11
+#define IEEE_1722_ACF_TYPE_CAN_XL_BRIEF                 0x12
+#define IEEE_1722_ACF_TYPE_CAN_V2                       0x21
+#define IEEE_1722_ACF_TYPE_CAN_BRIEF_V2                 0x22
+#define IEEE_1722_ACF_TYPE_LIN_V2                       0x23
+#define IEEE_1722_ACF_TYPE_CHECKSUM                     0x76
+#define IEEE_1722_ACF_TYPE_CRC                          0x77
 #define IEEE_1722_ACF_TYPE_USER0                        0x78
 #define IEEE_1722_ACF_TYPE_USER1                        0x79
 #define IEEE_1722_ACF_TYPE_USER2                        0x7A
@@ -725,7 +737,20 @@ static const range_string acf_msg_type_range_rvals [] = {
     {0x09, 0x09,    "Abbreviated sensor"},
     {0x0A, 0x0A,    "IEEE Std 1722.1 AECP"},
     {0x0B, 0x0B,    "Video ancillary data"},
-    {0x0C, 0x77,    "Reserved"},
+    {0x0C, 0x0C,    "Generic Image Sensor Format message"},
+    {0x0D, 0x0D,    "Generic byte bus data message"},
+    {0x0E, 0x0E,    "Abbreviated byte bus data message"},
+    {0x0F, 0x0F,    "Inter-IC (I2C) message"},
+    {0x10, 0x10,    "Abbreviated I2C message"},
+    {0x11, 0x11,    "Controller Area Network XL message"},
+    {0x12, 0x12,    "Abbreviated CAN XL message"},
+    {0x13, 0x20,    "Reserved"},
+    {0x21, 0x21,    "Controller Area Network (CAN)/CAN with Flexible Data-Rate (CAN FD) message version 2"},
+    {0x22, 0x22,    "Abbreviated CAN/CAN FD message version 2"},
+    {0x23, 0x23,    "LIN message version 2"},
+    {0x24, 0x75,    "Reserved"},
+    {0x76, 0x76,    "Optional 16-bit checksum validation of the immediately preceeding ACF message in the same frame"},
+    {0x77, 0x77,    "Optional 32-bit CRC validation of the immediately preceeding ACF message in the same frame"},
     {0x78, 0x7F,    "User-defined"},
     {0, 0,      NULL}
 };
