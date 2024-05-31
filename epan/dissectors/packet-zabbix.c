@@ -54,6 +54,7 @@ static int hf_zabbix_agent;
 static int hf_zabbix_agent_commands;
 static int hf_zabbix_agent_config;
 static int hf_zabbix_agent_data;
+static int hf_zabbix_agent_redirection;
 static int hf_zabbix_agent_passive;
 static int hf_zabbix_agent_name;
 static int hf_zabbix_agent_hb;
@@ -132,8 +133,7 @@ typedef struct _zabbix_conv_info_t {
 #define ZABBIX_T_CONFIG             0x00000080
 #define ZABBIX_T_DATA               0x00000100
 #define ZABBIX_T_HEARTBEAT          0x00000200
-#define ZABBIX_T_REDIRECTION        0x00000400
-#define ZABBIX_T_LEGACY             0x00000800   /* pre-7.0 non-JSON protocol */
+#define ZABBIX_T_LEGACY             0x00000400   /* pre-7.0 non-JSON protocol */
 
 #define ADD_ZABBIX_T_FLAGS(flags)       (zabbix_info->oper_flags |= (flags))
 #define CLEAR_ZABBIX_T_FLAGS(flags)     (zabbix_info->oper_flags &= (0xffff-(flags)))
@@ -215,6 +215,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     bool is_compressed;
     bool is_large_packet;
     bool is_too_large = false;
+    bool is_redirection = false;
     char *json_str;
     char *passive_agent_data_str = NULL;
     jsmntok_t *commands_array = NULL;
@@ -573,10 +574,11 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if (IS_ZABBIX_T_FLAGS(ZABBIX_T_AGENT)) {
             agent_name = zabbix_info->host_name;
             if (json_get_object(json_str, tokens, "redirect")) {
-                /* Agent redirection response for an active agent heartbeat message
-                 * from a Zabbix 7.0+ proxy in load balancing configuration
+                /* Agent redirection response from a Zabbix 7.0+ proxy in load balancing configuration.
+                 * Not added in the conversation flags to prevent it from showing in the request packet,
+                 * just set a local variable for later usage.
                  */
-                ADD_ZABBIX_T_FLAGS(ZABBIX_T_REDIRECTION);
+                is_redirection = true;
                 proto_item_set_text(ti,
                     "Zabbix Agent redirection for \"%s\"", ZABBIX_NAME_OR_UNKNOWN(agent_name));
                 col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -709,6 +711,9 @@ show_agent_outputs:
             temp_ti = proto_tree_add_boolean(zabbix_tree, hf_zabbix_agent_passive, NULL, 0, 0, true);
             proto_item_set_text(temp_ti, "Agent is in passive mode");
             proto_item_set_generated(temp_ti);
+        }
+        if (is_redirection) {
+            proto_tree_add_boolean(zabbix_tree, hf_zabbix_agent_redirection, NULL, 0, 0, true);
         }
     }
     else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PROXY)) {
@@ -1035,6 +1040,11 @@ proto_register_zabbix(void)
         },
         { &hf_zabbix_agent_data,
             { "Zabbix agent data", "zabbix.agent.data",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
+            NULL, HFILL }
+        },
+        { &hf_zabbix_agent_redirection,
+            { "Agent redirection", "zabbix.agent.redirection",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0,
             NULL, HFILL }
         },
