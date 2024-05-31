@@ -1393,7 +1393,9 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
 
     if (message_desc) {
         message_name = pbw_Descriptor_full_name(message_desc);
-        field_count = pbw_Descriptor_field_count(message_desc);
+        /* N.B. extra entries are needed because of possibly repeated items within message.
+           TODO: use dynamic wmem_array_t? Don't fancy void* interface... */
+        field_count = pbw_Descriptor_field_count(message_desc) + 256;
         if (add_default_value && field_count > 0) {
             parsed_fields = wmem_alloc0_array(pinfo->pool, int, field_count);
         }
@@ -1464,11 +1466,17 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     {
         field_desc = NULL;
         if (!dissect_one_protobuf_field(tvb, &offset, max_offset - offset, pinfo, message_tree, message_desc,
-            is_top_level, &field_desc, prev_field_desc, dumper))
+            is_top_level, &field_desc, prev_field_desc, dumper)) {
             break;
+        }
 
         if (parsed_fields && field_desc) {
-            parsed_fields[parsed_fields_count++] = pbw_FieldDescriptor_number(field_desc);
+            if (parsed_fields_count < field_count) {
+                parsed_fields[parsed_fields_count++] = pbw_FieldDescriptor_number(field_desc);
+            }
+            else {
+                /* TODO: error?  Means default values may not be set/shown.. */
+            }
         }
 
         prev_field_desc = field_desc;
