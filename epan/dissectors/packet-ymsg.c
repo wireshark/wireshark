@@ -1062,6 +1062,20 @@ static const value_string ymsg_field_vals[] = {
     {0, NULL},
 };
 
+/*
+ * These fields' values are themselves fields. Possible values are:
+ *  - YAHOO_FLD_GROUPS_RECORD_LIST,
+ *  - YAHOO_FLD_BUDDIES_RECORD_LIST,
+ *  - YAHOO_FLD_IGNORED_BUDDIES_RECORD_LIST,
+ *  - YAHOO_FLD_PREFERENCES,
+ */
+static const int yahoo_fields_with_field_values[] = {
+    YAHOO_FLD_START_OF_LIST,
+    YAHOO_FLD_END_OF_LIST,
+    YAHOO_FLD_START_OF_RECORD,
+    YAHOO_FLD_END_OF_RECORD,
+};
+
 /* Find the end of the current content line and return its length */
 static int get_content_item_length(tvbuff_t *tvb, int offset)
 {
@@ -1093,17 +1107,29 @@ get_ymsg_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
     return plen + YAHOO_HEADER_SIZE;
 }
 
+static bool is_field_with_field_value(int key)
+{
+    for (guint i = 0; i < G_N_ELEMENTS(yahoo_fields_with_field_values); i++) {
+        if (key == yahoo_fields_with_field_values[i]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static int
 dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *ymsg_tree, *ti;
     proto_item *content_item;
     proto_tree *content_tree;
-    char        *valbuf;
-    int         keylen;
-    bool        key_valid;
+    const gchar *val_buf;
+    int         val_len;
+    int         val_key;
+    int         key_len;
     int         key;
-    int         vallen;
+    bool        key_valid;
     int         content_len;
     int         offset = 0;
 
@@ -1172,38 +1198,44 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
                 /* Don't continue unless there is room for another whole item.
                    (including 2 2-byte delimiters */
-                if (offset >= (YAHOO_HEADER_SIZE+content_len-4))
+                if (offset >= (YAHOO_HEADER_SIZE + content_len - 4))
                 {
                     break;
                 }
 
                 /* Get the length of the key */
-                keylen = get_content_item_length(tvb, offset);
+                key_len = get_content_item_length(tvb, offset);
                 /* Extract the key */
-                key_valid = ws_strtoi32(tvb_format_text(pinfo->pool, tvb, offset, keylen), NULL, &key);
+                key_valid = ws_strtoi32(tvb_format_text(pinfo->pool, tvb, offset, key_len), NULL, &key);
                 if (!key_valid) {
                     key = -1;
                 }
 
                 /* Get the length of the value */
-                vallen = get_content_item_length(tvb, offset+keylen+2);
+                val_len = get_content_item_length(tvb, offset + key_len + 2);
                 /* Extract the value */
-                valbuf = tvb_format_text(pinfo->pool, tvb, offset+keylen+2, vallen);
+                val_buf = tvb_format_text(pinfo->pool, tvb, offset + key_len + 2, val_len);
+
+                /* If the key is a field with field values, convert the value to an int and get its field name */
+                if (is_field_with_field_value(key) && ws_strtoi32(val_buf, NULL, &val_key)) {
+                    val_buf = val_to_str(val_key, ymsg_field_vals, "Unknown(%u)");
+                }
 
                 /* Add a text item with the key... */
                 ti_2 =  proto_tree_add_string_format(content_tree, hf_ymsg_content_line, tvb,
-                                                   offset, keylen+2+vallen+2,
-                                                   "", "%s: %s", val_to_str(key, ymsg_field_vals, "Unknown(%u)"), valbuf);
+                                                     offset, key_len + 2 + val_len + 2,
+                                                     "", "%s: %s", val_to_str(key, ymsg_field_vals, "Unknown(%u)"),
+                                                     val_buf);
                 content_line_tree = proto_item_add_subtree(ti_2, ett_ymsg_content_line);
 
                 /* And add the key and value separately inside */
                 proto_tree_add_item(content_line_tree, hf_ymsg_content_line_key, tvb,
-                                    offset, keylen, ENC_ASCII);
+                                    offset, key_len, ENC_ASCII);
                 proto_tree_add_item(content_line_tree, hf_ymsg_content_line_value, tvb,
-                                    offset+keylen+2, vallen, ENC_ASCII);
+                                    offset + key_len + 2, val_len, ENC_ASCII);
 
                 /* Move beyond key and value lines */
-                offset += keylen+2+vallen+2;
+                offset += key_len + 2 + val_len + 2;
             }
         }
     }
