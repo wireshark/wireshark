@@ -782,7 +782,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Stop capturing after the specified number of packets have been captured.</string>
+             <string>Stop capturing after the specified number of files have been created.</string>
             </property>
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::PlusMinus</enum>
