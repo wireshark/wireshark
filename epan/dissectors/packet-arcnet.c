@@ -66,7 +66,7 @@ static int arcnet_to_str(const address* addr, gchar *buf, int buf_len _U_)
   return arcnet_str_len(addr);
 }
 
-static const char* arcnet_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* arcnet_col_filter_str(const address* addr _U_, bool is_src)
 {
   if (is_src)
     return "arcnet.src";

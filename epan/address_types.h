@@ -17,13 +17,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef int (*AddrValueToString)(const address* addr, gchar *buf, int buf_len);
+typedef int (*AddrValueToString)(const address* addr, char *buf, int buf_len);
 typedef int (*AddrValueToStringLen)(const address* addr);
-typedef guint (*AddrValueToByte)(const address* addr, guint8 *buf, guint buf_len);
+typedef unsigned (*AddrValueToByte)(const address* addr, uint8_t *buf, unsigned buf_len);
 typedef int (*AddrFixedLen)(void);
-typedef const char* (*AddrColFilterString)(const address* addr, gboolean src);
+typedef const char* (*AddrColFilterString)(const address* addr, bool src);
 typedef int (*AddrNameResolutionLen)(void);
-typedef const gchar* (*AddrNameResolutionToString)(const address* addr);
+typedef const char* (*AddrNameResolutionToString)(const address* addr);
 
 struct _address_type_t;
 typedef struct _address_type_t address_type_t;
@@ -38,14 +38,14 @@ WS_DLL_PUBLIC int address_type_get_by_name(const char* name);
 void address_types_initialize(void);
 
 /* Address type functions used by multiple (dissector) address types */
-int none_addr_to_str(const address* addr, gchar *buf, int buf_len);
+int none_addr_to_str(const address* addr, char *buf, int buf_len);
 int none_addr_str_len(const address* addr);
 int none_addr_len(void);
 
-int ether_to_str(const address* addr, gchar *buf, int buf_len);
+int ether_to_str(const address* addr, char *buf, int buf_len);
 int ether_str_len(const address* addr);
 int ether_len(void);
-const gchar* ether_name_resolution_str(const address* addr);
+const char* ether_name_resolution_str(const address* addr);
 int ether_name_resolution_len(void);
 
 
@@ -53,7 +53,7 @@ int ether_name_resolution_len(void);
 /* XXX - Temporary?  Here at least until all of the address type handling is finalized
  * Otherwise should be folded into address_types.c or just be handled with function pointers
  */
-const char* address_type_column_filter_string(const address* addr, gboolean src);
+const char* address_type_column_filter_string(const address* addr, bool src);
 
 
 #ifdef __cplusplus

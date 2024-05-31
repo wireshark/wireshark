@@ -267,7 +267,7 @@ static int J1939_addr_str_len(const address* addr _U_)
     return 11; /* Leaves required space (10 bytes) for uint_to_str_back() */
 }
 
-static const char* J1939_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* J1939_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "j1939.src_addr";

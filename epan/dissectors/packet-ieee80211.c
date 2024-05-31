@@ -8953,7 +8953,7 @@ wlan_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static const char*
-wlan_col_filter_str(const address* addr _U_, gboolean is_src)
+wlan_col_filter_str(const address* addr _U_, bool is_src)
 {
   if (is_src)
     return "wlan.sa";
@@ -8962,13 +8962,13 @@ wlan_col_filter_str(const address* addr _U_, gboolean is_src)
 }
 
 static const char*
-wlan_bssid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
+wlan_bssid_col_filter_str(const address* addr _U_, bool is_src _U_)
 {
   return "wlan.bssid";
 }
 
 static const char*
-wlan_ra_ta_col_filter_str(const address* addr _U_, gboolean is_src)
+wlan_ra_ta_col_filter_str(const address* addr _U_, bool is_src)
 {
   if (is_src)
     return "wlan.ta";
@@ -8977,7 +8977,7 @@ wlan_ra_ta_col_filter_str(const address* addr _U_, gboolean is_src)
 }
 
 static const char*
-wlan_aid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
+wlan_aid_col_filter_str(const address* addr _U_, bool is_src _U_)
 {
   return "wlan.fc.sid.association_id";
 }

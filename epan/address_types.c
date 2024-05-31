@@ -139,7 +139,7 @@ int address_type_get_by_name(const char* name)
 /******************************************************************************
  * AT_NONE
  ******************************************************************************/
-int none_addr_to_str(const address* addr _U_, gchar *buf, int buf_len _U_)
+int none_addr_to_str(const address* addr _U_, char *buf, int buf_len _U_)
 {
     buf[0] = '\0';
     return none_addr_str_len(addr);
@@ -160,7 +160,7 @@ static int none_name_res_len(void)
     return 5;
 }
 
-static const gchar* none_name_res_str(const address* addr _U_)
+static const char* none_name_res_str(const address* addr _U_)
 {
     return "NONE";
 }
@@ -168,11 +168,11 @@ static const gchar* none_name_res_str(const address* addr _U_)
 /******************************************************************************
  * AT_ETHER
  ******************************************************************************/
-int ether_to_str(const address* addr, gchar *buf, int buf_len)
+int ether_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(18, buf, buf_len);
 
-    bytes_to_hexstr_punct(buf, (const guint8*)addr->data, 6, ':');
+    bytes_to_hexstr_punct(buf, (const uint8_t*)addr->data, 6, ':');
     buf[17] = '\0';
     return ether_str_len(addr);
 }
@@ -182,7 +182,7 @@ int ether_str_len(const address* addr _U_)
     return 18;
 }
 
-static const char* ether_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ether_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "eth.src";
@@ -195,9 +195,9 @@ int ether_len(void)
     return 6;
 }
 
-const gchar* ether_name_resolution_str(const address* addr)
+const char* ether_name_resolution_str(const address* addr)
 {
-    return get_ether_name((const guint8 *)addr->data);
+    return get_ether_name((const uint8_t *)addr->data);
 }
 
 int ether_name_resolution_len(void)
@@ -208,7 +208,7 @@ int ether_name_resolution_len(void)
 /******************************************************************************
  * AT_IPv4
  ******************************************************************************/
-static int ipv4_to_str(const address* addr, gchar *buf, int buf_len)
+static int ipv4_to_str(const address* addr, char *buf, int buf_len)
 {
     ip_addr_to_str_buf(addr->data, buf, buf_len);
     return (int)(strlen(buf)+1);
@@ -219,7 +219,7 @@ static int ipv4_str_len(const address* addr _U_)
     return WS_INET_ADDRSTRLEN;
 }
 
-static const char* ipv4_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ipv4_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "ip.src";
@@ -232,9 +232,9 @@ static int ipv4_len(void)
     return 4;
 }
 
-static const gchar* ipv4_name_res_str(const address* addr)
+static const char* ipv4_name_res_str(const address* addr)
 {
-    guint32 ip4_addr;
+    uint32_t ip4_addr;
     memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
     return get_hostname(ip4_addr);
 }
@@ -247,7 +247,7 @@ static int ipv4_name_res_len(void)
 /******************************************************************************
  * AT_IPv6
  ******************************************************************************/
-static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
+static int ipv6_to_str(const address* addr, char *buf, int buf_len)
 {
     ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len);
     return (int)(strlen(buf) + 1);
@@ -258,7 +258,7 @@ static int ipv6_str_len(const address* addr _U_)
     return WS_INET6_ADDRSTRLEN;
 }
 
-static const char* ipv6_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ipv6_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "ipv6.src";
@@ -271,7 +271,7 @@ static int ipv6_len(void)
     return 16;
 }
 
-static const gchar* ipv6_name_res_str(const address* addr)
+static const char* ipv6_name_res_str(const address* addr)
 {
     ws_in6_addr ip6_addr;
     memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
@@ -286,12 +286,12 @@ static int ipv6_name_res_len(void)
 /******************************************************************************
  * AT_IPX
  ******************************************************************************/
-static int ipx_to_str(const address* addr, gchar *buf, int buf_len)
+static int ipx_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(22, buf, buf_len);
 
-    const guint8 *addrdata = (const guint8 *)addr->data;
-    gchar *bufp = buf;
+    const uint8_t *addrdata = (const uint8_t *)addr->data;
+    char *bufp = buf;
 
     bufp = bytes_to_hexstr(bufp, &addrdata[0], 4); /* 8 bytes */
     *bufp++ = '.'; /*1 byte */
@@ -313,13 +313,13 @@ static int ipx_len(void)
 /******************************************************************************
  * AT_FC
  ******************************************************************************/
-static int fc_to_str(const address* addr, gchar *buf, int buf_len)
+static int fc_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(9, buf, buf_len);
 
-    gchar *bufp = buf;
+    char *bufp = buf;
 
-    bufp = bytes_to_hexstr_punct(bufp, (const guint8 *)addr->data, 3, '.');
+    bufp = bytes_to_hexstr_punct(bufp, (const uint8_t *)addr->data, 3, '.');
     *bufp++ = '\0'; /* NULL terminate */
 
     return (int)(bufp - buf);
@@ -355,11 +355,11 @@ static int fcwwn_str_len(const address* addr _U_)
     return 24;
 }
 
-static int fcwwn_to_str(const address* addr, gchar *buf, int buf_len)
+static int fcwwn_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(24, buf, buf_len);
 
-    const guint8 *addrp = (const guint8*)addr->data;
+    const uint8_t *addrp = (const uint8_t*)addr->data;
 
     buf = bytes_to_hexstr_punct(buf, addrp, 8, ':'); /* 23 bytes */
     *buf = '\0';
@@ -372,11 +372,11 @@ static int fcwwn_len(void)
     return FCWWN_ADDR_LEN;
 }
 
-static const gchar* fcwwn_name_res_str(const address* addr)
+static const char* fcwwn_name_res_str(const address* addr)
 {
-    const guint8 *addrp = (const guint8*)addr->data;
+    const uint8_t *addrp = (const uint8_t*)addr->data;
     int fmt;
-    guint8 oui[6];
+    uint8_t oui[6];
 
     fmt = (addrp[0] & 0xF0) >> 4;
     switch (fmt) {
@@ -409,9 +409,9 @@ static int fcwwn_name_res_len(void)
 /******************************************************************************
  * AT_STRINGZ
  ******************************************************************************/
-static int stringz_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int stringz_addr_to_str(const address* addr, char *buf, int buf_len)
 {
-    (void) g_strlcpy(buf, (const gchar *)addr->data, buf_len);
+    (void) g_strlcpy(buf, (const char *)addr->data, buf_len);
     return (int)(strlen(buf)+1);
 }
 
@@ -423,11 +423,11 @@ static int stringz_addr_str_len(const address* addr)
 /******************************************************************************
  * AT_EUI64
  ******************************************************************************/
-static int eui64_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int eui64_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(EUI64_STR_LEN, buf, buf_len);
 
-    buf = bytes_to_hexstr_punct(buf, (const guint8 *)addr->data, 8, ':');
+    buf = bytes_to_hexstr_punct(buf, (const uint8_t *)addr->data, 8, ':');
     *buf = '\0'; /* NULL terminate */
     return EUI64_STR_LEN;
 }
@@ -446,7 +446,7 @@ static int eui64_len(void)
  * AT_IB
  ******************************************************************************/
 static int
-ib_addr_to_str(const address *addr, gchar *buf, int buf_len)
+ib_addr_to_str(const address *addr, char *buf, int buf_len)
 {
     char buf_ip6[WS_INET6_ADDRSTRLEN];
 
@@ -456,7 +456,7 @@ ib_addr_to_str(const address *addr, gchar *buf, int buf_len)
     }
     else {
         /* this is a LID (16 bits) */
-        snprintf(buf,buf_len,"LID: %u", *(const guint16 *)addr->data);
+        snprintf(buf,buf_len,"LID: %u", *(const uint16_t *)addr->data);
     }
 
     return (int)(strlen(buf)+1);
@@ -470,13 +470,13 @@ static int ib_str_len(const address* addr _U_)
 /******************************************************************************
  * AT_AX25
  ******************************************************************************/
-static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int ax25_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(10, buf, buf_len);
 
-    const guint8 *addrdata = (const guint8 *)addr->data;
+    const uint8_t *addrdata = (const uint8_t *)addr->data;
     int i, ssid;
-    gchar *bufp = buf;
+    char *bufp = buf;
 
     for (i = 0; i < 6; i++) {
         if (addrdata[i] == 0x40) {
@@ -501,7 +501,7 @@ static int ax25_addr_str_len(const address* addr _U_)
     return 10; /* callsign (6) + dash (1) + ssid (2) + nul (1) = 10 */
 }
 
-static const char* ax25_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ax25_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "ax25.src";
@@ -518,11 +518,11 @@ static int ax25_len(void)
  * AT_VINES
  ******************************************************************************/
 
-static int vines_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int vines_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     _addr_return_if_nospace(14, buf, buf_len);
-    const guint8 *addr_data = (const guint8 *)addr->data;
-    gchar *bufp = buf;
+    const uint8_t *addr_data = (const uint8_t *)addr->data;
+    char *bufp = buf;
 
     bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
     *bufp++ = '.'; /* 1 byte */
@@ -546,7 +546,7 @@ static int vines_len(void)
  * AT_NUMERIC
  ******************************************************************************/
 
-/* G_MAXUINT64 is defined as 0xffffffffffffffffU which in itself represents
+/* UINT64_MAX is defined as 0xffffffffffffffffU which in itself represents
  * 18,446,744,073,709,551,615 as decimal, which has 20 characters. Adding 21
  * as for null-byte termination.
  * All values are derived from the counterparts defined in glib/basic-types */
@@ -557,29 +557,29 @@ const size_t MAX_UINT8_WIDTH = 4;
 
 static int numeric_addr_str_len(const address* addr)
 {
-    if (addr->len == (int) sizeof(guint64)) {
+    if (addr->len == (int) sizeof(uint64_t)) {
         return (int) MAX_UINT64_WIDTH;
-    } else if (addr->len == (int) sizeof(guint32)) {
+    } else if (addr->len == (int) sizeof(uint32_t)) {
         return (int) MAX_UINT32_WIDTH;
-    } else if (addr->len == (int) sizeof(guint16)) {
+    } else if (addr->len == (int) sizeof(uint16_t)) {
         return (int) MAX_UINT16_WIDTH;
     }
 
     return (int) MAX_UINT8_WIDTH;
 }
 
-static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int numeric_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     int ret;
 
-    if (addr->len == (int) sizeof(guint64)) {
-        ret = snprintf(buf, buf_len, "%"PRIu64, *(guint64 *)addr->data);
-    } else if (addr->len == (int) sizeof(guint32)) {
-        ret = snprintf(buf, buf_len, "%"PRIu32, *(guint32 *)addr->data);
-    } else if (addr->len == (int) sizeof(guint16)) {
-        ret = snprintf(buf, buf_len, "%"PRIu16, *(guint16 *)addr->data);
+    if (addr->len == (int) sizeof(uint64_t)) {
+        ret = snprintf(buf, buf_len, "%"PRIu64, *(uint64_t *)addr->data);
+    } else if (addr->len == (int) sizeof(uint32_t)) {
+        ret = snprintf(buf, buf_len, "%"PRIu32, *(uint32_t *)addr->data);
+    } else if (addr->len == (int) sizeof(uint16_t)) {
+        ret = snprintf(buf, buf_len, "%"PRIu16, *(uint16_t *)addr->data);
     } else {
-        ret = snprintf(buf, buf_len, "%"PRIu8,  *(guint8 *)addr->data);
+        ret = snprintf(buf, buf_len, "%"PRIu8,  *(uint8_t *)addr->data);
     }
 
     return ret + 1;
@@ -589,10 +589,10 @@ static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len)
  * AT_MCTP
  ******************************************************************************/
 
-static int mctp_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int mctp_addr_to_str(const address* addr, char *buf, int buf_len _U_)
 {
-	const guint8 *addr_data = (const guint8 *)addr->data;
-	gchar *bufp = buf;
+	const uint8_t *addr_data = (const uint8_t *)addr->data;
+	char *bufp = buf;
 
 	return snprintf(bufp, 4, "%d", addr_data[0]);
 }
@@ -836,21 +836,21 @@ static int address_type_get_length(const address* addr)
     return at->addr_str_len(addr);
 }
 
-gchar*
+char*
 address_to_str(wmem_allocator_t *scope, const address *addr)
 {
-    gchar *str;
+    char *str;
     int len = address_type_get_length(addr);
 
     if (len <= 0)
         len = MAX_ADDR_STR_LEN;
 
-    str=(gchar *)wmem_alloc(scope, len);
+    str=(char *)wmem_alloc(scope, len);
     address_to_str_buf(addr, str, len);
     return str;
 }
 
-void address_to_str_buf(const address* addr, gchar *buf, int buf_len)
+void address_to_str_buf(const address* addr, char *buf, int buf_len)
 {
     address_type_t *at;
 
@@ -869,10 +869,10 @@ void address_to_str_buf(const address* addr, gchar *buf, int buf_len)
 }
 
 
-guint address_to_bytes(const address *addr, guint8 *buf, guint buf_len)
+unsigned address_to_bytes(const address *addr, uint8_t *buf, unsigned buf_len)
 {
     address_type_t *at;
-    guint copy_len = 0;
+    unsigned copy_len = 0;
 
     if (!buf || !buf_len)
         return 0;
@@ -885,7 +885,7 @@ guint address_to_bytes(const address *addr, guint8 *buf, guint buf_len)
     if (at->addr_to_byte == NULL)
     {
         /* If a specific function isn't provided, just do a memcpy */
-        copy_len = MIN(((guint)addr->len), buf_len);
+        copy_len = MIN(((unsigned)addr->len), buf_len);
         memcpy(buf, addr->data, copy_len);
     }
     else
@@ -896,7 +896,7 @@ guint address_to_bytes(const address *addr, guint8 *buf, guint buf_len)
     return copy_len;
 }
 
-const gchar *
+const char *
 address_to_name(const address *addr)
 {
     address_type_t *at;
@@ -918,7 +918,7 @@ address_to_name(const address *addr)
     switch (addr->type) {
 
     case AT_STRINGZ:
-        return (const gchar *)addr->data;
+        return (const char *)addr->data;
 
     default:
         if (at->addr_name_res_str != NULL)
@@ -928,11 +928,11 @@ address_to_name(const address *addr)
     }
 }
 
-gchar *
+char *
 address_to_display(wmem_allocator_t *allocator, const address *addr)
 {
-    gchar *str = NULL;
-    const gchar *result = address_to_name(addr);
+    char *str = NULL;
+    const char *result = address_to_name(addr);
 
     if (result != NULL) {
         str = wmem_strdup(allocator, result);
@@ -941,18 +941,18 @@ address_to_display(wmem_allocator_t *allocator, const address *addr)
         str = wmem_strdup(allocator, "NONE");
     }
     else {
-        str = (gchar *) wmem_alloc(allocator, MAX_ADDR_STR_LEN);
+        str = (char *) wmem_alloc(allocator, MAX_ADDR_STR_LEN);
         address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
     }
 
     return str;
 }
 
-static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, int buf_len)
+static void address_with_resolution_to_str_buf(const address* addr, char *buf, int buf_len)
 {
     address_type_t *at;
     int addr_len;
-    gsize pos;
+    size_t pos;
 
     if (!buf || !buf_len)
         return;
@@ -1033,11 +1033,11 @@ static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, 
     }
 }
 
-gchar* address_with_resolution_to_str(wmem_allocator_t *scope, const address *addr)
+char* address_with_resolution_to_str(wmem_allocator_t *scope, const address *addr)
 {
     address_type_t *at;
     int len;
-    gchar *str;
+    char *str;
 
     ADDR_TYPE_LOOKUP(addr->type, at);
 
@@ -1053,13 +1053,13 @@ gchar* address_with_resolution_to_str(wmem_allocator_t *scope, const address *ad
 
     len = at->addr_name_res_len() + at->addr_str_len(addr) + 4; /* For format of %s (%s) */
 
-    str=(gchar *)wmem_alloc(scope, len);
+    str=(char *)wmem_alloc(scope, len);
     address_with_resolution_to_str_buf(addr, str, len);
     return str;
 }
 
 
-const char* address_type_column_filter_string(const address* addr, gboolean src)
+const char* address_type_column_filter_string(const address* addr, bool src)
 {
     address_type_t *at;
 
@@ -1073,8 +1073,8 @@ const char* address_type_column_filter_string(const address* addr, gboolean src)
     return at->addr_col_filter(addr, src);
 }
 
-gchar*
-tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset)
+char*
+tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int offset)
 {
     address addr;
     address_type_t *at;
@@ -1099,7 +1099,7 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint 
     return address_to_str(scope, &addr);
 }
 
-gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length)
+char* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const int offset, int length)
 {
     address addr;
 
@@ -1108,8 +1108,8 @@ gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_ty
     return address_to_str(scope, &addr);
 }
 
-gchar*
-tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset)
+char*
+tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const int offset)
 {
     address addr;
     address_type_t *at;

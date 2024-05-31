@@ -408,7 +408,7 @@ static int mtp3_str_addr_len(const address* addr _U_)
     return 50;
 }
 
-static const char* mtp3_addr_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* mtp3_addr_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "mtp3.opc";

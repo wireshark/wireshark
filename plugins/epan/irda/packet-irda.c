@@ -1941,7 +1941,7 @@ static int irda_addr_str_len(const address* addr _U_)
     return 11; /* Leaves required space (10 bytes) for uint_to_str_back() */
 }
 
-static const char* irda_col_filter_str(const address* addr _U_, gboolean is_src _U_)
+static const char* irda_col_filter_str(const address* addr _U_, bool is_src _U_)
 {
     return "irlap.a";
 }

@@ -157,7 +157,7 @@ static int mstp_to_str(const address* addr, gchar *buf, int buf_len _U_)
 	return mstp_str_len(addr);
 }
 
-static const char* mstp_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* mstp_col_filter_str(const address* addr _U_, bool is_src)
 {
 	if (is_src)
 		return "mstp.src";

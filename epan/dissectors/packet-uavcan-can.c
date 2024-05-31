@@ -479,7 +479,7 @@ UAVCAN_addr_str_len(const address *addr _U_)
 }
 
 static const char *
-UAVCAN_col_filter_str(const address *addr _U_, gboolean is_src)
+UAVCAN_col_filter_str(const address *addr _U_, bool is_src)
 {
     if (is_src)
         return "uavcan_can.src_addr";

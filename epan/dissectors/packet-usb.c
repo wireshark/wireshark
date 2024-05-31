@@ -1999,7 +1999,7 @@ static const char* usb_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_
 }
 
 static const char*
-usb_col_filter_str(const address* addr _U_, gboolean is_src)
+usb_col_filter_str(const address* addr _U_, bool is_src)
 {
     return is_src ? "usb.src" : "usb.dst";
 }

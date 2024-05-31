@@ -236,7 +236,7 @@ static int uri_str_len(const address* addr)
     return addr->len+1;
 }
 
-static const char* uri_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* uri_col_filter_str(const address* addr _U_, bool is_src)
 {
     if (is_src)
         return "uri.src";
