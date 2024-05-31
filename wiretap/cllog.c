@@ -50,7 +50,7 @@
 /* Time stamp structure type (sec since start + ms resolution) */
 typedef struct { time_t epoch; uint16_t ms; } cCLLog_timeStamp_t;
 
- /* Messasge type */
+ /* Message type */
 typedef enum
 {
     msg_rx_standard_e = 0,

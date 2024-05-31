@@ -1035,7 +1035,7 @@ stats_tree_get_displayname (gchar* fullname)
 
     sep = buf;
     while ((sep = strchr(sep,'/')) != NULL) {
-        if (*(++sep)=='/') {  /* escapeded slash - two slash characters after each other */
+        if (*(++sep)=='/') {  /* escaped slash - two slash characters after each other */
             memmove(sep,sep+1,strlen(sep));
         }
         else {
@@ -1406,7 +1406,7 @@ clean_for_xml_tag (gchar *str)
     return str;
 }
 
-/** helper funcation to add note to formatted stats_tree */
+/** helper function to add note to formatted stats_tree */
 // NOLINTNEXTLINE(misc-no-recursion)
 WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
                          GString *s,

@@ -220,7 +220,7 @@ The following features are new (or have been significantly updated) since versio
 
   ** The graph is smarter about choosing whether to retap (expensive),
      recalculate (moderately intensive), or replot (cheap) in order to
-     display the newly chosen options correctly with the least amout of
+     display the newly chosen options correctly with the least amount of
      calculations. For instance, a graph that has previously been
      plotted and is disabled and then reenabled without any other changes
      will not require a new retap. wsbuglink:15822[]

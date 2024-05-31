@@ -82,6 +82,7 @@ anonsvn
 anonymization
 antsel
 aperiodic
+appcheader
 appdata
 append
 apphdr
@@ -108,11 +109,13 @@ asn2wrs
 assembler
 assignee
 assignor
+assistive
 assoc
 async
 asynchronous
 asynchronously
 asyncmap
+atapi
 atheros
 atime
 atomically
@@ -207,6 +210,7 @@ bugzilla
 buildbot
 builtin
 bulleted
+bundler
 butype
 byte
 byteorder
@@ -516,6 +520,7 @@ deutschland
 devcap
 deviceid
 devmode
+devno
 dfdpck
 dfilter
 dfilters
@@ -1441,6 +1446,7 @@ pname
 polestar
 polycom
 polygon
+polynom
 popup
 portcounters
 portid
@@ -1483,6 +1489,7 @@ procid
 profidrive
 profienergy
 profinet
+programmatic
 promisc
 promiscsniff
 promiscuously
@@ -1703,6 +1710,7 @@ revertive
 revocations
 rf4ce
 rfcomm
+rffpcnex
 rfinfo
 rfmon
 rgoose
@@ -1737,6 +1745,7 @@ rxlen
 rxlev
 rxmcsmap
 rxreq
+s3interval
 s7comm
 sabme
 sacch
@@ -1746,6 +1755,7 @@ sanitize
 sanitizers
 sapgui
 satisfiable
+satnet
 saturates
 savvius
 scalability
@@ -1844,6 +1854,7 @@ solera
 someip
 someipsd
 sonet
+spacebar
 spacings
 spare
 spare1
@@ -2251,6 +2262,7 @@ usability
 usbmon
 usbms
 usbpcap
+usecs
 usenet
 userauth
 userdata
@@ -2262,6 +2274,7 @@ utilization
 utils
 utran
 uuencoded
+uuids
 v1250
 v1310
 v1410

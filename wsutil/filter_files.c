@@ -284,7 +284,7 @@ ws_filter_list_read(filter_list_type_t list_type)
         for (;;) {
             /* Add this character to the filter expression string. */
             if (filt_expr_index >= filt_expr_len) {
-                /* Filter expressioin buffer isn't long enough; double its length. */
+                /* Filter expression buffer isn't long enough; double its length. */
                 filt_expr_len *= 2;
                 filt_expr = (char *)g_realloc(filt_expr, filt_expr_len + 1);
             }
@@ -308,7 +308,7 @@ ws_filter_list_read(filter_list_type_t list_type)
 
         /* We saw the ending newline; terminate the filter expression string */
         if (filt_expr_index >= filt_expr_len) {
-            /* Filter expressioin buffer isn't long enough; double its length. */
+            /* Filter expression buffer isn't long enough; double its length. */
             filt_expr_len *= 2;
             filt_expr = (char *)g_realloc(filt_expr, filt_expr_len + 1);
         }
