@@ -268,7 +268,7 @@ static bool http_dechunk_body = true;
 /*
  * Decompression of zlib or brotli encoded entities.
  */
-#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
+#if defined(HAVE_ZLIB)|| defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI)
 static bool http_decompress_body = true;
 #endif
 
@@ -2146,7 +2146,7 @@ dissecting_body:
 			proto_item *e_ti = NULL;
 			proto_tree *e_tree = NULL;
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
 			if (http_decompress_body &&
 			    (g_ascii_strcasecmp(headers->content_encoding, "gzip") == 0 ||
 			     g_ascii_strcasecmp(headers->content_encoding, "deflate") == 0 ||
@@ -2202,7 +2202,7 @@ dissecting_body:
 				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
 			} else {
-#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI)
 				if (http_decompress_body) {
 					expert_add_info(pinfo, e_ti, &ei_http_decompression_failed);
 				}
@@ -4799,7 +4799,7 @@ proto_register_http(void)
 	    "Whether to reassemble bodies of entities that are transferred "
 	    "using the \"Transfer-Encoding: chunked\" method",
 	    &http_dechunk_body);
-#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI)
 	prefs_register_bool_preference(http_module, "decompress_body",
 	    "Uncompress entity bodies",
 	    "Whether to uncompress entity bodies that are compressed "

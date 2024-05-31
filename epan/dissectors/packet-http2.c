@@ -76,7 +76,7 @@ VALUE_STRING_ARRAY(http2_header_repr_type);
 /*
  * Decompression of zlib or brotli encoded entities.
  */
-#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)|| defined(HAVE_BROTLI)
 static gboolean http2_decompress_body = TRUE;
 #else
 static gboolean http2_decompress_body;
@@ -2810,7 +2810,11 @@ get_body_uncompression_info(packet_info *pinfo, http2_session_t* h2session)
     if (!http2_decompress_body || body_info->is_partial_content == TRUE || content_encoding == NULL) {
         return BODY_UNCOMPRESSION_NONE;
     }
-
+#ifdef HAVE_ZLIBNG
+    if (strncmp(content_encoding, "gzip", 4) == 0 || strncmp(content_encoding, "deflate", 7) == 0) {
+        return BODY_UNCOMPRESSION_ZLIB;
+    }
+#endif
 #ifdef HAVE_ZLIB
     if (strncmp(content_encoding, "gzip", 4) == 0 || strncmp(content_encoding, "deflate", 7) == 0) {
         return BODY_UNCOMPRESSION_ZLIB;

@@ -2247,7 +2247,7 @@ wtap_dump_can_open(int file_type_subtype)
  * Return whether we know how to write a compressed file of the specified
  * file type.
  */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 bool
 wtap_dump_can_compress(int file_type_subtype)
 {
@@ -2645,7 +2645,7 @@ wtap_dump(wtap_dumper *wdh, const wtap_rec *rec,
 bool
 wtap_dump_flush(wtap_dumper *wdh, int *err)
 {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
 		if (gzwfile_flush((GZWFILE_T)wdh->fh) == -1) {
 			*err = gzwfile_geterr((GZWFILE_T)wdh->fh);
@@ -2779,7 +2779,7 @@ wtap_dump_discard_sysdig_meta_events(wtap_dumper *wdh)
 }
 
 /* internally open a file for writing (compressed or not) */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static WFILE_T
 wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
@@ -2798,7 +2798,7 @@ wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 #endif
 
 /* internally open a file for writing (compressed or not) */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static WFILE_T
 wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
@@ -2822,7 +2822,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 {
 	size_t nwritten;
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
 		nwritten = gzwfile_write((GZWFILE_T)wdh->fh, buf, (unsigned int) bufsize);
 		/*
@@ -2857,7 +2857,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 static int
 wtap_dump_file_close(wtap_dumper *wdh)
 {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 	if (wdh->compression_type == WTAP_GZIP_COMPRESSED)
 		return gzwfile_close((GZWFILE_T)wdh->fh);
 	else
@@ -2868,7 +2868,7 @@ wtap_dump_file_close(wtap_dumper *wdh)
 int64_t
 wtap_dump_file_seek(wtap_dumper *wdh, int64_t offset, int whence, int *err)
 {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 	if (wdh->compression_type != WTAP_UNCOMPRESSED) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;
@@ -2889,7 +2889,7 @@ int64_t
 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 {
 	int64_t rval;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 	if (wdh->compression_type != WTAP_UNCOMPRESSED) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;

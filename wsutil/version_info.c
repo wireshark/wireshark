@@ -32,6 +32,10 @@
 #include <zlib.h>
 #endif
 
+#ifdef HAVE_ZLIBNG
+#include <zlib-ng.h>
+#endif
+
 #include "vcs_version.h"
 
 #include <wsutil/cpu_info.h>
@@ -170,6 +174,17 @@ gather_zlib_compile_info(feature_list l)
 	without_feature(l, "zlib");
 #endif /* HAVE_ZLIB */
 }
+
+void
+gather_zlib_ng_compile_info(feature_list l)
+{
+#ifdef HAVE_ZLIBNG
+	with_feature(l, "zlib-ng "ZLIBNG_VERSION);
+#else
+	without_feature(l, "zlib-ng");
+#endif /* HAVE_ZLIB */
+}
+
 
 /*
  * Get various library compile-time versions, put them in a GString,

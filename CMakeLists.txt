@@ -1384,6 +1384,9 @@ ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
 # Zlib compression
 ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
 
+# Zlib-ng compression
+ws_find_package(ZLIBNG ENABLE_ZLIBNG HAVE_ZLIBNG)
+
 # Minizip compression
 ws_find_package(Minizip ENABLE_MINIZIP HAVE_MINIZIP)
 
@@ -2339,6 +2342,10 @@ if(USE_REPOSITORY)
 		list (APPEND THIRD_PARTY_DLLS "${ZLIB_DLL_DIR}/${ZLIB_DLL}")
 		list (APPEND THIRD_PARTY_PDBS "${ZLIB_DLL_DIR}/${ZLIB_PDB}")
 	endif(ZLIB_FOUND)
+	if (ZLIBNG_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${ZLIBNG_DLL_DIR}/${ZLIBNG_DLL}")
+		list (APPEND THIRD_PARTY_PDBS "${ZLIBNG_DLL_DIR}/${ZLIBNG_PDB}")
+	endif(ZLIBNG_FOUND)
 	if (BROTLI_FOUND)
 		foreach( _dll ${BROTLI_DLLS} )
 			list (APPEND THIRD_PARTY_DLLS "${BROTLI_DLL_DIR}/${_dll}")
@@ -2793,6 +2800,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		$<$<BOOL:${WIN32}>:uxtheme.lib>
 		${SPEEXDSP_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${MINIZIP_LIBRARIES}
 	)
 
@@ -2906,6 +2914,7 @@ if(BUILD_logray AND QT_FOUND)
 		$<$<BOOL:${WIN32}>:uxtheme.lib>
 		${SPEEXDSP_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${MINIZIP_LIBRARIES}
 	)
 
@@ -3199,6 +3208,7 @@ if(BUILD_text2pcap)
 		ui
 		epan
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 	)
 	set(text2pcap_FILES
 		$<TARGET_OBJECTS:cli_main>
@@ -3218,6 +3228,7 @@ if(BUILD_mergecap)
 		ui
 		wiretap
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
 	set(mergecap_FILES
@@ -3237,6 +3248,7 @@ if(BUILD_reordercap)
 		ui
 		wiretap
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
 	set(reordercap_FILES
@@ -3257,6 +3269,7 @@ if(BUILD_capinfos)
 		wiretap
 		wsutil
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
@@ -3279,6 +3292,7 @@ if(BUILD_captype)
 		wiretap
 		wsutil
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
 	set(captype_FILES
@@ -3298,6 +3312,7 @@ if(BUILD_editcap)
 		ui
 		wiretap
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
@@ -3321,6 +3336,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		pcap::pcap
 		${CAP_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${NL_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -3356,7 +3372,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	add_executable(dumpcap ${dumpcap_FILES})
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
-	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS} ${NL_INCLUDE_DIRS})
+	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS} ${ZLIBNG_INCLUDE_DIRS} ${NL_INCLUDE_DIRS})
 	target_compile_definitions(dumpcap PRIVATE ENABLE_STATIC)
 	executable_link_mingw_unicode(dumpcap)
 	install(TARGETS dumpcap

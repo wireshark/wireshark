@@ -138,7 +138,23 @@ if(ZLIB_FOUND)
         CMAKE_POP_CHECK_STATE()
     ENDIF()
 
-    AddWSWinDLL(ZLIB ZLIB_HINTS "zlib*")
+    #AddWSWinDLL(ZLIB ZLIB_HINTS "zlib*")
+    # With zlib-ng the hints does not work
+    set ( ZLIB_DLL_DIR "${ZLIB_HINTS}/bin"
+      CACHE PATH "Path to ZLIB DLL"
+    )
+    file( GLOB _ZLIB_dll RELATIVE "${ZLIB_DLL_DIR}"
+      "${ZLIB_DLL_DIR}/zlib1.dll"
+    )
+    set ( ZLIB_DLL ${_ZLIB_dll}
+      CACHE FILEPATH "ZLIB DLL file name"
+    )
+    file( GLOB _ZLIB_pdb RELATIVE "${ZLIB_DLL_DIR}"
+      "${ZLIB_DLL_DIR}/zlib.pdb"
+    )
+    set ( ZLIB_PDB ${_ZLIB_pdb}
+      CACHE FILEPATH "ZLIB PDB file name"
+    )
     SET(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})
     SET(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
 ELSE()

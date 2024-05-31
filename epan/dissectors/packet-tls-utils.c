@@ -14,10 +14,18 @@
 
 #include "config.h"
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
 #define ZLIB_CONST
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
-#endif
+typedef z_stream zlib_stream;
+#endif /* HAVE_ZLIB */
+
+#ifdef HAVE_ZLIBNG
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#endif /* HAVE_ZLIBNG */
 
 #include <stdlib.h>
 #include <errno.h>
@@ -2606,8 +2614,8 @@ quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id)
 */
 struct _SslDecompress {
     gint compression;
-#ifdef HAVE_ZLIB
-    z_stream istream;
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+    zlib_stream istream;
 #endif
 };
 
@@ -4180,7 +4188,7 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret,
 /* HMAC and the Pseudorandom function }}} */
 
 /* Record Decompression (after decryption) {{{ */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 /* memory allocation functions for zlib initialization */
 static void* ssl_zalloc(void* opaque _U_, unsigned int no, unsigned int size)
 {
@@ -4196,7 +4204,7 @@ static SslDecompress*
 ssl_create_decompressor(gint compression)
 {
     SslDecompress *decomp;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     int err;
 #endif
 
@@ -4205,7 +4213,7 @@ ssl_create_decompressor(gint compression)
     decomp = wmem_new(wmem_file_scope(), SslDecompress);
     decomp->compression = compression;
     switch (decomp->compression) {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         case 1:  /* DEFLATE */
             decomp->istream.zalloc = ssl_zalloc;
             decomp->istream.zfree = ssl_zfree;
@@ -4214,7 +4222,7 @@ ssl_create_decompressor(gint compression)
             decomp->istream.next_out = Z_NULL;
             decomp->istream.avail_in = 0;
             decomp->istream.avail_out = 0;
-            err = inflateInit(&decomp->istream);
+            err = ZLIB_PREFIX(inflateInit)(&decomp->istream);
             if (err != Z_OK) {
                 ssl_debug_printf("ssl_create_decompressor: inflateInit_() failed - %d\n", err);
                 return NULL;
@@ -4228,7 +4236,7 @@ ssl_create_decompressor(gint compression)
     return decomp;
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static int
 ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, StringInfo* out_str, guint* outl)
 {
@@ -4379,9 +4387,9 @@ ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U
     if (dec->sn_evp)
       ssl_cipher_cleanup(&dec->sn_evp);
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     if (dec->decomp != NULL && dec->decomp->compression == 1 /* DEFLATE */)
-        inflateEnd(&dec->decomp->istream);
+        ZLIB_PREFIX(inflateEnd)(&dec->decomp->istream);
 #endif
 
     return FALSE;

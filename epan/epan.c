@@ -802,6 +802,7 @@ void
 epan_gather_compile_info(feature_list l)
 {
 	gather_zlib_compile_info(l);
+	gather_zlib_ng_compile_info(l);
 	gather_pcre2_compile_info(l);
 
 	/* Lua */

@@ -24,10 +24,19 @@
 
 #include <wsutil/file_util.h>
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
 #define ZLIB_CONST
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
+typedef z_stream zlib_stream;
 #endif /* HAVE_ZLIB */
+
+#ifdef HAVE_ZLIBNG
+#define HAVE_INFLATEPRIME 1
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#endif /* HAVE_ZLIBNG */
 
 #ifdef HAVE_ZSTD
 #include <zstd.h>
@@ -66,7 +75,7 @@ static struct compression_type {
     const char            *extension;
     const char            *description;
 } compression_types[] = {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
 #endif
 #ifdef HAVE_ZSTD
@@ -189,9 +198,9 @@ struct wtap_reader {
     int err;                    /* error code */
     const char *err_info;       /* additional error information string for some errors */
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     /* zlib inflate stream */
-    z_stream strm;              /* stream structure in-place (not a pointer) */
+    zlib_stream strm;              /* stream structure in-place (not a pointer) */
     bool dont_check_crc;        /* true if we aren't supposed to check the CRC */
 #endif
     /* fast seeking */
@@ -565,7 +574,11 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 {
     int ret = 0;        /* XXX */
     uint32_t crc, len;
+#ifdef HAVE_ZLIBNG
+    zng_streamp strm = &(state->strm);
+#else
     z_streamp strm = &(state->strm);
+#endif
 
     unsigned char *buf2 = buf;
     unsigned int count2 = count;
@@ -589,9 +602,9 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
         strm->next_in = state->in.next;
         /* decompress and handle errors */
 #ifdef Z_BLOCK
-        ret = inflate(strm, Z_BLOCK);
+        ret = ZLIB_PREFIX(inflate)(strm, Z_BLOCK);
 #else
-        ret = inflate(strm, Z_NO_FLUSH);
+        ret = ZLIB_PREFIX(inflate)(strm, Z_NO_FLUSH);
 #endif
         state->in.avail = strm->avail_in;
 #ifdef z_const
@@ -626,7 +639,7 @@ DIAG_ON(cast-qual)
          * XXX - Z_BUF_ERROR?
          */
 
-        strm->adler = crc32(strm->adler, buf2, count2 - strm->avail_out);
+        strm->adler = ZLIB_PREFIX(crc32)(strm->adler, buf2, count2 - strm->avail_out);
 #ifdef Z_BLOCK
         if (state->fast_seek_cur != NULL) {
             struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
@@ -815,8 +828,8 @@ gz_head(FILE_T state)
                 }
 
                 /* set up for decompression */
-                inflateReset(&(state->strm));
-                state->strm.adler = crc32(0L, Z_NULL, 0);
+                ZLIB_PREFIX(inflateReset)(&(state->strm));
+                state->strm.adler = ZLIB_PREFIX(crc32)(0L, Z_NULL, 0);
                 state->compression = ZLIB;
                 state->is_compressed = true;
 #ifdef Z_BLOCK
@@ -1187,14 +1200,14 @@ file_fdopen(int fd)
        goto err;
     }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     /* allocate inflate memory */
     state->strm.zalloc = Z_NULL;
     state->strm.zfree = Z_NULL;
     state->strm.opaque = Z_NULL;
     state->strm.avail_in = 0;
     state->strm.next_in = Z_NULL;
-    if (inflateInit2(&(state->strm), -15) != Z_OK) {    /* raw inflate */
+    if (ZLIB_PREFIX(inflateInit2)(&(state->strm), -15) != Z_OK) {    /* raw inflate */
         goto err;
     }
 
@@ -1220,8 +1233,8 @@ file_fdopen(int fd)
     return state;
 
 err:
-#ifdef HAVE_ZLIB
-    inflateEnd(&state->strm);
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+    ZLIB_PREFIX(inflateEnd)(&state->strm);
 #endif
 #ifdef HAVE_ZSTD
     ZSTD_freeDCtx(state->zstd_dctx);
@@ -1241,7 +1254,7 @@ file_open(const char *path)
 {
     int fd;
     FILE_T ft;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     const char *suffixp;
 #endif
 
@@ -1264,7 +1277,7 @@ file_open(const char *path)
         return NULL;
     }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     /*
      * If this file's name ends in ".caz", it's probably a compressed
      * Windows Sniffer file.  The compression is gzip, but if we
@@ -1416,7 +1429,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
          * has been called on this file, which should never be the case
          * for a pipe.
          */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         if (here->compression == ZLIB) {
 #ifdef HAVE_INFLATEPRIME
             off = here->in - (here->data.zlib.bits ? 1 : 0);
@@ -1448,11 +1461,10 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
         file->err_info = NULL;
         buf_reset(&file->in);
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         if (here->compression == ZLIB) {
-            z_stream *strm = &file->strm;
-
-            inflateReset(strm);
+            zlib_stream*strm = &file->strm;
+            ZLIB_PREFIX(inflateReset)(strm);
             strm->adler = here->data.zlib.adler;
             strm->total_out = here->data.zlib.total_out;
 #ifdef HAVE_INFLATEPRIME
@@ -1468,16 +1480,15 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
                         *err = state->err;
                     return -1;
                 }
-                (void)inflatePrime(strm, here->data.zlib.bits, ret >> (8 - here->data.zlib.bits));
+                (void)ZLIB_PREFIX(inflatePrime)(strm, here->data.zlib.bits, ret >> (8 - here->data.zlib.bits));
             }
 #endif
-            (void)inflateSetDictionary(strm, here->data.zlib.window, ZLIB_WINSIZE);
+            (void)ZLIB_PREFIX(inflateSetDictionary)(strm, here->data.zlib.window, ZLIB_WINSIZE);
             file->compression = ZLIB;
         } else if (here->compression == GZIP_AFTER_HEADER) {
-            z_stream *strm = &file->strm;
-
-            inflateReset(strm);
-            strm->adler = crc32(0L, Z_NULL, 0);
+            zlib_stream* strm = &file->strm;
+            ZLIB_PREFIX(inflateReset)(strm);
+            strm->adler = ZLIB_PREFIX(crc32)(0L, Z_NULL, 0);
             file->compression = ZLIB;
         } else
 #endif
@@ -1908,8 +1919,8 @@ file_close(FILE_T file)
 
     /* free memory and close file */
     if (file->size) {
-#ifdef HAVE_ZLIB
-        inflateEnd(&(file->strm));
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        ZLIB_PREFIX(inflateEnd)(&(file->strm));
 #endif
 #ifdef HAVE_ZSTD
         ZSTD_freeDCtx(file->zstd_dctx);
@@ -1933,7 +1944,7 @@ file_close(FILE_T file)
         ws_close(fd);
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 /* internal gzip file state data structure for writing */
 struct wtap_writer {
     int fd;                 /* file descriptor */
@@ -1948,7 +1959,7 @@ struct wtap_writer {
     int err;                /* error code */
     const char *err_info;   /* additional error information string for some errors */
     /* zlib deflate stream */
-    z_stream strm;          /* stream structure in-place (not a pointer) */
+    zlib_stream strm;          /* stream structure in-place (not a pointer) */
 };
 
 GZWFILE_T
@@ -2003,7 +2014,11 @@ static int
 gz_init(GZWFILE_T state)
 {
     int ret;
+#ifdef HAVE_ZLIBNG
+    zng_streamp strm = &(state->strm);
+#else
     z_streamp strm = &(state->strm);
+#endif
 
     /* allocate input and output buffers */
     state->in = (unsigned char *)g_try_malloc(state->want);
@@ -2019,7 +2034,7 @@ gz_init(GZWFILE_T state)
     strm->zalloc = Z_NULL;
     strm->zfree = Z_NULL;
     strm->opaque = Z_NULL;
-    ret = deflateInit2(strm, state->level, Z_DEFLATED,
+    ret = ZLIB_PREFIX(deflateInit2)(strm, state->level, Z_DEFLATED,
                        15 + 16, 8, state->strategy);
     if (ret != Z_OK) {
         g_free(state->out);
@@ -2056,8 +2071,11 @@ gz_comp(GZWFILE_T state, int flush)
     int ret;
     ssize_t got;
     ptrdiff_t have;
+#ifdef HAVE_ZLIBNG
+    zng_streamp strm = &(state->strm);
+#else
     z_streamp strm = &(state->strm);
-
+#endif
     /* allocate memory if this is the first time through */
     if (state->size == 0 && gz_init(state) == -1)
         return -1;
@@ -2090,7 +2108,7 @@ gz_comp(GZWFILE_T state, int flush)
 
         /* compress */
         have = strm->avail_out;
-        ret = deflate(strm, flush);
+        ret = ZLIB_PREFIX(deflate)(strm, flush);
         if (ret == Z_STREAM_ERROR) {
             /* This "shouldn't happen". */
             state->err = WTAP_ERR_INTERNAL;
@@ -2102,7 +2120,7 @@ gz_comp(GZWFILE_T state, int flush)
 
     /* if that completed a deflate stream, allow another to start */
     if (flush == Z_FINISH)
-        deflateReset(strm);
+        ZLIB_PREFIX(deflateReset)(strm);
 
     /* all done, no errors */
     return 0;
@@ -2116,7 +2134,11 @@ gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
 {
     unsigned put = len;
     unsigned n;
+#ifdef HAVE_ZLIBNG
+    zng_streamp strm;
+#else
     z_streamp strm;
+#endif
 
     strm = &(state->strm);
 
@@ -2205,7 +2227,7 @@ gzwfile_close(GZWFILE_T state)
     /* flush, free memory, and close file */
     if (gz_comp(state, Z_FINISH) == -1)
         ret = state->err;
-    (void)deflateEnd(&(state->strm));
+    (void)ZLIB_PREFIX(deflateEnd)(&(state->strm));
     g_free(state->out);
     g_free(state->in);
     state->err = Z_OK;

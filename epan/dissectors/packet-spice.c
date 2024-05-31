@@ -1243,7 +1243,7 @@ dissect_ImageJPEG(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const gui
     return JPEG_Size + 4;
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static void
 dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_info *pinfo,
                              guint32 offset, guint32 ZLIB_GLZSize, guint32 ZLIB_uncompSize)

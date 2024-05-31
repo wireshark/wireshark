@@ -351,6 +351,7 @@ target_link_libraries(epan
 		${WIN_PSAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${ZSTD_LIBRARIES}
 		$<$<BOOL:${LUA_FOUND}>:lrexlib>
 )
@@ -381,6 +382,7 @@ target_include_directories(epan
 		${SMI_INCLUDE_DIRS}
 		${SNAPPY_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
+		${ZLIBNG_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}

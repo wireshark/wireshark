@@ -136,7 +136,7 @@ static expert_field ei_slsk_decompression_failed;
 
 /* desegmentation of SoulSeek Message over TCP */
 static bool slsk_desegment = true;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static bool slsk_decompress = true;
 #else
 static bool slsk_decompress;
@@ -2351,7 +2351,7 @@ proto_register_slsk(void)
       "Whether the SoulSeek dissector should reassemble messages spanning multiple TCP segments."
       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
       &slsk_desegment);
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
   prefs_register_bool_preference(slsk_module, "decompress",
       "Decompress zlib compressed packets inside SoulSeek messages",
       "Whether the SoulSeek dissector should decompress all zlib compressed packets inside messages",

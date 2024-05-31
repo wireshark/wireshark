@@ -23,10 +23,17 @@
 #include <epan/strutil.h>
 #include "proto_data.h"
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
-#endif
+typedef z_stream zlib_stream;
+#endif /* HAVE_ZLIB */
 
+#ifdef HAVE_ZLIBNG
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#endif /* HAVE_ZLIBNG */
 void proto_reg_handoff_blip(void);
 void proto_register_blip(void);
 
@@ -44,13 +51,13 @@ typedef struct {
 	//              ... and going to port 4984 for message type = MSG occurred in wireshark packet #12"
 	wmem_map_t *blip_requests;
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
 	// The streams used to decode a particular connection.	These are per direction and per connection.
 	wmem_map_t *decompress_streams;
 #endif
 } blip_conversation_entry_t;
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 typedef enum
 {
 	no_error = 0,
@@ -120,7 +127,7 @@ static const val64_string msg_types[] = {
 };
 
 // Preferences
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static guint max_uncompressed_size = 64; // Max uncompressed body size in Kb
 #endif
 
@@ -247,7 +254,7 @@ get_blip_conversation(packet_info* pinfo)
 
 		// create a new hash map and save a reference in blip_conversation_entry_t
 		conversation_entry_ptr->blip_requests = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
 		conversation_entry_ptr->decompress_streams = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 #endif
 		conversation_add_proto_data(conversation, proto_blip, conversation_entry_ptr);
@@ -256,29 +263,28 @@ get_blip_conversation(packet_info* pinfo)
 	return conversation_entry_ptr;
 }
 
-#ifdef HAVE_ZLIB
-
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static bool
 z_stream_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
-	z_stream *decompress_stream = (z_stream *)user_data;
-	inflateEnd(decompress_stream);
+	zlib_stream*decompress_stream = (zlib_stream*)user_data;
+        ZLIB_PREFIX(inflateEnd)(decompress_stream);
 	return FALSE;
 }
 
-static z_stream*
+static zlib_stream*
 get_decompress_stream(packet_info* pinfo)
 {
 	const blip_conversation_entry_t* blip_convo = get_blip_conversation(pinfo);
 
 	// Store compression state per srcport/destport.
 	guint32 hash_key = (pinfo->srcport << 16) | pinfo->destport;
-	z_stream* decompress_stream = (z_stream *)wmem_map_lookup(blip_convo->decompress_streams, GUINT_TO_POINTER(hash_key));
+        zlib_stream* decompress_stream = (zlib_stream*)wmem_map_lookup(blip_convo->decompress_streams, GUINT_TO_POINTER(hash_key));
 	if(decompress_stream) {
 		return decompress_stream;
 	}
 
-	decompress_stream = wmem_new0(wmem_file_scope(), z_stream);
+	decompress_stream = wmem_new0(wmem_file_scope(), zlib_stream);
 	wmem_map_insert(blip_convo->decompress_streams, GUINT_TO_POINTER(hash_key), decompress_stream);
 	wmem_register_callback(wmem_file_scope(), z_stream_destroy_cb, decompress_stream);
 
@@ -314,13 +320,13 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 
 	static gboolean size_overflow = FALSE;
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
-	z_stream* decompress_stream = get_decompress_stream(pinfo);
+        zlib_stream* decompress_stream = get_decompress_stream(pinfo);
 	static Byte trailer[4] = { 0x00, 0x00, 0xff, 0xff };
 	if(!decompress_stream->next_out) {
 		decompress_stream->zalloc = 0;
 		decompress_stream->zfree = 0;
 		decompress_stream->opaque = 0;
-		int err = inflateInit2(decompress_stream, -MAX_WBITS);
+		int err = ZLIB_PREFIX(inflateInit2)(decompress_stream, -MAX_WBITS);
 		if(err != Z_OK) {
 			decompress_stream->next_out = 0;
 			REPORT_DISSECTOR_BUG("Unable to create INFLATE context to decompress messages");
@@ -337,7 +343,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 	decompress_stream->next_out = decompress_buffer;
 	decompress_stream->avail_out = buffer_size;
 	uLong start = decompress_stream->total_out;
-	int err = inflate(decompress_stream, Z_NO_FLUSH);
+	int err = ZLIB_PREFIX(inflate)(decompress_stream, Z_NO_FLUSH);
 	if(err != Z_OK) {
 		proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
 		decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
@@ -356,7 +362,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 
 	decompress_stream->next_in = trailer;
 	decompress_stream->avail_in = 4;
-	err = inflate(decompress_stream, Z_SYNC_FLUSH);
+	err = ZLIB_PREFIX(inflate)(decompress_stream, Z_SYNC_FLUSH);
 	if(err != Z_OK) {
 		proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
 		decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);

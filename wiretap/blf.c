@@ -31,10 +31,18 @@
 #include "file_wrappers.h"
 #include "wtap-int.h"
 
+#ifdef HAVE_ZLIBNG
+#include <zlib-ng.h>
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#else
 #ifdef HAVE_ZLIB
-#define ZLIB_CONST
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
+typedef z_stream zlib_stream;
 #endif /* HAVE_ZLIB */
+#endif
 
 static const uint8_t blf_magic[] = { 'L', 'O', 'G', 'G' };
 static const uint8_t blf_obj_magic[] = { 'L', 'O', 'B', 'J' };
@@ -770,7 +778,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
 
     }
     else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         unsigned char *compressed_data = g_try_malloc0((size_t)data_length);
         if (!wtap_read_bytes_or_eof(params->fh, compressed_data, (unsigned int)data_length, err, err_info)) {
             g_free(compressed_data);
@@ -800,7 +808,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
         }
-        z_stream infstream = {0};
+        zlib_stream infstream = {0};
 
         infstream.avail_in  = (unsigned int)data_length;
         infstream.next_in   = compressed_data;
@@ -808,7 +816,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         infstream.next_out  = buf;
 
         /* the actual DE-compression work. */
-        if (Z_OK != inflateInit(&infstream)) {
+        if (Z_OK != ZLIB_PREFIX(inflateInit)(&infstream)) {
             /*
              * XXX - check the error code and handle this appropriately.
              */
@@ -828,7 +836,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
             return false;
         }
 
-        int ret = inflate(&infstream, Z_NO_FLUSH);
+        int ret = ZLIB_PREFIX(inflate)(&infstream, Z_NO_FLUSH);
         /* Z_OK should not happen here since we know how big the buffer should be */
         if (Z_STREAM_END != ret) {
             switch (ret) {
@@ -882,11 +890,11 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
                 ws_debug("inflate returned: \"%s\"", infstream.msg);
             }
             /* Free up any dynamically-allocated memory in infstream */
-            inflateEnd(&infstream);
+            ZLIB_PREFIX(inflateEnd)(&infstream);
             return false;
         }
 
-        if (Z_OK != inflateEnd(&infstream)) {
+        if (Z_OK != ZLIB_PREFIX(inflateEnd)(&infstream)) {
             /*
              * The zlib manual says this only returns Z_OK on success
              * and Z_STREAM_ERROR if the stream state was inconsistent.

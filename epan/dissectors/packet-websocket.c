@@ -26,9 +26,16 @@
 #include "packet-http.h"
 #include "packet-tcp.h"
 
+#ifdef HAVE_ZLIBNG
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#else
 #ifdef HAVE_ZLIB
-#define ZLIB_CONST
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
+typedef z_stream zlib_stream;
+#endif /* HAVE_ZLIB */
 #endif
 
 /*
@@ -63,6 +70,13 @@ typedef struct {
   const char   *subprotocol;
   guint16       server_port;
   gboolean      permessage_deflate;
+#ifdef HAVE_ZLIBNG
+  gboolean      permessage_deflate_ok;
+  gint8         server_wbits;
+  gint8         client_wbits;
+  zng_streamp     server_take_over_context;
+  zng_streamp     client_take_over_context;
+#else
 #ifdef HAVE_ZLIB
   gboolean      permessage_deflate_ok;
   gint8         server_wbits;
@@ -70,13 +84,14 @@ typedef struct {
   z_streamp     server_take_over_context;
   z_streamp     client_take_over_context;
 #endif
+#endif
   guint32       frag_id;
   gboolean      first_frag;
   guint8        first_frag_opcode;
   gboolean      first_frag_pmc;
 } websocket_conv_t;
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 typedef struct {
   guint8 *decompr_payload;
   guint decompr_len;
@@ -214,7 +229,7 @@ tvb_unmasked(tvbuff_t *tvb, packet_info *pinfo, const guint offset, guint payloa
   return tvb_new_child_real_data(tvb, data_unmask, unmasked_length, payload_length);
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static gint8
 websocket_extract_wbits(const gchar *str)
 {
@@ -245,17 +260,22 @@ websocket_zfree(void *opaque _U_, void *addr)
 {
   wmem_free(wmem_file_scope(), addr);
 }
-
+#ifdef HAVE_ZLIBNG
+static zng_streamp
+websocket_init_z_stream_context(gint8 wbits)
+{
+  zng_streamp z_strm = wmem_new0(wmem_file_scope(), zlib_stream);
+#else
 static z_streamp
 websocket_init_z_stream_context(gint8 wbits)
 {
-  z_streamp z_strm = wmem_new0(wmem_file_scope(), z_stream);
-
+  z_streamp z_strm = wmem_new0(wmem_file_scope(), zlib_stream);
+#endif
   z_strm->zalloc = websocket_zalloc;
   z_strm->zfree = websocket_zfree;
 
-  if (inflateInit2(z_strm, wbits) != Z_OK) {
-    inflateEnd(z_strm);
+  if (ZLIB_PREFIX(inflateInit2)(z_strm, wbits) != Z_OK) {
+    ZLIB_PREFIX(inflateEnd)(z_strm);
     wmem_free(wmem_file_scope(), z_strm);
     return NULL;
   }
@@ -268,7 +288,11 @@ websocket_init_z_stream_context(gint8 wbits)
  * Otherwise FALSE is returned.
  */
 static gboolean
+#ifdef HAVE_ZLIBNG
+websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zng_streamp z_strm, tvbuff_t** uncompressed_tvb, guint32 key)
+#else
 websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff_t **uncompressed_tvb, guint32 key)
+#endif
 {
   /*
    * Decompression a message: append "0x00 0x00 0xff 0xff" to the end of
@@ -296,7 +320,7 @@ websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff
     z_strm->next_out = decompr_buf;
     z_strm->avail_out = decompr_buf_len;
 
-    err = inflate(z_strm, Z_SYNC_FLUSH);
+    err = ZLIB_PREFIX(inflate)(z_strm, Z_SYNC_FLUSH);
 
     if (err == Z_OK || err == Z_STREAM_END || err == Z_BUF_ERROR) {
       guint avail_bytes = decompr_buf_len - z_strm->avail_out;
@@ -382,13 +406,17 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     handle = dissector_get_uint_handle(port_subdissector_table, websocket_conv->server_port);
   }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
   if (websocket_conv->permessage_deflate_ok && websocket_conv->first_frag_pmc) {
     tvbuff_t   *uncompressed = NULL;
     gboolean    uncompress_ok = FALSE;
 
     if (!PINFO_FD_VISITED(pinfo)) {
+#ifdef HAVE_ZLIBNG
+      zng_streamp z_strm;
+#else
       z_streamp z_strm;
+#endif
       gint8 wbits;
 
       if (pinfo->destport == websocket_conv->server_port) {
@@ -403,11 +431,11 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
       } else {
         /* no context take over, initialize a new context */
-        z_strm = wmem_new0(pinfo->pool, z_stream);
-        if (inflateInit2(z_strm, wbits) == Z_OK) {
+        z_strm = wmem_new0(pinfo->pool, zlib_stream);
+        if (ZLIB_PREFIX(inflateInit2)(z_strm, wbits) == Z_OK) {
           uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
         }
-        inflateEnd(z_strm);
+        ZLIB_PREFIX(inflateEnd)(z_strm);
       }
     } else {
       websocket_packet_t *pkt_info =

@@ -33,7 +33,7 @@ extern void file_fdclose(FILE_T file);
 extern bool file_fdreopen(FILE_T file, const char *path);
 extern void file_close(FILE_T file);
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 typedef struct wtap_writer *GZWFILE_T;
 
 extern GZWFILE_T gzwfile_open(const char *path);

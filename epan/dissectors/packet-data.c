@@ -175,7 +175,7 @@ proto_register_data(void)
 		"Show not dissected data on new Packet Bytes pane",
 		"Show not dissected data on new Packet Bytes pane",
 		&new_pane);
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 	prefs_register_bool_preference(module_data,
 		"uncompress_data",
 		"Try to uncompress zlib compressed data",

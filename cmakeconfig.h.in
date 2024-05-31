@@ -103,6 +103,9 @@
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 
+/* Define to 1 if you have the `zng_gzopen' function. */
+#cmakedefine WITH_GZFILEOP 1
+
 /* Define to 1 if you have the `issetugid' function. */
 #cmakedefine HAVE_ISSETUGID 1
 
@@ -147,6 +150,9 @@
 
 /* Define to use zlib library */
 #cmakedefine HAVE_ZLIB 1
+
+/* Define to use zlib-ng library */
+#cmakedefine HAVE_ZLIBNG 1
 
 /* Define to use the minizip library */
 #cmakedefine HAVE_MINIZIP 1

@@ -6137,7 +6137,7 @@ static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
 
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static void rtps_add_zlib_compressed_typeobject(proto_tree *tree, packet_info * pinfo,
   tvbuff_t * tvb, gint offset, const guint encoding, guint compressed_size,
   guint decompressed_size, type_mapping * type_mapping_object) {
@@ -6644,7 +6644,7 @@ tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
         const guint compressed_size _U_,
         gboolean *tried_to_decompress) {
     tvbuff_t *uncompressed_tvb = NULL;
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
     /* If ZLIB is available always try to decompress. */
     *tried_to_decompress = TRUE;
     uncompressed_tvb = tvb_new_subset_length_caplen(tvb, offset, compressed_size, -1);

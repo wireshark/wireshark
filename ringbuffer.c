@@ -55,8 +55,16 @@
 #include <wsutil/array.h>
 #include <wsutil/file_util.h>
 
+#ifdef HAVE_ZLIBNG
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#else
 #ifdef HAVE_ZLIB
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
+typedef z_stream zlib_stream;
+#endif /* HAVE_ZLIB */
 #endif
 
 /* Ringbuffer file structure */
@@ -126,7 +134,7 @@ CleanupOldCap(gchar* name)
     g_mutex_unlock(&rb_data.mutex);
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 /*
  * compress capture file
  */
@@ -146,7 +154,7 @@ ringbuf_exec_compress(gchar* name)
     }
 
     outgz = ws_strdup_printf("%s.gz", name);
-    fi = gzopen(outgz, "wb");
+    fi = ZLIB_PREFIX(gzopen)(outgz, "wb");
     g_free(outgz);
     if (fi == NULL) {
         ws_close(fd);
@@ -157,12 +165,12 @@ ringbuf_exec_compress(gchar* name)
     buffer = (guint8*)g_malloc(FS_READ_SIZE);
     if (buffer == NULL) {
         ws_close(fd);
-        gzclose(fi);
+        ZLIB_PREFIX(gzclose)(fi);
         return -1;
     }
 
     while ((nread = ws_read(fd, buffer, FS_READ_SIZE)) > 0) {
-        int n = gzwrite(fi, buffer, (unsigned int)nread);
+        int n = ZLIB_PREFIX(gzwrite)(fi, buffer, (unsigned int)nread);
         if (n <= 0) {
             /* mark compression as failed */
             delete_org_file = FALSE;
@@ -174,7 +182,7 @@ ringbuf_exec_compress(gchar* name)
         delete_org_file = FALSE;
     }
     ws_close(fd);
-    gzclose(fi);
+    ZLIB_PREFIX(gzclose)(fi);
     g_free(buffer);
 
     /* delete the original file only if compression succeeds */
@@ -224,7 +232,7 @@ ringbuf_open_file(rb_file *rfile, int *err)
             /* remove old file (if any, so ignore error) */
             ws_unlink(rfile->name);
         }
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
         else if (rb_data.compress_type != NULL && strcmp(rb_data.compress_type, "gzip") == 0) {
             ringbuf_start_compress_file(rfile);
         }

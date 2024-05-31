@@ -60,6 +60,10 @@ WS_DLL_PUBLIC
 void
 gather_zlib_compile_info(feature_list l);
 
+WS_DLL_PUBLIC
+void
+gather_zlib_ng_compile_info(feature_list l);
+
 /*
  * Get various library compile-time versions, put them in a GString,
  * and return the GString.

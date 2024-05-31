@@ -192,6 +192,7 @@ target_link_libraries(wiretap
 		${GLIB2_LIBRARIES}
 	PRIVATE
 		${ZLIB_LIBRARIES}
+		${ZLIBNG_LIBRARIES}
 		${ZSTD_LIBRARIES}
 		${LZ4_LIBRARIES}
 )
@@ -199,6 +200,7 @@ target_link_libraries(wiretap
 target_include_directories(wiretap SYSTEM
 	PRIVATE
 		${ZLIB_INCLUDE_DIRS}
+		${ZLIBNG_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}
 		${LZ4_INCLUDE_DIRS}
 )

@@ -30,10 +30,18 @@
 #include "packet-tls.h"
 #include "packet-media-type.h"
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
 #define ZLIB_CONST
+#define ZLIB_PREFIX(x) x
 #include <zlib.h>
-#endif
+typedef z_stream zlib_stream;
+#endif /* HAVE_ZLIB */
+
+#ifdef HAVE_ZLIBNG
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#endif /* HAVE_ZLIBNG */
 
 void proto_register_spdy(void);
 void proto_reg_handoff_spdy(void);
@@ -47,10 +55,16 @@ void proto_reg_handoff_spdy(void);
  * entities and for decompressing request & reply header blocks.
  */
 typedef struct _spdy_conv_t {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef HAVE_ZLIBNG
+  zng_streamp rqst_decompressor;
+  zng_streamp rply_decompressor;
+  uLong     dictionary_id;
+#else
   z_streamp rqst_decompressor;
   z_streamp rply_decompressor;
   uLong     dictionary_id;
+#endif
 #endif
   wmem_tree_t  *streams;
 } spdy_conv_t;
@@ -238,7 +252,7 @@ static bool spdy_assemble_entity_bodies = true;
 /*
  * Decompression of zlib encoded entities.
  */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static bool spdy_decompress_body = true;
 static bool spdy_decompress_headers = true;
 #else
@@ -246,7 +260,7 @@ static bool spdy_decompress_body;
 static bool spdy_decompress_headers;
 #endif
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static const char spdy_dictionary[] = {
   0x00, 0x00, 0x00, 0x07, 0x6f, 0x70, 0x74, 0x69,  /* - - - - o p t i */
   0x6f, 0x6e, 0x73, 0x00, 0x00, 0x00, 0x04, 0x68,  /* o n s - - - - h */
@@ -434,9 +448,11 @@ static const char spdy_dictionary[] = {
  */
 static bool inflate_end_cb (wmem_allocator_t *allocator _U_,
     wmem_cb_event_t event _U_, void *user_data) {
-
-  inflateEnd((z_streamp)user_data);
-
+#ifdef HAVE_ZLIBNG
+  ZLIB_PREFIX(inflateEnd)((zng_streamp)user_data);
+#else
+  ZLIB_PREFIX(inflateEnd)((z_streamp)user_data);
+#endif
   return FALSE;
 }
 #endif
@@ -457,7 +473,7 @@ spdy_init_protocol(void)
 static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
   conversation_t  *conversation;
   spdy_conv_t *conv_data;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
   int retcode;
 #endif
 
@@ -471,14 +487,14 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
 
     conv_data->streams = NULL;
     if (spdy_decompress_headers) {
-#ifdef HAVE_ZLIB
-      conv_data->rqst_decompressor = wmem_new0(wmem_file_scope(), z_stream);
-      conv_data->rply_decompressor = wmem_new0(wmem_file_scope(), z_stream);
-      retcode = inflateInit(conv_data->rqst_decompressor);
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+      conv_data->rqst_decompressor = wmem_new0(wmem_file_scope(), zlib_stream);
+      conv_data->rply_decompressor = wmem_new0(wmem_file_scope(), zlib_stream);
+      retcode = ZLIB_PREFIX(inflateInit)(conv_data->rqst_decompressor);
       if (retcode == Z_OK) {
         wmem_register_callback(wmem_file_scope(), inflate_end_cb,
             conv_data->rqst_decompressor);
-        retcode = inflateInit(conv_data->rply_decompressor);
+        retcode = ZLIB_PREFIX(inflateInit)(conv_data->rply_decompressor);
         if (retcode == Z_OK) {
           wmem_register_callback(wmem_file_scope(), inflate_end_cb,
               conv_data->rply_decompressor);
@@ -486,8 +502,8 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
       }
 
       /* XXX - use wsutil/adler32.h? */
-      conv_data->dictionary_id = adler32(0L, Z_NULL, 0);
-      conv_data->dictionary_id = adler32(conv_data->dictionary_id,
+      conv_data->dictionary_id = ZLIB_PREFIX(adler32)(0L, Z_NULL, 0);
+      conv_data->dictionary_id = ZLIB_PREFIX(adler32)(conv_data->dictionary_id,
                                          spdy_dictionary,
                                          (uInt)sizeof(spdy_dictionary));
 #endif
@@ -938,7 +954,7 @@ body_dissected:
   return frame->length;
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 /*
  * Performs header decompression.
  *
@@ -949,7 +965,11 @@ body_dissected:
 
 static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
                                             packet_info *pinfo,
+#ifdef HAVE_ZLIBNG
+                                            zng_streamp decomp,
+#else
                                             z_streamp decomp,
+#endif
                                             uLong dictionary_id,
                                             int offset,
                                             guint32 length,
@@ -968,14 +988,14 @@ DIAG_ON(cast-qual)
   decomp->avail_in = length;
   decomp->next_out = uncomp_block;
   decomp->avail_out = DECOMPRESS_BUFSIZE;
-  retcode = inflate(decomp, Z_SYNC_FLUSH);
+  retcode = ZLIB_PREFIX(inflate)(decomp, Z_SYNC_FLUSH);
   if (retcode == Z_NEED_DICT) {
     if (decomp->adler == dictionary_id) {
-      retcode = inflateSetDictionary(decomp,
+      retcode = ZLIB_PREFIX(inflateSetDictionary)(decomp,
                                      spdy_dictionary,
                                      sizeof(spdy_dictionary));
       if (retcode == Z_OK) {
-        retcode = inflate(decomp, Z_SYNC_FLUSH);
+        retcode = ZLIB_PREFIX(inflate)(decomp, Z_SYNC_FLUSH);
       }
     }
   }
@@ -1150,8 +1170,12 @@ static int dissect_spdy_header_payload(
     if (header_info == NULL) {
       guint8 *uncomp_ptr = NULL;
       guint uncomp_length = 0;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef HAVE_ZLIBNG
+      zng_streamp decomp;
+#else
       z_streamp decomp;
+#endif
 
       /* Get our decompressor. */
       if (stream_id % 2 == 0) {

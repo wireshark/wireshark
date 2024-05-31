@@ -132,7 +132,7 @@ static dissector_handle_t gssapi_handle;
  */
 static bool display_unknown_body_as_text;
 static bool remove_base64_encoding;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static bool uncompress_data = true;
 #endif
 
@@ -535,7 +535,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
     gchar *content_type_str = NULL;
     gchar *content_trans_encoding_str = NULL;
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     gchar *content_encoding_str = NULL;
 #endif
     char *filename = NULL;
@@ -684,7 +684,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             if (crp != NULL) {
                                 *crp = '\0';
                             }
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
                             content_encoding_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
 #endif
                         }
@@ -778,7 +778,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
             }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
             if(content_encoding_str && uncompress_data) {
 
                 if(g_ascii_strncasecmp(content_encoding_str,"gzip",4) == 0 ||
@@ -1075,7 +1075,7 @@ proto_register_multipart(void)
                                    "This supports export of the body and its further dissection.",
                                    &remove_base64_encoding);
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     prefs_register_bool_preference(multipart_module,
                                    "uncompress_data",
                                    "Uncompress parts which are compressed",
