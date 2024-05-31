@@ -1483,7 +1483,8 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
     packet_info *pi = &edt->pi;
     frame_data *fdata = pi->fd;
     wtap_block_t pkt_block = NULL;
-    char *comment;
+    unsigned int i;
+    char *comment = NULL;
 
     json_dumper_begin_object(&dumper);
 
@@ -1499,17 +1500,22 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
     /*
      * Get the block for this record, if it has one.
      */
-    if (fdata->has_modified_block)
-        pkt_block = sharkd_get_modified_block(fdata);
-    else
-        pkt_block = pi->rec->block;
+    pkt_block = sharkd_get_packet_block(fdata);
 
     /*
      * Does this record have any comments?
      */
     if (pkt_block != NULL &&
             WTAP_OPTTYPE_SUCCESS == wtap_block_get_nth_string_option_value(pkt_block, OPT_COMMENT, 0, &comment))
+    {
         sharkd_json_value_anyf("ct", "true");
+
+        sharkd_json_array_open("comments");
+        for (i = 0; wtap_block_get_nth_string_option_value(pkt_block, OPT_COMMENT, i, &comment) == WTAP_OPTTYPE_SUCCESS; i++) {
+            sharkd_json_value_string(NULL, comment);
+        }
+        sharkd_json_array_close();
+    }
 
     if (fdata->ignored)
         sharkd_json_value_anyf("i", "true");
@@ -1523,6 +1529,7 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
         sharkd_json_value_stringf("fg", "%06x", color_t_to_rgb(&fdata->color_filter->fg_color));
     }
 
+    wtap_block_unref(pkt_block);
     json_dumper_end_object(&dumper);
 }
 
@@ -1545,6 +1552,7 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
  *   (o) i   - if frame is ignored
  *   (o) m   - if frame is marked
  *   (o) ct  - if frame is commented
+ *   (o) comments - array of comment strings
  *   (o) bg  - color filter - background color in hex
  *   (o) fg  - color filter - foreground color in hex
  */

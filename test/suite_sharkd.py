@@ -237,6 +237,23 @@ class TestSharkd:
             },
         ))
 
+    def test_sharkd_req_frames_comments(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+             "params":{"file": capture_file('comments.pcapng')}
+             },
+            {"jsonrpc":"2.0", "id":2, "method":"frames","params":{"filter":"frame.number==3||frame.number==4||frame.number==5"}},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":
+                [
+                    {"c":["3","0.610021","::","ff02::1:ffdc:6277","ICMPv6","78","Neighbor Solicitation for fe80::c2c1:c0ff:fedc:6277"],"num":3,"ct":True,"comments":["hello hello"],"bg":"fce0ff","fg":"12272e"},
+                    {"c":["4","0.760023","::","ff02::1:ffdc:6277","ICMPv6","78","Neighbor Solicitation for fec0::c2c1:c0ff:fedc:6277"],"num":4,"ct":True,"comments":["goodbye goodbye"],"bg":"fce0ff","fg":"12272e"},
+                    {"c":["5","0.802338","10.0.0.1","224.0.0.251","MDNS","138","Standard query response 0x0000 A, cache flush 10.0.0.1 PTR, cache flush Cisco29401.local NSEC, cache flush Cisco29401.local"],"num":5,"bg":"daeeff","fg":"12272e"}
+                ],
+             },
+        ))
+
     def test_sharkd_req_tap_invalid(self, check_sharkd_session, capture_file):
         # XXX Unrecognized taps result in an empty line, modify
         #     run_sharkd_session such that checking for it is possible.
