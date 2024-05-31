@@ -555,6 +555,7 @@ static int ett_nas_5gs_user_data_cont;
 static int ett_nas_5gs_ciph_data_set;
 static int ett_nas_5gs_mm_mapped_nssai;
 static int ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
+static int ett_nas_5gs_mm_ext_rej_nssai_back_off_timer;
 static int ett_nas_5gs_mm_ext_rej_nssai;
 static int ett_nas_5gs_mm_op_def_acc_cat_def;
 static int ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
@@ -749,10 +750,10 @@ static int hf_nas_5gs_mm_trunc_amf_pointer;
 static int hf_nas_5gs_mm_n5gcreg_b0;
 static int hf_nas_5gs_mm_nb_n1_drx_value;
 static int hf_nas_5gs_mm_scmr;
-static int hf_nas_5gs_mm_extended_rejected_s_nssai_number_of_element;
-static int hf_nas_5gs_mm_extended_rejected_s_nssai_type_of_list;
-static int hf_nas_5gs_mm_extended_rejected_s_nssai_spare;
-static int hf_nas_5gs_mm_extended_rejected_s_nssai_back_off_timer;
+static int hf_nas_5gs_mm_extended_rejected_nssai_number_of_element;
+static int hf_nas_5gs_mm_extended_rejected_nssai_type_of_list;
+static int hf_nas_5gs_mm_extended_rejected_nssai_spare;
+static int hf_nas_5gs_mm_extended_rejected_nssai_back_off_timer;
 static int hf_nas_5gs_mm_len_of_rejected_s_nssai;
 static int hf_nas_5gs_mm_rejected_s_nssai_cause_value;
 static int hf_nas_5gs_mm_paging_restriction_type;
@@ -4086,12 +4087,31 @@ de_nas_5gs_mm_additional_conf_ind(tvbuff_t* tvb, proto_tree* tree, packet_info* 
 /*
  * 9.11.3.75    Extended rejected NSSAI
  */
+static const value_string nas_5gs_mm_extended_rejected_s_nssai_type_of_list_vals[] = {
+    { 0x00, "list of S-NSSAIs without any associated back-off timer value" },
+    { 0x01, "list of S-NSSAIs with one associated back-off timer value that applies to all S-NSSAIs in the list" },
+    {    0, NULL }
+};
+
+static const value_string nas_5gs_mm_extended_rejected_s_nssai_number_of_element_vals[] = {
+    { 0x00, "1 element" },
+    { 0x01, "2 elements" },
+    { 0x02, "3 elements" },
+    { 0x03, "4 elements" },
+    { 0x04, "5 elements" },
+    { 0x05, "6 elements" },
+    { 0x06, "7 elements" },
+    { 0x07, "8 elements" },
+    {    0, NULL }
+};
+
 static const value_string nas_5gs_mm_extended_rej_s_nssai_cause_vals[] = {
     { 0x00, "S-NSSAI not available in the current PLMN or SNPN" },
     { 0x01, "S-NSSAI not available in the current registration area" },
     { 0x02, "S-NSSAI not available due to the failed or revoked network slice-specific authentication and authorization" },
     { 0x03, "S-NSSAI not available due to maximum number of UEs reached" },
-    {    0, NULL } };
+    {    0, NULL }
+};
 
 static guint16
 de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
@@ -4111,17 +4131,18 @@ de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_in
         sub_partial_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_partial_extended_rejected_nssai_list,
             &item, "Partial extended rejected NSSAI list %u", num_partial_items);
 
-        proto_tree_add_item(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item_ret_uint(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_type_of_list, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &type_of_list);
-        proto_tree_add_item_ret_uint(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_number_of_element, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &number_of_element);
+        proto_tree_add_item(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_nssai_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_nssai_type_of_list, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &type_of_list);
+        proto_tree_add_item_ret_uint(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_nssai_number_of_element, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &number_of_element);
         curr_offset++;
 
         if (type_of_list > 0) {
-            proto_tree_add_item(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_back_off_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            item = proto_tree_add_item(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_nssai_back_off_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            de_gc_timer3(tvb, proto_item_add_subtree(item, ett_nas_5gs_mm_ext_rej_nssai_back_off_timer), pinfo, curr_offset, 1, NULL, 0);
             curr_offset++;
         }
 
-        for (i = 0; i < (int)number_of_element; i++)
+        for (i = 0; i < ((int)number_of_element + 1); i++)
         {
             sub_rejected_tree = proto_tree_add_subtree_format(sub_partial_tree, tvb, curr_offset, -1, ett_nas_5gs_mm_ext_rej_nssai,
                 &item, "Rejected S-NSSAI %u", i+1);
@@ -13620,24 +13641,24 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_scmr), 0x01,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_extended_rejected_s_nssai_number_of_element,
-        { "Number of element",   "nas-5gs.mm.extended_rejected_s_nssai.number_of_element",
-            FT_UINT8, BASE_DEC, NULL, 0x0f,
+        { &hf_nas_5gs_mm_extended_rejected_nssai_number_of_element,
+        { "Number of element",   "nas-5gs.mm.extended_rejected_nssai.number_of_element",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_extended_rejected_s_nssai_number_of_element_vals), 0x0f,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_extended_rejected_s_nssai_type_of_list,
-        { "Type of list",   "nas-5gs.mm.extended_rejected_s_nssai.type_of_list",
-            FT_UINT8, BASE_DEC, NULL, 0x70,
+        { &hf_nas_5gs_mm_extended_rejected_nssai_type_of_list,
+        { "Type of list",   "nas-5gs.mm.extended_rejected_nssai.type_of_list",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_extended_rejected_s_nssai_type_of_list_vals), 0x70,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_extended_rejected_s_nssai_spare,
-        { "Spare",   "nas-5gs.mm.extended_rejected_s_nssai.spare",
+        { &hf_nas_5gs_mm_extended_rejected_nssai_spare,
+        { "Spare",   "nas-5gs.mm.extended_rejected_nssai.spare",
             FT_UINT8, BASE_DEC, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_extended_rejected_s_nssai_back_off_timer,
-        { "Back-off timer value",   "nas-5gs.mm.extended_rejected_s_nssai.back_off_timer",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_nas_5gs_mm_extended_rejected_nssai_back_off_timer,
+        { "Back-off timer value",   "nas-5gs.mm.extended_rejected_nssai.back_off_timer",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_len_of_rejected_s_nssai,
@@ -13861,7 +13882,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    44
+#define NUM_INDIVIDUAL_ELEMS    45
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -13902,17 +13923,18 @@ proto_register_nas_5gs(void)
     ett[30] = &ett_nas_5gs_ciph_data_set;
     ett[31] = &ett_nas_5gs_mm_mapped_nssai;
     ett[32] = &ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
-    ett[33] = &ett_nas_5gs_mm_ext_rej_nssai;
-    ett[34] = &ett_nas_5gs_mm_op_def_acc_cat_def;
-    ett[35] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
-    ett[36] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
-    ett[37] = &ett_nas_5gs_cmn_service_level_aa_cont_param;
-    ett[38] = &ett_nas_5gs_mm_pld_cont_event_notif_ind;
-    ett[39] = &ett_nas_5gs_mm_peips_assist_info;
-    ett[40] = &ett_nas_5gs_mm_nssrg_info;
-    ett[41] = &ett_nas_5gs_mm_plmns_list_disaster_cond;
-    ett[42] = &ett_nas_5gs_mm_reg_wait_range;
-    ett[43] = &ett_nas_5gs_mm_nsag_info;
+    ett[33] = &ett_nas_5gs_mm_ext_rej_nssai_back_off_timer;
+    ett[34] = &ett_nas_5gs_mm_ext_rej_nssai;
+    ett[35] = &ett_nas_5gs_mm_op_def_acc_cat_def;
+    ett[36] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
+    ett[37] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
+    ett[38] = &ett_nas_5gs_cmn_service_level_aa_cont_param;
+    ett[39] = &ett_nas_5gs_mm_pld_cont_event_notif_ind;
+    ett[40] = &ett_nas_5gs_mm_peips_assist_info;
+    ett[41] = &ett_nas_5gs_mm_nssrg_info;
+    ett[42] = &ett_nas_5gs_mm_plmns_list_disaster_cond;
+    ett[43] = &ett_nas_5gs_mm_reg_wait_range;
+    ett[44] = &ett_nas_5gs_mm_nsag_info;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
