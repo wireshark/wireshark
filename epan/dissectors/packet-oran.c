@@ -916,7 +916,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, gu
     proto_item_set_generated(pi);
 }
 
-/* 5.1.3.2.8 (message series identifier) */
+/* 5.1.3.2.8 (message identifier) */
 static void
 addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
 {
@@ -2748,7 +2748,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset += 1;
 
         if (includeUdCompHeader) {
-            /* 5.4.4.10.  Described in 6.3.3.13 */
+            /* 7.5.2.10 */
             /* Extract these values to inform how wide IQ samples in each PRB will be. */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &sample_bit_width, &compression);
 
@@ -2948,7 +2948,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* Section 5.4.4.2 */
+        /* Section 7.5.2.2 */
         { &hf_oran_payload_version,
          {"Payload Version", "oran_fh_cus.payloadVersion",
           FT_UINT8, BASE_DEC,
@@ -2966,7 +2966,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.4.4 */
+        /* Section 7.5.2.4 */
         {&hf_oran_frame_id,
          {"Frame ID", "oran_fh_cus.frameId",
           FT_UINT8, BASE_DEC,
@@ -3177,16 +3177,16 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.6.2 */
+        /* Section 7.5.3.8 */
         {&hf_oran_extension,
          {"Extension", "oran_fh_cus.extension",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          "Section extension",
+          "Section extension type (ef)",
           HFILL}
         },
 
-        /* Section 5.4.6.1 */
+        /* Section 7.6.2.1 */
         {&hf_oran_exttype,
          {"extType", "oran_fh_cus.extType",
           FT_UINT8, BASE_DEC,
@@ -3195,7 +3195,7 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.6.3 */
+        /* Section 7.6.2.3 */
         {&hf_oran_extlen,
          {"extLen", "oran_fh_cus.extLen",
          FT_UINT16, BASE_DEC,
@@ -3204,7 +3204,7 @@ proto_register_oran(void)
          HFILL}
         },
 
-        /* Section 5.4.7.1 */
+        /* Section 7.7.1 */
         {&hf_oran_bfw,
          {"bfw", "oran_fh_cus.bfw",
          FT_STRING, BASE_NONE,
@@ -3212,8 +3212,6 @@ proto_register_oran(void)
          "Set of weights for a particular antenna",
          HFILL}
         },
-
-        /* Section 5.4.7.1.3 */
         {&hf_oran_bfw_bundle,
          {"Bundle", "oran_fh_cus.bfw.bundle",
          FT_STRING, BASE_NONE,
@@ -3228,6 +3226,7 @@ proto_register_oran(void)
          NULL,
          HFILL}
         },
+        /* Section 7.7.1.4 */
         {&hf_oran_bfw_i,
          {"bfwI", "oran_fh_cus.bfwI",
          FT_FLOAT, BASE_NONE,
@@ -3235,8 +3234,7 @@ proto_register_oran(void)
          "In-phase",
          HFILL}
         },
-
-        /* Section 5.4.7.1.4 */
+        /* Section 7.7.1.5 */
         {&hf_oran_bfw_q,
          {"bfwQ", "oran_fh_cus.bfwQ",
          FT_FLOAT, BASE_NONE,
