@@ -832,6 +832,7 @@ void CaptureFileDialog::preview(const QString & path)
         g_free(err_info);
         preview_size_.setText(tr("%1, error after %Ln data record(s)", "", stats.records)
                               .arg(size_str));
+        wtap_close(wth);
         return;
     }
 
