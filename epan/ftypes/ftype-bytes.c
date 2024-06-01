@@ -276,69 +276,6 @@ bytes_from_sinteger64(fvalue_t *fv, const char *s, int64_t num, char **err_msg)
 }
 
 static bool
-ax25_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
-{
-	/*
-	 * Don't request an error message if bytes_from_literal fails;
-	 * if it does, we'll report an error specific to this address
-	 * type.
-	 */
-	if (bytes_from_literal(fv, s, true, NULL)) {
-		if (g_bytes_get_size(fv->value.bytes) > FT_AX25_ADDR_LEN) {
-			if (err_msg != NULL) {
-				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid AX.25 address.",
-				    s);
-			}
-			return false;
-		}
-		else if (g_bytes_get_size(fv->value.bytes) < FT_AX25_ADDR_LEN && !allow_partial_value) {
-			if (err_msg != NULL) {
-				*err_msg = ws_strdup_printf("\"%s\" contains too few bytes to be a valid AX.25 address.",
-				    s);
-			}
-			return false;
-		}
-
-		return true;
-	}
-
-	/*
-	 * XXX - what needs to be done here is something such as:
-	 *
-	 * Look for a "-" in the string.
-	 *
-	 * If we find it, make sure that there are 1-6 alphanumeric
-	 * ASCII characters before it, and that there are 2 decimal
-	 * digits after it, from 00 to 15; if we don't find it, make
-	 * sure that there are 1-6 alphanumeric ASCII characters
-	 * in the string.
-	 *
-	 * If so, make the first 6 octets of the address the ASCII
-	 * characters, with lower-case letters mapped to upper-case
-	 * letters, shifted left by 1 bit, padded to 6 octets with
-	 * spaces, also shifted left by 1 bit, and, if we found a
-	 * "-", convert what's after it to a number and make the 7th
-	 * octet the number, shifted left by 1 bit, otherwise make the
-	 * 7th octet zero.
-	 *
-	 * We should also change all the comparison functions for
-	 * AX.25 addresses check the upper 7 bits of all but the last
-	 * octet of the address, ignoring the "end of address" bit,
-	 * and compare only the 4 bits above the low-order bit for
-	 * the last octet, ignoring the "end of address" bit and
-	 * various reserved bits and bits used for other purposes.
-	 *
-	 * See section 3.12 "Address-Field Encoding" of the AX.25
-	 * spec and
-	 *
-	 *	http://www.itu.int/ITU-R/terrestrial/docs/fixedmobile/fxm-art19-sec3.pdf
-	 */
-	if (err_msg != NULL)
-		*err_msg = ws_strdup_printf("\"%s\" is not a valid AX.25 address.", s);
-	return false;
-}
-
-static bool
 vines_from_literal(fvalue_t *fv, const char *s, bool allow_partial_value, char **err_msg)
 {
 	/*
@@ -700,45 +637,6 @@ ftype_register_bytes(void)
 		NULL,				/* modulo */
 	};
 
-	static const ftype_t ax25_type = {
-		FT_AX25,			/* ftype */
-		FT_AX25_ADDR_LEN,		/* wire_size */
-		bytes_fvalue_new,		/* new_value */
-		bytes_fvalue_copy,		/* copy_value */
-		bytes_fvalue_free,		/* free_value */
-		ax25_from_literal,		/* val_from_literal */
-		NULL,				/* val_from_string */
-		NULL,				/* val_from_charconst */
-		NULL,				/* val_from_uinteger64 */
-		NULL,				/* val_from_sinteger64 */
-		NULL,				/* val_from_double */
-		bytes_to_repr,			/* val_to_string_repr */
-
-		NULL,				/* val_to_uinteger64 */
-		NULL,				/* val_to_sinteger64 */
-		NULL,				/* val_to_double */
-
-		{ .set_value_bytes = bytes_fvalue_set },	/* union set_value */
-		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
-
-		cmp_order,
-		cmp_contains,
-		cmp_matches,
-
-		bytes_hash,			/* hash */
-		bytes_is_zero,			/* is_zero */
-		NULL,				/* is_negative */
-		len,
-		(FvalueSlice)slice,
-		bytes_bitwise_and,		/* bitwise_and */
-		NULL,				/* unary_minus */
-		NULL,				/* add */
-		NULL,				/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
-		NULL,				/* modulo */
-	};
-
 	static const ftype_t vines_type = {
 		FT_VINES,			/* ftype */
 		FT_VINES_ADDR_LEN,		/* wire_size */
@@ -975,7 +873,6 @@ ftype_register_bytes(void)
 
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
-	ftype_register(FT_AX25, &ax25_type);
 	ftype_register(FT_VINES, &vines_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_OID, &oid_type);
@@ -989,7 +886,6 @@ ftype_register_pseudofields_bytes(int proto)
 {
 	static int hf_ft_bytes;
 	static int hf_ft_uint_bytes;
-	static int hf_ft_ax25;
 	static int hf_ft_vines;
 	static int hf_ft_ether;
 	static int hf_ft_oid;
@@ -1005,11 +901,6 @@ ftype_register_pseudofields_bytes(int proto)
 		{ &hf_ft_uint_bytes,
 		    { "FT_UINT_BYTES", "_ws.ftypes.uint_bytes",
 			FT_UINT_BYTES, BASE_NONE, NULL, 0x00,
-			NULL, HFILL }
-		},
-		{ &hf_ft_ax25,
-		    { "FT_AX25", "_ws.ftypes.ax25",
-			FT_AX25, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_ft_vines,

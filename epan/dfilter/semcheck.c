@@ -129,13 +129,12 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_UINT_BYTES:
 		case FT_GUID:
 		case FT_OID:
-		case FT_AX25:
 		case FT_VINES:
 		case FT_FCWWN:
 		case FT_REL_OID:
 		case FT_SYSTEM_ID:
 
-			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_AX25 || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID);
+			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID);
 
 		case FT_UINT8:
 		case FT_UINT16:
@@ -170,16 +169,8 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
-			switch (b) {
-				case FT_STRING:
-				case FT_STRINGZ:
-				case FT_UINT_STRING:
-				case FT_STRINGZPAD:
-				case FT_STRINGZTRUNC:
-					return true;
-				default:
-					return false;
-			}
+		case FT_AX25:
+			return FT_IS_STRING(b);
 
 		case FT_NUM_TYPES:
 		case FT_SCALAR:
@@ -611,7 +602,6 @@ static bool
 is_bytes_type(enum ftenum type)
 {
 	switch(type) {
-		case FT_AX25:
 		case FT_VINES:
 		case FT_FCWWN:
 		case FT_ETHER:
@@ -639,6 +629,7 @@ is_bytes_type(enum ftenum type)
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
+		case FT_AX25:
 		case FT_BOOLEAN:
 		case FT_FRAMENUM:
 		case FT_CHAR:

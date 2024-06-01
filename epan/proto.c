@@ -9981,17 +9981,6 @@ proto_item_fill_label(const field_info *fi, gchar *label_str)
 			wmem_free(NULL, tmp);
 			break;
 
-		case FT_AX25:
-			addr.type = AT_AX25;
-			addr.len  = AX25_ADDR_LEN;
-			addr.data = fvalue_get_bytes_data(fi->value);
-
-			addr_str = (char*)address_to_str(NULL, &addr);
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s", hfinfo->name, addr_str);
-			wmem_free(NULL, addr_str);
-			break;
-
 		case FT_VINES:
 			addr.type = AT_VINES;
 			addr.len  = VINES_ADDR_LEN;
@@ -10107,6 +10096,7 @@ proto_item_fill_label(const field_info *fi, gchar *label_str)
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
+		case FT_AX25:
 			str = fvalue_get_string(fi->value);
 			label_fill(label_str, 0, hfinfo, str);
 			break;

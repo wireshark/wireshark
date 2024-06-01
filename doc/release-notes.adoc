@@ -103,6 +103,10 @@ The following features are new (or have been significantly updated) since versio
      The macro `${mymacro:arg1;...;argN}` can be written
      `$mymacro(arg1,...,argN)`.
 
+  ** AX.25 addresses are now filtered using the "CALLSIGN-SSID" string syntax.
+     Filtering based on the raw bytes values is still possible, like other
+     field types, with the `@` operator.  wsbuglink:17973[]
+
 * Display filter functions can be implemented as libwireshark plugins. Plugins are loaded
   during startup from the usual binary plugin configuration directories. See the
   `ipaddr.c` source file in the distribution for an example of a display filter C plugin

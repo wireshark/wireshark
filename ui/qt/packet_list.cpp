@@ -1428,7 +1428,7 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[column]) != 0) {
                 bool is_string_value = false;
                 header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[column]);
-                if (hfi && hfi->type == FT_STRING) {
+                if (hfi && FT_IS_STRING(hfi->type)) {
                     /* Could be an address type such as usb.src which must be quoted. */
                     is_string_value = true;
                 }

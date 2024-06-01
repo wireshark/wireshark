@@ -903,7 +903,6 @@ fvalue_set_bytes(fvalue_t *fv, GBytes *value)
 			fv->ftype->ftype == FT_OID ||
 			fv->ftype->ftype == FT_REL_OID ||
 			fv->ftype->ftype == FT_SYSTEM_ID ||
-			fv->ftype->ftype == FT_AX25 ||
 			fv->ftype->ftype == FT_VINES ||
 			fv->ftype->ftype == FT_ETHER ||
 			fv->ftype->ftype == FT_FCWWN);
@@ -938,9 +937,19 @@ fvalue_set_fcwwn(fvalue_t *fv, const uint8_t *value)
 void
 fvalue_set_ax25(fvalue_t *fv, const uint8_t *value)
 {
-	GBytes *bytes = g_bytes_new(value, FT_AX25_ADDR_LEN);
-	fvalue_set_bytes(fv, bytes);
-	g_bytes_unref(bytes);
+	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
+	for (size_t i = 0; i < FT_AX25_ADDR_LEN - 1; i++) {
+		if (value[i] != 0x40) {
+			/* ignore space-padding */
+			wmem_strbuf_append_c(buf, value[i] >> 1);
+		}
+	}
+	/* Ignore C-bit and reserved bits, and end of address bits. */
+	uint8_t ssid = (value[FT_AX25_ADDR_LEN - 1] >> 1) & 0x0f;
+	if (ssid != 0) {
+		wmem_strbuf_append_printf(buf, "-%u", ssid);
+	}
+	fvalue_set_strbuf(fv, buf);
 }
 
 void
@@ -1083,7 +1092,6 @@ fvalue_get_bytes(fvalue_t *fv)
 {
 	ws_assert(fv->ftype->ftype == FT_BYTES ||
 			fv->ftype->ftype == FT_UINT_BYTES ||
-			fv->ftype->ftype == FT_AX25 ||
 			fv->ftype->ftype == FT_VINES ||
 			fv->ftype->ftype == FT_ETHER ||
 			fv->ftype->ftype == FT_OID ||
