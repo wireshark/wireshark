@@ -3016,27 +3016,33 @@ void LograyMainWindow::connectStatisticsMenuActions()
         capture_file_properties_dialog->show();
     });
 
-    connect(main_ui_->actionStatisticsResolvedAddresses, &QAction::triggered, this, &LograyMainWindow::showResolvedAddressesDialog);
+    main_ui_->actionStatisticsResolvedAddresses->setVisible(false); // Hide for now.
+    // connect(main_ui_->actionStatisticsResolvedAddresses, &QAction::triggered, this, &LograyMainWindow::showResolvedAddressesDialog);
 
-    connect(main_ui_->actionStatisticsProtocolHierarchy, &QAction::triggered, this, [=]() {
-        ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
-        connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-                this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-        phd->show();
-    });
+    main_ui_->actionStatisticsProtocolHierarchy->setVisible(false); // Hide for now.
+    // connect(main_ui_->actionStatisticsProtocolHierarchy, &QAction::triggered, this, [=]() {
+    //     ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
+    //     connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+    //             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    //     phd->show();
+    // });
 
-    connect(main_ui_->actionStatisticsConversations, &QAction::triggered, this, &LograyMainWindow::showConversationsDialog);
-    connect(main_ui_->actionStatisticsEndpoints, &QAction::triggered, this, &LograyMainWindow::showEndpointsDialog);
+    main_ui_->actionStatisticsConversations->setVisible(false); // Hide for now.
+    // connect(main_ui_->actionStatisticsConversations, &QAction::triggered, this, &LograyMainWindow::showConversationsDialog);
+    main_ui_->actionStatisticsEndpoints->setVisible(false); // Hide for now.
+    // connect(main_ui_->actionStatisticsEndpoints, &QAction::triggered, this, &LograyMainWindow::showEndpointsDialog);
 
-    connect(main_ui_->actionStatisticsPacketLengths, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("plen"); });
+    main_ui_->actionStatisticsPacketLengths->setVisible(false); // Hide for now.
+    // connect(main_ui_->actionStatisticsPacketLengths, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("plen"); });
 
     connect(main_ui_->actionStatisticsIOGraph, &QAction::triggered, this, [=]() { statCommandIOGraph(NULL, NULL); });
 
-    connect(main_ui_->actionStatisticsFlowGraph, &QAction::triggered, this, [=]() {
-        QMessageBox::warning(this, "Oops", "SequenceDialog depends on RTPStreamDialog");
-        //    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
-        //    sequence_dialog->show();
-    });
+    main_ui_->actionStatisticsFlowGraph->setVisible(false); // Hide for now.
+    // connect(main_ui_->actionStatisticsFlowGraph, &QAction::triggered, this, [=]() {
+    //     QMessageBox::warning(this, "Oops", "SequenceDialog depends on RTPStreamDialog");
+    //     //    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
+    //     //    sequence_dialog->show();
+    // });
 }
 
 void LograyMainWindow::openStatisticsTreeDialog(const char *abbr)
@@ -3096,7 +3102,11 @@ void LograyMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QStri
 
 // Tools Menu
 
-// XXX No log tools yet
+void LograyMainWindow::connectToolsMenuActions()
+{
+    // We don't have any built in tools yet, so hide it until we add actions via Lua scripts.
+    main_ui_->menuTools->hide();
+}
 
 // Help Menu
 void LograyMainWindow::connectHelpMenuActions()

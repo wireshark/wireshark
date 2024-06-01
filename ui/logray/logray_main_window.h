@@ -433,6 +433,8 @@ private slots:
 
     void statCommandExpertInfo(const char *, void *);
 
+    void connectToolsMenuActions();
+
     void connectHelpMenuActions();
 
 #ifdef HAVE_SOFTWARE_UPDATE

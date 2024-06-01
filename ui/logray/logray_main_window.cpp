@@ -601,6 +601,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectCaptureMenuActions();
     connectAnalyzeMenuActions();
     connectStatisticsMenuActions();
+    connectToolsMenuActions();
     connectHelpMenuActions();
 
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
@@ -2594,28 +2595,29 @@ void LograyMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
                             main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
                             action);
             break;
-//        case REGISTER_TOOLS_GROUP_UNSORTED:
-//        {
-//            // Allow the creation of submenus. Mimics the behaviour of
-//            // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
-//            // and GtkUIManager.
-//            //
-//            // For now we limit the insanity to the "Tools" menu.
-//            QStringList menu_path = action->text().split('/');
-//            QMenu *cur_menu = main_ui_->menuTools;
-//            while (menu_path.length() > 1) {
-//                QString menu_title = menu_path.takeFirst();
-//                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-//                if (!submenu) {
-//                    submenu = cur_menu->addMenu(menu_title);
-//                    submenu->setObjectName(menu_title.toLower());
-//                }
-//                cur_menu = submenu;
-//            }
-//            action->setText(menu_path.last());
-//            cur_menu->addAction(action);
-//            break;
-//        }
+        case REGISTER_TOOLS_GROUP_UNSORTED:
+        {
+            main_ui_->menuTools->show(); // Remove this if we ever add any built-in tools.
+            // Allow the creation of submenus. Mimics the behaviour of
+            // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
+            // and GtkUIManager.
+            //
+            // For now we limit the insanity to the "Tools" menu.
+            QStringList menu_path = action->text().split('/');
+            QMenu *cur_menu = main_ui_->menuTools;
+            while (menu_path.length() > 1) {
+                QString menu_title = menu_path.takeFirst();
+                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+                if (!submenu) {
+                    submenu = cur_menu->addMenu(menu_title);
+                    submenu->setObjectName(menu_title.toLower());
+                }
+                cur_menu = submenu;
+            }
+            action->setText(menu_path.last());
+            cur_menu->addAction(action);
+            break;
+        }
         default:
             // Skip packet items.
             return;
@@ -2640,20 +2642,20 @@ void LograyMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gro
         case REGISTER_LOG_STAT_GROUP_UNSORTED:
             main_ui_->menuStatistics->removeAction(action);
             break;
-//        case REGISTER_TOOLS_GROUP_UNSORTED:
-//        {
-//            // Allow removal of submenus.
-//            // For now we limit the insanity to the "Tools" menu.
-//            QStringList menu_path = action->text().split('/');
-//            QMenu *cur_menu = main_ui_->menuTools;
-//            while (menu_path.length() > 1) {
-//                QString menu_title = menu_path.takeFirst();
-//                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-//                cur_menu = submenu;
-//            }
-//            cur_menu->removeAction(action);
-//            break;
-//        }
+        case REGISTER_TOOLS_GROUP_UNSORTED:
+        {
+            // Allow removal of submenus.
+            // For now we limit the insanity to the "Tools" menu.
+            QStringList menu_path = action->text().split('/');
+            QMenu *cur_menu = main_ui_->menuTools;
+            while (menu_path.length() > 1) {
+                QString menu_title = menu_path.takeFirst();
+                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+                cur_menu = submenu;
+            }
+            cur_menu->removeAction(action);
+            break;
+        }
         default:
 //            qDebug() << "FIX: Remove" << action->text() << "from the menu";
             break;
