@@ -9899,7 +9899,7 @@ proto_register_dhcp(void)
 		    "Option 125:CL 3 eRouter Container Option", HFILL }},
 
 		{ &hf_dhcp_option125_cl_mib_environment_indicator_option,
-		  { "MIB Environment Indicator Option", "dhcp.option.vi.cl.suboption",
+		  { "MIB Environment Indicator Option", "dhcp.option.vi.cl.mib_environment_indicator_option",
 		    FT_UINT8, BASE_DEC, VALS(pkt_mib_env_ind_opt_vals), 0x0,
 		    "Option 125:CL 4 MIB Environment Indicator Option", HFILL }},
 

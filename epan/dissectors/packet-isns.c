@@ -1628,7 +1628,7 @@ void proto_register_isns(void)
     { &hf_isns_entity_next_index,
       { "Entity Next Index", "isns.entity.next_index",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Next Entity Index", HFILL }},
+        NULL, HFILL }},
 
     { &hf_isns_timestamp,
       { "Timestamp", "isns.timestamp",

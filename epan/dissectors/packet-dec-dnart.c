@@ -1241,7 +1241,7 @@ proto_register_dec_rt(void)
         { &hf_dec_rt_services,
           { "Requested services",   "dec_dna.nsp.services",
             FT_UINT8,    BASE_HEX,    VALS(rt_services_vals),   0x0c,
-            "Services requested", HFILL }},
+            NULL, HFILL }},
         { &hf_dec_rt_info,
           { "Version info",            "dec_dna.nsp.info",
             FT_UINT8,    BASE_HEX,    VALS(rt_info_version_vals),   0x03,

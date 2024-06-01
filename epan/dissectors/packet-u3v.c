@@ -2335,7 +2335,7 @@ static hf_register_info hf[] =
     { &hf_u3v_bootstrap_Timestamp_Latch,
     { "Latch Timestamp", "u3v.bootstrap.Timestamp_Latch",
     FT_UINT32, BASE_DEC, NULL, 0x0,
-    "Timestamp Latch", HFILL
+    NULL, HFILL
     } },
 
     { &hf_u3v_bootstrap_Timestamp_Increment,

@@ -1858,7 +1858,7 @@ proto_register_uma(void)
 		{ &hf_uma_urr_gmsi,
 			{ "GMSI, GAN Mode Support Indicator","uma.urr.gmsi",
 			FT_UINT8,BASE_DEC, VALS(uma_gmsi_vals), 0x06,
-			"GMSI, GAN Mode Support Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_psho,
 			{ "PS HO, PS Handover Capable","uma.urr.psho",

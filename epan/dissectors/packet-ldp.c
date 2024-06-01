@@ -3745,7 +3745,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_sess_fr_len,
           { "Number of DLCI bits", "ldp.msg.tlv.sess.fr.len", FT_UINT16, BASE_DEC,
-            VALS(tlv_fr_len_vals), 0x0180, "DLCI Number of bits", HFILL }},
+            VALS(tlv_fr_len_vals), 0x0180, NULL, HFILL }},
 
         { &hf_ldp_tlv_sess_fr_mindlci,
           { "Minimum DLCI", "ldp.msg.tlv.sess.fr.mindlci", FT_UINT24, BASE_DEC,
@@ -3829,7 +3829,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_fr_label_len,
           { "Number of DLCI bits", "ldp.msg.tlv.fr.label.len", FT_UINT16, BASE_DEC,
-            VALS(tlv_fr_len_vals), 0x0180, "DLCI Number of bits", HFILL }},
+            VALS(tlv_fr_len_vals), 0x0180, NULL, HFILL }},
 
         { &hf_ldp_tlv_fr_label_dlci,
           { "DLCI", "ldp.msg.tlv.fr.label.dlci", FT_UINT24, BASE_DEC,
