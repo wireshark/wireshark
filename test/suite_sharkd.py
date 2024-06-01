@@ -1157,7 +1157,13 @@ class TestSharkd:
             },
         ))
 
-    def test_sharkd_req_follow_http2(self, check_sharkd_session, capture_file):
+    def test_sharkd_req_follow_http2(self, check_sharkd_session, capture_file, features):
+        # If we don't have nghttp2, we output the compressed headers.
+        # We could test against the expected output in that case, but
+        # just skip for now.
+        if not features.have_nghttp2:
+            pytest.skip('Requires nghttp2.')
+
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"load",
              "params":{"file": capture_file('quic-with-secrets.pcapng')}
