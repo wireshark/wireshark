@@ -1548,6 +1548,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ferma la cattura dopo che il numero di file specificato è stato creato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Stop capturing after the specified number of files have been created.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ferma la cattura dopo che una certa quantità di dati è stata catturata.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1608,8 +1612,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Errore</translation>
     </message>
     <message>
+        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation>File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
+        <translation type="vanished">File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -4419,11 +4427,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i pacchetti</translation>
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti gli eventi</translation>
     </message>
     <message>
         <source>All Packets</source>
@@ -6823,7 +6831,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>MainWindow</name>
     <message>
         <source>Display filter as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro di visualizzazione come %1</translation>
     </message>
 </context>
 <context>
@@ -8802,43 +8810,43 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>PACKETS</source>
-        <translation type="unfinished"></translation>
+        <translation>PACCHETTI</translation>
     </message>
     <message>
         <source>BYTES</source>
-        <translation type="unfinished"></translation>
+        <translation>BYTE</translation>
     </message>
     <message>
         <source>BITS</source>
-        <translation type="unfinished"></translation>
+        <translation>BIT</translation>
     </message>
     <message>
         <source>COUNT FRAMES</source>
-        <translation type="unfinished"></translation>
+        <translation>NUMERO FRAME</translation>
     </message>
     <message>
         <source>COUNT FIELDS</source>
-        <translation type="unfinished"></translation>
+        <translation>NUMERO CAMPI</translation>
     </message>
     <message>
         <source>SUM</source>
-        <translation type="unfinished"></translation>
+        <translation>SOMMA</translation>
     </message>
     <message>
         <source>MAX</source>
-        <translation type="unfinished"></translation>
+        <translation>MAX</translation>
     </message>
     <message>
         <source>MIN</source>
-        <translation type="unfinished"></translation>
+        <translation>MIN</translation>
     </message>
     <message>
         <source>AVERAGE</source>
-        <translation type="unfinished"></translation>
+        <translation>MEDIA</translation>
     </message>
     <message>
         <source>LOAD</source>
-        <translation type="unfinished"></translation>
+        <translation>CARICO</translation>
     </message>
 </context>
 <context>

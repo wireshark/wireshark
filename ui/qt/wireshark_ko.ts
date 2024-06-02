@@ -1541,6 +1541,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;지정한 개수의 파일을 생성한 후 캡처를 정지합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Stop capturing after the specified number of files have been created.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;지정한 분량의 데이터를 캡처한 후 캡처를 정지합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1601,8 +1605,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>오류</translation>
     </message>
     <message>
+        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation>여러 파일: 요청한 파일 크기가 너무 큽니다. 파일 최대 크기는 2 GiB입니다.</translation>
+        <translation type="vanished">여러 파일: 요청한 파일 크기가 너무 큽니다. 파일 최대 크기는 2 GiB입니다.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>

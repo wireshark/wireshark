@@ -179,6 +179,12 @@ Wireshark 4.3.0 Release Notes
        files), and selected rows or the entire table can be saved or
        copied to the clipboard in several formats. Issue 16419[8]
 
+     • When capturing a file, the maximum filesize at which to stop, or
+       to switch files in multiple file mode, can be 2 TB, up from 2GiB.
+       Note that you may have problems when the number of packets gets
+       larger than 231 or 232, though that is also true when no limit is
+       set.
+
      • When capturing files in multiple file mode, a pattern that places
        the date and time before the index number can be used (e.g.,
        foo_20240714110102_00001.pcap instead of
@@ -224,7 +230,7 @@ Wireshark 4.3.0 Release Notes
         • The graph is smarter about choosing whether to retap
        (expensive), recalculate (moderately intensive), or replot
        (cheap) in order to display the newly chosen options correctly
-       with the least amout of calculations. For instance, a graph that
+       with the least amount of calculations. For instance, a graph that
        has previously been plotted and is disabled and then reenabled
        without any other changes will not require a new retap. Issue
        15822[13]
@@ -340,6 +346,12 @@ Wireshark 4.3.0 Release Notes
        notice, so it can be worth checking the manual for previous
        versions.
 
+     • Lua functions have been added to decompress and decode TvbRanges
+       with other compression types besides zlib, such as Brotli,
+       Snappy, Zstd, and others, matching the support in the C API.
+       tvbrange:uncompress() has been deprecated for
+       tvbrange:uncompress_zlib().
+
   Removed Features and Support
 
      • The tshark `-G` option with no argument is deprecated and will be
@@ -355,7 +367,8 @@ Wireshark 4.3.0 Release Notes
    Allied Telesis Resiliency Link (AT RL), EGNOS Message Server (EMS)
    file format, Galileo E1-B I/NAV navigation messages, MAC NR Framed
    (mac-nr-framed), RF4CE Network Layer (RF4CE), RF4CE Profile (RF4CE
-   Profile), and ZeroMQ Message Transport Protocol (ZMTP)
+   Profile), RK512, SAP Remote Function Call (SAPRFC), and ZeroMQ
+   Message Transport Protocol (ZMTP)
 
   Updated Protocol Support
 

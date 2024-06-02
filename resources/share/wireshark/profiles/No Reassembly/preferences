@@ -122,6 +122,7 @@ rtsp.desegment_headers: FALSE
 rtsp.desegment_body: FALSE
 sametime.reassemble: FALSE
 sapni.desegment: FALSE
+saprfc.table_reassembly: FALSE
 sasp.desegment_sasp_messages: FALSE
 sctp.reassembly: FALSE
 scylla.desegment: FALSE
