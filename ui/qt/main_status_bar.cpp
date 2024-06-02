@@ -327,9 +327,7 @@ void MainStatusBar::pushGenericStatus(StatusContext status, const QString &messa
     if (message.isEmpty() && status != STATUS_CTX_FILE  && status != STATUS_CTX_TEMPORARY && status != STATUS_CTX_PROGRESS)
         popGenericStatus(status);
     else
-        stack->pushText(message, status);
-
-    stack->setToolTip(messagetip);
+        stack->pushText(message, status, messagetip);
 
     if (status == STATUS_CTX_FILTER || status == STATUS_CTX_FILE)
         expertUpdate();
@@ -341,8 +339,6 @@ void MainStatusBar::popGenericStatus(StatusContext status)
 
     if (status == STATUS_CTX_MAIN)
         stack = &packet_status_;
-
-    stack->setToolTip(QString());
 
     stack->popText(status);
 }

@@ -21,7 +21,7 @@ class LabelStack : public QLabel
 public:
     explicit LabelStack(QWidget *parent = 0);
     void setTemporaryContext(const int ctx);
-    void pushText(const QString &text, int ctx);
+    void pushText(const QString &text, int ctx, const QString &tooltip = QString());
     void setShrinkable(bool shrinkable = true);
 
 protected:
@@ -35,6 +35,7 @@ protected:
 private:
     typedef struct _StackItem {
         QString text;
+        QString tooltip;
         int ctx;
     } StackItem;
 

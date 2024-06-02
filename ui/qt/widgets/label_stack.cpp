@@ -68,9 +68,10 @@ void LabelStack::fillLabel() {
         setStyleSheet(style_sheet);
     }
     setText(si.text);
+    setToolTip(si.tooltip);
 }
 
-void LabelStack::pushText(const QString &text, int ctx) {
+void LabelStack::pushText(const QString &text, int ctx, const QString &tooltip) {
     popText(ctx);
 
     if (ctx == temporary_ctx_) {
@@ -83,6 +84,7 @@ void LabelStack::pushText(const QString &text, int ctx) {
 
     StackItem si;
     si.text = text;
+    si.tooltip = tooltip;
     si.ctx = ctx;
     labels_.prepend(si);
     fillLabel();
