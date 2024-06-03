@@ -15,6 +15,8 @@
 
 #include <epan/epan_dissect.h>
 
+#include <wsutil/filesystem.h>
+
 #include "ui/io_graph_item.h"
 
 int64_t get_io_graph_index(packet_info *pinfo, int interval) {
@@ -55,6 +57,10 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
             "LOAD",
             NULL
         };
+
+        if (!is_packet_configuration_namespace()) {
+            item_unit_names[0] = "Events";
+        }
 
         /* There was no field specified */
         if ((field_name == NULL) || (field_name[0] == 0)) {

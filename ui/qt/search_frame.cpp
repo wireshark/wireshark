@@ -16,6 +16,7 @@
 #include <epan/proto.h>
 #include <epan/strutil.h>
 
+#include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/regex.h>
 
@@ -57,6 +58,18 @@ SearchFrame::SearchFrame(QWidget *parent) :
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }
 #endif
+
+    if (!is_packet_configuration_namespace()) {
+        sf_ui_->searchInComboBox->setItemText(0, tr("Event List"));
+        sf_ui_->searchInComboBox->setItemText(1, tr("Event Details"));
+        sf_ui_->searchInComboBox->setItemText(2, tr("Event Bytes"));
+        sf_ui_->searchInComboBox->setToolTip(tr("<html><head/><body>"
+                                                "<p>Search the Info column of the event list (summary pane), "
+                                                "decoded event display labels (tree view pane) or the "
+                                                "ASCII-converted event data (hex view pane).</p>"
+                                                "</body></html>"));
+    }
+
 
     applyRecentSearchSettings();
 

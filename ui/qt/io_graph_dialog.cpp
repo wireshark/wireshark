@@ -128,7 +128,7 @@ static const value_string graph_style_vs[] = {
     { 0, NULL }
 };
 
-static const value_string y_axis_vs[] = {
+static const value_string y_axis_packet_vs[] = {
     { IOG_ITEM_UNIT_PACKETS, "Packets" },
     { IOG_ITEM_UNIT_BYTES, "Bytes" },
     { IOG_ITEM_UNIT_BITS, "Bits" },
@@ -139,6 +139,20 @@ static const value_string y_axis_vs[] = {
     { IOG_ITEM_UNIT_CALC_MIN, "MIN(Y Field)" },
     { IOG_ITEM_UNIT_CALC_AVERAGE, "AVG(Y Field)" },
     { IOG_ITEM_UNIT_CALC_LOAD, "LOAD(Y Field)" },
+    { 0, NULL }
+};
+
+static const value_string y_axis_event_vs[] = {
+    { IOG_ITEM_UNIT_PACKETS, "Events" },
+    y_axis_packet_vs[1],
+    y_axis_packet_vs[2],
+    y_axis_packet_vs[3],
+    y_axis_packet_vs[4],
+    y_axis_packet_vs[5],
+    y_axis_packet_vs[6],
+    y_axis_packet_vs[7],
+    y_axis_packet_vs[8],
+    y_axis_packet_vs[9],
     { 0, NULL }
 };
 
@@ -295,17 +309,32 @@ UAT_CSTRING_CB_DEF(io_graph, name, io_graph_settings_t)
 UAT_DISPLAY_FILTER_CB_DEF(io_graph, dfilter, io_graph_settings_t)
 UAT_COLOR_CB_DEF(io_graph, color, io_graph_settings_t)
 UAT_VS_DEF(io_graph, style, io_graph_settings_t, uint32_t, 0, "Line")
+// XXX Need to use "Events" where appropriate.
 UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Packets")
 UAT_PROTO_FIELD_CB_DEF(io_graph, yfield, io_graph_settings_t)
 UAT_DEC_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
 
-static uat_field_t io_graph_fields[] = {
+static uat_field_t io_graph_packet_fields[] = {
     UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
     UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
     UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
     UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
     UAT_FLD_VS(io_graph, style, "Style", graph_style_vs, "Graph style (Line, Bars, etc.)"),
-    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_vs, "Y Axis units"),
+    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_packet_vs, "Y Axis units"),
+    UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
+    UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
+    UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+
+    UAT_END_FIELDS
+};
+
+static uat_field_t io_graph_event_fields[] = {
+    UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
+    UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
+    UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
+    UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
+    UAT_FLD_VS(io_graph, style, "Style", graph_style_vs, "Graph style (Line, Bars, etc.)"),
+    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_event_vs, "Y Axis units"),
     UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
     UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
     UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
@@ -583,9 +612,9 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
     newRowData.append(QColor(color_idx));
     newRowData.append(val_to_str_const(style, graph_style_vs, "None"));
     if (is_packet_configuration_namespace()) {
-        newRowData.append(val_to_str_const(value_units, y_axis_vs, "Packets"));
+        newRowData.append(val_to_str_const(value_units, y_axis_packet_vs, "Packets"));
     } else {
-        newRowData.append(val_to_str_const(value_units, y_axis_vs, "Events"));
+        newRowData.append(val_to_str_const(value_units, y_axis_event_vs, "Events"));
     }
     newRowData.append(yfield);
     newRowData.append(val_to_str_const((uint32_t) moving_average, moving_avg_vs, "None"));
@@ -613,7 +642,11 @@ void IOGraphDialog::addGraph(bool checked, QString dfilter, io_graph_item_unit_t
             graph_name = is_packet_configuration_namespace() ? tr("All packets") : tr("All events");
         }
     } else {
-        graph_name = QString(val_to_str_const(value_units, y_axis_vs, "Unknown")).replace("Y Field", yfield);
+        if (is_packet_configuration_namespace()) {
+            graph_name = QString(val_to_str_const(value_units, y_axis_packet_vs, "Unknown")).replace("Y Field", yfield);
+        } else {
+            graph_name = QString(val_to_str_const(value_units, y_axis_event_vs, "Unknown")).replace("Y Field", yfield);
+        }
     }
     addGraph(checked, std::move(graph_name), dfilter, ColorUtils::graphColor(uat_model_->rowCount()),
         IOGraph::psLine, value_units, yfield, DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
@@ -652,13 +685,12 @@ void IOGraphDialog::createIOGraph(int currentRow)
     ioGraphs_.insert(currentRow, new IOGraph(ui->ioPlot));
     IOGraph* iog = ioGraphs_[currentRow];
 
-    connect(this, SIGNAL(recalcGraphData(capture_file *)), iog, SLOT(recalcGraphData(capture_file *)));
-    connect(this, SIGNAL(reloadValueUnitFields()), iog, SLOT(reloadValueUnitField()));
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            iog, SLOT(captureEvent(CaptureEvent)));
-    connect(iog, SIGNAL(requestRetap()), this, SLOT(scheduleRetap()));
-    connect(iog, SIGNAL(requestRecalc()), this, SLOT(scheduleRecalc()));
-    connect(iog, SIGNAL(requestReplot()), this, SLOT(scheduleReplot()));
+    connect(this, &IOGraphDialog::recalcGraphData, iog, &IOGraph::recalcGraphData);
+    connect(this, &IOGraphDialog::reloadValueUnitFields, iog, &IOGraph::reloadValueUnitField);
+    connect(&cap_file_, &CaptureFile::captureEvent, iog, &IOGraph::captureEvent);
+    connect(iog, &IOGraph::requestRetap, this, [=]() { scheduleRetap(); });
+    connect(iog, &IOGraph::requestRecalc, this, [=]() { scheduleRecalc(); });
+    connect(iog, &IOGraph::requestReplot, this, [=]() { scheduleReplot(); });
 
     syncGraphSettings(currentRow);
     iog->setNeedRetap(true);
@@ -684,7 +716,7 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
                     IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
             break;
         default:
-            addGraph(enabled, tr("Access Denied"), "ct.error == \"AccessDenied\"", ColorUtils::graphColor(4), // 4 = red
+            addGraph(enabled, tr("All Execs"), "evt.type == \"execve\"", ColorUtils::graphColor(4), // 4 = red
                     IOGraph::psDot, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
             break;
         }
@@ -717,7 +749,11 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     /* plot style depend on the value unit, so set it first. */
     data_str = uat_model_->data(uat_model_->index(row, colYAxis)).toString();
-    iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_vs, IOG_ITEM_UNIT_PACKETS));
+    if (is_packet_configuration_namespace()) {
+        iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_packet_vs, IOG_ITEM_UNIT_PACKETS));
+    } else {
+        iog->setValueUnits((int) str_to_val(qUtf8Printable(data_str), y_axis_event_vs, IOG_ITEM_UNIT_PACKETS));
+    }
     iog->setValueUnitField(uat_model_->data(uat_model_->index(row, colYField)).toString());
 
     iog->setColor(uat_model_->data(uat_model_->index(row, colColor), Qt::DecorationRole).value<QColor>().rgb());
@@ -1162,7 +1198,7 @@ void IOGraphDialog::updateLegend()
 
     format_size_units_e format_units = FORMAT_SIZE_UNIT_NONE;
     if (format_units_set.size() == 1) {
-        format_units = format_units_set.values()[0];
+        format_units = format_units_set.values().constFirst();
     }
 
     QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(iop->yAxis->ticker());
@@ -1184,7 +1220,7 @@ void IOGraphDialog::updateLegend()
 
     // All the same. Use the Y Axis label.
     if (vu_label_set.size() == 1) {
-        iop->yAxis->setLabel(vu_label_set.values()[0] + "/" + intervalText);
+        iop->yAxis->setLabel(vu_label_set.values().constFirst() + "/" + intervalText);
     }
 
     // Create a legend with a Title label at top.
@@ -1418,6 +1454,10 @@ void IOGraphDialog::updateStatistics()
 void IOGraphDialog::loadProfileGraphs()
 {
     if (iog_uat_ == NULL) {
+        uat_field_t *io_graph_fields = io_graph_packet_fields;
+        if (!is_packet_configuration_namespace()) {
+            io_graph_fields = io_graph_event_fields;
+        }
 
         iog_uat_ = uat_new("I/O Graphs",
                            sizeof(io_graph_settings_t),
@@ -2326,7 +2366,10 @@ void IOGraph::setPlotStyle(int style)
 
 QString IOGraph::valueUnitLabel() const
 {
-    return val_to_str_const(val_units_, y_axis_vs, "Unknown");
+    if (is_packet_configuration_namespace()) {
+        return val_to_str_const(val_units_, y_axis_packet_vs, "Unknown");
+    }
+    return val_to_str_const(val_units_, y_axis_event_vs, "Unknown");
 }
 
 void IOGraph::setValueUnits(int val_units)
@@ -2532,7 +2575,6 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
                 bars_->addData(ts, val);
             }
         }
-//        qDebug() << "=rgd i" << i << ts << val;
     }
 
     emit requestReplot();
@@ -2543,7 +2585,10 @@ format_size_units_e IOGraph::formatUnits() const
     switch (val_units_) {
     case IOG_ITEM_UNIT_PACKETS:
     case IOG_ITEM_UNIT_CALC_FRAMES:
-        return FORMAT_SIZE_UNIT_PACKETS;
+        if (is_packet_configuration_namespace()) {
+            return FORMAT_SIZE_UNIT_PACKETS;
+        }
+        return FORMAT_SIZE_UNIT_EVENTS;
     case IOG_ITEM_UNIT_BYTES:
         return FORMAT_SIZE_UNIT_BYTES;
     case IOG_ITEM_UNIT_BITS:

@@ -16,6 +16,8 @@
 
 #include <ui/io_graph_item.h>
 
+#include <wsutil/filesystem.h>
+
 #include <QMenu>
 
 IOGraphAction::IOGraphAction(QObject *parent, io_graph_item_unit_t unit, QString field) :
@@ -30,7 +32,10 @@ IOGraphAction::IOGraphAction(QObject *parent, io_graph_item_unit_t unit, QString
 const QString IOGraphAction::unitName(io_graph_item_unit_t unit) {
     switch (unit) {
     case IOG_ITEM_UNIT_PACKETS:
-        return QObject::tr("PACKETS");
+        if (is_packet_configuration_namespace()) {
+            return QObject::tr("PACKETS");
+        }
+        return QObject::tr("EVENTS");
     case IOG_ITEM_UNIT_BYTES:
         return QObject::tr("BYTES");
     case IOG_ITEM_UNIT_BITS:

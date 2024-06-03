@@ -242,6 +242,8 @@ typedef enum {
     FORMAT_SIZE_UNIT_BYTES_S,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
     FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" */
     FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" */
+    FORMAT_SIZE_UNIT_EVENTS,        /**< "events" */
+    FORMAT_SIZE_UNIT_EVENTS_S,      /**< "events/s" */
     FORMAT_SIZE_UNIT_FIELDS,        /**< "fields" */
     /* These next two aren't really for format_size (which takes an int) */
     FORMAT_SIZE_UNIT_SECONDS,       /**< "seconds" for un-prefixed sizes, "s" otherwise. */

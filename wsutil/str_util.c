@@ -550,6 +550,12 @@ format_units(wmem_allocator_t *allocator, double size,
         case FORMAT_SIZE_UNIT_PACKETS_S:
             wmem_strbuf_append(human_str, is_small ? "packets/s" : "packets/s");
             break;
+        case FORMAT_SIZE_UNIT_EVENTS:
+            wmem_strbuf_append(human_str, is_small ? "events" : "events");
+            break;
+        case FORMAT_SIZE_UNIT_EVENTS_S:
+            wmem_strbuf_append(human_str, is_small ? "events/s" : "events/s");
+            break;
         case FORMAT_SIZE_UNIT_FIELDS:
             wmem_strbuf_append(human_str, is_small ? "fields" : "fields");
             break;

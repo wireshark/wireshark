@@ -201,15 +201,23 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         out << table_begin;
 
         // start time
-        out << table_row_begin
-            << table_vheader_tmpl.arg(tr("First packet"))
-            << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.start_time))
+        out << table_row_begin;
+        if (is_packet_configuration_namespace()) {
+            out << table_vheader_tmpl.arg(tr("First packet"));
+        } else {
+            out << table_vheader_tmpl.arg(tr("First event"));
+        }
+        out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.start_time))
             << table_row_end;
 
         // stop time
-        out << table_row_begin
-            << table_vheader_tmpl.arg(tr("Last packet"))
-            << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.stop_time))
+        out << table_row_begin;
+        if (is_packet_configuration_namespace()) {
+            out << table_vheader_tmpl.arg(tr("Last packet"));
+        } else {
+            out << table_vheader_tmpl.arg(tr("Last event"));
+        }
+        out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.stop_time))
             << table_row_end;
 
         // elapsed seconds (capture duration)
@@ -298,12 +306,20 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             out << table_begin;
 
             out << table_ul_row_begin
-                << table_hheader20_tmpl.arg(tr("Interface"))
-                << table_hheader20_tmpl.arg(tr("Dropped packets"))
-                << table_hheader20_tmpl.arg(tr("Capture filter"))
-                << table_hheader20_tmpl.arg(tr("Link type"))
-                << table_hheader20_tmpl.arg(tr("Packet size limit (snaplen)"))
-                << table_row_end;
+                << table_hheader20_tmpl.arg(tr("Interface"));
+            if (is_packet_configuration_namespace()) {
+                out << table_hheader20_tmpl.arg(tr("Dropped packets"));
+            } else {
+                out << table_hheader20_tmpl.arg(tr("Dropped events"));
+            }
+            out << table_hheader20_tmpl.arg(tr("Capture filter"))
+                << table_hheader20_tmpl.arg(tr("Link type"));
+            if (is_packet_configuration_namespace()) {
+                out << table_hheader20_tmpl.arg(tr("Packet size limit (snaplen)"));
+            } else {
+                out << table_hheader20_tmpl.arg(tr("Event size limit (snaplen)"));
+            }
+            out << table_row_end;
         }
 
         // XXX: The mapping of interfaces to different SHBs isn't
@@ -429,9 +445,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             .arg(100.0 * summary.marked_count / summary.packet_count, 1, 'f', 1);
     }
 
-    out << table_row_begin
-        << table_data_tmpl.arg(tr("Packets"))
-        << table_data_tmpl.arg(summary.packet_count)
+    out << table_row_begin;
+    if (is_packet_configuration_namespace()) {
+        out << table_data_tmpl.arg(tr("Packets"));
+    } else {
+        out << table_data_tmpl.arg(tr("Events"));
+    }
+    out << table_data_tmpl.arg(summary.packet_count)
         << table_data_tmpl.arg(displayed_str)
         << table_data_tmpl.arg(marked_str)
         << table_row_end;
@@ -483,9 +503,13 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     if (summary.marked_count > 0) {
             marked_str = QString::number((uint64_t) ((double)summary.marked_bytes/summary.marked_count + 0.5));
     }
-    out << table_row_begin
-        << table_data_tmpl.arg(tr("Average packet size, B"))
-        << table_data_tmpl.arg(captured_str)
+    out << table_row_begin;
+    if (is_packet_configuration_namespace()) {
+        out << table_data_tmpl.arg(tr("Average packet size, B"));
+    } else {
+        out << table_data_tmpl.arg(tr("Average event size, B"));
+    }
+    out << table_data_tmpl.arg(captured_str)
         << table_data_tmpl.arg(displayed_str)
         << table_data_tmpl.arg(marked_str)
         << table_row_end;
@@ -569,7 +593,11 @@ void CaptureFilePropertiesDialog::fillDetails()
 
     if (cap_file_.capFile()->packet_comment_count > 0) {
         cursor.insertBlock();
-        cursor.insertHtml(section_tmpl_.arg(tr("Packet Comments")));
+        if (is_packet_configuration_namespace()) {
+            cursor.insertHtml(section_tmpl_.arg(tr("Packet Comments")));
+        } else {
+            cursor.insertHtml(section_tmpl_.arg(tr("Event Comments")));
+        }
 
         for (uint32_t framenum = 1; framenum <= cap_file_.capFile()->count ; framenum++) {
             frame_data *fdata = frame_data_sequence_find(cap_file_.capFile()->provider.frames, framenum);
