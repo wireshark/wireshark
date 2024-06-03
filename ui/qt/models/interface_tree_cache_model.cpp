@@ -140,6 +140,13 @@ void InterfaceTreeCacheModel::save()
     /* No devices are hidden until checking "Show" state */
     prefStorage[&prefs.capture_devices_hide] = QStringList();
 
+    /* Some of the columns we only add entries to the QStringList for
+     * interfaces that have a non-default value, so we need to ensure
+     * that we set the pref string to empty if no interface is set.
+     */
+    prefStorage[&prefs.capture_devices_descr] = QStringList();
+    prefStorage[&prefs.capture_devices_monitor_mode] << QStringList();
+
     /* Storing new devices first including their changed values */
     saveNewDevices();
 
