@@ -152,8 +152,8 @@ static int hf_miwi_addr64 = -1;
 static int hf_miwi_src64_origin = -1;
 static int hf_miwi_src_panid = -1;
 static int hf_miwi_cmd_id = -1;
-static int hf_miwi_fcs = -1;
-static int hf_miwi_fcs_ok = -1;
+//static int hf_miwi_fcs = -1;
+//static int hf_miwi_fcs_ok = -1;
 
 static int hf_miwi_oper_chan = -1;
 static int hf_miwi_cap_info = -1;
@@ -192,7 +192,7 @@ static int hf_miwi_dst_channel_to_jump_to = -1;
 
 static int miwi_short_address_type = -1;
 
-static expert_field ei_miwi_empty_payload = EI_INIT;
+//static expert_field ei_miwi_empty_payload = EI_INIT;
 static expert_field ei_miwi_frame_ver = EI_INIT;
 static expert_field ei_miwi_dst = EI_INIT;
 static expert_field ei_miwi_src = EI_INIT;
@@ -1713,6 +1713,7 @@ void proto_register_miwi_p2pstar(void)
         { "Origin", "miwi_p2pstar.src64.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+#if 0
         { &hf_miwi_fcs,
         { "FCS", "miwi_p2pstar.fcs", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
@@ -1720,6 +1721,7 @@ void proto_register_miwi_p2pstar(void)
         { &hf_miwi_fcs_ok,
         { "FCS Valid", "miwi_p2pstar.fcs_ok", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+#endif
 
         { &hf_miwi_cmd_id,
         { "Command Identifier", "miwi_p2pstar.cmd", FT_UINT8, BASE_HEX, VALS(miwi_p2pstar_cmd_names), 0x0,
@@ -1789,14 +1791,14 @@ void proto_register_miwi_p2pstar(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_miwi_empty_payload,     { "miwi.empty_payload",   PI_MALFORMED,      PI_ERROR, "Empty MiWi Payload!", EXPFILL }},
-        { &ei_miwi_frame_ver,   { "miwi.frame_version_error", PI_COMMENTS_GROUP, PI_NOTE,  "Source address can not be broadcast address !", EXPFILL }},
-        { &ei_miwi_dst, { "miwi.dst_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "destination address Error ", EXPFILL }},
-        { &ei_miwi_src, { "miwi.src_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "Source address Error ", EXPFILL }},
-        { &ei_miwi_invalid_addressing, { "miwi.invalid_addr_error", PI_PROTOCOL,   PI_NOTE,  "Invalid Address Error", EXPFILL }},
-        { &ei_miwi_invalid_panid_compression, { "miwi.invalid_panid_comp_error", PI_PROTOCOL,   PI_WARN,  "Panid compression error", EXPFILL }},
-        { &ei_miwi_invalid_panid_compression2, { "miwi.invalid_panid_comp2_error", PI_PROTOCOL,   PI_WARN,  "Panid2 compression error", EXPFILL }},
-//        { &ei_miwi_fcs, { "miwi.fcs.bad", PI_CHECKSUM, PI_WARN, "Bad FCS", EXPFILL }},
+        //{ &ei_miwi_empty_payload,     { "miwi_p2pstar.empty_payload",   PI_MALFORMED,      PI_ERROR, "Empty MiWi Payload!", EXPFILL }},
+        { &ei_miwi_frame_ver,   { "miwi_p2pstar.frame_version_error", PI_COMMENTS_GROUP, PI_NOTE,  "Source address can not be broadcast address !", EXPFILL }},
+        { &ei_miwi_dst, { "miwi_p2pstar.dst_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "destination address Error ", EXPFILL }},
+        { &ei_miwi_src, { "miwi_p2pstar.src_addr_error",     PI_COMMENTS_GROUP, PI_WARN,  "Source address Error ", EXPFILL }},
+        { &ei_miwi_invalid_addressing, { "miwi_p2pstar.invalid_addr_error", PI_PROTOCOL,   PI_NOTE,  "Invalid Address Error", EXPFILL }},
+        { &ei_miwi_invalid_panid_compression, { "miwi_p2pstar.invalid_panid_comp_error", PI_PROTOCOL,   PI_WARN,  "Panid compression error", EXPFILL }},
+        { &ei_miwi_invalid_panid_compression2, { "miwi_p2pstar.invalid_panid_comp2_error", PI_PROTOCOL,   PI_WARN,  "Panid2 compression error", EXPFILL }},
+//        { &ei_miwi_fcs, { "miwi_p2pstar.fcs.bad", PI_CHECKSUM, PI_WARN, "Bad FCS", EXPFILL }},
     };
 
     static const enum_val_t fcs_type_vals[] = {
