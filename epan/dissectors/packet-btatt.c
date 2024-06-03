@@ -4390,6 +4390,11 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, guint32 handle,
 
         frame_number = pinfo->num;
         direction = pinfo->p2p_dir;
+        if (uuid.bt_uuid == 0x2ADB || uuid.bt_uuid == 0x2ADD) {
+            // Mesh Provisioning Data In and Mesh Proxy Data In
+            // are in the opposite direction
+            direction = !direction;
+        }
 
         key[0].length = 1;
         key[0].key    = &bluetooth_data->interface_id;
