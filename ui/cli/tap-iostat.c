@@ -55,9 +55,12 @@ typedef struct _io_stat_t {
     unsigned int num_cols;         /* The number of columns of stats in the table */
     struct _io_stat_item_t *items;  /* Each item is a single cell in the table */
     time_t start_time;    /* Time of first frame matching the filter */
+    /* The following are all per-column fixed information arrays */
     const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     uint64_t *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
     uint32_t *max_frame;   /* The max frame number displayed in each stat column */
+    int *hf_indexes;
+    int *calc_type;        /* The statistic type */
 } io_stat_t;
 
 typedef struct _io_stat_item_t {
@@ -65,14 +68,14 @@ typedef struct _io_stat_item_t {
     struct _io_stat_item_t *next;
     struct _io_stat_item_t *prev;
     uint64_t start_time;   /* Time since start of capture (us)*/
-    int calc_type;        /* The statistic type */
     int colnum;           /* Column number of this stat (0 to n) */
-    int hf_index;
     uint32_t frames;
     uint32_t num;          /* The sample size of a given statistic (only needed for AVG) */
-    uint64_t counter;      /* The accumulated data for the calculation of that statistic */
-    float float_counter;
-    double double_counter;
+    union {    /* The accumulated data for the calculation of that statistic */
+        uint64_t counter;
+        float float_counter;
+        double double_counter;
+    };
 } io_stat_item_t;
 
 #define NANOSECS_PER_SEC UINT64_C(1000000000)
@@ -124,37 +127,33 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
         it->start_time = it->prev->start_time + parent->interval;
         it->frames = 0;
-        it->counter = 0;
-        it->float_counter = 0;
-        it->double_counter = 0;
+        it->counter = 0; /* 64-bit, type-punning with double is fine */
         it->num = 0;
-        it->calc_type = it->prev->calc_type;
-        it->hf_index = it->prev->hf_index;
         it->colnum = it->prev->colnum;
     }
 
     /* Store info in the current structure */
     it->frames++;
 
-    switch (it->calc_type) {
+    switch (parent->calc_type[it->colnum]) {
     case CALC_TYPE_FRAMES:
     case CALC_TYPE_BYTES:
     case CALC_TYPE_FRAMES_AND_BYTES:
         it->counter += pinfo->fd->pkt_len;
         break;
     case CALC_TYPE_COUNT:
-        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        gp = proto_get_finfo_ptr_array(edt->tree, parent->hf_indexes[it->colnum]);
         if (gp) {
             it->counter += gp->len;
         }
         break;
     case CALC_TYPE_SUM:
-        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        gp = proto_get_finfo_ptr_array(edt->tree, parent->hf_indexes[it->colnum]);
         if (gp) {
             uint64_t val;
 
             for (i=0; i<gp->len; i++) {
-                switch (proto_registrar_get_ftype(it->hf_index)) {
+                switch (proto_registrar_get_ftype(parent->hf_indexes[it->colnum])) {
                 case FT_UINT8:
                 case FT_UINT16:
                 case FT_UINT24:
@@ -203,13 +202,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         }
         break;
     case CALC_TYPE_MIN:
-        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        gp = proto_get_finfo_ptr_array(edt->tree, parent->hf_indexes[it->colnum]);
         if (gp) {
             uint64_t val;
             float float_val;
             double double_val;
 
-            ftype = proto_registrar_get_ftype(it->hf_index);
+            ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             for (i=0; i<gp->len; i++) {
                 switch (ftype) {
                 case FT_UINT8:
@@ -279,13 +278,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         }
         break;
     case CALC_TYPE_MAX:
-        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        gp = proto_get_finfo_ptr_array(edt->tree, parent->hf_indexes[it->colnum]);
         if (gp) {
             uint64_t val;
             float float_val;
             double double_val;
 
-            ftype = proto_registrar_get_ftype(it->hf_index);
+            ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             for (i=0; i<gp->len; i++) {
                 switch (ftype) {
                 case FT_UINT8:
@@ -348,11 +347,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         }
         break;
     case CALC_TYPE_AVG:
-        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        gp = proto_get_finfo_ptr_array(edt->tree, parent->hf_indexes[it->colnum]);
         if (gp) {
             uint64_t val;
 
-            ftype = proto_registrar_get_ftype(it->hf_index);
+            ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             for (i=0; i<gp->len; i++) {
                 it->num++;
                 switch (ftype) {
@@ -407,9 +406,9 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         }
         break;
     case CALC_TYPE_LOAD:
-        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        gp = proto_get_finfo_ptr_array(edt->tree, parent->hf_indexes[it->colnum]);
         if (gp) {
-            ftype = proto_registrar_get_ftype(it->hf_index);
+            ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             if (ftype != FT_RELATIVE_TIME) {
                 fprintf(stderr,
                     "\ntshark: LOAD() is only supported for relative-time fields such as smb.time\n");
@@ -445,12 +444,12 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     *  calc the average, round it to the next second and store the seconds. For all other calc types
     *  of RELATIVE_TIME fields, store the counters without modification.
     *  fields. */
-    switch (it->calc_type) {
+    switch (parent->calc_type[it->colnum]) {
         case CALC_TYPE_FRAMES:
         case CALC_TYPE_FRAMES_AND_BYTES:
             parent->max_frame[it->colnum] =
                 MAX(parent->max_frame[it->colnum], it->frames);
-            if (it->calc_type == CALC_TYPE_FRAMES_AND_BYTES)
+            if (parent->calc_type[it->colnum] == CALC_TYPE_FRAMES_AND_BYTES)
                 parent->max_vals[it->colnum] =
                     MAX(parent->max_vals[it->colnum], it->counter);
             break;
@@ -462,7 +461,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         case CALC_TYPE_SUM:
         case CALC_TYPE_MIN:
         case CALC_TYPE_MAX:
-            ftype = proto_registrar_get_ftype(it->hf_index);
+            ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             switch (ftype) {
                 case FT_FLOAT:
                     parent->max_vals[it->colnum] =
@@ -486,7 +485,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         case CALC_TYPE_AVG:
             if (it->num == 0) /* avoid division by zero */
                break;
-            ftype = proto_registrar_get_ftype(it->hf_index);
+            ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             switch (ftype) {
                 case FT_FLOAT:
                     parent->max_vals[it->colnum] =
@@ -665,7 +664,7 @@ iostat_draw(void *arg)
     *        is an *integer*. */
     tabrow_w = invl_col_w;
     for (j=0; j<num_cols; j++) {
-        type = iot->items[j].calc_type;
+        type = iot->calc_type[j];
         if (type == CALC_TYPE_FRAMES_AND_BYTES) {
             namelen = 5;
         } else {
@@ -708,7 +707,7 @@ iostat_draw(void *arg)
             break;
 
         default:
-            ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+            ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
             switch (ftype) {
                 case FT_FLOAT:
                 case FT_DOUBLE:
@@ -899,10 +898,9 @@ iostat_draw(void *arg)
 
     /* Display column number headers */
     for (j=0; j<num_cols; j++) {
-        item = stat_cols[j];
-        if (item->calc_type == CALC_TYPE_FRAMES_AND_BYTES)
+        if (iot->calc_type[j] == CALC_TYPE_FRAMES_AND_BYTES)
             spaces_s = &spaces[borderlen - (col_w[j].fr + col_w[j].val)] - 3;
-        else if (item->calc_type == CALC_TYPE_FRAMES)
+        else if (iot->calc_type[j] == CALC_TYPE_FRAMES)
             spaces_s = &spaces[borderlen - col_w[j].fr];
         else
             spaces_s = &spaces[borderlen - col_w[j].val];
@@ -939,7 +937,7 @@ iostat_draw(void *arg)
 
     /* Display the stat label in each column */
     for (j=0; j<num_cols; j++) {
-        type = stat_cols[j]->calc_type;
+        type = iot->calc_type[j];
         if (type == CALC_TYPE_FRAMES) {
             printcenter (calc_type_table[type].func_name, col_w[j].fr, numpad);
         } else if (type == CALC_TYPE_FRAMES_AND_BYTES) {
@@ -1111,9 +1109,10 @@ iostat_draw(void *arg)
         for (j=0; j<num_cols; j++) {
             fmt = fmts[j];
             item = item_in_column[j];
+            type = iot->calc_type[j];
 
             if (item) {
-                switch (item->calc_type) {
+                switch (type) {
                 case CALC_TYPE_FRAMES:
                     printf(fmt, item->frames);
                     break;
@@ -1128,7 +1127,7 @@ iostat_draw(void *arg)
                 case CALC_TYPE_SUM:
                 case CALC_TYPE_MIN:
                 case CALC_TYPE_MAX:
-                    ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+                    ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
                     switch (ftype) {
                     case FT_FLOAT:
                         printf(fmt, item->float_counter);
@@ -1152,7 +1151,7 @@ iostat_draw(void *arg)
                     num = item->num;
                     if (num == 0)
                         num = 1;
-                    ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+                    ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
                     switch (ftype) {
                     case FT_FLOAT:
                         printf(fmt, item->float_counter/num);
@@ -1173,7 +1172,7 @@ iostat_draw(void *arg)
                     break;
 
                 case CALC_TYPE_LOAD:
-                    ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+                    ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
                     switch (ftype) {
                     case FT_RELATIVE_TIME:
                         if (!last_row) {
@@ -1210,8 +1209,11 @@ iostat_draw(void *arg)
     }
     printf("\n");
     g_free(iot->items);
+    g_free(iot->filters);
     g_free(iot->max_vals);
     g_free(iot->max_frame);
+    g_free(iot->hf_indexes);
+    g_free(iot->calc_type);
     g_free(iot);
     g_free(col_w);
     g_free(invl_fmt);
@@ -1238,7 +1240,6 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
     io->items[i].next       = NULL;
     io->items[i].parent     = io;
     io->items[i].start_time = 0;
-    io->items[i].calc_type  = CALC_TYPE_FRAMES_AND_BYTES;
     io->items[i].frames     = 0;
     io->items[i].counter    = 0;
     io->items[i].num        = 0;
@@ -1246,12 +1247,13 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
     io->filters[i] = filter;
     flt = filter;
 
+    io->calc_type[i] = CALC_TYPE_FRAMES_AND_BYTES;
     field = NULL;
     hfi = NULL;
     for (j=0; calc_type_table[j].func_name; j++) {
         namelen = strlen(calc_type_table[j].func_name);
         if (filter && strncmp(filter, calc_type_table[j].func_name, namelen) == 0) {
-            io->items[i].calc_type = calc_type_table[j].calc_type;
+            io->calc_type[i] = calc_type_table[j].calc_type;
             io->items[i].colnum = i;
             if (*(filter+namelen) == '(') {
                 p = filter+namelen+1;
@@ -1262,7 +1264,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
                     exit(10);
                 }
 
-                if (io->items[i].calc_type == CALC_TYPE_FRAMES || io->items[i].calc_type == CALC_TYPE_BYTES) {
+                if (io->calc_type[i] == CALC_TYPE_FRAMES || io->calc_type[i] == CALC_TYPE_BYTES) {
                     if (parenp != p) {
                         fprintf(stderr,
                             "\ntshark: %s does not require or allow a field name within the parens.\n",
@@ -1282,7 +1284,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
                 memcpy(field, p, parenp-p);
                 field[parenp-p] = '\0';
                 flt = parenp + 1;
-                if (io->items[i].calc_type == CALC_TYPE_FRAMES || io->items[i].calc_type == CALC_TYPE_BYTES)
+                if (io->calc_type[i] == CALC_TYPE_FRAMES || io->calc_type[i] == CALC_TYPE_BYTES)
                     break;
                 hfi = proto_registrar_get_byname(field);
                 if (!hfi) {
@@ -1292,18 +1294,18 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
                     exit(10);
                 }
 
-                io->items[i].hf_index = hfi->id;
+                io->hf_indexes[i] = hfi->id;
                 break;
             }
         } else {
-            if (io->items[i].calc_type == CALC_TYPE_FRAMES || io->items[i].calc_type == CALC_TYPE_BYTES)
+            if (io->calc_type[i] == CALC_TYPE_FRAMES || io->calc_type[i] == CALC_TYPE_BYTES)
                 flt = "";
             io->items[i].colnum = i;
         }
     }
-    if (hfi && !(io->items[i].calc_type == CALC_TYPE_BYTES ||
-                 io->items[i].calc_type == CALC_TYPE_FRAMES ||
-                 io->items[i].calc_type == CALC_TYPE_FRAMES_AND_BYTES)) {
+    if (hfi && !(io->calc_type[i] == CALC_TYPE_BYTES ||
+                 io->calc_type[i] == CALC_TYPE_FRAMES ||
+                 io->calc_type[i] == CALC_TYPE_FRAMES_AND_BYTES)) {
         /* check that the type is compatible */
         switch (hfi->type) {
         case FT_UINT8:
@@ -1321,7 +1323,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
         case FT_FLOAT:
         case FT_DOUBLE:
             /* these types only support SUM, COUNT, MAX, MIN, AVG */
-            switch (io->items[i].calc_type) {
+            switch (io->calc_type[i]) {
             case CALC_TYPE_SUM:
             case CALC_TYPE_COUNT:
             case CALC_TYPE_MAX:
@@ -1338,7 +1340,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
             break;
         case FT_RELATIVE_TIME:
             /* this type only supports SUM, COUNT, MAX, MIN, AVG, LOAD */
-            switch (io->items[i].calc_type) {
+            switch (io->calc_type[i]) {
             case CALC_TYPE_SUM:
             case CALC_TYPE_COUNT:
             case CALC_TYPE_MAX:
@@ -1359,7 +1361,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
              * XXX - support all operations on floating-point
              * numbers?
              */
-            if (io->items[i].calc_type != CALC_TYPE_COUNT) {
+            if (io->calc_type[i] != CALC_TYPE_COUNT) {
                 fprintf(stderr,
                     "\ntshark: %s doesn't have integral values, so %s(*) "
                     "calculations are not supported on it.\n",
@@ -1485,10 +1487,12 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         }
     }
 
-    io->items     = g_new(io_stat_item_t, io->num_cols);
-    io->filters   = (const char **)g_malloc(sizeof(char *) * io->num_cols);
-    io->max_vals  = g_new(uint64_t, io->num_cols);
-    io->max_frame = g_new(uint32_t, io->num_cols);
+    io->items      = g_new(io_stat_item_t, io->num_cols);
+    io->filters    = (const char **)g_malloc(sizeof(char *) * io->num_cols);
+    io->max_vals   = g_new(uint64_t, io->num_cols);
+    io->max_frame  = g_new(uint32_t, io->num_cols);
+    io->hf_indexes = g_new(int, io->num_cols);
+    io->calc_type  = g_new(int, io->num_cols);
 
     for (i=0; i<io->num_cols; i++) {
         io->max_vals[i]  = 0;
