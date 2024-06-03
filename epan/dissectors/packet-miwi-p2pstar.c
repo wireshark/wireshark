@@ -848,7 +848,7 @@ dissect_miwi_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_p
  * @param pinfo pointer to packet information fields
  * @param tree pointer to the protocol tree
  * @param created_header_tree new tree to parse the MiWi packet .
- * @param packet Miwi P2P Star packet information
+ * @param parsed_info Miwi P2P Star packet information
  */
 static guint
 miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree **created_header_tree, miwi_packet **parsed_info)
@@ -1319,12 +1319,12 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
  *
  * @param tvb pointer to buffer containing the command payload
  * @param pinfo pointer to packet information fields
- * @param tree pointer to the protocol tree
+ * @param ieee802154_tree pointer to the protocol tree
  * @param packet Miwi P2P Star packet information
  * @param fcs_ok set to FALSE to indicate FCS verification failed
  * @param offset offset into the tvb to find the packet information.
  */
-static guint miwi_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, miwi_packet *packet, gboolean fcs_ok,guint *offset)
+static guint miwi_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, miwi_packet *packet, gboolean fcs_ok, guint *offset)
 {
     tvbuff_t *payload_tvb = tvb;
     proto_tree *tree = proto_tree_get_parent_tree(ieee802154_tree);
