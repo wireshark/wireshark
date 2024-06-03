@@ -56,7 +56,7 @@ private:
 
     void saveNewDevices();
 #endif
-    QMap<int, QMap<InterfaceTreeColumns, QVariant> *> * storage;
+    QMap<int, QSharedPointer<QMap<InterfaceTreeColumns, QVariant> > > * storage;
     QList<InterfaceTreeColumns> editableColumns;
     QList<InterfaceTreeColumns> checkableColumns;
 
