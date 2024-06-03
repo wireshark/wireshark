@@ -1406,6 +1406,13 @@ QVariant InterfaceTreeWidgetItem::data(int column, int role) const
         return QVariant::fromValue(points);
     }
 
+    if (column == col_snaplen_ && role == Qt::DisplayRole) {
+        QVariant data = QTreeWidgetItem::data(column, role);
+        if (data.toInt() == WTAP_MAX_PACKET_SIZE_STANDARD || data.toInt() == 0) {
+            return InterfaceTreeDelegate::tr("default");
+        }
+        return data;
+    }
     return QTreeWidgetItem::data(column, role);
 }
 
@@ -1497,9 +1504,10 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         case col_snaplen_:
         {
             QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, WTAP_MAX_PACKET_SIZE_STANDARD);
+            sb->setRange(0, WTAP_MAX_PACKET_SIZE_STANDARD);
             sb->setValue(snap);
             sb->setWrapping(true);
+            sb->setSpecialValueText(tr("default"));
             connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snapshotLengthChanged(int)));
             w = (QWidget*) sb;
             break;
@@ -1583,7 +1591,7 @@ void InterfaceTreeDelegate::snapshotLengthChanged(int value)
     if (!device) {
         return;
     }
-    if (value != WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (value != WTAP_MAX_PACKET_SIZE_STANDARD && value != 0) {
         device->has_snaplen = true;
         device->snaplen = value;
     } else {
