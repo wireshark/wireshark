@@ -179,8 +179,8 @@ void ResolvedAddressesView::toTextStream(QTextStream& stream,
         return;
     }
 
-    // XXX: TrafficTree and TapParameterDialog have similar "export a
-    // "QAbstractItemModel to a QTextStream in TEXT, CSV or JSON"
+    // XXX: TrafficTree and TapParameterDialog have similar
+    // "export a QAbstractItemModel to a QTextStream in TEXT, CSV or JSON"
     // functions that could be made into common code.
     QStringList rowText;
     if (format == EXPORT_TEXT) {

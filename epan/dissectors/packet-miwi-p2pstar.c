@@ -106,7 +106,7 @@ void proto_reg_handoff_miwi_p2pstar(void);
 /* FCS Types used by user configuration */
 #define MIWI_P2PSTAR_FCS_16_BIT         1/*  CRC16 */
 
-/**MiWI  Type of MAC framfe */
+/**MiWI  Type of MAC frame */
 #define MIWI_MAC_FRAME_BEACON           0x00
 #define MIWI_MAC_FRAME_DATA             0x01
 #define MIWI_MAC_FRAME_ACK              0x02

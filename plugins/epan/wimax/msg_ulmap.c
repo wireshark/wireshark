@@ -2817,7 +2817,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 		{ &hf_ulmap_feedback_polling_allocation_duration, { "Allocation Duration (d)", "wmx.ulmap.feedback_polling.allocation_duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ulmap_feedback_polling_type, { "Feedback type", "wmx.ulmap.feedback_polling.feedback_polling.type", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ulmap_feedback_polling_frame_offset, { "Frame Offset", "wmx.ulmap.feedback_polling.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
-		{ &hf_ulmap_feedback_polling_period, { "Period (p)", "wmx.ulmap.feedback_polling.perio", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_ulmap_feedback_polling_period, { "Period (p)", "wmx.ulmap.feedback_polling.period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ulmap_feedback_polling_uiuc, { "UIUC", "wmx.ulmap.feedback_polling.uiuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ulmap_feedback_polling_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.ulmap.feedback_polling.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ulmap_feedback_polling_subchannel_offset, { "Subchannel offset", "wmx.ulmap.feedback_polling.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},

@@ -2788,16 +2788,16 @@ register_wimaxasncp_fields(const char* unused _U_)
 
     static hf_register_info hf_base[] = {
             {
-                &hf_wimaxasncp_version,      /* ID */
+                &hf_wimaxasncp_version,
                 {
-                    "Version",               /* FIELDNAME */
-                    "wimaxasncp.version",    /* PROTOABBREV.FIELDABBRE */
-                    FT_UINT8,                /* FIELDTYPE */
-                    BASE_DEC,                /* FIELDBASE */
-                    NULL,                    /* FIELDCONVERT */
-                    0x0,                     /* BITMASK */
-                    NULL,                      /* FIELDDESCR */
-                    HFILL                    /* HFILL */
+                    "Version",
+                    "wimaxasncp.version",
+                    FT_UINT8,
+                    BASE_DEC,
+                    NULL,
+                    0x0,
+                    NULL,
+                    HFILL
                 }
             },
             {

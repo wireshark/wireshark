@@ -111,6 +111,7 @@ assignee
 assignor
 assistive
 assoc
+asterix
 async
 asynchronous
 asynchronously
@@ -1041,6 +1042,7 @@ libsmi
 licmgr
 lidaddr
 linearity
+lineno
 linkaddr
 linkcss
 linker
@@ -1373,6 +1375,7 @@ osmux
 ospf6
 outhdr
 overridable
+p2pstar
 pacch
 packetcable
 packetization
@@ -1832,6 +1835,7 @@ signon
 simplestatusbit
 simulcast
 singulation
+sinteger
 sistemas
 sizeof
 skippable
@@ -2082,6 +2086,7 @@ txchannel
 txmcsmap
 type1
 type2
+type2mimo
 type3
 typedef
 typeof
@@ -2099,6 +2104,7 @@ uievent
 uint16
 uint32
 uint8
+uinteger
 ulmap
 ulsch
 umask

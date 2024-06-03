@@ -142,7 +142,7 @@ static const value_string vals_allocation_modes[] =
 #define SHORTENED_DIUC_MASK_1 0x0E00
 #define COMPANDED_SC_MASK_1   0x01F0
 
-/* display indexies */
+/* display indices */
 static gint hf_cdlmap_dl_map_type;
 static gint hf_cdlmap_ul_map_append;
 static gint hf_cdlmap_reserved;

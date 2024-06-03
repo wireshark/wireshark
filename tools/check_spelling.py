@@ -273,7 +273,7 @@ def removeContractions(code_string):
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/", re.DOTALL), "" , code_string) # C-style comment
     # Avoid matching // where it is allowed, e.g.,  https://www... or file:///...
-    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!\"\s\s)(?<!file:/)(?<!\,\s)//.*?\n" ) ,"" , code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!"")(?<!\"\s\s)(?<!file:/)(?<!\,\s)//.*?\n" ) ,"" , code_string)             # C++-style comment
     return code_string
 
 def getCommentWords(code_string):
@@ -451,6 +451,9 @@ parser.add_argument('--open', action='store_true',
                     help='check open files')
 parser.add_argument('--comments', action='store_true',
                     help='check comments in source files')
+parser.add_argument('--no-wikipedia', action='store_true',
+                    help='skip checking known bad words from wikipedia - can be slow')
+
 
 args = parser.parse_args()
 
@@ -474,41 +477,42 @@ class TypoSourceDocumentParser(HTMLParser):
 
 
 # Fetch some common mispellings from wikipedia so we will definitely flag them.
-print('Fetching Wikipedia\'s list of common misspellings.')
-req_headers = { 'User-Agent': 'Wireshark check-wikipedia-typos' }
-req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
 wiki_db = dict()
-try:
-    response = urllib.request.urlopen(req)
-    content = response.read()
-    content = content.decode('UTF-8', 'replace')
+if not args.no_wikipedia:
+    print('Fetching Wikipedia\'s list of common misspellings.')
+    req_headers = { 'User-Agent': 'Wireshark check-wikipedia-typos' }
+    req = urllib.request.Request('https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines', headers=req_headers)
+    try:
+        response = urllib.request.urlopen(req)
+        content = response.read()
+        content = content.decode('UTF-8', 'replace')
 
-    # Extract the "<pre>...</pre>" part of the document.
-    parser = TypoSourceDocumentParser()
-    parser.feed(content)
-    content = parser.content.strip()
+        # Extract the "<pre>...</pre>" part of the document.
+        parser = TypoSourceDocumentParser()
+        parser.feed(content)
+        content = parser.content.strip()
 
-    wiki_db = dict(l.lower().split('->', maxsplit=1) for l in content.splitlines())
-    del wiki_db['cmo']      # All false positives.
-    del wiki_db['ect']      # Too many false positives.
-    del wiki_db['thru']     # We'll let that one thru. ;-)
-    del wiki_db['sargeant'] # All false positives.
+        wiki_db = dict(l.lower().split('->', maxsplit=1) for l in content.splitlines())
+        del wiki_db['cmo']      # All false positives.
+        del wiki_db['ect']      # Too many false positives.
+        del wiki_db['thru']     # We'll let that one thru. ;-)
+        del wiki_db['sargeant'] # All false positives.
 
-    # Remove each word from dict
-    removed = 0
-    for word in wiki_db:
-        try:
-            if should_exit:
-                exit(1)
-            spell.word_frequency.remove_words([word])
-            #print('Removed', word)
-            removed += 1
-        except:
-            pass
+        # Remove each word from dict
+        removed = 0
+        for word in wiki_db:
+            try:
+                if should_exit:
+                    exit(1)
+                spell.word_frequency.remove_words([word])
+                #print('Removed', word)
+                removed += 1
+            except:
+                pass
 
-    print('Removed', removed, 'known bad words')
-except:
-    print('Failed to fetch and/or parse Wikipedia mispellings!')
+        print('Removed', removed, 'known bad words')
+    except:
+        print('Failed to fetch and/or parse Wikipedia mispellings!')
 
 
 

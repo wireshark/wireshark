@@ -4376,7 +4376,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
             dissect_usb_setup_generic(pinfo, setup_tree,
                     next_tvb, 1, usb_conv_info);
         }
-        /* at this point, non-standard request has been dissectored */
+        /* at this point, non-standard request has been dissected */
     }
 
     if (data_tvb)
@@ -4783,7 +4783,7 @@ dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8
             iso_len = 0;
         }
 
-        /* If this packet does not contain isochrounous data, do not try to display it */
+        /* If this packet does not contain isochronous data, do not try to display it */
         if (!((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
                     (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV))) {
             iso_len = 0;

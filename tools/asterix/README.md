@@ -3,7 +3,7 @@
 *Asterix* is a set of standards, where each standard is defined
 as so called *asterix category*.
 In addition, each *asterix category* is potentially released
-in number of editions. There is no guarantie about backward
+in number of editions. There is no guarantee about backward
 compatibility between the editions.
 
 The structured version of asterix specifications is maintained

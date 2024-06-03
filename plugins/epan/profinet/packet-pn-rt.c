@@ -462,7 +462,7 @@ static void
 pnio_defragment_init(void)
 {
     guint32 i;
-    for (i=0; i < 16; i++)    /* init  the reasemble help array */
+    for (i=0; i < 16; i++)    /* init  the reassemble help array */
         start_frag_OR_ID[i] = 0;
     reassembled_frag_table = g_hash_table_new(NULL, NULL);
 }
