@@ -47,7 +47,7 @@ static gint hf_vrrp_ip6;
 static gint hf_vrrp_auth_string;
 static gint hf_vrrp_md5_auth_data;
 
-static bool g_vrrp_v3_checksum_as_in_v2;
+static bool g_vrrp_v3_checksum_as_in_v2 = true;
 
 static expert_field ei_vrrp_checksum;
 
@@ -327,8 +327,9 @@ void proto_register_vrrp(void)
 
     prefs_register_bool_preference(vrrp_module, "v3_checksum_as_in_v2",
         "Calculate V3 checksum as in V2 for IPv4 packets",
-        "There is some ambiguity on how to calculate V3 checksums"
-        "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturers)",
+        "There was some ambiguity on how to calculate IPv4 V3 checksums. "
+        "As in v2 will not use a pseudo header (some manufacturers add a pseudo header for IPv4 checksum "
+        "since RFC5798 was ambiguous). RFC9568 specifies that there is no pseudo header for IPv4.",
         &g_vrrp_v3_checksum_as_in_v2);
 }
 
