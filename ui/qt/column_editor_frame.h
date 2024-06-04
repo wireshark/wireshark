@@ -47,6 +47,7 @@ private:
     QString saved_fields_;
     QString saved_occurrence_;
     void setFields(int index);
+    void typeChanged(int index);
 };
 
 #endif // COLUMN_EDITOR_FRAME_H
