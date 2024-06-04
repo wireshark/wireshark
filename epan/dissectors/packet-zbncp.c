@@ -44,6 +44,15 @@ extern void dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, prot
 #define ZBNCP_DUMP_HOST_INT_DUMP_MASK                                                      0x02U
 #define ZBNCP_DUMP_POTENTIAL_TX_RX_ERROR_MASK                                              0x04U
 
+/*  Bit Masks for Configuration Parameters Field   */
+#define CONF_PARAMS_RESERVED                                                            0x07
+#define CONF_PARAMS_DIS_PANID_CHANGE                                                    0x08
+#define CONF_PARAMS_DIS_CHAN_CHANGE                                                     0x10
+#define CONF_PARAMS_LEAVE_REQ_ALLOW                                                     0x20
+#define CONF_PARAMS_REQ_TCLK                                                            0x40
+#define CONF_PARAMS_RESTRICT_MODE_EN                                                    0x80
+
+
 /* decryption helpers */
 static guint dissect_zbncp_ll_hdr(tvbuff_t *, packet_info *, proto_tree *, guint, guint8 *);
 static void dissect_zbncp_body(tvbuff_t *, packet_info *, proto_tree *, guint, guint16 *);
@@ -120,6 +129,36 @@ static int hf_zbncp_data_trace_reserved;
 static int hf_zbncp_data_trace_ncp_ll_proto;
 static int hf_zbncp_data_trace_host_int_line;
 static int hf_zbncp_data_trace_sleep_awake;
+static int hf_zbncp_data_trace_input_output;
+static int hf_zbncp_data_trace_timestamp;
+static int hf_zbncp_data_trace;
+static int hf_zbncp_data_key_neg_method;
+static int hf_zbncp_data_psk_secrets;
+static int hf_zbncp_data_r22_join_usage;
+static int hf_zbncp_data_nwk_conf_preset;
+static int hf_zbncp_data_short_address;
+static int hf_zbncp_data_raw_data;
+static int hf_zbncp_data_conf_params;
+static int hf_zbncp_data_channel_page_count;
+static int hf_zbncp_data_config_mask;
+static int hf_zbncp_data_dest_short_address;
+static int hf_zbncp_data_current_parents_short_address;
+static int hf_zbncp_data_current_parents_lqi;
+static int hf_zbncp_data_potential_parent_count;
+static int hf_zbncp_data_classification_mask;
+static int hf_zbncp_data_total_beacons_surveyed;
+static int hf_zbncp_data_current_pan_id_beacons;
+static int hf_zbncp_data_current_nwk_potential_parents;
+static int hf_zbncp_data_other_zigbee_beacons;
+static int hf_zbncp_data_pan_id_conflict_tlv;
+static int hf_zbncp_data_eui64_count;
+static int hf_zbncp_data_eui64;
+static int hf_zbncp_data_target_ieee_addr;
+static int hf_zbncp_data_initial_join_auth;
+static int hf_zbncp_data_key_update_method;
+static int hf_zbncp_data_next_pan_id_change;
+static int hf_zbncp_data_next_channel_change;
+static int hf_zbncp_data_error_count;
 static int hf_zbncp_data_keepalive;
 static int hf_zbncp_data_rx_on_idle;
 static int hf_zbncp_data_res_tx_power;
@@ -170,7 +209,8 @@ static int hf_zbncp_data_dataset_length;
 static int hf_zbncp_data_nvram_dataset_data;
 static int hf_zbncp_data_tc_policy_type;
 static int hf_zbncp_data_tc_policy_value;
-static int hf_zbncp_max_children;
+static int hf_zbncp_ed_capacity;
+static int hf_zbncp_max_joins;
 static int hf_zbncp_zdo_leave_allowed;
 static int hf_zbncp_zdo_leave_wo_rejoin_allowed;
 static int hf_zbncp_data_aps_key;
@@ -390,6 +430,14 @@ static int hf_ieee802154_cinfo_idle_rx;
 static int hf_ieee802154_cinfo_sec_capable;
 static int hf_ieee802154_cinfo_alloc_addr;
 
+/* Configuration parameters */
+static int hf_zbncp_data_conf_params_reserved;
+static int hf_zbncp_data_conf_params_disable_pan_id_change;
+static int hf_zbncp_data_conf_params_disable_channel_change;
+static int hf_zbncp_data_conf_params_leave_request_allowed;
+static int hf_zbncp_data_conf_params_require_tclk;
+static int hf_zbncp_data_conf_params_restricted_enabled;
+
 /* ZBNCP traffic dump */
 static int hf_zbncp_dump_preamble;
 static int hf_zbncp_dump_version;
@@ -428,6 +476,7 @@ static gint ett_zbncp_data_nwk_descr;
 static gint ett_zbncp_data_cmd_opt;
 static gint ett_zbncp_data_joind_bitmask;
 static gint ett_zbncp_data_trace_bitmask;
+static gint ett_zbncp_data_conf_params;
 
 static gint ett_zbncp_dump;
 static gint ett_zbncp_dump_opt;
@@ -486,6 +535,9 @@ static const value_string zbncp_tc_policy_types[] =
     {3, "Ignore TC Rejoin"},
     {4, "APS Insecure Join"},
     {5, "Disable NWK MGMT Channel Update"},
+    {6, "Unsecure TC Rejoin Enable"},
+    {7, "Enable Device Interview"},
+    {8, "Set APS encryption for ZDO"},
     {0, NULL}
 };
 
@@ -495,6 +547,14 @@ static const value_string zbncp_dev_update_status_code[] =
     {1, "Standard Device Unsecured Join"},
     {2, "Device Left"},
     {3, "Standard Device Trust Center Rejoin"},
+    {0, NULL}
+};
+
+static const value_string zbncp_nwk_conf_behavior[] =
+{
+    {0, "None"},
+    {1, "R22 Behavior"},
+    {2, "R23 Behavior"},
     {0, NULL}
 };
 
@@ -549,8 +609,8 @@ static const value_string zbncp_hl_call_id[] =
     {ZBNCP_CMD_NVRAM_ERASE, "NVRAM_ERASE"},
     {ZBNCP_CMD_SET_TC_POLICY, "SET_TC_POLICY"},
     {ZBNCP_CMD_SET_EXTENDED_PAN_ID, "SET_EXTENDED_PAN_ID"},
-    {ZBNCP_CMD_SET_MAX_CHILDREN, "SET_MAX_CHILDREN"},
-    {ZBNCP_CMD_GET_MAX_CHILDREN, "GET_MAX_CHILDREN"},
+    {ZBNCP_CMD_SET_ED_CAPACITY, "SET_ED_CAPACITY"},
+    {ZBNCP_CMD_GET_ED_CAPACITY, "GET_ED_CAPACITY"},
     {ZBNCP_CMD_SET_ZDO_LEAVE_ALLOWED, "SET_ZDO_LEAVE_ALLOWED"},
     {ZBNCP_CMD_GET_ZDO_LEAVE_ALLOWED, "GET_ZDO_LEAVE_ALLOWED"},
     {ZBNCP_CMD_SET_LEAVE_WO_REJOIN_ALLOWED, "SET_LEAVE_WO_REJOIN_ALLOWED"},
@@ -559,6 +619,17 @@ static const value_string zbncp_hl_call_id[] =
     {ZBNCP_CMD_GP_SET_SHARED_KEY_TYPE, "GP_SET_SHARED_KEY_TYPE"},
     {ZBNCP_CMD_GP_SET_DEFAULT_LINK_KEY, "GP_SET_DEFAULT_LINK_KEY"},
     {ZBNCP_CMD_PRODUCTION_CONFIG_READ, "PRODUCTION_CONFIG_READ"},
+    {ZBNCP_CMD_SET_MAX_JOINS, "SET_MAX_JOINS"},
+    {ZBNCP_CMD_GET_MAX_JOINS, "GET_MAX_JOINS"},
+    {ZBNCP_CMD_TRACE_IND, "TRACE_IND"},
+    {ZBNCP_CMD_GET_KEY_NEG_METHOD, "GET_KEY_NEG_METHOD"},
+    {ZBNCP_CMD_SET_KEY_NEG_METHOD, "SET_KEY_NEG_METHOD"},
+    {ZBNCP_CMD_GET_PSK_SECRETS, "GET_PSK_SECRETS"},
+    {ZBNCP_CMD_SET_PSK_SECRETS, "SET_PSK_SECRETS"},
+    {ZBNCP_CMD_SET_R22_JOIN_USAGE, "SET_R22_JOIN_USAGE"},
+    {ZBNCP_CMD_SET_NWK_CONF_PRESET, "SET_NWK_CONF_PRESET"},
+    {ZBNCP_CMD_DEBUG_BROAD_NWK_KEY, "DEBUG_BROAD_NWK_KEY"},
+    {ZBNCP_CMD_DEBUG_BROAD_APS_KEY, "DEBUG_BROAD_APS_KEY"},
     {ZBNCP_CMD_AF_SET_SIMPLE_DESC, "AF_SET_SIMPLE_DESC"},
     {ZBNCP_CMD_AF_DEL_EP, "AF_DEL_EP"},
     {ZBNCP_CMD_AF_SET_NODE_DESC, "AF_SET_NODE_DESC"},
@@ -588,6 +659,11 @@ static const value_string zbncp_hl_call_id[] =
     {ZBNCP_CMD_ZDO_DEV_UPDATE_IND, "ZDO_DEV_UPDATE_IND"},
     {ZBNCP_CMD_ZDO_SET_NODE_DESC_MANUF_CODE, "ZDO_SET_NODE_DESC_MANUF_CODE"},
     {ZBNCP_CMD_HL_ZDO_GET_DIAG_DATA_REQ, "ZDO_GET_DIAG_DATA_REQ"},
+    {ZBNCP_CMD_HL_ZDO_RAW_REQ, "ZDO_RAW_REQ"},
+    {ZBNCP_CMD_HL_ZDO_SEND_CONF_PARAMS_REQ, "ZDO_SEND_CONF_PARAMS_REQ"},
+    {ZBNCP_CMD_HL_ZDO_MGMT_BEACON_SURVEY_REQ, "ZDO_MGMT_BEACON_SURVEY_REQ"},
+    {ZBNCP_CMD_HL_ZDO_DECOMMISSION_REQ, "ZDO_DECOMMISSION_REQ"},
+    {ZBNCP_CMD_HL_ZDO_GET_AUTH_LEVEL_REQ, "ZDO_GET_AUTH_LEVEL_REQ"},
     {ZBNCP_CMD_APSDE_DATA_REQ, "APSDE_DATA_REQ"},
     {ZBNCP_CMD_APSME_BIND, "APSME_BIND"},
     {ZBNCP_CMD_APSME_UNBIND, "APSME_UNBIND"},
@@ -650,6 +726,13 @@ static const value_string zbncp_hl_call_id[] =
     {ZBNCP_CMD_SET_FORCE_ROUTE_RECORD, "SET_FORCE_ROUTE_RECORD"},
     {ZBNCP_CMD_GET_FORCE_ROUTE_RECORD, "GET_FORCE_ROUTE_RECORD"},
     {ZBNCP_CMD_NWK_NBR_ITERATOR_NEXT, "NWK_NBR_ITERATOR_NEXT"},
+    {ZBNCP_CMD_ZB_DEBUG_SIGNAL_TCLK_READY_IND, "DEBUG_SIGNAL_TCLK_READY_IND"},
+    {ZBNCP_CMD_ZB_DEVICE_READY_FOR_INTERVIEW_IND, "DEVICE_READY_FOR_INTERVIEW_IND"},
+    {ZBNCP_CMD_ZB_DEVICE_INTERVIEW_FINISHED_IND, "DEVICE_INTERVIEW_FINISHED_IND"},
+    {ZBNCP_CMD_ZB_PREPARE_NETWORK_FOR_CHANNEL_PAN_ID_CHANGE, "PREPARE_NETWORK_FOR_CHANNEL_PAN_ID_CHANGE"},
+    {ZBNCP_CMD_ZB_PREPARE_NETWORK_FOR_CHANNEL_CHANGE, "PREPARE_NETWORK_FOR_CHANNEL_CHANGE"},
+    {ZBNCP_CMD_ZB_START_CHANNEL_CHANGE, "START_CHANNEL_CHANGE"},
+    {ZBNCP_CMD_ZB_START_PAN_ID_CHANGE, "START_PAN_ID_CHANGE"},
     {ZBNCP_CMD_SECUR_SET_LOCAL_IC, "SECUR_SET_LOCAL_IC"},
     {ZBNCP_CMD_SECUR_ADD_IC, "SECUR_ADD_IC"},
     {ZBNCP_CMD_SECUR_DEL_IC, "SECUR_DEL_IC"},
@@ -677,6 +760,8 @@ static const value_string zbncp_hl_call_id[] =
     {ZBNCP_CMD_SECUR_GET_IC_BY_IDX, "SECUR_GET_IC_BY_IDX"},
     {ZBNCP_CMD_SECUR_REMOVE_ALL_IC, "SECUR_REMOVE_ALL_IC"},
     {ZBNCP_CMD_SECUR_PARTNER_LK_ENABLE, "SECUR_PARTNER_LK_ENABLE"},
+    {ZBNCP_CMD_SECUR_AUTH_DEVICE_AFTER_INTERVIEW, "SECUR_AUTH_DEVICE_AFTER_INTERVIEW"},
+    {ZBNCP_CMD_ZDO_SECUR_UPDATE_DEVICE_TCLK, "SECUR_UPDATE_DEVICE_TCLK"},
     {ZBNCP_CMD_MANUF_MODE_START, "MANUF_MODE_START"},
     {ZBNCP_CMD_MANUF_MODE_END, "MANUF_MODE_END"},
     {ZBNCP_CMD_MANUF_SET_CHANNEL, "MANUF_SET_CHANNEL"},
@@ -1877,18 +1962,18 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         break;
 
-    case ZBNCP_CMD_SET_MAX_CHILDREN:
+    case ZBNCP_CMD_SET_ED_CAPACITY:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_max_children, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_ed_capacity, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
         break;
 
-    case ZBNCP_CMD_GET_MAX_CHILDREN:
+    case ZBNCP_CMD_GET_ED_CAPACITY:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_max_children, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_ed_capacity, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
         break;
@@ -1958,6 +2043,82 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_prod_conf_body, tvb, offset, tvb_captured_length(tvb) - offset, ENC_NA);
             offset = tvb_captured_length(tvb);
+        }
+        break;
+
+    case ZBNCP_CMD_SET_MAX_JOINS:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_max_joins, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_GET_MAX_JOINS:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_max_joins, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_TRACE_IND:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trace_input_output, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trace_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trace, tvb, offset, tvb_captured_length(tvb) - offset, ENC_NA);
+            offset = tvb_captured_length(tvb);
+        }
+        break;
+
+    case ZBNCP_CMD_GET_KEY_NEG_METHOD:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_key_neg_method, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_SET_KEY_NEG_METHOD:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_key_neg_method, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_GET_PSK_SECRETS:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_psk_secrets, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_SET_PSK_SECRETS:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_psk_secrets, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_SET_R22_JOIN_USAGE:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_r22_join_usage, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_SET_NWK_CONF_PRESET:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_nwk_conf_preset, tvb, offset, 1, ENC_NA);
+            offset += 1;
         }
         break;
 
@@ -2886,6 +3047,167 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             offset += 1;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_rssi, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_HL_ZDO_RAW_REQ:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_cluster_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_raw_data, tvb, offset, tvb_captured_length(tvb) - offset, ENC_NA);
+            offset = tvb_captured_length(tvb);
+        }
+        else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_cluster_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_raw_data, tvb, offset, tvb_captured_length(tvb) - offset, ENC_NA);
+            offset = tvb_captured_length(tvb);
+        }
+        break;
+
+    case ZBNCP_CMD_HL_ZDO_SEND_CONF_PARAMS_REQ:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            static int *const parameters[] = {
+                &hf_zbncp_data_conf_params_reserved,
+                &hf_zbncp_data_conf_params_disable_pan_id_change,
+                &hf_zbncp_data_conf_params_disable_channel_change,
+                &hf_zbncp_data_conf_params_leave_request_allowed,
+                &hf_zbncp_data_conf_params_require_tclk,
+                &hf_zbncp_data_conf_params_restricted_enabled,
+                NULL
+            };
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_bitmask(zbncp_hl_body_tree, tvb, offset, hf_zbncp_data_conf_params, ett_zbncp_data_conf_params, parameters, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_HL_ZDO_MGMT_BEACON_SURVEY_REQ:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            guint i;
+            guint8 ch_list_len;
+
+            ch_list_len = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_channel_page_count, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (ch_list_len)
+            {
+                proto_tree *zbncp_hl_body_data_ch_list = proto_tree_add_subtree_format(
+                    zbncp_hl_body_tree, tvb, offset, ch_list_len * 4, ett_zbncp_data_ch_list, NULL, "Channel List");
+                for (i = 0; i < ch_list_len; i++)
+                {
+                    proto_tree_add_item(zbncp_hl_body_data_ch_list, hf_zbncp_data_ch_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset += 4;
+                }
+            }
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_config_mask, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dest_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            guint i;
+            guint8 parent_list_len;
+
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_current_parents_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_current_parents_lqi, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            parent_list_len = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_potential_parent_count, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (parent_list_len)
+            {
+                proto_tree *zbncp_hl_body_data_parent_list = proto_tree_add_subtree_format(
+                    zbncp_hl_body_tree, tvb, offset, parent_list_len * 5, ett_zbncp_data_ch_list, NULL, "Potential Parent Surveys");
+                for (i = 0; i < parent_list_len; i++)
+                {
+                    proto_tree *zbncp_hl_body_data_parent_tree = proto_tree_add_subtree_format(
+                        zbncp_hl_body_data_parent_list, tvb, offset, 5, ett_zbncp_data_channel, NULL, "Parent");
+
+                    proto_tree_add_item(zbncp_hl_body_data_parent_tree, hf_zbncp_data_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                    proto_tree_add_item(zbncp_hl_body_data_parent_tree, hf_zbncp_data_rssi, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                    proto_tree_add_item(zbncp_hl_body_data_parent_tree, hf_zbncp_data_lqi, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                    proto_tree_add_item(zbncp_hl_body_data_parent_tree, hf_zbncp_data_classification_mask, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+            }
+
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_total_beacons_surveyed, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_current_pan_id_beacons, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_current_nwk_potential_parents, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_other_zigbee_beacons, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_pan_id_conflict_tlv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        break;
+
+    case ZBNCP_CMD_HL_ZDO_DECOMMISSION_REQ:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            guint i;
+            guint8 eui64_list_len;
+
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dest_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            eui64_list_len = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_eui64_count, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (eui64_list_len)
+            {
+                proto_tree *zbncp_hl_body_data_parent_list = proto_tree_add_subtree_format(
+                    zbncp_hl_body_tree, tvb, offset, eui64_list_len * 8, ett_zbncp_data_ch_list, NULL, "EUI64s");
+                for (i = 0; i < eui64_list_len; i++)
+                {
+                    proto_tree_add_item(zbncp_hl_body_data_parent_list, hf_zbncp_data_eui64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                    offset += 8;
+                }
+            }
+        }
+        break;
+
+    case ZBNCP_CMD_HL_ZDO_GET_AUTH_LEVEL_REQ:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_target_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+        }
+        else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_target_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_initial_join_auth, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_key_update_method, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
         break;
@@ -3956,6 +4278,78 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         break;
 
+    case ZBNCP_CMD_ZB_DEBUG_SIGNAL_TCLK_READY_IND:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+        }
+        break;
+
+    case ZBNCP_CMD_ZB_DEVICE_READY_FOR_INTERVIEW_IND:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        break;
+
+    case ZBNCP_CMD_ZB_DEVICE_INTERVIEW_FINISHED_IND:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_ZB_PREPARE_NETWORK_FOR_CHANNEL_PAN_ID_CHANGE:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_next_pan_id_change, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_error_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        break;
+
+    case ZBNCP_CMD_ZB_PREPARE_NETWORK_FOR_CHANNEL_CHANGE:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_next_channel_change, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_error_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        break;
+
+    case ZBNCP_CMD_ZB_START_CHANNEL_CHANGE:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_next_channel_change, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        break;
+
+    case ZBNCP_CMD_ZB_START_PAN_ID_CHANGE:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_next_pan_id_change, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        break;
+
     /* Security API */
     case ZBNCP_CMD_SECUR_SET_LOCAL_IC:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
@@ -4355,6 +4749,22 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         {
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_enable, tvb, offset, 1, ENC_NA);
             offset += 1;
+        }
+        break;
+
+    case ZBNCP_CMD_SECUR_AUTH_DEVICE_AFTER_INTERVIEW:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+        }
+        break;
+
+    case ZBNCP_CMD_ZDO_SECUR_UPDATE_DEVICE_TCLK:
+        if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
+        {
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
         }
         break;
 
@@ -4911,6 +5321,9 @@ void proto_register_zbncp(void)
         {&hf_zbncp_data_dst_ieee_addr,
          {"Destination IEEE address", "zbncp.data.dst_ieee_addr", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+        {&hf_zbncp_data_target_ieee_addr,
+         {"Target IEEE address", "zbncp.data.target_ieee_addr", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
         {&hf_zbncp_data_partner_ieee_addr,
          {"Partner IEEE address", "zbncp.data.partner_ieee_addr", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -5046,8 +5459,11 @@ void proto_register_zbncp(void)
         {&hf_zbncp_data_tc_policy_value,
          {"Trust center policy value", "zbncp.data.tc_policy_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_zbncp_max_children,
+        {&hf_zbncp_ed_capacity,
          {"Number of children", "zbncp.data.num_children", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_max_joins,
+         {"Max successfull join attempts", "zbncp.data.max_joins", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_zdo_leave_allowed,
          {"ZDO Leave Allowed", "zbncp.data.zdo_leave_allow", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -5646,6 +6062,113 @@ void proto_register_zbncp(void)
         {&hf_zbncp_data_trace_sleep_awake,
          {"Sleep/awake", "zbncp.data.trace_sleep_awake", FT_UINT32, BASE_DEC, NULL, 0x10, NULL, HFILL}},
 
+        {&hf_zbncp_data_trace_input_output,
+         {"Input/Output trace", "zbncp.data.trace_input_output", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_trace_timestamp,
+         {"Trace timestamp in beacon intervals", "zbncp.data.trace_timestamp", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_trace,
+         {"Raw trace data", "zbncp.data.trace", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_key_neg_method,
+         {"Key Negotiation Methods Mask", "zbncp.data.key_neg_method", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_psk_secrets,
+         {"PSK Secrets Mask", "zbncp.data.psk_secrets", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_r22_join_usage,
+         {"Use r22 join procedure", "zbncp.data.r22_join_usage", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_nwk_conf_preset,
+         {"Network preset configuration", "zbncp.data.nwk_conf_preset", FT_UINT8, BASE_HEX, VALS(zbncp_nwk_conf_behavior), 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_short_address,
+         {"Short Network address", "zbncp.data.short_address", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_raw_data,
+         {"Raw data", "zbncp.data.raw_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_conf_params,
+         {"Configuration parameters", "zbncp.data.conf_params", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        /*  Configuration Parameter Fields */
+        {&hf_zbncp_data_conf_params_reserved,
+         {"Reserved", "zbncp.data.reserved", FT_BOOLEAN, 8, NULL, CONF_PARAMS_RESERVED,
+          "Whether this device can act as a PAN coordinator or not.", HFILL}},
+
+        {&hf_zbncp_data_conf_params_disable_pan_id_change,
+         {"Disable PAN ID Change", "zbncp.data.conf_params.disable_pan_id_change", FT_BOOLEAN, 8, NULL, CONF_PARAMS_DIS_PANID_CHANGE, "", HFILL}},
+
+        {&hf_zbncp_data_conf_params_disable_channel_change,
+         {"Disable Channel Change", "zbncp.data.conf_params.disable_channel_change", FT_BOOLEAN, 8, NULL, CONF_PARAMS_DIS_CHAN_CHANGE, "", HFILL}},
+
+        {&hf_zbncp_data_conf_params_leave_request_allowed,
+         {"Leave Requests Allowed", "zbncp.data.conf_params.leave_request_allowed", FT_BOOLEAN, 8, NULL, CONF_PARAMS_LEAVE_REQ_ALLOW, "", HFILL}},
+
+        {&hf_zbncp_data_conf_params_require_tclk,
+         {"Require Link Key for Transport Key transmission", "zbncp.data.conf_params.require_tclk", FT_BOOLEAN, 8, NULL, CONF_PARAMS_REQ_TCLK, "", HFILL}},
+
+        {&hf_zbncp_data_conf_params_restricted_enabled,
+         {"Restricted Mode Enabled", "zbncp.data.conf_params.restricted_enabled", FT_BOOLEAN, 8, NULL, CONF_PARAMS_RESTRICT_MODE_EN, "", HFILL}},
+
+        {&hf_zbncp_data_channel_page_count,
+         {"Channel Page Count", "zbncp.data.channel_page_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_config_mask,
+         {"Configuration mask", "zbncp.data.config_mask", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_dest_short_address,
+         {"Destination Short Network address", "zbncp.data.short_address", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_current_parents_short_address,
+         {"Current Parents Short Address", "zbncp.data.current_parents_short_address", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_current_parents_lqi,
+         {"Current Parents' LQI", "zbncp.data.current_parents_lqi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_potential_parent_count,
+         {"Potential Parent Count", "zbncp.data.potential_parent_count", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_classification_mask,
+         {"Classification Mask", "zbncp.data.classification_mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_total_beacons_surveyed,
+         {"Total Beacons Surveyed", "zbncp.data.total_beacons_surveyed", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_current_pan_id_beacons,
+         {"Number of Beacons with Current PAN ID", "zbncp.data.current_pan_id_beacons", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_current_nwk_potential_parents,
+         {"Number of potential parents from current Zigbee Network", "zbncp.data.current_nwk_potential_parents", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_other_zigbee_beacons,
+         {"Number of Other Zigbee Beacons", "zbncp.data.other_zigbee_beacons", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_pan_id_conflict_tlv,
+         {"PAN ID Conflict TLV", "zbncp.data.pan_id_conflict_tlv", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_eui64_count,
+         {"Ammount of EUI64s'", "zbncp.data.eui64_count", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_eui64,
+         {"EUI64", "zbncp.data.eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_initial_join_auth,
+         {"Initial Join Auth", "zbncp.data.initial_join_auth", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_key_update_method,
+         {"Key Update Method", "zbncp.data.key_update_method", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_next_pan_id_change,
+         {"Next PAN Id Change", "zbncp.data.next_pan_id_change", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_next_channel_change,
+         {"Next Channel Change", "zbncp.data.next_channel_change", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        {&hf_zbncp_data_error_count,
+         {"Error Count", "zbncp.data.error_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
         {&hf_zbncp_data_keepalive_rec,
          {"Keepalive Received", "zbncp.data.keepalive_rec", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -5851,6 +6374,7 @@ void proto_register_zbncp(void)
             &ett_zbncp_data_cmd_opt,
             &ett_zbncp_data_joind_bitmask,
             &ett_zbncp_data_trace_bitmask,
+            &ett_zbncp_data_conf_params,
             &ett_zbncp_dump,
             &ett_zbncp_dump_opt
         };

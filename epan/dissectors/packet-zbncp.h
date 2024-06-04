@@ -75,8 +75,8 @@
 #define ZBCNP_CMD_NVRAM_CLEAR                   0x0031
 #define ZBNCP_CMD_SET_TC_POLICY                 0x0032
 #define ZBNCP_CMD_SET_EXTENDED_PAN_ID           0x0033
-#define ZBNCP_CMD_SET_MAX_CHILDREN              0x0034
-#define ZBNCP_CMD_GET_MAX_CHILDREN              0x0035
+#define ZBNCP_CMD_SET_ED_CAPACITY               0x0034
+#define ZBNCP_CMD_GET_ED_CAPACITY               0x0035
 #define ZBNCP_CMD_SET_ZDO_LEAVE_ALLOWED         0x0036
 #define ZBNCP_CMD_GET_ZDO_LEAVE_ALLOWED         0x0037
 #define ZBNCP_CMD_SET_LEAVE_WO_REJOIN_ALLOWED   0x0038
@@ -85,6 +85,17 @@
 #define ZBNCP_CMD_GP_SET_SHARED_KEY_TYPE        0x003B
 #define ZBNCP_CMD_GP_SET_DEFAULT_LINK_KEY       0x003C
 #define ZBNCP_CMD_PRODUCTION_CONFIG_READ        0x003D
+#define ZBNCP_CMD_SET_MAX_JOINS                 0x003E
+#define ZBNCP_CMD_GET_MAX_JOINS                 0x003F
+#define ZBNCP_CMD_TRACE_IND                     0x0040
+#define ZBNCP_CMD_GET_KEY_NEG_METHOD            0x0041
+#define ZBNCP_CMD_SET_KEY_NEG_METHOD            0x0042
+#define ZBNCP_CMD_GET_PSK_SECRETS               0x0043
+#define ZBNCP_CMD_SET_PSK_SECRETS               0x0044
+#define ZBNCP_CMD_SET_R22_JOIN_USAGE            0x0045
+#define ZBNCP_CMD_SET_NWK_CONF_PRESET           0x0046
+#define ZBNCP_CMD_DEBUG_BROAD_NWK_KEY           0x0047
+#define ZBNCP_CMD_DEBUG_BROAD_APS_KEY           0x0048
 
 #define ZBNCP_CMD_AF_SET_SIMPLE_DESC      0x0101
 #define ZBNCP_CMD_AF_DEL_EP               0x0102
@@ -116,6 +127,11 @@
 #define ZBNCP_CMD_ZDO_DEV_UPDATE_IND                    0x0215
 #define ZBNCP_CMD_ZDO_SET_NODE_DESC_MANUF_CODE          0x0216
 #define ZBNCP_CMD_HL_ZDO_GET_DIAG_DATA_REQ              0x0217
+#define ZBNCP_CMD_HL_ZDO_RAW_REQ                        0x0218
+#define ZBNCP_CMD_HL_ZDO_SEND_CONF_PARAMS_REQ           0x0219
+#define ZBNCP_CMD_HL_ZDO_MGMT_BEACON_SURVEY_REQ         0x021A
+#define ZBNCP_CMD_HL_ZDO_DECOMMISSION_REQ               0x021B
+#define ZBNCP_CMD_HL_ZDO_GET_AUTH_LEVEL_REQ             0x021C
 
 #define ZBNCP_CMD_APSDE_DATA_REQ                0x0301
 #define ZBNCP_CMD_APSME_BIND                    0x0302
@@ -181,6 +197,14 @@
 #define ZBNCP_CMD_GET_FORCE_ROUTE_RECORD                          0x0433
 #define ZBNCP_CMD_NWK_NBR_ITERATOR_NEXT                           0x0434
 
+#define ZBNCP_CMD_ZB_DEBUG_SIGNAL_TCLK_READY_IND                  0x0435
+#define ZBNCP_CMD_ZB_DEVICE_READY_FOR_INTERVIEW_IND               0x0436
+#define ZBNCP_CMD_ZB_DEVICE_INTERVIEW_FINISHED_IND                0x0437
+#define ZBNCP_CMD_ZB_PREPARE_NETWORK_FOR_CHANNEL_PAN_ID_CHANGE    0x0438
+#define ZBNCP_CMD_ZB_PREPARE_NETWORK_FOR_CHANNEL_CHANGE           0x0439
+#define ZBNCP_CMD_ZB_START_CHANNEL_CHANGE                         0x043A
+#define ZBNCP_CMD_ZB_START_PAN_ID_CHANGE                          0x043B
+
 #define ZBNCP_CMD_SECUR_SET_LOCAL_IC                              0x0501
 #define ZBNCP_CMD_SECUR_ADD_IC                                    0x0502
 #define ZBNCP_CMD_SECUR_DEL_IC                                    0x0503
@@ -208,6 +232,8 @@
 #define ZBNCP_CMD_SECUR_GET_IC_BY_IDX                             0x0519
 #define ZBNCP_CMD_SECUR_REMOVE_ALL_IC                             0x051A
 #define ZBNCP_CMD_SECUR_PARTNER_LK_ENABLE                         0x051B
+#define ZBNCP_CMD_SECUR_AUTH_DEVICE_AFTER_INTERVIEW               0x051C
+#define ZBNCP_CMD_ZDO_SECUR_UPDATE_DEVICE_TCLK                    0x051D
 
 #define ZBNCP_CMD_MANUF_MODE_START                0x0601
 #define ZBNCP_CMD_MANUF_MODE_END                  0x0602
