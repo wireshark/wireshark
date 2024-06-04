@@ -141,7 +141,7 @@ add_extensions(GSList *extensions, const char *extension,
  */
 static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", true, "pcap;cap;dmp" },
-	{ "Wireshark/... - pcapng", true, "pcapng;ntar;scap" },
+	{ "Wireshark/... - pcapng", true, "pcapng;scap;ntar" },
 	{ "Network Monitor, Surveyor, NetScaler", true, "cap" },
 	{ "Sun snoop", true, "snoop" },
 	{ "InfoVista 5View capture", true, "5vw" },

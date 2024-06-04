@@ -52,7 +52,7 @@
           <Condition Action="disable"><![CDATA[&Fe.Wireshark <> 3]]></Condition>
         </Control>
         <Control Id="FileExtensionsText1" Type="Text" X="20" Y="206" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="Extensions include 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, lcap, mplog, ntar, out,"/>
-        <Control Id="FileExtensionsText2" Type="Text" X="20" Y="217" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="pcap, pcapng, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz."/>
+        <Control Id="FileExtensionsText2" Type="Text" X="20" Y="217" Width="350" Height="11" Transparent="yes" NoPrefix="yes" Text="pcap, pcapng, pkt, rf5, scap, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, and wpz."/>
 
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0"/>
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)"/>

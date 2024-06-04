@@ -6915,7 +6915,7 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
 };
 
 static const struct file_type_subtype_info pcapng_info = {
-    "Wireshark/... - pcapng", "pcapng", "pcapng", "ntar",
+    "Wireshark/... - pcapng", "pcapng", "pcapng", "scap;ntar",
     false, BLOCKS_SUPPORTED(pcapng_blocks_supported),
     pcapng_dump_can_write_encap, pcapng_dump_open, NULL
 };
