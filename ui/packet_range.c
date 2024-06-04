@@ -537,3 +537,115 @@ void packet_range_convert_selection_str(packet_range_t *range, const char *es)
     /* calculate new user specified packet range counts */
     packet_range_calc_selection(range);
 }
+
+uint32_t packet_range_count(const packet_range_t *range)
+{
+    uint32_t count;
+    switch(range->process) {
+    case(range_process_all):
+        if (range->process_filtered) {
+            if (range->include_dependents) {
+                count = range->displayed_plus_dependents_cnt;
+            } else {
+                count = range->displayed_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->displayed_ignored_cnt;
+            }
+        } else {
+            count = range->cf->count;
+            if (range->remove_ignored) {
+                count -= range->ignored_cnt;
+            }
+        }
+        break;
+    case(range_process_selected):
+        if (range->process_filtered) {
+            if (range->include_dependents) {
+                count = range->displayed_selected_plus_depends_cnt;
+            } else {
+                count = range->displayed_selection_range_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->displayed_ignored_selection_range_cnt;
+            }
+        } else {
+            if (range->include_dependents) {
+                count = range->selected_plus_depends_cnt;
+            } else {
+                count = range->selection_range_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->ignored_selection_range_cnt;
+            }
+        }
+        break;
+    case(range_process_marked):
+        if (range->process_filtered) {
+            if (range->include_dependents) {
+                count = range->displayed_marked_plus_depends_cnt;
+            } else {
+                count = range->displayed_marked_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->displayed_ignored_marked_cnt;
+            }
+        } else {
+            if (range->include_dependents) {
+                count = range->marked_plus_depends_cnt;
+            } else {
+                count = range->cf->marked_count;
+            }
+            if (range->remove_ignored) {
+                count -= range->ignored_marked_cnt;
+            }
+        }
+        break;
+    case(range_process_marked_range):
+        if (range->process_filtered) {
+            if (range->include_dependents) {
+                count = range->displayed_mark_range_plus_depends_cnt;
+            } else {
+                count = range->displayed_mark_range_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->displayed_ignored_mark_range_cnt;
+            }
+        } else {
+            if (range->include_dependents) {
+                count = range->mark_range_plus_depends_cnt;
+            } else {
+                count = range->mark_range_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->ignored_mark_range_cnt;
+            }
+        }
+        break;
+    case(range_process_user_range):
+        if (range->process_filtered) {
+            if (range->include_dependents) {
+                count = range->displayed_user_range_plus_depends_cnt;
+            } else {
+                count = range->displayed_user_range_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->displayed_ignored_user_range_cnt;
+            }
+        } else {
+            if (range->include_dependents) {
+                count = range->user_range_plus_depends_cnt;
+            } else {
+                count = range->user_range_cnt;
+            }
+            if (range->remove_ignored) {
+                count -= range->ignored_user_range_cnt;
+            }
+        }
+        break;
+    default:
+        ws_assert_not_reached();
+    }
+
+    return count;
+}

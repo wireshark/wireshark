@@ -128,6 +128,9 @@ extern void packet_range_convert_str(packet_range_t *range, const char *es);
 /* convert user given string to the internal selection specified range representation */
 extern void packet_range_convert_selection_str(packet_range_t *range, const char *es);
 
+/* return the number of packets that will be processed.
+ */
+extern uint32_t packet_range_count(const packet_range_t *range);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

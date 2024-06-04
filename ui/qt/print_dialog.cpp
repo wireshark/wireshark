@@ -160,7 +160,7 @@ bool PrintDialog::printHeader()
         QString banner = QString(tr("%1 %2 total packets, %3 shown"))
                 .arg(cap_file_->filename)
                 .arg(cap_file_->count)
-                .arg(cap_file_->displayed_count);
+                .arg(packet_range_count(&print_args_.range));
         cur_painter_->setFont(header_font_);
         cur_painter_->drawText(0, page_top, banner);
     }
