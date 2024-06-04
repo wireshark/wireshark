@@ -379,7 +379,7 @@ int ByteViewText::stringWidth(const QString &line)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     return fontMetrics().horizontalAdvance(line);
 #else
-    return fontMetrics().boundingRect(line).width();
+    return fontMetrics().width(line);
 #endif
 }
 
