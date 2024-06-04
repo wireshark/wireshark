@@ -664,8 +664,7 @@ void DisplayFilterEdit::applyDisplayFilter()
     if (syntaxState() == Invalid)
         return;
 
-    if (text().length() > 0)
-        last_applied_ = text();
+    last_applied_ = text();
 
     updateClearButton();
 
@@ -751,9 +750,7 @@ void DisplayFilterEdit::applyOrPrepareFilter()
     if (! pa || pa->property("display_filter").toString().isEmpty())
         return;
 
-    QString filterText = pa->property("display_filter").toString();
-    last_applied_ = filterText;
-    setText(filterText);
+    setText(pa->property("display_filter").toString());
 
     // Holding down the Shift key will only prepare filter.
     if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
@@ -841,7 +838,6 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
                 return;
             }
 
-            last_applied_ = filterText;
             setText(filterText);
 
             // Holding down the Shift key will only prepare filter.
