@@ -45,7 +45,7 @@ static expert_field ei_rk512_data_type = EI_INIT;
 static expert_field ei_rk512_checksum = EI_INIT;
 
 //Preferences
-guint rk512_num_measurements_pts = 541;
+static guint rk512_num_measurements_pts = 541;
 
 #define RK512_HEADER_SIZE   4
 #define RK512_CRC_SIZE   2
