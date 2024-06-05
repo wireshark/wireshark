@@ -246,10 +246,11 @@ static const value_string mysql_clone_response_vals[] = {
 
 /* MySQL cursor types */
 
-#define MYSQL_CURSOR_TYPE_NO_CURSOR  0
-#define MYSQL_CURSOR_TYPE_READ_ONLY  1
-#define MYSQL_CURSOR_TYPE_FOR_UPDATE 2
-#define MYSQL_CURSOR_TYPE_SCROLLABLE 4
+#define MYSQL_CURSOR_TYPE_NO_CURSOR     0
+#define MYSQL_CURSOR_TYPE_READ_ONLY     1
+#define MYSQL_CURSOR_TYPE_FOR_UPDATE    2
+#define MYSQL_CURSOR_TYPE_SCROLLABLE    4
+#define MYSQL_PARAMETER_COUNT_AVAILABLE 8
 
 /* MySQL parameter flags -- used internally by the dissector */
 
@@ -320,6 +321,7 @@ static const value_string mysql_exec_flags_vals[] = {
 	{MYSQL_CURSOR_TYPE_READ_ONLY, "Read-only cursor"},
 	{MYSQL_CURSOR_TYPE_FOR_UPDATE, "Cursor for update"},
 	{MYSQL_CURSOR_TYPE_SCROLLABLE, "Scrollable cursor"},
+	{MYSQL_PARAMETER_COUNT_AVAILABLE, "Parameter Count Available"},
 	{0, NULL}
 };
 
@@ -1277,6 +1279,7 @@ static int hf_mysql_shutdown;
 static int hf_mysql_option;
 static int hf_mysql_num_rows;
 static int hf_mysql_param;
+static int hf_mysql_param_name;
 static int hf_mysql_num_params;
 static int hf_mysql_exec_flags4;
 static int hf_mysql_exec_flags5;
@@ -1657,7 +1660,7 @@ static void mysql_dissect_exec_longlong(tvbuff_t *tvb, packet_info *pinfo, int *
 static void mysql_dissect_exec_unsigned_longlong(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_null(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static char mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
-		int *param_offset, guint8 param_flags, packet_info *pinfo, unsigned encoding);
+		int *param_offset, guint8 param_flags, packet_info *pinfo, unsigned encoding, bool queryattrs);
 static char mysql_dissect_binary_row_value(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int *offset,
 		proto_item *tree, guint8 field_type, guint16 field_flag, unsigned field_encoding);
 
@@ -2366,9 +2369,10 @@ mysql_dissect_exec_null(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *param_of
 static char
 mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 			 int *param_offset, guint8 param_flags,
-			 packet_info *pinfo, unsigned encoding)
+			 packet_info *pinfo, unsigned encoding, bool queryattrs)
 {
-	guint8 param_type, param_unsigned;
+	guint8 param_type, param_unsigned, lenfle;
+	guint64 param_name_len;
 	proto_item *tf;
 	proto_item *field_tree;
 	int dissector_index = 0;
@@ -2378,6 +2382,7 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 	proto_tree_add_item(field_tree, hf_mysql_fld_type, tvb, *offset, 1, ENC_NA);
 	param_type = tvb_get_guint8(tvb, *offset);
 	*offset += 1; /* type */
+
 	proto_tree_add_item(field_tree, hf_mysql_exec_unsigned, tvb, *offset, 1, ENC_NA);
 	if ((tvb_get_guint8(tvb, *offset) & 128) == 128) {
 		param_unsigned = 1;
@@ -2385,6 +2390,17 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 		param_unsigned = 0;
 	}
 	*offset += 1; /* signedness */
+
+	// Length-encoded parameter name if query attributes are enabled.
+	if (queryattrs) {
+		lenfle = tvb_get_fle(tvb, field_tree, *offset, &param_name_len, NULL);
+		*offset += lenfle;
+		if (param_name_len>0) {
+			proto_tree_add_item(field_tree, hf_mysql_param_name, tvb, *offset, (gint)param_name_len, ENC_ASCII);
+			*offset += param_name_len;
+		}
+	}
+
 	if ((param_flags & MYSQL_PARAM_FLAG_STREAMED) == MYSQL_PARAM_FLAG_STREAMED) {
 		expert_add_info(pinfo, field_tree, &ei_mysql_streamed_param);
 		return 1;
@@ -2398,6 +2414,26 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 		dissector_index++;
 	}
 	return 0;
+}
+
+/* Calculate param_offset if Query Attributes are used
+ * for each param:
+ * <2>             param_type
+ * <lenenc string> param_name
+ */
+static int
+mysql_exec_param_offset(tvbuff_t *tvb, proto_tree *req_tree, int offset, int param_count)
+{
+    int lenfle;
+	guint64 param_length;
+
+	for (int i = 0; i<param_count; i++) {
+		offset += 2; // param type
+		lenfle = tvb_get_fle(tvb, req_tree, offset, &param_length, NULL);
+		offset += lenfle + param_length;
+	}
+
+	return offset;
 }
 
 static int
@@ -2737,6 +2773,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		break;
 
 	case MYSQL_STMT_EXECUTE:
+		// https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_stmt_execute.html
 		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		stmt_id = tvb_get_letohl(tvb, offset);
 		offset += 4;
@@ -2746,6 +2783,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		} else {
 			proto_tree_add_item(req_tree, hf_mysql_exec_flags4, tvb, offset, 1, ENC_NA);
 		}
+		guint8 exec_flags = tvb_get_guint8(tvb, offset);
 		offset += 1;
 
 		proto_tree_add_item(req_tree, hf_mysql_exec_iter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2757,22 +2795,41 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		}
 		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, stmt_id);
 		if (stmt_data != NULL) {
-			if (stmt_data->param_metas.count != 0) {
+			guint64 param_count = stmt_data->param_metas.count;
+			if ((param_count != 0)
+					|| ((conn_data->clnt_caps_ext & MYSQL_CAPS_QA)
+						&& (exec_flags & MYSQL_PARAMETER_COUNT_AVAILABLE))) {
+				if (conn_data->clnt_caps_ext & MYSQL_CAPS_QA) {
+					guint8 lenfle = tvb_get_fle(tvb, req_tree, offset, &param_count, NULL);
+					proto_tree_add_uint64(req_tree, hf_mysql_num_params, tvb, offset, lenfle, param_count);
+					offset += lenfle;
+				}
 				guint8 stmt_bound;
-				offset += (stmt_data->param_metas.count + 7) / 8; /* NULL bitmap */
+				offset += (param_count + 7) / 8; /* NULL bitmap */
 				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_NA);
 				stmt_bound = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				if (stmt_bound == 1) {
-					param_offset = offset + stmt_data->param_metas.count * 2;
+					if (conn_data->clnt_caps_ext & MYSQL_CAPS_QA) {
+						param_offset = mysql_exec_param_offset(tvb, req_tree, offset, (guint)param_count);
+					} else {
+						param_offset = offset + (guint)param_count * 2;
+					}
 					guint8 flags;
 					/* The character set for a parameter
 					 * is character_set_client. */
 					unsigned encoding = my_frame_data->encoding_client;
-					for (stmt_pos = 0; stmt_pos < stmt_data->param_metas.count; stmt_pos++) {
-						flags = (guint8)stmt_data->param_metas.flags[stmt_pos];
+					for (stmt_pos = 0; stmt_pos < (int)param_count; stmt_pos++) {
+						if (stmt_pos >= stmt_data->param_metas.count) {
+							// With Query Attributes we can have more params than during the prepare.
+							// this means we don't have flags for them.
+							flags = 0;
+						} else {
+							flags = (guint8)stmt_data->param_metas.flags[stmt_pos];
+						}
 						if (!mysql_dissect_exec_param(req_tree, tvb, &offset, &param_offset,
-									      flags, pinfo, encoding))
+									      flags, pinfo, encoding,
+									      conn_data->clnt_caps_ext & MYSQL_CAPS_QA))
 							break;
 					}
 					offset = param_offset;
@@ -5371,9 +5428,14 @@ void proto_register_mysql(void)
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
+		{ &hf_mysql_param_name,
+		{ "Name", "mysql.param_name",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
 		{ &hf_mysql_num_params,
 		{ "Number of parameter", "mysql.num_params",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		FT_UINT64, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_num_rows,
