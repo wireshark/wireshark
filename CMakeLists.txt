@@ -1381,11 +1381,13 @@ ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.5.8")
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
 
-# Zlib compression
-ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
-
 # Zlib-ng compression
 ws_find_package(ZLIBNG ENABLE_ZLIBNG HAVE_ZLIBNG)
+
+#if(NOT ZLIBNG_FOUND)
+    # Zlib compression
+    ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
+#endif()
 
 # Minizip compression
 ws_find_package(Minizip ENABLE_MINIZIP HAVE_MINIZIP)

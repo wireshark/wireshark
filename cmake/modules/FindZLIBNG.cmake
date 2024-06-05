@@ -50,16 +50,20 @@ FIND_PATH(ZLIBNG_INCLUDE_DIR
     HINTS
         ${ZLIBNG_INCLUDEDIR}
         ${ZLIBNG_HINTS}/include
+    /usr/include
+    /usr/local/include
 )
 
-SET(ZLIBNG_NAMES zlib-ng)
+SET(ZLIBNG_NAMES z-ng zlib-ng)
 FIND_LIBRARY(ZLIBNG_LIBRARY
     NAMES
         ${ZLIBNG_NAMES}
     HINTS
         ${ZLIBNG_LIBDIR}
         ${ZLIBNG_HINTS}/lib
-        ${ZLIBNG_HINTS}
+      PATHS
+      /usr/lib
+      /usr/local/lib
 )
 
 MARK_AS_ADVANCED(ZLIBNG_LIBRARY ZLIBNG_INCLUDE_DIR)

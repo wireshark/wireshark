@@ -59,7 +59,7 @@ typedef struct _spdy_conv_t {
 #ifdef HAVE_ZLIBNG
   zng_streamp rqst_decompressor;
   zng_streamp rply_decompressor;
-  uLong     dictionary_id;
+  uint32_t     dictionary_id;
 #else
   z_streamp rqst_decompressor;
   z_streamp rply_decompressor;

@@ -52,7 +52,19 @@
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
-#include "zlib.h"
+#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
+#define ZLIB_CONST
+#define ZLIB_PREFIX(x) x
+#include <zlib.h>
+typedef z_stream zlib_stream;
+#endif /* HAVE_ZLIB */
+
+#ifdef HAVE_ZLIBNG
+#define ZLIB_PREFIX(x) zng_ ## x
+#include <zlib-ng.h>
+typedef zng_stream zlib_stream;
+#endif /* HAVE_ZLIBNG */
+
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 #include <wsutil/str_util.h>

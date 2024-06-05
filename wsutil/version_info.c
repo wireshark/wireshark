@@ -32,6 +32,10 @@
 #include <zlib.h>
 #endif
 
+//#ifdef HAVE_ZLIBNG
+//#include <zlib-ng.h>
+//#endif
+
 #include "vcs_version.h"
 
 #include <wsutil/cpu_info.h>

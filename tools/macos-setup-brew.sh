@@ -120,6 +120,7 @@ ADDITIONAL_LIST=(
     opus
     snappy
     spandsp
+    zlib-ng
     zstd
 )
 

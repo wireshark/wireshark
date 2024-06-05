@@ -477,7 +477,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	gboolean compressed = is_compressed(value_frame_flags);
 
 	if(compressed) {
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 		tvb_to_use = decompress(pinfo, blip_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
 		if(!tvb_to_use) {
 			return tvb_reported_length(tvb);

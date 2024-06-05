@@ -4259,7 +4259,7 @@ DIAG_ON(cast-qual)
             decomp->istream.next_out = out_str->data;
             decomp->istream.avail_out = out_str->data_len;
             if (inl > 0)
-                err = inflate(&decomp->istream, Z_SYNC_FLUSH);
+                err = ZLIB_PREFIX(inflate)(&decomp->istream, Z_SYNC_FLUSH);
             if (err != Z_OK) {
                 ssl_debug_printf("ssl_decompress_record: inflate() failed - %d\n", err);
                 return -1;

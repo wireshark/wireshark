@@ -77,7 +77,7 @@
 /*
 * Decompression of zlib encoded entities.
 */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static gboolean grpc_decompress_body = TRUE;
 #else
 static gboolean grpc_decompress_body;

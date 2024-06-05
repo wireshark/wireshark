@@ -390,7 +390,7 @@ fast_seek_reset(
 #endif
 }
 
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 
 /* Get next byte from input, or -1 if end or error.
  *
@@ -742,7 +742,7 @@ gz_head(FILE_T state)
                  * and 139 in the second byte of the file.  For now, in
                  * those cases, you lose.
                  */
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
                 uint8_t cm;
                 uint8_t flags;
                 uint16_t len;
@@ -955,7 +955,7 @@ fill_out_buffer(FILE_T state)
         if (buf_read(state, &state->out) < 0)
             return -1;
     }
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     else if (state->compression == ZLIB) {      /* decompress */
         zlib_read(state, state->out.buf, state->size << 1);
     }

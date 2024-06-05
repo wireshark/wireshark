@@ -530,7 +530,7 @@ websocket_parse_extensions(websocket_conv_t *websocket_conv, const char *str)
 
   websocket_conv->permessage_deflate = !!strstr(str, "permessage-deflate")
       || !!strstr(str, "x-webkit-deflate-frame");
-#ifdef HAVE_ZLIB
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
   websocket_conv->permessage_deflate_ok = pref_decompress &&
        websocket_conv->permessage_deflate;
   if (websocket_conv->permessage_deflate_ok) {
