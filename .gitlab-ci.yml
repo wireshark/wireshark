@@ -776,6 +776,8 @@ Clang + Code Checks:
   needs: [ 'Commit Check' ]
   script:
     - source /clang-latest.env
+    - apt-get update && apt-get --yes install python3-pip
+    - pip3 install pyspellchecker
     # build-ubuntu puts us in `build`.
     - cd ..
     - mkdir cppcheck
@@ -806,6 +808,7 @@ Clang + Code Checks:
     - ninja checkAPI
     - ninja shellcheck
     - cd ..
+    - ./tools/check_spelling.py --no-wikipedia --comments --commits $NUM_COMMITS | tee spelling_check.txt
     - ./tools/check_typed_item_calls.py --consecutive --label --mask --check-bitmask-fields --commits $NUM_COMMITS | tee item_calls_check.txt
     - ./tools/check_tfs.py --check-value-strings --commits $NUM_COMMITS | tee tfs_check.txt
     - ./tools/check_val_to_str.py --commits $NUM_COMMITS | tee val_to_str_check.txt
@@ -814,6 +817,7 @@ Clang + Code Checks:
       - clang_report.txt
       - clang_analyzer_check.txt
       - cppcheck
+      - spelling_check.txt
       - item_calls_check.txt
       - tfs_check.txt
       - val_to_str_check.txt

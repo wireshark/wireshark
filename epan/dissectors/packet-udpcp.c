@@ -475,9 +475,8 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
         }
     }
-
-    if (PINFO_FD_VISITED(pinfo)) {
-        /* Look up conversation here */
+    else {
+        /* Later passes - look up conversation here */
         conversation_t *p_conv;
         udpcp_conversation_t *p_conv_data;
 
