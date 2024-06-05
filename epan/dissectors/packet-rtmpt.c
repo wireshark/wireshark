@@ -1871,8 +1871,7 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 
             if (iVideoFrameType == RTMPT_IS_FRAME_TYPE_COMMAND) {
                     iVideoCommand = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(vt, hf_rtmpt_video_command, tvb, offset, 1, iCtl);
-                    offset += 1;
+                    proto_tree_add_uint(vt, hf_rtmpt_video_command, tvb, offset, 1, iVideoCommand);
             } else {
                     proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset, -1, ENC_NA);
             }
