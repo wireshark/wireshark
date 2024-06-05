@@ -5278,7 +5278,6 @@ get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
         return uuid;
     }
 
-    uuid.size = size;
     if (size == 2) {
         uuid.data[0] = tvb_get_guint8(tvb, offset + 1);
         uuid.data[1] = tvb_get_guint8(tvb, offset);
@@ -5290,8 +5289,10 @@ get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
         uuid.data[2] = tvb_get_guint8(tvb, offset + 1);
         uuid.data[3] = tvb_get_guint8(tvb, offset);
 
-        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00)
-            uuid.bt_uuid = uuid.data[2] | uuid.data[3] << 8;
+        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00) {
+            uuid.bt_uuid = uuid.data[3] | uuid.data[2] << 8;
+            size = 2;
+        }
     } else {
         uuid.data[0] = tvb_get_guint8(tvb, offset + 15);
         uuid.data[1] = tvb_get_guint8(tvb, offset + 14);
@@ -5314,10 +5315,13 @@ get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
             uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
             uuid.data[7]  == 0x00 && uuid.data[8]  == 0x80 && uuid.data[9]  == 0x00 &&
             uuid.data[10] == 0x00 && uuid.data[11] == 0x80 && uuid.data[12] == 0x5F &&
-            uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB)
-            uuid.bt_uuid = uuid.data[2] | uuid.data[3] << 8;
+            uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB) {
+            uuid.bt_uuid = uuid.data[3] | uuid.data[2] << 8;
+            size = 2;
+        }
     }
 
+    uuid.size = size;
     return uuid;
 }
 
