@@ -32,10 +32,6 @@
 #include <zlib.h>
 #endif
 
-#ifdef HAVE_ZLIBNG
-#include <zlib-ng.h>
-#endif
-
 #include "vcs_version.h"
 
 #include <wsutil/cpu_info.h>
@@ -179,7 +175,7 @@ void
 gather_zlib_ng_compile_info(feature_list l)
 {
 #ifdef HAVE_ZLIBNG
-	with_feature(l, "zlib-ng "ZLIBNG_VERSION);
+	with_feature(l, "zlib-ng");
 #else
 	without_feature(l, "zlib-ng");
 #endif /* HAVE_ZLIB */

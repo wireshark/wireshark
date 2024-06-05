@@ -37,7 +37,7 @@
 
 include( FindWSWinLibs )
 # Zlib is included with GLib2
-FindWSWinLibs( "vcpkg-export-*" "ZLIBNG_HINTS" )
+FindWSWinLibs( "zlib-ng-" "ZLIBNG_HINTS" )
 
 if (NOT USE_REPOSITORY) # else we'll find Strawberry Perl's pkgconfig
     find_package(PkgConfig)
