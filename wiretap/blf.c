@@ -34,7 +34,6 @@
 #ifdef HAVE_ZLIBNG
 #include <zlib-ng.h>
 #define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
 typedef zng_stream zlib_stream;
 #else
 #ifdef HAVE_ZLIB
