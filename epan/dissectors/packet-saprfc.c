@@ -696,7 +696,6 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 
 		/* Check if it's an End of message */
 		if (item_id1==0x0c){
-			item_value_length = 0;
 			break; /* ? */
 
 		/* Otherwise follow dissection */
