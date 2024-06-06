@@ -179,6 +179,12 @@ The following features are new (or have been significantly updated) since versio
   selected rows or the entire table can be saved or copied to the clipboard
   in several formats. wsbuglink:16419[]
 
+* Dumpcap and wireshark support the `-F` option when capturing a file
+  at the command line. wsbuglink:18009[]
+
+* When capturing a file and requesting the `pcap` format, nanosecond resolution
+  time stamps will be written if the device and version of libpcap supports it.
+
 * When capturing a file, the maximum filesize at which to stop, or to switch
   files in multiple file mode, can be 2 TB, up from 2GiB. Note that you may
   have problems when the number of packets gets larger than 2^31^ or 2^32^,

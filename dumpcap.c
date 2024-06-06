@@ -5433,6 +5433,7 @@ main(int argc, char *argv[])
         case 'b':        /* Ringbuffer option */
         case 'c':        /* Capture x packets */
         case 'f':        /* capture filter */
+        case 'F':        /* capture file type */
         case 'g':        /* enable group read access on file(s) */
         case 'i':        /* Use interface x */
         case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
@@ -5616,6 +5617,10 @@ main(int argc, char *argv[])
         pcap_queue_packet_limit = 1000;
     }
     if (arg_error) {
+        if (ws_optopt == 'F') {
+            capture_opts_list_file_types();
+            exit_main(1);
+        }
         print_usage(stderr);
         exit_main(1);
     }

@@ -709,10 +709,11 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
     if (capture_opts->ifaces->len > 1)
         argv = sync_pipe_add_arg(argv, &argc, "-t");
 
+    argv = sync_pipe_add_arg(argv, &argc, "-F");
     if (capture_opts->use_pcapng)
-        argv = sync_pipe_add_arg(argv, &argc, "-n");
+        argv = sync_pipe_add_arg(argv, &argc, "pcapng");
     else
-        argv = sync_pipe_add_arg(argv, &argc, "-P");
+        argv = sync_pipe_add_arg(argv, &argc, "pcap");
 
     if (capture_comments != NULL) {
         for (j = 0; j < capture_comments->len; j++) {

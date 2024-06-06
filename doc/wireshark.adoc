@@ -335,6 +335,18 @@ can be used by prefixing the argument with "predef:".
 Example: *-f "predef:MyPredefinedHostOnlyFilter"*
 --
 
+-F  <file format>::
+When performing a capture file from the command line, with the *-k* option,
+set the file format of the output capture file written using the *-w* option.
+In situations that require the *pcapng* format, such as capturing from
+multiple interfaces, this option will be overridden. The option *-F*
+without a value will list the available formats. The default is the
+*pcapng* format (unless the default has been changed in preferences.)
+
+This does not support every format to which Wireshark can convert a file;
+this is intentional for security reasons. Capture in a supported format and
+then save the file in a different format if so desired.
+
 --fullscreen::
 +
 --

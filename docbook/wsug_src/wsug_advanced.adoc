@@ -757,20 +757,28 @@ While reading or writing capture files, Wireshark converts the time stamp data
 between the capture file format and the internal format as required.
 
 While capturing, Wireshark uses the libpcap (Npcap) capture library which
-supports microsecond resolution. Unless you are working with specialized
-capturing hardware, this resolution should be adequate.
+supports nanosecond resolution for both pcapng and pcap files, though some
+devices may only provide microsecond resolution, in which case that will be
+used. Unless you are working with specialized capturing hardware, this
+resolution should be adequate.
 
 ==== Capture File Formats
 
-Every capture file format that Wireshark knows supports time stamps. The time
-stamp precision supported by a specific capture file format differs widely and
-varies from one second “0” to one nanosecond “0.123456789”. Most file
-formats store the time stamps with a fixed precision (e.g., microseconds), while
-some file formats are even capable of storing the time stamp precision itself
-(whatever the benefit may be).
+The vast majority of capture file formats that Wireshark knows support time
+stamps.  The time stamp precision supported by a specific capture file format
+differs widely and varies from one second “0” to one nanosecond “0.123456789”.
+Most file formats store the time stamps with a fixed precision (e.g., microseconds,
+“0.123456”), while some file formats are capable of storing the time stamp
+precision itself or even having a different precision for different records
+in the file (whatever the benefit may be).
 
-The common libpcap capture file format that is used by Wireshark (and a lot of
-other tools) supports a fixed microsecond resolution “0.123456” only.
+The pcapng capture file format supports a wide range of time stamp resolutions,
+which can be different for each interface in the file, as well as records without
+time stamps. The common libpcap capture file format, which is widely supported by
+many other tools, supports two possible fixed resolutions, microsecond or
+nanosecond, indicated by a magic number at the start of the file. Wireshark and
+tools like editcap can convert pcap files with nanosecond resolution to microsecond
+resolution for use with tools that only support the original time stamp precision.
 
 Writing data into a capture file format that doesn’t provide the capability to
 store the actual precision will lead to loss of information. For example, if you

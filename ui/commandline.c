@@ -173,6 +173,8 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "Output:\n");
     fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
 #ifdef HAVE_LIBPCAP
+    fprintf(output, "  -F <capture type>        set the output file type; default is pcapng.\n");
+    fprintf(output, "                           an empty \"-F\" option will list the file types.\n");
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture file comment, if supported\n");
 #endif
@@ -537,6 +539,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
             case 'b':        /* Ringbuffer option */
             case 'c':        /* Capture xxx packets */
             case 'f':        /* capture filter */
+            case 'F':        /* capture file type */
             case 'H':        /* Hide capture info dialog box */
             case 'p':        /* Don't capture in promiscuous mode */
             case 'i':        /* Use interface x */
@@ -727,7 +730,12 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
     }
 
     if (arg_error) {
-#ifndef HAVE_LIBPCAP
+#ifdef HAVE_LIBPCAP
+        if (ws_optopt == 'F') {
+            capture_opts_list_file_types();
+            exit_application(1);
+        }
+#else
         if (capture_option_specified) {
             print_no_capture_support_error();
         }

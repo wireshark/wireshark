@@ -137,8 +137,9 @@ When writing packets to a file, *TShark*, by default, writes the file
 in *pcapng* format, and writes all of the packets it sees to the output
 file.  The *-F* option can be used to specify the format in which to
 write the file.  This list of available file formats is displayed by the
-*-F* option without a value.  However, you can't specify a file format
-for a live capture.
+*-F* option without a value.  However, for a live capture, you can only
+specify a file format supported by xref:dumpcap.html[dumpcap](1), viz.
+*pcapng* or *pcap*.
 
 When capturing packets, *TShark* writes to the standard error an
 initial line listing the interfaces from which packets are being
@@ -406,7 +407,9 @@ Example: *tshark -f "predef:MyPredefinedHostOnlyFilter"*
 Set the file format of the output capture file written using the *-w*
 option.  The output written with the *-w* option is raw packet data, not
 text, so there is no *-F* option to request text output.  The option *-F*
-without a value will list the available formats.
+without a value will list the available formats. The default is the
+*pcapng* format (unless the default has been changed in preferences.)
+.
 
 -g::
 This option causes the output file(s) to be created with group-read permission
