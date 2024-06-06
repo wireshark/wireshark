@@ -1187,7 +1187,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
           it = proto_tree_add_uint(user_tree, hf_wlan_radio_11be_mcs, tvb, 0, 0,
                   info_11be->user[i].mcs);
-          if (info_11be->user[i].mcs > EHT_MAX_MCS) {
+          if (info_11be->user[i].mcs >= EHT_MAX_MCS) {
             proto_item_append_text(it, " (invalid)");
           } else {
             proto_item_append_text(it, " (%s %s)",
@@ -1200,8 +1200,8 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
           /*
             * If we can calculate the data rate for this user, do so.
             */
-          if (can_calculate_rate && info_11be->user[i].mcs <= EHT_MAX_MCS &&
-              nsts <= EHT_MAX_NSTS) {
+          if (can_calculate_rate && info_11be->user[i].mcs < EHT_MAX_MCS &&
+              nsts < EHT_MAX_NSTS) {
             data_rate = ieee80211_eht_rate(nsts, info_11be->user[i].mcs, bw_idx, info_11be->gi);
             if (data_rate != 0.0f) {
               //have_data_rate = TRUE;
