@@ -1,0 +1,15 @@
+758865ee6 update(cmake): Don't add build directories to our pc files
+diff --git a/userspace/libsinsp/CMakeLists.txt b/userspace/libsinsp/CMakeLists.txt
+index 6104603e8..1989ea3fb 100644
+--- a/userspace/libsinsp/CMakeLists.txt
++++ b/userspace/libsinsp/CMakeLists.txt
+@@ -335,6 +335,9 @@ endforeach()
+ # Build our pkg-config "Cflags:" flags.
+ set(SINSP_PKG_CONFIG_INCLUDES "")
+ foreach(sinsp_include_directory ${LIBSINSP_INCLUDE_DIRS})
++	if (${sinsp_include_directory} MATCHES "^${CMAKE_SOURCE_DIR}" OR ${sinsp_include_directory} MATCHES "^${CMAKE_BINARY_DIR}")
++		continue()
++	endif()
+ 	list(APPEND SINSP_PKG_CONFIG_INCLUDES -I${sinsp_include_directory})
+ endforeach()
+ 

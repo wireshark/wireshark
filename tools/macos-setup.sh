@@ -2532,6 +2532,7 @@ install_falco_libs() {
         mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
         cd "falco-libs-$FALCO_LIBS_VERSION"
 	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-uthash_h-install.patch"
+	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-include-dirs.patch"
         mkdir build_dir
         cd build_dir
         "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
