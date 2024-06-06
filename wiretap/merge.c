@@ -1420,6 +1420,22 @@ merge_files(const gchar* out_filename, const int file_type,
             guint32 *err_framenum)
 {
     ws_assert(out_filename != NULL);
+    ws_assert(in_file_count > 0);
+    ws_assert(in_filenames != NULL);
+    ws_assert(err_info != NULL);
+
+    /* #19402: ensure we aren't appending to one of our inputs */
+    if (do_append) {
+        unsigned int i;
+        for (i = 0; i < in_file_count; i++) {
+            if (files_identical(out_filename, in_filenames[i])) {
+                *err_info = ws_strdup_printf("Output file %s is same as input file %s; "
+                                             "appending would create infinite loop",
+                                             out_filename, in_filenames[i]);
+                return MERGE_ERR_INVALID_OPTION;
+            }
+        }
+    }
 
     return merge_files_common(out_filename, NULL, NULL,
                               file_type, in_filenames, in_file_count,
