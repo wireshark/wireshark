@@ -2521,7 +2521,22 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
                 /* message length is a 3 byte number, never overflows an int */
                 if (tp->alloc < tp->have + want) {
-                        tp->alloc = MIN(tp->alloc*2, tp->want);
+                        /* tp->want - how much data is supposedly in the entire
+                         * unchunked packet, according to the header. Up to a
+                         * 24-bit integer. Actually allocating this amount can
+                         * cause memory exhaustion on fuzzed data.
+                         * want - how much more data we are going to copy from the
+                         * current tvbuff. No more than necessary to finish the
+                         * current chunk, or what's actually in the tvbuff.
+                         * Allocating this amount shouldn't cause memory exhaustion
+                         * because it's present in the frame.
+                         *
+                         * We should have calculated those values so that the
+                         * following assertion is true.
+                         */
+                        DISSECTOR_ASSERT_CMPINT(tp->have + want, <=, tp->want);
+                        tp->alloc = MAX(tp->alloc*2, tp->have + want);
+                        tp->alloc = MIN(tp->alloc, tp->want);
                         tp->data.p = wmem_realloc(wmem_file_scope(), tp->data.p, tp->alloc);
                 }
                 tvb_memcpy(tvb, tp->data.p+tp->have, offset, want);
