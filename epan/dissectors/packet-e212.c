@@ -1079,7 +1079,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 22855, "WeMobile SA" },
     { 22857, "Mitto AG" },
     { 22858, "Beeone Communications SA" },
-    { 22858, "Vectone Mobile Limited, London" },
+    { 22859, "Vectone Mobile Limited, London" },
     { 22860, "Sunrise Communications AG" },
     { 22862, "Telecom26 AG" },
     { 22863, "Fink Telecom Services" },
