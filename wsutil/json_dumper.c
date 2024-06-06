@@ -416,7 +416,7 @@ json_dumper_end_nested_element(json_dumper *dumper, enum json_dumper_element_typ
             break;
         }
         default:
-            json_dumper_bad(dumper, "endning unknown nested element type");
+            json_dumper_bad(dumper, "ending unknown nested element type");
             return false;
     }
 
