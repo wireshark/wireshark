@@ -1166,7 +1166,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             can_calculate_rate = false;
           }
           if (!info_11be->has_bandwidth && (!info_11be->has_ru_mru_size ||
-               info_11be->has_ru_mru_size > IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994)) {
+               info_11be->ru_mru_size > IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994)) {
             can_calculate_rate = false;
           }
 

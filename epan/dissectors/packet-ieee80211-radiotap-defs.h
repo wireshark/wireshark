@@ -548,7 +548,7 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_USIG_TXOP                            0xFE000000
 
 /* IEEE80211_RADIOTAP_USIG_BW encoding*/
-#define IEEE80211_RADIOTAP_USIG_BW_SHIFT                        27
+#define IEEE80211_RADIOTAP_USIG_BW_SHIFT                        15
 #define IEEE80211_RADIOTAP_USIG_BW_20                           0x0
 #define IEEE80211_RADIOTAP_USIG_BW_40                           0x1
 #define IEEE80211_RADIOTAP_USIG_BW_80                           0x2
