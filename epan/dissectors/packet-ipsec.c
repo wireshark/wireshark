@@ -116,6 +116,7 @@ static gint ett_esp_decrypted_data;
 static gint ett_ipcomp;
 
 static expert_field ei_esp_sequence_analysis_wrong_sequence_number;
+static expert_field ei_esp_pad_bogus;
 
 
 static gint exported_pdu_tap = -1;
@@ -659,6 +660,20 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
    and the packet does not match a Security Association).
 */
 static bool g_esp_enable_null_encryption_decode_heuristic;
+
+#define PADDING_RFC  0
+#define PADDING_ZERO 1
+#define PADDING_ANY  2
+
+/* PADDING_RFC is chosen as 0 to be the default */
+static int g_esp_padding_type;
+
+static const enum_val_t esp_padding_vals[] = {
+  { "rfc",   "RFC compliant padding only", PADDING_RFC },
+  { "zero",  "All-zero padding also permitted", PADDING_ZERO },
+  { "any",   "Any padding permitted",      PADDING_ANY },
+  { NULL, NULL, 0 }
+};
 
 /* Default to doing ESP sequence analysis */
 static bool g_esp_do_sequence_analysis = true;
@@ -1243,6 +1258,7 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
   guint32 saved_match_uint;
   gboolean heur_ok;
 
+  proto_item *ti;
   tvbuff_t *next_tvb;
   dissector_handle_t dissector_handle;
 
@@ -1283,7 +1299,21 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
         }
       }
       if (!heur_ok) {
-        continue;
+        switch (g_esp_padding_type) {
+        case PADDING_RFC:
+          continue;
+        case PADDING_ZERO:
+          for (int j=0; j < esp_pad_len; j++) {
+            if (tvb_get_guint8(tvb, offset - (j + 1)) != 0) {
+              continue;
+            }
+          }
+        /* FALLTHROUGH */
+        case PADDING_ANY:
+          break;
+        default:
+          continue;
+        }
       }
 
       saved_match_uint  = pinfo->match_uint;
@@ -1306,9 +1336,12 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
 
       if (esp_tree) {
         if (esp_pad_len !=0) {
-          proto_tree_add_item(esp_tree, hf_esp_pad,
+          ti = proto_tree_add_item(esp_tree, hf_esp_pad,
                               tvb, offset - esp_pad_len,
                               esp_pad_len, ENC_NA);
+          if (!heur_ok) {
+            expert_add_info(pinfo, ti, &ei_esp_pad_bogus);
+          }
         }
 
         proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb,
@@ -2567,7 +2600,8 @@ proto_register_ipsec(void)
   };
 
   static ei_register_info ei[] = {
-    { &ei_esp_sequence_analysis_wrong_sequence_number, { "esp.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }}
+    { &ei_esp_sequence_analysis_wrong_sequence_number, { "esp.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
+    { &ei_esp_pad_bogus, { "esp.pad.bogus", PI_PROTOCOL, PI_WARN, "Padding MUST increment starting with 1 [RFC 4303 2.4]", EXPFILL }}
   };
 
   static const value_string esp_proto_type_vals[] = {
@@ -2633,6 +2667,17 @@ proto_register_ipsec(void)
                                  "and attempts to decode based on the derived Next Header field. "
                                  "Does not detect ENCR_NULL_AUTH_AES_GMAC (i.e. assumes 0 length IV)",
                                  &g_esp_enable_null_encryption_decode_heuristic);
+
+  prefs_register_enum_preference(esp_module, "padding",
+                                 "Padding type accepted",
+                                 "RFC 4303 2.4 requires that padding bytes, if present, MUST "
+                                 "be the monotonically increasing sequence 1, 2, 3, …. "
+                                 "Some implementations add non-compliant padding. "
+                                 "This option determines what, if any, non-compliant padding "
+                                 "the NULL encryption heuristic will allow. "
+                                 "WARNING: Allowing non-compliant padding can lead to "
+                                 "significant false positives.",
+                                 &g_esp_padding_type, esp_padding_vals, FALSE);
 
   prefs_register_bool_preference(esp_module, "do_esp_sequence_analysis",
                                  "Check sequence numbers of ESP frames",
