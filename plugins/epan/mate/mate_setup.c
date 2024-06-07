@@ -281,7 +281,7 @@ static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 	hfri.p_id = &(cfg->hfid_pdu_rel_time);
 	hfri.hfinfo.name = ws_strdup_printf("%s time",cfg->name);
 	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.RelativeTime",cfg->name);
-	hfri.hfinfo.type = FT_FLOAT;
+	hfri.hfinfo.type = FT_DOUBLE;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of capture";
 
@@ -290,7 +290,7 @@ static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 	hfri.p_id = &(cfg->hfid_pdu_time_in_gop);
 	hfri.hfinfo.name = ws_strdup_printf("%s time since beginning of Gop",cfg->name);
 	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.TimeInGop",cfg->name);
-	hfri.hfinfo.type = FT_FLOAT;
+	hfri.hfinfo.type = FT_DOUBLE;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of the GOP";
 
@@ -336,7 +336,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = ws_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.StartTime",cfg->name);
-	hfri.hfinfo.type = FT_FLOAT;
+	hfri.hfinfo.type = FT_DOUBLE;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = ws_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
@@ -482,7 +482,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = ws_strdup_printf("%s start time",cfg->name);
 	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.StartTime",cfg->name);
-	hfri.hfinfo.type = FT_FLOAT;
+	hfri.hfinfo.type = FT_DOUBLE;
 	hfri.hfinfo.blurb = ws_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);

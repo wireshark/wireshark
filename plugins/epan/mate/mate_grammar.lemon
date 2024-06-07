@@ -47,16 +47,16 @@ typedef struct _gop_options {
 	gop_tree_mode_t pdu_tree_mode;
 	gboolean drop_unassigned;
 	gboolean show_times;
-	float expiration;
-	float idle_timeout;
-	float lifetime;
+	double expiration;
+	double idle_timeout;
+	double lifetime;
 	AVPL* start;
 	AVPL* stop;
 	AVPL* extras;
 } gop_options_t;
 
 typedef struct _gog_statements {
-	float expiration;
+	double expiration;
 	gop_tree_mode_t gop_tree_mode;
 	GPtrArray* transform_list;
 	AVPL* extras;
@@ -207,7 +207,7 @@ DIAG_ON_LEMON()
 %type   action_mode { avpl_replace_mode }
 
 %type gop_name { gchar* }
-%type time_value { float }
+%type time_value { double }
 %type pdu_name { gchar* }
 %type gop_tree_mode { gop_tree_mode_t }
 %type true_false { gboolean }
@@ -229,12 +229,12 @@ DIAG_ON_LEMON()
 %type gop_drop_unassigned_statement { gboolean }
 %type show_goptree_statement { gop_tree_mode_t }
 %type show_times_statement { gboolean }
-%type gop_expiration_statement { float }
-%type idle_timeout_statement { float }
-%type lifetime_statement { float }
+%type gop_expiration_statement { double }
+%type idle_timeout_statement { double }
+%type lifetime_statement { double }
 
 %type gog_statements { gog_statement_t* }
-%type gog_expiration_statement { float }
+%type gog_expiration_statement { double }
 %type gog_goptree_statement { gop_tree_mode_t }
 %type gog_key_statements { LoAL* }
 %type gog_key_statement { AVPL* }
@@ -607,11 +607,11 @@ pdu_name(A) ::= NAME(B). {
 
 
 time_value(A) ::= FLOATING(B). {
-	A = (float) g_ascii_strtod(B,NULL);
+	A = g_ascii_strtod(B,NULL);
 }
 
 time_value(A) ::= INTEGER(B). {
-	A = (float) g_ascii_strtod(B,NULL);
+	A = g_ascii_strtod(B,NULL);
 }
 
 /************* GOG

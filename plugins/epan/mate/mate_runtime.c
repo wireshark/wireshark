@@ -175,9 +175,9 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
 	gop->gog = NULL;
 	gop->next = NULL;
 
-	gop->expiration = cfg->expiration > 0.0 ? cfg->expiration + rd->now : (float) -1.0 ;
-	gop->idle_expiration = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;
-	gop->time_to_die = cfg->lifetime > 0.0 ? cfg->lifetime + rd->now : (float) -1.0 ;
+	gop->expiration = cfg->expiration > 0.0 ? cfg->expiration + rd->now : -1.0 ;
+	gop->idle_expiration = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : -1.0 ;
+	gop->time_to_die = cfg->lifetime > 0.0 ? cfg->lifetime + rd->now : -1.0 ;
 	gop->time_to_timeout = 0.0f;
 
 	gop->last_time = gop->start_time = rd->now;
@@ -590,7 +590,7 @@ static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 		pdu->time_in_gop = rd->now - gop->start_time;
 
 		gop->num_of_pdus++;
-		gop->time_to_timeout = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;
+		gop->time_to_timeout = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : -1.0 ;
 
 		dbg_print (dbg_gop,4,dbg_facility,"analyze_pdu: merge with key");
 
@@ -813,7 +813,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 	last_start = proto_range->start;
 
-	/* we move forward in the tranport */
+	/* we move forward in the transport */
 	for (i = cfg->transport_ranges->len; i--; ) {
 		hfid = *((int*)g_ptr_array_index(cfg->transport_ranges,i));
 		ptrs = proto_get_finfo_ptr_array(tree, hfid);
@@ -904,7 +904,7 @@ extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* 
 	mate_pdu* pdu = NULL;
 	mate_pdu* last = NULL;
 
-	rd->now = (float) nstime_to_sec(&pinfo->rel_ts);
+	rd->now = nstime_to_sec(&pinfo->rel_ts);
 
 	if ( proto_tracking_interesting_fields(tree)
 		 && rd->highest_analyzed_frame < pinfo->num ) {

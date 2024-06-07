@@ -897,8 +897,8 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 	gchar* p;
 	guint ls;
 	guint lo;
-	float fs = 0.0f;
-	float fo = 0.0f;
+	double fs = 0.0;
+	double fo = 0.0;
 	gboolean lower = FALSE;
 
 #ifdef _AVP_DEBUGGING
@@ -936,8 +936,8 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 			/* FALLTHRU */
 		case AVP_OP_HIGHER:
 
-			fs = (float) g_ascii_strtod(src->v, NULL);
-			fo = (float) g_ascii_strtod(op->v, NULL);
+			fs = g_ascii_strtod(src->v, NULL);
+			fo = g_ascii_strtod(op->v, NULL);
 
 			if (lower) {
 				if (fs<fo) return src;

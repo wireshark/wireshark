@@ -118,9 +118,9 @@ typedef struct _mate_cfg_gop {
 	AVPL* stop;  /* stop candidate avpl */
 	AVPL* extra; /* attributes to be added */
 
-	float expiration;
-	float idle_timeout;
-	float lifetime;
+	double expiration;
+	double idle_timeout;
+	double lifetime;
 
 	gboolean drop_unassigned;
 	gop_pdu_tree_t pdu_tree_mode;
@@ -155,7 +155,7 @@ typedef struct _mate_cfg_gog {
 	LoAL* keys;
 	AVPL* extra; /* attributes to be added */
 
-	float expiration;
+	double expiration;
 	gop_tree_mode_t gop_tree_mode;
 	gboolean show_times;
 
@@ -212,9 +212,9 @@ typedef struct _mate_config {
 		} pdu;
 
 		struct _gop_defaults {
-			float expiration;
-			float idle_timeout;
-			float lifetime;
+			double expiration;
+			double idle_timeout;
+			double lifetime;
 
 			gop_pdu_tree_t pdu_tree_mode;
 			gboolean show_times;
@@ -223,7 +223,7 @@ typedef struct _mate_config {
 		} gop;
 
 		struct _gog_defaults {
-			float expiration;
+			double expiration;
 			gboolean show_times;
 			gop_tree_mode_t gop_tree_mode;
 		} gog;
@@ -249,7 +249,7 @@ typedef struct _mate_config_frame {
 
 typedef struct _mate_runtime_data {
 	guint current_items; /* a count of items */
-	float now;
+	double now;
 	guint highest_analyzed_frame;
 
 	GHashTable* frames; /* k=frame.num v=pdus */
@@ -269,11 +269,11 @@ struct _mate_pdu {
 
 	guint32 frame; /* which frame I belong to? */
 	mate_pdu* next_in_frame; /* points to the next pdu in this frame */
-	float rel_time; /* time since start of capture  */
+	double rel_time; /* time since start of capture  */
 
 	mate_gop* gop; /* the gop the pdu belongs to (if any) */
 	mate_pdu* next; /* next in gop */
-	float time_in_gop; /* time since gop start */
+	double time_in_gop; /* time since gop start */
 
 	gboolean first; /* is this the first pdu in this frame? */
 	gboolean is_start; /* this is the start pdu for this gop */
@@ -294,14 +294,14 @@ struct _mate_gop {
 	mate_gog* gog; /* the gog of a gop */
 	mate_gop* next; /* next in gog; */
 
-	float expiration; /* when will it expire after release (all gops releases if gog)? */
-	float idle_expiration; /* when will it expire if no new pdus are assigned to it */
-	float time_to_die;
-	float time_to_timeout;
+	double expiration; /* when will it expire after release (all gops releases if gog)? */
+	double idle_expiration; /* when will it expire if no new pdus are assigned to it */
+	double time_to_die;
+	double time_to_timeout;
 
-	float start_time; /* time of start */
-	float release_time; /* when this gop/gog was released */
-	float last_time; /* the rel_time at which the last pdu has been added (to gop or gog's gop) */
+	double start_time; /* time of start */
+	double release_time; /* when this gop/gog was released */
+	double last_time; /* the rel_time at which the last pdu has been added (to gop or gog's gop) */
 
 
 	int num_of_pdus; /* how many gops a gog has? */
@@ -322,13 +322,13 @@ struct _mate_gog {
 
 	gboolean released; /* has this gop been released? */
 
-	float expiration; /* when will it expire after release (all gops releases if gog)? */
-	float idle_expiration; /* when will it expire if no new pdus are assigned to it */
+	double expiration; /* when will it expire after release (all gops releases if gog)? */
+	double idle_expiration; /* when will it expire if no new pdus are assigned to it */
 
 	/* on gop and gog: */
-	float start_time; /* time of start */
-	float release_time; /* when this gog was released */
-	float last_time; /* the rel_time at which the last pdu has been added */
+	double start_time; /* time of start */
+	double release_time; /* when this gog was released */
+	double last_time; /* the rel_time at which the last pdu has been added */
 
 	mate_gop* gops; /* gops that belong to a gog (NULL in gop) */
 	mate_gop* last_gop; /* last gop in gop's list */
