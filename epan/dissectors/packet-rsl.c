@@ -110,6 +110,7 @@ static int hf_rsl_cbch_load_type;
 static int hf_rsl_msg_slt_cnt;
 static int hf_rsl_ch_ind;
 static int hf_rsl_command;
+static int hf_rsl_command_ext;
 static int hf_rsl_emlpp_prio;
 static int hf_rsl_rtd;
 static int hf_rsl_delay_ind;
@@ -2992,7 +2993,7 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree *ie_tree;
     guint       length;
     guint8      ie_id;
-    guint8      octet;
+    bool        ext;
 
     if (is_mandatory == FALSE) {
         ie_id = tvb_get_guint8(tvb, offset);
@@ -3012,18 +3013,14 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     offset++;
 
     /* Extension bit */
-    proto_tree_add_item(ie_tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-
-    /* TODO this should probably be add_uint instead!!! */
-    octet = tvb_get_guint8(tvb, offset);
-    if ((octet & 0x80) == 0x80) {
-        /* extended */
-        /* Command Extension */
-        proto_tree_add_item(ie_tree, hf_rsl_command, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset = offset+2;
-    }else{
-        /* Command Value */
+    proto_tree_add_item_ret_boolean(ie_tree, hf_rsl_extension_bit, tvb,
+                                    offset, 1, ENC_BIG_ENDIAN, &ext);
+    if (ext) {
+        /* If the extension bit E (bit 8) is set to 1 then the Command value
+         * is a 2 octet field (octets 3 and 3a) */
+        proto_tree_add_item(ie_tree, hf_rsl_command_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    } else {
         proto_tree_add_item(ie_tree, hf_rsl_command, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
@@ -5095,7 +5092,12 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_command,
           { "Command",           "gsm_abis_rsl.cmd",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_rsl_command_ext,
+          { "Command (extended)", "gsm_abis_rsl.cmd_ext",
+            FT_UINT16, BASE_DEC, NULL, 0x7fff,
             NULL, HFILL }
         },
         { &hf_rsl_emlpp_prio,
