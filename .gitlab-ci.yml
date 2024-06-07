@@ -443,23 +443,25 @@ Windows x64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DBUILD_logray=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount logray_nsis_prep.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_wix_prep.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - msbuild /verbosity:minimal wireshark_nsis.vcxproj
+    - msbuild /verbosity:minimal logray_nsis.vcxproj
     # No need for explicit signing of NSIS installer here. The signing is done by makensis.
     - msbuild /verbosity:minimal wireshark_wix.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Wireshark-*.msi
     - msbuild /verbosity:minimal wireshark_portableapps.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps\WiresharkPortable*.exe
-    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-x64.exe packaging\wix\Wireshark-*-x64.msi packaging\portableapps\WiresharkPortable??_*.paf.exe
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-x64.exe packaging\nsis\Logray-*-x64.exe packaging\wix\Wireshark-*-x64.msi packaging\portableapps\WiresharkPortable??_*.paf.exe
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Logray-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash $package.length "bytes" }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_X64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_X64/" }
     - $nsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-x64.exe).Hash
@@ -487,17 +489,19 @@ Windows Arm64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DBUILD_logray=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount logray_nsis_prep.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - msbuild /verbosity:minimal wireshark_nsis.vcxproj
-    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe
+    - msbuild /verbosity:minimal logray_nsis.vcxproj
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe packaging\nsis\Logray-*-arm64.exe
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Logray-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash $package.length "bytes" }
     - if (Test-Path env:MC_DESTINATION_WINDOWS_ARM64) { C:\gitlab-builds\bin\mc --quiet cp $packages "$env:MC_DESTINATION_WINDOWS_ARM64/" }
     - $nsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-arm64.exe).Hash
@@ -847,6 +851,8 @@ Windows Build:
     - wireshark-windows-merge-req
   needs: [ 'Commit Check' ]
   script:
+    # lib{sinsp,scap} don't support Configuration=Debug, so we can't enable
+    # BUILD_logray or BUILD_falcodump here just yet.
     - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj

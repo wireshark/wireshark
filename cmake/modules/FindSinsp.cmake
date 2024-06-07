@@ -22,7 +22,7 @@
 #  SINSP_DLL            - (Windows) Name of the libsinsp and libscap DLLs
 
 include( FindWSWinLibs )
-FindWSWinLibs( "libfalcosecurity-.*" SINSP_HINTS )
+FindWSWinLibs( "falcosecurity-libs-.*" SINSP_HINTS )
 
 include(CMakeDependentOption)
 
@@ -168,7 +168,7 @@ if(NOT SINSP_FOUND)
   endif()
 
   find_library(_zlib_lib NO_CACHE
-    NAMES zlib
+    NAMES zlibstatic
     HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib" "${SINSP_HINTS}/lib/falcosecurity"
     PATHS
     /usr/lib
