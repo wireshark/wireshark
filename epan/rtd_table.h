@@ -121,7 +121,7 @@ WS_DLL_PUBLIC void reset_rtd_table(rtd_stat_table* table);
 /** Interator to walk RTD tables and execute func
  * Used for initialization
  *
- * @param func action to be performed on all converation tables
+ * @param func action to be performed on all conversation tables
  * @param user_data any data needed to help perform function
  */
 WS_DLL_PUBLIC void rtd_table_iterate_tables(wmem_foreach_func func, gpointer user_data);

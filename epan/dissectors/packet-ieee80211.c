@@ -18172,7 +18172,7 @@ add_ff_eht_mimo_control_etc(proto_tree *tree _U_, tvbuff_t *tvb _U_,
   }
   if (nr_index == 0 || nr_index > 7) {
     expert_add_info_format(pinfo, mci, &ei_ieee80211_eht_invalid_nc_nr,
-                           "Nr indices (%d) 0 and > 7 are resered", nr_index);
+                           "Nr indices (%d) 0 and > 7 are reserved", nr_index);
     return offset;
   }
   offset += 5;

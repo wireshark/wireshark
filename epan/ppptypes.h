@@ -75,7 +75,7 @@
 #define PPP_MPLS_UNI	0x0281	/* MPLS Unicast */
 #define PPP_MPLS_MULTI	0x0283	/* MPLS Multicast */
 #define PPP_P12844	0x0285	/* IEEE p1284.4 standard - data packets */
-#define PPP_TETRA	0x0287	/* ETSI TETRA Network Procotol Type 1 */
+#define PPP_TETRA	0x0287	/* ETSI TETRA Network Protocol Type 1 */
 #define PPP_MFTP	0x0289	/* Multichannel Flow Treatment Protocol */
 #define PPP_RTP_CTCPND	0x2063	/* RTP IPHC Compressed TCP No Delta */
 #define PPP_RTP_CS	0x2065	/* RTP IPHC Context State */

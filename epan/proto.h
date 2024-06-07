@@ -476,7 +476,7 @@ void proto_report_dissector_bug(const char *format, ...)
  * ENC_ASCII and its ilk.
  *
  * XXX - ENC_STR_NUM is not yet supported by any code in Wireshark,
- * and these are aonly used for byte arrays.  Presumably they could
+ * and these are only used for byte arrays.  Presumably they could
  * also be used for integral values in the future.
  */
 /* this is for strings as numbers "12345" */

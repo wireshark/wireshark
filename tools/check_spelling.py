@@ -209,6 +209,7 @@ class File:
             v = v.replace('®', '')
             v = v.replace("'", ' ')
             v = v.replace('"', ' ')
+            v = v.replace('~', ' ')
             v = v.replace('%u', '')
             v = v.replace('%d', '')
             v = v.replace('%s', '')

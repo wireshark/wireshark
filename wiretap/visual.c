@@ -98,7 +98,7 @@ struct visual_atm_hdr
    uint16_t cell_count;    /* number of cells that make up this pdu */
    uint32_t data_length;   /* PDU data length for AAL-5 PDUs, all others - cellcount * 48 */
    uint32_t ts_secs;       /* seconds value of sysUpTime when the last cell of this PDU was captured */
-   uint32_t ts_nsec;       /* nanoseonds value of sysUpTime when the last cell of this PDU was captured */
+   uint32_t ts_nsec;       /* nanoseconds value of sysUpTime when the last cell of this PDU was captured */
 
 };
 

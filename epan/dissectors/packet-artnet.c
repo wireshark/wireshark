@@ -8837,7 +8837,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     { &hf_artnet_diag_data_port,
-      { "Locical port",
+      { "Logical port",
         "artnet.diag_data.port",
         FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }},

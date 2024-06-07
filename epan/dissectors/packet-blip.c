@@ -403,7 +403,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	proto_tree *blip_tree;
 	gint offset = 0;
 
-	/* Set the protcol column to say BLIP */
+	/* Set the protocol column to say BLIP */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLIP");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);

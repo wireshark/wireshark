@@ -98,7 +98,7 @@ WS_DLL_PUBLIC gboolean value_is_in_range(const range_t *range, guint32 val);
  * @param scope memory scope of range (in case of reallocation)
  * @param range to add value
  * @param val value to add to range
- * @return TRUE if the value is successsfully added to range
+ * @return TRUE if the value is successfully added to range
  */
 WS_DLL_PUBLIC gboolean range_add_value(wmem_allocator_t *scope, range_t **range, guint32 val);
 
@@ -107,7 +107,7 @@ WS_DLL_PUBLIC gboolean range_add_value(wmem_allocator_t *scope, range_t **range,
  * @param scope memory scope of range (in case of reallocation)
  * @param range to remove value
  * @param val value to remove within range
- * @return TRUE if the value is successsfully removed to range
+ * @return TRUE if the value is successfully removed to range
  */
 WS_DLL_PUBLIC gboolean range_remove_value(wmem_allocator_t *scope, range_t **range, guint32 val);
 

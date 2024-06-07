@@ -903,7 +903,7 @@ stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name)
     if (node)
         return node->id;
     else
-        return 0; /* XXX: this is the root shoud we return -1 instead?*/
+        return 0; /* XXX: this is the root should we return -1 instead?*/
 }
 
 

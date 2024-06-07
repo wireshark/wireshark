@@ -171,7 +171,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
 
 /** Interator to walk all registered followers and execute func
  *
- * @param func action to be performed on all converation tables
+ * @param func action to be performed on all conversation tables
  * @param user_data any data needed to help perform function
  */
 WS_DLL_PUBLIC void follow_iterate_followers(wmem_foreach_func func, void *user_data);

@@ -47,6 +47,7 @@ adwin
 aes128
 aes256
 aethra
+afnum
 aggreg
 aggregated
 aggregates
@@ -99,6 +100,7 @@ applicability
 approx
 appset
 appsig
+april
 arabic
 arbitrated
 arcnet
@@ -106,6 +108,7 @@ arduino
 arfcn
 arista
 armscii
+arphrd
 aruba
 ascii
 asciidoc
@@ -156,6 +159,7 @@ autosar
 available
 avaya
 avrcp
+b100base
 bacapp
 backedup
 backend
@@ -209,6 +213,7 @@ bosch
 bouygues
 bratislava
 britain
+british
 broadcom
 browsers
 bsmap
@@ -400,6 +405,7 @@ congctrl
 connectionless
 connid
 connp
+conout
 const
 contactless
 contextp
@@ -423,6 +429,7 @@ coverity
 cp56time2a
 cpdlc
 cpich
+cplusplus
 cppcheck
 cpubus
 cpuregisters
@@ -483,6 +490,7 @@ debugger
 debuggers
 decapsulation
 decca
+december
 decentralization
 dechunk
 decimals
@@ -507,6 +515,8 @@ defragmentation
 defragmented
 defragmenting
 dehumidification
+deinterlaced
+deinterlacer
 deinterlacing
 deinterleaved
 deleg
@@ -656,6 +666,7 @@ ellipsoid
 emlsr
 emulates
 emule
+enablement
 encap
 encaps
 encapsulating
@@ -676,6 +687,7 @@ endif
 endpoint
 endpt
 engineid
+enlight
 enodeb
 enqueue
 enrollee
@@ -710,6 +722,7 @@ España
 esperanto
 essar
 estonia
+estream
 ethcm
 etheraddr
 ethercat
@@ -761,6 +774,7 @@ fastmsg
 fattr
 fdata
 featureful
+february
 fhandle
 fiber
 fibre
@@ -896,6 +910,7 @@ heuristic
 heuristics
 hfarr
 hfill,
+hfindex
 hfinfo
 HI2Operations
 histogram
@@ -1028,6 +1043,7 @@ ioflag
 iograph
 ionospheric
 iotecha
+ipacc
 ipaccess
 ipaddr
 ipaddress
@@ -1168,12 +1184,14 @@ macos
 macosx
 macros
 macsec
+madge
 madrid
 magnitudes
 mailto
 maintainers
 malloc
 manarg
+manip
 mantissa
 manuf
 mappable
@@ -1184,6 +1202,7 @@ mathieson
 matrixes
 maxbytes
 maxlen
+maxlength
 maxmind
 maxnoof
 maybefcs
@@ -1215,9 +1234,11 @@ meshcop
 messageid
 metadata
 metamethod
+metatraffic
 meteorological
 metermod
 metre
+metres
 México
 mfgfield
 mgmtmsg
@@ -1255,6 +1276,7 @@ modulations
 modulo
 modulus
 modus
+monday
 motorola
 móviles
 mozilla
@@ -1327,6 +1349,7 @@ ndpsm
 nederland
 negotiability
 neighbour
+neighbours
 nessie
 netboot
 netfilter
@@ -1355,6 +1378,7 @@ niagara
 niagra
 nigam
 nikon
+nintendo
 nistp
 nitnxlate
 njack
@@ -1390,6 +1414,7 @@ notifier
 notset
 notused
 novell
+november
 nowait
 nowrap
 npcap
@@ -1425,6 +1450,7 @@ octal
 octet
 octets
 octetstring
+october
 oextcap
 ofdma
 offloadability
@@ -1450,6 +1476,7 @@ ofptfpt
 ofpxmt
 om2000
 omniidl
+omron
 onboarding
 onduration
 onoff
@@ -1476,6 +1503,7 @@ optiplex
 optreq
 optus
 ordinal
+organisation
 orpcthat
 orthogonal
 oscillatory
@@ -1693,6 +1721,7 @@ realloc
 realtek
 realtime
 reassembles
+reassemblies
 reassembly
 reassigning
 reassignments
@@ -1714,6 +1743,7 @@ recalculating
 recalculation
 recalibrate
 recognised
+recognises
 recognizer
 recompile
 recompiled
@@ -1800,6 +1830,7 @@ resampled
 resampler
 rescan
 resegment
+resegmentation
 resegmented
 resend
 resequencing
@@ -1853,6 +1884,7 @@ rmcap
 rngrsp
 rnsap
 roamer
+robert
 romania
 rotterdam
 routable
@@ -1896,6 +1928,7 @@ sarajevo
 satisfiable
 satnet
 saturates
+saturday
 savvius
 scalability
 scalable
@@ -1970,6 +2003,7 @@ showtechnic
 shtdn
 siapp
 sidelink
+siginfo
 siglen
 signaal
 signaling
@@ -2038,6 +2072,7 @@ sscop
 sshdump
 sshkey
 ssupervisor
+stainfo
 stanag
 standardization
 stateful
@@ -2107,6 +2142,7 @@ subtlv
 subtree
 subtrees
 sudan
+sunday
 superseding
 superset
 suppfeat
@@ -2116,11 +2152,13 @@ sverige
 svhdx
 swedish
 swisscom
+swissvoice
 switchinfo
 sydney
 symantec
 symbl
 symlink
+synchronisation
 synchronizer
 synchronizing
 synchronously
@@ -2184,6 +2222,7 @@ thermister
 thermistor
 throughput
 thunderx
+thursday
 timeout
 timeslot
 timestamp
@@ -2208,6 +2247,7 @@ topologies
 toprowflag
 topup
 toshiba
+tostr
 tostring
 totemsrp
 touchlink
@@ -2237,6 +2277,7 @@ trustdom
 tshark
 tspec
 tstamp
+tuesday
 tunid
 tunneled
 tunneling
@@ -2244,12 +2285,14 @@ tuple
 tuples
 tvbparse
 tvbuff
+tvbuffer
 twamp
 twopc
 txchannel
 txmcsmap
 txpwr
 txsta
+txtmod
 type1
 type2
 type2mimo
@@ -2302,6 +2345,7 @@ uncommented
 uncompensated
 uncompress
 uncompressed
+uncompresses
 uncompressing
 uncompression
 unconfigurable
@@ -2352,6 +2396,7 @@ uninstallation
 uninstalled
 uninstaller
 uninterruptable
+unintuitive
 unistim
 universitaet
 unjoin
@@ -2502,8 +2547,10 @@ wbxml
 webcam
 webkit
 websocket
+wednesday
 werror
 whoami
+whois
 wideband
 wifidump
 wikipedia

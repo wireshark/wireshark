@@ -189,7 +189,7 @@ pbl_printf(const char* fmt, ...)
 void
 pbl_reinit_descriptor_pool(pbl_descriptor_pool_t** ppool, const char** directories, pbl_report_error_cb_t error_cb);
 
-/* free all memory used by this protocol buffers languange pool */
+/* free all memory used by this protocol buffers language pool */
 void
 pbl_free_pool(pbl_descriptor_pool_t* pool);
 
@@ -197,7 +197,7 @@ pbl_free_pool(pbl_descriptor_pool_t* pool);
 gboolean
 pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepath);
 
-/* run C protocol buffers languange parser, return 0 if successed */
+/* run C protocol buffers language parser, return 0 if success */
 int run_pbl_parser(pbl_descriptor_pool_t* pool);
 
 /* like descriptor_pool::FindMethodByName */

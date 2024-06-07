@@ -5778,7 +5778,7 @@ proto_reg_handoff_bluetooth(void)
     dissector_add_uint("llc.bluetooth_pid", AMP_C_SECURITY_FRAME, eapol_handle);
     dissector_add_uint("llc.bluetooth_pid", AMP_U_L2CAP, btl2cap_handle);
 
-/* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
+/* TODO: Add UUID128 version of UUID16; UUID32? UUID16? */
 }
 
 static int proto_btad_apple_ibeacon;

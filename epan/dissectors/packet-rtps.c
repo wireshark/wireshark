@@ -14429,7 +14429,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
     decryption_info->try_psk_decryption = true;
     decryption_info->algorithm = tvb_get_guint8(tvb, algorithm_offset);
 
-    /* Copy the bytes as they are. Without considering the endianess */
+    /* Copy the bytes as they are. Without considering the endianness */
     tvb_memcpy(
         tvb,
         &decryption_info->session_id,

@@ -226,7 +226,7 @@ WS_DLL_PUBLIC register_ct_t* get_conversation_by_proto_id(int proto_id);
 /** Register "initialization function" used by the GUI to create conversation
  * table display in GUI
  *
- * @param init_cb callback function that will be called when converation table "display
+ * @param init_cb callback function that will be called when conversation table "display
  * is instantiated in GUI
  */
 WS_DLL_PUBLIC void conversation_table_set_gui_info(conv_gui_init_cb init_cb);
@@ -243,14 +243,14 @@ WS_DLL_PUBLIC void endpoint_table_set_gui_info(endpoint_gui_init_cb init_cb);
 G_DEPRECATED_FOR(endpoint_table_set_gui_info)
 WS_DLL_PUBLIC void hostlist_table_set_gui_info(endpoint_gui_init_cb init_cb);
 
-/** Iterator to walk converation tables and execute func
+/** Iterator to walk conversation tables and execute func
  *
- * @param func action to be performed on all converation tables
+ * @param func action to be performed on all conversation tables
  * @param user_data any data needed to help perform function
  */
 WS_DLL_PUBLIC void conversation_table_iterate_tables(wmem_foreach_func func, void* user_data);
 
-/** Total number of converation tables
+/** Total number of conversation tables
  */
 WS_DLL_PUBLIC guint conversation_table_get_num(void);
 

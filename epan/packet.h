@@ -45,7 +45,7 @@ struct epan_range;
 	((guint)(offset) + (guint)(len) > (guint)(offset) && \
 	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
-/* 0 is case insenstive for backwards compatibility with tables that
+/* 0 is case insensitive for backwards compatibility with tables that
  * used FALSE or BASE_NONE for case sensitive, which was the default.
  */
 #define STRING_CASE_SENSITIVE 0
