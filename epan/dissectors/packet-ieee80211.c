@@ -37606,7 +37606,7 @@ static int * const ranging_headers2[] = {
 };
 
 static int
-dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *tree, int offset, guint fcs_len)
 {
   proto_tree        *common_tree = NULL;
@@ -37629,7 +37629,7 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   trigger_type = tvb_get_guint8(tvb, offset) & 0x0F;
-  common_info_b54_55 = tvb_get_guint8(tvb, offset + 5);
+  common_info_b54_55 = tvb_get_guint8(tvb, offset + 6);
   if ((common_info_b54_55 >> 6) == 0x03)
     eht_trigger = FALSE;
 
