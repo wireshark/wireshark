@@ -55,6 +55,7 @@ typedef struct _profinet_lldp_column_info {
 }profinet_lldp_column_info;
 
 static gint column_info_selection = DEFAULT_COLUMN_INFO;
+static bool assume_unrecognized_tlv = FALSE;
 
 static dissector_handle_t lldp_handle;
 
@@ -577,7 +578,7 @@ static expert_field ei_lldp_bad_type;
 static expert_field ei_lldp_tlv_deprecated;
 
 /* TLV Types */
-#define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
+#define END_OF_LLDPDU_TLV_TYPE		0x00
 #define CHASSIS_ID_TLV_TYPE		0x01	/* Mandatory */
 #define PORT_ID_TLV_TYPE		0x02	/* Mandatory */
 #define TIME_TO_LIVE_TLV_TYPE		0x03	/* Mandatory */
@@ -2111,16 +2112,24 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 /* Dissect End of LLDPDU TLV */
+/* As of 802.1ab-2016 LLDP is defective by design.  The End of LLDPDU was changed from its
+ * previously mandatory state to optional.  With nothing to indicate the length of the entire LLDPDU
+ * and no marker to indicate the end of the LLDPDU there are now cases where it is not possible to
+ * affirmatively determine that an LLDPDU has ended.  Depending on where a capture is collected,
+ * additional data may follow the LLDPDU (FCS, diagnostic trailers, non-zero padding, etc...)
+ */
 static gint32
 dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
+	guint8 tlvType;
 	guint16 dataLen;
 	guint16 tempShort;
 
-	proto_tree	*end_of_lldpdu_tree;
+	proto_tree	*end_of_lldpdu_tree, *lf;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
+	tlvType = TLV_TYPE(tempShort);
 
 	/* Get tlv length */
 	dataLen = TLV_INFO_LEN(tempShort);
@@ -2129,10 +2138,25 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	end_of_lldpdu_tree = proto_tree_add_subtree(tree, tvb, offset, (dataLen + 2), ett_end_of_lldpdu, NULL, "End of LLDPDU");
 
 	proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	lf = proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	if (dataLen > 0)
+	{
+		/* Either a corrupt / bad End of LLDPDU, or the start of something after an LLDPDU
+		 * without an End of LLDPDU TLV.
+		 * Add EI pointing out possible invalid End of LLDP, but do not consume bytes.
+		 * Any trailer, FCS, etc starting with 0x00 or 0x01 would be interpreted as an
+		 * End of LLDPDU.  Chances are better that they belong to another dissector vs.
+		 * being a malformed End of LLDPDU (or other TLV).
+		 *
+		 * It may be reasonable to add pref to consume the bytes anyway
+		 */
+
+		expert_add_info_format(pinfo, lf, &ei_lldp_bad_length_excess,
+			"Invalid Length (%u) for Type (%s), expected (0)", dataLen, val_to_str_const(tlvType, tlv_types, ""));
+		return -1;
+	}
 
 	offset += 2;
-	offset += dataLen;
 	return offset;
 }
 
@@ -5077,7 +5101,14 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			rtnValue = dissect_organizational_specific_tlv(new_tvb, pinfo, lldp_tree, 0, pn_lldp_column_info);
 			break;
 		default:
-			rtnValue = dissect_lldp_unknown_tlv(new_tvb, pinfo, lldp_tree, 0);
+			if (!assume_unrecognized_tlv
+			|| tempShort > tvb_reported_length_remaining(tvb, offset)) {
+				/* Probably not an LLDP LTV */
+				rtnValue = -1;
+			}
+			else {
+				rtnValue = dissect_lldp_unknown_tlv(new_tvb, pinfo, lldp_tree, 0);
+			}
 			break;
 		}
 
@@ -5089,7 +5120,6 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 
 		if (rtnValue < 0) {
-			set_actual_length(tvb, offset + rtnValue);
 			break;
 		}
 		else
@@ -5101,6 +5131,8 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 	}
 
+	set_actual_length(tvb, offset);
+	proto_item_set_len(ti, offset);
 	return tvb_captured_length(tvb);
 }
 
@@ -6895,6 +6927,12 @@ proto_register_lldp(void)
 		&column_info_selection,
 		column_info_options,
 		FALSE);
+
+	prefs_register_bool_preference(lldp_module,
+		"assume_unrecognized_tlv",
+		"Assume unrecognized TLV",
+		"If checked, assume an unrecognized TLV type should be consumed and treated as an LLDP TLV.  Otherwise, end LLDP dissection.",
+		&assume_unrecognized_tlv);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lldp, hf, array_length(hf));
