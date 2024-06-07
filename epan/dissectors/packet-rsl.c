@@ -3021,8 +3021,21 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
         proto_tree_add_item(ie_tree, hf_rsl_command_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     } else {
-        proto_tree_add_item(ie_tree, hf_rsl_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_item *pi;
+        guint32    value;
+
+        pi = proto_tree_add_item_ret_uint(ie_tree, hf_rsl_command, tvb,
+                                          offset, 1, ENC_BIG_ENDIAN, &value);
         offset++;
+
+        if (value == 0x00) /* 0b0000000 */
+            proto_item_append_text(pi, " (Start)");
+        else if (value == 0x01) /* 0b0000001 */
+            proto_item_append_text(pi, " (Stop)");
+        else if (value <= 0x40) /* 0b0000010 .. 0b1000000 */
+            proto_item_append_text(pi, " (reserved for international use)");
+        else /* 0b1000001 .. 0b1111111 */
+            proto_item_append_text(pi, " (reserved for national use)");
     }
 
     return offset;
