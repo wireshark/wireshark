@@ -89,6 +89,13 @@
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_SOURCE   0x0030
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_AMOUNT   0x0031
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_TIME     0x0032
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_SETBACK         0x0034
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_SETBACK_MIN     0x0035
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_SETBACK_MAX     0x0036
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_SETBACK       0x0037
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_SETBACK_MIN   0x0038
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_SETBACK_MAX   0x0039
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_EMERGENCY_HEAT_DELTA     0x003a
 /* Air Conditioning Attributes. */
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_TYPE                  0x0040
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY              0x0041
@@ -132,6 +139,24 @@ static const value_string zbee_zcl_thermostat_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_HOLD_DURATION,   "TemperatureSetpointHoldDuration" },
     { ZBEE_ZCL_ATTR_ID_THERMOSTAT_PROGRAMMING_MODE,         "ThermostatProgrammingOperationMode" },
     { ZBEE_ZCL_ATTR_ID_THERMOSTAT_RUNNING_STATE,            "ThermostatRunningState" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_SOURCE,   "SetpointChangeSource" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_AMOUNT,   "SetpointChangeAmount" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_TIME,     "SetpointChangeTime" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_SETBACK,         "OccupiedSetback" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_SETBACK_MIN,     "OccupiedSetbackMin" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_SETBACK_MAX,     "OccupiedSetbackMax" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_SETBACK,       "UnoccupiedSetback" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_SETBACK_MIN,   "UnoccupiedSetbackMin" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_SETBACK_MAX,   "UnoccupiedSetbackMax" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_EMERGENCY_HEAT_DELTA,     "EmergencyHeatDelta" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_TYPE,                  "AcType" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY,              "AcCapacity" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_REFRIGERANT_TYPE,      "AcRefrigerantType" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_COMPRESSOR_TYPE,       "AcCompressorType" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_ERROR_CODE,            "AcErrorCode" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_LOUVER_POSITION,       "AcLouverPosition" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_COIL_TEMPERATURE,      "AcCoilTemperature" },
+    { ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY_FORMAT,       "AcCapacityFormat" },
     { 0, NULL }
 };
 
@@ -165,10 +190,11 @@ static const value_string zbee_zcl_thermostat_attr_names[] = {
 #define ZBEE_ZCL_CMD_ID_THERMOSTAT_CLEAR_SCHEDULE       0x03
 #define ZBEE_ZCL_CMD_ID_THERMOSTAT_GET_RELAY_LOG        0x04
 static const value_string zbee_zcl_thermostat_srv_rx_cmd_names[] = {
-    { ZBEE_ZCL_CMD_ID_THERMOSTAT_SETPOINT,      "Setpoint Raise/Lower" },
-    { ZBEE_ZCL_CMD_ID_THERMOSTAT_SET_SCHEDULE,  "Set Weekly Schedule" },
-    { ZBEE_ZCL_CMD_ID_THERMOSTAT_GET_SCHEDULE,  "Get Weekly Schedule" },
-    { ZBEE_ZCL_CMD_ID_THERMOSTAT_GET_RELAY_LOG, "Get Relay Status Log" },
+    { ZBEE_ZCL_CMD_ID_THERMOSTAT_SETPOINT,       "Setpoint Raise/Lower" },
+    { ZBEE_ZCL_CMD_ID_THERMOSTAT_SET_SCHEDULE,   "Set Weekly Schedule" },
+    { ZBEE_ZCL_CMD_ID_THERMOSTAT_GET_SCHEDULE,   "Get Weekly Schedule" },
+    { ZBEE_ZCL_CMD_ID_THERMOSTAT_CLEAR_SCHEDULE, "Clear Weekly Schedule" },
+    { ZBEE_ZCL_CMD_ID_THERMOSTAT_GET_RELAY_LOG,  "Get Relay Status Log" },
     { 0, NULL }
 };
 
@@ -398,6 +424,7 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 dissect_zcl_thermostat_schedule(tree, tvb, offset);
                 break;
 
+            case ZBEE_ZCL_CMD_ID_THERMOSTAT_CLEAR_SCHEDULE:
             case ZBEE_ZCL_CMD_ID_THERMOSTAT_GET_RELAY_LOG:
                 /* No Payload - fall-through. */
             default:
