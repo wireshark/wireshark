@@ -840,6 +840,148 @@ static gint ett_cis_params;
 static gint ett_addr_change_reasons;
 static gint ett_adv_subevents;
 
+/* vvv furiousmac vvv */
+static gint ett_le_apple = -1;
+static gint ett_le_apple_tlv = -1;
+static gint ett_le_airpods = -1;
+static gint ett_le_airpods_battery = -1;
+static gint ett_le_airpods_charging = -1;
+static gint ett_le_airpods_case = -1;
+
+/* Type-Length-Value Fields */
+static gint hf_btcommon_apple_type = -1;
+static gint hf_btcommon_apple_length = -1;
+
+/* 3 - AirPrint */
+static gint hf_btcommon_apple_airprint_addrtype = -1;
+static gint hf_btcommon_apple_airprint_resourcepathtype = -1;
+static gint hf_btcommon_apple_airprint_securitytype = -1;
+static gint hf_btcommon_apple_airprint_qidport = -1;
+static gint hf_btcommon_apple_airprint_ipaddr = -1;
+static gint hf_btcommon_apple_airprint_power = -1;
+
+/* 5 - AirDrop */
+static gint hf_btcommon_apple_airdrop_prefix = -1;
+static gint hf_btcommon_apple_airdrop_version = -1;
+static gint hf_btcommon_apple_airdrop_appleid = -1;
+static gint hf_btcommon_apple_airdrop_phone = -1;
+static gint hf_btcommon_apple_airdrop_email = -1;
+static gint hf_btcommon_apple_airdrop_email2 = -1;
+static gint hf_btcommon_apple_airdrop_suffix = -1;
+
+/* 6 - HomeKit */
+static gint hf_btcommon_apple_homekit_status = -1;
+static gint hf_btcommon_apple_homekit_deviceid = -1;
+static gint hf_btcommon_apple_homekit_category = -1;
+static gint hf_btcommon_apple_homekit_globalstatenum = -1;
+static gint hf_btcommon_apple_homekit_confignum = -1;
+static gint hf_btcommon_apple_homekit_compver = -1;
+
+/* 7 - Proximity Pairing (AirPods) */
+static gint hf_btcommon_apple_airpods_prefix = -1;
+static gint hf_btcommon_apple_airpods_devicemodel = -1;
+static gint hf_btcommon_apple_airpods_status = -1;
+static gint hf_btcommon_apple_airpods_leftbattery = -1;
+static gint hf_btcommon_apple_airpods_rightbattery = -1;
+static gint hf_btcommon_apple_airpods_leftcharging = -1;
+static gint hf_btcommon_apple_airpods_rightcharging = -1;
+static gint hf_btcommon_apple_airpods_casecharging = -1;
+static gint hf_btcommon_apple_airpods_casebattery = -1;
+static gint hf_btcommon_apple_airpods_opencount = -1;
+static gint hf_btcommon_apple_airpods_devicecolor = -1;
+static gint hf_btcommon_apple_airpods_suffix = -1;
+static gint hf_btcommon_apple_airpods_encdata = -1;
+static gint hf_btcommon_apple_airpods_battery_status = -1;
+static gint hf_btcommon_apple_airpods_charging_status = -1;
+static gint hf_btcommon_apple_airpods_casebattery_status = -1;
+static gint hf_btcommon_apple_airpods_battery_charging_status = -1;
+
+/* 8 - "Hey Siri" */
+static gint hf_btcommon_apple_siri_perphash = -1;
+static gint hf_btcommon_apple_siri_snr = -1;
+static gint hf_btcommon_apple_siri_confidence = -1;
+static gint hf_btcommon_apple_siri_deviceclass = -1;
+static gint hf_btcommon_apple_siri_randbyte = -1;
+
+/* 9 - AirPlay Target */
+static gint hf_btcommon_apple_airplay_flags = -1;
+static gint hf_btcommon_apple_airplay_seed = -1;
+static gint hf_btcommon_apple_airplay_ip = -1;
+
+/* 10 - AirPlay Source */
+static gint hf_btcommon_apple_airplay_data = -1;
+
+/* 11 - Magic Switch */
+static gint hf_btcommon_apple_magicswitch_data = -1;
+static gint hf_btcommon_apple_magicswitch_confidence = -1;
+
+/* 12 - Handoff */
+static gint hf_btcommon_apple_handoff_copy = -1;
+static gint hf_btcommon_apple_handoff_seqnum = -1;
+static gint hf_btcommon_apple_handoff_authtag= -1;
+static gint hf_btcommon_apple_handoff_encdata = -1;
+
+/* 13 - Tethering Target (Wi-Fi Settings Page) */
+static gint hf_btcommon_apple_tethtgt_icloudid = -1;
+
+/* 14 - Tethering Source (Instant Hotspot) */
+static gint hf_btcommon_apple_tethsrc_version = -1;
+static gint hf_btcommon_apple_tethsrc_flags = -1;
+static gint hf_btcommon_apple_tethsrc_battery = -1;
+static gint hf_btcommon_apple_tethsrc_celltype = -1;
+static gint hf_btcommon_apple_tethsrc_cellbars = -1;
+
+/* 15 - Nearby Action (Wi-Fi Join) */
+static gint hf_btcommon_apple_nearbyaction_flags = -1;
+static gint hf_btcommon_apple_nearbyaction_flags_authtag = -1;
+static gint hf_btcommon_apple_nearbyaction_type = -1;
+static gint hf_btcommon_apple_nearbyaction_auth = -1;
+static gint hf_btcommon_apple_nearbyaction_setup_device_class = -1;
+static gint hf_btcommon_apple_nearbyaction_setup_device_model = -1;
+static gint hf_btcommon_apple_nearbyaction_setup_device_color = -1;
+static gint hf_btcommon_apple_nearbyaction_setup_msg_version = -1;
+static gint hf_btcommon_apple_nearbyaction_wifijoin_ssid = -1;
+static gint hf_btcommon_apple_nearbyaction_wifijoin_appleid = -1;
+static gint hf_btcommon_apple_nearbyaction_wifijoin_phonenumber = -1;
+static gint hf_btcommon_apple_nearbyaction_wifijoin_email = -1;
+static gint hf_btcommon_apple_nearbyaction_data = -1;
+
+/* 16 - Nearby Info */
+static gint hf_btcommon_apple_nearbyinfo_statusflags = -1;
+static gint hf_btcommon_apple_nearbyinfo_airdrop_status = -1;
+static gint hf_btcommon_apple_nearbyinfo_unk_flag = -1; //seen with iPhone 11
+static gint hf_btcommon_apple_nearbyinfo_unk_flag2 = -1;
+static gint hf_btcommon_apple_nearbyinfo_primary_device = -1;
+static gint hf_btcommon_apple_nearbyinfo_action_code = -1;
+static gint hf_btcommon_apple_nearbyinfo_os = -1;
+static gint hf_btcommon_apple_nearbyinfo_dataflags = -1;
+static gint hf_btcommon_apple_nearbyinfo_autounlock_enabled = -1;
+static gint hf_btcommon_apple_nearbyinfo_autounlock_watch = -1;
+static gint hf_btcommon_apple_nearbyinfo_watch_locked = -1;
+static gint hf_btcommon_apple_nearbyinfo_authtag_present = -1;
+static gint hf_btcommon_apple_nearbyinfo_unk_flag3 = -1;
+static gint hf_btcommon_apple_nearbyinfo_wifi_status = -1;
+static gint hf_btcommon_apple_nearbyinfo_authtag_fourbyte= -1;
+static gint hf_btcommon_apple_nearbyinfo_airpod_conn = -1;
+static gint hf_btcommon_apple_nearbyinfo_auth = -1;
+static gint hf_btcommon_apple_nearbyinfo_postauth = -1;
+
+/* 18 - Find My Message */
+static gint hf_btcommon_apple_findmy_status = -1;
+static gint hf_btcommon_apple_findmy_publickey = -1;
+static gint hf_btcommon_apple_findmy_publickeybits = -1;
+static gint hf_btcommon_apple_findmy_hint = -1;
+static gint hf_btcommon_apple_findmy_data = -1;
+static gint hf_btcommon_apple_findmy_publickeyxcoord = -1;
+
+/* Unknown data fields */
+static gint hf_btcommon_apple_data = -1;
+static gint hf_btcommon_eir_ad_flags = -1;
+/* ^^^ furiousmac ^^^ */
+
+
+
+
 static gint proto_btcommon;
 static gint hf_btcommon_eir_ad_entry;
 static gint hf_btcommon_eir_ad_advertising_data;
@@ -2630,6 +2772,230 @@ static const value_string csb_fragment_vals[] = {
     { 0x03, "No" },
     {0, NULL }
 };
+
+/* vvv furiousmac vvv */
+/* Format Identifier */
+static const value_string apple_vals[] = {
+    {  1, "Observed on iOS" },
+    {  2, "iBeacon" },
+    {  3, "AirPrint" },
+    {  5, "AirDrop" },
+    {  6, "Homekit" },
+    {  7, "AirPods (Proximity Pairing)" },
+    {  8, "Hey Siri" },
+    {  9, "AirPlay Destination" },
+    { 10, "AirPlay Source" },
+    { 11, "Magic Switch" },
+    { 12, "Handoff" },
+    { 13, "Tethering Target (Wi-Fi Settings)" },
+    { 14, "Tethering Source (Instant Hotspot)" },
+    { 15, "Nearby Action" },
+    { 16, "Nearby Info" },
+    { 18, "Find My Message" }, 
+    { 0, NULL }
+};
+
+static const value_string action_vals[] = {
+    {  0, "Activity Level Unknown" },
+    {  1, "Activity Reporting Disabled (Recently Updated/iPhone Setup)" },
+    {  2, "Apple iOS 13.6 Bug" },
+    {  3, "Locked Phone" },
+    {  4, "Apple iOS 13.6 Bug" },
+    {  5, "Audio is Playing with Screen off" }, /* Never Observed */
+    {  6, "Apple iOS 13.6 Bug" },
+    {  7, "Transition to Inactive User or from Locked Screen" },
+    {  8, "Apple iOS 13.6 Bug" },
+    {  9, "Screen is on and Video is playing" }, /* Never Observed */
+    { 10, "Locked Phone; Push Notifications to Watch" },
+    { 11, "Active User" },
+    { 12, "Apple iOS 13.6 Bug" },
+    { 13, "User is Driving a Vehicle (CarPlay)"},
+    { 14, "Phone/FaceTime Call" },
+    { 15, "Apple iOS 13.6 Bug" },
+    { 16, "Apple iOS 13.6 Bug" },
+};
+
+static const value_string cellular_type_vals[] = {
+    { 0x0, "4G (GSM)" },
+    { 0x1, "1xRTT" },
+    { 0x2, "GPRS" },
+    { 0x3, "EDGE" },
+    { 0x4, "3G (EV-DO)" },
+    { 0x5, "3G" },
+    { 0x6, "4G" },
+    { 0x7, "LTE" },
+    { 0, NULL }
+};
+
+static const value_string nearbyaction_type_vals[] = {
+    { 0x01, "Apple TV Tap-To-Setup" },
+    { 0x04, "Mobile Backup" },
+    { 0x05, "Watch Setup" },
+    { 0x06, "Apple TV Pair" },
+    { 0x07, "Internet Relay" },
+    { 0x08, "Wi-Fi Password" },
+    { 0x09, "iOS Setup" },
+    { 0x0A, "Repair" },
+    { 0x0B, "Speaker Setup" },
+    { 0x0C, "Apple Pay" },
+    { 0x0D, "Whole Home Audio Setup" },
+    { 0x0E, "Developer Tools Pairing Request" },
+    { 0x0F, "Answered Call" },
+    { 0x10, "Ended Call" },
+    { 0x11, "DD Ping" },
+    { 0x12, "DD Pong" },
+    { 0x13, "Remote Auto Fill" },
+    { 0x14, "Companion Link Prox" },
+    { 0x15, "Remote Management" },
+    { 0x16, "Remote Auto Fill Pong" },
+    { 0x17, "Remote Display" },    
+    { 0, NULL }
+};
+
+static const value_string device_class_vals[] = {
+    { 0x2,  "iPhone" },
+    { 0x4,  "iPod" },
+    { 0x6,  "iPad" },
+    { 0x8,  "Audio accessory (HomePod)" },
+    { 0xA,  "Mac" },
+    { 0xC,  "AppleTV" },
+    { 0xE,  "Watch" },
+    { 0,    NULL }
+};
+
+static const value_string device_model_vals[] = {
+    { 0x0, "5, 6, 7, 8, SE (2nd Gen)" }, 
+    { 0x1, "D22 (X, XS, XSMax)" }, 
+    { 0x2, "SE (1st Gen)" },
+    { 0x3, "JEXX" },    
+    { 0, NULL }
+};
+
+static const value_string device_color_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Black" },
+    { 0x02, "White" },
+    { 0x03, "Red" },
+    { 0x04, "Silver" },
+    { 0x05, "Pink" },
+    { 0x06, "Blue" },
+    { 0x07, "Yellow" },
+    { 0x08, "Gold" },
+    { 0x09, "Sparrow" },
+    { 0, NULL }
+};
+
+static const value_string airpods_status_vals[] = {
+    { 0x2b, "Both AirPods in ear" },
+    { 0x0b, "Both AirPods in ear" }, 
+    { 0x01, "AirPods: Both out of case, not in ear" }, 
+    { 0x21, "Both taken out of ears, Pause Audio" }, 
+    { 0x02, "Right in ear, Left in case" }, 
+    { 0x22, "Left in ear, Right in case" },
+    { 0x75, "Case: Both AirPods in case" }, 
+    { 0x55, "Case: Both AirPods in case" }, 
+    { 0x03, "AirPods: Right in ear, Left out of case" }, 
+    { 0x23, "AirPods: Left in ear, Right out of case" }, 
+    { 0x33, "AirPods: Left in ear, Right in case" }, 
+    { 0x53, "Case: Left in ear, Right in case" }, 
+    { 0x13, "AirPods: Right in ear, Left in case" }, 
+    { 0x73, "Case: Right in ear, Left in case" }, 
+    { 0x11, "AirPods: Right out of case, Left in case" }, 
+    { 0x71, "Case: Right out of case, Left in case" }, 
+    { 0x31, "AirPods: Left out of case, Right in case" },
+    { 0x51, "Case: Left out of case, Right in case" },
+    { 0, NULL}
+};
+
+static const value_string airpods_device_vals[] = {
+    { 0x0220, "AirPods 1" },
+    { 0x0f20, "AirPods 2" },
+    { 0x0e20, "AirPods Pro" },
+    { 0x0320, "Powerbeats3" },
+    { 0x0520, "BeatsX" },
+    { 0x0620, "Beats Solo 3" },
+    { 0, NULL}
+};
+
+static const value_string airpods_color_vals[] = {
+    { 0x00, "White" },
+    { 0x01, "Black" },
+    { 0x02, "Red" },
+    { 0x03, "Blue" },
+    { 0x04, "Pink" },
+    { 0x05, "Gray" },
+    { 0x06, "Silver" },
+    { 0x07, "Gold" },
+    { 0x08, "Rose Gold" },
+    { 0x09, "Space Gray" },
+    { 0x0A, "Dark Blue" },
+    { 0x0B, "Light Blue" },
+    { 0x0C, "Yellow" },
+};
+
+static const value_string siri_device_vals[] = {
+    { 0x0002, "iPhone" }, 
+    { 0x0003, "iPad" }, 
+    { 0x0007, "HomePod" },
+    { 0x0009, "MacBook" },
+    { 0x000A, "Watch" }, 
+    { 0, NULL}
+};
+
+static const value_string wrist_confidence_vals[] = {
+    { 0x03, "Not on Wrist" }, 
+    { 0x1F, "Wrist detection disabled" }, 
+    { 0x3F, "On Wrist" },
+    { 0, NULL}
+};
+
+static const value_string findmy_status_vals[] = {
+    { 0x00, "Owner did not connect within key rotation period (15 min.)" }, 
+    { 0xe4, "Owner connected with key roation period, Battery Critically Low" }, 
+    { 0xa4, "Owner connected with key roation period, Battery Low" },
+    { 0x64, "Owner connected with key roation period, Battery Medium" },
+    { 0x24, "Owner connected with key roation period, Battery Full" },
+    { 0, NULL}
+};
+
+static const value_string findmy_publickeybits_vals[] = {
+    { 0x00, "bits 6 & 7 not set in public key" }, 
+    { 0x01, "bit 6 set in public key" }, 
+    { 0x02, "bit 7 set in public key" },
+    { 0x03, "bits 6 & 7 set in public key" },
+    { 0, NULL}
+};
+
+static const value_string homekit_category_vals[] = {
+    { 0x0000, "Unknown" },
+    { 0x0100, "Other" },
+    { 0x0200, "Bridge" },
+    { 0x0300, "Fan" },
+    { 0x0400, "Garage Door Opener" },
+    { 0x0500, "Lightbulb" },
+    { 0x0600, "Door Lock" },
+    { 0x0700, "Outlet" },
+    { 0x0800, "Switch" },
+    { 0x0900, "Thermostat" }, 
+    { 0x0A00, "Sensor" },
+    { 0x0B00, "Security System" },
+    { 0x0C00, "Door" },
+    { 0x0D00, "Window" },
+    { 0x0E00, "Window Covering" },
+    { 0x0F00, "Programmable Switch" },
+    { 0x1000, "Range Extender" },
+    { 0x1100, "IP Camera" },
+    { 0x1200, "Video Doorbell" },
+    { 0x1300, "Air Purifier" },
+    { 0x1400, "Heater" },
+    { 0x1500, "Air Conditioner" },
+    { 0x1600, "Humidifier" }, 
+    { 0x1700, "Dehumidifier" },
+    { 0x1C00, "Sprinklers" },
+    { 0x1D00, "Faucets" },
+    { 0x1E00, "Shower Systems" }
+};
+/* ^^^ furiousmac ^^^ */
 
 static const val64_string cmd_biginfo_le_phy_vals64[] = {
     { 0x00, "LE 1M" },
@@ -9186,7 +9552,15 @@ proto_register_bthci_cmd(void)
         &ett_pattern,
         &ett_cis_params,
         &ett_addr_change_reasons,
-        &ett_adv_subevents
+        &ett_adv_subevents,
+        /* vvv furiousmac vvv */
+        &ett_le_apple,
+        &ett_le_apple_tlv,
+        &ett_le_airpods,
+        &ett_le_airpods_battery,
+        &ett_le_airpods_charging,
+        &ett_le_airpods_case 
+        /* ^^^ furiousmac ^^^ */
     };
 
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
@@ -9291,6 +9665,10 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     gboolean     has_bd_addr = FALSE;
     guint8       bd_addr[6];
     guint8      *name = NULL;
+    /* vvv furiousmac vvv */
+    guint32      apple_os_flag;
+    guint32      iOS_13_flag = 0;
+    /* ^^^ furiousmac ^^^ */
     bluetooth_uuid_t uuid;
     guint32      interval, num_bis;
 
@@ -9319,6 +9697,9 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
         switch (type) {
         case 0x01: /* Flags */
+        /* vvv furiousmac vvv */
+            /* Changed  to proto_tree_add_item_ret_uint() for macOS detection */
+            proto_tree_add_item_ret_uint(entry_tree, hf_btcommon_eir_ad_flags_reserved, tvb, offset, 1, ENC_NA, &apple_os_flag);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_reserved, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_le_bredr_support_host, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_le_bredr_support_controller, tvb, offset, 1, ENC_NA);
@@ -9431,6 +9812,9 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
             break;
         case 0x0A: /* Tx Power Level */
+                    /* vvv furiousmac vvv */
+	    iOS_13_flag = 1; /* iOS13 uses Tx Power Level; other iOS versions do not */
+            /* ^^^ furiousmac ^^^ */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_tx_power, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -9813,8 +10197,10 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0xFF: /* Manufacturer Specific */ {
             guint16  company_id;
-
-            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            /* vvv furiousmac vvv */
+            proto_item  *manuf_item; 
+            manuf_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            /* ^^^ furiousmac ^^^ */
             company_id = tvb_get_letohs(tvb, offset);
             offset += 2;
             length -= 2;
@@ -9828,7 +10214,347 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 p_add_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_MANUFACTURER_COMPANY_ID, value_data);
             }
 
-            if (company_id == 0x000F && tvb_get_guint8(tvb, offset) == 0) { /* 3DS profile Legacy Devices */
+            /* vvv furiousmac vvv */
+            if (company_id == 0x004C && length > 1) { /* APPLE */
+                guint8      nearby_action_flags_check; 
+                guint32     a_type, a_length;
+                guint32     nearby_os_val, nearbyaction_type_val;
+                guint32     action_code_val;
+                guint32     os_set = 0;
+                guint32     auth_tag_present;
+                guint32     four_byte_authtag;
+                guint32     handoff_nearby_flag = 0;
+                address     *src_addr;
+                guint8      pubKey[28];
+                guint32     pubKeyBits;
+                gchar       *publicKeyStr;
+                //gchar       publicKeyStr[57];
+                
+                proto_tree  *manuf_tree, *tlv_tree, *airpods_tree, *airpods_battery_tree, *airpods_charging_tree, *airpods_case_tree;
+                proto_item  *tlv_item, *airpods_item, *airpods_battery_item, *airpods_charging_item, *airpods_case_item;                
+                manuf_tree = proto_item_add_subtree(manuf_item, ett_le_apple);
+                src_addr = (address *) p_get_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC);
+                
+                while(tvb_reported_length_remaining(tvb, offset) != 0){
+                    tlv_item = proto_tree_add_item_ret_uint(manuf_tree, hf_btcommon_apple_type, tvb, offset, 1, ENC_NA, &a_type); 
+                    tlv_tree = proto_item_add_subtree(tlv_item, ett_le_apple_tlv);
+                    proto_tree_add_item_ret_uint(tlv_tree, hf_btcommon_apple_length, tvb, offset + 1, 1, ENC_NA, &a_length);
+                    offset += 2;
+		    if(apple_os_flag == 0x06 && os_set == 0){ /* if MacOS and OS not set yet */
+		        /* changed to 0,0 so it doesn't tie to byte */
+			proto_tree_add_string(tlv_tree, hf_btcommon_apple_nearbyinfo_os, tvb, 0, 0, "macOS");
+                        os_set = 1;
+		    }
+		    else if(iOS_13_flag == 1 && os_set == 0){ /* if iOS13 and OS not set yet */
+                        proto_tree_add_string(tlv_tree, hf_btcommon_apple_nearbyinfo_os, tvb, offset, 1, "iOS 13.x");
+                        os_set = 1;
+		    } 
+                    switch(a_type){
+                        case 1:
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_data, tvb, offset, a_length, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 2:
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_data, tvb, offset, a_length, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 3:   /* AirPrint */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airprint_addrtype, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airprint_resourcepathtype, tvb, offset + 1 , 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airprint_securitytype, tvb, offset + 2, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airprint_qidport, tvb, offset + 3, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airprint_ipaddr, tvb, offset + 5, 16, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airprint_power, tvb, offset + 21, 1, ENC_NA);
+                            offset += a_length; 
+                            break;
+                        case 5:   /* AirDrop */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_prefix, tvb, offset, 8, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_version, tvb, offset + 8, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_appleid, tvb, offset + 9, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_phone, tvb, offset + 11, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_email, tvb, offset + 13, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_email2, tvb, offset + 15, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airdrop_suffix, tvb, offset + 17, 1, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 6:   /* HomeKit */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_homekit_status, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_homekit_deviceid, tvb, offset + 1, 6, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_homekit_category, tvb, offset + 7, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_homekit_globalstatenum, tvb, offset + 9, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_homekit_confignum, tvb, offset + 11, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_homekit_compver, tvb, offset + 12, 1, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 7:   /* AirPods */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_prefix, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_devicemodel, tvb, offset + 1, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_status, tvb, offset + 3, 1, ENC_NA);
+                           
+                            airpods_item = proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_battery_charging_status, tvb, offset + 4, 2, ENC_NA);
+                            airpods_tree = proto_item_add_subtree(airpods_item, ett_le_airpods);
+                               
+                            airpods_battery_item = proto_tree_add_item(airpods_tree, hf_btcommon_apple_airpods_battery_status, tvb, offset + 4, 1, ENC_NA);
+                            airpods_battery_tree = proto_item_add_subtree(airpods_battery_item, ett_le_airpods_battery);
+                            proto_tree_add_item(airpods_battery_tree, hf_btcommon_apple_airpods_rightbattery, tvb, offset + 4 , 1, ENC_NA);
+                            proto_tree_add_item(airpods_battery_tree, hf_btcommon_apple_airpods_leftbattery, tvb, offset + 4 , 1, ENC_NA);
+        
+                            airpods_charging_item = proto_tree_add_item(airpods_tree, hf_btcommon_apple_airpods_charging_status, tvb, offset + 5, 1, ENC_NA);
+                            airpods_charging_tree = proto_item_add_subtree(airpods_charging_item, ett_le_airpods_charging);
+                            proto_tree_add_item(airpods_charging_tree, hf_btcommon_apple_airpods_casecharging, tvb, offset + 5 , 1, ENC_NA);
+                            proto_tree_add_item(airpods_charging_tree, hf_btcommon_apple_airpods_rightcharging, tvb, offset + 5 , 1, ENC_NA);
+                            proto_tree_add_item(airpods_charging_tree, hf_btcommon_apple_airpods_leftcharging, tvb, offset + 5 , 1, ENC_NA);
+                            
+                            airpods_case_item = proto_tree_add_item(airpods_tree, hf_btcommon_apple_airpods_casebattery_status, tvb, offset + 5, 1, ENC_NA);
+                            airpods_case_tree = proto_item_add_subtree(airpods_case_item, ett_le_airpods_case);
+                            proto_tree_add_item(airpods_case_tree, hf_btcommon_apple_airpods_casebattery, tvb, offset + 5 , 1, ENC_NA);
+                            
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_opencount, tvb, offset + 6, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_devicecolor, tvb, offset + 7, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_suffix, tvb, offset + 8, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airpods_encdata, tvb, offset + 9, 16, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 8:   /* "Hey Siri" */ 
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_siri_perphash, tvb, offset, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_siri_snr, tvb, offset + 2, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_siri_confidence, tvb, offset + 3, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_siri_deviceclass, tvb, offset + 4, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_siri_randbyte, tvb, offset + 6, 1, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 9:   /* AirPlay Target */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airplay_flags, tvb, offset, 1, ENC_NA);                            
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airplay_seed, tvb, offset + 1, 1, ENC_NA);                            
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airplay_ip, tvb, offset + 2, 4, ENC_NA);
+                            offset += a_length;                            
+                            break;
+                        case 10:  /* AirPlay Source */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_airplay_data, tvb, offset, 1 , ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 11:   /*Magic Switch*/
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_magicswitch_data, tvb, offset, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_magicswitch_confidence, tvb, offset + 2, 1, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 12:   /* Handoff */
+                            handoff_nearby_flag = 1; //flag to fix bug w/ iOS 13 being labeled as iOS 12 when nearby & handoff in same frame
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_handoff_copy, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_handoff_seqnum, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_handoff_authtag, tvb, offset + 3, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_handoff_encdata, tvb, offset + 4, a_length - 4, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 13:   /* Tethering Target (WiFi Settings Page) */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_tethtgt_icloudid, tvb, offset, a_length, ENC_NA);
+                            offset += a_length;
+                            break;
+                        case 14:   /*Tethering Source (Instant Hotspot)*/
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_tethsrc_version, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_tethsrc_flags, tvb, offset + 1, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_tethsrc_battery, tvb, offset + 2, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_tethsrc_celltype, tvb, offset + 3, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_tethsrc_cellbars, tvb, offset + 5, 1, ENC_NA);
+                            offset += a_length;
+                            break;
+                     	case 15:   /* Nearby Action */
+                            if(a_length != 2){
+                                nearby_action_flags_check = tvb_get_guint8(tvb, offset) & 0x80;
+			        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_flags, tvb, offset, 1, ENC_NA);
+			        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_flags_authtag, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item_ret_uint(tlv_tree, hf_btcommon_apple_nearbyaction_type, tvb, offset + 1, 1, ENC_NA, &nearbyaction_type_val);
+				offset += 2;
+				if(nearby_action_flags_check == 0x80){
+			            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_auth, tvb, offset, 3, ENC_NA);
+			            offset += 3;
+                                    a_length -= 3;
+		                }
+				switch(nearbyaction_type_val){
+                                    case 8: /* Wi-Fi Password */
+				        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_wifijoin_appleid, tvb, offset, 3, ENC_NA);
+				        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_wifijoin_phonenumber, tvb, offset + 3, 3, ENC_NA);
+			                proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_wifijoin_email, tvb, offset + 6, 3, ENC_NA);
+				        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_wifijoin_ssid, tvb, offset + 9, 3, ENC_NA);
+				        offset += 12;
+                                        break;
+                                    case 9: /* iOS Setup */
+                                        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_setup_device_class, tvb, offset, 1, ENC_NA);
+				        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_setup_device_model, tvb, offset, 1, ENC_NA);
+				        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_setup_device_color, tvb, offset + 1, 1, ENC_NA);
+			                proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_setup_msg_version, tvb, offset + 2, 1, ENC_NA);
+			                offset += 3;
+            		                if(nearby_action_flags_check == 0x80){
+        			            a_length -= 3;
+    			                }
+    			                if((a_length - 5) != 0){
+    			                    offset += 1;    
+			                }		                        
+                                        break;
+                                    default: 
+                                        proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_data, tvb, offset, a_length - 2, ENC_NA);
+                                        offset += a_length - 2;
+                                        break;
+                                }
+                            }
+			    else{
+                                proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyaction_data, tvb, offset, a_length, ENC_NA);
+                                offset += a_length;
+                            }
+                            break;
+
+                        case 16: /* Nearby Info */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_statusflags, tvb, offset, 1, ENC_NA);
+                            /* Only seen on newer phones (iPhone 11) */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_unk_flag, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_airdrop_status, tvb, offset, 1, ENC_NA);
+                            /* Only seen on newer phones (iPhone 11) */
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_unk_flag2, tvb, offset, 1, ENC_NA);
+                            // This could be:
+                            //     Face recognition capability (turning face recognition on/off does not toggle bit)
+                            //     This could be not having no home button (not tested on  iPhone X/XR/XS, only iPhone 11
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_primary_device, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item_ret_uint(tlv_tree, hf_btcommon_apple_nearbyinfo_action_code, tvb, offset, 1, ENC_NA, &action_code_val);
+                            offset += 1; 
+                            a_length -= 1;
+                            
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_dataflags, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_autounlock_enabled, tvb, offset, 1, ENC_NA); 
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_autounlock_watch, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_watch_locked, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_authtag_present, tvb, offset, 1, ENC_NA);
+                            
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_unk_flag3, tvb, offset, 1, ENC_NA); //No clue
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_wifi_status, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_authtag_fourbyte, tvb, offset, 1, ENC_NA); 
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_airpod_conn, tvb, offset, 1, ENC_NA); 
+                            // When screen on and airpods connected -> 1
+                            // When screen on and airpods disconnected -> 0
+                            // When screen off and airpods connected -> 0
+                            // When screen off and airpods disconnected -> 0
+ 
+                            nearby_os_val = tvb_get_guint8(tvb, offset) & 0x0f;
+                            auth_tag_present = tvb_get_guint8(tvb, offset) & 0x10;
+                            four_byte_authtag = tvb_get_guint8(tvb, offset) & 0x02;
+
+                            if(os_set == 0){ //if OS not set yet (IE. not iOS13 based off Tx Power or MacOS)
+                              if(auth_tag_present == 0){ //iOS 10 probably
+                                proto_tree_add_string(tlv_tree, hf_btcommon_apple_nearbyinfo_os, tvb, offset, 1, "iOS 10.x");
+				offset += a_length;
+				break;
+                              }
+                              else{ // there is auth tag
+                                if(nearby_os_val == 0x00){ //iOS 11 (has auth tag but byte is always 0)
+                                  proto_tree_add_string(tlv_tree, hf_btcommon_apple_nearbyinfo_os, tvb, offset, 1, "iOS 11.x");
+                                  if(four_byte_authtag){
+			            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, 4, ENC_NA);
+                                    offset += 5; 
+                                    a_length -= 5;
+                                  }
+                                  else{
+			            proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, 3, ENC_NA);
+                                    offset += 4; 
+                                    a_length -= 4;
+                                  }
+ 			          if(a_length){
+                                    proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_postauth, tvb, offset, a_length, ENC_NA);
+                                  }
+				  offset += a_length;
+				  break;
+                                }
+                                else{ //else its iOS 12 b/c iOS 13 has Tx power 
+                                  //only set as iOS 12.x if nearby frame ONLY. If Handoff + Nearby in same frame, leave blank
+                                  if(handoff_nearby_flag == 0){
+                                    proto_tree_add_string(tlv_tree, hf_btcommon_apple_nearbyinfo_os, tvb, offset, 1, "iOS 12.x");
+                                  }
+			          //proto_tree_add_item(tlv_tree, hf_btcommon_apple_wifi_status, tvb, offset, 1, ENC_BIG_ENDIAN); //iOS 12 has wifi status
+				  if(a_length > 1){
+                                    if(four_byte_authtag){
+			              proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, 4, ENC_NA);
+                                      offset += 5; 
+                                      a_length -= 5;
+                                    }
+                                    else{
+			              proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, 3, ENC_NA);
+                                      offset += 4; 
+                                      a_length -= 4;
+                                    }
+ 			            if(a_length){
+                                      proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_postauth, tvb, offset, a_length, ENC_NA);
+                                    }
+				    //offset += a_length;
+				    //break;
+				      //proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, a_length - 1, ENC_NA);
+				  }
+				  offset += a_length;
+				  break;
+                                }
+                              }
+                            }
+                            else{ //iOS 13 or MacOS already set, just need wifi status and auth tag
+                              //get wifi status always
+                              if((a_length > 1) && (auth_tag_present == 0x10)){
+                                if(four_byte_authtag){
+			          proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, 4, ENC_NA);
+                                  offset += 5; 
+                                  a_length -= 5;
+                                }
+                                else{
+			          proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, 3, ENC_NA);
+                                  offset += 4; 
+                                  a_length -= 4;
+                                }
+ 			        if(a_length){
+                                  proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_postauth, tvb, offset, a_length, ENC_NA);
+                                }
+				//offset += a_length;
+				//break;
+                                //proto_tree_add_item(tlv_tree, hf_btcommon_apple_nearbyinfo_auth, tvb, offset + 1, a_length -1, ENC_NA);
+                              }
+                              offset += a_length; 
+                              break;
+                            }
+                        case 18: /* Find My Message */
+                            if(a_length == 25){
+                                publicKeyStr = (gchar *) wmem_alloc(wmem_packet_scope(), 57);
+                                for(int i = 0; i < 6; i++){
+                                    pubKey[i] = *(unsigned char *)(((char *)(src_addr->data))+i);       
+                                }
+                                proto_tree_add_item(tlv_tree, hf_btcommon_apple_findmy_status, tvb, offset, 1, ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_btcommon_apple_findmy_publickey, tvb, offset+1, 22, ENC_NA);
+                                proto_tree_add_item_ret_uint(tlv_tree, hf_btcommon_apple_findmy_publickeybits, tvb, offset + 23, 1, ENC_NA, &pubKeyBits);
+                                proto_tree_add_item(tlv_tree, hf_btcommon_apple_findmy_hint, tvb, offset + 24, 1, ENC_NA);
+                                pubKey[0] = ((((unsigned char)pubKeyBits) & 0x03) << 0x06) | (pubKey[0] & 0x3f);
+                                for(int i = 6; i < 28; i++){
+                                    pubKey[i] = (unsigned char) tvb_get_guint8(tvb, (offset+1+(i-6)));
+                                }
+                                for(int i = 0; i < 28; i++){
+                                    g_snprintf((publicKeyStr+(i*2)), 3, "%02x", ((unsigned char) pubKey[i]));
+                                }
+			        proto_tree_add_string(tlv_tree, hf_btcommon_apple_findmy_publickeyxcoord, tvb, 0, 0, publicKeyStr);
+                                wmem_free(wmem_packet_scope(), publicKeyStr);
+                            }
+                            else if(a_length == 2){
+                                proto_tree_add_item(tlv_tree, hf_btcommon_apple_findmy_status, tvb, offset, 1, ENC_NA);
+                                proto_tree_add_item_ret_uint(tlv_tree, hf_btcommon_apple_findmy_publickeybits, tvb, offset + 1, 1, ENC_NA, &pubKeyBits);
+               
+                            }
+                            else {
+                                proto_tree_add_item(tlv_tree, hf_btcommon_apple_findmy_data, tvb, offset, a_length, ENC_NA);
+                            }
+                            offset += a_length;
+                            break;
+                        default:
+                            proto_tree_add_item(tlv_tree, hf_btcommon_apple_data, tvb, offset, a_length, ENC_NA);
+                            offset += a_length;
+                            break;
+                    }
+                 //add in warnings 
+                }
+            }
+            //added else if below
+            /* ^^^ furiousmac ^^^ */
+            else if (company_id == 0x000F && tvb_get_guint8(tvb, offset) == 0) { /* 3DS profile Legacy Devices */
                 proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_legacy_fixed, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -10155,6 +10881,515 @@ proto_register_btcommon(void)
             FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
             NULL, HFILL }
         },
+        /* vvv furiousmac vvv */
+        { &hf_btcommon_apple_type,
+          { "Type", "btcommon.apple.type",
+            FT_UINT8, BASE_DEC, VALS(apple_vals), 0x0,
+            NULL, HFILL }
+        }, 
+        { &hf_btcommon_apple_length,
+          { "Length", "btcommon.apple.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 3 - AirPrint */
+        { &hf_btcommon_apple_airprint_addrtype,
+          { "AirPrint Address Type", "btcommon.apple.airprint.addrtype",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airprint_resourcepathtype,
+          { "AirPrint Resource Path Type", "btcommon.apple.airprint.resourcepathtype",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airprint_securitytype,
+          { "AirPrint Security Type", "btcommon.apple.airprint.securitytype",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airprint_qidport,
+          { "AirPrint QID or TCP Port", "btcommon.apple.airprint.qidport",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airprint_ipaddr,
+          { "IP Address", "btcommon.apple.airprint.ipaddr",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airprint_power,
+          { "Measured Power", "btcommon.apple.airprint.power",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 5 - AirDrop */
+        { &hf_btcommon_apple_airdrop_prefix,
+          { "AirDrop Prefix", "btcommon.apple.airdrop.prefix",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airdrop_version,
+          { "AirDrop Version", "btcommon.apple.airdrop.version",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airdrop_appleid,
+          { "First 2 Bytes SHA256(Apple ID)", "btcommon.apple.airdrop.appleid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airdrop_phone,
+          { "First 2 Bytes SHA256(Phone Number)", "btcommon.apple.airdrop.phone",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airdrop_email,
+          { "First 2 Bytes SHA256(Email)", "btcommon.apple.airdrop.email",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airdrop_email2,
+          { "First 2 Bytes SHA256(Email 2)", "btcommon.apple.airdrop.email2",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airdrop_suffix,
+          { "AirDrop Suffix", "btcommon.apple.airdrop.suffix",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 6 - HomeKit */
+        { &hf_btcommon_apple_homekit_status,
+          { "Status Flags", "btcommon.apple.homekit.status",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_homekit_deviceid,
+          { "Device ID", "btcommon.apple.homekit.deviceid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_homekit_category,
+          { "Category", "btcommon.apple.homekit.category",
+            FT_UINT16, BASE_HEX, homekit_category_vals, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_homekit_globalstatenum,
+          { "Global State Number", "btcommon.apple.homekit.globalstatenum",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_homekit_confignum,
+          { "Configuration Number", "btcommon.apple.homekit.confignum",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_homekit_compver,
+          { "Compatible Version", "btcommon.apple.homekit.compver",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 7 - Proximity Pairing (AirPods) */
+        { &hf_btcommon_apple_airpods_prefix,
+          { "AirPods Prefix", "btcommon.apple.airpods.prefix",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_devicemodel,
+          { "AirPods Device Model", "btcommon.apple.airpods.devicemodel",
+            FT_UINT16, BASE_HEX, airpods_device_vals, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_status,
+          { "AirPods Status", "btcommon.apple.airpods.status",
+            FT_UINT8, BASE_HEX, airpods_status_vals, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_leftbattery,
+          { "Left AirPod Battery (x10%)", "btcommon.apple.airpods.leftbattery",
+            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_rightbattery,
+          { "Right AirPod Battery (x10%)", "btcommon.apple.airpods.rightbattery",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_casecharging,
+          { "AirPods Case Charging", "btcommon.apple.airpods.casecharging",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_rightcharging,
+          { "Right AirPod Charging", "btcommon.apple.airpods.rightcharging",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_leftcharging,
+          { "Left AirPod Charging", "btcommon.apple.airpods.leftcharging",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_casebattery,
+          { "AirPod Case Battery (x10%)", "btcommon.apple.airpods.casebattery",
+            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_opencount,
+          { "AirPods Open Count", "btcommon.apple.airpods.opencount",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_devicecolor,
+          { "AirPods Device Color", "btcommon.apple.airpods.devicecolor",
+            FT_UINT8, BASE_HEX, airpods_color_vals, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_suffix,
+          { "AirPods Suffix", "btcommon.apple.airpods.suffix",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_encdata,
+          { "AirPods Encrypted Data", "btcommon.apple.airpods.encdata",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_battery_status,
+          { "AirPods L/R Battery Level", "btcommon.apple.airpods.batterystatus",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_charging_status,
+          { "AirPods Charging Status", "btcommon.apple.airpods.charingstatus",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_casebattery_status,
+          { "AirPods Case Battery Level", "btcommon.apple.airpods.casebatterystatus",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airpods_battery_charging_status,
+          { "AirPods Battery Levels & Charging Status", "btcommon.apple.airpods.batterychargingstatus",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        /* 8 - "Hey Siri" */
+        { &hf_btcommon_apple_siri_perphash,
+          { "Perceptual Hash", "btcommon.apple.siri.perphash",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_siri_snr,
+          { "Signal-to-Noise Ratio", "btcommon.apple.siri.snr",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_siri_confidence,
+          { "Confidence Level", "btcommon.apple.siri.confidence",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_siri_deviceclass,
+          { "Device Class", "btcommon.apple.siri.deviceclass",
+            FT_UINT16, BASE_HEX, siri_device_vals, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_siri_randbyte,
+          { "Random Byte", "btcommon.apple.siri.randbyte",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 9 - AirPlay Target */
+        { &hf_btcommon_apple_airplay_flags,
+          { "AirPlay Flags", "btcommon.apple.airplay.flags",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airplay_seed,
+          { "AirPlay Seed", "btcommon.apple.airplay.seed",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_airplay_ip,
+          { "AirPlay IPv4 Address", "btcommon.apple.airplay.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+	/* 10 - AirPlay Source  */
+        { &hf_btcommon_apple_airplay_data,
+          { "AirPlay Source Data", "btcommon.apple.airplay.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 11 - Magic Switch */
+        { &hf_btcommon_apple_magicswitch_data,
+          { "Data", "btcommon.apple.magicswitch.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_magicswitch_confidence,
+          { "Confidence on Wrist", "btcommon.apple.magicswitch.confidence",
+            FT_UINT8, BASE_HEX, wrist_confidence_vals, 0x0,
+            NULL, HFILL }
+        },
+        /* 12 - Handoff */
+        { &hf_btcommon_apple_handoff_copy,
+          { "Copy/Cut Performed", "btcommon.apple.handoff.copy",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_handoff_seqnum,
+          { "IV (Sequence Number)", "btcommon.apple.handoff.seqnum",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_handoff_authtag,
+          { "AES-GCM Auth Tag", "btcommon.apple.handoff.authtag",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_handoff_encdata,
+          { "Encrypted Handoff Data", "btcommon.apple.handoff.encdata",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 13 - Tethering Target (Wi-Fi Settings Page) */
+        { &hf_btcommon_apple_tethtgt_icloudid,
+          { "iCloud ID", "btcommon.apple.tethtgt.icloudid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 14 - Tethering Source (Instant Hotspot) */
+        { &hf_btcommon_apple_tethsrc_version,
+          { "Version", "btcommon.apple.tethsrc.version",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_tethsrc_flags,
+          { "Flags", "btcommon.apple.tethsrc.flags",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_tethsrc_battery,
+          { "Battery Life (%)", "btcommon.apple.tethsrc.battery",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_tethsrc_celltype,
+          { "Cellular Connection Type", "btcommon.apple.tethsrc.celltype",
+            FT_UINT16, BASE_DEC, VALS(cellular_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_tethsrc_cellbars,
+          { "Cell Service Quality (Bars)", "btcommon.apple.tethsrc.cellbars",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 15 - Nearby Action */
+        { &hf_btcommon_apple_nearbyaction_flags,
+          { "Nearby Action Flags", "btcommon.apple.nearbyaction.flags",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_flags_authtag,
+          { "Auth Tag Flag", "btcommon.apple.nearybaction.flags.authtag",
+            FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_type,
+          { "Nearby Action Type", "btcommon.apple.nearbyaction.type",
+            FT_UINT8, BASE_HEX, VALS(nearbyaction_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_auth,
+          { "Auth Tag", "btcommon.apple.nearbyaction.auth",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_wifijoin_ssid,
+          { "First 3 Bytes SHA256(SSID)", "btcommon.apple.nearbyaction.wifijoin.ssid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_wifijoin_appleid,
+          { "First 3 Bytes SHA256(Apple ID)", "btcommon.apple.nearbyaction.wifijoin.appleid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_wifijoin_phonenumber,
+          { "First 3 Bytes SHA256(Phone Number)", "btcommon.apple.nearbyaction.wifijoin.phonenumber",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_wifijoin_email,
+          { "First 3 Bytes SHA256(Email)", "btcommon.apple.nearbyaction.wifijoin.email",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_setup_device_class,
+          { "Device Class", "btcommon.apple.nearbyaction.setup.device_class",
+            FT_UINT8, BASE_HEX, VALS(device_class_vals), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_setup_device_model,
+          { "iPhone Model", "btcommon.apple.nearbyaction.setup.device_model",
+            FT_UINT8, BASE_HEX, VALS(device_model_vals), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_setup_device_color,
+          { "Device Color", "btcommon.apple.nearbyaction.setup.device_color",
+            FT_UINT8, BASE_HEX, VALS(device_color_vals), 0x0,
+            NULL, HFILL }
+        },
+	{ &hf_btcommon_apple_nearbyaction_setup_msg_version,
+          { "Message Version", "btcommon.apple.nearbyaction.setup.msg_ver",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyaction_data,
+          { "Unknown Data", "btcommon.apple.nearbyaction_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+	/* 16 - Nearby Info */
+        { &hf_btcommon_apple_nearbyinfo_statusflags,
+          { "Nearby Info Status Flags", "btcommon.apple.nearbyinfo.statusflags",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_primary_device,
+          { "Primary Device", "btcommon.apple.nearbyinfo.primary_device",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_unk_flag2,
+          { "unk Flag", "btcommon.apple.nearbyinfo.unk.flag2",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_airdrop_status,
+          { "AirDrop Receiving Status", "btcommon.apple.nearbyinfo.airdrop_status",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_unk_flag,
+          { "unk Flag", "btcommon.apple.nearbyinfo.unk.flag",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_action_code,
+          { "Action Code", "btcommon.apple.nearbyinfo.action_code",
+            FT_UINT8, BASE_DEC, VALS(action_vals), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_dataflags,
+          { "Nearby Info Data Flags", "btcommon.apple.nearbyinfo.dataflags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_authtag_present,
+          { "Auth Tag Present", "btcommon.apple.nearbyinfo.authtag_present",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_watch_locked,
+          { "Watch Locked", "btcommon.apple.nearbyinfo.watch_locked",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_autounlock_watch,
+          { "Auto Unlock Watch", "btcommon.apple.nearbyinfo.autounlock_watch",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_autounlock_enabled,
+          { "Auto Unlock Enabled", "btcommon.apple.nearbyinfo.autounlock_enabled",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+	/* unk_flag2 may be iPhone/Mac vs IoT device */
+	/* Have only seen 0x00 from Apple TV */
+        { &hf_btcommon_apple_nearbyinfo_unk_flag3,
+          { "unk Flag", "btcommon.apple.nearbyinfo.unk.flag3",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_wifi_status,
+          { "WiFi Status", "btcommon.apple.nearbyinfo.wifi_status",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_authtag_fourbyte,
+          { "Four Byte Auth Tag", "btcommon.apple.nearbyinfo.authtag.fourbyte",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_airpod_conn,
+          { "AirPod Connecton Status", "btcommon.apple.nearbyinfo.airpod.connection",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_nearbyinfo_os,
+          { "iOS Version", "btcommon.apple.nearbyinfo.os",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+	{ &hf_btcommon_apple_nearbyinfo_auth,
+          { "Auth Tag", "btcommon.apple.nearbyinfo.auth",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+	{ &hf_btcommon_apple_nearbyinfo_postauth,
+          { "Post Auth Tag Data", "btcommon.apple.nearbyinfo.postauth",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_data,
+          { "Unknown Data", "btcommon.apple.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* 18 - Find My Message */
+        { &hf_btcommon_apple_findmy_status,
+          { "FindMy Status", "btcommon.apple.findmy.status",
+            FT_UINT8, BASE_HEX, findmy_status_vals, 0xe4,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_findmy_publickey,
+          { "Bytes 6-27 of Public Key", "btcommon.apple.findmy.publickey",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_findmy_publickeybits,
+          { "Public Key Bits", "btcommon.apple.findmy.publickey.bits",
+            FT_UINT8, BASE_HEX, findmy_publickeybits_vals, 0x03,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_findmy_hint,
+          { "Byte 5 of BT_ADDR of Primary Key", "btcommon.apple.findmy.hint",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_findmy_publickeyxcoord,
+          { "Public Key X Coordinate", "btcommon.apple.findmy.publickey.xcord",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_apple_findmy_data,
+          { "Data", "btcommon.apple.findmy.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* Flags for MacBook vs iOS */
+        { &hf_btcommon_eir_ad_flags,
+          { "Flag Value", "btcommon.eir_ad.entry.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* ^^^ furiousmac ^^^ */
         { &hf_btcommon_eir_ad_flags_reserved,
           { "Reserved",                          "btcommon.eir_ad.entry.flags.reserved",
             FT_UINT8, BASE_HEX, NULL, 0xE0,
