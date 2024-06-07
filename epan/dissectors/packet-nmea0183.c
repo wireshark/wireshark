@@ -45,6 +45,9 @@ static int hf_nmea0183_gga_geoidal_separation_unit;
 static int hf_nmea0183_gga_age_dgps;
 static int hf_nmea0183_gga_dgps_station;
 
+static int hf_nmea0183_rot_rate_of_turn;
+static int hf_nmea0183_rot_valid;
+
 static int hf_nmea0183_zda_time;
 static int hf_nmea0183_zda_time_hour;
 static int hf_nmea0183_zda_time_minute;
@@ -313,7 +316,7 @@ static const string_string known_sentence_ids[] = {
     {"TPT", "Trawl Position True"},
     {"TRF", "TRANSIT Fix Data"},
     {"TRP", "TRANSIT Satellite Predicted Direction of Rise"},
-    {"TRS", "TRANSIT Satellite Operating Statu"},
+    {"TRS", "TRANSIT Satellite Operating Status"},
     {"TTM", "Tracked Target Message"},
     {"VBW", "Dual Ground/Water Speed"},
     {"VCD", "Current at Selected Depth"},
@@ -362,6 +365,12 @@ static const string_string known_gps_quality_indicators[] = {
     {"6", "Estimated (dead reckoning)"},
     {"7", "Manual input mode"},
     {"8", "Simulation mode"},
+    {NULL, NULL}};
+
+// List of status indicators (Source: NMEA Revealed by Eric S. Raymond, https://gpsd.gitlab.io/gpsd/NMEA.html, retrieved 2024-04-19)
+static const string_string known_status_indicators[] = {
+    {"A", "Valid/Active"},
+    {"V", "Invalid/Void"},
     {NULL, NULL}};
 
 static uint8_t calculate_checksum(tvbuff_t *tvb, const gint start, const gint length)
@@ -671,6 +680,33 @@ dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return end_of_field_offset - offset + 1;
 }
 
+/* Dissect a optional A/V status field. Returns length including separator */
+static int
+dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf)
+{
+    if (offset > (gint)tvb_captured_length(tvb))
+    {
+        proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
+        return 0;
+    }
+
+    proto_item *ti = NULL;
+    gint end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
+    const guint8 *mode = NULL;
+    ti = proto_tree_add_item_ret_string(tree, hf,
+                                        tvb, offset, end_of_field_offset - offset, ENC_ASCII,
+                                        pinfo->pool, &mode);
+    if (end_of_field_offset - offset == 0)
+    {
+        proto_item_append_text(ti, "[empty]");
+    }
+    else
+    {
+        proto_item_append_text(ti, " (%s)", str_to_str(mode, known_status_indicators, "Unknown status"));
+    }
+    return end_of_field_offset - offset + 1;
+}
+
 /* Dissect a DPT sentence. */
 static int
 dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -730,6 +766,23 @@ dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_age_dgps, "second");
 
     dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_dgps_station, NULL);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Dissect a ROT sentence. */
+static int
+dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset = 0;
+
+    proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
+                                                 tvb_captured_length(tvb), ett_nmea0183_sentence,
+                                                 NULL, "ROT sentence - Rate Of Turn");
+
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_rot_rate_of_turn, "degree per minute");
+
+    dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_rot_valid);
 
     return tvb_captured_length(tvb);
 }
@@ -848,6 +901,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
     {
         offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
+    {
+        offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
     {
@@ -1052,6 +1109,16 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 GGA Differential reference station ID", HFILL}},
+        {&hf_nmea0183_rot_rate_of_turn,
+         {"Rate of turn", "nmea0183.rot_rate_of_turn",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ROT Rate Of Turn, degrees per minute, negative value means bow turns to port", HFILL}},
+        {&hf_nmea0183_rot_valid,
+         {"Validity", "nmea0183.rot_valid",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          "NMEA 0183 ROT Status, A means data is valid", HFILL}},
         {&hf_nmea0183_zda_time,
          {"UTC Time", "nmea0183.zda_time",
           FT_NONE, BASE_NONE,
