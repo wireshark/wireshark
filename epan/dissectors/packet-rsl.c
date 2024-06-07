@@ -2988,7 +2988,9 @@ dissect_rsl_ie_nch_drx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
+    proto_item *ti;
     proto_tree *ie_tree;
+    guint       length;
     guint8      ie_id;
     guint8      octet;
 
@@ -2998,12 +3000,15 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             return offset;
     }
 
-
-    /* TODO Length wrong if extended */
-    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_ie_cmd_ind, NULL, "Command indicator IE");
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_ie_cmd_ind, &ti, "Command indicator IE");
 
     /* Element identifier */
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length + 2);
+    proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Extension bit */
