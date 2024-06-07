@@ -16,6 +16,8 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/etypes.h>
+#include <epan/dissectors/packet-llc.h>
 
 #include "packet-mpls.h"
 
@@ -100,23 +102,81 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  *     two valid ethernet addresses.  FALSE otherwise.
  */
 static gboolean
-looks_like_plain_eth(tvbuff_t *tvb _U_)
+looks_like_plain_eth(tvbuff_t *tvb)
 {
     const gchar *manuf_name_da;
     const gchar *manuf_name_sa;
+    uint16_t etype;
+    int offset = 0;
 
-    if (tvb_reported_length_remaining(tvb, 0) < 14) {
+    /* Don't throw an exception. If the packet is truncated, you lose. */
+    if (tvb_captured_length_remaining(tvb, offset) < 14) {
         return FALSE;
     }
 
-    manuf_name_da = tvb_get_manuf_name_if_known(tvb, 0);
-    manuf_name_sa = tvb_get_manuf_name_if_known(tvb, 6);
+    /* Copy the source and destination addresses, as tvb_get_manuf_name_if_known
+     * only uses the first three bytes (it's for an OUI in, e.g., IEEE 802.11),
+     * and returns NULL for MA-M and MA-S.
+     */
+    uint8_t da[6], sa[6];
+    tvb_memcpy(tvb, da, offset, 6);
+    manuf_name_da = get_manuf_name_if_known(da, 6);
+    if (!manuf_name_da) {
+        /* Try looking for an exact match in the ethers file. */
+        manuf_name_da = get_ether_name_if_known(da);
+        if (!manuf_name_da) {
+            return FALSE;
+        }
+    }
+    offset += 6;
 
-    if (manuf_name_da && manuf_name_sa) {
-        return TRUE;
+    tvb_memcpy(tvb, sa, offset, 6);
+    manuf_name_sa = get_manuf_name_if_known(sa, 6);
+    if (!manuf_name_sa) {
+        manuf_name_sa = get_ether_name_if_known(sa);
+        if (!manuf_name_sa) {
+            return FALSE;
+        }
+    }
+    offset += 6;
+    etype = tvb_get_ntohs(tvb, offset);
+
+    if (etype > IEEE_802_3_MAX_LEN) {
+        if (etype < ETHERNET_II_MIN_LEN) {
+            return FALSE;
+        }
+
+        if (!try_val_to_str(etype, etype_vals)) {
+            return FALSE;
+        }
+    } else {
+        offset += 2;
+        /* XXX - There are unusual cases like Cisco ISL, Novell raw 802.3
+         * for IPX/SPX, etc. See packet-eth capture_eth()
+         */
+        if (tvb_reported_length_remaining(tvb, offset) < etype) {
+            return FALSE;
+        }
+
+        if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            return FALSE;
+        }
+        uint8_t sap;
+        sap = tvb_get_guint8(tvb, offset);
+        if (!try_val_to_str(sap, sap_vals)) {
+            return FALSE;
+        }
+        offset += 1;
+        sap = tvb_get_guint8(tvb, offset);
+        if (!try_val_to_str(sap, sap_vals)) {
+            return FALSE;
+        }
+        /* We could go deeper, and see if this looks like SNAP if the dsap
+         * and ssap are both 0xAA (the common case).
+         */
     }
 
-    return FALSE;
+    return TRUE;
 }
 
 static int
