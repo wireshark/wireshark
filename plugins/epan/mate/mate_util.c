@@ -1012,7 +1012,7 @@ extern AVPL* new_avpl_loose_match(const gchar* name,
 			AVPN *cond = co;
 			do {
 				if (match_avp(cs->avp, cond->avp)) {
-					insert_avp_before_node(newavpl, newavpl->null.prev, cs->avp, copy_avps);
+					insert_avp_before_node(newavpl, newavpl->null.prev->next, cs->avp, copy_avps);
 					break;
 				}
 				cond = cond->next;
@@ -1073,7 +1073,7 @@ extern AVPL* new_avpl_pairs_match(const gchar* name, AVPL* src, AVPL* op, gboole
 		} else {
 			// Matching attributes found, now try to find a matching data AVP for the condition.
 			if (match_avp(cs->avp, co->avp)) {
-				insert_avp_before_node(newavpl, newavpl->null.prev, cs->avp, copy_avps);
+				insert_avp_before_node(newavpl, newavpl->null.prev->next, cs->avp, copy_avps);
 				last_match = co->avp->n;
 				cs = cs->next;
 			} else {
