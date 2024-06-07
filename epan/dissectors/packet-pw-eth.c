@@ -102,12 +102,11 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  *     two valid ethernet addresses.  FALSE otherwise.
  */
 static gboolean
-looks_like_plain_eth(tvbuff_t *tvb)
+looks_like_plain_eth(tvbuff_t *tvb, int offset)
 {
     const gchar *manuf_name_da;
     const gchar *manuf_name_sa;
     uint16_t etype;
-    int offset = 0;
 
     /* Don't throw an exception. If the packet is truncated, you lose. */
     if (tvb_captured_length_remaining(tvb, offset) < 14) {
@@ -120,6 +119,7 @@ looks_like_plain_eth(tvbuff_t *tvb)
      */
     uint8_t da[6], sa[6];
     tvb_memcpy(tvb, da, offset, 6);
+    /* da[0] & 0x2 is the U/L bit; if it's set, none of this helps. (#13039) */
     manuf_name_da = get_manuf_name_if_known(da, 6);
     if (!manuf_name_da) {
         /* Try looking for an exact match in the ethers file. */
@@ -131,6 +131,11 @@ looks_like_plain_eth(tvbuff_t *tvb)
     offset += 6;
 
     tvb_memcpy(tvb, sa, offset, 6);
+    /* sa[0] & 0x2 is the U/L bit; if it's set, none of this helps. (#13039) */
+    if (sa[0] & 0x1) {
+        // Group bit should not be set on source
+        return FALSE;
+    }
     manuf_name_sa = get_manuf_name_if_known(sa, 6);
     if (!manuf_name_sa) {
         manuf_name_sa = get_ether_name_if_known(sa);
@@ -184,13 +189,23 @@ dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     guint8 first_nibble = (tvb_get_guint8(tvb, 0) >> 4) & 0x0F;
 
-    if (looks_like_plain_eth(tvb))
+    if (looks_like_plain_eth(tvb, 0))
         call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
     else if (first_nibble == 0)
         call_dissector(pw_eth_handle_cw, tvb, pinfo, tree);
     else
         call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
     return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_pw_eth_nocw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (!looks_like_plain_eth(tvb, 0)) {
+        return FALSE;
+    }
+    dissect_pw_eth_nocw(tvb, pinfo, tree, data);
+    return TRUE;
 }
 
 void
@@ -250,12 +265,18 @@ proto_register_pw_eth(void)
 void
 proto_reg_handoff_pw_eth(void)
 {
+    heur_dissector_add("mpls", dissect_pw_eth_nocw_heur,
+        "Ethernet PW (no CW)", "pwethnocw", proto_pw_eth_nocw,
+        HEURISTIC_ENABLE);
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_pw_eth_cw);
 
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_cw);
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_nocw);
 
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_heuristic);
+
+    dissector_add_for_decode_as("mpls.pfn", pw_eth_handle_cw);
+    dissector_add_for_decode_as("mpls.pfn", pw_eth_handle_nocw);
 }
 
 /*
