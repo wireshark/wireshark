@@ -153,6 +153,7 @@
 
 /* Define to use zlib-ng library */
 #cmakedefine HAVE_ZLIBNG 1
+#define ZLIBNG_VERSION_STRING "${ZLIBNG_VERSION_STRING}"
 
 /* Define to use the minizip library */
 #cmakedefine HAVE_MINIZIP 1
