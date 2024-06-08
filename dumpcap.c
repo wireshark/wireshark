@@ -419,6 +419,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
 static capture_options global_capture_opts;
 static GPtrArray *capture_comments;
 static gboolean quiet;
+static gboolean really_quiet;
 static gboolean use_threads;
 static guint64 start_time;
 
@@ -4597,7 +4598,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      * mode, cap_pipe_open_live() will say "End of file on pipe during open".
      */
 
-    report_capture_count(TRUE);
+    report_capture_count(!really_quiet);
 
     /* get packet drop statistics from pcap */
     for (i = 0; i < capture_opts->ifaces->len; i++) {
@@ -5240,7 +5241,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_m
 #endif
 
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPq" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPqQ" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
 
 #if defined(__APPLE__) && defined(__LP64__)
     /*
@@ -5526,6 +5527,10 @@ main(int argc, char *argv[])
 #endif
         case 'q':        /* Quiet */
             quiet = TRUE;
+            break;
+        case 'Q':        /* Really quiet */
+            quiet = TRUE;
+            really_quiet = TRUE;
             break;
         case 't':
             use_threads = TRUE;
@@ -5966,7 +5971,8 @@ main(int argc, char *argv[])
         } else {
             g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
         }
-        fprintf(stderr, "Capturing on %s\n", str->str);
+        if (!really_quiet)
+            fprintf(stderr, "Capturing on %s\n", str->str);
         g_string_free(str, TRUE);
     }
 
@@ -6085,9 +6091,11 @@ report_new_capture_file(const char *filename)
          */
         infodelay = TRUE;
 #endif /* SIGINFO */
-        fprintf(stderr, "File: %s\n", filename);
-        /* stderr could be line buffered */
-        fflush(stderr);
+        if (!really_quiet) {
+            fprintf(stderr, "File: %s\n", filename);
+            /* stderr could be line buffered */
+            fflush(stderr);
+        }
 
 #ifdef SIGINFO
         /*
@@ -6158,12 +6166,14 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
         sync_pipe_write_string_msg(sync_pipe_fd, SP_DROPS, tmp);
         g_free(tmp);
     } else {
-        fprintf(stderr,
-            "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u) (%.1f%%)\n",
-            name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop,
-            received ? 100.0 * received / (received + total_drops) : 0.0);
-        /* stderr could be line buffered */
-        fflush(stderr);
+        if (!really_quiet) {
+            fprintf(stderr,
+                "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u) (%.1f%%)\n",
+                name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop,
+                received ? 100.0 * received / (received + total_drops) : 0.0);
+            /* stderr could be line buffered */
+            fflush(stderr);
+        }
     }
 }
 

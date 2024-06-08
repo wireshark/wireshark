@@ -35,6 +35,7 @@ dumpcap - Dump network traffic
 [ *--ifname* <name> ]
 [ *-P* ]
 [ *-q* ]
+[ *-Q* ]
 [ *-s*|*--snapshot-length* <capture snaplen> ]
 [ *-S* ]
 [ *-t* ]
@@ -378,6 +379,23 @@ BSDs, you can cause the current count to be displayed by typing your
 "status" character (typically control-T, although it
 might be set to "disabled" by default on at least some BSDs, so you'd
 have to explicitly set it to use it).
+--
+
+-Q::
++
+--
+When capturing packets, don't display, on the standard error, the initial
+message indicating on what interfaces the capture is being done, the
+messages indicating to what file a capture is being written, the continuous
+count of packets captured that is normally shown when saving a capture to
+a file, and the message at the end of the capture giving a count of packets
+captured.  This outputs less than the *-q* option; only true errors are
+displayed on the standard error.
+
+On systems that support the SIGINFO signal, such as various BSDs, you can
+cause the current count to be displayed by typing your "status" character
+(typically control-T, although it might be set to "disabled" by default on
+at least some BSDs, so you'd have to explicitly set it to use it).
 --
 
 -s|--snapshot-length  <capture snaplen>::

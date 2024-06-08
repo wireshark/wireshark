@@ -182,6 +182,10 @@ The following features are new (or have been significantly updated) since versio
 * Dumpcap and wireshark support the `-F` option when capturing a file
   at the command line. wsbuglink:18009[]
 
+* When capturing at the command line dumpcap accepts a `-Q` option that is
+  quieter than `-q` and prints only errors to standard error, similar to tshark.
+  wsbuglink:14491[]
+
 * When capturing a file and requesting the `pcap` format, nanosecond resolution
   time stamps will be written if the device and version of libpcap supports it.
 
