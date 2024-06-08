@@ -166,7 +166,7 @@ gather_zlib_compile_info(feature_list l)
 {
 #ifdef HAVE_ZLIB
 #ifdef ZLIB_VERSION
-	with_feature(l, "zlib "ZLIB_VERSION);
+	with_feature(l, "zlib " ZLIB_VERSION);
 #else
 	with_feature(l, "zlib (version unknown)");
 #endif /* ZLIB_VERSION */
@@ -179,7 +179,7 @@ void
 gather_zlib_ng_compile_info(feature_list l)
 {
 #ifdef HAVE_ZLIBNG
-	with_feature(l, "zlib-ng" ZLIBNG_VERSION_STRING);
+	with_feature(l, "zlib-ng " ZLIBNG_VERSION_STRING);
 #else
 	without_feature(l, "zlib-ng");
 #endif /* HAVE_ZLIB */
