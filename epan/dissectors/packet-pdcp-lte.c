@@ -489,11 +489,6 @@ static const value_string rohc_profile_vals[] = {
     { 0,   NULL }
 };
 
-static const true_false_string pdu_type_bit = {
-    "Data PDU",
-    "Control PDU"
-};
-
 static const value_string control_pdu_type_vals[] = {
     { 0,   "PDCP status report" },
     { 1,   "Interspersed ROHC feedback packet" },
@@ -2823,7 +2818,7 @@ void proto_register_pdcp_lte(void)
         },
         { &hf_pdcp_lte_data_control,
             { "PDU Type",
-              "pdcp-lte.pdu-type", FT_BOOLEAN, 8, TFS(& pdu_type_bit), 0x80,
+              "pdcp-lte.pdu-type", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               NULL, HFILL
             }
         },

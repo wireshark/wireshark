@@ -246,12 +246,6 @@ static const value_string seg_info_vals[] =
     { 0, NULL }
 };
 
-static const true_false_string data_or_control_vals =
-{
-    "Data PDU",
-    "Control PDU"
-};
-
 static const true_false_string polling_bit_vals =
 {
     "Status report is requested",
@@ -1634,7 +1628,7 @@ void proto_register_rlc_nr(void)
         },
         { &hf_rlc_nr_am_data_control,
             { "Data/Control",
-              "rlc-nr.am.dc", FT_BOOLEAN, 8, TFS(&data_or_control_vals), 0x80,
+              "rlc-nr.am.dc", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               NULL, HFILL
             }
         },

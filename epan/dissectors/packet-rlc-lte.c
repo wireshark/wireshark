@@ -299,13 +299,6 @@ static const value_string extension_extension_vals[] =
     { 0, NULL }
 };
 
-static const value_string data_or_control_vals[] =
-{
-    { 0,      "Control PDU"},
-    { 1,      "Data PDU"},
-    { 0, NULL }
-};
-
 static const value_string resegmentation_flag_vals[] =
 {
     { 0,      "AMD PDU"},
@@ -2497,7 +2490,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                proto_item *top_ti,
                                rlc_3gpp_tap_info *tap_info)
 {
-    guint32 is_data;
+    bool is_data;
     guint32 is_resegmented;
     guint32 polling;
     guint32 fixed_extension;
@@ -2530,7 +2523,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                             ett_rlc_lte_am_header);
 
     /* First bit is Data/Control flag           */
-    proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, ENC_BIG_ENDIAN, &is_data);
+    proto_tree_add_item_ret_boolean(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, ENC_BIG_ENDIAN, &is_data);
     tap_info->isControlPDU = !is_data;
 
     if (!is_data) {
@@ -3307,7 +3300,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_data_control,
             { "Frame type",
-              "rlc-lte.am.frame-type", FT_UINT8, BASE_HEX, VALS(data_or_control_vals), 0x80,
+              "rlc-lte.am.frame-type", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               "AM Frame Type (Control or Data)", HFILL
             }
         },

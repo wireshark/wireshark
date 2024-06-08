@@ -132,6 +132,7 @@ WS_DLL_PUBLIC const true_false_string tfs_applicable_not_applicable;
 WS_DLL_PUBLIC const true_false_string tfs_current_not_yet;
 WS_DLL_PUBLIC const true_false_string tfs_should_be_traced_should_not_be_traced;
 WS_DLL_PUBLIC const true_false_string tfs_activate_do_not_activate;
+WS_DLL_PUBLIC const true_false_string tfs_data_pdu_control_pdu;
 
 #ifdef __cplusplus
 }

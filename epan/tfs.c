@@ -117,6 +117,7 @@ const true_false_string tfs_applicable_not_applicable = { "Applicable", "Not App
 const true_false_string tfs_current_not_yet = { "Currently Applicable", "Not yet Applicable" };
 const true_false_string tfs_should_be_traced_should_not_be_traced = { "Should be traced", "Should not be traced" };
 const true_false_string tfs_activate_do_not_activate = { "Activate", "Do not activate" };
+const true_false_string tfs_data_pdu_control_pdu = { "Data PDU", "Control PDU" };
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -492,12 +492,6 @@ static const value_string rohc_profile_vals[] = {
     { 0,   NULL }
 };
 
-static const true_false_string pdu_type_bit = {
-    "Data PDU",
-    "Control PDU"
-};
-
-
 static const value_string control_pdu_type_vals[] = {
     { 0,   "PDCP status report" },
     { 1,   "Interspersed ROHC feedback packet" },
@@ -2553,7 +2547,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 bool data_control;
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_data_control, tvb, pdcp_offset, 1, ENC_NA, &data_control);
                 proto_tree_add_item(sdap_tree, hf_sdap_reserved, tvb, pdcp_offset, 1, ENC_NA);
-                proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &pdu_type_bit));
+                proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &tfs_data_pdu_control_pdu));
             } else {
                 bool rdi, rqi;
                 proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rdi, tvb, pdcp_offset, 1, ENC_NA, &rdi);
@@ -2821,7 +2815,7 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_data_control,
             { "PDU Type",
-              "pdcp-nr.pdu-type", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
+              "pdcp-nr.pdu-type", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               NULL, HFILL
             }
         },
@@ -3008,7 +3002,7 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_sdap_data_control,
             { "PDU Type",
-              "sdap.pdu-type", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
+              "sdap.pdu-type", FT_BOOLEAN, 8, TFS(&tfs_data_pdu_control_pdu), 0x80,
               NULL, HFILL
             }
         },
