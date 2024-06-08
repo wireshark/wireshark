@@ -214,6 +214,24 @@ void uat_remove_record_idx(uat_t* uat, unsigned idx) {
     g_array_remove_index(uat->valid_data, idx);
 }
 
+void uat_remove_record_range(uat_t* uat, unsigned idx, unsigned count) {
+
+    ws_assert( idx + count <= uat->raw_data->len );
+
+    if (count == 0) {
+        return;
+    }
+
+    if (uat->free_cb) {
+        for (unsigned i = 0; i < count; i++) {
+            uat->free_cb(UAT_INDEX_PTR(uat, idx + i));
+        }
+    }
+
+    g_array_remove_range(uat->raw_data, idx, count);
+    g_array_remove_range(uat->valid_data, idx, count);
+}
+
 void uat_move_index(uat_t * uat, unsigned old_idx, unsigned new_idx)
 {
     unsigned dir = 1;
