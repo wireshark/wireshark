@@ -78,7 +78,7 @@ def AddCustomEntry(val1, val2, file):
         custom_tfs_entries[(val1, val2)] = [file]
 
 
-
+# Individual parsed TFS entry
 class TFS:
     def __init__(self, file, name, val1, val2):
         self.file = file
@@ -124,6 +124,7 @@ class TFS:
         return '{' + '"' + self.val1 + '", "' + self.val2 + '"}'
 
 
+# Only looking at in terms of could/should it be TFS instead.
 class ValueString:
     def __init__(self, file, name, vals):
         self.file = file
@@ -384,15 +385,16 @@ def findDissectorFilesInFolder(folder):
     return files
 
 
-
+# Global counts
 warnings_found = 0
 errors_found = 0
 
+# name -> count
+common_usage = {}
 
-tfs_found = 0
 
 # Check the given dissector file.
-def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=False):
+def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=False, count_common_usage=False):
     global warnings_found
     global errors_found
 
@@ -457,7 +459,6 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                 found = False
                 exact_case = False
 
-                #print('Candidate', v, vs[v])
                 for c in common_tfs:
                     found = False
 
@@ -495,6 +496,18 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                                         if exact_case:
                                             warnings_found += 1
 
+    if count_common_usage:
+        # Look for TFS(&<name>) in dissector
+        with open(filename, 'r') as f:
+            contents = f.read()
+            for c in common_tfs:
+                m = re.search(r'TFS\(\s*\&' + c + '\s*\)', contents)
+                if m:
+                    if not c in common_usage:
+                        common_usage[c] = 1
+                    else:
+                        common_usage[c] += 1
+
 
 
 #################################################################
@@ -514,7 +527,8 @@ parser.add_argument('--check-value-strings', action='store_true',
 
 parser.add_argument('--common', action='store_true',
                     help='check for potential new entries for tfs.c')
-
+parser.add_argument('--common-usage', action='store_true',
+                    help='count how many dissectors are using common tfs entries')
 
 args = parser.parse_args()
 
@@ -570,7 +584,7 @@ else:
 
 
 # Get standard/ shared ones.
-tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
+common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
 
 # Now check the files to see if they could have used shared ones instead.
 # Look at files in sorted order, to give some idea of how far through we are.
@@ -578,7 +592,9 @@ for f in sorted(files):
     if should_exit:
         exit(1)
     if not isGeneratedFile(f):
-        checkFile(f, tfs_entries, look_for_common=args.common, check_value_strings=args.check_value_strings)
+        checkFile(f, common_tfs_entries, look_for_common=args.common,
+                  check_value_strings=args.check_value_strings,
+                  count_common_usage=args.common_usage)
 
 # Report on commonly-defined values.
 if args.common:
@@ -589,6 +605,12 @@ if args.common:
         if len(custom_tfs_entries[c]) > 2:
             print(c, 'appears', len(custom_tfs_entries[c]), 'times, in: ', custom_tfs_entries[c])
 
+if args.common_usage:
+    for c in common_tfs_entries:
+        if c in common_usage:
+            print(c, 'used in', common_usage[c], 'dissectors')
+        else:
+            print('***', c, 'IS NOT USED! ***')
 
 # Show summary.
 print(warnings_found, 'warnings found')
