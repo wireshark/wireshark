@@ -47,18 +47,18 @@ that timeout)
 
 These are the steps to try out MATE:
 
-* Run Wireshark and check if the plugin is installed correct (MATE should
-appear in Help->About->Plugins)
-* Get a configuration file e.g., tcp.mate (see {wireshark-wiki-url}Mate/Examples[Mate/Examples]
+* Run Wireshark and check if the plugin is installed (MATE should
+appear in Help->About Wireshark:Plugins)
+* Get a configuration file e.g., <<File_tcp_mate,tcp.mate>> (see {wireshark-wiki-url}Mate/Examples[Mate/Examples]
 for more) and place it somewhere on your harddisk.
-* Go to Preferences->Protocols->MATE and set the config filename to the file
-you want to use (you don't have to restart Wireshark)
+* Go to Edit->Preferences...->Protocols->MATE and set the Configuration Filename to the file
+you want to use and restart Wireshark.
 * Load a corresponding capture file (e.g.,
 {wireshark-wiki-url}uploads/27707187aeb30df68e70c8fb9d614981/http.cap[http.cap]) and see if MATE
 has added some new display filter fields, something like: `mate tcp_pdu:1->tcp_ses:1`
 or, at prompt: `path_to/wireshark -o "mate.config: tcp.mate" -r http.cap`.
 
-If anything went well, your packet details might look something like this:
+If everything went well, your packet details might look something like this:
 
 .Packet Details - MATE TCP Session (tcp.mate)
 image::images/ws-mate-tcp-output.png[]
@@ -313,11 +313,11 @@ relative transports.
 
 ----
 Pdu isup_pdu Proto isup Transport mtp3/ip {
-        Extract m3pc From mtp3.dpc;
-        Extract m3pc From mtp3.opc;
-        Extract cic From isup.cic;
-        Extract addr From ip.addr;
-        Extract isup_msg From isup.message_type;
+    Extract m3pc From mtp3.dpc;
+    Extract m3pc From mtp3.opc;
+    Extract cic From isup.cic;
+    Extract addr From ip.addr;
+    Extract isup_msg From isup.message_type;
 };
 ----
 
@@ -329,9 +329,9 @@ transport protocol entries (in case of tunneled ip over ip for example).
 
 ----
 Pdu ftp_pdu Proto ftp Transport tcp/ip {
-        Extract addr From ip.addr;
-        Extract port From tcp.port;
-        Extract ftp_cmd From ftp.command;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract ftp_cmd From ftp.command;
 };
 ----
 
@@ -346,19 +346,19 @@ might not appear in a PDU but nevertheless the PDU belongs to the same category.
 ----
 Pdu mmse_over_http_pdu Proto http Transport tcp/ip {
 
-        Payload mmse;
+    Payload mmse;
 
-        Extract addr From ip.addr;
-        Extract port From tcp.port;
-        Extract method From http.request.method;
-        Extract content From http.content_type;
-        Extract http_rq From http.request;
-        Extract resp From http.response.code;
-        Extract host From http.host;
-        Extract trx From mmse.transaction_id;
-        Extract msg_type From mmse.message_type;
-        Extract notify_status From mmse.status;
-        Extract send_status From mmse.response_status;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract method From http.request.method;
+    Extract content From http.content_type;
+    Extract http_rq From http.request;
+    Extract resp From http.response.code;
+    Extract host From http.host;
+    Extract trx From mmse.transaction_id;
+    Extract msg_type From mmse.message_type;
+    Extract notify_status From mmse.status;
+    Extract send_status From mmse.response_status;
 };
 ----
 
@@ -375,8 +375,8 @@ _Criteria_ statements of the _Pdu_ declarations.
 Pdu isup_pdu Proto isup Transport mtp3/ip {
     ...
 
-   // MATE will create isup_pdu PDUs only when there is not a point code '1234'
-   Criteria Reject Strict (m3pc=1234);
+    // MATE will create isup_pdu PDUs only when there is not a point code '1234'
+    Criteria Reject Strict (m3pc=1234);
 };
 
 Pdu ftp_pdu Proto ftp Transport tcp/ip {
@@ -449,9 +449,9 @@ _Start_ criteria of a _Gop_ declaration for the PDU type, the PDU will remain
 unassigned and only the analysis phase will be done.
 
 ----
-Gop ftp_ses On ftp_pdu Match (addr, addr, port, port);
-Gop dns_req On dns_pdu Match (addr, addr, dns_id);
-Gop isup_leg On isup_pdu Match (m3pc, m3pc, cic);
+Gop ftp_ses On ftp_pdu Match (addr, addr, port, port) {};
+Gop dns_req On dns_pdu Match (addr, addr, dns_id) {};
+Gop isup_leg On isup_pdu Match (m3pc, m3pc, cic) {};
 ----
 
 ====== Start of a GOP
@@ -696,10 +696,10 @@ cases.
 AVPL Transformations are declared in the following way:
 
 ----
- Transform name {
-   Match [Strict|Every|Loose] match_avpl [Insert|Replace] modify_avpl ;
-   ...
- };
+Transform name {
+    Match [Strict|Every|Loose] match_avpl [Insert|Replace] modify_avpl;
+    ...
+};
 ----
 
 The *name* is the handle to the AVPL transformation. It is used to refer to the
@@ -727,8 +727,8 @@ both _Insert_ and _Replace_ modification modes.
 Examples:
 
 ----
- Transform insert_name_and {
-   Match Strict (host=10.10.10.10, port=2345) Insert (name=JohnDoe);
+Transform insert_name_and {
+    Match Strict (host=10.10.10.10, port=2345) Insert (name=JohnDoe);
 };
 ----
 
@@ -737,7 +737,7 @@ port=2345
 
 ----
 Transform insert_name_or {
-   Match Loose (host=10.10.10.10, port=2345) Insert (name=JohnDoe);
+    Match Loose (host=10.10.10.10, port=2345) Insert (name=JohnDoe);
 };
 ----
 
@@ -746,7 +746,7 @@ port=2345
 
 ----
 Transform replace_ip_address {
-   Match (host=10.10.10.10) Replace (host=192.168.10.10);
+    Match (host=10.10.10.10) Replace (host=192.168.10.10);
 };
 ----
 
@@ -754,7 +754,7 @@ replaces the original host=10.10.10.10 by host=192.168.10.10
 
 ----
 Transform add_ip_address {
-   Match (host=10.10.10.10) (host=192.168.10.10);
+    Match (host=10.10.10.10) (host=192.168.10.10);
 };
 ----
 
@@ -763,7 +763,7 @@ host=10.10.10.10 in it too
 
 ----
  Transform replace_may_be_surprising {
-   Match Loose (a=aaaa, b=bbbb) Replace (c=cccc, d=dddd);
+    Match Loose (a=aaaa, b=bbbb) Replace (c=cccc, d=dddd);
  };
 ----
 
@@ -816,21 +816,21 @@ Using _Transforms_ we can add more than one start or stop condition to a GOP.
 
 ----
 Transform start_cond {
-  Match (attr1=aaa,attr2=bbb) (msg_type=start);
-  Match (attr3=www,attr2=bbb) (msg_type=start);
-  Match (attr5^a) (msg_type=stop);
-  Match (attr6$z) (msg_type=stop);
+    Match (attr1=aaa,attr2=bbb) (msg_type=start);
+    Match (attr3=www,attr2=bbb) (msg_type=start);
+    Match (attr5^a) (msg_type=stop);
+    Match (attr6$z) (msg_type=stop);
 };
 
 Pdu pdu ... {
-  ...
-  Transform start_cond;
+    ...
+    Transform start_cond;
 }
 
 Gop gop ... {
-  Start (msg_type=start);
-  Stop (msg_type=stop);
-  ...
+    Start (msg_type=start);
+    Stop (msg_type=stop);
+    ...
 }
 ----
 
@@ -838,15 +838,15 @@ Gop gop ... {
 
 ----
 Transform marks {
-  Match (addr=10.10.10.10, user=john) (john_at_host);
-  Match (addr=10.10.10.10, user=tom) (tom_at_host);
+    Match (addr=10.10.10.10, user=john) (john_at_host);
+    Match (addr=10.10.10.10, user=tom) (tom_at_host);
 }
 
 ...
 
 Gop my_gop ... {
-  ...
-  Transform marks;
+    ...
+    Transform marks;
 }
 ----
 
@@ -857,24 +857,24 @@ After that we can use a display filter *mate.gop.john_at_host* or
 
 ----
 Transform direction_as_text {
-  Match (src=192.168.0.2, dst=192.168.0.3) Replace (direction=from_2_to_3);
-  Match (src=192.168.0.3, dst=192.168.0.2) Replace (direction=from_3_to_2);
+    Match (src=192.168.0.2, dst=192.168.0.3) Replace (direction=from_2_to_3);
+    Match (src=192.168.0.3, dst=192.168.0.2) Replace (direction=from_3_to_2);
 };
 
 Pdu my_pdu Proto my_proto Transport tcp/ip {
-  Extract src From ip.src;
-  Extract dst From ip.dst;
-  Extract addr From ip.addr;
-  Extract port From tcp.port;
-  Extract start From tcp.flags.syn;
-  Extract stop From tcp.flags.fin;
-  Extract stop From tcp.flags.rst;
-  Transform direction_as_text;
+    Extract src From ip.src;
+    Extract dst From ip.dst;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract start From tcp.flags.syn;
+    Extract stop From tcp.flags.fin;
+    Extract stop From tcp.flags.rst;
+    Transform direction_as_text;
 }
 
 Gop my_gop On my_pdu Match (addr,addr,port,port) {
-  ...
-  Extra (direction);
+    ...
+    Extra (direction);
 }
 ----
 
@@ -886,16 +886,16 @@ the non-NAT address:
 
 ----
 Transform denat {
-  Match (addr=192.168.0.5, ether=01:02:03:04:05:06) Replace (addr=123.45.67.89);
-  Match (addr=192.168.0.6, ether=01:02:03:04:05:06) Replace (addr=123.45.67.90);
-  Match (addr=192.168.0.7, ether=01:02:03:04:05:06) Replace (addr=123.45.67.91);
+    Match (addr=192.168.0.5, ether=01:02:03:04:05:06) Replace (addr=123.45.67.89);
+    Match (addr=192.168.0.6, ether=01:02:03:04:05:06) Replace (addr=123.45.67.90);
+    Match (addr=192.168.0.7, ether=01:02:03:04:05:06) Replace (addr=123.45.67.91);
 }
 
 Pdu my_pdu Proto my_proto transport tcp/ip/eth {
-  Extract ether From eth.addr;
-  Extract addr From ip.addr;
-  Extract port From tcp.port;
-  Transform denat;
+    Extract ether From eth.addr;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Transform denat;
 }
 ----
 
@@ -941,9 +941,9 @@ declaration:
 
 ----
 Pdu dns_pdu Proto dns Transport ip {
-  Extract addr From ip.addr;
-  Extract dns_id From dns.id;
-  Extract dns_resp From dns.flags.response;
+    Extract addr From ip.addr;
+    Extract dns_id From dns.id;
+    Extract dns_resp From dns.flags.response;
 };
 ----
 
@@ -959,8 +959,8 @@ tell it when the GOP starts and ends.
 
 ----
 Gop dns_req On dns_pdu Match (addr,addr,dns_id) {
-  Start (dns_resp=0);
-  Stop (dns_resp=1);
+    Start (dns_resp=0);
+    Stop (dns_resp=1);
 };
 ----
 
@@ -988,16 +988,16 @@ This other example creates a GOP for every HTTP request.
 
 ----
 Pdu http_pdu Proto http Transport tcp/ip {
-  Extract addr From ip.addr;
-  Extract port From tcp.port;
-  Extract http_rq From http.request.method;
-  Extract http_rs From http.response;
-  DiscardPduData true;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract http_rq From http.request.method;
+    Extract http_rs From http.response;
+    DiscardPduData true;
 };
 
 Gop http_req On http_pdu Match (addr, addr, port, port) {
-  Start (http_rq);
-  Stop (http_rs);
+    Start (http_rq);
+    Stop (http_rs);
 };
 ----
 
@@ -1030,11 +1030,11 @@ be added to PDU's and GOP's AVPLs. We add the following statements to the
 appropriate declarations:
 
 ----
-Extract host From http.host; // to Pdu http_pdu as the last Extract in the list
-Extra (host); // to Gop http_req after the Stop
+    Extract host From http.host; // to Pdu http_pdu as the last Extract in the list
+    Extra (host); // to Gop http_req after the Stop
 
-Extract host From dns.qry.name; // to Pdu dns_pdu as the last Extract in the list
-Extra (host); // to Gop dns_req after the Stop
+    Extract host From dns.qry.name; // to Pdu dns_pdu as the last Extract in the list
+    Extra (host); // to Gop dns_req after the Stop
 ----
 
 Here we've told MATE to import _http.host_ into _http_pdu_ and _dns.qry.name_
@@ -1046,9 +1046,9 @@ different GOPs belong to a certain GOG.
 
 ----
 Gog http_use {
-  Member http_req (host);
-  Member dns_req (host);
-  Expiration 0.75;
+    Member http_req (host);
+    Member dns_req (host);
+    Expiration 0.75;
 };
 ----
 
@@ -1092,7 +1092,7 @@ request.
 So we first tell MATE to import ip.src as client:
 
 ----
-Extract client From ip.src;
+    Extract client From ip.src;
 ----
 
 Next, we tell MATE to replace ( *dns_resp=1, client* ) with just *dns_resp=1* in
@@ -1103,7 +1103,7 @@ declaration which uses it:
 
 ----
 Transform rm_client_from_dns_resp {
-  Match (dns_resp=1, client) Replace (dns_resp=1);
+    Match (dns_resp=1, client) Replace (dns_resp=1);
 };
 ----
 
@@ -1111,7 +1111,7 @@ Next, we invoke the transform by adding the following line after the _Extract_
 list of the dns_pdu PDU:
 
 ----
-  Transform rm_client_from_dns_resp;
+    Transform rm_client_from_dns_resp;
 ----
 
 HTTP is a little trickier. We have to remove the attribute carrying ip.src from
@@ -1124,12 +1124,12 @@ two _Transforms_:
 
 ----
 Transform rm_client_from_http_resp1 {
-  Match (http_rq); //first match wins so the request won't get the not_rq attribute inserted
-  Match Every (addr) Insert (not_rq); //this line won't be evaluated if the first one matched so not_rq won't be inserted to requests
+    Match (http_rq); //first match wins so the request won't get the not_rq attribute inserted
+    Match Every (addr) Insert (not_rq); //this line won't be evaluated if the first one matched so not_rq won't be inserted to requests
 };
 
 Transform rm_client_from_http_resp2 {
-  Match (not_rq, client) Replace (); //replace "client and not_rq" with nothing (will happen only in the response and eventual parts of it)
+    Match (not_rq, client) Replace (); //replace "client and not_rq" with nothing (will happen only in the response and eventual parts of it)
 };
 ----
 
@@ -1137,8 +1137,8 @@ Next, we add another _Extract_ statement to the _http_pdu_ declaration, and
 apply both _Transforms_ declared above in a proper order:
 
 ----
-  Extract client From ip.src;
-  Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
+    Extract client From ip.src;
+    Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
 ----
 
 In MATE, all the _Transform_s listed for an item will be evaluated, while
@@ -1153,7 +1153,7 @@ attribute _client_ from the PDUs to the respective GOPs, by adding client to
 _Extra_ lists of both _Gop_ declarations:
 
 ----
-Extra (host, client);
+    Extra (host, client);
 ----
 
 On top of that, we need to modify the old declarations of GOP key to new ones
@@ -1161,8 +1161,8 @@ that include both _client_ and _host_. So we change the _Gog_ *Member*
 declarations the following way:
 
 ----
-  Member http_req (host, client);
-  Member dns_req (host, client);
+    Member http_req (host, client);
+    Member dns_req (host, client);
 ----
 
 Now we got it, every "usage" gets its own GOG.
@@ -1175,22 +1175,29 @@ The following is a collection of various configuration examples for MATE. Many
 of them are useless because the "conversations" facility does a better job.
 Anyway they are meant to help users understanding how to configure MATE.
 
-==== TCP session
+[#File_tcp_mate]
+==== TCP session (tcp.mate)
 
 The following example creates a GOP out of every TCP session.
 
 ----
+Transform add_tcp_stop {
+    Match (tcp_flags_reset="True") Insert (tcp_stop="True");
+    Match (tcp_flags_fin="True") Insert (tcp_stop="True");
+};
+
 Pdu tcp_pdu Proto tcp Transport ip {
     Extract addr From ip.addr;
     Extract port From tcp.port;
     Extract tcp_start From tcp.flags.syn;
-    Extract tcp_stop From tcp.flags.reset;
-    Extract tcp_stop From tcp.flags.fin;
+    Extract tcp_flags_reset From tcp.flags.reset;
+    Extract tcp_flags_fin From tcp.flags.fin;
+    Transform add_tcp_stop;
 };
 
 Gop tcp_ses On tcp_pdu Match (addr, addr, port, port) {
-    Start (tcp_start=1);
-    Stop (tcp_stop=1);
+    Start (tcp_start="True");
+    Stop (tcp_stop="True");
 };
 
 Done;
@@ -1198,7 +1205,7 @@ Done;
 
 This probably would do fine in 99.9% of the cases but 10.0.0.1:20->10.0.0.2:22 and 10.0.0.1:22->10.0.0.2:20 would both fall into the same gop if they happen to overlap in time.
 
-* filtering with *mate.tcp_ses.Time > 1* will give all the sessions that last less than one second
+* filtering with *mate.tcp_ses.Time > 1* will give all the sessions that last more than one second
 * filtering with *mate.tcp_ses.NumOfPdus < 5* will show all tcp sessions that have less than 5 packets.
 * filtering with *mate.tcp_ses.Id == 3* will show all the packets for the third tcp session MATE has found
 
@@ -1209,35 +1216,35 @@ data transfer) in a single GOG.
 
 ----
 Pdu ftp_pdu Proto ftp Transport tcp/ip {
-        Extract ftp_addr From ip.addr;
-        Extract ftp_port From tcp.port;
-        Extract ftp_resp From ftp.response.code;
-        Extract ftp_req From ftp.request.command;
-        Extract server_addr From ftp.passive.ip;
-        Extract server_port From ftp.passive.port;
+    Extract ftp_addr From ip.addr;
+    Extract ftp_port From tcp.port;
+    Extract ftp_resp From ftp.response.code;
+    Extract ftp_req From ftp.request.command;
+    Extract server_addr From ftp.passive.ip;
+    Extract server_port From ftp.passive.port;
 
-        LastPdu true;
+    LastPdu true;
 };
 
 Pdu ftp_data_pdu Proto ftp-data Transport tcp/ip{
-        Extract server_addr From ip.src;
-        Extract server_port From tcp.srcport;
+    Extract server_addr From ip.src;
+    Extract server_port From tcp.srcport;
 
 };
 
 Gop ftp_data On ftp_data_pdu Match (server_addr, server_port) {
-        Start (server_addr);
+    Start (server_addr);
 };
 
 Gop ftp_ctl On ftp_pdu Match (ftp_addr, ftp_addr, ftp_port, ftp_port) {
-        Start (ftp_resp=220);
-        Stop (ftp_resp=221);
-        Extra (server_addr, server_port);
+    Start (ftp_resp=220);
+    Stop (ftp_resp=221);
+    Extra (server_addr, server_port);
 };
 
 Gog ftp_ses {
-        Member ftp_ctl (ftp_addr, ftp_addr, ftp_port, ftp_port);
-        Member ftp_data (server_addr, server_port);
+    Member ftp_ctl (ftp_addr, ftp_addr, ftp_port, ftp_port);
+    Member ftp_data (server_addr, server_port);
 };
 
 Done;
@@ -1304,38 +1311,38 @@ This configuration will create a GOG out of every call.
 
 ----
 Pdu q931 Proto q931 Transport ip {
-        Extract addr From ip.addr;
-        Extract call_ref From q931.call_ref;
-        Extract q931_msg From q931.message_type;
-        Extract calling From q931.calling_party_number.digits;
-        Extract called From q931.called_party_number.digits;
-        Extract guid From h225.guid;
-        Extract q931_cause From q931.cause_value;
+    Extract addr From ip.addr;
+    Extract call_ref From q931.call_ref;
+    Extract q931_msg From q931.message_type;
+    Extract calling From q931.calling_party_number.digits;
+    Extract called From q931.called_party_number.digits;
+    Extract guid From h225.guid;
+    Extract q931_cause From q931.cause_value;
 };
 
 Gop q931_leg On q931 Match (addr, addr, call_ref) {
-        Start (q931_msg=5);
-        Stop (q931_msg=90);
-        Extra (calling, called, guid, q931_cause);
+    Start (q931_msg=5);
+    Stop (q931_msg=90);
+    Extra (calling, called, guid, q931_cause);
 };
 
 Pdu ras Proto h225.RasMessage Transport ip {
-        Extract addr From ip.addr;
-        Extract ras_sn From h225.requestSeqNum;
-        Extract ras_msg From h225.RasMessage;
-        Extract guid From h225.guid;
+    Extract addr From ip.addr;
+    Extract ras_sn From h225.requestSeqNum;
+    Extract ras_msg From h225.RasMessage;
+    Extract guid From h225.guid;
 };
 
 Gop ras_req On ras Match (addr, addr, ras_sn) {
-        Start (ras_msg {0|3|6|9|12|15|18|21|26|30} );
-        Stop (ras_msg {1|2|4|5|7|8|10|11|13|14|16|17|19|20|22|24|27|28|29|31});
-        Extra (guid);
+    Start (ras_msg {0|3|6|9|12|15|18|21|26|30} );
+    Stop (ras_msg {1|2|4|5|7|8|10|11|13|14|16|17|19|20|22|24|27|28|29|31});
+    Extra (guid);
 };
 
 Gog call {
-        Member ras_req (guid);
-        Member q931_leg (guid);
-        Extra (called,calling,q931_cause);
+    Member ras_req (guid);
+    Member q931_leg (guid);
+    Extra (called,calling,q931_cause);
 };
 
 Done;
@@ -1362,61 +1369,61 @@ need to be extracted from the bodies.
 ## tested against any capture file due to lack of the latter.
 
 Transform rm_client_from_http_resp1 {
-        Match (http_rq);
-        Match Every (addr) Insert (not_rq);
+    Match (http_rq);
+    Match Every (addr) Insert (not_rq);
 };
 
 Transform rm_client_from_http_resp2 {
-        Match (not_rq,ue) Replace ();
+    Match (not_rq,ue) Replace ();
 };
 
 Pdu mmse_over_http_pdu Proto http Transport tcp/ip {
-        Payload mmse;
-        Extract addr From ip.addr;
-        Extract port From tcp.port;
-        Extract http_rq From http.request;
-        Extract content From http.content_type;
-        Extract resp From http.response.code;
-        Extract method From http.request.method;
-        Extract host From http.host;
-        Extract content From http.content_type;
-        Extract trx From mmse.transaction_id;
-        Extract msg_type From mmse.message_type;
-        Extract notify_status From mmse.status;
-        Extract send_status From mmse.response_status;
-        Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
+    Payload mmse;
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract http_rq From http.request;
+    Extract content From http.content_type;
+    Extract resp From http.response.code;
+    Extract method From http.request.method;
+    Extract host From http.host;
+    Extract content From http.content_type;
+    Extract trx From mmse.transaction_id;
+    Extract msg_type From mmse.message_type;
+    Extract notify_status From mmse.status;
+    Extract send_status From mmse.response_status;
+    Transform rm_client_from_http_resp1, rm_client_from_http_resp2;
 };
 
 Gop mmse_over_http On mmse_over_http_pdu Match (addr, addr, port, port) {
-        Start (http_rq);
-        Stop (http_rs);
-        Extra (host, ue, resp, notify_status, send_status, trx);
+    Start (http_rq);
+    Stop (http_rs);
+    Extra (host, ue, resp, notify_status, send_status, trx);
 };
 
 Transform mms_start {
-        Match Loose() Insert (mms_start);
+    Match Loose() Insert (mms_start);
 };
 
 Pdu mmse_over_wsp_pdu Proto wsp Transport ip {
-        Payload mmse;
-        Extract trx From mmse.transaction_id;
-        Extract msg_type From mmse.message_type;
-        Extract notify_status From mmse.status;
-        Extract send_status From mmse.response_status;
-        Transform mms_start;
+    Payload mmse;
+    Extract trx From mmse.transaction_id;
+    Extract msg_type From mmse.message_type;
+    Extract notify_status From mmse.status;
+    Extract send_status From mmse.response_status;
+    Transform mms_start;
 };
 
 Gop mmse_over_wsp On mmse_over_wsp_pdu Match (trx) {
-        Start (mms_start);
-        Stop (never);
-        Extra (ue, notify_status, send_status);
+    Start (mms_start);
+    Stop (never);
+    Extra (ue, notify_status, send_status);
 };
 
 Gog mms {
-        Member mmse_over_http (trx);
-        Member mmse_over_wsp (trx);
-        Extra (ue, notify_status, send_status, resp, host, trx);
-        Expiration 60.0;
+    Member mmse_over_http (trx);
+    Member mmse_over_wsp (trx);
+    Extra (ue, notify_status, send_status, resp, host, trx);
+    Expiration 60.0;
 };
 ----
 
@@ -1443,15 +1450,31 @@ these in the new format.
 
 ===== TCP
 
-It will create a GOP for every TCP session, If it is used it should be the last
+It will create a GOP for every TCP session. If it is used it should be the last
 one in the list. And every other proto on top of TCP should be declared with
-_Stop=TRUE;_ so the a TCP PDU is not created where we got already one going on.
+_LastPdu=TRUE;_ so that a TCP PDU is not created where another pdu type exists.
 
 ----
-   Action=PduDef; Name=tcp_pdu; Proto=tcp; Transport=ip; addr=ip.addr; port=tcp.port; tcp_start=tcp.flags.syn; tcp_stop=tcp.flags.fin; tcp_stop=tcp.flags.reset;
-   Action=GopDef; Name=tcp_session; On=tcp_pdu; addr; addr; port; port;
-   Action=GopStart; For=tcp_session; tcp_start=1;
-   Action=GopStop; For=tcp_session; tcp_stop=1;
+Transform add_tcp_stop {
+    Match (tcp_flags_reset="True") Insert (tcp_stop="True");
+    Match (tcp_flags_fin="True") Insert (tcp_stop="True");
+};
+
+Pdu tcp_pdu Proto tcp Transport ip {
+    Extract addr From ip.addr;
+    Extract port From tcp.port;
+    Extract tcp_start From tcp.flags.syn;
+    Extract tcp_flags_reset From tcp.flags.reset;
+    Extract tcp_flags_fin From tcp.flags.fin;
+    Transform add_tcp_stop;
+};
+
+Gop tcp_ses On tcp_pdu Match (addr, addr, port, port) {
+    Start (tcp_start="True");
+    Stop (tcp_stop="True");
+};
+
+Done;
 ----
 
 ===== DNS
@@ -1903,15 +1926,15 @@ The complete declaration of a _Pdu_ looks as below; the mandatory order of the
 diverse clauses is as shown.
 
 ----
-    Pdu name Proto proto_name Transport proto1[/proto2/proto3[/...]]] {
-      Payload proto; //optional, no default value
-      Extract attribute From proto.field ; //may occur multiple times, at least once
-      Transform (transform1[, transform2[, ...]]); //optional
-      Criteria [{Accept|Reject}] [{Strict|Every|Loose} match_avpl];
-      DropUnassigned {true|false}; //optional, default=false
-      DiscardPduData {true|false}; //optional, default=false
-      LastExtracted {true|false}; //optional, default=false
-    };
+Pdu name Proto proto_name Transport {proto1[/proto2/proto3[/...]|mate}; {
+    Payload proto; //optional, no default value
+    Extract attribute From proto.field ; //may occur multiple times, at least once
+    Transform transform1[, transform2[, ...]]; //optional
+    Criteria {Accept|Reject} {Strict|Every|Loose} match_avpl; //optional
+    DropUnassigned {TRUE|FALSE}; //optional, default=FALSE
+    DiscardPduData {TRUE|FALSE}; //optional, default=FALSE
+    LastPdu {TRUE|FALSE}; //optional, default=FALSE
+};
 ----
 
 ====== Pdu name
@@ -2017,7 +2040,7 @@ eventually extracted some AVPs from it into the GOP's AVPL. This is useful to
 save memory (of which MATE uses a lot). If set to _FALSE_ (the default if not
 given), MATE will keep the PDU attributes.
 
-===== LastExtracted clause
+===== LastPdu clause
 
 If set to _FALSE_ (the default if not given), MATE will continue to look for
 PDUs of other types in the frame. If set to _TRUE_, it will not try to create
@@ -2032,18 +2055,18 @@ current type.
 Declares a Gop type and its candidate key.
 
 ----
-    Gop name On pduname Match key {
-      Start match_avpl; // optional
-      Stop match_avpl; // optional
-      Extra match_avpl; // optional
-      Transform transform_list; // optional
-      Expiration time; // optional
-      IdleTimeout time; // optional
-      Lifetime time; // optional
-      DropUnassigned [TRUE|FALSE]; //optional
-      ShowTree [NoTree|PduTree|FrameTree|BasicTree]; //optional
-      ShowTimes [TRUE|FALSE]; //optional, default TRUE
-    };
+Gop name On pduname Match key {
+    Start match_avpl; // optional
+    Stop match_avpl; // optional
+    Extra match_avpl; // optional
+    Transform transform_list; // optional
+    Expiration time; // optional
+    IdleTimeout time; // optional
+    Lifetime time; // optional
+    DropUnassigned [TRUE|FALSE]; //optional
+    ShowTree [NoTree|PduTree|FrameTree|BasicTree]; //optional
+    ShowTimes [TRUE|FALSE]; //optional, default TRUE
+};
 ----
 
 ====== Gop name
@@ -2151,14 +2174,14 @@ is suppressed.
 Declares a Gog type and its candidate key.
 
 ----
-    Gog name {
-      Member gopname (key); // mandatory, at least one
-      Extra match_avpl; // optional
-      Transform transform_list; // optional
-      Expiration time; // optional, default 2.0
-      GopTree [NoTree|PduTree|FrameTree|BasicTree]; // optional
-      ShowTimes [TRUE|FALSE]; // optional, default TRUE
-    };
+Gog name {
+    Member gopname (key); // mandatory, at least one
+    Extra match_avpl; // optional
+    Transform transform_list; // optional
+    Expiration time; // optional, default 2.0
+    GopTree [NoTree|PduTree|FrameTree|BasicTree]; // optional
+    ShowTimes [TRUE|FALSE]; // optional, default TRUE
+};
 ----
 
 ====== Gog name
@@ -2267,13 +2290,13 @@ defaulting to 0.
 ===== Debug declaration block header
 
 ----
-    Debug {
-      Filename "path/name"; //optional, no default value
-      Level [0-9]; //optional, generic debug level
-      Pdu Level [0-9]; //optional, specific debug level for Pdu handling
-      Gop Level [0-9]; //optional, specific debug level for Gop handling
-      Gog Level [0-9]; //optional, specific debug level for Gog handling
-    };
+Debug {
+    Filename "path/name"; //optional, no default value
+    Level [0-9]; //optional, generic debug level
+    Pdu Level [0-9]; //optional, specific debug level for Pdu handling
+    Gop Level [0-9]; //optional, specific debug level for Gop handling
+    Gog Level [0-9]; //optional, specific debug level for Gog handling
+};
 ----
 
 ====== Filename clause
