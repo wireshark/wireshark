@@ -42,6 +42,9 @@ valid field expression.
 Many improvements and fixes to the graphing dialogs, including
 I/O Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
 
+Possibillity to use zlib-ng to open and write zip compressed files. Zlib-ng is substantionally faster. Windows and MacOS brew
+packages have this feature included.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
