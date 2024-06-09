@@ -1467,7 +1467,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Stop capturing after the specified number of files have been created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma la cattura dopo che il numero di file specificato è stato creato.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12914,7 +12914,7 @@ a:hover {
     </message>
     <message>
         <source>Export TLS Session Keys…</source>
-        <translation>Esporta chiavi di sessione SSL...</translation>
+        <translation>Esporta chiavi di sessione TLS...</translation>
     </message>
     <message>
         <source>List Files</source>
@@ -13781,7 +13781,7 @@ a:hover {
     </message>
     <message>
         <source>Show UTP multicast stream statistics.</source>
-        <translation>Mostra le statistiche del flusso multicast UDP.</translation>
+        <translation>Mostra le statistiche del flusso multicast UTP.</translation>
     </message>
     <message>
         <source>WLAN Traffic</source>
@@ -14727,7 +14727,7 @@ a:hover {
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
-        <translation>Non ci sono chiavi di sessione SSL da salvare.</translation>
+        <translation>Non ci sono chiavi di sessione TLS da salvare.</translation>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
