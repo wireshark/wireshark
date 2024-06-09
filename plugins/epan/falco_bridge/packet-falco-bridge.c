@@ -574,7 +574,7 @@ import_plugin(char* fname)
     create_source_hfids(bi);
 
     const char *source_name = get_sinsp_source_name(bi->ssi);
-    const char *plugin_name = g_strdup_printf("%s Plugin", source_name);
+    const char *plugin_name = g_strdup_printf("%s Falco Bridge Plugin", source_name);
     bi->proto = proto_register_protocol(plugin_name, source_name, source_name);
 
     static dissector_handle_t ct_handle;
