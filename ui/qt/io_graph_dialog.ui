@@ -112,16 +112,6 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="clearToolButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Clear all graphs.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="StockIconToolButton" name="moveUpwardsToolButton">
        <property name="enabled">
         <bool>false</bool>
@@ -138,6 +128,16 @@
        </property>
        <property name="toolTip">
         <string>Move the selected graph(s) downwards.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="clearToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Clear all graphs.</string>
        </property>
       </widget>
      </item>
