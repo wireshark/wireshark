@@ -48,7 +48,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>Remove this entry.</string>
+        <string>Remove the selected entry(ies).</string>
        </property>
       </widget>
      </item>
@@ -58,7 +58,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>Copy this entry.</string>
+        <string>Copy the selected entry(ies).</string>
        </property>
        <property name="text">
         <string/>
@@ -71,7 +71,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>Move entry up.</string>
+        <string>Move the selected entry(ies) up.</string>
        </property>
        <property name="text">
         <string/>
@@ -84,7 +84,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>Move entry down.</string>
+        <string>Move the selected entry(ies) down.</string>
        </property>
        <property name="text">
         <string/>

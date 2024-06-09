@@ -18,6 +18,7 @@
 
 class QComboBox;
 class QPushButton;
+class QItemSelection;
 
 struct epan_uat;
 
@@ -40,6 +41,7 @@ private slots:
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
     void modelRowsReset();
+    void uatTreeViewSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
     void acceptChanges();
     void rejectChanges();

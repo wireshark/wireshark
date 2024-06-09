@@ -1644,10 +1644,18 @@ void IOGraphDialog::graphUatSelectionChanged(const QItemSelection&, const QItemS
 {
     QModelIndexList selectedRows = ui->graphUat->selectionModel()->selectedRows();
     qsizetype num_selected = selectedRows.size();
-    ui->deleteToolButton->setEnabled(num_selected > 0);
-    ui->copyToolButton->setEnabled(num_selected > 0);
-    ui->moveUpwardsToolButton->setEnabled(num_selected > 0);
-    ui->moveDownwardsToolButton->setEnabled(num_selected > 0);
+    if (num_selected > 0) {
+        std::sort(selectedRows.begin(), selectedRows.end());
+        ui->deleteToolButton->setEnabled(true);
+        ui->copyToolButton->setEnabled(true);
+        ui->moveUpwardsToolButton->setEnabled(selectedRows.first().row() > 0);
+        ui->moveDownwardsToolButton->setEnabled(selectedRows.last().row() < uat_model_->rowCount() - 1);
+    } else {
+        ui->deleteToolButton->setEnabled(false);
+        ui->copyToolButton->setEnabled(false);
+        ui->moveUpwardsToolButton->setEnabled(false);
+        ui->moveDownwardsToolButton->setEnabled(false);
+    }
 }
 
 void IOGraphDialog::on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex&)
@@ -1761,6 +1769,10 @@ void IOGraphDialog::on_moveUpwardsToolButton_clicked()
             if (! uat_model_->moveRows(QModelIndex(), range.top(), range.bottom() - range.top() + 1, QModelIndex(), range.top() - 1)) {
                 qDebug() << "Failed to move up rows" << range.top() << "to" << range.bottom();
             }
+            // Our moveRows implementation calls begin/endMoveRows(), so
+            // range.top() already has the new row number.
+            ui->moveUpwardsToolButton->setEnabled(range.top() > 0);
+            ui->moveDownwardsToolButton->setEnabled(true);
         }
     }
 }
@@ -1778,6 +1790,10 @@ void IOGraphDialog::on_moveDownwardsToolButton_clicked()
             if (! uat_model_->moveRows(QModelIndex(), range.top(), range.bottom() - range.top() + 1, QModelIndex(), range.bottom() + 1)) {
                 qDebug() << "Failed to move down rows" << range.top() << "to" << range.bottom();
             }
+            // Our moveRows implementation calls begin/endMoveRows, so
+            // range.bottom() already has the new row number.
+            ui->moveUpwardsToolButton->setEnabled(true);
+            ui->moveDownwardsToolButton->setEnabled(range.bottom() < uat_model_->rowCount() - 1);
         }
     }
 }
