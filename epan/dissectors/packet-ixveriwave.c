@@ -723,7 +723,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     length = tvb_get_letohs(tvb, offset + COMMON_LENGTH_OFFSET);
 
-    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "%s", ixport_type ? "ETH" : "WLAN");
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, ixport_type ? "ETH" : "WLAN");
     col_clear(pinfo->cinfo, COL_INFO);
 
     true_length = pinfo->fd->pkt_len - length - tvb_get_letohs(tvb, offset + length) + 4;   /* add FCS length into captured length */

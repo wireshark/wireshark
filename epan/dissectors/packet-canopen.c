@@ -1289,11 +1289,11 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (node_id == 0 ) {
             /* broadcast */
             function_code_str = val_to_str(function_code, CAN_open_bcast_msg_type_vals, "Unknown (%u)");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", function_code_str);
+            col_add_str(pinfo->cinfo, COL_INFO, function_code_str);
         } else {
             /* point-to-point */
             function_code_str = val_to_str(function_code, CAN_open_p2p_msg_type_vals, "Unknown (%u)");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", function_code_str);
+            col_add_str(pinfo->cinfo, COL_INFO, function_code_str);
         }
     }
 

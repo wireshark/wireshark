@@ -103,7 +103,7 @@ static void dissect_bthci_h1(tvbuff_t *tvb, packet_info *pinfo,
   bluetooth_data->previous_protocol_data.bthci = &bthci;
   proto_item_set_len (ti, 1);
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
+  col_add_str (pinfo->cinfo, COL_INFO, val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
   if (!dissector_try_uint_new (hci_h1_table, bthci.channel,
           tvb, pinfo, tree, TRUE, bluetooth_data)) {
     call_data_dissector (tvb, pinfo, tree);
@@ -144,7 +144,7 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     len = tvb_strsize (tvb, offset);
     proto_tree_add_item (sub_tree, hf_syslog_message, tvb, offset, len, ENC_ASCII);
-    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, tvb, offset, len));
+    col_add_str (pinfo->cinfo, COL_INFO, tvb_format_stringzpad_wsp (pinfo->pool, tvb, offset, len));
 }
 
 static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
@@ -208,11 +208,11 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   case PKT_CONFIG:
   case PKT_NEW_CONTROLLER:
     proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII);
-    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, next_tvb, 0, len));
+    col_add_str (pinfo->cinfo, COL_INFO, tvb_format_stringzpad_wsp (pinfo->pool, next_tvb, 0, len));
     break;
   default:
     call_data_dissector(next_tvb, pinfo, tree);
-    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
     break;
   }
 

@@ -667,7 +667,7 @@ static void dissect_usb_i1d3_response(
                 expert_add_info(
                         pinfo, unlock_result_item, &ei_usb_i1d3_unlock_failed);
             }
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", unlock_result_string);
+            col_add_str(pinfo->cinfo, COL_INFO, unlock_result_string);
             break;
         }
     }

@@ -2030,7 +2030,7 @@ dissect_xti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     col_clear(pinfo->cinfo, COL_INFO);
     guint16 templateid = tvb_get_letohs(tvb, 4);
     const char *template_str = val_to_str_ext(templateid, &template_id_vals_ext, "Unknown XTI template: 0x%04x");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", template_str);
+    col_add_str(pinfo->cinfo, COL_INFO, template_str);
 
     /* create display subtree for the protocol */
     proto_item *ti = proto_tree_add_item(tree, proto_xti, tvb, 0, -1, ENC_NA);

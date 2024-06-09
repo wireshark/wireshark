@@ -323,11 +323,11 @@ col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
             break;
         case FPP_Packet_Init:
             if (crc_val == CRC_CRC)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), preemptive_delim_desc));
+                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), preemptive_delim_desc));
             else if (crc_val == CRC_mCRC)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), initial_delim_desc));
+                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), initial_delim_desc));
             else
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), corrupted_delim_desc));
+                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), corrupted_delim_desc));
             break;
         case FPP_Packet_Cont:
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-2), continuation_delim_desc),

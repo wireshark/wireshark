@@ -720,7 +720,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 
     /* Write Messagetype in the info column */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", rval_to_str_const(hislip_data.messagetype, messagetypestring, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, rval_to_str_const(hislip_data.messagetype, messagetypestring, "Unknown"));
 
 
     if (tree)

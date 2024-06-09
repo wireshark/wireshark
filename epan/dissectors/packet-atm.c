@@ -1408,7 +1408,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     octet = tvb_get_guint8(tvb, offset);
     if (fill_columns)
     {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+      col_add_str(pinfo->cinfo, COL_INFO,
                    val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     }
 

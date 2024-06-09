@@ -522,7 +522,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         lwm_cmd = tvb_get_guint8(new_tvb, 0);
 
         col_clear(pinfo->cinfo, COL_INFO);  /*XXX: why ?*/
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+        col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING));
 
         lwm_cmd_tree = proto_tree_add_subtree(lwm_tree, new_tvb, 0, -1, ett_lwm_cmd_tree, &ti,

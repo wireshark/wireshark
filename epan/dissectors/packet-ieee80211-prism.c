@@ -810,7 +810,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %s Mb/s", prism_rate_return(pinfo->pool, rate));
                 }
-                col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(pinfo->pool, rate));
+                col_add_str(pinfo->cinfo, COL_TX_RATE, prism_rate_return(pinfo->pool, rate));
                 break;
 
             case PRISM_TYPE1_RATE_SIG_A1:

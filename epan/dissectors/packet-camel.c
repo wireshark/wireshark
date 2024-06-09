@@ -3276,7 +3276,7 @@ dissect_camel_DateAndTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   }
 
   /* Pretty print date */
-  /* XXX - Should we use sprintf here instead of assembling the string by
+  /* XXX - Should we use snprintf here instead of assembling the string by
    * hand? */
 
   camel_time[0] = c[8];

@@ -346,7 +346,7 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	command = tvb_get_guint8(tvb, offset) >> 2;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(command, msg_typ_vals, "Unknown command (%u)"));
 
 	if (tree) {

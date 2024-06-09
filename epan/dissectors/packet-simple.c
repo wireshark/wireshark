@@ -466,7 +466,7 @@ static int dissect_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset += 2;
 
     packet_type_string = val_to_str_const(packet_type, PacketType_Strings, "Unknown");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", packet_type_string);
+    col_add_str(pinfo->cinfo, COL_INFO, packet_type_string);
     packet_tree = proto_tree_add_subtree_format(simple_tree, tvb, offset, packet_size, ett_packet, NULL, "%s Packet", packet_type_string);
 
     switch(packet_type) {

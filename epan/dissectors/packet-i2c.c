@@ -174,7 +174,7 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		addr = 0;
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
 		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+		col_add_str(pinfo->cinfo, COL_INFO,
 				i2c_linux_get_event_desc(flags));
 	} else {
 		/* Report 7-bit hardware address */

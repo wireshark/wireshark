@@ -278,7 +278,7 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   offset++;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Clique-rm");
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_str(pinfo->cinfo, COL_INFO,
                val_to_str(type, packet_type_vals, "Unknown (0x%02x)"));
 
   /* rewind back to just behind the prefix */

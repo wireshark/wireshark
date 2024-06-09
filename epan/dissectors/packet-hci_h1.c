@@ -88,7 +88,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                      val_to_str(type, hci_h1_type_vals,
                     "Unknown 0x%02x"));
     else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+        col_add_str(pinfo->cinfo, COL_INFO,
                  val_to_str(type, hci_h1_type_vals,
                     "Unknown 0x%02x"));
 

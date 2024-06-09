@@ -96,7 +96,7 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             break;
 
         default:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+            col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"));
             break;
     }

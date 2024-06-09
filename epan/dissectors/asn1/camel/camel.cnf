@@ -364,7 +364,7 @@ proto_tree *subtree;
   }
 
   /* Pretty print date */
-  /* XXX - Should we use sprintf here instead of assembling the string by
+  /* XXX - Should we use snprintf here instead of assembling the string by
    * hand? */
 
   camel_time[0] = c[8];

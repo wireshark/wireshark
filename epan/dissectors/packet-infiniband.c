@@ -2283,7 +2283,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+    col_add_str(pinfo->cinfo, COL_INFO,
              val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
 
     /* Assigns column values */

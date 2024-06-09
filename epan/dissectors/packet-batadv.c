@@ -2762,7 +2762,7 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	unicast_4addr_packeth->reserved = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+	col_add_str(pinfo->cinfo, COL_INFO,
 		     val_to_str(unicast_4addr_packeth->subtype, unicast_4addr_typenames, "Unknown (0x%02x)"));
 
 	/* Set tree info */
