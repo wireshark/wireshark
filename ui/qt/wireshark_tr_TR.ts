@@ -1031,8 +1031,16 @@
         <translation>İlk paket</translation>
     </message>
     <message>
+        <source>First event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Last packet</source>
         <translation>Son paket</translation>
+    </message>
+    <message>
+        <source>Last event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1071,6 +1079,10 @@
         <translation>Bırakılan paketler</translation>
     </message>
     <message>
+        <source>Dropped events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture filter</source>
         <translation>Yakalama filtresi</translation>
     </message>
@@ -1081,6 +1093,10 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Paket boyutu sınırı (snaplen)</translation>
+    </message>
+    <message>
+        <source>Event size limit (snaplen)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>
@@ -1135,6 +1151,10 @@
         <translation>Paketler</translation>
     </message>
     <message>
+        <source>Events</source>
+        <translation type="unfinished">Etkinlikler</translation>
+    </message>
+    <message>
         <source>Time span, s</source>
         <translation>Zaman aralığı, s</translation>
     </message>
@@ -1145,6 +1165,10 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Ortalama paket boyutu, B</translation>
+    </message>
+    <message>
+        <source>Average event size, B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1161,6 +1185,10 @@
     <message>
         <source>Packet Comments</source>
         <translation>Paket Yorumları</translation>
+    </message>
+    <message>
+        <source>Event Comments</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1607,10 +1635,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="vanished">Birden çok dosya: İstenen dosya boyutu çok büyük. Dosya boyutu 2 GiB&apos;den büyük olamaz.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -4429,7 +4453,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Access Denied</source>
+        <source>All Execs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5230,6 +5254,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply changes</source>
         <translation>Değişiklikleri uygula</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeDelegate</name>
+    <message>
+        <source>default</source>
+        <translation type="unfinished">öntanımlı</translation>
     </message>
 </context>
 <context>
@@ -8784,6 +8815,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>EVENTS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>BYTES</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10865,6 +10900,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>Geçersiz filtre.</translation>
+    </message>
+    <message>
+        <source>Event List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

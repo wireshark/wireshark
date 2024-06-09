@@ -1015,8 +1015,16 @@
         <translation>Primer paquete</translation>
     </message>
     <message>
+        <source>First event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Last packet</source>
         <translation>Último paquete</translation>
+    </message>
+    <message>
+        <source>Last event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1055,6 +1063,10 @@
         <translation>Paquetes perdidos</translation>
     </message>
     <message>
+        <source>Dropped events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture filter</source>
         <translation>Filtro de captura</translation>
     </message>
@@ -1064,6 +1076,10 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event size limit (snaplen)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1119,6 +1135,10 @@
         <translation>Paquetes</translation>
     </message>
     <message>
+        <source>Events</source>
+        <translation type="unfinished">Eventos</translation>
+    </message>
+    <message>
         <source>Time span, s</source>
         <translation>Espacio de tiempo, s</translation>
     </message>
@@ -1129,6 +1149,10 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Promedio de tamaño de paquete, B</translation>
+    </message>
+    <message>
+        <source>Average event size, B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1145,6 +1169,10 @@
     <message>
         <source>Packet Comments</source>
         <translation>Comentarios de paquete</translation>
+    </message>
+    <message>
+        <source>Event Comments</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1587,10 +1615,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="vanished">Varios archivos: El tamaño de archivo solicitado es demasiado grande. El tamaño de archivo no puede ser mayor de 2 GiB. </translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -4405,7 +4429,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Access Denied</source>
+        <source>All Execs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5205,6 +5229,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeDelegate</name>
+    <message>
+        <source>default</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8738,6 +8769,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>EVENTS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>BYTES</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10815,6 +10850,22 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Invalid filter.</source>
         <translation>Filtro no valido.</translation>
+    </message>
+    <message>
+        <source>Event List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

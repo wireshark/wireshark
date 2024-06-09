@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.3.0 (v4.3.0rc0-2321-gf566d380e2d4)
+TShark (Wireshark) 4.3.0 (v4.3.0rc0-2712-g71f0456103a5)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -81,7 +81,7 @@ Output:
   --capture-comment <comment>
                            add a capture file comment, if supported
   -C <config profile>      start with specified configuration profile
-  -F <output file type>    set the output file type, default is pcapng
+  -F <output file type>    set the output file type; default is pcapng.
                            an empty "-F" option will list the file types
   -V                       add output of packet tree        (Packet Details)
   -O <protocols>           Only show packet details of these protocols, comma

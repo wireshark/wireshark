@@ -1031,8 +1031,16 @@
         <translation>처음 패킷</translation>
     </message>
     <message>
+        <source>First event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Last packet</source>
         <translation>마지막 패킷</translation>
+    </message>
+    <message>
+        <source>Last event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1071,6 +1079,10 @@
         <translation>누락된 패킷</translation>
     </message>
     <message>
+        <source>Dropped events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture filter</source>
         <translation>캡처 필터</translation>
     </message>
@@ -1081,6 +1093,10 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>패킷 크기 제한(snaplen)</translation>
+    </message>
+    <message>
+        <source>Event size limit (snaplen)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>none</source>
@@ -1135,6 +1151,10 @@
         <translation>패킷 수</translation>
     </message>
     <message>
+        <source>Events</source>
+        <translation type="unfinished">이벤트</translation>
+    </message>
+    <message>
         <source>Time span, s</source>
         <translation>시간 간격, 초</translation>
     </message>
@@ -1145,6 +1165,10 @@
     <message>
         <source>Average packet size, B</source>
         <translation>평균 패킷 크기, 바이트</translation>
+    </message>
+    <message>
+        <source>Average event size, B</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1161,6 +1185,10 @@
     <message>
         <source>Packet Comments</source>
         <translation>패킷 주석</translation>
+    </message>
+    <message>
+        <source>Event Comments</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1607,10 +1635,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="vanished">여러 파일: 요청한 파일 크기가 너무 큽니다. 파일 최대 크기는 2 GiB입니다.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -4429,8 +4453,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>모든 이벤트</translation>
     </message>
     <message>
+        <source>All Execs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Access Denied</source>
-        <translation>접근 거부됨</translation>
+        <translation type="vanished">접근 거부됨</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5230,6 +5258,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Apply changes</source>
         <translation>변경 사항 적용</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeDelegate</name>
+    <message>
+        <source>default</source>
+        <translation type="unfinished">기본값</translation>
     </message>
 </context>
 <context>
@@ -8784,6 +8819,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>EVENTS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>BYTES</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10865,6 +10904,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>잘못된 필터입니다.</translation>
+    </message>
+    <message>
+        <source>Event List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

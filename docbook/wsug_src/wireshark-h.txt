@@ -1,4 +1,4 @@
-Wireshark 4.3.0 (v4.3.0rc0-87-g9c90105c365a)
+Wireshark 4.3.0 (v4.3.0rc0-2712-g71f0456103a5)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -86,6 +86,8 @@ User interface:
 
 Output:
   -w <outfile|->           set the output filename (or '-' for stdout)
+  -F <capture type>        set the output file type; default is pcapng.
+                           an empty "-F" option will list the file types.
   --capture-comment <comment>
                            add a capture file comment, if supported
   --temp-dir <directory>   write temporary files to this directory
