@@ -97,14 +97,14 @@
      <item>
       <widget class="StockIconToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Remove this graph.</string>
+        <string>Remove the selected graph(s).</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="StockIconToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Duplicate this graph.</string>
+        <string>Duplicate the selected graph(s).</string>
        </property>
        <property name="text">
         <string/>
@@ -127,7 +127,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>Move this graph upwards.</string>
+        <string>Move the selected graph(s) upwards.</string>
        </property>
       </widget>
      </item>
@@ -137,7 +137,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>Move this graph downwards.</string>
+        <string>Move the selected graph(s) downwards.</string>
        </property>
       </widget>
      </item>
