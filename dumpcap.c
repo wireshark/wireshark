@@ -877,11 +877,15 @@ print_machine_readable_interfaces(GList *if_list, int caps_queries, bool print_s
                 sync_pipe_write_string_msg(sync_pipe_fd, SP_SUCCESS, NULL);
                 printf("%s", dumper.output_string->str);
             }
+        } else {
+            printf("%s", dumper.output_string->str);
         }
     } else {
         status = 2;
         if (capture_child) {
             sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, "Unexpected JSON error", "");
+        } else {
+            cmdarg_err("Unexpected JSON error");
         }
     }
     g_string_free(dumper.output_string, TRUE);
