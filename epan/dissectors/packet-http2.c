@@ -2890,11 +2890,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
                         /* Populate the content type so we can dissect the body later */
                         body_info->content_type = wmem_strndup(wmem_file_scope(), "multipart/mixed", 15);
                         body_info->content_type_parameters = wmem_strdup_printf(wmem_file_scope(), "boundary=\"%s\"", boundary);
-                        dissector_handle_t handle = dissector_get_string_handle(media_type_dissector_table, body_info->content_type);
                         metadata_used_for_media_type_handle.media_str = body_info->content_type_parameters;
-                        if (handle) {
-                            dissector_add_uint("http2.streamid", stream_info->stream_id, handle);
-                        }
                         dissector_try_uint_new(stream_id_content_type_dissector_table, stream_id,
                             data_tvb, pinfo, proto_tree_get_parent_tree(tree), TRUE, &metadata_used_for_media_type_handle);
                     }
