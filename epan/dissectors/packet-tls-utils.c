@@ -8168,6 +8168,22 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         if (name_type == 0) {
             proto_item_append_text(tree, " name=%s", server_name);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (SNI=%s)", server_name);
+
+            if (gbl_resolv_flags.handshake_sni_addr_resolution) {
+                // Client Hello: Client (Src) -> Server (Dst)
+                switch (pinfo->dst.type) {
+                    case AT_IPv4:
+                        if (pinfo->dst.len == sizeof(guint32)) {
+                            add_ipv4_name(*(guint32 *)pinfo->dst.data, server_name, false);
+                        }
+                        break;
+                    case AT_IPv6:
+                        if (pinfo->dst.len == sizeof(ws_in6_addr)) {
+                            add_ipv6_name(pinfo->dst.data, server_name, false);
+                        }
+                        break;
+                }
+            }
         }
     }
     return offset;

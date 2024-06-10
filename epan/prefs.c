@@ -5405,6 +5405,9 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
         case 'd':
             name_resolve->dns_pkt_addr_resolution = true;
             break;
+        case 's':
+            name_resolve->handshake_sni_addr_resolution = true;
+            break;
         case 'v':
             name_resolve->vlan_name = true;
             break;
