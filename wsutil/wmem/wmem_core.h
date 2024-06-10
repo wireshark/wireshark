@@ -160,8 +160,7 @@ wmem_free(wmem_allocator_t *allocator, void *ptr);
  */
 WS_DLL_PUBLIC
 void *
-wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
-G_GNUC_MALLOC;
+wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size);
 
 /** Frees all the memory allocated in a pool. Depending on the allocator
  * implementation used this can be significantly cheaper than calling
