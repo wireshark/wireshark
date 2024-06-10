@@ -46,7 +46,7 @@ typedef struct _skinny_req_resp_t {
   nstime_t               request_time;
 } skinny_req_resp_t;
 
-/* begin conversaton  info*/
+/* begin conversation  info*/
 typedef enum _skinny_message_type_t {
   SKINNY_MSGTYPE_EVENT    = 0,
   SKINNY_MSGTYPE_REQUEST  = 1,
@@ -67,7 +67,7 @@ typedef struct _skinny_conv_info_t {
 /* end conversation info */
 
 /* Containers for tapping relevant data */
-/* WIP: will be (partially) replaced in favor of conversionation, dependents: ui/voip_calls.c */
+/* WIP: will be (partially) replaced in favor of conversation, dependents: ui/voip_calls.c */
 typedef struct _skinny_info_t
 {
   uint32_t                messId;
@@ -86,6 +86,7 @@ typedef struct _skinny_info_t
   int32_t                 multimediaTransmissionStatus;
   int32_t                 multicastReceptionStatus;
   //skinny_conv_info_t    * skinny_conv;
+  char                  * additionalInfo;
 } skinny_info_t;
 
 /*

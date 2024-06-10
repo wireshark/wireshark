@@ -12,6 +12,7 @@
 80mhz
 abbrev
 aborts
+accel
 accelerations
 accelerometer
 acceptor
@@ -22,6 +23,7 @@ acked
 acknack
 acknowledgement
 acknowledgements
+acknowlegement
 acp133
 acquirer
 actioned
@@ -147,6 +149,7 @@ authenticators
 authgss
 authn
 authntransitioning
+authorisation
 authorizer
 authtoken
 authtype
@@ -445,6 +448,7 @@ crypto
 cryptographic
 csapi
 ctime
+ctrls
 ctrlstat
 ctxinfo
 ctxinst
@@ -455,6 +459,7 @@ customizable
 customization
 customizing
 cyphering
+cyrillic
 daintree
 dallas
 darwin
@@ -531,6 +536,7 @@ demultiplex
 demultiplexed
 demultiplexer
 demultiplexers
+demultiplexing
 denso
 deobfuscated
 deobfuscation
@@ -584,6 +590,7 @@ dhcpv
 diagdata
 dialed
 dialup
+dicom
 differentiator
 diffie
 diffserv
@@ -604,6 +611,7 @@ dissection
 dissector
 dissectors
 distinguisher
+distrib
 distributions
 diversifications
 diversifier
@@ -631,6 +639,7 @@ dpnss
 drbid
 drdynvc
 droppable
+drsuapi
 dsmcc
 dstmode
 dstport
@@ -653,6 +662,7 @@ econet
 ecpri
 ed137a
 editcap
+edonkey
 eeprom
 effecter
 egprs
@@ -744,6 +754,7 @@ executables
 exflags
 exfunc
 exocet
+expandtab
 expansions
 extapp
 extattr
@@ -781,6 +792,7 @@ fibre
 fileseg
 fileset
 filsfils
+filter2d
 firefox
 firewall
 fiveco
@@ -895,6 +907,7 @@ guatemala
 guint
 gzipped
 handoff
+hangul
 hangup
 harqid
 harris
@@ -905,6 +918,7 @@ hazelcast
 hbreq
 hcidump
 headend
+hebrew
 hellman
 heuristic
 heuristics
@@ -965,6 +979,10 @@ ifndef
 iftype
 ikev2
 illuminance
+image1d
+image2d
+image3d
+image4dsgis
 imeisv
 immersive
 impinj
@@ -1071,6 +1089,7 @@ isatap
 iscsi
 iseries
 isobus
+isocenter
 isochronous
 issuer
 italia
@@ -1169,6 +1188,7 @@ lookups
 loopback
 loran
 lossy
+lsarpc
 lscap
 lstat
 ltype
@@ -1237,6 +1257,7 @@ metamethod
 metatraffic
 meteorological
 metermod
+meterset
 metre
 metres
 México
@@ -1255,6 +1276,7 @@ miniport
 minislot
 minislots
 minizip
+minmax
 minus1
 mirrorlink
 misconfiguration
@@ -1286,6 +1308,12 @@ mplstp
 mpquic
 mpsse
 mptcp
+mqcacf
+mqcmd
+mqiacf
+mqiach
+mqiamo
+mqrccf
 mrcpv
 msbuild
 mscldap
@@ -1454,6 +1482,7 @@ october
 oextcap
 ofdma
 offloadability
+offsetp
 ofpacpt
 ofpat
 ofpbac
@@ -1525,6 +1554,8 @@ panasonic
 parallelism
 parallelization
 param
+parameterfv
+parameteriv
 parameterization
 parameterized
 params
@@ -1708,6 +1739,7 @@ randomization
 randomize
 randomizer
 randpkt
+randr
 raster
 rcsta
 rctxinfo
@@ -1742,6 +1774,7 @@ recalculate
 recalculating
 recalculation
 recalibrate
+recognise
 recognised
 recognises
 recognizer
@@ -2060,6 +2093,7 @@ spnego
 spoofing
 spooled
 spooler
+spoolss
 sqlite
 sqlwarn
 srbid
@@ -2068,6 +2102,7 @@ srcip
 srcport
 srtcp
 srvcc
+srvsvc
 sscop
 sshdump
 sshkey
@@ -2530,6 +2565,7 @@ virtualization
 virtualized
 vlans
 vldbentry
+vmods
 vmware
 vnode
 vocoder
@@ -2590,11 +2626,19 @@ xchannel
 xcode
 xdist
 xetra
+xf86dri
+xf86vidmode
 xferext
 xferflags
 xferstatus
+xfixes
 xhtml
+xinerama
+xinput
 xmlns
+xprint
+xproto
+xselinux
 xsltproc
 xtreme
 z3950

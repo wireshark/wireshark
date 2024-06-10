@@ -157,7 +157,7 @@ struct ieee80211_radiotap_header {
  *     Contains a bitmap of known fields/flags, the flags, and
  *     the MCS index.
  *
- * IEEE80211_RADIOTAP_AMPDU_STATUS	u32, u16, u8, u8	unitlesss
+ * IEEE80211_RADIOTAP_AMPDU_STATUS	u32, u16, u8, u8	unitless
  *
  *	Contains the AMPDU information for the subframe.
  *
@@ -439,7 +439,7 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_HE_CODING				0x2000
 #define IEEE80211_RADIOTAP_HE_LDPC_EXTRA_SYMBOL_SEGMENT		0x4000
 #define IEEE80211_RADIOTAP_HE_STBC				0x8000
-/* HE_SU and HE_EXT_SU formap PPDU */
+/* HE_SU and HE_EXT_SU format PPDU */
 #define IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_MASK		0x000F
 #define IEEE80211_RADIOTAP_HE_D4_FFF0				0xFFF0
 /* HE_TRIG format PPDU */

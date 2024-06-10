@@ -60,7 +60,7 @@ atn_conversation_t * find_atn_conversation(
 typedef struct aarq_data_t {
     gboolean aarq_pending; /* flag tells whether AARQ/sequence is pending (true)  */
                            /* required not to mix up different AARQ/AARE sequences */
-                           /* during simoultanous establishment of transport connections */
+                           /* during simultaneous establishment of transport connections */
                            /* i.e. GND facility initialises cpcstart and cmcontact at the same time */
     atn_conversation_t* cv; /* pointer to AARQ conversation */
 } aarq_data_t;

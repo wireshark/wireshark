@@ -638,7 +638,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 #define M_THIS_EXIST_LH(_STRUCT, _HF_PTR)\
         {CSN_EXIST_LH, 0, {0}, offsetof(_STRUCT, Exist), FALSE, "Exist", NULL, 0, _HF_PTR, NULL, NULL}
 
-/* return value 0 if ok else discontionue the unpacking */
+/* return value 0 if ok else discontinue the unpacking */
 typedef gint16 (*CsnCallBackFcn_t)(void* pv ,...);
 
 #define CSNDESCR(_FuncType) CSNDESCR_##_FuncType

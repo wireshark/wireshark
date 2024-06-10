@@ -84,10 +84,10 @@
 /* ZigBee Direct Tunnel Service */
 #define ZBEE_TLV_TYPE_TUNNELING_NPDU_MESSAGE  0            /* NPDU Message */
 
-/* ZigBee Direct Secuirty Service */
-#define ZBEE_TLV_TYPE_KEY_METHOD        0        /* ZigBee Direct Key Negotitaion Method */
-#define ZBEE_TLV_TYPE_PUB_POINT_P256    1        /* ZigBee Direct Key Negotitaion P-256 Public Point */
-#define ZBEE_TLV_TYPE_PUB_POINT_C25519  2        /* ZigBee Direct Key Negotitaion Curve25519 Public Point */
+/* ZigBee Direct Security Service */
+#define ZBEE_TLV_TYPE_KEY_METHOD        0        /* ZigBee Direct Key Negotiation Method */
+#define ZBEE_TLV_TYPE_PUB_POINT_P256    1        /* ZigBee Direct Key Negotiation P-256 Public Point */
+#define ZBEE_TLV_TYPE_PUB_POINT_C25519  2        /* ZigBee Direct Key Negotiation Curve25519 Public Point */
 #define ZBEE_TLV_TYPE_NWK_KEY_SEQ_NUM   3        /* Network Key Sequence Number */
 #define ZBEE_TLV_TYPE_MAC_TAG           4        /* MacTag */
 

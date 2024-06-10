@@ -29,8 +29,8 @@ typedef struct _t38_packet_info {
 	guint32 setup_frame_number;
 	guint32 Data_Field_field_type_value;
 	guint8	t30_Facsimile_Control;
-	gchar   desc[MAX_T38_DESC]; /* Description used to be displayed in the frame label Graph Anlaysis */
-	gchar   desc_comment[MAX_T38_DESC]; /* Description used to be displayed in the Comment Graph Anlaysis */
+	gchar   desc[MAX_T38_DESC]; /* Description used to be displayed in the frame label Graph Analysis */
+	gchar   desc_comment[MAX_T38_DESC]; /* Description used to be displayed in the Comment Graph Analysis */
 	double time_first_t4_data;
 	guint32 frame_num_first_t4_data;
 } t38_packet_info;

@@ -22,10 +22,10 @@
 #define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
 #define LINUX_SLL_P_CAN		0x000C	/* Controller Area Network */
 #define LINUX_SLL_P_CANFD	0x000D	/* Controller Area Network flexible data rate */
-#define LINUX_SLL_P_CANXL	0x000E	/* Controller Area Network etended length */
+#define LINUX_SLL_P_CANXL	0x000E	/* Controller Area Network extended length */
 #define LINUX_SLL_P_IRDA_LAP	0x0017	/* IrDA Link Access Protocol */
 #define LINUX_SLL_P_ISI		0x00F5  /* Intelligent Service Interface */
-#define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
+#define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor interface */
 #define LINUX_SLL_P_MCTP	0x00fa	/* Management Component Transport Protocol */
 
 #endif

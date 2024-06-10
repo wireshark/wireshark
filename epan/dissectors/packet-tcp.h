@@ -204,7 +204,7 @@ struct tcp_multisegment_pdu {
 */
 typedef struct _mptcp_dss_mapping_t {
 
-/* In DSS, SSN are enumeratad with relative seq_nb, i.e. starting from 0 */
+/* In DSS, SSN are enumerated with relative seq_nb, i.e. starting from 0 */
 
 	guint32 ssn_low;
 	guint32 ssn_high;
@@ -244,7 +244,7 @@ typedef struct _mptcp_meta_flow_t {
 	guint64 nextseq;	/* highest seen nextseq */
 	guint64 dfin;		/* data fin */
 
-	guint8 version;		/* negociated mptcp version */
+	guint8 version;		/* negotiated mptcp version */
 
 	guint64 key;		/* if it was set */
 

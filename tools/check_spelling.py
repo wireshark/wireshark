@@ -76,7 +76,7 @@ class File:
 
         filename, extension = os.path.splitext(file)
         # TODO: add '.lua'?  Would also need to check string and comment formats...
-        self.code_file = extension in {'.c', '.cpp'}
+        self.code_file = extension in {'.c', '.cpp', '.h' }
 
 
         with open(file, 'r', encoding="utf8") as f:
