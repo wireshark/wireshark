@@ -542,22 +542,27 @@ macOS Arm Package:
     - cd build
     - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_ARCHITECTURES=arm64 -DBUILD_logray=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/usr/local/lib/falco-plugins/libcloudtrail.so -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - codesign-prep
     - security find-identity -v -s "$CODE_SIGN_IDENTITY"
     - ninja wireshark_dmg
+    - ninja logray_dmg
     - cd run
     - xcrun notarytool submit Wireshark?[1-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
     - xcrun stapler staple Wireshark?[1-9]*.dmg
-    - spctl --assess --type open --context context:primary-signature --verbose=2 Wireshark?[1-9]*.dmg
-    - stat -f "%N %z bytes" Wireshark*.dmg
-    - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg ; done
+    - xcrun notarytool submit Logray?[0-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
+    - xcrun stapler staple Logray?[0-9]*.dmg
+    - spctl --assess --type open --context context:primary-signature --verbose=2 Wireshark?[1-9]*.dmg Logray?[0-9]*.dmg
+    - stat -f "%N %z bytes" Wireshark*.dmg Logray*.dmg
+    - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg Logray*.dmg ; done
     - |
       if [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
         aws s3 cp Wireshark?[1-9]*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
         aws s3 cp Wireshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Logray?[0-9]*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Logray?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
     - SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
     - $CI_PROJECT_DIR/build/run/tshark --version
@@ -588,22 +593,26 @@ macOS Intel Package:
     - cd build
     - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -DENABLE_CCACHE=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DBUILD_logray=on -DBUILD_falcodump=on -DFALCO_PLUGINS=/usr/local/lib/falco-plugins/libcloudtrail.so -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - codesign-prep
     - security find-identity -v -s "$CODE_SIGN_IDENTITY"
     - ninja wireshark_dmg
+    - ninja logray_dmg
     - cd run
     - xcrun notarytool submit Wireshark?[1-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
-    - xcrun stapler staple Wireshark?[1-9]*.dmg
-    - spctl --assess --type open --context context:primary-signature --verbose=2 Wireshark?[1-9]*.dmg
-    - stat -f "%N %z bytes" Wireshark*.dmg
-    - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg ; done
+    - xcrun notarytool submit Logray?[0-9]*.dmg --apple-id "$MACOS_NOTARIZATION_APPLE_ID" --team-id "$MACOS_NOTARIZATION_TEAM_ID" --password "$MACOS_NOTARIZATION_PWD" --wait --timeout 10m
+    - xcrun stapler staple Logray?[0-9]*.dmg
+    - spctl --assess --type open --context context:primary-signature --verbose=2 Wireshark?[1-9]*.dmg Logray?[0-9]*.dmg
+    - stat -f "%N %z bytes" Wireshark*.dmg Logray*.dmg
+    - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg Logray*.dmg ; done
     - |
       if [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
         aws s3 cp Wireshark?[1-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
         aws s3 cp Wireshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
+        aws s3 cp Logray?[0-9]*Intel*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Logray?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
     - SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
     - $CI_PROJECT_DIR/build/run/tshark --version
