@@ -615,8 +615,8 @@ macOS Intel Package:
       if [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
         aws s3 cp Wireshark?[1-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
         aws s3 cp Wireshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
-        aws s3 cp Logray?[0-9]*Intel*.dmg "$S3_DESTINATION_MACOS_ARM64/"
-        aws s3 cp Logray?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Logray?[0-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
+        aws s3 cp Logray?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
       fi
     - SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
     - $CI_PROJECT_DIR/build/run/tshark --version
