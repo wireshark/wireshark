@@ -806,9 +806,7 @@ proto_register_zmtp(void)
     };
     uat_t* zmtp_tcp_protocols_uat;
 
-    proto_zmtp = proto_register_protocol("ZeroMQ Message Transport Protocol",
-                                         "ZMTP",
-                                         "zmtp");
+    proto_zmtp = proto_register_protocol("ZeroMQ Message Transport Protocol", "ZMTP", "zmtp");
     proto_register_field_array(proto_zmtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

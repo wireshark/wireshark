@@ -1644,10 +1644,7 @@ void proto_register_pldm(void)
 	};
 
 	static gint *ett[] = {&ett_pldm};
-	proto_pldm = proto_register_protocol("PLDM Protocol", /* name        */
-			"PLDM",          /* short_name  */
-			"pldm"           /* filter_name */
-			);
+	proto_pldm = proto_register_protocol("PLDM Protocol", "PLDM", "pldm");
 	proto_register_field_array(proto_pldm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("pldm", dissect_pldm, proto_pldm);

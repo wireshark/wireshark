@@ -22,15 +22,14 @@ It is used for troubleshooting, analysis, development and education.
 Wireshark now supports automatic profile switching.
 You can associate a display filter with a configuration profile, and when you open a capture file that matches the filter, Wireshark will automatically switch to that profile.
 
-Lua support for older LUA versions has been dropped. Only 5.3 and 5.4 are supported, and the Lua version included with the
-Windows and MacOS installers is now 5.4.6.
+Support for Lua 5.3 and 5.4 has been added, and support for Lua 5.1 and 5.2 has been removed.
+The Windows and macOS installers now ship with Lua 5.4.6.
 
-Improved display filter support for value strings (optional string
-representations for numeric fields).
+Improved display filter support for value strings (optional string representations for numeric fields).
 
 Display filter functions can be implemented as runtime-loadable C plugins.
 
-Display filters can be translated to pcap filters using menu:Copy[Display filter as pcap filter] if each display filter field has a corresponding pcap filter equivalent.
+Display filters can be translated to pcap filters using menu:Edit[Copy,Display filter as pcap filter] if each display filter field has a corresponding pcap filter equivalent.
 
 Custom columns can be defined using any valid field expression, such as
 display filter functions, slices, arithmetic calculations, logical tests,
@@ -42,7 +41,7 @@ valid field expression.
 Many improvements and fixes to the graphing dialogs, including
 I/O Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
 
-Possibillity to use zlib-ng to open and write zip compressed files. Zlib-ng is substantionally faster. Windows and MacOS brew
+Possibillity to use zlib-ng to open and write zip compressed files. Zlib-ng is substantionally faster. Windows and macOS brew
 packages have this feature included.
 
 Many other improvements have been made.
@@ -374,21 +373,35 @@ The Parlay dissector has been removed.
 [commaize]
 --
 Allied Telesis Resiliency Link (AT RL)
-MAC NR Framed (mac-nr-framed)
-RF4CE Network Layer (RF4CE)
-RF4CE Profile (RF4CE Profile)
+ATN Security Label
+Bus Mirroring Protocol
 EGNOS Message Server (EMS) file format
 Galileo E1-B I/NAV navigation messages
-ZeroMQ Message Transport Protocol (ZMTP)
-SAP Remote Function Call (SAPRFC)
+IBM i RDMA Endpoint (iRDMA-EDP)
+IWBEMSERVICES
+MAC NR Framed (mac-nr-framed)
+Matter Bluetooth Transport Protocol (MatterBTP)
+MiWi P2P Star
+Monero
+NMEA 0183
+PLDM
+RDP authentication redirection virtual channel protocol (rdpear)
+RF4CE Network Layer (RF4CE)
+RF4CE Profile (RF4CE Profile)
 RK512
+SAP Remote Function Call (SAPRFC)
+SBAS L1 Navigation Message
+Scanner Access Now Easy (SANE)
+TREL
+WMIO
+ZeroMQ Message Transport Protocol (ZMTP)
 --
 
 === Updated Protocol Support
 
-* IPv6: The "show address detail" preference is now enabled by default. The
-  address details provided have been extended to include more special purpose address
-  block properties (forwardable, globally-routable, etc).
+IPv6: The "show address detail" preference is now enabled by default. The
+address details provided have been extended to include more special purpose address
+block properties (forwardable, globally-routable, etc).
 
 Too many other protocol updates have been made to list them all here.
 

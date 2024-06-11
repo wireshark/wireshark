@@ -573,11 +573,7 @@ void proto_register_busmirroring(void)
         &ett_network_state,
         &ett_frame_id};
 
-    proto_busmirroring = proto_register_protocol(
-        "Bus Mirroring Protocol", /* name        */
-        "BusMirroring",           /* short_name  */
-        "busmirroring"            /* filter_name */
-    );
+    proto_busmirroring = proto_register_protocol("Bus Mirroring Protocol", "BusMirroring", "busmirroring");
 
     proto_register_field_array(proto_busmirroring, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

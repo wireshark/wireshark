@@ -206,11 +206,7 @@ proto_register_trel(void)
       &ett_trel_hdr
     };
 
-    proto_trel = proto_register_protocol(
-        "TREL Protocol", /* name        */
-        "TREL",          /* short name  */
-        "trel"           /* filter_name */
-    );
+    proto_trel = proto_register_protocol("TREL Protocol", "TREL", "trel");
 
     proto_register_field_array(proto_trel, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
