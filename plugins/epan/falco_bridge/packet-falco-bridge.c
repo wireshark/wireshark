@@ -749,6 +749,11 @@ static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
 
 static gchar *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo _U_, guint *stream _U_, guint *sub_stream _U_)
 {
+    // This only supports the syscall source.
+    if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
+        return NULL;
+    }
+
     return sysdig_fd_build_filter(pinfo, NULL);
 }
 
