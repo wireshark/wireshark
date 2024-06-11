@@ -75,6 +75,7 @@
 #include "ui/preference_utils.h"
 #include "ui/software_update.h"
 #include "ui/taps.h"
+#include "ui/profile.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/utils/color_utils.h"
@@ -1151,6 +1152,7 @@ int main(int argc, char *qt_argv[])
     profile_register_persconffile("remote_hosts.json");
 
     profile_store_persconffiles(false);
+    init_profile_list();
 
     // If the wsApp->exec() event loop exits cleanly, we call
     // WiresharkApplication::cleanup().

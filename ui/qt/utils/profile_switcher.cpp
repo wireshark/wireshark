@@ -72,7 +72,6 @@ void ProfileSwitcher::checkPacket(capture_file *cap_file, frame_data *fdata, qsi
     }
 
     if (row == 0) {
-        init_profile_list();
         clearProfileFilters();
         for (GList *cur = current_profile_list() ; cur; cur = cur->next) {
             profile_def *profile = static_cast<profile_def *>(cur->data);
