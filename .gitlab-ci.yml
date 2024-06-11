@@ -539,6 +539,7 @@ macOS Arm Package:
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-6.5.3
     - export PATH="$PATH:$HOME/bin"
     - export CFLAGS="-isystem /usr/local/include/falcosecurity"
+    - export CXXFLAGS="-isystem /usr/local/include/falcosecurity"
     - mkdir build
     - cd build
     - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
@@ -591,6 +592,7 @@ macOS Intel Package:
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-6.5.3
     - export PATH="$PATH:$HOME/bin"
     - export CFLAGS="-isystem /usr/local/include/falcosecurity"
+    - export CXXFLAGS="-isystem /usr/local/include/falcosecurity"
     - mkdir build
     - cd build
     - ../tools/make-version.py --set-release --version-file=wireshark_version.txt ..
