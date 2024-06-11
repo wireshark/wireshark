@@ -309,13 +309,14 @@ static int hf_ouch_trade_correction_reason;
  * formatting function. */
 static void
 ouch_tree_add_timestamp(
+    packet_info *pinfo,
     proto_tree *tree,
     const int hf,
     tvbuff_t *tvb,
     gint offset)
 {
     guint64 ts = tvb_get_ntoh64(tvb, offset);
-    char *buf = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
+    char *buf = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
     guint32 tmp, hours, mins, secs, nsecs;
 
     nsecs = (guint32)(ts % G_GUINT64_CONSTANT(1000000000));
@@ -554,7 +555,7 @@ dissect_ouch(
             break;
 
         case 'A': /* Accepted */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -737,7 +738,7 @@ dissect_ouch(
             break;
 
         case 'S': /* System Event */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -750,7 +751,7 @@ dissect_ouch(
             break;
 
         case 'R': /* Replaced */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -855,7 +856,7 @@ dissect_ouch(
             break;
 
         case 'C': /* Canceled */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -880,7 +881,7 @@ dissect_ouch(
             break;
 
         case 'D': /* AIQ Canceled */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -923,7 +924,7 @@ dissect_ouch(
             break;
 
         case 'E': /* Executed */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -960,7 +961,7 @@ dissect_ouch(
             break;
 
         case 'B': /* Broken Trade */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -985,7 +986,7 @@ dissect_ouch(
             break;
 
         case 'F': /* Trade Correction (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1028,7 +1029,7 @@ dissect_ouch(
             break;
 
         case 'G': /* Executed with Reference Price (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1077,7 +1078,7 @@ dissect_ouch(
             break;
 
         case 'K': /* Price Correction */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1108,7 +1109,7 @@ dissect_ouch(
             break;
 
         case 'J': /* Rejected Order */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1127,7 +1128,7 @@ dissect_ouch(
             break;
 
         case 'P': /* Cancel Pending */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1140,7 +1141,7 @@ dissect_ouch(
             break;
 
         case 'I': /* Cancel Reject */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1153,7 +1154,7 @@ dissect_ouch(
             break;
 
         case 'T': /* Order Priority Update (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;
@@ -1184,7 +1185,7 @@ dissect_ouch(
             break;
 
         case 'm': /* Order Modified (4.2 onwards) */
-            ouch_tree_add_timestamp(ouch_tree,
+            ouch_tree_add_timestamp(pinfo, ouch_tree,
                                     hf_ouch_timestamp,
                                     tvb, offset);
             offset += 8;

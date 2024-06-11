@@ -98,7 +98,7 @@ static expert_field ei_rip_unknown_address_family;
 
 static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     proto_tree *tree);
-static void dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
+static void dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 version,
     proto_tree *tree);
 static gint dissect_rip_authentication(tvbuff_t *tvb, int offset,
     proto_tree *tree);
@@ -150,7 +150,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             dissect_unspec_rip_vektor(tvb, offset, version, rip_tree);
             break;
         case AFVAL_IP: /* IP */
-            dissect_ip_rip_vektor(tvb, offset, version, rip_tree);
+            dissect_ip_rip_vektor(tvb, pinfo, offset, version, rip_tree);
             break;
         case 0xFFFF:
             if( offset == RIP_HEADER_LENGTH ) {
@@ -198,7 +198,7 @@ dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 }
 
 static void
-dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
+dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 version,
                       proto_tree *tree)
 {
     proto_tree *rip_vektor_tree;
@@ -207,7 +207,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     metric = tvb_get_ntohl(tvb, offset+16);
     rip_vektor_tree = proto_tree_add_subtree_format(tree, tvb, offset,
                              RIP_ENTRY_LENGTH, ett_rip_vec, NULL, "IP Address: %s, Metric: %u",
-                             tvb_ip_to_str(wmem_packet_scope(), tvb, offset+4), metric);
+                             tvb_ip_to_str(pinfo->pool, tvb, offset+4), metric);
 
     proto_tree_add_item(rip_vektor_tree, hf_rip_family, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (version == RIPv2) {

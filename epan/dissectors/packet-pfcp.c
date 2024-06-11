@@ -2205,10 +2205,10 @@ dissect_pfcp_reserved(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
     proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_reserved, tvb, 0, length);
 }
 
-static int dissect_pfcp_string_ie(tvbuff_t *tvb, proto_tree *tree, int hf)
+static int dissect_pfcp_string_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hf)
 {
     char* string_value = NULL;
-    proto_tree_add_item_ret_display_string(tree, hf, tvb, 0, -1, ENC_ASCII, wmem_packet_scope(), &string_value);
+    proto_tree_add_item_ret_display_string(tree, hf, tvb, 0, -1, ENC_ASCII, pinfo->pool, &string_value);
     proto_item_append_text(proto_tree_get_parent(tree), " : %s", string_value);
 
     return tvb_reported_length(tvb);
@@ -11791,14 +11791,14 @@ static pfcp_generic_ie_t pfcp_travelping_ies[] = {
 
 /************************************ Nokia ***********************************/
 
-static int dissect_pfcp_nokia_sap_template(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_sap_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_sap_template);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_sap_template);
 }
 
-static int dissect_pfcp_nokia_group_if_template(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_group_if_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_group_iface_template);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_group_iface_template);
 }
 
 static int dissect_pfcp_nokia_session_state_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -11965,14 +11965,14 @@ static int dissect_pfcp_nokia_detailed_statistics(tvbuff_t *tvb, packet_info *pi
     return offset;
 }
 
-static int dissect_pfcp_nokia_detailed_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_detailed_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_detailed_error);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_detailed_error);
 }
 
-static int dissect_pfcp_nokia_qos_override(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_qos_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_qos_override);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_qos_override);
 }
 
 static int dissect_pfcp_nokia_measurement_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -12023,7 +12023,7 @@ static const value_string nokia_filter_override_type_vals[] = {
     {0, NULL}
 };
 
-static int dissect_pfcp_nokia_filter_override(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_filter_override(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint32 type;
     proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_filter_override_type, tvb, 0, 1, ENC_BIG_ENDIAN, &type);
@@ -12038,15 +12038,15 @@ static int dissect_pfcp_nokia_filter_override(tvbuff_t *tvb, packet_info *pinfo 
 
         proto_item_append_text(proto_tree_get_parent(tree), " : %s: %s",
                 val_to_str_const(type, nokia_filter_override_type_vals, "Unknown"),
-                tvb_get_string_enc(wmem_packet_scope(), tvb, 1, tvb_reported_length(tvb) - 1, ENC_ASCII));
+                tvb_get_string_enc(pinfo->pool, tvb, 1, tvb_reported_length(tvb) - 1, ENC_ASCII));
     }
 
     return tvb_reported_length(tvb);
 }
 
-static int dissect_pfcp_nokia_intermediate_destination(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_intermediate_destination(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_intermediate_destination);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_intermediate_destination);
 }
 
 static int dissect_pfcp_nokia_nat_isa_members(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -12096,9 +12096,9 @@ static int dissect_pfcp_nokia_l2tp_auth_type(tvbuff_t *tvb, packet_info *pinfo _
     return 1;
 }
 
-static int dissect_pfcp_nokia_l2tp_auth_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_l2tp_auth_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_auth_name);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_l2tp_auth_name);
 }
 
 static int dissect_pfcp_nokia_l2tp_auth_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -12144,29 +12144,29 @@ static int dissect_pfcp_nokia_l2tp_endpoint(tvbuff_t *tvb, packet_info *pinfo, p
     return tvb_reported_length(tvb);
 }
 
-static int dissect_pfcp_nokia_l2tp_client_auth_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_l2tp_client_auth_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_client_auth_id);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_l2tp_client_auth_id);
 }
 
-static int dissect_pfcp_nokia_l2tp_server_auth_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_l2tp_server_auth_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_server_auth_id);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_l2tp_server_auth_id);
 }
 
-static int dissect_pfcp_nokia_l2tp_password(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_l2tp_password(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_password);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_l2tp_password);
 }
 
-static int dissect_pfcp_nokia_l2tp_assignment_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_l2tp_assignment_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_assignment_id);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_l2tp_assignment_id);
 }
 
-static int dissect_pfcp_nokia_l2tp_private_group_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_l2tp_private_group_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_l2tp_private_group_id);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_l2tp_private_group_id);
 }
 
 static int dissect_pfcp_flags_and_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned length, int * const * flags, int * const * fields, int flags_hf, int flags_ett)
@@ -12346,14 +12346,14 @@ static int dissect_pfcp_nokia_access_line_params(tvbuff_t *tvb, packet_info *pin
     return dissect_pfcp_flags_and_fields(tvb, pinfo, tree, tvb_reported_length(tvb), flags, fields, hf_pfcp_nokia_access_line_params_flags, ett_pfcp_nokia_access_line_params_flags);
 }
 
-static int dissect_pfcp_nokia_acct_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_acct_session_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_acct_session_id);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_acct_session_id);
 }
 
-static int dissect_pfcp_nokia_fsg_template(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_pfcp_nokia_fsg_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_pfcp_string_ie(tvb, tree, hf_pfcp_nokia_fsg_template_name);
+    return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_fsg_template_name);
 }
 
 static pfcp_generic_ie_t pfcp_nokia_ies[] = {

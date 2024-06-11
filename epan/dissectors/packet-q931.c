@@ -2445,12 +2445,12 @@ dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect information elements consisting of ASCII^H^H^H^H^HIA5 text.
  */
 static void
-dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
+dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree,
     int hf_value)
 {
     if (len != 0) {
         proto_tree_add_item(tree, hf_value, tvb, offset, len, ENC_ASCII|ENC_NA);
-        proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(wmem_packet_scope(), tvb, offset, len));
+        proto_item_append_text(proto_tree_get_parent(tree), "  '%s'", tvb_format_text(pinfo->pool, tvb, offset, len));
     }
 }
 
@@ -2875,7 +2875,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_DISPLAY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_display_information);
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, pinfo, ie_tree, hf_q931_display_information);
                     }
                     break;
 
@@ -2887,7 +2887,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS0 | Q931_IE_KEYPAD_FACILITY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_keypad_facility);
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, pinfo, ie_tree, hf_q931_keypad_facility);
                     }
                     break;
 
@@ -3031,7 +3031,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
                 case CS6 | Q931_IE_DISPLAY:
                     if (q931_tree != NULL) {
-                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, ie_tree, hf_q931_avaya_display);
+                        dissect_q931_ia5_ie(tvb, offset + 2, info_element_len, pinfo, ie_tree, hf_q931_avaya_display);
                     }
                     break;
 

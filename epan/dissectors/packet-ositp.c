@@ -373,14 +373,14 @@ static void cotp_frame_end(void)
   cotp_frame_reset = TRUE;
 }
 
-static gchar *print_tsap(tvbuff_t *tvb, int offset, int length)
+static gchar *print_tsap(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
 {
   const guchar *tsap = tvb_get_ptr(tvb, offset, length);
   gchar    *cur;
   gboolean  allprintable;
   gint      idx = 0, returned_length;
 
-  cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_TSAP_LEN * 2 + 3);
+  cur=(gchar *)wmem_alloc(scope, MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
     snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
@@ -628,14 +628,14 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
           (tsap_display==TSAP_DISPLAY_AUTO &&
             tvb_ascii_isprint(tvb, offset, length))) {
         proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
-                              print_tsap(tvb, offset, length));
+                              print_tsap(pinfo->pool, tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
         proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb,
                                             offset, length,
-                                            print_tsap(tvb, offset, length));
+                                            print_tsap(pinfo->pool, tvb, offset, length));
         proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset,
                             length, ENC_NA);
@@ -651,14 +651,14 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
           (tsap_display==TSAP_DISPLAY_AUTO &&
             tvb_ascii_isprint(tvb, offset, length))) {
         proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
-                              print_tsap(tvb, offset, length));
+                              print_tsap(pinfo->pool, tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
         proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb,
                                             offset, length,
-                                            print_tsap(tvb, offset, length));
+                                            print_tsap(pinfo->pool, tvb, offset, length));
         proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset,
                             length, ENC_NA);

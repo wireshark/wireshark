@@ -1706,7 +1706,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 }
 
 /* Try to calculate digest to compare with that found in frame. */
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, proto_tree *security_tree, tvbuff_t *header_tvb _U_,
+static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, packet_info *pinfo, proto_tree *security_tree, tvbuff_t *header_tvb _U_,
                                 tvbuff_t *tvb _U_, gint offset _U_, guint sdap_length _U_, gboolean *calculated)
 {
     *calculated = FALSE;
@@ -1736,7 +1736,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 guint8  *mac;
                 guint header_length = tvb_reported_length(header_tvb);
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
+                guint8 *message_data = (guint8 *)wmem_alloc0(pinfo->pool, header_length+message_length-sdap_length+4);
 
                 /* TS 33.401 B.2.2 */
 
@@ -1793,7 +1793,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* Extract the encrypted data into a buffer */
                 header_length = tvb_reported_length(header_tvb);
                 message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), 8+header_length+message_length-sdap_length);
+                message_data = (guint8 *)wmem_alloc0(pinfo->pool, 8+header_length+message_length-sdap_length);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
                 message_data[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
@@ -1839,7 +1839,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 guint32  mac;
                 guint header_length = tvb_reported_length(header_tvb);
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
-                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
+                guint8 *message_data = (guint8 *)wmem_alloc0(pinfo->pool, header_length+message_length-sdap_length+4);
 
                 /* Data is header bytes */
                 tvb_memcpy(header_tvb, message_data, 0, header_length);
@@ -2343,7 +2343,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                                     offset, -1, ENC_NA);
                     bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
-                    buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
+                    buff = (gchar *)wmem_alloc(pinfo->pool, BUFF_SIZE);
                     len = tvb_reported_length_remaining(tvb, offset);
                     bit_offset = offset<<3;
 
@@ -2472,7 +2472,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Try to calculate digest so we can check it */
     if (global_pdcp_check_integrity && p_pdcp_info->maci_present) {
-        calculated_digest = calculate_digest(&pdu_security_settings, security_tree,
+        calculated_digest = calculate_digest(&pdu_security_settings, pinfo, security_tree,
                                              tvb_new_subset_length(tvb, 0, header_length),
                                              payload_tvb,
                                              offset, sdap_length, &digest_was_calculated);

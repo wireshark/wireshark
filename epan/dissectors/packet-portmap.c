@@ -283,7 +283,7 @@ dissect_callit_call(tvbuff_t *tvb, packet_info *pinfo,
 	{
 		proto_tree_add_uint_format_value(tree, hf_portmap_proc, tvb,
 			offset+8, 4, proc, "%s (%u)",
-			rpc_proc_name(prog, vers, proc), proc);
+			rpc_proc_name(pinfo->pool, prog, vers, proc), proc);
 	}
 
 	offset += 12;

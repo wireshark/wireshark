@@ -563,7 +563,7 @@ radius_call_hash(gconstpointer k)
 
 
 static const gchar *
-dissect_chap_password(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_chap_password(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int len;
 	proto_item *ti;
@@ -577,7 +577,7 @@ dissect_chap_password(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
 		chap_tree = proto_item_add_subtree(ti, ett_chap);
 		proto_tree_add_item(chap_tree, hf_radius_chap_ident, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(chap_tree, hf_radius_chap_string, tvb, 1, 16, ENC_NA);
-	return (tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, len));
+	return (tvb_bytes_to_str(pinfo->pool, tvb, 0, len));
 }
 
 static const gchar *
@@ -651,7 +651,7 @@ static const value_string ascenddf_proto[]      = { {1, "icmp"}, {6, "tcp"}, {17
 static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "gt"}, {4, "ne"}, {0, NULL} };
 
 static const gchar *
-dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	wmem_strbuf_t *filterstr;
 	proto_item *ti;
@@ -666,10 +666,10 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 	len=tvb_reported_length(tvb);
 
 	if (len != 24 && len != 48) {
-		return wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
+		return wmem_strdup_printf(pinfo->pool, "Wrong attribute length %d", len);
 	}
 
-	filterstr = wmem_strbuf_new_sized(wmem_packet_scope(), 128);
+	filterstr = wmem_strbuf_new_sized(pinfo->pool, 128);
 
 	ti = proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 	ascend_tree = proto_item_add_subtree(ti, ett_radius_ascend);
@@ -746,7 +746,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 	srcportq = tvb_get_guint8(tvb, 12+iplen*2);
 
 	if (srclen || srcportq) {
-		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", address_to_display(wmem_packet_scope(), &srcip), srclen);
+		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", address_to_display(pinfo->pool, &srcip), srclen);
 		if (srcportq)
 			wmem_strbuf_append_printf(filterstr, " srcport %s %d",
 				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
@@ -762,7 +762,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 	dstportq = tvb_get_guint8(tvb, 13+iplen*2);
 
 	if (dstlen || dstportq) {
-		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", address_to_display(wmem_packet_scope(), &dstip), dstlen);
+		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", address_to_display(pinfo->pool, &dstip), dstlen);
 		if (dstportq)
 			wmem_strbuf_append_printf(filterstr, " dstport %s %d",
 				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
@@ -772,7 +772,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 }
 
 static const gchar *
-dissect_framed_ipx_network(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_framed_ipx_network(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int len;
 	guint32 net;
@@ -787,7 +787,7 @@ dissect_framed_ipx_network(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 	if (net == 0xFFFFFFFE)
 		str = "NAS-selected";
 	else
-		str = wmem_strdup_printf(wmem_packet_scope(), "0x%08X", net);
+		str = wmem_strdup_printf(pinfo->pool, "0x%08X", net);
 	proto_tree_add_ipxnet_format_value(tree, hf_radius_framed_ipx_network, tvb, 0,
 				     len, net, "Framed-IPX-Network: %s", str);
 
@@ -795,7 +795,7 @@ dissect_framed_ipx_network(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 }
 
 static const gchar *
-dissect_cosine_vpvc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_cosine_vpvc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	guint vpi, vci;
 
@@ -808,7 +808,7 @@ dissect_cosine_vpvc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
 	proto_tree_add_uint(tree, hf_radius_cosine_vpi, tvb, 0, 2, vpi);
 	proto_tree_add_uint(tree, hf_radius_cosine_vci, tvb, 2, 2, vci);
 
-	return wmem_strdup_printf(wmem_packet_scope(), "%u/%u", vpi, vci);
+	return wmem_strdup_printf(pinfo->pool, "%u/%u", vpi, vci);
 }
 
 static const value_string daylight_saving_time_vals[] = {
@@ -826,7 +826,7 @@ dissect_radius_3gpp_imsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 }
 
 static const gchar *
-dissect_radius_3gpp_ms_tmime_zone(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_radius_3gpp_ms_tmime_zone(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 
 	int offset = 0;
@@ -851,7 +851,7 @@ dissect_radius_3gpp_ms_tmime_zone(proto_tree *tree, tvbuff_t *tvb, packet_info *
 						"GMT %c%d hours %d minutes %s", sign, oct / 4, oct % 4 * 15,
 						val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
-	return wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c%d hours %d minutes %s ",
+	return wmem_strdup_printf(pinfo->pool, "Timezone: GMT %c%d hours %d minutes %s ",
 				  sign, oct / 4, oct % 4 * 15, val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
 }
@@ -862,7 +862,7 @@ static const value_string egress_vlan_tag_vals[] = {
 	{  0, NULL}
 };
 static const gchar *
-dissect_rfc4675_egress_vlanid(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_rfc4675_egress_vlanid(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int len;
 	guint32 vlanid;
@@ -876,12 +876,12 @@ dissect_rfc4675_egress_vlanid(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 	proto_tree_add_item(tree, hf_radius_egress_vlanid, tvb, 0, 4, ENC_BIG_ENDIAN);
 	vlanid = tvb_get_ntohl(tvb, 0);
 
-	return wmem_strdup_printf(wmem_packet_scope(), "%s, Vlan ID: %u",
+	return wmem_strdup_printf(pinfo->pool, "%s, Vlan ID: %u",
 				   val_to_str_const(((vlanid&0xFF000000)>>24), egress_vlan_tag_vals, "Unknown"), vlanid&0xFFF);
 }
 
 static const gchar *
-dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int len;
 	guint8 tag;
@@ -894,9 +894,9 @@ dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 	proto_tree_add_item(tree, hf_radius_egress_vlan_name_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
 	tag = tvb_get_guint8(tvb, 0);
 	len -= 1;
-	proto_tree_add_item_ret_string(tree, hf_radius_egress_vlan_name, tvb, 1, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+	proto_tree_add_item_ret_string(tree, hf_radius_egress_vlan_name, tvb, 1, len, ENC_ASCII|ENC_NA, pinfo->pool, &name);
 
-	return wmem_strdup_printf(wmem_packet_scope(), "%s, Vlan Name: %s",
+	return wmem_strdup_printf(pinfo->pool, "%s, Vlan Name: %s",
 				   val_to_str_const(tag, egress_vlan_tag_vals, "Unknown"), name);
 }
 
@@ -1026,7 +1026,7 @@ radius_string(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 }
 
 void
-radius_octets(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
+radius_octets(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
 	if (len == 0) {
 		proto_item_append_text(avp_item, "[wrong length]");
@@ -1034,7 +1034,7 @@ radius_octets(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 	}
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
 }
 
 void
@@ -1134,7 +1134,7 @@ radius_ipxnet(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 }
 
 void
-radius_date(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
+radius_date(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
 	nstime_t time_ptr;
 
@@ -1147,21 +1147,21 @@ radius_date(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvb
 	time_ptr.nsecs = 0;
 
 	proto_tree_add_time(tree, a->hf, tvb, offset, len, &time_ptr);
-	proto_item_append_text(avp_item, "%s", abs_time_to_str(wmem_packet_scope(), &time_ptr, ABSOLUTE_TIME_LOCAL, TRUE));
+	proto_item_append_text(avp_item, "%s", abs_time_to_str(pinfo->pool, &time_ptr, ABSOLUTE_TIME_LOCAL, TRUE));
 }
 
 /*
  * "abinary" is Ascend's binary format for filters.  See dissect_ascend_data_filter().
  */
 void
-radius_abinary(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
+radius_abinary(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
 	if (a->code.u8_code[0] == 242) {
 		add_avp_to_tree_with_dissector(tree, avp_item, pinfo, tvb, dissect_ascend_data_filter, len, offset);
 		return;
 	}
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
 }
 
 void
@@ -1177,10 +1177,10 @@ radius_ether(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tv
 }
 
 void
-radius_ifid(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
+radius_ifid(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
 }
 
 static void
@@ -1407,7 +1407,7 @@ vsa_buffer_table_destroy_indirect(void *context)
  * see RFC 2869, Message-Authenticator page 33
  */
 static int
-valid_authenticator (tvbuff_t *tvb, guint8 request_authenticator[], gboolean rfc2869, int offset)
+valid_authenticator (packet_info *pinfo, tvbuff_t *tvb, guint8 request_authenticator[], gboolean rfc2869, int offset)
 {
 	gcry_md_hd_t md5_handle;
 	guint8 *digest;
@@ -1424,7 +1424,7 @@ valid_authenticator (tvbuff_t *tvb, guint8 request_authenticator[], gboolean rfc
 	}
 
 	/* copy packet into payload */
-	payload = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length);
+	payload = (guint8 *)tvb_memdup(pinfo->pool, tvb, 0, tvb_length);
 
 	rh_code = tvb_get_guint8(tvb, 0);
 
@@ -1938,7 +1938,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			proto_item *authenticator_tree, *item;
 			int valid;
 
-			valid = valid_authenticator(tvb, radius_call->req_authenticator, TRUE, offset);
+			valid = valid_authenticator(pinfo, tvb, radius_call->req_authenticator, TRUE, offset);
 			if (valid >= 0) {
 				proto_item_append_text(avp_item, " [%s]", valid? "correct" : "incorrect");
 			}
@@ -2160,7 +2160,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				if (rh.rh_code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST && validate_authenticator && *shared_secret != '\0') {
 					proto_item *authenticator_tree, *item;
 					int valid;
-					valid = valid_authenticator(tvb, radius_call->req_authenticator, FALSE, 4);
+					valid = valid_authenticator(pinfo, tvb, radius_call->req_authenticator, FALSE, 4);
 					if (valid >= 0) {
 						proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
 					}
@@ -2295,7 +2295,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				if (validate_authenticator && *shared_secret != '\0') {
 					proto_item *authenticator_tree;
 					int valid;
-					valid = valid_authenticator(tvb, radius_call->req_authenticator, FALSE, 4);
+					valid = valid_authenticator(pinfo, tvb, radius_call->req_authenticator, FALSE, 4);
 					if (valid >= 0) {
 						proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
 					}

@@ -301,7 +301,7 @@ dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, p
 
  */
 guint32
-dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length, bool *is_fragmented)
+dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length, bool *is_fragmented)
 {
 	guint8 byte;
 	guint32 len;
@@ -330,7 +330,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 
 		/* prepare the string (max number of bits + quartet separators + prepended space) */
 		str_length = 256+64+1;
-		str=(char *)wmem_alloc(wmem_packet_scope(), str_length+1);
+		str=(char *)wmem_alloc(actx->pinfo->pool, str_length+1);
 		str_index = 0;
 
 		str_length = snprintf(str, str_length+1, " ");
@@ -1091,7 +1091,7 @@ dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	if ((is_absolute && hfi->type == FT_OID) || (is_absolute && hfi->type == FT_REL_OID)) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, ENC_BIG_ENDIAN);
 	} else if (FT_IS_STRING(hfi->type)) {
-		str = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(val_tvb, 0, length), length);
+		str = oid_encoded2string(actx->pinfo->pool, tvb_get_ptr(val_tvb, 0, length), length);
 		actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
 	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -1127,7 +1127,7 @@ dissect_per_any_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 
 	if (value_stringx) {
 		if (value_tvb && (length = tvb_captured_length(value_tvb))) {
-			*value_stringx = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(value_tvb, 0, length), length);
+			*value_stringx = oid_encoded2string(actx->pinfo->pool, tvb_get_ptr(value_tvb, 0, length), length);
 		} else {
 			*value_stringx = "";
 		}
@@ -1596,7 +1596,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 		/* prepare the string (max number of bits + quartet separators) */
 		str_length = 512+128;
-		str = (char *)wmem_alloc(wmem_packet_scope(), str_length+1);
+		str = (char *)wmem_alloc(actx->pinfo->pool, str_length+1);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
 				if (str_index < str_length) str[str_index++] = ' ';

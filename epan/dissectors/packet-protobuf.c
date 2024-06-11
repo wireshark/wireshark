@@ -808,7 +808,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
                                      hf_id_ptr ? *hf_id_ptr : -1,
                                      FALSE,   // not top level
                                      dumper,
-                                     wmem_packet_scope(),
+                                     pinfo->pool,
                                      &buf);
 
             if (buf) { /* append the value in string format to ti_field node */

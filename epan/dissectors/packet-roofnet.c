@@ -108,10 +108,10 @@ static expert_field ei_roofnet_too_much_data;
 /*
  * dissect the header of roofnet
  */
-static guint16 dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+static guint16 dissect_roofnet_header(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint *offset)
 {
   guint16 flags;
-  ptvcursor_t *cursor = ptvcursor_new(wmem_packet_scope(), tree, tvb, *offset);
+  ptvcursor_t *cursor = ptvcursor_new(pinfo->pool, tree, tvb, *offset);
 
   ptvcursor_add(cursor, hf_roofnet_version, 1, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_type, 1, ENC_BIG_ENDIAN);
@@ -138,7 +138,7 @@ static guint16 dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *of
 /*
  * dissect the description of link in roofnet
  */
-static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint link)
+static void dissect_roofnet_link(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint *offset, guint link)
 {
   proto_tree *subtree = NULL;
 
@@ -159,7 +159,7 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
   proto_tree_add_ipv4(subtree, hf_roofnet_link_src, tvb, *offset, 4, addr_src);
   *offset += 4;
 
-  cursor = ptvcursor_new(wmem_packet_scope(), subtree, tvb, *offset);
+  cursor = ptvcursor_new(pinfo->pool, subtree, tvb, *offset);
 
   ptvcursor_add(cursor, hf_roofnet_link_forward, 4, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_link_rev, 4, ENC_BIG_ENDIAN);
@@ -228,7 +228,7 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
   roofnet_tree = proto_item_add_subtree(it, ett_roofnet);
 
-  flags = dissect_roofnet_header(roofnet_tree, tvb, &offset);
+  flags = dissect_roofnet_header(roofnet_tree, pinfo, tvb, &offset);
 
   roofnet_nlinks = tvb_get_guint8(tvb, ROOFNET_OFFSET_NLINKS);
   /* Check that we do not have a malformed roofnet packet */
@@ -241,7 +241,7 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* Do we have enough buffer to decode the next link ? */
     if (tvb_reported_length_remaining(tvb, offset) < ROOFNET_LINK_DESCRIPTION_LENGTH)
       return offset;
-    dissect_roofnet_link(roofnet_tree, tvb, &offset, nlink++);
+    dissect_roofnet_link(roofnet_tree, pinfo, tvb, &offset, nlink++);
   }
 
   dissect_roofnet_data(tree, tvb, pinfo, offset+4, flags);
