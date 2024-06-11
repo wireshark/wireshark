@@ -652,8 +652,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             oct = tvb_get_bits8(tvb, bit_offset, 1);
             if (oct == 0) {
                 /* EVS Primary 2.8 kbps */
-                str = "EVS Primary 2.8 kbps";
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", str);
+                str = "EVS Primary 2.8";
                 is_compact = TRUE;
             } else {
                 /* EVS AMR-WB IO SID */
