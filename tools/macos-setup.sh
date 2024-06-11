@@ -173,6 +173,7 @@ fi
 LUA_VERSION=5.4.6
 SNAPPY_VERSION=1.1.10
 ZSTD_VERSION=1.5.5
+ZLIBNG_VERSION=2.1.6
 LIBXML2_VERSION=2.11.5
 LZ4_VERSION=1.9.4
 SBC_VERSION=2.0
@@ -1763,7 +1764,47 @@ uninstall_zstd() {
         installed_zstd_version=""
     fi
 }
+#$ZLIBNG_VERSION
+install_zlibng() {
+    if [ "$ZLIBNG_VERSION" ] && [ ! -f zlib-ng-$ZLIBNG_VERSION-done ] ; then
+        echo "Downloading, building, and installing zlib-ng:"
+        [ -f $ZLIBNG_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$ZLIBNG_VERSION.tar.gz
+        $no_build && echo "Skipping installation" && return
+        gzcat $ZLIBNG_VERSION.tar.gz | tar xf -
+        cd zlib-ng-$ZLIBNG_VERSION
+        mkdir build
+        cd build
+        "${DO_CMAKE[@]}" .. 
+        make "${MAKE_BUILD_OPTS[@]}"
+        $DO_MAKE_INSTALL
+        cd ../..
+        touch zlib-ng-$ZLIBNG_VERSION-done
+    fi
+}
 
+uninstall_zlibng() {
+    if [ -n "$installed_zstd_version" ] ; then
+        echo "Uninstalling zlibng:"
+        cd "zlib-ng-$installed_zlibng_version"
+        $DO_MAKE_UNINSTALL
+        #
+        # XXX not sure what to do here...
+        #
+        make clean
+        cd ..
+        rm "zlib-ng-$installed_zlibng_version-done"
+
+        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "zlib-ng-$installed_zlibng_version"
+            rm -rf "zlib-ng-$installed_zlibng_version.tar.gz"
+        fi
+
+        installed_zlibng_version=""
+    fi
+}
 install_libxml2() {
     if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
         echo "Downloading, building, and installing libxml2:"
@@ -2979,6 +3020,16 @@ install_all() {
         uninstall_zstd -r
     fi
 
+    if [ -n "$installed_zlibng_version" ] && [ "$installed_zlibng_version" != "$ZLIBNG_VERSION" ] ; then
+        echo "Installed zlibng version is $installed_zlibng_version"
+        if [ -z "$ZLIBNG_VERSION" ] ; then
+            echo "zlibng is not requested"
+        else
+            echo "Requested zlibng version is $ZLIBNG_VERSION"
+        fi
+        uninstall_zlibng -r
+    fi
+
     if [ -n "$installed_lua_version" -a \
               "$installed_lua_version" != "$LUA_VERSION" ] ; then
         echo "Installed Lua version is $installed_lua_version"
@@ -3412,6 +3463,8 @@ install_all() {
 
     install_zstd
 
+    install_zlibng
+
     install_libxml2
 
     install_lz4
@@ -3512,6 +3565,8 @@ uninstall_all() {
         uninstall_snappy
 
         uninstall_zstd
+
+        uninstall_zlibng
 
         uninstall_libxml2
 
@@ -3759,6 +3814,7 @@ then
     installed_lua_version=$( ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/' )
     installed_snappy_version=$( ls snappy-*-done 2>/dev/null | sed 's/snappy-\(.*\)-done/\1/' )
     installed_zstd_version=$( ls zstd-*-done 2>/dev/null | sed 's/zstd-\(.*\)-done/\1/' )
+    installed_zlibng_version=$( ls zlibng-*-done 2>/dev/null | sed 's/zlibng-\(.*\)-done/\1/' )
     installed_libxml2_version=$( ls libxml2-*-done 2>/dev/null | sed 's/libxml2-\(.*\)-done/\1/' )
     installed_lz4_version=$( ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/' )
     installed_sbc_version=$( ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/' )
