@@ -395,7 +395,7 @@ static void analyze_gop(mate_config* mc, mate_gop* gop) {
 				dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: got gogkey_match: %s",key);
 
 				if (( gog = (mate_gog *)g_hash_table_lookup(gop->cfg->gog_index,key) )) {
-					dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: got already a matching gog");
+					dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: got already a matching gog: %s:%d",gog->cfg->name,gog->id);
 
 					if (gog->num_of_counting_gops == gog->num_of_released_gops && gog->expiration < rd->now) {
 						dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: this is a new gog, not the old one, let's create it");
@@ -910,6 +910,9 @@ extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* 
 		 && rd->highest_analyzed_frame < pinfo->num ) {
 		for ( i = 0; i < mc->pducfglist->len; i++ ) {
 
+			if (i == 0) {
+                dbg_print (dbg_pdu,4,dbg_facility,"\nmate_analyze_frame: frame: %i",pinfo->num);
+            }
 			cfg = (mate_cfg_pdu *)g_ptr_array_index(mc->pducfglist,i);
 
 			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: trying to extract: %s",cfg->name);
