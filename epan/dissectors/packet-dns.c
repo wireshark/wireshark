@@ -227,6 +227,7 @@ struct DnsTap {
     gboolean unsolicited;
     gboolean retransmission;
     nstime_t rrt;
+    wmem_list_t *rr_types;
     gchar source[256];
     gchar qhost[256];   // host or left-most part of query name
     gchar qdomain[256]; // domain or remaining part of query name
@@ -251,6 +252,7 @@ static const gchar* st_str_query_domains_l2 = "2nd Level";
 static const gchar* st_str_query_domains_l3 = "3rd Level";
 static const gchar* st_str_query_domains_lmore = "4th Level or more";
 static const gchar* st_str_response_stats = "Response Stats";
+static const gchar* st_str_rr_types = "Answer Type";
 static const gchar* st_str_response_nquestions = "no. of questions";
 static const gchar* st_str_response_nanswers = "no. of answers";
 static const gchar* st_str_response_nauthorities = "no. of authorities";
@@ -275,6 +277,7 @@ static int st_node_query_domains_l2 = -1;
 static int st_node_query_domains_l3 = -1;
 static int st_node_query_domains_lmore = -1;
 static int st_node_response_stats = -1;
+static int st_node_rr_types = -1;
 static int st_node_response_nquestions = -1;
 static int st_node_response_nanswers = -1;
 static int st_node_response_nauthorities = -1;
@@ -2309,7 +2312,7 @@ dissect_dnscrypt(proto_tree *tree, tvbuff_t *tvb, int offset, guint length)
 static int
 dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   proto_tree *dns_tree, packet_info *pinfo,
-  gboolean is_mdns)
+  gboolean is_mdns, wmem_list_t *dns_type_list)
 {
   const gchar  *name;
   gchar        *name_out;
@@ -2358,6 +2361,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   if (is_mdns && flush) {
     col_append_str(pinfo->cinfo, COL_INFO, ", cache flush");
   }
+
+  wmem_list_append(dns_type_list, GINT_TO_POINTER(dns_type));
 
   /*
    * The name might contain octets that aren't printable characters,
@@ -4455,7 +4460,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     int count, proto_tree *dns_tree, const char *name,
-    packet_info *pinfo, gboolean is_mdns)
+    packet_info *pinfo, gboolean is_mdns, wmem_list_t *answers)
 {
   int         start_off, add_off;
   proto_tree *qatree;
@@ -4465,7 +4470,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   qatree = proto_tree_add_subtree(dns_tree, tvb, start_off, -1, ett_dns_ans, &ti, name);
   while (count-- > 0) {
     add_off = dissect_dns_answer(
-      tvb, cur_off, dns_data_offset, qatree, pinfo, is_mdns);
+      tvb, cur_off, dns_data_offset, qatree, pinfo, is_mdns, answers);
     cur_off += add_off;
   }
   proto_item_set_len(ti, cur_off - start_off);
@@ -4547,6 +4552,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   dns_transaction_t *dns_trans = NULL;
   wmem_tree_key_t    key[3];
   struct DnsTap     *dns_stats;
+  wmem_list_t       *rr_types;
   guint16            qtype = 0;
   guint16            qclass = 0;
   gboolean           retransmission = FALSE;
@@ -4807,6 +4813,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       cur_off += dissect_dso_data(tvb, cur_off, pinfo, dns_tree);
   }
 
+  rr_types = wmem_list_new(pinfo->pool);
+
   if (quest > 0) {
     /* If this is a response, don't add information about the queries
        to the summary, just add information about the answers. */
@@ -4824,7 +4832,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, ans,
                                       dns_tree,
                                       (isupdate ? "Prerequisites" : "Answers"),
-                                      pinfo, is_mdns);
+                                      pinfo, is_mdns, rr_types);
   }
 
   /* Don't add information about the authoritative name servers, or the
@@ -4836,7 +4844,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, auth, dns_tree,
                                       (isupdate ? "Updates" :
                                        "Authoritative nameservers"),
-                                      pinfo, is_mdns);
+                                      pinfo, is_mdns, rr_types);
   }
 
   if (add > 0) {
@@ -4844,7 +4852,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     p_dns_qr_r_rx_ttls = dns_qr_r_rd_ttls;
     p_dns_qr_r_rx_ttl_index = &dns_qr_r_rd_ttl_index;
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add, dns_tree, "Additional records",
-                                      pinfo, is_mdns);
+                                      pinfo, is_mdns, rr_types);
   }
   col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -4958,6 +4966,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           dns_stats->rrt = delta;
         }
     }
+    dns_stats->rr_types = rr_types;
     // storing ip (for "from" category in query and response)
     if (pinfo->src.type == AT_IPv4) {
       ip_addr_to_str_buf(pinfo->src.data, dns_stats->source, sizeof(dns_stats->source));
@@ -5143,6 +5152,7 @@ static void dns_stats_tree_init(stats_tree* st)
   stat_node_set_flags(st, st_str_packets, 0, FALSE, ST_FLG_SORT_TOP);
   st_node_packet_qr = stats_tree_create_pivot(st, st_str_packet_qr, 0);
   st_node_packet_qtypes = stats_tree_create_pivot(st, st_str_packet_qtypes, 0);
+  st_node_rr_types = stats_tree_create_pivot(st, st_str_rr_types, 0);
   st_node_packet_qnames = stats_tree_create_pivot(st, st_str_packet_qnames, 0);
   st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, 0);
   st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, 0);
@@ -5212,6 +5222,14 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
     avg_stat_node_add_value_int(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
     avg_stat_node_add_value_int(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
     avg_stat_node_add_value_int(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
+
+    /* add answer types to stats */
+    for (wmem_list_frame_t *type_entry = wmem_list_head(pi->rr_types); type_entry != NULL; type_entry = wmem_list_frame_next(type_entry)) {
+      gint qtype_val = GPOINTER_TO_INT(wmem_list_frame_data(type_entry));
+      stats_tree_tick_pivot(st, st_node_rr_types,
+                            val_to_str(qtype_val, dns_types_vals, "Unknown packet type (%d)"));
+    }
+
     if (pi->unsolicited) {
       tick_stat_node(st, st_str_service_unsolicited, 0, FALSE);
     } else {
