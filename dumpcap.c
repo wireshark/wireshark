@@ -598,20 +598,19 @@ dumpcap_cmdarg_err_cont(const char *fmt, va_list ap)
 
 #ifdef HAVE_LIBCAP
 static void
-#if 0 /* Set to enable capability debugging */
 /* see 'man cap_to_text()' for explanation of output                         */
 /* '='   means 'all= '  ie: no capabilities                                  */
 /* '=ip' means 'all=ip' ie: all capabilities are permissible and inheritable */
 /* ....                                                                      */
 print_caps(const char *pfx) {
-    cap_t caps = cap_get_proc();
-    ws_debug("%s: EUID: %d  Capabilities: %s", pfx, geteuid(), cap_to_text(caps, NULL));
-    cap_free(caps);
+    if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_NOISY)) {
+        cap_t caps = cap_get_proc();
+        char *caps_text = cap_to_text(caps, NULL);
+        ws_noisy("%s: EUID: %d  Capabilities: %s", pfx, geteuid(), caps_text);
+        cap_free(caps_text);
+        cap_free(caps);
+    }
 }
-#else
-print_caps(const char *pfx _U_) {
-}
-#endif
 
 static void
 relinquish_all_capabilities(void)
