@@ -11379,7 +11379,7 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, gint off
     uint8_t md5[RTPS_CHECKSUM_MAX_LEN];
     uint32_t crc32c;
     uint64_t crc64;
-  } calculated_checksum, he_checksum;
+  } calculated_checksum = {0}, he_checksum = {0};
 
   ++offset;
   proto_tree_add_bitmask_value(

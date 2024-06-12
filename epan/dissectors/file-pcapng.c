@@ -1882,6 +1882,7 @@ gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct i
         byte_order_magic_bad = TRUE;
         next_tvb = tvb_new_subset_length(tvb, 8, 4);
         block_data_tree = block_tree;
+        block_length_item = NULL;
     }
     else {
         next_tvb = process_block_length(block_tree, pinfo, tvb, offset, &block_data_tree, &block_length_item, &block_length, info->encoding);
