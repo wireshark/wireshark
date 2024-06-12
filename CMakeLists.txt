@@ -1237,6 +1237,7 @@ if (CARES_VERSION VERSION_GREATER_EQUAL "1.28.0")
 endif ()
 find_package(LEX REQUIRED)
 find_package(Perl)
+reset_find_package(PCRE2 PCRE2_DEBUG_LIBRARY)
 find_package(PCRE2 REQUIRED)
 
 if (NOT WIN32)
