@@ -54,7 +54,7 @@ FIND_PATH(ZLIBNG_INCLUDE_DIR
     /usr/local/include
 )
 
-SET(ZLIBNG_NAMES z-ng zlib-ng)
+SET(ZLIBNG_NAMES z-ng zlib-ng libz-ng.a)
 FIND_LIBRARY(ZLIBNG_LIBRARY
     NAMES
         ${ZLIBNG_NAMES}
