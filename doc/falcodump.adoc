@@ -11,6 +11,7 @@ falcodump - Dump log data to a file using a Falco source plugin.
 
 == SYNOPSIS
 
+.Common options
 [manarg]
 *falcodump*
 [ *--help* ]
@@ -27,7 +28,13 @@ falcodump - Dump log data to a file using a Falco source plugin.
 [ *--log-level*=<log level> ]
 [ *--log-file*=<path to file> ]
 
-=== CLOUDTRAIL PLUGIN
+.System call options
+[manarg]
+[ *--include-capture-processes=<TRUE or FALSE> ]
+[ *--include-switch-calls=<TRUE or FALSE> ]
+
+
+.CloudTrail plugin options
 [manarg]
 [ *--cloudtrail-s3downloadconcurrency*=<number of concurrent downloads> ]
 [ *--cloudtrail-s3interval*=<timeframe> ]
@@ -90,6 +97,17 @@ Set the log level
 
 --log-file::
 Set a log file to log messages in addition to the console
+
+== SYSTEM CALL OPTIONS
+
+--include-capture-processes::
+Include system calls for capture processes (falcodump, dumpcap, and Logray) if TRUE.
+Defaults to FALSE.
+
+--include-switch-calls::
+Include "switch" calls if TRUE.
+Defaults to FALSE.
+
 
 == PLUGINS
 
