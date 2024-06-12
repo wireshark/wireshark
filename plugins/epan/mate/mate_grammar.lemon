@@ -522,6 +522,9 @@ proto_stack(A) ::= field(B). {
 
 field(A) ::= NAME(B). {
 	A = proto_registrar_get_byname(B);
+	if (A == NULL) {
+		configuration_error(mc,"\nUnknown Proto/Transport/field: %s\n",B);
+	};
 }
 
 /******************************************* GOP
