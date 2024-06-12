@@ -166,9 +166,11 @@ void ConversationDialog::tabChanged(int)
                 }
             }
 
-            // move the selected tab at the head
-            recent.conversation_tabs = g_list_remove_link(recent.conversation_tabs, selected_tab);
-            recent.conversation_tabs = g_list_prepend(recent.conversation_tabs, selected_tab->data);
+            // Move the selected tab to the head
+            if (selected_tab != nullptr) {
+                recent.conversation_tabs = g_list_remove_link(recent.conversation_tabs, selected_tab);
+                recent.conversation_tabs = g_list_prepend(recent.conversation_tabs, selected_tab->data);
+            }
         }
         int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
         switch(endpointType) {
