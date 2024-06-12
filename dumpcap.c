@@ -1204,46 +1204,95 @@ exit_main(int status)
 static void
 relinquish_privs_except_capture(void)
 {
-    /* If 'started_with_special_privs' (ie: suid) then enable for
-     *  ourself the  NET_ADMIN and NET_RAW capabilities and then
-     *  drop our suid privileges.
+    /*
+     * Drop any capabilities other than NET_ADMIN and NET_RAW:
      *
      * CAP_NET_ADMIN: Promiscuous mode and a truckload of other
      *                stuff we don't need (and shouldn't have).
      * CAP_NET_RAW:   Packet capture (raw sockets).
+     *
+     * If 'started_with_special_privs' (ie: suid) then drop our
+     * suid privileges.
      */
 
-    if (started_with_special_privs()) {
-        cap_value_t cap_list[2] = { CAP_NET_ADMIN, CAP_NET_RAW };
-        int cl_len = array_length(cap_list);
+    cap_t current_caps = cap_get_proc();
+    print_caps("Pre set");
 
-        cap_t caps = cap_init();    /* all capabilities initialized to off */
+    cap_t caps = cap_init();    /* all capabilities initialized to off */
 
-        print_caps("Pre drop, pre set");
-
-        if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
-            cmdarg_err("prctl() fail return: %s", g_strerror(errno));
-        }
-
-        cap_set_flag(caps, CAP_PERMITTED,   cl_len, cap_list, CAP_SET);
-        cap_set_flag(caps, CAP_INHERITABLE, cl_len, cap_list, CAP_SET);
-
-        if (cap_set_proc(caps)) {
-            cmdarg_err("cap_set_proc() fail return: %s", g_strerror(errno));
-        }
-        print_caps("Pre drop, post set");
-
-        relinquish_special_privs_perm();
-
-        print_caps("Post drop, pre set");
-        cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
-        if (cap_set_proc(caps)) {
-            cmdarg_err("cap_set_proc() fail return: %s", g_strerror(errno));
-        }
-        print_caps("Post drop, post set");
-
-        cap_free(caps);
+    /*
+     * We can only set capabilities that are in the permitted set.
+     * If the real or effective user ID is 0 (root), then the file
+     * inherited and permitted sets are ignored, and our permitted
+     * set should be all ones - unless the effective ID is 0, the
+     * real ID is not zero, and the binary has file capabilities,
+     * in which case the permitted set is only that of the file.
+     * (E.g., set-user-ID-root + file capabilities.)
+     *
+     * If one or more of the euid, ruid, and saved set user ID are
+     * all zero and all change to nonzero, then all capabilities are
+     * cleared from the permitted, effective, and ambient sets.
+     * PR_SET_KEEPCAPS causes the permitted set to be retained, so
+     * we can relinquish our changed user ID.
+     *
+     * All capabilities are always cleared from the effective set
+     * when the euid is changed from 0 to nonzero.
+     *
+     * See capabilities(7).
+     */
+    if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
+        cmdarg_err("prctl() fail return: %s", g_strerror(errno));
     }
+
+    if (started_with_special_privs()) {
+        relinquish_special_privs_perm();
+    }
+
+    /*
+     * If cap_set_proc() fails, it leaves the capabilities unchanged.
+     * So the only way to guarantee that we've dropped all other
+     * capabilities is to ensure that cap_set_proc() succeeds.
+     * One option might be to exit if cap_set_proc() fails - but some
+     * captures will work with CAP_NET_RAW but not CAP_NET_ADMIN.
+     */
+
+    cap_value_t cap_list[1] = { CAP_NET_ADMIN };
+    int cl_len = array_length(cap_list);
+    cap_flag_value_t value;
+
+    cap_get_flag(current_caps, cap_list[0], CAP_PERMITTED, &value);
+
+    if (value != CAP_SET) {
+        // XXX - Should we warn here? Some captures will still work.
+    }
+    cap_set_flag(caps, CAP_PERMITTED, cl_len, cap_list, value);
+    // XXX - Do we really need CAP_INHERITABLE?
+    cap_set_flag(caps, CAP_INHERITABLE, cl_len, cap_list, value);
+    cap_set_flag(caps, CAP_EFFECTIVE, cl_len, cap_list, value);
+
+    cap_list[0] = CAP_NET_RAW;
+    cap_get_flag(current_caps, cap_list[0], CAP_PERMITTED, &value);
+
+    if (value != CAP_SET) {
+        // XXX - Should we warn here?
+    }
+    cap_set_flag(caps, CAP_PERMITTED, cl_len, cap_list, value);
+    // XXX - Do we really need CAP_INHERITABLE?
+    cap_set_flag(caps, CAP_INHERITABLE, cl_len, cap_list, value);
+    cap_set_flag(caps, CAP_EFFECTIVE, cl_len, cap_list, value);
+
+    if (cap_set_proc(caps)) {
+        /*
+         * This shouldn't happen, we're only trying to set capabilities
+         * already in the permitted set.
+         */
+        cmdarg_err("cap_set_proc() fail return: %s", g_strerror(errno));
+    }
+
+    print_caps("Post set");
+
+    cap_free(current_caps);
+    cap_free(caps);
 }
 
 #endif /* HAVE_LIBCAP */
