@@ -29,7 +29,7 @@
 /*
  * Size of the header of a range_t.
  */
-#define RANGE_HDR_SIZE (sizeof (range_t) - sizeof (range_admin_t))
+#define RANGE_HDR_SIZE (sizeof (range_t))
 
 /* Allocate an empty range. */
 range_t *range_empty(wmem_allocator_t *scope)

@@ -41,7 +41,7 @@ typedef struct range_admin_tag {
 /** user specified range(s) */
 typedef struct epan_range {
     guint           nranges;   /**< number of entries in ranges */
-    range_admin_t   ranges[1]; /**< variable-length array */
+    range_admin_t   ranges[];  /**< flexible array of range entries */
 } range_t;
 
 /**
