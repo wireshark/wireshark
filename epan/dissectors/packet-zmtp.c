@@ -244,7 +244,7 @@ get_zmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
 static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint64 length,
                               zmtp_conversation_t *p_conv_data)
 {
-    if (length == 0) {
+    if (length == 0 || !p_conv_data) {
         return;
     }
 
@@ -634,12 +634,16 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             /* Length */
             proto_tree_add_item_ret_uint64(zmtp_tree, hf_zmtp_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
             offset++;
-            dissect_zmtp_command(tvb, offset, pinfo, zmtp_tree, p_conv_data->mechanism);
+            if (p_conv_data) {
+                dissect_zmtp_command(tvb, offset, pinfo, zmtp_tree, p_conv_data->mechanism);
+            }
             break;
         case 0x06:           /* Command (long) */
             proto_tree_add_item_ret_uint64(zmtp_tree, hf_zmtp_length, tvb, offset, 8, ENC_BIG_ENDIAN, &length);
             offset += 8;
-            dissect_zmtp_command(tvb, offset, pinfo, zmtp_tree, p_conv_data->mechanism);
+            if (p_conv_data) {
+                dissect_zmtp_command(tvb, offset, pinfo, zmtp_tree, p_conv_data->mechanism);
+            }
             break;
 
         case 0x0:           /* Data short (more) */
