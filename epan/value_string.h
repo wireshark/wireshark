@@ -24,8 +24,8 @@ extern "C" {
 /* VALUE TO STRING MATCHING */
 
 typedef struct _value_string {
-    guint32      value;
-    const gchar *strptr;
+    uint32_t     value;
+    const char *strptr;
 } value_string;
 
 #if 0
@@ -103,77 +103,77 @@ enum { \
 /* ----- ----- */
 
 WS_DLL_PUBLIC
-const gchar *
-val_to_str(const guint32 val, const value_string *vs, const char *fmt)
+const char *
+val_to_str(const uint32_t val, const value_string *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-gchar *
-val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *vs, const char *fmt)
+char *
+val_to_str_wmem(wmem_allocator_t *scope, const uint32_t val, const value_string *vs, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
+const char *
+val_to_str_const(const uint32_t val, const value_string *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val_to_str(const guint32 val, const value_string *vs);
+const char *
+try_val_to_str(const uint32_t val, const value_string *vs);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx);
+const char *
+try_val_to_str_idx(const uint32_t val, const value_string *vs, int *idx);
 
 WS_DLL_PUBLIC
-const gchar *
+const char *
 char_val_to_str(char val, const value_string *vs, const char *msg);
 
 /* 64-BIT VALUE TO STRING MATCHING */
 
 typedef struct _val64_string {
-    guint64      value;
-    const gchar *strptr;
+    uint64_t     value;
+    const char *strptr;
 } val64_string;
 
 WS_DLL_PUBLIC
-const gchar *
-val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
+const char *
+val64_to_str(const uint64_t val, const val64_string *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-val64_to_str_const(const guint64 val, const val64_string *vs, const char *unknown_str);
+const char *
+val64_to_str_const(const uint64_t val, const val64_string *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val64_to_str(const guint64 val, const val64_string *vs);
+const char *
+try_val64_to_str(const uint64_t val, const val64_string *vs);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx);
+const char *
+try_val64_to_str_idx(const uint64_t val, const val64_string *vs, int *idx);
 
 /* STRING TO VALUE MATCHING */
 
 WS_DLL_PUBLIC
-guint32
-str_to_val(const gchar *val, const value_string *vs, const guint32 err_val);
+uint32_t
+str_to_val(const char *val, const value_string *vs, const uint32_t err_val);
 
 WS_DLL_PUBLIC
-gint
-str_to_val_idx(const gchar *val, const value_string *vs);
+int
+str_to_val_idx(const char *val, const value_string *vs);
 
 /* EXTENDED VALUE TO STRING MATCHING */
 
 typedef struct _value_string_ext value_string_ext;
-typedef const value_string *(*_value_string_match2_t)(const guint32, value_string_ext*);
+typedef const value_string *(*_value_string_match2_t)(const uint32_t, value_string_ext*);
 
 struct _value_string_ext {
     _value_string_match2_t _vs_match2;
-    guint32                _vs_first_value; /* first value of the value_string array       */
-    guint                  _vs_num_entries; /* number of entries in the value_string array */
+    uint32_t               _vs_first_value; /* first value of the value_string array       */
+    unsigned               _vs_num_entries; /* number of entries in the value_string array */
                                             /*  (excluding final {0, NULL})                */
     const value_string    *_vs_p;           /* the value string array address              */
-    const gchar           *_vs_name;        /* vse "Name" (for error messages)             */
+    const char            *_vs_name;        /* vse "Name" (for error messages)             */
 };
 
 #define VALUE_STRING_EXT_VS_P(x)           (x)->_vs_p
@@ -182,51 +182,51 @@ struct _value_string_ext {
 
 WS_DLL_PUBLIC
 const value_string *
-_try_val_to_str_ext_init(const guint32 val, value_string_ext *vse);
+_try_val_to_str_ext_init(const uint32_t val, value_string_ext *vse);
 #define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
 
 WS_DLL_PUBLIC
 value_string_ext *
-value_string_ext_new(const value_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
+value_string_ext_new(const value_string *vs, unsigned vs_tot_num_entries, const char *vs_name);
 
 WS_DLL_PUBLIC
 void
 value_string_ext_free(value_string_ext *vse);
 
 WS_DLL_PUBLIC
-const gchar *
-val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
+const char *
+val_to_str_ext(const uint32_t val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-gchar *
-val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext *vse, const char *fmt)
+char *
+val_to_str_ext_wmem(wmem_allocator_t *scope, const uint32_t val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-val_to_str_ext_const(const guint32 val, value_string_ext *vs, const char *unknown_str);
+const char *
+val_to_str_ext_const(const uint32_t val, value_string_ext *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val_to_str_ext(const guint32 val, value_string_ext *vse);
+const char *
+try_val_to_str_ext(const uint32_t val, value_string_ext *vse);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
+const char *
+try_val_to_str_idx_ext(const uint32_t val, value_string_ext *vse, int *idx);
 
 /* EXTENDED 64-BIT VALUE TO STRING MATCHING */
 
 typedef struct _val64_string_ext val64_string_ext;
-typedef const val64_string *(*_val64_string_match2_t)(const guint64, val64_string_ext*);
+typedef const val64_string *(*_val64_string_match2_t)(const uint64_t, val64_string_ext*);
 
 struct _val64_string_ext {
     _val64_string_match2_t _vs_match2;
-    guint64                _vs_first_value; /* first value of the val64_string array       */
-    guint                  _vs_num_entries; /* number of entries in the val64_string array */
+    uint64_t               _vs_first_value; /* first value of the val64_string array       */
+    unsigned               _vs_num_entries; /* number of entries in the val64_string array */
                                             /*  (excluding final {0, NULL})                */
     const val64_string    *_vs_p;           /* the value string array address              */
-    const gchar           *_vs_name;        /* vse "Name" (for error messages)             */
+    const char            *_vs_name;        /* vse "Name" (for error messages)             */
 };
 
 #define VAL64_STRING_EXT_VS_P(x)           (x)->_vs_p
@@ -235,134 +235,134 @@ struct _val64_string_ext {
 
 WS_DLL_PUBLIC
 const val64_string *
-_try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse);
+_try_val64_to_str_ext_init(const uint64_t val, val64_string_ext *vse);
 #define VAL64_STRING_EXT_INIT(x) { _try_val64_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
 
 WS_DLL_PUBLIC
 val64_string_ext *
-val64_string_ext_new(const val64_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
+val64_string_ext_new(const val64_string *vs, unsigned vs_tot_num_entries, const char *vs_name);
 
 WS_DLL_PUBLIC
 void
 val64_string_ext_free(val64_string_ext *vse);
 
 WS_DLL_PUBLIC
-const gchar *
-val64_to_str_ext(const guint64 val, val64_string_ext *vse, const char *fmt)
+const char *
+val64_to_str_ext(const uint64_t val, val64_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-gchar *
-val64_to_str_ext_wmem(wmem_allocator_t *scope, const guint64 val, val64_string_ext *vse, const char *fmt)
+char *
+val64_to_str_ext_wmem(wmem_allocator_t *scope, const uint64_t val, val64_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-val64_to_str_ext_const(const guint64 val, val64_string_ext *vs, const char *unknown_str);
+const char *
+val64_to_str_ext_const(const uint64_t val, val64_string_ext *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val64_to_str_ext(const guint64 val, val64_string_ext *vse);
+const char *
+try_val64_to_str_ext(const uint64_t val, val64_string_ext *vse);
 
 WS_DLL_PUBLIC
-const gchar *
-try_val64_to_str_idx_ext(const guint64 val, val64_string_ext *vse, gint *idx);
+const char *
+try_val64_to_str_idx_ext(const uint64_t val, val64_string_ext *vse, int *idx);
 
 /* STRING TO STRING MATCHING */
 
 typedef struct _string_string {
-    const gchar *value;
-    const gchar *strptr;
+    const char *value;
+    const char *strptr;
 } string_string;
 
 WS_DLL_PUBLIC
-const gchar *
-str_to_str(const gchar *val, const string_string *vs, const char *fmt)
+const char *
+str_to_str(const char *val, const string_string *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-try_str_to_str(const gchar *val, const string_string *vs);
+const char *
+try_str_to_str(const char *val, const string_string *vs);
 
 WS_DLL_PUBLIC
-const gchar *
-try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx);
+const char *
+try_str_to_str_idx(const char *val, const string_string *vs, int *idx);
 
 /* RANGE TO STRING MATCHING */
 
 typedef struct _range_string {
     uint64_t     value_min;
     uint64_t     value_max;
-    const gchar *strptr;
+    const char *strptr;
 } range_string;
 
 WS_DLL_PUBLIC
-const gchar *
-rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
+const char *
+rval_to_str(const uint32_t val, const range_string *rs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-rval_to_str_const(const guint32 val, const range_string *rs, const char *unknown_str);
+const char *
+rval_to_str_const(const uint32_t val, const range_string *rs, const char *unknown_str);
 
 WS_DLL_PUBLIC
-const gchar *
-try_rval_to_str(const guint32 val, const range_string *rs);
+const char *
+try_rval_to_str(const uint32_t val, const range_string *rs);
 
 WS_DLL_PUBLIC
-const gchar *
-try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx);
+const char *
+try_rval_to_str_idx(const uint32_t val, const range_string *rs, int *idx);
 
 WS_DLL_PUBLIC
-const gchar *
-try_rval64_to_str(const guint64 val, const range_string *rs);
+const char *
+try_rval64_to_str(const uint64_t val, const range_string *rs);
 
 WS_DLL_PUBLIC
-const gchar *
-try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx);
+const char *
+try_rval64_to_str_idx(const uint64_t val, const range_string *rs, int *idx);
 
 /* BYTES TO STRING MATCHING */
 
 typedef struct _bytes_string {
-  const guint8 *value;
+  const uint8_t *value;
   const size_t  value_length;
-  const gchar  *strptr;
+  const char   *strptr;
 } bytes_string;
 
 WS_DLL_PUBLIC
-const gchar *
-bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs, const char *fmt)
+const char *
+bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string *bs, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-try_bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs);
+const char *
+try_bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string *bs);
 
 WS_DLL_PUBLIC
-const gchar *
-bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
+const char *
+bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
-const gchar *
-try_bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs);
+const char *
+try_bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const bytes_string *bs);
 
 /* MISC (generally do not use) */
 
 WS_DLL_LOCAL
-gboolean
+bool
 value_string_ext_validate(const value_string_ext *vse);
 
 WS_DLL_LOCAL
-const gchar *
+const char *
 value_string_ext_match_type_str(const value_string_ext *vse);
 
 WS_DLL_LOCAL
-gboolean
+bool
 val64_string_ext_validate(const val64_string_ext *vse);
 
 WS_DLL_LOCAL
-const gchar *
+const char *
 val64_string_ext_match_type_str(const val64_string_ext *vse);
 
 #ifdef __cplusplus
