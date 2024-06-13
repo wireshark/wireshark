@@ -72,7 +72,7 @@ typedef struct {
 } endpoint_key_t;
 
 /*
- * For backwards source compatibiity.
+ * For backwards source compatibility.
  * Yes, G_DEPRECATED_FOR() has to be at the beginning, so that this
  * works with MSVC.
  */

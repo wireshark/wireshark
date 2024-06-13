@@ -81,7 +81,7 @@ typedef void(*pbw_report_error_cb_t)(const char *msg_format, ...);
 void
 pbw_reinit_DescriptorPool(PbwDescriptorPool** pool, const char** directories, pbw_report_error_cb_t error_cb);
 
-/* load a proto file, return 0 if successed */
+/* load a proto file, return 0 if success */
 int
 pbw_load_proto_file(PbwDescriptorPool* pool, const char* filename);
 

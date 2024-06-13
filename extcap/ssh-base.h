@@ -56,7 +56,7 @@ typedef struct _ssh_params {
 /* Add libssh version information to an extcap_parameters structure */
 void add_libssh_info(extcap_parameters * extcap_conf);
 
-/* Create a ssh connection using all the possible authentication menthods */
+/* Create a ssh connection using all the possible authentication methods */
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info);
 
 /* Write a formatted message in the channel */

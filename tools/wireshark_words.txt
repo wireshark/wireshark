@@ -2336,6 +2336,7 @@ typedef
 typeof
 uarfcn
 uavcan
+ubiquisys
 uboot
 ubuntu
 ucast

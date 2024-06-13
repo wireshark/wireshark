@@ -120,7 +120,7 @@
 #define PPP_VSNCP	0x805b	/* Vendor-Specific Network Control Protocol (VSNCP)   [RFC3772] */
 #define PPP_TNCP	0x805d	/* TRILL Network Control Protocol (TNCP) */
 #define PPP_STAMPEDECP	0x806f	/* Stampede Bridging Control Protocol */
-#define PPP_MPPCP	0x8073	/* MP+ Contorol Protocol */
+#define PPP_MPPCP	0x8073	/* MP+ Control Protocol */
 #define PPP_IPICP	0x80c1	/* NTCITS IPI Control Protocol */
 #define PPP_SLCC	0x80fb	/* Single link compression in multilink control */
 #define PPP_CCP		0x80fd	/* Compression Control Protocol */

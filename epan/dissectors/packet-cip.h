@@ -473,7 +473,7 @@ typedef struct attribute_info {
    guint                     class_id;
    gboolean                  class_instance;
    guint                     attribute;
-   int                       gaa_index; /* Index of attribute in GetAttributeAll response (< 0 means not in GetAttrbuteAll */
+   int                       gaa_index; /* Index of attribute in GetAttributeAll response (< 0 means not in GetAttributeAll */
    const char               *text;
    enum cip_datatype         datatype;
    int*                      phf;

@@ -59,7 +59,7 @@ typedef struct json_dumper {
     GString *output_string;  /**< Output GLib strings. If it is not NULL, JSON will be dumped in the string. */
 #define JSON_DUMPER_FLAGS_PRETTY_PRINT  (1 << 0)    /* Enable pretty printing. */
 #define JSON_DUMPER_DOT_TO_UNDERSCORE   (1 << 1)    /* Convert dots to underscores in keys */
-#define JSON_DUMPER_FLAGS_NO_DEBUG      (1 << 17)   /* Disable fatal ws_error messsges on error(intended for speeding up fuzzing). */
+#define JSON_DUMPER_FLAGS_NO_DEBUG      (1 << 17)   /* Disable fatal ws_error messages on error(intended for speeding up fuzzing). */
     int     flags;
     /* for internal use, initialize with zeroes. */
     unsigned   current_depth;

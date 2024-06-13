@@ -28,7 +28,7 @@ extern "C" {
 #define ST_FLG_AVERAGE      0x10000000  /* Calculate averages for nodes, rather than totals */
 #define ST_FLG_ROOTCHILD    0x20000000  /* This node is a direct child of the root node */
 #define ST_FLG_DEF_NOEXPAND 0x01000000  /* This node should not be expanded by default */
-#define ST_FLG_SORT_DESC    0x00800000  /* When sorting, sort ascending instead of decending */
+#define ST_FLG_SORT_DESC    0x00800000  /* When sorting, sort ascending instead of descending */
 #define ST_FLG_SORT_TOP     0x00400000  /* When sorting always keep these lines on of list */
 #define ST_FLG_SRTCOL_MASK  0x000F0000  /* Mask for sort column ID */
 #define ST_FLG_SRTCOL_SHIFT 16          /* Number of bits to shift masked result */
