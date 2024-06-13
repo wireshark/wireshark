@@ -350,6 +350,10 @@ The following features are new (or have been significantly updated) since versio
   matching the support in the C API. tvbrange:uncompress() has been deprecated
   for tvbrange:uncompress_zlib().
 
+* Lua Dumper now defaults to the pcapng file type, and to per-packet
+  encapsulation (creating interfaces on demand as necessary) when writing
+  pcapng wsbuglink:16403[]
+
 === Removed Features and Support
 
 * The tshark `-G` option with no argument is deprecated and will be removed in
