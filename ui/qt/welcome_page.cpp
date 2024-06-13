@@ -71,29 +71,28 @@ WelcomePage::WelcomePage(QWidget *parent) :
     recent_files_->setTextElideMode(Qt::ElideLeft);
 
     welcome_ui_->recentList->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(recent_files_, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showRecentContextMenu(QPoint)));
+    connect(recent_files_, &QListWidget::customContextMenuRequested, this, &WelcomePage::showRecentContextMenu);
 
-    connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
-    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
-    connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
+    connect(mainApp, &MainApplication::updateRecentCaptureStatus, this, &WelcomePage::updateRecentCaptures);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WelcomePage::updateRecentCaptures);
+    connect(mainApp, &MainApplication::appInitialized, this, &WelcomePage::appInitialized);
+    connect(mainApp, &MainApplication::localInterfaceListChanged, this, &WelcomePage::interfaceListChanged);
 #ifdef HAVE_LIBPCAP
     connect(mainApp, &MainApplication::scanLocalInterfaces,
             welcome_ui_->interfaceFrame, &InterfaceFrame::scanLocalInterfaces);
 #endif
-    connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()),
-            welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
-    connect(welcome_ui_->interfaceFrame, SIGNAL(typeSelectionChanged()),
-                    this, SLOT(interfaceListChanged()));
-    connect(welcome_ui_->interfaceFrame, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
-    connect(welcome_ui_->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
-            this, SLOT(captureFilterTextEdited(QString)));
-    connect(welcome_ui_->captureFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)),
-            this, SIGNAL(captureFilterSyntaxChanged(bool)));
-    connect(welcome_ui_->captureFilterComboBox, SIGNAL(startCapture()),
-            this, SLOT(captureStarting()));
-    connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
+    connect(welcome_ui_->interfaceFrame, &InterfaceFrame::itemSelectionChanged,
+            welcome_ui_->captureFilterComboBox, &CaptureFilterCombo::interfacesChanged);
+    connect(welcome_ui_->interfaceFrame, &InterfaceFrame::typeSelectionChanged,
+                    this, &WelcomePage::interfaceListChanged);
+    connect(welcome_ui_->interfaceFrame, &InterfaceFrame::itemSelectionChanged, this, &WelcomePage::interfaceSelected);
+    connect(welcome_ui_->captureFilterComboBox->lineEdit(), &QLineEdit::textEdited,
+            this, &WelcomePage::captureFilterTextEdited);
+    connect(welcome_ui_->captureFilterComboBox, &CaptureFilterCombo::captureFilterSyntaxChanged,
+            this, &WelcomePage::captureFilterSyntaxChanged);
+    connect(welcome_ui_->captureFilterComboBox, &CaptureFilterCombo::startCapture,
+            this, &WelcomePage::captureStarting);
+    connect(recent_files_, &QListWidget::itemActivated, this, &WelcomePage::openRecentItem);
     updateRecentCaptures();
 
     splash_overlay_ = new SplashOverlay(this);
@@ -392,17 +391,17 @@ void WelcomePage::showRecentContextMenu(QPoint pos)
 
     QAction *show_action = recent_ctx_menu->addAction(show_in_str_);
     show_action->setData(cf_path);
-    connect(show_action, SIGNAL(triggered(bool)), this, SLOT(showRecentFolder()));
+    connect(show_action, &QAction::triggered, this, &WelcomePage::showRecentFolder);
 
     QAction *copy_action = recent_ctx_menu->addAction(tr("Copy file path"));
     copy_action->setData(cf_path);
-    connect(copy_action, SIGNAL(triggered(bool)), this, SLOT(copyRecentPath()));
+    connect(copy_action, &QAction::triggered, this, &WelcomePage::copyRecentPath);
 
     recent_ctx_menu->addSeparator();
 
     QAction *remove_action = recent_ctx_menu->addAction(tr("Remove from list"));
     remove_action->setData(cf_path);
-    connect(remove_action, SIGNAL(triggered(bool)), this, SLOT(removeRecentPath()));
+    connect(remove_action, &QAction::triggered, this, &WelcomePage::removeRecentPath);
 
     recent_ctx_menu->popup(recent_files_->mapToGlobal(pos));
 }
