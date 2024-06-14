@@ -31,6 +31,7 @@ class QStackedWidget;
 class ByteViewTab;
 class DisplayFilterCombo;
 class FieldInformation;
+class FunnelAction;
 class MainStatusBar;
 class PacketDiagram;
 class PacketList;
@@ -57,7 +58,7 @@ public:
     MainStatusBar *statusBar();
 
     // Used for managing custom packet menus
-    void appendPacketMenu(QAction* funnel_action);
+    void appendPacketMenu(FunnelAction *funnel_action);
     QList<QAction*> getPacketMenuActions();
     void clearAddedPacketMenus();
     bool addPacketMenus(QMenu * ctx_menu, GPtrArray *finfo_array);

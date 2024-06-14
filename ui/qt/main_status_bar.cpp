@@ -131,8 +131,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     comment_button_->setToolTip(tr("Open the Capture File Properties dialog"));
     comment_button_->setEnabled(false);
-    connect(expert_button_, SIGNAL(clicked(bool)), this, SIGNAL(showExpertInfo()));
-    connect(comment_button_, SIGNAL(clicked(bool)), this, SIGNAL(editCaptureComment()));
+    connect(expert_button_, &QToolButton::clicked, this, &MainStatusBar::showExpertInfo);
+    connect(comment_button_, &QToolButton::clicked, this, &MainStatusBar::editCaptureComment);
 
     info_progress_hb->setContentsMargins(icon_size / 2, 0, 0, 0);
 
@@ -351,7 +351,7 @@ void MainStatusBar::setProfileName()
 void MainStatusBar::appInitialized()
 {
     setProfileName();
-    connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+    connect(qobject_cast<MainWindow *>(mainApp->mainWindow()), &MainWindow::framesSelected, this, &MainStatusBar::selectedFrameChanged);
 }
 
 void MainStatusBar::selectedFrameChanged(QList<int>)

@@ -533,7 +533,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
 
 void MainApplication::reloadLuaPluginsDelayed()
 {
-    QTimer::singleShot(0, this, SIGNAL(reloadLuaPlugins()));
+    QTimer::singleShot(0, this, &MainApplication::reloadLuaPlugins);
 }
 
 const QIcon &MainApplication::normalIcon()
@@ -787,17 +787,17 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     // I'm not sure what can be done on Linux.
     //
     recent_timer_.setParent(this);
-    connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentCaptures()));
+    connect(&recent_timer_, &QTimer::timeout, this, &MainApplication::refreshRecentCaptures);
     recent_timer_.start(2000);
 
     packet_data_timer_.setParent(this);
-    connect(&packet_data_timer_, SIGNAL(timeout()), this, SLOT(refreshPacketData()));
+    connect(&packet_data_timer_, &QTimer::timeout, this, &MainApplication::refreshPacketData);
     packet_data_timer_.start(1000);
 
     tap_update_timer_.setParent(this);
     tap_update_timer_.setInterval(TAP_UPDATE_DEFAULT_INTERVAL);
-    connect(this, SIGNAL(appInitialized()), &tap_update_timer_, SLOT(start()));
-    connect(&tap_update_timer_, SIGNAL(timeout()), this, SLOT(updateTaps()));
+    connect(this, &MainApplication::appInitialized, &tap_update_timer_, [&]() { tap_update_timer_.start(); });
+    connect(&tap_update_timer_, &QTimer::timeout, this, &MainApplication::updateTaps);
 
     // Application-wide style sheet
     QString app_style_sheet = qApp->styleSheet();
@@ -807,7 +807,7 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     prefs_set_gui_theme_is_dark(ColorUtils::themeIsDark());
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
-    connect(this, SIGNAL(softwareUpdateQuit()), this, SLOT(quit()), Qt::QueuedConnection);
+    connect(this, &MainApplication::softwareUpdateQuit, this, &MainApplication::quit, Qt::QueuedConnection);
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
@@ -815,7 +815,7 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     connect(styleHints(), &QStyleHints::colorSchemeChanged, this, &MainApplication::colorSchemeChanged);
 #endif
 
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+    connect(qApp, &QApplication::aboutToQuit, this, &MainApplication::cleanup);
 }
 
 MainApplication::~MainApplication()
@@ -1117,7 +1117,7 @@ void MainApplication::allSystemsGo()
     if (err == 0) {
         if_notifier_ = new QSocketNotifier(iface_mon_get_sock(),
                                            QSocketNotifier::Read, this);
-        connect(if_notifier_, SIGNAL(activated(int)), SLOT(ifChangeEventsAvailable()));
+        connect(if_notifier_, &QSocketNotifier::activated, this, &MainApplication::ifChangeEventsAvailable);
     }
 #endif
 }

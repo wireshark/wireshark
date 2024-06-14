@@ -767,8 +767,10 @@ int main(int argc, char *qt_argv[])
     GLibMainloopOnQEventLoop::setup(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
-            main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
+    main_w->connect(&ws_app, &WiresharkApplication::openCaptureFile,
+                    main_w, [&](QString cf_path, QString display_filter, unsigned int type) {
+                        main_w->openCaptureFile(cf_path, display_filter, type);
+                    });
     main_w->connect(&ws_app, &WiresharkApplication::openCaptureOptions,
             main_w, &WiresharkMainWindow::showCaptureOptionsDialog);
 

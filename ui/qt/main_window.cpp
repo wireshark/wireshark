@@ -121,10 +121,10 @@ void MainWindow::setDisplayFilter(QString filter, FilterAction::Action action, F
  *
  * @param funnel_action a custom packet menu action
  */
-void MainWindow::appendPacketMenu(QAction* funnel_action)
+void MainWindow::appendPacketMenu(FunnelAction* funnel_action)
 {
     dynamic_packet_menu_actions.append(funnel_action);
-    connect(funnel_action, SIGNAL(triggered(bool)), funnel_action, SLOT(triggerPacketCallback()));
+    connect(funnel_action, &FunnelAction::triggered, funnel_action, &FunnelAction::triggerPacketCallback);
 }
 
 /*
