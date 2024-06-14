@@ -28,6 +28,8 @@
 
 #include "main_application.h"
 
+#include <QDesktopServices>
+
 extern "C" {
 // Callbacks prefs routines
 
@@ -368,5 +370,12 @@ void PreferencesDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void PreferencesDialog::on_buttonBox_helpRequested()
 {
-    mainApp->helpTopicAction(HELP_PREFERENCES_DIALOG);
+    QString help_page = modulePrefsModel_.data(pd_ui_->prefsView->currentIndex(), ModulePrefsModel::ModuleHelp).toString();
+    if (!help_page.isEmpty()) {
+        QString url = gchar_free_to_qstring(user_guide_url(help_page.toUtf8().constData()));
+        QDesktopServices::openUrl(QUrl(url));
+    } else {
+        // Generic help
+        mainApp->helpTopicAction(HELP_PREFERENCES_DIALOG);
+    }
 }

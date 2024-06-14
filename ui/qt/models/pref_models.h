@@ -19,32 +19,7 @@
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 
-class PrefsItem : public ModelHelperTreeItem<PrefsItem>
-{
-public:
-    PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent);
-    PrefsItem(const QString name, PrefsItem* parent);
-    virtual ~PrefsItem();
-
-    QString getName() const {return name_;}
-    pref_t* getPref() const {return pref_;}
-    int getPrefType() const;
-    bool isPrefDefault() const;
-    QString getPrefTypeName() const;
-    module_t* getModule() const {return module_;}
-    QString getModuleName() const;
-    QString getModuleTitle() const;
-    void setChanged(bool changed = true);
-
-private:
-    pref_t *pref_;
-    module_t *module_;
-    QString name_;
-    //set to true if changed during module manipulation
-    //Used to determine proper "default" for comparison
-    bool changed_;
-};
-
+class PrefsItem;
 
 class PrefsModel : public QAbstractItemModel
 {
@@ -83,11 +58,41 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     static QString typeToString(int type);
+    static QString typeToHelp(int type);
 
 private:
     void populate();
 
     PrefsItem* root_;
+};
+
+class PrefsItem : public ModelHelperTreeItem<PrefsItem>
+{
+public:
+    PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent);
+    PrefsItem(const QString name, PrefsItem* parent);
+    PrefsItem(PrefsModel::PrefsModelType type, PrefsItem* parent);
+    virtual ~PrefsItem();
+
+    QString getName() const {return name_;}
+    pref_t* getPref() const {return pref_;}
+    int getPrefType() const;
+    bool isPrefDefault() const;
+    QString getPrefTypeName() const;
+    module_t* getModule() const {return module_;}
+    QString getModuleName() const;
+    QString getModuleTitle() const;
+    QString getModuleHelp() const;
+    void setChanged(bool changed = true);
+
+private:
+    pref_t *pref_;
+    module_t *module_;
+    QString name_;
+    QString help_;
+    //set to true if changed during module manipulation
+    //Used to determine proper "default" for comparison
+    bool changed_;
 };
 
 class AdvancedPrefsModel : public QSortFilterProxyModel
@@ -143,7 +148,8 @@ public:
     };
 
     enum ModulePrefsRoles {
-        ModuleName = Qt::UserRole + 1
+        ModuleName = Qt::UserRole + 1,
+        ModuleHelp = Qt::UserRole + 2
     };
 
     QVariant data(const QModelIndex &index, int role) const;
