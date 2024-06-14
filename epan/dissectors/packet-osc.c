@@ -1032,13 +1032,13 @@ dissect_osc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 /* UDP Heuristic */
-static gboolean
+static bool
 dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
 
     if(tvb_captured_length(tvb) < 8)
-        return FALSE;
+        return false;
 
     /* peek first string */
     if(tvb_strneql(tvb, 0, bundle_str, 8) != 0) /* no OSC bundle */
@@ -1046,7 +1046,7 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         gint               offset = 0;
         gint               slen;
         gint               rem;
-        volatile gboolean  valid  = FALSE;
+        volatile bool      valid  = false;
 
         /* Check for valid path */
         /* Don't propagate any exceptions upwards during heuristics check  */
@@ -1064,16 +1064,16 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
                 /* check for valid format */
                 if(is_valid_format(tvb_get_ptr(tvb, offset, slen)))
-                    valid = TRUE;
+                    valid = true;
             }
         }
         CATCH_ALL {
-            valid = FALSE;
+            valid = false;
         }
         ENDTRY;
 
         if(! valid)
-            return FALSE;
+            return false;
     }
 
     /* if we get here, then it's an Open Sound Control packet (bundle or message) */
@@ -1085,7 +1085,7 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /* do the dissection */
     dissect_osc_udp(tvb, pinfo, tree, data);
 
-    return TRUE; /* OSC heuristics was matched */
+    return true; /* OSC heuristics was matched */
 }
 
 /* Register the protocol with Wireshark */

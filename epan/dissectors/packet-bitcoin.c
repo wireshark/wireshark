@@ -1462,27 +1462,27 @@ dissect_bitcoin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_bitcoin_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint32 magic_number;
   conversation_t *conversation;
 
   if (tvb_captured_length(tvb) < 4)
-      return FALSE;
+      return false;
 
   magic_number = tvb_get_letohl(tvb, 0);
   if ((magic_number != BITCOIN_MAIN_MAGIC_NUMBER) &&
       (magic_number != BITCOIN_TESTNET_MAGIC_NUMBER) &&
       (magic_number != BITCOIN_TESTNET3_MAGIC_NUMBER))
-     return FALSE;
+     return false;
 
   /* Ok: This connection should always use the bitcoin dissector */
   conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector(conversation, bitcoin_handle);
 
   dissect_bitcoin(tvb, pinfo, tree, data);
-  return TRUE;
+  return true;
 }
 
 void

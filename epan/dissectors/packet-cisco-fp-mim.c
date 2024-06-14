@@ -130,14 +130,14 @@ static int dissect_fp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * So we register as a heuristic dissector, which gets called before
  * the regular code that checks Ethertypes.
  */
-static gboolean
+static bool
 dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint16 etype = 0;
   int header_size = 0;
 
   if ( ! tvb_bytes_exist( tvb, 12, 2 ) )
-     return FALSE;
+     return false;
 
   etype = tvb_get_ntohs( tvb, 12 );
 
@@ -153,14 +153,14 @@ dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       }
       /* fall through */
     default:
-      return FALSE;
+      return false;
   }
 
   if ( dissect_fp_common( tvb, pinfo, tree, header_size ) > 0 ) {
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 static void

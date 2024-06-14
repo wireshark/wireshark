@@ -2608,7 +2608,7 @@ static int dissect_lbmsrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 /*heuristic dissection function*/
-static gboolean test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
+static bool test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
 {
     gboolean valid_packet = FALSE;
     lbmsrs_tag_entry_t entry;
@@ -2616,7 +2616,7 @@ static gboolean test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     /* Must be a TCP packet. */
     if (pinfo->ptype != PT_TCP)
     {
-        return FALSE;
+        return false;
     }
 
     if (lbmsrs_use_tag)
@@ -2641,7 +2641,7 @@ static gboolean test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
 
     if (!check_lbmsrs_packet(tvb, 0))
     {
-        return FALSE;
+        return false;
     }
 
     if (valid_packet)
@@ -2650,7 +2650,7 @@ static gboolean test_lbmsrs_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return TRUE;
     }
 
-    return FALSE;
+    return false;
 
 }
 

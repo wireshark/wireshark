@@ -452,7 +452,7 @@ dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  *        done for a TCP connection identified as reload-framing because of
  *        the TCP port used).
  */
-static gboolean
+static bool
 dissect_reload_framing_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (dissect_reload_framing_message(tvb, pinfo, tree, FALSE) == 0) {
@@ -460,12 +460,12 @@ dissect_reload_framing_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * It wasn't a valid RELOAD message, and wasn't
      * dissected as such.
      */
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
-static gboolean
+static bool
 dissect_reload_framing_heur_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (dissect_reload_framing_message(tvb, pinfo, tree, TRUE) == 0) {
@@ -473,9 +473,9 @@ dissect_reload_framing_heur_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
      * It wasn't a valid RELOAD message, and wasn't
      * dissected as such.
      */
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 void

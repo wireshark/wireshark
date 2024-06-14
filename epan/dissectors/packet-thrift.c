@@ -3651,7 +3651,7 @@ test_thrift_compact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
 
 /* Thrift heuristic dissection when the packet is not grabbed by another protocol dissector. */
 static gboolean
-dissect_thrift_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_thrift_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     thrift_option_data_t thrift_opt;
     memset(&thrift_opt, 0, sizeof(thrift_option_data_t));
@@ -3672,6 +3672,12 @@ dissect_thrift_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
 
     return TRUE;
+}
+
+static bool
+dissect_thrift_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return (bool)dissect_thrift_heur_http(tvb, pinfo, tree, data);
 }
 /*=====END HEADER GENERIC DISSECTION=====*/
 
@@ -3909,7 +3915,7 @@ proto_register_thrift(void)
 
     /* register dissector */
     thrift_handle = register_dissector("thrift", dissect_thrift_transport, proto_thrift);
-    thrift_http_handle = register_dissector("thrift.http", dissect_thrift_heur, proto_thrift);
+    thrift_http_handle = register_dissector("thrift.http", dissect_thrift_heur_http, proto_thrift);
 
     thrift_module = prefs_register_protocol(proto_thrift, proto_reg_handoff_thrift);
 

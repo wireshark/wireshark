@@ -14838,7 +14838,7 @@ static gboolean dissect_rtps_submessage_v1(tvbuff_t *tvb, packet_info *pinfo, gi
 /***************************************************************************/
 /* The main packet dissector function
  */
-static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
   proto_item   *ti;
   proto_tree   *rtps_tree;
@@ -14859,17 +14859,17 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
    */
   length_remaining = tvb_reported_length_remaining(tvb, offset);
   if (length_remaining < 16)
-    return FALSE;
+    return false;
 
   magic_number = tvb_get_ntohl(tvb, offset);
   if (magic_number != RTPX_MAGIC_NUMBER &&
       magic_number != RTPS_MAGIC_NUMBER) {
-      return FALSE;
+      return false;
   }
   /* Distinguish between RTPS 1.x and 2.x here */
   majorRev = tvb_get_guint8(tvb,offset+4);
   if ((majorRev != 1) && (majorRev != 2))
-    return FALSE;
+    return false;
 
   /* Save the beginning of the RTPS message */
   rtps_root.tvb = tvb;
@@ -14918,7 +14918,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           wmem_packet_scope(),
           sizeof(rtps_current_packet_decryption_info_t));
       if (decryption_info == NULL) {
-        return FALSE;
+        return false;
       }
 
       rtps_current_packet_decryption_info_reset(decryption_info);
@@ -15075,7 +15075,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   /* If TCP there's an extra OOB byte at the end of the message */
   /* TODO: What to do with it? */
-  return TRUE;
+  return true;
 
 }  /* dissect_rtps(...) */
 
@@ -15213,14 +15213,14 @@ void dissect_rtps_submessages(
   }
 }
 
-static gboolean dissect_rtps_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_rtps_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   gint offset = 0;
 
   return dissect_rtps(tvb, pinfo, tree, offset);
 }
 
-static gboolean dissect_rtps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_rtps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* In RTPS over TCP the first 4 bytes are the packet length
    * as 32-bit unsigned int coded as BIG ENDIAN
@@ -15231,7 +15231,7 @@ static gboolean dissect_rtps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   return dissect_rtps(tvb, pinfo, tree, offset);
 }
 
-static gboolean dissect_rtps_rtitcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_rtps_rtitcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   gint offset = 0;
 

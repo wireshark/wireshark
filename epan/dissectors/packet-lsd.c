@@ -134,7 +134,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_lsd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (pinfo->dst.type == AT_IPv4 && pntoh32(pinfo->dst.data) == LSD_MULTICAST_ADDRESS && pinfo->destport == LSD_PORT)
@@ -143,7 +143,7 @@ dissect_lsd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (pinfo->dst.type == AT_IPv6 && pinfo->destport == LSD_PORT)
       return (dissect_lsd(tvb, pinfo, tree, data) != 0);
 
-  return FALSE;
+  return false;
 }
 
 void

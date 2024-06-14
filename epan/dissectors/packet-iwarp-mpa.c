@@ -926,30 +926,30 @@ dissect_iwarp_mpa_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	return len;
 }
 
-static gboolean
+static bool
 dissect_iwarp_mpa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct tcpinfo *tcpinfo = NULL;
-	gboolean is_mpa_pdu = FALSE;
+	bool is_mpa_pdu = false;
 
 	if (data == NULL)
-		return FALSE;
+		return false;
 	tcpinfo = (struct tcpinfo *)data;
 
 	/* MPA REQUEST or MPA REPLY */
 	if (tvb_captured_length(tvb) >= MPA_REQ_REP_FRAME_HEADER_LEN) {
 		if (is_mpa_req(tvb, pinfo)) {
-			is_mpa_pdu = TRUE;
+			is_mpa_pdu = true;
 		} else if (is_mpa_rep(tvb, pinfo)) {
-			is_mpa_pdu = TRUE;
+			is_mpa_pdu = true;
 		}
 	}
 	if (tvb_captured_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
-		is_mpa_pdu = TRUE;
+		is_mpa_pdu = true;
 	}
 
 	if (!is_mpa_pdu) {
-		return FALSE;
+		return false;
 	}
 
 	/* Set the port type for this packet to be iWarp MPA */
@@ -961,7 +961,7 @@ dissect_iwarp_mpa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			 iwrap_mpa_pdu_length,
 			 dissect_iwarp_mpa_pdu,
 			 tcpinfo);
-	return TRUE;
+	return true;
 }
 
 /* registers this protocol with Wireshark */

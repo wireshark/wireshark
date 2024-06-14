@@ -15038,7 +15038,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 
 /* possibly dissect a PN-IO related PN-RT packet */
 static gboolean
-dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
     guint8   drep_data = 0;
@@ -15132,7 +15132,11 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return FALSE;
 }
 
-
+static bool
+dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return (bool)dissect_PNIO(tvb, pinfo, tree, data);
+}
 
 static bool
 pn_io_ar_conv_valid(packet_info *pinfo, void *user_data _U_)
@@ -18857,7 +18861,7 @@ proto_register_pn_io (void)
     proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
 
     /* Register by name */
-    register_dissector("pnio", dissect_PNIO_heur, proto_pn_io);
+    register_dissector("pnio", dissect_PNIO, proto_pn_io);
 
     /* Created to remove Decode As confusion */
     proto_pn_io_device = proto_register_protocol_in_name_only("PROFINET IO (Device)", "PNIO (Device Interface)", "pn_io_device", proto_pn_io, FT_PROTOCOL);
@@ -18885,7 +18889,7 @@ proto_register_pn_io (void)
         &pnio_ps_networkpath);             /* Variable in which to save the GSD file folder path */
 
     /* subdissector code */
-    register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
+    register_dissector("pn_io", dissect_PNIO, proto_pn_io);
     heur_pn_subdissector_list = register_heur_dissector_list_with_description("pn_io", "PROFINET IO payload", proto_pn_io);
 
     /* Initialise RTC1 dissection */

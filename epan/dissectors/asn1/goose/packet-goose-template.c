@@ -377,7 +377,7 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_rgoose_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 					void *data)
 {
@@ -385,17 +385,17 @@ dissect_rgoose_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* Check do we have at least min size of Session header bytes */
 	if (tvb_captured_length(tvb) < 27) {
-		return FALSE;
+		return false;
 	}
 
 	/* Is it R-GOOSE? */
 	spdu = tvb_get_guint8(tvb, 0);
 	if (spdu != OSI_SPDU_GOOSE) {
-		return FALSE;
+		return false;
 	}
 
 	dissect_rgoose(tvb, pinfo, parent_tree, data);
-	return TRUE;
+	return true;
 }
 
 /*--- proto_register_goose -------------------------------------------*/

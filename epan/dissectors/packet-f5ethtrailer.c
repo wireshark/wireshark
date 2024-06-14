@@ -3008,6 +3008,12 @@ found_trailer:
     return trailer_length;
 } /* dissect_f5ethtrailer() */
 
+static bool
+dissect_f5ethtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_f5ethtrailer(tvb, pinfo, tree, NULL) > 0;
+}
+
 /*-----------------------------------------------------------------------------------------------*/
 /*  Begin DPT TLS provider */
 /*-----------------------------------------------------------------------------------------------*/
@@ -4147,7 +4153,7 @@ proto_register_f5ethtrailer(void)
 void
 proto_reg_handoff_f5ethtrailer(void)
 {
-    heur_dissector_add("eth.trailer", dissect_f5ethtrailer, "F5 Ethernet Trailer",
+    heur_dissector_add("eth.trailer", dissect_f5ethtrailer_heur, "F5 Ethernet Trailer",
             "f5ethtrailer", proto_f5ethtrailer, HEURISTIC_ENABLE);
 
     /* Register helper dissectors */
@@ -4300,7 +4306,7 @@ static const string_string f5info_platform_strings[] = {
  * @param data  Pointer to data structure (unused)
  * @return gboolean
  */
-static gboolean
+static bool
 dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint offset = 0;
@@ -4312,7 +4318,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Must be the first packet */
     if (pinfo->fd->num > 1)
-        return FALSE;
+        return false;
 
     if (tvb_captured_length(tvb) >= (gint)sizeof(fileinfomagic1)) {
         if (tvb_memeql(tvb, 0, fileinfomagic1, sizeof(fileinfomagic1)) == 0)
@@ -4321,7 +4327,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* Didn't find the magic at the start of the packet. */
     if (offset == 0)
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FILEINFO");
 
@@ -4368,7 +4374,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tvb_set_reported_length(tvb, offset);
     tap_queue_packet(tap_f5fileinfo, pinfo, tap_data);
     f5eth_process_f5info(platform);
-    return TRUE;
+    return true;
 } /* dissect_f5fileinfo() */
 
 /**

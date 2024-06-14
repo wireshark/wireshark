@@ -363,7 +363,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 //
 #define MAX_EXPLANATORY_TEXT_LINES     20
 
-static gboolean
+static bool
 dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset;
@@ -422,13 +422,13 @@ dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      * Did we find a pre-encapsulation boundary?
      */
     if (!found)
-        return FALSE; /* no */
+        return false; /* no */
 
     /*
      * OK, it's an RFC 7468 file.  Dissect it.
      */
     dissect_rfc7468(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void

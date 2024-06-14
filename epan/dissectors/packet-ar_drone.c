@@ -556,6 +556,12 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return master_offset;
 }
 
+static bool
+dissect_ar_drone_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_ar_drone(tvb, pinfo, tree, NULL) > 0;
+}
+
 void
 proto_register_ar_drone(void)
 {
@@ -766,7 +772,7 @@ proto_register_ar_drone(void)
 void
 proto_reg_handoff_ar_drone(void)
 {
-    heur_dissector_add("udp", dissect_ar_drone, "AR Drone over UDP", "ar_drone_udp", proto_ar_drone, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_ar_drone_heur, "AR Drone over UDP", "ar_drone_udp", proto_ar_drone, HEURISTIC_ENABLE);
     dissector_add_for_decode_as_with_preference("udp.port", ar_drone_handle);
 }
 

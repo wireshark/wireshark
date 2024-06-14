@@ -7088,24 +7088,24 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 }
 
 /* Heuristic dissector */
-static gboolean
+static bool
 dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint64     qword;
 
   /* check if we atleast have the 8 byte header */
   if (tvb_captured_length(tvb) < 8)
-    return FALSE;
+    return false;
 
   /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e657400*/
   qword = tvb_get_ntoh64(tvb,0);
   if(qword != G_GUINT64_CONSTANT (0x4172742d4e657400))
-    return FALSE;
+    return false;
 
   /* if the header matches, dissect it */
   dissect_artnet(tvb, pinfo, tree, data);
 
-  return TRUE;
+  return true;
 }
 
 void

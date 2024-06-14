@@ -655,7 +655,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
     }
 }
 
-static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (data && tvb_reported_length(tvb) >= 36)
     {
@@ -666,17 +666,17 @@ static gboolean dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         {
             /* Dissect the packet */
             dissect_mqpcf(tvb, pinfo, tree, p_mq_parm);
-            return TRUE;
+            return true;
         }
         if (strncmp((const char *)p_mq_parm->mq_format, "LPOO", 4) == 0)
         {
             gboolean bLittleEndian;
             bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
             dissect_mqpcf_parm(tvb, pinfo, tree, 0, (guint32)-1, bLittleEndian, FALSE);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 void proto_register_mqpcf(void)

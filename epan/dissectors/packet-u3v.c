@@ -1976,7 +1976,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 
-static gboolean
+static bool
 dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint32 prefix;
@@ -1984,13 +1984,13 @@ dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     /* all control and meta data packets of U3V contain at least the prefix */
     if (tvb_reported_length(tvb) < 4)
-        return FALSE;
+        return false;
     prefix = tvb_get_letohl(tvb, 0);
 
     /* check if stream endpoint has been already set up for this conversation */
     usb_conv_info = (usb_conv_info_t *)data;
     if (!usb_conv_info)
-        return FALSE;
+        return false;
 
     /* either right prefix or the endpoint of the interface descriptor
        set the correct class and subclass */
@@ -1999,10 +1999,10 @@ dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         ((usb_conv_info->interfaceClass == IF_CLASS_MISCELLANEOUS &&
           usb_conv_info->interfaceSubclass == IF_SUBCLASS_MISC_U3V))) {
         dissect_u3v(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 static gint

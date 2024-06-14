@@ -226,7 +226,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint        crc_offset;
@@ -244,7 +244,7 @@ dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     sof_offset = FCOIB_HEADER_LEN - 1;
 
     if (frame_len <= 0)
-        return FALSE;   /* this packet isn't even long enough to contain the header+trailer w/o FC payload! */
+        return false;   /* this packet isn't even long enough to contain the header+trailer w/o FC payload! */
 
     /* we start off with some basic heuristics checks to make sure this could be a FCoIB packet */
 
@@ -256,16 +256,16 @@ dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         sof = tvb_get_guint8(tvb, sof_offset);
 
     if (sig != 1)
-        return FALSE;   /* the sig field in the FCoIB Encap. header MUST be 2'b01*/
+        return false;   /* the sig field in the FCoIB Encap. header MUST be 2'b01*/
     if (!tvb_bytes_exist(tvb, eof_offset + 1, 3) || tvb_get_ntoh24(tvb, eof_offset + 1) != 0)
-        return FALSE;   /* 3 bytes of RESERVED field immediately after eEOF MUST be 0 */
+        return false;   /* 3 bytes of RESERVED field immediately after eEOF MUST be 0 */
     if (!try_val_to_str(sof, fcoib_sof_vals))
-        return FALSE;   /* invalid value for SOF */
+        return false;   /* invalid value for SOF */
     if (!try_val_to_str(eof, fcoib_eof_vals))
-        return FALSE;   /* invalid value for EOF */
+        return false;   /* invalid value for EOF */
 
     dissect_fcoib(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void

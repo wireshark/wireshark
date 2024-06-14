@@ -393,7 +393,7 @@ get_shicp_len(packet_info* pinfo _U_, tvbuff_t* tvb, int offset _U_, void* data 
     return (guint)tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_shicp_heur_udp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
         return (udp_dissect_pdus(tvb, pinfo, tree, SHICP_FIXED_LEN, test_shicp,

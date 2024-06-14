@@ -2289,14 +2289,14 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return buflen;
 }
 
-static gboolean
+static bool
 dissect_tcpcl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_reported_length(tvb) < minimum_chdr_size) {
-        return FALSE;
+        return false;
     }
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0) {
-        return FALSE;
+        return false;
     }
 
     // treat the rest of the connection as TCPCL
@@ -2304,7 +2304,7 @@ dissect_tcpcl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     conversation_set_dissector(convo, tcpcl_handle);
 
     dissect_tcpcl(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {

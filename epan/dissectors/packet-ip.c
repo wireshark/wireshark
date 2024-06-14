@@ -2446,7 +2446,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   return 1;
 }
 
-static gboolean
+static bool
 dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int length, tot_length;
@@ -2463,7 +2463,7 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     length = tvb_captured_length(tvb);
     if(length<4){
         /* Need at least 4 bytes to make some sort of decision */
-        return FALSE;
+        return false;
     }
     oct = tvb_get_guint8(tvb,0);
     ihl = oct & 0x0f;
@@ -2513,18 +2513,18 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 */
         if(length<8){
             /* Need at least 8 bytes to make a decision */
-            return FALSE;
+            return false;
         }
         tot_length = tvb_get_ntohs(tvb,4);
         if((tot_length + 40) != (int)tvb_reported_length(tvb)){
-            return FALSE;
+            return false;
         }
         call_dissector(ipv6_handle, tvb, pinfo, tree);
-        return TRUE;
+        return true;
     }
     /* version == IPv4 , the minimum value for a correct header is 5 */
     if((version != 4)|| (ihl < 5)){
-        return FALSE;
+        return false;
     }
     /* Total Length is the length of the datagram, measured in octets,
      *  including internet header and data.
@@ -2532,11 +2532,11 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     tot_length = tvb_get_ntohs(tvb,2);
 
     if(tot_length != (int)tvb_reported_length(tvb)){
-        return FALSE;
+        return false;
     }
 
     dissect_ip_v4(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 static void

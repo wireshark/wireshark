@@ -2029,7 +2029,7 @@ dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
  * The heuristic dissector
  */
 
-static gboolean
+static bool
 dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
@@ -2037,17 +2037,17 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Heuristic */
 
     if (tvb_captured_length(tvb) < UCP_HEADER_SIZE)
-        return FALSE;
+        return false;
 
     if ((tvb_get_guint8(tvb, 0)                            != UCP_STX) ||
         (tvb_get_guint8(tvb, UCP_TRN_OFFSET + UCP_TRN_LEN) != '/') ||
         (tvb_get_guint8(tvb, UCP_LEN_OFFSET + UCP_LEN_LEN) != '/') ||
         (tvb_get_guint8(tvb, UCP_O_R_OFFSET + UCP_O_R_LEN) != '/') ||
         (tvb_get_guint8(tvb, UCP_OT_OFFSET  + UCP_OT_LEN)  != '/'))
-        return FALSE;
+        return false;
 
     if (try_val_to_str(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
-        return FALSE;
+        return false;
 
     /*
      * Ok, looks like a valid packet
@@ -2062,7 +2062,7 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     dissect_ucp_tcp(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 /* Register the protocol with Wireshark */

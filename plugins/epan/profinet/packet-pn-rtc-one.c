@@ -491,7 +491,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
 
     /* dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep, hf_pn_io_packedframe_SFCRC, &u16SFCRC); */
-    if (!(dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL) == FALSE))
+    if (dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL))
         return(tvb_captured_length(tvb));
 
     /* Only dissect cyclic RTC1 frames, if PN Connect Request has been read */

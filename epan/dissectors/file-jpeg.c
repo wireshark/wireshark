@@ -1185,7 +1185,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return tvb_len;
 }
 
-static gboolean
+static bool
 dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_jfif(tvb, pinfo, tree, NULL) > 0;

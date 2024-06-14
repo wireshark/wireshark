@@ -171,7 +171,7 @@ dissect_caneth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_caneth_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     return (udp_dissect_pdus(tvb, pinfo, tree, CANETH_MIN_LENGTH, test_caneth,

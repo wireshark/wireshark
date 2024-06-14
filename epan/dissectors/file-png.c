@@ -627,7 +627,7 @@ proto_register_png(void)
     png_handle = register_dissector("png", dissect_png, proto_png);
 }
 
-static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_png(tvb, pinfo, tree, NULL) > 0;
 }

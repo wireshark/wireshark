@@ -264,13 +264,13 @@ dissect_gelf_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return dissect_gelf(tvb, pinfo, tree, FALSE);
 }
 
-static gboolean
+static bool
 dissect_gelf_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     if (dissect_gelf(tvb, pinfo, tree, TRUE) > 0) {
-        return TRUE;
+        return true;
     } else {
-        return FALSE;
+        return false;
     }
 }
 

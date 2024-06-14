@@ -5447,7 +5447,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     return (total_len_dissected);
 }
 
-static gboolean test_lbmr_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
+static bool test_lbmr_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
 {
     lbmr_tag_entry_t entry;
     gboolean valid_packet = FALSE;
@@ -5455,12 +5455,12 @@ static gboolean test_lbmr_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree
     /* Must be a UDP packet. */
     if (pinfo->ptype != PT_UDP)
     {
-        return FALSE;
+        return false;
     }
     /* Destination address must be IPV4 and 4 bytes in length. */
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4))
     {
-        return FALSE;
+        return false;
     }
 
     if (lbmr_use_tag)
@@ -5489,9 +5489,9 @@ static gboolean test_lbmr_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree
     if (valid_packet)
     {
         dissect_lbmr(tvb, pinfo, tree, NULL);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 /* Register all the bits needed with the filtering engine */

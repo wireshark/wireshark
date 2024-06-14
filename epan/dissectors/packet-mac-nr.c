@@ -3401,7 +3401,7 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* Heuristic dissector looks for supported framing protocol (see header file for details) */
-static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, void *data _U_)
 {
     gint        offset = 0;
@@ -3414,12 +3414,12 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
        - tag for data
        - at least one byte of MAC PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(MAC_NR_START_STRING)+3+2)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, MAC_NR_START_STRING, strlen(MAC_NR_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(MAC_NR_START_STRING);
 
@@ -3430,7 +3430,7 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
         p_mac_nr_info = wmem_new0(wmem_file_scope(), mac_nr_info);
         /* Dissect the fields to populate p_mac_nr */
         if(!dissect_mac_nr_context_fields(p_mac_nr_info, tvb, pinfo, tree, &offset)){
-            return TRUE;
+            return true;
         }
         /* Store info in packet */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_nr, 0, p_mac_nr_info);
@@ -3446,7 +3446,7 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     mac_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_mac_nr(mac_tvb, pinfo, tree, NULL);
 
-    return TRUE;
+    return true;
 }
 
 /* Dissect context fields in the format described in packet-mac-nr.h.

@@ -163,7 +163,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 #define REDBACKLI_EOHSIZE	2
 #define MIN_REDBACKLI_SIZE	(3*REDBACKLI_INTSIZE+REDBACKLI_EOHSIZE)
 
-static gboolean
+static bool
 redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint		len, offset = 0;
@@ -173,7 +173,7 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	len = tvb_captured_length(tvb);
 	if (len < MIN_REDBACKLI_SIZE)
-		return FALSE;
+		return false;
 
 	/*
 	 * We scan the possible AVPs and look out for mismatches.
@@ -190,12 +190,12 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			case(RB_AVP_LIID):
 			case(RB_AVP_SESSID):
 				if (avplen != 4)
-					return FALSE;
+					return false;
 				avpfound |= 1<<avptype;
 				break;
 			case(RB_AVP_EOH):
 				if (avplen > 1 || offset == 0)
-					return FALSE;
+					return false;
 				eoh = TRUE;
 				break;
 			case(RB_AVP_LABEL):
@@ -203,22 +203,22 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			case(RB_AVP_ACCTID):
 				break;
 			default:
-				return FALSE;
+				return false;
 		}
 		offset += 2 + avplen;
 		len    -= 2 + avplen;
 	}
 
 	if (!(avpfound & (1<<RB_AVP_SEQNO)))
-		return FALSE;
+		return false;
 	if (!(avpfound & (1<<RB_AVP_SESSID)))
-		return FALSE;
+		return false;
 	if (!(avpfound & (1<<RB_AVP_LIID)))
-		return FALSE;
+		return false;
 
 	redbackli_dissect(tvb, pinfo, tree, data);
 
-	return TRUE;
+	return true;
 }
 void proto_register_redbackli(void) {
 	static hf_register_info hf[] = {

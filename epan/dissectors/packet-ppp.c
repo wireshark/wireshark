@@ -6093,7 +6093,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  * dissected correctly:
  * https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures#head-886e340c31ca977f321c921f81cbec4c21bb7738
  */
-static gboolean
+static bool
 dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     /*
@@ -6136,8 +6136,8 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         next_tvb = tvb_new_subset_remaining(tvb, 1);
         dissect_ppp_hdlc_common(next_tvb, pinfo, tree);
     } else
-        return FALSE;
-    return TRUE;
+        return false;
+    return true;
 }
 
 void

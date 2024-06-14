@@ -1069,7 +1069,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	/* must check that this really is a ses packet */
@@ -1080,7 +1080,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
 	/* first, check do we have at least 4 bytes (type+length) */
 	if (tvb_captured_length(tvb) < 2)
-		return FALSE;	/* no */
+		return false;	/* no */
 
 	/* can we recognize session PDU ? Return FALSE if  not */
 	/*   get SPDU type */
@@ -1088,18 +1088,18 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	/* check SPDU type */
 	if (try_val_to_str_ext(type, &ses_vals_ext) == NULL)
 	{
-		return FALSE;  /* no, it isn't a session PDU */
+		return false;  /* no, it isn't a session PDU */
 	}
 
 	/* can we recognize the second session PDU if the first one was
-	 * a Give Tokens PDU? Return FALSE if not */
+	 * a Give Tokens PDU? Return false if not */
 	if(tvb_bytes_exist(tvb, 2, 2) && type == SES_GIVE_TOKENS) {
 		/*   get SPDU type */
 		type = tvb_get_guint8(tvb, offset+2);
 		/* check SPDU type */
 		if (try_val_to_str_ext(type, &ses_vals_ext) == NULL)
 		{
-			return FALSE;  /* no, it isn't a session PDU */
+			return false;  /* no, it isn't a session PDU */
 		}
 	}
 
@@ -1110,7 +1110,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	if(type == 0x32 && tvb_captured_length(tvb) >= 3) {
 		type = tvb_get_guint8(tvb, offset+2);
 		if (try_val_to_str_ext(type, &param_vals_ext) == NULL) {
-			return FALSE; /* it's probably a SIMATIC protocol */
+			return false; /* it's probably a SIMATIC protocol */
 		}
 	}
 
@@ -1122,19 +1122,19 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	len+=len_len;
 	/* do we have enough bytes ? */
 	if (tvb_reported_length(tvb) < len)
-		return FALSE;	/* no */
+		return false;	/* no */
 
 	/* final check to see if the next SPDU, if present, is also valid */
 	if (tvb_captured_length(tvb) > 1+(guint) len) {
 	  type = tvb_get_guint8(tvb, offset + len + 1);
 	  /* check SPDU type */
 	  if (try_val_to_str_ext(type, &ses_vals_ext) == NULL) {
-	    return FALSE;  /* no, it isn't a session PDU */
+	    return false;  /* no, it isn't a session PDU */
 	  }
 	}
 
 	dissect_ses(tvb, pinfo, parent_tree, data);
-	return TRUE;
+	return true;
 }
 
 void

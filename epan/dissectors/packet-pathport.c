@@ -611,14 +611,14 @@ dissect_pathport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return dissect_pathport_common(tvb, pinfo, tree);
 }
 
-static gboolean
+static bool
 dissect_pathport_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    if(!packet_is_pathport(tvb))
-        return FALSE;
+        return false;
 
     dissect_pathport_common(tvb, pinfo, tree);
-    return TRUE;
+    return true;
 }
 
 /* Register the protocol with Wireshark.

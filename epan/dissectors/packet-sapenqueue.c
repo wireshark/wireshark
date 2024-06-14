@@ -461,7 +461,7 @@ dissect_sapenqueue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 
-static gboolean
+static bool
 dissect_sapenqueue_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_){
 	conversation_t *conversation = NULL;
 
@@ -469,7 +469,7 @@ dissect_sapenqueue_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	 * packet is a Enqueue server packet.
 	 */
 	if (tvb_get_ntohl(tvb, 0) != 0xabcde123){
-		return FALSE;
+		return false;
 	}
 
 	/* From now on this conversation is dissected as SAP Enqueue traffic */
@@ -479,7 +479,7 @@ dissect_sapenqueue_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* Now dissect the packet */
 	dissect_sapenqueue(tvb, pinfo, tree, data);
 
-	return TRUE;
+	return true;
 }
 
 

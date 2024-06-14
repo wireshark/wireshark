@@ -1186,7 +1186,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* Heuristic dissector looks for supported framing protocol (see header file for details) */
-static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, void *data _U_)
 {
     gint        offset = 0;
@@ -1202,12 +1202,12 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
        - tag for data
        - at least one byte of RLC PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(RLC_NR_START_STRING)+2+2)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, RLC_NR_START_STRING, (gint)strlen(RLC_NR_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(RLC_NR_START_STRING);
 
@@ -1261,7 +1261,7 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                                               tvb, offset-1, 1);
                     }
                     wmem_free(wmem_file_scope(), p_rlc_nr_info);
-                    return TRUE;
+                    return true;
             }
         } while (tag != RLC_NR_PAYLOAD_TAG);
 
@@ -1277,7 +1277,7 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* Create tvb that starts at actual RLC PDU */
     rlc_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_rlc_nr_common(rlc_tvb, pinfo, tree, TRUE /* udp framing */);
-    return TRUE;
+    return true;
 }
 
 /*****************************/

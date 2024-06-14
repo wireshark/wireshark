@@ -353,7 +353,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
  * @param tree the protocol tree to be build or NULL
  * @return true if the packet was recognized by the sub-dissector (stop dissection here)
  */
-gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     bool result = false;
     tvbuff_t *saved_lua_tvb = lua_tvb;
     packet_info *saved_lua_pinfo = lua_pinfo;

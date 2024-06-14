@@ -1149,7 +1149,7 @@ proto_register_tiff(void)
     expert_register_field_array(expert_tiff, ei, array_length(ei));
 }
 
-static gboolean
+static bool
 dissect_tiff_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_tiff(tvb, pinfo, tree, NULL) > 0;

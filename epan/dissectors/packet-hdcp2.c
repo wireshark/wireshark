@@ -271,6 +271,11 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return tvb_reported_length(tvb);
 }
 
+static bool
+dissect_hdcp2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_hdcp2(tvb, pinfo, tree, NULL) > 0;
+}
 
 
 void
@@ -391,7 +396,7 @@ proto_reg_handoff_hdcp2(void)
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add ("tcp", dissect_hdcp2, "HDCP2 over TCP", "hdcp2_tcp", proto_hdcp2, HEURISTIC_DISABLE);
+        heur_dissector_add ("tcp", dissect_hdcp2_heur, "HDCP2 over TCP", "hdcp2_tcp", proto_hdcp2, HEURISTIC_DISABLE);
 
         prefs_initialized = TRUE;
     }

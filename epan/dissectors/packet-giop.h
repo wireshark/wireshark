@@ -100,7 +100,7 @@ typedef struct giop_sub_handle {
 
 /* Main GIOP entry point */
 
-extern gboolean dissect_giop(tvbuff_t *, packet_info *, proto_tree *); /* new interface */
+extern bool dissect_giop(tvbuff_t *, packet_info *, proto_tree *); /* new interface */
 
 /*
  * GIOP Users register interest via this function.

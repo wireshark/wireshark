@@ -381,7 +381,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return offset;
 }
 
-static gboolean
+static bool
 dissect_gif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_gif(tvb, pinfo, tree, NULL) > 0;

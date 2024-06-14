@@ -224,7 +224,7 @@ dissect_rk512(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_captured_length(tvb);
 }
 
-static int
+static bool
 dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
 	gint signature_start, offset;
@@ -233,7 +233,7 @@ dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
 	signature_start = tvb_find_tvb(tvb, tvb_header_signature, 0);
 	if (signature_start == -1) {
-		return 0;
+		return false;
 	}
 
 	//keep track of the offset for verification of upcoming fields
@@ -241,27 +241,28 @@ dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
 	//Make sure there are enough bytes for the rest of the field checks
 	if (tvb_captured_length_remaining(tvb, offset) < 2)
-		return 0;
+		return false;
 
 	//Make sure it's supported block type
 	block_type = tvb_get_ntohs(tvb, offset);
 	if (try_val_to_str(block_type, data_block_type_vals) == NULL)
-		return 0;
+		return false;
 
 	offset += 2;
 	if (block_type == BLOCKNUM_CONTINUOUSDATA)
 	{
 		guint16 datatype;
 		if (tvb_captured_length_remaining(tvb, offset) < 18)
-			return 0;
+			return false;
 
 		datatype = tvb_get_ntohs(tvb, offset+14);
 		if (try_val_to_str(datatype, datatype_vals) == NULL)
-			return 0;
+			return false;
 	}
 
 	rk512_tvb = tvb_new_subset_remaining(tvb, signature_start);
-	return dissect_rk512(rk512_tvb, pinfo, tree, data);
+	dissect_rk512(rk512_tvb, pinfo, tree, data);
+	return true;
 }
 
 static void

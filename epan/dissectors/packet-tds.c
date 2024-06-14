@@ -7234,7 +7234,7 @@ dissect_tds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_
    return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset = 0;
@@ -7247,7 +7247,7 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      * just say it's not TDS.
      */
     if (tvb_reported_length(tvb) < 8)
-        return FALSE;
+        return false;
 
     /*
      * Quickly scan all the data we have in order to see if
@@ -7259,14 +7259,14 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      */
     type = tvb_get_guint8(tvb, offset);
     if (!is_valid_tds_type(type))
-        return FALSE;
+        return false;
 
     /*
      * Check the status field
      */
     status = tvb_get_guint8(tvb, offset + 1);
     if (!is_valid_tds_status(status))
-        return FALSE;
+        return false;
 
     /*
      * Get the length of the PDU.
@@ -7277,18 +7277,18 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
          * The length is less than the header length.
          * That's bogus.
          */
-        return FALSE;
+        return false;
     }
 
     if (!netlib_check_login_pkt(tvb, offset, pinfo, type))
-        return FALSE;
+        return false;
 
     /*
      * Now dissect it as TDS.
      */
     dissect_tds(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 static void

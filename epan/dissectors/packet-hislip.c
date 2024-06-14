@@ -870,22 +870,22 @@ dissect_hislip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 /*Heuristic*/
-static gboolean
+static bool
 dissect_hislip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*  min. 16 bytes?*/
     if (tvb_captured_length(tvb) < FRAME_HEADER_LEN)
-        return FALSE;
+        return false;
 
     /*first two byte == "HS"*/
     if (tvb_get_ntohs(tvb, 0) != 0x4853)
-        return FALSE;
+        return false;
 
     /* XXX: Can it be assumed that all following packets for this connection will also be 'hislip' ?
      *      If so, conversation_set_dissector() should be called.
      */
     dissect_hislip(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 
 }
 

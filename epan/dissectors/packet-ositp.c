@@ -2226,7 +2226,7 @@ test_cltp_var_part(tvbuff_t *tvb)
   return TRUE;
 }
 
-static gboolean
+static bool
 dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				  void *data)
 {
@@ -2241,27 +2241,27 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   /* First, check do we have at least 2 bytes (length + tpdu) */
   if (tvb_captured_length(tvb) < 2) {
-    return FALSE;
+    return false;
   }
 
   li = tvb_get_guint8(tvb, offset++);
 
   /* LI must include TPDU, and 255 is reserved */
   if (li == 0 || li == 255) {
-    return FALSE;
+    return false;
   }
 
   /* Is it OSI on top of the UDP? */
   tpdu = (tvb_get_guint8(tvb, offset++) & 0xF0) >> 4;
   if (tpdu != UD_TPDU) {
-    return FALSE;
+    return false;
   }
 
   /* LI includes TPDU */
   li--;
 
   if (!test_cltp_var_part(tvb_new_subset_length(tvb, offset, li))) {
-    return FALSE;
+    return false;
   }
   offset += li;
 
@@ -2271,17 +2271,17 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   /* Check do we have SPDU ID byte, too */
   if (tvb_captured_length_remaining(tvb, offset) < 1) {
-    return FALSE;
+    return false;
   }
 
   /* And let's see if it is GOOSE SPDU */
   spdu = tvb_get_guint8(tvb, offset);
   if (spdu != 0xA1) {
-    return FALSE;
+    return false;
   }
 
   dissect_ositp(tvb, pinfo, parent_tree, data);
-  return TRUE;
+  return true;
 }
 
 static void

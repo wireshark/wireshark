@@ -4607,18 +4607,18 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static gboolean
+static bool
 dissect_quic_short_header_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     // If this capture does not contain QUIC, skip the more expensive checks.
     if (quic_cid_lengths == 0) {
-        return FALSE;
+        return false;
     }
 
     // Is this a SH packet after connection migration? SH (since draft -22):
     // Flag (1) + DCID (1-20) + PKN (1/2/4) + encrypted payload (>= 16).
     if (tvb_captured_length(tvb) < 1 + 1 + 1 + 16) {
-        return FALSE;
+        return false;
     }
 
     // DCID length is unknown, so extract the maximum and look for a match.
@@ -4626,16 +4626,16 @@ dissect_quic_short_header_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     tvb_memcpy(tvb, dcid.cid, 1, dcid.len);
     gboolean from_server;
     if (!quic_connection_find(pinfo, QUIC_SHORT_PACKET, &dcid, &from_server)) {
-        return FALSE;
+        return false;
     }
 
     conversation_t *conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, quic_handle);
     dissect_quic(tvb, pinfo, tree, NULL);
-    return TRUE;
+    return true;
 }
 
-static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*
      * Since draft -22:
@@ -4656,7 +4656,7 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     /* Verify packet size  (Flag (1 byte) + Connection ID (8 bytes) + Version (4 bytes)) */
     if (tvb_captured_length(tvb) < 13)
     {
-        return FALSE;
+        return false;
     }
 
     flags = tvb_get_guint8(tvb, offset);
@@ -4671,22 +4671,22 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     version = tvb_get_ntohl(tvb, offset);
     is_quic = (quic_draft_version(version) >= 11);
     if (!is_quic) {
-        return FALSE;
+        return false;
     }
 
     /* Check that CIDs lengths are valid */
     offset += 4;
     dcid = tvb_get_guint8(tvb, offset);
     if (dcid > QUIC_MAX_CID_LENGTH) {
-        return FALSE;
+        return false;
     }
     offset += 1 + dcid;
     if (offset >= (int)tvb_captured_length(tvb)) {
-        return FALSE;
+        return false;
     }
     scid = tvb_get_guint8(tvb, offset);
     if (scid > QUIC_MAX_CID_LENGTH) {
-        return FALSE;
+        return false;
     }
 
     /* Ok! */
@@ -4694,7 +4694,7 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     conversation_set_dissector(conversation, quic_handle);
     dissect_quic(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 

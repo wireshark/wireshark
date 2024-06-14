@@ -147,7 +147,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_tcpencap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 reported_length = tvb_reported_length(tvb);
@@ -157,11 +157,11 @@ dissect_tcpencap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		/* Ensure we have enough bytes for packet_is_tcpencap analysis */
 		(reported_length - captured_length) > (TRAILERLENGTH - 13) ||
 		!packet_is_tcpencap(tvb, pinfo, reported_length - TRAILERLENGTH) ) {
-		return FALSE;
+		return false;
 	}
 
 	dissect_tcpencap(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 void

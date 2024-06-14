@@ -336,7 +336,7 @@ dissect_peekremote_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   return 1;
 }
 
-static gboolean
+static bool
 dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *u _U_)
 {
   static const guint8 magic[4] = { 0x00, 0xFF, 0xAB, 0xCD };
@@ -358,7 +358,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * Not big enough to hold the magic number, or doesn't start
      * with the magic number.
      */
-    return FALSE;
+    return false;
   }
 
   /* We don't have any 802.11 metadata yet. */
@@ -582,7 +582,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       proto_item_set_end(ti, tvb, offset);
       next_tvb = tvb_new_subset_remaining(tvb, offset);
       call_dissector(radiotap_handle, next_tvb, pinfo, tree);
-      return TRUE;
+      return true;
     }
     break;
   default:
@@ -595,7 +595,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   proto_item_set_end(ti, tvb, offset);
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);
-  return TRUE;
+  return true;
 }
 
 static int

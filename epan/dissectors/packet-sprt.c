@@ -1479,7 +1479,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 }
 
 /* heuristic dissector */
-static gboolean
+static bool
 dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 octet, extension_bit, reserved_bit, payload_type;
@@ -1492,29 +1492,29 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      */
 
     if (tvb_captured_length(tvb) < 6)
-        return FALSE; /* packet is waay to short */
+        return false; /* packet is waay to short */
 
     /* Get the fields in the first two octets */
     extension_bit = tvb_get_guint8(tvb, offset) & 0x7F;
     if (extension_bit != 0) /* must be 0 */
-        return FALSE;
+        return false;
 
     octet = tvb_get_guint8(tvb, offset + 1);
     reserved_bit = octet & 80;
     payload_type = octet & 0x7F;
     if (reserved_bit != 0) /* must be 0 */
-        return FALSE;
+        return false;
     if (payload_type < 96 || payload_type > 128) /* value within RTP dynamic payload type range */
-        return FALSE;
+        return false;
 
     word = tvb_get_ntohs(tvb, offset + 2);
     tc = word >> 14;
     seqnum = word & 0x3F;
     if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
-        return FALSE;
+        return false;
 
     dissect_sprt(tvb, pinfo, tree, NULL);
-    return TRUE;
+    return true;
 }
 
 /* register the protocol with Wireshark */

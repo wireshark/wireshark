@@ -1039,26 +1039,26 @@ dissect_xmcp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   /* See if this looks like a real XMCP packet */
   if (tvb_captured_length(tvb) < XMCP_HDR_LEN) {
-    return FALSE;
+    return false;
   }
   /* Check for valid message type field */
   if (tvb_get_ntohs(tvb, 0) & XMCP_TYPE_RESERVED) { /* First 2 bits must be 0 */
-    return FALSE;
+    return false;
   }
   /* Check for valid "magic cookie" field */
   if (tvb_get_ntohl(tvb, 4) != XMCP_MAGIC_COOKIE) {
-    return FALSE;
+    return false;
   }
 
   /* Good enough to consider a match! */
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, XMCP_HDR_LEN,
                    get_xmcp_message_len, dissect_xmcp_message, data);
-  return TRUE;
+  return true;
 }
 
 void

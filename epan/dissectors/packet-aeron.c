@@ -2995,7 +2995,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     return (total_dissected_length);
 }
 
-static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
+static bool test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
 {
     guint8 ver;
     guint16 packet_type;
@@ -3006,13 +3006,13 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     length_remaining = tvb_captured_length_remaining(tvb, 0);
     if (length_remaining < HDR_LENGTH_MIN)
     {
-        return FALSE;
+        return false;
     }
     /* We know we have at least HDR_LENGTH_MIN (12) bytes captured */
     ver = tvb_get_guint8(tvb, O_AERON_BASIC_VERSION);
     if (ver != 0)
     {
-        return FALSE;
+        return false;
     }
     packet_type = tvb_get_letohs(tvb, O_AERON_BASIC_TYPE);
     switch (packet_type)
@@ -3027,14 +3027,14 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         case HDR_TYPE_EXT:
             break;
         default:
-            return FALSE;
+            return false;
     }
     length = (gint) (tvb_get_letohl(tvb, O_AERON_BASIC_FRAME_LENGTH) & 0x7fffffff);
     if (!((packet_type == HDR_TYPE_DATA) && (length == 0)))
     {
         if (length < HDR_LENGTH_MIN)
         {
-            return FALSE;
+            return false;
         }
     }
     if (packet_type == HDR_TYPE_PAD)
@@ -3043,22 +3043,22 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         guint32 term_offset = tvb_get_letohl(tvb, O_AERON_PAD_TERM_OFFSET);
         if (term_offset == 0)
         {
-            return FALSE;
+            return false;
         }
     }
     else
     {
         if (length > length_remaining)
         {
-            return FALSE;
+            return false;
         }
     }
     rc = dissect_aeron(tvb, pinfo, tree, user_data);
     if (rc == 0)
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /* Register all the bits needed with the filtering engine */

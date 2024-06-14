@@ -127,6 +127,12 @@ dissect_exablaze(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset + 16;
 }
 
+static bool
+dissect_exablaze_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_exablaze(tvb, pinfo, tree, NULL) > 0;
+}
+
 void
 proto_register_exablaze(void)
 {
@@ -188,7 +194,7 @@ proto_register_exablaze(void)
 void
 proto_reg_handoff_exablaze(void)
 {
-    heur_dissector_add("eth.trailer", dissect_exablaze, "Exablaze trailer",
+    heur_dissector_add("eth.trailer", dissect_exablaze_heur, "Exablaze trailer",
             "exablaze_eth", proto_exablaze, HEURISTIC_DISABLE);
 }
 

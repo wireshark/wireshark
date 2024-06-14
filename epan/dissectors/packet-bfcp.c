@@ -507,7 +507,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 
-static gboolean
+static bool
 dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
 	guint8       primitive;
@@ -517,7 +517,7 @@ dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 
 	/* Size of smallest BFCP packet: 12 octets */
 	if (tvb_captured_length(tvb) < BFCP_HDR_LEN)
-		return FALSE;
+		return false;
 
 	/* Check version and reserved bits in first byte */
 	first_byte = tvb_get_guint8(tvb, 0);
@@ -528,18 +528,18 @@ dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 	 * if the bit is set, otherwise it is not BFCP.
 	 */
 	if ((first_byte != 0x20) && (first_byte != 0x30) && (first_byte != 0x40) && (first_byte != 0x48) && (first_byte != 0x50) && (first_byte != 0x58))
-		return FALSE;
+		return false;
 
 	primitive = tvb_get_guint8(tvb, 1);
 
 	if ((primitive < 1) || (primitive > 18))
-		return FALSE;
+		return false;
 
 	str = try_val_to_str(primitive, map_bfcp_primitive);
 	if (NULL == str)
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 /* Code to actually dissect BFCP packets */
@@ -623,14 +623,14 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (!dissect_bfcp_heur_check(tvb, pinfo, tree, data))
-		return FALSE;
+		return false;
 
 	dissect_bfcp(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 void proto_register_bfcp(void)

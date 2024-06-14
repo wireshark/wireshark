@@ -198,14 +198,14 @@ dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_pw_eth_nocw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (!looks_like_plain_eth(tvb, 0)) {
-        return FALSE;
+        return false;
     }
     dissect_pw_eth_nocw(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void

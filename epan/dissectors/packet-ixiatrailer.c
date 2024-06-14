@@ -202,6 +202,12 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
   return tvblen;
 }
 
+static bool
+dissect_ixiatrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_ixiatrailer(tvb, pinfo, tree, NULL) > 0;
+}
+
 void
 proto_register_ixiatrailer(void)
 {
@@ -247,7 +253,7 @@ void
 proto_reg_handoff_ixiatrailer(void)
 {
   /* Check for Ixia format in the ethernet trailer */
-  heur_dissector_add("eth.trailer", dissect_ixiatrailer, "Ixia Trailer", "ixiatrailer_eth", proto_ixiatrailer, HEURISTIC_ENABLE);
+  heur_dissector_add("eth.trailer", dissect_ixiatrailer_heur, "Ixia Trailer", "ixiatrailer_eth", proto_ixiatrailer, HEURISTIC_ENABLE);
 }
 
 /*

@@ -87,9 +87,9 @@ typedef int (*dissector_cb_t)(tvbuff_t *, packet_info *, proto_tree *, void *, v
  * @param tvb the tvbuff with the (remaining) packet data
  * @param pinfo the packet info of this packet (additional info)
  * @param tree the protocol tree to be build or NULL
- * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
+ * @return true if the packet was recognized by the sub-dissector (stop dissection here)
  */
-typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
+typedef bool (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, void *);
 
 typedef enum {

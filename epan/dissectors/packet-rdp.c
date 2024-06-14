@@ -3103,6 +3103,12 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   return offset; /* returns 0 if nothing was dissected, which is what we want */
 }
 
+static bool
+dissect_rdp_cr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_rdp_cr(tvb, pinfo, tree, data) > 0;
+}
+
 /* Dissect extra data in a CC PDU */
 static int
 dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -3212,7 +3218,13 @@ dissect_rdp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   return offset;
 }
 
-static gboolean
+static bool
+dissect_rdp_cc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_rdp_cc(tvb, pinfo, tree, data) > 0;
+}
+
+static bool
 dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
   guint8 fp_hdr;
@@ -3225,15 +3237,15 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   gboolean client_to_server;
 
   if (tvb_captured_length(tvb) < 3)
-    return FALSE;
+    return false;
 
   fp_hdr = tvb_get_guint8(tvb, 0);
   if (fp_hdr & 0x3)
-    return FALSE;
+    return false;
 
   pdu_length = tvb_get_guint8(tvb, 1);
   if (pdu_length == 0)
-    return FALSE;
+    return false;
 
   if (pdu_length & 0x80) {
     pdu_length &= ~(0x80);
@@ -3485,7 +3497,7 @@ dissect_rdp_fastpath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	  }
 
   }
-  return TRUE;
+  return true;
 }
 
 static gboolean
@@ -3621,19 +3633,19 @@ dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U
 }
 
 
-static gboolean
+static bool
 dissect_rdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
     heur_dtbl_entry_t *hdtbl_entry;
     rdp_conv_info_t *info;
 
     if (dissector_try_heuristic(rdp_heur_subdissector_list, tvb, pinfo, parent_tree,
                                 &hdtbl_entry, NULL)) {
-        return TRUE;
+        return true;
     }
 
 	info = rdp_get_conversation_data(pinfo);
 	if (info && info->isRdstls && dissect_rdp_rdstls(tvb, pinfo, parent_tree, NULL))
-		return TRUE;
+		return true;
 
     return dissect_rdp_fastpath(tvb, pinfo, parent_tree, NULL);
 }
@@ -5225,8 +5237,8 @@ proto_reg_handoff_rdp(void)
   cliprdr_handle = find_dissector("rdp_cliprdr");
   snd_handle = find_dissector("rdp_snd");
 
-  heur_dissector_add("cotp_cr", dissect_rdp_cr, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
-  heur_dissector_add("cotp_cc", dissect_rdp_cc, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
+  heur_dissector_add("cotp_cr", dissect_rdp_cr_heur, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
+  heur_dissector_add("cotp_cc", dissect_rdp_cc_heur, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
 
   heur_dissector_add("tpkt", dissect_rdp_heur, "RDP", "rdp_fastpath", proto_rdp, HEURISTIC_ENABLE);
 

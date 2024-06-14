@@ -235,14 +235,14 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 }
 
 
-static gboolean
+static bool
 dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint16 val;
 	int offset = 0;
 
 	if (tvb_captured_length_remaining(tvb, offset) < 40)
-		return FALSE;
+		return false;
 
 	val = tvb_get_ntohs(tvb, offset);
 
@@ -259,7 +259,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		offset += 10;
 
 		if (tvb_captured_length_remaining(tvb, offset) < idlen + aulen + 40)
-			return FALSE;
+			return false;
 
 		offset += idlen + aulen;
 
@@ -271,7 +271,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		offset += 8;
 
 		if (tvb_captured_length_remaining(tvb, offset) < 40)
-			return FALSE;
+			return false;
 
 		val = tvb_get_ntohs(tvb, offset);
 	}
@@ -290,16 +290,16 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		offset += 40;
 
 		if (val > 65467)
-			return FALSE; /* length too big for Teredo */
+			return false; /* length too big for Teredo */
 
 		if (tvb_reported_length_remaining(tvb, offset) != val)
-			return FALSE; /* length mismatch */
+			return false; /* length mismatch */
 
 		dissect_teredo (tvb, pinfo, tree, data);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE; /* not an IPv6 packet */
+	return false; /* not an IPv6 packet */
 }
 
 

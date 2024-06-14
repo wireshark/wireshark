@@ -192,7 +192,7 @@ dissect_atn_cpdlc(
     return tvb_reported_length_remaining(tvb, 0);
 }
 
-static gboolean
+static bool
 dissect_atn_cpdlc_heur(
     tvbuff_t *tvb,
     packet_info *pinfo,
@@ -200,8 +200,8 @@ dissect_atn_cpdlc_heur(
     void *data _U_)
 {
     atn_conversation_t *volatile atn_cv = NULL;
-    volatile gboolean is_atn_cpdlc = FALSE;
-    volatile gboolean is_pm = FALSE;
+    volatile bool is_atn_cpdlc = false;
+    volatile bool is_pm = false;
     int type;
 
     type = check_heur_msg_type(pinfo);
@@ -210,43 +210,43 @@ dissect_atn_cpdlc_heur(
       case um:
           TRY {
             dissect_ProtectedGroundPDUs_PDU(tvb, pinfo, NULL, NULL);
-            is_atn_cpdlc = TRUE;
-            is_pm = TRUE;}
+            is_atn_cpdlc = true;
+            is_pm = true;}
           CATCH_ALL{
-            is_atn_cpdlc = FALSE;
-            is_pm = FALSE;}
+            is_atn_cpdlc = false;
+            is_pm = false;}
           ENDTRY;
           if (is_atn_cpdlc) {
             break;
           }
           TRY {
             dissect_GroundPDUs_PDU(tvb, pinfo, NULL, NULL);
-            is_pm = FALSE;
-            is_atn_cpdlc = TRUE;}
+            is_pm = false;
+            is_atn_cpdlc = true;}
           CATCH_ALL{
-            is_atn_cpdlc = FALSE;
-            is_pm = FALSE;}
+            is_atn_cpdlc = false;
+            is_pm = false;}
           ENDTRY;
         break;
     case dm:
           TRY {
             dissect_ProtectedAircraftPDUs_PDU(tvb, pinfo, NULL, NULL);
-            is_atn_cpdlc = TRUE;
-            is_pm = TRUE;}
+            is_atn_cpdlc = true;
+            is_pm = true;}
           CATCH_ALL {
-            is_atn_cpdlc = FALSE;
-            is_pm = FALSE; }
+            is_atn_cpdlc = false;
+            is_pm = false; }
           ENDTRY;
           if (is_atn_cpdlc) {
             break;
           }
           TRY{
             dissect_AircraftPDUs_PDU(tvb, pinfo, NULL, NULL);
-            is_atn_cpdlc = TRUE;
-            is_pm = FALSE;}
+            is_atn_cpdlc = true;
+            is_pm = false;}
           CATCH_ALL{
-            is_atn_cpdlc = FALSE;
-            is_pm = FALSE;}
+            is_atn_cpdlc = false;
+            is_pm = false;}
           ENDTRY;
       break;
     default:
@@ -280,14 +280,14 @@ dissect_atn_cpdlc_heur(
     }
 
     if(atn_cv){ /* atn conversation found */
-      if(is_pm == TRUE) {
+      if(is_pm == true) {
           atn_cv->ae_qualifier =  pmcpdlc; }
       else {
           atn_cv->ae_qualifier =  cpdlc; }
       dissect_atn_cpdlc(tvb, pinfo, tree, NULL);
     }
   }else { /* there should *always* be an atn conversation */
-      is_atn_cpdlc = FALSE;
+      is_atn_cpdlc = false;
   }
 
   return is_atn_cpdlc;

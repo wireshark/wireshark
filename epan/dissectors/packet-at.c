@@ -2603,7 +2603,7 @@ static gboolean is_padded(tvbuff_t *tvb, gint captured_len, gint first_pad_offse
 
 #define MIN_PADDED_ALLOWED_CHARS 4
 /* Experimental approach based upon the one used for PPP */
-static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     static const guint8 at_magic1[2] = {0x0d, 0x0a};
     static const guint8 at_magic2[3] = {0x0d, 0x0d, 0x0a};
@@ -2622,16 +2622,16 @@ static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 /* This is a padded AT Command */
                 tvb_no_padding = tvb_new_subset_length(tvb, 0, allwd_chars_len);
                 dissect_at(tvb_no_padding, pinfo, tree, data);
-                return TRUE;
+                return true;
             }
         }
         else if(allwd_chars_len == len) {
             /* This is an (unpadded) AT Command */
             dissect_at(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 void

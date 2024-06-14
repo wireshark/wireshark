@@ -48,7 +48,7 @@ static gint ett_vssmonitoring;
 static bool vss_dissect_portstamping_only;
 static bool vss_two_byte_portstamps;
 
-static int
+static bool
 dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree    *ti = NULL;
@@ -120,10 +120,10 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    *    it has no timestamp).
    */
   if ( trailer_len > 12 + portstamp_len )
-    return 0;
+    return false;
 
   if ( (trailer_len & 3) != 0 && (trailer_len & 3) != portstamp_len )
-    return 0;
+    return false;
 
   /*
    * If we have a time stamp, check it for validity.
@@ -140,7 +140,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
        * FIXME: Should be made even stricter.
        */
       if (vssmonitoring_time.secs == 0)
-        return 0;
+        return false;
       /* The timestamp will be based on the uptime until the TAP is completely
        * booted, this takes about 60s, but use 1 hour to be sure
        */
@@ -152,17 +152,17 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
          */
         if ( vssmonitoring_time.secs > pinfo->abs_ts.secs ) {
           if ( vssmonitoring_time.secs - pinfo->abs_ts.secs > 2592000 ) /* 30 days */
-            return 0;
+            return false;
         } else {
           if ( pinfo->abs_ts.secs - vssmonitoring_time.secs > 2592000 ) /* 30 days */
-            return 0;
+            return false;
         }
       }
 
       /* The nanoseconds field should be less than 1000000000
        */
       if ( vssmonitoring_time.nsecs >= 1000000000 )
-        return 0;
+        return false;
   } else if (!vss_dissect_portstamping_only || (trailer_len & 3) == 0) {
     /* No timestamp, so we need a port stamp and be willing to accept
      * packets with port stamping but not time stamping.
@@ -172,7 +172,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * padding can be misinterpreted as a VSS monitoring trailer, among
      * other false positives, so we disable that by default.
      */
-    return 0;
+    return false;
   }
 
   /* All systems are go, lets dissect the VSS-Monitoring trailer */
@@ -207,7 +207,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     offset += portstamp_len;
   }
 
-  return offset;
+  return true;
 }
 
 void

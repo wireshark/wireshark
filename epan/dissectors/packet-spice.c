@@ -3436,15 +3436,15 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return 0;
 }
 
-static gboolean
+static bool
 test_spice_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     if ((tvb_reported_length(tvb) >= 4) && (tvb_get_ntohl(tvb, 0) == SPICE_MAGIC)) {
         dissect_spice(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 /* Register the protocol with Wireshark */

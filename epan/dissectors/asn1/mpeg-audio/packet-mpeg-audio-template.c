@@ -170,14 +170,14 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_mpeg_audio_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (!test_mpeg_audio(tvb, 0)) {
-		return FALSE;
+		return false;
 	}
 	dissect_mpeg_audio(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 void

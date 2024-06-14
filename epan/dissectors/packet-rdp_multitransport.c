@@ -198,38 +198,38 @@ proto_register_rdpmt(void) {
 	rdpmt_handle = register_dissector("rdpmt", dissect_rdpmt, proto_rdpmt);
 }
 
-static gboolean
+static bool
 rdpmt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint8 action, header_len;
 	guint16 payload_len;
 
 	if (tvb_reported_length(tvb) <= 4)
-		return FALSE;
+		return false;
 
 	action = tvb_get_guint8(tvb, 0);
 	if (action > 2)
-		return FALSE;
+		return false;
 
 	payload_len = tvb_get_guint16(tvb, 1, ENC_LITTLE_ENDIAN);
 	header_len = tvb_get_guint8(tvb, 3);
 
 	if ((header_len < 4UL) || (tvb_reported_length_remaining(tvb, header_len) < payload_len))
-		return FALSE;
+		return false;
 
 	if (header_len > 4) {
 		guint8 subheader_len, subheader_type;
 
 		if(header_len < 6)
-			return FALSE;
+			return false;
 
 		subheader_len = tvb_get_guint8(tvb, 4);
 		if ((subheader_len < 2) || (subheader_len > header_len-4))
-			return FALSE;
+			return false;
 
 		subheader_type = tvb_get_guint8(tvb, 5);
 		if (subheader_type > 1) /* AUTODETECT_REQUEST or AUTODETECT_RESPONSE */
-			return FALSE;
+			return false;
 	}
 
 	return dissect_rdpmt(tvb, pinfo, tree, data) > 0;

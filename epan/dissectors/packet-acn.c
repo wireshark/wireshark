@@ -3315,7 +3315,7 @@ is_rdmnet_over_udp(tvbuff_t *tvb)
 
 /******************************************************************************/
 /* Heuristic dissector                                                        */
-static gboolean
+static bool
 dissect_acn_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* This is a heuristic dissector, which means we get all the UDP
@@ -3325,30 +3325,30 @@ dissect_acn_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   if (is_acn(tvb)) {
     dissect_acn(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
   }
 
   if (is_magic(tvb)) {
     dissect_magic(tvb, pinfo, tree);
-    return TRUE;
+    return true;
   }
 
   /* abort if it is NOT an ACN or Magic Bullet packet */
-  return FALSE;
+  return false;
 }
 
 
 /******************************************************************************/
 /* Heuristic dissector                                                        */
-static gboolean
+static bool
 dissect_rdmnet_over_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (!is_rdmnet_over_udp(tvb)) {
-    return FALSE;
+    return false;
   }
 
   dissect_rdmnet(tvb, pinfo, tree, 0, 1);
-  return TRUE;
+  return true;
 }
 
 #define RDMNET_TCP_FRAME_HEADER_LENGTH  16
@@ -3382,15 +3382,15 @@ dissect_rdmnet_over_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 /******************************************************************************/
 /* Heuristic dissector                                                        */
-static gboolean
+static bool
 dissect_rdmnet_over_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (!is_rdmnet_over_tcp(tvb)) {
-    return FALSE;
+    return false;
   }
 
   dissect_rdmnet_over_tcp(tvb, pinfo, tree, data);
-  return TRUE;
+  return true;
 }
 
 

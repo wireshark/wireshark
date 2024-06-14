@@ -539,7 +539,7 @@ static const value_string attributes[] = {
     {ICMP                  , "ICMP"},
     {MS_TURN_UNKNOWN_8006  , "MS-TURN UNKNOWN 8006"},
     {MS_VERSION            , "MS-VERSION"},
-    {MS_XOR_MAPPED_ADDRESS , "MS-XOR-MAPPED-ADDRESS"},
+    {MS_XOR_MAPPED_ADDRESS , "XOR-MAPPED-ADDRESS"},
     {SOFTWARE              , "SOFTWARE"},
     {ALTERNATE_SERVER      , "ALTERNATE-SERVER"},
     {TRANSACTION_TRANSMIT_COUNTER, "TRANSACTION-TRANSMIT-COUNTER"},
@@ -1783,7 +1783,7 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
@@ -1799,7 +1799,7 @@ dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     captured_length = tvb_captured_length(tvb);
     if (captured_length < MIN_HDR_LEN)
-        return FALSE;
+        return false;
     reported_length = tvb_reported_length(tvb);
 
     tcp_framing_offset = 0;
@@ -1821,33 +1821,39 @@ dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (msg_type & 0xC000) {
         /* We don't want to handle TURN ChannelData message in heuristic function
            See comment in dissect_stun_message() */
-        return FALSE;
+        return false;
     }
 
     /* Normal STUN message */
     if (captured_length < STUN_HDR_LEN)
-        return FALSE;
+        return false;
 
     /* Check if it is really a STUN message */
     if (tvb_get_ntohl(tvb, tcp_framing_offset + 4) != MESSAGE_COOKIE)
-        return FALSE;
+        return false;
 
     /* We may have more than one STUN message in the TCP payload */
     if (reported_length < (msg_length + STUN_HDR_LEN + tcp_framing_offset))
-        return FALSE;
+        return false;
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, stun_tcp_handle);
 
     dissect_stun_tcp(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 static gboolean
-dissect_stun_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stun_heur_udp_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     if (dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) == 0)
         return FALSE;
     return TRUE;
+}
+
+static bool
+dissect_stun_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) > 0;
 }
 
 void
@@ -2259,7 +2265,7 @@ proto_register_stun(void)
 
     register_dissector("stun-tcp", dissect_stun_tcp, proto_stun);
     register_dissector("stun-udp", dissect_stun_udp, proto_stun);
-    register_dissector("stun-heur", dissect_stun_heur_udp, proto_stun);
+    register_dissector("stun-heur", dissect_stun_heur_udp_register, proto_stun);
 
     /* Register preferences */
     stun_module = prefs_register_protocol(proto_stun, NULL);

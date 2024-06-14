@@ -1096,7 +1096,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   return 0;
 }
 
-static gboolean
+static bool
 dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   gint version;
@@ -1110,10 +1110,10 @@ dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     conversation_set_dissector_from_frame_number(conversation, pinfo->num, bt_utp_handle);
 
     dissect_bt_utp(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 static void

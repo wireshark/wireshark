@@ -5070,7 +5070,7 @@ dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   }
 }
 
-static gboolean
+static bool
 dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /*
@@ -5105,36 +5105,36 @@ dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   const guint16     max_add = 10;
 
   if (tvb_reported_length(tvb) <= DNS_HDRLEN)
-    return FALSE;
+    return false;
 
   flags = tvb_get_ntohs(tvb, offset + DNS_FLAGS);
   if ((flags & F_OPCODE) != 0)
-    return FALSE;
+    return false;
 
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
   ans = tvb_get_ntohs(tvb, offset + DNS_ANS);
   auth = tvb_get_ntohs(tvb, offset + DNS_AUTH);
   if (!(flags & F_RESPONSE)) {
     if (quest != 1 || ans != 0 || auth != 0)
-      return FALSE;
+      return false;
   } else {
     if (quest > 1 || ans > max_ans || auth > max_auth)
-      return FALSE;
+      return false;
   }
 
   add = tvb_get_ntohs(tvb, offset + DNS_ADD);
   if (add > max_add)
-    return FALSE;
+    return false;
 
   if (quest + ans == 0)
-    return FALSE;
+    return false;
 
   /* Do we even have enough space left? */
   if ( (quest * 6 + (ans + auth + add) * 11) > tvb_reported_length_remaining(tvb, offset + DNS_HDRLEN))
-    return FALSE;
+    return false;
 
   dissect_dns(tvb, pinfo, tree, NULL);
-  return TRUE;
+  return true;
 }
 
 static void dns_stats_tree_init(stats_tree* st)

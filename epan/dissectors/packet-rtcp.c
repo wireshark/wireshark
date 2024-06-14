@@ -1044,7 +1044,7 @@ void rtcp_add_address( packet_info *pinfo,
     srtcp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, NULL);
 }
 
-static gboolean
+static bool
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     unsigned int offset = 0;
@@ -1052,7 +1052,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     unsigned int packet_type;
 
     if (tvb_captured_length(tvb) < 2)
-        return FALSE;
+        return false;
 
     /* Look at first byte */
     first_byte = tvb_get_guint8(tvb, offset);
@@ -1060,7 +1060,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* Are version bits set to 2? */
     if (((first_byte & 0xC0) >> 6) != 2)
     {
-        return FALSE;
+        return false;
     }
 
     /* Look at packet type */
@@ -1076,13 +1076,13 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
           (packet_type == RTCP_BYE) || (packet_type == RTCP_APP) ||
           (packet_type == RTCP_PSFB)))
     {
-        return FALSE;
+        return false;
     }
 
     /* Overall length must be a multiple of 4 bytes */
     if (tvb_reported_length(tvb) % 4)
     {
-        return FALSE;
+        return false;
     }
 
     /* OK, dissect as RTCP */
@@ -1099,7 +1099,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         dissect_srtcp(tvb, pinfo, tree, data);
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Dissect the length field. Append to this field text indicating the number of

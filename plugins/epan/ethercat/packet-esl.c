@@ -243,16 +243,16 @@ static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
     }
 }
 
-static gboolean
+static bool
 dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     static gboolean  in_heur    = FALSE;
-    gboolean         result;
+    bool             result;
     tvbuff_t        *next_tvb;
     guint            esl_length = tvb_captured_length(tvb);
 
     if ( in_heur )
-        return FALSE;
+        return false;
 
     in_heur = TRUE;
     /*TRY */
@@ -262,7 +262,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         /* Check that there's enough data */
         if ( esl_length < SIZEOF_ESLHEADER )
-            return FALSE;
+            return false;
 
         /* check for Esl frame, this has a unique destination MAC from Beckhoff range
            First 6 bytes must be: 01 01 05 10 00 00 */
@@ -275,7 +275,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
             }
             modify_times(tvb, 0, pinfo);
-            result = TRUE;
+            result = true;
         }
         else if ( is_esl_header(tvb, esl_length-SIZEOF_ESLHEADER) )
         {
@@ -288,11 +288,11 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             dissect_esl_header(next_tvb, pinfo, tree, data);
             modify_times(tvb, esl_length-SIZEOF_ESLHEADER, pinfo);
 
-            result = TRUE;
+            result = true;
         }
         else
         {
-            result = FALSE;
+            result = false;
         }
     }
     /*CATCH_ALL{

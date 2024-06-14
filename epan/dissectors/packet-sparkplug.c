@@ -140,6 +140,11 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return TRUE;
 }
 
+static bool dissect_sparkplugb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
+{
+	return (bool)dissect_sparkplugb(tvb, pinfo, parent_tree, data);
+}
+
 void proto_register_sparkplug(void)
 {
     expert_module_t* expert_sparkplugb;
@@ -179,6 +184,6 @@ void proto_reg_handoff_sparkplug(void)
     protobuf_handle = find_dissector_add_dependency("protobuf", proto_sparkplugb);
 
     /* register as heuristic dissector with MQTT */
-    heur_dissector_add("mqtt.topic", dissect_sparkplugb, "SparkplugB over MQTT",
+    heur_dissector_add("mqtt.topic", dissect_sparkplugb_heur, "SparkplugB over MQTT",
                        "sparkplugb_mqtt", proto_sparkplugb, HEURISTIC_ENABLE);
 }

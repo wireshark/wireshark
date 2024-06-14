@@ -2699,7 +2699,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 *      it is a 'well-known' operation
 *      has a 'well-known' or 'reserved' status
 */
-static gboolean
+static bool
 dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint32      command_id;            /* SMPP command         */
@@ -2707,7 +2707,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     conversation_t* conversation;
 
     if (!test_smpp(pinfo, tvb, 0, data)) {
-        return FALSE;
+        return false;
     }
 
     // Test a few extra bytes in the heuristic dissector, past the
@@ -2722,22 +2722,22 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         guint8 ton, npi;
 
         if (tvb_reported_length(tvb) < 19)
-            return FALSE;
+            return false;
         ton = tvb_get_guint8(tvb, 16);
         if (try_val_to_str(ton, vals_addr_ton) == NULL)
-            return FALSE;
+            return false;
 
         npi = tvb_get_guint8(tvb, 17);
         if (try_val_to_str(npi, vals_addr_npi) == NULL)
-            return FALSE;
+            return false;
 
         //address must be NULL-terminated string of up to 65 ascii characters
         int end = tvb_find_guint8(tvb, 18, -1, 0);
         if ((end <= 0) || (end > 65))
-            return FALSE;
+            return false;
 
         if (!tvb_ascii_isprint(tvb, 18, end - 18))
-            return FALSE;
+            return false;
     }
     break;
     }
@@ -2748,7 +2748,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     conversation_set_dissector(conversation, smpp_handle);
 
     dissect_smpp(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 static void

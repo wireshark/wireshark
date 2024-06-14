@@ -1586,7 +1586,7 @@ dissect_miwi_p2pstar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
  *      Boolean value, whether it handles the packet or not.
  *---------------------------------------------------------------
  */
-static gboolean
+static bool
 dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 #if 0
@@ -1594,23 +1594,23 @@ dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* 1) first byte must have bits 0000xxxx */
     if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
-        return (FALSE);
+        return (false);
 
     /* The header should be at least long enough for the base header. */
     if (tvb_reported_length(tvb) < LWM_HEADER_BASE_LEN)
-        return (FALSE);
+        return (false);
 
     /* The endpoints should either both be zero, or both non-zero. */
     endpt = tvb_get_guint8(tvb, 6);
     srcep = (endpt & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
     dstep = (endpt & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
     if ((srcep == 0) && (dstep != 0))
-        return (FALSE);
+        return (false);
     if ((srcep != 0) && (dstep == 0))
-        return (FALSE);
+        return (false);
 #endif
     dissect_miwi_p2pstar(tvb, pinfo, tree, data);
-    return (TRUE);
+    return (true);
 } /* dissect_lwm_heur */
 
 /*FUNCTION:------------------------------------------------------

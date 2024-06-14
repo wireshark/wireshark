@@ -583,7 +583,7 @@ dissect_starteam_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 
-static gboolean
+static bool
 dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if(tvb_captured_length(tvb) >= 32){
@@ -607,11 +607,11 @@ dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         /* Dissect the packet */
         dissect_starteam(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
       }
     }
   }
-  return FALSE;
+  return false;
 }
 
 void

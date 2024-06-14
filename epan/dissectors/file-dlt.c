@@ -101,7 +101,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return offset;
 }
 
-static gboolean
+static bool
 dissect_dlt_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     return dissect_dlt(tvb, pinfo, tree, NULL) > 0;
 }

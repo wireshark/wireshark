@@ -1160,18 +1160,18 @@ is_sslv2_clienthello(tvbuff_t *tvb)
     return TRUE;
 }
 
-static int
+static bool
 dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t     *conversation;
 
     if (!is_sslv3_or_tls(tvb) && !is_sslv2_clienthello(tvb)) {
-        return 0;
+        return false;
     }
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector_from_frame_number(conversation, pinfo->num, tls_handle);
-    return dissect_ssl(tvb, pinfo, tree, data);
+    return dissect_ssl(tvb, pinfo, tree, data) > 0;
 }
 
 static void

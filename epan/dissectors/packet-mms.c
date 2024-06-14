@@ -11709,7 +11709,7 @@ void proto_register_mms(void) {
 }
 
 
-static gboolean
+static bool
 dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* data _U_)
 {
     /* must check that this really is an mms packet */
@@ -11724,7 +11724,7 @@ dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, voi
 
     /* first, check do we have at least 2 bytes (pdu) */
     if (!tvb_bytes_exist(tvb, 0, 2))
-        return FALSE;	/* no */
+        return false;	/* no */
 
     /* can we recognize MMS PDU ? Return FALSE if  not */
     /*   get MMS PDU type */
@@ -11734,27 +11734,27 @@ dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, voi
 
     /* Class should be constructed */
     if (tmp_class != BER_CLASS_CON)
-        return FALSE;
+        return false;
 
     /* see if the tag is a valid MMS PDU */
     try_val_to_str_idx(tmp_tag, mms_MMSpdu_vals, &idx);
     if (idx == -1) {
-        return FALSE;  /* no, it isn't an MMS PDU */
+        return false;  /* no, it isn't an MMS PDU */
     }
 
     /* check MMS length  */
     oct = tvb_get_guint8(tvb, offset) & 0x7F;
     if (oct == 0)
         /* MMS requires length after tag so not MMS if indefinite length*/
-        return FALSE;
+        return false;
 
     offset = get_ber_length(tvb, offset, &length, NULL);
     /* do we have enough bytes? */
     if (!tvb_bytes_exist(tvb, offset, length))
-        return FALSE;
+        return false;
 
     dissect_mms(tvb, pinfo, parent_tree, data);
-    return TRUE;
+    return true;
 }
 
 /*--- proto_reg_handoff_mms --- */

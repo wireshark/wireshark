@@ -1458,7 +1458,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     return (total_dissected_len);
 }
 
-static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
+static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
 {
     guint32 dest_addr_h;
     gboolean valid_packet = FALSE;
@@ -1470,16 +1470,16 @@ static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     /* Must be a UDP packet. */
     if (pinfo->ptype != PT_UDP)
     {
-        return FALSE;
+        return false;
     }
     /* Destination address must be IPV4 and 4 bytes in length. */
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4))
     {
-        return FALSE;
+        return false;
     }
     if (tvb_reported_length_remaining(tvb, 0) < L_LBTRM_HDR_T)
     {
-        return FALSE;
+        return false;
     }
     ver_type = tvb_get_guint8(tvb, O_LBTRM_HDR_T_VER_TYPE);
     packet_type = LBTRM_HDR_TYPE(ver_type);
@@ -1491,17 +1491,17 @@ static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         case LBTRM_PACKET_TYPE_NCF:
             break;
         default:
-            return FALSE;
+            return false;
     }
     packet_ver = LBTRM_HDR_VER(ver_type);
     if (packet_ver != LBTRM_VERSION)
     {
-        return FALSE;
+        return false;
     }
     next_hdr = tvb_get_guint8(tvb, O_LBTRM_HDR_T_NEXT_HDR);
     if (next_hdr != LBTRM_NHDR_DATA)
     {
-        return FALSE;
+        return false;
     }
     if (lbtrm_use_tag)
     {
@@ -1550,9 +1550,9 @@ static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     if (valid_packet)
     {
         dissect_lbtrm(tvb, pinfo, tree, user_data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 /* Register all the bits needed with the filtering engine */

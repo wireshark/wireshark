@@ -349,7 +349,7 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, guint16 u16FrameID)
 }
 
 /* possibly dissect a CSF_SDU related PN-RT packet */
-gboolean
+bool
 dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* the sub tvb will NOT contain the frame_id here! */
@@ -368,7 +368,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     /* possible FrameID ranges for DFP */
     if ((u16FrameID < 0x0100) || (u16FrameID > 0x3FFF))
-        return FALSE;
+        return false;
     if (IsDFP_Frame(tvb, pinfo, u16FrameID)) {
         /* can't check this CRC, as the checked data bytes are not available */
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
@@ -435,7 +435,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             proto_item_set_len(sub_item, offset - u32SubStart);
         }
 
-        return TRUE;
+        return true;
     }
 
     else {
@@ -443,7 +443,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                  "PROFINET IO Cyclic Service Data Unit");
     }
 
-    return FALSE;
+    return false;
 
 }
 
@@ -474,7 +474,7 @@ pnio_defragment_cleanup(void)
 }
 
 /* possibly dissect a FRAG_PDU related PN-RT packet */
-static gboolean
+static bool
 dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* the sub tvb will NOT contain the frame_id here! */
@@ -522,7 +522,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         dissect_pn_user_data_bytes(tvb, offset, pinfo, sub_tree, tvb_captured_length_remaining(tvb, offset), FRAG_DATA);
         if ((guint)tvb_captured_length_remaining(tvb, offset) < (guint)(u8FragDataLength *8)) {
             proto_item_append_text(status_item, ": FragDataLength out of Framerange -> discarding!");
-            return TRUE;
+            return true;
         }
         /* defragmentation starts here */
         if (pnio_desegment)
@@ -569,12 +569,12 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         call_data_dissector(pdu_tvb, pinfo, tree);
                 }
             }
-            return TRUE;
+            return true;
         }
         else
-            return TRUE;
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 

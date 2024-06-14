@@ -470,6 +470,12 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
   return offset;
 }
 
+static bool
+dissect_metamako_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_metamako(tvb, pinfo, tree, NULL) > 0;
+}
+
 void
 proto_register_metamako(void)
 {
@@ -654,7 +660,7 @@ proto_register_metamako(void)
 void
 proto_reg_handoff_metamako(void)
 {
-  heur_dissector_add("eth.trailer", dissect_metamako, "Metamako ethernet trailer", "metamako_eth", proto_metamako, HEURISTIC_DISABLE);
+  heur_dissector_add("eth.trailer", dissect_metamako_heur, "Metamako ethernet trailer", "metamako_eth", proto_metamako, HEURISTIC_DISABLE);
 }
 
 /*

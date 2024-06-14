@@ -370,7 +370,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, gboolean is_dtls)
 {
 	conversation_t *conv;
@@ -383,27 +383,27 @@ dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		// Already identified conversation as UDT - BUT we might have been called from
 		// the other dissector.
 		if (is_dtls != udt_conv->is_dtls)
-			return FALSE;
+			return false;
 		dissect_udt(tvb, pinfo, tree, data);
 	} else {
 		// Check if this is UDT...
 
 		/* Must have at least 24 captured bytes for heuristic check */
 		if (tvb_captured_length(tvb) < 24)
-			return FALSE;
+			return false;
 
 		/* detect handshake control packet */
 		if (tvb_get_ntohl(tvb, 0) != (0x80000000 | UDT_PACKET_TYPE_HANDSHAKE))
-			return FALSE;
+			return false;
 
 		/* must be version 4 */
 		if ((tvb_get_ntohl(tvb, 16) != 4))
-			return FALSE;
+			return false;
 
 		/* must be datagram or stream */
 		if ((tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_DGRAM)
 		    && (tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_STREAM))
-			return FALSE;
+			return false;
 
 		/* This looks like UDT! */
 		udt_conv = wmem_new0(wmem_file_scope(), udt_conversation);
@@ -418,16 +418,16 @@ dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 		dissect_udt(tvb, pinfo, tree, data);
 	}
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 dissect_udt_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	return dissect_udt_heur(tvb, pinfo, tree, data, FALSE /* Not DTLS */);
 }
 
-static gboolean
+static bool
 dissect_udt_heur_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	return dissect_udt_heur(tvb, pinfo, tree, data, TRUE /* Is DTLS */);

@@ -469,11 +469,11 @@ dissect_ifcp_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     return dissect_ifcp(tvb, pinfo, tree, data);
 }
 
-static gboolean
+static bool
 dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if(!ifcp_header_test(tvb, 0)){
-        return FALSE;
+        return false;
     }
 
     dissect_ifcp(tvb, pinfo, tree, data);
@@ -490,7 +490,7 @@ dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         conversation_set_dissector(ifcp_conv, ifcp_handle);
     }
 
-    return TRUE;
+    return true;
 }
 
 void

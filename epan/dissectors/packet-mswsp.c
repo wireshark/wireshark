@@ -8016,6 +8016,11 @@ static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return dissect_mswsp(tvb, pinfo, tree, in, data);
 }
 
+static bool
+dissect_mswsp_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_mswsp_smb(tvb, pinfo, tree, NULL) > 0;
+}
 
 static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -8041,11 +8046,17 @@ static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return dissect_mswsp(tvb, pinfo, tree, in, data);
 }
 
+static bool
+dissect_mswsp_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_mswsp_smb2(tvb, pinfo, tree, NULL) > 0;
+}
+
 void
 proto_reg_handoff_mswsp(void)
 {
-	heur_dissector_add("smb_transact", dissect_mswsp_smb, "WSP over SMB1", "smb1_wsp", proto_mswsp, HEURISTIC_ENABLE);
-	heur_dissector_add("smb2_pipe_subdissectors", dissect_mswsp_smb2, "WSP over SMB2", "smb2_wsp", proto_mswsp, HEURISTIC_ENABLE);
+	heur_dissector_add("smb_transact", dissect_mswsp_smb_heur, "WSP over SMB1", "smb1_wsp", proto_mswsp, HEURISTIC_ENABLE);
+	heur_dissector_add("smb2_pipe_subdissectors", dissect_mswsp_smb2_heur, "WSP over SMB2", "smb2_wsp", proto_mswsp, HEURISTIC_ENABLE);
 }
 
 

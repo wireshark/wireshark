@@ -2551,7 +2551,7 @@ dissect_spdu_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return dissect_spdu_payload(tvb, pinfo, tree, can_mapping->message_id, TRUE);
 }
 
-static gboolean
+static bool
 dissect_spdu_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_spdu_message_can(tvb, pinfo, tree, data) != 0;
 }
@@ -2570,7 +2570,7 @@ dissect_spdu_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return dissect_spdu_payload(tvb, pinfo, tree, flexray_mapping->message_id, TRUE);
 }
 
-static gboolean
+static bool
 dissect_spdu_message_flexray_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_spdu_message_flexray(tvb, pinfo, tree, data) != 0;
 }
@@ -2618,7 +2618,7 @@ dissect_spdu_message_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return dissect_spdu_payload(tvb, pinfo, tree, ipdum_mapping->message_id, TRUE);
 }
 
-static int
+static bool
 dissect_spdu_message_dlt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     dlt_info_t *pdu_info = (dlt_info_t *)data;
     DISSECTOR_ASSERT(pdu_info);
@@ -2626,20 +2626,20 @@ dissect_spdu_message_dlt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     spdu_dlt_mapping_uat_t *dlt_mapping = get_dlt_mapping(pdu_info->message_id, pdu_info->ecu_id);
 
     if (dlt_mapping == NULL) {
-        return 0;
+        return false;
     }
 
-    return dissect_spdu_payload(tvb, pinfo, tree, dlt_mapping->message_id, TRUE);
+    return dissect_spdu_payload(tvb, pinfo, tree, dlt_mapping->message_id, TRUE) != 0;
 }
 
-static gboolean
+static bool
 dissect_spdu_message_uds_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     uds_info_t *uds_info = (uds_info_t *)data;
     DISSECTOR_ASSERT(uds_info);
 
     spdu_uds_mapping_t *uds_mapping = get_uds_mapping(uds_info);
     if (uds_mapping == NULL) {
-        return FALSE;
+        return false;
     }
 
     return dissect_spdu_payload(tvb, pinfo, tree, uds_mapping->message_id, FALSE) != 0;

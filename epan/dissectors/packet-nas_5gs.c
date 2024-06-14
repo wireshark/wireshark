@@ -10566,7 +10566,7 @@ dissect_nas_5gs_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 }
 
 /* Heuristic dissector looks for "nas-5gs" string at packet start */
-static gboolean dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
     gint offset = 0;
@@ -10576,12 +10576,12 @@ static gboolean dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
        - the signature string
        - at least one byte of NAS PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(PFNAME)+1)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, PFNAME, strlen(PFNAME)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(PFNAME);
 
@@ -10595,7 +10595,7 @@ static gboolean dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
     nas_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_nas_5gs(nas_tvb, pinfo, tree, NULL);
 
-    return TRUE;
+    return true;
 }
 
 void

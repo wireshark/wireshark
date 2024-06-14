@@ -2056,7 +2056,7 @@ static int dissect_block_hop_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return offset;
 }
 
-static gboolean btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+static bool btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     gint offset = 0;
     volatile gint count = 0;
 
@@ -2075,7 +2075,7 @@ static gboolean btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     // Anything went wrong with any part of the data
     if ((count == 0) || ((guint)offset != tvb_reported_length(tvb))) {
-        return FALSE;
+        return false;
     }
 
     if (count == 1) {
@@ -2084,7 +2084,7 @@ static gboolean btsd_heur_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     else {
         call_dissector(handle_cborseq, tvb, pinfo, tree);
     }
-    return TRUE;
+    return true;
 }
 
 /// Clear state when new file scope is entered

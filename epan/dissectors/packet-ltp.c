@@ -1364,13 +1364,13 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	return offset;
 }
 
-static gboolean
+static bool
 dissect_ltp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const int packet_len = tvb_reported_length(tvb);
 	if (packet_len <= LTP_MIN_DATA_BUFFER)
 	{
-		return FALSE;
+		return false;
 	}
 
 	int offset = 0;
@@ -1393,11 +1393,11 @@ dissect_ltp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	ENDTRY;
 	if (offset != packet_len)
 	{
-		return FALSE;
+		return false;
 	}
 
 	dissect_ltp(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 /// Conversation address for the session receiver

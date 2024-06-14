@@ -704,7 +704,7 @@ int dissect_bittorrent_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static
-gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
+bool test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, void *data)
 {
    conversation_t *conversation;
@@ -717,10 +717,10 @@ gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 
       dissect_bittorrent(tvb, pinfo, tree, data);
 
-      return TRUE;
+      return true;
    }
 
-   return FALSE;
+   return false;
 }
 
 void

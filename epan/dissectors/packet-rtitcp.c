@@ -764,6 +764,11 @@ static gint dissect_rtitcp(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
+static bool
+dissect_rtitcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_rtitcp(tvb, pinfo, tree, data) > 0;
+}
 
 /* Register the protocol with Wireshark.
  *
@@ -957,7 +962,7 @@ proto_register_rtitcp(void)
 void
 proto_reg_handoff_rtitcp(void)
 {
-    heur_dissector_add("tcp", dissect_rtitcp, "RTI TCP Layer" , "rtitcp", proto_rtitcp, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_rtitcp_heur, "RTI TCP Layer" , "rtitcp", proto_rtitcp, HEURISTIC_ENABLE);
 }
 
 /*

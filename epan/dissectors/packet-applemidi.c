@@ -265,7 +265,7 @@ dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ ) {
 
 	guint16		 command;
@@ -273,10 +273,10 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	rtp_dyn_payload_t *rtp_dyn_payload;
 
 	if ( tvb_captured_length( tvb ) < 4)
-		return FALSE;  /* not enough bytes to check */
+		return false;  /* not enough bytes to check */
 
 	if ( !test_applemidi( tvb, &command, FALSE ) ) {
-		return FALSE;
+		return false;
 	}
 
 	/* set dynamic payload-type 97 which is used by Apple for their RTP-MIDI implementation for this
@@ -297,7 +297,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* punt to actual decoding */
 
 	dissect_applemidi_common( tvb, pinfo, tree, command );
-	return TRUE;
+	return true;
 
 }
 

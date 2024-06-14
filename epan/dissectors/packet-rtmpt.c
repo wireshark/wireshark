@@ -2754,7 +2754,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
         conversation_t *conversation;
@@ -2774,10 +2774,10 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                     /* Dissect the packet */
                     dissect_rtmpt_tcp(tvb, pinfo, tree, data);
-                    return TRUE;
+                    return true;
                 }
         }
-        return FALSE;
+        return false;
 }
 
 static int

@@ -4295,7 +4295,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   return dgram_msg_length;
 }
 
-static gboolean
+static bool
 dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (dissect_reload_message(tvb, pinfo, tree, data) == 0) {
@@ -4303,9 +4303,9 @@ dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
      * It wasn't a valid RELOAD message, and wasn't
      * dissected as such.
      */
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 void

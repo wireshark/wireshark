@@ -4198,7 +4198,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
@@ -4210,30 +4210,30 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* A http2 conversation was previously started, assume it is still active */
     if (session) {
       dissect_http2(tvb, pinfo, tree, data);
-      return TRUE;
+      return true;
     }
 
     if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n). */
-        return FALSE;
+        return false;
     }
 
     /* Remember http2 conversation. */
     get_http2_session(pinfo, conversation);
     dissect_http2(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 dissect_http2_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct tlsinfo *tlsinfo = (struct tlsinfo *) data;
     if (dissect_http2_heur(tvb, pinfo, tree, NULL)) {
         *(tlsinfo->app_handle) = http2_handle;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void

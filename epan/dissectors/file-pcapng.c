@@ -2064,7 +2064,7 @@ static void pcapng_shutdown_protocol(void)
     s_local_block_callback_table = NULL;
 }
 
-static gboolean
+static bool
 dissect_pcapng_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_pcapng(tvb, pinfo, tree, NULL) > 0;

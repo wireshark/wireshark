@@ -3902,14 +3902,14 @@ dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 /*
 Test for an Association Request. Decode, when successful.
 */
-static gboolean
+static bool
 dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     /* This will be potentially called for every packet */
 
     if (!test_dcm(tvb))
-        return FALSE;
+        return false;
 
     /*
     Conversation_set_dissector() is called inside dcm_state_get() once
@@ -3918,10 +3918,10 @@ dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     if (dissect_dcm_main(tvb, pinfo, tree, FALSE) == 0) {
         /* there may have been another reason why it is not DICOM */
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 
 }
 

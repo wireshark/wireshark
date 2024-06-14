@@ -592,7 +592,7 @@ dissect_ascii_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
  * or may not be present depending on the RDP security settings.
  */
 static int
-dissect_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_tpkt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (is_tpkt(tvb, 0) == -1) {
         /* Doesn't look like TPKT directly. Might be over TLS, so reject
@@ -602,6 +602,12 @@ dissect_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     return dissect_tpkt(tvb, pinfo, tree, data);
+}
+
+static bool
+dissect_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_tpkt_tcp(tvb, pinfo, tree, data) > 0;
 }
 
 void
@@ -697,7 +703,7 @@ proto_reg_handoff_tpkt(void)
      * if rejected the TLS heuristic dissector will be tried.
      */
     dissector_add_uint("tls.port", TCP_PORT_RDP, tpkt_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_RDP, create_dissector_handle(dissect_tpkt_heur, proto_tpkt_heur));
+    dissector_add_uint("tcp.port", TCP_PORT_RDP, create_dissector_handle(dissect_tpkt_tcp, proto_tpkt_heur));
     heur_dissector_add("tcp", dissect_tpkt_heur, "TPKT over TCP", "tpkt_tcp", proto_tpkt, HEURISTIC_DISABLE);
 
     /*

@@ -127,7 +127,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (tvb_captured_length(tvb) >= 8)
@@ -142,10 +142,10 @@ dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 			conversation_set_dissector(conversation, tuxedo_handle);
 
 			dissect_tuxedo(tvb, pinfo, tree, data);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 void

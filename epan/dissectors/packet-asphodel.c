@@ -548,22 +548,22 @@ dissect_asphodel_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_asphodel_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) < 11)
     {
-        return FALSE;
+        return false;
     }
 
     if (tvb_memeql(tvb, 2, (const guint8*)"Asphodel", 9) != 0)
     {
-        return FALSE;
+        return false;
     }
 
     dissect_asphodel_inquiry(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 void

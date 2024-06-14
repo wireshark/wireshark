@@ -1245,7 +1245,7 @@ dissect_cip_class_s_validator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    unsigned char   service, service_code, ioilen, segment;
@@ -1267,7 +1267,7 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
              (preq_info->dissector == dissector_get_uint_handle( subdissector_class_table, CI_CLS_SAFETY_VALIDATOR)))
          {
             call_dissector(preq_info->dissector, tvb, pinfo, tree);
-            return TRUE;
+            return true;
          }
       }
       else
@@ -1301,13 +1301,13 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
          if (classid == CI_CLS_SAFETY_VALIDATOR)
          {
             call_dissector(cip_class_s_validator_handle, tvb, pinfo, tree );
-            return TRUE;
+            return true;
          }
 
       }
    }
 
-   return FALSE;
+   return false;
 }
 
 /************************************************

@@ -768,7 +768,7 @@ dissect_PNPTCP_DelayPDU(tvbuff_t *tvb, int offset,
 
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
-static gboolean
+static bool
 dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* the tvb will NOT contain the frame_id here, so get it from dissector data! */
@@ -787,7 +787,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* 0xFF40 - 0xFF5F: Delay...PDU */
     if ( ((u16FrameID >= 0x0100) && (u16FrameID < 0xFF00)) || (u16FrameID > 0xFF5F) ) {
         /* we are not interested in this packet */
-        return FALSE;
+        return false;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-PTCP");
@@ -871,7 +871,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     proto_item_set_len(item, offset - u32SubStart);
 
-    return TRUE;
+    return true;
 }
 
 

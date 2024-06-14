@@ -3189,7 +3189,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 }
 
 
-static gboolean
+static bool
 dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
@@ -3201,7 +3201,7 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* frame id must be in valid range (cyclic Real-Time, class=1 or class=2) */
     if (u16FrameID < 0x8000 || u16FrameID >= 0xfb00) {
-        return FALSE;
+        return false;
     }
 
     u8Version = tvb_get_guint8 (tvb, 0);
@@ -3209,7 +3209,7 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* version and flags must be ok */
     if (u8Version != 0x11 || u8Flags != 0x00) {
-        return FALSE;
+        return false;
     }
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-CBA");
@@ -3218,7 +3218,7 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     dissect_CBA_Connection_Data(tvb, pinfo, tree, frame ? frame->consparent : NULL, frame);
 
-    return TRUE;
+    return true;
 }
 
 

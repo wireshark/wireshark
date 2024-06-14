@@ -232,7 +232,7 @@ static int dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 
-static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+static bool heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     gboolean ext_flag;
     guint8 length_field_size;
@@ -246,7 +246,7 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     total_length = tvb_captured_length(tvb);
     if (total_length == 0) {
-        return FALSE;
+        return false;
     }
 
     fp_mux_info = (fp_mux_info_t* )p_get_proto_data(wmem_file_scope(), pinfo, proto_fp_mux, 0);
@@ -255,23 +255,23 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             fp_mux_info->destport == pinfo->destport) {
             /* Already framed as FP Mux*/
             dissect_fp_mux(tvb, pinfo, tree, data);
-            return TRUE;
+            return true;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
 
     while(offset < total_length)
     {
         if(total_length < offset + 2) {
-            return FALSE;
+            return false;
         }
         ext_flag = ((tvb_get_guint8(tvb, offset + 2)&0x80)==0x80);
         header_length = ext_flag ? 4 : 3;
 
         if(total_length < offset + header_length) {
-            return FALSE;
+            return false;
         }
 
         offset = offset + 2; /* Skipping UID */
@@ -287,7 +287,7 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         }
 
         if(length < 3) { /* Minimal FP frame length is 3 bytes*/
-            return FALSE;
+            return false;
         }
 
         offset += length_field_size;
@@ -297,12 +297,12 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     if(offset > total_length) {
-        return FALSE;
+        return false;
     }
 
     if(chunks == 1) {
         /* Might be coincidental, let's hope other packets with more payloads arrive */
-        return FALSE;
+        return false;
     }
 
     /* This is FP Mux! */
@@ -311,7 +311,7 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     conversation_set_dissector(conversation, fp_mux_handle);
     dissect_fp_mux(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 

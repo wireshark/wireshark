@@ -134,11 +134,11 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 }
 
 
-static gboolean
+static bool
 dissect_interlink_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (!tvb_bytes_exist(tvb, 0, 4)) {
-		return FALSE;
+		return false;
 	}
 	if (
 		tvb_get_guint8(tvb,0) != 'I' ||
@@ -146,10 +146,10 @@ dissect_interlink_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		tvb_get_guint8(tvb,2) != 'N' ||
 		tvb_get_guint8(tvb,3) != 'K'
 	)
-		return FALSE;
+		return false;
 
 	dissect_interlink(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 

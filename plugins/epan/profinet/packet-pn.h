@@ -195,7 +195,7 @@ extern ARUUIDFrame* pn_find_aruuid_frame_setup(packet_info* pinfo);
 
 extern void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* conversation);
 
-extern gboolean dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+extern bool dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 #define MAX_LINE_LENGTH          1024   /* used for fgets() */
 

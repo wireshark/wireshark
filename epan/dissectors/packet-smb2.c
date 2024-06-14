@@ -11848,26 +11848,26 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	return offset;
 }
 
-static gboolean
+static bool
 dissect_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	guint8 b;
 
 	/* must check that this really is a smb2 packet */
 	if (tvb_captured_length(tvb) < 4)
-		return FALSE;
+		return false;
 
 	b = tvb_get_guint8(tvb, 0);
 	if (((b != SMB2_COMP_HEADER) && (b != SMB2_ENCR_HEADER) && (b != SMB2_NORM_HEADER))
 	    || (tvb_get_guint8(tvb, 1) != 'S')
 	    || (tvb_get_guint8(tvb, 2) != 'M')
 	    || (tvb_get_guint8(tvb, 3) != 'B') ) {
-		return FALSE;
+		return false;
 	}
 
 	dissect_smb2(tvb, pinfo, parent_tree, TRUE);
 
-	return TRUE;
+	return true;
 }
 
 void

@@ -1685,7 +1685,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
 
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
-static gboolean
+static bool
 dissect_PNDCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
@@ -1698,7 +1698,7 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (acyclic Real-Time, DCP) */
     if (u16FrameID < FRAME_ID_DCP_HELLO || u16FrameID > FRAME_ID_DCP_IDENT_RES) {
         /* we are not interested in this packet */
-        return FALSE;
+        return false;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-DCP");
@@ -1712,7 +1712,7 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* dissect this PDU */
     dissect_PNDCP_PDU(tvb, pinfo, dcp_tree, item);
 
-    return TRUE;
+    return true;
 }
 
 

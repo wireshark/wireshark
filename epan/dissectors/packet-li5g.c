@@ -206,24 +206,24 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_li5g_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct tlsinfo* tlsinfo = (struct tlsinfo*)data;
     if (tvb_captured_length(tvb) < LI_5G_HEADER_LEN_MIN)
-        return FALSE;
+        return false;
     /* the version should be 1 */
     if (tvb_get_ntohs(tvb, 0) != 1)
-        return FALSE;
+        return false;
     /* only 4 types supported*/
     if(tvb_get_ntohs(tvb, 2) < 1 || tvb_get_ntohs(tvb, 2) > 4)
-        return FALSE;
+        return false;
 
     /* TLS can hold it, no need to find the disect every time */
     *(tlsinfo->app_handle) = li5g_handle;
     dissect_li5g(tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
 }
 
 void

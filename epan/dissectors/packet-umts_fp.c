@@ -5318,42 +5318,42 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /* This method wraps the heuristic dissectors of all supported channels */
-static gboolean
+static bool
 heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gboolean match;
 
     match = heur_dissect_fp_dcch_over_dch(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_fach1(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_fach2(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_rach(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_pch(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_hsdsch_type_1(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_hsdsch_type_2(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     match = heur_dissect_fp_edch_type_1(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
     /* NOTE: Add new heuristic dissectors BEFORE the 'unknown format' dissector */
     /* since it might 'swallow' packets if the UDP stream is framed as 'CHANNEL_UNKNOWN' */
     match = heur_dissect_fp_unknown_format(tvb, pinfo, tree, data);
     if(match)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 static guint8 fakes =5; /*[] ={1,5,8};*/

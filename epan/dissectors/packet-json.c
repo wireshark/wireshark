@@ -1232,26 +1232,26 @@ init_json_parser(void) {
 }
 
 /* This function tries to understand if the payload is json or not */
-static gboolean
+static bool
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint len = tvb_captured_length(tvb);
 	const guint8* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
 
 	if (json_validate(buf, len) == FALSE)
-		return FALSE;
+		return false;
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
 }
 
 /* This function tries to understand if the payload is sitting on top of AC DR */
-static gboolean
+static bool
 dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
 	if (acdr_prot == ACDR_VoiceAI)
 		return dissect_json_heur(tvb, pinfo, tree, data);
-	return FALSE;
+	return false;
 }
 
 static void

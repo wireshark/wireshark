@@ -140,25 +140,25 @@ dissect_monero(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_monero_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint64 signature;
   conversation_t *conversation;
 
   if (tvb_captured_length(tvb) < 8)
-      return FALSE;
+      return false;
 
   signature = tvb_get_letoh64(tvb, 0);
   if (signature != MONERO_LEVIN_SIGNATURE)
-     return FALSE;
+     return false;
 
   /* Ok: This connection should always use the monero dissector */
   conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector(conversation, monero_handle);
 
   dissect_monero(tvb, pinfo, tree, data);
-  return TRUE;
+  return true;
 }
 
 void

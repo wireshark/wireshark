@@ -1429,7 +1429,7 @@ static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field
 }
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
     gint                  offset                 = 0;
@@ -1444,12 +1444,12 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
        - tag for data
        - at least one byte of PDCP PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(PDCP_LTE_START_STRING)+3+2)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, PDCP_LTE_START_STRING, strlen(PDCP_LTE_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(PDCP_LTE_START_STRING);
 
@@ -1538,7 +1538,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                     /* It must be a recognised tag */
                     report_heur_error(tree, pinfo, &ei_pdcp_lte_unknown_udp_framing_tag, tvb, offset-1, 1);
                     wmem_free(wmem_file_scope(), p_pdcp_lte_info);
-                    return TRUE;
+                    return true;
             }
         }
 
@@ -1546,7 +1546,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
             /* Conditional field is not present */
             report_heur_error(tree, pinfo, &ei_pdcp_lte_missing_udp_framing_tag, tvb, 0, offset);
             wmem_free(wmem_file_scope(), p_pdcp_lte_info);
-            return TRUE;
+            return true;
         }
 
         /* Store info in packet */
@@ -1563,7 +1563,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* Create tvb that starts at actual PDCP PDU */
     pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_pdcp_lte(pdcp_tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 /* Called from control protocol to configure security algorithms for the given UE */

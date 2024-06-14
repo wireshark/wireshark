@@ -2951,7 +2951,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
 * IN: The current offset
 * IN: pinfo - packet info from wireshark
 * IN: top_tree - parent tree of Infiniband dissector */
-static gboolean dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *header_item;
     proto_tree *header_subtree;
@@ -2961,14 +2961,14 @@ static gboolean dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_t
     struct infinibandinfo *info = (struct infinibandinfo *)data;
 
     if (((info->opCode & 0xE0) >> 5) != TRANSPORT_UD)
-        return FALSE;
+        return false;
 
     if ((tvb_get_guint8(tvb, offset) & 0xF0) != 0xC0)
-        return FALSE;
+        return false;
 
     if (tvb_reported_length(tvb) < 4) {
         /* not even large enough to contain the eoib encap header. error! */
-        return FALSE;
+        return false;
     }
 
     header_item = proto_tree_add_item(tree, proto_mellanox_eoib, tvb, offset, 4, ENC_NA);
@@ -2995,7 +2995,7 @@ static gboolean dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_t
         call_dissector(eth_handle, encap_tvb, pinfo, tree);
     }
 
-    return TRUE;
+    return true;
 }
 
 /* IBA packet data could be anything in principle, however it is common
@@ -3003,24 +3003,24 @@ static gboolean dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_t
  * similar to the RWH header. There is no way to identify these frames
  * positively.
  */
-static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static bool dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint16  etype, reserved;
     const char *saved_proto;
     tvbuff_t   *next_tvb;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
-    volatile gboolean   dissector_found = FALSE;
+    volatile bool   dissector_found = false;
 
     if (tvb_reported_length(tvb) < 4) {
         /* not even large enough to contain the eoib encap header. error! */
-        return FALSE;
+        return false;
     }
 
     etype    = tvb_get_ntohs(tvb, 0);
     reserved = tvb_get_ntohs(tvb, 2);
 
     if (reserved != 0)
-        return FALSE;
+        return false;
 
     next_tvb = tvb_new_subset_remaining(tvb, 4);
 
@@ -3031,7 +3031,7 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     saved_proto = pinfo->current_proto;
 
     TRY {
-        dissector_found = dissector_try_uint(ethertype_dissector_table,
+        dissector_found = (bool)dissector_try_uint(ethertype_dissector_table,
                                 etype, next_tvb, pinfo, tree);
     }
     CATCH_NONFATAL_ERRORS {
@@ -3048,7 +3048,7 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         */
 
         show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-        dissector_found = TRUE;
+        dissector_found = true;
         pinfo->current_proto = saved_proto;
     }
     ENDTRY;

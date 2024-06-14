@@ -2906,11 +2906,11 @@ dissect_t124(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   asn1_ctx_t asn1_ctx;
-  volatile gboolean failed = FALSE;
+  volatile bool failed = FALSE;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
@@ -2926,17 +2926,17 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
   TRY {
     (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, hf_t124_connectGCCPDU, -1, t124Heur_sequence);
   } CATCH_BOUNDS_ERRORS {
-    failed = TRUE;
+    failed = true;
   } ENDTRY;
 
   if (!failed && ((asn1_ctx.external.direct_reference != NULL) &&
                   (strcmp(asn1_ctx.external.direct_reference, "0.0.20.124.0.1") == 0))) {
     dissect_t124(tvb, pinfo, parent_tree, data);
 
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 /*--- proto_register_t124 -------------------------------------------*/

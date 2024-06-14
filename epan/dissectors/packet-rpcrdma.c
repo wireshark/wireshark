@@ -1744,7 +1744,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     return offset;
 }
 
-static gboolean
+static bool
 dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
@@ -1759,7 +1759,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     gp_infiniband_info = (struct infinibandinfo *)data;
 
     if (!gp_infiniband_info)
-        return FALSE;
+        return false;
 
     /* Get conversation state */
     p_rdma_conv_info = get_rdma_conv_info(pinfo);
@@ -1771,7 +1771,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     case RC_SEND_FIRST:
     case RC_SEND_MIDDLE:
         add_send_fragment(p_rdma_conv_info, tvb, pinfo, tree);
-        return FALSE;
+        return false;
     case RC_SEND_LAST:
     case RC_SEND_LAST_INVAL:
         tvb = add_send_fragment(p_rdma_conv_info, tvb, pinfo, tree);
@@ -1780,7 +1780,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     case RC_RDMA_WRITE_ONLY_IMM:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
         add_ib_fragment(tvb, p_rdma_conv_info, TRUE, pinfo, tree);
-        return FALSE;
+        return false;
     case RC_RDMA_WRITE_FIRST:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
         add_request_info(p_rdma_conv_info, pinfo);
@@ -1791,10 +1791,10 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         /* Add fragment to the reassembly table */
         add_ib_fragment(tvb, p_rdma_conv_info, FALSE, pinfo, tree);
         /* Do not dissect here, dissection is done on RDMA_MSG or RDMA_NOMSG */
-        return FALSE;
+        return false;
     case RC_RDMA_READ_REQUEST:
         add_request_info(p_rdma_conv_info, pinfo);
-        return FALSE;
+        return false;
     case RC_RDMA_READ_RESPONSE_FIRST:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
         /* fall through */
@@ -1819,18 +1819,18 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
             /* This is the last fragment, data has been reassembled and ready to dissect */
             return call_dissector(rpc_handler, new_tvb, pinfo, tree);
         }
-        return FALSE;
+        return false;
     default:
-        return FALSE;
+        return false;
     }
 
     if (!packet_is_rpcordma(tvb))
-        return FALSE;
+        return false;
     dissect_rpcrdma(tvb, pinfo, tree, NULL);
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
@@ -1845,7 +1845,7 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
     gp_rdmap_info = (rdmap_info_t *)data;
 
     if (!gp_rdmap_info)
-        return FALSE;
+        return false;
 
     /* Get conversation state */
     p_rdma_conv_info = get_rdma_conv_info(pinfo);
@@ -1856,36 +1856,36 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
         tvb = add_send_fragment(p_rdma_conv_info, tvb, pinfo, tree);
         if (!gp_rdmap_info->last_flag) {
             /* This is a SEND fragment, do not dissect yet */
-            return FALSE;
+            return false;
         }
         break;
     case RDMA_WRITE:
         add_iwarp_fragment(tvb, p_rdma_conv_info, pinfo, tree);
         /* Do not dissect here, dissection is done on RDMA_MSG or RDMA_NOMSG */
-        return FALSE;
+        return false;
     case RDMA_READ_REQUEST:
         if (!pinfo->fd->visited && gp_rdmap_info->read_request) {
             p_read_request = wmem_new(wmem_file_scope(), rdmap_request_t);
             memcpy(p_read_request, gp_rdmap_info->read_request, sizeof(rdmap_request_t));
             wmem_tree_insert32(p_rdma_conv_info->request_list, gp_rdmap_info->read_request->sink_stag, p_read_request);
         }
-        return FALSE;
+        return false;
     case RDMA_READ_RESPONSE:
         new_tvb = add_iwarp_fragment(tvb, p_rdma_conv_info, pinfo, tree);
         if (new_tvb) {
             /* This is the last fragment, data has been reassembled and ready to dissect */
             return call_dissector(rpc_handler, new_tvb, pinfo, tree);
         }
-        return FALSE;
+        return false;
     default:
-        return FALSE;
+        return false;
     }
 
     if (!packet_is_rpcordma(tvb))
-        return FALSE;
+        return false;
 
     dissect_rpcrdma(tvb, pinfo, tree, NULL);
-    return TRUE;
+    return true;
 }
 
 void

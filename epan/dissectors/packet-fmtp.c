@@ -120,30 +120,30 @@ get_fmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
     return (guint)tvb_get_ntohs(tvb, offset+2);
 }
 
-static gboolean
+static bool
 dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint16 length;
 
     if (tvb_captured_length(tvb) < 5)
-        return FALSE;
+        return false;
     /*
      * Check that packet looks like FMTP before going further
      */
     /* VERSION must currently be 0x02 */
-    if (tvb_get_guint8(tvb, 0) != 0x02) return FALSE;
+    if (tvb_get_guint8(tvb, 0) != 0x02) return false;
     /* RESERVED must currently be 0x00 */
-    if (tvb_get_guint8(tvb, 1) != 0x00) return FALSE;
+    if (tvb_get_guint8(tvb, 1) != 0x00) return false;
     length = tvb_get_ntohs(tvb, 2);
     /* LENGTH must currently not exceed 5 (header) + 10240 (data) */
-    if ((length > FMTP_MAX_LEN) || (length < FMTP_HEADER_LEN)) return FALSE;
+    if ((length > FMTP_MAX_LEN) || (length < FMTP_HEADER_LEN)) return false;
     /* TYP must currently be in range 0x01-0x04 */
     if ((tvb_get_guint8(tvb, 4) < 0x01) || (tvb_get_guint8(tvb, 4) > 0x04))
-        return FALSE;
+        return false;
 
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FMTP_HEADER_LEN,
                      get_fmtp_message_len, dissect_fmtp_message, data);
-    return TRUE;
+    return true;
 }
 
 void

@@ -4007,15 +4007,15 @@ packet_is_cigi(tvbuff_t *tvb)
 /*
  * The heuristic dissector
  */
-static gboolean
+static bool
 dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Does this look like CIGI? */
     if ( !packet_is_cigi(tvb) ) {
-        return FALSE;
+        return false;
     }
     dissect_cigi_pdu(tvb, pinfo, tree);
-    return TRUE;
+    return true;
 }
 
 /*

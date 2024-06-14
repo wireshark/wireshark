@@ -637,7 +637,7 @@ dissect_atn_cm(
     return tvb_reported_length_remaining(tvb, 0);
 }
 
-static gboolean
+static bool
 dissect_atn_cm_heur(
     tvbuff_t *tvb,
     packet_info *pinfo,
@@ -645,7 +645,7 @@ dissect_atn_cm_heur(
     void *data _U_)
 {
     atn_conversation_t *volatile atn_cv = NULL;
-    volatile gboolean is_atn_cm = FALSE;
+    volatile bool is_atn_cm = false;
     int type;
 
     /* determine whether it is uplink or downlink */
@@ -660,9 +660,9 @@ dissect_atn_cm_heur(
                   pinfo,
                   NULL, NULL);
                 /* no exception thrown: looks like it is a CM PDU */
-                is_atn_cm = TRUE; }
+                is_atn_cm = true; }
             CATCH_ALL {
-                is_atn_cm = FALSE; }
+                is_atn_cm = false; }
             ENDTRY;
             break;
         case dm:
@@ -672,16 +672,16 @@ dissect_atn_cm_heur(
                     pinfo,
                     NULL, NULL);
                 /* no exception thrown: looks like it is a CM PDU */
-                is_atn_cm = TRUE;}
+                is_atn_cm = true;}
             CATCH_ALL {
-                is_atn_cm = FALSE; }
+                is_atn_cm = false; }
             ENDTRY;
             break;
         default:
             break;
     }
 
-    if (is_atn_cm  == TRUE) {
+    if (is_atn_cm  == true) {
         /* note: */
         /* all subsequent PDU's belonging to this conversation are considered CM */
         /* if the first CM PDU has been decoded successfully */

@@ -2692,7 +2692,7 @@ report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
 }
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean
+static bool
 dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint        offset             = 0;
@@ -2717,12 +2717,12 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
        - tag for data
        - at least one byte of RLC PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(RLC_START_STRING)+2+2)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, RLC_START_STRING, (gint)strlen(RLC_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(RLC_START_STRING);
 
@@ -2796,7 +2796,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if ((channelTypePresent == FALSE) && (rlcModePresent == FALSE)) {
         /* Conditional fields are missing */
         report_heur_error(tree, pinfo, &ei_rlc_missing_udp_framing_tag, tvb, 0, offset);
-        return TRUE;
+        return true;
     }
 
     /* Store info in packet if needed */
@@ -2854,10 +2854,10 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             break;
         default:
             /* Unknown channel type */
-            return FALSE;
+            return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void

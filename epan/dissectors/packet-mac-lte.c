@@ -2868,7 +2868,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 }
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+static bool dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
     gint                 offset = 0;
@@ -2881,12 +2881,12 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
        - tag for data
        - at least one byte of MAC PDU payload */
     if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(MAC_LTE_START_STRING)+3+2)) {
-        return FALSE;
+        return false;
     }
 
     /* OK, compare with signature string */
     if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
-        return FALSE;
+        return false;
     }
     offset += (gint)strlen(MAC_LTE_START_STRING);
 
@@ -2897,7 +2897,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
         /* Dissect the fields to populate p_mac_lte */
         if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, pinfo, tree, &offset)) {
-            return TRUE;
+            return true;
         }
         /* Store info in packet */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
@@ -2913,7 +2913,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     mac_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
 
-    return TRUE;
+    return true;
 }
 
 

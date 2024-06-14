@@ -73,7 +73,7 @@ static dissector_handle_t miop_handle;
 
 #define MIOP_MAGIC   0x4d494f50 /* "MIOP" */
 
-static gboolean
+static bool
 dissect_miop_heur_check (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree _U_, void * data _U_) {
 
   guint tot_len;
@@ -88,16 +88,16 @@ dissect_miop_heur_check (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * t
     {
       /* Not enough data captured to hold the GIOP header; don't try
          to interpret it as GIOP. */
-      return FALSE;
+      return false;
     }
 
     magic = tvb_get_ntohl(tvb,0);
     if(magic != MIOP_MAGIC){
         /* Not a MIOP packet. */
-        return FALSE;
+        return false;
     }
 
-  return TRUE;
+  return true;
 }
 
 /* Main entry point */
@@ -229,16 +229,16 @@ static int dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
    return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
 
   if (!dissect_miop_heur_check(tvb, pinfo, tree, data))
-      return FALSE;
+      return false;
 
   dissect_miop (tvb, pinfo, tree, data);
 
   /* TODO: make reassembly */
-  return TRUE;
+  return true;
 
 }
 

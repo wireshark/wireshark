@@ -134,6 +134,11 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   return tvb_reported_length(message_tvb);
 }
 
+static bool
+heur_dissect_hipercontracer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return heur_dissect_hipercontracer(tvb, pinfo, tree, NULL) > 0;
+}
 
 /* Register the protocol with Wireshark */
 void
@@ -158,10 +163,10 @@ void
 proto_reg_handoff_hipercontracer(void)
 {
   /* Heuristic dissector for ICMP/ICMPv6 */
-  heur_dissector_add("icmp",   heur_dissect_hipercontracer, "HiPerConTracer over ICMP",   "hipercontracer_icmp",   proto_hipercontracer, HEURISTIC_ENABLE);
-  heur_dissector_add("icmpv6", heur_dissect_hipercontracer, "HiPerConTracer over ICMPv6", "hipercontracer_icmpv6", proto_hipercontracer, HEURISTIC_ENABLE);
-  heur_dissector_add("udp",    heur_dissect_hipercontracer, "HiPerConTracer over UDP",    "hipercontracer_udp",    proto_hipercontracer, HEURISTIC_ENABLE);
-  heur_dissector_add("tcp",    heur_dissect_hipercontracer, "HiPerConTracer over TCP",    "hipercontracer_tcp",    proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("icmp",   heur_dissect_hipercontracer_heur, "HiPerConTracer over ICMP",   "hipercontracer_icmp",   proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("icmpv6", heur_dissect_hipercontracer_heur, "HiPerConTracer over ICMPv6", "hipercontracer_icmpv6", proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("udp",    heur_dissect_hipercontracer_heur, "HiPerConTracer over UDP",    "hipercontracer_udp",    proto_hipercontracer, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp",    heur_dissect_hipercontracer_heur, "HiPerConTracer over TCP",    "hipercontracer_tcp",    proto_hipercontracer, HEURISTIC_ENABLE);
 }
 
 /*

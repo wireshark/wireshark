@@ -315,7 +315,7 @@ static int dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     return tvb_captured_length(tvb);
 }
 
-static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
+static bool test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
 {
     int encoding = 0;
     int packet_len = 0;
@@ -323,27 +323,27 @@ static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, prot
     /* Must be a TCP packet. */
     if (pinfo->ptype != PT_TCP)
     {
-        return FALSE;
+        return false;
     }
     /* Destination address must be IPV4 and 4 bytes in length. */
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4))
     {
-        return FALSE;
+        return false;
     }
     if (!lbmpdm_verify_payload(tvb, 0, &encoding, &packet_len))
     {
-        return FALSE;
+        return false;
     }
     if (lbmpdm_tcp_use_tag)
     {
         if (lbmpdm_tcp_tag_find(pinfo) != NULL)
         {
             dissect_lbmpdm_tcp(tvb, pinfo, tree, user_data);
-            return TRUE;
+            return true;
         }
         else
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -351,11 +351,11 @@ static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, prot
     if (!(((pinfo->srcport >= lbmpdm_tcp_port_low) && (pinfo->srcport <= lbmpdm_tcp_port_high))
           || ((pinfo->destport >= lbmpdm_tcp_port_low) && (pinfo->destport <= lbmpdm_tcp_port_high))))
     {
-        return FALSE;
+        return false;
     }
     /* One of ours. Probably. */
     dissect_lbmpdm_tcp(tvb, pinfo, tree, user_data);
-    return TRUE;
+    return true;
 }
 
 /* Register all the bits needed with the filtering engine */

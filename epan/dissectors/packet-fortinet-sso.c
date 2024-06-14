@@ -167,13 +167,13 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return offset;
 }
 
-static gboolean
+static bool
 dissect_fortinet_fsso_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint32 length_remaining, length;
 
     if (tvb_captured_length(tvb) < 2) {
-        return FALSE;
+        return false;
     }
 
     length_remaining = tvb_reported_length_remaining(tvb, 0);
@@ -181,17 +181,17 @@ dissect_fortinet_fsso_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     length = tvb_get_ntohs(tvb, 0);
     if(length_remaining != length)
     {
-        return FALSE;
+        return false;
     }
 
     //always send with UDP Destination Port 80002
     if(pinfo->destport != UDP_FSSO)
     {
-        return FALSE;
+        return false;
     }
 
     dissect_fortinet_sso(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 void

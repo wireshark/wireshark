@@ -2105,7 +2105,7 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return cur_off;
 }
 
-static gboolean dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int matched_headers = detect_dvb_s2_modeadapt(tvb);
     if (dvb_s2_try_all_modeadapt) {
@@ -2113,18 +2113,18 @@ static gboolean dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo,
             /* This does not look like a DVB-S2-BB frame at all. We are a
                heuristic dissector, so we should just punt and let another
                dissector have a try at this one. */
-            return FALSE;
+            return false;
         }
     } else if (! (matched_headers & (1 << dvb_s2_default_modeadapt))) {
-        return FALSE;
+        return false;
     }
 
     int dissected_bytes;
     dissected_bytes = dissect_dvb_s2_modeadapt(tvb, pinfo, tree, data);
     if (dissected_bytes > 0) {
-        return TRUE;
+        return true;
     } else {
-        return FALSE;
+        return false;
     }
 }
 

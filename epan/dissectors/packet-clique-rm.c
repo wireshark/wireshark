@@ -250,8 +250,8 @@ dissect_unreliable_packet(proto_tree *clique_rm_tree, guint8 type, tvbuff_t *tvb
 }
 
 
-static gboolean
-dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool
+dissect_clique_rm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   proto_tree *clique_rm_tree;
@@ -261,17 +261,17 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   guint64     qword;
 
   if (tvb_captured_length(tvb) < 12)
-    return FALSE;
+    return false;
 
   qword = tvb_get_ntoh48(tvb,0);
   /* ASCII str for 'Clique' = 0x436c69717565 */
   if(qword != G_GUINT64_CONSTANT (0x436c69717565))
-    return FALSE;
+    return false;
   offset += 6;
 
   version = tvb_get_guint8(tvb, offset);
   if (version != 1)
-    return FALSE;
+    return false;
   offset++;
 
   type = tvb_get_guint8(tvb, offset);
@@ -311,7 +311,7 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     dissect_unreliable_packet(clique_rm_tree, type, tvb, offset);
   }
 
-  return TRUE;
+  return true;
 }
 
 
@@ -461,7 +461,7 @@ proto_register_clique_rm(void)
 void
 proto_reg_handoff_clique_rm(void)
 {
-  heur_dissector_add("udp", dissect_clique_rm, "Clique RM over UDP", "clique_rm_udp", proto_clique_rm, HEURISTIC_ENABLE);
+  heur_dissector_add("udp", dissect_clique_rm_heur, "Clique RM over UDP", "clique_rm_udp", proto_clique_rm, HEURISTIC_ENABLE);
 }
 
 /*

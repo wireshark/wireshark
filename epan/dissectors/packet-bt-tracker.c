@@ -404,24 +404,24 @@ dissect_bt_tracker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 
-static gboolean
+static bool
 dissect_bt_tracker_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   conversation_t *conversation;
 
   /* Look for a Connect Request */
   if (tvb_captured_length_remaining(tvb, 0) < 16)
-    return FALSE;
+    return false;
   if (tvb_get_ntoh64(tvb, 0) != MAGIC_CONSTANT)
-    return FALSE;
+    return false;
   if (tvb_get_ntohl(tvb, 8) != ACTION_CONNECT)
-    return FALSE;
+    return false;
 
   conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector_from_frame_number(conversation, pinfo->num, bt_tracker_handle);
 
   dissect_bt_tracker(tvb, pinfo, tree, data);
-  return TRUE;
+  return true;
 }
 
 void

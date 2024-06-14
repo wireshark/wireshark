@@ -156,7 +156,7 @@ dissect_dcp_etsi(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * 
  *  \param[in,out] tree The structure containing the details which will be displayed, filtered, etc.
 static void
  */
-static gboolean
+static bool
 dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
   /* 6.1 AF packet structure
@@ -189,24 +189,24 @@ dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
   guint16 word;
 
   if(tvb_captured_length(tvb) < 11)
-    return FALSE;
+    return false;
 
   word = tvb_get_ntohs(tvb,0);
   /* Check for 'AF or 'PF' */
   if (word == 0x4146) {
     /* AF - check the version, which is only major 1, minor 0 */
     if ((tvb_get_guint8(tvb, 8) & 0x7F) != 0x10) {
-      return FALSE;
+      return false;
     }
     /* Tag packets are the only payload type */
     if (tvb_get_guint8(tvb, 9) != 'T') {
-      return FALSE;
+      return false;
     }
   } else if (word == 0x5046) {
     /* PFT - header length 14, 16, 18, or 20 depending on options.
      * Always contains CRC. */
     if (tvb_captured_length(tvb) < 14) {
-      return FALSE;
+      return false;
     }
     guint16 plen = tvb_get_ntohs(tvb, 10);
     guint header_len = 14;
@@ -217,18 +217,18 @@ dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
       header_len += 4;
     }
     if (tvb_captured_length(tvb) < header_len) {
-      return FALSE;
+      return false;
     }
     if (crc16_x25_ccitt_tvb(tvb, header_len) != 0x1D0F) {
-      return FALSE;
+      return false;
     }
   } else {
-    return FALSE;
+    return false;
   }
 
   dissect_dcp_etsi(tvb, pinfo, tree, data);
 
-  return TRUE;
+  return true;
 }
 
 #define PFT_RS_N_MAX 207

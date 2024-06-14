@@ -1817,17 +1817,17 @@ static int dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 /* Experimental approach based upon the one used for PPP*/
-static gboolean dissect_usb_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_usb_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tvbuff_t *next_tvb;
 
 	if(tvb_get_guint8(tvb, 0) != 0x1B)
-		return FALSE;
+		return false;
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	dissect_isi(next_tvb, pinfo, tree, data);
 
-	return TRUE;
+	return true;
 }
 
 void

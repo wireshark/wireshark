@@ -338,6 +338,12 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   return 14;
 }
 
+static bool
+dissect_gmtimestamp_trailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_gmtimestamp_trailer(tvb, pinfo, tree, NULL) > 0;
+}
+
 static int
 dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -399,6 +405,12 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
   }
   return tvblen;
+}
+
+static bool
+dissect_gmtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_gmtrailer(tvb, pinfo, tree, NULL) > 0;
 }
 
 void
@@ -521,9 +533,9 @@ proto_reg_handoff_gmhdr(void)
   ethertype_handle = find_dissector_add_dependency("ethertype", proto_gmhdr);
 
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
-  heur_dissector_add("eth.trailer", dissect_gmtrailer, "Gigamon Ethernet header", "gmhdr_eth", proto_gmhdr, HEURISTIC_ENABLE);
+  heur_dissector_add("eth.trailer", dissect_gmtrailer_heur, "Gigamon Ethernet header", "gmhdr_eth", proto_gmhdr, HEURISTIC_ENABLE);
 
-  heur_dissector_add("eth.trailer", dissect_gmtimestamp_trailer, "Gigamon Ethernet trailer", "gmtrailer_eth", proto_gmtrailer, HEURISTIC_ENABLE);
+  heur_dissector_add("eth.trailer", dissect_gmtimestamp_trailer_heur, "Gigamon Ethernet trailer", "gmtrailer_eth", proto_gmtrailer, HEURISTIC_ENABLE);
 }
 
 /*

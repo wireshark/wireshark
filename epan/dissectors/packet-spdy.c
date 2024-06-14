@@ -1687,7 +1687,7 @@ static int dissect_spdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  * Looks for SPDY frame at tvb start.
  * If not enough data for either, requests more via desegment struct.
  */
-static gboolean dissect_spdy_heur(tvbuff_t *tvb,
+static bool dissect_spdy_heur(tvbuff_t *tvb,
                                   packet_info *pinfo,
                                   proto_tree *tree,
                                    void *data _U_)
@@ -1702,15 +1702,15 @@ static gboolean dissect_spdy_heur(tvbuff_t *tvb,
    */
   guint8 first_byte = tvb_get_guint8(tvb, 0);
   if (first_byte != 0x80 && first_byte != 0x0) {
-    return FALSE;
+    return false;
   }
 
   /* Attempt dissection. */
   if (dissect_spdy(tvb, pinfo, tree, NULL) != 0) {
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 /*

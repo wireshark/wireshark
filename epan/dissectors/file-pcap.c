@@ -207,7 +207,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return offset;
 }
 
-static gboolean
+static bool
 dissect_pcap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_pcap(tvb, pinfo, tree, NULL) > 0;

@@ -3962,7 +3962,7 @@ static int dissect_mq_spx(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     return tvb_captured_length(tvb);
 }
 
-static gboolean dissect_mq_heur(tvbuff_t* tvb, packet_info* pinfo,
+static bool dissect_mq_heur(tvbuff_t* tvb, packet_info* pinfo,
     proto_tree* tree, gboolean is_tcp, dissector_handle_t* ssl_app_handle)
 {
     if ((tvb_captured_length(tvb) >= 4) && (tvb_reported_length(tvb) >= 28))
@@ -3981,23 +3981,23 @@ static gboolean dissect_mq_heur(tvbuff_t* tvb, packet_info* pinfo,
 
             /* Dissect the packet */
             reassemble_mq(tvb, pinfo, tree, NULL);
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
-static gboolean    dissect_mq_heur_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+static bool    dissect_mq_heur_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     return dissect_mq_heur(tvb, pinfo, tree, TRUE, NULL);
 }
 
-static gboolean    dissect_mq_heur_nontcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+static bool    dissect_mq_heur_nontcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     return dissect_mq_heur(tvb, pinfo, tree, FALSE, NULL);
 }
 
-static gboolean    dissect_mq_heur_ssl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+static bool    dissect_mq_heur_ssl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
     struct tlsinfo *tlsinfo = (struct tlsinfo*)data;
     return dissect_mq_heur(tvb, pinfo, tree, FALSE, tlsinfo->app_handle);

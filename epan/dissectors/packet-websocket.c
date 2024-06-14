@@ -851,18 +851,18 @@ test_websocket(packet_info* pinfo _U_, tvbuff_t* tvb, int offset _U_, void* data
   return TRUE;
 }
 
-static gboolean
+static bool
 dissect_websocket_heur_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
   if (!test_websocket(pinfo, tvb, 0, data))
   {
-    return FALSE;
+    return false;
   }
   conversation_t* conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector(conversation, websocket_handle);
 
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_websocket_frame_length, dissect_websocket_frame, data);
-  return TRUE;
+  return true;
 }
 
 void

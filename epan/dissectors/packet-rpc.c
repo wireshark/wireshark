@@ -3039,10 +3039,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return TRUE;
 }
 
-static gboolean
+static bool
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, RPC_UDP, 0,
+	return (bool)dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, RPC_UDP, 0,
 	    TRUE, FALSE);
 }
 
@@ -3895,12 +3895,12 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return saw_rpc;
 }
 
-static gboolean
+static bool
 dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct tcpinfo* tcpinfo = (struct tcpinfo *)data;
 
-	return dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE, tcpinfo, NULL);
+	return (bool)dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE, tcpinfo, NULL);
 }
 
 static int
@@ -3914,7 +3914,7 @@ dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_rpc_tls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
@@ -3923,9 +3923,9 @@ dissect_rpc_tls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		if (tlsinfo != NULL) {
 			*(tlsinfo->app_handle) = rpc_tls_handle;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 static int

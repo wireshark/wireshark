@@ -143,7 +143,7 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
 
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
-static gboolean
+static bool
 dissect_PNMRRT_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
@@ -158,7 +158,7 @@ dissect_PNMRRT_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (MRRT) */
     if (u16FrameID != 0xFF60) {
         /* we are not interested in this packet */
-        return FALSE;
+        return false;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRRT");
@@ -173,7 +173,7 @@ dissect_PNMRRT_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_item_set_len(item, offset - u32SubStart);
 
-    return TRUE;
+    return true;
 }
 
 

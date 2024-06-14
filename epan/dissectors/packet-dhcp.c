@@ -4036,7 +4036,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4046,7 +4046,7 @@ dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* PXE protocol 2.1 as described in the Intel specs */
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, "PXEClient", strlen("PXEClient")) != 0))
-		return FALSE;
+		return false;
 
 	proto_item_append_text(tree, " (PXEClient)");
 	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
@@ -4056,7 +4056,7 @@ dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void
@@ -4600,7 +4600,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4639,13 +4639,13 @@ dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			offset = dissect_vendor_cablelabs_suboption(pinfo, tree, vendor_tree,
 				tvb, offset, tvb_reported_length(tvb));
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_aruba_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4654,16 +4654,16 @@ dissect_aruba_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, ARUBA_AP, strlen(ARUBA_AP)) != 0))
-		return FALSE;
+		return false;
 
 	proto_item_append_text(tree, " (Aruba AP)");
 	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
 
 	proto_tree_add_item(vendor_tree, hf_dhcp_option43_arubaap_controllerip, tvb, offset, tvb_reported_length(tvb), ENC_ASCII);
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4676,7 +4676,7 @@ dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_
 	/* Aruba  Instant AP */
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, ARUBA_INSTANT_AP, strlen(ARUBA_INSTANT_AP)) != 0))
-		return FALSE;
+		return false;
 
 	proto_item_append_text(tree, " (Aruba Instant AP)");
 
@@ -4690,7 +4690,7 @@ dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_
 	offset += (ampiplen+1);
 	proto_tree_add_item(vendor_tree, hf_dhcp_option43_arubaiap_password, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
 
-	return TRUE;
+	return true;
 }
 
 static const value_string option43_bsdp_suboption_vals[] = {
@@ -4842,7 +4842,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4851,7 +4851,7 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, APPLE_BSDP_SERVER, strlen(APPLE_BSDP_SERVER)) != 0))
-		return FALSE;
+		return false;
 
 	/* Apple BSDP */
 	proto_item_append_text(tree, " (Boot Server Discovery Protocol (BSDP))");
@@ -4862,7 +4862,7 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Cisco Vendor Specific Information */
@@ -4981,7 +4981,7 @@ dissect_vendor_cisco_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -4990,7 +4990,7 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, CISCO_VCID, strlen(CISCO_VCID)) != 0))
-		return FALSE;
+		return false;
 
 	/* Cisco ACI Fabric*/
 	proto_item_append_text(tree, " (Cisco ACI Fabric)");
@@ -5001,7 +5001,7 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Aerohive (Extremenetworks) Vendor Specific Information */
@@ -5066,7 +5066,7 @@ dissect_vendor_aerohive_suboption(packet_info *pinfo, proto_item *v_ti, proto_tr
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
@@ -5075,7 +5075,7 @@ dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	if ((option_data->vendor_class_id == NULL) ||
 		(strncmp((const gchar*)option_data->vendor_class_id, AEROHIVE_VCID, strlen(AEROHIVE_VCID)) != 0))
-		return FALSE;
+		return false;
 
 	/* Cisco ACI Fabric*/
 	proto_item_append_text(tree, " (Aerohive)");
@@ -5086,7 +5086,7 @@ dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			tvb, offset, tvb_reported_length(tvb));
 	}
 
-	return TRUE;
+	return true;
 }
 
 static int
@@ -5307,7 +5307,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 	return optoff;
 }
 
-static gboolean
+static bool
 dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
@@ -5315,7 +5315,7 @@ dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree* vendor_tree;
 
 	if (tvb_reported_length(tvb) < 1)
-		return FALSE;
+		return false;
 
 	s_option = tvb_get_guint8(tvb, offset);
 	if ((s_option==58 || s_option==64 || s_option==65
@@ -5330,10 +5330,10 @@ dissect_alcatel_lucent_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, prot
 			offset = dissect_vendor_alcatel_suboption(pinfo, tree, vendor_tree,
 				tvb, offset, tvb_reported_length(tvb));
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 static const value_string option63_suboption_vals[] = {
@@ -6051,13 +6051,13 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 	}
 }
 
-static gboolean
+static bool
 dissect_packetcable_mta_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	guint8* vendor_id;
 
 	if (tvb_reported_length(tvb) < 8) {
-		return FALSE;
+		return false;
 	}
 
 	vendor_id = tvb_get_string_enc(pinfo->pool, tvb, 0, 8, ENC_ASCII|ENC_NA);
@@ -6065,10 +6065,10 @@ dissect_packetcable_mta_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo, proto
 		(strcmp((const char*)vendor_id, PACKETCABLE_MTA_CAP15) == 0) ||
 		(strcmp((const char*)vendor_id, PACKETCABLE_MTA_CAP20) == 0)) {
 		dissect_packetcable_mta_cap(tree, pinfo, tvb, 0, tvb_reported_length(tvb));
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /* DOCSIS Cable Modem device capabilities (option 60/option 125). */
@@ -6662,45 +6662,45 @@ dissect_docsis_cm_cap(packet_info *pinfo, proto_tree *v_tree, tvbuff_t *tvb, int
 	}
 }
 
-static gboolean
+static bool
 dissect_packetcable_cm_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	guint8* vendor_id;
 
 	if (tvb_reported_length(tvb) < 10) {
-		return FALSE;
+		return false;
 	}
 
 	vendor_id = tvb_get_string_enc(pinfo->pool, tvb, 0, 10, ENC_ASCII|ENC_NA);
 	if ((strcmp((const char*)vendor_id, PACKETCABLE_CM_CAP11) == 0) ||
 		(strcmp((const char*)vendor_id, PACKETCABLE_CM_CAP20) == 0)) {
 		dissect_docsis_cm_cap(pinfo, tree, tvb, 0, tvb_reported_length(tvb), FALSE);
-		return TRUE;
+		return true;
 	}
 
 	if ((strcmp((const char*)vendor_id, PACKETCABLE_CM_CAP30) == 0)) {
 		proto_tree_add_item(tree, hf_dhcp_option_vendor_class_data, tvb, 0, tvb_reported_length(tvb), ENC_ASCII);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_apple_bsdp_vendor_id_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 
 {
 	int vendor_id_len = (int)strlen(APPLE_BSDP_CLIENT);
 	if ((int)tvb_reported_length(tvb) < vendor_id_len) {
-		return FALSE;
+		return false;
 	}
 
 	if (tvb_memeql(tvb, 0, (const guint8*)APPLE_BSDP_CLIENT, vendor_id_len) == 0) {
 		proto_tree_add_item(tree, hf_dhcp_option_vendor_class_data, tvb, vendor_id_len, tvb_reported_length_remaining(tvb, vendor_id_len), ENC_ASCII);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 

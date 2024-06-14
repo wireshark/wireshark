@@ -210,7 +210,7 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 }
 
 
-gboolean
+bool
 dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
   guint tot_len;
@@ -224,11 +224,11 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
     {
       /* Not enough data captured to hold the ZIOP header; don't try
          to interpret it as GIOP. */
-      return FALSE;
+      return false;
     }
   if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
     {
-      return FALSE;
+      return false;
     }
 
   if ( pinfo->ptype == PT_TCP )
@@ -253,7 +253,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
     {
       dissect_ziop (tvb, pinfo, tree, data);
     }
-  return TRUE;
+  return true;
 }
 
 void

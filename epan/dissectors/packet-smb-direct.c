@@ -457,7 +457,7 @@ is_smb_direct(tvbuff_t *tvb, packet_info *pinfo _U_)
 	return SMB_DIRECT_HDR_UNKNOWN;
 }
 
-static gboolean
+static bool
 dissect_smb_direct_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
 			      proto_tree *parent_tree, void *data)
 {
@@ -465,7 +465,7 @@ dissect_smb_direct_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
 	enum SMB_DIRECT_HDR_TYPE hdr_type;
 
 	if (info == NULL) {
-		return FALSE;
+		return false;
 	}
 
 	switch (info->opcode) {
@@ -475,16 +475,16 @@ dissect_smb_direct_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
 	case RDMA_SEND_SE_INVALIDATE:
 		break;
 	default:
-		return FALSE;
+		return false;
 	}
 
 	hdr_type = is_smb_direct(tvb, pinfo);
 	if (hdr_type == SMB_DIRECT_HDR_UNKNOWN) {
-		return FALSE;
+		return false;
 	}
 
 	dissect_smb_direct(tvb, pinfo, parent_tree, hdr_type);
-	return TRUE;
+	return true;
 }
 
 static int
@@ -521,7 +521,7 @@ dissect_smb_direct_infiniband(tvbuff_t *tvb, packet_info *pinfo,
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_smb_direct_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *parent_tree, void *data)
 {

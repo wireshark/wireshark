@@ -5264,11 +5264,11 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
   return message_size + GIOP_HEADER_SIZE;
 }
 
-static gboolean
+static bool
 dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *);
 
 
-gboolean dissect_giop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+bool dissect_giop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return dissect_giop_heur(tvb, pinfo, tree, NULL);
 }
 
@@ -5290,7 +5290,7 @@ dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data) {
 
   guint tot_len;
@@ -5306,11 +5306,11 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
   {
     /* Not enough data captured to hold the GIOP header; don't try
        to interpret it as GIOP. */
-    return FALSE;
+    return false;
   }
 
   if (tvb_get_ntohl(tvb, 0) != GIOP_MAGIC_NUMBER)
-     return FALSE;
+     return false;
 
   if ( pinfo->ptype == PT_TCP )
   {
@@ -5335,7 +5335,7 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
     dissect_giop_common (tvb, pinfo, tree, data);
   }
 
-  return TRUE;
+  return true;
 
 }
 

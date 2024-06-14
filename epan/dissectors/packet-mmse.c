@@ -649,7 +649,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval, packet_info
 }
 
 /* Code to actually dissect the packets */
-static gboolean
+static bool
 dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8       pdut;
@@ -661,15 +661,15 @@ dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      * or MMS-Version header
      */
     if (tvb_get_guint8(tvb, 0) != MM_MTYPE_HDR)
-        return FALSE;
+        return false;
     pdut = tvb_get_guint8(tvb, 1);
     if (try_val_to_str(pdut, vals_message_type) == NULL)
-        return FALSE;
+        return false;
     if ((tvb_get_guint8(tvb, 2) != MM_TID_HDR) &&
         (tvb_get_guint8(tvb, 2) != MM_VERSION_HDR))
-        return FALSE;
+        return false;
     dissect_mmse_standalone(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 static int

@@ -3055,7 +3055,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 /*
  * Q.931-over-TPKT-over-TCP.
  */
-static gboolean
+static bool
 dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int lv_tpkt_len;
@@ -3074,7 +3074,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*
          * It's not a TPKT packet; reject it.
          */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -3090,7 +3090,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
          */
         dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
             q931_tpkt_pdu_handle);
-        return TRUE;
+        return true;
     }
 
     /*
@@ -3107,12 +3107,12 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * to "is_tpkt()").
      */
     if (!tvb_bytes_exist(tvb, 4, 3))
-        return FALSE;
+        return false;
 
     /* Check the protocol discriminator */
     if ((tvb_get_guint8(tvb, 4) != NLPID_Q_931) && (tvb_get_guint8(tvb, 4) != 0x03)) {
         /* Doesn't look like Q.931 inside TPKT */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -3122,7 +3122,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
         q931_tpkt_pdu_handle);
 
-    return TRUE;
+    return true;
 }
 
 static int

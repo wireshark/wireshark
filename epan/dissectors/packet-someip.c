@@ -3918,16 +3918,16 @@ test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U
     return TRUE;
 }
 
-static gboolean
+static bool
 dissect_some_ip_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     if (test_someip(pinfo, tvb, 0, data)) {
         tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SOMEIP_HDR_PART1_LEN, get_someip_message_len, dissect_someip_message, data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 dissect_some_ip_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return (udp_dissect_pdus(tvb, pinfo, tree, SOMEIP_HDR_PART1_LEN, test_someip, get_someip_message_len, dissect_someip_message, data) != 0);
 }

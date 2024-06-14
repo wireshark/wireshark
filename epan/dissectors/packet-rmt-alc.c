@@ -246,12 +246,12 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 
-static gboolean
+static bool
 dissect_alc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* Lookup over ATSC3 SLT Table*/
     if (!test_alc_over_slt(pinfo, tvb, 0, data))
-        return FALSE;
+        return false;
 
     conversation_t *conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, alc_handle);

@@ -1024,6 +1024,12 @@ static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return TRUE;
 }
 
+static bool
+dissect_icep_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return (bool)dissect_icep_tcp(tvb, pinfo, tree, NULL) > 0;
+}
+
 static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     DBG("triggered\n");
@@ -1036,6 +1042,12 @@ static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* start dissecting */
     dissect_icep_pdu(tvb, pinfo, tree, data);
     return TRUE;
+}
+
+static bool
+dissect_icep_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return (bool)dissect_icep_udp(tvb, pinfo, tree, NULL) > 0;
 }
 
 /* Register the protocol with Wireshark */
@@ -1305,8 +1317,8 @@ void proto_register_icep(void)
 void proto_reg_handoff_icep(void)
 {
     /* Register as a heuristic TCP/UDP dissector */
-    heur_dissector_add("tcp", dissect_icep_tcp, "ICEP over TCP", "icep_tcp", proto_icep, HEURISTIC_ENABLE);
-    heur_dissector_add("udp", dissect_icep_udp, "ICEP over UDP", "icep_udp", proto_icep, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_icep_tcp_heur, "ICEP over TCP", "icep_tcp", proto_icep, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_icep_udp_heur, "ICEP over UDP", "icep_udp", proto_icep, HEURISTIC_ENABLE);
 
     /* Register TCP port for dissection */
     dissector_add_for_decode_as_with_preference("tcp.port", icep_tcp_handle);

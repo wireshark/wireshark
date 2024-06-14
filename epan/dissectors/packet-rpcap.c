@@ -1260,7 +1260,7 @@ dissect_rpcap_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
   return tvb_captured_length (tvb);
 }
 
-static gboolean
+static bool
 dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (check_rpcap_heur (tvb, TRUE)) {
@@ -1278,24 +1278,24 @@ dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
                       get_rpcap_pdu_len, dissect_rpcap, data);
 
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 
-static gboolean
+static bool
 dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (check_rpcap_heur (tvb, FALSE)) {
     /* This is probably a rpcap udp package */
     dissect_rpcap (tvb, pinfo, tree, data);
 
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 

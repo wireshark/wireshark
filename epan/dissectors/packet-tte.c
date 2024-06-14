@@ -46,7 +46,7 @@ static gint ett_tte_macdest;
 
 
 /* Code to actually dissect the packets */
-static int
+static bool
 dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int is_frame_pcf;
@@ -58,7 +58,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < TTE_HEADER_LENGTH)
-        return 0;
+        return false;
 
     /* check if data of pcf frame */
     is_frame_pcf =
@@ -68,7 +68,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (!is_frame_pcf)
     {
         if ( (tvb_get_ntohl(tvb, 0) & tte_pref_ct_mask) != tte_pref_ct_marker)
-            return 0;
+            return false;
     }
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -123,7 +123,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ethertype_data.fcs_len = 0;
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
-    return tvb_reported_length(tvb);
+    return true;
 }
 
 

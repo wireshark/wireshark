@@ -331,7 +331,7 @@ static void dissect_rdma_cm_rej_packet(tvbuff_t *tvb, proto_tree *tree)
             2, 2, ENC_LITTLE_ENDIAN);
 }
 
-static int dissect_rdma_cm_packet(tvbuff_t *tvb, proto_tree *tree,
+static bool dissect_rdma_cm_packet(tvbuff_t *tvb, proto_tree *tree,
                                   guint16 cm_attribute_id)
 {
     switch (cm_attribute_id) {
@@ -347,10 +347,10 @@ static int dissect_rdma_cm_packet(tvbuff_t *tvb, proto_tree *tree,
     default:
         break;
     }
-    return TRUE;
+    return true;
 }
 
-static int
+static bool
 dissect_nvme_ib_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data)
 {
@@ -363,7 +363,7 @@ dissect_nvme_ib_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     conv_data = find_ib_cm_conversation(pinfo);
     if (!conv_data)
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_RDMA);
     return dissect_rdma_cm_packet(tvb, tree, info->cm_attribute_id);
@@ -652,7 +652,7 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
     }
 }
 
-static int
+static bool
 dissect_nvme_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct infinibandinfo *info = (struct infinibandinfo *)data;
@@ -665,11 +665,11 @@ dissect_nvme_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     conv = find_ib_conversation(pinfo, &conv_data);
     if (!conv)
-        return FALSE;
+        return false;
 
     q_ctx = find_add_q_ctx(pinfo, conv);
     if (!q_ctx)
-        return FALSE;
+        return false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, NVME_FABRICS_RDMA);
 
@@ -683,7 +683,7 @@ dissect_nvme_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     else
         dissect_nvme_to_host(tvb, pinfo, tree, nvme_tree, info, q_ctx, len);
 
-    return TRUE;
+    return true;
 }
 
 void

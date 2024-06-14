@@ -1241,6 +1241,11 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	return TRUE;
 }
 
+static bool
+dissect_ctdb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return (bool)dissect_ctdb(tvb, pinfo, tree, NULL);
+}
 
 /*
  * Register the protocol with Wireshark
@@ -1397,7 +1402,7 @@ proto_reg_handoff_ctdb(void)
 {
 	dissector_add_for_decode_as_with_preference("tcp.port", ctdb_handle);
 
-	heur_dissector_add("tcp", dissect_ctdb, "Cluster TDB over TCP", "ctdb_tcp", proto_ctdb, HEURISTIC_ENABLE);
+	heur_dissector_add("tcp", dissect_ctdb_heur, "Cluster TDB over TCP", "ctdb_tcp", proto_ctdb, HEURISTIC_ENABLE);
 }
 
 /*

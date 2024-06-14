@@ -1363,11 +1363,11 @@ dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 
-static gboolean
+static bool
 dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
-    gboolean        detected = FALSE;
+    bool        detected = false;
 
     if (tvb_reported_length(tvb) == 10 || tvb_reported_length(tvb) == 11)
     {
@@ -1375,7 +1375,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         if ((tvb_get_guint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
             && (tvb_get_ntohl(tvb, 0) + 4 == tvb_reported_length(tvb)))
         {
-            detected = TRUE;
+            detected = true;
         }
     }
     else if (tvb_reported_length(tvb) == 14 || tvb_reported_length(tvb) == 15)
@@ -1384,7 +1384,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         if ((tvb_get_guint8(tvb, 4) == OPENWIRE_RESPONSE)
             && (tvb_get_ntohl(tvb, 0) + 4 == tvb_reported_length(tvb)))
         {
-            detected = TRUE;
+            detected = true;
         }
     }
     else if (tvb_reported_length(tvb) >= 13)
@@ -1397,7 +1397,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             && (tvb_get_ntohl(tvb, 5) == OPENWIRE_MAGIC_PART_1)
             && (tvb_get_ntohl(tvb, 9) == OPENWIRE_MAGIC_PART_2))
         {
-            detected = TRUE;
+            detected = true;
         }
     }
     if (detected)
@@ -1408,9 +1408,9 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         /* Dissect the packet */
         dissect_openwire(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void

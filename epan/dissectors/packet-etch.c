@@ -781,6 +781,12 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   return 1;
 }
 
+static bool
+dissect_etch_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_etch(tvb, pinfo, tree, NULL) > 0;
+}
+
 static void
 etch_dissector_init(void)
 {
@@ -951,7 +957,7 @@ void proto_reg_handoff_etch(void)
   /* create dissector handle only once */
   if(!etch_prefs_initialized) {
     /* add heuristic dissector for tcp */
-    heur_dissector_add("tcp", dissect_etch, "Etch over TCP", "etch_tcp", proto_etch, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_etch_heur, "Etch over TCP", "etch_tcp", proto_etch, HEURISTIC_ENABLE);
     dissector_add_for_decode_as_with_preference("tcp.port", etch_handle);
     etch_prefs_initialized = TRUE;
   }

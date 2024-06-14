@@ -293,7 +293,7 @@ static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 static int
-dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_pvfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32 magic_nr, mode;
 	guint64 size;
@@ -335,6 +335,12 @@ dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		dissect_pvfs_pdu, data);
 
 	return tvb_reported_length(tvb);
+}
+
+static bool
+dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_pvfs(tvb, pinfo, tree, NULL) > 0;
 }
 
 static const value_string names_pvfs_server_op[] =
@@ -3575,7 +3581,7 @@ proto_register_pvfs(void)
 	/* Register the protocol name and description */
 	proto_pvfs = proto_register_protocol("Parallel Virtual File System",
 			"PVFS", "pvfs");
-	pvfs_handle = register_dissector("pvfs", dissect_pvfs_heur, proto_pvfs);
+	pvfs_handle = register_dissector("pvfs", dissect_pvfs, proto_pvfs);
 
 	/*
 	 * Required function calls to register the header fields and

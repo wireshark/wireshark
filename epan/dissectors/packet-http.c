@@ -4305,7 +4305,7 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	return dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tcpinfo ? &tcpinfo->seq : NULL);
 }
 
-static gboolean
+static bool
 dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	gint offset = 0, next_offset, linelen;
@@ -4320,7 +4320,7 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	 */
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
 	if((linelen == -1)||(linelen == 8)){
-		return FALSE;
+		return false;
 	}
 
 	/* Check if the line start or ends with the HTTP token */
@@ -4328,10 +4328,10 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		conversation = find_or_create_conversation(pinfo);
 		conversation_set_dissector_from_frame_number(conversation, pinfo->num, http_tcp_handle);
 		dissect_http_tcp(tvb, pinfo, tree, data);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 static int
@@ -4348,7 +4348,7 @@ dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	return dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tlsinfo ? &tlsinfo->seq : NULL);
 }
 
-static gboolean
+static bool
 dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	gint offset = 0, next_offset, linelen;
@@ -4360,7 +4360,7 @@ dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	/* A http conversation was previously started, assume it is still active */
 	if (conv_data) {
 		dissect_http_tls(tvb, pinfo, tree, data);
-		return TRUE;
+		return true;
 	}
 
 	/* Check if we have a line terminated by CRLF
@@ -4371,17 +4371,17 @@ dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	 */
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
 	if((linelen == -1)||(linelen == 8)){
-		return FALSE;
+		return false;
 	}
 
 	/* Check if the line start or ends with the HTTP token */
 	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.", 7) != 0) && (tvb_strncaseeql(tvb, 0, "HTTP/1.", 7) != 0)) {
 	        /* we couldn't find the Magic Hello HTTP/1.X. */
-		return FALSE;
+		return false;
 	}
 
 	dissect_http_tls(tvb, pinfo, tree, data);
-	return TRUE;
+	return true;
 }
 
 static int

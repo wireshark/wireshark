@@ -192,7 +192,7 @@ static const value_string dcc_floodop_vals[] = {
 	{0,NULL},
 };
 
-static gboolean
+static bool
 dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *dcc_tree, *dcc_optree, *dcc_opnumtree, *ti;
@@ -205,13 +205,13 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	if (pinfo->srcport != DCC_PORT && pinfo->destport != DCC_PORT) {
 		/* Not the right port - not a DCC packet. */
-		return FALSE;
+		return false;
 	}
 
 	/* get at least a full packet structure */
 	if ( tvb_reported_length(tvb) < sizeof(DCC_HDR) ) {
 		/* Doesn't have enough bytes to contain packet header. */
-		return FALSE;
+		return false;
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCC");
@@ -397,7 +397,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 void
