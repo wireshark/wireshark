@@ -226,7 +226,7 @@ class APICheck:
                             warnings_found += 1
 
             if check_missing_items:
-                if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
+                if call.hf_name in items_declared and not call.hf_name in items_defined and not call.hf_name in items_declared_extern:
                 #not in common_hf_var_names:
                     print('Warning:', self.file + ':' + str(call.line_number),
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
@@ -985,7 +985,7 @@ class Item:
 
 
     def __str__(self):
-        return 'Item ({0} "{1}" {2} type={3}:{4} {5} mask={6})'.format(self.filename, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
+        return 'Item ({0} {1} "{2}" {3} type={4}:{5} {6} mask={7})'.format(self.filename, self.hf, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
 
     def check_label(self, label, label_name):
         global warnings_found
