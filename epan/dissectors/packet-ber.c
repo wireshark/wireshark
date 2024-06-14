@@ -2407,7 +2407,7 @@ ber_sequence_try_again:
             } else {
                 hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
                 hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
-                next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset - (2 * ind_field));
+                next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset - (ind_field ? 2 : 0));
             }
         } else {
             next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset);
@@ -2674,7 +2674,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
                     /* dissect header and len for field */
                     hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
                     hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
-                    next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset - (2 * ind_field));
+                    next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset - (ind_field ? 2 : 0));
                 } else {
                     next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset);
                 }
