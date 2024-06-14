@@ -694,6 +694,7 @@ print_stats_table_header(capture_info *cf_info)
 {
     pkt_cmt *p;
     char    *buf;
+    gsize    buf_len;
 
     putquote();
     printf("File name");
@@ -731,10 +732,11 @@ print_stats_table_header(capture_info *cf_info)
 
     if (pkt_comments && cf_info->pkt_cmts != NULL) {
       /* Packet 2^64 Comment" + NULL */
-      buf = (char *)g_malloc0(strlen("Packet 18446744073709551616 Comment") + 1);
+      buf_len = strlen("Packet 18446744073709551616 Comment") + 1;
+      buf = (char *)g_malloc0(buf_len);
 
       for (p = cf_info->pkt_cmts; p != NULL; p = p->next) {
-        snprintf(buf, strlen(buf), "Packet %d Comment", p->recno);
+        snprintf(buf, buf_len, "Packet %d Comment", p->recno);
         print_stats_table_header_label(buf);
       }
     }
