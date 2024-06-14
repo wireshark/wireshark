@@ -386,6 +386,20 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	)
 	set_docbook_target_properties(user_guide_html)
 	add_dependencies(user_guides user_guide_html)
+	# Copy the WSUG to the build directory so that when running
+	# from the build directory ui/help_url.c will find the local file.
+	# It expects the WSUG in a different directory on Windows.
+	if(WIN32)
+		set(WSUG_DIR "${DATAFILE_DIR}/${WSUG_TITLE}")
+	else()
+		set(WSUG_DIR "${DATAFILE_DIR}/wsug_html_chunked")
+	endif()
+	# CMake 3.26 has copy_directory_if_different
+	add_custom_command(
+		TARGET user_guide_html
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+			"${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked" "${WSUG_DIR}"
+	)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
