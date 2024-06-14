@@ -691,12 +691,12 @@ The _Field Occurrence_ setting is count of the given field in the frame, for fie
 
 Selecting _Resolved_ causes name resolution to be applied to the field value, when available.
 
-==== Fonts and Color
+==== Font and Colors
 
 These preferences give you the option to select the font and colors used in the various packet panes.
 Most usable is to select a mono spaced font, which allows for a cleaner presentation, but using a proportional font is possible too.
 
-.Font and color preferences
+.Font and colors preferences
 image::images/ws-pref-appearance-fonts-and-colors.png[{screenshot-attrs}]
 
 ==== Layout
