@@ -229,7 +229,7 @@ sfloat_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrep
     char    *mantissa_str;
     uint8_t  mantissa_digits;
 
-    /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
+    /* Predefined: +INFINITY, -INFINITY, RFU, NRes, NaN */
     if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
         char *s = NULL;
 
@@ -682,7 +682,7 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
     char    *mantissa_str;
     uint8_t  mantissa_digits;
 
-    /* Predefinied: +INFINITY, -INFINITY, RFU, NRes, NaN */
+    /* Predefined: +INFINITY, -INFINITY, RFU, NRes, NaN */
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
         char *s = NULL;
         switch (fv->value.float_ieee_11073) {

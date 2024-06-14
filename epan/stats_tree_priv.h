@@ -188,7 +188,7 @@ WS_DLL_PUBLIC void stats_tree_reset(void *p_st);
 /** callback for clear */
 WS_DLL_PUBLIC void stats_tree_reinit(void *p_st);
 
-/* callback for destoy */
+/* callback for destroy */
 WS_DLL_PUBLIC void stats_tree_free(stats_tree *st);
 
 /** given an ws_optarg splits the abbr part
@@ -202,7 +202,7 @@ WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(const char *abbr);
     caller should free returned list with  g_list_free() */
 WS_DLL_PUBLIC GList *stats_tree_get_cfg_list(void);
 
-/** used to calcuate the size of the indentation and the longest string */
+/** used to calculate the size of the indentation and the longest string */
 WS_DLL_PUBLIC guint stats_tree_branch_max_namelen(const stat_node *node, guint indent);
 
 /** a text representation of a node,
@@ -242,7 +242,7 @@ WS_DLL_PUBLIC gint stat_node_array_sortcmp (gconstpointer a,
 					gconstpointer b,
 					gpointer user_data);
 
-/** function to copy stats_tree into GString. format deternmines output format */
+/** function to copy stats_tree into GString. format determines output format */
 WS_DLL_PUBLIC GString* stats_tree_format_as_str(const stats_tree* st,
 					st_format_type format_type,
 					gint sort_column,

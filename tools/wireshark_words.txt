@@ -636,6 +636,7 @@ downlink
 doxygen
 dpauxmon
 dpnss
+drange
 drbid
 drdynvc
 droppable
@@ -812,6 +813,7 @@ foffset
 followup
 foobar
 format0
+forti
 fortigate
 fortinet
 fpiur
@@ -1254,6 +1256,7 @@ meshcop
 messageid
 metadata
 metamethod
+metatable
 metatraffic
 meteorological
 metermod
@@ -1645,6 +1648,7 @@ preambles
 preauth
 precisions
 precoding
+precompilation
 preconfiguration
 preconfigured
 predef
@@ -2336,6 +2340,7 @@ typedef
 typeof
 uarfcn
 uavcan
+ubertooth
 ubiquisys
 uboot
 ubuntu

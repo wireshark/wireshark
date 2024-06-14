@@ -146,7 +146,7 @@ typedef struct {
 #define ENUM_VAL_T_TO_VS_ARRAY_GLOBAL_DEF3(array_name, new_array_name) _EV_TO_VS_ARRAY_XXX(array_name, new_array_name, _ENUM_VAL_T_LIST, _VS_ARRAY_ENTRY_FROM_EV3)
 #define ENUM_VAL_T_TO_VS_ARRAY_GLOBAL_DCL3(new_array_name) extern const value_string new_array_name[]
 
-/* -- Priate macros -- */
+/* -- Private macros -- */
 #define _EV_ARRAY_XXX(array_name, new_array_name, array_suffix, macro)  \
     const enum_val_t new_array_name[] = { \
     array_name##array_suffix(macro) \

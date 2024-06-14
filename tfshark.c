@@ -101,7 +101,7 @@ static gboolean do_dissection;     /* TRUE if we have to dissect each packet */
 static gboolean print_packet_info; /* TRUE if we're to print packet information */
 static gint print_summary = -1;    /* TRUE if we're to print packet summary information */
 static gboolean print_details;     /* TRUE if we're to print packet details information */
-static gboolean print_hex;         /* TRUE if we're to print hex/ascci information */
+static gboolean print_hex;         /* TRUE if we're to print hex/ascii information */
 static gboolean line_buffered;
 static gboolean really_quiet;
 

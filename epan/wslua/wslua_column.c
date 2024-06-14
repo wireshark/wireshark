@@ -44,7 +44,7 @@ struct col_names_t {
     int id;
 };
 
-// Duplicated belown in Columns__newindex.
+// Duplicated below in Columns__newindex.
 static const struct col_names_t colnames[] = {
     {"number",COL_NUMBER},
     {"abs_time",COL_ABS_TIME},

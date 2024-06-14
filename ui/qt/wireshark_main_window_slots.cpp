@@ -883,7 +883,7 @@ void WiresharkMainWindow::startCapture(QStringList interfaces) {
              */
             if (extcap_requires_configuration(device->name))
             {
-                /* Request openning of extcap options dialog */
+                /* Request opening of extcap options dialog */
                 QString device_name(device->name);
                 emit showExtcapOptions(device_name, false);
                 /* Cancel start of capture */
