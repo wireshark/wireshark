@@ -15037,8 +15037,8 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 
 
 /* possibly dissect a PN-IO related PN-RT packet */
-static gboolean
-dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+static bool
+dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
     guint8   drep_data = 0;
@@ -15055,7 +15055,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * to dissect it as a normal PNIO packet.
      */
     if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
-        return TRUE;
+        return true;
 
     /* TimeAwareness Information needed for dissecting RTC3 - RTSteam frames  */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
@@ -15070,7 +15070,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         (u16FrameID >= 0x0700 && u16FrameID <= 0x0fff)) && /* RTC3 redundant */
         !isTimeAware) {
         dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
 
     /* is this a PNIO class stream data packet? */
@@ -15079,7 +15079,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         (u16FrameID >= 0x3800 && u16FrameID <= 0x3FFF)) &&
         isTimeAware) {
         dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
-        return TRUE;
+        return true;
     }
 
     /* The following range is reserved for following developments */
@@ -15087,7 +15087,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0x4000 && u16FrameID <= 0x7fff) {
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
-        return TRUE;
+        return true;
     }
 
     /* is this a PNIO class 1 data packet? */
@@ -15095,7 +15095,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff) {
         dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
-        return TRUE;
+        return true;
     }
 
     /* is this a PNIO class 1 (legacy) data packet? */
@@ -15103,7 +15103,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0xc000 && u16FrameID < 0xfbff) {
         dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
-        return TRUE;
+        return true;
     }
 
     /* is this a PNIO high priority alarm packet? */
@@ -15111,7 +15111,7 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_set_str(pinfo->cinfo, COL_INFO, "Alarm High");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
-        return TRUE;
+        return true;
     }
 
     /* is this a PNIO low priority alarm packet? */
@@ -15119,23 +15119,23 @@ dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_set_str(pinfo->cinfo, COL_INFO, "Alarm Low");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
-        return TRUE;
+        return true;
     }
 
     /* is this a Remote Service Interface (RSI) packet*/
     if (u16FrameID == 0xfe02) {
         dissect_PNIO_RSI(tvb, 0, pinfo, tree, drep);
-        return TRUE;
+        return true;
     }
 
     /* this PN-RT packet doesn't seem to be PNIO specific */
-    return FALSE;
+    return false;
 }
 
-static bool
-dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static int
+dissect_PNIO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return (bool)dissect_PNIO(tvb, pinfo, tree, data);
+    return dissect_PNIO_heur(tvb, pinfo, tree, data) ? tvb_captured_length(tvb) : 0;
 }
 
 static bool
