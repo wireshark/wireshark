@@ -346,7 +346,11 @@ development of Wireshark scripts and plugins.
 
 %cmake_build
 %if %{with guides}
+%if 0%{?suse_version}
+%cmake_build all_guides
+%else
 %cmake_build --target all_guides
+%endif
 %endif
 
 %install
