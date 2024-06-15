@@ -539,16 +539,6 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     return tvb_reported_length(tvb);
 }
 
-
-static gboolean
-dissect_classicstun_heur_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-    if (dissect_classicstun(tvb, pinfo, tree, NULL) == 0)
-        return FALSE;
-
-    return TRUE;
-}
-
 static bool
 dissect_classicstun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -700,7 +690,6 @@ proto_register_classicstun(void)
     heur_subdissector_list = register_heur_dissector_list_with_description("classicstun", "CLASSICSTUN DATA payload", proto_classicstun);
 
     register_dissector("classicstun", dissect_classicstun, proto_classicstun);
-    register_dissector("classicstun-heur", dissect_classicstun_heur_register, proto_classicstun);
 }
 
 

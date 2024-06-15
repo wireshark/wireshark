@@ -175,8 +175,6 @@ static dissector_handle_t rtp_rfc4571_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t classicstun_handle;
 static dissector_handle_t stun_handle;
-static dissector_handle_t classicstun_heur_handle;
-static dissector_handle_t stun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
 static dissector_handle_t dtls_handle;
@@ -1375,10 +1373,17 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             return true;
         } else {
             switch (global_rtp_version0_type) {
+
+            /*
+             * The two STUN dissectors return 0 if the packet doesn't appear
+             * to be a STUN packet and the number of bytes dissected if
+             * it does.  Just call that and test whether the return value
+             * is != 0 or not.
+             */
             case RTP0_STUN:
-                return call_dissector_only(stun_heur_handle, tvb, pinfo, tree, NULL);
+                return call_dissector_only(stun_handle, tvb, pinfo, tree, NULL) != 0;
             case RTP0_CLASSICSTUN:
-                return call_dissector_only(classicstun_heur_handle, tvb, pinfo, tree, NULL);
+                return call_dissector_only(classicstun_handle, tvb, pinfo, tree, NULL) != 0;
 
             case RTP0_T38:
                 /* XXX: Should really be calling a heuristic dissector for T38 ??? */
@@ -1386,6 +1391,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 return true;
 
             case RTP0_SPRT:
+                /* XXX: Should really be calling a heuristic dissector for SPRT ??? */
                 call_dissector_only(sprt_handle, tvb, pinfo, tree, NULL);
                 return true;
 
@@ -3705,8 +3711,6 @@ proto_reg_handoff_rtp(void)
     rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtp);
     stun_handle = find_dissector_add_dependency("stun-udp", proto_rtp);
     classicstun_handle = find_dissector_add_dependency("classicstun", proto_rtp);
-    classicstun_heur_handle = find_dissector_add_dependency("classicstun-heur", proto_rtp);
-    stun_heur_handle = find_dissector_add_dependency("stun-heur", proto_rtp);
     t38_handle = find_dissector_add_dependency("t38_udp", proto_rtp);
     zrtp_handle = find_dissector_add_dependency("zrtp", proto_rtp);
     dtls_handle = find_dissector_add_dependency("dtls", proto_rtp);
