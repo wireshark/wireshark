@@ -345,6 +345,9 @@ development of Wireshark scripts and plugins.
 %{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
 
 %cmake_build
+%if %{with guides}
+%cmake_build --target all_guides
+%endif
 
 %install
 
@@ -356,6 +359,7 @@ development of Wireshark scripts and plugins.
 %cmake_install --component Development
 %if %{with guides}
 %cmake_install --component UserGuide
+%cmake_install --component DeveloperGuide
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
@@ -411,6 +415,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %defattr(-,root,root)
 %doc AUTHORS COPYING NEWS README.md
+%if %{with guides}
+%exclude %{_datadir}/doc/wireshark/wsdg_html_chunked
+%endif
 %{_datadir}/doc/wireshark
 %docdir %{_datadir}/doc/wireshark
 
@@ -479,6 +486,10 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_includedir}/wireshark
 %{_libdir}/cmake/wireshark
 %{_libdir}/pkgconfig/wireshark.pc
+%if %{with guides}
+%{_datadir}/doc/wireshark/wsdg_html_chunked
+%docdir %{_datadir}/doc/wireshark/wsdg_html_chunked
+%endif
 
 %changelog
 * Wed Jun 14 2023 Joao Valverde

@@ -3854,6 +3854,9 @@ if(RPMBUILD_EXECUTABLE)
 	if (BROTLI_FOUND)
 		list(APPEND _rpmbuild_with_args --with brotli)
 	endif()
+	if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
+		list(APPEND _rpmbuild_with_args --with guides)
+	endif()
 
 	execute_process(
 		COMMAND ${Python3_EXECUTABLE}
