@@ -539,7 +539,7 @@ static const value_string attributes[] = {
     {ICMP                  , "ICMP"},
     {MS_TURN_UNKNOWN_8006  , "MS-TURN UNKNOWN 8006"},
     {MS_VERSION            , "MS-VERSION"},
-    {MS_XOR_MAPPED_ADDRESS , "XOR-MAPPED-ADDRESS"},
+    {MS_XOR_MAPPED_ADDRESS , "MS-XOR-MAPPED-ADDRESS"},
     {SOFTWARE              , "SOFTWARE"},
     {ALTERNATE_SERVER      , "ALTERNATE-SERVER"},
     {TRANSACTION_TRANSMIT_COUNTER, "TRANSACTION-TRANSMIT-COUNTER"},
