@@ -399,6 +399,7 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 		TARGET user_guide_html
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
 			"${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked" "${WSUG_DIR}"
+		VERBATIM
 	)
 endif()
 
