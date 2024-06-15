@@ -28,6 +28,7 @@ struct pref_module {
     const char *name;           /**< name of module */
     const char *title;          /**< title of module (displayed in preferences list) */
     const char *description;    /**< Description of module (displayed in preferences notebook) */
+    const char *help;           /**< Module help page (passed to user_guide_url() to generate a URL) */
     void (*apply_cb)(void);     /**< routine to call when preferences applied */
     GList *prefs;               /**< list of its preferences */
     struct pref_module *parent; /**< parent module */

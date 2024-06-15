@@ -47,7 +47,7 @@ PrefsItem::PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent)
     pref_(pref),
     module_(module),
     name_(module->name ? module->name : module->parent->name),
-    help_(QString()), // XXX - Add help url to pref module registration
+    help_(QString()),
     changed_(false)
 {
     if (pref_ != NULL) {
@@ -126,7 +126,16 @@ QString PrefsItem::getModuleTitle() const
 
 QString PrefsItem::getModuleHelp() const
 {
-    return help_;
+    if (module_ == nullptr)
+        return help_;
+
+    module_t *pref_module = module_;
+
+    while (pref_module->help == nullptr && pref_module->parent) {
+        pref_module = pref_module->parent;
+    }
+
+    return pref_module->help;
 }
 
 void PrefsItem::setChanged(bool changed)
