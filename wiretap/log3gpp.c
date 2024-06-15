@@ -503,7 +503,7 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     int  prot_option_chars = 0;
     char seconds_buff[MAX_SECONDS_CHARS+1];
     int  seconds_chars;
-    char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS+1];
+    char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS];
     int  subsecond_decimals_chars;
 
     /*********************************************************************/
@@ -574,7 +574,9 @@ gboolean parse_line(gchar* linebuff, gint line_length, gint *seconds, gint *usec
     }
 
     /* Convert found value into microseconds */
-    subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
+    while (subsecond_decimals_chars < MAX_SUBSECOND_DECIMALS) {
+        subsecond_decimals_buff[subsecond_decimals_chars++] = '0';
+    }
     /* Already know they are digits, so avoid expense of ws_strtoi32() */
     *useconds = ((subsecond_decimals_buff[0] - '0') * 100000) +
                 ((subsecond_decimals_buff[1] - '0') * 10000) +
