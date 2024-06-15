@@ -1472,6 +1472,7 @@ static const value_string type_constants[] = {
 	{0x0e, "FIELD_TYPE_NEWDATE"    },
 	{0x0f, "FIELD_TYPE_VARCHAR"    },
 	{0x10, "FIELD_TYPE_BIT"        },
+	{0xf5, "FIELD_TYPE_JSON"       },
 	{0xf6, "FIELD_TYPE_NEWDECIMAL" },
 	{0xf7, "FIELD_TYPE_ENUM"       },
 	{0xf8, "FIELD_TYPE_SET"        },
@@ -1671,6 +1672,7 @@ static int mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree,
 static int dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_);
 
+// type, unsigned, dissector
 static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x01, 0, mysql_dissect_exec_tiny },
 	{ 0x01, 1, mysql_dissect_exec_unsigned_tiny },
@@ -1688,6 +1690,7 @@ static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x0a, 0, mysql_dissect_exec_datetime },
 	{ 0x0b, 0, mysql_dissect_exec_time },
 	{ 0x0c, 0, mysql_dissect_exec_datetime },
+	{ 0xf5, 0, mysql_dissect_exec_string },
 	{ 0xf6, 0, mysql_dissect_exec_string },
 	{ 0xfc, 0, mysql_dissect_exec_string },
 	{ 0xfd, 0, mysql_dissect_exec_string },
