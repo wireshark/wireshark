@@ -530,6 +530,7 @@ void proto_reg_handoff_pw_satop(void)
 
 	/* For Decode As */
 	dissector_add_for_decode_as("mpls.label", pw_satop_mpls_handle);
+	dissector_add_for_decode_as("mpls.pfn", pw_satop_mpls_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", pw_satop_udp_handle);
 }
 

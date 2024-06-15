@@ -217,6 +217,8 @@ void proto_reg_handoff_pw_hdlc(void)
 {
 	dissector_add_for_decode_as( "mpls.label", pw_hdlc_nocw_fr_handle );
 	dissector_add_for_decode_as( "mpls.label", pw_ppp_handle );
+	dissector_add_for_decode_as( "mpls.pfn", pw_hdlc_nocw_fr_handle );
+	dissector_add_for_decode_as( "mpls.pfn", pw_ppp_handle );
 
 	ppp_handle = find_dissector_add_dependency( "ppp", proto_pw_hdlc_nocw_hdlc_ppp );
 	fr_handle = find_dissector_add_dependency( "fr", proto_pw_hdlc_nocw_fr );

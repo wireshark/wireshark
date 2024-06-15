@@ -301,6 +301,7 @@ void
 proto_reg_handoff_pw_fr(void)
 {
 	dissector_add_for_decode_as("mpls.label", pw_fr_mpls_handle);
+	dissector_add_for_decode_as("mpls.pfn", pw_fr_mpls_handle);
 	fr_stripped_address_handle = find_dissector_add_dependency("fr_stripped_address", proto_encaps);
 }
 
