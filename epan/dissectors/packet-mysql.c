@@ -1144,6 +1144,7 @@ static gint ett_connattrs_attr;
 static gint ett_mysql_field;
 static gint ett_binlog_event;
 static gint ett_binlog_event_hb_v2;
+static gint ett_mysql_binary_field;
 
 /* protocol fields */
 static int hf_mysql_caps_server;
@@ -3640,6 +3641,9 @@ static int
 mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_, const mysql_frame_data_t *my_frame_data)
 {
 	int fieldpos;
+	proto_item* ti;
+	proto_tree* bf_tree;
+
 	if (my_frame_data->field_metas.count) {
 
 		/* null bitmap */
@@ -3656,7 +3660,11 @@ mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *p
 			if ((null_buffer[(fieldpos + 2) / 8] & (1 << ((fieldpos + 2) % 8))) == 0) {
 				// data is not null
 				if (tvb_reported_length_remaining(tvb, offset) > 0) {
-					if (!mysql_dissect_binary_row_value(tvb, pinfo, pi, &offset, tree, my_frame_data->field_metas.types[fieldpos], my_frame_data->field_metas.flags[fieldpos], my_frame_data->field_metas.encodings[fieldpos]))
+					bf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_mysql_binary_field, &ti, "Binary Field");
+					if (!mysql_dissect_binary_row_value(tvb, pinfo, pi, &offset, bf_tree,
+					                                    my_frame_data->field_metas.types[fieldpos],
+					                                    my_frame_data->field_metas.flags[fieldpos],
+														my_frame_data->field_metas.encodings[fieldpos]))
 						break;
 				}
 			} else {
@@ -6034,6 +6042,7 @@ void proto_register_mysql(void)
 		&ett_binlog_event_hb_v2,
 		&ett_mysql_fragment,
 		&ett_mysql_fragments,
+		&ett_mysql_binary_field,
 	};
 
 	static ei_register_info ei[] = {
