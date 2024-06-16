@@ -1480,7 +1480,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 /* heuristic dissector */
 static bool
-dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8 octet, extension_bit, reserved_bit, payload_type;
     guint16 word, tc, seqnum;
@@ -1513,7 +1513,7 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
         return false;
 
-    dissect_sprt(tvb, pinfo, tree, NULL);
+    dissect_sprt(tvb, pinfo, tree, data);
     return true;
 }
 

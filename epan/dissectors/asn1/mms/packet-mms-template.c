@@ -689,7 +689,7 @@ void proto_register_mms(void) {
 
 
 static bool
-dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* data _U_)
+dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* data)
 {
     /* must check that this really is an mms packet */
     int offset = 0;

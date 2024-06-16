@@ -157,7 +157,7 @@ dissect_dcp_etsi(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * 
 static void
  */
 static bool
-dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
+dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
   /* 6.1 AF packet structure
    *

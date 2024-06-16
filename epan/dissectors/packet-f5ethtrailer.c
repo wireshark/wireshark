@@ -3009,9 +3009,9 @@ found_trailer:
 } /* dissect_f5ethtrailer() */
 
 static bool
-dissect_f5ethtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_f5ethtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_f5ethtrailer(tvb, pinfo, tree, NULL) > 0;
+    return dissect_f5ethtrailer(tvb, pinfo, tree, data) > 0;
 }
 
 /*-----------------------------------------------------------------------------------------------*/

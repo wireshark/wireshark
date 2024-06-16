@@ -650,7 +650,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval, packet_info
 
 /* Code to actually dissect the packets */
 static bool
-dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8       pdut;
 

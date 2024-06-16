@@ -1242,9 +1242,9 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 }
 
 static bool
-dissect_ctdb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ctdb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return (bool)dissect_ctdb(tvb, pinfo, tree, NULL);
+    return (bool)dissect_ctdb(tvb, pinfo, tree, data);
 }
 
 /*

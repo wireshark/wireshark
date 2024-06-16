@@ -782,9 +782,9 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static bool
-dissect_etch_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_etch_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_etch(tvb, pinfo, tree, NULL) > 0;
+    return dissect_etch(tvb, pinfo, tree, data) > 0;
 }
 
 static void

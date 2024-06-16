@@ -540,9 +540,9 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 }
 
 static bool
-dissect_classicstun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_classicstun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_classicstun(tvb, pinfo, tree, NULL) > 0;
+    return dissect_classicstun(tvb, pinfo, tree, data) > 0;
 }
 
 

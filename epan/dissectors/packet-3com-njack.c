@@ -644,12 +644,12 @@ test_njack(tvbuff_t *tvb)
 }
 
 static bool
-dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if ( !test_njack(tvb) ) {
 		return false;
 	}
-	dissect_njack(tvb, pinfo, tree, NULL);
+	dissect_njack(tvb, pinfo, tree, data);
 	return true;
 }
 

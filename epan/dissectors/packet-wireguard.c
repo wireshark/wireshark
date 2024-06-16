@@ -1634,7 +1634,7 @@ dissect_wg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static bool
-dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*
      * Heuristics to detect the WireGuard protocol:
@@ -1680,7 +1680,7 @@ dissect_wg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         conversation_set_dissector(conversation, wg_handle);
     }
 
-    dissect_wg(tvb, pinfo, tree, NULL);
+    dissect_wg(tvb, pinfo, tree, data);
     return true;
 }
 

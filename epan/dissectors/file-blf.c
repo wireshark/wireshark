@@ -967,8 +967,8 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static bool
-dissect_blf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    return dissect_blf(tvb, pinfo, tree, NULL) > 0;
+dissect_blf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    return dissect_blf(tvb, pinfo, tree, data) > 0;
 }
 
 static int

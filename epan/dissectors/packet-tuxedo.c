@@ -128,7 +128,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 }
 
 static bool
-dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if (tvb_captured_length(tvb) >= 8)
 	{

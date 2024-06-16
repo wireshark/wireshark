@@ -230,7 +230,7 @@ static int dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 }
 
 static bool
-dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
+dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data) {
 
   if (!dissect_miop_heur_check(tvb, pinfo, tree, data))
       return false;

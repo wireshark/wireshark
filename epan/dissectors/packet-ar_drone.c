@@ -557,9 +557,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static bool
-dissect_ar_drone_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ar_drone_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_ar_drone(tvb, pinfo, tree, NULL) > 0;
+    return dissect_ar_drone(tvb, pinfo, tree, data) > 0;
 }
 
 void

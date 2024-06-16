@@ -615,9 +615,9 @@ dissect_gsm_r_uus1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 /* heuristic dissector */
 static bool
-dissect_gsm_r_uus1_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_gsm_r_uus1_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (dissect_gsm_r_uus1(tvb, pinfo, tree, NULL) > 0)
+    if (dissect_gsm_r_uus1(tvb, pinfo, tree, data) > 0)
         return false;
 
     return true;

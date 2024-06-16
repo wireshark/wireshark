@@ -1025,9 +1025,9 @@ static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static bool
-dissect_icep_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_icep_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return (bool)dissect_icep_tcp(tvb, pinfo, tree, NULL) > 0;
+    return (bool)dissect_icep_tcp(tvb, pinfo, tree, data) > 0;
 }
 
 static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -1045,9 +1045,9 @@ static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static bool
-dissect_icep_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_icep_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return (bool)dissect_icep_udp(tvb, pinfo, tree, NULL) > 0;
+    return (bool)dissect_icep_udp(tvb, pinfo, tree, data) > 0;
 }
 
 /* Register the protocol with Wireshark */

@@ -203,9 +203,9 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 }
 
 static bool
-dissect_ixiatrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ixiatrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_ixiatrailer(tvb, pinfo, tree, NULL) > 0;
+    return dissect_ixiatrailer(tvb, pinfo, tree, data) > 0;
 }
 
 void

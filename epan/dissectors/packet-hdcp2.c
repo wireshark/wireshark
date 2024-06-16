@@ -272,9 +272,9 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 }
 
 static bool
-dissect_hdcp2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_hdcp2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_hdcp2(tvb, pinfo, tree, NULL) > 0;
+    return dissect_hdcp2(tvb, pinfo, tree, data) > 0;
 }
 
 

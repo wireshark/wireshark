@@ -208,9 +208,9 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 }
 
 static bool
-dissect_pcap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_pcap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_pcap(tvb, pinfo, tree, NULL) > 0;
+    return dissect_pcap(tvb, pinfo, tree, data) > 0;
 }
 
 void

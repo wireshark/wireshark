@@ -405,7 +405,7 @@ dissect_bt_tracker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 
 static bool
-dissect_bt_tracker_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_bt_tracker_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   conversation_t *conversation;
 

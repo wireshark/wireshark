@@ -339,9 +339,9 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static bool
-dissect_gmtimestamp_trailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_gmtimestamp_trailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_gmtimestamp_trailer(tvb, pinfo, tree, NULL) > 0;
+    return dissect_gmtimestamp_trailer(tvb, pinfo, tree, data) > 0;
 }
 
 static int
@@ -408,9 +408,9 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 }
 
 static bool
-dissect_gmtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_gmtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_gmtrailer(tvb, pinfo, tree, NULL) > 0;
+    return dissect_gmtrailer(tvb, pinfo, tree, data) > 0;
 }
 
 void

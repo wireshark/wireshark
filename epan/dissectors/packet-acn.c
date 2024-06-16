@@ -3316,7 +3316,7 @@ is_rdmnet_over_udp(tvbuff_t *tvb)
 /******************************************************************************/
 /* Heuristic dissector                                                        */
 static bool
-dissect_acn_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_acn_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   /* This is a heuristic dissector, which means we get all the UDP
    * traffic not sent to a known dissector and not claimed by

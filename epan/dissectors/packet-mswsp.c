@@ -8017,9 +8017,9 @@ static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static bool
-dissect_mswsp_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mswsp_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_mswsp_smb(tvb, pinfo, tree, NULL) > 0;
+    return dissect_mswsp_smb(tvb, pinfo, tree, data) > 0;
 }
 
 static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -8047,9 +8047,9 @@ static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static bool
-dissect_mswsp_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mswsp_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_mswsp_smb2(tvb, pinfo, tree, NULL) > 0;
+    return dissect_mswsp_smb2(tvb, pinfo, tree, data) > 0;
 }
 
 void

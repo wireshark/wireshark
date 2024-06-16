@@ -106,7 +106,7 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 }
 // below code is added to replace mdns dissector registration
 static bool
-dissect_trel_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+dissect_trel_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
     if ((tvb_captured_length(tvb)) < 16 ) {
         return false;
@@ -118,7 +118,7 @@ dissect_trel_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 
     if (pinfo->srcport == pinfo->destport)      return false;
 
-    dissect_trel(tvb, pinfo, tree, NULL);
+    dissect_trel(tvb, pinfo, tree, data);
     return true;
 }
 void

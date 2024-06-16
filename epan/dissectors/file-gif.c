@@ -382,9 +382,9 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static bool
-dissect_gif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_gif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_gif(tvb, pinfo, tree, NULL) > 0;
+    return dissect_gif(tvb, pinfo, tree, data) > 0;
 }
 
 

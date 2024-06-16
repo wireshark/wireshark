@@ -1097,7 +1097,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 }
 
 static bool
-dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_bt_utp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   gint version;
   version = get_utp_version(tvb);

@@ -1196,11 +1196,11 @@ show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
 
 /* This function tries to understand if the payload is sitting on top of AC DR */
 static bool
-dissect_t38_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_t38_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint acdr_prot = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_acdr, 0));
 	if (acdr_prot == ACDR_T38)
-		return dissect_t38_udp(tvb, pinfo, tree, NULL);
+		return dissect_t38_udp(tvb, pinfo, tree, data);
 	return false;
 }
 

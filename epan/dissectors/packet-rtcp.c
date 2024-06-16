@@ -1045,7 +1045,7 @@ void rtcp_add_address( packet_info *pinfo,
 }
 
 static bool
-dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
+dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data )
 {
     unsigned int offset = 0;
     unsigned int first_byte;

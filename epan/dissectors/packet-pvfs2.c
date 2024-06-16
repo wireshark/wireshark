@@ -338,9 +338,9 @@ dissect_pvfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static bool
-dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_pvfs(tvb, pinfo, tree, NULL) > 0;
+    return dissect_pvfs(tvb, pinfo, tree, data) > 0;
 }
 
 static const value_string names_pvfs_server_op[] =

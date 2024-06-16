@@ -471,9 +471,9 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 }
 
 static bool
-dissect_metamako_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_metamako_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_metamako(tvb, pinfo, tree, NULL) > 0;
+    return dissect_metamako(tvb, pinfo, tree, data) > 0;
 }
 
 void

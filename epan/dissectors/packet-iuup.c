@@ -747,7 +747,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
 }
 
 
-static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
+static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     int len = tvb_captured_length(tvb);
 
     guint8 first_octet =  tvb_get_guint8(tvb,0);

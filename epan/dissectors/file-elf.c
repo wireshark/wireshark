@@ -1768,9 +1768,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static bool
-dissect_elf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_elf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_elf(tvb, pinfo, tree, NULL) > 0;
+    return dissect_elf(tvb, pinfo, tree, data) > 0;
 }
 
 void

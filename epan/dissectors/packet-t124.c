@@ -2907,7 +2907,7 @@ dissect_t124(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 }
 
 static bool
-dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
   asn1_ctx_t asn1_ctx;
   volatile bool failed = FALSE;

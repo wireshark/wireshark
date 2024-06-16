@@ -4070,7 +4070,7 @@ set_both_sides_umts_fp_conv_data(packet_info *pinfo, umts_fp_conversation_info_t
 
 }
 static gboolean
-heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -4204,7 +4204,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     fp_fach_channel_info_t* fp_fach_channel_info;
@@ -4314,7 +4314,7 @@ heur_dissect_fp_fach1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     fp_fach_channel_info_t* fp_fach_channel_info;
@@ -4429,7 +4429,7 @@ heur_dissect_fp_fach2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     fp_rach_channel_info_t* fp_rach_channel_info;
@@ -4542,7 +4542,7 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -4755,7 +4755,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
 }
 static gboolean
-heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -4883,7 +4883,7 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return TRUE;
 }
 static gboolean
-heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -5050,7 +5050,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static gboolean
-heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -5223,7 +5223,7 @@ heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* fail since the FP conversation info is never attached */
 /* Useful for DCH streams containing CS data and don't have their own heuristic method */
 static gboolean
-heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
@@ -5319,7 +5319,7 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 /* This method wraps the heuristic dissectors of all supported channels */
 static bool
-heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gboolean match;
 

@@ -106,9 +106,9 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 }
 
 static bool
-dissect_e100_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_e100_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_e100(tvb, pinfo, tree, NULL) > 0;
+    return dissect_e100(tvb, pinfo, tree, data) > 0;
 }
 
 void

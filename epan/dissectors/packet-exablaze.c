@@ -128,9 +128,9 @@ dissect_exablaze(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static bool
-dissect_exablaze_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_exablaze_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_exablaze(tvb, pinfo, tree, NULL) > 0;
+    return dissect_exablaze(tvb, pinfo, tree, data) > 0;
 }
 
 void

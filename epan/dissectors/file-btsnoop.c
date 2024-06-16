@@ -233,9 +233,9 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 }
 
 static bool
-dissect_btsnoop_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_btsnoop_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_btsnoop(tvb, pinfo, tree, NULL) > 0;
+    return dissect_btsnoop(tvb, pinfo, tree, data) > 0;
 }
 
 void

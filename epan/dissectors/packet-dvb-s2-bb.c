@@ -2105,7 +2105,7 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return cur_off;
 }
 
-static bool dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int matched_headers = detect_dvb_s2_modeadapt(tvb);
     if (dvb_s2_try_all_modeadapt) {

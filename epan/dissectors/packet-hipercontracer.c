@@ -135,9 +135,9 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 }
 
 static bool
-heur_dissect_hipercontracer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_hipercontracer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return heur_dissect_hipercontracer(tvb, pinfo, tree, NULL) > 0;
+    return heur_dissect_hipercontracer(tvb, pinfo, tree, data) > 0;
 }
 
 /* Register the protocol with Wireshark */
