@@ -1070,7 +1070,7 @@ void WiresharkMainWindow::updateRecentCaptures() {
             shortcut++;
         }
         ra->setText(action_cf_name);
-        connect(ra, SIGNAL(triggered()), this, SLOT(recentActionTriggered()));
+        connect(ra, &QAction::triggered, this, &WiresharkMainWindow::recentActionTriggered);
 
 /* This is slow, at least on my VM here. The added links also open Wireshark
  * in a new window. It might make more sense to add a recent item when we
@@ -1094,7 +1094,7 @@ void WiresharkMainWindow::updateRecentCaptures() {
         QFileInfo fi(ri->filename);
         rda->setText(fi.fileName());
         dock_menu_->insertAction(NULL, rda);
-        connect(rda, SIGNAL(triggered()), ra, SLOT(trigger()));
+        connect(rda, &QAction::triggered, ra, &QAction::trigger);
 #endif
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         if (recentMenu->actions().count() == static_cast<int>(prefs.gui_recent_files_count_max)) {
@@ -1115,7 +1115,7 @@ void WiresharkMainWindow::updateRecentCaptures() {
         ra = new QAction(recentMenu);
         ra->setText(tr("Clear Menu"));
         recentMenu->insertAction(NULL, ra);
-        connect(ra, SIGNAL(triggered()), mainApp, SLOT(clearRecentCaptures()));
+        connect(ra, &QAction::triggered, mainApp, &MainApplication::clearRecentCaptures);
     } else {
         if (main_ui_->actionDummyNoFilesFound) {
             recentMenu->addAction(main_ui_->actionDummyNoFilesFound);
@@ -1669,7 +1669,7 @@ void WiresharkMainWindow::initViewColorizeMenu()
 
     foreach(QAction *cc_action, cc_actions) {
         cc_action->setData(color_num);
-        connect(cc_action, SIGNAL(triggered()), this, SLOT(colorizeConversation()));
+        connect(cc_action, &QAction::triggered, this, &WiresharkMainWindow::colorizeConversation);
 
         const color_filter_t *colorf = color_filters_tmp_color(color_num);
         if (colorf) {
@@ -1789,10 +1789,8 @@ void WiresharkMainWindow::openTapParameterDialog(const QString cfg_str, const QS
     TapParameterDialog *tp_dialog = TapParameterDialog::showTapParameterStatistics(*this, capture_file_, cfg_str, arg, userdata);
     if (!tp_dialog) return;
 
-    connect(tp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(tp_dialog, SIGNAL(updateFilter(QString)),
-            df_combo_box_->lineEdit(), SLOT(setText(QString)));
+    connect(tp_dialog, &TapParameterDialog::filterAction, this, &WiresharkMainWindow::filterAction);
+    connect(tp_dialog, &TapParameterDialog::updateFilter, df_combo_box_->lineEdit(), &QLineEdit::setText);
     tp_dialog->show();
 }
 
@@ -2263,10 +2261,9 @@ void WiresharkMainWindow::findPacket()
 void WiresharkMainWindow::editTimeShift()
 {
     TimeShiftDialog *ts_dialog = new TimeShiftDialog(this, capture_file_.capFile());
-    connect(ts_dialog, SIGNAL(finished(int)), this, SLOT(editTimeShiftFinished(int)));
+    connect(ts_dialog, &TimeShiftDialog::finished, this, &WiresharkMainWindow::editTimeShiftFinished);
 
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            ts_dialog, SLOT(setCaptureFile(capture_file*)));
+    connect(this, &WiresharkMainWindow::setCaptureFile, ts_dialog, &TimeShiftDialog::setCaptureFile);
     connect(ts_dialog, &TimeShiftDialog::timeShifted, packet_list_, &PacketList::applyTimeShift, Qt::QueuedConnection);
 
     ts_dialog->setWindowModality(Qt::ApplicationModal);
@@ -2348,7 +2345,7 @@ void WiresharkMainWindow::deleteCommentsFromPackets()
 void WiresharkMainWindow::deleteAllPacketComments()
 {
     QMessageBox *msg_dialog = new QMessageBox();
-    connect(msg_dialog, SIGNAL(finished(int)), this, SLOT(deleteAllPacketCommentsFinished(int)));
+    connect(msg_dialog, &QMessageBox::finished, this, &WiresharkMainWindow::deleteAllPacketCommentsFinished);
 
     msg_dialog->setIcon(QMessageBox::Question);
     msg_dialog->setText(tr("Are you sure you want to remove all packet comments?"));
@@ -2409,7 +2406,7 @@ void WiresharkMainWindow::discardAllSecrets()
         return;
 
     QMessageBox* msg_dialog = new QMessageBox();
-    connect(msg_dialog, SIGNAL(finished(int)), this, SLOT(discardAllSecretsFinished(int)));
+    connect(msg_dialog, &QMessageBox::finished, this, &WiresharkMainWindow::discardAllSecretsFinished);
 
     msg_dialog->setIcon(QMessageBox::Question);
     msg_dialog->setText(tr("Are you sure you want to discard all decryption secrets?"));
@@ -2447,7 +2444,7 @@ void WiresharkMainWindow::editConfigurationProfiles()
 void WiresharkMainWindow::showPreferencesDialog(QString module_name)
 {
     PreferencesDialog *pref_dialog = new PreferencesDialog(this);
-    connect(pref_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+    connect(pref_dialog, &PreferencesDialog::destroyed, mainApp, &MainApplication::flushAppSignals);
     saveWindowGeometry();  // Save in case the layout panes are rearranged
 
     pref_dialog->setPane(module_name);
@@ -3165,7 +3162,7 @@ void WiresharkMainWindow::connectAnalyzeMenuActions()
 
     connect(main_ui_->actionAnalyzeEnabledProtocols, &QAction::triggered, this, [=]() {
         EnabledProtocolsDialog *enable_proto_dialog = new EnabledProtocolsDialog(this);
-        connect(enable_proto_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+        connect(enable_proto_dialog, &EnabledProtocolsDialog::destroyed, mainApp, &MainApplication::flushAppSignals);
 
         enable_proto_dialog->setWindowModality(Qt::ApplicationModal);
         enable_proto_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -3177,7 +3174,7 @@ void WiresharkMainWindow::connectAnalyzeMenuActions()
         bool create_new = da_action && da_action->property("create_new").toBool();
 
         DecodeAsDialog *da_dialog = new DecodeAsDialog(this, capture_file_.capFile(), create_new);
-        connect(da_dialog, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
+        connect(da_dialog, &DecodeAsDialog::destroyed, mainApp, &MainApplication::flushAppSignals);
 
         da_dialog->setWindowModality(Qt::ApplicationModal);
         da_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -3295,8 +3292,8 @@ void WiresharkMainWindow::applyExportObject()
 
 void WiresharkMainWindow::openFollowStreamDialog(int proto_id, unsigned stream_num, unsigned sub_stream_num, bool use_stream_index) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, proto_id);
-    connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
-    connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+    connect(fsd, &FollowStreamDialog::updateFilter, this, &WiresharkMainWindow::filterPackets);
+    connect(fsd, &FollowStreamDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
     fsd->addCodecs(text_codec_map_);
     fsd->show();
     if (use_stream_index) {
@@ -3315,10 +3312,8 @@ void WiresharkMainWindow::openFollowStreamDialog(int proto_id) {
 void WiresharkMainWindow::openSCTPAllAssocsDialog()
 {
     SCTPAllAssocsDialog *sctp_dialog = new SCTPAllAssocsDialog(this, capture_file_.capFile());
-    connect(sctp_dialog, SIGNAL(filterPackets(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            sctp_dialog, SLOT(setCaptureFile(capture_file*)));
+    connect(sctp_dialog, &SCTPAllAssocsDialog::filterPackets, this, &WiresharkMainWindow::filterPackets);
+    connect(this, &WiresharkMainWindow::setCaptureFile, sctp_dialog, &SCTPAllAssocsDialog::setCaptureFile);
     sctp_dialog->fillTable();
 
     if (sctp_dialog->isMinimized() == true)
@@ -3346,8 +3341,7 @@ void WiresharkMainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
         return;
     }
     SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, assoc, capture_file_.capFile());
-    connect(sctp_analyse, SIGNAL(filterPackets(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
+    connect(sctp_analyse, &SCTPAssocAnalyseDialog::filterPackets, this, &WiresharkMainWindow::filterPackets);
 
     if (sctp_analyse->isMinimized() == true)
     {
@@ -3376,9 +3370,8 @@ void WiresharkMainWindow::on_actionSCTPFilterThisAssociation_triggered()
 void WiresharkMainWindow::statCommandWlanStatistics(const char *arg, void *)
 {
     WlanStatisticsDialog *wlan_stats_dlg = new WlanStatisticsDialog(*this, capture_file_, arg);
-    connect(wlan_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     wlan_stats_dlg->show();
+    connect(wlan_stats_dlg, &WlanStatisticsDialog::filterAction, this, &WiresharkMainWindow::filterAction);
 }
 
 // -z expert
@@ -3387,10 +3380,9 @@ void WiresharkMainWindow::statCommandExpertInfo(const char *, void *)
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     ExpertInfoDialog *expert_dialog = new ExpertInfoDialog(*this, capture_file_, df_edit->text());
 
-    connect(expert_dialog->getExpertInfoView(), SIGNAL(goToPacket(int, int)),
-            packet_list_, SLOT(goToPacket(int, int)));
-    connect(expert_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(expert_dialog->getExpertInfoView(), &ExpertInfoTreeView::goToPacket,
+            this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+    connect(expert_dialog, &ExpertInfoDialog::filterAction, this, &WiresharkMainWindow::filterAction);
 
     expert_dialog->show();
 }
@@ -3404,8 +3396,8 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 {
     connect(main_ui_->actionStatisticsCaptureFileProperties, &QAction::triggered, this, [=]() {
         CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
-        connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
-                this, SLOT(updateForUnsavedChanges()));
+        connect(capture_file_properties_dialog, &CaptureFilePropertiesDialog::captureCommentChanged,
+                this, &WiresharkMainWindow::updateForUnsavedChanges);
         capture_file_properties_dialog->show();
     });
 
@@ -3413,8 +3405,7 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 
     connect(main_ui_->actionStatisticsProtocolHierarchy, &QAction::triggered, this, [=]() {
         ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
-        connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-                this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+        connect(phd, &ProtocolHierarchyDialog::filterAction, this, &WiresharkMainWindow::filterAction);
         phd->show();
     });
 
@@ -3484,28 +3475,22 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 
     connect(main_ui_->actionStatistics29WestUIM_Streams, &QAction::triggered, this, [=]() {
         LBMStreamDialog *stream_dialog = new LBMStreamDialog(this, capture_file_.capFile());
-    //    connect(stream_dialog, SIGNAL(goToPacket(int)),
-    //            packet_list_, SLOT(goToPacket(int)));
-        connect(this, SIGNAL(setCaptureFile(capture_file*)),
-                stream_dialog, SLOT(setCaptureFile(capture_file*)));
+    //    connect(stream_dialog, &LBMStreamDialog::goToPacket, packet_list_, &PacketList::goToPacket);
+        connect(this, &WiresharkMainWindow::setCaptureFile, stream_dialog, &LBMStreamDialog::setCaptureFile);
         stream_dialog->show();
     });
 
     connect(main_ui_->actionStatistics29WestLBTRM, &QAction::triggered, this, [=]() {
         LBMLBTRMTransportDialog * lbtrm_dialog = new LBMLBTRMTransportDialog(this, capture_file_.capFile());
-        connect(lbtrm_dialog, SIGNAL(goToPacket(int)),
-                packet_list_, SLOT(goToPacket(int)));
-        connect(this, SIGNAL(setCaptureFile(capture_file*)),
-                lbtrm_dialog, SLOT(setCaptureFile(capture_file*)));
+        connect(lbtrm_dialog, &LBMLBTRMTransportDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+        connect(this, &WiresharkMainWindow::setCaptureFile, lbtrm_dialog, &LBMLBTRMTransportDialog::setCaptureFile);
         lbtrm_dialog->show();
     });
 
     connect(main_ui_->actionStatistics29WestLBTRU, &QAction::triggered, this, [=]() {
         LBMLBTRUTransportDialog * lbtru_dialog = new LBMLBTRUTransportDialog(this, capture_file_.capFile());
-        connect(lbtru_dialog, SIGNAL(goToPacket(int)),
-                packet_list_, SLOT(goToPacket(int)));
-        connect(this, SIGNAL(setCaptureFile(capture_file*)),
-                lbtru_dialog, SLOT(setCaptureFile(capture_file*)));
+        connect(lbtru_dialog, &LBMLBTRUTransportDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+        connect(this, &WiresharkMainWindow::setCaptureFile, lbtru_dialog, &LBMLBTRUTransportDialog::setCaptureFile);
         lbtru_dialog->show();
     });
 
@@ -3538,10 +3523,8 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 void WiresharkMainWindow::openTcpStreamDialog(int graph_type)
 {
     TCPStreamDialog *stream_dialog = new TCPStreamDialog(this, capture_file_.capFile(), (tcp_graph_type)graph_type);
-    connect(stream_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            stream_dialog, SLOT(setCaptureFile(capture_file*)));
+    connect(stream_dialog, &TCPStreamDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+    connect(this, &WiresharkMainWindow::setCaptureFile, stream_dialog, &TCPStreamDialog::setCaptureFile);
     if (stream_dialog->result() == QDialog::Accepted) {
         stream_dialog->show();
     }
@@ -3551,16 +3534,14 @@ void WiresharkMainWindow::openTcpStreamDialog(int graph_type)
 void WiresharkMainWindow::statCommandMulticastStatistics(const char *arg, void *)
 {
     MulticastStatisticsDialog *mcast_stats_dlg = new MulticastStatisticsDialog(*this, capture_file_, arg);
-    connect(mcast_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(mcast_stats_dlg, &MulticastStatisticsDialog::filterAction, this, &WiresharkMainWindow::filterAction);
     mcast_stats_dlg->show();
 }
 
 void WiresharkMainWindow::openStatisticsTreeDialog(const char *abbr)
 {
     StatsTreeDialog *st_dialog = new StatsTreeDialog(*this, capture_file_, abbr);
-//    connect(st_dialog, SIGNAL(goToPacket(int)),
-//            packet_list_, SLOT(goToPacket(int)));
+//    connect(st_dialog, &StatsTreeDialog::goToPacket, packet_list_, &PacketList::goToPacket);
     st_dialog->show();
 }
 
@@ -3605,7 +3586,7 @@ void WiresharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QS
 
     if (iog_dialog == nullptr) {
         iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, value_units, yfield);
-        connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+        connect(iog_dialog, &IOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
         connect(this, &WiresharkMainWindow::reloadFields, iog_dialog, &IOGraphDialog::reloadFields);
     }
     if (iog_dialog->isMinimized()) {
@@ -3704,20 +3685,17 @@ RtpAnalysisDialog *WiresharkMainWindow::openTelephonyRtpAnalysisDialog()
 void WiresharkMainWindow::statCommandLteMacStatistics(const char *arg, void *)
 {
     LteMacStatisticsDialog *lte_mac_stats_dlg = new LteMacStatisticsDialog(*this, capture_file_, arg);
-    connect(lte_mac_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(lte_mac_stats_dlg, &LteMacStatisticsDialog::filterAction, this, &WiresharkMainWindow::filterAction);
     lte_mac_stats_dlg->show();
 }
 
 void WiresharkMainWindow::statCommandLteRlcStatistics(const char *arg, void *)
 {
     LteRlcStatisticsDialog *lte_rlc_stats_dlg = new LteRlcStatisticsDialog(*this, capture_file_, arg);
-    connect(lte_rlc_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(lte_rlc_stats_dlg, &LteRlcStatisticsDialog::filterAction, this, &WiresharkMainWindow::filterAction);
     // N.B. It is necessary for the RLC Statistics window to launch the RLC graph in this way, to ensure
     // that the goToPacket() signal/slot connection gets set up...
-    connect(lte_rlc_stats_dlg, SIGNAL(launchRLCGraph(bool, uint8_t, uint16_t, uint8_t, uint16_t, uint16_t, uint8_t)),
-            this, SLOT(launchRLCGraph(bool, uint8_t, uint16_t, uint8_t, uint16_t, uint16_t, uint8_t)));
+    connect(lte_rlc_stats_dlg, &LteRlcStatisticsDialog::launchRLCGraph, this, &WiresharkMainWindow::launchRLCGraph);
 
     lte_rlc_stats_dlg->show();
 }
@@ -3727,7 +3705,7 @@ void WiresharkMainWindow::launchRLCGraph(bool channelKnown,
     uint16_t channelType, uint16_t channelId, uint8_t direction)
 {
     LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_, channelKnown);
-    connect(lrg_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+    connect(lrg_dialog, &LteRlcGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
     // This is a bit messy, but wanted to hide these parameters from users of
     // on_actionTelephonyLteRlcGraph_triggered().
     if (channelKnown) {
@@ -3798,28 +3776,27 @@ void WiresharkMainWindow::connectWirelessMenuActions()
 {
     connect(main_ui_->actionBluetoothATT_Server_Attributes, &QAction::triggered, this, [=]() {
         BluetoothAttServerAttributesDialog *bluetooth_att_sever_attributes_dialog = new BluetoothAttServerAttributesDialog(*this, capture_file_);
-        connect(bluetooth_att_sever_attributes_dialog, SIGNAL(goToPacket(int)),
-                packet_list_, SLOT(goToPacket(int)));
-        connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString, bool)),
-                this, SLOT(filterPackets(QString, bool)));
+        connect(bluetooth_att_sever_attributes_dialog, &BluetoothAttServerAttributesDialog::goToPacket,
+                this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+        connect(bluetooth_att_sever_attributes_dialog, &BluetoothAttServerAttributesDialog::updateFilter,
+                this, &WiresharkMainWindow::filterPackets);
         bluetooth_att_sever_attributes_dialog->show();
     });
 
     connect(main_ui_->actionBluetoothDevices, &QAction::triggered, this, [=]() {
         BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_, packet_list_);
-        connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
-                packet_list_, SLOT(goToPacket(int)));
-        connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString, bool)),
-                this, SLOT(filterPackets(QString, bool)));
+        connect(bluetooth_devices_dialog, &BluetoothDevicesDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+        connect(bluetooth_devices_dialog, &BluetoothDevicesDialog::updateFilter,
+                this, &WiresharkMainWindow::filterPackets);
         bluetooth_devices_dialog->show();
     });
 
     connect(main_ui_->actionBluetoothHCI_Summary, &QAction::triggered, this, [=]() {
         BluetoothHciSummaryDialog *bluetooth_hci_summary_dialog = new BluetoothHciSummaryDialog(*this, capture_file_);
-        connect(bluetooth_hci_summary_dialog, SIGNAL(goToPacket(int)),
-                packet_list_, SLOT(goToPacket(int)));
-        connect(bluetooth_hci_summary_dialog, SIGNAL(updateFilter(QString, bool)),
-                this, SLOT(filterPackets(QString, bool)));
+        connect(bluetooth_hci_summary_dialog, &BluetoothHciSummaryDialog::goToPacket,
+                this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+        connect(bluetooth_hci_summary_dialog, &BluetoothHciSummaryDialog::updateFilter,
+                this, &WiresharkMainWindow::filterPackets);
         bluetooth_hci_summary_dialog->show();
     });
 
@@ -3898,7 +3875,7 @@ void WiresharkMainWindow::checkForUpdates()
 void WiresharkMainWindow::setPreviousFocus() {
     previous_focus_ = mainApp->focusWidget();
     if (previous_focus_ != nullptr) {
-        connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
+        connect(previous_focus_, &QWidget::destroyed, this, &WiresharkMainWindow::resetPreviousFocus);
     }
 }
 
@@ -3910,7 +3887,7 @@ void WiresharkMainWindow::goToCancelClicked()
 {
     main_ui_->goToFrame->animatedHide();
     if (previous_focus_) {
-        disconnect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
+        disconnect(previous_focus_, &QWidget::destroyed, this, &WiresharkMainWindow::resetPreviousFocus);
         previous_focus_->setFocus();
         resetPreviousFocus();
     }
@@ -3945,24 +3922,23 @@ void WiresharkMainWindow::showResolvedAddressesDialog()
 void WiresharkMainWindow::showConversationsDialog()
 {
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
-    connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-        this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, unsigned, unsigned)),
-        this, SLOT(openFollowStreamDialog(int, unsigned, unsigned)));
-    connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
-        this, SLOT(openTcpStreamDialog(int)));
+    connect(conv_dialog, &ConversationDialog::filterAction, this, &WiresharkMainWindow::filterAction);
+    connect(conv_dialog, &ConversationDialog::openFollowStreamDialog, this,
+            [=](int proto_id, unsigned stream_num, unsigned sub_stream_num) {
+                openFollowStreamDialog(proto_id, stream_num, sub_stream_num);
+            });
+    connect(conv_dialog, &ConversationDialog::openTcpStreamGraph, this, &WiresharkMainWindow::openTcpStreamDialog);
     conv_dialog->show();
 }
 
 void WiresharkMainWindow::showEndpointsDialog()
 {
     EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
-    connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
-            this, SLOT(openFollowStreamDialog(int)));
-    connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
-            this, SLOT(openTcpStreamDialog(int)));
+    connect(endp_dialog, &EndpointDialog::filterAction, this, &WiresharkMainWindow::filterAction);
+    connect(endp_dialog, &EndpointDialog::openFollowStreamDialog, this,
+            [=](int proto_id) {openFollowStreamDialog(proto_id);
+            });
+    connect(endp_dialog, &EndpointDialog::openTcpStreamGraph, this, &WiresharkMainWindow::openTcpStreamDialog);
     endp_dialog->show();
 }
 
@@ -4006,13 +3982,11 @@ void WiresharkMainWindow::showExtcapOptionsDialog(QString &device_name, bool sta
     if (extcap_options_dialog) {
         extcap_options_dialog->setModal(true);
         extcap_options_dialog->setAttribute(Qt::WA_DeleteOnClose);
-        connect(extcap_options_dialog, SIGNAL(finished(int)),
-                    this, SLOT(extcap_options_finished(int)));
+        connect(extcap_options_dialog, &ExtcapOptionsDialog::finished, this, &WiresharkMainWindow::extcap_options_finished);
 #ifdef HAVE_LIBPCAP
         if (capture_options_dialog_) {
             /* Allow capture options dialog to close */
-            connect(extcap_options_dialog, SIGNAL(accepted()),
-                    capture_options_dialog_, SLOT(accept()));
+            connect(extcap_options_dialog, &ExtcapOptionsDialog::accepted, capture_options_dialog_, &CaptureOptionsDialog::accept);
         }
 #endif
         extcap_options_dialog->show();
