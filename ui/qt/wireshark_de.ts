@@ -4072,29 +4072,35 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Diesen Graph entfernen.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">Diesen Graph entfernen.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>Einen neuen Graph hinzufügen.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>Diesen Graph duplizieren.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">Diesen Graph duplizieren.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Alle Graphen löschen.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>Graphen nach oben verschieben.</translation>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
+        <translation type="unfinished">Graphen nach oben verschieben.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>Graphen nach unten verschieben.</translation>
+        <translation type="vanished">Graphen nach unten verschieben.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4472,10 +4478,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>All Execs</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Access Denied</source>
-        <translation type="vanished">Zugriff verboten</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -12573,22 +12575,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Einen neuen Eintrag erstellen.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>Diesen Eintrag entfernen.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Diesen Eintrag entfernen.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>Diesen Eintrag kopieren.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Diesen Eintrag kopieren.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Eintrag nach oben verschieben.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Eintrag nach oben verschieben.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Eintrag nach unten verschieben.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Eintrag nach unten verschieben.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12614,20 +12618,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Einen neuen Eintrag erstellen.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>Diesen Eintrag entfernen.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Diesen Eintrag entfernen.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>Diesen Eintrag kopieren.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Diesen Eintrag kopieren.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Eintrag nach oben verschieben.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Eintrag nach oben verschieben.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Eintrag nach unten verschieben.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Eintrag nach unten verschieben.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

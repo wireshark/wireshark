@@ -1032,7 +1032,7 @@
     </message>
     <message>
         <source>First event</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のイベント</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1040,7 +1040,7 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のイベント</translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1080,7 +1080,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation type="unfinished"></translation>
+        <translation>欠落したイベント</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1096,7 +1096,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
+        <translation>イベントサイズ制限(snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1152,7 +1152,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation type="unfinished">イベント</translation>
+        <translation>イベント</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1168,7 +1168,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation type="unfinished"></translation>
+        <translation>平均イベントサイズ,バイト</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1188,7 +1188,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント コメント</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -4054,29 +4054,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>このグラフを削除します</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">このグラフを削除します</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>新規グラフを追加します</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>このグラフを複製します</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">このグラフを複製します</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>すべてのグラフをクリア</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>このグラフを上に移動します</translation>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
+        <translation type="unfinished">このグラフを上に移動します</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>このグラフを下に移動します</translation>
+        <translation type="vanished">このグラフを下に移動します</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4453,11 +4459,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Execs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Access Denied</source>
-        <translation type="vanished">アクセス拒否</translation>
+        <translation>全ての Execs</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -5263,7 +5265,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InterfaceTreeDelegate</name>
     <message>
         <source>default</source>
-        <translation type="unfinished">デフォルト</translation>
+        <translation>デフォルト</translation>
     </message>
 </context>
 <context>
@@ -8823,7 +8825,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>EVENTS</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント</translation>
     </message>
     <message>
         <source>BYTES</source>
@@ -10910,19 +10912,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Event List</source>
-        <translation type="unfinished"></translation>
+        <translation>イベントリスト</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント詳細</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>イベントバイト数</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;イベント一覧(概要部分)やデコードされたイベント表示ラベル(ツリー表示部分)やアスキー変換されたイベントデータ(16進数表示部分)を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -12543,22 +12545,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>新規エントリを作成します</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>このエントリを削除します</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">このエントリを削除します</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>このエントリをコピーします</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">このエントリをコピーします</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>エントリを上に移動します</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">エントリを上に移動します</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>エントリを下に移動します</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">エントリを下に移動します</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12584,20 +12588,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>新規エントリを作成します</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>このエントリを削除します</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">このエントリを削除します</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>このエントリをコピーします</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">このエントリをコピーします</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>エントリを上に移動します</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">エントリを上に移動します</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>エントリを下に移動します</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">エントリを下に移動します</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

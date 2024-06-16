@@ -1451,7 +1451,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 1812, "radius",           "RADIUS" },
     { 1813, "radius-acct",      "RADIUS Accounting" },
     { 1814, "tdp-suite",        "TDP Suite" },
-    { 1815, "mmpft",            "MMPFT" },
+    { 1815, "mmpft",            "Manufacturing messaging protocol for factory transmission" },
     { 1816, "harp",             "HARP" },
     { 1817, "rkb-oscs",         "RKB-OSCS" },
     { 1818, "etftp",            "Enhanced Trivial File Transfer Protocol" },

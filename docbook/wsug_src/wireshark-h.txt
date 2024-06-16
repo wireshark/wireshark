@@ -1,4 +1,4 @@
-Wireshark 4.3.0 (v4.3.0rc0-2712-g71f0456103a5)
+Wireshark 4.3.0 (v4.3.0rc1-45-gc1fe4ce86d11)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -51,7 +51,7 @@ Processing:
   -R <read filter>, --read-filter <read filter>
                            packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
+  -N <name resolve flags>  enable specific name resolution(s): "mtndsNvg"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
                            "Decode As", see the man page for details
                            Example: tcp.port==8888,http

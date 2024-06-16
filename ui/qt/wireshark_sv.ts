@@ -4070,29 +4070,35 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Ta bort denna graf.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">Ta bort denna graf.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>Lägg till en ny graf.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>Dubblera denna graf.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">Dubblera denna graf.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Nollställ alla grafer.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>Flytta denna graf uppåt.</translation>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
+        <translation type="unfinished">Flytta denna graf uppåt.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>Flytta denna graf nedåt.</translation>
+        <translation type="vanished">Flytta denna graf nedåt.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -12567,22 +12573,24 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Skapa en ny post.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>Ta bort denna post.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Ta bort denna post.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>Kopiera denna post.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Kopiera denna post.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Flytta upp posten.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Flytta upp posten.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Flytta ned posten.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Flytta ned posten.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12608,20 +12616,24 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Skapa en ny post.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>Ta bort denna post.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Ta bort denna post.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>Kopiera denna post.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Kopiera denna post.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Flytta upp posten.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Flytta upp posten.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Flytta ned posten.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Flytta ned posten.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

@@ -4079,29 +4079,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Usuń ten wykres.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">Usuń ten wykres.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>Utwórz nowy wykres.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>Duplikuj ten wykres.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">Duplikuj ten wykres.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Wyczyść wszystkie wykresy.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>Przesuń ten wykres w górę.</translation>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
+        <translation type="unfinished">Przesuń ten wykres w górę.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>Przesuń ten wykres w dół.</translation>
+        <translation type="vanished">Przesuń ten wykres w dół.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4479,10 +4485,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>All Execs</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Access Denied</source>
-        <translation type="vanished">Brak dostępu</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -12591,22 +12593,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Stwórz nowy wpis.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>Usuń wpis.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Usuń wpis.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>Kopiuj wpis.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Kopiuj wpis.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Przesuń wpis w górę.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Przesuń wpis w górę.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Przesuń wpis w dół.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Przesuń wpis w dół.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12632,20 +12636,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Stwórz nowy wpis.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>Usuń wpis.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Usuń wpis.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>Kopiuj wpis.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Kopiuj wpis.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Przesuń wpis w górę.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Przesuń wpis w górę.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Przesuń wpis w dół.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Przesuń wpis w dół.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

@@ -4029,28 +4029,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Видалити цей графік.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">Видалити цей графік.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>Додати новий графік.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>Продублювати цей графік.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">Продублювати цей графік.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move this graph downwards.</source>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12431,21 +12433,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12472,19 +12476,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry up.</source>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move entry down.</source>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

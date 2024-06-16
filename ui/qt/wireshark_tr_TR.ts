@@ -4055,29 +4055,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Bu grafiği kaldırın.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">Bu grafiği kaldırın.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>Yeni bir grafik ekleyin.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>Bu grafiği çoğaltın.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">Bu grafiği çoğaltın.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Tüm grafikleri temizle.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>Bu grafiği yukarı doğru götür.</translation>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
+        <translation type="unfinished">Bu grafiği yukarı doğru götür.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>Bu grafiği aşağı doğru götür.</translation>
+        <translation type="vanished">Bu grafiği aşağı doğru götür.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -12536,22 +12542,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Yeni bir giriş oluşturun.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>Bu girişi kaldırın.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Bu girişi kaldırın.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>Bu girişi kopyalayın.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Bu girişi kopyalayın.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Girişi yukarı taşı.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Girişi yukarı taşı.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Girişi aşağı taşı.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Girişi aşağı taşı.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12577,20 +12585,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Yeni bir giriş oluşturun.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>Bu girişi kaldırın.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Bu girişi kaldırın.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>Bu girişi kopyalayın.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Bu girişi kopyalayın.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Girişi yukarı taşı.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Girişi yukarı taşı.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Girişi aşağı taşı.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Girişi aşağı taşı.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

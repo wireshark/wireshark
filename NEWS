@@ -15,9 +15,9 @@ Wireshark 4.3.0 Release Notes
   capture file that matches the filter, Wireshark will automatically
   switch to that profile.
 
-  Lua support for older LUA versions has been dropped. Only 5.3 and 5.4
-  are supported, and the Lua version included with the Windows and MacOS
-  installers is now 5.4.6.
+  Support for Lua 5.3 and 5.4 has been added, and support for Lua 5.1
+  and 5.2 has been removed. The Windows and macOS installers now ship
+  with Lua 5.4.6.
 
   Improved display filter support for value strings (optional string
   representations for numeric fields).
@@ -25,7 +25,7 @@ Wireshark 4.3.0 Release Notes
   Display filter functions can be implemented as runtime-loadable C
   plugins.
 
-  Display filters can be translated to pcap filters using "Copy ›
+  Display filters can be translated to pcap filters using "Edit › Copy ›
   Display filter as pcap filter" if each display filter field has a
   corresponding pcap filter equivalent.
 
@@ -38,6 +38,10 @@ Wireshark 4.3.0 Release Notes
 
   Many improvements and fixes to the graphing dialogs, including I/O
   Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
+
+  Possibillity to use zlib-ng to open and write zip compressed files.
+  Zlib-ng is substantionally faster. Windows and macOS brew packages
+  have this feature included.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
@@ -368,6 +372,10 @@ Wireshark 4.3.0 Release Notes
        tvbrange:uncompress() has been deprecated for
        tvbrange:uncompress_zlib().
 
+     • Lua Dumper now defaults to the pcapng file type, and to
+       per-packet encapsulation (creating interfaces on demand as
+       necessary) when writing pcapng Issue 16403[33]
+
   Removed Features and Support
 
      • The tshark `-G` option with no argument is deprecated and will be
@@ -380,18 +388,23 @@ Wireshark 4.3.0 Release Notes
 
   New Protocol Support
 
-   Allied Telesis Resiliency Link (AT RL), EGNOS Message Server (EMS)
-   file format, Galileo E1-B I/NAV navigation messages, MAC NR Framed
-   (mac-nr-framed), RF4CE Network Layer (RF4CE), RF4CE Profile (RF4CE
-   Profile), RK512, SAP Remote Function Call (SAPRFC), and ZeroMQ
-   Message Transport Protocol (ZMTP)
+   Allied Telesis Resiliency Link (AT RL), ATN Security Label, Bus
+   Mirroring Protocol, EGNOS Message Server (EMS) file format, Galileo
+   E1-B I/NAV navigation messages, IBM i RDMA Endpoint (iRDMA-EDP),
+   IWBEMSERVICES, MAC NR Framed (mac-nr-framed), Matter Bluetooth
+   Transport Protocol (MatterBTP), MiWi P2P Star, Monero, NMEA 0183,
+   PLDM, RDP authentication redirection virtual channel protocol
+   (rdpear), RF4CE Network Layer (RF4CE), RF4CE Profile (RF4CE Profile),
+   RK512, SAP Remote Function Call (SAPRFC), SBAS L1 Navigation Message,
+   Scanner Access Now Easy (SANE), TREL, WMIO, and ZeroMQ Message
+   Transport Protocol (ZMTP)
 
   Updated Protocol Support
 
-     • IPv6: The "show address detail" preference is now enabled by
-       default. The address details provided have been extended to
-       include more special purpose address block properties
-       (forwardable, globally-routable, etc).
+   IPv6: The "show address detail" preference is now enabled by default.
+   The address details provided have been extended to include more
+   special purpose address block properties (forwardable,
+   globally-routable, etc).
 
    Too many other protocol updates have been made to list them all here.
 
@@ -415,7 +428,7 @@ Wireshark 4.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[33] on the Wireshark web site.
+   be found on the download page[34] on the Wireshark web site.
 
  File Locations
 
@@ -430,24 +443,24 @@ Wireshark 4.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[34] and on the
+  Community support is available on Wireshark’s Q&A site[35] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[35].
+  for all of Wireshark’s mailing lists can be found on the web site[36].
 
-  Bugs and feature requests can be reported on the issue tracker[36].
+  Bugs and feature requests can be reported on the issue tracker[37].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[37].
+  SharkFest[38].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[38].
+  at wiresharkfoundation.org[39].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[39].
+  A complete FAQ is available on the Wireshark web site[40].
 
  References
 
@@ -483,10 +496,11 @@ Wireshark 4.3.0 Release Notes
   30. https://www.lua.org/manual/5.4/manual.html#8
   31. https://www.lua.org/manual/5.3/manual.html#8
   32. https://www.lua.org/manual/5.2/manual.html#8
-  33. https://www.wireshark.org/download.html
-  34. https://ask.wireshark.org/
-  35. https://www.wireshark.org/lists/
-  36. https://gitlab.com/wireshark/wireshark/-/issues
-  37. https://sharkfest.wireshark.org
-  38. https://wiresharkfoundation.org
-  39. https://www.wireshark.org/faq.html
+  33. https://gitlab.com/wireshark/wireshark/-/issues/16403
+  34. https://www.wireshark.org/download.html
+  35. https://ask.wireshark.org/
+  36. https://www.wireshark.org/lists/
+  37. https://gitlab.com/wireshark/wireshark/-/issues
+  38. https://sharkfest.wireshark.org
+  39. https://wiresharkfoundation.org
+  40. https://www.wireshark.org/faq.html

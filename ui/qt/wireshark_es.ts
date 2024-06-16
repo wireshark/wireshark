@@ -4031,28 +4031,30 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Elimina esta gráfica.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">Elimina esta gráfica.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>Añade una nueva gráfica.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>Duplica esta gráfica.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">Duplica esta gráfica.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>Vacía todas las gráficas.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move this graph downwards.</source>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12428,22 +12430,24 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Crea una nueva entrada.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>Elimina esta entrada.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Elimina esta entrada.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>Copia esta entrada.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Copia esta entrada.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Mueve entrada hacia arriba.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Mueve entrada hacia arriba.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Mueve entrada hacia abajo.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Mueve entrada hacia abajo.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12469,20 +12473,24 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Crea una nueva entrada.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>Elimina esta entrada.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">Elimina esta entrada.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>Copia esta entrada.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">Copia esta entrada.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>Mueve entrada hacia arriba.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">Mueve entrada hacia arriba.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>Mueve entrada hacia abajo.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">Mueve entrada hacia abajo.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

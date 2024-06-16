@@ -4055,29 +4055,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove this graph.</source>
-        <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>이 그래프를 삭제합니다.</translation>
+        <source>Remove the selected graph(s).</source>
+        <oldsource>Remove this graph.</oldsource>
+        <translation type="unfinished">이 그래프를 삭제합니다.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
         <translation>새로운 그래프를 추가합니다.</translation>
     </message>
     <message>
-        <source>Duplicate this graph.</source>
-        <translation>이 그래프를 복제합니다.</translation>
+        <source>Duplicate the selected graph(s).</source>
+        <oldsource>Duplicate this graph.</oldsource>
+        <translation type="unfinished">이 그래프를 복제합니다.</translation>
+    </message>
+    <message>
+        <source>Move the selected graph(s) upwards.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
         <translation>모든 그래프를 지웁니다.</translation>
     </message>
     <message>
-        <source>Move this graph upwards.</source>
-        <translation>이 그래프를 위로 이동합니다.</translation>
+        <source>Move the selected graph(s) downwards.</source>
+        <oldsource>Move this graph upwards.</oldsource>
+        <translation type="unfinished">이 그래프를 위로 이동합니다.</translation>
     </message>
     <message>
         <source>Move this graph downwards.</source>
-        <translation>이 그래프를 아래로 이동합니다.</translation>
+        <translation type="vanished">이 그래프를 아래로 이동합니다.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4455,10 +4461,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>All Execs</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Access Denied</source>
-        <translation type="vanished">접근 거부됨</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
@@ -12540,22 +12542,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>새 항목을 만듭니다.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <oldsource>Remove this profile.</oldsource>
-        <translation>이 항목을 삭제합니다.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">이 항목을 삭제합니다.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <oldsource>Copy this profile.</oldsource>
-        <translation>이 항목을 복사합니다.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">이 항목을 복사합니다.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>항목을 위로 이동합니다.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">항목을 위로 이동합니다.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>항목을 아래로 이동합니다.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">항목을 아래로 이동합니다.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -12581,20 +12585,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>새 항목을 만듭니다.</translation>
     </message>
     <message>
-        <source>Remove this entry.</source>
-        <translation>이 항목을 삭제합니다.</translation>
+        <source>Remove the selected entry(ies).</source>
+        <oldsource>Remove this entry.</oldsource>
+        <translation type="unfinished">이 항목을 삭제합니다.</translation>
     </message>
     <message>
-        <source>Copy this entry.</source>
-        <translation>이 항목을 복사합니다.</translation>
+        <source>Copy the selected entry(ies).</source>
+        <oldsource>Copy this entry.</oldsource>
+        <translation type="unfinished">이 항목을 복사합니다.</translation>
     </message>
     <message>
-        <source>Move entry up.</source>
-        <translation>항목을 위로 이동합니다.</translation>
+        <source>Move the selected entry(ies) up.</source>
+        <oldsource>Move entry up.</oldsource>
+        <translation type="unfinished">항목을 위로 이동합니다.</translation>
     </message>
     <message>
-        <source>Move entry down.</source>
-        <translation>항목을 아래로 이동합니다.</translation>
+        <source>Move the selected entry(ies) down.</source>
+        <oldsource>Move entry down.</oldsource>
+        <translation type="unfinished">항목을 아래로 이동합니다.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
