@@ -34,6 +34,9 @@ ProfileSwitcher::ProfileSwitcher(QObject *parent) :
     capture_file_changed_(true),
     profile_changed_(false)
 {
+    if (g_list_length(current_profile_list()) == 0) {
+        init_profile_list();
+    }
     connect(mainApp, &MainApplication::profileChanging, this, &ProfileSwitcher::disableSwitching);
 }
 
