@@ -378,6 +378,7 @@ The Parlay dissector has been removed.
 --
 Allied Telesis Resiliency Link (AT RL)
 ATN Security Label
+Bit Index Explicit Replication (BIER)
 Bus Mirroring Protocol
 EGNOS Message Server (EMS) file format
 Galileo E1-B I/NAV navigation messages
