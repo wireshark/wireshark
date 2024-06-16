@@ -1009,7 +1009,7 @@ static charset_encoding_t charset_encoding_array[] =
 	{ "ascii",	ENC_ASCII },
 	// armscii8
 	// big5
-	// binary	ENC_UTF_8 or ENC_WINDOWS_1252?
+	{ "binary",	ENC_NA},
 	{ "cp1250",	ENC_WINDOWS_1250 },
 	{ "cp1251",	ENC_WINDOWS_1251 },
 	// cp1256
@@ -1349,6 +1349,13 @@ static int hf_mysql_exec_param;
 static int hf_mysql_exec_unsigned;
 static int hf_mysql_exec_field_longlong;
 static int hf_mysql_exec_field_unsigned_longlong;
+static int hf_mysql_exec_field_bit_length;
+static int hf_mysql_exec_field_bit;
+static int hf_mysql_exec_field_blob_length;
+static int hf_mysql_exec_field_blob;
+static int hf_mysql_exec_field_geometry_length;
+static int hf_mysql_exec_field_geometry;
+static int hf_mysql_exec_field_json_length;
 static int hf_mysql_exec_field_string_length;
 static int hf_mysql_exec_field_string;
 static int hf_mysql_exec_field_double;
@@ -1360,6 +1367,7 @@ static int hf_mysql_exec_field_hour;
 static int hf_mysql_exec_field_minute;
 static int hf_mysql_exec_field_second;
 static int hf_mysql_exec_field_second_b;
+static int hf_mysql_exec_field_int24;
 static int hf_mysql_exec_field_long;
 static int hf_mysql_exec_field_unsigned_long;
 static int hf_mysql_exec_field_tiny;
@@ -1645,6 +1653,9 @@ static int mysql_dissect_eof(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, 
 static int mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_auth_sha2(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_loaddata(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static void mysql_dissect_exec_bit(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
+static void mysql_dissect_exec_blob(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
+static void mysql_dissect_exec_geometry(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_string(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_json(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_datetime(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
@@ -1652,12 +1663,14 @@ static void mysql_dissect_exec_tiny(tvbuff_t *tvb, packet_info *pinfo, int *para
 static void mysql_dissect_exec_unsigned_tiny(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_short(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_unsigned_short(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
+static void mysql_dissect_exec_int24(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_long(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_unsigned_long(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_float(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_double(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_longlong(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_unsigned_longlong(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
+static void mysql_dissect_exec_year(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static void mysql_dissect_exec_null(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding);
 static char mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 		int *param_offset, guint8 param_flags, packet_info *pinfo, unsigned encoding, bool queryattrs);
@@ -1679,27 +1692,34 @@ static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, vo
 
 // type, unsigned, dissector
 static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
-	{ 0x01, 0, mysql_dissect_exec_tiny },
-	{ 0x01, 1, mysql_dissect_exec_unsigned_tiny },
-	{ 0x02, 0, mysql_dissect_exec_short },
-	{ 0x02, 1, mysql_dissect_exec_unsigned_short },
-	{ 0x03, 0, mysql_dissect_exec_long },
-	{ 0x03, 1, mysql_dissect_exec_unsigned_long },
-	{ 0x04, 0, mysql_dissect_exec_float },
-	{ 0x05, 0, mysql_dissect_exec_double },
-	{ 0x06, 0, mysql_dissect_exec_null },
-	{ 0x07, 0, mysql_dissect_exec_datetime },
-	{ 0x07, 1, mysql_dissect_exec_datetime },
-	{ 0x08, 0, mysql_dissect_exec_longlong },
-	{ 0x08, 1, mysql_dissect_exec_unsigned_longlong },
-	{ 0x0a, 0, mysql_dissect_exec_datetime },
-	{ 0x0b, 0, mysql_dissect_exec_time },
-	{ 0x0c, 0, mysql_dissect_exec_datetime },
-	{ 0xf5, 0, mysql_dissect_exec_json },
-	{ 0xf6, 0, mysql_dissect_exec_string },
-	{ 0xfc, 0, mysql_dissect_exec_string },
-	{ 0xfd, 0, mysql_dissect_exec_string },
-	{ 0xfe, 0, mysql_dissect_exec_string },
+	{ 0x01, 0, mysql_dissect_exec_tiny },              // FIELD_TYPE_TINY
+	{ 0x01, 1, mysql_dissect_exec_unsigned_tiny },     // FIELD_TYPE_TINY
+	{ 0x02, 0, mysql_dissect_exec_short },             // FIELD_TYPE_SHORT
+	{ 0x02, 1, mysql_dissect_exec_unsigned_short },    // FIELD_TYPE_SHORT
+	{ 0x03, 0, mysql_dissect_exec_long },              // FIELD_TYPE_LONG
+	{ 0x03, 1, mysql_dissect_exec_unsigned_long },     // FIELD_TYPE_LONG
+	{ 0x04, 0, mysql_dissect_exec_float },             // FIELD_TYPE_FLOAT
+	{ 0x05, 0, mysql_dissect_exec_double },            // FIELD_TYPE_DOUBLE
+	{ 0x06, 0, mysql_dissect_exec_null },              // FIELD_TYPE_NULL
+	{ 0x07, 0, mysql_dissect_exec_datetime },          // FIELD_TYPE_TIMESTAMP
+	{ 0x07, 1, mysql_dissect_exec_datetime },          // FIELD_TYPE_TIMESTAMP
+	{ 0x08, 0, mysql_dissect_exec_longlong },          // FIELD_TYPE_LONGLONG
+	{ 0x08, 1, mysql_dissect_exec_unsigned_longlong }, // FIELD_TYPE_LONGLONG
+	{ 0x09, 0, mysql_dissect_exec_int24 },             // FIELD_TYPE_INT24
+	{ 0x09, 1, mysql_dissect_exec_int24 },             // FIELD_TYPE_INT24
+	{ 0x0a, 0, mysql_dissect_exec_datetime },          // FIELD_TYPE_DATE
+	{ 0x0b, 0, mysql_dissect_exec_time },              // FIELD_TYPE_TIME
+	{ 0x0c, 0, mysql_dissect_exec_datetime },          // FIELD_TYPE_DATETIME
+	{ 0x0d, 0, mysql_dissect_exec_year },              // FIELD_TYPE_YEAR
+	{ 0x0d, 1, mysql_dissect_exec_year },              // FIELD_TYPE_YEAR
+	{ 0x10, 1, mysql_dissect_exec_bit },               // FIELD_TYPE_BIT
+	{ 0x10, 1, mysql_dissect_exec_bit },               // FIELD_TYPE_BIT
+	{ 0xf5, 0, mysql_dissect_exec_json },              // FIELD_TYPE_JSON
+	{ 0xf6, 0, mysql_dissect_exec_string },            // FIELD_TYPE_NEWDECIMAL
+	{ 0xfc, 0, mysql_dissect_exec_blob },              // FIELD_TYPE_BLOB
+	{ 0xfd, 0, mysql_dissect_exec_string },            // FIELD_TYPE_VAR_STRING
+	{ 0xfe, 0, mysql_dissect_exec_string },            // FIELD_TYPE_STRING
+	{ 0xff, 0, mysql_dissect_exec_geometry },          // FIELD_TYPE_GEOMETRY
 	{ 0x00, 0, NULL },
 };
 
@@ -2181,31 +2201,65 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 static void
 mysql_dissect_exec_string(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset, proto_item *field_tree, unsigned encoding)
 {
-	guint32 param_len;
+	int lenfle;
+	guint64 param_len;
 
-	param_len = tvb_get_guint8(tvb, *param_offset);
+	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_string_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	*param_offset += lenfle;
 
-	switch (param_len) {
-		case 0xfc: /* 252 - 64k chars */
-			*param_offset += 1;
-			proto_tree_add_item_ret_uint(field_tree, hf_mysql_exec_field_string_length,
-					    tvb, *param_offset, 2, ENC_LITTLE_ENDIAN, &param_len);
-			*param_offset += 2;
-			break;
-		case 0xfd: /* 64k - 16M chars */
-			*param_offset += 1;
-			proto_tree_add_item_ret_uint(field_tree, hf_mysql_exec_field_string_length,
-					    tvb, *param_offset, 3, ENC_LITTLE_ENDIAN, &param_len);
-			*param_offset += 3;
-			break;
-		default: /* < 252 chars */
-			proto_tree_add_item(field_tree, hf_mysql_exec_field_string_length,
-					    tvb, *param_offset, 1, ENC_NA);
-			*param_offset += 1;
-			break;
+	if (encoding == ENC_NA) {
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_blob,
+				tvb, *param_offset, (gint)param_len, ENC_NA);
+	} else {
+			proto_tree_add_item(field_tree, hf_mysql_exec_field_string,
+				tvb, *param_offset, (gint)param_len, encoding);
 	}
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_string,
-			    tvb, *param_offset, param_len, encoding);
+	*param_offset += param_len;
+}
+
+static void
+mysql_dissect_exec_bit(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
+{
+	int lenfle;
+	guint64 param_len;
+
+	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_bit_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	*param_offset += lenfle;
+
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_bit,
+			    tvb, *param_offset, (gint)param_len, ENC_NA);
+	*param_offset += param_len;
+}
+
+static void
+mysql_dissect_exec_blob(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
+{
+	int lenfle;
+	guint64 param_len;
+
+	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_blob_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	*param_offset += lenfle;
+
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_blob,
+			    tvb, *param_offset, (gint)param_len, ENC_NA);
+	*param_offset += param_len;
+}
+
+static void
+mysql_dissect_exec_geometry(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
+{
+	int lenfle;
+	guint64 param_len;
+
+	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_geometry_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	*param_offset += lenfle;
+
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_geometry,
+			    tvb, *param_offset, (gint)param_len, ENC_NA);
 	*param_offset += param_len;
 }
 
@@ -2214,32 +2268,15 @@ mysql_dissect_exec_json(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, pr
 {
 	static dissector_handle_t json_handle;
 	tvbuff_t *next_tvb;
-	guint32 param_len;
+	int lenfle;
+	guint64 param_len;
 
 	json_handle = find_dissector("json");
-	param_len = tvb_get_guint8(tvb, *param_offset);
+	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_json_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	*param_offset += lenfle;
 
-	switch (param_len) {
-		case 0xfc: /* 252 - 64k chars */
-			*param_offset += 1;
-			proto_tree_add_item_ret_uint(field_tree, hf_mysql_exec_field_string_length,
-					    tvb, *param_offset, 2, ENC_LITTLE_ENDIAN, &param_len);
-			*param_offset += 2;
-			break;
-		case 0xfd: /* 64k - 16M chars */
-			*param_offset += 1;
-			proto_tree_add_item_ret_uint(field_tree, hf_mysql_exec_field_string_length,
-					    tvb, *param_offset, 3, ENC_LITTLE_ENDIAN, &param_len);
-			*param_offset += 3;
-			break;
-		default: /* < 252 chars */
-			proto_tree_add_item(field_tree, hf_mysql_exec_field_string_length,
-					    tvb, *param_offset, 1, ENC_NA);
-			*param_offset += 1;
-			break;
-	}
-
-	next_tvb = tvb_new_subset_length(tvb, *param_offset, param_len);
+	next_tvb = tvb_new_subset_length(tvb, *param_offset, (gint)param_len);
 	call_dissector_only(json_handle, next_tvb, pinfo, field_tree, NULL);
 	*param_offset += param_len;
 }
@@ -2326,6 +2363,13 @@ mysql_dissect_exec_unsigned_short(tvbuff_t *tvb, packet_info *pinfo, int *param_
 	mysql_dissect_exec_primitive(tvb, pinfo, param_offset, field_tree, hf_mysql_exec_field_unsigned_short, 2);
 }
 
+// Note that int24 is transferred in the binary protocol using 4 bytes, not 3.
+static void
+mysql_dissect_exec_int24(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
+{
+	mysql_dissect_exec_primitive(tvb, pinfo, param_offset, field_tree, hf_mysql_exec_field_int24, 4);
+}
+
 static void
 mysql_dissect_exec_long(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
 {
@@ -2360,6 +2404,12 @@ static void
 mysql_dissect_exec_unsigned_longlong(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
 {
 	mysql_dissect_exec_primitive(tvb, pinfo, param_offset, field_tree, hf_mysql_exec_field_unsigned_longlong, 8);
+}
+
+static void
+mysql_dissect_exec_year(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, proto_item *field_tree, unsigned encoding _U_)
+{
+	mysql_dissect_exec_primitive(tvb, pinfo, param_offset, field_tree, hf_mysql_exec_field_year, 2);
 }
 
 static void
@@ -5788,6 +5838,41 @@ void proto_register_mysql(void)
 		FT_UINT64, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
+		{ &hf_mysql_exec_field_bit_length,
+		{ "Length (Bit)", "mysql.exec.field.bit.length",
+		FT_UINT24, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_bit,
+		{ "Value (Bit)", "mysql.exec.field.bit",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_blob_length,
+		{ "Length (BLOB)", "mysql.exec.field.blob.length",
+		FT_UINT24, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_blob,
+		{ "Value (BLOB)", "mysql.exec.field.blob",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_geometry_length,
+		{ "Length (Geometry)", "mysql.exec.field.geometry.length",
+		FT_UINT24, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_geometry,
+		{ "Value (Geometry)", "mysql.exec.field.geometry",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_json_length,
+		{ "Length (JSON)", "mysql.exec.field.json.length",
+		FT_UINT24, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
 		{ &hf_mysql_exec_field_string_length,
 		{ "Length (String)", "mysql.exec.field.string.length",
 		FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -5840,6 +5925,11 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_exec_field_second_b,
 		{ "Billionth of a second", "mysql.exec.field.secondb",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_field_int24,
+		{ "Value (INT24)", "mysql.exec.field.int24",
 		FT_INT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
