@@ -639,6 +639,8 @@ static const value_string ntp_ext_field_types[] = {
 	{ 0xC702, "IFF Identity Message Error Response" },
 	{ 0xC802, "GQ Identity Message Error Response" },
 	{ 0xC902, "MV Identity Message Error Response" },
+	{ 0xF323, "Monotonic Timestamp & Root Delay/Dispersion (exp)" },
+	{ 0xF324, "Network PTP Time correction (exp)" },
 	{ 0, NULL }
 };
 
