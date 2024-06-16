@@ -1511,7 +1511,7 @@ scientia-sdb	1811/tcp/udp	# Scientia-SDB
 radius		1812/tcp/udp	# RADIUS
 radius-acct	1813/tcp/udp	# RADIUS Accounting
 tdp-suite	1814/tcp/udp	# TDP Suite
-mmpft		1815/tcp/udp	# MMPFT
+mmpft		1815/tcp/udp	# Manufacturing messaging protocol for factory transmission
 harp		1816/tcp/udp	# HARP
 rkb-oscs	1817/tcp/udp	# RKB-OSCS
 etftp		1818/tcp/udp	# Enhanced Trivial File Transfer Protocol
