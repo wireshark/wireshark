@@ -6014,6 +6014,127 @@ proto_reg_handoff_btad_gaen(void)
     dissector_add_string("btcommon.eir_ad.entry.uuid", "fd6f", btad_gaen);
 }
 
+static int proto_btad_matter;
+
+static int hf_btad_matter_opcode;
+static int hf_btad_matter_version;
+static int hf_btad_matter_discriminator;
+static int hf_btad_matter_vendor_id;
+static int hf_btad_matter_product_id;
+static int hf_btad_matter_flags;
+static int hf_btad_matter_flags_additional_data;
+static int hf_btad_matter_flags_ext_announcement;
+
+static int ett_btad_matter;
+static int ett_btad_matter_flags;
+
+static dissector_handle_t btad_matter;
+
+void proto_register_btad_matter(void);
+void proto_reg_handoff_btad_matter(void);
+
+static int
+dissect_btad_matter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    /* We are interested only in the last 8 bytes (Service Data Payload) */
+    int offset = tvb_captured_length(tvb) - 8;
+
+    proto_tree *main_item = proto_tree_add_item(tree, proto_btad_matter, tvb, offset, -1, ENC_NA);
+    proto_tree *main_tree = proto_item_add_subtree(main_item, ett_btad_matter);
+
+    proto_tree_add_item(main_tree, hf_btad_matter_opcode, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(main_tree, hf_btad_matter_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(main_tree, hf_btad_matter_discriminator, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(main_tree, hf_btad_matter_vendor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(main_tree, hf_btad_matter_product_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    static int * const flags[] = {
+        &hf_btad_matter_flags_additional_data,
+        &hf_btad_matter_flags_ext_announcement,
+        NULL
+    };
+
+    proto_tree_add_bitmask(main_tree, tvb, offset, hf_btad_matter_flags, ett_btad_matter_flags, flags, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+void
+proto_register_btad_matter(void)
+{
+    static const value_string opcode_vals[] = {
+        { 0x00, "Commissionable" },
+        { 0, NULL }
+    };
+
+    static hf_register_info hf[] = {
+        { &hf_btad_matter_opcode,
+          { "Opcode", "bluetooth.matter.opcode",
+            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,
+            NULL, HFILL }
+        },
+        {&hf_btad_matter_version,
+          {"Advertisement Version", "bluetooth.matter.version",
+            FT_UINT16, BASE_DEC, NULL, 0xF000,
+            NULL, HFILL}
+        },
+        { &hf_btad_matter_discriminator,
+          { "Discriminator", "bluetooth.matter.discriminator",
+            FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+            "A 12-bit value used in the Setup Code", HFILL }
+        },
+        { &hf_btad_matter_vendor_id,
+          { "Vendor ID", "bluetooth.matter.vendor_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "A 16-bit value identifying the device manufacturer", HFILL }
+        },
+        { &hf_btad_matter_product_id,
+          { "Product ID", "bluetooth.matter.product_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "A 16-bit value identifying the product", HFILL }
+        },
+        { &hf_btad_matter_flags,
+          { "Flags", "bluetooth.matter.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btad_matter_flags_additional_data,
+          { "Additional Data", "bluetooth.matter.flags.additional_data",
+            FT_UINT8, BASE_HEX, NULL, 0x01,
+            "Set if the device provides the optional C3 GATT characteristic", HFILL }
+        },
+        { &hf_btad_matter_flags_ext_announcement,
+          { "Extended Announcement", "bluetooth.matter.flags.ext_announcement",
+            FT_UINT8, BASE_HEX, NULL, 0x02,
+            "Set while the device is in the Extended Announcement period", HFILL }
+        },
+    };
+
+    static int *ett[] = {
+        &ett_btad_matter,
+        &ett_btad_matter_flags,
+    };
+
+    proto_btad_matter = proto_register_protocol("Matter Advertising Data", "Matter Advertising Data", "bluetooth.matter");
+    proto_register_field_array(proto_btad_matter, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    btad_matter = register_dissector("bluetooth.matter", dissect_btad_matter, proto_btad_matter);
+}
+
+void
+proto_reg_handoff_btad_matter(void)
+{
+    dissector_add_string("btcommon.eir_ad.entry.uuid", "fff6", btad_matter);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
