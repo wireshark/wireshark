@@ -4873,7 +4873,7 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 
 #ifdef HAVE_KERBEROS
 	if (private_data->current_ticket_key != NULL) {
-		call_data.private_data = &device_sid;
+		call_data.private_data = (void*)&device_sid;
 	}
 #endif /* HAVE_KERBEROS */
 
