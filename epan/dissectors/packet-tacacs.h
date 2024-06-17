@@ -206,122 +206,6 @@ enum {
 #define AUTHOR_R_DATA_LEN_OFF		(AUTHOR_R_SRV_MSG_LEN_OFF+2)
 #define AUTHOR_R_VARDATA_OFF		(AUTHOR_R_DATA_LEN_OFF+2)
 
-
-#if 0
-/* Packet structures */
-typedef struct  {
-	u_char version;
-	u_char type;
-	u_char seq_no;
-	u_char flags;
-	guint32 session_id;
-	guint32 length;
-} tacplus_pkt_hdr;
-
-/* Authentication START packet */
-typedef	struct {
-	u_char	action;
-	u_char	priv_lvl;
-	u_char	authen_type;
-	u_char	service;
-	u_char	user_len;
-	u_char	port_len;
-	u_char	rem_addr_len;
-	u_char	data_len;
-	u_char	vardata[1];
-} tacplus_authen_start ;
-
-/* Authentication CONTINUE packet */
-typedef struct {
-	guint16	user_len;
-	guint16 data_len;
-	u_char	flags;
-	u_char	vardata[1];
-} tacplus_authen_continue ;
-
-/* Authentication REPLY packet */
-typedef struct {
-	u_char	status;
-	u_char	flags;
-	guint16	srv_msg_len;
-	guint16	data_len;
-	u_char	vardata[1];
-} tacplus_authen_reply;
-
-
-/* Authentication sub-PACKET */
-typedef union {
-	tacplus_authen_start 	s; /* start */
-	tacplus_authen_continue c; /* continue */
-	tacplus_authen_reply	r; /* reply (from srv) */
-} tacplus_authen_pkt;
-
-/* AUTHORIZATION request */
-
-typedef struct {
-	u_char	authen_method;
-	u_char	priv_lvl;
-	u_char	authen_type;
-	u_char	authen_service;
-	u_char	user_len;
-	u_char	port_len;
-	u_char	rem_addr_len;
-	u_char	arg_cnt;
-	u_char	vardata[1];
-} tacplus_author_request;
-
-typedef struct {
-	u_char	status;
-	u_char	arg_cnt;
-	guint16	srv_msg_len;
-	guint16	data_len;
-	u_char	vardata[1];
-} tacplus_author_reply;
-
-typedef union {
-	tacplus_author_request	q;
-	tacplus_author_reply	r;
-} tacplus_author_pkt;
-
-/* ACCOUNTING request */
-typedef struct {
-	u_char	flags;
-	u_char	authen_method;
-	u_char	priv_lvl;
-	u_char	authen_type;
-	u_char	authen_service;
-	u_char	user_len;
-	u_char	port_len;
-	u_char	rem_addr_len;
-	u_char	arg_cnt;
-	u_char	vardata[1];
-} tacplus_account_request;
-
-typedef struct {
-	guint16	srv_msg_len;
-	guint16 data_len;
-	u_char	status;
-	u_char	vardata[1];
-} tacplus_account_reply;
-
-typedef union {
-	tacplus_account_request q; /* Request */
-	tacplus_account_reply	r; /* Reply */
-} tacplus_account_pkt;
-
-/* TACACS+ Packet */
-typedef struct {
-	tacplus_pkt_hdr hdr;
-	union {
-		tacplus_authen_pkt authen;
-		tacplus_author_pkt author;
-		tacplus_account_pkt acct;
-	} body;
-} tacplus_pkt;
-
-#endif
-
-/* From my old tacacs dissector */
 static const value_string tacplus_type_vals[] = {
 	{TAC_PLUS_AUTHEN,	"Authentication"},
 	{TAC_PLUS_AUTHOR,	"Authorization"	},
@@ -334,15 +218,6 @@ static const value_string tacplus_authen_action_vals[] = {
 	{TAC_PLUS_AUTHEN_SENDPASS, 		"Send password request"},
 	{TAC_PLUS_AUTHEN_SENDAUTH, 		"Outbound Request (SENDAUTH)"},
 	{0, NULL}};
-
-#if 0
-static const value_string tacplus_authen_priv_lvl_vals[] = {
-	{TAC_PLUS_PRIV_LVL_MAX, 		"LVL_MAX"},
-	{TAC_PLUS_PRIV_LVL_ROOT, 		"LVL_ROOT"},
-	{TAC_PLUS_PRIV_LVL_USER,		"LVL_USER"},
-	{TAC_PLUS_PRIV_LVL_MIN,			"LVL_MIN"},
-	{0, NULL}};
-#endif
 
 static const value_string tacplus_authen_type_vals[] = {
 	{TAC_PLUS_AUTHEN_TYPE_ASCII,	"ASCII"},
@@ -404,15 +279,6 @@ static const value_string tacplus_acct_status[] = {
 	{TAC_PLUS_ACCT_STATUS_ERROR,	"Error"},
 	{TAC_PLUS_ACCT_STATUS_FOLLOW,	"Follow"},
 	{0, NULL}};
-
-#ifdef __TAC_ACCOUNTING__
-static const value_string tacplus_acct_flags[] = {
-	{TAC_PLUS_ACCT_FLAG_MORE,	"More (deprecated)"},
-	{TAC_PLUS_ACCT_FLAG_START,	"Start"},
-	{TAC_PLUS_ACCT_FLAG_STOP,	"Stop"},
-	{TAC_PLUS_ACCT_FLAG_WATCHDOG,"Update"},
-	{0, NULL}};
-#endif
 
 #endif   /* __PACKET_TACACS_H__ */
 
