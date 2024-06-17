@@ -364,7 +364,7 @@ typedef struct _pcap_queue_element {
         struct pcap_pkthdr  phdr;
         pcapng_block_header_t  bh;
     } u;
-    u_char             *pd;
+    uint8_t             *pd;
 } pcap_queue_element;
 
 /*
@@ -423,12 +423,12 @@ static gboolean really_quiet;
 static gboolean use_threads;
 static guint64 start_time;
 
-static void capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
-                                         const u_char *pd);
-static void capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
-                                         const u_char *pd);
-static void capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, u_char *pd);
-static void capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, u_char *pd);
+static void capture_loop_write_packet_cb(uint8_t *pcap_src_p, const struct pcap_pkthdr *phdr,
+                                         const uint8_t *pd);
+static void capture_loop_queue_packet_cb(uint8_t *pcap_src_p, const struct pcap_pkthdr *phdr,
+                                         const uint8_t *pd);
+static void capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, uint8_t *pd);
+static void capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, uint8_t *pd);
 static void capture_loop_get_errmsg(char *errmsg, size_t errmsglen,
                                     char *secondary_errmsg,
                                     size_t secondary_errmsglen,
@@ -2389,7 +2389,7 @@ pcapng_read_shb(capture_src *pcap_src,
  * Rewrite EPB and ISB interface IDs.
  */
 static gboolean
-pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_char *pd)
+pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, uint8_t *pd)
 {
     switch(bh->block_type) {
     case BLOCK_TYPE_SHB:
@@ -2802,9 +2802,9 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
         phdr.len = pcap_info->rechdr.hdr.orig_len;
 
         if (use_threads) {
-            capture_loop_queue_packet_cb((u_char *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
+            capture_loop_queue_packet_cb((uint8_t *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
         } else {
-            capture_loop_write_packet_cb((u_char *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
+            capture_loop_write_packet_cb((uint8_t *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
         }
 
         /*
@@ -3722,9 +3722,9 @@ capture_loop_dispatch(loop_data *ld,
                  * in a batch before quitting.
                  */
                 if (use_threads) {
-                    inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_queue_packet_cb, (u_char *)pcap_src);
+                    inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_queue_packet_cb, (uint8_t *)pcap_src);
                 } else {
-                    inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_write_packet_cb, (u_char *)pcap_src);
+                    inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_write_packet_cb, (uint8_t *)pcap_src);
                 }
                 if (inpkts < 0) {
                     if (inpkts == -1) {
@@ -3758,15 +3758,15 @@ capture_loop_dispatch(loop_data *ld,
              * at a time, so that we can check the pipe after every packet.
              */
             if (use_threads) {
-                inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_queue_packet_cb, (u_char *)pcap_src);
+                inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_queue_packet_cb, (uint8_t *)pcap_src);
             } else {
-                inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_write_packet_cb, (u_char *)pcap_src);
+                inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_write_packet_cb, (uint8_t *)pcap_src);
             }
 #else
             if (use_threads) {
-                inpkts = pcap_dispatch(pcap_src->pcap_h, -1, capture_loop_queue_packet_cb, (u_char *)pcap_src);
+                inpkts = pcap_dispatch(pcap_src->pcap_h, -1, capture_loop_queue_packet_cb, (uint8_t *)pcap_src);
             } else {
-                inpkts = pcap_dispatch(pcap_src->pcap_h, -1, capture_loop_write_packet_cb, (u_char *)pcap_src);
+                inpkts = pcap_dispatch(pcap_src->pcap_h, -1, capture_loop_write_packet_cb, (uint8_t *)pcap_src);
             }
 #endif
             if (inpkts < 0) {
@@ -3795,15 +3795,15 @@ capture_loop_dispatch(loop_data *ld,
             {
                 int in;
                 struct pcap_pkthdr *pkt_header;
-                u_char *pkt_data;
+                uint8_t *pkt_data;
 
                 in = 0;
                 while(ld->go &&
                       (in = pcap_next_ex(pcap_src->pcap_h, &pkt_header, &pkt_data)) == 1) {
                     if (use_threads) {
-                        capture_loop_queue_packet_cb((u_char *)pcap_src, pkt_header, pkt_data);
+                        capture_loop_queue_packet_cb((uint8_t *)pcap_src, pkt_header, pkt_data);
                     } else {
-                        capture_loop_write_packet_cb((u_char *)pcap_src, pkt_header, pkt_data);
+                        capture_loop_write_packet_cb((uint8_t *)pcap_src, pkt_header, pkt_data);
                     }
                 }
 
@@ -4156,7 +4156,7 @@ capture_loop_dequeue_packet(void) {
             ws_info("Dequeued a packet of length %d captured on interface %d.",
                 queue_element->u.phdr.caplen, queue_element->pcap_src->interface_id);
 
-            capture_loop_write_packet_cb((u_char *) queue_element->pcap_src,
+            capture_loop_write_packet_cb((uint8_t *) queue_element->pcap_src,
                                         &queue_element->u.phdr,
                                         queue_element->pd);
         }
@@ -4827,7 +4827,7 @@ capture_loop_wrote_one_packet(capture_src *pcap_src) {
 
 /* one pcapng block was captured, process it */
 static void
-capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, u_char *pd)
+capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, uint8_t *pd)
 {
     int          err;
 
@@ -4891,8 +4891,8 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
 
 /* one pcap packet was captured, process it */
 static void
-capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
-                             const u_char *pd)
+capture_loop_write_packet_cb(uint8_t *pcap_src_p, const struct pcap_pkthdr *phdr,
+                             const uint8_t *pd)
 {
     capture_src *pcap_src = (capture_src *) (void *) pcap_src_p;
     int          err;
@@ -4944,8 +4944,8 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
 
 /* one packet was captured, queue it */
 static void
-capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
-                             const u_char *pd)
+capture_loop_queue_packet_cb(uint8_t *pcap_src_p, const struct pcap_pkthdr *phdr,
+                             const uint8_t *pd)
 {
     capture_src        *pcap_src = (capture_src *) (void *) pcap_src_p;
     pcap_queue_element *queue_element;
@@ -4966,7 +4966,7 @@ capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
     }
     queue_element->pcap_src = pcap_src;
     queue_element->u.phdr = *phdr;
-    queue_element->pd = (u_char *)g_malloc(phdr->caplen);
+    queue_element->pd = (uint8_t *)g_malloc(phdr->caplen);
     if (queue_element->pd == NULL) {
         pcap_src->dropped++;
         g_free(queue_element);
@@ -5003,7 +5003,7 @@ capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
 
 /* one pcapng block was captured, queue it */
 static void
-capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, u_char *pd)
+capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t *bh, uint8_t *pd)
 {
     pcap_queue_element *queue_element;
     gboolean            limit_reached;
@@ -5023,7 +5023,7 @@ capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
     }
     queue_element->pcap_src = pcap_src;
     queue_element->u.bh = *bh;
-    queue_element->pd = (u_char *)g_malloc(bh->block_total_length);
+    queue_element->pd = (uint8_t *)g_malloc(bh->block_total_length);
     if (queue_element->pd == NULL) {
         pcap_src->dropped++;
         g_free(queue_element);
