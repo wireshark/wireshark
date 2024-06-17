@@ -120,7 +120,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             guint32 number_port_range;
             value = tvb_get_ntohs(tvb, offset);
 
-            if(value == 0x2002) { /* Not a TS Agent additionnal Data */
+            if(value == 0x2002) { /* Not a TS Agent additional Data */
                 proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 2, ENC_NA);
                 offset += 2;
 

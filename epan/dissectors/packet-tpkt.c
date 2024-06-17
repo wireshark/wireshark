@@ -683,7 +683,7 @@ proto_register_tpkt(void)
         "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &tpkt_desegment);
 
-    /* heuristic dissectors for premable CredSSP before RDP and Fast-Path RDP packets */
+    /* heuristic dissectors for preamble CredSSP before RDP and Fast-Path RDP packets */
     tpkt_heur_subdissector_list = register_heur_dissector_list_with_description("tpkt", "TPKT fragment", proto_tpkt);
 
     proto_tpkt_heur = proto_register_protocol_in_name_only("TPKT Heuristic (for RDP)", "TPKT Heuristic (for RDP)", "tpkt", proto_tpkt, FT_PROTOCOL);

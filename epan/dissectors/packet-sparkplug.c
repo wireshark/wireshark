@@ -101,7 +101,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return FALSE;
     }
 
-    /* Adjust the info colum text with the message type */
+    /* Adjust the info column text with the message type */
     current_element += 1;
     if (current_element[0]) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, current_element[0]);

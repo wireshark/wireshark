@@ -223,7 +223,7 @@ static gint ett_bt_utp_extension;
 
 static bool enable_version0;
 static guint max_window_size = V1_MAX_WINDOW_SIZE;
-/* XXX: Desegementation and OOO-reassembly are not supported yet */
+/* XXX: Desegmentation and OOO-reassembly are not supported yet */
 static gboolean utp_desegment;
 /*static gboolean utp_reassemble_out_of_order = FALSE;*/
 static bool utp_analyze_seq = true;

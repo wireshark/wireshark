@@ -4904,7 +4904,7 @@ proto_register_tls(void)
         ssl_common_register_options(ssl_module, &ssl_options, FALSE);
     }
 
-    /* heuristic dissectors for any premable e.g. CredSSP before RDP */
+    /* heuristic dissectors for any preamble e.g. CredSSP before RDP */
     ssl_heur_subdissector_list = register_heur_dissector_list_with_description("tls", "TLS data", proto_tls);
 
     ssl_common_register_ssl_alpn_dissector_table("tls.alpn",

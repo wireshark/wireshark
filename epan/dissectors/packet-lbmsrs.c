@@ -380,7 +380,7 @@ static gint hf_lbmsrs_protocol_version;
 static gint hf_lbmsrs_interest_mode;
 static gint hf_lbmsrs_req_local_domain_id;
 
-/*handles for registration respose*/
+/*handles for registration response*/
 static gint hf_lbmsrs_client_id;
 static gint hf_lbmsrs_resp_local_domain_id;
 static gint hf_lbmsrs_reg_resp_protocol_version;

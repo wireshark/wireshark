@@ -501,7 +501,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
         (*consumed) += 6;
     }
 
-    if( size == ICEP_MIN_PARAMS_SIZE ) /* no encapsulatd data present, it's normal */
+    if( size == ICEP_MIN_PARAMS_SIZE ) /* no encapsulated data present, it's normal */
         return;
 
     /* check if I got all encapsulated data */

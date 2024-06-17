@@ -7102,7 +7102,7 @@ cigi3_add_trajectory_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
     return offset;
 }
 
-/* CIGI4 Acceleraion Control */
+/* CIGI4 Acceleration Control */
 static gint
 cigi4_add_acceleration_control(tvbuff_t* tvb, proto_tree* tree, gint offset)
 {

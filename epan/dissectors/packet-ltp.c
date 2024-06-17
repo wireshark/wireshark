@@ -1046,7 +1046,7 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 	ltp_rpt_ack_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, -1,
 												ett_rpt_ack_segm, &ltp_rpt_ack_item, "Report Ack Segment");
 
-	/* Extracing receipt serial number info */
+	/* Extracting receipt serial number info */
 	item_rpt_sno = add_sdnv64_to_tree(ltp_rpt_ack_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_ack_sno, &rpt_sno, &rpt_sno_size);
 	segment_offset += rpt_sno_size;
 

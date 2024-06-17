@@ -11850,7 +11850,7 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	DISSECTOR_ASSERT(si);
 
-	/*XXX shouldn this data hold version and size? unclear from doc*/
+	/*XXX should this data hold version and size? unclear from doc*/
 	/* referral version */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
 	proto_tree_add_item(tree, hf_smb_dfs_referral_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);

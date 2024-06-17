@@ -214,7 +214,7 @@ static expert_field ei_fp_expecting_tdd;
 static expert_field ei_fp_bad_payload_checksum;
 static expert_field ei_fp_e_rnti_t2_edch_frames;
 static expert_field ei_fp_crci_no_subdissector;
-static expert_field ei_fp_timing_adjustmentment_reported;
+static expert_field ei_fp_timing_adjustment_reported;
 static expert_field ei_fp_mac_is_sdus_miscount;
 static expert_field ei_fp_maybe_srb;
 static expert_field ei_fp_transport_channel_type_unknown;
@@ -1096,7 +1096,7 @@ dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
     }
 
-    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustmentment_reported, "Timing adjustmentment reported (%.3f ms)", ((float)(toa) / 8));
+    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustment_reported, "Timing adjustment reported (%.3f ms)", ((float)(toa) / 8));
 
     return offset;
 }
@@ -2205,7 +2205,7 @@ dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustmentment_reported, "Timing adjustmentment reported (%.3f ms)", ((float)(toa) / 8));
+    expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustment_reported, "Timing adjustment reported (%.3f ms)", ((float)(toa) / 8));
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " CFN = %u, ToA = %d", cfn, toa);
@@ -7035,7 +7035,7 @@ void proto_register_fp(void)
         { &ei_fp_spare_extension, { "fp.spare-extension.expert", PI_UNDECODED, PI_WARN, "Spare Extension present (%u bytes)", EXPFILL }},
         { &ei_fp_bad_payload_checksum, { "fp.payload-crc.bad", PI_CHECKSUM, PI_WARN, "Bad payload checksum.", EXPFILL }},
         { &ei_fp_stop_hsdpa_transmission, { "fp.stop_hsdpa_transmission", PI_RESPONSE_CODE, PI_NOTE, "Stop HSDPA transmission", EXPFILL }},
-        { &ei_fp_timing_adjustmentment_reported, { "fp.timing_adjustmentment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustmentment reported (%.3f ms)", EXPFILL }},
+        { &ei_fp_timing_adjustment_reported, { "fp.timing_adjustment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustment reported (%.3f ms)", EXPFILL }},
         { &ei_fp_expecting_tdd, { "fp.expecting_tdd", PI_MALFORMED, PI_NOTE, "Error: expecting TDD-384 or TDD-768", EXPFILL }},
         { &ei_fp_ddi_not_defined, { "fp.ddi_not_defined", PI_MALFORMED, PI_ERROR, "DDI %u not defined for this UE!", EXPFILL }},
         { &ei_fp_unable_to_locate_ddi_entry, { "fp.unable_to_locate_ddi_entry", PI_UNDECODED, PI_ERROR, "Unable to locate DDI entry.", EXPFILL }},

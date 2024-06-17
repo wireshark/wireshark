@@ -274,7 +274,7 @@ static const struct {
 #define NTPCTRL_MORE_MASK 0x20
 #define NTPCTRL_OP_MASK 0x1f
 
-#define NTPCTRL_OP_UNSPEC 0		/* unspeciffied */
+#define NTPCTRL_OP_UNSPEC 0		/* unspecified */
 #define NTPCTRL_OP_READSTAT 1		/* read status */
 #define NTPCTRL_OP_READVAR 2		/* read variables */
 #define NTPCTRL_OP_WRITEVAR 3		/* write variables */
