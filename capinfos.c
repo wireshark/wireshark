@@ -89,17 +89,17 @@
  * open or read failure.
  */
 
-static gboolean stop_after_failure;
+static bool stop_after_failure;
 
 /*
  * table report variables
  */
 
-static gboolean long_report           = TRUE;  /* By default generate long report       */
-static gboolean table_report_header   = TRUE;  /* Generate column header by default     */
-static gchar field_separator          = '\t';  /* Use TAB as field separator by default */
-static gchar quote_char               = '\0';  /* Do NOT quote fields by default        */
-static gboolean machine_readable; /* Display machine-readable numbers      */
+static bool long_report               = true;  /* By default generate long report       */
+static bool table_report_header       = true;  /* Generate column header by default     */
+static char field_separator           = '\t';  /* Use TAB as field separator by default */
+static char quote_char                = '\0';  /* Do NOT quote fields by default        */
+static bool machine_readable; /* Display machine-readable numbers      */
 
 /*
  * capinfos has the ability to report on a number of
@@ -112,33 +112,33 @@ static gboolean machine_readable; /* Display machine-readable numbers      */
  * individual options.
  */
 
-static gboolean report_all_infos   = TRUE;  /* Report all infos           */
+static bool report_all_infos   = true;  /* Report all infos           */
 
-static gboolean cap_file_type      = TRUE;  /* Report capture type        */
-static gboolean cap_file_encap     = TRUE;  /* Report encapsulation       */
-static gboolean cap_snaplen        = TRUE;  /* Packet size limit (snaplen)*/
-static gboolean cap_packet_count   = TRUE;  /* Report packet count        */
-static gboolean cap_file_size      = TRUE;  /* Report file size           */
-static gboolean cap_comment        = TRUE;  /* Display the capture comment */
-static gboolean cap_file_more_info = TRUE;  /* Report more file info      */
-static gboolean cap_file_idb       = TRUE;  /* Report Interface info      */
-static gboolean cap_file_nrb       = TRUE;  /* Report Name Resolution Block info      */
-static gboolean cap_file_dsb       = TRUE;  /* Report Decryption Secrets Block info      */
+static bool cap_file_type      = true;  /* Report capture type        */
+static bool cap_file_encap     = true;  /* Report encapsulation       */
+static bool cap_snaplen        = true;  /* Packet size limit (snaplen)*/
+static bool cap_packet_count   = true;  /* Report packet count        */
+static bool cap_file_size      = true;  /* Report file size           */
+static bool cap_comment        = true;  /* Display the capture comment */
+static bool cap_file_more_info = true;  /* Report more file info      */
+static bool cap_file_idb       = true;  /* Report Interface info      */
+static bool cap_file_nrb       = true;  /* Report Name Resolution Block info      */
+static bool cap_file_dsb       = true;  /* Report Decryption Secrets Block info      */
 
-static gboolean cap_data_size      = TRUE;  /* Report packet byte size    */
-static gboolean cap_duration       = TRUE;  /* Report capture duration    */
-static gboolean cap_start_time     = TRUE;  /* Report capture start time  */
-static gboolean cap_end_time       = TRUE;  /* Report capture end time    */
-static gboolean time_as_secs; /* Report time values as raw seconds */
+static bool cap_data_size      = true;  /* Report packet byte size    */
+static bool cap_duration       = true;  /* Report capture duration    */
+static bool cap_start_time     = true;  /* Report capture start time  */
+static bool cap_end_time       = true;  /* Report capture end time    */
+static bool time_as_secs; /* Report time values as raw seconds */
 
-static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
-static gboolean cap_data_rate_bit  = TRUE;  /* Report data rate bites/sec */
-static gboolean cap_packet_size    = TRUE;  /* Report average packet size */
-static gboolean cap_packet_rate    = TRUE;  /* Report average packet rate */
-static gboolean cap_order          = TRUE;  /* Report if packets are in chronological order (True/False) */
-static gboolean pkt_comments       = TRUE;  /* Report individual packet comments */
+static bool cap_data_rate_byte = true;  /* Report data rate bytes/sec */
+static bool cap_data_rate_bit  = true;  /* Report data rate bites/sec */
+static bool cap_packet_size    = true;  /* Report average packet size */
+static bool cap_packet_rate    = true;  /* Report average packet rate */
+static bool cap_order          = true;  /* Report if packets are in chronological order (True/False) */
+static bool pkt_comments       = true;  /* Report individual packet comments */
 
-static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
+static bool cap_file_hashes    = true;  /* Calculate file hashes */
 
 // Strongest to weakest
 #define HASH_SIZE_SHA256 32
@@ -148,15 +148,15 @@ static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 #define HASH_BUF_SIZE (1024 * 1024)
 
 
-static gchar file_sha256[HASH_STR_SIZE];
-static gchar file_sha1[HASH_STR_SIZE];
+static char file_sha256[HASH_STR_SIZE];
+static char file_sha1[HASH_STR_SIZE];
 
 static char  *hash_buf;
 static gcry_md_hd_t hd;
 
-static guint num_ipv4_addresses;
-static guint num_ipv6_addresses;
-static guint num_decryption_secrets;
+static unsigned int num_ipv4_addresses;
+static unsigned int num_ipv6_addresses;
+static unsigned int num_decryption_secrets;
 
 /*
  * If we have at least two packets with time stamps, and they're not in
@@ -176,46 +176,46 @@ typedef enum {
 
 typedef struct _pkt_cmt {
   int recno;
-  gchar *cmt;
+  char *cmt;
   struct _pkt_cmt *next;
 } pkt_cmt;
 
 typedef struct _capture_info {
     const char           *filename;
-    guint16               file_type;
+    uint16_t              file_type;
     wtap_compression_type compression_type;
     int                   file_encap;
     int                   file_tsprec;
     wtap                 *wth;
-    gint64                filesize;
-    guint64               packet_bytes;
-    gboolean              times_known;
+    int64_t               filesize;
+    uint64_t              packet_bytes;
+    bool                  times_known;
     nstime_t              start_time;
     int                   start_time_tsprec;
     nstime_t              stop_time;
     int                   stop_time_tsprec;
-    guint32               packet_count;
-    gboolean              snap_set;                 /* If set in capture file header      */
-    guint32               snaplen;                  /* value from the capture file header */
-    guint32               snaplen_min_inferred;     /* If caplen < len for 1 or more rcds */
-    guint32               snaplen_max_inferred;     /*  ...                               */
-    gboolean              drops_known;
-    guint32               drop_count;
+    uint32_t              packet_count;
+    bool                  snap_set;                 /* If set in capture file header      */
+    uint32_t              snaplen;                  /* value from the capture file header */
+    uint32_t              snaplen_min_inferred;     /* If caplen < len for 1 or more rcds */
+    uint32_t              snaplen_max_inferred;     /*  ...                               */
+    bool                  drops_known;
+    uint32_t              drop_count;
 
     nstime_t              duration;
     int                   duration_tsprec;
     double                packet_rate;
     double                packet_size;
     double                data_rate;                /* in bytes/s */
-    gboolean              know_order;
+    bool                  know_order;
     order_t               order;
 
     int                  *encap_counts;             /* array of per_packet encap counts; array has one entry per wtap_encap type */
     pkt_cmt              *pkt_cmts;                 /* list of packet comments */
 
-    guint                 num_interfaces;           /* number of IDBs, and thus size of interface_packet_counts array */
+    unsigned int                 num_interfaces;           /* number of IDBs, and thus size of interface_packet_counts array */
     GArray               *interface_packet_counts;  /* array of per_packet interface_id counts; one entry per file IDB */
-    guint32               pkt_interface_id_unknown; /* counts if packet interface_id didn't match a known one */
+    uint32_t              pkt_interface_id_unknown; /* counts if packet interface_id didn't match a known one */
     GArray               *idb_info_strings;         /* array of IDB info strings */
 } capture_info;
 
@@ -224,66 +224,66 @@ static char *decimal_point;
 static void
 enable_all_infos(void)
 {
-    report_all_infos   = TRUE;
+    report_all_infos   = true;
 
-    cap_file_type      = TRUE;
-    cap_file_encap     = TRUE;
-    cap_snaplen        = TRUE;
-    cap_packet_count   = TRUE;
-    cap_file_size      = TRUE;
-    cap_comment        = TRUE;
-    pkt_comments       = TRUE;
-    cap_file_more_info = TRUE;
-    cap_file_idb       = TRUE;
-    cap_file_nrb       = TRUE;
-    cap_file_dsb       = TRUE;
+    cap_file_type      = true;
+    cap_file_encap     = true;
+    cap_snaplen        = true;
+    cap_packet_count   = true;
+    cap_file_size      = true;
+    cap_comment        = true;
+    pkt_comments       = true;
+    cap_file_more_info = true;
+    cap_file_idb       = true;
+    cap_file_nrb       = true;
+    cap_file_dsb       = true;
 
-    cap_data_size      = TRUE;
-    cap_duration       = TRUE;
-    cap_start_time     = TRUE;
-    cap_end_time       = TRUE;
-    cap_order          = TRUE;
+    cap_data_size      = true;
+    cap_duration       = true;
+    cap_start_time     = true;
+    cap_end_time       = true;
+    cap_order          = true;
 
-    cap_data_rate_byte = TRUE;
-    cap_data_rate_bit  = TRUE;
-    cap_packet_size    = TRUE;
-    cap_packet_rate    = TRUE;
+    cap_data_rate_byte = true;
+    cap_data_rate_bit  = true;
+    cap_packet_size    = true;
+    cap_packet_rate    = true;
 
-    cap_file_hashes    = TRUE;
+    cap_file_hashes    = true;
 }
 
 static void
 disable_all_infos(void)
 {
-    report_all_infos   = FALSE;
+    report_all_infos   = false;
 
-    cap_file_type      = FALSE;
-    cap_file_encap     = FALSE;
-    cap_snaplen        = FALSE;
-    cap_packet_count   = FALSE;
-    cap_file_size      = FALSE;
-    cap_comment        = FALSE;
-    pkt_comments       = FALSE;
-    cap_file_more_info = FALSE;
-    cap_file_idb       = FALSE;
-    cap_file_nrb       = FALSE;
-    cap_file_dsb       = FALSE;
+    cap_file_type      = false;
+    cap_file_encap     = false;
+    cap_snaplen        = false;
+    cap_packet_count   = false;
+    cap_file_size      = false;
+    cap_comment        = false;
+    pkt_comments       = false;
+    cap_file_more_info = false;
+    cap_file_idb       = false;
+    cap_file_nrb       = false;
+    cap_file_dsb       = false;
 
-    cap_data_size      = FALSE;
-    cap_duration       = FALSE;
-    cap_start_time     = FALSE;
-    cap_end_time       = FALSE;
-    cap_order          = FALSE;
+    cap_data_size      = false;
+    cap_duration       = false;
+    cap_start_time     = false;
+    cap_end_time       = false;
+    cap_order          = false;
 
-    cap_data_rate_byte = FALSE;
-    cap_data_rate_bit  = FALSE;
-    cap_packet_size    = FALSE;
-    cap_packet_rate    = FALSE;
+    cap_data_rate_byte = false;
+    cap_data_rate_bit  = false;
+    cap_packet_size    = false;
+    cap_packet_rate    = false;
 
-    cap_file_hashes    = FALSE;
+    cap_file_hashes    = false;
 }
 
-static const gchar *
+static const char *
 order_string(order_t order)
 {
     switch (order) {
@@ -302,7 +302,7 @@ order_string(order_t order)
     }
 }
 
-static gchar *
+static char *
 absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
 {
     /*
@@ -335,13 +335,13 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
      *
      * So we go with 39.
      */
-    static gchar time_string_buf[39];
+    static char time_string_buf[39];
 
     if (cf_info->times_known && cf_info->packet_count > 0) {
         if (time_as_secs) {
             display_epoch_time(time_string_buf, sizeof time_string_buf, timer, tsprecision);
         } else {
-            format_nstime_as_iso8601(time_string_buf, sizeof time_string_buf, timer, decimal_point, TRUE, tsprecision);
+            format_nstime_as_iso8601(time_string_buf, sizeof time_string_buf, timer, decimal_point, true, tsprecision);
         }
     } else {
         snprintf(time_string_buf, sizeof time_string_buf, "n/a");
@@ -349,11 +349,11 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
     return time_string_buf;
 }
 
-static gchar *
-relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gboolean want_seconds)
+static char *
+relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, bool want_seconds)
 {
-    const gchar  *second = want_seconds ? " second" : "";
-    const gchar  *plural = want_seconds ? "s" : "";
+    const char  *second = want_seconds ? " second" : "";
+    const char  *plural = want_seconds ? "s" : "";
     /*
      * If we're displaying the time as epoch time, and the time is
      * unsigned, 2^64-1 is 18446744073709551615, so the buffer has
@@ -363,7 +363,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
      * be big enough for "-9223372036854775808.999999999 seconds",
      * which is again 20+1+9+1+7+1, or 39.
      */
-    static gchar  time_string_buf[39];
+    static char  time_string_buf[39];
 
     if (cf_info->times_known && cf_info->packet_count > 0) {
         char *ptr;
@@ -374,7 +374,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
         remaining = sizeof time_string_buf;
         num_bytes = snprintf(ptr, remaining,
                              "%"PRId64,
-                             (gint64)timer->secs);
+                             (int64_t)timer->secs);
         if (num_bytes < 0) {
             /*
              * That got an error.
@@ -423,7 +423,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
     return time_string_buf;
 }
 
-static void print_value(const gchar *text_p1, gint width, const gchar *text_p2, double value)
+static void print_value(const char *text_p1, gint width, const char *text_p2, double value)
 {
     if (value > 0.0)
         printf("%s%.*f%s\n", text_p1, width, value, text_p2);
@@ -434,9 +434,9 @@ static void print_value(const gchar *text_p1, gint width, const gchar *text_p2, 
 /* multi-line comments would conflict with the formatting that capinfos uses
    we replace linefeeds with spaces */
 static void
-string_replace_newlines(gchar *str)
+string_replace_newlines(char *str)
 {
-    gchar *p;
+    char *p;
 
     if (str) {
         p = str;
@@ -464,10 +464,10 @@ show_option_string(const char *prefix, const char *option_str)
 }
 
 static void
-print_stats(const gchar *filename, capture_info *cf_info)
+print_stats(const char *filename, capture_info *cf_info)
 {
-    const gchar           *file_type_string, *file_encap_string;
-    gchar                 *size_string;
+    const char           *file_type_string, *file_encap_string;
+    char                 *size_string;
     pkt_cmt               *p, *prev;
 
     /* Build printable strings for various stats */
@@ -551,7 +551,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
     }
     if (cf_info->times_known) {
         if (cap_duration) /* XXX - shorten to hh:mm:ss */
-            printf("Capture duration:    %s\n", relative_time_string(&cf_info->duration, cf_info->duration_tsprec, cf_info, TRUE));
+            printf("Capture duration:    %s\n", relative_time_string(&cf_info->duration, cf_info->duration_tsprec, cf_info, true));
         if (cap_start_time)
             printf("First packet time:   %s\n", absolute_time_string(&cf_info->start_time, cf_info->start_time_tsprec, cf_info));
         if (cap_end_time)
@@ -596,9 +596,9 @@ print_stats(const gchar *filename, capture_info *cf_info)
     }
     if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
-    gboolean has_multiple_sections = (wtap_file_get_num_shbs(cf_info->wth) > 1);
+    bool has_multiple_sections = (wtap_file_get_num_shbs(cf_info->wth) > 1);
 
-    for (guint section_number = 0;
+    for (unsigned int section_number = 0;
             section_number < wtap_file_get_num_shbs(cf_info->wth);
             section_number++) {
         wtap_block_t shb;
@@ -640,12 +640,12 @@ print_stats(const gchar *filename, capture_info *cf_info)
             }
 
             if (cap_file_idb && cf_info->num_interfaces != 0) {
-                guint i;
+                unsigned int i;
                 ws_assert(cf_info->num_interfaces == cf_info->idb_info_strings->len);
                 printf     ("Number of interfaces in file: %u\n", cf_info->num_interfaces);
                 for (i = 0; i < cf_info->idb_info_strings->len; i++) {
-                    gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
-                    guint32 packet_count = 0;
+                    char *s = g_array_index(cf_info->idb_info_strings, char*, i);
+                    uint32_t packet_count = 0;
                     if (i < cf_info->interface_packet_counts->len)
                         packet_count = g_array_index(cf_info->interface_packet_counts, guint32, i);
                     printf   ("Interface #%u info:\n", i);
@@ -681,7 +681,7 @@ putquote(void)
 }
 
 static void
-print_stats_table_header_label(const gchar *label)
+print_stats_table_header_label(const char *label)
 {
     putsep();
     putquote();
@@ -745,9 +745,9 @@ print_stats_table_header(capture_info *cf_info)
 }
 
 static void
-print_stats_table(const gchar *filename, capture_info *cf_info)
+print_stats_table(const char *filename, capture_info *cf_info)
 {
-    const gchar           *file_type_string, *file_encap_string;
+    const char           *file_type_string, *file_encap_string;
     pkt_cmt               *p, *prev;
 
     /* Build printable strings for various stats */
@@ -840,7 +840,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     if (cap_duration) {
         putsep();
         putquote();
-        printf("%s", relative_time_string(&cf_info->duration, cf_info->duration_tsprec, cf_info, FALSE));
+        printf("%s", relative_time_string(&cf_info->duration, cf_info->duration_tsprec, cf_info, false));
         putquote();
     }
 
@@ -961,10 +961,10 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
         if (cap_comment) {
             unsigned int i;
             char *opt_comment;
-            gboolean have_cap = FALSE;
+            bool have_cap = false;
 
             for (i = 0; wtap_block_get_nth_string_option_value(shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
-                have_cap = TRUE;
+                have_cap = true;
                 putsep();
                 putquote();
                 if (machine_readable){
@@ -1004,39 +1004,39 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 static void
 cleanup_capture_info(capture_info *cf_info)
 {
-    guint i;
+    unsigned int i;
     ws_assert(cf_info != NULL);
 
     g_free(cf_info->encap_counts);
     cf_info->encap_counts = NULL;
 
-    g_array_free(cf_info->interface_packet_counts, TRUE);
+    g_array_free(cf_info->interface_packet_counts, true);
     cf_info->interface_packet_counts = NULL;
 
     if (cf_info->idb_info_strings) {
         for (i = 0; i < cf_info->idb_info_strings->len; i++) {
-            gchar *s = g_array_index(cf_info->idb_info_strings, gchar*, i);
+            char *s = g_array_index(cf_info->idb_info_strings, char*, i);
             g_free(s);
         }
-        g_array_free(cf_info->idb_info_strings, TRUE);
+        g_array_free(cf_info->idb_info_strings, true);
     }
     cf_info->idb_info_strings = NULL;
 }
 
 static void
-count_ipv4_address(const guint addr _U_, const gchar *name _U_, const bool static_entry _U_)
+count_ipv4_address(const unsigned int addr _U_, const char *name _U_, const bool static_entry _U_)
 {
     num_ipv4_addresses++;
 }
 
 static void
-count_ipv6_address(const void *addrp _U_, const gchar *name _U_, const bool static_entry _U_)
+count_ipv6_address(const void *addrp _U_, const char *name _U_, const bool static_entry _U_)
 {
     num_ipv6_addresses++;
 }
 
 static void
-count_decryption_secret(guint32 secrets_type _U_, const void *secrets _U_, guint size _U_)
+count_decryption_secret(uint32_t secrets_type _U_, const void *secrets _U_, unsigned int size _U_)
 {
     /* XXX - count them based on the secrets type (which is an opaque code,
        not a small integer)? */
@@ -1078,36 +1078,36 @@ calculate_hashes(const char *filename)
 }
 
 static int
-process_cap_file(const char *filename, gboolean need_separator)
+process_cap_file(const char *filename, bool need_separator)
 {
     int                   status = 0;
     int                   err;
-    gchar                *err_info;
-    gint64                size;
-    gint64                data_offset;
+    char                 *err_info;
+    int64_t               size;
+    int64_t               data_offset;
 
-    guint32               packet = 0;
-    gint64                bytes  = 0;
-    guint32               snaplen_min_inferred = 0xffffffff;
-    guint32               snaplen_max_inferred =          0;
+    uint32_t              packet = 0;
+    int64_t               bytes  = 0;
+    uint32_t              snaplen_min_inferred = 0xffffffff;
+    uint32_t              snaplen_max_inferred =          0;
     wtap_rec              rec;
     Buffer                buf;
     capture_info          cf_info;
-    gboolean              have_times = TRUE;
+    bool                  have_times = true;
     nstime_t              start_time;
     int                   start_time_tsprec;
     nstime_t              stop_time;
     int                   stop_time_tsprec;
     nstime_t              cur_time;
     nstime_t              prev_time;
-    gboolean              know_order = FALSE;
+    bool                  know_order = false;
     order_t               order = IN_ORDER;
-    guint                 i;
+    unsigned int                 i;
     wtapng_iface_descriptions_t *idb_info;
 
     pkt_cmt *pc = NULL, *prev = NULL;
 
-    cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+    cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, false);
     if (!cf_info.wth) {
         cfile_open_failure_message(filename, err, err_info);
         return 2;
@@ -1139,7 +1139,7 @@ process_cap_file(const char *filename, gboolean need_separator)
 
     cf_info.pkt_cmts = NULL;
     cf_info.num_interfaces = idb_info->interface_data->len;
-    cf_info.interface_packet_counts  = g_array_sized_new(FALSE, TRUE, sizeof(guint32), cf_info.num_interfaces);
+    cf_info.interface_packet_counts  = g_array_sized_new(false, true, sizeof(uint32_t), cf_info.num_interfaces);
     g_array_set_size(cf_info.interface_packet_counts, cf_info.num_interfaces);
     cf_info.pkt_interface_id_unknown = 0;
 
@@ -1183,7 +1183,7 @@ process_cap_file(const char *filename, gboolean need_separator)
                 stop_time_tsprec = rec.tsprec;
             }
         } else {
-            have_times = FALSE; /* at least one packet has no time stamp */
+            have_times = false; /* at least one packet has no time stamp */
             if (order != NOT_IN_ORDER)
                 order = ORDER_UNKNOWN;
         }
@@ -1280,11 +1280,11 @@ process_cap_file(const char *filename, gboolean need_separator)
      */
     idb_info = wtap_file_get_idb_info(cf_info.wth);
 
-    cf_info.idb_info_strings = g_array_sized_new(FALSE, FALSE, sizeof(gchar*), cf_info.num_interfaces);
+    cf_info.idb_info_strings = g_array_sized_new(false, false, sizeof(char*), cf_info.num_interfaces);
     cf_info.num_interfaces = idb_info->interface_data->len;
     for (i = 0; i < cf_info.num_interfaces; i++) {
         const wtap_block_t if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
-        gchar *s = wtap_get_debug_if_descr(if_descr, 21, "\n");
+        char *s = wtap_get_debug_if_descr(if_descr, 21, "\n");
         g_array_append_val(cf_info.idb_info_strings, s);
     }
 
@@ -1333,9 +1333,9 @@ process_cap_file(const char *filename, gboolean need_separator)
     /* Packet size limit (snaplen) */
     cf_info.snaplen = wtap_snapshot_length(cf_info.wth);
     if (cf_info.snaplen > 0)
-        cf_info.snap_set = TRUE;
+        cf_info.snap_set = true;
     else
-        cf_info.snap_set = FALSE;
+        cf_info.snap_set = false;
 
     cf_info.snaplen_min_inferred = snaplen_min_inferred;
     cf_info.snaplen_max_inferred = snaplen_max_inferred;
@@ -1497,7 +1497,7 @@ main(int argc, char *argv[])
         cfile_write_failure_message,
         cfile_close_failure_message
     };
-    gboolean need_separator = FALSE;
+    bool need_separator = false;
     int    opt;
     int    overall_error_status = EXIT_SUCCESS;
     static const struct ws_option long_options[] = {
@@ -1557,7 +1557,7 @@ main(int argc, char *argv[])
 
     init_report_message("capinfos", &capinfos_report_routines);
 
-    wtap_init(TRUE);
+    wtap_init(true);
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, "abcdehiklmnopqrstuvxyzABCDEFHIKLMNPQRST", long_options, NULL)) !=-1) {
@@ -1566,123 +1566,123 @@ main(int argc, char *argv[])
 
             case 't':
                 if (report_all_infos) disable_all_infos();
-                cap_file_type = TRUE;
+                cap_file_type = true;
                 break;
 
             case 'E':
                 if (report_all_infos) disable_all_infos();
-                cap_file_encap = TRUE;
+                cap_file_encap = true;
                 break;
 
             case 'l':
                 if (report_all_infos) disable_all_infos();
-                cap_snaplen = TRUE;
+                cap_snaplen = true;
                 break;
 
             case 'c':
                 if (report_all_infos) disable_all_infos();
-                cap_packet_count = TRUE;
+                cap_packet_count = true;
                 break;
 
             case 's':
                 if (report_all_infos) disable_all_infos();
-                cap_file_size = TRUE;
+                cap_file_size = true;
                 break;
 
             case 'd':
                 if (report_all_infos) disable_all_infos();
-                cap_data_size = TRUE;
+                cap_data_size = true;
                 break;
 
             case 'u':
                 if (report_all_infos) disable_all_infos();
-                cap_duration = TRUE;
+                cap_duration = true;
                 break;
 
             case 'a':
                 if (report_all_infos) disable_all_infos();
-                cap_start_time = TRUE;
+                cap_start_time = true;
                 break;
 
             case 'e':
                 if (report_all_infos) disable_all_infos();
-                cap_end_time = TRUE;
+                cap_end_time = true;
                 break;
 
             case 'S':
-                time_as_secs = TRUE;
+                time_as_secs = true;
                 break;
 
             case 'y':
                 if (report_all_infos) disable_all_infos();
-                cap_data_rate_byte = TRUE;
+                cap_data_rate_byte = true;
                 break;
 
             case 'i':
                 if (report_all_infos) disable_all_infos();
-                cap_data_rate_bit = TRUE;
+                cap_data_rate_bit = true;
                 break;
 
             case 'z':
                 if (report_all_infos) disable_all_infos();
-                cap_packet_size = TRUE;
+                cap_packet_size = true;
                 break;
 
             case 'x':
                 if (report_all_infos) disable_all_infos();
-                cap_packet_rate = TRUE;
+                cap_packet_rate = true;
                 break;
 
             case 'H':
                 if (report_all_infos) disable_all_infos();
-                cap_file_hashes = TRUE;
+                cap_file_hashes = true;
                 break;
 
             case 'o':
                 if (report_all_infos) disable_all_infos();
-                cap_order = TRUE;
+                cap_order = true;
                 break;
 
             case 'k':
                 if (report_all_infos) disable_all_infos();
-                cap_comment = TRUE;
+                cap_comment = true;
                 break;
 
             case 'p':
                 if (report_all_infos) disable_all_infos();
-                pkt_comments = TRUE;
+                pkt_comments = true;
                 break;
 
             case 'K':
-                cap_comment = FALSE;
+                cap_comment = false;
                 break;
 
             case 'P':
-                pkt_comments = FALSE;
+                pkt_comments = false;
                 break;
 
             case 'F':
                 if (report_all_infos) disable_all_infos();
-                cap_file_more_info = TRUE;
+                cap_file_more_info = true;
                 break;
 
             case 'I':
                 if (report_all_infos) disable_all_infos();
-                cap_file_idb = TRUE;
+                cap_file_idb = true;
                 break;
 
             case 'n':
                 if (report_all_infos) disable_all_infos();
-                cap_file_nrb = TRUE;
+                cap_file_nrb = true;
                 break;
 
             case 'D':
                 if (report_all_infos) disable_all_infos();
-                cap_file_dsb = TRUE;
+                cap_file_dsb = true;
                 break;
 
             case 'C':
-                stop_after_failure = TRUE;
+                stop_after_failure = true;
                 break;
 
             case 'A':
@@ -1690,23 +1690,23 @@ main(int argc, char *argv[])
                 break;
 
             case 'L':
-                long_report = TRUE;
+                long_report = true;
                 break;
 
             case 'T':
-                long_report = FALSE;
+                long_report = false;
                 break;
 
             case 'M':
-                machine_readable = TRUE;
+                machine_readable = true;
                 break;
 
             case 'R':
-                table_report_header = TRUE;
+                table_report_header = true;
                 break;
 
             case 'r':
-                table_report_header = FALSE;
+                table_report_header = false;
                 break;
 
             case 'N':
@@ -1784,7 +1784,7 @@ main(int argc, char *argv[])
                information anyway.  Note that we need a blank line before
                the next file's information, to separate it from the
                previous file. */
-            need_separator = TRUE;
+            need_separator = true;
         }
     }
 
