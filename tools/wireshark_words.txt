@@ -114,6 +114,7 @@ arista
 armscii
 arphrd
 aruba
+aruuid
 ascii
 asciidoc
 ashrae
@@ -385,6 +386,7 @@ combi
 combiner
 combiners
 combobox
+comcast
 commaize
 comms
 communication
@@ -478,6 +480,7 @@ datastate
 datetime
 datum
 daysofweek
+dbuild
 dccreq
 dcerpc
 dcname
@@ -537,6 +540,7 @@ delimited
 delimiters
 delimiting
 demodulator
+demotivation
 demultiplex
 demultiplexed
 demultiplexer
@@ -582,6 +586,7 @@ devfs
 deviceid
 devmode
 devno
+devtype
 dfdpck
 dfilter
 dfilters
@@ -624,10 +629,12 @@ divisor
 djiuav
 dlmap
 dlsch
+dlstatus
 dmacros
 dmepi
 dmx4all
 dnskey
+dnsop
 dnssec
 dnssrv
 docomo
@@ -939,6 +946,7 @@ hfindex
 hfinfo
 HI2Operations
 histogram
+historizing
 hitachi
 hnbap
 homedir
@@ -1266,6 +1274,7 @@ meshcop
 messageid
 metadata
 metamethod
+metamethods
 metatable
 metatraffic
 meteorological
@@ -1596,6 +1605,7 @@ pcch
 pcell
 pcmax
 pcmaxc
+pcre2pattern
 pcrepattern
 pdcch
 pdelay
@@ -1638,6 +1648,7 @@ polycom
 polygon
 polynom
 popup
+portableapps
 portcounters
 portid
 portinfo
@@ -1659,6 +1670,7 @@ preauth
 precisions
 precoding
 precompilation
+precompiled
 precompute
 preconfiguration
 preconfigured
@@ -1737,6 +1749,7 @@ quantization
 quantized
 queryhit
 queryset
+queueing
 quiesce
 quiescing
 quintuplet
@@ -1756,6 +1769,8 @@ randomizer
 randpkt
 randr
 raster
+rawip
+rcode
 rcsta
 rctxinfo
 rdeth
@@ -1914,6 +1929,7 @@ retransmitter
 retries
 retry
 retrying
+returndiag
 retval
 retyping
 revalidate
@@ -1960,6 +1976,7 @@ rxlen
 rxlev
 rxmcsmap
 rxreq
+s3accountlist
 s3interval
 s7comm
 sabme
@@ -2031,6 +2048,7 @@ sessionid
 sessionkey
 setattr
 setcap
+setconf
 setkey
 setuid
 severities
@@ -2060,6 +2078,7 @@ signon
 simplestatusbit
 simulcast
 singulation
+sinsp
 sinteger
 sistemas
 sizeof
@@ -2135,6 +2154,8 @@ stdin
 stdout
 steinigke
 stevens
+stmin
+stnode
 strawberryperl
 strbuf
 strcmp
@@ -2418,6 +2439,7 @@ undecoded
 undecryptable
 undecrypted
 undelete
+undelimited
 undeliverable
 underflow
 underrun
@@ -2427,6 +2449,7 @@ undissected
 unduplicated
 unencoded
 unencrypted
+unescape
 unescaped
 unescaping
 unexported
@@ -2555,6 +2578,7 @@ v1310
 v1410
 v1530
 v1610
+valgrind
 validations
 validator
 valstringname
@@ -2606,6 +2630,7 @@ webkit
 websocket
 wednesday
 werror
+whereis
 whoami
 whois
 wideband

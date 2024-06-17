@@ -106,13 +106,13 @@ typedef struct {
     AirpcapValidationType   CrcValidationOn;    /* Capture Frames with Wrong CRC */
     AirpcapDecryptionState  DecryptionOn;       /* true if decryption is on, false otherwise */
     PAirpcapKeysCollection  keysCollection;     /* WEP Key collection for the adapter */
-    unsigned                   keysCollectionSize; /* Size of the key collection */
-    bool                blinking;           /* true if is blinkng, false otherwise */
-    bool                led;                /* true if on, false if off */
-    bool                saved;              /* true if current configuration has been saved, false otherwise */
-    int                    tag;                /* int for the gtk blinking callback */
+    unsigned                keysCollectionSize; /* Size of the key collection */
+    bool                    blinking;           /* true if is blinking, false otherwise */
+    bool                    led;                /* true if on, false if off */
+    bool                    saved;              /* true if current configuration has been saved, false otherwise */
+    int                     tag;                /* int for the gtk blinking callback */
     Dot11Channel            *pSupportedChannels;
-    uint32_t                 numSupportedChannels;
+    uint32_t                numSupportedChannels;
 } airpcap_if_info_t;
 
 /*

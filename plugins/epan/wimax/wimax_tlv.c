@@ -16,15 +16,15 @@
 
 #include "wimax_tlv.h"
 
-/*************************************************************/
-/* init_tlv_info()                                           */
-/* retrive the tlv information from specified tvb and offset */
-/* parameter:                                                */
-/*   info - pointer of a tlv information data structure      */
-/* return:                                                   */
-/*   0-success                                               */
-/*   !=0-the invalid size of the TLV length (failed)         */
-/*************************************************************/
+/**************************************************************/
+/* init_tlv_info()                                            */
+/* retrieve the tlv information from specified tvb and offset */
+/* parameter:                                                 */
+/*   info - pointer of a tlv information data structure       */
+/* return:                                                    */
+/*   0-success                                                */
+/*   !=0-the invalid size of the TLV length (failed)          */
+/**************************************************************/
 gint init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, gint offset)
 {
 	guint tlv_len;

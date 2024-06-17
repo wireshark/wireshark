@@ -163,7 +163,7 @@ If source URL is the organization CloudTrail bucket (like 's3://my-org-bucket/AW
 The cloudtrail plugin uses the AWS SDK for Go, which can obtain profile, region, and credential settings from a set of standard https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/[environment variables and configuration files].
 Falcodump will show a list of locally configured profiles and the current regions, and will let you supply a custom value as well.
 
-More information is avaliable in the https://github.com/falcosecurity/plugins/blob/master/plugins/cloudtrail/README.md[README] of the CloudTrail plugin.
+More information is available in the https://github.com/falcosecurity/plugins/blob/master/plugins/cloudtrail/README.md[README] of the CloudTrail plugin.
 
 == EXAMPLES
 

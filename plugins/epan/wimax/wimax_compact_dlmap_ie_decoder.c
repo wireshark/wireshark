@@ -932,7 +932,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			}
 		break;
 		case COMPACT_DL_MAP_TYPE_EXTENSION:/* 6.3.2.3.43.6.6 */
-			/* decode the Compact DL-MAP externsion IE */
+			/* decode the Compact DL-MAP extension IE */
 			nibble_length = wimax_cdlmap_extension_ie_decoder(tree, pinfo, tvb, dl_map_offset, nibble_offset);/*, cqich_indicator);*/
 			length = nibble_length;
 		break;

@@ -936,7 +936,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			}
 		break;
 		case COMPACT_UL_MAP_TYPE_EXTENSION:/* 6.3.2.3.43.7.7 */
-			/* decode the Compact UL-MAP externsion IE */
+			/* decode the Compact UL-MAP extension IE */
 			nibble_length = wimax_culmap_extension_ie_decoder(tree, pinfo, tvb, ul_map_offset, nibble_offset);/*, cqich_indicator);*/
 			length = nibble_length;
 		break;
