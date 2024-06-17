@@ -95,10 +95,10 @@ static gboolean stop_after_failure;
  * table report variables
  */
 
-static gboolean long_report        = TRUE;  /* By default generate long report       */
-static gchar table_report_header   = TRUE;  /* Generate column header by default     */
-static gchar field_separator       = '\t';  /* Use TAB as field separator by default */
-static gchar quote_char            = '\0';  /* Do NOT quote fields by default        */
+static gboolean long_report           = TRUE;  /* By default generate long report       */
+static gboolean table_report_header   = TRUE;  /* Generate column header by default     */
+static gchar field_separator          = '\t';  /* Use TAB as field separator by default */
+static gchar quote_char               = '\0';  /* Do NOT quote fields by default        */
 static gboolean machine_readable; /* Display machine-readable numbers      */
 
 /*
