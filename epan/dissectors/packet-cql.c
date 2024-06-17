@@ -1034,8 +1034,7 @@ static int parse_result_schema_change(proto_tree* subtree, packet_info *pinfo, t
 	offset += short_bytes_length;
 	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
 	offset += 2;
-	string_event_type_target = tvb_get_string_enc(pinfo->pool, tvb, offset, short_bytes_length, ENC_UTF_8);
-	proto_tree_add_item(subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+	proto_tree_add_item_ret_string(subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, &string_event_type_target);
 	offset += short_bytes_length;
 	/* all targets have the keyspace as the first parameter*/
 	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
@@ -1737,8 +1736,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
 				offset += 2;
 
-				proto_tree_add_item(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
-				string_event_type = tvb_get_string_enc(pinfo->pool, tvb, offset, short_bytes_length, ENC_UTF_8);
+				proto_tree_add_item_ret_string(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, &string_event_type);
 				offset += short_bytes_length;
 				proto_item_append_text(cql_subtree, " (type: %s)", string_event_type);
 
