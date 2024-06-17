@@ -18,6 +18,6 @@ indent_size = 4
 indent_style = space
 indent_size = 4
 
-[translators.[ch]]
+[dfilter-translator.[ch]]
 indent_style = space
 indent_size = 4
