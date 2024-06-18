@@ -1034,6 +1034,10 @@ profile currently selected in the list. The name of the created profile
 is the same as the copied profile, with the text “(copy)” and is
 highlighted so that you can more easily change it.
 
+Auto switch packet limit::
+The number of packets to check for automatic profile switching, described below.
+Setting this to zero disables automatic profile switching.
+
 btn:[Import]::
 Profiles can be imported from zip-archives as well as directly from directory
 structures. Profiles, which already exist by name will be skipped, as well as
@@ -1058,7 +1062,8 @@ Show this help page.
 ==== Automatic Profile Switching
 
 You can configure Wireshark to automatically change configuration profiles by adding a display filter to the "Auto Switch Filter" setting for a profile.
-When you open a capture file, Wireshark will check each filter against the first 1000 packets and will switch to the first profile with a matching filter.
+When you open a capture file, Wireshark will check each filter against a limited number of packets and will switch to the first profile with a matching filter.
+The number of packets is determined by the "Auto switch packet limit" setting, and a limit of 0 will disable this feature.
 Manually changing your profile will disable this behavior until you open a different capture file.
 
 [#ChUserTable]
