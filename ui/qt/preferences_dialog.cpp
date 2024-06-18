@@ -29,6 +29,7 @@
 #include "main_application.h"
 
 #include <QDesktopServices>
+#include <QUrl>
 
 extern "C" {
 // Callbacks prefs routines
