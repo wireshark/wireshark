@@ -1461,9 +1461,10 @@ new request. It’s possible to set multiple time references in the capture file
 The time references will not be saved permanently and will be lost when you
 close the capture file.
 
-Time referencing will only be useful if the time display format is set to
-“Seconds Since First Captured Packet”. If one of the other time display formats
-are used, time referencing will have no effect (and will make no sense either).
+Time referencing supercedes the value for the time relative to first
+capture packet. It affects the default Time column if the time display
+format is set to “Seconds Since First Captured Packet”, or a “Relative Time”
+column if one has been added. It also affects the `frame.time_relative` field.
 
 To work with time references, choose one of the menu:Time Reference[] items in
 the menu:[Edit] menu or from the pop-up menu of the “Packet List” pane. See
@@ -1484,7 +1485,12 @@ image::images/ws-time-reference.png[{screenshot-attrs}]
 
 A time referenced packet will be marked with the string $$*REF*$$ in the Time
 column (see packet number 10). All subsequent packets will show the time since
-the last time reference.
+the last time reference. If there is a column displayed for “Cumulative Bytes”
+its counter will also reset at every time reference packet.
+# Somewhat odd that cumulative bytes also resets.
+
+Time referenced packets will always be displayed in the packet list pane.
+Display filters will not affect or hide these packets.
 
 [#ChWorkShiftTimePacketSection]
 

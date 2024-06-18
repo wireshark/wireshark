@@ -442,35 +442,34 @@ The fields “Automatic”, “Seconds” and “...seconds” are mutually excl
 |menu:Name Resolution[Enable for MAC Layer]||This item allows you to control whether or not Wireshark translates MAC addresses into names, see <<ChAdvNameResolutionSection>>.
 |menu:Name Resolution[Enable for Network Layer]||This item allows you to control whether or not Wireshark translates network addresses into names, see <<ChAdvNameResolutionSection>>.
 |menu:Name Resolution[Enable for Transport Layer]||This item allows you to control whether or not Wireshark translates transport addresses into names, see <<ChAdvNameResolutionSection>>.
+|menu:Zoom In[]                     |kbd:[Ctrl+&#43;]   | Zoom into the packet data (increase the font size).
+|menu:Zoom Out[]                    |kbd:[Ctrl+-]       | Zoom out of the packet data (decrease the font size).
+|menu:Normal Size[]                 |kbd:[Ctrl+=]       | Set zoom level back to 100% (set font size back to normal).
+|menu:Expand Subtrees[]                             |kbd:[Shift+→]|This menu item expands the currently selected subtree in the packet details tree.
+|menu:Collapse Subtrees[]                           |kbd:[Shift+←]|This menu item collapses the currently selected subtree in the packet details tree.
+|menu:Expand All[]                                  |kbd:[Ctrl+→] |Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item expands all subtrees in all packets in the capture.
+|menu:Collapse All[]                                |kbd:[Ctrl+←] |This menu item collapses the tree view of all packets in the capture list.
 |menu:Colorize Packet List[]||This item allows you to control whether or not Wireshark should colorize the packet list.
 
 Enabling colorization will slow down the display of new packets while
 capturing or loading capture files.
 
-|menu:Auto Scroll in Live Capture[] |                   |This item allows you to specify that Wireshark should scroll the packet list pane as new packets come in, so you are always looking at the last packet.  If you do not specify this, Wireshark simply adds new packets onto the end of the list, but does not scroll the packet list pane.
-|menu:Zoom In[]                     |kbd:[Ctrl+&#43;]   | Zoom into the packet data (increase the font size).
-|menu:Zoom Out[]                    |kbd:[Ctrl+-]       | Zoom out of the packet data (decrease the font size).
-|menu:Normal Size[]                 |kbd:[Ctrl+=]       | Set zoom level back to 100% (set font size back to normal).
-|menu:Resize All Columns[]          |kbd:[Shift+Ctrl+R] | Resize all column widths so the content will fit into it.
-
-Resizing may take a significant amount of time, especially if a large capture file is loaded.
-
-|menu:Displayed Columns[]                           |                   |This menu items folds out with a list of all configured columns. These columns can now be shown or hidden in the packet list.
-|menu:Expand Subtrees[]                             |kbd:[Shift+→]|This menu item expands the currently selected subtree in the packet details tree.
-|menu:Collapse Subtrees[]                           |kbd:[Shift+←]|This menu item collapses the currently selected subtree in the packet details tree.
-|menu:Expand All[]                                  |kbd:[Ctrl+→] |Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item expands all subtrees in all packets in the capture.
-|menu:Collapse All[]                                |kbd:[Ctrl+←] |This menu item collapses the tree view of all packets in the capture list.
 |menu:Colorize Conversation[]                       |                   |This menu item brings up a submenu that allows you to color packets in the packet list pane based on the addresses of the currently selected packet. This makes it easy to distinguish packets belonging to different conversations. <<ChCustColorizationSection>>.
 |menu:Colorize Conversation[Color 1-10]             |                   |These menu items enable one of the ten temporary color filters based on the currently selected conversation.
 |menu:Colorize Conversation[Reset coloring]         |                   |This menu item clears all temporary coloring rules.
 |menu:Colorize Conversation[New Coloring Rule...]   |                   |This menu item opens a dialog window in which a new permanent coloring rule can be created based on the currently selected conversation.
 |menu:Coloring Rules...[]                           |                   |This menu item brings up a dialog box that allows you to color packets in the packet list pane according to filter expressions you choose. It can be very useful for spotting certain types of packets, see <<ChCustColorizationSection>>.
+|menu:Resize All Columns[]          |kbd:[Shift+Ctrl+R] | Resize all column widths so the content will fit into it.
+
+Resizing may take a significant amount of time, especially if a large capture file is loaded.
+
 |menu:Internals[]                                   |                   |Information about various internal data structures. See <<ChUseInternals>> below for more information.
 
 |menu:Show Packet in New Window[] ||
 Shows the selected packet in a separate window. The separate window
-shows only the packet details and bytes. See <<ChWorkPacketSepView>> for
-details.
+shows only the packet details and bytes of that packet, and will
+continue to do so even if another packet is selected in the main window.
+See <<ChWorkPacketSepView>> for details.
 
 |menu:Reload[]                                      |kbd:[Ctrl+R]       |This menu item allows you to reload the current capture file.
 |===
@@ -504,13 +503,15 @@ image::images/ws-go-menu.png[{screenshot-attrs}]
 |menu:Back[]                            |kbd:[Alt+←] |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
 |menu:Forward[]                         |kbd:[Alt+→] |Jump to the next visited packet in the packet history, much like the page history in a web browser.
 |menu:Go to Packet...[]                 |kbd:[Ctrl+G]       |Bring up a window frame that allows you to specify a packet number, and then goes to that packet. See <<ChWorkGoToPacketSection>> for details.
-|menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field. If the selected field doesn’t correspond to a packet, this item is greyed out.
+|menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field (e.g., the reply
+corresponding to a request packet, or vice versa). If the selected field doesn’t correspond to a packet, this item is greyed out.
 |menu:Previous Packet[]                 |kbd:[Ctrl+↑]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |menu:First Packet[]                    |kbd:[Ctrl+Home]    |Jump to the first packet of the capture file.
 |menu:Last Packet[]                     |kbd:[Ctrl+End]     |Jump to the last packet of the capture file.
 |menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
+|menu:Auto Scroll in Live Capture[] |                   |This item allows you to specify that Wireshark should scroll the packet list pane as new packets come in, so you are always looking at the last packet.  If you do not specify this, Wireshark simply adds new packets onto the end of the list, but does not scroll the packet list pane.
 |===
 
 [#ChUseCaptureMenuSection]
@@ -626,6 +627,13 @@ on providing TLS keys.
 
 |menu:Follow[HTTP Stream]           ||
 Same functionality as “Follow TCP Stream” but for HTTP streams.
+
+|menu:Show Packet Bytes[]           ||
+Open a window allowing for decoding and reformatting packet bytes.
+You can do actions like Base64 decode, decompress, interpret as
+a different character encoding, interpret bytes as an image format,
+and save, print, or copy to the clipboard the results.
+See <<ChAdvShowPacketBytes>> for more information.
 
 |menu:Expert Info[]                 ||
 Open a window showing expert information found in the capture.
@@ -791,7 +799,7 @@ image::images/ws-help-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===
 |Menu Item|Accelerator|Description
-|menu:Contents[]|F1| This menu item brings up a basic help system.
+|menu:Contents[]|F1| This menu item brings up the Wireshark User's Guide you're reading right now.
 |menu:Manual Pages[...]|| This menu item starts a Web browser showing one of the locally installed html manual pages.
 |menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:{wireshark-main-url}[].
 |menu:FAQs[]|| This menu item starts a Web browser showing various FAQs.
