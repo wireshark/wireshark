@@ -68,7 +68,7 @@ static int hf_pn_io_error_code2_pnio_77;
 static int hf_pn_io_error_code2_pnio_253;
 static int hf_pn_io_error_code2_pnio_255;
 
-static gint ett_pn_io_status;
+static int ett_pn_io_status;
 
 static expert_field ei_pn_undecoded_data;
 static expert_field ei_pn_io_error_code1;
@@ -669,10 +669,10 @@ init_pnio_rtc1_station(stationInfo *station_info) {
 
 /* dissect an 8 bit unsigned integer */
 int
-dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                  proto_tree *tree, int hfindex, guint8 *pdata)
+dissect_pn_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                  proto_tree *tree, int hfindex, uint8_t *pdata)
 {
-    guint8 data;
+    uint8_t data;
 
     data = tvb_get_guint8 (tvb, offset);
     proto_tree_add_uint(tree, hfindex, tvb, offset, 1, data);
@@ -683,10 +683,10 @@ dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 /* dissect a 16 bit unsigned integer; return the item through a pointer as well */
 int
-dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, guint16 *pdata, proto_item ** new_item)
+dissect_pn_uint16_ret_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                       proto_tree *tree, int hfindex, uint16_t *pdata, proto_item ** new_item)
 {
-    guint16     data;
+    uint16_t    data;
     proto_item *item = NULL;
 
     data = tvb_get_ntohs (tvb, offset);
@@ -701,10 +701,10 @@ dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 /* dissect a 16 bit unsigned integer */
 int
-dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, guint16 *pdata)
+dissect_pn_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                       proto_tree *tree, int hfindex, uint16_t *pdata)
 {
-    guint16 data;
+    uint16_t data;
 
     data = tvb_get_ntohs (tvb, offset);
 
@@ -716,10 +716,10 @@ dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 /* dissect a 16 bit signed integer */
 int
-dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, gint16 *pdata)
+dissect_pn_int16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                       proto_tree *tree, int hfindex, int16_t *pdata)
 {
-    gint16 data;
+    int16_t data;
 
     data = tvb_get_ntohs (tvb, offset);
 
@@ -732,9 +732,9 @@ dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 /* dissect a 24bit OUI (IEC organizational unique id) */
 int
 dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint32 *pdata)
+                    proto_tree *tree, int hfindex, uint32_t *pdata)
 {
-    guint32 data;
+    uint32_t data;
 
     data = tvb_get_ntoh24(tvb, offset);
 
@@ -747,9 +747,9 @@ dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* dissect a 6 byte MAC address */
 int
 dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint8 *pdata)
+                    proto_tree *tree, int hfindex, uint8_t *pdata)
 {
-    guint8 data[6];
+    uint8_t data[6];
 
     tvb_memcpy(tvb, data, offset, 6);
     proto_tree_add_ether(tree, hfindex, tvb, offset, 6, data);
@@ -763,9 +763,9 @@ dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* dissect an IPv4 address */
 int
 dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint32 *pdata)
+                    proto_tree *tree, int hfindex, uint32_t *pdata)
 {
-    guint32 data;
+    uint32_t data;
 
     data = tvb_get_ipv4(tvb, offset);
     proto_tree_add_ipv4(tree, hfindex, tvb, offset, 4, data);
@@ -781,7 +781,7 @@ int
 dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, e_guid_t *uuid)
 {
-    guint8 drep[2] = { 0,0 };
+    uint8_t drep[2] = { 0,0 };
 
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                     hfindex, uuid);
@@ -792,7 +792,7 @@ dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* "dissect" some bytes still undecoded (with Expert warning) */
 int
 dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, guint32 length)
+                    proto_tree *tree, uint32_t length)
 {
     proto_item *item;
 
@@ -809,7 +809,7 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* "dissect" some user bytes */
 int
 dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, guint32 length, int iSelect)
+                    proto_tree *tree, uint32_t length, int iSelect)
 {
     if(iSelect == FRAG_DATA)
         proto_tree_add_item(tree, hf_pn_frag_bytes, tvb, offset, length, ENC_NA);
@@ -821,7 +821,7 @@ dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 int
 dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, guint32 length, const char *text)
+                    proto_tree *tree, uint32_t length, const char *text)
 {
     if (length != 0) {
         proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
@@ -833,7 +833,7 @@ dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* packet is malformed, mark it as such */
 int
 dissect_pn_malformed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, guint32 length)
+                    proto_tree *tree, uint32_t length)
 {
     proto_tree_add_item(tree, hf_pn_malformed, tvb, 0, 10000, ENC_NA);
 
@@ -856,7 +856,7 @@ dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 int
 dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint padding = 0;
+    unsigned padding = 0;
 
 
     if (offset % 4) {
@@ -872,16 +872,16 @@ dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 /* dissect the four status (error) fields */
 int
 dissect_PNIO_status(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep)
 {
-    guint8  u8ErrorCode;
-    guint8  u8ErrorDecode;
-    guint8  u8ErrorCode1;
-    guint8  u8ErrorCode2;
+    uint8_t u8ErrorCode;
+    uint8_t u8ErrorDecode;
+    uint8_t u8ErrorCode1;
+    uint8_t u8ErrorCode2;
 
     proto_item *sub_item;
     proto_tree *sub_tree;
-    guint32     u32SubStart;
+    uint32_t    u32SubStart;
     int         bytemask = (drep[0] & DREP_LITTLE_ENDIAN) ? 3 : 0;
 
     const value_string *error_code1_vals;
@@ -1136,7 +1136,7 @@ pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text)
     proto_item_append_text(dcp_item, "%s", text);
 }
 
-void pn_init_append_aruuid_frame_setup_list(e_guid_t aruuid, guint32 setup) {
+void pn_init_append_aruuid_frame_setup_list(e_guid_t aruuid, uint32_t setup) {
 
     ARUUIDFrame* aruuid_frame;
 
@@ -1422,7 +1422,7 @@ init_pn (int proto)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pn_io_status
       };
 

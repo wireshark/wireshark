@@ -38,40 +38,40 @@ static unistim_info_t *uinfo;
 static int unistim_tap;
 
 void proto_reg_handoff_unistim(void);
-static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);
+static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,int offset, packet_info *pinfo);
 
-static gint dissect_broadcast_switch(proto_tree *msg_tree,
-                                     tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_expansion_switch(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_key_indicator_switch(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_basic_switch(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_network_switch(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_broadcast_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_audio_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_expansion_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_display_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_key_indicator_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_basic_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_network_phone(proto_tree *msg_tree,
-                                   tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_unistim_message(proto_tree *unistim_tree, packet_info *pinfo,
-                                   tvbuff_t *tvb,gint offset);
-static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
-                                   tvbuff_t *tvb,gint offset);
+static int dissect_broadcast_switch(proto_tree *msg_tree,
+                                     tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_expansion_switch(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_key_indicator_switch(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_basic_switch(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_network_switch(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_broadcast_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_audio_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_expansion_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_display_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_key_indicator_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_basic_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_network_phone(proto_tree *msg_tree,
+                                   tvbuff_t *tvb,int offset,unsigned msg_len);
+static int dissect_unistim_message(proto_tree *unistim_tree, packet_info *pinfo,
+                                   tvbuff_t *tvb,int offset);
+static int dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
+                                   tvbuff_t *tvb,int offset);
 
 
 static int proto_unistim;
@@ -102,7 +102,7 @@ static int hf_module_key_number;
 static int hf_generic_data;
 static int hf_generic_string;
 
-static gint ett_unistim;
+static int ett_unistim;
 
 static expert_field ei_unistim_len;
 
@@ -159,7 +159,7 @@ static const value_string command_address[]={
 
 static int
 dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_){
-   gint offset=0;
+   int offset=0;
    proto_item *ti= NULL;
    proto_tree *overall_unistim_tree = NULL;
    proto_tree *rudpm_tree=NULL;
@@ -247,10 +247,10 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
 }
 
 static void
-dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, packet_info *pinfo){
+dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, int offset, packet_info *pinfo){
    proto_item *ti;
    proto_tree *unistim_tree;
-   guint payload_proto=tvb_get_guint8(tvb,offset);
+   unsigned payload_proto=tvb_get_guint8(tvb,offset);
 
    /* Payload type for tap */
    uinfo->payload_type = payload_proto;
@@ -299,12 +299,12 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
 
 }
 
-static gint
-dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *tvb,gint offset){
+static int
+dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *tvb,int offset){
 
-   guint command;
-   guint str_len;
-   guint dat_len;
+   unsigned command;
+   unsigned str_len;
+   unsigned dat_len;
    proto_tree *msg_tree;
 
    msg_tree = proto_tree_add_subtree(unistim_tree,tvb,offset,-1,ett_unistim,NULL,"UFTP CMD");
@@ -365,10 +365,10 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
 }
 
 
-static gint
-dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tvb,gint offset){
-   guint addr;
-   guint msg_len;
+static int
+dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tvb,int offset){
+   unsigned addr;
+   unsigned msg_len;
    proto_item *ti;
    proto_tree *msg_tree;
 
@@ -480,10 +480,10 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
 
 
    /*DONE*/
-static gint
+static int
 dissect_basic_phone(proto_tree *msg_tree,
-                    tvbuff_t *tvb,gint offset, guint msg_len){
-   guint basic_cmd;
+                    tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned basic_cmd;
 
    basic_cmd=tvb_get_guint8(tvb,offset);
 
@@ -570,10 +570,10 @@ dissect_basic_phone(proto_tree *msg_tree,
    return offset;
 }
    /*DONE*/
-static gint
+static int
 dissect_basic_switch(proto_tree *msg_tree,
-                     tvbuff_t *tvb,gint offset,guint msg_len){
-   guint basic_cmd;
+                     tvbuff_t *tvb,int offset,unsigned msg_len){
+   unsigned basic_cmd;
    basic_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_basic_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -649,11 +649,11 @@ dissect_basic_switch(proto_tree *msg_tree,
 
 
    /*DONE*/
-static gint
+static int
 dissect_broadcast_switch(proto_tree *msg_tree,
-                         tvbuff_t *tvb,gint offset, guint msg_len){
-   guint bcast_cmd;
-   guint year,month,day,hour,minute,second;
+                         tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned bcast_cmd;
+   unsigned year,month,day,hour,minute,second;
    proto_tree *date_tree;
    proto_tree *time_tree;
    bcast_cmd=tvb_get_guint8(tvb,offset);
@@ -721,9 +721,9 @@ dissect_broadcast_switch(proto_tree *msg_tree,
    return offset;
 }
    /*DONE Haven't seen any phone broadcasts, wouldn't expect to*/
-static gint
+static int
 dissect_broadcast_phone(proto_tree *msg_tree,
-                        tvbuff_t *tvb, gint offset,guint msg_len){
+                        tvbuff_t *tvb, int offset,unsigned msg_len){
 
    proto_tree_add_item(msg_tree,hf_generic_data, tvb,offset,msg_len,ENC_NA);
    offset+=msg_len;
@@ -732,15 +732,15 @@ dissect_broadcast_phone(proto_tree *msg_tree,
 }
 
    /*DONE*/
-static gint
+static int
 dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
-                       tvbuff_t *tvb, gint offset,guint msg_len){
-   guint clear_mask;
-   guint highlight_cmd;
-   guint time_date_mask;
-   guint display_cmd;
-   guint address_byte;
-   guint movement_byte;
+                       tvbuff_t *tvb, int offset,unsigned msg_len){
+   unsigned clear_mask;
+   unsigned highlight_cmd;
+   unsigned time_date_mask;
+   unsigned display_cmd;
+   unsigned address_byte;
+   unsigned movement_byte;
    proto_tree *address_tree;
    display_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1186,11 +1186,11 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
    return offset;
 }
    /*DONE*/
-static gint
+static int
 dissect_display_phone(proto_tree *msg_tree,
-                      tvbuff_t *tvb,gint offset,guint msg_len){
-   guint display_cmd;
-   guint highlight_cmd;
+                      tvbuff_t *tvb,int offset,unsigned msg_len){
+   unsigned display_cmd;
+   unsigned highlight_cmd;
    display_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -1298,10 +1298,10 @@ dissect_display_phone(proto_tree *msg_tree,
 }
 
 
-static gint
+static int
 dissect_key_indicator_switch(proto_tree *msg_tree,
-                             tvbuff_t *tvb, gint offset,guint msg_len){
-   guint key_cmd;
+                             tvbuff_t *tvb, int offset,unsigned msg_len){
+   unsigned key_cmd;
    key_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_key_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -1416,10 +1416,10 @@ dissect_key_indicator_switch(proto_tree *msg_tree,
 }
 
 /*DONE*/
-static gint
+static int
 dissect_key_indicator_phone(proto_tree *msg_tree,
-                            tvbuff_t *tvb,gint offset, guint msg_len){
-   guint key_cmd;
+                            tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned key_cmd;
    key_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_key_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -1511,11 +1511,11 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
 
 
 /*Done*/
-static gint
+static int
 dissect_network_switch(proto_tree *msg_tree,
-                       tvbuff_t *tvb,gint offset, guint msg_len){
-   guint network_cmd;
-   guint string_len;
+                       tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned network_cmd;
+   unsigned string_len;
 
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1654,10 +1654,10 @@ dissect_network_switch(proto_tree *msg_tree,
 }
 
 /*DONE*/
-static gint
+static int
 dissect_expansion_switch(proto_tree *msg_tree,
-                      tvbuff_t *tvb,gint offset, guint msg_len){
-   guint expansion_cmd;
+                      tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned expansion_cmd;
 
 
    expansion_cmd=tvb_get_guint8(tvb,offset);
@@ -1701,11 +1701,11 @@ dissect_expansion_switch(proto_tree *msg_tree,
    return offset;
 }
 
-static gint
+static int
 dissect_expansion_phone(proto_tree *msg_tree,
-                      tvbuff_t *tvb,gint offset, guint msg_len){
-   guint expansion_cmd;
-   guint key_number;
+                      tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned expansion_cmd;
+   unsigned key_number;
 
    expansion_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_expansion_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1723,12 +1723,12 @@ dissect_expansion_phone(proto_tree *msg_tree,
    return offset;
 }
 
-static gint
+static int
 dissect_network_phone(proto_tree *msg_tree,
-                      tvbuff_t *tvb,gint offset, guint msg_len){
-   guint network_cmd;
+                      tvbuff_t *tvb,int offset, unsigned msg_len){
+   unsigned network_cmd;
    proto_tree *server_tree;
-   guint i;
+   unsigned i;
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -1768,7 +1768,7 @@ dissect_network_phone(proto_tree *msg_tree,
          break;
       case 0x05:
    /*Network Manager Options Report*/
-         proto_tree_add_boolean(msg_tree,hf_net_phone_diag,tvb,offset,1,FALSE);
+         proto_tree_add_boolean(msg_tree,hf_net_phone_diag,tvb,offset,1,false);
          proto_tree_add_item(msg_tree,hf_net_phone_rudp,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
@@ -1790,7 +1790,7 @@ dissect_network_phone(proto_tree *msg_tree,
          offset+=1;msg_len-=1;
          for (i=1; msg_len>8; i++){
    /*if less than 9 not full report so punt*/
-/*          guint16 port_num;
+/*          uint16_t port_num;
             port_num=tvb_get_ntohs(tvb,offset);
             if(port_num<1064)
                break;
@@ -1834,14 +1834,14 @@ dissect_network_phone(proto_tree *msg_tree,
    return offset;
 }
 /*DONE*/
-static gint
+static int
 dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
-                                    tvbuff_t *tvb,gint offset,guint msg_len){
+                                    tvbuff_t *tvb,int offset,unsigned msg_len){
    proto_tree *param_tree;
-   guint audio_cmd;
-   guint apb_op_code;
-   guint apb_data_len;
-   guint vocoder_param;
+   unsigned audio_cmd;
+   unsigned apb_op_code;
+   unsigned apb_data_len;
+   unsigned vocoder_param;
    audio_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_audio_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -2112,15 +2112,15 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
             proto_tree_add_item(msg_tree,hf_audio_far_ip_add,tvb,offset,4,ENC_BIG_ENDIAN);
             offset+=4;msg_len-=4;
             {
-               guint32 far_ip_addr;
+               uint32_t far_ip_addr;
                address far_addr;
-               guint16 far_port;
+               uint16_t far_port;
 
                far_ip_addr = tvb_get_ipv4(tvb, offset-4);
                set_address(&far_addr, AT_IPv4, 4, &far_ip_addr);
 
                far_port = tvb_get_ntohs(tvb, offset-8);
-               rtp_add_address(pinfo, PT_UDP, &far_addr, far_port, 0, "UNISTIM", pinfo->num, FALSE, NULL);
+               rtp_add_address(pinfo, PT_UDP, &far_addr, far_port, 0, "UNISTIM", pinfo->num, false, NULL);
 
                far_port = tvb_get_ntohs(tvb, offset-6);
                rtcp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->num);
@@ -2270,14 +2270,14 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
 }
 
 /*DONE*/
-static gint
+static int
 dissect_audio_phone(proto_tree *msg_tree,
-                                 tvbuff_t *tvb,gint offset,guint msg_len){
-   guint audio_cmd;
-   guint apb_op_code;
-   guint apb_data_len;
-   guint stream_dir;
-   guint stream_state;
+                                 tvbuff_t *tvb,int offset,unsigned msg_len){
+   unsigned audio_cmd;
+   unsigned apb_op_code;
+   unsigned apb_data_len;
+   unsigned stream_dir;
+   unsigned stream_state;
    audio_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_audio_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
@@ -3826,7 +3826,7 @@ proto_register_unistim(void){
 
 /* Setup protocol subtree array */
 
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_unistim
    };
 

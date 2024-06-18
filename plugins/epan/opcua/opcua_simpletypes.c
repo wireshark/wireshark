@@ -345,52 +345,52 @@ static const value_string g_ResultMask[] = {
 };
 
 /* trees */
-static gint ett_opcua_diagnosticinfo;
-static gint ett_opcua_diagnosticinfo_encodingmask;
-static gint ett_opcua_nodeid;
-static gint ett_opcua_expandednodeid;
-static gint ett_opcua_expandednodeid_encodingmask;
-static gint ett_opcua_localizedtext;
-static gint ett_opcua_localizedtext_encodingmask;
-static gint ett_opcua_qualifiedname;
-static gint ett_opcua_datavalue;
-static gint ett_opcua_datavalue_encodingmask;
-static gint ett_opcua_variant;
-static gint ett_opcua_variant_arraydims;
-static gint ett_opcua_extensionobject;
-static gint ett_opcua_extensionobject_encodingmask;
-static gint ett_opcua_statuscode;
-static gint ett_opcua_statuscode_info;
-gint ett_opcua_array_Boolean;
-gint ett_opcua_array_SByte;
-gint ett_opcua_array_Byte;
-gint ett_opcua_array_Int16;
-gint ett_opcua_array_UInt16;
-gint ett_opcua_array_Int32;
-gint ett_opcua_array_UInt32;
-gint ett_opcua_array_Int64;
-gint ett_opcua_array_UInt64;
-gint ett_opcua_array_Float;
-gint ett_opcua_array_Double;
-gint ett_opcua_array_String;
-gint ett_opcua_array_DateTime;
-gint ett_opcua_array_Guid;
-gint ett_opcua_array_ByteString;
-gint ett_opcua_array_XmlElement;
-gint ett_opcua_array_NodeId;
-gint ett_opcua_array_ExpandedNodeId;
-gint ett_opcua_array_StatusCode;
-gint ett_opcua_array_DiagnosticInfo;
-gint ett_opcua_array_QualifiedName;
-gint ett_opcua_array_LocalizedText;
-gint ett_opcua_array_ExtensionObject;
-gint ett_opcua_array_DataValue;
-gint ett_opcua_array_Variant;
-gint ett_opcua_returnDiagnostics;
-gint ett_opcua_nodeClassMask;
-gint ett_opcua_resultMask;
+static int ett_opcua_diagnosticinfo;
+static int ett_opcua_diagnosticinfo_encodingmask;
+static int ett_opcua_nodeid;
+static int ett_opcua_expandednodeid;
+static int ett_opcua_expandednodeid_encodingmask;
+static int ett_opcua_localizedtext;
+static int ett_opcua_localizedtext_encodingmask;
+static int ett_opcua_qualifiedname;
+static int ett_opcua_datavalue;
+static int ett_opcua_datavalue_encodingmask;
+static int ett_opcua_variant;
+static int ett_opcua_variant_arraydims;
+static int ett_opcua_extensionobject;
+static int ett_opcua_extensionobject_encodingmask;
+static int ett_opcua_statuscode;
+static int ett_opcua_statuscode_info;
+int ett_opcua_array_Boolean;
+int ett_opcua_array_SByte;
+int ett_opcua_array_Byte;
+int ett_opcua_array_Int16;
+int ett_opcua_array_UInt16;
+int ett_opcua_array_Int32;
+int ett_opcua_array_UInt32;
+int ett_opcua_array_Int64;
+int ett_opcua_array_UInt64;
+int ett_opcua_array_Float;
+int ett_opcua_array_Double;
+int ett_opcua_array_String;
+int ett_opcua_array_DateTime;
+int ett_opcua_array_Guid;
+int ett_opcua_array_ByteString;
+int ett_opcua_array_XmlElement;
+int ett_opcua_array_NodeId;
+int ett_opcua_array_ExpandedNodeId;
+int ett_opcua_array_StatusCode;
+int ett_opcua_array_DiagnosticInfo;
+int ett_opcua_array_QualifiedName;
+int ett_opcua_array_LocalizedText;
+int ett_opcua_array_ExtensionObject;
+int ett_opcua_array_DataValue;
+int ett_opcua_array_Variant;
+int ett_opcua_returnDiagnostics;
+int ett_opcua_nodeClassMask;
+int ett_opcua_resultMask;
 
-static gint *ett[] =
+static int *ett[] =
 {
     &ett_opcua_diagnosticinfo,
     &ett_opcua_diagnosticinfo_encodingmask,
@@ -544,75 +544,75 @@ void registerSimpleTypes(int proto)
     expert_register_field_array(expert_proto, ei, array_length(ei));
 }
 
-proto_item* parseBoolean(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseBoolean(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, ENC_LITTLE_ENDIAN);
     *pOffset+=1;
     return item;
 }
 
-proto_item* parseByte(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseByte(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, ENC_LITTLE_ENDIAN);
     *pOffset+=1;
     return item;
 }
 
-proto_item* parseSByte(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseSByte(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, ENC_LITTLE_ENDIAN);
     *pOffset+=1;
     return item;
 }
 
-proto_item* parseUInt16(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseUInt16(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 2, ENC_LITTLE_ENDIAN);
     *pOffset+=2;
     return item;
 }
 
-proto_item* parseInt16(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseInt16(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 2, ENC_LITTLE_ENDIAN);
     *pOffset+=2;
     return item;
 }
 
-proto_item* parseUInt32(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseUInt32(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
     *pOffset+=4;
     return item;
 }
 
-proto_item* parseInt32(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseInt32(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
     *pOffset+=4;
     return item;
 }
 
-proto_item* parseUInt64(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseUInt64(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 8, ENC_LITTLE_ENDIAN);
     *pOffset+=8;
     return item;
 }
 
-proto_item* parseInt64(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseInt64(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 8, ENC_LITTLE_ENDIAN);
     *pOffset+=8;
     return item;
 }
 
-proto_item* parseString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = NULL;
     char *szValue;
-    gint iOffset = *pOffset;
-    gint32 iLen = tvb_get_letohl(tvb, *pOffset);
+    int iOffset = *pOffset;
+    int32_t iLen = tvb_get_letohl(tvb, *pOffset);
     iOffset+=4;
 
     if (iLen == -1)
@@ -644,12 +644,12 @@ proto_item* parseString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     return item;
 }
 
-proto_item* parseString_ret_string_and_length(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex, const guint8 **retval, gint *lenretval)
+proto_item* parseString_ret_string_and_length(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex, const uint8_t **retval, int *lenretval)
 {
     proto_item *item = NULL;
     char *szValue;
-    gint iOffset = *pOffset;
-    gint32 iLen = tvb_get_letohl(tvb, *pOffset);
+    int iOffset = *pOffset;
+    int32_t iLen = tvb_get_letohl(tvb, *pOffset);
     iOffset+=4;
 
     if (retval) {
@@ -688,11 +688,11 @@ proto_item* parseString_ret_string_and_length(proto_tree *tree, tvbuff_t *tvb, p
     return item;
 }
 
-proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = NULL;
-    guint32 uStatusCode = 0;
-    const gchar *szStatusCode = NULL;
+    uint32_t uStatusCode = 0;
+    const char *szStatusCode = NULL;
 
     item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
 
@@ -703,7 +703,7 @@ proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     /* check for status code info flags */
     if (uStatusCode & 0x0000FFFF)
     {
-        gint iOffset = *pOffset;
+        int iOffset = *pOffset;
         proto_tree *flags_tree;
         proto_item *ti_inner;
 
@@ -738,14 +738,14 @@ proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     return item;
 }
 
-void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     static int * const loctext_mask[] = {&hf_opcua_loctext_mask_localeflag,
                                         &hf_opcua_loctext_mask_textflag,
                                         NULL};
 
-    gint        iOffset = *pOffset;
-    guint8      EncodingMask;
+    int         iOffset = *pOffset;
+    uint8_t     EncodingMask;
     proto_tree *subtree;
     proto_item *ti;
 
@@ -770,19 +770,19 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
     *pOffset = iOffset;
 }
 
-proto_item* parseGuid(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseGuid(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, GUID_LEN, ENC_LITTLE_ENDIAN);
     *pOffset+=GUID_LEN;
     return item;
 }
 
-proto_item* parseByteString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseByteString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = NULL;
     char *szValue;
     int iOffset = *pOffset;
-    gint32 iLen = tvb_get_letohl(tvb, iOffset);
+    int32_t iLen = tvb_get_letohl(tvb, iOffset);
     iOffset += 4;
 
     if (iLen == -1)
@@ -814,34 +814,34 @@ proto_item* parseByteString(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     return item;
 }
 
-proto_item* parseXmlElement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int hfIndex)
+proto_item* parseXmlElement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int hfIndex)
 {
     return parseByteString(tree, tvb, pinfo, pOffset, hfIndex);
 }
 
-proto_item* parseFloat(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseFloat(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
-    proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (int)sizeof(gfloat), ENC_LITTLE_ENDIAN);
-    *pOffset += (int)sizeof(gfloat);
+    proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (int)sizeof(float), ENC_LITTLE_ENDIAN);
+    *pOffset += (int)sizeof(float);
     return item;
 }
 
-proto_item* parseDouble(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseDouble(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
-    proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (int)sizeof(gdouble), ENC_LITTLE_ENDIAN);
-    *pOffset += (int)sizeof(gdouble);
+    proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (int)sizeof(double), ENC_LITTLE_ENDIAN);
+    *pOffset += (int)sizeof(double);
     return item;
 }
 
-proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
+proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
     proto_item *item = NULL;
-    *pOffset = dissect_nt_64bit_time_ex(tvb, tree, *pOffset, hfIndex, &item, FALSE);
+    *pOffset = dissect_nt_64bit_time_ex(tvb, tree, *pOffset, hfIndex, &item, false);
     return item;
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     static int * const diag_mask[] = {&hf_opcua_diag_mask_symbolicflag,
                                      &hf_opcua_diag_mask_namespaceflag,
@@ -852,11 +852,11 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
                                      &hf_opcua_diag_mask_innerdiaginfoflag,
                                      NULL};
 
-    gint        iOffset = *pOffset;
-    guint8      EncodingMask;
+    int         iOffset = *pOffset;
+    uint8_t     EncodingMask;
     proto_tree *subtree;
     proto_item *ti;
-    guint       opcua_nested_count;
+    unsigned    opcua_nested_count;
 
     subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_diagnosticinfo, &ti, "%s: DiagnosticInfo", szFieldName);
 
@@ -913,7 +913,7 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
-void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
@@ -925,12 +925,12 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
     proto_item_set_end(ti, tvb, *pOffset);
 }
 
-void parseCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int hfIndex)
+void parseCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int hfIndex)
 {
     proto_item *item = NULL;
     char *szValue;
     int iOffset = *pOffset;
-    gint32 iLen = tvb_get_letohl(tvb, iOffset);
+    int32_t iLen = tvb_get_letohl(tvb, iOffset);
     iOffset += 4;
 
     if (iLen == -1)
@@ -946,8 +946,8 @@ void parseCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
     else if (iLen > 0)
     {
         asn1_ctx_t asn1_ctx;
-        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-        dissect_x509af_Certificate(FALSE, tvb, iOffset, &asn1_ctx, tree, hfIndex);
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+        dissect_x509af_Certificate(false, tvb, iOffset, &asn1_ctx, tree, hfIndex);
         iOffset += iLen; /* eat the whole bytestring */
     }
     else
@@ -961,7 +961,7 @@ void parseCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     static int * const datavalue_mask[] = {&hf_opcua_datavalue_mask_valueflag,
                                           &hf_opcua_datavalue_mask_statuscodeflag,
@@ -974,8 +974,8 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
                         ett_opcua_datavalue, &ti, "%s: DataValue", szFieldName);
-    gint    iOffset = *pOffset;
-    guint8  EncodingMask;
+    int     iOffset = *pOffset;
+    uint8_t EncodingMask;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_datavalue_mask, ett_opcua_datavalue_encodingmask, datavalue_mask, ENC_LITTLE_ENDIAN);
@@ -1013,15 +1013,15 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
                             ett_opcua_variant, &ti, "%s: Variant", szFieldName);
-    gint    iOffset = *pOffset;
-    guint8  EncodingMask;
-    gint32  ArrayDimensions = 0;
-    guint   opcua_nested_count;
+    int     iOffset = *pOffset;
+    uint8_t EncodingMask;
+    int32_t ArrayDimensions = 0;
+    unsigned   opcua_nested_count;
 
     /* prevent a too high nesting depth */
     opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
@@ -1144,12 +1144,12 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
  * All arrays have one 4 byte signed integer length information,
  * followed by n data elements.
  */
-void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName, const char *szTypeName, int hfIndex, fctSimpleTypeParser pParserFunction, const gint idx)
+void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName, const char *szTypeName, int hfIndex, fctSimpleTypeParser pParserFunction, const int idx)
 {
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, idx, &ti, "%s: Array of %s", szFieldName, szTypeName);
     int i;
-    gint32 iLen;
+    int32_t iLen;
 
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
@@ -1177,12 +1177,12 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
  * All arrays have one 4 byte signed integer length information,
  * followed by n data elements.
  */
-void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName, const char *szTypeName, fctEnumParser pParserFunction, const gint idx)
+void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName, const char *szTypeName, fctEnumParser pParserFunction, const int idx)
 {
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, idx, &ti, "%s: Array of %s", szFieldName, szTypeName);
     int i;
-    gint32 iLen;
+    int32_t iLen;
 
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
@@ -1206,12 +1206,12 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
  * All arrays have one 4 byte signed integer length information,
  * followed by n data elements.
  */
-void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction, const gint idx)
+void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction, const int idx)
 {
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, idx, &ti, "%s: Array of %s", szFieldName, szTypeName);
     int i;
-    gint32 iLen;
+    int32_t iLen;
 
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
@@ -1233,12 +1233,12 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
     proto_item_set_end(ti, tvb, *pOffset);
 }
 
-void parseNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_nodeid, &ti, "%s: NodeId", szFieldName);
-    gint    iOffset = *pOffset;
-    guint8  EncodingMask;
+    int     iOffset = *pOffset;
+    uint8_t EncodingMask;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -1283,18 +1283,18 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOff
     *pOffset = iOffset;
 }
 
-void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     static int * const extobj_mask[] = {&hf_opcua_extobj_mask_binbodyflag,
                                        &hf_opcua_extobj_mask_xmlbodyflag,
                                        NULL};
 
-    gint    iOffset = *pOffset;
-    guint8  EncodingMask;
-    guint32 TypeId;
+    int     iOffset = *pOffset;
+    uint8_t EncodingMask;
+    uint32_t TypeId;
     proto_tree *extobj_tree;
     proto_item *ti;
-    guint       opcua_nested_count;
+    unsigned    opcua_nested_count;
 
     /* add extension object subtree */
     extobj_tree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "%s: ExtensionObject", szFieldName);
@@ -1330,7 +1330,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
-void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
+void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName)
 {
     static int * const expandednodeid_mask[] = {&hf_opcua_nodeid_encodingmask,
                                                &hf_opcua_expandednodeid_mask_serverindex,
@@ -1340,8 +1340,8 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
                 ett_opcua_expandednodeid, &ti, "%s: ExpandedNodeId", szFieldName);
-    gint    iOffset = *pOffset;
-    guint8  EncodingMask;
+    int     iOffset = *pOffset;
+    uint8_t EncodingMask;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_expandednodeid_mask, ett_opcua_expandednodeid_encodingmask, expandednodeid_mask, ENC_LITTLE_ENDIAN);
@@ -1395,11 +1395,11 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     *pOffset = iOffset;
 }
 
-guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
+uint32_t getExtensionObjectType(tvbuff_t *tvb, int *pOffset)
 {
-    gint    iOffset = *pOffset;
-    guint8  EncodingMask;
-    guint32 Numeric = 0;
+    int     iOffset = *pOffset;
+    uint8_t EncodingMask;
+    uint32_t Numeric = 0;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     iOffset++;
@@ -1429,7 +1429,7 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
     return Numeric;
 }
 
-void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     static int * const nodeclass_mask[] = {
       &hf_opcua_nodeClassMask_object,
@@ -1442,7 +1442,7 @@ void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
       &hf_opcua_nodeClassMask_view,
       NULL};
 
-    guint8 NodeClassMask = tvb_get_guint8(tvb, *pOffset);
+    uint8_t NodeClassMask = tvb_get_guint8(tvb, *pOffset);
     if(NodeClassMask == NODECLASSMASK_ALL)
     {
         proto_tree_add_item(tree, hf_opcua_nodeClassMask_all, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
@@ -1454,7 +1454,7 @@ void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     *pOffset+=4;
 }
 
-void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset)
 {
     static int * const browseresult_mask[] = {
       &hf_opcua_resultMask_referencetype,
@@ -1465,7 +1465,7 @@ void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gi
       &hf_opcua_resultMask_typedefinition,
       NULL};
 
-    guint8 ResultMask = tvb_get_guint8(tvb, *pOffset);
+    uint8_t ResultMask = tvb_get_guint8(tvb, *pOffset);
     if(ResultMask == RESULTMASK_ALL)
     {
         proto_tree_add_item(tree, hf_opcua_resultMask_all, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);

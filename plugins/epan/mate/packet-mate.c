@@ -36,8 +36,8 @@ static int hf_mate_gop_key;
 
 static expert_field ei_mate_undefined_attribute;
 
-static const gchar* pref_mate_config_filename = "";
-static const gchar* current_mate_config_filename;
+static const char* pref_mate_config_filename = "";
+static const char* current_mate_config_filename;
 
 #ifdef _AVP_DEBUGGING
 static int pref_avp_debug_general;
@@ -192,9 +192,9 @@ mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop
 	mate_pdu* gop_pdus;
 	double rel_time;
 	double pdu_rel_time;
-	const gchar* pdu_str;
-	const gchar* type_str;
-	guint32 pdu_item;
+	const char* pdu_str;
+	const char* type_str;
+	uint32_t pdu_item;
 
 	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);
 	gop_tree = proto_item_add_subtree(gop_item, gop->cfg->ett);
@@ -359,7 +359,7 @@ proto_reg_handoff_mate(void)
 			if (mc) {
 				/* XXX: alignment warnings, what do they mean? */
 				proto_register_field_array(proto_mate, (hf_register_info*)(void *)mc->hfrs->data, mc->hfrs->len );
-				proto_register_subtree_array((gint**)(void*)mc->ett->data, mc->ett->len);
+				proto_register_subtree_array((int**)(void*)mc->ett->data, mc->ett->len);
 				register_init_routine(initialize_mate);
 				register_postseq_cleanup_routine(flush_mate_debug);
 
@@ -376,7 +376,7 @@ proto_reg_handoff_mate(void)
 				 * work. Set the tree as visible as with Lua postdissectors that
 				 * need all fields. It's overkill and bad for performance, though.
 				 */
-				epan_set_always_visible(TRUE);
+				epan_set_always_visible(true);
 
 				initialize_mate_runtime(mc);
 			}
@@ -416,7 +416,7 @@ proto_register_mate(void)
 	prefs_register_filename_preference(mate_module, "config",
 					   "Configuration Filename",
 					   "The name of the file containing the mate module's configuration",
-					   &pref_mate_config_filename, FALSE);
+					   &pref_mate_config_filename, false);
 #ifdef _AVP_DEBUGGING
 	prefs_register_uint_preference(mate_module, "avp_debug_general",
 					    "AVP Debug general",

@@ -21,7 +21,7 @@
 #include <epan/packet.h>
 #include "wimax_mac.h"
 
-extern gint proto_mac_mgmt_msg_aas_fbck_decoder;
+extern int proto_mac_mgmt_msg_aas_fbck_decoder;
 
 #define AAS_BEAM_SELECT_AAS_BEAM_INDEX_MASK	0xFC
 #define AAS_BEAM_SELECT_RESERVED_MASK		0x03
@@ -37,10 +37,10 @@ void proto_reg_handoff_mac_mgmt_msg_aas_beam(void);
 
 static dissector_handle_t aas_handle;
 
-static gint proto_mac_mgmt_msg_aas_beam_decoder;
-static gint ett_mac_mgmt_msg_aas_beam_select_decoder;
-static gint ett_mac_mgmt_msg_aas_beam_req_decoder;
-static gint ett_mac_mgmt_msg_aas_beam_rsp_decoder;
+static int proto_mac_mgmt_msg_aas_beam_decoder;
+static int ett_mac_mgmt_msg_aas_beam_select_decoder;
+static int ett_mac_mgmt_msg_aas_beam_req_decoder;
+static int ett_mac_mgmt_msg_aas_beam_rsp_decoder;
 
 #ifdef OFDM
 static const value_string vals_report_types[] =
@@ -61,15 +61,15 @@ static const value_string vals_resolution_parameter[] =
 #endif
 
 /* fix fields */
-/* static gint hf_aas_beam_unknown_type; */
-static gint hf_aas_beam_select_index;
-static gint hf_aas_beam_select_reserved;
+/* static int hf_aas_beam_unknown_type; */
+static int hf_aas_beam_select_index;
+static int hf_aas_beam_select_reserved;
 #ifdef OFDM
-static gint hf_aas_beam_frame_number;
-static gint hf_aas_beam_feedback_request_number;
-static gint hf_aas_beam_measurement_report_type;
-static gint hf_aas_beam_resolution_parameter;
-static gint hf_aas_beam_beam_bit_mask;
+static int hf_aas_beam_frame_number;
+static int hf_aas_beam_feedback_request_number;
+static int hf_aas_beam_measurement_report_type;
+static int hf_aas_beam_resolution_parameter;
+static int hf_aas_beam_beam_bit_mask;
 static int hf_aas_beam_freq_value_re;
 static int hf_aas_beam_freq_value_im;
 static int hf_aas_beam_rssi_value;
@@ -79,7 +79,7 @@ static int hf_aas_beam_cinr_value;
 
 static int dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *aas_beam_item;
 	proto_tree *aas_beam_tree;
 
@@ -102,7 +102,7 @@ static int dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_in
 #ifdef OFDM
 static int dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *aas_beam_item;
 	proto_tree *aas_beam_tree;
 
@@ -136,9 +136,9 @@ static int dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info 
 
 static int dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len, report_type;
-	guint number_of_frequencies, indx;
+	unsigned offset = 0;
+	unsigned tvb_len, report_type;
+	unsigned number_of_frequencies, indx;
 	proto_item *aas_beam_item;
 	proto_tree *aas_beam_tree;
 
@@ -297,7 +297,7 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_aas_beam_select_decoder,
 			&ett_mac_mgmt_msg_aas_beam_req_decoder,

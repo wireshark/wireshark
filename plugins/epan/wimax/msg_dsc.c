@@ -31,19 +31,19 @@ static dissector_handle_t dsc_req_handle;
 static dissector_handle_t dsc_rsp_handle;
 static dissector_handle_t dsc_ack_handle;
 
-static gint proto_mac_mgmt_msg_dsc_decoder;
-static gint ett_mac_mgmt_msg_dsc_req_decoder;
-static gint ett_mac_mgmt_msg_dsc_rsp_decoder;
-static gint ett_mac_mgmt_msg_dsc_ack_decoder;
+static int proto_mac_mgmt_msg_dsc_decoder;
+static int ett_mac_mgmt_msg_dsc_req_decoder;
+static int ett_mac_mgmt_msg_dsc_rsp_decoder;
+static int ett_mac_mgmt_msg_dsc_ack_decoder;
 
 /* fix fields */
-static gint hf_dsc_transaction_id;
-static gint hf_dsc_confirmation_code;
+static int hf_dsc_transaction_id;
+static int hf_dsc_confirmation_code;
 
 
 static int dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *dsc_item;
 	proto_tree *dsc_tree;
 
@@ -67,7 +67,7 @@ static int dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinf
 
 static int dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *dsc_item;
 	proto_tree *dsc_tree;
 
@@ -94,7 +94,7 @@ static int dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 
 static int dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
+	unsigned offset = 0;
 	proto_item *dsc_item;
 	proto_tree *dsc_tree;
 
@@ -142,7 +142,7 @@ void proto_register_mac_mgmt_msg_dsc(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_dsc_req_decoder,
 			&ett_mac_mgmt_msg_dsc_rsp_decoder,

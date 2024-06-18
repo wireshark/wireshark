@@ -15,19 +15,19 @@
 /* Ensure the same data layout for all platforms*/
 typedef struct _ETYPE_88A4_NV_DATA_HEADER
 {
-   guint16 Id;
-   guint16 Hash;
-   guint16 Length;
-   guint16 Quality;
+   uint16_t Id;
+   uint16_t Hash;
+   uint16_t Length;
+   uint16_t Quality;
 } ETYPE_88A4_NV_DATA_HEADER;
 #define ETYPE_88A4_NV_DATA_HEADER_Len (int)sizeof(ETYPE_88A4_NV_DATA_HEADER)
 
 typedef struct _NvParserHDR
 {
-   guint8  Publisher[6];
-   guint16 CountNV;
-   guint16 CycleIndex;
-   guint16 Reserved;
+   uint8_t Publisher[6];
+   uint16_t CountNV;
+   uint16_t CycleIndex;
+   uint16_t Reserved;
 } NvParserHDR;
 #define NvParserHDR_Len (int)sizeof(NvParserHDR)
 

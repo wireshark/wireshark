@@ -59,19 +59,19 @@ enum
  * ------------------------------------------------------------------------- */
 
 struct _wimaxasncp_dict_namecode_t {
-    gchar *name;
-    guint code;
+    char *name;
+    unsigned code;
     struct _wimaxasncp_dict_namecode_t *next;
 };
 
 typedef struct _wimaxasncp_dict_namecode_t wimaxasncp_dict_enum_t;
 
 typedef struct _wimaxasncp_dict_tlv_t {
-    guint16 type;
-    gchar *name;
-    gchar *description;
-    gint decoder;
-    guint since;
+    uint16_t type;
+    char *name;
+    char *description;
+    int decoder;
+    unsigned since;
     int hf_root;
     int hf_value;
     int hf_ipv4;
@@ -90,9 +90,9 @@ typedef struct _wimaxasncp_dict_tlv_t {
 } wimaxasncp_dict_tlv_t;
 
 typedef struct _wimaxasncp_dict_xmlpi_t {
-    gchar *name;
-    gchar *key;
-    gchar *value;
+    char *name;
+    char *key;
+    char *value;
     struct _wimaxasncp_dict_xmlpi_t *next;
 } wimaxasncp_dict_xmlpi_t;
 
@@ -105,8 +105,8 @@ extern void wimaxasncp_dict_print(
     FILE *fh, wimaxasncp_dict_t *d);
 
 extern wimaxasncp_dict_t *wimaxasncp_dict_scan(
-    const gchar *system_directory, const gchar *filename, int dbg,
-    gchar **error);
+    const char *system_directory, const char *filename, int dbg,
+    char **error);
 
 extern void wimaxasncp_dict_free(
     wimaxasncp_dict_t *d);

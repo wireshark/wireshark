@@ -135,10 +135,10 @@ static int hf_pn_pa_profile_value_8bit;
 static int hf_pn_pa_profile_value_16bit;
 static int hf_pn_pa_profile_value_float;
 
-static gint ett_pn_io_rtc;
-static gint ett_pn_io_ioxs;
-static gint ett_pn_io_io_data_object;
-static gint ett_pn_pa_profile_status;
+static int ett_pn_io_rtc;
+static int ett_pn_io_ioxs;
+static int ett_pn_io_io_data_object;
+static int ett_pn_pa_profile_status;
 
 static expert_field ei_pn_io_too_many_data_objects;
 
@@ -257,11 +257,11 @@ static int * const pa_profile_status_fields[] = {
 /* Dissector for PROFIsafe Status Byte */
 static int
 dissect_pn_io_ps_SB(tvbuff_t *tvb, int offset,
-packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * const *fields)
+packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * const *fields)
 {
 
     if (tree) {
-        guint8     u8StatusByte;
+        uint8_t    u8StatusByte;
         proto_item *sb_item;
 
         u8StatusByte = tvb_get_guint8(tvb, offset);
@@ -279,11 +279,11 @@ packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * c
 /* Dissector for PROFIsafe Control Byte */
 static int
 dissect_pn_io_ps_CB(tvbuff_t *tvb, int offset,
-packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * const *fields)
+packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * const *fields)
 {
 
     if (tree) {
-        guint8     u8ControlByte;
+        uint8_t    u8ControlByte;
         proto_item *cb_item;
 
         u8ControlByte = tvb_get_guint8(tvb, offset);
@@ -302,11 +302,11 @@ packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * c
 /* Dissector for IOCS (As each IOCS stands for a specific Slot & Subslot) */
 static int
 dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree,
-            guint8 *drep _U_, int hfindex, guint16 slotNr, guint16 subSlotNr, int * const *fields)
+            uint8_t *drep _U_, int hfindex, uint16_t slotNr, uint16_t subSlotNr, int * const *fields)
 {
 
     if (tree) {
-        guint8      u8IOxS;
+        uint8_t     u8IOxS;
         proto_item *ioxs_item;
 
         u8IOxS = tvb_get_guint8(tvb, offset);
@@ -329,11 +329,11 @@ dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 /* dissect the IOxS (IOCS, IOPS) field */
 static int
 dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
-packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * const *fields)
+packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * const *fields)
 {
 
     if (tree) {
-        guint8     u8IOxS;
+        uint8_t    u8IOxS;
         proto_item *ioxs_item;
 
         u8IOxS = tvb_get_guint8(tvb, offset);
@@ -353,14 +353,14 @@ packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex, int * c
 
 /* Universal dissector for flexibel PROFIsafe Data 8 to 64 Bits */
 static int
-dissect_pn_io_ps_uint(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-    proto_tree *tree, guint8 *drep,
-int hfindex, guint8 bytelength, guint64 *pdata)
+dissect_pn_io_ps_uint(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+    proto_tree *tree, uint8_t *drep,
+int hfindex, uint8_t bytelength, uint64_t *pdata)
 {
-    guint64  data;
-    gboolean generalDissection;
+    uint64_t data;
+    bool generalDissection;
 
-    generalDissection = FALSE;
+    generalDissection = false;
 
     switch (bytelength) {
     case 1:     /* 8 Bit Safety IO Data */
@@ -413,11 +413,11 @@ int hfindex, guint8 bytelength, guint64 *pdata)
 
     default:    /* Safety IO Data is too big to save it into one variable */
         dissect_pn_user_data(tvb, offset, pinfo, tree, bytelength, "Safety IO Data");
-        generalDissection = TRUE;
+        generalDissection = true;
         break;
     }
 
-    if (tree && generalDissection == FALSE) {
+    if (tree && generalDissection == false) {
         proto_tree_add_item(tree, hfindex, tvb, offset, bytelength, DREP_ENC_INTEGER(drep));
     }
 
@@ -428,16 +428,16 @@ int hfindex, guint8 bytelength, guint64 *pdata)
 /* dissect a PN-IO RTC1 Cyclic Service Data Unit */
 int
 dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep _U_, guint16 frameid)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep _U_, uint16_t frameid)
 {
     proto_tree  *data_tree = NULL;
 
     /* Count & offset for comparison of the arrays */
-    guint16     frameOffset;
-    guint32     objectCounter;
-    gboolean    inputFlag;
-    gboolean    outputFlag;
-    gboolean    psInfoText;     /* Used to display only once per frame the info text "PROFIsafe Device" */
+    uint16_t    frameOffset;
+    uint32_t    objectCounter;
+    bool        inputFlag;
+    bool        outputFlag;
+    bool        psInfoText;     /* Used to display only once per frame the info text "PROFIsafe Device" */
 
     proto_item *data_item;
     proto_item *IODataObject_item;
@@ -448,18 +448,18 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     wmem_strbuf_t *moduleName;
 
-    guint8  toggleBitSb;
-    guint8  toggleBitCb;
-    guint64 f_data;
+    uint8_t toggleBitSb;
+    uint8_t toggleBitCb;
+    uint64_t f_data;
 
-    guint8  statusbyte;
-    guint8  controlbyte;
-    guint8  safety_io_data_length;
+    uint8_t statusbyte;
+    uint8_t controlbyte;
+    uint8_t safety_io_data_length;
 
-    guint16 number_io_data_objects_input_cr;
-    guint16 number_iocs_input_cr;
-    guint16 number_io_data_objects_output_cr;
-    guint16 number_iocs_output_cr;
+    uint16_t number_io_data_objects_input_cr;
+    uint16_t number_iocs_input_cr;
+    uint16_t number_io_data_objects_output_cr;
+    uint16_t number_iocs_output_cr;
 
     conversation_t    *conversation;
     stationInfo       *station_info = NULL;
@@ -472,9 +472,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     /* Initial */
     frameOffset = 0;
     f_data = 0;
-    inputFlag = FALSE;
-    outputFlag = FALSE;
-    psInfoText = FALSE;
+    inputFlag = false;
+    outputFlag = false;
+    psInfoText = false;
     number_io_data_objects_input_cr = 0;
     number_iocs_input_cr = 0;
     number_io_data_objects_output_cr = 0;
@@ -482,7 +482,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     wmem_list_frame_t  *aruuid_frame;
     ARUUIDFrame        *current_aruuid_frame = NULL;
-    guint32             current_aruuid = 0;
+    uint32_t            current_aruuid = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");            /* set protocol name */
 
@@ -527,20 +527,20 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
         if (station_info != NULL) {
             pn_find_dcp_station_info(station_info, conversation);
 
-            if (pnio_ps_selection == TRUE) {
+            if (pnio_ps_selection == true) {
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO_PS");    /* set PROFISsafe protocol name */
             }
 
             if (addresses_equal(&(pinfo->src), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->dst), conversation_key_addr2(conversation->key_ptr))) {
-                inputFlag = TRUE;
-                outputFlag = FALSE;
+                inputFlag = true;
+                outputFlag = false;
                 number_io_data_objects_input_cr = station_info->ioDataObjectNr_in;
                 number_iocs_input_cr = station_info->iocsNr_in;
             }
 
             if (addresses_equal(&(pinfo->dst), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->src), conversation_key_addr2(conversation->key_ptr))) {
-                outputFlag = TRUE;
-                inputFlag = FALSE;
+                outputFlag = true;
+                inputFlag = false;
                 number_io_data_objects_output_cr = station_info->ioDataObjectNr_out;
                 number_iocs_output_cr = station_info->iocsNr_out;
             }
@@ -549,7 +549,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     /* ------- Input (PNIO) / Response (PNIO_PS) Frame Handling ------- */
     if (inputFlag) {
-        if (pnio_ps_selection == TRUE) {
+        if (pnio_ps_selection == true) {
             proto_tree_add_string_format_value(data_tree, hf_pn_io_frame_info_type, tvb,
                 offset, 0, "Response", "Response Frame (IO_Device -> IO_Controller)");
         }
@@ -568,8 +568,8 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                     0, station_info->nameofstation, "\"%s\"", station_info->nameofstation);
             }
 
-            if (station_info->gsdPathLength == TRUE) {      /* given path isn't too long for the array */
-                if (station_info->gsdFound == TRUE) {       /* found a GSD-file */
+            if (station_info->gsdPathLength == true) {      /* given path isn't too long for the array */
+                if (station_info->gsdFound == true) {       /* found a GSD-file */
                     if (station_info->gsdLocation != NULL) {
                         IODataObject_item_info = proto_tree_add_item(data_tree, hf_pn_io_frame_info_gsd_found, tvb, offset, 0, ENC_NA);
                         proto_item_append_text(IODataObject_item_info, ": \"%s\"", station_info->gsdLocation);
@@ -590,7 +590,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
         /* ---- Input IOData-/IOCS-Object Handling ---- */
         objectCounter = number_io_data_objects_input_cr + number_iocs_input_cr;
-        if (objectCounter > (guint)tvb_reported_length_remaining(tvb, offset)) {
+        if (objectCounter > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
             expert_add_info_format(pinfo, data_item, &ei_pn_io_too_many_data_objects, "Too many data objects: %d", objectCounter);
             return(tvb_captured_length(tvb));
         }
@@ -620,17 +620,17 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         proto_tree_add_uint(IODataObject_tree, hf_pn_io_io_data_object_info_submoduleidentnumber, tvb, 0, 0, io_data_object->subModuleIdentNr);
 
                         /* PROFIsafe Supported Inputmodule handling */
-                        if (io_data_object->profisafeSupported == TRUE && pnio_ps_selection == TRUE) {
-                            if (io_data_object->profisafeSupported == TRUE && psInfoText == FALSE) {
+                        if (io_data_object->profisafeSupported == true && pnio_ps_selection == true) {
+                            if (io_data_object->profisafeSupported == true && psInfoText == false) {
                                 /* Only add one information string per device to the infotext */
                                 col_append_str(pinfo->cinfo, COL_INFO, ", PROFIsafe Device");    /* Add string to wireshark infotext */
-                                psInfoText = TRUE;
+                                psInfoText = true;
                             }
 
                             proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_f_dest_adr, tvb, 0, 0, io_data_object->f_dest_adr);
 
                             /* Get Safety IO Data */
-                            if (io_data_object->f_crc_seed == FALSE) {
+                            if (io_data_object->f_crc_seed == false) {
                                 safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_4BYTE;
                             } else {
                                 safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_5BYTE;
@@ -676,7 +676,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             }
                         }
 
-                        if (io_data_object->discardIOXS == FALSE) {
+                        if (io_data_object->discardIOXS == false) {
                             offset = dissect_PNIO_IOxS(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_iops, ioxs_fields);
                             proto_item_set_len(IODataObject_item, io_data_object->length + 1);     /* Length = Databytes + IOXS Byte */
                         }
@@ -697,7 +697,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                                 moduleName = wmem_strbuf_new(pinfo->pool, "Module");
                             }
 
-                            if (io_data_object->profisafeSupported == TRUE) {
+                            if (io_data_object->profisafeSupported == true) {
                                 /* PROFIsafe */
                                 if (io_data_object->length >= 5) {        /* 5 due to 3 CRC bytes &  1 status byte & (at least) 1 data byte */
                                     wmem_strbuf_append(moduleName, ", DI");
@@ -722,14 +722,14 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         proto_item_append_text(IODataObject_item, " ModuleName: \"%s\"", io_data_object->moduleNameStr);
 
                         /* emphasize the PROFIsafe supported Modul */
-                        if (io_data_object->profisafeSupported == TRUE && pnio_ps_selection == TRUE) {
+                        if (io_data_object->profisafeSupported == true && pnio_ps_selection == true) {
                             (proto_item_append_text(IODataObject_item, " (PROFIsafe Module)"));
                         }
 
 
                         /* Set frameOffset to its new value, to find the next object */
                         frameOffset = frameOffset + io_data_object->length;  /* frameOffset = current value + data bytes */
-                        if (io_data_object->discardIOXS == FALSE) {
+                        if (io_data_object->discardIOXS == false) {
                             frameOffset = frameOffset + 1;      /* frameOffset = current value + iops byte */
                         }
                     }
@@ -759,7 +759,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     /* ----- Output (PNIO) / Request (PNIO_PS) Frame Handling ------ */
     else if (outputFlag) {
-        if (pnio_ps_selection == TRUE) {
+        if (pnio_ps_selection == true) {
             proto_tree_add_string_format_value(data_tree, hf_pn_io_frame_info_type, tvb,
                 offset, 0, "Request", "Request Frame (IO_Controller -> IO_Device)");
         }
@@ -778,8 +778,8 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                     0, station_info->nameofstation, "\"%s\"", station_info->nameofstation);
             }
 
-            if (station_info->gsdPathLength == TRUE) {      /* given path isn't too long for the array */
-                if (station_info->gsdFound == TRUE) {       /* found a GSD-file */
+            if (station_info->gsdPathLength == true) {      /* given path isn't too long for the array */
+                if (station_info->gsdFound == true) {       /* found a GSD-file */
                     if (station_info->gsdLocation != NULL) {
                         IODataObject_item_info = proto_tree_add_item(data_tree, hf_pn_io_frame_info_gsd_found, tvb, offset, 0, ENC_NA);
                         proto_item_append_text(IODataObject_item_info, ": \"%s\"", station_info->gsdLocation);
@@ -800,7 +800,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
         /* ---- Output IOData-/IOCS-Object Handling ---- */
         objectCounter = number_io_data_objects_output_cr + number_iocs_output_cr;
-        if (objectCounter > (guint)tvb_reported_length_remaining(tvb, offset)) {
+        if (objectCounter > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
             expert_add_info_format(pinfo, data_item, &ei_pn_io_too_many_data_objects, "Too many data objects: %d", objectCounter);
             return(tvb_captured_length(tvb));
         }
@@ -828,17 +828,17 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         proto_tree_add_uint(IODataObject_tree, hf_pn_io_io_data_object_info_moduleidentnumber, tvb, 0, 0, io_data_object->moduleIdentNr);
                         proto_tree_add_uint(IODataObject_tree, hf_pn_io_io_data_object_info_submoduleidentnumber, tvb, 0, 0, io_data_object->subModuleIdentNr);
 
-                        if (io_data_object->profisafeSupported == TRUE && pnio_ps_selection == TRUE) {
-                            if (io_data_object->profisafeSupported == TRUE && psInfoText == FALSE) {
+                        if (io_data_object->profisafeSupported == true && pnio_ps_selection == true) {
+                            if (io_data_object->profisafeSupported == true && psInfoText == false) {
                                 /* Only add one information string per device to the infotext */
                                 col_append_str(pinfo->cinfo, COL_INFO, ", PROFIsafe Device");    /* Add string to wireshark infotext */
-                                psInfoText = TRUE;
+                                psInfoText = true;
                             }
 
                             proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_f_dest_adr, tvb, 0, 0, io_data_object->f_dest_adr);
 
                             /* Get Safety IO Data */
-                            if (io_data_object->f_crc_seed == FALSE) {
+                            if (io_data_object->f_crc_seed == false) {
                                 safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_4BYTE;
                             } else {
                                 safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_5BYTE;
@@ -883,7 +883,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             }
                         }
 
-                        if (io_data_object->discardIOXS == FALSE) {
+                        if (io_data_object->discardIOXS == false) {
                             offset = dissect_PNIO_IOxS(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_iops, ioxs_fields);
                             proto_item_set_len(IODataObject_item, io_data_object->length + 1);        /* Length = Databytes + IOXS Byte */
                         }
@@ -904,7 +904,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                                 moduleName = wmem_strbuf_new(pinfo->pool, "Module");
                             }
 
-                            if (io_data_object->profisafeSupported == TRUE) {
+                            if (io_data_object->profisafeSupported == true) {
                                 /* PROFIsafe */
                                 if (io_data_object->length >= 5) {        /* 5 due to 3 CRC bytes &  1 status byte & (at least) 1 data byte */
                                     wmem_strbuf_append(moduleName, ", DO");
@@ -929,13 +929,13 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         proto_item_append_text(IODataObject_item, " ModuleName: \"%s\"", io_data_object->moduleNameStr);
 
                         /* emphasize the PROFIsafe supported Modul */
-                        if (io_data_object->profisafeSupported == TRUE && pnio_ps_selection == TRUE) {
+                        if (io_data_object->profisafeSupported == true && pnio_ps_selection == true) {
                             proto_item_append_text(IODataObject_item, " (PROFIsafe Module)");
                         }
 
                         /* Set frameOffset to its new value, to find the next object */
                         frameOffset = frameOffset + io_data_object->length; /* frameOffset = current value + data bytes */
-                        if (io_data_object->discardIOXS == FALSE) {
+                        if (io_data_object->discardIOXS == false) {
                             frameOffset = frameOffset + 1;      /* frameOffset = current value + iops byte */
                         }
                     }
@@ -974,11 +974,11 @@ dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
 {
 
     if (tree) {
-        guint8      u8status;
-        guint8      quality;
+        uint8_t     u8status;
+        uint8_t     quality;
         proto_item *status_item;
         proto_tree *status_tree;
-        const gchar* quality_name = NULL;
+        const char* quality_name = NULL;
 
         u8status = tvb_get_guint8(tvb, offset);
         quality = (u8status >> 6u) & 0x3u;
@@ -1019,7 +1019,7 @@ dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
 
 int
 dissect_pn_pa_profile_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                          proto_tree *tree, guint32 length, const char *text)
+                          proto_tree *tree, uint32_t length, const char *text)
 {
     (void)text;
     /*
@@ -1321,7 +1321,7 @@ init_pn_io_rtc1(int proto)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pn_io_rtc,
         &ett_pn_io_ioxs,
         &ett_pn_io_io_data_object,

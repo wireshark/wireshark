@@ -14,8 +14,8 @@
 
 #define MAX_RETURNED_ELEMENTS 16
 
-int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *element_count);
-int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *element_count);
-int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *element_count);
+int extract_uint(proto_tree *tree, int field_id, uint32_t *result_array, size_t *element_count);
+int extract_ui64(proto_tree *tree, int field_id, uint64_t *result_array, size_t *element_count);
+int extract_si64(proto_tree *tree, int field_id, uint64_t *result_array, size_t *element_count);
 int extract_bool(proto_tree *tree, int field_id, bool *result_array, size_t *element_count);
 int extract_instance_count(proto_tree *tree, int field_id, size_t *element_count);

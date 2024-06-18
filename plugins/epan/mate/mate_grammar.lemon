@@ -31,7 +31,7 @@
 #define DUMMY void*
 
 typedef struct _extraction {
-	gchar* as;
+	char* as;
 	header_field_info* hfi;
 	struct _extraction* next;
 	struct _extraction* last;
@@ -45,8 +45,8 @@ typedef struct _pdu_criteria_t {
 
 typedef struct _gop_options {
 	gop_tree_mode_t pdu_tree_mode;
-	gboolean drop_unassigned;
-	gboolean show_times;
+	bool drop_unassigned;
+	bool show_times;
 	double expiration;
 	double idle_timeout;
 	double lifetime;
@@ -73,10 +73,10 @@ typedef struct _transf_action_t {
 	AVPL* avpl;
 } transf_action_t;
 
-static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
-	static gchar error_buffer[256];
-	const gchar* incl;
-	gint i;
+static void configuration_error(mate_config* mc, const char* fmt, ...) {
+	static char error_buffer[256];
+	const char* incl;
+	int i;
 	mate_config_frame* current_frame;
 	va_list list;
 
@@ -84,7 +84,7 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 	vsnprintf(error_buffer,sizeof(error_buffer),fmt,list);
 	va_end( list );
 
-	i = (gint) mc->config_stack->len;
+	i = (int) mc->config_stack->len;
 
 	while (i--) {
 
@@ -94,7 +94,7 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 			incl = " ";
 		}
 
-		current_frame = (mate_config_frame *)g_ptr_array_index(mc->config_stack,(guint)i);
+		current_frame = (mate_config_frame *)g_ptr_array_index(mc->config_stack,(unsigned)i);
 
 		g_string_append_printf(mc->config_error,"%s%s at line %u",incl, current_frame->filename, current_frame->linenum);
 	}
@@ -120,12 +120,12 @@ static AVPL_Transf* new_transform_elem(AVPL* match, AVPL* replace, avpl_match_mo
 	 return t;
 }
 
-static gchar* recolonize(mate_config* mc, gchar* s) {
+static char* recolonize(mate_config* mc, char* s) {
 	GString* str = g_string_new("");
-	gchar** vec;
-	gchar* r;
-	guint i,v;
-	gchar c;
+	char** vec;
+	char* r;
+	unsigned i,v;
+	char c;
 
 	vec = g_strsplit(s,":",0);
 
@@ -165,7 +165,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 
 	r = str->str;
 
-	g_string_free(str,FALSE);
+	g_string_free(str,false);
 
 	return r;
 }
@@ -181,7 +181,7 @@ DIAG_ON_LEMON()
 
 %token_prefix TOKEN_
 
-%token_type { gchar* }
+%token_type { char* }
 %token_destructor {
 	(void) mc; /* Mark unused, similar to Q_UNUSED */
 	g_free($$);
@@ -206,17 +206,17 @@ DIAG_ON_LEMON()
 %type   match_mode { avpl_match_mode }
 %type   action_mode { avpl_replace_mode }
 
-%type gop_name { gchar* }
+%type gop_name { char* }
 %type time_value { double }
-%type pdu_name { gchar* }
+%type pdu_name { char* }
 %type gop_tree_mode { gop_tree_mode_t }
-%type true_false { gboolean }
+%type true_false { bool }
 
 %type criteria_statement { pdu_criteria_t* }
 %type accept_mode { accept_mode_t }
-%type pdu_drop_unassigned_statement { gboolean }
-%type discard_pdu_data_statement { gboolean }
-%type last_extracted_statement { gboolean }
+%type pdu_drop_unassigned_statement { bool }
+%type discard_pdu_data_statement { bool }
+%type last_extracted_statement { bool }
 
 %type extraction_statement {extraction_t*}
 %type extraction_statements {extraction_t*}
@@ -226,9 +226,9 @@ DIAG_ON_LEMON()
 %type gop_start_statement { AVPL* }
 %type gop_stop_statement { AVPL* }
 %type extra_statement { AVPL* }
-%type gop_drop_unassigned_statement { gboolean }
+%type gop_drop_unassigned_statement { bool }
 %type show_goptree_statement { gop_tree_mode_t }
-%type show_times_statement { gboolean }
+%type show_times_statement { bool }
 %type gop_expiration_statement { double }
 %type idle_timeout_statement { double }
 %type lifetime_statement { double }
@@ -249,8 +249,8 @@ DIAG_ON_LEMON()
 %type avpl { AVPL* }
 %type avps { AVPL* }
 %type avp { AVP* }
-%type value { gchar* }
-%type avp_oneoff { gchar* }
+%type value { char* }
+%type avp_oneoff { char* }
 
 
 mate_config ::= decls.
@@ -271,8 +271,8 @@ decl ::= DONE_KW SEMICOLON.
 
 debug_decl ::= DEBUG_KW OPEN_BRACE dbgfile_default dbglevel_default pdu_dbglevel_default gop_dbglevel_default gog_dbglevel_default CLOSE_BRACE SEMICOLON.
 
-dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = ws_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE); }
-dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = ws_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE);  }
+dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = ws_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,true); }
+dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = ws_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,true);  }
 dbgfile_default ::= .
 
 dbglevel_default ::= LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_lvl = (int) strtol(LevelString,NULL,10); }
@@ -445,7 +445,7 @@ pdu_decl ::=
 		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(Stack,i));
 	}
 
-	g_ptr_array_free(Stack, TRUE);
+	g_ptr_array_free(Stack, true);
 
 	cfg->transport_ranges = transport_stack;
 	cfg->payload_ranges = Payload;
@@ -563,8 +563,8 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
 	cfg->stop = Stop;
 	cfg->transforms = Transform;
 
-	merge_avpl(cfg->extra,Extra,TRUE);
-	delete_avpl(Extra,TRUE);
+	merge_avpl(cfg->extra,Extra,true);
+	delete_avpl(Extra,true);
 }
 
 gop_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; }
@@ -596,8 +596,8 @@ gop_tree_mode(A) ::= PDU_TREE_KW.	{ A = (gop_tree_mode_t)GOP_PDU_TREE; }
 gop_tree_mode(A) ::= FRAME_TREE_KW.	{ A = (gop_tree_mode_t)GOP_FRAME_TREE; }
 gop_tree_mode(A) ::= BASIC_TREE_KW.	{ A = (gop_tree_mode_t)GOP_BASIC_PDU_TREE; }
 
-true_false(A) ::= TRUE_KW. { A = TRUE; }
-true_false(A) ::= FALSE_KW. { A = FALSE; }
+true_false(A) ::= TRUE_KW. { A = true; }
+true_false(A) ::= FALSE_KW. { A = false; }
 
 pdu_name(A) ::= NAME(B). {
 	mate_cfg_pdu* c;
@@ -642,8 +642,8 @@ gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
 		cfg->keys = Keys;
 		cfg->show_times = ShowTimes;
 
-		merge_avpl(cfg->extra,Extra,TRUE);
-		delete_avpl(Extra,TRUE);
+		merge_avpl(cfg->extra,Extra,true);
+		delete_avpl(Extra,true);
 }
 
 gog_goptree_statement(A) ::= GOP_TREE_KW gop_tree_type(B) SEMICOLON. { A = B; }

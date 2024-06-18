@@ -21,13 +21,13 @@
 #include <epan/packet.h>
 
 /* declare service parser function prototype */
-typedef void (*fctServiceParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+typedef void (*fctServiceParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
 /* declare enum parser function prototype */
-typedef void (*fctEnumParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+typedef void (*fctEnumParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
 /* declare type parser function prototype */
-typedef void (*fctComplexTypeParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName);
+typedef void (*fctComplexTypeParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
 /* declare type parser function prototype */
-typedef proto_item* (*fctSimpleTypeParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int hfIndex);
+typedef proto_item* (*fctSimpleTypeParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int hfIndex);
 
 typedef struct _ParserEntry
 {
@@ -39,5 +39,5 @@ typedef struct _ExtensionObjectParserEntry
 {
 	int iRequestId;
 	fctComplexTypeParser pParser;
-	const gchar *typeName;
+	const char *typeName;
 } ExtensionObjectParserEntry;

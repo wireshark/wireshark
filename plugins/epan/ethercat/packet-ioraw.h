@@ -14,7 +14,7 @@
 /* headers are only used for size and offset calculation*/
 typedef struct _IoRawParser
 {
-   guint32 head;
+   uint32_t head;
 } IoRawParserHDR, *PIoRawParserHDR;
 #define IoRawParserHDR_Len (int)sizeof(IoRawParserHDR)
 

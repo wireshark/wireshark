@@ -25,174 +25,174 @@
 #include "opcua_hfindeces.h"
 #include "opcua_serviceparser.h"
 
-gint ett_opcua_ServiceFault;
-gint ett_opcua_array_ServiceFault;
-gint ett_opcua_FindServersRequest;
-gint ett_opcua_array_FindServersRequest;
-gint ett_opcua_FindServersResponse;
-gint ett_opcua_array_FindServersResponse;
-gint ett_opcua_FindServersOnNetworkRequest;
-gint ett_opcua_array_FindServersOnNetworkRequest;
-gint ett_opcua_FindServersOnNetworkResponse;
-gint ett_opcua_array_FindServersOnNetworkResponse;
-gint ett_opcua_GetEndpointsRequest;
-gint ett_opcua_array_GetEndpointsRequest;
-gint ett_opcua_GetEndpointsResponse;
-gint ett_opcua_array_GetEndpointsResponse;
-gint ett_opcua_RegisterServerRequest;
-gint ett_opcua_array_RegisterServerRequest;
-gint ett_opcua_RegisterServerResponse;
-gint ett_opcua_array_RegisterServerResponse;
-gint ett_opcua_RegisterServer2Request;
-gint ett_opcua_array_RegisterServer2Request;
-gint ett_opcua_RegisterServer2Response;
-gint ett_opcua_array_RegisterServer2Response;
-gint ett_opcua_OpenSecureChannelRequest;
-gint ett_opcua_array_OpenSecureChannelRequest;
-gint ett_opcua_OpenSecureChannelResponse;
-gint ett_opcua_array_OpenSecureChannelResponse;
-gint ett_opcua_CloseSecureChannelRequest;
-gint ett_opcua_array_CloseSecureChannelRequest;
-gint ett_opcua_CloseSecureChannelResponse;
-gint ett_opcua_array_CloseSecureChannelResponse;
-gint ett_opcua_CreateSessionRequest;
-gint ett_opcua_array_CreateSessionRequest;
-gint ett_opcua_CreateSessionResponse;
-gint ett_opcua_array_CreateSessionResponse;
-gint ett_opcua_ActivateSessionRequest;
-gint ett_opcua_array_ActivateSessionRequest;
-gint ett_opcua_ActivateSessionResponse;
-gint ett_opcua_array_ActivateSessionResponse;
-gint ett_opcua_CloseSessionRequest;
-gint ett_opcua_array_CloseSessionRequest;
-gint ett_opcua_CloseSessionResponse;
-gint ett_opcua_array_CloseSessionResponse;
-gint ett_opcua_CancelRequest;
-gint ett_opcua_array_CancelRequest;
-gint ett_opcua_CancelResponse;
-gint ett_opcua_array_CancelResponse;
-gint ett_opcua_AddNodesRequest;
-gint ett_opcua_array_AddNodesRequest;
-gint ett_opcua_AddNodesResponse;
-gint ett_opcua_array_AddNodesResponse;
-gint ett_opcua_AddReferencesRequest;
-gint ett_opcua_array_AddReferencesRequest;
-gint ett_opcua_AddReferencesResponse;
-gint ett_opcua_array_AddReferencesResponse;
-gint ett_opcua_DeleteNodesRequest;
-gint ett_opcua_array_DeleteNodesRequest;
-gint ett_opcua_DeleteNodesResponse;
-gint ett_opcua_array_DeleteNodesResponse;
-gint ett_opcua_DeleteReferencesRequest;
-gint ett_opcua_array_DeleteReferencesRequest;
-gint ett_opcua_DeleteReferencesResponse;
-gint ett_opcua_array_DeleteReferencesResponse;
-gint ett_opcua_BrowseRequest;
-gint ett_opcua_array_BrowseRequest;
-gint ett_opcua_BrowseResponse;
-gint ett_opcua_array_BrowseResponse;
-gint ett_opcua_BrowseNextRequest;
-gint ett_opcua_array_BrowseNextRequest;
-gint ett_opcua_BrowseNextResponse;
-gint ett_opcua_array_BrowseNextResponse;
-gint ett_opcua_TranslateBrowsePathsToNodeIdsRequest;
-gint ett_opcua_array_TranslateBrowsePathsToNodeIdsRequest;
-gint ett_opcua_TranslateBrowsePathsToNodeIdsResponse;
-gint ett_opcua_array_TranslateBrowsePathsToNodeIdsResponse;
-gint ett_opcua_RegisterNodesRequest;
-gint ett_opcua_array_RegisterNodesRequest;
-gint ett_opcua_RegisterNodesResponse;
-gint ett_opcua_array_RegisterNodesResponse;
-gint ett_opcua_UnregisterNodesRequest;
-gint ett_opcua_array_UnregisterNodesRequest;
-gint ett_opcua_UnregisterNodesResponse;
-gint ett_opcua_array_UnregisterNodesResponse;
-gint ett_opcua_QueryFirstRequest;
-gint ett_opcua_array_QueryFirstRequest;
-gint ett_opcua_QueryFirstResponse;
-gint ett_opcua_array_QueryFirstResponse;
-gint ett_opcua_QueryNextRequest;
-gint ett_opcua_array_QueryNextRequest;
-gint ett_opcua_QueryNextResponse;
-gint ett_opcua_array_QueryNextResponse;
-gint ett_opcua_ReadRequest;
-gint ett_opcua_array_ReadRequest;
-gint ett_opcua_ReadResponse;
-gint ett_opcua_array_ReadResponse;
-gint ett_opcua_HistoryReadRequest;
-gint ett_opcua_array_HistoryReadRequest;
-gint ett_opcua_HistoryReadResponse;
-gint ett_opcua_array_HistoryReadResponse;
-gint ett_opcua_WriteRequest;
-gint ett_opcua_array_WriteRequest;
-gint ett_opcua_WriteResponse;
-gint ett_opcua_array_WriteResponse;
-gint ett_opcua_HistoryUpdateRequest;
-gint ett_opcua_array_HistoryUpdateRequest;
-gint ett_opcua_HistoryUpdateResponse;
-gint ett_opcua_array_HistoryUpdateResponse;
-gint ett_opcua_CallRequest;
-gint ett_opcua_array_CallRequest;
-gint ett_opcua_CallResponse;
-gint ett_opcua_array_CallResponse;
-gint ett_opcua_CreateMonitoredItemsRequest;
-gint ett_opcua_array_CreateMonitoredItemsRequest;
-gint ett_opcua_CreateMonitoredItemsResponse;
-gint ett_opcua_array_CreateMonitoredItemsResponse;
-gint ett_opcua_ModifyMonitoredItemsRequest;
-gint ett_opcua_array_ModifyMonitoredItemsRequest;
-gint ett_opcua_ModifyMonitoredItemsResponse;
-gint ett_opcua_array_ModifyMonitoredItemsResponse;
-gint ett_opcua_SetMonitoringModeRequest;
-gint ett_opcua_array_SetMonitoringModeRequest;
-gint ett_opcua_SetMonitoringModeResponse;
-gint ett_opcua_array_SetMonitoringModeResponse;
-gint ett_opcua_SetTriggeringRequest;
-gint ett_opcua_array_SetTriggeringRequest;
-gint ett_opcua_SetTriggeringResponse;
-gint ett_opcua_array_SetTriggeringResponse;
-gint ett_opcua_DeleteMonitoredItemsRequest;
-gint ett_opcua_array_DeleteMonitoredItemsRequest;
-gint ett_opcua_DeleteMonitoredItemsResponse;
-gint ett_opcua_array_DeleteMonitoredItemsResponse;
-gint ett_opcua_CreateSubscriptionRequest;
-gint ett_opcua_array_CreateSubscriptionRequest;
-gint ett_opcua_CreateSubscriptionResponse;
-gint ett_opcua_array_CreateSubscriptionResponse;
-gint ett_opcua_ModifySubscriptionRequest;
-gint ett_opcua_array_ModifySubscriptionRequest;
-gint ett_opcua_ModifySubscriptionResponse;
-gint ett_opcua_array_ModifySubscriptionResponse;
-gint ett_opcua_SetPublishingModeRequest;
-gint ett_opcua_array_SetPublishingModeRequest;
-gint ett_opcua_SetPublishingModeResponse;
-gint ett_opcua_array_SetPublishingModeResponse;
-gint ett_opcua_PublishRequest;
-gint ett_opcua_array_PublishRequest;
-gint ett_opcua_PublishResponse;
-gint ett_opcua_array_PublishResponse;
-gint ett_opcua_RepublishRequest;
-gint ett_opcua_array_RepublishRequest;
-gint ett_opcua_RepublishResponse;
-gint ett_opcua_array_RepublishResponse;
-gint ett_opcua_TransferSubscriptionsRequest;
-gint ett_opcua_array_TransferSubscriptionsRequest;
-gint ett_opcua_TransferSubscriptionsResponse;
-gint ett_opcua_array_TransferSubscriptionsResponse;
-gint ett_opcua_DeleteSubscriptionsRequest;
-gint ett_opcua_array_DeleteSubscriptionsRequest;
-gint ett_opcua_DeleteSubscriptionsResponse;
-gint ett_opcua_array_DeleteSubscriptionsResponse;
-gint ett_opcua_TestStackRequest;
-gint ett_opcua_array_TestStackRequest;
-gint ett_opcua_TestStackResponse;
-gint ett_opcua_array_TestStackResponse;
-gint ett_opcua_TestStackExRequest;
-gint ett_opcua_array_TestStackExRequest;
-gint ett_opcua_TestStackExResponse;
-gint ett_opcua_array_TestStackExResponse;
+int ett_opcua_ServiceFault;
+int ett_opcua_array_ServiceFault;
+int ett_opcua_FindServersRequest;
+int ett_opcua_array_FindServersRequest;
+int ett_opcua_FindServersResponse;
+int ett_opcua_array_FindServersResponse;
+int ett_opcua_FindServersOnNetworkRequest;
+int ett_opcua_array_FindServersOnNetworkRequest;
+int ett_opcua_FindServersOnNetworkResponse;
+int ett_opcua_array_FindServersOnNetworkResponse;
+int ett_opcua_GetEndpointsRequest;
+int ett_opcua_array_GetEndpointsRequest;
+int ett_opcua_GetEndpointsResponse;
+int ett_opcua_array_GetEndpointsResponse;
+int ett_opcua_RegisterServerRequest;
+int ett_opcua_array_RegisterServerRequest;
+int ett_opcua_RegisterServerResponse;
+int ett_opcua_array_RegisterServerResponse;
+int ett_opcua_RegisterServer2Request;
+int ett_opcua_array_RegisterServer2Request;
+int ett_opcua_RegisterServer2Response;
+int ett_opcua_array_RegisterServer2Response;
+int ett_opcua_OpenSecureChannelRequest;
+int ett_opcua_array_OpenSecureChannelRequest;
+int ett_opcua_OpenSecureChannelResponse;
+int ett_opcua_array_OpenSecureChannelResponse;
+int ett_opcua_CloseSecureChannelRequest;
+int ett_opcua_array_CloseSecureChannelRequest;
+int ett_opcua_CloseSecureChannelResponse;
+int ett_opcua_array_CloseSecureChannelResponse;
+int ett_opcua_CreateSessionRequest;
+int ett_opcua_array_CreateSessionRequest;
+int ett_opcua_CreateSessionResponse;
+int ett_opcua_array_CreateSessionResponse;
+int ett_opcua_ActivateSessionRequest;
+int ett_opcua_array_ActivateSessionRequest;
+int ett_opcua_ActivateSessionResponse;
+int ett_opcua_array_ActivateSessionResponse;
+int ett_opcua_CloseSessionRequest;
+int ett_opcua_array_CloseSessionRequest;
+int ett_opcua_CloseSessionResponse;
+int ett_opcua_array_CloseSessionResponse;
+int ett_opcua_CancelRequest;
+int ett_opcua_array_CancelRequest;
+int ett_opcua_CancelResponse;
+int ett_opcua_array_CancelResponse;
+int ett_opcua_AddNodesRequest;
+int ett_opcua_array_AddNodesRequest;
+int ett_opcua_AddNodesResponse;
+int ett_opcua_array_AddNodesResponse;
+int ett_opcua_AddReferencesRequest;
+int ett_opcua_array_AddReferencesRequest;
+int ett_opcua_AddReferencesResponse;
+int ett_opcua_array_AddReferencesResponse;
+int ett_opcua_DeleteNodesRequest;
+int ett_opcua_array_DeleteNodesRequest;
+int ett_opcua_DeleteNodesResponse;
+int ett_opcua_array_DeleteNodesResponse;
+int ett_opcua_DeleteReferencesRequest;
+int ett_opcua_array_DeleteReferencesRequest;
+int ett_opcua_DeleteReferencesResponse;
+int ett_opcua_array_DeleteReferencesResponse;
+int ett_opcua_BrowseRequest;
+int ett_opcua_array_BrowseRequest;
+int ett_opcua_BrowseResponse;
+int ett_opcua_array_BrowseResponse;
+int ett_opcua_BrowseNextRequest;
+int ett_opcua_array_BrowseNextRequest;
+int ett_opcua_BrowseNextResponse;
+int ett_opcua_array_BrowseNextResponse;
+int ett_opcua_TranslateBrowsePathsToNodeIdsRequest;
+int ett_opcua_array_TranslateBrowsePathsToNodeIdsRequest;
+int ett_opcua_TranslateBrowsePathsToNodeIdsResponse;
+int ett_opcua_array_TranslateBrowsePathsToNodeIdsResponse;
+int ett_opcua_RegisterNodesRequest;
+int ett_opcua_array_RegisterNodesRequest;
+int ett_opcua_RegisterNodesResponse;
+int ett_opcua_array_RegisterNodesResponse;
+int ett_opcua_UnregisterNodesRequest;
+int ett_opcua_array_UnregisterNodesRequest;
+int ett_opcua_UnregisterNodesResponse;
+int ett_opcua_array_UnregisterNodesResponse;
+int ett_opcua_QueryFirstRequest;
+int ett_opcua_array_QueryFirstRequest;
+int ett_opcua_QueryFirstResponse;
+int ett_opcua_array_QueryFirstResponse;
+int ett_opcua_QueryNextRequest;
+int ett_opcua_array_QueryNextRequest;
+int ett_opcua_QueryNextResponse;
+int ett_opcua_array_QueryNextResponse;
+int ett_opcua_ReadRequest;
+int ett_opcua_array_ReadRequest;
+int ett_opcua_ReadResponse;
+int ett_opcua_array_ReadResponse;
+int ett_opcua_HistoryReadRequest;
+int ett_opcua_array_HistoryReadRequest;
+int ett_opcua_HistoryReadResponse;
+int ett_opcua_array_HistoryReadResponse;
+int ett_opcua_WriteRequest;
+int ett_opcua_array_WriteRequest;
+int ett_opcua_WriteResponse;
+int ett_opcua_array_WriteResponse;
+int ett_opcua_HistoryUpdateRequest;
+int ett_opcua_array_HistoryUpdateRequest;
+int ett_opcua_HistoryUpdateResponse;
+int ett_opcua_array_HistoryUpdateResponse;
+int ett_opcua_CallRequest;
+int ett_opcua_array_CallRequest;
+int ett_opcua_CallResponse;
+int ett_opcua_array_CallResponse;
+int ett_opcua_CreateMonitoredItemsRequest;
+int ett_opcua_array_CreateMonitoredItemsRequest;
+int ett_opcua_CreateMonitoredItemsResponse;
+int ett_opcua_array_CreateMonitoredItemsResponse;
+int ett_opcua_ModifyMonitoredItemsRequest;
+int ett_opcua_array_ModifyMonitoredItemsRequest;
+int ett_opcua_ModifyMonitoredItemsResponse;
+int ett_opcua_array_ModifyMonitoredItemsResponse;
+int ett_opcua_SetMonitoringModeRequest;
+int ett_opcua_array_SetMonitoringModeRequest;
+int ett_opcua_SetMonitoringModeResponse;
+int ett_opcua_array_SetMonitoringModeResponse;
+int ett_opcua_SetTriggeringRequest;
+int ett_opcua_array_SetTriggeringRequest;
+int ett_opcua_SetTriggeringResponse;
+int ett_opcua_array_SetTriggeringResponse;
+int ett_opcua_DeleteMonitoredItemsRequest;
+int ett_opcua_array_DeleteMonitoredItemsRequest;
+int ett_opcua_DeleteMonitoredItemsResponse;
+int ett_opcua_array_DeleteMonitoredItemsResponse;
+int ett_opcua_CreateSubscriptionRequest;
+int ett_opcua_array_CreateSubscriptionRequest;
+int ett_opcua_CreateSubscriptionResponse;
+int ett_opcua_array_CreateSubscriptionResponse;
+int ett_opcua_ModifySubscriptionRequest;
+int ett_opcua_array_ModifySubscriptionRequest;
+int ett_opcua_ModifySubscriptionResponse;
+int ett_opcua_array_ModifySubscriptionResponse;
+int ett_opcua_SetPublishingModeRequest;
+int ett_opcua_array_SetPublishingModeRequest;
+int ett_opcua_SetPublishingModeResponse;
+int ett_opcua_array_SetPublishingModeResponse;
+int ett_opcua_PublishRequest;
+int ett_opcua_array_PublishRequest;
+int ett_opcua_PublishResponse;
+int ett_opcua_array_PublishResponse;
+int ett_opcua_RepublishRequest;
+int ett_opcua_array_RepublishRequest;
+int ett_opcua_RepublishResponse;
+int ett_opcua_array_RepublishResponse;
+int ett_opcua_TransferSubscriptionsRequest;
+int ett_opcua_array_TransferSubscriptionsRequest;
+int ett_opcua_TransferSubscriptionsResponse;
+int ett_opcua_array_TransferSubscriptionsResponse;
+int ett_opcua_DeleteSubscriptionsRequest;
+int ett_opcua_array_DeleteSubscriptionsRequest;
+int ett_opcua_DeleteSubscriptionsResponse;
+int ett_opcua_array_DeleteSubscriptionsResponse;
+int ett_opcua_TestStackRequest;
+int ett_opcua_array_TestStackRequest;
+int ett_opcua_TestStackResponse;
+int ett_opcua_array_TestStackResponse;
+int ett_opcua_TestStackExRequest;
+int ett_opcua_array_TestStackExRequest;
+int ett_opcua_TestStackExResponse;
+int ett_opcua_array_TestStackExResponse;
 
-void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ServiceFault, &ti, "ServiceFault");
@@ -200,7 +200,7 @@ void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
   parseResponseHeader(subtree, tvb, pinfo, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_FindServersRequest, &ti, "FindServersRequest");
@@ -213,7 +213,7 @@ void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   parseArraySimple(subtree, tvb, pinfo, pOffset, "ServerUris", "String", hf_opcua_ServerUris, parseString, ett_opcua_array_String);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_FindServersResponse, &ti, "FindServersResponse");
@@ -223,7 +223,7 @@ void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "Servers", "ApplicationDescription", parseApplicationDescription, ett_opcua_array_ApplicationDescription);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseFindServersOnNetworkRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseFindServersOnNetworkRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_FindServersOnNetworkRequest, &ti, "FindServersOnNetworkRequest");
@@ -235,7 +235,7 @@ void parseFindServersOnNetworkRequest(proto_tree *tree, tvbuff_t *tvb, packet_in
   parseArraySimple(subtree, tvb, pinfo, pOffset, "ServerCapabilityFilter", "String", hf_opcua_ServerCapabilityFilter, parseString, ett_opcua_array_String);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseFindServersOnNetworkResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseFindServersOnNetworkResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_FindServersOnNetworkResponse, &ti, "FindServersOnNetworkResponse");
@@ -246,7 +246,7 @@ void parseFindServersOnNetworkResponse(proto_tree *tree, tvbuff_t *tvb, packet_i
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "Servers", "ServerOnNetwork", parseServerOnNetwork, ett_opcua_array_ServerOnNetwork);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_GetEndpointsRequest, &ti, "GetEndpointsRequest");
@@ -259,7 +259,7 @@ void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   parseArraySimple(subtree, tvb, pinfo, pOffset, "ProfileUris", "String", hf_opcua_ProfileUris, parseString, ett_opcua_array_String);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseGetEndpointsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseGetEndpointsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_GetEndpointsResponse, &ti, "GetEndpointsResponse");
@@ -269,7 +269,7 @@ void parseGetEndpointsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "Endpoints", "EndpointDescription", parseEndpointDescription, ett_opcua_array_EndpointDescription);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRegisterServerRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRegisterServerRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RegisterServerRequest, &ti, "RegisterServerRequest");
@@ -278,7 +278,7 @@ void parseRegisterServerRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseRegisteredServer(subtree, tvb, pinfo, pOffset, "Server");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRegisterServerResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRegisterServerResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RegisterServerResponse, &ti, "RegisterServerResponse");
@@ -286,7 +286,7 @@ void parseRegisterServerResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *p
   parseResponseHeader(subtree, tvb, pinfo, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRegisterServer2Request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRegisterServer2Request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RegisterServer2Request, &ti, "RegisterServer2Request");
@@ -297,7 +297,7 @@ void parseRegisterServer2Request(proto_tree *tree, tvbuff_t *tvb, packet_info *p
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiscoveryConfiguration", "ExtensionObject", parseExtensionObject, ett_opcua_array_ExtensionObject);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRegisterServer2Response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRegisterServer2Response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RegisterServer2Response, &ti, "RegisterServer2Response");
@@ -309,7 +309,7 @@ void parseRegisterServer2Response(proto_tree *tree, tvbuff_t *tvb, packet_info *
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseOpenSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseOpenSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_OpenSecureChannelRequest, &ti, "OpenSecureChannelRequest");
@@ -322,7 +322,7 @@ void parseOpenSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info 
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_RequestedLifetime);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseOpenSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseOpenSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_OpenSecureChannelResponse, &ti, "OpenSecureChannelResponse");
@@ -333,7 +333,7 @@ void parseOpenSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info
   parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ServerNonce);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCloseSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCloseSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CloseSecureChannelRequest, &ti, "CloseSecureChannelRequest");
@@ -341,7 +341,7 @@ void parseCloseSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info
   parseRequestHeader(subtree, tvb, pinfo, pOffset, "RequestHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCloseSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCloseSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CloseSecureChannelResponse, &ti, "CloseSecureChannelResponse");
@@ -349,7 +349,7 @@ void parseCloseSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_inf
   parseResponseHeader(subtree, tvb, pinfo, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CreateSessionRequest, &ti, "CreateSessionRequest");
@@ -365,7 +365,7 @@ void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_MaxResponseMessageSize);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CreateSessionResponse, &ti, "CreateSessionResponse");
@@ -384,7 +384,7 @@ void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_MaxRequestMessageSize);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseActivateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseActivateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ActivateSessionRequest, &ti, "ActivateSessionRequest");
@@ -399,7 +399,7 @@ void parseActivateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *p
   parseSignatureData(subtree, tvb, pinfo, pOffset, "UserTokenSignature");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseActivateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseActivateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ActivateSessionResponse, &ti, "ActivateSessionResponse");
@@ -412,7 +412,7 @@ void parseActivateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCloseSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCloseSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CloseSessionRequest, &ti, "CloseSessionRequest");
@@ -421,7 +421,7 @@ void parseCloseSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   parseBoolean(subtree, tvb, pinfo, pOffset, hf_opcua_DeleteSubscriptions);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCloseSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCloseSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CloseSessionResponse, &ti, "CloseSessionResponse");
@@ -429,7 +429,7 @@ void parseCloseSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseResponseHeader(subtree, tvb, pinfo, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCancelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCancelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CancelRequest, &ti, "CancelRequest");
@@ -438,7 +438,7 @@ void parseCancelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_RequestHandle);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCancelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCancelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CancelResponse, &ti, "CancelResponse");
@@ -447,7 +447,7 @@ void parseCancelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_CancelCount);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseAddNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseAddNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_AddNodesRequest, &ti, "AddNodesRequest");
@@ -457,7 +457,7 @@ void parseAddNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToAdd", "AddNodesItem", parseAddNodesItem, ett_opcua_array_AddNodesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseAddNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseAddNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_AddNodesResponse, &ti, "AddNodesResponse");
@@ -469,7 +469,7 @@ void parseAddNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseAddReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseAddReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_AddReferencesRequest, &ti, "AddReferencesRequest");
@@ -479,7 +479,7 @@ void parseAddReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "ReferencesToAdd", "AddReferencesItem", parseAddReferencesItem, ett_opcua_array_AddReferencesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseAddReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseAddReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_AddReferencesResponse, &ti, "AddReferencesResponse");
@@ -491,7 +491,7 @@ void parseAddReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteNodesRequest, &ti, "DeleteNodesRequest");
@@ -501,7 +501,7 @@ void parseDeleteNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToDelete", "DeleteNodesItem", parseDeleteNodesItem, ett_opcua_array_DeleteNodesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteNodesResponse, &ti, "DeleteNodesResponse");
@@ -513,7 +513,7 @@ void parseDeleteNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteReferencesRequest, &ti, "DeleteReferencesRequest");
@@ -523,7 +523,7 @@ void parseDeleteReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "ReferencesToDelete", "DeleteReferencesItem", parseDeleteReferencesItem, ett_opcua_array_DeleteReferencesItem);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteReferencesResponse, &ti, "DeleteReferencesResponse");
@@ -535,7 +535,7 @@ void parseDeleteReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info 
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseBrowseRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseBrowseRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_BrowseRequest, &ti, "BrowseRequest");
@@ -547,7 +547,7 @@ void parseBrowseRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToBrowse", "BrowseDescription", parseBrowseDescription, ett_opcua_array_BrowseDescription);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseBrowseResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseBrowseResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_BrowseResponse, &ti, "BrowseResponse");
@@ -559,7 +559,7 @@ void parseBrowseResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseBrowseNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseBrowseNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_BrowseNextRequest, &ti, "BrowseNextRequest");
@@ -570,7 +570,7 @@ void parseBrowseNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   parseArraySimple(subtree, tvb, pinfo, pOffset, "ContinuationPoints", "ByteString", hf_opcua_ContinuationPoints, parseByteString, ett_opcua_array_ByteString);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseBrowseNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseBrowseNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_BrowseNextResponse, &ti, "BrowseNextResponse");
@@ -582,7 +582,7 @@ void parseBrowseNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTranslateBrowsePathsToNodeIdsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTranslateBrowsePathsToNodeIdsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TranslateBrowsePathsToNodeIdsRequest, &ti, "TranslateBrowsePathsToNodeIdsRequest");
@@ -592,7 +592,7 @@ void parseTranslateBrowsePathsToNodeIdsRequest(proto_tree *tree, tvbuff_t *tvb, 
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "BrowsePaths", "BrowsePath", parseBrowsePath, ett_opcua_array_BrowsePath);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTranslateBrowsePathsToNodeIdsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTranslateBrowsePathsToNodeIdsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TranslateBrowsePathsToNodeIdsResponse, &ti, "TranslateBrowsePathsToNodeIdsResponse");
@@ -604,7 +604,7 @@ void parseTranslateBrowsePathsToNodeIdsResponse(proto_tree *tree, tvbuff_t *tvb,
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRegisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRegisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RegisterNodesRequest, &ti, "RegisterNodesRequest");
@@ -614,7 +614,7 @@ void parseRegisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToRegister", "NodeId", parseNodeId, ett_opcua_array_NodeId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRegisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRegisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RegisterNodesResponse, &ti, "RegisterNodesResponse");
@@ -624,7 +624,7 @@ void parseRegisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "RegisteredNodeIds", "NodeId", parseNodeId, ett_opcua_array_NodeId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseUnregisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseUnregisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_UnregisterNodesRequest, &ti, "UnregisterNodesRequest");
@@ -634,7 +634,7 @@ void parseUnregisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *p
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToUnregister", "NodeId", parseNodeId, ett_opcua_array_NodeId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseUnregisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseUnregisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_UnregisterNodesResponse, &ti, "UnregisterNodesResponse");
@@ -642,7 +642,7 @@ void parseUnregisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *
   parseResponseHeader(subtree, tvb, pinfo, pOffset, "ResponseHeader");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseQueryFirstRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseQueryFirstRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_QueryFirstRequest, &ti, "QueryFirstRequest");
@@ -656,7 +656,7 @@ void parseQueryFirstRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_MaxReferencesToReturn);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseQueryFirstResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseQueryFirstResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_QueryFirstResponse, &ti, "QueryFirstResponse");
@@ -672,7 +672,7 @@ void parseQueryFirstResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   parseContentFilterResult(subtree, tvb, pinfo, pOffset, "FilterResult");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseQueryNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseQueryNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_QueryNextRequest, &ti, "QueryNextRequest");
@@ -682,7 +682,7 @@ void parseQueryNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_ContinuationPoint);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseQueryNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseQueryNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_QueryNextResponse, &ti, "QueryNextResponse");
@@ -693,7 +693,7 @@ void parseQueryNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   parseByteString(subtree, tvb, pinfo, pOffset, hf_opcua_RevisedContinuationPoint);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ReadRequest, &ti, "ReadRequest");
@@ -705,7 +705,7 @@ void parseReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToRead", "ReadValueId", parseReadValueId, ett_opcua_array_ReadValueId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ReadResponse, &ti, "ReadResponse");
@@ -717,7 +717,7 @@ void parseReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseHistoryReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseHistoryReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_HistoryReadRequest, &ti, "HistoryReadRequest");
@@ -730,7 +730,7 @@ void parseHistoryReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToRead", "HistoryReadValueId", parseHistoryReadValueId, ett_opcua_array_HistoryReadValueId);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseHistoryReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseHistoryReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_HistoryReadResponse, &ti, "HistoryReadResponse");
@@ -742,7 +742,7 @@ void parseHistoryReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseWriteRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseWriteRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_WriteRequest, &ti, "WriteRequest");
@@ -752,7 +752,7 @@ void parseWriteRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "NodesToWrite", "WriteValue", parseWriteValue, ett_opcua_array_WriteValue);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseWriteResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseWriteResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_WriteResponse, &ti, "WriteResponse");
@@ -764,7 +764,7 @@ void parseWriteResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gin
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseHistoryUpdateRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseHistoryUpdateRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_HistoryUpdateRequest, &ti, "HistoryUpdateRequest");
@@ -774,7 +774,7 @@ void parseHistoryUpdateRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "HistoryUpdateDetails", "ExtensionObject", parseExtensionObject, ett_opcua_array_ExtensionObject);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseHistoryUpdateResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseHistoryUpdateResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_HistoryUpdateResponse, &ti, "HistoryUpdateResponse");
@@ -786,7 +786,7 @@ void parseHistoryUpdateResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCallRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCallRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CallRequest, &ti, "CallRequest");
@@ -796,7 +796,7 @@ void parseCallRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "MethodsToCall", "CallMethodRequest", parseCallMethodRequest, ett_opcua_array_CallMethodRequest);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCallResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCallResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CallResponse, &ti, "CallResponse");
@@ -808,7 +808,7 @@ void parseCallResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCreateMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCreateMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CreateMonitoredItemsRequest, &ti, "CreateMonitoredItemsRequest");
@@ -820,7 +820,7 @@ void parseCreateMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_in
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "ItemsToCreate", "MonitoredItemCreateRequest", parseMonitoredItemCreateRequest, ett_opcua_array_MonitoredItemCreateRequest);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCreateMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCreateMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CreateMonitoredItemsResponse, &ti, "CreateMonitoredItemsResponse");
@@ -832,7 +832,7 @@ void parseCreateMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_i
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseModifyMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseModifyMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ModifyMonitoredItemsRequest, &ti, "ModifyMonitoredItemsRequest");
@@ -844,7 +844,7 @@ void parseModifyMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_in
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "ItemsToModify", "MonitoredItemModifyRequest", parseMonitoredItemModifyRequest, ett_opcua_array_MonitoredItemModifyRequest);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseModifyMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseModifyMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ModifyMonitoredItemsResponse, &ti, "ModifyMonitoredItemsResponse");
@@ -856,7 +856,7 @@ void parseModifyMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_i
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseSetMonitoringModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseSetMonitoringModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_SetMonitoringModeRequest, &ti, "SetMonitoringModeRequest");
@@ -868,7 +868,7 @@ void parseSetMonitoringModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info 
   parseArraySimple(subtree, tvb, pinfo, pOffset, "MonitoredItemIds", "UInt32", hf_opcua_MonitoredItemIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseSetMonitoringModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseSetMonitoringModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_SetMonitoringModeResponse, &ti, "SetMonitoringModeResponse");
@@ -880,7 +880,7 @@ void parseSetMonitoringModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseSetTriggeringRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseSetTriggeringRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_SetTriggeringRequest, &ti, "SetTriggeringRequest");
@@ -894,7 +894,7 @@ void parseSetTriggeringRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   parseArraySimple(subtree, tvb, pinfo, pOffset, "LinksToRemove", "UInt32", hf_opcua_LinksToRemove, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseSetTriggeringResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseSetTriggeringResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_SetTriggeringResponse, &ti, "SetTriggeringResponse");
@@ -910,7 +910,7 @@ void parseSetTriggeringResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "RemoveDiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteMonitoredItemsRequest, &ti, "DeleteMonitoredItemsRequest");
@@ -921,7 +921,7 @@ void parseDeleteMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_in
   parseArraySimple(subtree, tvb, pinfo, pOffset, "MonitoredItemIds", "UInt32", hf_opcua_MonitoredItemIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteMonitoredItemsResponse, &ti, "DeleteMonitoredItemsResponse");
@@ -933,7 +933,7 @@ void parseDeleteMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_i
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCreateSubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCreateSubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CreateSubscriptionRequest, &ti, "CreateSubscriptionRequest");
@@ -947,7 +947,7 @@ void parseCreateSubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info
   parseByte(subtree, tvb, pinfo, pOffset, hf_opcua_Priority);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseCreateSubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseCreateSubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_CreateSubscriptionResponse, &ti, "CreateSubscriptionResponse");
@@ -959,7 +959,7 @@ void parseCreateSubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_inf
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_RevisedMaxKeepAliveCount);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseModifySubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseModifySubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ModifySubscriptionRequest, &ti, "ModifySubscriptionRequest");
@@ -973,7 +973,7 @@ void parseModifySubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info
   parseByte(subtree, tvb, pinfo, pOffset, hf_opcua_Priority);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseModifySubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseModifySubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_ModifySubscriptionResponse, &ti, "ModifySubscriptionResponse");
@@ -984,7 +984,7 @@ void parseModifySubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_inf
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_RevisedMaxKeepAliveCount);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseSetPublishingModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseSetPublishingModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_SetPublishingModeRequest, &ti, "SetPublishingModeRequest");
@@ -995,7 +995,7 @@ void parseSetPublishingModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info 
   parseArraySimple(subtree, tvb, pinfo, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseSetPublishingModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseSetPublishingModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_SetPublishingModeResponse, &ti, "SetPublishingModeResponse");
@@ -1007,7 +1007,7 @@ void parseSetPublishingModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parsePublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parsePublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_PublishRequest, &ti, "PublishRequest");
@@ -1017,7 +1017,7 @@ void parsePublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "SubscriptionAcknowledgements", "SubscriptionAcknowledgement", parseSubscriptionAcknowledgement, ett_opcua_array_SubscriptionAcknowledgement);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parsePublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parsePublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_PublishResponse, &ti, "PublishResponse");
@@ -1034,7 +1034,7 @@ void parsePublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRepublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRepublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RepublishRequest, &ti, "RepublishRequest");
@@ -1044,7 +1044,7 @@ void parseRepublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_RetransmitSequenceNumber);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseRepublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseRepublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_RepublishResponse, &ti, "RepublishResponse");
@@ -1053,7 +1053,7 @@ void parseRepublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   parseNotificationMessage(subtree, tvb, pinfo, pOffset, "NotificationMessage");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TransferSubscriptionsRequest, &ti, "TransferSubscriptionsRequest");
@@ -1064,7 +1064,7 @@ void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_i
   parseBoolean(subtree, tvb, pinfo, pOffset, hf_opcua_SendInitialValues);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TransferSubscriptionsResponse, &ti, "TransferSubscriptionsResponse");
@@ -1076,7 +1076,7 @@ void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteSubscriptionsRequest, &ti, "DeleteSubscriptionsRequest");
@@ -1086,7 +1086,7 @@ void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_inf
   parseArraySimple(subtree, tvb, pinfo, pOffset, "SubscriptionIds", "UInt32", hf_opcua_SubscriptionIds, parseUInt32, ett_opcua_array_UInt32);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_DeleteSubscriptionsResponse, &ti, "DeleteSubscriptionsResponse");
@@ -1098,7 +1098,7 @@ void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_in
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "DiagnosticInfos", "DiagnosticInfo", parseDiagnosticInfo, ett_opcua_array_DiagnosticInfo);
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TestStackRequest, &ti, "TestStackRequest");
@@ -1109,7 +1109,7 @@ void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   parseVariant(subtree, tvb, pinfo, pOffset, "Input");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTestStackResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTestStackResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TestStackResponse, &ti, "TestStackResponse");
@@ -1118,7 +1118,7 @@ void parseTestStackResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   parseVariant(subtree, tvb, pinfo, pOffset, "Output");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTestStackExRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTestStackExRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TestStackExRequest, &ti, "TestStackExRequest");
@@ -1129,7 +1129,7 @@ void parseTestStackExRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   parseCompositeTestType(subtree, tvb, pinfo, pOffset, "Input");
   proto_item_set_end(ti, tvb, *pOffset);
 }
-void parseTestStackExResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
+void parseTestStackExResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset)
 {
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree(tree, tvb, *pOffset, -1, ett_opcua_TestStackExResponse, &ti, "TestStackExResponse");
@@ -1140,7 +1140,7 @@ void parseTestStackExResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 }
 
 /** Setup protocol subtree array */
-static gint *ett[] =
+static int *ett[] =
 {
   &ett_opcua_ServiceFault,
   &ett_opcua_array_ServiceFault,

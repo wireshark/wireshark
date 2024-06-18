@@ -33,22 +33,22 @@ static dissector_handle_t reg_rsp_handle;
 
 static dissector_handle_t dsc_rsp_handle;
 
-static gint proto_mac_mgmt_msg_reg_rsp_decoder;
-static gint ett_mac_mgmt_msg_reg_rsp_decoder;
-static gint ett_reg_rsp_message_tree;
+static int proto_mac_mgmt_msg_reg_rsp_decoder;
+static int ett_mac_mgmt_msg_reg_rsp_decoder;
+static int ett_reg_rsp_message_tree;
 
 /* NCT messages */
 
 /* REG-RSP fields */
-static gint hf_reg_rsp_status;
-static gint hf_tlv_type;
-/* static gint hf_tlv_value; */
-static gint hf_reg_rsp_secondary_mgmt_cid;
-static gint hf_reg_invalid_tlv;
-static gint hf_reg_rsp_new_cid_after_ho;
-static gint hf_reg_rsp_service_flow_id;
-static gint hf_reg_rsp_system_resource_retain_time;
-static gint hf_reg_total_provisioned_sf;
+static int hf_reg_rsp_status;
+static int hf_tlv_type;
+/* static int hf_tlv_value; */
+static int hf_reg_rsp_secondary_mgmt_cid;
+static int hf_reg_invalid_tlv;
+static int hf_reg_rsp_new_cid_after_ho;
+static int hf_reg_rsp_service_flow_id;
+static int hf_reg_rsp_system_resource_retain_time;
+static int hf_reg_total_provisioned_sf;
 
 /* STRING RESOURCES */
 
@@ -63,23 +63,23 @@ static const value_string vals_reg_rsp_status [] = {
 /* Decode REG-RSP messages. */
 static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tlv_offset;
-	guint tvb_len;
+	unsigned offset = 0;
+	unsigned tlv_offset;
+	unsigned tvb_len;
 	proto_item *reg_rsp_item;
 	proto_tree *reg_rsp_tree;
 	proto_item *tlv_item = NULL;
 	proto_tree *tlv_tree = NULL;
 	proto_tree *sub_tree = NULL;
-	gboolean hmac_found = FALSE;
+	bool hmac_found = false;
 	tlv_info_t tlv_info;
-	gint tlv_type;
-	guint tlv_len;
-	guint this_offset = 0;
+	int tlv_type;
+	unsigned tlv_len;
+	unsigned this_offset = 0;
 	tlv_info_t sub_tlv_info;
-	gint sub_tlv_type;
-	gint sub_tlv_len;
-	guint sub_tlv_offset;
+	int sub_tlv_type;
+	int sub_tlv_len;
+	unsigned sub_tlv_offset;
 
 	{	/* we are being asked for details */
 
@@ -215,7 +215,7 @@ static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 					/* decode and display the HMAC Tuple */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "HMAC Tuple");
 					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset+2, tlv_len);
-					hmac_found = TRUE;
+					hmac_found = true;
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
@@ -326,7 +326,7 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_reg_rsp_decoder,
 			&ett_reg_rsp_message_tree

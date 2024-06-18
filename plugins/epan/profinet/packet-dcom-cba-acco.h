@@ -14,9 +14,9 @@
 typedef struct cba_pdev_s {
     GList           *ldevs;
     dcom_object_t   *object;
-    gint            first_packet;
+    int             first_packet;
 
-    guint8          ip[4];
+    uint8_t         ip[4];
 } cba_pdev_t;
 
 typedef struct cba_ldev_s {
@@ -27,7 +27,7 @@ typedef struct cba_ldev_s {
     dcom_object_t   *ldev_object;
     dcom_object_t   *acco_object;
     cba_pdev_t      *parent;
-    gint            first_packet;
+    int             first_packet;
 
     const char      *name;
 } cba_ldev_t;

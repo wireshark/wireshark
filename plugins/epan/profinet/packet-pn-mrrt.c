@@ -29,7 +29,7 @@ static int hf_pn_mrrt_version;
 static int hf_pn_mrrt_sa;
 
 
-static gint ett_pn_mrrt;
+static int ett_pn_mrrt;
 
 
 
@@ -47,9 +47,9 @@ static const value_string pn_mrrt_block_type_vals[] = {
 
 static int
 dissect_PNMRRT_Common(tvbuff_t *tvb, int offset,
-        packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length _U_)
+        packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t length _U_)
 {
-    guint16  sequence_id;
+    uint16_t sequence_id;
     e_guid_t uuid;
 
 
@@ -69,9 +69,9 @@ dissect_PNMRRT_Common(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRRT_Test(tvbuff_t *tvb, int offset,
-        packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length _U_)
+        packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t length _U_)
 {
-    guint8 mac[6];
+    uint8_t mac[6];
 
 
     /* MRRT_SA */
@@ -91,10 +91,10 @@ static int
 dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
-    guint16 version;
-    guint8  type;
-    guint8  length;
-    gint    i = 0;
+    uint16_t version;
+    uint8_t type;
+    uint8_t length;
+    int     i = 0;
 
 
     /* MRRT_Version */
@@ -148,11 +148,11 @@ dissect_PNMRRT_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
     /* the tvb will NOT contain the frame_id here, so get it from dissector data! */
-    guint16     u16FrameID = GPOINTER_TO_UINT(data);
+    uint16_t    u16FrameID = GPOINTER_TO_UINT(data);
     proto_item *item;
     proto_tree *mrrt_tree;
     int         offset    = 0;
-    guint32     u32SubStart;
+    uint32_t    u32SubStart;
 
 
     /* frame id must be in valid range (MRRT) */
@@ -215,7 +215,7 @@ proto_register_pn_mrrt (void)
     };
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pn_mrrt
     };
 

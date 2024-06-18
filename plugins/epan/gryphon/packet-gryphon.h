@@ -564,11 +564,11 @@
 #define GDGLIN_BEACON   0x03    /* DG BEACON LIN SUBTYPE */
 
 typedef struct {
-    guint32 cmd;
-    guint32 cmd_context;    //typically just guint8, but let's room for expansion/improvement
-    guint32 ioctl_command;  //should be more generic, but IOCTL is currently the only user
-    guint32 req_frame_num;
-    guint32 rsp_frame_num;
+    uint32_t cmd;
+    uint32_t cmd_context;    //typically just uint8_t, but let's room for expansion/improvement
+    uint32_t ioctl_command;  //should be more generic, but IOCTL is currently the only user
+    uint32_t req_frame_num;
+    uint32_t rsp_frame_num;
     nstime_t req_time;
 } gryphon_pkt_info_t;
 

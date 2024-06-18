@@ -28,18 +28,18 @@ extern TSUM_PREFERENCES preferences;
 int decode_syn(packet_info *pinfo _U_, proto_tree *tree _U_, PKT_INFO* pkt_info)
 {
     if (pkt_info->tcp_flags_ack)
-        pkt_info->rrpd.c2s = FALSE;
+        pkt_info->rrpd.c2s = false;
     else
     {
-        pkt_info->rrpd.c2s = TRUE;
+        pkt_info->rrpd.c2s = true;
         add_detected_tcp_svc(pkt_info->dstport);
     }
 
     pkt_info->rrpd.session_id = 1;  /* Fake session ID */
     pkt_info->rrpd.msg_id = 1;  /* Fake message ID */
-    pkt_info->rrpd.decode_based = TRUE;
+    pkt_info->rrpd.decode_based = true;
     pkt_info->rrpd.calculation = RTE_CALC_SYN;
-    pkt_info->pkt_of_interest = TRUE;
+    pkt_info->pkt_of_interest = true;
 
     return 1;
 }
@@ -53,9 +53,9 @@ int decode_syn(packet_info *pinfo _U_, proto_tree *tree _U_, PKT_INFO* pkt_info)
  */
 int decode_dcerpc(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
 {
-    guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    uint32_t field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
-    guint32 dcerpc_cn_ctx_id = 0;
+    uint32_t dcerpc_cn_ctx_id = 0;
 
     if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DCERPC_VER].hf, field_uint, &field_value_count))
     {
@@ -109,18 +109,18 @@ int decode_dcerpc(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
 
     if (is_dcerpc_req_pkt_type(pkt_info->dcerpc_pkt_type))
     {
-        pkt_info->rrpd.c2s = TRUE;
+        pkt_info->rrpd.c2s = true;
         wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport), GUINT_TO_POINTER(RTE_CALC_DCERPC)); /* make sure we have this DCE-RPC service port set */
     }
     else
     {
-        pkt_info->rrpd.c2s = FALSE;
+        pkt_info->rrpd.c2s = false;
         wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport), GUINT_TO_POINTER(RTE_CALC_DCERPC)); /* make sure we have this DCE-RPC service port set */
     }
 
-    pkt_info->rrpd.decode_based = TRUE;
+    pkt_info->rrpd.decode_based = true;
     pkt_info->rrpd.calculation = RTE_CALC_DCERPC;
-    pkt_info->pkt_of_interest = TRUE;
+    pkt_info->pkt_of_interest = true;
 
     return 1;
 }
@@ -128,35 +128,35 @@ int decode_dcerpc(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
 /* Returns the number of sub-packets of interest */
 int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT_INFO* subpackets)
 {
-    guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    uint32_t field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
-    guint64 ses_id[MAX_RETURNED_ELEMENTS];
+    uint64_t ses_id[MAX_RETURNED_ELEMENTS];
     size_t ses_id_count;
-    guint64 msg_id[MAX_RETURNED_ELEMENTS];
+    uint64_t msg_id[MAX_RETURNED_ELEMENTS];
     size_t msg_id_count;
 
     /* set the direction information */
     if (pkt_info->dstport == 445)
-        pkt_info->rrpd.c2s = TRUE;
+        pkt_info->rrpd.c2s = true;
     else
-        pkt_info->rrpd.c2s = FALSE;
+        pkt_info->rrpd.c2s = false;
 
     if (!extract_uint(tree, hf_of_interest[HF_INTEREST_SMB_MID].hf, field_uint, &field_value_count))
     {
         if (field_value_count)
         {
             pkt_info->rrpd.calculation = RTE_CALC_SMB1;
-            pkt_info->pkt_of_interest = FALSE; /* can't process SMB1 at the moment */
+            pkt_info->pkt_of_interest = false; /* can't process SMB1 at the moment */
             return 0;
         }
     }
     /* Default in case we don't have header information */
     pkt_info->rrpd.session_id = 0;
     pkt_info->rrpd.msg_id = 0;
-    pkt_info->rrpd.decode_based = TRUE;
+    pkt_info->rrpd.decode_based = true;
     pkt_info->rrpd.calculation = RTE_CALC_SMB2;
-    pkt_info->pkt_of_interest = TRUE;
+    pkt_info->pkt_of_interest = true;
 
     extract_ui64(tree, hf_of_interest[HF_INTEREST_SMB2_MSG_ID].hf, msg_id, &msg_id_count);
     if (msg_id_count)  /* test for header information */
@@ -172,9 +172,9 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
             subpackets[i].rrpd.session_id = ses_id[i];
             subpackets[i].rrpd.msg_id = msg_id[i];
 
-            subpackets[i].rrpd.decode_based = TRUE;
+            subpackets[i].rrpd.decode_based = true;
             subpackets[i].rrpd.calculation = RTE_CALC_SMB2;
-            subpackets[i].pkt_of_interest = TRUE;
+            subpackets[i].pkt_of_interest = true;
         }
         return (int)msg_id_count;
     }
@@ -185,7 +185,7 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
 /* Returns the number of sub-packets of interest */
 int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
 {
-    guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    uint32_t field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     bool field_bool[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
@@ -223,9 +223,9 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
      */
     if (!extract_instance_count(tree, hf_of_interest[HF_INTEREST_TCP_RETRAN].hf, &field_value_count)) {
         if (field_value_count)
-            pkt_info->tcp_retran = TRUE;
+            pkt_info->tcp_retran = true;
         else
-            pkt_info->tcp_retran = FALSE;
+            pkt_info->tcp_retran = false;
     }
 
     /*
@@ -233,9 +233,9 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
      */
     if (!extract_instance_count(tree, hf_of_interest[HF_INTEREST_TCP_KEEP_ALIVE].hf, &field_value_count)) {
         if (field_value_count)
-            pkt_info->tcp_retran = TRUE;
+            pkt_info->tcp_retran = true;
         else
-            pkt_info->tcp_retran = FALSE;
+            pkt_info->tcp_retran = false;
     }
 
     /* we use the SSL Content Type to detect SSL Alerts */
@@ -251,15 +251,15 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
          wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport)) != NULL)
     {
         if (wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL)
-            pkt_info->rrpd.c2s = TRUE;
+            pkt_info->rrpd.c2s = true;
 
         pkt_info->rrpd.is_retrans = pkt_info->tcp_retran;
         pkt_info->rrpd.session_id = 0;
         pkt_info->rrpd.msg_id = 0;
         pkt_info->rrpd.calculation = RTE_CALC_GTCP;
-        pkt_info->rrpd.decode_based = FALSE;
+        pkt_info->rrpd.decode_based = false;
         if (pkt_info->len > 0)
-            pkt_info->pkt_of_interest = TRUE;
+            pkt_info->pkt_of_interest = true;
 
         return 1;
     }
@@ -270,7 +270,7 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
 /* Returns the number of sub-packets of interest */
 int decode_dns(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
 {
-    guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    uint32_t field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
     if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DNS_ID].hf, field_uint, &field_value_count)) {
@@ -279,9 +279,9 @@ int decode_dns(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
     }
 
     pkt_info->rrpd.session_id = 1;
-    pkt_info->rrpd.decode_based = TRUE;
+    pkt_info->rrpd.decode_based = true;
     pkt_info->rrpd.calculation = RTE_CALC_DNS;
-    pkt_info->pkt_of_interest = TRUE;
+    pkt_info->pkt_of_interest = true;
 
     return 1;
 }
@@ -289,7 +289,7 @@ int decode_dns(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
 /* Returns the number of sub-packets of interest */
 int decode_gudp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
 {
-    guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    uint32_t field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
     pkt_info->srcport = pinfo->srcport;
@@ -309,13 +309,13 @@ int decode_gudp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
         (wmem_map_lookup(preferences.udp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport)) != NULL))
     {
         if (wmem_map_lookup(preferences.udp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL)
-            pkt_info->rrpd.c2s = TRUE;
+            pkt_info->rrpd.c2s = true;
 
         pkt_info->rrpd.session_id = 0;
         pkt_info->rrpd.msg_id = 0;
-        pkt_info->rrpd.decode_based = FALSE;
+        pkt_info->rrpd.decode_based = false;
         pkt_info->rrpd.calculation = RTE_CALC_GUDP;
-        pkt_info->pkt_of_interest = TRUE;
+        pkt_info->pkt_of_interest = true;
     }
 
     return 1;

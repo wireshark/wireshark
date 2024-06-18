@@ -25,14 +25,14 @@
 /*   0-success                                                */
 /*   !=0-the invalid size of the TLV length (failed)          */
 /**************************************************************/
-gint init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, gint offset)
+int init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, int offset)
 {
-	guint tlv_len;
+	unsigned tlv_len;
 
 	/* get TLV type */
-	info->type = (guint8)tvb_get_guint8( tvb, offset );
+	info->type = (uint8_t)tvb_get_guint8( tvb, offset );
 	/* get TLV length */
-	tlv_len = (guint)tvb_get_guint8( tvb, (offset + 1) );
+	tlv_len = (unsigned)tvb_get_guint8( tvb, (offset + 1) );
 	/* set the TLV value offset */
 	info->value_offset = 2;
 	/* adjust for multiple-byte TLV length */
@@ -50,22 +50,22 @@ gint init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, gint offset)
 				info->length = 0;  /* no length */
 			break;
 			case 1:
-				info->length = (gint32)tvb_get_guint8( tvb, (offset + 2) ); /* 8 bit */
+				info->length = (int32_t)tvb_get_guint8( tvb, (offset + 2) ); /* 8 bit */
 			break;
 			case 2:
-				info->length = (gint32)tvb_get_ntohs( tvb, (offset + 2) ); /* 16 bit */
+				info->length = (int32_t)tvb_get_ntohs( tvb, (offset + 2) ); /* 16 bit */
 			break;
 			case 3:
-				info->length = (gint32)tvb_get_ntoh24( tvb, (offset + 2) ); /* 24 bit */
+				info->length = (int32_t)tvb_get_ntoh24( tvb, (offset + 2) ); /* 24 bit */
 			break;
 			case 4:
-				info->length = (gint32)tvb_get_ntohl( tvb, (offset + 2) ); /* 32 bit */
+				info->length = (int32_t)tvb_get_ntohl( tvb, (offset + 2) ); /* 32 bit */
 			break;
 			default:
 				/* mark invalid tlv */
 				info->valid = 0;
 				/* failed, return the invalid size of the tlv length */
-				return (gint)tlv_len;
+				return (int)tlv_len;
 			break;
 		}
 	}
@@ -73,7 +73,7 @@ gint init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, gint offset)
 	{
 		info->length_type = 0;
 		info->size_of_length = 0;
-		info->length = (gint32)tlv_len;
+		info->length = (int32_t)tlv_len;
 	}
 	/* mark valid tlv */
 	info->valid = 1;
@@ -90,10 +90,10 @@ gint init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, gint offset)
 /*   >=0 - TLV type                                           */
 /*   =-1 - invalid tlv info                                  */
 /*************************************************************/
-gint get_tlv_type(tlv_info_t *info)
+int get_tlv_type(tlv_info_t *info)
 {
 	if(info->valid)
-		return (gint)info->type;
+		return (int)info->type;
 	return -1;
 }
 
@@ -106,10 +106,10 @@ gint get_tlv_type(tlv_info_t *info)
 /*   >=0 - the size of TLV length                              */
 /*   =-1 - invalid tlv info                                   */
 /**************************************************************/
-gint get_tlv_size_of_length(tlv_info_t *info)
+int get_tlv_size_of_length(tlv_info_t *info)
 {
 	if(info->valid)
-		return (gint)info->size_of_length;
+		return (int)info->size_of_length;
 	return -1;
 }
 
@@ -122,10 +122,10 @@ gint get_tlv_size_of_length(tlv_info_t *info)
 /*   >=0 - TLV length                                         */
 /*   =-1 - invalid tlv info                                  */
 /*************************************************************/
-gint32 get_tlv_length(tlv_info_t *info)
+int32_t get_tlv_length(tlv_info_t *info)
 {
 	if(info->valid)
-		return (gint32)info->length;
+		return (int32_t)info->length;
 	return -1;
 }
 
@@ -138,10 +138,10 @@ gint32 get_tlv_length(tlv_info_t *info)
 /*   >0 - TLV value offset in byte                           */
 /*   =-1 - invalid tlv info                                  */
 /*************************************************************/
-gint get_tlv_value_offset(tlv_info_t *info)
+int get_tlv_value_offset(tlv_info_t *info)
 {
 	if(info->valid)
-		return (gint)info->value_offset;
+		return (int)info->value_offset;
 	return -1;
 }
 
@@ -154,10 +154,10 @@ gint get_tlv_value_offset(tlv_info_t *info)
 /*   0 - single byte TLV length                              */
 /*   1 - multiple bytes TLV length                           */
 /*************************************************************/
-gint get_tlv_length_type(tlv_info_t *info)
+int get_tlv_length_type(tlv_info_t *info)
 {
 	if(info->valid)
-		return (gint)info->length_type;
+		return (int)info->length_type;
 	return -1;
 }
 

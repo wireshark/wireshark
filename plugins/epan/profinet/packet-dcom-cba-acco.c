@@ -119,20 +119,20 @@ static int hf_cba_acco_diag_data;
 static int hf_cba_acco_dcom_call;
 static int hf_cba_acco_srt_call;
 
-gint ett_cba_connectincr;
-gint ett_cba_connectoutcr;
-gint ett_cba_connectin;
-gint ett_cba_connectout;
-gint ett_cba_getprovconnout;
-gint ett_cba_addconnectionin;
-gint ett_cba_addconnectionout;
-gint ett_cba_getidout;
-gint ett_cba_getconnectionout;
-gint ett_cba_readitemout;
-gint ett_cba_writeitemin;
-gint ett_cba_acco_serversrt_cr_flags;
-gint ett_cba_frame_info;
-gint ett_cba_conn_info;
+int ett_cba_connectincr;
+int ett_cba_connectoutcr;
+int ett_cba_connectin;
+int ett_cba_connectout;
+int ett_cba_getprovconnout;
+int ett_cba_addconnectionin;
+int ett_cba_addconnectionout;
+int ett_cba_getidout;
+int ett_cba_getconnectionout;
+int ett_cba_readitemout;
+int ett_cba_writeitemin;
+int ett_cba_acco_serversrt_cr_flags;
+int ett_cba_frame_info;
+int ett_cba_conn_info;
 
 static expert_field ei_cba_acco_pdev_find;
 static expert_field ei_cba_acco_prov_crid;
@@ -146,43 +146,43 @@ static expert_field ei_cba_acco_disconnect;
 static expert_field ei_cba_acco_connect;
 
 static int proto_ICBAAccoMgt;
-static gint ett_ICBAAccoMgt;
+static int ett_ICBAAccoMgt;
 static e_guid_t uuid_ICBAAccoMgt = { 0xcba00041, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoMgt;
+static uint16_t ver_ICBAAccoMgt;
 
 static int proto_ICBAAccoMgt2;
 static e_guid_t uuid_ICBAAccoMgt2 = { 0xcba00046, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoMgt2;
+static uint16_t ver_ICBAAccoMgt2;
 
 static int proto_ICBAAccoCallback;
-static gint ett_ICBAAccoCallback;
-static gint ett_ICBAAccoCallback_Buffer;
-static gint ett_ICBAAccoCallback_Item;
+static int ett_ICBAAccoCallback;
+static int ett_ICBAAccoCallback_Buffer;
+static int ett_ICBAAccoCallback_Item;
 static e_guid_t uuid_ICBAAccoCallback = { 0xcba00042, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoCallback;
+static uint16_t ver_ICBAAccoCallback;
 
 static int proto_ICBAAccoCallback2;
 static e_guid_t uuid_ICBAAccoCallback2 = { 0xcba00047, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoCallback2;
+static uint16_t ver_ICBAAccoCallback2;
 
 static int proto_ICBAAccoServer;
-static gint ett_ICBAAccoServer;
+static int ett_ICBAAccoServer;
 static e_guid_t uuid_ICBAAccoServer = { 0xcba00043, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoServer;
+static uint16_t ver_ICBAAccoServer;
 
 static int proto_ICBAAccoServer2;
 static e_guid_t uuid_ICBAAccoServer2 = { 0xcba00048, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoServer2;
+static uint16_t ver_ICBAAccoServer2;
 
 static int      proto_ICBAAccoServerSRT;
-static gint     ett_ICBAAccoServerSRT;
+static int      ett_ICBAAccoServerSRT;
 static e_guid_t uuid_ICBAAccoServerSRT  = { 0xcba00045, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoServerSRT;
+static uint16_t ver_ICBAAccoServerSRT;
 
 static int      proto_ICBAAccoSync;
-static gint     ett_ICBAAccoSync;
+static int      ett_ICBAAccoSync;
 static e_guid_t uuid_ICBAAccoSync  = { 0xcba00044, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
-static guint16  ver_ICBAAccoSync;
+static uint16_t ver_ICBAAccoSync;
 
 
 
@@ -246,8 +246,8 @@ static const value_string cba_acco_diag_req_vals[] = {
 };
 
 static const true_false_string cba_acco_call_flags = {
-    "Consumer calls Provider (TRUE)",
-    "Provider calls Consumer (FALSE)"
+    "Consumer calls Provider (true)",
+    "Provider calls Consumer (false)"
 };
 
 static const value_string cba_qos_type_short_vals[] = {
@@ -265,53 +265,53 @@ typedef struct cba_frame_s {
     cba_ldev_t   *consparent;
     cba_ldev_t   *provparent;
     GList        *conns;
-    guint         packet_connect;
-    guint         packet_disconnect;
-    guint         packet_disconnectme;
-    guint         packet_first;
-    guint         packet_last;
+    unsigned      packet_connect;
+    unsigned      packet_disconnect;
+    unsigned      packet_disconnectme;
+    unsigned      packet_first;
+    unsigned      packet_last;
 
-    guint16       length;
-    guint8        consmac[6];
-    guint16       conscrid;
-    guint32       provcrid;
-    guint32       conncrret;
-    guint16       qostype;
-    guint16       qosvalue;
-    guint16       offset;
+    uint16_t      length;
+    uint8_t       consmac[6];
+    uint16_t      conscrid;
+    uint32_t      provcrid;
+    uint32_t      conncrret;
+    uint16_t      qostype;
+    uint16_t      qosvalue;
+    uint16_t      offset;
 } cba_frame_t;
 
 typedef struct cba_connection_s {
     cba_ldev_t   *consparentacco;
     cba_ldev_t   *provparentacco;
     cba_frame_t  *parentframe;
-    guint         packet_connect;
-    guint         packet_disconnect;
-    guint         packet_disconnectme;
-    guint         packet_first;
-    guint         packet_last;
+    unsigned      packet_connect;
+    unsigned      packet_disconnect;
+    unsigned      packet_disconnectme;
+    unsigned      packet_first;
+    unsigned      packet_last;
 
-    guint16       length;
-    guint32       consid;
-    guint32       provid;
-    const gchar  *provitem;
-    guint32       connret;
-    guint16       typedesclen;
-    guint16      *typedesc;
-    guint16       qostype;
-    guint16       qosvalue;
-    guint16       frame_offset;
+    uint16_t      length;
+    uint32_t      consid;
+    uint32_t      provid;
+    const char   *provitem;
+    uint32_t      connret;
+    uint16_t      typedesclen;
+    uint16_t     *typedesc;
+    uint16_t      qostype;
+    uint16_t      qosvalue;
+    uint16_t      frame_offset;
 } cba_connection_t;
 
 
 typedef struct server_frame_call_s {
-    guint         frame_count;
+    unsigned      frame_count;
     cba_frame_t **frames;
 } server_frame_call_t;
 
 
 typedef struct server_connect_call_s {
-    guint         conn_count;
+    unsigned      conn_count;
     cba_frame_t  *frame;
     cba_connection_t **conns;
 } server_connect_call_t;
@@ -335,10 +335,10 @@ cba_filter_valid(packet_info *pinfo, void *user_data _U_)
     return ((profinet_type != NULL) && (GPOINTER_TO_UINT(profinet_type) < 10));
 }
 
-static gchar*
+static char*
 cba_build_filter(packet_info *pinfo, void *user_data _U_)
 {
-    gboolean is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
+    bool is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
 
     if ((pinfo->net_src.type == AT_IPv4) && (pinfo->net_dst.type == AT_IPv4) && is_tcp) {
@@ -614,7 +614,7 @@ cba_acco_add(packet_info *pinfo, const char *acco)
 {
     char       *ip_str;
     char       *delim;
-    guint32     ip;
+    uint32_t    ip;
     cba_pdev_t *pdev;
     cba_ldev_t *ldev;
     address    addr;
@@ -645,8 +645,8 @@ cba_acco_add(packet_info *pinfo, const char *acco)
 }
 
 
-static gboolean
-cba_packet_in_range(packet_info *pinfo, guint packet_connect, guint packet_disconnect, guint packet_disconnectme)
+static bool
+cba_packet_in_range(packet_info *pinfo, unsigned packet_connect, unsigned packet_disconnect, unsigned packet_disconnectme)
 {
 
     if (packet_connect == 0) {
@@ -654,16 +654,16 @@ cba_packet_in_range(packet_info *pinfo, guint packet_connect, guint packet_disco
     }
 
     if (packet_connect == 0 || pinfo->num < packet_connect) {
-        return FALSE;
+        return false;
     }
     if (packet_disconnect != 0 && pinfo->num > packet_disconnect) {
-        return FALSE;
+        return false;
     }
     if (packet_disconnectme != 0 && pinfo->num > packet_disconnectme) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -724,7 +724,7 @@ cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_fram
 
 static cba_frame_t *
 cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev,
-              guint16 qostype, guint16 qosvalue, const guint8 *consmac, guint16 conscrid, guint16 length)
+              uint16_t qostype, uint16_t qosvalue, const uint8_t *consmac, uint16_t conscrid, uint16_t length)
 {
     GList       *cba_iter;
     cba_frame_t *frame;
@@ -751,7 +751,7 @@ cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ld
     frame->packet_last         = 0;
 
     frame->length              = length;
-    memcpy( (guint8 *) (frame->consmac), consmac, sizeof(frame->consmac));
+    memcpy( (uint8_t *) (frame->consmac), consmac, sizeof(frame->consmac));
     frame->conscrid            = conscrid;
     frame->qostype             = qostype;
     frame->qosvalue            = qosvalue;
@@ -813,7 +813,7 @@ cba_frame_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_
 
 
 static cba_frame_t *
-cba_frame_find_by_cons(packet_info *pinfo, const guint8 *consmac, guint16 conscrid)
+cba_frame_find_by_cons(packet_info *pinfo, const uint8_t *consmac, uint16_t conscrid)
 {
     GList       *pdevs;
     GList       *ldevs;
@@ -849,7 +849,7 @@ cba_frame_find_by_cons(packet_info *pinfo, const guint8 *consmac, guint16 conscr
 
 
 static cba_frame_t *
-cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 provcrid)
+cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, uint32_t provcrid)
 {
     GList       *frames;
     cba_frame_t *frame;
@@ -946,8 +946,8 @@ cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba
 
 static cba_connection_t *
 cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev, cba_frame_t *cons_frame,
-                   guint16 qostype, guint16 qosvalue, const char *provitem, guint32 consid, guint16 length,
-                   guint16 *typedesc, guint16 typedesclen)
+                   uint16_t qostype, uint16_t qosvalue, const char *provitem, uint32_t consid, uint16_t length,
+                   uint16_t *typedesc, uint16_t typedesclen)
 {
     GList *cba_iter;
     cba_connection_t *conn;
@@ -1055,7 +1055,7 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static cba_connection_t *
-cba_connection_find_by_provid(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_ldev_t *prov_ldev, guint32 provid)
+cba_connection_find_by_provid(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_ldev_t *prov_ldev, uint32_t provid)
 {
     GList *cba_iter;
     cba_connection_t *conn;
@@ -1089,13 +1089,13 @@ cba_connection_incoming_data(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
 /* dissect a response containing an array of hresults (e.g: ICBAAccoMgt::RemoveConnections) */
 static int
 dissect_HResultArray_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32Idx;
-    guint32 u32Tmp;
+    uint32_t u32HResult;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32Idx;
+    uint32_t u32Tmp;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -1129,19 +1129,19 @@ dissect_HResultArray_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_SetActivation_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32Idx;
-    guint32 u32Tmp;
+    uint32_t u32HResult;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32Idx;
+    uint32_t u32Tmp;
     proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -1174,19 +1174,19 @@ dissect_ICBAAccoServer_SetActivation_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_Disconnect_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32Idx;
-    guint32 u32Tmp;
+    uint32_t u32HResult;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32Idx;
+    uint32_t u32Tmp;
     proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -1219,19 +1219,19 @@ dissect_ICBAAccoServerSRT_Disconnect_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_SetActivation_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32Idx;
-    guint32 u32Tmp;
+    uint32_t u32HResult;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32Idx;
+    uint32_t u32Tmp;
     proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -1264,24 +1264,24 @@ dissect_ICBAAccoServerSRT_SetActivation_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    guint8  u8State;
-    guint32 u32Count;
-    guint32 u32ArraySize;
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    uint8_t u8State;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
 
-    guint32 u32VariableOffset;
-    guint32 u32SubStart;
-    guint32 u32Pointer;
-    guint16 u16VarType;
-    guint32 u32ConsID;
-    gchar   szItem[1000]  = { 0 };
-    guint32 u32MaxItemLen = sizeof(szItem);
-    gchar   szCons[1000]  = { 0 };
-    guint32 u32MaxConsLen = sizeof(szCons);
-    guint32 u32Idx;
+    uint32_t u32VariableOffset;
+    uint32_t u32SubStart;
+    uint32_t u32Pointer;
+    uint16_t u16VarType;
+    uint32_t u32ConsID;
+    char    szItem[1000]  = { 0 };
+    uint32_t u32MaxItemLen = sizeof(szItem);
+    char    szCons[1000]  = { 0 };
+    uint32_t u32MaxConsLen = sizeof(szCons);
+    uint32_t u32Idx;
 
     proto_item       *item;
     dcom_interface_t *cons_interf;
@@ -1296,7 +1296,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -1381,7 +1381,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
             conn = cba_connection_connect(pinfo, cons_ldev, prov_ldev, /*cons_frame*/ NULL,
                 u16QoSType, u16QoSValue, szItem, u32ConsID, 0,
                 /* XXX - VarType must be translated to new type description if it includes an array (0x2000) */
-                (guint16 *)wmem_memdup(wmem_file_scope(), &u16VarType, 2), 1);
+                (uint16_t *)wmem_memdup(wmem_file_scope(), &u16VarType, 2), 1);
 
             cba_connection_info(tvb, pinfo, sub_tree, conn);
         } else {
@@ -1410,36 +1410,36 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    guint8  u8State;
-    guint32 u32Count;
-    guint32 u32ArraySize;
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    uint8_t u8State;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
 
-    guint32 u32VariableOffset;
-    guint32 u32SubStart;
-    guint32 u32Pointer;
-    guint16 u16VarType;
-    guint32 u32ConsID;
-    gchar   szItem[1000]  = { 0 };
-    guint32 u32MaxItemLen = sizeof(szItem);
-    gchar   szCons[1000]  = { 0 };
-    guint32 u32MaxConsLen = sizeof(szCons);
-    guint32 u32Idx;
-    guint16 u16TypeDescLen;
-    guint32 u32ArraySize2;
-    guint32 u32Idx2;
-    guint16 u16VarType2   = -1;
+    uint32_t u32VariableOffset;
+    uint32_t u32SubStart;
+    uint32_t u32Pointer;
+    uint16_t u16VarType;
+    uint32_t u32ConsID;
+    char    szItem[1000]  = { 0 };
+    uint32_t u32MaxItemLen = sizeof(szItem);
+    char    szCons[1000]  = { 0 };
+    uint32_t u32MaxConsLen = sizeof(szCons);
+    uint32_t u32Idx;
+    uint16_t u16TypeDescLen;
+    uint32_t u32ArraySize2;
+    uint32_t u32Idx2;
+    uint16_t u16VarType2   = -1;
 
     proto_item       *item;
     dcom_interface_t *cons_interf;
     cba_ldev_t       *prov_ldev;
     cba_ldev_t       *cons_ldev;
     cba_connection_t *conn;
-    guint16           typedesclen = 0;
-    guint16          *typedesc    = NULL;
+    uint16_t          typedesclen = 0;
+    uint16_t         *typedesc    = NULL;
     server_connect_call_t *call   = NULL;
 
 
@@ -1448,7 +1448,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -1533,7 +1533,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 
             /* limit the allocation to a reasonable size */
             if (u32ArraySize2 < 1000) {
-                typedesc = (guint16 *)wmem_alloc0(wmem_file_scope(), u32ArraySize2 * 2);
+                typedesc = (uint16_t *)wmem_alloc0(wmem_file_scope(), u32ArraySize2 * 2);
                 typedesclen = u32ArraySize2;
             } else {
                 typedesc = NULL;
@@ -1605,15 +1605,15 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint8  u8FirstConnect;
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32HResult;
-    guint32 u32Idx       = 1;
-    guint32 u32ProvID;
-    guint32 u32SubStart;
+    uint8_t u8FirstConnect;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32HResult;
+    uint32_t u32Idx       = 1;
+    uint32_t u32ProvID;
+    uint32_t u32SubStart;
 
     proto_item  *item;
     cba_connection_t *conn;
@@ -1626,7 +1626,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
         expert_add_info(pinfo, NULL, &ei_cba_acco_no_request_info);
     }
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -1695,12 +1695,12 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ProvID;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ProvID;
 
     proto_item  *item;
     cba_ldev_t  *prov_ldev;
@@ -1710,7 +1710,7 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -1758,13 +1758,13 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32HResult;
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32Idx;
-    guint32 u32Tmp;
+    uint32_t u32HResult;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32Idx;
+    uint32_t u32Tmp;
 
     proto_item  *item;
     cba_connection_t *conn;
@@ -1777,7 +1777,7 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
         expert_add_info(pinfo, NULL, &ei_cba_acco_no_request_info);
     }
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -1819,18 +1819,18 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_Disconnect_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ProvID;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ProvID;
     proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -1856,10 +1856,10 @@ dissect_ICBAAccoServerSRT_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gchar        szStr[1000];
-    guint32      u32MaxStr = sizeof(szStr);
+    char         szStr[1000];
+    uint32_t     u32MaxStr = sizeof(szStr);
     proto_item  *item;
     cba_ldev_t  *prov_ldev;
     cba_ldev_t  *cons_ldev;
@@ -1871,7 +1871,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -1897,16 +1897,16 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32HResult;
+    uint32_t     u32HResult;
     proto_item  *item;
     server_disconnectme_call_t *call;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -1927,10 +1927,10 @@ dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gchar        szStr[1000];
-    guint32      u32MaxStr = sizeof(szStr);
+    char         szStr[1000];
+    uint32_t     u32MaxStr = sizeof(szStr);
     proto_item  *item;
     cba_ldev_t  *prov_ldev;
     cba_ldev_t  *cons_ldev;
@@ -1942,7 +1942,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -1968,16 +1968,16 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32HResult;
+    uint32_t     u32HResult;
     proto_item  *item;
     server_disconnectme_call_t *call;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -1998,15 +1998,15 @@ dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_Ping_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32     u32HResult;
+    uint32_t    u32HResult;
     proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -2022,19 +2022,19 @@ dissect_ICBAAccoServer_Ping_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint8      u8State;
-    guint32     u32Count;
-    guint32     u32ArraySize;
-    guint32     u32Idx;
-    guint32     u32ProvID;
+    uint8_t     u8State;
+    uint32_t    u32Count;
+    uint32_t    u32ArraySize;
+    uint32_t    u32Idx;
+    uint32_t    u32ProvID;
     proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -2064,19 +2064,19 @@ dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_SetActivation_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint8      u8State;
-    guint32     u32Count;
-    guint32     u32ArraySize;
-    guint32     u32Idx;
-    guint32     u32ProvID;
+    uint8_t     u8State;
+    uint32_t    u32Count;
+    uint32_t    u32ArraySize;
+    uint32_t    u32Idx;
+    uint32_t    u32ProvID;
     proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -2105,16 +2105,16 @@ dissect_ICBAAccoServerSRT_SetActivation_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer_Ping_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gchar       szStr[1000];
-    guint32     u32MaxStr = sizeof(szStr);
+    char        szStr[1000];
+    uint32_t    u32MaxStr = sizeof(szStr);
     proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -2130,22 +2130,22 @@ dissect_ICBAAccoServer_Ping_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gchar   szCons[1000]            = { 0 };
-    guint32           u32MaxConsLen = sizeof(szCons);
-    guint16           u16QoSType;
-    guint16           u16QoSValue;
-    guint8            u8ConsMac[6];
-    guint16           u16CRID       = 0;
-    guint16           u16CRLength   = 0;
-    guint32           u32Flags;
-    guint32           u32Count;
-    guint32           u32ArraySize;
-    guint32           u32Idx;
+    char    szCons[1000]            = { 0 };
+    uint32_t          u32MaxConsLen = sizeof(szCons);
+    uint16_t          u16QoSType;
+    uint16_t          u16QoSValue;
+    uint8_t           u8ConsMac[6];
+    uint16_t          u16CRID       = 0;
+    uint16_t          u16CRLength   = 0;
+    uint32_t          u32Flags;
+    uint32_t          u32Count;
+    uint32_t          u32ArraySize;
+    uint32_t          u32Idx;
     proto_item       *item;
     proto_tree       *flags_tree;
-    guint32           u32SubStart;
+    uint32_t          u32SubStart;
     dcom_interface_t *cons_interf;
     cba_ldev_t       *prov_ldev;
     cba_ldev_t       *cons_ldev;
@@ -2158,7 +2158,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -2272,16 +2272,16 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint8       u8FirstConnect;
-    guint8       u8ProvMac[6];
-    guint32      u32ProvCRID = 0;
-    guint32      u32HResult;
-    guint32      u32ArraySize;
-    guint32      u32Idx      = 1;
-    guint32      u32Pointer;
-    guint32      u32SubStart;
+    uint8_t      u8FirstConnect;
+    uint8_t      u8ProvMac[6];
+    uint32_t     u32ProvCRID = 0;
+    uint32_t     u32HResult;
+    uint32_t     u32ArraySize;
+    uint32_t     u32Idx      = 1;
+    uint32_t     u32Pointer;
+    uint32_t     u32SubStart;
     proto_item  *item;
     cba_frame_t *frame;
     server_frame_call_t *call = (server_frame_call_t *)di->call_data->private_data;
@@ -2293,7 +2293,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
         expert_add_info(pinfo, NULL, &ei_cba_acco_no_request_info);
     }
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -2371,12 +2371,12 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32Count;
-    guint32      u32ArraySize;
-    guint32      u32Idx;
-    guint32      u32ProvCRID = 0;
+    uint32_t     u32Count;
+    uint32_t     u32ArraySize;
+    uint32_t     u32Idx;
+    uint32_t     u32ProvCRID = 0;
     proto_item  *item;
     cba_ldev_t  *prov_ldev;
     cba_frame_t *frame;
@@ -2388,7 +2388,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -2433,13 +2433,13 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32HResult;
-    guint32      u32Pointer;
-    guint32      u32ArraySize = 0;
-    guint32      u32Idx;
-    guint32      u32Tmp;
+    uint32_t     u32HResult;
+    uint32_t     u32Pointer;
+    uint32_t     u32ArraySize = 0;
+    uint32_t     u32Idx;
+    uint32_t     u32Tmp;
     cba_frame_t *frame;
     proto_item  *item;
     server_frame_call_t *call = (server_frame_call_t *)di->call_data->private_data;
@@ -2447,7 +2447,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -2487,32 +2487,32 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32ProvCRID;
-    guint8  u8State;
-    guint8  u8LastConnect;
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32VariableOffset;
-    guint32 u32Idx;
-    guint32 u32SubStart;
-    guint32 u32Pointer;
-    gchar   szProvItem[1000]  = { 0 };
-    guint32 u32MaxProvItemLen = sizeof(szProvItem);
-    guint16 u16TypeDescLen;
-    guint32 u32ArraySize2;
-    guint32 u32Idx2;
-    guint16 u16VarType2 = -1;
-    guint16 u16VarType;
-    guint32 u32ConsID;
-    guint16 u16RecordLength;
+    uint32_t u32ProvCRID;
+    uint8_t u8State;
+    uint8_t u8LastConnect;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32VariableOffset;
+    uint32_t u32Idx;
+    uint32_t u32SubStart;
+    uint32_t u32Pointer;
+    char    szProvItem[1000]  = { 0 };
+    uint32_t u32MaxProvItemLen = sizeof(szProvItem);
+    uint16_t u16TypeDescLen;
+    uint32_t u32ArraySize2;
+    uint32_t u32Idx2;
+    uint16_t u16VarType2 = -1;
+    uint16_t u16VarType;
+    uint32_t u32ConsID;
+    uint16_t u16RecordLength;
 
     proto_item  *item;
     cba_ldev_t  *prov_ldev;
     cba_frame_t *frame       = NULL;
-    guint16      typedesclen = 0;
-    guint16     *typedesc    = NULL;
+    uint16_t     typedesclen = 0;
+    uint16_t    *typedesc    = NULL;
 
     cba_connection_t      *conn;
     server_connect_call_t *call;
@@ -2523,7 +2523,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -2591,7 +2591,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
             u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, di, drep,
                                 &u32ArraySize2);
 
-            typedesc = (guint16 *)wmem_alloc0(wmem_file_scope(), u32ArraySize2 * 2);
+            typedesc = (uint16_t *)wmem_alloc0(wmem_file_scope(), u32ArraySize2 * 2);
             typedesclen = u32ArraySize2;
 
             /* extended type description will build an array here */
@@ -2660,14 +2660,14 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
-    guint32 u32Idx = 1;
-    guint32 u32SubStart;
-    guint32 u32ProvID;
-    guint32 u32HResult;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx = 1;
+    uint32_t u32SubStart;
+    uint32_t u32ProvID;
+    uint32_t u32HResult;
 
     proto_item  *item;
 
@@ -2681,7 +2681,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
         expert_add_info(pinfo, NULL, &ei_cba_acco_no_request_info);
     }
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -2750,14 +2750,14 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ProvID;
-    guint32 u32HResult;
+    uint32_t u32Count;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ProvID;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -2807,12 +2807,12 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_Server_GetProvConnections_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ProvID;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ProvID;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -2839,23 +2839,23 @@ dissect_Server_GetProvConnections_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32TmpCount;
-    guint32 u32Pointer;
-    guint32 u32VariableOffset;
-    guint32 u32Idx;
-    guint32 u32SubStart;
-    gchar   szCons[1000] = { 0 };
-    guint32 u32MaxConsLen = sizeof(szCons);
-    gchar   szProvItem[1000] = { 0 };
-    guint32 u32MaxProvItemLen = sizeof(szProvItem);
-    guint32 u32ConsID;
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    guint8  u8State;
-    guint32 u32HResult;
+    uint32_t u32Count;
+    uint32_t u32TmpCount;
+    uint32_t u32Pointer;
+    uint32_t u32VariableOffset;
+    uint32_t u32Idx;
+    uint32_t u32SubStart;
+    char    szCons[1000] = { 0 };
+    uint32_t u32MaxConsLen = sizeof(szCons);
+    char    szProvItem[1000] = { 0 };
+    uint32_t u32MaxProvItemLen = sizeof(szProvItem);
+    uint32_t u32ConsID;
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    uint8_t u8State;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -2949,22 +2949,22 @@ static int
 dissect_CBA_Connection_Data(tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, cba_ldev_t *cons_ldev, cba_frame_t *frame)
 {
-    guint8      u8Version;
-    guint8      u8Flags;
-    guint16     u16CountFix;
-    guint16     u16Count;
-    guint32     u32ItemIdx;
-    guint32     u32HoleIdx;
+    uint8_t     u8Version;
+    uint8_t     u8Flags;
+    uint16_t    u16CountFix;
+    uint16_t    u16Count;
+    uint32_t    u32ItemIdx;
+    uint32_t    u32HoleIdx;
     proto_item *conn_data_item = NULL;
     proto_tree *conn_data_tree = NULL;
-    guint16     u16Len;
-    guint32     u32ID;
-    guint8      u8QC;
-    guint16     u16DataLen;
-    guint16     u16HdrLen;
+    uint16_t    u16Len;
+    uint32_t    u32ID;
+    uint8_t     u8QC;
+    uint16_t    u16DataLen;
+    uint16_t    u16HdrLen;
     int         offset         = 0;
     int         offset_hole;
-    gboolean    qc_reported    = FALSE;
+    bool        qc_reported    = false;
     int         qc_good        = 0;
     int         qc_uncertain   = 0;
     int         qc_bad         = 0;
@@ -3193,10 +3193,10 @@ static bool
 dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data)
 {
-    guint8       u8Version;
-    guint8       u8Flags;
+    uint8_t      u8Version;
+    uint8_t      u8Flags;
     /* the tvb will NOT contain the frame_id here! */
-    guint16      u16FrameID = GPOINTER_TO_UINT(data);
+    uint16_t     u16FrameID = GPOINTER_TO_UINT(data);
     cba_frame_t *frame;
 
     /* frame id must be in valid range (cyclic Real-Time, class=1 or class=2) */
@@ -3214,7 +3214,7 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-CBA");
 
-    frame = cba_frame_find_by_cons(pinfo, (const guint8 *)pinfo->dl_dst.data, u16FrameID);
+    frame = cba_frame_find_by_cons(pinfo, (const uint8_t *)pinfo->dl_dst.data, u16FrameID);
 
     dissect_CBA_Connection_Data(tvb, pinfo, tree, frame ? frame->consparent : NULL, frame);
 
@@ -3224,10 +3224,10 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static int
 dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32      u32Length;
-    guint32      u32ArraySize;
+    uint32_t     u32Length;
+    uint32_t     u32ArraySize;
     tvbuff_t    *next_tvb;
     proto_item  *item;
     cba_ldev_t  *cons_ldev;
@@ -3238,7 +3238,7 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
     /* get corresponding provider ldev */
     cons_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -3262,15 +3262,15 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32     u32HResult;
+    uint32_t    u32HResult;
     proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -3286,14 +3286,14 @@ dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoCallback_Gnip_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     proto_item *item;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
@@ -3303,15 +3303,15 @@ dissect_ICBAAccoCallback_Gnip_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32     u32HResult;
+    uint32_t    u32HResult;
     proto_item *item;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
@@ -3327,10 +3327,10 @@ dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gchar         szStr[1000];
-    guint32       u32MaxStr = sizeof(szStr);
+    char          szStr[1000];
+    uint32_t      u32MaxStr = sizeof(szStr);
     proto_item   *item;
     cba_ldev_t   *cons_ldev;
     cba_ldev_t  **call;
@@ -3338,7 +3338,7 @@ dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, true);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
@@ -3363,13 +3363,13 @@ dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32       u32Length;
-    guint32       u32ArraySize;
+    uint32_t      u32Length;
+    uint32_t      u32ArraySize;
     tvbuff_t     *next_tvb;
-    guint32       u32Pointer;
-    guint32       u32HResult;
+    uint32_t      u32Pointer;
+    uint32_t      u32HResult;
     proto_item   *item;
     cba_ldev_t  **call      = (cba_ldev_t **)di->call_data->private_data;
     cba_ldev_t   *cons_ldev = (call!=NULL) ? *call : NULL;
@@ -3381,7 +3381,7 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
         expert_add_info(pinfo, NULL, &ei_cba_acco_no_request_info);
     }
 
-    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
+    item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, false);
     proto_item_set_generated(item);
     p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
@@ -3417,24 +3417,24 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    gchar   szConsumer[1000] = { 0 };
-    guint32 u32MaxConsLen = sizeof(szConsumer);
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    guint8  u8State;
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Pointer;
-    guint16 u16Persistence;
-    gchar   szConsItem[1000] = { 0 };
-    guint32 u32MaxConsItemLen = sizeof(szConsItem);
-    gchar   szProvItem[1000] = { 0 };
-    guint32 u32MaxProvItemLen = sizeof(szProvItem);
-    guint32 u32VariableOffset;
-    guint32 u32SubStart;
-    guint32 u32Idx;
+    char    szConsumer[1000] = { 0 };
+    uint32_t u32MaxConsLen = sizeof(szConsumer);
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    uint8_t u8State;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Pointer;
+    uint16_t u16Persistence;
+    char    szConsItem[1000] = { 0 };
+    uint32_t u32MaxConsItemLen = sizeof(szConsItem);
+    char    szProvItem[1000] = { 0 };
+    uint32_t u32MaxProvItemLen = sizeof(szProvItem);
+    uint32_t u32VariableOffset;
+    uint32_t u32SubStart;
+    uint32_t u32Idx;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -3512,16 +3512,16 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Pointer;
-    guint32 u32ArraySize = 0;
-    guint32 u32ConsID;
-    guint16 u16ConnVersion;
-    guint32 u32HResult = 0;
-    guint32 u32Count = 0;
-    guint32 u32Idx;
-    guint32 u32SubStart;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32ConsID;
+    uint16_t u16ConnVersion;
+    uint32_t u32HResult = 0;
+    uint32_t u32Count = 0;
+    uint32_t u32Idx;
+    uint32_t u32SubStart;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -3577,12 +3577,12 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_RemoveConnections_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ConsID;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ConsID;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -3609,13 +3609,13 @@ dissect_ICBAAccoMgt_RemoveConnections_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_SetActivationState_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint8  u8State;
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ConsID;
+    uint8_t u8State;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ConsID;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -3645,11 +3645,11 @@ dissect_ICBAAccoMgt_SetActivationState_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_GetInfo_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Max;
-    guint32 u32CurCnt;
-    guint32 u32HResult;
+    uint32_t u32Max;
+    uint32_t u32CurCnt;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -3673,17 +3673,17 @@ dissect_ICBAAccoMgt_GetInfo_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
-    guint32 u32ConsID;
-    guint8  u8State;
-    guint16 u16Version;
-    guint32 u32HResult;
-    guint32 u32Idx;
-    guint32 u32SubStart;
+    uint32_t u32Count;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
+    uint32_t u32ConsID;
+    uint8_t u8State;
+    uint16_t u16Version;
+    uint32_t u32HResult;
+    uint32_t u32Idx;
+    uint32_t u32SubStart;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -3752,14 +3752,14 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
-    guint32 u32ConsID;
-    guint32 u32HResult;
+    uint32_t u32Count;
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
+    uint32_t u32ConsID;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -3809,26 +3809,26 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32TmpCount;
-    guint32 u32Pointer;
-    guint32 u32HResult;
+    uint32_t u32Count;
+    uint32_t u32TmpCount;
+    uint32_t u32Pointer;
+    uint32_t u32HResult;
 
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    guint8  u8State;
-    guint16 u16Persistence;
-    guint32 u32SubStart;
-    guint32 u32Idx;
-    guint32 u32VariableOffset;
-    gchar   szProv[1000] = { 0 };
-    guint32 u32MaxProvLen = sizeof(szProv);
-    gchar   szProvItem[1000] = { 0 };
-    guint32 u32MaxProvItemLen = sizeof(szProvItem);
-    gchar   szConsItem[1000] = { 0 };
-    guint32 u32MaxConsItemLen = sizeof(szConsItem);
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    uint8_t u8State;
+    uint16_t u16Persistence;
+    uint32_t u32SubStart;
+    uint32_t u32Idx;
+    uint32_t u32VariableOffset;
+    char    szProv[1000] = { 0 };
+    uint32_t u32MaxProvLen = sizeof(szProv);
+    char    szProvItem[1000] = { 0 };
+    uint32_t u32MaxProvItemLen = sizeof(szProvItem);
+    char    szConsItem[1000] = { 0 };
+    uint32_t u32MaxConsItemLen = sizeof(szConsItem);
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -3918,19 +3918,19 @@ dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32TmpCount;
-    guint32 u32Pointer;
-    guint32 u32HResult;
-    guint8  u8State;
-    guint16 u16Persistence;
-    guint16 u16ConnVersion;
-    guint32 u32SubStart;
-    guint32 u32Idx;
-    guint32 u32VariableOffset;
-    guint32 u32ConnErrorState;
+    uint32_t u32Count;
+    uint32_t u32TmpCount;
+    uint32_t u32Pointer;
+    uint32_t u32HResult;
+    uint8_t u8State;
+    uint16_t u16Persistence;
+    uint16_t u16ConnVersion;
+    uint32_t u32SubStart;
+    uint32_t u32Idx;
+    uint32_t u32VariableOffset;
+    uint32_t u32ConnErrorState;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -3999,12 +3999,12 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_GetConnections_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32ConsID;
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    guint32 u32Idx;
+    uint32_t u32ConsID;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    uint32_t u32Idx;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -4028,27 +4028,27 @@ dissect_ICBAAccoMgt_GetConnections_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32TmpCount;
-    guint32 u32Pointer;
-    guint32 u32HResult;
+    uint32_t u32Count;
+    uint32_t u32TmpCount;
+    uint32_t u32Pointer;
+    uint32_t u32HResult;
 
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    guint8  u8State;
-    guint16 u16Persistence;
-    guint16 u16ConnVersion;
-    guint32 u32SubStart;
-    guint32 u32Idx;
-    guint32 u32VariableOffset;
-    gchar   szProv[1000] = { 0 };
-    guint32 u32MaxProvLen = sizeof(szProv);
-    gchar   szProvItem[1000] = { 0 };
-    guint32 u32MaxProvItemLen = sizeof(szProvItem);
-    gchar   szConsItem[1000] = { 0 };
-    guint32 u32MaxConsItemLen = sizeof(szConsItem);
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    uint8_t u8State;
+    uint16_t u16Persistence;
+    uint16_t u16ConnVersion;
+    uint32_t u32SubStart;
+    uint32_t u32Idx;
+    uint32_t u32VariableOffset;
+    char    szProv[1000] = { 0 };
+    uint32_t u32MaxProvLen = sizeof(szProv);
+    char    szProvItem[1000] = { 0 };
+    uint32_t u32MaxProvItemLen = sizeof(szProvItem);
+    char    szConsItem[1000] = { 0 };
+    uint32_t u32MaxConsItemLen = sizeof(szConsItem);
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -4140,12 +4140,12 @@ dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_ReviseQoS_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16QoSType;
-    guint16 u16QoSValue;
-    gchar   szStr[1000];
-    guint32 u32MaxStr = sizeof(szStr);
+    uint16_t u16QoSType;
+    uint16_t u16QoSValue;
+    char    szStr[1000];
+    uint32_t u32MaxStr = sizeof(szStr);
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -4170,10 +4170,10 @@ dissect_ICBAAccoMgt_ReviseQoS_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_ReviseQoS_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16QoSValue;
-    guint32 u32HResult;
+    uint16_t u16QoSValue;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -4194,10 +4194,10 @@ dissect_ICBAAccoMgt_ReviseQoS_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_get_PingFactor_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16PF;
-    guint32 u32HResult;
+    uint16_t u16PF;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -4218,9 +4218,9 @@ dissect_ICBAAccoMgt_get_PingFactor_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_put_PingFactor_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint16 u16PF;
+    uint16_t u16PF;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -4237,10 +4237,10 @@ dissect_ICBAAccoMgt_put_PingFactor_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_get_CDBCookie_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Cookie;
-    guint32 u32HResult;
+    uint32_t u32Cookie;
+    uint32_t u32HResult;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -4261,11 +4261,11 @@ dissect_ICBAAccoMgt_get_CDBCookie_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_GetDiagnosis_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Request;
-    guint32 u32InLength;
-    guint32 u32ArraySize;
+    uint32_t u32Request;
+    uint32_t u32InLength;
+    uint32_t u32ArraySize;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -4293,9 +4293,9 @@ dissect_ICBAAccoMgt_GetDiagnosis_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoMgt_GetDiagnosis_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32OutLength;
+    uint32_t u32OutLength;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -4316,15 +4316,15 @@ dissect_ICBAAccoMgt_GetDiagnosis_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoSync_ReadItems_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    gchar   szStr[1000];
-    guint32 u32MaxStr = sizeof(szStr);
-    guint32 u32Pointer;
-    guint32 u32ArraySize;
-    guint32 u32VariableOffset;
-    guint32 u32Idx;
+    uint32_t u32Count;
+    char    szStr[1000];
+    uint32_t u32MaxStr = sizeof(szStr);
+    uint32_t u32Pointer;
+    uint32_t u32ArraySize;
+    uint32_t u32VariableOffset;
+    uint32_t u32Idx;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -4359,16 +4359,16 @@ dissect_ICBAAccoSync_ReadItems_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Pointer;
-    guint16 u16QC;
-    guint32 u32ArraySize = 0;
-    guint32 u32HResult;
-    guint32 u32Idx;
-    guint32 u32SubStart;
-    guint32 u32VariableOffset;
-    guint32 u32Tmp;
+    uint32_t u32Pointer;
+    uint16_t u16QC;
+    uint32_t u32ArraySize = 0;
+    uint32_t u32HResult;
+    uint32_t u32Idx;
+    uint32_t u32SubStart;
+    uint32_t u32VariableOffset;
+    uint32_t u32Tmp;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -4430,16 +4430,16 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoSync_WriteItems_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    gchar   szStr[1000];
-    guint32 u32MaxStr = sizeof(szStr);
-    guint32 u32Pointer;
-    guint32 u32VariableOffset;
-    guint32 u32SubStart;
-    guint32 u32Idx;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    char    szStr[1000];
+    uint32_t u32MaxStr = sizeof(szStr);
+    uint32_t u32Pointer;
+    uint32_t u32VariableOffset;
+    uint32_t u32SubStart;
+    uint32_t u32Idx;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -4488,17 +4488,17 @@ dissect_ICBAAccoSync_WriteItems_rqst(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    guint32 u32Count;
-    guint32 u32ArraySize;
-    gchar   szStr[1000];
-    guint32 u32MaxStr = sizeof(szStr);
-    guint32 u32Pointer;
-    guint32 u32VariableOffset;
-    guint32 u32SubStart;
-    guint32 u32Idx;
-    guint16 u16QC;
+    uint32_t u32Count;
+    uint32_t u32ArraySize;
+    char    szStr[1000];
+    uint32_t u32MaxStr = sizeof(szStr);
+    uint32_t u32Pointer;
+    uint32_t u32VariableOffset;
+    uint32_t u32SubStart;
+    uint32_t u32Idx;
+    uint16_t u16QC;
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
@@ -4644,9 +4644,9 @@ static const dcerpc_sub_dissector ICBAAccoSync_dissectors[] = {
 void
 proto_register_dcom_cba_acco (void)
 {
-    static gint *ett3[3];
-    static gint *ett4[4];
-    static gint *ett5[5];
+    static int *ett3[3];
+    static int *ett4[4];
+    static int *ett5[5];
 
 
     static hf_register_info hf_cba_acco_array[] = {

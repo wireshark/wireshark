@@ -282,7 +282,7 @@ const value_string g_requesttypes[] = {
 };
 
 /** Dispatch all services to a special parser function. */
-void dispatchService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int ServiceId)
+void dispatchService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int ServiceId)
 {
     unsigned indx = 0;
 

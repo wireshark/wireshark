@@ -36,8 +36,8 @@ typedef enum {
     DATA_PDU
 } pdu_type_t;
 
-typedef gboolean (*ias_value_dissector_t)(tvbuff_t* tvb, guint offset, packet_info* pinfo, proto_tree* tree,
-                                          guint list_index, guint8 attr_type, guint8 circuit_id);
+typedef bool (*ias_value_dissector_t)(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_tree* tree,
+                                          unsigned list_index, uint8_t attr_type, uint8_t circuit_id);
 
 typedef const struct ias_attr_dissector {
     const char*             attr_name;
@@ -50,14 +50,14 @@ typedef const struct ias_class_dissector {
 } ias_class_dissector_t;
 
 
-extern gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, guint offset,
-                                       const char* attr_name, guint8 attr_type);
-extern guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, guint offset,
-                                    const char* attr_name, guint8 attr_type);
+extern bool check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
+                                       const char* attr_name, uint8_t attr_type);
+extern uint8_t check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
+                                    const char* attr_name, uint8_t attr_type);
 
-extern void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissector_handle_t dissector, guint8 circuit_id);
+extern void add_lmp_conversation(packet_info* pinfo, uint8_t dlsap, bool ttp, dissector_handle_t dissector, uint8_t circuit_id);
 
-extern unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, guint offset);
+extern unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset);
 
 /*
  * Protocol exports.

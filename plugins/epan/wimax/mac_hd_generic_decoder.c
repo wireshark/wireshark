@@ -36,16 +36,16 @@
 
 void proto_reg_handoff_mac_header_generic(void);
 
-extern gint proto_wimax;
+extern int proto_wimax;
 
-extern gint seen_a_service_type;
-extern gboolean first_gmh;			/* defined in wimax_pdu_decoder.c */
+extern int seen_a_service_type;
+extern bool first_gmh;			/* defined in wimax_pdu_decoder.c */
 
-extern gint8 arq_enabled;                       /* declared in packet-wmx.c */
-extern gint  scheduling_service_type;           /* declared in packet-wmx.c */
+extern int8_t arq_enabled;                       /* declared in packet-wmx.c */
+extern int   scheduling_service_type;           /* declared in packet-wmx.c */
 
 extern address bs_address;			/* declared in packet-wmx.c */
-extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
+extern unsigned max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
 
 static dissector_handle_t mac_mgmt_msg_decoder_handle;
 static dissector_handle_t mac_ip_handle;
@@ -54,50 +54,50 @@ static dissector_handle_t mac_ip_handle;
 bool include_cor2_changes;
 
 /* Well-known CIDs */
-guint cid_initial_ranging  = 0x0000;
-guint global_cid_max_basic = 320;
-guint cid_max_primary      = 640;
-guint cid_aas_ranging      = 0xFeFF;
-guint cid_normal_multicast = 0xFFFa;
-guint cid_sleep_multicast  = 0xFFFb;
-guint cid_idle_multicast   = 0xFFFc;
-guint cid_frag_broadcast   = 0xFFFd;
-guint cid_padding          = 0xFFFe;
-guint cid_broadcast        = 0xFFFF;
+unsigned cid_initial_ranging  = 0x0000;
+unsigned global_cid_max_basic = 320;
+unsigned cid_max_primary      = 640;
+unsigned cid_aas_ranging      = 0xFeFF;
+unsigned cid_normal_multicast = 0xFFFa;
+unsigned cid_sleep_multicast  = 0xFFFb;
+unsigned cid_idle_multicast   = 0xFFFc;
+unsigned cid_frag_broadcast   = 0xFFFd;
+unsigned cid_padding          = 0xFFFe;
+unsigned cid_broadcast        = 0xFFFF;
 
 /* Maximum number of CID's */
 #define MAX_CID 64
 
 /* forward reference */
-static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item);
+static int extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item);
 
 /* Static variables */
 static reassembly_table payload_reassembly_table;
 
-gint proto_mac_header_generic_decoder;
-static gint ett_mac_header_generic_decoder;
-/* static gint ett_mac_subheader_decoder; */
-static gint ett_mac_mesh_subheader_decoder;
-static gint ett_mac_frag_subheader_decoder;
-static gint ett_mac_grant_mgmt_subheader_decoder;
-static gint ett_mac_pkt_subheader_decoder;
-static gint ett_mac_fast_fb_subheader_decoder;
-static gint ett_mac_ext_subheader_decoder;
-static gint ett_mac_ext_subheader_dl_decoder;
-static gint ett_mac_ext_subheader_ul_decoder;
-static gint ett_mac_arq_fb_payload_decoder;
-static gint ett_mac_data_pdu_decoder;
-static gint hf_mac_header_generic_value_bytes;
+int proto_mac_header_generic_decoder;
+static int ett_mac_header_generic_decoder;
+/* static int ett_mac_subheader_decoder; */
+static int ett_mac_mesh_subheader_decoder;
+static int ett_mac_frag_subheader_decoder;
+static int ett_mac_grant_mgmt_subheader_decoder;
+static int ett_mac_pkt_subheader_decoder;
+static int ett_mac_fast_fb_subheader_decoder;
+static int ett_mac_ext_subheader_decoder;
+static int ett_mac_ext_subheader_dl_decoder;
+static int ett_mac_ext_subheader_ul_decoder;
+static int ett_mac_arq_fb_payload_decoder;
+static int ett_mac_data_pdu_decoder;
+static int hf_mac_header_generic_value_bytes;
 
-static guint frag_type, frag_len;
-static guint extended_type, arq_fb_payload, seq_number;
+static unsigned frag_type, frag_len;
+static unsigned extended_type, arq_fb_payload, seq_number;
 
-static guint cid_adjust[MAX_CID];  /* Must not start with 0 */
-static guint cid_vernier[MAX_CID];
-static guint cid_adj_array_size;
-static guint *cid_adj_array;
-static guint8 *frag_num_array;
+static unsigned cid_adjust[MAX_CID];  /* Must not start with 0 */
+static unsigned cid_vernier[MAX_CID];
+static unsigned cid_adj_array_size;
+static unsigned *cid_adj_array;
+static uint8_t *frag_num_array;
 
 static address save_src;
 static address save_dst;
@@ -369,21 +369,21 @@ static const value_string fb_types[] =
 };
 
 /* common fields */
-static gint hf_mac_header_generic_ext_subheader_rsv;
+static int hf_mac_header_generic_ext_subheader_rsv;
 /* DL sub-header */
-static gint hf_mac_header_generic_ext_subheader_type_dl;
-static gint hf_mac_header_generic_ext_subheader_sdu_sn;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_op;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb;
-static gint hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv;
-static gint hf_mac_header_generic_ext_subheader_fb_req_uiuc;
-static gint hf_mac_header_generic_ext_subheader_fb_req_fb_type;
-static gint hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset;
-static gint hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset;
-static gint hf_mac_header_generic_ext_subheader_fb_req_slots;
-static gint hf_mac_header_generic_ext_subheader_fb_req_frame_offset;
+static int hf_mac_header_generic_ext_subheader_type_dl;
+static int hf_mac_header_generic_ext_subheader_sdu_sn;
+static int hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid;
+static int hf_mac_header_generic_ext_subheader_dl_sleep_control_op;
+static int hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe;
+static int hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb;
+static int hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv;
+static int hf_mac_header_generic_ext_subheader_fb_req_uiuc;
+static int hf_mac_header_generic_ext_subheader_fb_req_fb_type;
+static int hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset;
+static int hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset;
+static int hf_mac_header_generic_ext_subheader_fb_req_slots;
+static int hf_mac_header_generic_ext_subheader_fb_req_frame_offset;
 
 /* DL Sleep Control Operations */
 static const value_string dl_sleep_control_ops[] =
@@ -394,24 +394,24 @@ static const value_string dl_sleep_control_ops[] =
 };
 
 /* UL sub-header */
-static gint hf_mac_header_generic_ext_subheader_type_ul;
-static gint hf_mac_header_generic_ext_subheader_mimo_mode_fb_type;
-static gint hf_mac_header_generic_ext_subheader_mimo_fb_content;
-static gint hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep;
-static gint hf_mac_header_generic_ext_subheader_mini_fb_type;
-static gint hf_mac_header_generic_ext_subheader_mini_fb_content;
+static int hf_mac_header_generic_ext_subheader_type_ul;
+static int hf_mac_header_generic_ext_subheader_mimo_mode_fb_type;
+static int hf_mac_header_generic_ext_subheader_mimo_fb_content;
+static int hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep;
+static int hf_mac_header_generic_ext_subheader_mini_fb_type;
+static int hf_mac_header_generic_ext_subheader_mini_fb_content;
 /* common fields */
-static gint hf_mac_header_generic_ext_subheader_pdu_sn_short;
-static gint hf_mac_header_generic_ext_subheader_pdu_sn_long;
+static int hf_mac_header_generic_ext_subheader_pdu_sn_short;
+static int hf_mac_header_generic_ext_subheader_pdu_sn_long;
 
 /* SN Request subheader */
 #define SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_1_MASK 0x01
 #define SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_2_MASK 0x02
 #define SN_REQUEST_SUBHEADER_RESERVED_MASK               0xFC
 
-static gint hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1;
-static gint hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2;
-static gint hf_mac_header_generic_ext_subheader_sn_req_rsv;
+static int hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1;
+static int hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2;
+static int hf_mac_header_generic_ext_subheader_sn_req_rsv;
 /* SN Report Indication message */
 static const value_string sn_rep_msg[] =
 {
@@ -421,7 +421,7 @@ static const value_string sn_rep_msg[] =
 };
 
 /* Mesh Subheader */
-static gint hf_mac_header_generic_mesh_subheader;
+static int hf_mac_header_generic_mesh_subheader;
 
 /* Fragmentation Subheader (table 8) */
 #define FRAGMENTATION_SUBHEADER_FC_MASK         0xC000	/*0x0003*/
@@ -438,13 +438,13 @@ static gint hf_mac_header_generic_mesh_subheader;
 #define FIRST_FRAG  2
 #define MIDDLE_FRAG 3
 
-static gint hf_mac_header_generic_frag_subhd_fc;
-static gint hf_mac_header_generic_frag_subhd_fc_ext;
-static gint hf_mac_header_generic_frag_subhd_bsn;
-static gint hf_mac_header_generic_frag_subhd_fsn;
-static gint hf_mac_header_generic_frag_subhd_fsn_ext;
-static gint hf_mac_header_generic_frag_subhd_rsv;
-static gint hf_mac_header_generic_frag_subhd_rsv_ext;
+static int hf_mac_header_generic_frag_subhd_fc;
+static int hf_mac_header_generic_frag_subhd_fc_ext;
+static int hf_mac_header_generic_frag_subhd_bsn;
+static int hf_mac_header_generic_frag_subhd_fsn;
+static int hf_mac_header_generic_frag_subhd_fsn_ext;
+static int hf_mac_header_generic_frag_subhd_rsv;
+static int hf_mac_header_generic_frag_subhd_rsv_ext;
 
 /* Fragment Types */
 static const value_string frag_types[] =
@@ -465,20 +465,20 @@ static const value_string frag_types[] =
 
 #define FRAG_LENGTH_MASK    0x0007FF00
 
-static gint hf_mac_header_generic_packing_subhd_fc;
-static gint hf_mac_header_generic_packing_subhd_fc_ext;
-static gint hf_mac_header_generic_packing_subhd_bsn;
-static gint hf_mac_header_generic_packing_subhd_fsn;
-static gint hf_mac_header_generic_packing_subhd_fsn_ext;
-static gint hf_mac_header_generic_packing_subhd_len;
-static gint hf_mac_header_generic_packing_subhd_len_ext;
+static int hf_mac_header_generic_packing_subhd_fc;
+static int hf_mac_header_generic_packing_subhd_fc_ext;
+static int hf_mac_header_generic_packing_subhd_bsn;
+static int hf_mac_header_generic_packing_subhd_fsn;
+static int hf_mac_header_generic_packing_subhd_fsn_ext;
+static int hf_mac_header_generic_packing_subhd_len;
+static int hf_mac_header_generic_packing_subhd_len_ext;
 
 /* Fast-feedback Allocation Subheader (table 13) */
 #define FAST_FEEDBACK_ALLOCATION_OFFSET_MASK 0xFC	/*0x3F*/
 #define FAST_FEEDBACK_FEEDBACK_TYPE_MASK     0x03	/*0xC0*/
 
-static gint hf_mac_header_generic_fast_fb_subhd_alloc_offset;
-static gint hf_mac_header_generic_fast_fb_subhd_fb_type;
+static int hf_mac_header_generic_fast_fb_subhd_alloc_offset;
+static int hf_mac_header_generic_fast_fb_subhd_fb_type;
 
 /* Grant Management Subheader (table 9 & 10) */
 #define GRANT_MGMT_SUBHEADER_UGS_SI_MASK          0x8000	/*0x0001*/
@@ -501,18 +501,18 @@ typedef enum
 	SCHEDULE_SERVICE_TYPE_UGS
 } SCHEDULE_SERVICE_TYPE_e;
 
-static gint hf_mac_header_generic_grant_mgmt_ugs_tree;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_si;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_pm;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_fli;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_fl;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv;
-static gint hf_mac_header_generic_grant_mgmt_ext_rtps_tree;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ext_pbr;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ext_fli;
-static gint hf_mac_header_generic_grant_mgmt_subhd_ext_fl;
-static gint hf_mac_header_generic_grant_mgmt_ext_pbr_tree;
-static gint hf_mac_header_generic_grant_mgmt_subhd_pbr;
+static int hf_mac_header_generic_grant_mgmt_ugs_tree;
+static int hf_mac_header_generic_grant_mgmt_subhd_ugs_si;
+static int hf_mac_header_generic_grant_mgmt_subhd_ugs_pm;
+static int hf_mac_header_generic_grant_mgmt_subhd_ugs_fli;
+static int hf_mac_header_generic_grant_mgmt_subhd_ugs_fl;
+static int hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv;
+static int hf_mac_header_generic_grant_mgmt_ext_rtps_tree;
+static int hf_mac_header_generic_grant_mgmt_subhd_ext_pbr;
+static int hf_mac_header_generic_grant_mgmt_subhd_ext_fli;
+static int hf_mac_header_generic_grant_mgmt_subhd_ext_fl;
+static int hf_mac_header_generic_grant_mgmt_ext_pbr_tree;
+static int hf_mac_header_generic_grant_mgmt_subhd_pbr;
 
 /* Slip Indicators */
 static const value_string si_msgs[] =
@@ -555,23 +555,23 @@ static const value_string fli_msgs[] =
 #define ARQ_FB_IE_SEQ2_LENGTH_6_MASK 0x007E	/*0x7E00*/
 #define ARQ_FB_IE_RSV_MASK           0x0001	/*0x8000*/
 
-static gint hf_mac_header_generic_arq_fb_ie_cid;
-static gint hf_mac_header_generic_arq_fb_ie_last;
-static gint hf_mac_header_generic_arq_fb_ie_ack_type;
-static gint hf_mac_header_generic_arq_fb_ie_bsn;
-static gint hf_mac_header_generic_arq_fb_ie_num_maps;
-static gint hf_ack_type_reserved;
-static gint hf_mac_header_generic_arq_fb_ie_sel_ack_map;
-static gint hf_mac_header_generic_arq_fb_ie_seq_format;
-static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map;
-static gint hf_mac_header_generic_arq_fb_ie_seq1_length;
-static gint hf_mac_header_generic_arq_fb_ie_seq2_length;
-static gint hf_mac_header_generic_arq_fb_ie_seq3_length;
-static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map_2;
-static gint hf_mac_header_generic_arq_fb_ie_seq1_length_6;
-static gint hf_mac_header_generic_arq_fb_ie_seq2_length_6;
-static gint hf_mac_header_generic_arq_fb_ie_rsv;
-static gint hf_mac_header_payload_fragment;
+static int hf_mac_header_generic_arq_fb_ie_cid;
+static int hf_mac_header_generic_arq_fb_ie_last;
+static int hf_mac_header_generic_arq_fb_ie_ack_type;
+static int hf_mac_header_generic_arq_fb_ie_bsn;
+static int hf_mac_header_generic_arq_fb_ie_num_maps;
+static int hf_ack_type_reserved;
+static int hf_mac_header_generic_arq_fb_ie_sel_ack_map;
+static int hf_mac_header_generic_arq_fb_ie_seq_format;
+static int hf_mac_header_generic_arq_fb_ie_seq_ack_map;
+static int hf_mac_header_generic_arq_fb_ie_seq1_length;
+static int hf_mac_header_generic_arq_fb_ie_seq2_length;
+static int hf_mac_header_generic_arq_fb_ie_seq3_length;
+static int hf_mac_header_generic_arq_fb_ie_seq_ack_map_2;
+static int hf_mac_header_generic_arq_fb_ie_seq1_length_6;
+static int hf_mac_header_generic_arq_fb_ie_seq2_length_6;
+static int hf_mac_header_generic_arq_fb_ie_rsv;
+static int hf_mac_header_payload_fragment;
 
 static expert_field ei_mac_crc_malformed;
 static expert_field ei_mac_crc_missing;
@@ -598,7 +598,7 @@ static const value_string plugin_proto_checksum_vals[] = {
 /* Register Wimax defrag table init routine. */
 static void wimax_defragment_init(void)
 {
-	gint i;
+	int i;
 
 	/* Init fragmentation variables. */
 	for (i = 0; i < MAX_CID; i++)
@@ -627,11 +627,11 @@ static void wimax_defragment_cleanup(void)
 	frag_num_array = NULL;
 }
 
-static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint payload_length _U_, guint payload_offset, proto_item *parent_item)
+static unsigned decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, unsigned payload_length _U_, unsigned payload_offset, proto_item *parent_item)
 {
 	proto_item *generic_item = NULL;
 	proto_tree *generic_tree = NULL;
-	guint starting_offset = payload_offset;
+	unsigned starting_offset = payload_offset;
 
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packing subhdr");
@@ -685,7 +685,7 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 		}
 	}
 	/* Prevent a crash! */
-	if ((gint)frag_len < 0)
+	if ((int)frag_len < 0)
 		frag_len = 0;
 	/* Return the number of bytes decoded. */
 	return payload_offset - starting_offset;
@@ -694,24 +694,24 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 
 static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint payload_offset;
-	guint payload_length = 0;
+	unsigned offset = 0;
+	unsigned payload_offset;
+	unsigned payload_length = 0;
 
-	static guint8 frag_number[MAX_CID];
-	static guint cid_list[MAX_CID];
-	static guint cid_base;
+	static uint8_t frag_number[MAX_CID];
+	static unsigned cid_list[MAX_CID];
+	static unsigned cid_base;
 	static const char reassem_str[] = "Reassembled Data transport PDU (%u bytes)";
 	static const char data_str[] = "Data transport PDU (%u bytes)";
 	const char *str_ptr;
-	gint length, i, cid_index;
-	guint tvb_len, ret_length, ubyte, new_tvb_len;
-	guint new_payload_len = 0;
-	guint /*mac_ht,*/ mac_ec, mac_esf, mac_ci, /*mac_eks,*/ mac_len, mac_cid, cid;
-	guint ffb_grant_mgmt_subheader, packing_subheader, fragment_subheader;
-	guint mesh_subheader;
-	guint packing_length;
-	guint32 mac_crc, calculated_crc;
+	int length, i, cid_index;
+	unsigned tvb_len, ret_length, ubyte, new_tvb_len;
+	unsigned new_payload_len = 0;
+	unsigned /*mac_ht,*/ mac_ec, mac_esf, mac_ci, /*mac_eks,*/ mac_len, mac_cid, cid;
+	unsigned ffb_grant_mgmt_subheader, packing_subheader, fragment_subheader;
+	unsigned mesh_subheader;
+	unsigned packing_length;
+	uint32_t mac_crc, calculated_crc;
 	proto_item *parent_item = NULL;
 	proto_item *generic_item = NULL;
 	proto_tree *generic_tree = NULL;
@@ -720,7 +720,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	tvbuff_t *payload_tvb;
 	tvbuff_t *data_pdu_tvb;
 	fragment_head *payload_frag;
-	gboolean first_arq_fb_payload = TRUE;
+	bool first_arq_fb_payload = true;
 
 	proto_mac_header_generic_decoder = proto_wimax;
 
@@ -814,7 +814,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	{
 		if (mac_ci)
 		{
-			if (length >= (gint)sizeof(mac_crc))
+			if (length >= (int)sizeof(mac_crc))
 			{
 				length -= (int)sizeof(mac_crc);
 			}
@@ -978,7 +978,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	/* Decode the MAC payload if there is any */
 	if (mac_ci)
 	{
-		if (length < (gint)sizeof(mac_crc))
+		if (length < (int)sizeof(mac_crc))
 		{	/* display error message */
 			proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error - the frame is too short (%u bytes)", length);
 			return tvb_captured_length(tvb);
@@ -1026,10 +1026,10 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			while (pinfo->num > cid_adj_array_size)
 			{
 				cid_adj_array_size += 1024;
-				cid_adj_array = (guint *)g_realloc(cid_adj_array, (int)sizeof(guint) * cid_adj_array_size);
-				frag_num_array = (guint8 *)g_realloc(frag_num_array, (int)sizeof(guint8) * cid_adj_array_size);
+				cid_adj_array = (unsigned *)g_realloc(cid_adj_array, (int)sizeof(unsigned) * cid_adj_array_size);
+				frag_num_array = (uint8_t *)g_realloc(frag_num_array, (int)sizeof(uint8_t) * cid_adj_array_size);
 				/* Clear the added memory */
-				memset(&cid_adj_array[cid_adj_array_size - 1024], 0, (int)sizeof(guint) * 1024);
+				memset(&cid_adj_array[cid_adj_array_size - 1024], 0, (int)sizeof(unsigned) * 1024);
 			}
 			if (first_gmh)
 			{
@@ -1062,7 +1062,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				}
 			}
 			/* Reset in case we stay in this while() loop to finish the packet. */
-			first_gmh = FALSE;
+			first_gmh = false;
 			cid = cid_base + cid_adjust[cid_index] + cid_vernier[cid_index];
 			/* Save address pointers. */
 			copy_address_shallow(&save_src, &pinfo->src);
@@ -1124,7 +1124,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				/* if ARQ Feedback payload is present, it should be the first SDU */
 				if (first_arq_fb_payload && arq_fb_payload)
 				{	/* decode and display the ARQ feedback payload */
-					first_arq_fb_payload = FALSE;
+					first_arq_fb_payload = false;
 #ifndef DEBUG
 					arq_feedback_payload_decoder(tvb_new_subset_length(payload_tvb, payload_offset, new_payload_len), pinfo, generic_tree, parent_item);
 #else
@@ -1235,10 +1235,10 @@ check_crc:
 	return tvb_captured_length(tvb);
 }
 
-static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint offset = 0;
-	gint length, ext_length, ubyte, i;
+	int offset = 0;
+	int length, ext_length, ubyte, i;
 	proto_item *ti = NULL;
 	proto_tree *sub_tree = NULL;
 	proto_tree *ti_tree = NULL;
@@ -1364,13 +1364,13 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	return ext_length;
 }
 
-static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item)
+static int arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item)
 {
-	gint length, i;
-	gint offset;
-	gint last_ie = 0;
-	gint ack_type, num_maps, seq_format;
-	gint word2, word3;
+	int length, i;
+	int offset;
+	int last_ie = 0;
+	int ack_type, num_maps, seq_format;
+	int word2, word3;
 	proto_item *ti = NULL;
 	proto_item *sub_ti = NULL;
 	proto_tree *sub_tree = NULL;
@@ -2225,7 +2225,7 @@ void wimax_proto_register_mac_header_generic(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_header_generic_decoder,
 			/* &ett_mac_subheader_decoder, */

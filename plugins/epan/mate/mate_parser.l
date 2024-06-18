@@ -339,28 +339,28 @@ blk_cmnt_stop  "*/"
  */
 DIAG_ON_FLEX()
 
-static void ptr_array_free(gpointer data, gpointer user_data _U_)
+static void ptr_array_free(void *data, void *user_data _U_)
 {
 	free_config_frame((mate_config_frame *)data);
 }
 
-extern gboolean mate_load_config(const gchar* filename, mate_config* mc) {
+extern bool mate_load_config(const char* filename, mate_config* mc) {
 	FILE *in;
 	yyscan_t scanner;
 	Mate_scanner_state_t state;
-	volatile gboolean status = TRUE;
+	volatile bool status = true;
 
 	in = ws_fopen(filename,"r");
 
 	if (!in) {
 		g_string_append_printf(mc->config_error,"Mate parser: Could not open file: '%s', error: %s", filename, g_strerror(errno) );
-		return FALSE;
+		return false;
 	}
 
 	if (Mate_lex_init(&scanner) != 0) {
 		g_string_append_printf(mc->config_error, "Mate parse: Could not initialize scanner: %s", g_strerror(errno));
 		fclose(in);
-		return FALSE;
+		return false;
 	}
 
 	Mate_set_in(in, scanner);
@@ -392,9 +392,9 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* mc) {
 
 		MateParserFree(state.pParser, g_free);
 	} CATCH(MateConfigError) {
-		status = FALSE;
+		status = false;
 	} CATCH_ALL {
-		status = FALSE;
+		status = false;
 		g_string_append_printf(mc->config_error,"An unexpected error occurred");
 	}
 	ENDTRY;
@@ -403,7 +403,7 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* mc) {
 	fclose(in);
 
 	g_ptr_array_foreach(mc->config_stack, ptr_array_free, NULL);
-	g_ptr_array_free(mc->config_stack, TRUE);
+	g_ptr_array_free(mc->config_stack, true);
 
 	return status;
 }

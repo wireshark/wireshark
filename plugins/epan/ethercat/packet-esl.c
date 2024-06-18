@@ -24,29 +24,29 @@ typedef union _EslFlagsUnion
 {
     struct
     {
-        guint16    port7        : 1;
-        guint16    port6        : 1;
-        guint16    port5        : 1;
-        guint16    port4        : 1;
-        guint16    port3        : 1;
-        guint16    port2        : 1;
-        guint16    port1        : 1;
-        guint16    port0        : 1;
-        guint16    extended     : 1;
-        guint16    port11       : 1;
-        guint16    port10       : 1;
-        guint16    alignError   : 1;
-        guint16    crcError     : 1;
-        guint16    timeStampEna : 1;
-        guint16    port9        : 1;
-        guint16    port8        : 1;
+        uint16_t   port7        : 1;
+        uint16_t   port6        : 1;
+        uint16_t   port5        : 1;
+        uint16_t   port4        : 1;
+        uint16_t   port3        : 1;
+        uint16_t   port2        : 1;
+        uint16_t   port1        : 1;
+        uint16_t   port0        : 1;
+        uint16_t   extended     : 1;
+        uint16_t   port11       : 1;
+        uint16_t   port10       : 1;
+        uint16_t   alignError   : 1;
+        uint16_t   crcError     : 1;
+        uint16_t   timeStampEna : 1;
+        uint16_t   port9        : 1;
+        uint16_t   port8        : 1;
     }d;
     struct
     {
-        guint8     loPorts      : 1;
-        guint8     flagsHiPorts : 1;
+        uint8_t    loPorts      : 1;
+        uint8_t    flagsHiPorts : 1;
     }lo_hi_flags;
-    guint   flags;
+    unsigned   flags;
 } EslFlagsUnion;
 #endif
 
@@ -70,9 +70,9 @@ typedef union _EslFlagsUnion
 #if 0
 typedef struct _EslHeader
 {
-    guint8         eslCookie[6];           /* 01 01 05 10 00 00 */
+    uint8_t        eslCookie[6];           /* 01 01 05 10 00 00 */
     EslFlagsUnion  flags;
-    guint64        timeStamp;
+    uint64_t       timeStamp;
 } EslHeader, *PEslHeader;
 #endif
 
@@ -101,7 +101,7 @@ static const true_false_string flags_yes_no = {
 
 #if 0
 /* XXX: using bitfields is compiler dependent: See README.developer */
-static guint16 flags_to_port(guint16 flagsValue) {
+static uint16_t flags_to_port(uint16_t flagsValue) {
     EslFlagsUnion flagsUnion;
     flagsUnion.flags = flagsValue;
     if ( flagsUnion.d.port0 )
@@ -129,7 +129,7 @@ static guint16 flags_to_port(guint16 flagsValue) {
 }
 #endif
 
-static guint16 flags_to_port(guint16 flagsValue) {
+static uint16_t flags_to_port(uint16_t flagsValue) {
     if ( (flagsValue & esl_port0_bitmask) != 0 )
         return 0;
     else if ( (flagsValue & esl_port1_bitmask) != 0 )
@@ -164,14 +164,14 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 
     proto_item *ti = NULL;
     proto_tree *esl_header_tree;
-    gint offset = 0;
+    int offset = 0;
 
-    guint esl_length = tvb_reported_length(tvb);
+    unsigned esl_length = tvb_reported_length(tvb);
     if ( esl_length >= SIZEOF_ESLHEADER )
     {
         if (tree)
         {
-            guint16 flags;
+            uint16_t flags;
 
             ti = proto_tree_add_item(tree, proto_esl, tvb, 0, SIZEOF_ESLHEADER, ENC_NA);
             esl_header_tree = proto_item_add_subtree(ti, ett_esl);
@@ -194,14 +194,14 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 typedef struct _ref_time_frame_info
 {
     frame_data  *fd;
-    guint64      esl_ts;
+    uint64_t     esl_ts;
     nstime_t     abs_ts;
-    guint32      num;
+    uint32_t     num;
 } ref_time_frame_info;
 
 static ref_time_frame_info ref_time_frame;
 
-static gboolean is_esl_header(tvbuff_t *tvb, gint offset)
+static bool is_esl_header(tvbuff_t *tvb, int offset)
 {
     return tvb_get_guint8(tvb, offset) == 0x01 &&
         tvb_get_guint8(tvb, offset+1) == 0x01 &&
@@ -211,7 +211,7 @@ static gboolean is_esl_header(tvbuff_t *tvb, gint offset)
         tvb_get_guint8(tvb, offset+5) == 0x00;
 }
 
-static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
+static void modify_times(tvbuff_t *tvb, int offset, packet_info *pinfo)
 {
     if ( ref_time_frame.fd == NULL )
     {
@@ -222,8 +222,8 @@ static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
     }
     else if ( !pinfo->fd->visited )
     {
-        guint64 nsecs = tvb_get_letoh64(tvb, offset+8) - ref_time_frame.esl_ts;
-        guint64 secs = nsecs/1000000000;
+        uint64_t nsecs = tvb_get_letoh64(tvb, offset+8) - ref_time_frame.esl_ts;
+        uint64_t secs = nsecs/1000000000;
         nstime_t ts;
         nstime_t ts_delta;
 
@@ -246,15 +246,15 @@ static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 static bool
 dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static gboolean  in_heur    = FALSE;
+    static bool      in_heur    = false;
     bool             result;
     tvbuff_t        *next_tvb;
-    guint            esl_length = tvb_captured_length(tvb);
+    unsigned         esl_length = tvb_captured_length(tvb);
 
     if ( in_heur )
         return false;
 
-    in_heur = TRUE;
+    in_heur = true;
     /*TRY */
     {
         if ( ref_time_frame.fd != NULL && !pinfo->fd->visited && pinfo->num <= ref_time_frame.num )
@@ -296,10 +296,10 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         }
     }
     /*CATCH_ALL{
-      in_heur = FALSE;
+      in_heur = false;
       RETHROW;
       }ENDTRY;*/
-    in_heur = FALSE;
+    in_heur = false;
     return result;
 }
 
@@ -328,7 +328,7 @@ proto_register_esl(void) {
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_esl,
     };
 
@@ -349,12 +349,12 @@ proto_register_esl(void) {
 
 void
 proto_reg_handoff_esl(void) {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized) {
         eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_esl);
         heur_dissector_add("eth", dissect_esl_heur, "EtherCAT over Ethernet", "esl_eth", proto_esl, HEURISTIC_DISABLE);
-        initialized = TRUE;
+        initialized = true;
     }
 }
 

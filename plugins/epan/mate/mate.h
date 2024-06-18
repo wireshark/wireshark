@@ -73,8 +73,8 @@ typedef enum _accept_mode_t {
 
 
 typedef struct _mate_cfg_pdu {
-	gchar* name;
-	guint last_id; /* keeps the last id given to an item of this kind */
+	char* name;
+	unsigned last_id; /* keeps the last id given to an item of this kind */
 
 	GHashTable* items; /* all the items of this type */
 	GPtrArray* transforms; /* transformations to be applied */
@@ -87,14 +87,14 @@ typedef struct _mate_cfg_pdu {
 
 	GHashTable* my_hfids; /* for creating register info */
 
-	gint ett;
-	gint ett_attr;
+	int ett;
+	int ett_attr;
 
 	GHashTable* hfids_attr; /* k=hfid v=avp_name */
 
-	gboolean discard;
-	gboolean last_extracted;
-	gboolean drop_unassigned;
+	bool discard;
+	bool last_extracted;
+	bool drop_unassigned;
 
 	GPtrArray* transport_ranges; /* hfids of candidate transport ranges from which to extract attributes */
 	GPtrArray* payload_ranges; /* hfids of candidate payload ranges from which to extract attributes */
@@ -106,12 +106,12 @@ typedef struct _mate_cfg_pdu {
 
 
 typedef struct _mate_cfg_gop {
-	gchar* name;
-	guint last_id; /* keeps the last id given to an item of this kind */
+	char* name;
+	unsigned last_id; /* keeps the last id given to an item of this kind */
 	GHashTable* items; /* all the items of this type */
 
 	GPtrArray* transforms; /* transformations to be applied */
-	gchar* on_pdu;
+	char* on_pdu;
 
 	AVPL* key; /* key candidate avpl */
 	AVPL* start; /* start candidate avpl */
@@ -122,9 +122,9 @@ typedef struct _mate_cfg_gop {
 	double idle_timeout;
 	double lifetime;
 
-	gboolean drop_unassigned;
+	bool drop_unassigned;
 	gop_pdu_tree_t pdu_tree_mode;
-	gboolean show_times;
+	bool show_times;
 
 	GHashTable* my_hfids; /* for creating register info */
 	int hfid;
@@ -134,10 +134,10 @@ typedef struct _mate_cfg_gop {
 	int hfid_gop_pdu;
 	int hfid_gop_num_pdus;
 
-	gint ett;
-	gint ett_attr;
-	gint ett_times;
-	gint ett_children;
+	int ett;
+	int ett_attr;
+	int ett_times;
+	int ett_children;
 
 	GHashTable* gop_index;
 	GHashTable* gog_index;
@@ -145,10 +145,10 @@ typedef struct _mate_cfg_gop {
 
 
 typedef struct _mate_cfg_gog {
-	gchar* name;
+	char* name;
 
 	GHashTable* items; /* all the items of this type */
-	guint last_id; /* keeps the last id given to an item of this kind */
+	unsigned last_id; /* keeps the last id given to an item of this kind */
 
 	GPtrArray* transforms; /* transformations to be applied */
 
@@ -157,7 +157,7 @@ typedef struct _mate_cfg_gog {
 
 	double expiration;
 	gop_tree_mode_t gop_tree_mode;
-	gboolean show_times;
+	bool show_times;
 
 	GHashTable* my_hfids; /* for creating register info */
 	int hfid;
@@ -168,24 +168,24 @@ typedef struct _mate_cfg_gog {
 	int hfid_start_time;
 	int hfid_stop_time;
 	int hfid_last_time;
-	gint ett;
-	gint ett_attr;
-	gint ett_times;
-	gint ett_children;
-	gint ett_gog_gop;
+	int ett;
+	int ett_attr;
+	int ett_times;
+	int ett_children;
+	int ett_gog_gop;
 } mate_cfg_gog;
 
 typedef struct _mate_config {
-	gchar* mate_config_file; /* name of the config file */
+	char* mate_config_file; /* name of the config file */
 
 	int hfid_mate;
 
 	GArray *wanted_hfids;    /* hfids of protocols and fields MATE needs */
-	guint num_fields_wanted; /* number of fields MATE will look at */
+	unsigned num_fields_wanted; /* number of fields MATE will look at */
 
 	FILE* dbg_facility; /* where to dump dbgprint output ws_message if null */
 
-	gchar* mate_lib_path; /* where to look for "Include" files first */
+	char* mate_lib_path; /* where to look for "Include" files first */
 
 	GHashTable* pducfgs; /* k=pducfg->name v=pducfg */
 	GHashTable* gopcfgs; /* k=gopcfg->name v=gopcfg */
@@ -197,7 +197,7 @@ typedef struct _mate_config {
 	GHashTable* gogs_by_gopname; /* k=gopname v=loal where avpl->name == matchedgop->name */
 
 	GArray* hfrs;
-	gint ett_root;
+	int ett_root;
 	GArray* ett;
 
 	/* defaults */
@@ -205,10 +205,10 @@ typedef struct _mate_config {
 		struct _pdu_defaults {
 			avpl_match_mode match_mode;
 			avpl_replace_mode replace_mode;
-			gboolean last_extracted;
+			bool last_extracted;
 
-			gboolean drop_unassigned;
-			gboolean discard;
+			bool drop_unassigned;
+			bool discard;
 		} pdu;
 
 		struct _gop_defaults {
@@ -217,14 +217,14 @@ typedef struct _mate_config {
 			double lifetime;
 
 			gop_pdu_tree_t pdu_tree_mode;
-			gboolean show_times;
-			gboolean drop_unassigned;
+			bool show_times;
+			bool drop_unassigned;
 
 		} gop;
 
 		struct _gog_defaults {
 			double expiration;
-			gboolean show_times;
+			bool show_times;
 			gop_tree_mode_t gop_tree_mode;
 		} gog;
 	} defaults;
@@ -242,15 +242,15 @@ typedef struct _mate_config {
 
 
 typedef struct _mate_config_frame {
-	gchar* filename;
-	guint  linenum;
+	char* filename;
+	unsigned  linenum;
 } mate_config_frame;
 
 
 typedef struct _mate_runtime_data {
-	guint current_items; /* a count of items */
+	unsigned current_items; /* a count of items */
 	double now;
-	guint highest_analyzed_frame;
+	unsigned highest_analyzed_frame;
 
 	GHashTable* frames; /* k=frame.num v=pdus */
 
@@ -262,12 +262,12 @@ typedef struct _mate_gog mate_gog;
 
 /* these are used to contain information regarding pdus, gops and gogs */
 struct _mate_pdu {
-	guint32 id; /* 1:1 -> saving a g_malloc */
+	uint32_t id; /* 1:1 -> saving a g_malloc */
 	mate_cfg_pdu* cfg; /* the type of this item */
 
 	AVPL* avpl;
 
-	guint32 frame; /* which frame I belong to? */
+	uint32_t frame; /* which frame I belong to? */
 	mate_pdu* next_in_frame; /* points to the next pdu in this frame */
 	double rel_time; /* time since start of capture  */
 
@@ -275,21 +275,21 @@ struct _mate_pdu {
 	mate_pdu* next; /* next in gop */
 	double time_in_gop; /* time since gop start */
 
-	gboolean first; /* is this the first pdu in this frame? */
-	gboolean is_start; /* this is the start pdu for this gop */
-	gboolean is_stop; /* this is the stop pdu for this gop */
-	gboolean after_release; /* this pdu comes after the stop */
+	bool first; /* is this the first pdu in this frame? */
+	bool is_start; /* this is the start pdu for this gop */
+	bool is_stop; /* this is the stop pdu for this gop */
+	bool after_release; /* this pdu comes after the stop */
 
 };
 
 
 struct _mate_gop {
-	guint32 id;
+	uint32_t id;
 	mate_cfg_gop* cfg;
 
-	gchar* gop_key;
+	char* gop_key;
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
-	guint last_n;
+	unsigned last_n;
 
 	mate_gog* gog; /* the gog of a gop */
 	mate_gop* next; /* next in gog; */
@@ -309,18 +309,18 @@ struct _mate_gop {
 	mate_pdu* pdus; /* pdus that belong to a gop (NULL in gog) */
 	mate_pdu* last_pdu; /* last pdu in pdu's list */
 
-	gboolean released; /* has this gop been released? */
+	bool released; /* has this gop been released? */
 };
 
 
 struct _mate_gog {
-	guint32 id;
+	uint32_t id;
 	mate_cfg_gog* cfg;
 
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
-	guint last_n; /* the number of attributes the avpl had the last time we checked */
+	unsigned last_n; /* the number of attributes the avpl had the last time we checked */
 
-	gboolean released; /* has this gop been released? */
+	bool released; /* has this gop been released? */
 
 	double expiration; /* when will it expire after release (all gops releases if gog)? */
 	double idle_expiration; /* when will it expire if no new pdus are assigned to it */
@@ -347,27 +347,27 @@ typedef union _mate_max_size {
 
 /* from mate_runtime.c */
 extern void initialize_mate_runtime(mate_config* mc);
-extern mate_pdu* mate_get_pdus(guint32 framenum);
+extern mate_pdu* mate_get_pdus(uint32_t framenum);
 extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* tree);
 
 /* from mate_setup.c */
-extern mate_config* mate_make_config(const gchar* filename, int mate_hfid);
+extern mate_config* mate_make_config(const char* filename, int mate_hfid);
 
-extern mate_cfg_pdu* new_pducfg(mate_config* mc, gchar* name);
-extern mate_cfg_gop* new_gopcfg(mate_config* mc, gchar* name);
-extern mate_cfg_gog* new_gogcfg(mate_config* mc, gchar* name);
+extern mate_cfg_pdu* new_pducfg(mate_config* mc, char* name);
+extern mate_cfg_gop* new_gopcfg(mate_config* mc, char* name);
+extern mate_cfg_gog* new_gogcfg(mate_config* mc, char* name);
 
-extern gboolean add_hfid(mate_config* mc, header_field_info*  hfi, gchar* as, GHashTable* where);
-extern gchar* add_ranges(gchar* range, GPtrArray* range_ptr_arr);
+extern bool add_hfid(mate_config* mc, header_field_info*  hfi, char* as, GHashTable* where);
+extern char* add_ranges(char* range, GPtrArray* range_ptr_arr);
 
 
 /* from mate_parser.l */
-extern gboolean mate_load_config(const gchar* filename, mate_config* mc);
+extern bool mate_load_config(const char* filename, mate_config* mc);
 
 /* Constructor/Destructor prototypes for Lemon Parser */
-#define YYMALLOCARGTYPE gsize
+#define YYMALLOCARGTYPE size_t
 void *MateParserAlloc(void* (*)(YYMALLOCARGTYPE));
 void MateParserFree(void*, void (*)(void *));
-void MateParser(void*, int, gchar*,  mate_config*);
+void MateParser(void*, int, char*,  mate_config*);
 
 #endif

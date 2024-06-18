@@ -169,12 +169,12 @@ ExtensionObjectParserEntry g_arExtensionObjectParserTable[] = {
 };
 
 /** Dispatch all extension objects to a special parser function. */
-void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int TypeId)
+void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int TypeId)
 {
-    gint     iOffset = *pOffset;
+    int      iOffset = *pOffset;
     unsigned indx = 0;
     int      bFound = 0;
-    gint32   iLen = 0;
+    int32_t  iLen = 0;
 
     /* get the length of the body */
     iLen = tvb_get_letohl(tvb, iOffset);

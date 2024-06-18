@@ -28,11 +28,11 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-extern gint proto_mac_header_generic_decoder;
+extern int proto_mac_header_generic_decoder;
 
-static gint proto_mac_header_type_1_decoder;
-static gint ett_mac_header_type_1_decoder;
-static gint hf_mac_header_type_1_value_bytes;
+static int proto_mac_header_type_1_decoder;
+static int ett_mac_header_type_1_decoder;
+static int hf_mac_header_type_1_value_bytes;
 
 #define WIMAX_MAC_HEADER_SIZE  6
 
@@ -195,8 +195,8 @@ static const value_string last_msgs[] =
 
 static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint tvb_len, offset = 0;
-	guint first_byte, sub_type;
+	int tvb_len, offset = 0;
+	unsigned first_byte, sub_type;
 	proto_item *parent_item = NULL;
 	proto_item *ti = NULL;
 	proto_tree *ti_tree = NULL;
@@ -533,7 +533,7 @@ void wimax_proto_register_mac_header_type_1(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_header_type_1_decoder,
 		};

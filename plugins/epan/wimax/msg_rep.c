@@ -31,9 +31,9 @@ void proto_reg_handoff_mac_mgmt_msg_rep(void);
 static dissector_handle_t rep_req_handle;
 static dissector_handle_t rep_rsp_handle;
 
-static gint proto_mac_mgmt_msg_rep_decoder;
-static gint ett_mac_mgmt_msg_rep_req_decoder;
-static gint ett_mac_mgmt_msg_rep_rsp_decoder;
+static int proto_mac_mgmt_msg_rep_decoder;
+static int ett_mac_mgmt_msg_rep_req_decoder;
+static int ett_mac_mgmt_msg_rep_rsp_decoder;
 
 static const value_string vals_channel_types[] =
 {
@@ -81,112 +81,112 @@ static const value_string vals_type_of_measurements[] =
 };
 
 /* fix fields */
-static gint hf_rep_unknown_type;
-static gint hf_rep_invalid_tlv;
+static int hf_rep_unknown_type;
+static int hf_rep_invalid_tlv;
 
-static gint hf_rep_req_report_request;
-static gint hf_rep_req_report_type;
-static gint hf_rep_req_rep_type_bit0;
-static gint hf_rep_req_rep_type_bit1;
-static gint hf_rep_req_rep_type_bit2;
-static gint hf_rep_req_rep_type_bit3_6;
-static gint hf_rep_req_rep_type_bit7;
-static gint hf_rep_req_channel_number;
-static gint hf_rep_req_channel_type;
-static gint hf_rep_req_channel_type_request;
-static gint hf_rep_req_channel_type_reserved;
-static gint hf_rep_req_zone_spec_phy_cinr_request;
-static gint hf_rep_req_preamble_phy_cinr_request;
-static gint hf_rep_req_zone_spec_effective_cinr_request;
-static gint hf_rep_req_preamble_effective_cinr_request;
-static gint hf_rep_req_channel_selectivity_report;
+static int hf_rep_req_report_request;
+static int hf_rep_req_report_type;
+static int hf_rep_req_rep_type_bit0;
+static int hf_rep_req_rep_type_bit1;
+static int hf_rep_req_rep_type_bit2;
+static int hf_rep_req_rep_type_bit3_6;
+static int hf_rep_req_rep_type_bit7;
+static int hf_rep_req_channel_number;
+static int hf_rep_req_channel_type;
+static int hf_rep_req_channel_type_request;
+static int hf_rep_req_channel_type_reserved;
+static int hf_rep_req_zone_spec_phy_cinr_request;
+static int hf_rep_req_preamble_phy_cinr_request;
+static int hf_rep_req_zone_spec_effective_cinr_request;
+static int hf_rep_req_preamble_effective_cinr_request;
+static int hf_rep_req_channel_selectivity_report;
 
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit0_2;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit3;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit4;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit5_6;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit7;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit8_13;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit14_17;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit18;
-static gint hf_rep_req_zone_spec_phy_cinr_req_bit19_23;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit0_2;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit3;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit4;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit5_6;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit7;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit8_13;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit14_17;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit18;
+static int hf_rep_req_zone_spec_phy_cinr_req_bit19_23;
 
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit0_2;
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit3;
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit4;
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit5_6;
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit7;
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit8_13;
-static gint hf_rep_req_zone_spec_effective_cinr_req_bit14_15;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit0_2;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit3;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit4;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit5_6;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit7;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit8_13;
+static int hf_rep_req_zone_spec_effective_cinr_req_bit14_15;
 
-static gint hf_rep_req_preamble_phy_cinr_req_bit0_1;
-static gint hf_rep_req_preamble_phy_cinr_req_bit2_5;
-static gint hf_rep_req_preamble_phy_cinr_req_bit6;
-static gint hf_rep_req_preamble_phy_cinr_req_bit7;
+static int hf_rep_req_preamble_phy_cinr_req_bit0_1;
+static int hf_rep_req_preamble_phy_cinr_req_bit2_5;
+static int hf_rep_req_preamble_phy_cinr_req_bit6;
+static int hf_rep_req_preamble_phy_cinr_req_bit7;
 
-static gint hf_rep_req_preamble_effective_cinr_req_bit0_1;
-static gint hf_rep_req_preamble_effective_cinr_req_bit2_7;
+static int hf_rep_req_preamble_effective_cinr_req_bit0_1;
+static int hf_rep_req_preamble_effective_cinr_req_bit2_7;
 
-static gint hf_rep_req_channel_selectivity_rep_bit0;
-static gint hf_rep_req_channel_selectivity_rep_bit1_7;
+static int hf_rep_req_channel_selectivity_rep_bit0;
+static int hf_rep_req_channel_selectivity_rep_bit1_7;
 
-static gint hf_rep_rsp_report_type;
-static gint hf_rep_rsp_report_type_channel_number;
-static gint hf_rep_rsp_report_type_frame_number;
-static gint hf_rep_rsp_report_type_duration;
-static gint hf_rep_rsp_report_type_basic_report;
-static gint hf_rep_rsp_report_type_basic_report_bit0;
-static gint hf_rep_rsp_report_type_basic_report_bit1;
-static gint hf_rep_rsp_report_type_basic_report_bit2;
-static gint hf_rep_rsp_report_type_basic_report_bit3;
-static gint hf_rep_rsp_report_type_basic_report_reserved;
-static gint hf_rep_rsp_report_type_cinr_report;
-static gint hf_rep_rsp_report_type_cinr_report_mean;
-static gint hf_rep_rsp_report_type_cinr_report_deviation;
-static gint hf_rep_rsp_report_type_rssi_report;
-static gint hf_rep_rsp_report_type_rssi_report_mean;
-static gint hf_rep_rsp_report_type_rssi_report_deviation;
-static gint hf_rep_rsp_current_transmitted_power;
-static gint hf_rep_rsp_channel_type_report;
-static gint hf_rep_rsp_channel_type_subchannel;
-static gint hf_rep_rsp_channel_type_band_amc;
-static gint hf_rep_rsp_channel_type_safety_channel;
-static gint hf_rep_rsp_channel_type_enhanced_band_amc;
-static gint hf_rep_rsp_channel_type_sounding;
+static int hf_rep_rsp_report_type;
+static int hf_rep_rsp_report_type_channel_number;
+static int hf_rep_rsp_report_type_frame_number;
+static int hf_rep_rsp_report_type_duration;
+static int hf_rep_rsp_report_type_basic_report;
+static int hf_rep_rsp_report_type_basic_report_bit0;
+static int hf_rep_rsp_report_type_basic_report_bit1;
+static int hf_rep_rsp_report_type_basic_report_bit2;
+static int hf_rep_rsp_report_type_basic_report_bit3;
+static int hf_rep_rsp_report_type_basic_report_reserved;
+static int hf_rep_rsp_report_type_cinr_report;
+static int hf_rep_rsp_report_type_cinr_report_mean;
+static int hf_rep_rsp_report_type_cinr_report_deviation;
+static int hf_rep_rsp_report_type_rssi_report;
+static int hf_rep_rsp_report_type_rssi_report_mean;
+static int hf_rep_rsp_report_type_rssi_report_deviation;
+static int hf_rep_rsp_current_transmitted_power;
+static int hf_rep_rsp_channel_type_report;
+static int hf_rep_rsp_channel_type_subchannel;
+static int hf_rep_rsp_channel_type_band_amc;
+static int hf_rep_rsp_channel_type_safety_channel;
+static int hf_rep_rsp_channel_type_enhanced_band_amc;
+static int hf_rep_rsp_channel_type_sounding;
 
-static gint hf_rep_rsp_zone_spec_phy_cinr_report;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_mean;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_report_type;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_deviation;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_reserved2;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc0;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc1;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_fusc;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_optional_fusc;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_safety_channel;
-static gint hf_rep_rsp_zone_spec_phy_cinr_rep_amc;
-static gint hf_rep_rsp_preamble_phy_cinr_report;
-static gint hf_rep_rsp_preamble_phy_cinr_rep_configuration_1;
-static gint hf_rep_rsp_preamble_phy_cinr_rep_configuration_3;
-static gint hf_rep_rsp_preamble_phy_cinr_rep_band_amc_zone;
-static gint hf_rep_rsp_zone_spec_effective_cinr_report;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_report_type;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id;
-static gint hf_rep_rsp_preamble_effective_cinr_report;
-static gint hf_rep_rsp_preamble_effective_cinr_rep_cqich_id;
-static gint hf_rep_rsp_channel_selectivity_report;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc0;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc1;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_fusc;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_optional_fusc;
-static gint hf_rep_rsp_zone_spec_effective_cinr_rep_amc_aas;
-static gint hf_rep_rsp_preamble_effective_cinr_rep_configuration_1;
-static gint hf_rep_rsp_preamble_effective_cinr_rep_configuration_3;
-static gint hf_rep_rsp_channel_selectivity_rep_frequency_a;
-static gint hf_rep_rsp_channel_selectivity_rep_frequency_b;
-static gint hf_rep_rsp_channel_selectivity_rep_frequency_c;
+static int hf_rep_rsp_zone_spec_phy_cinr_report;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_mean;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_report_type;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_deviation;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_reserved2;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc0;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc1;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_fusc;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_optional_fusc;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_safety_channel;
+static int hf_rep_rsp_zone_spec_phy_cinr_rep_amc;
+static int hf_rep_rsp_preamble_phy_cinr_report;
+static int hf_rep_rsp_preamble_phy_cinr_rep_configuration_1;
+static int hf_rep_rsp_preamble_phy_cinr_rep_configuration_3;
+static int hf_rep_rsp_preamble_phy_cinr_rep_band_amc_zone;
+static int hf_rep_rsp_zone_spec_effective_cinr_report;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_report_type;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id;
+static int hf_rep_rsp_preamble_effective_cinr_report;
+static int hf_rep_rsp_preamble_effective_cinr_rep_cqich_id;
+static int hf_rep_rsp_channel_selectivity_report;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc0;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc1;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_fusc;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_optional_fusc;
+static int hf_rep_rsp_zone_spec_effective_cinr_rep_amc_aas;
+static int hf_rep_rsp_preamble_effective_cinr_rep_configuration_1;
+static int hf_rep_rsp_preamble_effective_cinr_rep_configuration_3;
+static int hf_rep_rsp_channel_selectivity_rep_frequency_a;
+static int hf_rep_rsp_channel_selectivity_rep_frequency_b;
+static int hf_rep_rsp_channel_selectivity_rep_frequency_c;
 
 /* bit masks */
 #define REP_REQ_REPORT_TYPE_BIT0	          0x01
@@ -248,9 +248,9 @@ static gint hf_rep_rsp_channel_selectivity_rep_frequency_c;
 /* Wimax Mac REP-REQ Message Dissector */
 static int dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len;
-	gint  tlv_type, tlv_len, tlv_value_offset, length, tlv_offset;
+	unsigned offset = 0;
+	unsigned tvb_len;
+	int   tlv_type, tlv_len, tlv_value_offset, length, tlv_offset;
 	proto_item *rep_item, *tlv_item, *ti_item;
 	proto_tree *rep_tree, *tlv_tree, *ti_tree;
 	tlv_info_t tlv_info;
@@ -289,7 +289,7 @@ static int dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinf
 			{
 				case REP_REQ_REPORT_REQUEST:
 				/* process the REP-REQ report request TLVs */
-				tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_req_report_request, tvb, offset-tlv_value_offset, FALSE);
+				tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_req_report_request, tvb, offset-tlv_value_offset, false);
 				tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_req_decoder);
 				for( tlv_offset = 0; tlv_offset < tlv_len;  )
 				{	/* get the TLV information */
@@ -405,14 +405,14 @@ static int dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinf
 /* Wimax Mac REP-RSP Message Dissector */
 static int dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len, length, value;
-	gint  tlv_type, tlv_len, tlv_value_offset, tlv_offset;
-	gint  db_val;
+	unsigned offset = 0;
+	unsigned tvb_len, length, value;
+	int   tlv_type, tlv_len, tlv_value_offset, tlv_offset;
+	int   db_val;
 	proto_item *rep_item, *tlv_item, *ti, *ti_item;
 	proto_tree *rep_tree, *tlv_tree, *ti_tree;
 	tlv_info_t tlv_info;
-	gfloat current_power;
+	float current_power;
 
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
@@ -815,7 +815,7 @@ static int dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				case CURRENT_TX_POWER:
 					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_current_transmitted_power, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					value = tvb_get_guint8(tvb, offset);
-					current_power = ((gfloat)value - 128) / 2;
+					current_power = ((float)value - 128) / 2;
 					proto_item_append_text(tlv_item, " (%.1f dBm)", current_power);
 				break;
 				default:
@@ -1525,7 +1525,7 @@ void proto_register_mac_mgmt_msg_rep(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett_rep[] =
+	static int *ett_rep[] =
 		{
 			&ett_mac_mgmt_msg_rep_req_decoder,
 			&ett_mac_mgmt_msg_rep_rsp_decoder,

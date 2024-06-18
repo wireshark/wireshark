@@ -29,69 +29,69 @@ static dissector_handle_t rng_rsp_handle;
 static dissector_handle_t sbc_rsp_handle;
 static dissector_handle_t reg_rsp_handle;
 
-static gint proto_mac_mgmt_msg_rng_rsp_decoder;
-static gint ett_mac_mgmt_msg_rng_rsp_decoder;
-static gint ett_rng_rsp_message_tree;
+static int proto_mac_mgmt_msg_rng_rsp_decoder;
+static int ett_mac_mgmt_msg_rng_rsp_decoder;
+static int ett_rng_rsp_message_tree;
 
 /* RNG-RSP fields */
-static gint hf_rng_req_reserved;
-/* static gint hf_rng_rsp_ul_channel_id; */
-static gint hf_rng_rsp_timing_adjust;
-static gint hf_rng_rsp_power_level_adjust;
-static gint hf_rng_rsp_offset_freq_adjust;
-static gint hf_rng_rsp_ranging_status;
-static gint hf_rng_rsp_dl_freq_override;
-static gint hf_rng_rsp_ul_chan_id_override;
-static gint hf_rng_rsp_dl_operational_burst_profile;
-static gint hf_rng_rsp_dl_operational_burst_profile_diuc;
-static gint hf_rng_rsp_dl_operational_burst_profile_ccc;
-static gint hf_rng_rsp_ss_mac_address;
-static gint hf_rng_rsp_basic_cid;
-static gint hf_rng_rsp_primary_mgmt_cid;
-static gint hf_rng_rsp_broadcast;
-static gint hf_rng_rsp_frame_number;
-static gint hf_rng_rsp_opportunity_number;
-static gint hf_rng_rsp_service_level_prediction;
-static gint hf_rng_rsp_resource_retain_flag;
-static gint hf_rng_rsp_ho_process_optimization;
-static gint hf_rng_rsp_ho_process_optimization_0;
-static gint hf_rng_rsp_ho_process_optimization_1_2;
-static gint hf_rng_rsp_ho_process_optimization_3;
-static gint hf_rng_rsp_ho_process_optimization_4;
-static gint hf_rng_rsp_ho_process_optimization_5;
-static gint hf_rng_rsp_ho_process_optimization_6;
-static gint hf_rng_rsp_ho_process_optimization_7;
-static gint hf_rng_rsp_ho_process_optimization_8;
-static gint hf_rng_rsp_ho_process_optimization_9;
-static gint hf_rng_rsp_ho_process_optimization_10;
-static gint hf_rng_rsp_ho_process_optimization_11;
-static gint hf_rng_rsp_ho_process_optimization_12;
-static gint hf_rng_rsp_ho_process_optimization_13;
-static gint hf_rng_rsp_ho_process_optimization_14;
-static gint hf_rng_rsp_ho_process_optimization_15;
+static int hf_rng_req_reserved;
+/* static int hf_rng_rsp_ul_channel_id; */
+static int hf_rng_rsp_timing_adjust;
+static int hf_rng_rsp_power_level_adjust;
+static int hf_rng_rsp_offset_freq_adjust;
+static int hf_rng_rsp_ranging_status;
+static int hf_rng_rsp_dl_freq_override;
+static int hf_rng_rsp_ul_chan_id_override;
+static int hf_rng_rsp_dl_operational_burst_profile;
+static int hf_rng_rsp_dl_operational_burst_profile_diuc;
+static int hf_rng_rsp_dl_operational_burst_profile_ccc;
+static int hf_rng_rsp_ss_mac_address;
+static int hf_rng_rsp_basic_cid;
+static int hf_rng_rsp_primary_mgmt_cid;
+static int hf_rng_rsp_broadcast;
+static int hf_rng_rsp_frame_number;
+static int hf_rng_rsp_opportunity_number;
+static int hf_rng_rsp_service_level_prediction;
+static int hf_rng_rsp_resource_retain_flag;
+static int hf_rng_rsp_ho_process_optimization;
+static int hf_rng_rsp_ho_process_optimization_0;
+static int hf_rng_rsp_ho_process_optimization_1_2;
+static int hf_rng_rsp_ho_process_optimization_3;
+static int hf_rng_rsp_ho_process_optimization_4;
+static int hf_rng_rsp_ho_process_optimization_5;
+static int hf_rng_rsp_ho_process_optimization_6;
+static int hf_rng_rsp_ho_process_optimization_7;
+static int hf_rng_rsp_ho_process_optimization_8;
+static int hf_rng_rsp_ho_process_optimization_9;
+static int hf_rng_rsp_ho_process_optimization_10;
+static int hf_rng_rsp_ho_process_optimization_11;
+static int hf_rng_rsp_ho_process_optimization_12;
+static int hf_rng_rsp_ho_process_optimization_13;
+static int hf_rng_rsp_ho_process_optimization_14;
+static int hf_rng_rsp_ho_process_optimization_15;
 /* Added the following to help implement RNG-RSP message encoding 33 (Table 367 in IEEE 802.16e-2007) */
-static gint hf_rng_rsp_dl_op_burst_profile_ofdma;
-static gint hf_rng_rsp_least_robust_diuc;
-static gint hf_rng_rsp_repetition_coding_indication;
-static gint hf_rng_rsp_config_change_count_of_dcd;
+static int hf_rng_rsp_dl_op_burst_profile_ofdma;
+static int hf_rng_rsp_least_robust_diuc;
+static int hf_rng_rsp_repetition_coding_indication;
+static int hf_rng_rsp_config_change_count_of_dcd;
 /* Added the following to help implement RNG-RSP message encoding 22 (Table 367 in IEEE 802.16e-2007) */
-static gint hf_rng_rsp_ho_id;
-static gint hf_rng_rsp_location_update_response;
+static int hf_rng_rsp_ho_id;
+static int hf_rng_rsp_location_update_response;
 /* Added the following to help implement RNG-RSP message encoding 24 (Table 367 in IEEE 802.16e-2007) */
-static gint hf_rng_rsp_paging_information;
-static gint hf_rng_rsp_paging_cycle;
-static gint hf_rng_rsp_paging_offset;
-static gint hf_rng_rsp_paging_group_id;
-static gint hf_rng_rsp_bs_random;
-static gint hf_rng_rsp_akid;
-static gint hf_rng_rsp_ranging_subchan;
-static gint hf_rng_rsp_time_symbol_reference;
-static gint hf_rng_rsp_subchannel_reference;
-static gint hf_rng_rsp_ranging_code_index;
-static gint hf_rng_rsp_frame_number2;
-static gint hf_tlv_type;
-/* static gint hf_tlv_value; */
-static gint hf_rng_invalid_tlv;
+static int hf_rng_rsp_paging_information;
+static int hf_rng_rsp_paging_cycle;
+static int hf_rng_rsp_paging_offset;
+static int hf_rng_rsp_paging_group_id;
+static int hf_rng_rsp_bs_random;
+static int hf_rng_rsp_akid;
+static int hf_rng_rsp_ranging_subchan;
+static int hf_rng_rsp_time_symbol_reference;
+static int hf_rng_rsp_subchannel_reference;
+static int hf_rng_rsp_ranging_code_index;
+static int hf_rng_rsp_frame_number2;
+static int hf_tlv_type;
+/* static int hf_tlv_value; */
+static int hf_rng_invalid_tlv;
 
 /* STRING RESOURCES */
 
@@ -258,21 +258,21 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
         proto_item *frame_number_item = NULL;
         proto_item *opportunity_number_item = NULL;
 
-	guint offset = 0;
-	guint tlv_offset;
-	guint tvb_len;
+	unsigned offset = 0;
+	unsigned tlv_offset;
+	unsigned tvb_len;
 	proto_item *rng_rsp_item, *sub_item;
 	proto_item *tlv_item = NULL;
 	proto_tree *rng_rsp_tree;
 	proto_tree *sub_tree = NULL;
 	tlv_info_t tlv_info;
-	gint tlv_type;
-	guint tlv_len;
-	guint this_offset = 0;
+	int tlv_type;
+	unsigned tlv_len;
+	unsigned this_offset = 0;
 	tlv_info_t sub_tlv_info;
-	gint sub_tlv_type;
-	gint sub_tlv_len;
-	guint sub_tlv_offset;
+	int sub_tlv_type;
+	int sub_tlv_len;
+	unsigned sub_tlv_offset;
 	float timing_adjust;
 	float power_level_adjust;
 
@@ -921,7 +921,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_rng_rsp_decoder,
 			&ett_rng_rsp_message_tree

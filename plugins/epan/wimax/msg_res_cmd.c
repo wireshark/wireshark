@@ -30,20 +30,20 @@ void proto_reg_handoff_mac_mgmt_msg_res_cmd(void);
 
 static dissector_handle_t res_cmd_handle;
 
-static gint proto_mac_mgmt_msg_res_cmd_decoder;
-static gint ett_mac_mgmt_msg_res_cmd_decoder;
+static int proto_mac_mgmt_msg_res_cmd_decoder;
+static int ett_mac_mgmt_msg_res_cmd_decoder;
 
 /* fix fields */
-static gint hf_res_cmd_unknown_type;
-static gint hf_res_cmd_invalid_tlv;
+static int hf_res_cmd_unknown_type;
+static int hf_res_cmd_invalid_tlv;
 
 
 /* Wimax Mac RES-CMD Message Dissector */
 static int dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len;
-	gint  tlv_type, tlv_len, tlv_value_offset;
+	unsigned offset = 0;
+	unsigned tvb_len;
+	int   tlv_type, tlv_len, tlv_value_offset;
 	proto_item *res_cmd_item;
 	proto_tree *res_cmd_tree;
 	proto_tree *tlv_tree = NULL;
@@ -118,7 +118,7 @@ void proto_register_mac_mgmt_msg_res_cmd(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett_res_cmd[] =
+	static int *ett_res_cmd[] =
 		{
 			&ett_mac_mgmt_msg_res_cmd_decoder,
 		};

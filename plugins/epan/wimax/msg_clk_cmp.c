@@ -24,24 +24,24 @@ void proto_reg_handoff_mac_mgmt_msg_clk_cmp(void);
 
 static dissector_handle_t clk_cmp_handle;
 
-static gint proto_mac_mgmt_msg_clk_cmp_decoder;
+static int proto_mac_mgmt_msg_clk_cmp_decoder;
 
-static gint ett_mac_mgmt_msg_clk_cmp_decoder;
+static int ett_mac_mgmt_msg_clk_cmp_decoder;
 
 /* CLK_CMP fields */
-static gint hf_clk_cmp_clock_count;
-static gint hf_clk_cmp_clock_id;
-static gint hf_clk_cmp_seq_number;
-static gint hf_clk_cmp_comparison_value;
-/* static gint hf_clk_cmp_invalid_tlv; */
+static int hf_clk_cmp_clock_count;
+static int hf_clk_cmp_clock_id;
+static int hf_clk_cmp_seq_number;
+static int hf_clk_cmp_comparison_value;
+/* static int hf_clk_cmp_invalid_tlv; */
 
 
 /* Decode CLK_CMP messages. */
 static int dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint i;
-	guint clock_count;
+	unsigned offset = 0;
+	unsigned i;
+	unsigned clock_count;
 	proto_item *clk_cmp_item;
 	proto_tree *clk_cmp_tree;
 
@@ -114,7 +114,7 @@ void proto_register_mac_mgmt_msg_clk_cmp(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_clk_cmp_decoder,
 		};

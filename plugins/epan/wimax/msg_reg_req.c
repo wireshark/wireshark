@@ -29,121 +29,121 @@ void proto_reg_handoff_mac_mgmt_msg_reg_req(void);
 
 static dissector_handle_t reg_req_handle;
 
-static gint proto_mac_mgmt_msg_reg_req_decoder;
-static gint ett_mac_mgmt_msg_reg_req_decoder;
+static int proto_mac_mgmt_msg_reg_req_decoder;
+static int ett_mac_mgmt_msg_reg_req_decoder;
 
 /* REG-REQ fields */
-static gint hf_reg_ss_mgmt_support;
-static gint hf_reg_ip_mgmt_mode;
-static gint hf_reg_ip_version;
-static gint hf_reg_req_secondary_mgmt_cid;
-static gint hf_reg_ul_cids;
-static gint hf_reg_max_classifiers;
-static gint hf_reg_phs;
-static gint hf_reg_arq;
-static gint hf_reg_dsx_flow_control;
-static gint hf_reg_mac_crc_support;
-static gint hf_reg_mca_flow_control;
-static gint hf_reg_mcast_polling_cids;
-static gint hf_reg_num_dl_trans_cid;
-static gint hf_reg_mac_address;
-static gint hf_reg_tlv_t_20_1_max_mac_level_data_per_dl_frame;
-static gint hf_reg_tlv_t_20_2_max_mac_level_data_per_ul_frame;
-static gint hf_reg_tlv_t_21_packing_support;
-static gint hf_reg_tlv_t_22_mac_extended_rtps_support;
-static gint hf_reg_tlv_t_23_max_num_bursts_concurrently_to_the_ms;
-static gint hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcp;
-static gint hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_mobile_ipv4;
-static gint hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcpv6;
-static gint hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_ipv6;
-static gint hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_rsvd;
-static gint hf_reg_tlv_t_27_handover_fbss_mdho_ho_disable;
-static gint hf_reg_tlv_t_27_handover_fbss_mdho_dl_rf_monitoring_maps;
-static gint hf_reg_tlv_t_27_handover_mdho_dl_monitoring_single_map;
-static gint hf_reg_tlv_t_27_handover_mdho_dl_monitoring_maps;
-static gint hf_reg_tlv_t_27_handover_mdho_ul_multiple;
-static gint hf_reg_tlv_t_27_handover_reserved;
-static gint hf_reg_tlv_t_29_ho_process_opt_ms_timer;
-static gint hf_reg_tlv_t_31_mobility_handover;
-static gint hf_reg_tlv_t_31_mobility_sleep_mode;
-static gint hf_reg_tlv_t_31_mobility_idle_mode;
-static gint hf_reg_req_tlv_t_32_sleep_mode_recovery_time;
-static gint hf_ms_previous_ip_address_v4;
-static gint hf_ms_previous_ip_address_v6;
-static gint hf_idle_mode_timeout;
-static gint hf_reg_req_tlv_t_45_ms_periodic_ranging_timer;
-static gint hf_reg_tlv_t_40_arq_ack_type_selective_ack_entry;
-static gint hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_entry;
-static gint hf_reg_tlv_t_40_arq_ack_type_cumulative_with_selective_ack_entry;
-static gint hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_with_block_sequence_ack;
-static gint hf_reg_tlv_t_40_arq_ack_type_reserved;
-static gint hf_reg_tlv_t_41_ho_connections_param_processing_time;
-static gint hf_reg_tlv_t_42_ho_tek_processing_time;
-static gint hf_reg_tlv_t_43_bandwidth_request_ul_tx_power_report_header_support;
-static gint hf_reg_tlv_t_43_bandwidth_request_cinr_report_header_support;
-static gint hf_reg_tlv_t_43_cqich_allocation_request_header_support;
-static gint hf_reg_tlv_t_43_phy_channel_report_header_support;
-static gint hf_reg_tlv_t_43_bandwidth_request_ul_sleep_control_header_support;
-static gint hf_reg_tlv_t_43_sn_report_header_support;
-static gint hf_reg_tlv_t_43_feedback_header_support;
-static gint hf_reg_tlv_t_43_sdu_sn_extended_subheader_support_and_parameter;
-static gint hf_reg_tlv_t_43_sdu_sn_parameter;
-static gint hf_reg_tlv_t_43_dl_sleep_control_extended_subheader;
-static gint hf_reg_tlv_t_43_feedback_request_extended_subheader;
-static gint hf_reg_tlv_t_43_mimo_mode_feedback_extended_subheader;
-static gint hf_reg_tlv_t_43_ul_tx_power_report_extended_subheader;
-static gint hf_reg_tlv_t_43_mini_feedback_extended_subheader;
-static gint hf_reg_tlv_t_43_sn_request_extended_subheader;
-static gint hf_reg_tlv_t_43_pdu_sn_short_extended_subheader;
-static gint hf_reg_tlv_t_43_pdu_sn_long_extended_subheader;
-static gint hf_reg_tlv_t_43_reserved;
-static gint hf_reg_tlv_t_46_handover_indication_readiness_timer;
-static gint hf_reg_req_min_time_for_intra_fa;
-static gint hf_reg_req_min_time_for_inter_fa;
-static gint hf_reg_encap_atm_4;
-static gint hf_reg_encap_ipv4_4;
-static gint hf_reg_encap_ipv6_4;
-static gint hf_reg_encap_802_3_4;
-static gint hf_reg_encap_802_1q_4;
-static gint hf_reg_encap_ipv4_802_3_4;
-static gint hf_reg_encap_ipv6_802_3_4;
-static gint hf_reg_encap_ipv4_802_1q_4;
-static gint hf_reg_encap_ipv6_802_1q_4;
-static gint hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_4;
-static gint hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_4;
-static gint hf_reg_encap_packet_ip_rohc_header_compression_4;
-static gint hf_reg_encap_packet_ip_ecrtp_header_compression_4;
-static gint hf_reg_encap_rsvd_4;
-static gint hf_reg_encap_atm_2;
-static gint hf_reg_encap_ipv4_2;
-static gint hf_reg_encap_ipv6_2;
-static gint hf_reg_encap_802_3_2;
-static gint hf_reg_encap_802_1q_2;
-static gint hf_reg_encap_ipv4_802_3_2;
-static gint hf_reg_encap_ipv6_802_3_2;
-static gint hf_reg_encap_ipv4_802_1q_2;
-static gint hf_reg_encap_ipv6_802_1q_2;
-static gint hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_2;
-static gint hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_2;
-static gint hf_reg_encap_packet_ip_rohc_header_compression_2;
-static gint hf_reg_encap_packet_ip_ecrtp_header_compression_2;
-static gint hf_reg_encap_rsvd_2;
-static gint hf_tlv_type;
-static gint hf_reg_invalid_tlv;
-static gint hf_reg_power_saving_class_type_i;
-static gint hf_reg_power_saving_class_type_ii;
-static gint hf_reg_power_saving_class_type_iii;
-static gint hf_reg_multi_active_power_saving_classes;
-static gint hf_reg_total_power_saving_class_instances;
-static gint hf_reg_power_saving_class_reserved;
-static gint hf_reg_power_saving_class_capability;
-static gint hf_reg_ip_phs_sdu_encap;
-static gint hf_reg_tlv_t_26_method_alloc_ip_addr_secondary_mgmnt_conn;
-static gint hf_reg_tlv_t_27_handover_supported;
-static gint hf_reg_tlv_t_31_mobility_features_supported;
-static gint hf_reg_tlv_t_40_arq_ack_type;
-static gint hf_reg_tlv_t_43_mac_header_ext_header_support;
-static gint hf_reg_req_bs_switching_timer;
+static int hf_reg_ss_mgmt_support;
+static int hf_reg_ip_mgmt_mode;
+static int hf_reg_ip_version;
+static int hf_reg_req_secondary_mgmt_cid;
+static int hf_reg_ul_cids;
+static int hf_reg_max_classifiers;
+static int hf_reg_phs;
+static int hf_reg_arq;
+static int hf_reg_dsx_flow_control;
+static int hf_reg_mac_crc_support;
+static int hf_reg_mca_flow_control;
+static int hf_reg_mcast_polling_cids;
+static int hf_reg_num_dl_trans_cid;
+static int hf_reg_mac_address;
+static int hf_reg_tlv_t_20_1_max_mac_level_data_per_dl_frame;
+static int hf_reg_tlv_t_20_2_max_mac_level_data_per_ul_frame;
+static int hf_reg_tlv_t_21_packing_support;
+static int hf_reg_tlv_t_22_mac_extended_rtps_support;
+static int hf_reg_tlv_t_23_max_num_bursts_concurrently_to_the_ms;
+static int hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcp;
+static int hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_mobile_ipv4;
+static int hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcpv6;
+static int hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_ipv6;
+static int hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_rsvd;
+static int hf_reg_tlv_t_27_handover_fbss_mdho_ho_disable;
+static int hf_reg_tlv_t_27_handover_fbss_mdho_dl_rf_monitoring_maps;
+static int hf_reg_tlv_t_27_handover_mdho_dl_monitoring_single_map;
+static int hf_reg_tlv_t_27_handover_mdho_dl_monitoring_maps;
+static int hf_reg_tlv_t_27_handover_mdho_ul_multiple;
+static int hf_reg_tlv_t_27_handover_reserved;
+static int hf_reg_tlv_t_29_ho_process_opt_ms_timer;
+static int hf_reg_tlv_t_31_mobility_handover;
+static int hf_reg_tlv_t_31_mobility_sleep_mode;
+static int hf_reg_tlv_t_31_mobility_idle_mode;
+static int hf_reg_req_tlv_t_32_sleep_mode_recovery_time;
+static int hf_ms_previous_ip_address_v4;
+static int hf_ms_previous_ip_address_v6;
+static int hf_idle_mode_timeout;
+static int hf_reg_req_tlv_t_45_ms_periodic_ranging_timer;
+static int hf_reg_tlv_t_40_arq_ack_type_selective_ack_entry;
+static int hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_entry;
+static int hf_reg_tlv_t_40_arq_ack_type_cumulative_with_selective_ack_entry;
+static int hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_with_block_sequence_ack;
+static int hf_reg_tlv_t_40_arq_ack_type_reserved;
+static int hf_reg_tlv_t_41_ho_connections_param_processing_time;
+static int hf_reg_tlv_t_42_ho_tek_processing_time;
+static int hf_reg_tlv_t_43_bandwidth_request_ul_tx_power_report_header_support;
+static int hf_reg_tlv_t_43_bandwidth_request_cinr_report_header_support;
+static int hf_reg_tlv_t_43_cqich_allocation_request_header_support;
+static int hf_reg_tlv_t_43_phy_channel_report_header_support;
+static int hf_reg_tlv_t_43_bandwidth_request_ul_sleep_control_header_support;
+static int hf_reg_tlv_t_43_sn_report_header_support;
+static int hf_reg_tlv_t_43_feedback_header_support;
+static int hf_reg_tlv_t_43_sdu_sn_extended_subheader_support_and_parameter;
+static int hf_reg_tlv_t_43_sdu_sn_parameter;
+static int hf_reg_tlv_t_43_dl_sleep_control_extended_subheader;
+static int hf_reg_tlv_t_43_feedback_request_extended_subheader;
+static int hf_reg_tlv_t_43_mimo_mode_feedback_extended_subheader;
+static int hf_reg_tlv_t_43_ul_tx_power_report_extended_subheader;
+static int hf_reg_tlv_t_43_mini_feedback_extended_subheader;
+static int hf_reg_tlv_t_43_sn_request_extended_subheader;
+static int hf_reg_tlv_t_43_pdu_sn_short_extended_subheader;
+static int hf_reg_tlv_t_43_pdu_sn_long_extended_subheader;
+static int hf_reg_tlv_t_43_reserved;
+static int hf_reg_tlv_t_46_handover_indication_readiness_timer;
+static int hf_reg_req_min_time_for_intra_fa;
+static int hf_reg_req_min_time_for_inter_fa;
+static int hf_reg_encap_atm_4;
+static int hf_reg_encap_ipv4_4;
+static int hf_reg_encap_ipv6_4;
+static int hf_reg_encap_802_3_4;
+static int hf_reg_encap_802_1q_4;
+static int hf_reg_encap_ipv4_802_3_4;
+static int hf_reg_encap_ipv6_802_3_4;
+static int hf_reg_encap_ipv4_802_1q_4;
+static int hf_reg_encap_ipv6_802_1q_4;
+static int hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_4;
+static int hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_4;
+static int hf_reg_encap_packet_ip_rohc_header_compression_4;
+static int hf_reg_encap_packet_ip_ecrtp_header_compression_4;
+static int hf_reg_encap_rsvd_4;
+static int hf_reg_encap_atm_2;
+static int hf_reg_encap_ipv4_2;
+static int hf_reg_encap_ipv6_2;
+static int hf_reg_encap_802_3_2;
+static int hf_reg_encap_802_1q_2;
+static int hf_reg_encap_ipv4_802_3_2;
+static int hf_reg_encap_ipv6_802_3_2;
+static int hf_reg_encap_ipv4_802_1q_2;
+static int hf_reg_encap_ipv6_802_1q_2;
+static int hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_2;
+static int hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_2;
+static int hf_reg_encap_packet_ip_rohc_header_compression_2;
+static int hf_reg_encap_packet_ip_ecrtp_header_compression_2;
+static int hf_reg_encap_rsvd_2;
+static int hf_tlv_type;
+static int hf_reg_invalid_tlv;
+static int hf_reg_power_saving_class_type_i;
+static int hf_reg_power_saving_class_type_ii;
+static int hf_reg_power_saving_class_type_iii;
+static int hf_reg_multi_active_power_saving_classes;
+static int hf_reg_total_power_saving_class_instances;
+static int hf_reg_power_saving_class_reserved;
+static int hf_reg_power_saving_class_capability;
+static int hf_reg_ip_phs_sdu_encap;
+static int hf_reg_tlv_t_26_method_alloc_ip_addr_secondary_mgmnt_conn;
+static int hf_reg_tlv_t_27_handover_supported;
+static int hf_reg_tlv_t_31_mobility_features_supported;
+static int hf_reg_tlv_t_40_arq_ack_type;
+static int hf_reg_tlv_t_43_mac_header_ext_header_support;
+static int hf_reg_req_bs_switching_timer;
 
 /* STRING RESOURCES */
 
@@ -212,15 +212,15 @@ static const value_string unique_no_limit[] = {
 };
 
 /* Decode REG-REQ sub-TLV's. */
-void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry)
+void dissect_extended_tlv(proto_tree *reg_req_tree, int tlv_type, tvbuff_t *tvb, unsigned tlv_offset, unsigned tlv_len, packet_info *pinfo, unsigned offset, int proto_registry)
 {
 	proto_item *tlv_item;
 	proto_tree *tlv_tree;
-	guint tvb_len;
+	unsigned tvb_len;
 	tlv_info_t tlv_info;
-	guint tlv_end;
-	guint length;
-	guint nblocks;
+	unsigned tlv_end;
+	unsigned length;
+	unsigned nblocks;
 
 	/* Get the tvb reported length */
 	tvb_len =  tvb_reported_length(tvb);
@@ -481,16 +481,16 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 /* Decode REG-REQ messages. */
 static int dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tlv_offset;
-	guint tvb_len;
+	unsigned offset = 0;
+	unsigned tlv_offset;
+	unsigned tvb_len;
 	proto_item *reg_req_item = NULL;
 	proto_tree *reg_req_tree = NULL;
 	proto_tree *tlv_tree = NULL;
-	gboolean hmac_found = FALSE;
+	bool hmac_found = false;
 	tlv_info_t tlv_info;
-	gint tlv_type;
-	gint tlv_len;
+	int tlv_type;
+	int tlv_len;
 
 	{	/* we are being asked for details */
 
@@ -594,7 +594,7 @@ static int dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinf
 					/* decode and display the HMAC Tuple */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, offset, tlv_len, "HMAC Tuple");
 					wimax_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
-					hmac_found = TRUE;
+					hmac_found = true;
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
@@ -1403,7 +1403,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_mac_mgmt_msg_reg_req_decoder
 		};

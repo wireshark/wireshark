@@ -33,18 +33,18 @@
 typedef struct _RRPD
 {
     /*
-        When a c2s is set TRUE it means that the associated packet is going from
+        When a c2s is set true it means that the associated packet is going from
         client-to-service.  If this value is false the associated packet is going
         from service-to-client.
 
         This value is only valid for RRPDs imbedded in subpacket structures.
      */
-    gboolean c2s;
+    bool c2s;
 
-    guint8   ip_proto;
-    guint32  stream_no;
-    guint64  session_id;
-    guint64  msg_id;
+    uint8_t  ip_proto;
+    uint32_t stream_no;
+    uint64_t session_id;
+    uint64_t msg_id;
 
     /*
         Some request-response pairs are demarked simple by a change in direction on a
@@ -53,25 +53,25 @@ typedef struct _RRPD
         values to detect the start and end of APDUs.  In this latter case decode_based
         is set to true.
      */
-    gboolean decode_based;
+    bool decode_based;
 
-    gboolean is_retrans;
+    bool is_retrans;
 
-    guint32  req_first_frame;
+    uint32_t req_first_frame;
     nstime_t req_first_rtime;
-    guint32  req_last_frame;
+    uint32_t req_last_frame;
     nstime_t req_last_rtime;
 
-    guint32  rsp_first_frame;
+    uint32_t rsp_first_frame;
     nstime_t rsp_first_rtime;
-    guint32  rsp_last_frame;
+    uint32_t rsp_last_frame;
     nstime_t rsp_last_rtime;
 
-    guint    calculation;
+    unsigned calculation;
 
     /* The following numbers are for tuning purposes */
-    guint32  req_search_total;  /* The total number of steps back through the rrpd_list when matching requests to this entry */
-    guint32  rsp_search_total;  /* The total number of steps back through the rrpd_list when matching responses to this entry */
+    uint32_t req_search_total;  /* The total number of steps back through the rrpd_list when matching requests to this entry */
+    uint32_t rsp_search_total;  /* The total number of steps back through the rrpd_list when matching responses to this entry */
 } RRPD;
 
 typedef struct _PKT_INFO
@@ -79,39 +79,39 @@ typedef struct _PKT_INFO
     int frame_number;
     nstime_t relative_time;
 
-    gboolean tcp_retran;  /* tcp.analysis.retransmission */
-    gboolean tcp_keep_alive;  /* tcp.analysis.keep_alive */
-    gboolean tcp_flags_syn;  /* tcp.flags.syn */
-    gboolean tcp_flags_ack;  /* tcp.flags.ack */
-    gboolean tcp_flags_reset;  /* tcp.flags.reset */
-    guint32 tcp_flags_urg;  /* tcp.urgent_pointer */
-    guint32 tcp_seq;  /* tcp.seq */
+    bool tcp_retran;  /* tcp.analysis.retransmission */
+    bool tcp_keep_alive;  /* tcp.analysis.keep_alive */
+    bool tcp_flags_syn;  /* tcp.flags.syn */
+    bool tcp_flags_ack;  /* tcp.flags.ack */
+    bool tcp_flags_reset;  /* tcp.flags.reset */
+    uint32_t tcp_flags_urg;  /* tcp.urgent_pointer */
+    uint32_t tcp_seq;  /* tcp.seq */
 
     /* Generic transport values */
-    guint16 srcport;  /* tcp.srcport or udp.srcport*/
-    guint16 dstport;  /* tcp.dstport or udp.dstport*/
-    guint16 len;  /* tcp.len or udp.len */
+    uint16_t srcport;  /* tcp.srcport or udp.srcport*/
+    uint16_t dstport;  /* tcp.dstport or udp.dstport*/
+    uint16_t len;  /* tcp.len or udp.len */
 
-    guint8  ssl_content_type;  /*tls.record.content_type */
+    uint8_t ssl_content_type;  /*tls.record.content_type */
 
-    guint8  tds_type;  /*tds.type */
-    guint16 tds_length;  /* tds.length */
+    uint8_t tds_type;  /*tds.type */
+    uint16_t tds_length;  /* tds.length */
 
-    guint16 smb_mid;  /* smb.mid */
+    uint16_t smb_mid;  /* smb.mid */
 
-    guint64 smb2_sesid;  /* smb2.sesid */
-    guint64 smb2_msg_id;  /* smb2.msg_id */
-    guint16 smb2_cmd;  /* smb2.cmd */
+    uint64_t smb2_sesid;  /* smb2.sesid */
+    uint64_t smb2_msg_id;  /* smb2.msg_id */
+    uint16_t smb2_cmd;  /* smb2.cmd */
 
-    guint8 dcerpc_ver;  /* dcerpc.ver */
-    guint8 dcerpc_pkt_type;  /* dcerpc.pkt_type */
-    guint32 dcerpc_cn_call_id;  /* dcerpc.cn_call_id */
-    guint16 dcerpc_cn_ctx_id;  /* dcerpc.cn_ctx_id */
+    uint8_t dcerpc_ver;  /* dcerpc.ver */
+    uint8_t dcerpc_pkt_type;  /* dcerpc.pkt_type */
+    uint32_t dcerpc_cn_call_id;  /* dcerpc.cn_call_id */
+    uint16_t dcerpc_cn_ctx_id;  /* dcerpc.cn_ctx_id */
 
-    guint16 dns_id;  /* dns.id */
+    uint16_t dns_id;  /* dns.id */
 
     /* The following values are calculated */
-    gboolean pkt_of_interest;
+    bool pkt_of_interest;
 
     /* RRPD data for this packet */
     /* Complete this based on the detected protocol */
@@ -170,9 +170,9 @@ typedef struct _HF_OF_INTEREST_INFO
 
 extern HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST];
 
-void add_detected_tcp_svc(guint16 port);
-extern gboolean is_dcerpc_context_zero(guint32 pkt_type);
-extern gboolean is_dcerpc_req_pkt_type(guint32 pkt_type);
+void add_detected_tcp_svc(uint16_t port);
+extern bool is_dcerpc_context_zero(uint32_t pkt_type);
+extern bool is_dcerpc_req_pkt_type(uint32_t pkt_type);
 
 
 /*

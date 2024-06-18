@@ -90,14 +90,14 @@ static int hf_pn_rsi_hw_revision;
 static int hf_pn_rsi_sw_revision_prefix;
 static int hf_pn_rsi_sw_revision;
 
-static gint ett_pn_rsi;
-static gint ett_pn_rsi_pdu_type;
-static gint ett_pn_rsi_f_opnum_offset;
-static gint ett_pn_rsi_conn_block;
-static gint ett_pn_rsi_svcs_block;
-static gint ett_pn_rsi_add_flags;
-static gint ett_pn_rsi_rta;
-static gint ett_pn_io_pd_rsi_instance;
+static int ett_pn_rsi;
+static int ett_pn_rsi_pdu_type;
+static int ett_pn_rsi_f_opnum_offset;
+static int ett_pn_rsi_conn_block;
+static int ett_pn_rsi_svcs_block;
+static int ett_pn_rsi_add_flags;
+static int ett_pn_rsi_rta;
+static int ett_pn_io_pd_rsi_instance;
 
 static expert_field ei_pn_rsi_error;
 
@@ -222,7 +222,7 @@ static const range_string pn_rsi_interface[] = {
 
 static int
 dissect_FOpnumOffset(tvbuff_t *tvb, int offset,
-    packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, guint32 *u32FOpnumOffset)
+    packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, uint32_t *u32FOpnumOffset)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -261,10 +261,10 @@ pn_rsi_reassemble_init(void)
     reassembly_table_register(&pn_rsi_reassembly_table, &addresses_reassembly_table_functions);
 }
 
-static gint ett_pn_rsi_segments;
-static gint ett_pn_rsi_segment;
-//static gint ett_pn_rsi_data;
-static gint ett_pn_rsi_data_payload;
+static int ett_pn_rsi_segments;
+static int ett_pn_rsi_segment;
+//static int ett_pn_rsi_data;
+static int ett_pn_rsi_data_payload;
 
 static const fragment_items pn_rsi_frag_items = {
     &ett_pn_rsi_segment,
@@ -286,7 +286,7 @@ static const fragment_items pn_rsi_frag_items = {
 
 static int
 dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-    proto_tree *tree, guint8 *drep, guint32 length, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOpnum, int type)
+    proto_tree *tree, uint8_t *drep, uint32_t length, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOpnum, int type)
 {
     fragment_head  *fd_frag;
     fragment_head  *fd_reass;
@@ -381,16 +381,16 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
 /* dissect a PN-IO RSI SVCS block (on top of PN-RT protocol) */
 static int
 dissect_RSI_SVCS_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOffset, uint32_t u32FOpnumOffsetOpnum)
 {
     proto_item* sub_item;
     proto_tree *sub_tree;
 
-	guint32 u32RsiHeaderSize = 4;
-	guint32 u32RspMaxLength;
+	uint32_t u32RsiHeaderSize = 4;
+	uint32_t u32RspMaxLength;
 
 	// PDU.FOpnumOffset.Offset + PDU.VarPartLen - 4 - RsiHeaderSize
-    gint32 length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
+    int32_t length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
 
     sub_item = proto_tree_add_item(tree, hf_pn_rsi_svcs_block, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_rsi_svcs_block);
@@ -415,20 +415,20 @@ dissect_RSI_SVCS_block(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO RSI CONN block (on top of PN-RT protocol) */
 static int
 dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOffset, uint32_t u32FOpnumOffsetOpnum)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
 
-    guint32 u32RspMaxLength;
-    guint16 u16VendorId;
-    guint16 u16DeviceId;
-    guint16 u16InstanceId;
-    guint8  u8RsiInterface;
-    guint32 u32RsiHeaderSize = 4;
+    uint32_t u32RspMaxLength;
+    uint16_t u16VendorId;
+    uint16_t u16DeviceId;
+    uint16_t u16InstanceId;
+    uint8_t u8RsiInterface;
+    uint32_t u32RsiHeaderSize = 4;
 
     // PDU.FOpnumOffset.Offset + PDU.VarPartLen - 4 - RsiHeaderSize
-    gint32 length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
+    int32_t length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
 
     sub_item = proto_tree_add_item(tree, hf_pn_rsi_conn_block, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_rsi_conn_block);
@@ -464,11 +464,11 @@ dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO RSI FREQ RTA PDU (on top of PN-RT protocol) */
 static int
 dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag)
 {
-    guint32    u32FOpnumOffset;
-    guint32    u32FOpnumOffsetOpnum;
-    guint32    u32FOpnumOffsetOffset;
+    uint32_t   u32FOpnumOffset;
+    uint32_t   u32FOpnumOffsetOpnum;
+    uint32_t   u32FOpnumOffsetOffset;
     offset = dissect_FOpnumOffset(tvb, offset, pinfo, tree, drep, &u32FOpnumOffset);
     u32FOpnumOffsetOpnum = (u32FOpnumOffset & 0x1F000000) >> 24;
     u32FOpnumOffsetOffset = u32FOpnumOffset & 0x00FFFFFF;
@@ -524,12 +524,12 @@ dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO RSI RSP block (on top of PN-RT protocol) */
 static int
 dissect_RSI_RSP_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOffset, uint32_t u32FOpnumOffsetOpnum)
 {
-    guint32 u32RsiHeaderSize = 4;
+    uint32_t u32RsiHeaderSize = 4;
 
     // PDU.FOpnumOffset.Offset + PDU.VarPartLen - 4 - RsiHeaderSize
-    gint32 length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
+    int32_t length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
 
     if (u32FOpnumOffsetOffset == 0)
     {
@@ -552,11 +552,11 @@ dissect_RSI_RSP_block(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO RSI FRSP RTA PDU (on top of PN-RT protocol) */
 static int
 dissect_FRSP_RTA_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t u16VarPartLen, uint8_t u8MoreFrag)
 {
-    guint32    u32FOpnumOffset;
-    guint32    u32FOpnumOffsetOpnum;
-    guint32    u32FOpnumOffsetOffset;
+    uint32_t   u32FOpnumOffset;
+    uint32_t   u32FOpnumOffsetOpnum;
+    uint32_t   u32FOpnumOffsetOffset;
     offset = dissect_FOpnumOffset(tvb, offset, pinfo, tree, drep, &u32FOpnumOffset);
     u32FOpnumOffsetOpnum = (u32FOpnumOffset & 0x1F000000) >> 24;
     u32FOpnumOffsetOffset = u32FOpnumOffset & 0x00FFFFFF;
@@ -601,10 +601,10 @@ dissect_FRSP_RTA_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_RSIAdditionalFlags(tvbuff_t *tvb, int offset,
-    packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, guint8 *u8AddFlags)
+    packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, uint8_t *u8AddFlags)
 {
-    guint8      u8WindowSize;
-    guint8      u8Tack;
+    uint8_t     u8WindowSize;
+    uint8_t     u8Tack;
     proto_item *sub_item;
     proto_tree *sub_tree;
 
@@ -641,17 +641,17 @@ dissect_RSIAdditionalFlags(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO RTA RSI PDU (on top of PN-RT protocol) */
 int
 dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep)
 {
-    guint16     u16DestinationServiceAccessPoint;
-    guint16     u16SourceServiceAccessPoint;
-    guint8      u8PDUType;
-    guint8      u8PDUVersion;
-    guint8      u8AddFlags;
-    guint8      u8MoreFrag;
-    guint16     u16SendSeqNum;
-    guint16     u16AckSeqNum;
-    guint16     u16VarPartLen;
+    uint16_t    u16DestinationServiceAccessPoint;
+    uint16_t    u16SourceServiceAccessPoint;
+    uint8_t     u8PDUType;
+    uint8_t     u8PDUVersion;
+    uint8_t     u8AddFlags;
+    uint8_t     u8MoreFrag;
+    uint16_t    u16SendSeqNum;
+    uint16_t    u16AckSeqNum;
+    uint16_t    u16VarPartLen;
     int         start_offset = offset;
 
     proto_item *rta_item;
@@ -731,15 +731,15 @@ dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
 
 int
 dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint8_t *drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    guint16    u16NumberOfEntries;
-    guint16    u16VendorId;
-    guint16    u16DeviceId;
-    guint16    u16InstanceId;
-    guint8     u8RsiInterface;
+    uint16_t   u16NumberOfEntries;
+    uint16_t   u16VendorId;
+    uint16_t   u16DeviceId;
+    uint16_t   u16InstanceId;
+    uint8_t    u8RsiInterface;
     const int  deviceType_size       = 25;
     const int  orderID_size          = 20;
     const int  IMserialnumber_size   = 16;
@@ -1055,7 +1055,7 @@ init_pn_rsi(int proto)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pn_rsi,
         &ett_pn_rsi_pdu_type,
         &ett_pn_rsi_f_opnum_offset,

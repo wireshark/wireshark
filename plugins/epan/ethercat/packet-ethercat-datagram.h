@@ -16,19 +16,19 @@ typedef union
 {
    struct
    {
-      guint16 adp;
-      guint16 ado;
+      uint16_t adp;
+      uint16_t ado;
    } a;
-   guint32 addr;
+   uint32_t addr;
 } EcParserAddrUnion;
 
 typedef struct _EcParser
 {
-   guint8  cmd;
-   guint8  idx;
+   uint8_t cmd;
+   uint8_t idx;
    EcParserAddrUnion anAddrUnion;
-   guint16 len;
-   guint16 intr;
+   uint16_t len;
+   uint16_t intr;
 } EcParserHDR, *PEcParserHDR;
 
 #define EcParserHDR_Len 10/*sizeof(EcParserHDR)*/

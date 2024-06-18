@@ -30,43 +30,43 @@ static dissector_handle_t arq_feedback_handle;
 static dissector_handle_t arq_discard_handle;
 static dissector_handle_t arq_reset_handle;
 
-static gint proto_mac_mgmt_msg_arq_decoder;
+static int proto_mac_mgmt_msg_arq_decoder;
 
-static gint ett_mac_mgmt_msg_arq_decoder;
+static int ett_mac_mgmt_msg_arq_decoder;
 
 /* Setup protocol subtree array */
-static gint *ett[] =
+static int *ett[] =
 {
 	&ett_mac_mgmt_msg_arq_decoder,
 };
 
 
 /* ARQ fields */
-static gint hf_arq_cid;
-static gint hf_arq_last;
-static gint hf_arq_ack_type;
-static gint hf_ack_type_reserved;
-static gint hf_arq_bsn;
-static gint hf_arq_num_ack_maps;
-static gint hf_arq_selective_map;
-static gint hf_arq_seq_format;
-static gint hf_arq_0seq_ack_map;
-static gint hf_arq_0seq1_len;
-static gint hf_arq_0seq2_len;
-static gint hf_arq_1seq_ack_map;
-static gint hf_arq_1seq1_len;
-static gint hf_arq_1seq2_len;
-static gint hf_arq_1seq3_len;
-static gint hf_arq_reserved;
+static int hf_arq_cid;
+static int hf_arq_last;
+static int hf_arq_ack_type;
+static int hf_ack_type_reserved;
+static int hf_arq_bsn;
+static int hf_arq_num_ack_maps;
+static int hf_arq_selective_map;
+static int hf_arq_seq_format;
+static int hf_arq_0seq_ack_map;
+static int hf_arq_0seq1_len;
+static int hf_arq_0seq2_len;
+static int hf_arq_1seq_ack_map;
+static int hf_arq_1seq1_len;
+static int hf_arq_1seq2_len;
+static int hf_arq_1seq3_len;
+static int hf_arq_reserved;
 
-static gint hf_arq_discard_cid;
-static gint hf_arq_discard_reserved;
-static gint hf_arq_discard_bsn;
+static int hf_arq_discard_cid;
+static int hf_arq_discard_reserved;
+static int hf_arq_discard_bsn;
 
-static gint hf_arq_reset_cid;
-static gint hf_arq_reset_type;
-static gint hf_arq_reset_direction;
-static gint hf_arq_reset_reserved;
+static int hf_arq_reset_cid;
+static int hf_arq_reset_type;
+static int hf_arq_reset_direction;
+static int hf_arq_reset_reserved;
 
 /* STRING RESOURCES */
 
@@ -298,20 +298,20 @@ void proto_register_mac_mgmt_msg_arq_feedback(void)
 /* Decode ARQ-Feedback messages. */
 static int dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint arq_feedback_ie_count = 0;
-	guint arq_cid;
-	gboolean arq_last = FALSE;
-	guint arq_ack_type;
-	guint arq_bsn;
-	guint arq_num_ack_maps;
-	guint tvb_len;
+	unsigned offset = 0;
+	unsigned arq_feedback_ie_count = 0;
+	unsigned arq_cid;
+	bool arq_last = false;
+	unsigned arq_ack_type;
+	unsigned arq_bsn;
+	unsigned arq_num_ack_maps;
+	unsigned tvb_len;
 	proto_item *arq_feedback_item;
 	proto_tree *arq_feedback_tree;
 	proto_item *arq_fb_item = NULL;
 	proto_tree *arq_fb_tree = NULL;
 	proto_item *ti = NULL;
-	guint i, seq_format;
+	unsigned i, seq_format;
 
 	{	/* we are being asked for details */
 

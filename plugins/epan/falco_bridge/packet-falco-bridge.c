@@ -141,7 +141,7 @@ static int fd_follow_tap;
 
 static int dissect_sinsp_enriched(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr, sysdig_event_param_data *event_param_data);
 static int dissect_sinsp_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
-static bridge_info* get_bridge_info(guint32 source_id);
+static bridge_info* get_bridge_info(uint32_t source_id);
 const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx);
 
 /*
@@ -209,7 +209,7 @@ is_filter_valid(packet_info *pinfo, void *cfi_ptr)
     conv_filter_info *cfi = (conv_filter_info *)cfi_ptr;
 
     if (!cfi->is_present) {
-        return FALSE;
+        return false;
     }
 
     int proto_id = proto_registrar_get_parent(cfi->field_info->hfinfo.id);
@@ -221,13 +221,13 @@ is_filter_valid(packet_info *pinfo, void *cfi_ptr)
     return proto_is_frame_protocol(pinfo->layers, proto_registrar_get_nth(proto_id)->abbrev);
 }
 
-static gchar*
+static char*
 build_conversation_filter(packet_info *pinfo _U_, void *cfi_ptr)
 {
     conv_filter_info *cfi = (conv_filter_info *)cfi_ptr;
 
     if (!cfi->is_present) {
-        return FALSE;
+        return NULL;
     }
 
     return ws_strdup_printf("%s eq %s", cfi->field_info->hfinfo.abbrev, cfi->strbuf->str);
@@ -402,7 +402,7 @@ create_source_hfids(bridge_info* bi)
         bi->hf = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(hf_register_info));
         bi->hf_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->visible_fields * sizeof(int));
         bi->field_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
-        bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(guint32));
+        bi->field_flags = (uint32_t*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(uint32_t));
 
         if (bi->addr_fields) {
             bi->hf_id_to_addr_id = (int *)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
@@ -590,7 +590,7 @@ on_wireshark_exit(void)
     sinsp_span = NULL;
 }
 
-static gboolean
+static bool
 extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_fields* args) {
     args->container_id = NULL;
     args->pid = -1;
@@ -686,13 +686,13 @@ static bool sysdig_syscall_fd_filter_valid(packet_info *pinfo, void *user_data) 
     return extract_syscall_conversation_fields(pinfo, &cff);
 }
 
-static gchar* sysdig_container_build_filter(packet_info *pinfo, void *user_data _U_) {
+static char* sysdig_container_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     return ws_strdup_printf("container.id==\"%s\"", cff.container_id);
 }
 
-static gchar* sysdig_proc_build_filter(packet_info *pinfo, void *user_data _U_) {
+static char* sysdig_proc_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     if (cff.container_id) {
@@ -702,7 +702,7 @@ static gchar* sysdig_proc_build_filter(packet_info *pinfo, void *user_data _U_) 
     }
 }
 
-static gchar* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user_data _U_) {
+static char* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
 
@@ -724,7 +724,7 @@ static gchar* sysdig_procdescendants_build_filter(packet_info *pinfo, void *user
     }
 }
 
-static gchar* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_) {
+static char* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     if (cff.container_id) {
@@ -734,7 +734,7 @@ static gchar* sysdig_thread_build_filter(packet_info *pinfo, void *user_data _U_
     }
 }
 
-static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
+static char* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
     falco_conv_filter_fields cff;
     extract_syscall_conversation_fields(pinfo, &cff);
     if (cff.container_id) {
@@ -747,7 +747,7 @@ static gchar* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
     }
 }
 
-static gchar *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo _U_, guint *stream _U_, guint *sub_stream _U_)
+static char *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo _U_, unsigned *stream _U_, unsigned *sub_stream _U_)
 {
     // This only supports the syscall source.
     if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
@@ -757,18 +757,18 @@ static gchar *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo 
     return sysdig_fd_build_filter(pinfo, NULL);
 }
 
-static gchar *fd_follow_index_filter(guint stream _U_, guint sub_stream _U_)
+static char *fd_follow_index_filter(unsigned stream _U_, unsigned sub_stream _U_)
 {
     return NULL;
 }
 
-static gchar *fd_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+static char *fd_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
 {
     return NULL;
 }
 
-gchar *
-fd_port_to_display(wmem_allocator_t *allocator _U_, guint port _U_)
+char *
+fd_port_to_display(wmem_allocator_t *allocator _U_, unsigned port _U_)
 {
     return NULL;
 }
@@ -780,7 +780,7 @@ fd_tap_listener(void *tapdata, packet_info *pinfo,
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     fd_follow_tap_info *tap_info = (fd_follow_tap_info *)data;
-    gboolean is_server;
+    bool is_server;
 
     is_server = tap_info->is_write;
 
@@ -798,7 +798,7 @@ fd_tap_listener(void *tapdata, packet_info *pinfo,
     return TAP_PACKET_DONT_REDRAW;
 }
 
-guint32 get_fd_stream_count(void)
+uint32_t get_fd_stream_count(void)
 {
     // This effectively disables the "streams" dropdown, which is we don't really care about for the moment in logray.
     return 1;
@@ -807,7 +807,7 @@ guint32 get_fd_stream_count(void)
 
 
 static bridge_info*
-get_bridge_info(guint32 source_id)
+get_bridge_info(uint32_t source_id)
 {
     if (source_id == 0) {
         return &bridges[0];
@@ -833,7 +833,7 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     // https://github.com/falcosecurity/libs/blob/9c942f27/userspace/libscap/scap.c#L1900
 
-    guint32 source_id = 0;
+    uint32_t source_id = 0;
     if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
         source_id = tvb_get_guint32(tvb, 8, encoding);
     }
@@ -1142,7 +1142,7 @@ static int
 dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
 {
     bridge_info* bi = (bridge_info *) bi_ptr;
-    guint payload_len = tvb_captured_length(tvb);
+    unsigned payload_len = tvb_captured_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "oops");
     /* Clear out stuff in the info column */
@@ -1151,7 +1151,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     proto_item *ti = tree;
     proto_tree* fb_tree = proto_item_add_subtree(ti, ett_sinsp_span);
 
-    guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, payload_len);
+    uint8_t* payload = (uint8_t*)tvb_get_ptr(tvb, 0, payload_len);
 
     plugin_field_extract_t *sinsp_fields = (plugin_field_extract_t*) wmem_alloc(pinfo->pool, sizeof(plugin_field_extract_t) * bi->visible_fields);
     for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
@@ -1218,7 +1218,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, sfe->res.str, (unsigned)strlen(sfe->res.str), (unsigned)strlen(sfe->res.str));
                add_new_data_source(pinfo, json_tvb, "JSON Object");
                proto_tree *json_tree = proto_item_add_subtree(pi, ett_json);
-               gchar *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
+               char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
                call_dissector(json_handle, json_tvb, pinfo, json_tree);
 
                /* Restore Protocol and Info columns */
@@ -1305,8 +1305,8 @@ const char *st_str_container_total_io = "Total";
 
 static void container_io_stats_tree_init(stats_tree* st _U_)
 {
-    stats_tree_create_node(st, st_str_container_total_io, 0, STAT_DT_INT, TRUE);
-    stat_node_set_flags(st, st_str_container_total_io, 0, FALSE, ST_FLG_SORT_TOP);
+    stats_tree_create_node(st, st_str_container_total_io, 0, STAT_DT_INT, true);
+    stat_node_set_flags(st, st_str_container_total_io, 0, false, ST_FLG_SORT_TOP);
 
 }
 
@@ -1314,14 +1314,14 @@ static tap_packet_status container_io_stats_tree_event(stats_tree* st, packet_in
 {
     const container_io_tap_info* tap_info = (const container_io_tap_info*) tap_info_p;
 
-    increase_stat_node(st, st_str_container_total_io, 0, FALSE, tap_info->io_bytes);
-    int container_id_node = increase_stat_node(st, tap_info->container_id, 0, TRUE, tap_info->io_bytes);
-    int proc_name_node = increase_stat_node(st, tap_info->proc_name, container_id_node, TRUE, tap_info->io_bytes);
-    int fd_name_node = increase_stat_node(st, tap_info->fd_name, proc_name_node, TRUE, tap_info->io_bytes);
+    increase_stat_node(st, st_str_container_total_io, 0, false, tap_info->io_bytes);
+    int container_id_node = increase_stat_node(st, tap_info->container_id, 0, true, tap_info->io_bytes);
+    int proc_name_node = increase_stat_node(st, tap_info->proc_name, container_id_node, true, tap_info->io_bytes);
+    int fd_name_node = increase_stat_node(st, tap_info->fd_name, proc_name_node, true, tap_info->io_bytes);
     if (tap_info->is_write) {
-        increase_stat_node(st, "write", fd_name_node, TRUE, tap_info->io_bytes);
+        increase_stat_node(st, "write", fd_name_node, true, tap_info->io_bytes);
     } else {
-        increase_stat_node(st, "read", fd_name_node, TRUE, tap_info->io_bytes);
+        increase_stat_node(st, "read", fd_name_node, true, tap_info->io_bytes);
     }
 
     return TAP_PACKET_REDRAW;

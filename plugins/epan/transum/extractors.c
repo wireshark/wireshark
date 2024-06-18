@@ -22,7 +22,7 @@
     Return is 0 if all went well.  If this function return -1 it is probably because the tree did not
     include the field defined by the field_id.
  */
-int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *element_count)
+int extract_uint(proto_tree *tree, int field_id, uint32_t *result_array, size_t *element_count)
 {
     GPtrArray *finfo_array;
 
@@ -47,7 +47,7 @@ int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *
     return 0;
 }
 
-int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *element_count)
+int extract_ui64(proto_tree *tree, int field_id, uint64_t *result_array, size_t *element_count)
 {
     GPtrArray *finfo_array;
 
@@ -72,7 +72,7 @@ int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
     return 0;
 }
 
-int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *element_count)
+int extract_si64(proto_tree *tree, int field_id, uint64_t *result_array, size_t *element_count)
 {
     GPtrArray *finfo_array;
 

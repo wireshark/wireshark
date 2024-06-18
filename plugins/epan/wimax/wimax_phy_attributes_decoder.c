@@ -19,10 +19,10 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-extern gint proto_wimax;
+extern int proto_wimax;
 
-static gint proto_wimax_phy_attributes_decoder;
-static gint ett_wimax_phy_attributes_decoder;
+static int proto_wimax_phy_attributes_decoder;
+static int ett_wimax_phy_attributes_decoder;
 
 static const value_string vals_subchannel_types[] =
 {
@@ -53,22 +53,22 @@ static const value_string vals_encoding_types[] =
 	{0, NULL}
 };
 
-static gint hf_phy_attributes_subchannelization_type;
-static gint hf_phy_attributes_permbase;
-static gint hf_phy_attributes_modulation_rate;
-static gint hf_phy_attributes_encoding_type;
-static gint hf_phy_attributes_num_repeat;
-static gint hf_phy_attributes_symbol_offset;
-static gint hf_phy_attributes_num_of_slots;
-static gint hf_phy_attributes_subchannel;
+static int hf_phy_attributes_subchannelization_type;
+static int hf_phy_attributes_permbase;
+static int hf_phy_attributes_modulation_rate;
+static int hf_phy_attributes_encoding_type;
+static int hf_phy_attributes_num_repeat;
+static int hf_phy_attributes_symbol_offset;
+static int hf_phy_attributes_num_of_slots;
+static int hf_phy_attributes_subchannel;
 
 
 
 static int dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint offset = 0;
-	guint tvb_len;
-/*	guint num_of_slots;*/
+	unsigned offset = 0;
+	unsigned tvb_len;
+/*	unsigned num_of_slots;*/
 	proto_item *phy_item = NULL;
 	proto_tree *phy_tree = NULL;
 
@@ -151,7 +151,7 @@ void wimax_proto_register_wimax_phy_attributes(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] =
+	static int *ett[] =
 		{
 			&ett_wimax_phy_attributes_decoder
 		};

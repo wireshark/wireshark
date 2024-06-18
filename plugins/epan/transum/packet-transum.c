@@ -96,7 +96,7 @@ static wmem_map_t *dcerpc_req_pkt_type;  /* used to indicate if a DCE-RPC pkt_ty
 static wmem_map_t *dcerpc_streams;  /* used to record TCP stream numbers that are carrying DCE-RPC data */
 
 /*
-This array contains calls and returns that have no TRUE context_id
+This array contains calls and returns that have no true context_id
 This is needed to overcome an apparent bug in Wireshark where
 the field name of context id in parameters is the same as context id
 in a message header
@@ -130,9 +130,9 @@ static int highest_udp_stream_no;
 wmem_map_t *tcp_stream_exceptions;
 
 
-static gint ett_transum;
-static gint ett_transum_header;
-static gint ett_transum_data;
+static int ett_transum;
+static int ett_transum_header;
+static int ett_transum_data;
 
 static int proto_transum;
 
@@ -177,7 +177,7 @@ static const value_string rrdp_calculation_vals[] = {
     { NULL, NULL, 0}
 };*/
 
-void add_detected_tcp_svc(guint16 port)
+void add_detected_tcp_svc(uint16_t port)
 {
     wmem_map_insert(detected_tcp_svc, GUINT_TO_POINTER(port), GUINT_TO_POINTER(port));
 }
@@ -195,7 +195,7 @@ static void init_dcerpc_data(void)
     wmem_map_insert(dcerpc_context_zero, GUINT_TO_POINTER(15), GUINT_TO_POINTER(15));
 }
 
-static void register_dcerpc_stream(guint32 stream_no)
+static void register_dcerpc_stream(uint32_t stream_no)
 {
     wmem_map_insert(dcerpc_streams, GUINT_TO_POINTER(stream_no), GUINT_TO_POINTER(1));
 }
@@ -734,17 +734,17 @@ static void update_rrpd_rte_data(RRPD *in_rrpd)
         update_rrpd_list_entry_rsp(in_rrpd);
 }
 
-gboolean is_dcerpc_context_zero(guint32 pkt_type)
+bool is_dcerpc_context_zero(uint32_t pkt_type)
 {
     return (wmem_map_lookup(dcerpc_context_zero, GUINT_TO_POINTER(pkt_type)) != NULL);
 }
 
-gboolean is_dcerpc_req_pkt_type(guint32 pkt_type)
+bool is_dcerpc_req_pkt_type(uint32_t pkt_type)
 {
     return (wmem_map_lookup(dcerpc_req_pkt_type, GUINT_TO_POINTER(pkt_type)) != NULL);
 }
 
-static gboolean is_dcerpc_stream(guint32 stream_no)
+static bool is_dcerpc_stream(uint32_t stream_no)
 {
     return (wmem_map_lookup(dcerpc_streams, GUINT_TO_POINTER(stream_no)) != NULL);
 }
@@ -768,7 +768,7 @@ static void init_globals(void)
     temp_rsp_rrpd_list = wmem_list_new(wmem_file_scope());
 
     /* Indicate what fields we're interested in. */
-    GArray *wanted_fields = g_array_sized_new(FALSE, FALSE, (guint)sizeof(int), HF_INTEREST_END_OF_LIST);
+    GArray *wanted_fields = g_array_sized_new(false, false, (unsigned)sizeof(int), HF_INTEREST_END_OF_LIST);
     for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
     {
         if (hf_of_interest[i].hf != -1)
@@ -782,18 +782,18 @@ static void init_globals(void)
     preferences.udp_svc_ports = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
     /* use the range values to populate the tcp_svc_ports list*/
-    for (guint i = 0; i < tcp_svc_port_range_values->nranges; i++)
+    for (unsigned i = 0; i < tcp_svc_port_range_values->nranges; i++)
     {
-        for (guint32 j = tcp_svc_port_range_values->ranges[i].low; j <= tcp_svc_port_range_values->ranges[i].high; j++)
+        for (uint32_t j = tcp_svc_port_range_values->ranges[i].low; j <= tcp_svc_port_range_values->ranges[i].high; j++)
         {
             wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(j), GUINT_TO_POINTER(RTE_CALC_GTCP));
         }
     }
 
     /* use the range values to populate the udp_svc_ports list*/
-    for (guint i = 0; i < udp_svc_port_range_values->nranges; i++)
+    for (unsigned i = 0; i < udp_svc_port_range_values->nranges; i++)
     {
-        for (guint32 j = udp_svc_port_range_values->ranges[i].low; j <= udp_svc_port_range_values->ranges[i].high; j++)
+        for (uint32_t j = udp_svc_port_range_values->ranges[i].low; j <= udp_svc_port_range_values->ranges[i].high; j++)
         {
             wmem_map_insert(preferences.udp_svc_ports, GUINT_TO_POINTER(j), GUINT_TO_POINTER(RTE_CALC_GUDP));
         }
@@ -929,7 +929,7 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, packet_info *pinfo, proto_tr
 */
 static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info, PKT_INFO* subpackets)
 {
-    guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
+    uint32_t field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
     pkt_info->frame_number = pinfo->fd->num;   /* easy access to frame number */
@@ -954,7 +954,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
         {
             if (pkt_info->ssl_content_type == 21)  /* this is an SSL Alert */
             {
-                pkt_info->pkt_of_interest = FALSE;
+                pkt_info->pkt_of_interest = false;
                 return;
             }
 
@@ -970,7 +970,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
                 if (pkt_info->rrpd.c2s)
                     wmem_map_remove(tcp_stream_exceptions, GUINT_TO_POINTER(pkt_info->rrpd.stream_no));
                 else
-                    pkt_info->pkt_of_interest = FALSE;
+                    pkt_info->pkt_of_interest = false;
             }
         }
         /* End of Optimisation Code */
@@ -983,7 +983,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
             the rationale being that if we saw the original in the trace the service process saw it too */
             if (pkt_info->rrpd.c2s && preferences.capture_position == CAPTURE_SERVICE)
             {
-                pkt_info->pkt_of_interest = FALSE;
+                pkt_info->pkt_of_interest = false;
                 return;
             }
 
@@ -991,7 +991,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
             the rationale being that if we saw the original in the trace the client process saw it too */
             else if (!pkt_info->rrpd.c2s && preferences.capture_position == CAPTURE_CLIENT)
             {
-                pkt_info->pkt_of_interest = FALSE;
+                pkt_info->pkt_of_interest = false;
                 return;
             }
         }
@@ -999,7 +999,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
         /* We are not interested in TCP Keep-Alive */
         if (pkt_info->tcp_keep_alive)
         {
-            pkt_info->pkt_of_interest = FALSE;
+            pkt_info->pkt_of_interest = false;
             return;
         }
 
@@ -1007,7 +1007,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
         {
             if (preferences.orphan_ka_discard && pkt_info->tcp_flags_ack && pkt_info->rrpd.c2s)
             {
-                pkt_info->pkt_of_interest = FALSE;
+                pkt_info->pkt_of_interest = false;
                 return;  /* It's a KEEP-ALIVE -> stop processing this packet */
             }
         }
@@ -1029,8 +1029,8 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
                 if (is_dcerpc_stream(pkt_info->rrpd.stream_no))
                 {
                     pkt_info->rrpd.calculation = RTE_CALC_DCERPC;
-                    pkt_info->rrpd.decode_based = TRUE;
-                    pkt_info->pkt_of_interest = TRUE;
+                    pkt_info->rrpd.decode_based = true;
+                    pkt_info->pkt_of_interest = true;
                 }
 
                 if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DCERPC_VER].hf, field_uint, &field_value_count))
@@ -1084,7 +1084,7 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
 /*
  * This function is called for each packet
  * Wireshark scans all the packets once and then once again as they are displayed
- * The pinfo.visited boolean is set to FALSE; on the first scan
+ * The pinfo.visited boolean is set to false; on the first scan
 */
 static int dissect_transum(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1222,7 +1222,7 @@ proto_register_transum(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_transum,
         &ett_transum_header,
         &ett_transum_data
@@ -1236,19 +1236,19 @@ proto_register_transum(void)
 
     /* Set User Preferences defaults */
     preferences.capture_position = TRACE_CAP_CLIENT;
-    preferences.reassembly = TRUE;
+    preferences.reassembly = true;
 
     range_convert_str(wmem_epan_scope(), &tcp_svc_port_range_values, "25, 80, 443, 1433", MAX_TCP_PORT);
     range_convert_str(wmem_epan_scope(), &udp_svc_port_range_values, "137-139", MAX_UDP_PORT);
 
-    preferences.orphan_ka_discard = FALSE;
+    preferences.orphan_ka_discard = false;
     preferences.time_multiplier = RTE_TIME_SEC;
-    preferences.rte_on_first_req = FALSE;
-    preferences.rte_on_last_req = TRUE;
-    preferences.rte_on_first_rsp = FALSE;
-    preferences.rte_on_last_rsp = FALSE;
+    preferences.rte_on_first_req = false;
+    preferences.rte_on_last_req = true;
+    preferences.rte_on_first_rsp = false;
+    preferences.rte_on_last_rsp = false;
 
-    preferences.debug_enabled = FALSE;
+    preferences.debug_enabled = false;
 
     /* no start registering stuff */
     proto_register_field_array(proto_transum, hf, array_length(hf));
@@ -1265,7 +1265,7 @@ proto_register_transum(void)
         "Position of the capture unit that produced this trace.  This setting affects the way TRANSUM handles TCP Retransmissions.  See the manual for details.",
         &preferences.capture_position,
         capture_position_vals,
-        FALSE);
+        false);
 
     prefs_register_bool_preference(transum_module,
         "reassembly",
@@ -1300,7 +1300,7 @@ proto_register_transum(void)
     "Unit of time used for APDU Response Time, Service Time and Spread Time values.",
     &preferences.time_multiplier,
     time_multiplier_vals,
-    FALSE);
+    false);
     */
 
     prefs_register_bool_preference(transum_module,
