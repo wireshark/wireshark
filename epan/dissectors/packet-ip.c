@@ -2703,7 +2703,7 @@ proto_register_ip(void)
 
     { &hf_ip_flags,
       { "Flags", "ip.flags", FT_UINT8, BASE_HEX,
-        NULL, 0xE0, "Flags (3 bits)", HFILL }},
+        NULL, 0xE0, NULL, HFILL }},
 
     { &hf_ip_flags_sf,
       { "Security flag", "ip.flags.sf", FT_BOOLEAN, 8,
@@ -2723,7 +2723,7 @@ proto_register_ip(void)
 
     { &hf_ip_frag_offset,
       { "Fragment Offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
-        NULL, IP_OFFSET, "Fragment offset (13 bits)", HFILL }},
+        NULL, IP_OFFSET, NULL, HFILL }},
 
     { &hf_ip_ttl,
       { "Time to Live", "ip.ttl", FT_UINT8, BASE_DEC,

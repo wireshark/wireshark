@@ -9059,7 +9059,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_flags,
         { "Flags",          "tcp.flags", FT_UINT16, BASE_HEX, NULL, TH_MASK,
-            "Flags (12 bits)", HFILL }},
+            NULL, HFILL }},
 
         { &hf_tcp_flags_res,
         { "Reserved",            "tcp.flags.res", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_RES,

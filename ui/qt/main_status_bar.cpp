@@ -290,7 +290,12 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 
         finfo_length = finfo->position().length + finfo->appendix().length;
         if (finfo_length > 0) {
-            item_info.append(", " + tr("%Ln byte(s)", "", finfo_length));
+            int finfo_bits = FI_GET_BITS_SIZE(finfo->fieldInfo());
+            if (finfo_bits % 8 == 0) {
+                item_info.append(", " + tr("%Ln byte(s)", "", finfo_length));
+            } else {
+                item_info.append(", " + tr("%Ln bit(s)", "", finfo_bits));
+            }
         }
     }
 
