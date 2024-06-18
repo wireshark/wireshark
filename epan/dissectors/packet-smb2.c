@@ -6682,7 +6682,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	 * Note: si is NULL for some callers from packet-smb.c
 	 */
 	const smb2_info_t *si = (const smb2_info_t *)data;
-	gboolean result=0;
+	bool result=false;
 	gboolean save_fragmented;
 	gint remaining;
 	guint reported_len;

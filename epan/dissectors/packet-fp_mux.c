@@ -72,7 +72,7 @@ static void dissect_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *
 {
     heur_dtbl_entry_t *hdtbl_entry;
     gboolean conv_dissected; /* If the TVB was dissected using the conversation dissector*/
-    gboolean heur_dissected; /* If the TVB was dissected using a heuristic dissector*/
+    bool heur_dissected; /* If the TVB was dissected using a heuristic dissector*/
     guint32 current_destport,current_srcport;
 
     /* Saving old ports */

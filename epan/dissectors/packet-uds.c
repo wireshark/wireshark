@@ -1515,7 +1515,7 @@ call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     uds_info.reply = reply;
     uds_info.service = service;
 
-    gboolean ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &uds_info);
+    bool ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &uds_info);
 
     if (!ret) {
         if (service == UDS_SERVICES_RDBI && reply && id == UDS_DID_ADSDID) {

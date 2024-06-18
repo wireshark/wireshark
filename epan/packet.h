@@ -255,7 +255,7 @@ WS_DLL_PUBLIC void dissector_reset_uint(const char *name, const guint32 pattern)
  * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
  * etc.), otherwise return FALSE.
  */
-WS_DLL_PUBLIC gboolean dissector_is_uint_changed(dissector_table_t const sub_dissectors, const guint32 uint_val);
+WS_DLL_PUBLIC bool dissector_is_uint_changed(dissector_table_t const sub_dissectors, const guint32 uint_val);
 
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return the number
@@ -310,7 +310,7 @@ WS_DLL_PUBLIC void dissector_reset_string(const char *name, const gchar *pattern
  * changed (i.e. dissector_change_string() has been called, such as from
  * Decode As), otherwise return FALSE.
  */
-WS_DLL_PUBLIC gboolean dissector_is_string_changed(dissector_table_t const subdissectors, const gchar *string);
+WS_DLL_PUBLIC bool dissector_is_string_changed(dissector_table_t const subdissectors, const gchar *string);
 
 /* Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return the number of
@@ -448,7 +448,7 @@ WS_DLL_PUBLIC void dissector_table_allow_decode_as(dissector_table_t dissector_t
 
 /** Returns TRUE if dissector table allows "Decode As"
  */
-WS_DLL_PUBLIC gboolean dissector_table_supports_decode_as(dissector_table_t dissector_table);
+WS_DLL_PUBLIC bool dissector_table_supports_decode_as(dissector_table_t dissector_table);
 
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and
@@ -525,7 +525,7 @@ WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table f
     gpointer user_data, GCompareFunc compare_key_func);
 
 /* true if a heur_dissector list of that name exists to be registered into */
-WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
+WS_DLL_PUBLIC bool has_heur_dissector_list(const gchar *name);
 
 /** Try all the dissectors in a given heuristic dissector list. This is done,
  *  until we find one that recognizes the protocol.
@@ -539,7 +539,7 @@ WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
  * @param data parameter to pass to subdissector
  * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
  */
-WS_DLL_PUBLIC gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
+WS_DLL_PUBLIC bool dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, heur_dtbl_entry_t **hdtbl_entry, void *data);
 
 /** Find a heuristic dissector table by table name.
@@ -692,7 +692,7 @@ typedef struct depend_dissector_list *depend_dissector_list_t;
  *   @param dependent "Dependent" protocol short name
  *   @return  return TRUE if dependency was successfully registered
  */
-WS_DLL_PUBLIC gboolean register_depend_dissector(const char* parent, const char* dependent);
+WS_DLL_PUBLIC bool register_depend_dissector(const char* parent, const char* dependent);
 
 /** Unregister a protocol dependency
  * This is done automatically when removing from a dissector or
@@ -703,7 +703,7 @@ WS_DLL_PUBLIC gboolean register_depend_dissector(const char* parent, const char*
  *   @param dependent "Dependent" protocol short name
  *   @return  return TRUE if dependency was successfully unregistered
  */
-WS_DLL_PUBLIC gboolean deregister_depend_dissector(const char* parent, const char* dependent);
+WS_DLL_PUBLIC bool deregister_depend_dissector(const char* parent, const char* dependent);
 
 /** Find the list of protocol dependencies
  *
@@ -886,7 +886,7 @@ void deregister_postdissector(dissector_handle_t handle);
  * Not for use in (post)dissectors or applications; only to be used
  * by libwireshark itself.
  */
-extern gboolean have_postdissector(void);
+extern bool have_postdissector(void);
 
 /*
  * Call all postdissectors, handing them the supplied arguments.
@@ -899,7 +899,7 @@ extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * Return TRUE if at least one postdissector needs at least one hfid,
  * FALSE otherwise.
  */
-WS_DLL_PUBLIC gboolean postdissectors_want_hfids(void);
+WS_DLL_PUBLIC bool postdissectors_want_hfids(void);
 
 /*
  * Prime an epan_dissect_t with all the hfids wanted by postdissectors.

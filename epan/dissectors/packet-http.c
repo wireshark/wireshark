@@ -1193,7 +1193,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		datalen;
 	int		reported_datalen = -1;
 	dissector_handle_t handle = NULL;
-	gboolean	dissected = FALSE;
+	bool	dissected = false;
 	gboolean	first_loop = TRUE;
 	gboolean	have_seen_http = FALSE;
 	/*guint		i;*/
@@ -2320,14 +2320,14 @@ dissecting_body:
 			if (streaming_chunk_mode) {
 				pinfo->match_string = headers->content_type;
 				/* reassemble and call subdissector */
-				dissected = reassemble_streaming_data_and_call_subdissector(next_tvb, pinfo, 0,
+				dissected = (bool)reassemble_streaming_data_and_call_subdissector(next_tvb, pinfo, 0,
 					tvb_reported_length_remaining(next_tvb, 0), http_tree, proto_tree_get_parent_tree(tree),
 					http_streaming_reassembly_table, streaming_reassembly_data->streaming_reassembly_info,
 					get_http_chunk_frame_num(tvb, pinfo, offset), handle,
 					proto_tree_get_parent_tree(tree), content_info,
 					"HTTP", &http_body_fragment_items, hf_http_body_segment);
 			} else {
-				dissected = call_dissector_only(handle, next_tvb, pinfo, tree, content_info);
+				dissected = (bool)call_dissector_only(handle, next_tvb, pinfo, tree, content_info);
 			}
 			if (!dissected)
 				expert_add_info(pinfo, http_tree, &ei_http_subdissector_failed);

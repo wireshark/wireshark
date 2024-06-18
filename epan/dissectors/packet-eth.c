@@ -834,7 +834,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
 
     int payload_length = tvb_reported_length(tvb) - payload_offset;
-    bool dissected = FALSE;
+    bool dissected = false;
 
     if (fcs_len != 4) {
       /* Try trailer dissection without an FCS */

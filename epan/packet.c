@@ -1562,7 +1562,7 @@ dissector_reset_uint(const char *name, const guint32 pattern)
  * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
  * etc.), otherwise return FALSE.
  */
-gboolean
+bool
 dissector_is_uint_changed(dissector_table_t const sub_dissectors, const guint32 uint_val)
 {
 	if (sub_dissectors != NULL) {
@@ -1894,7 +1894,7 @@ dissector_reset_string(const char *name, const gchar *pattern)
  * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
  * etc.), otherwise return FALSE.
  */
-gboolean
+bool
 dissector_is_string_changed(dissector_table_t const sub_dissectors, const gchar *string)
 {
 	if (sub_dissectors != NULL) {
@@ -2412,7 +2412,7 @@ dissector_table_allow_decode_as(dissector_table_t dissector_table)
 	dissector_table->supports_decode_as = TRUE;
 }
 
-gboolean
+bool
 dissector_table_supports_decode_as(dissector_table_t dissector_table)
 {
 	return dissector_table->supports_decode_as;
@@ -2856,7 +2856,7 @@ find_heur_dissector_list(const char *name)
 	return (heur_dissector_list_t)g_hash_table_lookup(heur_dissector_lists, name);
 }
 
-gboolean
+bool
 has_heur_dissector_list(const gchar *name) {
 	return (find_heur_dissector_list(name) != NULL);
 }
@@ -2982,7 +2982,7 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 	}
 }
 
-gboolean
+bool
 dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			packet_info *pinfo, proto_tree *tree, heur_dtbl_entry_t **heur_dtbl_entry, void *data)
 {
@@ -3695,7 +3695,7 @@ find_matching_proto_name(gconstpointer arg1, gconstpointer arg2)
 	return strcmp(protocol_name, name);
 }
 
-gboolean register_depend_dissector(const char* parent, const char* dependent)
+bool register_depend_dissector(const char* parent, const char* dependent)
 {
 	GSList                *list_entry;
 	depend_dissector_list_t sub_dissectors;
@@ -3723,7 +3723,7 @@ gboolean register_depend_dissector(const char* parent, const char* dependent)
 	return TRUE;
 }
 
-gboolean deregister_depend_dissector(const char* parent, const char* dependent)
+bool deregister_depend_dissector(const char* parent, const char* dependent)
 {
 	depend_dissector_list_t  sub_dissectors = find_depend_dissector_list(parent);
 
@@ -4013,7 +4013,7 @@ deregister_postdissector(dissector_handle_t handle)
 	}
 }
 
-gboolean
+bool
 have_postdissector(void)
 {
 	guint i;
@@ -4042,7 +4042,7 @@ call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-gboolean
+bool
 postdissectors_want_hfids(void)
 {
 	guint i;

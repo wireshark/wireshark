@@ -2416,7 +2416,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     {
         tvbuff_t * data_tvb = NULL;
         gboolean can_call_subdissector = FALSE;
-        gboolean dissector_found = FALSE;
+        bool dissector_found = false;
         heur_dtbl_entry_t * hdtbl_entry;
 
         aeron_msg_process(tvb, offset, pinfo, transport, &pktinfo, finfo);

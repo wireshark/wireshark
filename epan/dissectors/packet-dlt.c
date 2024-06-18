@@ -991,7 +991,7 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
     return ret;
 }
 
-static int
+static bool
 dissect_dlt_non_verbose_payload_message_handoff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean payload_le,
                                                 guint8 msg_type, guint8 msg_type_info_comb, guint32 message_id, const guint8 *ecu_id) {
 
@@ -1042,7 +1042,7 @@ dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *r
         dissect_dlt_non_verbose_payload_message(subtvb, pinfo, tree, 0, payload_le, msg_type, msg_type_info_comb, message_id);
     } else if(msg_type == DLT_MSG_TYPE_LOG_MSG) {
         subtvb = tvb_new_subset_remaining(tvb, offset);
-        if (dissect_dlt_non_verbose_payload_message_handoff(subtvb, pinfo, root_tree, payload_le, msg_type, msg_type_info_comb, message_id, ecu_id) <= 0) {
+        if (!dissect_dlt_non_verbose_payload_message_handoff(subtvb, pinfo, root_tree, payload_le, msg_type, msg_type_info_comb, message_id, ecu_id)) {
             proto_tree_add_item(tree, hf_dlt_payload_data, tvb, offset, tvb_captured_length_remaining(tvb, offset), payload_le);
         }
     } else {

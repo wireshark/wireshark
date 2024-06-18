@@ -387,7 +387,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         (dissector = data->interleaved[rf_chan].dissector)) {
         call_dissector(dissector, next_tvb, pinfo, tree);
     } else {
-        gboolean dissected = FALSE;
+        bool dissected = false;
         heur_dtbl_entry_t *hdtbl_entry = NULL;
 
         dissected = dissector_try_heuristic(heur_subdissector_list,

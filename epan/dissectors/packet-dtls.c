@@ -864,7 +864,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   /* show decrypted data info, if available */
   if (decrypted) {
-    gboolean  dissected;
+    bool  dissected;
     guint16   saved_match_port;
     /* try to dissect decrypted data*/
     ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
@@ -888,7 +888,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                           dissector_handle_get_dissector_name(session->app_handle));
       }
 
-      dissected = call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
+      dissected = (bool)call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
     }
     else {
       /* try heuristic subdissectors */
