@@ -352,11 +352,11 @@ static int st_node_errors = -1;
 static void
 hartip_stats_tree_init(stats_tree* st)
 {
-  st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+  st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, true);
   st_node_requests  = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-  st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
-  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, STAT_DT_INT, TRUE);
-  st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, STAT_DT_INT, TRUE);
+  st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, true);
+  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, STAT_DT_INT, true);
+  st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, STAT_DT_INT, true);
 }
 
 static tap_packet_status
@@ -393,9 +393,9 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                                    hartip_message_id_values,
                                    "Unknown message %d");
 
-  tick_stat_node(st, st_str_packets, 0, FALSE);
-  tick_stat_node(st, message_type_node_str, st_node_packets, FALSE);
-  tick_stat_node(st, message_id_node_str, message_type_node, FALSE);
+  tick_stat_node(st, st_str_packets, 0, false);
+  tick_stat_node(st, message_type_node_str, st_node_packets, false);
+  tick_stat_node(st, message_id_node_str, message_type_node, false);
 
   return TAP_PACKET_REDRAW;
 }

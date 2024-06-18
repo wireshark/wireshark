@@ -10667,8 +10667,8 @@ static int st_node_dir = -1;
 static void
 msg_stats_tree_init(stats_tree *st)
 {
-  st_node_msg = stats_tree_create_node(st, "Messages by Type", 0, STAT_DT_INT, TRUE);
-  st_node_dir = stats_tree_create_node(st, "Messages by Direction", 0, STAT_DT_INT, TRUE);
+  st_node_msg = stats_tree_create_node(st, "Messages by Type", 0, STAT_DT_INT, true);
+  st_node_dir = stats_tree_create_node(st, "Messages by Direction", 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status
@@ -10707,11 +10707,11 @@ msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U
   wmem_free(NULL, src);
   wmem_free(NULL, dst);
 
-  msg_node = tick_stat_node(st, msg, st_node_msg, TRUE);
-  tick_stat_node(st, dir, msg_node, FALSE);
+  msg_node = tick_stat_node(st, msg, st_node_msg, true);
+  tick_stat_node(st, dir, msg_node, false);
 
-  dir_node = tick_stat_node(st, dir, st_node_dir, TRUE);
-  tick_stat_node(st, msg, dir_node, FALSE);
+  dir_node = tick_stat_node(st, dir, st_node_dir, true);
+  tick_stat_node(st, msg, dir_node, false);
 
   wmem_free(NULL, dir);
 

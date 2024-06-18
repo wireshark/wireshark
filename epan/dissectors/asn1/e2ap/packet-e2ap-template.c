@@ -718,7 +718,7 @@ static void set_stats_message_type(packet_info *pinfo, int type)
 static void
 e2ap_stats_tree_init(stats_tree *st)
 {
-    st_node_packets =      stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+    st_node_packets =      stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, true);
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }
 
@@ -728,7 +728,7 @@ e2ap_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
 {
     const struct e2ap_tap_t *pi = (const struct e2ap_tap_t *)p;
 
-    tick_stat_node(st, st_str_packets, 0, FALSE);
+    tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
                           val_to_str(pi->e2ap_mtype, mtype_names,
                                      "Unknown packet type (%d)"));

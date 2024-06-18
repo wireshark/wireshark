@@ -577,10 +577,10 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_it
 static void
 http_reqs_stats_tree_init(stats_tree* st)
 {
-	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, STAT_DT_INT, TRUE);
-	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, STAT_DT_INT, TRUE);
-	st_node_reqs_by_http_host = stats_tree_create_node(st, st_str_reqs_by_http_host, st_node_reqs, STAT_DT_INT, TRUE);
-	st_node_resps_by_srv_addr = stats_tree_create_node(st, st_str_resps_by_srv_addr, 0, STAT_DT_INT, TRUE);
+	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, STAT_DT_INT, true);
+	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, STAT_DT_INT, true);
+	st_node_reqs_by_http_host = stats_tree_create_node(st, st_str_reqs_by_http_host, st_node_reqs, STAT_DT_INT, true);
+	st_node_resps_by_srv_addr = stats_tree_create_node(st, st_str_resps_by_srv_addr, 0, STAT_DT_INT, true);
 }
 
 /* HTTP/Load Distribution stats packet function */
@@ -598,16 +598,16 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 	if (v->request_method) {
 		ip_str = address_to_str(NULL, &pinfo->dst);
 
-		tick_stat_node(st, st_str_reqs, 0, FALSE);
-		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
-		tick_stat_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
-		reqs_by_this_addr = tick_stat_node(st, ip_str, st_node_reqs_by_srv_addr, TRUE);
+		tick_stat_node(st, st_str_reqs, 0, false);
+		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, true);
+		tick_stat_node(st, st_str_reqs_by_http_host, st_node_reqs, true);
+		reqs_by_this_addr = tick_stat_node(st, ip_str, st_node_reqs_by_srv_addr, true);
 
 		if (v->http_host) {
-			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_reqs_by_http_host, TRUE);
-			tick_stat_node(st, ip_str, reqs_by_this_host, FALSE);
+			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_reqs_by_http_host, true);
+			tick_stat_node(st, ip_str, reqs_by_this_host, false);
 
-			tick_stat_node(st, v->http_host, reqs_by_this_addr, FALSE);
+			tick_stat_node(st, v->http_host, reqs_by_this_addr, false);
 		}
 
 		wmem_free(NULL, ip_str);
@@ -617,13 +617,13 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 	} else if (i != 0) {
 		ip_str = address_to_str(NULL, &pinfo->src);
 
-		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
-		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
+		tick_stat_node(st, st_str_resps_by_srv_addr, 0, false);
+		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, true);
 
 		if ( (i>=100)&&(i<400) ) {
-			tick_stat_node(st, "OK", resps_by_this_addr, FALSE);
+			tick_stat_node(st, "OK", resps_by_this_addr, false);
 		} else {
-			tick_stat_node(st, "Error", resps_by_this_addr, FALSE);
+			tick_stat_node(st, "Error", resps_by_this_addr, false);
 		}
 
 		wmem_free(NULL, ip_str);
@@ -642,7 +642,7 @@ static const gchar *st_str_requests_by_host = "HTTP Requests by HTTP Host";
 static void
 http_req_stats_tree_init(stats_tree* st)
 {
-	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, STAT_DT_INT, TRUE);
+	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, STAT_DT_INT, true);
 }
 
 /* HTTP/Requests stats packet function */
@@ -653,13 +653,13 @@ http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
 	int reqs_by_this_host;
 
 	if (v->request_method) {
-		tick_stat_node(st, st_str_requests_by_host, 0, FALSE);
+		tick_stat_node(st, st_str_requests_by_host, 0, false);
 
 		if (v->http_host) {
-			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_requests_by_host, TRUE);
+			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_requests_by_host, true);
 
 			if (v->request_uri) {
-				tick_stat_node(st, v->request_uri, reqs_by_this_host, TRUE);
+				tick_stat_node(st, v->request_uri, reqs_by_this_host, true);
 			}
 		}
 
@@ -696,16 +696,16 @@ static int st_node_other = -1;
 static void
 http_stats_tree_init(stats_tree* st)
 {
-	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, true);
 	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
-	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, STAT_DT_INT, TRUE);
-	st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, STAT_DT_INT, TRUE);
-	st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, STAT_DT_INT, TRUE);
-	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, TRUE);
-	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, TRUE);
-	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, TRUE);
-	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, FALSE);
+	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, true);
+	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, STAT_DT_INT, true);
+	st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, STAT_DT_INT, true);
+	st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, STAT_DT_INT, true);
+	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, true);
+	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, true);
+	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, true);
+	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, false);
 }
 
 /* HTTP/Packet Counter stats packet function */
@@ -718,10 +718,10 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	const gchar *resp_str;
 	gchar str[64];
 
-	tick_stat_node(st, st_str_packets, 0, FALSE);
+	tick_stat_node(st, st_str_packets, 0, false);
 
 	if (i) {
-		tick_stat_node(st, st_str_responses, st_node_packets, FALSE);
+		tick_stat_node(st, st_str_responses, st_node_packets, false);
 
 		if ( (i<100)||(i>=600) ) {
 			resp_grp = st_node_resp_broken;
@@ -743,15 +743,15 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 			resp_str = st_str_resp_500;
 		}
 
-		tick_stat_node(st, resp_str, st_node_responses, FALSE);
+		tick_stat_node(st, resp_str, st_node_responses, false);
 
 		snprintf(str, sizeof(str), "%u %s", i,
 			   val_to_str(i, vals_http_status_code, "Unknown (%d)"));
-		tick_stat_node(st, str, resp_grp, FALSE);
+		tick_stat_node(st, str, resp_grp, false);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
 	} else {
-		tick_stat_node(st, st_str_other, st_node_packets, FALSE);
+		tick_stat_node(st, st_str_other, st_node_packets, false);
 	}
 
 	return TAP_PACKET_REDRAW;
@@ -808,7 +808,7 @@ http_seq_stats_tree_init(stats_tree* st)
 	refstats_uri_to_node_id_hash = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
 
 	/* Add the root node and its mappings */
-	st_node_requests_by_referer = stats_tree_create_node(st, st_str_request_sequences, root_node_id, STAT_DT_INT, TRUE);
+	st_node_requests_by_referer = stats_tree_create_node(st, st_str_request_sequences, root_node_id, STAT_DT_INT, true);
 	node_id_p = GINT_TO_POINTER(st_node_requests_by_referer);
 	uri = wmem_strdup(wmem_file_scope(), st_str_request_sequences);
 
@@ -832,7 +832,7 @@ http_seq_stats_tick_referer(stats_tree* st, const gchar* arg_referer_uri)
 	/* Does the node exist? */
 	if (!wmem_map_lookup_extended(refstats_uri_to_node_id_hash, arg_referer_uri, NULL, &referer_node_id_p)) {
 		/* The node for the referer didn't already exist, create the mappings */
-		referer_node_id = tick_stat_node(st, arg_referer_uri, root_node_id, TRUE);
+		referer_node_id = tick_stat_node(st, arg_referer_uri, root_node_id, true);
 		referer_node_id_p = GINT_TO_POINTER(referer_node_id);
 		referer_parent_node_id_p = root_node_id_p;
 
@@ -844,7 +844,7 @@ http_seq_stats_tick_referer(stats_tree* st, const gchar* arg_referer_uri)
 		/* The node for the referer already exists, tick it */
 		referer_parent_node_id_p = wmem_map_lookup(refstats_node_id_to_parent_node_id_hash, referer_node_id_p);
 		referer_parent_node_id = GPOINTER_TO_INT(referer_parent_node_id_p);
-		referer_node_id = tick_stat_node(st, arg_referer_uri, referer_parent_node_id, TRUE);
+		referer_node_id = tick_stat_node(st, arg_referer_uri, referer_parent_node_id, true);
 	}
 	return referer_node_id;
 }
@@ -857,7 +857,7 @@ http_seq_stats_tick_request(stats_tree* st, const gchar* arg_full_uri, gint refe
 	gpointer node_id_p;
 	gchar *uri;
 
-	node_id = tick_stat_node(st, arg_full_uri, referer_node_id, TRUE);
+	node_id = tick_stat_node(st, arg_full_uri, referer_node_id, true);
 	node_id_p = GINT_TO_POINTER(node_id);
 
 	/* Update the mappings. Even if the URI was already seen, the URI->node mapping may need to be updated */
@@ -1012,7 +1012,7 @@ http_seq_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
 			while (wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
 				parent_node_id = GPOINTER_TO_INT(parent_node_id_p);
 				uri = (gchar *) wmem_map_lookup(refstats_node_id_to_uri_hash, current_node_id_p);
-				tick_stat_node(st, uri, parent_node_id, TRUE);
+				tick_stat_node(st, uri, parent_node_id, true);
 				current_node_id_p = parent_node_id_p;
 			}
 		}
@@ -1036,7 +1036,7 @@ http_seq_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
 		while (wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
 			parent_node_id = GPOINTER_TO_INT(parent_node_id_p);
 			uri = (gchar *) wmem_map_lookup(refstats_node_id_to_uri_hash, current_node_id_p);
-			tick_stat_node(st, uri, parent_node_id, TRUE);
+			tick_stat_node(st, uri, parent_node_id, true);
 			current_node_id_p = parent_node_id_p;
 		}
 	}

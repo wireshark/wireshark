@@ -224,8 +224,8 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 	if (td == NULL)
 		return (TAP_PACKET_DONT_REDRAW);
 
-	tick_stat_node (st, "Packets", 0, FALSE);
-	increase_stat_node (st, "Values", 0, TRUE, td->values_num);
+	tick_stat_node (st, "Packets", 0, false);
+	increase_stat_node (st, "Values", 0, true, td->values_num);
 
 	for (sc = td->hosts; sc != NULL; sc = sc->next)
 	{

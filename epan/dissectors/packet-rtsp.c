@@ -167,16 +167,16 @@ static int st_node_other = -1;
 static void
 rtsp_stats_tree_init(stats_tree* st)
 {
-    st_node_packets     = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+    st_node_packets     = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, true);
     st_node_requests    = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-    st_node_responses   = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
-    st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, STAT_DT_INT, TRUE);
-    st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, STAT_DT_INT, TRUE);
-    st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, STAT_DT_INT, TRUE);
-    st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, TRUE);
-    st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, TRUE);
-    st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, TRUE);
-    st_node_other       = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, FALSE);
+    st_node_responses   = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, true);
+    st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, STAT_DT_INT, true);
+    st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, STAT_DT_INT, true);
+    st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, STAT_DT_INT, true);
+    st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, true);
+    st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, true);
+    st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, true);
+    st_node_other       = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, false);
 }
 
 /* RTSP/Packet Counter stats packet function */
@@ -189,10 +189,10 @@ rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
     const gchar  *resp_str;
     static gchar  str[64];
 
-    tick_stat_node(st, st_str_packets, 0, FALSE);
+    tick_stat_node(st, st_str_packets, 0, false);
 
     if (i) {
-        tick_stat_node(st, st_str_responses, st_node_packets, FALSE);
+        tick_stat_node(st, st_str_responses, st_node_packets, false);
 
         if ( (i<100)||(i>=600) ) {
             resp_grp = st_node_resp_broken;
@@ -214,14 +214,14 @@ rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
             resp_str = st_str_resp_500;
         }
 
-        tick_stat_node(st, resp_str, st_node_responses, FALSE);
+        tick_stat_node(st, resp_str, st_node_responses, false);
 
         snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,rtsp_status_code_vals, "Unknown (%d)"));
-        tick_stat_node(st, str, resp_grp, FALSE);
+        tick_stat_node(st, str, resp_grp, false);
     } else if (v->request_method) {
         stats_tree_tick_pivot(st,st_node_requests,v->request_method);
     } else {
-        tick_stat_node(st, st_str_other, st_node_packets, FALSE);
+        tick_stat_node(st, st_str_other, st_node_packets, false);
     }
 
     return TAP_PACKET_REDRAW;

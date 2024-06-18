@@ -39,46 +39,46 @@ typedef struct _stat_node stat_node;
 typedef struct _stats_tree_cfg stats_tree_cfg;
 
 typedef struct _range_pair {
-	gint floor;
-	gint ceil;
+	int floor;
+	int ceil;
 } range_pair_t;
 
 typedef struct _burst_bucket burst_bucket;
 struct _burst_bucket {
 	burst_bucket	*next;
 	burst_bucket	*prev;
-	gint			count;
+	int			count;
 	double			bucket_no;
 	double			start_time;
 };
 
 struct _stat_node {
-	gchar*				name;
+	char*				name;
 	int					id;
 	stat_node_datatype	datatype;
 
 	/** the counter it keeps */
-	gint			counter;
+	int			counter;
 	/** total of all values submitted - for computing averages */
 	union {
-		gint64	int_total;
-		gdouble	float_total;
+		int64_t	int_total;
+		double	float_total;
 	} total;
 	union {
-		gint	int_min;
-		gfloat	float_min;
+		int	int_min;
+		float	float_min;
 	} minvalue;
 	union {
-		gint	int_max;
-		gfloat	float_max;
+		int	int_max;
+		float	float_max;
 	} maxvalue;
 
-	gint			st_flags;
+	int			st_flags;
 
 	/** fields for burst rate calculation */
-	gint			bcount;
+	int			bcount;
 	burst_bucket	*bh, *bt;
-	gint			max_burst;
+	int			max_burst;
 	double			burst_time;
 
 	/** children nodes by name */
@@ -111,8 +111,8 @@ struct _stats_tree {
 	double			now;
 
 	int				st_flags;
-	gint			num_columns;
-	gchar			*display_name;
+	int			num_columns;
+	char			*display_name;
 
    /** used to lookup named parents:
 	*    key: parent node name
@@ -141,7 +141,7 @@ struct _stats_tree_cfg {
 	char			*first_column_name;
 	register_stat_group_t	stat_group;
 
-	gboolean plugin;
+	bool plugin;
 
 	/** dissector defined callbacks */
 	stat_tree_packet_cb packet;
@@ -149,7 +149,7 @@ struct _stats_tree_cfg {
 	stat_tree_cleanup_cb cleanup;
 
 	/** tap listener flags for the per-packet callback */
-	guint flags;
+	unsigned flags;
 
 	/*
 	 * node presentation callbacks
@@ -168,11 +168,11 @@ struct _stats_tree_cfg {
 	void (*free_tree_pr)(stats_tree*);
 
 	/** flags for the stats tree (sorting etc.) default values to new trees */
-	guint st_flags;
+	unsigned st_flags;
 };
 
 /* guess what, this is it! */
-WS_DLL_PUBLIC void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
+WS_DLL_PUBLIC void stats_tree_presentation(void (*registry_iterator)(void *,void *,void *),
 				    void (*setup_node_pr)(stat_node*),
 				    void (*free_tree_pr)(stats_tree*),
 				    void *data);
@@ -193,7 +193,7 @@ WS_DLL_PUBLIC void stats_tree_free(stats_tree *st);
 
 /** given an ws_optarg splits the abbr part
    and returns a newly allocated buffer containing it */
-WS_DLL_PUBLIC gchar *stats_tree_get_abbr(const gchar *ws_optarg);
+WS_DLL_PUBLIC char *stats_tree_get_abbr(const char *ws_optarg);
 
 /** obtains a stats tree from the registry given its abbr */
 WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(const char *abbr);
@@ -203,60 +203,60 @@ WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(const char *abbr);
 WS_DLL_PUBLIC GList *stats_tree_get_cfg_list(void);
 
 /** used to calculate the size of the indentation and the longest string */
-WS_DLL_PUBLIC guint stats_tree_branch_max_namelen(const stat_node *node, guint indent);
+WS_DLL_PUBLIC unsigned stats_tree_branch_max_namelen(const stat_node *node, unsigned indent);
 
 /** a text representation of a node,
    if buffer is NULL returns a newly allocated string */
-WS_DLL_PUBLIC gchar *stats_tree_node_to_str(const stat_node *node,
-					gchar *buffer, guint len);
+WS_DLL_PUBLIC char *stats_tree_node_to_str(const stat_node *node,
+					char *buffer, unsigned len);
 
 /** get the display name for the stats_tree (or node name) based on the
     st_sort_showfullname preference. If not set remove everything before
     last unescaped backslash. Caller must free the result */
-WS_DLL_PUBLIC gchar* stats_tree_get_displayname (gchar* fullname);
+WS_DLL_PUBLIC char* stats_tree_get_displayname (char* fullname);
 
 /** returns the column number of the default column to sort on */
-WS_DLL_PUBLIC gint stats_tree_get_default_sort_col (stats_tree *st);
+WS_DLL_PUBLIC int stats_tree_get_default_sort_col (stats_tree *st);
 
 /** returns the default sort order to use */
-WS_DLL_PUBLIC gboolean stats_tree_is_default_sort_DESC (stats_tree *st);
+WS_DLL_PUBLIC bool stats_tree_is_default_sort_DESC (stats_tree *st);
 
 /** returns the column name for a given column index */
-WS_DLL_PUBLIC const gchar* stats_tree_get_column_name (stats_tree_cfg *st_config, gint col_index);
+WS_DLL_PUBLIC const char* stats_tree_get_column_name (stats_tree_cfg *st_config, int col_index);
 
 /** returns the maximum number of characters in the value of a column */
-WS_DLL_PUBLIC gint stats_tree_get_column_size (gint col_index);
+WS_DLL_PUBLIC int stats_tree_get_column_size (int col_index);
 
 /** returns the formatted column values for the current node
-  as array of gchar*. Caller must free entries and free array */
-WS_DLL_PUBLIC gchar** stats_tree_get_values_from_node (const stat_node* node);
+  as array of char*. Caller must free entries and free array */
+WS_DLL_PUBLIC char** stats_tree_get_values_from_node (const stat_node* node);
 
 /** function to compare two nodes for sort, based on sort_column. */
-WS_DLL_PUBLIC gint stats_tree_sort_compare (const stat_node *a,
+WS_DLL_PUBLIC int stats_tree_sort_compare (const stat_node *a,
 					const stat_node *b,
-					gint sort_column,
-					gboolean sort_descending);
+					int sort_column,
+					bool sort_descending);
 
 /** wrapper for stats_tree_sort_compare() function that can be called from array sort. */
-WS_DLL_PUBLIC gint stat_node_array_sortcmp (gconstpointer a,
+WS_DLL_PUBLIC int stat_node_array_sortcmp (gconstpointer a,
 					gconstpointer b,
-					gpointer user_data);
+					void *user_data);
 
 /** function to copy stats_tree into GString. format determines output format */
 WS_DLL_PUBLIC GString* stats_tree_format_as_str(const stats_tree* st,
 					st_format_type format_type,
-					gint sort_column,
-					gboolean sort_descending);
+					int sort_column,
+					bool sort_descending);
 
 /** helper funcation to add note to formatted stats_tree */
 WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 					GString *s,
 					st_format_type format_type,
-					guint indent,
-					const gchar *path,
-					gint maxnamelen,
-					gint sort_column,
-					gboolean sort_descending);
+					unsigned indent,
+					const char *path,
+					int maxnamelen,
+					int sort_column,
+					bool sort_descending);
 
 #ifdef __cplusplus
 }

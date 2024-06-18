@@ -62,6 +62,10 @@ definition_map = {
     'G_MININT32': 'INT32_MIN',
     'G_MININT64': 'INT64_MIN',
     'G_MININT': 'INT_MIN',
+    'G_MINFLOAT': 'FLT_MIN',
+    'G_MAXFLOAT': 'FLT_MAX',
+    'G_MINDOUBLE': 'DBL_MIN',
+    'G_MAXDOUBLE': 'DBL_MAX',
     'G_GINT64_CONSTANT': 'INT64_C',
     'G_GUINT64_CONSTANT': 'UINT64_C',
 }

@@ -1075,10 +1075,10 @@ get_smpp_data(packet_info *pinfo)
 static void
 smpp_stats_tree_init(stats_tree* st)
 {
-    st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, STAT_DT_INT, TRUE);
-    st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, STAT_DT_INT, TRUE);
-    st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, STAT_DT_INT, TRUE);
-    st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, STAT_DT_INT, TRUE);
+    st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, STAT_DT_INT, true);
+    st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, STAT_DT_INT, true);
+    st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, STAT_DT_INT, true);
+    st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, STAT_DT_INT, true);
 
 }
 
@@ -1091,21 +1091,21 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
 {
     const smpp_tap_rec_t* tap_rec = (const smpp_tap_rec_t*)p;
 
-    tick_stat_node(st, "SMPP Operations", 0, TRUE);
+    tick_stat_node(st, "SMPP Operations", 0, true);
 
     if ((tap_rec->command_id & SMPP_COMMAND_ID_RESPONSE_MASK) == SMPP_COMMAND_ID_RESPONSE_MASK) /* Response */
     {
-        tick_stat_node(st, "SMPP Responses", st_smpp_ops, TRUE);
-        tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_res, FALSE);
+        tick_stat_node(st, "SMPP Responses", st_smpp_ops, true);
+        tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_res, false);
 
-        tick_stat_node(st, "SMPP Response Status", 0, TRUE);
-        tick_stat_node(st, rval_to_str(tap_rec->command_status, rvals_command_status, "Unknown 0x%08x"), st_smpp_res_status, FALSE);
+        tick_stat_node(st, "SMPP Response Status", 0, true);
+        tick_stat_node(st, rval_to_str(tap_rec->command_status, rvals_command_status, "Unknown 0x%08x"), st_smpp_res_status, false);
 
     }
     else  /* Request */
     {
-        tick_stat_node(st, "SMPP Requests", st_smpp_ops, TRUE);
-        tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, FALSE);
+        tick_stat_node(st, "SMPP Requests", st_smpp_ops, true);
+        tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, false);
     }
 
     return TAP_PACKET_REDRAW;

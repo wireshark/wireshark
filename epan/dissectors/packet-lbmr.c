@@ -2840,7 +2840,7 @@ static void add_contents_qir(lbmr_contents_t * contents, const char * queue, con
 
 static void lbmr_topic_ads_topic_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_ads_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2850,11 +2850,11 @@ static tap_packet_status lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tre
     int source_node;
     gchar * full_source_string;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, FALSE);
-    topic_node = tick_stat_node(tree, info->topic, lbmr_stats_tree_handle_topic_ads_topic, TRUE);
-    source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, false);
+    topic_node = tick_stat_node(tree, info->topic, lbmr_stats_tree_handle_topic_ads_topic, true);
+    source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, true);
     full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" PRIu32 "]", info->source, info->topic_index);
-    tick_stat_node(tree, full_source_string, source_node, TRUE);
+    tick_stat_node(tree, full_source_string, source_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -2867,7 +2867,7 @@ static tap_packet_status lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tre
 
 static void lbmr_topic_ads_source_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2877,11 +2877,11 @@ static tap_packet_status lbmr_topic_ads_source_stats_tree_packet(stats_tree * tr
     int topic_node;
     gchar * full_source_string;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, FALSE);
-    source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_ads_source, TRUE);
-    topic_node = tick_stat_node(tree, info->topic, source_node, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, false);
+    source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_ads_source, true);
+    topic_node = tick_stat_node(tree, info->topic, source_node, true);
     full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" PRIu32 "]", info->source, info->topic_index);
-    tick_stat_node(tree, full_source_string, topic_node, TRUE);
+    tick_stat_node(tree, full_source_string, topic_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -2893,7 +2893,7 @@ static tap_packet_status lbmr_topic_ads_source_stats_tree_packet(stats_tree * tr
 
 static void lbmr_topic_ads_transport_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_info * pinfo _U_, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2902,10 +2902,10 @@ static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree *
     int transport_node;
     gchar * full_source_string;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, FALSE);
-    transport_node = tick_stat_node(tree, info->source, lbmr_stats_tree_handle_topic_ads_transport, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, false);
+    transport_node = tick_stat_node(tree, info->source, lbmr_stats_tree_handle_topic_ads_transport, true);
     full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s [%" PRIu32 "]", info->topic, info->topic_index);
-    tick_stat_node(tree, full_source_string, transport_node, TRUE);
+    tick_stat_node(tree, full_source_string, transport_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -2917,7 +2917,7 @@ static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree *
 
 static void lbmr_topic_queries_topic_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_queries_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2925,9 +2925,9 @@ static tap_packet_status lbmr_topic_queries_topic_stats_tree_packet(stats_tree *
     const lbm_lbmr_topic_query_tap_info_t * info = (const lbm_lbmr_topic_query_tap_info_t *) data;
     int topic_node;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, FALSE);
-    topic_node = tick_stat_node(tree, info->topic, lbmr_stats_tree_handle_topic_queries_topic, TRUE);
-    tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, false);
+    topic_node = tick_stat_node(tree, info->topic, lbmr_stats_tree_handle_topic_queries_topic, true);
+    tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -2939,7 +2939,7 @@ static tap_packet_status lbmr_topic_queries_topic_stats_tree_packet(stats_tree *
 
 static void lbmr_topic_queries_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2947,9 +2947,9 @@ static tap_packet_status lbmr_topic_queries_receiver_stats_tree_packet(stats_tre
     const lbm_lbmr_topic_query_tap_info_t * info = (const lbm_lbmr_topic_query_tap_info_t *) data;
     int receiver_node;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, FALSE);
-    receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_queries_receiver, TRUE);
-    tick_stat_node(tree, info->topic, receiver_node, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, false);
+    receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_queries_receiver, true);
+    tick_stat_node(tree, info->topic, receiver_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -2961,7 +2961,7 @@ static tap_packet_status lbmr_topic_queries_receiver_stats_tree_packet(stats_tre
 
 static void lbmr_topic_queries_pattern_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_pattern = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_queries_pattern = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2970,12 +2970,12 @@ static tap_packet_status lbmr_topic_queries_pattern_stats_tree_packet(stats_tree
     int pattern_node;
     char * pattern_str;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, FALSE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, false);
     pattern_str = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)",
         info->pattern,
         val_to_str(info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
-    pattern_node = tick_stat_node(tree, pattern_str, lbmr_stats_tree_handle_topic_queries_pattern, TRUE);
-    tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), pattern_node, TRUE);
+    pattern_node = tick_stat_node(tree, pattern_str, lbmr_stats_tree_handle_topic_queries_pattern, true);
+    tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), pattern_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -2987,7 +2987,7 @@ static tap_packet_status lbmr_topic_queries_pattern_stats_tree_packet(stats_tree
 
 static void lbmr_topic_queries_pattern_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_pattern_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_topic_queries_pattern_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -2996,12 +2996,12 @@ static tap_packet_status lbmr_topic_queries_pattern_receiver_stats_tree_packet(s
     int receiver_node;
     char * pattern_str;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, FALSE);
-    receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_queries_pattern_receiver, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, false);
+    receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_queries_pattern_receiver, true);
     pattern_str = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)",
         info->pattern,
         val_to_str(info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
-    tick_stat_node(tree, pattern_str, receiver_node, TRUE);
+    tick_stat_node(tree, pattern_str, receiver_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -3013,7 +3013,7 @@ static tap_packet_status lbmr_topic_queries_pattern_receiver_stats_tree_packet(s
 
 static void lbmr_queue_ads_queue_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_ads_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_queue_ads_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -3022,10 +3022,10 @@ static tap_packet_status lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tre
     int queue_node;
     gchar * str;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, FALSE);
-    queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_ads_queue, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, false);
+    queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_ads_queue, true);
     str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" PRIu16, address_to_str(wmem_packet_scope(), &pinfo->net_src), info->port);
-    tick_stat_node(tree, str, queue_node, TRUE);
+    tick_stat_node(tree, str, queue_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -3037,7 +3037,7 @@ static tap_packet_status lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tre
 
 static void lbmr_queue_ads_source_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_queue_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -3046,10 +3046,10 @@ static tap_packet_status lbmr_queue_ads_source_stats_tree_packet(stats_tree * tr
     int source_node;
     gchar * str;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, FALSE);
-    source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_ads_source, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, false);
+    source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_ads_source, true);
     str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" PRIu16, info->queue, info->port);
-    tick_stat_node(tree, str, source_node, TRUE);
+    tick_stat_node(tree, str, source_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -3061,7 +3061,7 @@ static tap_packet_status lbmr_queue_ads_source_stats_tree_packet(stats_tree * tr
 
 static void lbmr_queue_queries_queue_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_queries_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_queue_queries_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -3069,9 +3069,9 @@ static tap_packet_status lbmr_queue_queries_queue_stats_tree_packet(stats_tree *
     const lbm_lbmr_queue_query_tap_info_t * info = (const lbm_lbmr_queue_query_tap_info_t *) data;
     int queue_node = 0;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, FALSE);
-    queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_queries_queue, TRUE);
-    tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), queue_node, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, false);
+    queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_queries_queue, true);
+    tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), queue_node, true);
     return (TAP_PACKET_REDRAW);
 }
 
@@ -3083,7 +3083,7 @@ static tap_packet_status lbmr_queue_queries_queue_stats_tree_packet(stats_tree *
 
 static void lbmr_queue_queries_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, STAT_DT_INT, TRUE);
+    lbmr_stats_tree_handle_queue_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, STAT_DT_INT, true);
 }
 
 static tap_packet_status lbmr_queue_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
@@ -3091,9 +3091,9 @@ static tap_packet_status lbmr_queue_queries_receiver_stats_tree_packet(stats_tre
     const lbm_lbmr_queue_query_tap_info_t * info = (const lbm_lbmr_queue_query_tap_info_t *) data;
     int receiver_node;
 
-    tick_stat_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, FALSE);
-    receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_queries_receiver, TRUE);
-    tick_stat_node(tree, info->queue, receiver_node, TRUE);
+    tick_stat_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, false);
+    receiver_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_queries_receiver, true);
+    tick_stat_node(tree, info->queue, receiver_node, true);
     return (TAP_PACKET_REDRAW);
 }
 

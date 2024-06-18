@@ -4935,7 +4935,7 @@ proto_register_http2(void)
 
 static void http2_stats_tree_init(stats_tree* st)
 {
-    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, STAT_DT_INT, TRUE);
+    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, STAT_DT_INT, true);
     st_node_http2_type = stats_tree_create_pivot(st, st_str_http2_type, st_node_http2);
 
 }
@@ -4943,7 +4943,7 @@ static void http2_stats_tree_init(stats_tree* st)
 static tap_packet_status http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     const struct HTTP2Tap *pi = (const struct HTTP2Tap *)p;
-    tick_stat_node(st, st_str_http2, 0, FALSE);
+    tick_stat_node(st, st_str_http2, 0, false);
     stats_tree_tick_pivot(st, st_node_http2_type,
             val_to_str(pi->type, http2_type_vals, "Unknown type (%d)"));
 
