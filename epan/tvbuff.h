@@ -249,7 +249,7 @@ WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
 
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
-WS_DLL_PUBLIC gboolean tvb_bytes_exist(const tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC bool tvb_bytes_exist(const tvbuff_t *tvb, const gint offset,
     const gint length);
 
 /** Checks that the bytes referred to by 'offset'/'length', where 'length'
@@ -264,7 +264,7 @@ WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb,
     const gint offset, const gint length);
 
 /* Checks (w/o throwing exception) that offset exists in buffer */
-WS_DLL_PUBLIC gboolean tvb_offset_exists(const tvbuff_t *tvb,
+WS_DLL_PUBLIC bool tvb_offset_exists(const tvbuff_t *tvb,
     const gint offset);
 
 /* Get reported length of buffer */
@@ -856,7 +856,7 @@ WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset,
 * is an ascii printable character.
 * Returns TRUE if all bytes are printable, FALSE otherwise
 */
-WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC bool tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
 	const gint length);
 
 /** Iterates over the provided portion of the tvb checking that it is
@@ -868,14 +868,14 @@ WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
 *
 * @see isprint_utf8_string()
 */
-WS_DLL_PUBLIC gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC bool tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset,
 	const gint length);
 
 /** Iterates over the provided portion of the tvb checking that each byte
 * is an ascii digit.
 * Returns TRUE if all bytes are digits, FALSE otherwise
 */
-WS_DLL_PUBLIC gboolean tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC bool tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset,
 	const gint length);
 
 /**
