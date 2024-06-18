@@ -165,7 +165,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Daintree SNA", true, "dcf" },
 	{ "IPFIX File Format", true, "pfx;ipfix" },
 	{ "Aethra .aps file", true, "aps" },
-	{ "MPEG2 transport stream", true, "mp2t;ts;mpg" },
+	{ "MPEG2 transport stream", true, "mp2t;ts;m2ts;mpg" },
 	{ "Ixia IxVeriWave .vwr Raw 802.11 Capture", true, "vwr" },
 	{ "CAM Inspector file", true, "camins" },
 	{ "BLF file", true, "blf" },

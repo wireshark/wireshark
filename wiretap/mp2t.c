@@ -38,8 +38,11 @@
 
 
 typedef struct {
-    uint32_t start_offset;
     uint64_t bitrate;
+    uint32_t start_offset;
+    /* length of header data (e.g., TP_extra_header in BDAV m2ts files) before
+     * each packet) */
+    uint8_t header_len;
     /* length of trailing data (e.g. FEC) that's appended after each packet */
     uint8_t trailer_len;
 } mp2t_filetype_t;
@@ -100,6 +103,18 @@ mp2t_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     mp2t_filetype_t *mp2t;
 
     mp2t = (mp2t_filetype_t*) wth->priv;
+
+    /* if there's a header, skip it and go to the start of the packet */
+    /* XXX - Eventually we might want to process the header (and trailer?) in
+     * packet-mp2t.c, in which case we would read it in mp2t_read_packet and
+     * include header_len in the packet_header lengths. We'd probably want
+     * pseudo-header information to indicate it to packet-mp2t.c
+     */
+    if (mp2t->header_len!=0) {
+        if (!wtap_read_bytes_or_eof(wth->fh, NULL, mp2t->header_len, err, err_info)) {
+            return false;
+        }
+    }
 
     *data_offset = file_tell(wth->fh);
 
@@ -295,6 +310,7 @@ mp2t_open(wtap *wth, int *err, char **err_info)
 {
     uint8_t buffer[MP2T_SIZE+TRAILER_LEN_MAX];
     uint8_t trailer_len = 0;
+    uint8_t header_len = 0;
     unsigned sync_steps = 0;
     unsigned i;
     uint32_t first = 0;
@@ -327,39 +343,61 @@ found:
 
     /* read some packets and make sure they all start with a sync byte */
     do {
-       if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE+trailer_len, err, err_info)) {
-          if (*err != WTAP_ERR_SHORT_READ)
-            return WTAP_OPEN_ERROR;  /* read error */
-          if(sync_steps<2) return WTAP_OPEN_NOT_MINE; /* wrong file type - not an mpeg2 ts file */
-          break;  /* end of file, that's ok if we're still in sync */
-       }
-       if (buffer[0] == MP2T_SYNC_BYTE) {
-               sync_steps++;
-       }
-       else {
-           /* no sync byte found, check if trailing data is appended
-              and we have to increase the packet size */
+        if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE+trailer_len, err, err_info)) {
+            if (*err != WTAP_ERR_SHORT_READ)
+                return WTAP_OPEN_ERROR;  /* read error */
+            if(sync_steps<2) return WTAP_OPEN_NOT_MINE; /* wrong file type - not an mpeg2 ts file */
+            break;  /* end of file, that's ok if we're still in sync */
+        }
+        if (buffer[0] == MP2T_SYNC_BYTE) {
+                sync_steps++;
+        }
+        else {
+            /* no sync byte found, check if trailing data is appended
+               and we have to increase the packet size */
 
-           /* if we've already detected a trailer field, we must remain in sync
-              another mismatch means we have no mpeg2 ts file */
-           if (trailer_len>0)
-               return WTAP_OPEN_NOT_MINE;
+            /* if we've already detected a trailer field, we must remain in sync
+               another mismatch means we have no mpeg2 ts file */
+            if (trailer_len>0) {
+                /* check for header with spurious sync byte in header */
+                if (first < trailer_len) {
+                    first += 1;
+                    trailer_len -= 1;
+                    if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
+                        return WTAP_OPEN_ERROR;
+                    }
+                    /* Shouldn't fail, we just read this */
+                    if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
+                        if (*err != WTAP_ERR_SHORT_READ)
+                            return WTAP_OPEN_ERROR;
+                        return WTAP_OPEN_NOT_MINE;
+                    }
+                    for (i = 0; i < MP2T_SIZE; i++) {
+                        if (MP2T_SYNC_BYTE == buffer[i]) {
+                            first += i;
+                            trailer_len -= i;
+                            goto found;
+                        }
+                    }
+                }
+                return WTAP_OPEN_NOT_MINE;
+            }
 
-           /* check if a trailer is appended to the packet */
-           for (i=0; i<TRAILER_LEN_MAX; i++) {
-               if (buffer[i] == MP2T_SYNC_BYTE) {
-                   trailer_len = i;
-                   if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
-                       return WTAP_OPEN_ERROR;
-                   }
-                   sync_steps = 0;
-                   break;
-               }
-           }
-           /* no sync byte found in the vicinity, this is no mpeg2 ts file */
-           if (i==TRAILER_LEN_MAX)
-               return WTAP_OPEN_NOT_MINE;
-       }
+            /* check if a trailer is appended to the packet */
+            for (i=0; i<TRAILER_LEN_MAX; i++) {
+                if (buffer[i] == MP2T_SYNC_BYTE) {
+                    trailer_len = i;
+                    if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
+                        return WTAP_OPEN_ERROR;
+                    }
+                    sync_steps = 0;
+                    break;
+                }
+            }
+            /* no sync byte found in the vicinity, this is no mpeg2 ts file */
+            if (i==TRAILER_LEN_MAX)
+                return WTAP_OPEN_NOT_MINE;
+        }
     } while (sync_steps < SYNC_STEPS);
 
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
@@ -372,6 +410,12 @@ found:
     if (status != WTAP_OPEN_MINE) {
         return status;
     }
+
+    /* If the packet didn't start on a sync byte, the "trailer" might
+     * be a header. At least BDAV M2TS does this with a four byte header. */
+    header_len = MIN(first, trailer_len);
+    first -= header_len;
+    trailer_len -= header_len;
 
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
         return WTAP_OPEN_ERROR;
@@ -389,6 +433,7 @@ found:
     wth->priv = mp2t;
     mp2t->start_offset = first;
     mp2t->trailer_len = trailer_len;
+    mp2t->header_len = header_len;
     mp2t->bitrate = bitrate;
 
     return WTAP_OPEN_MINE;
@@ -431,6 +476,8 @@ static bool mp2t_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* A MPEG-2 Transport Stream is just the packet bytes, with no header.
      * The sync byte is supposed to identify where packets start.
+     * Note this drops existing headers and trailers currently, since we
+     * don't include them in the record.
      */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err)) {
         return false;
@@ -457,7 +504,7 @@ static const struct supported_block_type mp2t_blocks_supported[] = {
 };
 
 static const struct file_type_subtype_info mp2t_info = {
-    "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg",
+    "MPEG2 transport stream", "mp2t", "mp2t", "ts;m2ts;mpg",
     false, BLOCKS_SUPPORTED(mp2t_blocks_supported),
     mp2t_dump_can_write_encap, mp2t_dump_open, NULL
 };
