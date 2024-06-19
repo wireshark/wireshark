@@ -1029,8 +1029,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 			break;
 
 		case JSON_TOKEN_NUMBER:
-			/* XXX, convert to number */
-			proto_tree_add_item(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, ENC_ASCII);
+			proto_tree_add_double(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, g_ascii_strtod(value_str, NULL));
 
 			break;
 
@@ -1306,8 +1305,8 @@ proto_register_json(void)
 			  "JSON string value", HFILL }
 		},
 		{ &hf_json_value_number,
-			{ /* FT_DOUBLE/ FT_INT64? */ 	 "Number value", "json.value.number",
-			  FT_STRING, BASE_NONE, NULL, 0x00,
+			{ "Number value", "json.value.number",
+			  FT_DOUBLE, BASE_NONE, NULL, 0x00,
 			  "JSON number value", HFILL }
 		},
 		{ &hf_json_value_false,
