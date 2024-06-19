@@ -906,16 +906,16 @@ static int hf_iec60870_101_linkaddr;
 static int hf_iec60870_101_checksum;
 static int hf_iec60870_101_stopchar;
 
-static int hf_iec60870_segments = -1;
-static int hf_iec60870_segment = -1;
-static int hf_iec60870_segment_overlap = -1;
-static int hf_iec60870_segment_overlap_conflict = -1;
-static int hf_iec60870_segment_multiple_tails = -1;
-static int hf_iec60870_segment_too_long_segment = -1;
-static int hf_iec60870_segment_error = -1;
-static int hf_iec60870_segment_count = -1;
-static int hf_iec60870_reassembled_in = -1;
-static int hf_iec60870_reassembled_length = -1;
+static int hf_iec60870_segments;
+static int hf_iec60870_segment;
+static int hf_iec60870_segment_overlap;
+static int hf_iec60870_segment_overlap_conflict;
+static int hf_iec60870_segment_multiple_tails;
+static int hf_iec60870_segment_too_long_segment;
+static int hf_iec60870_segment_error;
+static int hf_iec60870_segment_count;
+static int hf_iec60870_reassembled_in;
+static int hf_iec60870_reassembled_length;
 
 static const fragment_items iec60870_frag_items = {
   &ett_iec60870_segment,

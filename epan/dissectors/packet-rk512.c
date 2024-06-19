@@ -69,7 +69,7 @@ static const value_string status_vals[] = {
 	{ 0, NULL }
 };
 
-#define BLOCKNUM_CONTINUOUSDATA		0x0000		// 0
+#define BLOCKNUM_CONTINUOUSDATA			0x0000		// 0
 #define BLOCKNUM_SCID				0x0017		// 23
 #define BLOCKNUM_TOKEN				0x0019		// 25
 #define BLOCKNUM_DATAMODE			0x0067		// 103
