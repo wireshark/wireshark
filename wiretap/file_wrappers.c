@@ -42,7 +42,7 @@ typedef zng_stream zlib_stream;
 
 #ifdef HAVE_ZSTD
 #include <zstd.h>
-#endif
+#endif /* HAVE_ZSTD */
 
 #ifdef HAVE_LZ4
 #include <lz4.h>
@@ -50,8 +50,8 @@ typedef zng_stream zlib_stream;
 #if LZ4_VERSION_NUMBER >= 10703
 #define USE_LZ4
 #include <lz4frame.h>
-#endif
-#endif
+#endif /* LZ4_VERSION_NUMBER >= 10703 */
+#endif /* HAVE_LZ4 */
 
 /*
  * See RFC 1952:
@@ -79,13 +79,13 @@ static struct compression_type {
 } compression_types[] = {
 #ifdef USE_ZLIB_OR_ZLIBNG
     { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 #ifdef HAVE_ZSTD
     { WTAP_ZSTD_COMPRESSED, "zst", "zstd compressed" },
-#endif
+#endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
     { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed" },
-#endif
+#endif /* USE_LZ4 */
     { WTAP_UNCOMPRESSED, NULL, NULL }
 };
 
@@ -209,13 +209,13 @@ struct wtap_reader {
     /* zlib inflate stream */
     zlib_stream strm;           /* stream structure in-place (not a pointer) */
     bool dont_check_crc;        /* true if we aren't supposed to check the CRC */
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 #ifdef HAVE_ZSTD
     ZSTD_DCtx *zstd_dctx;
-#endif
+#endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
     LZ4F_dctx *lz4_dctx;
-#endif
+#endif /* USE_LZ4 */
 
     /* fast seeking */
     GPtrArray *fast_seek;
@@ -319,7 +319,7 @@ struct fast_seek_point {
         struct {
 #ifdef HAVE_INFLATEPRIME
             int bits;   /* number of bits (1-7) from byte at in - 1, or 0 */
-#endif
+#endif /* HAVE_INFLATEPRIME */
             unsigned char window[ZLIB_WINSIZE]; /* preceding 32K of uncompressed data */
 
             /* be gentle with Z_STREAM_END, 8 bytes more... Another solution would be to comment checks out */
@@ -385,9 +385,9 @@ static void
 fast_seek_reset(
 #ifdef HAVE_ZLIB
     FILE_T state)
-#else
+#else /* HAVE_ZLIB */
     FILE_T state _U_)
-#endif
+#endif /* HAVE_ZLIB */
 {
 #ifdef HAVE_ZLIB
     if (state->compression == ZLIB && state->fast_seek_cur != NULL) {
@@ -395,7 +395,7 @@ fast_seek_reset(
 
         cur->have = 0;
     }
-#endif
+#endif /* HAVE_ZLIB */
 }
 
 #ifdef USE_ZLIB_OR_ZLIBNG
@@ -536,7 +536,7 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, int
 #ifndef HAVE_INFLATEPRIME
     if (bits)
         return;
-#endif
+#endif /* HAVE_INFLATEPRIME */
 
     /* Glib has got Balanced Binary Trees (GTree) but I couldn't find a way to do quick search for nearest (and smaller) value to seek (It's what fast_seek_find() do)
      *      Inserting value in middle of sorted array is expensive, so we want to add only in the end.
@@ -549,7 +549,7 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, int
         val->compression = ZLIB;
 #ifdef HAVE_INFLATEPRIME
         val->data.zlib.bits = bits;
-#endif
+#endif /* HAVE_INFLATEPRIME */
         if (point->pos != 0) {
             unsigned int left = ZLIB_WINSIZE - point->pos;
 
@@ -584,9 +584,9 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
     uint32_t crc, len;
 #ifdef HAVE_ZLIBNG
     zng_streamp strm = &(state->strm);
-#else
+#else /* HAVE_ZLIBNG */
     z_streamp strm = &(state->strm);
-#endif
+#endif /* HAVE_ZLIBNG */
 
     unsigned char *buf2 = buf;
     unsigned int count2 = count;
@@ -611,17 +611,17 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
         /* decompress and handle errors */
 #ifdef Z_BLOCK
         ret = ZLIB_PREFIX(inflate)(strm, Z_BLOCK);
-#else
+#else /* Z_BLOCK */
         ret = ZLIB_PREFIX(inflate)(strm, Z_NO_FLUSH);
-#endif
+#endif /* Z_BLOCK */
         state->in.avail = strm->avail_in;
 #ifdef z_const
 DIAG_OFF(cast-qual)
         state->in.next = (unsigned char *)strm->next_in;
 DIAG_ON(cast-qual)
-#else
+#else /* z_const */
         state->in.next = strm->next_in;
-#endif
+#endif /* z_const */
         if (ret == Z_STREAM_ERROR) {
             state->err = WTAP_ERR_DECOMPRESS;
             state->err_info = strm->msg;
@@ -681,7 +681,7 @@ DIAG_ON(cast-qual)
             if (cur->have >= ZLIB_WINSIZE && ret != Z_STREAM_END && (strm->data_type & 128) && !(strm->data_type & 64))
                 zlib_fast_seek_add(state, cur, (strm->data_type & 7), state->raw_pos - strm->avail_in, state->pos + (count - strm->avail_out));
         }
-#endif
+#endif /* Z_BLOCK */
         buf2 = (buf2 + count2 - strm->avail_out);
         count2 = strm->avail_out;
 
@@ -713,7 +713,7 @@ DIAG_ON(cast-qual)
         state->fast_seek_cur = NULL;
     }
 }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 static int
 gz_head(FILE_T state)
@@ -880,7 +880,7 @@ gz_head(FILE_T state)
 #ifdef HAVE_LIBXZ
     /* { 0xFD, '7', 'z', 'X', 'Z', 0x00 } */
     /* FD 37 7A 58 5A 00 */
-#endif
+#endif /* HAVE_LIBXZ */
 
     if (state->in.avail >= 4
         && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
@@ -896,11 +896,11 @@ gz_head(FILE_T state)
         state->compression = ZSTD;
         state->is_compressed = true;
         return 0;
-#else
+#else /* HAVE_ZSTD */
         state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
         state->err_info = "reading zstd-compressed files isn't supported";
         return -1;
-#endif
+#endif /* HAVE_ZSTD */
     }
 
     if (state->in.avail >= 4
@@ -909,7 +909,7 @@ gz_head(FILE_T state)
 #ifdef USE_LZ4
 #if LZ4_VERSION_NUMBER >= 10800
         LZ4F_resetDecompressionContext(state->lz4_dctx);
-#else
+#else /* LZ4_VERSION_NUMBER >= 10800 */
         LZ4F_freeDecompressionContext(state->lz4_dctx);
         const LZ4F_errorCode_t ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
         if (LZ4F_isError(ret)) {
@@ -917,15 +917,15 @@ gz_head(FILE_T state)
             state->err_info = LZ4F_getErrorName(ret);
             return -1;
         }
-#endif
+#endif /* LZ4_VERSION_NUMBER >= 10800 */
         state->compression = LZ4;
         state->is_compressed = true;
         return 0;
-#else
+#else /* USE_LZ4 */
         state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
         state->err_info = "reading lz4-compressed files isn't supported";
         return -1;
-#endif
+#endif /* USE_LZ4 */
     }
 
     if (state->fast_seek)
@@ -967,7 +967,7 @@ fill_out_buffer(FILE_T state)
     else if (state->compression == ZLIB) {      /* decompress */
         zlib_read(state, state->out.buf, state->size << 1);
     }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 #ifdef HAVE_ZSTD
     else if (state->compression == ZSTD) {
         ws_assert(state->out.avail == 0);
@@ -995,7 +995,7 @@ fill_out_buffer(FILE_T state)
             state->compression = UNKNOWN;
         }
     }
-#endif
+#endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
     else if (state->compression == LZ4) {
         ws_assert(state->out.avail == 0);
@@ -1027,7 +1027,7 @@ fill_out_buffer(FILE_T state)
             state->compression = UNKNOWN;
         }
     }
-#endif
+#endif /* USE_LZ4 */
     return 0;
 }
 
@@ -1104,15 +1104,15 @@ file_fdopen(int fd)
      */
 #ifdef _STATBUF_ST_BLKSIZE
     ws_statb64 st;
-#endif
+#endif /* _STATBUF_ST_BLKSIZE */
 #ifdef HAVE_ZSTD
     size_t zstd_buf_size;
-#endif
+#endif /* HAVE_ZSTD */
     unsigned want = GZBUFSIZE;
     FILE_T state;
 #ifdef USE_LZ4
     size_t ret;
-#endif
+#endif /* USE_LZ4 */
 
     if (fd == -1)
         return NULL;
@@ -1178,7 +1178,7 @@ file_fdopen(int fd)
             want = MAX_READ_BUF_SIZE;
         /* XXX, verify result? */
     }
-#endif
+#endif /* _STATBUF_ST_BLKSIZE */
 #ifdef HAVE_ZSTD
     /* we should have separate input and output buf sizes */
     zstd_buf_size = ZSTD_DStreamInSize();
@@ -1195,7 +1195,7 @@ file_fdopen(int fd)
         else
             want = MAX_READ_BUF_SIZE;
     }
-#endif
+#endif /* HAVE_ZSTD */
     /* allocate buffers */
     state->in.buf = (unsigned char *)g_try_malloc(want);
     state->in.next = state->in.buf;
@@ -1221,21 +1221,21 @@ file_fdopen(int fd)
 
     /* for now, assume we should check the crc */
     state->dont_check_crc = false;
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 #ifdef HAVE_ZSTD
     state->zstd_dctx = ZSTD_createDCtx();
     if (state->zstd_dctx == NULL) {
         goto err;
     }
-#endif
+#endif /* HAVE_ZSTD */
 
 #ifdef USE_LZ4
     ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
     if (LZ4F_isError(ret)) {
         goto err;
     }
-#endif
+#endif /* USE_LZ4 */
 
     /* return stream */
     return state;
@@ -1243,13 +1243,13 @@ file_fdopen(int fd)
 err:
 #ifdef USE_ZLIB_OR_ZLIBNG
     ZLIB_PREFIX(inflateEnd)(&state->strm);
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 #ifdef HAVE_ZSTD
     ZSTD_freeDCtx(state->zstd_dctx);
-#endif
+#endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
     LZ4F_freeDecompressionContext(state->lz4_dctx);
-#endif
+#endif /* USE_LZ4 */
     g_free(state->out.buf);
     g_free(state->in.buf);
     g_free(state);
@@ -1264,7 +1264,7 @@ file_open(const char *path)
     FILE_T ft;
 #ifdef USE_ZLIB_OR_ZLIBNG
     const char *suffixp;
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
     /* open file and do correct filename conversions.
 
@@ -1304,7 +1304,7 @@ file_open(const char *path)
         if (g_ascii_strcasecmp(suffixp, ".caz") == 0)
             ft->dont_check_crc = true;
     }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
     return ft;
 }
@@ -1441,15 +1441,15 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
         if (here->compression == ZLIB) {
 #ifdef HAVE_INFLATEPRIME
             off = here->in - (here->data.zlib.bits ? 1 : 0);
-#else
+#else /* HAVE_INFLATEPRIME */
             off = here->in;
-#endif
+#endif /* HAVE_INFLATEPRIME */
             off2 = here->out;
         } else if (here->compression == GZIP_AFTER_HEADER) {
             off = here->in;
             off2 = here->out;
         } else
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
         {
             off2 = (file->pos + offset);
             off = here->in + (off2 - here->out);
@@ -1490,7 +1490,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
                 }
                 (void)ZLIB_PREFIX(inflatePrime)(strm, here->data.zlib.bits, ret >> (8 - here->data.zlib.bits));
             }
-#endif
+#endif /* HAVE_INFLATEPRIME */
             (void)ZLIB_PREFIX(inflateSetDictionary)(strm, here->data.zlib.window, ZLIB_WINSIZE);
             file->compression = ZLIB;
         } else if (here->compression == GZIP_AFTER_HEADER) {
@@ -1499,7 +1499,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
             strm->adler = ZLIB_PREFIX(crc32)(0L, Z_NULL, 0);
             file->compression = ZLIB;
         } else
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
             file->compression = here->compression;
 
         offset = (file->pos + offset) - off2;
@@ -1929,13 +1929,13 @@ file_close(FILE_T file)
     if (file->size) {
 #ifdef USE_ZLIB_OR_ZLIBNG
         ZLIB_PREFIX(inflateEnd)(&(file->strm));
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 #ifdef HAVE_ZSTD
         ZSTD_freeDCtx(file->zstd_dctx);
-#endif
+#endif /* HAVE_ZSTD */
 #ifdef USE_LZ4
         LZ4F_freeDecompressionContext(file->lz4_dctx);
-#endif
+#endif /* USE_LZ4 */
         g_free(file->out.buf);
         g_free(file->in.buf);
     }
@@ -2024,9 +2024,9 @@ gz_init(GZWFILE_T state)
     int ret;
 #ifdef HAVE_ZLIBNG
     zng_streamp strm = &(state->strm);
-#else
+#else /* HAVE_ZLIBNG */
     z_streamp strm = &(state->strm);
-#endif
+#endif /* HAVE_ZLIBNG */
 
     /* allocate input and output buffers */
     state->in = (unsigned char *)g_try_malloc(state->want);
@@ -2081,9 +2081,9 @@ gz_comp(GZWFILE_T state, int flush)
     ptrdiff_t have;
 #ifdef HAVE_ZLIBNG
     zng_streamp strm = &(state->strm);
-#else
+#else /* HAVE_ZLIBNG */
     z_streamp strm = &(state->strm);
-#endif
+#endif /* HAVE_ZLIBNG */
     /* allocate memory if this is the first time through */
     if (state->size == 0 && gz_init(state) == -1)
         return -1;
@@ -2144,9 +2144,9 @@ gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
     unsigned n;
 #ifdef HAVE_ZLIBNG
     zng_streamp strm;
-#else
+#else /* HAVE_ZLIBNG */
     z_streamp strm;
-#endif
+#endif /* HAVE_ZLIBNG */
 
     strm = &(state->strm);
 
@@ -2175,9 +2175,9 @@ gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
 DIAG_OFF(cast-qual)
             memcpy((Bytef *)strm->next_in + strm->avail_in, buf, n);
 DIAG_ON(cast-qual)
-#else
+#else /* z_const */
             memcpy(strm->next_in + strm->avail_in, buf, n);
-#endif
+#endif /* z_const */
             strm->avail_in += n;
             state->pos += n;
             buf = (const char *)buf + n;
@@ -2195,11 +2195,11 @@ DIAG_ON(cast-qual)
         strm->avail_in = len;
 #ifdef z_const
         strm->next_in = (z_const Bytef *)buf;
-#else
+#else /* z_const */
 DIAG_OFF(cast-qual)
         strm->next_in = (Bytef *)buf;
 DIAG_ON(cast-qual)
-#endif
+#endif /* z_const */
         state->pos += len;
         if (gz_comp(state, Z_NO_FLUSH) == -1)
             return 0;
@@ -2250,7 +2250,7 @@ gzwfile_geterr(GZWFILE_T state)
 {
     return state->err;
 }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
