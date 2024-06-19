@@ -54,22 +54,6 @@ typedef zng_stream zlib_stream;
 #endif /* HAVE_LZ4 */
 
 /*
- * See RFC 1952:
- *
- *      https://tools.ietf.org/html/rfc1952
- *
- * for a description of the gzip file format.
- *
- * Some other compressed file formats we might want to support:
- *
- *      XZ format: https://tukaani.org/xz/
- *
- *      Bzip2 format: https://www.sourceware.org/bzip2/
- *
- *      Lzip format: https://www.nongnu.org/lzip/
- */
-
-/*
  * List of compression types supported.
  */
 static struct compression_type {
@@ -715,8 +699,12 @@ DIAG_ON(cast-qual)
 }
 #endif /* USE_ZLIB_OR_ZLIBNG */
 
+/*
+ * Used when we haven't yet determined whether we have a compressed file
+ * and, if we do, what sort of compressed file it is.
+ */
 static int
-gz_head(FILE_T state)
+check_for_compression(FILE_T state)
 {
     unsigned already_read;
 
@@ -729,6 +717,15 @@ gz_head(FILE_T state)
     }
 
     /* look for the gzip magic header bytes 31 and 139 */
+
+    /*
+     * Look for the gzip header.
+     *
+     * https://tools.ietf.org/html/rfc1952 (RFC 1952)
+     *
+     * and if we find it, return success if we support gzip and an
+     * error if we don't.
+     */
     if (state->in.next[0] == 31) {
         state->in.avail--;
         state->in.next++;
@@ -877,11 +874,33 @@ gz_head(FILE_T state)
             state->in.next--;
         }
     }
-#ifdef HAVE_LIBXZ
-    /* { 0xFD, '7', 'z', 'X', 'Z', 0x00 } */
-    /* FD 37 7A 58 5A 00 */
-#endif /* HAVE_LIBXZ */
 
+    /*
+     * Some other compressed file formats we might want to support:
+     *
+     *   XZ format:
+     *     https://tukaani.org/xz/
+     *     https://github.com/tukaani-project/xz
+     *     https://github.com/tukaani-project/xz/blob/master/doc/xz-file-format.txt
+     *
+     *    Bzip2 format:
+     *      https://www.sourceware.org/bzip2/
+     *      https://gitlab.com/bzip2/bzip2/
+     *      https://github.com/dsnet/compress/blob/master/doc/bzip2-format.pdf
+     *        (GitHub won't render it; download and open it)
+     *
+     *    Lzip format:
+     *      https://www.nongnu.org/lzip/
+     */
+
+    /*
+     * Look for the Zstandard header.
+     *
+     * https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
+     *
+     * and if we find it, return success if we support Zstandard and an
+     * error if we don't.
+     */
     if (state->in.avail >= 4
         && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
         && state->in.buf[2] == 0x2f && state->in.buf[3] == 0xfd) {
@@ -903,6 +922,14 @@ gz_head(FILE_T state)
 #endif /* HAVE_ZSTD */
     }
 
+    /*
+     * Look for the lz4 header.
+     *
+     * https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md
+     *
+     * and if we find it, return success if we support lz4 and an
+     * error if we don't.
+     */
     if (state->in.avail >= 4
         && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
         && state->in.buf[2] == 0x4d && state->in.buf[3] == 0x18) {
@@ -928,6 +955,15 @@ gz_head(FILE_T state)
 #endif /* USE_LZ4 */
     }
 
+    /*
+     * We didn't see anything that looks like a header for any type of
+     * compressed file that we support, so just do uncompressed I/O.
+     *
+     * XXX - we don't need the fast seek stuff for that, as we don't
+     * have any compression state to keep track of and don't need to
+     * map between offsets in the uncompressed data and offsets in
+     * the compressed file; what are we doing here?
+     */
     if (state->fast_seek)
         fast_seek_header(state, state->raw_pos - state->in.avail - state->out.avail, state->pos, UNCOMPRESSED);
 
@@ -953,12 +989,25 @@ gz_head(FILE_T state)
 static int /* gz_make */
 fill_out_buffer(FILE_T state)
 {
-    if (state->compression == UNKNOWN) {          /* look for compression header */
-        if (gz_head(state) == -1)
+    if (state->compression == UNKNOWN) {
+        /*
+         * We don't yet know whether the file is compressed,
+         * so check for a compressed-file header.
+         */
+        if (check_for_compression(state) == -1)
             return -1;
-        if (state->out.avail != 0)                /* got some data from gz_head() */
+        if (state->out.avail != 0)                /* got some data from check_for_compression() */
             return 0;
     }
+
+    /*
+     * We got no data from check_for_compression(), or we didn't call
+     * it as we already know the compression type, so read some more
+     * data.
+     *
+     * We do, however, know whether the file is compressed and, if so,
+     * what the compression type is.
+     */
     if (state->compression == UNCOMPRESSED) {           /* straight copy */
         if (buf_read(state, &state->out) < 0)
             return -1;
