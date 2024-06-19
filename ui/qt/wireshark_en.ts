@@ -6711,6 +6711,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>%Ln bytes</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation>
+            <numerusform>%Ln bit</numerusform>
+            <numerusform>%Ln bits</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
@@ -7336,6 +7343,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">
             <numerusform>%Ln byte</numerusform>
             <numerusform>%Ln bytes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln bit(s)</source>
+        <translation>
+            <numerusform>%Ln bit</numerusform>
+            <numerusform>%Ln bits</numerusform>
         </translation>
     </message>
 </context>
