@@ -40,9 +40,9 @@ static gint ett_rk512_measurement_data;
 static gint ett_rk512_measurement_data_value;
 static gint ett_rk512_continuous_data;
 
-static expert_field ei_rk512_reply_header = EI_INIT;
-static expert_field ei_rk512_data_type = EI_INIT;
-static expert_field ei_rk512_checksum = EI_INIT;
+static expert_field ei_rk512_reply_header;
+static expert_field ei_rk512_data_type;
+static expert_field ei_rk512_checksum;
 
 //Preferences
 static guint rk512_num_measurements_pts = 541;
