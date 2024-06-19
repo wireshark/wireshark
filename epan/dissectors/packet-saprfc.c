@@ -409,12 +409,12 @@ static gint ett_saprfc;
 
 /* Expert info */
 #if 0
-static expert_field ei_saprfc_invalid_table_structure_length = EI_INIT;
-static expert_field ei_saprfc_invalid_table_content_length = EI_INIT;
-static expert_field ei_saprfc_mismatching_table_row_width = EI_INIT;
+static expert_field ei_saprfc_invalid_table_structure_length;
+static expert_field ei_saprfc_invalid_table_content_length;
+static expert_field ei_saprfc_mismatching_table_row_width;
 #endif
-static expert_field ei_saprfc_item_length_invalid = EI_INIT;
-static expert_field ei_saprfc_unknown_item = EI_INIT;
+static expert_field ei_saprfc_item_length_invalid;
+static expert_field ei_saprfc_unknown_item;
 
 
 /* Global table reassembling preference */
