@@ -60,6 +60,7 @@ option(ENABLE_TODO_WARNINGS "Enable compiler warnings that are yet to be fixed" 
 option(ENABLE_PEDANTIC_WARNINGS "Enable pedantic or unfixable compiler warnings (noisy)" OFF)
 option(ENABLE_CODE_ANALYSIS "Enable the compiler's static analyzer if possible" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer (ASAN) for debugging (degrades performance)" OFF)
+option(ENABLE_LSAN "Enable LeakSanitizer (LSAN) for debugging (less overhead than ASAN)" OFF)
 option(ENABLE_TSAN "Enable ThreadSanitizer (TSan) for debugging" OFF)
 option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer (UBSan) for debugging" OFF)
 option(ENABLE_FUZZER "Enable libFuzzer instrumentation for use with fuzzshark" OFF)
