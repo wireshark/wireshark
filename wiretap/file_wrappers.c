@@ -198,20 +198,26 @@ struct wtap_reader {
     int err;                    /* error code */
     const char *err_info;       /* additional error information string for some errors */
 
+    /*
+     * Decompression stream information.
+     *
+     * XXX - should this be a union?
+     */
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
     /* zlib inflate stream */
-    zlib_stream strm;              /* stream structure in-place (not a pointer) */
+    zlib_stream strm;           /* stream structure in-place (not a pointer) */
     bool dont_check_crc;        /* true if we aren't supposed to check the CRC */
 #endif
-    /* fast seeking */
-    GPtrArray *fast_seek;
-    void *fast_seek_cur;
 #ifdef HAVE_ZSTD
     ZSTD_DCtx *zstd_dctx;
 #endif
 #ifdef USE_LZ4
     LZ4F_dctx *lz4_dctx;
 #endif
+
+    /* fast seeking */
+    GPtrArray *fast_seek;
+    void *fast_seek_cur;
 };
 
 /* Current read offset within a buffer. */
