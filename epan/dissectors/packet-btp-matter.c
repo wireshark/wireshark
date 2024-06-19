@@ -27,6 +27,7 @@ void proto_reg_handoff_btatt_matter(void);
 
 static int proto_matter_btp;
 static dissector_handle_t matter_btp_handle;
+static dissector_handle_t matter_tlv_handle;
 
 static int hf_matter_btp_flags;
 static int hf_matter_btp_flags_handshake;
@@ -52,10 +53,13 @@ static int hf_matter_btp_ack;
 static int hf_matter_btp_seq;
 static int hf_matter_btp_length;
 static int hf_matter_btp_payload;
+static int hf_matter_btp_ad;
+static int hf_matter_btp_ad_tlv_tag;
 
 static int ett_matter_btp;
 static int ett_matter_btp_flags;
 static int ett_matter_btp_versions;
+static int ett_matter_btp_ad;
 
 // Section 4.18.2.1
 #define MATTER_BTP_FLAGS_HANDSHAKE      0x40
@@ -67,6 +71,9 @@ static int ett_matter_btp_versions;
 
 // Section 4.18.3.1
 #define MATTER_BTP_OPCODE_HANDSHAKE     0x6C
+
+// Section 5.4.2.4.4
+#define MATTER_BTP_AD_TAG_ROTATING_ID   0x00
 
 // Section 4.18.4.2
 #define MATTER_GATT_SRV_UUID            0xFFF6
@@ -82,12 +89,31 @@ static const value_string btp_opcode_vals[] = {
     { 0, NULL }
 };
 
+static const value_string btp_ad_tag_vals[] = {
+    { MATTER_BTP_AD_TAG_ROTATING_ID, "Rotating Device Identifier" },
+    { 0, NULL }
+};
+
+// Dissect the Additional Data characteristic using Matter-defined TLV encoding.
+static int
+dissect_matter_chr_ad_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
+{
+
+    col_append_str(pinfo->cinfo, COL_INFO, " Additional Data");
+    proto_item *item = proto_tree_add_item(tree, hf_matter_btp_ad, tvb, offset, length, ENC_NA);
+    proto_tree *subtree = proto_item_add_subtree(item, ett_matter_btp_ad);
+
+    call_dissector_with_data(matter_tlv_handle, tvb, pinfo, subtree, &hf_matter_btp_ad_tlv_tag);
+
+    return length;
+}
+
 static int
 dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    uint8_t flags = 0;
-    uint8_t opcode = 0;
+    uint64_t flags = 0;
+    uint32_t opcode = 0;
     int offset = 0;
 
     DISSECTOR_ASSERT(att_data);
@@ -95,8 +121,10 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
     const uint8_t att_opcode = att_data->opcode;
     const uint32_t att_handle = att_data->handle;
 
-    /* We are only interested in write and indication packets. */
-    if (att_opcode != ATT_OPCODE_WRITE_REQUEST && att_opcode != ATT_OPCODE_HANDLE_VALUE_INDICATION)
+    // We are only interested in read, write and indication packets.
+    if (att_opcode != ATT_OPCODE_READ_RESPONSE &&
+            att_opcode != ATT_OPCODE_WRITE_REQUEST &&
+            att_opcode != ATT_OPCODE_HANDLE_VALUE_INDICATION)
         return 0;
 
     /* Get UUID for current ATT handle. */
@@ -131,8 +159,14 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
 
     /* Add Matter Bluetooth Transport Protocol as a root subtree. */
     proto_item *root = proto_item_get_parent(btatt_tree);
-    proto_item *item = proto_tree_add_item(root, proto_matter_btp, tvb, 0, -1, ENC_NA);
-    proto_item *tree = proto_item_add_subtree(item, ett_matter_btp);
+    proto_item *item = proto_tree_add_item(root, proto_matter_btp, tvb, offset, -1, ENC_NA);
+    proto_tree *tree = proto_item_add_subtree(item, ett_matter_btp);
+
+    // The payload format of the Additional Data characteristic is different
+    // than the standard BTP packet. It uses Matter-defined TLV encoding.
+    // Section 5.4.2.4.4
+    if (memcmp(uuid.data, MATTER_GATT_CHR_AD_UUID_128, 16) == 0)
+        return dissect_matter_chr_ad_tlv(tvb, pinfo, tree, offset, tvb_reported_length(tvb));
 
     static int * const btp_flags[] = {
         &hf_matter_btp_flags_beginning,
@@ -156,13 +190,11 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    proto_tree_add_bitmask(tree, tvb, offset, hf_matter_btp_flags, ett_matter_btp_flags, btp_flags, ENC_NA);
+    proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_matter_btp_flags, ett_matter_btp_flags, btp_flags, ENC_NA, &flags);
     offset += 1;
 
     if (flags & MATTER_BTP_FLAGS_MANAGEMENT) {
-        opcode = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_matter_btp_opcode, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint(tree, hf_matter_btp_opcode, tvb, offset, 1, ENC_NA, &opcode);
         offset += 1;
     }
 
@@ -188,16 +220,16 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
             // Section 4.18.3.2. BTP Handshake Response
             if (memcmp(uuid.data, MATTER_GATT_CHR_RX_UUID_128, 16) == 0) {
 
-                uint8_t version = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_matter_btp_version, tvb, offset, 1, ENC_NA);
+                uint32_t version;
+                proto_tree_add_item_ret_uint(tree, hf_matter_btp_version, tvb, offset, 1, ENC_NA, &version);
                 offset += 1;
 
-                uint16_t mtu = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(tree, hf_matter_btp_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                uint32_t mtu;
+                proto_tree_add_item_ret_uint(tree, hf_matter_btp_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN, &mtu);
                 offset += 2;
 
-                uint8_t window_size = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_matter_btp_window_size, tvb, offset, 1, ENC_NA);
+                uint32_t window_size;
+                proto_tree_add_item_ret_uint(tree, hf_matter_btp_window_size, tvb, offset, 1, ENC_NA, &window_size);
                 offset += 1;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Handshake Response, Version: %u, MTU: %u, Window Size: %u",
@@ -214,23 +246,27 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
     col_append_str(pinfo->cinfo, COL_INFO, " SDU Segment");
 
     if (flags & MATTER_BTP_FLAGS_ACKNOWLEDGMENT) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Ack: %u", tvb_get_guint8(tvb, offset));
-        proto_tree_add_item(tree, hf_matter_btp_ack, tvb, offset, 1, ENC_NA);
+        uint32_t ack;
+        proto_tree_add_item_ret_uint(tree, hf_matter_btp_ack, tvb, offset, 1, ENC_NA, &ack);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Ack: %u", ack);
         offset += 1;
     }
 
     // All BTP packets SHALL be sent with sequence numbers.
     // Section 4.18.4.6
     if (flags & (MATTER_BTP_FLAGS_BEGINNING | MATTER_BTP_FLAGS_CONTINUING | MATTER_BTP_FLAGS_ENDING)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq: %u", tvb_get_guint8(tvb, offset));
-        proto_tree_add_item(tree, hf_matter_btp_seq, tvb, offset, 1, ENC_NA);
+        uint32_t seq;
+        proto_tree_add_item_ret_uint(tree, hf_matter_btp_seq, tvb, offset, 1, ENC_NA, &seq);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq: %u", seq);
         offset += 1;
     }
 
     // Message length is an optional field present in the Beginning Segment only.
     // Section 4.18.2.4
     if (flags & MATTER_BTP_FLAGS_BEGINNING) {
-        proto_tree_add_item(tree, hf_matter_btp_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        uint32_t length;
+        proto_tree_add_item_ret_uint(tree, hf_matter_btp_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %u", length);
         offset += 2;
     }
 
@@ -363,6 +399,16 @@ proto_register_btatt_matter(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "The segment of the Service Data Unit message", HFILL}
         },
+        {&hf_matter_btp_ad,
+            {"Additional Data", "btp-matter.ad",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Additional commissioning-related data", HFILL}
+        },
+        {&hf_matter_btp_ad_tlv_tag,
+            {"Tag", "btp-matter.ad.item",
+            FT_UINT8, BASE_HEX, VALS(btp_ad_tag_vals), 0x0,
+            NULL, HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
@@ -370,6 +416,7 @@ proto_register_btatt_matter(void)
         &ett_matter_btp,
         &ett_matter_btp_flags,
         &ett_matter_btp_versions,
+        &ett_matter_btp_ad,
     };
 
     /* Register the protocol name and description */
@@ -384,5 +431,6 @@ proto_register_btatt_matter(void)
 void
 proto_reg_handoff_btatt_matter(void)
 {
+    matter_tlv_handle = find_dissector_add_dependency("matter.tlv", proto_matter_btp);
     dissector_add_uint("btatt.service", MATTER_GATT_SRV_UUID, matter_btp_handle);
 }

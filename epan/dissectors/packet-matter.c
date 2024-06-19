@@ -1,6 +1,7 @@
 /* packet-matter.c
  * Routines for Matter IoT protocol dissection
  * Copyright 2023, Nicolás Alvarez <nicolas.alvarez@gmail.com>
+ * Copyright 2024, Arkadiusz Bokowy <a.bokowy@samsung.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -17,10 +18,13 @@
  * https://csa-iot.org/developer-resource/specifications-download-request/
  *
  * Comments below reference section numbers of the Matter Core Specification R1.0 (22-27349-001).
+ *
+ * Matter-TLV dissector is based on Matter Specification Version 1.3.
  */
 
 #include <config.h>
 
+#include <epan/expert.h>
 #include <epan/packet.h>
 
 /* Prototypes */
@@ -63,11 +67,26 @@ static int hf_payload_secured_ext_length;
 static int hf_payload_secured_ext;
 static int hf_payload_application;
 
+static int hf_matter_tlv_elem;
+static int hf_matter_tlv_elem_control;
+static int hf_matter_tlv_elem_control_tag_format;
+static int hf_matter_tlv_elem_control_element_type;
+static int hf_matter_tlv_elem_tag;
+static int hf_matter_tlv_elem_length;
+static int hf_matter_tlv_elem_value_int;
+static int hf_matter_tlv_elem_value_uint;
+static int hf_matter_tlv_elem_value_bytes;
+
 static int ett_matter;
 static int ett_message_flags;
 static int ett_security_flags;
 static int ett_payload;
 static int ett_exchange_flags;
+
+static int ett_matter_tlv;
+static int ett_matter_tlv_control;
+
+static expert_field ei_matter_tlv_unsupported_control;
 
 /* message flags + session ID + security flags + counter */
 #define MATTER_MIN_LENGTH 8
@@ -102,6 +121,60 @@ static const value_string dsiz_vals[] = {
 static const value_string session_type_vals[] = {
     { 0, "Unicast Session" },
     { 1, "Group Session" },
+    { 0, NULL }
+};
+
+// Appendix 7.2. Tag Control Field
+static const value_string matter_tlv_tag_format_vals[] = {
+    { 0, "Anonymous Tag Form, 0 octets" },
+    { 1, "Context-specific Tag Form, 1 octet" },
+    { 2, "Common Profile Tag Form, 2 octets" },
+    { 3, "Common Profile Tag Form, 4 octets" },
+    { 4, "Implicit Profile Tag Form, 2 octets" },
+    { 5, "Implicit Profile Tag Form, 4 octets" },
+    { 6, "Fully-qualified Tag Form, 6 octets" },
+    { 7, "Fully-qualified Tag Form, 8 octets" },
+    { 0, NULL }
+};
+
+// Appendix 7.1. Element Type Field
+static const value_string matter_tlv_elem_type_vals[] = {
+    { 0x00, "Signed Integer, 1-octet value" },
+    { 0x01, "Signed Integer, 2-octet value" },
+    { 0x02, "Signed Integer, 4-octet value" },
+    { 0x03, "Signed Integer, 8-octet value" },
+    { 0x04, "Unsigned Integer, 1-octet value" },
+    { 0x05, "Unsigned Integer, 2-octet value" },
+    { 0x06, "Unsigned Integer, 4-octet value" },
+    { 0x07, "Unsigned Integer, 8-octet value" },
+    { 0x08, "Boolean False" },
+    { 0x09, "Boolean True" },
+    { 0x0A, "Floating Point Number, 4-octet value" },
+    { 0x0B, "Floating Point Number, 8-octet value" },
+    { 0x0C, "UTF-8 String, 1-octet length" },
+    { 0x0D, "UTF-8 String, 2-octet length" },
+    { 0x0E, "UTF-8 String, 4-octet length" },
+    { 0x0F, "UTF-8 String, 8-octet length" },
+    { 0x10, "Octet String, 1-octet length" },
+    { 0x11, "Octet String, 2-octet length" },
+    { 0x12, "Octet String, 4-octet length" },
+    { 0x13, "Octet String, 8-octet length" },
+    { 0x14, "Null" },
+    { 0x15, "Structure" },
+    { 0x16, "Array" },
+    { 0x17, "List" },
+    // XXX: If the Tag Control Field is set to 0x00 (Anonymous Tag), the
+    //      value of 0x18 means "End of Container". For other Tag Control
+    //      Field values, the value of 0x18 is reserved.
+    // TODO: This should be handled in the dissector.
+    { 0x18, "End of Container" },
+    { 0x19, "Reserved" },
+    { 0x1A, "Reserved" },
+    { 0x1B, "Reserved" },
+    { 0x1C, "Reserved" },
+    { 0x1D, "Reserved" },
+    { 0x1E, "Reserved" },
+    { 0x1F, "Reserved" },
     { 0, NULL }
 };
 
@@ -284,6 +357,125 @@ dissect_matter_payload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pl_tre
     return offset;
 }
 
+// Dissect the Matter-defined TLV encoding.
+// Appendix A: Tag-length-value (TLV) Encoding Format
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_matter_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    // For signed and unsigned integer types and for UTF-8 and octet strings,
+    // the length is encoded in the lowest 2 bits of the control byte.
+    static const int elem_sizes[] = { 1, 2, 4, 8 };
+
+    int matter_tlv_elem_tag = hf_matter_tlv_elem_tag;
+    int length = tvb_reported_length_remaining(tvb, 0);
+    int offset = 0;
+
+    if (data != NULL)
+        // Use caller-provided tag field.
+        matter_tlv_elem_tag = *((int *)data);
+
+    while (offset < length) {
+
+        // The new element is created with initial length set to 1 which accounts
+        // for the control byte (tag format and element type). The length will be
+        // updated once the element is fully dissected.
+        proto_item *ti_element = proto_tree_add_item(tree, hf_matter_tlv_elem, tvb, offset, 1, ENC_NA);
+        proto_tree *tree_element = proto_item_add_subtree(ti_element, ett_matter_tlv);
+        int base_offset = offset;
+
+        uint32_t control_tag_format = 0;
+        uint32_t control_element = 0;
+
+        proto_item *ti_control = proto_tree_add_item(tree_element, hf_matter_tlv_elem_control, tvb, offset, 1, ENC_NA);
+        proto_tree *tree_control = proto_item_add_subtree(ti_control, ett_matter_tlv_control);
+        // The tag format is determined by the upper 3 bits of the control byte.
+        proto_tree_add_item_ret_uint(tree_control, hf_matter_tlv_elem_control_tag_format, tvb, offset, 1, ENC_NA, &control_tag_format);
+        // The element type is determined by the lower 5 bits of the control byte.
+        proto_tree_add_item_ret_uint(tree_control, hf_matter_tlv_elem_control_element_type, tvb, offset, 1, ENC_NA, &control_element);
+
+        offset += 1;
+
+        proto_item_append_text(ti_element, ": %s", val_to_str_const(control_element, matter_tlv_elem_type_vals, "Unknown"));
+
+        // The control byte 0x18 means "End of Container".
+        if (control_tag_format == 0 && control_element == 0x18)
+            return offset;
+
+        switch (control_tag_format)
+        {
+        case 0: // Anonymous Tag Form (0 octets)
+            break;
+        case 1: // Context-specific Tag Form (1 octet)
+            proto_tree_add_item(tree_element, matter_tlv_elem_tag, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        default:
+            goto unsupported_control;
+        }
+
+        // The string length might be encoded on 1, 2, 4 or 8 octets. In theory,
+        // the length can be up to 2^64 - 1 bytes, but in practice, it should be
+        // limited to a reasonable value (it should be safe to assume that the
+        // length will not exceed 2^16 - 1 bytes).
+        uint64_t str_length;
+
+        switch (control_element)
+        {
+        case 0x00: // Signed Integer, 1-octet value
+        case 0x01: // Signed Integer, 2-octet value
+        case 0x02: // Signed Integer, 4-octet value
+        case 0x03: // Signed Integer, 8-octet value
+        case 0x04: // Unsigned Integer, 1-octet value
+        case 0x05: // Unsigned Integer, 2-octet value
+        case 0x06: // Unsigned Integer, 4-octet value
+        case 0x07: // Unsigned Integer, 8-octet value
+        {
+            // Integer type (signed or unsigned) is encoded in the 3rd bit of the control element.
+            int hf = (control_element & 0x04) ? hf_matter_tlv_elem_value_uint : hf_matter_tlv_elem_value_int;
+            int size = elem_sizes[control_element & 0x03];
+            proto_tree_add_item(tree_element, hf, tvb, offset, size, ENC_LITTLE_ENDIAN);
+            offset += size;
+            break;
+        }
+        case 0x08: // Boolean False
+        case 0x09: // Boolean True
+            break;
+        case 0x10: // Octet String (1-octet length)
+        case 0x11: // Octet String (2-octet length)
+        case 0x12: // Octet String (4-octet length)
+        case 0x13: // Octet String (8-octet length)
+        {
+            int size = elem_sizes[control_element & 0x03];
+            proto_tree_add_item_ret_uint64(tree_element, hf_matter_tlv_elem_length, tvb, offset, size, ENC_LITTLE_ENDIAN, &str_length);
+            offset += size;
+            proto_tree_add_item(tree_element, hf_matter_tlv_elem_value_bytes, tvb, offset, (int)str_length, ENC_NA);
+            offset += str_length;
+            break;
+        }
+        case 0x14: // Null
+            break;
+        case 0x15: // Structure
+        case 0x16: // Array
+        case 0x17: // List
+            offset += dissect_matter_tlv(tvb_new_subset_remaining(tvb, offset), pinfo, tree_element, data);
+            break;
+        default:
+            goto unsupported_control;
+        }
+
+        proto_item_set_len(ti_element, offset - base_offset);
+        continue;
+
+unsupported_control:
+        expert_add_info(pinfo, tree_control, &ei_matter_tlv_unsupported_control);
+        proto_item_set_len(ti_element, offset - base_offset);
+        return length;
+    }
+
+    return length;
+}
+
 void
 proto_register_matter(void)
 {
@@ -432,7 +624,52 @@ proto_register_matter(void)
           { "Application payload", "matter.payload.application",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
-        }
+        },
+        { &hf_matter_tlv_elem,
+          { "TLV Element", "matter.tlv",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Matter-TLV Element", HFILL }
+        },
+        { &hf_matter_tlv_elem_control,
+          { "Control Byte", "matter.tlv.control",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Matter-TLV Control Byte", HFILL }
+        },
+        { &hf_matter_tlv_elem_control_tag_format,
+          { "Tag Format", "matter.tlv.control.tag",
+            FT_UINT8, BASE_HEX, VALS(matter_tlv_tag_format_vals), 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_matter_tlv_elem_control_element_type,
+          { "Element Type", "matter.tlv.control.element",
+            FT_UINT8, BASE_HEX, VALS(matter_tlv_elem_type_vals), 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_matter_tlv_elem_tag,
+          { "Tag", "matter.tlv.tag",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_matter_tlv_elem_length,
+          { "Length", "matter.tlv.length",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_matter_tlv_elem_value_int,
+          { "Value", "matter.tlv.value_int",
+            FT_INT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_matter_tlv_elem_value_uint,
+          { "Value", "matter.tlv.value_uint",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_matter_tlv_elem_value_bytes,
+          { "Value", "matter.tlv.value_bytes",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -442,15 +679,29 @@ proto_register_matter(void)
         &ett_security_flags,
         &ett_payload,
         &ett_exchange_flags,
+        &ett_matter_tlv,
+        &ett_matter_tlv_control,
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_matter_tlv_unsupported_control,
+          { "matter.tlv.control.unsupported", PI_UNDECODED, PI_WARN,
+            "Unsupported Matter-TLV control byte", EXPFILL }
+        },
     };
 
     /* Register the protocol name and description */
     proto_matter = proto_register_protocol("Matter", "Matter", "matter");
     matter_handle = register_dissector("matter", dissect_matter, proto_matter);
+    register_dissector("matter.tlv", dissect_matter_tlv, proto_matter);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_matter, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_module_t *expert = expert_register_protocol(proto_matter);
+    expert_register_field_array(expert, ei, array_length(ei));
+
 }
 
 void
