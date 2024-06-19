@@ -192,14 +192,14 @@ static int hf_miwi_dst_channel_to_jump_to;
 
 static int miwi_short_address_type;
 
-//static expert_field ei_miwi_empty_payload = EI_INIT;
-static expert_field ei_miwi_frame_ver = EI_INIT;
-static expert_field ei_miwi_dst = EI_INIT;
-static expert_field ei_miwi_src = EI_INIT;
-static expert_field ei_miwi_invalid_addressing = EI_INIT;
-static expert_field ei_miwi_invalid_panid_compression = EI_INIT;
-static expert_field ei_miwi_invalid_panid_compression2 = EI_INIT;
-//static expert_field  ei_miwi_fcs = EI_INIT;
+//static expert_field ei_miwi_empty_payload;
+static expert_field ei_miwi_frame_ver;
+static expert_field ei_miwi_dst;
+static expert_field ei_miwi_src;
+static expert_field ei_miwi_invalid_addressing;
+static expert_field ei_miwi_invalid_panid_compression;
+static expert_field ei_miwi_invalid_panid_compression2;
+//static expert_field ei_miwi_fcs;
 /* 802.15.4-2003 security */
 //static int hf_miwi_sec_frame_counter;
 //static int hf_miwi_sec_key_sequence_counter;
