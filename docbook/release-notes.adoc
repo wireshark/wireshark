@@ -26,6 +26,8 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
+A regression in the TCP Stream Graph "Time Sequence (tcptrace)" receive window line behavior introduced in 4.0.15 and 4.2.5 has been fixed. wsbuglink:19846[]
+
 // The following vulnerabilities have been fixed:
 
 The following bugs have been fixed:
