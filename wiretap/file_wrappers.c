@@ -25,13 +25,15 @@
 #include <wsutil/file_util.h>
 
 #if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
+#define USE_ZLIB_OR_ZLIBNG
 #define ZLIB_CONST
 #define ZLIB_PREFIX(x) x
 #include <zlib.h>
 typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
+#endif /* defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG) */
 
 #ifdef HAVE_ZLIBNG
+#define USE_ZLIB_OR_ZLIBNG
 #define HAVE_INFLATEPRIME 1
 #define ZLIB_PREFIX(x) zng_ ## x
 #include <zlib-ng.h>
@@ -75,7 +77,7 @@ static struct compression_type {
     const char            *extension;
     const char            *description;
 } compression_types[] = {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
 #endif
 #ifdef HAVE_ZSTD
@@ -203,7 +205,7 @@ struct wtap_reader {
      *
      * XXX - should this be a union?
      */
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     /* zlib inflate stream */
     zlib_stream strm;           /* stream structure in-place (not a pointer) */
     bool dont_check_crc;        /* true if we aren't supposed to check the CRC */
@@ -396,7 +398,7 @@ fast_seek_reset(
 #endif
 }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 
 /* Get next byte from input, or -1 if end or error.
  *
@@ -748,7 +750,7 @@ gz_head(FILE_T state)
                  * and 139 in the second byte of the file.  For now, in
                  * those cases, you lose.
                  */
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
                 uint8_t cm;
                 uint8_t flags;
                 uint16_t len;
@@ -849,11 +851,11 @@ gz_head(FILE_T state)
                 }
 #endif /* Z_BLOCK */
                 return 0;
-#else /* HAVE_ZLIB */
+#else /* USE_ZLIB_OR_ZLIBNG */
                 state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
                 state->err_info = "reading gzip-compressed files isn't supported";
                 return -1;
-#endif /* HAVE_ZLIB */
+#endif /* USE_ZLIB_OR_ZLIBNG */
             }
 
             /*
@@ -961,7 +963,7 @@ fill_out_buffer(FILE_T state)
         if (buf_read(state, &state->out) < 0)
             return -1;
     }
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     else if (state->compression == ZLIB) {      /* decompress */
         zlib_read(state, state->out.buf, state->size << 1);
     }
@@ -1206,7 +1208,7 @@ file_fdopen(int fd)
        goto err;
     }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     /* allocate inflate memory */
     state->strm.zalloc = Z_NULL;
     state->strm.zfree = Z_NULL;
@@ -1239,7 +1241,7 @@ file_fdopen(int fd)
     return state;
 
 err:
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     ZLIB_PREFIX(inflateEnd)(&state->strm);
 #endif
 #ifdef HAVE_ZSTD
@@ -1260,7 +1262,7 @@ file_open(const char *path)
 {
     int fd;
     FILE_T ft;
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     const char *suffixp;
 #endif
 
@@ -1283,7 +1285,7 @@ file_open(const char *path)
         return NULL;
     }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     /*
      * If this file's name ends in ".caz", it's probably a compressed
      * Windows Sniffer file.  The compression is gzip, but if we
@@ -1435,7 +1437,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
          * has been called on this file, which should never be the case
          * for a pipe.
          */
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
         if (here->compression == ZLIB) {
 #ifdef HAVE_INFLATEPRIME
             off = here->in - (here->data.zlib.bits ? 1 : 0);
@@ -1467,7 +1469,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
         file->err_info = NULL;
         buf_reset(&file->in);
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
         if (here->compression == ZLIB) {
             zlib_stream*strm = &file->strm;
             ZLIB_PREFIX(inflateReset)(strm);
@@ -1925,7 +1927,7 @@ file_close(FILE_T file)
 
     /* free memory and close file */
     if (file->size) {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
         ZLIB_PREFIX(inflateEnd)(&(file->strm));
 #endif
 #ifdef HAVE_ZSTD
@@ -1950,7 +1952,7 @@ file_close(FILE_T file)
         ws_close(fd);
 }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 /* internal gzip file state data structure for writing */
 struct wtap_writer {
     int fd;                 /* file descriptor */
