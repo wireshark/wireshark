@@ -61,10 +61,12 @@
  * RFC 7291: DHCP Options for the Port Control Protocol (PCP)
  * RFC 7618: Dynamic Allocation of Shared IPv4 Addresses
  * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
+ * RFC 7724: Active DHCPv4 Lease Query
  * RFC 7839: Access-Network-Identifier Option in DHCP
  * RFC 8357: Generalized UDP Source Port for DHCP Relay
  * RFC 8910: Captive-Portal Identification in DHCP and Router Advertisements (RAs)
  * RFC 8925: IPv6-Only Preferred Option for DHCPv4
+ * RFC 8973: DDoS Open Threat Signaling (DOTS) Agent Discovery
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: https://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -622,6 +624,8 @@ static int hf_dhcp_option_rdnss_pref;				/* 146 */
 static int hf_dhcp_option_rdnss_prim_dns_server;			/* 146 */
 static int hf_dhcp_option_rdnss_sec_dns_server;			/* 146 */
 static int hf_dhcp_option_rdnss_domain;				/* 146 */
+static int hf_dhcp_option_dots_ri;				/* 147 */
+static int hf_dhcp_option_dots_address;				/* 148 */
 static int hf_dhcp_option_tftp_server_address;			/* 150 */
 static int hf_dhcp_option_bulk_lease_status_code;			/* 151 */
 static int hf_dhcp_option_bulk_lease_status_message;		/* 151 */
@@ -981,6 +985,10 @@ static const value_string bulk_lease_dhcp_status_code_vals[] = {
 	{ 2, "QueryTerminated" },
 	{ 3, "MalformedQuery" },
 	{ 4, "NotAllowed" },
+	{ 5, "DataMissing" },
+	{ 6, "ConnectionActive" },
+	{ 7, "CatchUpComplete" },
+	{ 8, "TLSConnectionRefused" },
 	{ 0, NULL },
 };
 
@@ -1570,8 +1578,8 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 144 */ { "Geospatial Location [TODO:RFC6225]",	opaque, NULL },
 /* 145 */ { "Forcerenew Nonce Capable",			special, NULL },
 /* 146 */ { "RDNSS Selection",				special, NULL },
-/* 147 */ { "Unassigned",				opaque, NULL },
-/* 148 */ { "Unassigned",				opaque, NULL },
+/* 147 */ { "DOTS Reference Identifier",		string, &hf_dhcp_option_dots_ri },
+/* 148 */ { "DOTS Address",				ipv4_list, &hf_dhcp_option_dots_address },
 /* 149 */ { "Unassigned",				opaque, NULL },
 /* 150 */ { "TFTP Server Address",			ipv4_list, &hf_dhcp_option_tftp_server_address },
 /* 151 */ { "Leasequery Status code",			special, NULL },
@@ -9962,6 +9970,16 @@ proto_register_dhcp(void)
 		  { "Domains and networks", "dhcp.option.rdnss.domain",
 		    FT_STRING, BASE_NONE, NULL, 0x00,
 		    "RDNSS Domains and networks", HFILL }},
+
+		{ &hf_dhcp_option_dots_ri,
+		  { "DOTS Reference Identifier", "dhcp.option.dots.ri",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "Peer DOTS Agent name", HFILL }},
+
+		{ &hf_dhcp_option_dots_address,
+		  { "DOTS Address", "dhcp.option.dots.address",
+		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    "Peer DOTS Agent Address", HFILL }},
 
 		{ &hf_dhcp_option_tftp_server_address,
 		  { "TFTP Server Address", "dhcp.option.tftp_server_address",
