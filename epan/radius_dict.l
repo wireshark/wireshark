@@ -362,6 +362,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 	yyextra->fullpaths[yyextra->include_stack_ptr] = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    yyextra->directory,yytext);
 
+	FILE *old_yyin = yyin;
 	yyin = ws_fopen( yyextra->fullpaths[yyextra->include_stack_ptr], "r" );
 
 	if (!yyin) {
@@ -378,6 +379,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 		g_free(yyextra->fullpaths[yyextra->include_stack_ptr]);
 		yyextra->fullpaths[yyextra->include_stack_ptr] = NULL;
 		yyextra->include_stack_ptr--;
+		yyin = old_yyin;
 	} else {
 		yyextra->linenums[yyextra->include_stack_ptr] = 1;
 		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE, yyscanner), yyscanner);
