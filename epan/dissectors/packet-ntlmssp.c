@@ -1052,7 +1052,7 @@ ntlmssp_create_session_key(packet_info *pinfo,
                           pinfo,
                           tree);
   }
-  else if (ntlm_response->length == 0 && lm_response->length == 0)
+  else if (ntlm_response->length == 0 && lm_response->length <= 1)
   {
     create_ntlmssp_anon_key(sessionkey,
                             encryptedsessionkey,
