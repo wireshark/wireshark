@@ -69,7 +69,7 @@ static const value_string status_vals[] = {
 	{ 0, NULL }
 };
 
-#define BLOCKNUM_CONTINUOUSDATA			0x0000		// 0
+#define BLOCKNUM_CONTINUOUSDATA		0x0000		// 0
 #define BLOCKNUM_SCID				0x0017		// 23
 #define BLOCKNUM_TOKEN				0x0019		// 25
 #define BLOCKNUM_DATAMODE			0x0067		// 103
@@ -122,7 +122,7 @@ dissect_rk512_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
 	proto_tree		*rk512_tree, *continous_data_tree, *measurement_tree;
 	proto_item		*ti, *header_item, *continous_data_item, *data_item;
-	int			offset = 0, start_offset;
+	int				offset = 0, start_offset;
 	guint32			tag, block_type, data_type, sub_data_type, size;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RK512");
@@ -274,7 +274,7 @@ rk512_shutdown(void)
 static void
 rk512_fmt_version( gchar *result, guint32 revision )
 {
-    snprintf( result, ITEM_LABEL_LENGTH, "%d.%d",
+		snprintf( result, ITEM_LABEL_LENGTH, "%d.%d",
 		(guint8)(revision & 0xFF), (guint8)(( revision & 0xFF00 ) >> 8));
 }
 
@@ -310,10 +310,10 @@ proto_register_rk512(void)
 			{ "Measurement datatype", "rk512.measurement.data_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rk512_measurement_data,
 			{ "Measurement data", "rk512.measurement.data", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-                { &hf_rk512_measurement_data_distance,
-                        { "Distance", "rk512.measurement.data.distance", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL } },
-                { &hf_rk512_measurement_data_flags,
-                        { "Flags", "rk512.measurement.data.flags", FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL } },
+		{ &hf_rk512_measurement_data_distance,
+			{ "Distance", "rk512.measurement.data.distance", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL } },
+		{ &hf_rk512_measurement_data_flags,
+			{ "Flags", "rk512.measurement.data.flags", FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL } },
 		{ &hf_rk512_checksum,
 			{ "Checksum", "rk512.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rk512_checksum_status,
