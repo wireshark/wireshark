@@ -48,8 +48,8 @@ codec_g729_decode(codec_context_t *ctx,
         void *outputSamples, size_t *outputSamplesSize)
 {
     bcg729DecoderChannelContextStruct *state = (bcg729DecoderChannelContextStruct *)ctx->priv;
-    const guint8 *dataIn = (const guint8 *) inputBytes;
-    gint16 *dataOut = (gint16 *) outputSamples;
+    const uint8_t *dataIn = (const uint8_t *) inputBytes;
+    int16_t *dataOut = (int16_t *) outputSamples;
     size_t i;
 
     if (!ctx) {
@@ -78,11 +78,11 @@ codec_g729_decode(codec_context_t *ctx,
            fixed to accept a const pointer.) Cast away the problem for now;
            in the future we could check the version of the library.
         */
-        bcg729Decoder(state, (guint8 *)dataIn + i*10, 10, 0, 0, 0, dataOut + i*80);
+        bcg729Decoder(state, (uint8_t *)dataIn + i*10, 10, 0, 0, 0, dataOut + i*80);
     }
 
     for (; i < full_frames + sid_frames; i++) {
-        bcg729Decoder(state, (guint8 *)dataIn + full_frames*10 + (i - full_frames)*2, 2, 0, 1, 0, dataOut + i*80);
+        bcg729Decoder(state, (uint8_t *)dataIn + full_frames*10 + (i - full_frames)*2, 2, 0, 1, 0, dataOut + i*80);
     }
     *outputSamplesSize = 80*2*(full_frames + sid_frames);
     return *outputSamplesSize;

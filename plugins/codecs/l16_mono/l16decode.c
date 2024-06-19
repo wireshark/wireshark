@@ -70,8 +70,8 @@ codec_l16_decode(codec_context_t *ctx _U_,
                  const void *inputBytes, size_t inputBytesSize,
                  void *outputSamples, size_t *outputSamplesSize)
 {
-    const guint16 *dataIn  = (const guint16 *)inputBytes;
-    guint16       *dataOut = (gint16 *)outputSamples;
+    const uint16_t *dataIn  = (const uint16_t *)inputBytes;
+    uint16_t      *dataOut = (int16_t *)outputSamples;
     size_t         i;
     unsigned       channels = ctx->channels ? ctx->channels : 1;
     if (!outputSamples || !outputSamplesSize)
@@ -82,11 +82,11 @@ codec_l16_decode(codec_context_t *ctx _U_,
     /* Downmix to mono. No worries about overflow because tmp is 32 bit. */
     for (i=0; i<inputBytesSize/(2 * channels); i++)
     {
-        gint32 tmp = 0;
+        int32_t tmp = 0;
         for (unsigned j=0; j < channels; j++) {
-            tmp += (gint16)g_ntohs(dataIn[channels*i + j]);
+            tmp += (int16_t)g_ntohs(dataIn[channels*i + j]);
         }
-        dataOut[i] = (gint16)(tmp / channels);
+        dataOut[i] = (int16_t)(tmp / channels);
     }
 
     *outputSamplesSize = inputBytesSize/channels;

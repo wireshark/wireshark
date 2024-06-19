@@ -90,11 +90,11 @@ codec_sbc_decode(codec_context_t *ctx,
     size_t         len;
     size_t         framelen;
     size_t         xframe_pos = 0;
-    const guint8  *data_in  = (const guint8 *) input;
-    guint8        *data_out = (guint8 *) output;
+    const uint8_t *data_in  = (const uint8_t *) input;
+    uint8_t       *data_out = (uint8_t *) output;
     sbc_t         *sbc = (sbc_t *) ctx->priv;
-    guint8        *i_data;
-    guint8         tmp;
+    uint8_t       *i_data;
+    uint8_t        tmp;
 
     if (!output || !outputSizeBytes) {
         return size_out;

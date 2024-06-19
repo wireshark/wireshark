@@ -30,7 +30,7 @@ typedef struct {
 #else
     iLBC_decinst_t *ilbc_ctx;  /* Real iLBC context */
 #endif
-    guint8 payload_len; /* Remember last payload_len */
+    uint8_t payload_len; /* Remember last payload_len */
 } ilbc_ctx_t;
 
 void codec_register_iLBC(void);
