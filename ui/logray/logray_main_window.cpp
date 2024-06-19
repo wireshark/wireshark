@@ -332,10 +332,9 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 #endif
 {
     if (!gbl_cur_main_window_) {
-        connect(mainApp, SIGNAL(openStatCommandDialog(QString, const char*, void*)),
-                this, SLOT(openStatCommandDialog(QString, const char*, void*)));
-        connect(mainApp, SIGNAL(openTapParameterDialog(QString, const QString, void*)),
-                this, SLOT(openTapParameterDialog(QString, const QString, void*)));
+        connect(mainApp, &MainApplication::openStatCommandDialog, this, &LograyMainWindow::openStatCommandDialog);
+        connect(mainApp, &MainApplication::openTapParameterDialog,
+                this, [=](const QString cfg_str, const QString arg, void *userdata) {openTapParameterDialog(cfg_str, arg, userdata);});
     }
     gbl_cur_main_window_ = this;
 #ifdef HAVE_LIBPCAP
@@ -384,7 +383,7 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initConversationMenus);
     connect(mainApp, &MainApplication::appInitialized, this, &LograyMainWindow::initFollowStreamMenus);
     connect(mainApp, &MainApplication::appInitialized, this,
-            [this]() { addDisplayFilterTranslationActions(main_ui_->menuEditCopy); });
+            [=]() { addDisplayFilterTranslationActions(main_ui_->menuEditCopy); });
 
     connect(mainApp, &MainApplication::profileChanging, this, &LograyMainWindow::saveWindowGeometry);
     connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::layoutPanes);
@@ -393,12 +392,12 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::zoomText);
     connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updateTitlebar);
 
-    connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
-    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updateRecentCaptures()));
+    connect(mainApp, &MainApplication::updateRecentCaptureStatus, this, &LograyMainWindow::updateRecentCaptures);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &LograyMainWindow::updateRecentCaptures);
     updateRecentCaptures();
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
-    connect(mainApp, SIGNAL(softwareUpdateRequested()), this, SLOT(softwareUpdateRequested()),
+    connect(mainApp, &MainApplication::softwareUpdateRequested, this, &LograyMainWindow::softwareUpdateRequested,
         Qt::BlockingQueuedConnection);
 #endif
 
@@ -407,14 +406,13 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_combo_box_, &QComboBox::editTextChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &LograyMainWindow::setDisplayFilter);
-    connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
-            this, SLOT(openCaptureFile(QString, QString)));
+    connect(funnel_statistics_, &FunnelStatistics::openCaptureFile, this,
+            [=](QString cf_path, QString filter) { openCaptureFile(cf_path, filter); });
 
     connect(df_combo_box_, &QComboBox::editTextChanged, this, &LograyMainWindow::updateDisplayFilterTranslationActions);
 
     file_set_dialog_ = new FileSetDialog(this);
-    connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
-            this, SLOT(openCaptureFile(QString)));
+    connect(file_set_dialog_, &FileSetDialog::fileSetOpenCaptureFile, this, [=](QString cf_path) { openCaptureFile(cf_path); });
 
     initMainToolbarIcons();
 
@@ -431,15 +429,13 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
     main_ui_->goToFrame->hide();
-    connect(main_ui_->goToFrame, SIGNAL(visibilityChanged(bool)),
-            main_ui_->actionGoGoToPacket, SLOT(setChecked(bool)));
+    connect(main_ui_->goToFrame, &AccordionFrame::visibilityChanged, main_ui_->actionGoGoToPacket, &QAction::setChecked);
 
     // XXX For some reason the cursor is drawn funny with an input mask set
     // https://bugreports.qt-project.org/browse/QTBUG-7174
 
     main_ui_->searchFrame->hide();
-    connect(main_ui_->searchFrame, SIGNAL(visibilityChanged(bool)),
-            main_ui_->actionEditFindPacket, SLOT(setChecked(bool)));
+    connect(main_ui_->searchFrame, &SearchFrame::visibilityChanged, main_ui_->actionEditFindPacket, &QAction::setChecked);
 
     main_ui_->addressEditorFrame->hide();
     main_ui_->columnEditorFrame->hide();
@@ -486,7 +482,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
     main_ui_->menuHelp->insertAction(update_sep, update_action_);
-    connect(update_action_, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
+    connect(update_action_, &QAction::triggered, this, &LograyMainWindow::checkForUpdates);
 #endif
     master_split_.setObjectName("splitterMaster");
     extra_split_.setObjectName("splitterExtra");
@@ -498,13 +494,13 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     empty_pane_.setVisible(false);
 
     packet_list_ = new PacketList(&master_split_);
-    connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SLOT(setMenusForSelectedPacket()));
-    connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SIGNAL(framesSelected(QList<int>)));
+    connect(packet_list_, &PacketList::framesSelected, this, &LograyMainWindow::setMenusForSelectedPacket);
+    connect(packet_list_, &PacketList::framesSelected, this, &LograyMainWindow::framesSelected);
 
     QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));
     connect(action, &QAction::triggered, this, &LograyMainWindow::addPacketComment);
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
-    connect(main_ui_->menuPacketComment, SIGNAL(aboutToShow()), this, SLOT(setEditCommentsMenu()));
+    connect(main_ui_->menuPacketComment, &QMenu::aboutToShow, this, &LograyMainWindow::setEditCommentsMenu);
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
@@ -604,26 +600,18 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectToolsMenuActions();
     connectHelpMenuActions();
 
-    connect(packet_list_, SIGNAL(packetDissectionChanged()),
-            this, SLOT(redissectPackets()));
-    connect(packet_list_, SIGNAL(showColumnPreferences(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-    connect(packet_list_, SIGNAL(showProtocolPreferences(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
+    connect(packet_list_, &PacketList::packetDissectionChanged, this, &LograyMainWindow::redissectPackets);
+    connect(packet_list_, &PacketList::showColumnPreferences, this, &LograyMainWindow::showPreferencesDialog);
+    connect(packet_list_, &PacketList::showProtocolPreferences, this, &LograyMainWindow::showPreferencesDialog);
     connect(packet_list_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
-    connect(packet_list_, SIGNAL(editColumn(int)), this, SLOT(showColumnEditor(int)));
-    connect(main_ui_->columnEditorFrame, SIGNAL(columnEdited()),
-            packet_list_, SLOT(columnsChanged()));
-    connect(packet_list_, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(openPacketDialog()));
-    connect(packet_list_, SIGNAL(packetListScrolled(bool)),
-            main_ui_->actionGoAutoScroll, SLOT(setChecked(bool)));
+    connect(packet_list_, &PacketList::editColumn, this, &LograyMainWindow::showColumnEditor);
+    connect(main_ui_->columnEditorFrame, &ColumnEditorFrame::columnEdited, packet_list_, &PacketList::columnsChanged);
+    connect(packet_list_, &QAbstractItemView::doubleClicked, this, [=](const QModelIndex &){ openPacketDialog(); });
+    connect(packet_list_, &PacketList::packetListScrolled, main_ui_->actionGoAutoScroll, &QAction::setChecked);
 
-    connect(proto_tree_, SIGNAL(openPacketInNewWindow(bool)),
-            this, SLOT(openPacketDialog(bool)));
-    connect(proto_tree_, SIGNAL(showProtocolPreferences(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
+    connect(proto_tree_, &ProtoTree::openPacketInNewWindow, this, &LograyMainWindow::openPacketDialog);
+    connect(proto_tree_, &ProtoTree::showProtocolPreferences, this, &LograyMainWindow::showPreferencesDialog);
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
 
@@ -645,16 +633,13 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
     if (iface_tree) {
-        connect(iface_tree, SIGNAL(itemSelectionChanged()),
-                this, SLOT(interfaceSelectionChanged()));
+        connect(iface_tree, &QTreeWidget::itemSelectionChanged, this, &LograyMainWindow::interfaceSelectionChanged);
     }
-    connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
-            this, SLOT(captureFilterSyntaxChanged(bool)));
+    connect(main_ui_->welcomePage, &WelcomePage::captureFilterSyntaxChanged,
+            this, &LograyMainWindow::captureFilterSyntaxChanged);
 
-    connect(this, SIGNAL(showExtcapOptions(QString&, bool)),
-            this, SLOT(showExtcapOptionsDialog(QString&, bool)));
-    connect(this->welcome_page_, SIGNAL(showExtcapOptions(QString&, bool)),
-            this, SLOT(showExtcapOptionsDialog(QString&, bool)));
+    connect(this, &LograyMainWindow::showExtcapOptions, this, &LograyMainWindow::showExtcapOptionsDialog);
+    connect(this->welcome_page_, &WelcomePage::showExtcapOptions, this, &LograyMainWindow::showExtcapOptionsDialog);
 
 #endif // HAVE_LIBPCAP
 
@@ -767,8 +752,8 @@ void LograyMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     menu->insertAction(before, action);
 
     InterfaceToolbar *interface_toolbar = new InterfaceToolbar(this, toolbar_entry);
-    connect(mainApp, SIGNAL(appInitialized()), interface_toolbar, SLOT(interfaceListChanged()));
-    connect(mainApp, SIGNAL(localInterfaceListChanged()), interface_toolbar, SLOT(interfaceListChanged()));
+    connect(mainApp, &MainApplication::appInitialized, interface_toolbar, &InterfaceToolbar::interfaceListChanged);
+    connect(mainApp, &MainApplication::localInterfaceListChanged, interface_toolbar, &InterfaceToolbar::interfaceListChanged);
 
     QToolBar *toolbar = new QToolBar(this);
     toolbar->addWidget(interface_toolbar);
@@ -2064,7 +2049,7 @@ void LograyMainWindow::initShowHideMainWidgets()
     /* Initially hide the additional toolbars menus */
     main_ui_->menuAdditionalToolbars->menuAction()->setVisible(false);
 
-    connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
+    connect(show_hide_actions_, &QActionGroup::triggered, this, &LograyMainWindow::showHideMainWidgets);
 }
 
 void LograyMainWindow::initTimeDisplayFormatMenu()
@@ -2091,7 +2076,7 @@ void LograyMainWindow::initTimeDisplayFormatMenu()
         time_display_actions_->addAction(tda);
     }
 
-    connect(time_display_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampFormat(QAction*)));
+    connect(time_display_actions_, &QActionGroup::triggered, this, &LograyMainWindow::setTimestampFormat);
 }
 
 void LograyMainWindow::initTimePrecisionFormatMenu()
@@ -2119,7 +2104,7 @@ void LograyMainWindow::initTimePrecisionFormatMenu()
         time_precision_actions_->addAction(tpa);
     }
 
-    connect(time_precision_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampPrecision(QAction*)));
+    connect(time_precision_actions_, &QActionGroup::triggered, this, &LograyMainWindow::setTimestampPrecision);
 }
 
 // Menu items which will be disabled when we freeze() and whose state will
@@ -2160,8 +2145,8 @@ void LograyMainWindow::initConversationMenus()
         ConversationAction *conv_action = new ConversationAction(main_ui_->menuConversationFilter, conv_filter);
         main_ui_->menuConversationFilter->addAction(conv_action);
 
-        connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()), Qt::QueuedConnection);
+        connect(this, &LograyMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
+        connect(conv_action, &ConversationAction::triggered, this, &LograyMainWindow::applyConversationFilter, Qt::QueuedConnection);
 
         // Packet list context menu items
         packet_list_->conversationMenu()->addAction(conv_action);
@@ -2175,15 +2160,15 @@ void LograyMainWindow::initConversationMenus()
             conv_action->setIcon(cc_action->icon());
             conv_action->setColorNumber(i++);
             submenu->addAction(conv_action);
-            connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-            connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
+            connect(this, &LograyMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
+            connect(conv_action, &ConversationAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
         }
 
         conv_action = new ConversationAction(submenu, conv_filter);
         conv_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
         submenu->addAction(conv_action);
-        connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-        connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
+        connect(this, &LograyMainWindow::packetInfoChanged, conv_action, &ConversationAction::setPacketInfo);
+        connect(conv_action, &ConversationAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
 
         // Proto tree conversation menu is filled in in ProtoTree::contextMenuEvent.
         // We should probably do that here.
@@ -2198,15 +2183,15 @@ void LograyMainWindow::initConversationMenus()
         colorize_action->setIcon(cc_action->icon());
         colorize_action->setColorNumber(i++);
         proto_tree_->colorizeMenu()->addAction(colorize_action);
-        connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
-        connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
+        connect(this, &LograyMainWindow::fieldFilterChanged, colorize_action, &ColorizeAction::setFieldFilter);
+        connect(colorize_action, &ColorizeAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
     }
 
     colorize_action = new ColorizeAction(proto_tree_->colorizeMenu());
     colorize_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
     proto_tree_->colorizeMenu()->addAction(colorize_action);
-    connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
-    connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
+    connect(this, &LograyMainWindow::fieldFilterChanged, colorize_action, &ColorizeAction::setFieldFilter);
+    connect(colorize_action, &ColorizeAction::triggered, this, &LograyMainWindow::colorizeActionTriggered);
 }
 
 bool LograyMainWindow::addFollowStreamMenuItem(const void *key _U_, void *value, void *userdata)
@@ -2627,9 +2612,9 @@ void LograyMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
         // distinguish various types of actions. Setting their objectName
         // seems to work OK.
         if (action->objectName() == TapParameterDialog::actionName()) {
-            connect(action, SIGNAL(triggered(bool)), this, SLOT(openTapParameterDialog()));
+            connect(action, &QAction::triggered, this, [=]() { openTapParameterDialog(); });
         } else if (action->objectName() == FunnelStatistics::actionName()) {
-            connect(action, SIGNAL(triggered(bool)), funnel_statistics_, SLOT(funnelActionTriggered()));
+            connect(action, &QAction::triggered, funnel_statistics_, &FunnelStatistics::funnelActionTriggered);
         }
     }
 }
