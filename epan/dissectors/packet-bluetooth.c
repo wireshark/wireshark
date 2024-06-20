@@ -6108,12 +6108,12 @@ proto_register_btad_matter(void)
         },
         { &hf_btad_matter_flags_additional_data,
           { "Additional Data", "bluetooth.matter.flags.additional_data",
-            FT_UINT8, BASE_HEX, NULL, 0x01,
+            FT_BOOLEAN, 8, NULL, 0x01,
             "Set if the device provides the optional C3 GATT characteristic", HFILL }
         },
         { &hf_btad_matter_flags_ext_announcement,
           { "Extended Announcement", "bluetooth.matter.flags.ext_announcement",
-            FT_UINT8, BASE_HEX, NULL, 0x02,
+            FT_BOOLEAN, 8, NULL, 0x02,
             "Set while the device is in the Extended Announcement period", HFILL }
         },
     };
