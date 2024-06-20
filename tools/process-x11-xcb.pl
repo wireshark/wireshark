@@ -732,11 +732,11 @@ sub register_element($$$$;$)
         if ($refref->{field}{$fieldname} and get_simple_info($type)) {
             # Pre-declare variable
             if ($ft eq 'FT_FLOAT') {
-                print $impl $indent."gfloat f_$fieldname;\n";
+                print $impl $indent."float f_$fieldname;\n";
             } elsif ($ft eq 'FT_DOUBLE') {
-                print $impl $indent."gdouble f_$fieldname;\n";
+                print $impl $indent."double f_$fieldname;\n";
             } elsif ($ft eq 'FT_INT64' or $ft eq 'FT_UINT64') {
-                print $impl $indent."gint64 f_$fieldname;\n";
+                print $impl $indent."int64_t f_$fieldname;\n";
             } else {
                 print $impl $indent."int f_$fieldname;\n";
             }
