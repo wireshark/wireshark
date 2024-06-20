@@ -4224,7 +4224,7 @@ cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
     proto_tree* cigi_packet_tree = NULL;
     proto_item* tipacket;
-    int hf_cigi2_packet = -1;
+    int hf_cigi2_packet;
 
     length = tvb_reported_length(tvb);
 
@@ -4450,7 +4450,7 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
     proto_tree* cigi_packet_tree = NULL;
     proto_item* tipacket;
-    int hf_cigi3_packet = -1;
+    int hf_cigi3_packet;
 
     length = tvb_reported_length(tvb);
 
@@ -9662,7 +9662,7 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
     proto_tree* cigi_packet_tree = NULL;
     proto_item* tipacket;
-    int hf_cigi4_packet = -1;
+    int hf_cigi4_packet;
 
     length = tvb_reported_length(tvb);
 

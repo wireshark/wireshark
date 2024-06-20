@@ -2160,9 +2160,9 @@ dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *ktype_pi = NULL; // Avoid a false positive warning.
     gint32 ktype, vtype;
     gint32 container_len, i;
-    int ett = -1;
-    int hf_container = -1;
-    int hf_num_item = -1;
+    int ett = 0;
+    int hf_container = 0;
+    int hf_num_item = 0;
     int hf_vtype = hf_thrift_type;
     int min_len = TBP_THRIFT_LINEAR_LEN;
     guint nested_count = p_get_proto_depth(pinfo, proto_thrift);

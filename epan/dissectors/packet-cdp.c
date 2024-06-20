@@ -1062,7 +1062,7 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
     int         nlpid = 0;
     guint16     address_length;
     guint16     etypeid = 0;
-    int         hf_addr = -1;
+    int         hf_addr = 0;
 
     if (length < 1)
         return -1;
@@ -1155,7 +1155,7 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
         }
     }
 
-    if (hf_addr == -1)
+    if (hf_addr == 0)
     {
         proto_tree_add_item(address_tree, hf_cdp_address, tvb, offset, address_length, ENC_NA);
         if(address_length)

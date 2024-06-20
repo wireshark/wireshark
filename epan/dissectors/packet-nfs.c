@@ -6326,7 +6326,7 @@ dissect_nfs4_bitmap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	const char *name)
 {
 	int attr_offset;
-	int hf_item = -1;
+	int hf_item = 0;
 	guint32  i, j;
 	guint32  count;
 	guint32  bitmap;

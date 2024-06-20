@@ -2512,7 +2512,7 @@ update_dynamic_hf_entry(hf_register_info *hf_array, int pos, guint32 data_type, 
     }
 
     hf_id = g_new(gint, 1);
-    *hf_id = -1;
+    *hf_id = 0;
     hf_array[pos].p_id = hf_id;
 
     hf_array[pos].hfinfo.strings = NULL;
@@ -2852,7 +2852,7 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     gboolean    big_endian = TRUE;
 
-    int         hf_id = -1;
+    int         hf_id = 0;
 
     if (hf_id_ptr != NULL) {
         hf_id = *hf_id_ptr;

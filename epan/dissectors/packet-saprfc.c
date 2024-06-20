@@ -346,7 +346,7 @@ static int hf_saprfc_header_sequence_no;
 static int hf_saprfc_header_sap_params_len;
 static int hf_saprfc_header_info;
 static int hf_saprfc_header_info_SYNC_CPIC_FUNCTION;
-static int hf_saprfc_header_info_WITH_HOSTADDR	= -1;
+static int hf_saprfc_header_info_WITH_HOSTADDR;
 static int hf_saprfc_header_info_WITH_GW_SAP_PARAMS_HDR;
 static int hf_saprfc_header_info_CPIC_SYNC_REQ;
 static int hf_saprfc_header_info_WITH_ERR_INFO;

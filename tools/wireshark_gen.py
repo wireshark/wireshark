@@ -2014,9 +2014,9 @@ void proto_register_giop_@dissector_name@(void)
 
     template_proto_register_ei_filters = """\
         /* Expert info filters */
-static expert_field ei_@dissector_name@_unknown_giop_msg = EI_INIT;
-static expert_field ei_@dissector_name@_unknown_exception = EI_INIT;
-static expert_field ei_@dissector_name@_unknown_reply_status = EI_INIT;
+static expert_field ei_@dissector_name@_unknown_giop_msg;
+static expert_field ei_@dissector_name@_unknown_exception;
+static expert_field ei_@dissector_name@_unknown_reply_status;
 """
 
     # template for delegation code

@@ -1605,8 +1605,8 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 	{
 		gchar **typval;
 		guint tokenlen;
-		int hf_uint = -1;
-		int hf_string = -1;
+		int hf_uint = 0;
+		int hf_string = 0;
 
 		tokenlen = (int)strlen(tokens[i]);
 		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
@@ -1658,11 +1658,6 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 			else if (!g_ascii_strncasecmp(g_strstrip(typval[0]), "X-", 2))
 			{
 				hf_string = hf_mgcp_param_connectionparam_x;
-			}
-			else
-			{
-				hf_uint = -1;
-				hf_string = -1;
 			}
 
 			if (hf_uint > 0)

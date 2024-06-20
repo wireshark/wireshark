@@ -682,7 +682,7 @@ header_fields_post_update_cb(void)
 
         for (guint i = 0; i < num_header_fields; i++) {
             hf_id = g_new(gint,1);
-            *hf_id = -1;
+            *hf_id = 0;
             header_name = g_strdup(header_fields[i].header_name);
             header_name_key = g_ascii_strdown(header_name, -1);
 
@@ -1945,7 +1945,7 @@ try_append_method_path_info(packet_info *pinfo, proto_tree *tree,
 static proto_item*
 try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 length, const char *header_name, const char *header_value)
 {
-    int hf_id = -1;
+    int hf_id;
     header_field_info *hfi;
     proto_item* ti = NULL;
 

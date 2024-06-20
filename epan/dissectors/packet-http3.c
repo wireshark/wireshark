@@ -833,7 +833,7 @@ static proto_item *
 try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 length, const char *header_name,
                            const char *header_value)
 {
-    int                hf_id = -1;
+    int                hf_id;
     header_field_info *hfi;
     proto_item        *ti = NULL;
 

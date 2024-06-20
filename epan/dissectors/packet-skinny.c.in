@@ -156,7 +156,7 @@ static int hf_skinny_response_time;
 
 /* [[[cog
 for key in sorted(xml2skinny.fieldsArray.keys()):
-    cog.out('static int hf_skinny_%s = -1;\n' %key)
+    cog.out('static int hf_skinny_%s;\n' %key)
 ]]]*/
 /*[[[end]]]*/
 

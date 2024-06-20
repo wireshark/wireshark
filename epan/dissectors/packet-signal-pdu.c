@@ -880,7 +880,7 @@ deregister_user_data_hfarray(hf_register_info **hf_array, guint *number_of_entri
         /* Unregister all fields */
         for (guint i = 0; i < dynamic_hf_size; i++) {
             if (dynamic_hf[i].p_id != NULL) {
-                if (*(dynamic_hf[i].p_id) != -1) {
+                if (*(dynamic_hf[i].p_id) > 0) {
                     proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
                 }
                 g_free(dynamic_hf[i].p_id);
@@ -914,7 +914,7 @@ create_hf_entry(hf_register_info *dynamic_hf, guint i, guint32 id, guint32 pos, 
     val64_string *vs = NULL;
 
     gint *hf_id = g_new(gint, 1);
-    *hf_id = -1;
+    *hf_id = 0;
 
     spdu_signal_value_name_t *sig_val = get_signal_value_name_config(id, pos);
     if (sig_val != NULL) {
@@ -952,7 +952,7 @@ create_hf_entry(hf_register_info *dynamic_hf, guint i, guint32 id, guint32 pos, 
 
     case HF_TYPE_NONE:
     default:
-        /* we bail out but have set hf_id to -1 before */
+        /* we bail out but have set hf_id to 0 before */
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_none", name);
         dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_none", SPDU_NAME_FILTER, filter_string);
         return hf_id;
@@ -2215,8 +2215,8 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *subtree = NULL;
 
     gchar      *value_name = NULL;
-    gint        hf_id_effective = -1;
-    gint        hf_id_raw = -1;
+    gint        hf_id_effective = 0;
+    gint        hf_id_raw = 0;
 
     gint offset_end = (gint)((8 * offset + offset_bits + item->bitlength_encoded_type) / 8);
     gint offset_end_bits = (gint)((8 * offset + offset_bits + item->bitlength_encoded_type) % 8);
