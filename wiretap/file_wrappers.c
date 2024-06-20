@@ -382,6 +382,14 @@ fast_seek_reset(
 #endif /* HAVE_ZLIB */
 }
 
+static bool
+uncompressed_fill_out_buffer(FILE_T state)
+{
+    if (buf_read(state, &state->out) < 0)
+        return false;
+    return true;
+}
+
 #ifdef USE_ZLIB_OR_ZLIBNG
 
 /* Get next byte from input, or -1 if end or error.
@@ -562,7 +570,7 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, int
 }
 
 static void /* gz_decomp */
-zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
+zlib_fill_out_buffer(FILE_T state)
 {
     int ret = 0;        /* XXX */
     uint32_t crc, len;
@@ -571,6 +579,8 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 #else /* HAVE_ZLIBNG */
     z_streamp strm = &(state->strm);
 #endif /* HAVE_ZLIBNG */
+    unsigned char *buf = state->out.buf;
+    unsigned int count = state->size << 1;
 
     unsigned char *buf2 = buf;
     unsigned int count2 = count;
@@ -699,6 +709,74 @@ DIAG_ON(cast-qual)
 }
 #endif /* USE_ZLIB_OR_ZLIBNG */
 
+#ifdef HAVE_ZSTD
+static bool
+zstd_fill_out_buffer(FILE_T state)
+{
+    ws_assert(state->out.avail == 0);
+
+    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+        return false;
+
+    ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
+    ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
+    const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
+    if (ZSTD_isError(ret)) {
+        state->err = WTAP_ERR_DECOMPRESS;
+        state->err_info = ZSTD_getErrorName(ret);
+        return false;
+    }
+
+    state->in.next = state->in.next + input.pos;
+    state->in.avail -= (unsigned)input.pos;
+
+    state->out.next = output.dst;
+    state->out.avail = (unsigned)output.pos;
+
+    if (ret == 0) {
+        state->last_compression = state->compression;
+        state->compression = UNKNOWN;
+    }
+    return true;
+}
+#endif /* HAVE_ZSTD */
+
+#ifdef USE_LZ4
+static bool
+lz4_fill_out_buffer(FILE_T state)
+{
+    ws_assert(state->out.avail == 0);
+
+    if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+        return false;
+
+    size_t outBufSize = state->size << 1;
+    size_t inBufSize = state->in.avail;
+    const size_t ret = LZ4F_decompress(state->lz4_dctx, state->out.buf, &outBufSize, state->in.next, &inBufSize, NULL);
+    if (LZ4F_isError(ret)) {
+        state->err = WTAP_ERR_DECOMPRESS;
+        state->err_info = LZ4F_getErrorName(ret);
+        return false;
+    }
+
+    /*
+     * We assume LZ4F_decompress() will not set inBufSize to a
+     * value > state->in.avail.
+     */
+    state->in.next = state->in.next + inBufSize;
+    state->in.avail -= (unsigned)inBufSize;
+
+    state->out.next = state->out.buf;
+    state->out.avail = (unsigned)outBufSize;
+
+    if (ret == 0) {
+        state->last_compression = state->compression;
+        state->compression = UNKNOWN;
+    }
+    return true;
+}
+#endif /* USE_LZ4 */
+
 /*
  * Used when we haven't yet determined whether we have a compressed file
  * and, if we do, what sort of compressed file it is.
@@ -716,10 +794,8 @@ check_for_compression(FILE_T state)
             return 0;
     }
 
-    /* look for the gzip magic header bytes 31 and 139 */
-
     /*
-     * Look for the gzip header.
+     * Look for the gzip header.  The first two bytes are 31 and 139:
      *
      * https://tools.ietf.org/html/rfc1952 (RFC 1952)
      *
@@ -1004,79 +1080,42 @@ fill_out_buffer(FILE_T state)
      * We got no data from check_for_compression(), or we didn't call
      * it as we already know the compression type, so read some more
      * data.
-     *
-     * We do, however, know whether the file is compressed and, if so,
-     * what the compression type is.
      */
-    if (state->compression == UNCOMPRESSED) {           /* straight copy */
-        if (buf_read(state, &state->out) < 0)
+    switch (state->compression) {
+
+    case UNCOMPRESSED:
+        /* straight copy */
+        if (!uncompressed_fill_out_buffer(state))
             return -1;
-    }
+        break;
+
 #ifdef USE_ZLIB_OR_ZLIBNG
-    else if (state->compression == ZLIB) {      /* decompress */
-        zlib_read(state, state->out.buf, state->size << 1);
-    }
+    case ZLIB:
+        /* zlib (gzip) decompress */
+        zlib_fill_out_buffer(state);
+        break;
 #endif /* USE_ZLIB_OR_ZLIBNG */
+
 #ifdef HAVE_ZSTD
-    else if (state->compression == ZSTD) {
-        ws_assert(state->out.avail == 0);
-
-        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+    case ZSTD:
+        /* zstd decompress */
+        if (!zstd_fill_out_buffer(state))
             return -1;
-
-        ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
-        ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
-        const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
-        if (ZSTD_isError(ret)) {
-            state->err = WTAP_ERR_DECOMPRESS;
-            state->err_info = ZSTD_getErrorName(ret);
-            return -1;
-        }
-
-        state->in.next = state->in.next + input.pos;
-        state->in.avail -= (unsigned)input.pos;
-
-        state->out.next = output.dst;
-        state->out.avail = (unsigned)output.pos;
-
-        if (ret == 0) {
-            state->last_compression = state->compression;
-            state->compression = UNKNOWN;
-        }
-    }
+        break;
 #endif /* HAVE_ZSTD */
+
 #ifdef USE_LZ4
-    else if (state->compression == LZ4) {
-        ws_assert(state->out.avail == 0);
-
-        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+    case LZ4:
+        /* lz4 decompress */
+        if (!lz4_fill_out_buffer(state))
             return -1;
-
-        size_t outBufSize = state->size << 1;
-        size_t inBufSize = state->in.avail;
-        const size_t ret = LZ4F_decompress(state->lz4_dctx, state->out.buf, &outBufSize, state->in.next, &inBufSize, NULL);
-        if (LZ4F_isError(ret)) {
-            state->err = WTAP_ERR_DECOMPRESS;
-            state->err_info = LZ4F_getErrorName(ret);
-            return -1;
-        }
-
-        /*
-         * We assume LZ4F_decompress() will not set inBufSize to a
-         * value > state->in.avail.
-         */
-        state->in.next = state->in.next + inBufSize;
-        state->in.avail -= (unsigned)inBufSize;
-
-        state->out.next = state->out.buf;
-        state->out.avail = (unsigned)outBufSize;
-
-        if (ret == 0) {
-            state->last_compression = state->compression;
-            state->compression = UNKNOWN;
-        }
-    }
+        break;
 #endif /* USE_LZ4 */
+
+    default:
+        /* Unknown compression type; keep reading */
+        break;
+    }
     return 0;
 }
 
