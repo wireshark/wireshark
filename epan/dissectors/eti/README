@@ -1,0 +1,11 @@
+These XML files can be downloaded from links provided at the GitHub repository
+of Georg Sauthoff, the author of eti2wireshark.py,
+    https://github.com/gsauthof/python-eti
+
+The current dissectors checked in are based on version 10.0 of the protocols.
+
+The dissectors can be regenerated with calls:
+
+    eti2wireshark.py eti_Derivatives.xml -o ..\packet-eti.c
+    eti2wireshark.py --proto eobi --desc 'Enhanced Order Book Interface' eobi.xml -o .\\packet-eobi.c
+    eti2wireshark.py --proto xti --desc 'Enhanced Cash Trading Interface' eti_Cash.xml -o .\\packet-xti.c
